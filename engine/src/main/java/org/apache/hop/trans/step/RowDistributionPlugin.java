@@ -32,7 +32,6 @@ import java.lang.annotation.Target;
  * This annotation signals to the plugin system that the class is a row distribution plugin.
  *
  * @author matt
- *
  */
 @Documented
 @Retention( RetentionPolicy.RUNTIME )

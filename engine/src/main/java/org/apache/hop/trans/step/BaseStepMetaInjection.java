@@ -22,9 +22,9 @@
 
 package org.apache.hop.trans.step;
 
-import java.util.List;
-
 import org.apache.hop.core.row.ValueMetaInterface;
+
+import java.util.List;
 
 public class BaseStepMetaInjection {
 
@@ -35,8 +35,8 @@ public class BaseStepMetaInjection {
   }
 
   protected void addNestedStepMetaInjectionEntries( List<StepInjectionMetaEntry> list,
-    StepMetaInjectionEnumEntry[] allEntries, StepMetaInjectionEnumEntry itemsEntry,
-    StepMetaInjectionEnumEntry itemEntry ) {
+                                                    StepMetaInjectionEnumEntry[] allEntries, StepMetaInjectionEnumEntry itemsEntry,
+                                                    StepMetaInjectionEnumEntry itemEntry ) {
 
     StepInjectionMetaEntry fieldsEntry = createStepMetaInjectionEntry( itemsEntry );
     list.add( fieldsEntry );
@@ -51,7 +51,7 @@ public class BaseStepMetaInjection {
   }
 
   protected void addTopLevelStepMetaInjectionEntries( List<StepInjectionMetaEntry> list,
-    StepMetaInjectionEnumEntry[] allEntries ) {
+                                                      StepMetaInjectionEnumEntry[] allEntries ) {
     for ( StepMetaInjectionEnumEntry entry : allEntries ) {
       if ( entry.getParent() == null && entry.getValueType() != ValueMetaInterface.TYPE_NONE ) {
         list.add( createStepMetaInjectionEntry( entry ) );

@@ -126,7 +126,7 @@ public class NamedParamsDefault implements NamedParams {
   public String[] listParameters() {
     Set<String> keySet = params.keySet();
 
-    String[] paramArray = keySet.toArray( new String[0] );
+    String[] paramArray = keySet.toArray( new String[ 0 ] );
     Arrays.sort( paramArray );
 
     return paramArray;
@@ -149,7 +149,7 @@ public class NamedParamsDefault implements NamedParams {
   public void clearParameters() {
     String[] keys = listParameters();
     for ( int idx = 0; idx < keys.length; idx++ ) {
-      OneNamedParam theParam = params.get( keys[idx] );
+      OneNamedParam theParam = params.get( keys[ idx ] );
       if ( theParam != null ) {
         theParam.value = "";
       }
@@ -169,29 +169,29 @@ public class NamedParamsDefault implements NamedParams {
       for ( int idx = 0; idx < keys.length; idx++ ) {
         String desc;
         try {
-          desc = aParam.getParameterDescription( keys[idx] );
+          desc = aParam.getParameterDescription( keys[ idx ] );
         } catch ( UnknownParamException e ) {
           desc = "";
         }
         String defValue;
         try {
-          defValue = aParam.getParameterDefault( keys[idx] );
+          defValue = aParam.getParameterDefault( keys[ idx ] );
         } catch ( UnknownParamException e ) {
           defValue = "";
         }
         String value;
         try {
-          value = aParam.getParameterValue( keys[idx] );
+          value = aParam.getParameterValue( keys[ idx ] );
         } catch ( UnknownParamException e ) {
           value = "";
         }
 
         try {
-          addParameterDefinition( keys[idx], defValue, desc );
+          addParameterDefinition( keys[ idx ], defValue, desc );
         } catch ( DuplicateParamException e ) {
           // Do nothing, just overwrite.
         }
-        setParameterValue( keys[idx], value );
+        setParameterValue( keys[ idx ], value );
       }
     }
   }

@@ -22,16 +22,16 @@
 
 package org.apache.hop.trans.step;
 
-import static org.junit.Assert.fail;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 
-import org.junit.Test;
+import static org.junit.Assert.fail;
 
 public class BaseStepMetaTest {
-  
+
   @Test
   public void testLoadStepAttributes_closeInputStream() throws Exception {
     BaseStepMeta meta = new BaseStepMeta();

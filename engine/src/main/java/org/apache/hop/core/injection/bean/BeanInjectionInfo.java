@@ -22,6 +22,13 @@
 
 package org.apache.hop.core.injection.bean;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.injection.Injection;
+import org.apache.hop.core.injection.InjectionSupported;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.i18n.BaseMessages;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,25 +37,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.i18n.BaseMessages;
-
 /**
  * Storage for bean annotations info for Metadata Injection and Load/Save.
  */
 public class BeanInjectionInfo {
   private static LogChannelInterface LOG =
-      HopLogStore.getLogChannelInterfaceFactory().create( BeanInjectionInfo.class );
+    HopLogStore.getLogChannelInterfaceFactory().create( BeanInjectionInfo.class );
 
   protected final Class<?> clazz;
   private final InjectionSupported clazzAnnotation;
   private Map<String, Property> properties = new HashMap<>();
   private List<Group> groupsList = new ArrayList<>();
-  /** Used only for fast group search during initialize. */
+  /**
+   * Used only for fast group search during initialize.
+   */
   private Map<String, Group> groupsMap = new HashMap<>();
   private Set<String> hideProperties = new HashSet<>();
 
@@ -123,7 +125,7 @@ public class BeanInjectionInfo {
     Group gr = groupsMap.get( metaInj.group() );
     if ( gr == null ) {
       throw new RuntimeException( "Group '" + metaInj.group() + "' for property '" + metaInj.name()
-          + "' is not defined " + clazz );
+        + "' is not defined " + clazz );
     }
     gr.groupProperties.add( prop );
   }

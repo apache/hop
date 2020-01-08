@@ -22,41 +22,36 @@
 
 package org.apache.hop.job;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.ClassLoadingPluginInterface;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.job.entries.trans.JobEntryTrans;
+import org.apache.hop.job.entry.JobEntryCopy;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.trans.TransMeta;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.plugins.ClassLoadingPluginInterface;
-import org.apache.hop.core.plugins.PluginInterface;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.job.entries.trans.JobEntryTrans;
-import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class JobExecutionConfigurationTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  public interface MockRepositoryPlugin extends PluginInterface, ClassLoadingPluginInterface { }
+  public interface MockRepositoryPlugin extends PluginInterface, ClassLoadingPluginInterface {
+  }
 
   @Test
   public void testDefaultPassedBatchId() {
@@ -130,15 +125,15 @@ public class JobExecutionConfigurationTest {
   @Test
   public void testGetUsedArguments() throws HopException {
     JobExecutionConfiguration executionConfiguration = new JobExecutionConfiguration();
-    JobMeta jobMeta = new JobMeta(  );
-    jobMeta.jobcopies = new ArrayList<>(  );
+    JobMeta jobMeta = new JobMeta();
+    jobMeta.jobcopies = new ArrayList<>();
     String[] commandLineArguments = new String[ 0 ];
     IMetaStore metaStore = mock( IMetaStore.class );
 
-    JobEntryCopy jobEntryCopy0 = new JobEntryCopy(  );
+    JobEntryCopy jobEntryCopy0 = new JobEntryCopy();
 
     TransMeta transMeta0 = mock( TransMeta.class );
-    Map<String, String> map0 = new HashMap<>(  );
+    Map<String, String> map0 = new HashMap<>();
     map0.put( "arg0", "argument0" );
     when( transMeta0.getUsedArguments( commandLineArguments ) ).thenReturn( map0 );
 
@@ -149,10 +144,10 @@ public class JobExecutionConfigurationTest {
     jobMeta.jobcopies.add( jobEntryCopy0 );
 
 
-    JobEntryCopy jobEntryCopy1 = new JobEntryCopy(  );
+    JobEntryCopy jobEntryCopy1 = new JobEntryCopy();
 
     TransMeta transMeta1 = mock( TransMeta.class );
-    Map<String, String> map1 = new HashMap<>(  );
+    Map<String, String> map1 = new HashMap<>();
     map1.put( "arg1", "argument1" );
     when( transMeta1.getUsedArguments( commandLineArguments ) ).thenReturn( map1 );
 
@@ -164,10 +159,10 @@ public class JobExecutionConfigurationTest {
     jobMeta.jobcopies.add( jobEntryCopy1 );
 
 
-    JobEntryCopy jobEntryCopy2 = new JobEntryCopy(  );
+    JobEntryCopy jobEntryCopy2 = new JobEntryCopy();
 
     TransMeta transMeta2 = mock( TransMeta.class );
-    Map<String, String> map2 = new HashMap<>(  );
+    Map<String, String> map2 = new HashMap<>();
     map2.put( "arg1", "argument1" );
     map2.put( "arg2", "argument2" );
     when( transMeta2.getUsedArguments( commandLineArguments ) ).thenReturn( map2 );
@@ -187,14 +182,14 @@ public class JobExecutionConfigurationTest {
   @Test
   public void testGetUsedVariablesWithNoPreviousExecutionConfigurationVariables() throws HopException {
     JobExecutionConfiguration executionConfiguration = new JobExecutionConfiguration();
-    Map<String, String> variables0 =  new HashMap<>();
+    Map<String, String> variables0 = new HashMap<>();
 
     executionConfiguration.setVariables( variables0 );
 
     JobMeta jobMeta0 = mock( JobMeta.class );
-    List<String> list0 =  new ArrayList<String>();
+    List<String> list0 = new ArrayList<String>();
     list0.add( "var1" );
-    when( jobMeta0.getUsedVariables(  ) ).thenReturn( list0 );
+    when( jobMeta0.getUsedVariables() ).thenReturn( list0 );
     // Const.INTERNAL_VARIABLE_PREFIX values
     when( jobMeta0.getVariable( anyString() ) ).thenReturn( "internalDummyValue" );
 
@@ -209,14 +204,14 @@ public class JobExecutionConfigurationTest {
   @Test
   public void testGetUsedVariablesWithSamePreviousExecutionConfigurationVariables() throws HopException {
     JobExecutionConfiguration executionConfiguration = new JobExecutionConfiguration();
-    Map<String, String> variables0 =  new HashMap<>();
+    Map<String, String> variables0 = new HashMap<>();
     variables0.put( "var1", "valueVar1" );
     executionConfiguration.setVariables( variables0 );
 
     JobMeta jobMeta0 = mock( JobMeta.class );
-    List<String> list0 =  new ArrayList<String>();
+    List<String> list0 = new ArrayList<String>();
     list0.add( "var1" );
-    when( jobMeta0.getUsedVariables(  ) ).thenReturn( list0 );
+    when( jobMeta0.getUsedVariables() ).thenReturn( list0 );
     when( jobMeta0.getVariable( anyString() ) ).thenReturn( "internalDummyValue" );
 
     executionConfiguration.getUsedVariables( jobMeta0 );
@@ -230,14 +225,14 @@ public class JobExecutionConfigurationTest {
   @Test
   public void testGetUsedVariablesWithDifferentPreviousExecutionConfigurationVariables() throws HopException {
     JobExecutionConfiguration executionConfiguration = new JobExecutionConfiguration();
-    Map<String, String> variables0 =  new HashMap<>();
+    Map<String, String> variables0 = new HashMap<>();
     variables0.put( "var2", "valueVar2" );
     executionConfiguration.setVariables( variables0 );
 
     JobMeta jobMeta0 = mock( JobMeta.class );
-    List<String> list0 =  new ArrayList<String>();
+    List<String> list0 = new ArrayList<String>();
     list0.add( "var1" );
-    when( jobMeta0.getUsedVariables(  ) ).thenReturn( list0 );
+    when( jobMeta0.getUsedVariables() ).thenReturn( list0 );
     when( jobMeta0.getVariable( anyString() ) ).thenReturn( "internalDummyValue" );
 
     executionConfiguration.getUsedVariables( jobMeta0 );

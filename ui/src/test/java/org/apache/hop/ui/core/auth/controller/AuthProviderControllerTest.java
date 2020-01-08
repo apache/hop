@@ -22,12 +22,12 @@
 
 package org.apache.hop.ui.core.auth.controller;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.auth.AuthHarness;
 import org.apache.hop.ui.core.auth.AuthProviderDialog;
 import org.apache.hop.ui.core.auth.model.NamedProvider;
+import org.junit.Before;
+import org.junit.Test;
 import org.pentaho.ui.xul.binding.BindingFactory;
 import org.pentaho.ui.xul.swt.SwtBindingFactory;
 
@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import static org.junit.Assert.assertEquals;
-
 
 
 /**
@@ -66,7 +65,7 @@ public class AuthProviderControllerTest {
   public void setup() {
 
     BindingFactory bf = new SwtBindingFactory();
-    controller = new AuthProviderController(  );
+    controller = new AuthProviderController();
     controller.setResourceBundle( resourceBundle );
     providers = AuthHarness.getProviders( bf );
 

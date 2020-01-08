@@ -34,7 +34,7 @@ import static org.mockito.Mockito.mock;
  */
 public class JobEntryTransDialogTest {
 
-  private static final String FILE_NAME =  "TestTrans.ktr";
+  private static final String FILE_NAME = "TestTrans.ktr";
 
   JobEntryTransDialog dialog;
 

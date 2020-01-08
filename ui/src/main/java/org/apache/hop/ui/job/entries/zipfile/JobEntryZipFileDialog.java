@@ -22,6 +22,21 @@
 
 package org.apache.hop.ui.job.entries.zipfile;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.zipfile.JobEntryZipFile;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -47,21 +62,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.zipfile.JobEntryZipFile;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * This dialog allows you to edit the Zip File job entry settings.
@@ -72,7 +72,7 @@ import org.apache.hop.ui.trans.step.BaseStepDialog;
 public class JobEntryZipFileDialog extends JobEntryDialog implements JobEntryDialogInterface {
   private static Class<?> PKG = JobEntryZipFile.class; // for i18n purposes, needed by Translator2!!
 
-  private static final String[] FILETYPES = new String[]{
+  private static final String[] FILETYPES = new String[] {
     BaseMessages.getString( PKG, "JobZipFiles.Filetype.Zip" ),
     BaseMessages.getString( PKG, "JobZipFiles.Filetype.All" ) };
 
@@ -502,7 +502,7 @@ public class JobEntryZipFileDialog extends JobEntryDialog implements JobEntryDia
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.SAVE );
         // dialog.setFilterExtensions(new String[] {"*"});
-        dialog.setFilterExtensions( new String[]{ "*.zip;*.ZIP", "*" } );
+        dialog.setFilterExtensions( new String[] { "*.zip;*.ZIP", "*" } );
         if ( wZipFilename.getText() != null ) {
           dialog.setFileName( jobMeta.environmentSubstitute( wZipFilename.getText() ) );
         }
@@ -627,7 +627,7 @@ public class JobEntryZipFileDialog extends JobEntryDialog implements JobEntryDia
     fdDateTimeFormat.right = new FormAttachment( 100, 0 );
     wDateTimeFormat.setLayoutData( fdDateTimeFormat );
     for ( int x = 0; x < dats.length; x++ ) {
-      wDateTimeFormat.add( dats[x] );
+      wDateTimeFormat.add( dats[ x ] );
     }
 
     wbShowFiles = new Button( wZipFile, SWT.PUSH | SWT.CENTER );
@@ -641,8 +641,8 @@ public class JobEntryZipFileDialog extends JobEntryDialog implements JobEntryDia
       public void widgetSelected( SelectionEvent e ) {
         if ( !Utils.isEmpty( wZipFilename.getText() ) ) {
           JobEntryZipFile jobEntry = new JobEntryZipFile();
-          String[] filename = new String[1];
-          filename[0] =
+          String[] filename = new String[ 1 ];
+          filename[ 0 ] =
             jobEntry.getFullFilename(
               wZipFilename.getText(), wAddDate.getSelection(), wAddTime.getSelection(), wSpecifyFormat
                 .getSelection(), wDateTimeFormat.getText() );
@@ -861,7 +861,7 @@ public class JobEntryZipFileDialog extends JobEntryDialog implements JobEntryDia
     fdStoredSourcePathDepth.top = new FormAttachment( wCreateMoveToDirectory, margin );
     fdStoredSourcePathDepth.right = new FormAttachment( 100, 0 );
     wStoredSourcePathDepth.setLayoutData( fdStoredSourcePathDepth );
-    wStoredSourcePathDepth.setItems( new String[]{
+    wStoredSourcePathDepth.setItems( new String[] {
       "0 : /pentaho/work/transfer/input/project/file.txt", "1 : file.txt", "2 : project/file.txt",
       "3 : input/project/file.txt", "4 : transfer/input/project/file.txt",
       "5 : work/transfer/input/project/file.txt", "6 : pentaho/work/transfer/input/project/file.txt",
@@ -949,7 +949,7 @@ public class JobEntryZipFileDialog extends JobEntryDialog implements JobEntryDia
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[]{ wOK, wCancel }, margin, wTabFolder );
+    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wTabFolder );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -1013,7 +1013,7 @@ public class JobEntryZipFileDialog extends JobEntryDialog implements JobEntryDia
     wbSourceFile.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[]{ "*" } );
+        dialog.setFilterExtensions( new String[] { "*" } );
         if ( wSourceDirectory.getText() != null ) {
           dialog.setFileName( jobMeta.environmentSubstitute( wSourceDirectory.getText() ) );
         }

@@ -22,14 +22,9 @@
 
 package org.apache.hop.trans.steps.symmetriccrypto.secretkeygenerator;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -37,10 +32,11 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -48,8 +44,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * Generate secret key. for symmetric algorithms
@@ -98,8 +95,7 @@ public class SecretKeyGeneratorMeta extends BaseStepMeta implements StepMetaInte
   }
 
   /**
-   * @param secretKeyFieldName
-   *          The secretKeyFieldName to set.
+   * @param secretKeyFieldName The secretKeyFieldName to set.
    */
   public void setSecretKeyFieldName( String secretKeyFieldName ) {
     this.secretKeyFieldName = secretKeyFieldName;
@@ -113,8 +109,7 @@ public class SecretKeyGeneratorMeta extends BaseStepMeta implements StepMetaInte
   }
 
   /**
-   * @param outputKeyInBinary
-   *          The outputKeyInBinary to set.
+   * @param outputKeyInBinary The outputKeyInBinary to set.
    */
   public void setOutputKeyInBinary( boolean outputKeyInBinary ) {
     this.outputKeyInBinary = outputKeyInBinary;
@@ -128,8 +123,7 @@ public class SecretKeyGeneratorMeta extends BaseStepMeta implements StepMetaInte
   }
 
   /**
-   * @param secretKeyLengthFieldName
-   *          The secretKeyLengthFieldName to set.
+   * @param secretKeyLengthFieldName The secretKeyLengthFieldName to set.
    */
   public void setSecretKeyLengthFieldName( String secretKeyLengthFieldName ) {
     this.secretKeyLengthFieldName = secretKeyLengthFieldName;
@@ -143,24 +137,21 @@ public class SecretKeyGeneratorMeta extends BaseStepMeta implements StepMetaInte
   }
 
   /**
-   * @param algorithmFieldName
-   *          The algorithmFieldName to set.
+   * @param algorithmFieldName The algorithmFieldName to set.
    */
   public void setAlgorithmFieldName( String algorithmFieldName ) {
     this.algorithmFieldName = algorithmFieldName;
   }
 
   /**
-   * @param fieldName
-   *          The fieldAlgorithm to set.
+   * @param fieldName The fieldAlgorithm to set.
    */
   public void setFieldAlgorithm( String[] fieldName ) {
     this.algorithm = fieldName;
   }
 
   /**
-   * @param scheme
-   *          The scheme to set.
+   * @param scheme The scheme to set.
    */
   public void setScheme( String[] scheme ) {
     this.scheme = scheme;
@@ -185,8 +176,7 @@ public class SecretKeyGeneratorMeta extends BaseStepMeta implements StepMetaInte
   }
 
   /**
-   * @param fieldType
-   *          The fieldType to set.
+   * @param fieldType The fieldType to set.
    * @deprecated mis-named setter
    */
   @Deprecated
@@ -195,8 +185,7 @@ public class SecretKeyGeneratorMeta extends BaseStepMeta implements StepMetaInte
   }
 
   /**
-   * @param secretKeyLength
-   *          The fieldType to set.
+   * @param secretKeyLength The fieldType to set.
    */
   public void setSecretKeyLength( String[] secretKeyLength ) {
     this.secretKeyLength = secretKeyLength;
@@ -208,10 +197,10 @@ public class SecretKeyGeneratorMeta extends BaseStepMeta implements StepMetaInte
   }
 
   public void allocate( int count ) {
-    algorithm = new String[count];
-    scheme = new String[count];
-    secretKeyLength = new String[count];
-    secretKeyCount = new String[count];
+    algorithm = new String[ count ];
+    scheme = new String[ count ];
+    secretKeyLength = new String[ count ];
+    secretKeyCount = new String[ count ];
   }
 
   @Override
@@ -239,10 +228,10 @@ public class SecretKeyGeneratorMeta extends BaseStepMeta implements StepMetaInte
       for ( int i = 0; i < count; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        algorithm[i] = XMLHandler.getTagValue( fnode, "algorithm" );
-        scheme[i] = XMLHandler.getTagValue( fnode, "scheme" );
-        secretKeyLength[i] = XMLHandler.getTagValue( fnode, "secretKeyLen" );
-        secretKeyCount[i] = XMLHandler.getTagValue( fnode, "secretKeyCount" );
+        algorithm[ i ] = XMLHandler.getTagValue( fnode, "algorithm" );
+        scheme[ i ] = XMLHandler.getTagValue( fnode, "scheme" );
+        secretKeyLength[ i ] = XMLHandler.getTagValue( fnode, "secretKeyLen" );
+        secretKeyCount[ i ] = XMLHandler.getTagValue( fnode, "secretKeyCount" );
       }
 
       secretKeyFieldName = XMLHandler.getTagValue( stepnode, "secretKeyFieldName" );
@@ -263,10 +252,10 @@ public class SecretKeyGeneratorMeta extends BaseStepMeta implements StepMetaInte
     allocate( count );
 
     for ( int i = 0; i < count; i++ ) {
-      algorithm[i] = "field" + i;
-      scheme[i] = "";
-      secretKeyLength[i] = "";
-      secretKeyCount[i] = "";
+      algorithm[ i ] = "field" + i;
+      scheme[ i ] = "";
+      secretKeyLength[ i ] = "";
+      secretKeyCount[ i ] = "";
     }
     secretKeyFieldName = BaseMessages.getString( PKG, "SecretKeyGeneratorMeta.secretKeyField" );
     secretKeyLengthFieldName = BaseMessages.getString( PKG, "SecretKeyGeneratorMeta.secretKeyLengthField" );
@@ -277,7 +266,7 @@ public class SecretKeyGeneratorMeta extends BaseStepMeta implements StepMetaInte
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     ValueMetaInterface v;
     if ( isOutputKeyInBinary() ) {
@@ -311,10 +300,10 @@ public class SecretKeyGeneratorMeta extends BaseStepMeta implements StepMetaInte
 
     for ( int i = 0; i < algorithm.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "algorithm", algorithm[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "scheme", scheme[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "secretKeyLen", secretKeyLength[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "secretKeyCount", secretKeyCount[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "algorithm", algorithm[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "scheme", scheme[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "secretKeyLen", secretKeyLength[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "secretKeyCount", secretKeyCount[ i ] ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
     retval.append( "    </fields>" + Const.CR );
@@ -329,19 +318,19 @@ public class SecretKeyGeneratorMeta extends BaseStepMeta implements StepMetaInte
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     // See if we have input streams leading to this step!
     int nrRemarks = remarks.size();
     for ( int i = 0; i < algorithm.length; i++ ) {
-      int len = Const.toInt( transMeta.environmentSubstitute( getSecretKeyLength()[i] ), -1 );
+      int len = Const.toInt( transMeta.environmentSubstitute( getSecretKeyLength()[ i ] ), -1 );
       if ( len < 0 ) {
         CheckResult cr =
           new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
             PKG, "SecretKeyGeneratorMeta.CheckResult.WrongLen", String.valueOf( i ) ), stepMeta );
         remarks.add( cr );
       }
-      int size = Const.toInt( transMeta.environmentSubstitute( getSecretKeyCount()[i] ), -1 );
+      int size = Const.toInt( transMeta.environmentSubstitute( getSecretKeyCount()[ i ] ), -1 );
       if ( size < 0 ) {
         CheckResult cr =
           new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
@@ -366,7 +355,7 @@ public class SecretKeyGeneratorMeta extends BaseStepMeta implements StepMetaInte
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new SecretKeyGenerator( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

@@ -22,29 +22,27 @@
 
 package org.apache.hop.core.row;
 
+import junit.framework.Assert;
+import junit.framework.TestCase;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.trans.steps.calculator.CalculatorMetaFunction;
+import org.junit.Test;
+
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
-import org.apache.commons.lang.StringUtils;
-import org.junit.Test;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.trans.steps.calculator.CalculatorMetaFunction;
-
 /**
  * Not yet completely finished.
  *
  * @author sboden
- *
  */
 public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
   private static String yyyy_MM_dd = "yyyy-MM-dd";
@@ -56,20 +54,20 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
 
   @Override
   protected void setUp() throws Exception {
-    assertEquals(DEFAULT_ROUND_2_MODE, getRound2Mode());
+    assertEquals( DEFAULT_ROUND_2_MODE, getRound2Mode() );
     setRound2Mode( OBSOLETE_ROUND_2_MODE );
-    assertEquals(OBSOLETE_ROUND_2_MODE, getRound2Mode());
+    assertEquals( OBSOLETE_ROUND_2_MODE, getRound2Mode() );
   }
 
   @Override
   protected void tearDown() throws Exception {
     setRound2Mode( ORIGINAL_ROUND_2_MODE );
-    assertEquals(DEFAULT_ROUND_2_MODE, getRound2Mode());
+    assertEquals( DEFAULT_ROUND_2_MODE, getRound2Mode() );
   }
 
   /**
    * Get value of private static field ValueDataUtil.ROUND_2_MODE.
-   * 
+   *
    * @return
    */
   private static int getRound2Mode() {
@@ -88,7 +86,7 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
 
   /**
    * Set new value of value of private static field ValueDataUtil.ROUND_2_MODE.
-   * 
+   *
    * @param newValue
    */
   private static void setRound2Mode( int newValue ) {
@@ -103,13 +101,12 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     }
   }
 
-  
-  
+
   // private enum DateCalc {WORKING_DAYS, DATE_DIFF};
 
   /**
-   * @deprecated Use {@link Const#ltrim(String)} instead
    * @throws HopValueException
+   * @deprecated Use {@link Const#ltrim(String)} instead
    */
   @Deprecated
   public void testLeftTrim() throws HopValueException {
@@ -131,8 +128,8 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
   }
 
   /**
-   * @deprecated Use {@link Const#rtrim(String)} instead
    * @throws HopValueException
+   * @deprecated Use {@link Const#rtrim(String)} instead
    */
   @Deprecated
   public void testRightTrim() throws HopValueException {
@@ -154,8 +151,8 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
   }
 
   /**
-   * @deprecated Use {@link Const#isSpace(char)} instead
    * @throws HopValueException
+   * @deprecated Use {@link Const#isSpace(char)} instead
    */
   @Deprecated
   public void testIsSpace() throws HopValueException {
@@ -169,8 +166,8 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
   }
 
   /**
-   * @deprecated Use {@link Const#trim(String)} instead
    * @throws HopValueException
+   * @deprecated Use {@link Const#trim(String)} instead
    */
   @Deprecated
   public void testTrim() throws HopValueException {
@@ -226,13 +223,13 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
 
   @Test
   public void testPlus() throws HopValueException {
-    
+
     long longValue = 1;
-    
+
     assertEquals( longValue, ValueDataUtil.plus( new ValueMetaInteger(), longValue, new ValueMetaString(), StringUtils.EMPTY ) );
-  
+
   }
-  
+
   public void testAdd() {
 
     // Test Hop number types
@@ -522,80 +519,80 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
 
     // Test Hop number types
     assertEquals( Double.valueOf( "1.0" ), calculate( "1", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( Double.valueOf( "103.0" ), calculate( "103.01", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( Double.valueOf( "1235.0" ), calculate( "1234.6", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
     // half
     assertEquals( Double.valueOf( "1235.0" ), calculate( "1234.5", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( Double.valueOf( "1236.0" ), calculate( "1235.5", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( Double.valueOf( "-1234.0" ), calculate( "-1234.5", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( Double.valueOf( "-1235.0" ), calculate( "-1235.5", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
 
     // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "1" ), calculate( "1", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( Long.valueOf( "2" ), calculate( "2", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( Long.valueOf( "-103" ), calculate( "-103", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
 
     // Test Hop big Number types
     assertEquals( BigDecimal.valueOf( Double.valueOf( "1.0" ) ), calculate( "1", ValueMetaInterface.TYPE_BIGNUMBER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "103.0" ) ), calculate( "103.01",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "1235.0" ) ), calculate( "1234.6",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
     // half
     assertEquals( BigDecimal.valueOf( Double.valueOf( "1235.0" ) ), calculate( "1234.5",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "1236.0" ) ), calculate( "1235.5",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "-1234.0" ) ), calculate( "-1234.5",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "-1235.0" ) ), calculate( "-1235.5",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
   }
 
   public void testRound2() {
 
     // Test Hop number types
     assertEquals( Double.valueOf( "1.0" ), calculate( "1", "1", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Double.valueOf( "2.1" ), calculate( "2.06", "1", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Double.valueOf( "103.0" ), calculate( "103.01", "1", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Double.valueOf( "12.35" ), calculate( "12.346", "2", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     // scale < 0
     assertEquals( Double.valueOf( "10.0" ), calculate( "12.0", "-1", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     // half
     assertEquals( Double.valueOf( "12.34" ), calculate( "12.345", "2", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Double.valueOf( "12.36" ), calculate( "12.355", "2", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Double.valueOf( "-12.34" ), calculate( "-12.345", "2", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Double.valueOf( "-12.36" ), calculate( "-12.355", "2", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
 
     // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "1" ), calculate( "1", "1", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Long.valueOf( "2" ), calculate( "2", "2", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Long.valueOf( "103" ), calculate( "103", "3", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Long.valueOf( "12" ), calculate( "12", "4", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     // scale < 0
     //assertEquals( Long.valueOf( "100" ), calculate( "120", "-2", ValueMetaInterface.TYPE_INTEGER,
     //    CalculatorMetaFunction.CALC_ROUND_2 ) );
@@ -611,25 +608,25 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
 
     // Test Hop big Number types
     assertEquals( BigDecimal.valueOf( Double.valueOf( "1.0" ) ), calculate( "1", "1",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "2.1" ) ), calculate( "2.06", "1",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "103.0" ) ), calculate( "103.01", "1",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "12.35" ) ), calculate( "12.346", "2",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
     // scale < 0
     assertEquals( BigDecimal.valueOf( Double.valueOf( "10.0" ) ), calculate( "12.0", "-1",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
     // half
     assertEquals( BigDecimal.valueOf( Double.valueOf( "12.34" ) ), calculate( "12.345", "2",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "12.36" ) ), calculate( "12.355", "2",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "-12.34" ) ), calculate( "-12.345", "2",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "-12.36" ) ), calculate( "-12.355", "2",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
   }
 
   public void testNVL() {
@@ -722,17 +719,17 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
   }
 
   private Object calculate( String string_dataA, int valueMetaInterfaceType,
-      int calculatorMetaFunction ) {
-      return calculate( string_dataA, null, null, valueMetaInterfaceType, calculatorMetaFunction );
-    }
+                            int calculatorMetaFunction ) {
+    return calculate( string_dataA, null, null, valueMetaInterfaceType, calculatorMetaFunction );
+  }
 
   private Object calculate( String string_dataA, String string_dataB, int valueMetaInterfaceType,
-      int calculatorMetaFunction ) {
-      return calculate( string_dataA, string_dataB, null, valueMetaInterfaceType, calculatorMetaFunction );
-    }
+                            int calculatorMetaFunction ) {
+    return calculate( string_dataA, string_dataB, null, valueMetaInterfaceType, calculatorMetaFunction );
+  }
 
   private Object calculate( String string_dataA, String string_dataB, String string_dataC,
-    int valueMetaInterfaceType, int calculatorMetaFunction ) {
+                            int valueMetaInterfaceType, int calculatorMetaFunction ) {
 
     try {
 
@@ -851,13 +848,14 @@ public class ValueDataUtilBackwardCompatibilityIT extends TestCase {
     ValueMeta valueMeta = new ValueMeta( name, valueType );
     return valueMeta;
   }
-  
-  public static void assertEquals(Object expected, Object actual) {
-    assertEquals("", expected, actual);
+
+  public static void assertEquals( Object expected, Object actual ) {
+    assertEquals( "", expected, actual );
   }
-  public static void assertEquals(String msg, Object expected, Object actual) {
-    if (expected instanceof BigDecimal && actual instanceof BigDecimal) {
-      if (((BigDecimal)expected).compareTo( (BigDecimal)actual ) != 0) {
+
+  public static void assertEquals( String msg, Object expected, Object actual ) {
+    if ( expected instanceof BigDecimal && actual instanceof BigDecimal ) {
+      if ( ( (BigDecimal) expected ).compareTo( (BigDecimal) actual ) != 0 ) {
         Assert.assertEquals( msg, expected, actual );
       }
     } else {

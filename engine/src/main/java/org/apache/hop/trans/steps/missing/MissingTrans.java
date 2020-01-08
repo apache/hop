@@ -56,7 +56,7 @@ public class MissingTrans extends DummyTransMeta {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-      Trans trans ) {
+                                Trans trans ) {
     return new MissingTransStep( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 }

@@ -22,14 +22,14 @@
 
 package org.apache.hop.trans.steps.mailvalidator;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class MailValidatorMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

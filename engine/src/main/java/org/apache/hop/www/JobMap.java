@@ -22,14 +22,14 @@
 
 package org.apache.hop.www;
 
+import org.apache.hop.job.Job;
+import org.apache.hop.job.JobConfiguration;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import org.apache.hop.job.Job;
-import org.apache.hop.job.JobConfiguration;
 
 /**
  * This is a map between the job name and the (running/waiting/finished) job.
@@ -37,7 +37,6 @@ import org.apache.hop.job.JobConfiguration;
  * @author Matt
  * @since 26-SEP-2007
  * @since 3.0.0
- *
  */
 public class JobMap {
   private final Map<HopServerObjectEntry, Job> jobMap;
@@ -63,7 +62,7 @@ public class JobMap {
     configurationMap.put( entry, jobConfiguration );
   }
 
-  public synchronized void replaceJob(HopServerObjectEntry entry, Job job, JobConfiguration jobConfiguration ) {
+  public synchronized void replaceJob( HopServerObjectEntry entry, Job job, JobConfiguration jobConfiguration ) {
     jobMap.put( entry, job );
     configurationMap.put( entry, jobConfiguration );
   }
@@ -84,8 +83,7 @@ public class JobMap {
   }
 
   /**
-   * @param entry
-   *          The HopServer job object
+   * @param entry The HopServer job object
    * @return the job with the specified entry
    */
   public synchronized Job getJob( HopServerObjectEntry entry ) {
@@ -102,8 +100,7 @@ public class JobMap {
   }
 
   /**
-   * @param entry
-   *          The HopServer job object
+   * @param entry The HopServer job object
    * @return the job configuration with the specified entry
    */
   public synchronized JobConfiguration getConfiguration( HopServerObjectEntry entry ) {
@@ -119,7 +116,7 @@ public class JobMap {
     return new ArrayList<>( jobMap.keySet() );
   }
 
-  public synchronized HopServerObjectEntry getFirstCarteObjectEntry(String jobName ) {
+  public synchronized HopServerObjectEntry getFirstCarteObjectEntry( String jobName ) {
     for ( HopServerObjectEntry key : jobMap.keySet() ) {
       if ( key.getName().equals( jobName ) ) {
         return key;
@@ -136,8 +133,7 @@ public class JobMap {
   }
 
   /**
-   * @param slaveServerConfig
-   *          the slaveServerConfig to set
+   * @param slaveServerConfig the slaveServerConfig to set
    */
   public void setSlaveServerConfig( SlaveServerConfig slaveServerConfig ) {
     this.slaveServerConfig = slaveServerConfig;
@@ -146,8 +142,7 @@ public class JobMap {
   /**
    * Find a job using the container/carte object ID.
    *
-   * @param id
-   *          the container/carte object ID
+   * @param id the container/carte object ID
    * @return The job if it's found, null if the ID couldn't be found in the job map.
    */
   public synchronized Job findJob( String id ) {

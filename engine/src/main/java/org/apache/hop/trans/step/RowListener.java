@@ -33,7 +33,7 @@ import org.apache.hop.core.row.RowMetaInterface;
  * <pre>
  * addRowListener
  * </pre>
- *
+ * <p>
  * method. When the row event occurs, that object's appropriate method is invoked.
  *
  * @see RowEvent
@@ -42,36 +42,27 @@ public interface RowListener {
   /**
    * This method is called when a row is read from another step
    *
-   * @param rowMeta
-   *          the metadata of the row
-   * @param row
-   *          the data of the row
-   * @throws HopStepException
-   *           an exception that can be thrown to hard stop the step
+   * @param rowMeta the metadata of the row
+   * @param row     the data of the row
+   * @throws HopStepException an exception that can be thrown to hard stop the step
    */
   public void rowReadEvent( RowMetaInterface rowMeta, Object[] row ) throws HopStepException;
 
   /**
    * This method is called when a row is written to another step (even if there is no next step)
    *
-   * @param rowMeta
-   *          the metadata of the row
-   * @param row
-   *          the data of the row
-   * @throws HopStepException
-   *           an exception that can be thrown to hard stop the step
+   * @param rowMeta the metadata of the row
+   * @param row     the data of the row
+   * @throws HopStepException an exception that can be thrown to hard stop the step
    */
   public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopStepException;
 
   /**
    * This method is called when the error handling of a row is writing a row to the error stream.
    *
-   * @param rowMeta
-   *          the metadata of the row
-   * @param row
-   *          the data of the row
-   * @throws HopStepException
-   *           an exception that can be thrown to hard stop the step
+   * @param rowMeta the metadata of the row
+   * @param row     the data of the row
+   * @throws HopStepException an exception that can be thrown to hard stop the step
    */
   public void errorRowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopStepException;
 }

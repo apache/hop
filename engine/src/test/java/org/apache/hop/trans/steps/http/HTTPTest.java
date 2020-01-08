@@ -22,16 +22,14 @@
 
 package org.apache.hop.trans.steps.http;
 
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.HttpClientManager;
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.util.HttpClientManager;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -91,7 +89,7 @@ public class HTTPTest {
     when( HttpClientManager.getInstance() ).thenReturn( manager );
 
     setInternalState( data, "realUrl", "http://pentaho.com" );
-    setInternalState( data, "argnrs", new int[0] );
+    setInternalState( data, "argnrs", new int[ 0 ] );
 
     doReturn( false ).when( meta ).isUrlInField();
     doReturn( "body" ).when( meta ).getFieldName();
@@ -100,7 +98,7 @@ public class HTTPTest {
 
     doCallRealMethod().when( http ).callHttpService( any( RowMetaInterface.class ), any( Object[].class ) );
     doReturn( HttpURLConnection.HTTP_OK ).when( http ).requestStatusCode( any( CloseableHttpResponse.class ) );
-    doReturn( new Header[0] ).when( http ).searchForHeaders( any( CloseableHttpResponse.class ) );
+    doReturn( new Header[ 0 ] ).when( http ).searchForHeaders( any( CloseableHttpResponse.class ) );
     setInternalState( http, "log", log );
     setInternalState( http, "data", data );
     setInternalState( http, "meta", meta );
@@ -109,12 +107,12 @@ public class HTTPTest {
   @Test
   public void callHttpServiceWithUTF8Encoding() throws Exception {
     doReturn( "UTF-8" ).when( meta ).getEncoding();
-    assertEquals( DATA, http.callHttpService( rmi, new Object[] { 0 } )[0] );
+    assertEquals( DATA, http.callHttpService( rmi, new Object[] { 0 } )[ 0 ] );
   }
 
   @Test
   public void callHttpServiceWithoutEncoding() throws Exception {
     doReturn( null ).when( meta ).getEncoding();
-    assertNotEquals( DATA, http.callHttpService( rmi, new Object[] { 0 } )[0] );
+    assertNotEquals( DATA, http.callHttpService( rmi, new Object[] { 0 } )[ 0 ] );
   }
 }

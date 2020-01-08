@@ -22,11 +22,11 @@
 
 package org.apache.hop.core.playlist;
 
-import java.io.IOException;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.trans.step.errorhandling.AbstractFileErrorHandler;
+
+import java.io.IOException;
 
 public class FilePlayListReplayErrorFile extends FilePlayListReplayFile {
 

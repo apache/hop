@@ -22,11 +22,11 @@
 
 package org.apache.hop.trans.steps;
 
-import static org.mockito.Mockito.mock;
-
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.step.BaseStep;
 import org.apache.hop.trans.step.BaseStepData;
+
+import static org.mockito.Mockito.mock;
 
 public class PDI_11948_StepsTestsParent<T extends BaseStep, E extends BaseStepData> {
   protected T stepMock;

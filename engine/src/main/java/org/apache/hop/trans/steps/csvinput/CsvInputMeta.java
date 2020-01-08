@@ -22,19 +22,13 @@
 
 package org.apache.hop.trans.steps.csvinput;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.HopAttributeInterface;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -42,11 +36,12 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -65,13 +60,16 @@ import org.apache.hop.trans.steps.common.CsvInputAwareMeta;
 import org.apache.hop.trans.steps.textfileinput.InputFileMetaInterface;
 import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
 import org.apache.hop.trans.steps.textfileinput.TextFileInputMeta;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 /**
- * @since 2007-07-05
  * @author matt
  * @version 3.0
+ * @since 2007-07-05
  */
 
 public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, InputFileMetaInterface,
@@ -168,22 +166,22 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
       allocate( nrfields );
 
       for ( int i = 0; i < nrfields; i++ ) {
-        inputFields[i] = new TextFileInputField();
+        inputFields[ i ] = new TextFileInputField();
 
         Node fnode = XMLHandler.getSubNodeByNr( fields, getXmlCode( "FIELD" ), i );
 
-        inputFields[i].setName( XMLHandler.getTagValue( fnode, getXmlCode( "FIELD_NAME" ) ) );
-        inputFields[i].setType(
+        inputFields[ i ].setName( XMLHandler.getTagValue( fnode, getXmlCode( "FIELD_NAME" ) ) );
+        inputFields[ i ].setType(
           ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( fnode, getXmlCode( "FIELD_TYPE" ) ) ) );
-        inputFields[i].setFormat( XMLHandler.getTagValue( fnode, getXmlCode( "FIELD_FORMAT" ) ) );
-        inputFields[i].setCurrencySymbol( XMLHandler.getTagValue( fnode, getXmlCode( "FIELD_CURRENCY" ) ) );
-        inputFields[i].setDecimalSymbol( XMLHandler.getTagValue( fnode, getXmlCode( "FIELD_DECIMAL" ) ) );
-        inputFields[i].setGroupSymbol( XMLHandler.getTagValue( fnode, getXmlCode( "FIELD_GROUP" ) ) );
-        inputFields[i]
+        inputFields[ i ].setFormat( XMLHandler.getTagValue( fnode, getXmlCode( "FIELD_FORMAT" ) ) );
+        inputFields[ i ].setCurrencySymbol( XMLHandler.getTagValue( fnode, getXmlCode( "FIELD_CURRENCY" ) ) );
+        inputFields[ i ].setDecimalSymbol( XMLHandler.getTagValue( fnode, getXmlCode( "FIELD_DECIMAL" ) ) );
+        inputFields[ i ].setGroupSymbol( XMLHandler.getTagValue( fnode, getXmlCode( "FIELD_GROUP" ) ) );
+        inputFields[ i ]
           .setLength( Const.toInt( XMLHandler.getTagValue( fnode, getXmlCode( "FIELD_LENGTH" ) ), -1 ) );
-        inputFields[i].setPrecision( Const.toInt(
+        inputFields[ i ].setPrecision( Const.toInt(
           XMLHandler.getTagValue( fnode, getXmlCode( "FIELD_PRECISION" ) ), -1 ) );
-        inputFields[i].setTrimType( ValueMetaString.getTrimTypeByCode( XMLHandler.getTagValue(
+        inputFields[ i ].setTrimType( ValueMetaString.getTrimTypeByCode( XMLHandler.getTagValue(
           fnode, getXmlCode( "FIELD_TRIM_TYPE" ) ) ) );
       }
     } catch ( Exception e ) {
@@ -192,7 +190,7 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
   }
 
   public void allocate( int nrFields ) {
-    inputFields = new TextFileInputField[nrFields];
+    inputFields = new TextFileInputField[ nrFields ];
   }
 
   @Override
@@ -217,7 +215,7 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
 
     retval.append( "    " ).append( XMLHandler.openTag( getXmlCode( "FIELDS" ) ) ).append( Const.CR );
     for ( int i = 0; i < inputFields.length; i++ ) {
-      TextFileInputField field = inputFields[i];
+      TextFileInputField field = inputFields[ i ];
 
       retval.append( "      " ).append( XMLHandler.openTag( getXmlCode( "FIELD" ) ) ).append( Const.CR );
       retval.append( "        " ).append( XMLHandler.addTagValue( getXmlCode( "FIELD_NAME" ), field.getName() ) );
@@ -247,12 +245,12 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
 
   @Override
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     try {
       rowMeta.clear(); // Start with a clean slate, eats the input
 
       for ( int i = 0; i < inputFields.length; i++ ) {
-        TextFileInputField field = inputFields[i];
+        TextFileInputField field = inputFields[ i ];
 
         ValueMetaInterface valueMeta = ValueMetaFactory.createValueMeta( field.getName(), field.getType() );
         valueMeta.setConversionMask( field.getFormat() );
@@ -308,8 +306,8 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -339,7 +337,7 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new CsvInput( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -356,8 +354,7 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
   }
 
   /**
-   * @param delimiter
-   *          the delimiter to set
+   * @param delimiter the delimiter to set
    */
   public void setDelimiter( String delimiter ) {
     this.delimiter = delimiter;
@@ -371,8 +368,7 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
   }
 
   /**
-   * @param filename
-   *          the filename to set
+   * @param filename the filename to set
    */
   public void setFilename( String filename ) {
     this.filename = filename;
@@ -386,8 +382,7 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
   }
 
   /**
-   * @param bufferSize
-   *          the bufferSize to set
+   * @param bufferSize the bufferSize to set
    */
   public void setBufferSize( String bufferSize ) {
     this.bufferSize = bufferSize;
@@ -395,16 +390,15 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
 
   /**
    * @return true if lazy conversion is turned on: conversions are delayed as long as possible, perhaps to never occur
-   *         at all.
+   * at all.
    */
   public boolean isLazyConversionActive() {
     return lazyConversionActive;
   }
 
   /**
-   * @param lazyConversionActive
-   *          true if lazy conversion is to be turned on: conversions are delayed as long as possible, perhaps to never
-   *          occur at all.
+   * @param lazyConversionActive true if lazy conversion is to be turned on: conversions are delayed as long as possible, perhaps to never
+   *                             occur at all.
    */
   public void setLazyConversionActive( boolean lazyConversionActive ) {
     this.lazyConversionActive = lazyConversionActive;
@@ -418,8 +412,7 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
   }
 
   /**
-   * @param headerPresent
-   *          the headerPresent to set
+   * @param headerPresent the headerPresent to set
    */
   public void setHeaderPresent( boolean headerPresent ) {
     this.headerPresent = headerPresent;
@@ -434,8 +427,7 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
   }
 
   /**
-   * @param enclosure
-   *          the enclosure to set
+   * @param enclosure the enclosure to set
    */
   public void setEnclosure( String enclosure ) {
     this.enclosure = enclosure;
@@ -466,8 +458,7 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
   }
 
   /**
-   * @param inputFields
-   *          the inputFields to set
+   * @param inputFields the inputFields to set
    */
   public void setInputFields( TextFileInputField[] inputFields ) {
     this.inputFields = inputFields;
@@ -551,8 +542,7 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
   }
 
   /**
-   * @param filenameField
-   *          the filenameField to set
+   * @param filenameField the filenameField to set
    */
   public void setFilenameField( String filenameField ) {
     this.filenameField = filenameField;
@@ -566,8 +556,7 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
   }
 
   /**
-   * @param includingFilename
-   *          the includingFilename to set
+   * @param includingFilename the includingFilename to set
    */
   public void setIncludingFilename( boolean includingFilename ) {
     this.includingFilename = includingFilename;
@@ -581,16 +570,14 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
   }
 
   /**
-   * @param rowNumField
-   *          the rowNumField to set
+   * @param rowNumField the rowNumField to set
    */
   public void setRowNumField( String rowNumField ) {
     this.rowNumField = rowNumField;
   }
 
   /**
-   * @param isaddresult
-   *          The isaddresult to set.
+   * @param isaddresult The isaddresult to set.
    */
   public void setAddResultFile( boolean isaddresult ) {
     this.isaddresult = isaddresult;
@@ -611,8 +598,7 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
   }
 
   /**
-   * @param runningInParallel
-   *          the runningInParallel to set
+   * @param runningInParallel the runningInParallel to set
    */
   public void setRunningInParallel( boolean runningInParallel ) {
     this.runningInParallel = runningInParallel;
@@ -626,28 +612,23 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
   }
 
   /**
-   * @param encoding
-   *          the encoding to set
+   * @param encoding the encoding to set
    */
   public void setEncoding( String encoding ) {
     this.encoding = encoding;
   }
 
   /**
-   * @param space
-   *          the variable space to use
+   * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param repository
-   *          The repository to optionally load other resources from (to be converted to XML)
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
-   *
+   * @param repository              The repository to optionally load other resources from (to be converted to XML)
+   * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
@@ -728,7 +709,7 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
           // Each list contains a single CSV input field definition (one line in the dialog)
           //
           List<StepInjectionMetaEntry> inputFieldEntries = entry.getDetails();
-          inputFields = new TextFileInputField[inputFieldEntries.size()];
+          inputFields = new TextFileInputField[ inputFieldEntries.size() ];
           for ( int row = 0; row < inputFieldEntries.size(); row++ ) {
             StepInjectionMetaEntry inputFieldEntry = inputFieldEntries.get( row );
             TextFileInputField inputField = new TextFileInputField();
@@ -763,7 +744,7 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
               }
             }
 
-            inputFields[row] = inputField;
+            inputFields[ row ] = inputField;
           }
         }
       }
@@ -793,8 +774,7 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
   }
 
   /**
-   * @param newlinePossibleInFields
-   *          the newlinePossibleInFields to set
+   * @param newlinePossibleInFields the newlinePossibleInFields to set
    */
   public void setNewlinePossibleInFields( boolean newlinePossibleInFields ) {
     this.newlinePossibleInFields = newlinePossibleInFields;

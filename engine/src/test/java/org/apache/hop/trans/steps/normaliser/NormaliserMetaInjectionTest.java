@@ -22,11 +22,11 @@
 
 package org.apache.hop.trans.steps.normaliser;
 
+import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 public class NormaliserMetaInjectionTest extends BaseMetadataInjectionTest<NormaliserMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -40,17 +40,17 @@ public class NormaliserMetaInjectionTest extends BaseMetadataInjectionTest<Norma
   public void test() throws Exception {
     check( "NAME", new StringGetter() {
       public String get() {
-        return meta.getNormaliserFields()[0].getName();
+        return meta.getNormaliserFields()[ 0 ].getName();
       }
     } );
     check( "VALUE", new StringGetter() {
       public String get() {
-        return meta.getNormaliserFields()[0].getValue();
+        return meta.getNormaliserFields()[ 0 ].getValue();
       }
     } );
     check( "NORMALISED", new StringGetter() {
       public String get() {
-        return meta.getNormaliserFields()[0].getNorm();
+        return meta.getNormaliserFields()[ 0 ].getNorm();
       }
     } );
   }

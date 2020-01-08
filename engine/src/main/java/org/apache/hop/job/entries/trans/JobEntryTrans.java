@@ -30,14 +30,10 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.SQLStatement;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.listeners.CurrentDirectoryChangedListener;
-import org.apache.hop.core.listeners.impl.EntryCurrentDirectoryChangedListener;
 import org.apache.hop.core.logging.LogChannelFileWriter;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.parameters.NamedParams;
@@ -278,10 +274,10 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
   }
 
   @Override
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
+  public void loadXML( Node entrynode,
                        IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
 
       filename = XMLHandler.getTagValue( entrynode, "filename" );
 

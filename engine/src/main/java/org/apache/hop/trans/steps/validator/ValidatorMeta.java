@@ -26,8 +26,6 @@ package org.apache.hop.trans.steps.validator;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
@@ -36,7 +34,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -50,7 +48,6 @@ import org.apache.hop.trans.step.errorhandling.Stream;
 import org.apache.hop.trans.step.errorhandling.StreamIcon;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
 import org.apache.hop.trans.step.errorhandling.StreamInterface.StreamType;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -59,18 +56,22 @@ import java.util.Objects;
 
 /**
  * Contains the meta-data for the Validator step: calculates predefined formula's
- *
+ * <p>
  * Created on 08-sep-2005
  */
 @InjectionSupported( localizationPrefix = "Validator.Injection.", groups = { "VALIDATIONS" } )
 public class ValidatorMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = ValidatorMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** The calculations to be performed */
+  /**
+   * The calculations to be performed
+   */
   @InjectionDeep
   private List<Validation> validations;
 
-  /** Checkbox to have all rules validated, with all the errors in the output */
+  /**
+   * Checkbox to have all rules validated, with all the errors in the output
+   */
   @Injection( name = "VALIDATE_ALL" )
   private boolean validatingAll;
 
@@ -151,8 +152,8 @@ public class ValidatorMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -181,7 +182,7 @@ public class ValidatorMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new Validator( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -201,8 +202,7 @@ public class ValidatorMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param validations
-   *          the validations to set
+   * @param validations the validations to set
    */
   public void setValidations( List<Validation> validations ) {
     this.validations = validations;
@@ -220,8 +220,7 @@ public class ValidatorMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param validatingAll
-   *          the validatingAll to set
+   * @param validatingAll the validatingAll to set
    */
   public void setValidatingAll( boolean validatingAll ) {
     this.validatingAll = validatingAll;
@@ -235,8 +234,7 @@ public class ValidatorMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param concatenatingErrors
-   *          the concatenatingErrors to set
+   * @param concatenatingErrors the concatenatingErrors to set
    */
   public void setConcatenatingErrors( boolean concatenatingErrors ) {
     this.concatenatingErrors = concatenatingErrors;
@@ -250,8 +248,7 @@ public class ValidatorMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param concatenationSeparator
-   *          the concatenationSeparator to set
+   * @param concatenationSeparator the concatenationSeparator to set
    */
   public void setConcatenationSeparator( String concatenationSeparator ) {
     this.concatenationSeparator = concatenationSeparator;

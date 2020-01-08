@@ -22,12 +22,9 @@
 
 package org.apache.hop.trans.steps.dbproc;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -38,11 +35,11 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -50,8 +47,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*
  * Created on 26-apr-2003
@@ -61,28 +59,44 @@ import org.w3c.dom.Node;
 public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = DBProcMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** database connection */
+  /**
+   * database connection
+   */
   private DatabaseMeta database;
 
-  /** proc.-name to be called */
+  /**
+   * proc.-name to be called
+   */
   private String procedure;
 
-  /** function arguments */
+  /**
+   * function arguments
+   */
   private String[] argument;
 
-  /** IN / OUT / INOUT */
+  /**
+   * IN / OUT / INOUT
+   */
   private String[] argumentDirection;
 
-  /** value type for OUT */
+  /**
+   * value type for OUT
+   */
   private int[] argumentType;
 
-  /** function result: new value name */
+  /**
+   * function result: new value name
+   */
   private String resultName;
 
-  /** function result: new value type */
+  /**
+   * function result: new value type
+   */
   private int resultType;
 
-  /** The flag to set auto commit on or off on the connection */
+  /**
+   * The flag to set auto commit on or off on the connection
+   */
   private boolean autoCommit;
 
   public DBProcMeta() {
@@ -97,8 +111,7 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param argument
-   *          The argument to set.
+   * @param argument The argument to set.
    */
   public void setArgument( String[] argument ) {
     this.argument = argument;
@@ -112,8 +125,7 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param argumentDirection
-   *          The argumentDirection to set.
+   * @param argumentDirection The argumentDirection to set.
    */
   public void setArgumentDirection( String[] argumentDirection ) {
     this.argumentDirection = argumentDirection;
@@ -127,8 +139,7 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param argumentType
-   *          The argumentType to set.
+   * @param argumentType The argumentType to set.
    */
   public void setArgumentType( int[] argumentType ) {
     this.argumentType = argumentType;
@@ -142,8 +153,7 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param database
-   *          The database to set.
+   * @param database The database to set.
    */
   public void setDatabase( DatabaseMeta database ) {
     this.database = database;
@@ -157,8 +167,7 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param procedure
-   *          The procedure to set.
+   * @param procedure The procedure to set.
    */
   public void setProcedure( String procedure ) {
     this.procedure = procedure;
@@ -172,8 +181,7 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param resultName
-   *          The resultName to set.
+   * @param resultName The resultName to set.
    */
   public void setResultName( String resultName ) {
     this.resultName = resultName;
@@ -187,8 +195,7 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param resultType
-   *          The resultType to set.
+   * @param resultType The resultType to set.
    */
   public void setResultType( int resultType ) {
     this.resultType = resultType;
@@ -202,8 +209,7 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param autoCommit
-   *          The autoCommit to set.
+   * @param autoCommit The autoCommit to set.
    */
   public void setAutoCommit( boolean autoCommit ) {
     this.autoCommit = autoCommit;
@@ -214,9 +220,9 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrargs ) {
-    argument = new String[nrargs];
-    argumentDirection = new String[nrargs];
-    argumentType = new int[nrargs];
+    argument = new String[ nrargs ];
+    argumentDirection = new String[ nrargs ];
+    argumentType = new int[ nrargs ];
   }
 
   public Object clone() {
@@ -243,9 +249,9 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( nrargs );
 
     for ( i = 0; i < nrargs; i++ ) {
-      argument[i] = "arg" + i;
-      argumentDirection[i] = "IN";
-      argumentType[i] = ValueMetaInterface.TYPE_NUMBER;
+      argument[ i ] = "arg" + i;
+      argumentDirection[ i ] = "IN";
+      argumentType[ i ] = ValueMetaInterface.TYPE_NUMBER;
     }
 
     resultName = "result";
@@ -255,7 +261,7 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     if ( !Utils.isEmpty( resultName ) ) {
       ValueMetaInterface v;
@@ -269,10 +275,10 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     for ( int i = 0; i < argument.length; i++ ) {
-      if ( argumentDirection[i].equalsIgnoreCase( "OUT" ) ) {
+      if ( argumentDirection[ i ].equalsIgnoreCase( "OUT" ) ) {
         ValueMetaInterface v;
         try {
-          v = ValueMetaFactory.createValueMeta( argument[i], argumentType[i] );
+          v = ValueMetaFactory.createValueMeta( argument[ i ], argumentType[ i ] );
           v.setOrigin( name );
           r.addValueMeta( v );
         } catch ( HopPluginException e ) {
@@ -294,10 +300,10 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
 
     for ( int i = 0; i < argument.length; i++ ) {
       retval.append( "      <arg>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", argument[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "direction", argumentDirection[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "name", argument[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "direction", argumentDirection[ i ] ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( argumentType[i] ) ) );
+        XMLHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( argumentType[ i ] ) ) );
       retval.append( "      </arg>" ).append( Const.CR );
     }
 
@@ -331,13 +337,13 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
       for ( i = 0; i < nrargs; i++ ) {
         Node anode = XMLHandler.getSubNodeByNr( lookup, "arg", i );
 
-        argument[i] = XMLHandler.getTagValue( anode, "name" );
-        argumentDirection[i] = XMLHandler.getTagValue( anode, "direction" );
-        argumentType[i] = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( anode, "type" ) );
+        argument[ i ] = XMLHandler.getTagValue( anode, "name" );
+        argumentDirection[ i ] = XMLHandler.getTagValue( anode, "direction" );
+        argumentType[ i ] = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( anode, "type" ) );
       }
 
       resultName = XMLHandler.getTagValue( stepnode, "result", "name" ); // Optional, can be null
-                                                                         //
+      //
       resultType = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( stepnode, "result", "type" ) );
       autoCommit = !"N".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "auto_commit" ) );
     } catch ( Exception e ) {
@@ -346,8 +352,8 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -363,7 +369,7 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
           boolean error_found = false;
 
           for ( int i = 0; i < argument.length; i++ ) {
-            ValueMetaInterface v = prev.searchValueMeta( argument[i] );
+            ValueMetaInterface v = prev.searchValueMeta( argument[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
@@ -371,18 +377,18 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
                   BaseMessages.getString( PKG, "DBProcMeta.CheckResult.MissingArguments" ) + Const.CR;
               }
               error_found = true;
-              error_message += "\t\t" + argument[i] + Const.CR;
+              error_message += "\t\t" + argument[ i ] + Const.CR;
             } else {
               // Argument exists in input stream: same type?
 
-              if ( v.getType() != argumentType[i] && !( v.isNumeric() && ValueMetaBase.isNumeric( argumentType[i] ) ) ) {
+              if ( v.getType() != argumentType[ i ] && !( v.isNumeric() && ValueMetaBase.isNumeric( argumentType[ i ] ) ) ) {
                 error_found = true;
                 error_message +=
                   "\t\t"
-                    + argument[i]
+                    + argument[ i ]
                     + BaseMessages.getString(
-                      PKG, "DBProcMeta.CheckResult.WrongTypeArguments", v.getTypeDesc(),
-                      ValueMetaFactory.getValueMetaName( argumentType[i] ) ) + Const.CR;
+                    PKG, "DBProcMeta.CheckResult.WrongTypeArguments", v.getTypeDesc(),
+                    ValueMetaFactory.getValueMetaName( argumentType[ i ] ) ) + Const.CR;
               }
             }
           }
@@ -426,7 +432,7 @@ public class DBProcMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new DBProc( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

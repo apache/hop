@@ -22,14 +22,14 @@
 
 package org.apache.hop.core.row;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.value.ValueMetaDate;
 
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -50,6 +50,7 @@ public class ValueDateUtilTest {
     System.setProperty( "user.timezone", "UTC" );
     TimeZone.setDefault( null );
   }
+
   @After
   public void tearDown() {
     System.clearProperty( Const.HOP_COMPATIBILITY_CALCULATION_TIMEZONE_DECOMPOSITION );

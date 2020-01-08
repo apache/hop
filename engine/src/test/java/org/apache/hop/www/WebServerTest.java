@@ -21,36 +21,36 @@
  ******************************************************************************/
 package org.apache.hop.www;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import org.apache.hop.cluster.SlaveServer;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.eclipse.jetty.server.Connector;
-//import org.eclipse.jetty.server.bio.SocketConnector;
-import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+//import org.eclipse.jetty.server.bio.SocketConnector;
+
 /**
  * @author Tatsiana_Kasiankova
- * 
  */
 public class WebServerTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   /**
-   * 
+   *
    */
   private static final String EMPTY_STRING = "";
 
@@ -83,7 +83,7 @@ public class WebServerTest {
   private SocketRepository sRepoMock = mock( SocketRepository.class );
   private List<SlaveServerDetection> detections = new ArrayList<SlaveServerDetection>();
   private LogChannelInterface logMock = mock( LogChannelInterface.class );
-//  private static final SocketConnector defSocketConnector = new SocketConnector();
+  //  private static final SocketConnector defSocketConnector = new SocketConnector();
   private static ServerConnector defServerConnector;
 
   @Before
@@ -93,7 +93,7 @@ public class WebServerTest {
     System.setProperty( Const.HOP_CARTE_JETTY_RES_MAX_IDLE_TIME, RES_MAX_IDLE_TIME );
 
     Server server = new Server();
-    defServerConnector = new ServerConnector(server);
+    defServerConnector = new ServerConnector( server );
 
     when( sServerConfMock.getSlaveServer() ).thenReturn( sServer );
     when( trMapMock.getSlaveServerConfig() ).thenReturn( sServerConfMock );
@@ -114,15 +114,15 @@ public class WebServerTest {
 
   }
 
-//  @Test
-//  public void testJettyOption_AcceptorsSetUp() throws Exception {
-//    assertEquals( getSocketConnectors( webServer ).size(), EXPECTED_CONNECTORS_SIZE );
-//    for ( ServerConnector sc : getSocketConnectors( webServer ) ) {
-//      assertEquals( EXPECTED_ACCEPTORS, sc.getAcceptors() );
-//
-//    }
-//
-//  }
+  //  @Test
+  //  public void testJettyOption_AcceptorsSetUp() throws Exception {
+  //    assertEquals( getSocketConnectors( webServer ).size(), EXPECTED_CONNECTORS_SIZE );
+  //    for ( ServerConnector sc : getSocketConnectors( webServer ) ) {
+  //      assertEquals( EXPECTED_ACCEPTORS, sc.getAcceptors() );
+  //
+  //    }
+  //
+  //  }
 
   @Test
   public void testJettyOption_AcceptQueueSizeSetUp() throws Exception {
@@ -147,7 +147,7 @@ public class WebServerTest {
     System.setProperty( Const.HOP_CARTE_JETTY_ACCEPTORS, "TEST" );
     try {
       webServerNg =
-          new WebServer( logMock, trMapMock, jbMapMock, sRepoMock, detections, HOST_NAME, PORT + 1, SHOULD_JOIN, null );
+        new WebServer( logMock, trMapMock, jbMapMock, sRepoMock, detections, HOST_NAME, PORT + 1, SHOULD_JOIN, null );
     } catch ( NumberFormatException nmbfExc ) {
       fail( "Should not have thrown any NumberFormatException but it does: " + nmbfExc );
     }
@@ -164,13 +164,13 @@ public class WebServerTest {
     System.setProperty( Const.HOP_CARTE_JETTY_ACCEPTORS, EMPTY_STRING );
     try {
       webServerNg =
-          new WebServer( logMock, trMapMock, jbMapMock, sRepoMock, detections, HOST_NAME, PORT + 1, SHOULD_JOIN, null );
+        new WebServer( logMock, trMapMock, jbMapMock, sRepoMock, detections, HOST_NAME, PORT + 1, SHOULD_JOIN, null );
     } catch ( NumberFormatException nmbfExc ) {
       fail( "Should not have thrown any NumberFormatException but it does: " + nmbfExc );
     }
     assertEquals( getSocketConnectors( webServerNg ).size(), EXPECTED_CONNECTORS_SIZE );
     for ( ServerConnector sc : getSocketConnectors( webServerNg ) ) {
-      assertEquals(sc.getAcceptors(), sc.getAcceptors() );
+      assertEquals( sc.getAcceptors(), sc.getAcceptors() );
     }
     webServerNg.setWebServerShutdownHandler( null ); // disable system.exit
     webServerNg.stopServer();

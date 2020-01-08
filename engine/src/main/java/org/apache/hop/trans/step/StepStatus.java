@@ -22,23 +22,22 @@
 
 package org.apache.hop.trans.step;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.xml.XMLHandler;
+import org.owasp.encoder.Encode;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
+import javax.xml.bind.annotation.XmlRootElement;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.owasp.encoder.Encode;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.xml.XMLHandler;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 
 @XmlRootElement
@@ -247,9 +246,9 @@ public class StepStatus {
 
   public String[] getSpoonSlaveLogFields() {
     String[] fields = getTransLogFields();
-    String[] retval = new String[fields.length - 1];
+    String[] retval = new String[ fields.length - 1 ];
     for ( int i = 0; i < retval.length; i++ ) {
-      retval[i] = fields[i + 1];
+      retval[ i ] = fields[ i + 1 ];
     }
     return retval;
   }
@@ -275,8 +274,7 @@ public class StepStatus {
   }
 
   /**
-   * @param copy
-   *          the copy to set
+   * @param copy the copy to set
    */
   public void setCopy( int copy ) {
     this.copy = copy;
@@ -290,8 +288,7 @@ public class StepStatus {
   }
 
   /**
-   * @param errors
-   *          the errors to set
+   * @param errors the errors to set
    */
   public void setErrors( long errors ) {
     this.errors = errors;
@@ -305,8 +302,7 @@ public class StepStatus {
   }
 
   /**
-   * @param linesInput
-   *          the linesInput to set
+   * @param linesInput the linesInput to set
    */
   public void setLinesInput( long linesInput ) {
     this.linesInput = linesInput;
@@ -320,8 +316,7 @@ public class StepStatus {
   }
 
   /**
-   * @param linesOutput
-   *          the linesOutput to set
+   * @param linesOutput the linesOutput to set
    */
   public void setLinesOutput( long linesOutput ) {
     this.linesOutput = linesOutput;
@@ -335,8 +330,7 @@ public class StepStatus {
   }
 
   /**
-   * @param linesRead
-   *          the linesRead to set
+   * @param linesRead the linesRead to set
    */
   public void setLinesRead( long linesRead ) {
     this.linesRead = linesRead;
@@ -350,8 +344,7 @@ public class StepStatus {
   }
 
   /**
-   * @param linesUpdated
-   *          the linesUpdated to set
+   * @param linesUpdated the linesUpdated to set
    */
   public void setLinesUpdated( long linesUpdated ) {
     this.linesUpdated = linesUpdated;
@@ -365,8 +358,7 @@ public class StepStatus {
   }
 
   /**
-   * @param linesWritten
-   *          the linesWritten to set
+   * @param linesWritten the linesWritten to set
    */
   public void setLinesWritten( long linesWritten ) {
     this.linesWritten = linesWritten;
@@ -380,8 +372,7 @@ public class StepStatus {
   }
 
   /**
-   * @param priority
-   *          the priority to set
+   * @param priority the priority to set
    */
   public void setPriority( String priority ) {
     this.priority = priority;
@@ -395,8 +386,7 @@ public class StepStatus {
   }
 
   /**
-   * @param seconds
-   *          the seconds to set
+   * @param seconds the seconds to set
    */
   public void setSeconds( double seconds ) {
     this.seconds = seconds;
@@ -410,8 +400,7 @@ public class StepStatus {
   }
 
   /**
-   * @param speed
-   *          the speed to set
+   * @param speed the speed to set
    */
   public void setSpeed( String speed ) {
     this.speed = speed;
@@ -425,8 +414,7 @@ public class StepStatus {
   }
 
   /**
-   * @param statusDescription
-   *          the statusDescription to set
+   * @param statusDescription the statusDescription to set
    */
   public void setStatusDescription( String statusDescription ) {
     this.statusDescription = statusDescription;
@@ -440,8 +428,7 @@ public class StepStatus {
   }
 
   /**
-   * @param stepname
-   *          the stepname to set
+   * @param stepname the stepname to set
    */
   public void setStepname( String stepname ) {
     this.stepname = stepname;
@@ -455,8 +442,7 @@ public class StepStatus {
   }
 
   /**
-   * @param linesRejected
-   *          the linesRejected to set
+   * @param linesRejected the linesRejected to set
    */
   public void setLinesRejected( long linesRejected ) {
     this.linesRejected = linesRejected;
@@ -470,8 +456,7 @@ public class StepStatus {
   }
 
   /**
-   * @param stopped
-   *          the stopped to set
+   * @param stopped the stopped to set
    */
   public void setStopped( boolean stopped ) {
     this.stopped = stopped;
@@ -485,8 +470,7 @@ public class StepStatus {
   }
 
   /**
-   * @param paused
-   *          the paused to set
+   * @param paused the paused to set
    */
   public void setPaused( boolean paused ) {
     this.paused = paused;

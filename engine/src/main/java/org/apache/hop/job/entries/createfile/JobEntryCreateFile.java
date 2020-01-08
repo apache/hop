@@ -22,25 +22,13 @@
 
 package org.apache.hop.job.entries.createfile;
 
-import org.apache.hop.job.entry.validator.AbstractFileValidator;
-import org.apache.hop.job.entry.validator.AndValidator;
-import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -48,10 +36,15 @@ import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.validator.AbstractFileValidator;
+import org.apache.hop.job.entry.validator.AndValidator;
+import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * This defines a 'create file' job entry. Its main use would be to create empty trigger files that can be used to
@@ -59,7 +52,6 @@ import org.w3c.dom.Node;
  *
  * @author Sven Boden
  * @since 28-01-2007
- *
  */
 public class JobEntryCreateFile extends JobEntryBase implements Cloneable, JobEntryInterface {
   private static Class<?> PKG = JobEntryCreateFile.class; // for i18n purposes, needed by Translator2!!
@@ -95,10 +87,10 @@ public class JobEntryCreateFile extends JobEntryBase implements Cloneable, JobEn
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       filename = XMLHandler.getTagValue( entrynode, "filename" );
       failIfFileExists = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "fail_if_file_exists" ) );
       addfilenameresult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "add_filename_result" ) );
@@ -223,7 +215,7 @@ public class JobEntryCreateFile extends JobEntryBase implements Cloneable, JobEn
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, JobEntryValidatorUtils.notNullValidator(), JobEntryValidatorUtils.fileDoesNotExistValidator() );

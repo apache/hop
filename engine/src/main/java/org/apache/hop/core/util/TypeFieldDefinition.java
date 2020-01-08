@@ -46,8 +46,7 @@ public class TypeFieldDefinition {
   }
 
   /**
-   * @param type
-   *          the type to set
+   * @param type the type to set
    */
   public void setType( int type ) {
     this.type = type;
@@ -61,8 +60,7 @@ public class TypeFieldDefinition {
   }
 
   /**
-   * @param fieldName
-   *          the fieldName to set
+   * @param fieldName the fieldName to set
    */
   public void setFieldName( String fieldName ) {
     this.fieldName = fieldName;

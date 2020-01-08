@@ -22,9 +22,6 @@
 
 package org.apache.hop.trans.steps.propertyoutput;
 
-import java.io.OutputStream;
-import java.util.Properties;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
@@ -40,6 +37,9 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.io.OutputStream;
+import java.util.Properties;
+
 /**
  * Output rows to Properties file and create a file.
  *
@@ -54,7 +54,7 @@ public class PropertyOutput extends BaseStep implements StepInterface {
   private PropertyOutputData data;
 
   public PropertyOutput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                         Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 

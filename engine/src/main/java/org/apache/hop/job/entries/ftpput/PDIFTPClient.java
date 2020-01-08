@@ -37,22 +37,20 @@
 
 package org.apache.hop.job.entries.ftpput;
 
-import java.io.IOException;
-import java.text.ParseException;
-
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.i18n.BaseMessages;
-
 import com.enterprisedt.net.ftp.FTPClient;
 import com.enterprisedt.net.ftp.FTPException;
 import com.enterprisedt.net.ftp.FTPFile;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.i18n.BaseMessages;
+
+import java.io.IOException;
+import java.text.ParseException;
 
 /**
  * This class should largely be able to be removed if the edtftp project accepts my change to replace dirDetails(".")
  * with dirDetails(null).
  *
  * @author mbatchelor
- *
  */
 
 public class PDIFTPClient extends FTPClient {
@@ -117,8 +115,8 @@ public class PDIFTPClient extends FTPClient {
     try {
       FTPFile[] files = dirDetails( null ); // My fix - replace "." with null in this call for MVS support
       for ( int i = 0; i < files.length; i++ ) {
-        if ( files[i].getName().equals( remoteFile ) ) {
-          return files[i].isFile();
+        if ( files[ i ].getName().equals( remoteFile ) ) {
+          return files[ i ].isFile();
         }
       }
       return false;

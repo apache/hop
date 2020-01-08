@@ -90,6 +90,6 @@ public class ThinDialog extends Dialog {
     Rectangle shellBounds = getParent().getBounds();
     Point dialogSize = dialog.getSize();
     dialog.setLocation( shellBounds.x + ( shellBounds.width - dialogSize.x ) / 2, shellBounds.y
-        + ( shellBounds.height - dialogSize.y ) / 2 );
+      + ( shellBounds.height - dialogSize.y ) / 2 );
   }
 }

@@ -22,22 +22,18 @@
 
 package org.apache.hop.trans.steps.ldifinput;
 
-import java.util.Date;
-import java.util.Enumeration;
-
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.util.LDIF;
 import netscape.ldap.util.LDIFAttributeContent;
 import netscape.ldap.util.LDIFContent;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
@@ -47,6 +43,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.util.Date;
+import java.util.Enumeration;
 
 /**
  * Read all LDIF files, convert them to rows and writes these to one or more output streams.
@@ -61,7 +60,7 @@ public class LDIFInput extends BaseStep implements StepInterface {
   private LDIFInputData data;
 
   public LDIFInput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                    Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -137,7 +136,7 @@ public class LDIFInput extends BaseStep implements StepInterface {
     try {
       // Execute for each Input field...
       for ( int i = 0; i < meta.getInputFields().length; i++ ) {
-        LDIFInputField ldifInputField = meta.getInputFields()[i];
+        LDIFInputField ldifInputField = meta.getInputFields()[ i ];
         // Get the Attribut to look for
         String AttributValue = environmentSubstitute( ldifInputField.getAttribut() );
 
@@ -162,12 +161,12 @@ public class LDIFInput extends BaseStep implements StepInterface {
         //
         ValueMetaInterface targetValueMeta = data.outputRowMeta.getValueMeta( data.totalpreviousfields + i );
         ValueMetaInterface sourceValueMeta = data.convertRowMeta.getValueMeta( data.totalpreviousfields + i );
-        outputRowData[data.totalpreviousfields + i] = targetValueMeta.convertData( sourceValueMeta, Value );
+        outputRowData[ data.totalpreviousfields + i ] = targetValueMeta.convertData( sourceValueMeta, Value );
 
         // Do we need to repeat this field if it is null?
-        if ( meta.getInputFields()[i].isRepeated() ) {
+        if ( meta.getInputFields()[ i ].isRepeated() ) {
           if ( data.previousRow != null && Utils.isEmpty( Value ) ) {
-            outputRowData[data.totalpreviousfields + i] = data.previousRow[data.totalpreviousfields + i];
+            outputRowData[ data.totalpreviousfields + i ] = data.previousRow[ data.totalpreviousfields + i ];
           }
         }
       } // End of loop over fields...
@@ -175,53 +174,53 @@ public class LDIFInput extends BaseStep implements StepInterface {
 
       // See if we need to add the filename to the row...
       if ( meta.includeFilename() && !Utils.isEmpty( meta.getFilenameField() ) ) {
-        outputRowData[rowIndex++] = data.filename;
+        outputRowData[ rowIndex++ ] = data.filename;
       }
       // See if we need to add the row number to the row...
       if ( meta.includeRowNumber() && !Utils.isEmpty( meta.getRowNumberField() ) ) {
-        outputRowData[data.totalpreviousfields + rowIndex++] = new Long( data.rownr );
+        outputRowData[ data.totalpreviousfields + rowIndex++ ] = new Long( data.rownr );
       }
 
       // See if we need to add the content type to the row...
       if ( meta.includeContentType() && !Utils.isEmpty( meta.getContentTypeField() ) ) {
-        outputRowData[data.totalpreviousfields + rowIndex++] = contentTYPE;
+        outputRowData[ data.totalpreviousfields + rowIndex++ ] = contentTYPE;
       }
 
       // See if we need to add the DN to the row...
       if ( meta.IncludeDN() && !Utils.isEmpty( meta.getDNField() ) ) {
-        outputRowData[data.totalpreviousfields + rowIndex++] = data.recordLDIF.getDN();
+        outputRowData[ data.totalpreviousfields + rowIndex++ ] = data.recordLDIF.getDN();
       }
       // Possibly add short filename...
       if ( meta.getShortFileNameField() != null && meta.getShortFileNameField().length() > 0 ) {
-        outputRowData[rowIndex++] = data.shortFilename;
+        outputRowData[ rowIndex++ ] = data.shortFilename;
       }
       // Add Extension
       if ( meta.getExtensionField() != null && meta.getExtensionField().length() > 0 ) {
-        outputRowData[rowIndex++] = data.extension;
+        outputRowData[ rowIndex++ ] = data.extension;
       }
       // add path
       if ( meta.getPathField() != null && meta.getPathField().length() > 0 ) {
-        outputRowData[rowIndex++] = data.path;
+        outputRowData[ rowIndex++ ] = data.path;
       }
       // Add Size
       if ( meta.getSizeField() != null && meta.getSizeField().length() > 0 ) {
-        outputRowData[rowIndex++] = new Long( data.size );
+        outputRowData[ rowIndex++ ] = new Long( data.size );
       }
       // add Hidden
       if ( meta.isHiddenField() != null && meta.isHiddenField().length() > 0 ) {
-        outputRowData[rowIndex++] = new Boolean( data.hidden );
+        outputRowData[ rowIndex++ ] = new Boolean( data.hidden );
       }
       // Add modification date
       if ( meta.getLastModificationDateField() != null && meta.getLastModificationDateField().length() > 0 ) {
-        outputRowData[rowIndex++] = data.lastModificationDateTime;
+        outputRowData[ rowIndex++ ] = data.lastModificationDateTime;
       }
       // Add Uri
       if ( meta.getUriField() != null && meta.getUriField().length() > 0 ) {
-        outputRowData[rowIndex++] = data.uriName;
+        outputRowData[ rowIndex++ ] = data.uriName;
       }
       // Add RootUri
       if ( meta.getRootUriField() != null && meta.getRootUriField().length() > 0 ) {
-        outputRowData[rowIndex++] = data.rootUriName;
+        outputRowData[ rowIndex++ ] = data.rootUriName;
       }
       RowMetaInterface irow = getInputRowMeta();
 
@@ -411,7 +410,7 @@ public class LDIFInput extends BaseStep implements StepInterface {
     int i = 0;
 
     for ( int j = 0; j < attributes_LDIF.length; j++ ) {
-      LDAPAttribute attribute_DIF = attributes_LDIF[j];
+      LDAPAttribute attribute_DIF = attributes_LDIF[ j ];
       if ( attribute_DIF.getName().equalsIgnoreCase( AttributValue ) ) {
         Enumeration<String> valuesLDIF = attribute_DIF.getStringValues();
 

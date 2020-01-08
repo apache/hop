@@ -22,6 +22,18 @@
 
 package org.apache.hop.ui.job.entries.copymoveresultfilenames;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.copymoveresultfilenames.JobEntryCopyMoveResultFilenames;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -43,18 +55,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.copymoveresultfilenames.JobEntryCopyMoveResultFilenames;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * This dialog allows you to edit the Copy/Move result filenames job entry settings.
@@ -151,7 +151,7 @@ public class JobEntryCopyMoveResultFilenamesDialog extends JobEntryDialog implem
   private FormData fdlAddDestinationFilename, fdAddDestinationFilename;
 
   public JobEntryCopyMoveResultFilenamesDialog( Shell parent, JobEntryInterface jobEntryInt,
-    JobMeta jobMeta ) {
+                                                JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryCopyMoveResultFilenames) jobEntryInt;
 
@@ -474,7 +474,7 @@ public class JobEntryCopyMoveResultFilenamesDialog extends JobEntryDialog implem
     fdDateTimeFormat.right = new FormAttachment( 100, 0 );
     wDateTimeFormat.setLayoutData( fdDateTimeFormat );
     for ( int x = 0; x < dats.length; x++ ) {
-      wDateTimeFormat.add( dats[x] );
+      wDateTimeFormat.add( dats[ x ] );
     }
 
     // Add Date before extension?

@@ -22,24 +22,6 @@
 
 package org.apache.hop.trans;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NavigableSet;
-import java.util.TreeSet;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -52,6 +34,24 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaDataCombi;
 import org.apache.hop.trans.step.StepPartitioningMeta;
 import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NavigableSet;
+import java.util.TreeSet;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * <p>This test verify transformation step initializations and row sets distributions based
@@ -67,13 +67,12 @@ import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
  * <li>cl1-cl1 - when step running partitioned hops to step running partitioned (swim lanes case)
  * <li>cl1-cl2 - when step running partitioned by one partitioner hops to step partitioned by another partitioner
  * <li>x2-cl1 - when step running in 2 copies hops to partitioned step
- * 
  */
 public class TransPartitioningTest {
 
   /**
    * This is convenient names for testing steps in transformation.
-   * 
+   * <p>
    * The trick is if we use numeric names for steps we can use NavigableSet to find next or previous when mocking
    * appropriate TransMeta methods (comparable strings).
    */
@@ -129,7 +128,7 @@ public class TransPartitioningTest {
     Mockito.when( meta.findNextSteps( Mockito.any( StepMeta.class ) ) ).then( new Answer<List<StepMeta>>() {
       @Override
       public List<StepMeta> answer( InvocationOnMock invocation ) throws Throwable {
-        Object obj = invocation.getArguments()[0];
+        Object obj = invocation.getArguments()[ 0 ];
         StepMeta findFor = StepMeta.class.cast( obj );
         List<StepMeta> ret = new ArrayList<StepMeta>();
         StepMeta nextStep = chain.higher( findFor );
@@ -140,23 +139,23 @@ public class TransPartitioningTest {
       }
     } );
     Mockito.when( meta.findPreviousSteps( Mockito.any( StepMeta.class ), Mockito.anyBoolean() ) ).thenAnswer(
-        new Answer<List<StepMeta>>() {
-          @Override
-          public List<StepMeta> answer( InvocationOnMock invocation ) throws Throwable {
-            Object obj = invocation.getArguments()[0];
-            StepMeta findFor = StepMeta.class.cast( obj );
-            List<StepMeta> ret = new ArrayList<StepMeta>();
-            StepMeta prevStep = chain.lower( findFor );
-            if ( prevStep != null ) {
-              ret.add( prevStep );
-            }
-            return ret;
+      new Answer<List<StepMeta>>() {
+        @Override
+        public List<StepMeta> answer( InvocationOnMock invocation ) throws Throwable {
+          Object obj = invocation.getArguments()[ 0 ];
+          StepMeta findFor = StepMeta.class.cast( obj );
+          List<StepMeta> ret = new ArrayList<StepMeta>();
+          StepMeta prevStep = chain.lower( findFor );
+          if ( prevStep != null ) {
+            ret.add( prevStep );
           }
-        } );
+          return ret;
+        }
+      } );
     Mockito.when( meta.findStep( Mockito.anyString() ) ).thenAnswer( new Answer<StepMeta>() {
       @Override
       public StepMeta answer( InvocationOnMock invocation ) throws Throwable {
-        Object obj = invocation.getArguments()[0];
+        Object obj = invocation.getArguments()[ 0 ];
         String findFor = String.class.cast( obj );
         for ( StepMeta item : chain ) {
           if ( item.getName().equals( findFor ) ) {
@@ -173,7 +172,7 @@ public class TransPartitioningTest {
 
   /**
    * This checks transformation initialization when using one to many copies
-   * 
+   *
    * @throws HopException
    */
   @Test
@@ -202,7 +201,7 @@ public class TransPartitioningTest {
 
   /**
    * This checks transformation initialization when using many to many copies.
-   * 
+   *
    * @throws HopException
    */
   @Test
@@ -235,7 +234,7 @@ public class TransPartitioningTest {
 
   /**
    * This checks transformation initialization when using many copies to one next step
-   * 
+   *
    * @throws HopException
    */
   @Test
@@ -264,7 +263,7 @@ public class TransPartitioningTest {
 
   /**
    * Test one to one partitioning step transformation organization.
-   * 
+   *
    * @throws HopException
    */
   @Test
@@ -276,7 +275,7 @@ public class TransPartitioningTest {
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 2 rowsets finally", 2, rowsets.size() );
     assertEquals( "We have 3 steps: 1 producer and 2 copies of consumer since it is partitioned", 3, trans.getSteps()
-        .size() );
+      .size() );
 
     // Ok, examine initialized steps now.
     StepInterface stepOne0 = getStepByName( S10 );
@@ -294,7 +293,7 @@ public class TransPartitioningTest {
 
   /**
    * Test 'Swim lines partitioning'
-   * 
+   *
    * @throws HopException
    */
   @Test
@@ -306,7 +305,7 @@ public class TransPartitioningTest {
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 2 rowsets finally", 2, rowsets.size() );
     assertEquals( "We have 3 steps: 1 producer and 2 copies of consumer since it is partitioned", 4, trans.getSteps()
-        .size() );
+      .size() );
 
     // Ok, examine initialized steps now.
     StepInterface stepOne0 = getStepByName( SP10 );
@@ -329,7 +328,7 @@ public class TransPartitioningTest {
   /**
    * This is PDI-12140 case. 2 steps with same partitions ID's count but different partitioner. This is not a swim lines
    * cases and we need repartitioning here.
-   * 
+   *
    * @throws HopException
    */
   @Test
@@ -341,7 +340,7 @@ public class TransPartitioningTest {
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 4 rowsets finally since repartitioning happens", 4, rowsets.size() );
     assertEquals( "We have 4 steps: 2 producer copies and 2 copies of consumer since they both partitioned", 4, trans
-        .getSteps().size() );
+      .getSteps().size() );
 
     // Ok, examine initialized steps now.
     StepInterface stepOne0 = getStepByName( SP10 );
@@ -363,7 +362,7 @@ public class TransPartitioningTest {
 
   /**
    * This is a case when step running in many copies meets partitioning one.
-   * 
+   *
    * @throws HopException
    */
   @Test
@@ -375,7 +374,7 @@ public class TransPartitioningTest {
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 4 rowsets finally since repartitioning happens", 4, rowsets.size() );
     assertEquals( "We have 4 steps: 2 producer copies and 2 copies of consumer since consumer is partitioned", 4, trans
-        .getSteps().size() );
+      .getSteps().size() );
 
     // Ok, examine initialized steps now.
     StepInterface stepOne0 = getStepByName( S10 );
@@ -455,7 +454,7 @@ public class TransPartitioningTest {
 
   /**
    * This is a case when we have 1 step to 1 clustered step distribution.
-   * 
+   *
    * @throws HopPluginException
    */
   private void prepareStepMetas_1_cl1() throws HopPluginException {
@@ -476,7 +475,7 @@ public class TransPartitioningTest {
   /**
    * This case simulates when we do have 2 step partitioned with one same partitioner We want to get a 'swim-lanes'
    * transformation
-   * 
+   *
    * @throws HopPluginException
    */
   private void prepareStepMetas_cl1_cl1() throws HopPluginException {
@@ -503,7 +502,7 @@ public class TransPartitioningTest {
 
   /**
    * This is a case when we have 2 steps, but partitioned differently
-   * 
+   *
    * @throws HopPluginException
    */
   private void prepareStepMetas_cl1_cl2() throws HopPluginException {
@@ -530,7 +529,7 @@ public class TransPartitioningTest {
 
   /**
    * This is a case when first step running 2 copies and next is partitioned one.
-   * 
+   *
    * @throws HopPluginException
    */
   private void prepareStepMetas_x2_cl1() throws HopPluginException {

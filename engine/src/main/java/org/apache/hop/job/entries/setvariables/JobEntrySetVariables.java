@@ -22,27 +22,13 @@
 
 package org.apache.hop.job.entries.setvariables;
 
-import org.apache.hop.job.entry.validator.AbstractFileValidator;
-import org.apache.hop.job.entry.validator.AndValidator;
-import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
-
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopJobException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
@@ -51,13 +37,22 @@ import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.validator.AbstractFileValidator;
+import org.apache.hop.job.entry.validator.AndValidator;
+import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * This defines a 'Set variables' job entry.
@@ -104,9 +99,9 @@ public class JobEntrySetVariables extends JobEntryBase implements Cloneable, Job
   }
 
   public void allocate( int nrFields ) {
-    variableName = new String[nrFields];
-    variableValue = new String[nrFields];
-    variableType = new int[nrFields];
+    variableName = new String[ nrFields ];
+    variableValue = new String[ nrFields ];
+    variableType = new int[ nrFields ];
   }
 
   public Object clone() {
@@ -134,10 +129,10 @@ public class JobEntrySetVariables extends JobEntryBase implements Cloneable, Job
     if ( variableName != null ) {
       for ( int i = 0; i < variableName.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "variable_name", variableName[i] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "variable_value", variableValue[i] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "variable_name", variableName[ i ] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "variable_value", variableValue[ i ] ) );
         retval.append( "          " ).append(
-          XMLHandler.addTagValue( "variable_type", getVariableTypeCode( variableType[i] ) ) );
+          XMLHandler.addTagValue( "variable_type", getVariableTypeCode( variableType[ i ] ) ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
@@ -146,10 +141,10 @@ public class JobEntrySetVariables extends JobEntryBase implements Cloneable, Job
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       replaceVars = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "replacevars" ) );
 
       filename = XMLHandler.getTagValue( entrynode, "filename" );
@@ -164,9 +159,9 @@ public class JobEntrySetVariables extends JobEntryBase implements Cloneable, Job
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        variableName[i] = XMLHandler.getTagValue( fnode, "variable_name" );
-        variableValue[i] = XMLHandler.getTagValue( fnode, "variable_value" );
-        variableType[i] = getVariableType( XMLHandler.getTagValue( fnode, "variable_type" ) );
+        variableName[ i ] = XMLHandler.getTagValue( fnode, "variable_name" );
+        variableValue[ i ] = XMLHandler.getTagValue( fnode, "variable_value" );
+        variableType[ i ] = getVariableType( XMLHandler.getTagValue( fnode, "variable_type" ) );
 
       }
     } catch ( HopXMLException xe ) {
@@ -187,10 +182,10 @@ public class JobEntrySetVariables extends JobEntryBase implements Cloneable, Job
       String realFilename = environmentSubstitute( filename );
       if ( !Utils.isEmpty( realFilename ) ) {
         try ( InputStream is = HopVFS.getInputStream( realFilename );
-            // for UTF8 properties files
-            InputStreamReader isr = new InputStreamReader( is, "UTF-8" );
-            BufferedReader reader = new BufferedReader( isr );
-            ) {
+              // for UTF8 properties files
+              InputStreamReader isr = new InputStreamReader( is, "UTF-8" );
+              BufferedReader reader = new BufferedReader( isr );
+        ) {
           Properties properties = new Properties();
           properties.load( reader );
           for ( Object key : properties.keySet() ) {
@@ -270,7 +265,7 @@ public class JobEntrySetVariables extends JobEntryBase implements Cloneable, Job
             if ( parentJob != null ) {
               String parameterValue = parentJob.getParameterValue( varname );
               // if not a parameter, set the value
-              if ( parameterValue == null  ) {
+              if ( parameterValue == null ) {
                 setEntryStepSetVariable( varname, value );
               } else {
                 //if parameter, save the initial parameter value for use in reset/clear variables in future calls
@@ -340,8 +335,7 @@ public class JobEntrySetVariables extends JobEntryBase implements Cloneable, Job
   }
 
   /**
-   * @param fieldValue
-   *          The fieldValue to set.
+   * @param fieldValue The fieldValue to set.
    */
   public void setVariableName( String[] fieldValue ) {
     this.variableName = fieldValue;
@@ -355,36 +349,33 @@ public class JobEntrySetVariables extends JobEntryBase implements Cloneable, Job
   }
 
   /**
-   * @param variableType
-   *          The variable type, see also VARIABLE_TYPE_...
+   * @param variableType The variable type, see also VARIABLE_TYPE_...
    * @return the variable type code for this variable type
    */
   public static final String getVariableTypeCode( int variableType ) {
-    return variableTypeCode[variableType];
+    return variableTypeCode[ variableType ];
   }
 
   /**
-   * @param variableType
-   *          The variable type, see also VARIABLE_TYPE_...
+   * @param variableType The variable type, see also VARIABLE_TYPE_...
    * @return the variable type description for this variable type
    */
   public static final String getVariableTypeDescription( int variableType ) {
-    return variableTypeDesc[variableType];
+    return variableTypeDesc[ variableType ];
   }
 
   /**
-   * @param variableType
-   *          The code or description of the variable type
+   * @param variableType The code or description of the variable type
    * @return The variable type
    */
   public static final int getVariableType( String variableType ) {
     for ( int i = 0; i < variableTypeCode.length; i++ ) {
-      if ( variableTypeCode[i].equalsIgnoreCase( variableType ) ) {
+      if ( variableTypeCode[ i ].equalsIgnoreCase( variableType ) ) {
         return i;
       }
     }
     for ( int i = 0; i < variableTypeDesc.length; i++ ) {
-      if ( variableTypeDesc[i].equalsIgnoreCase( variableType ) ) {
+      if ( variableTypeDesc[ i ].equalsIgnoreCase( variableType ) ) {
         return i;
       }
     }
@@ -392,8 +383,7 @@ public class JobEntrySetVariables extends JobEntryBase implements Cloneable, Job
   }
 
   /**
-   * @param localVariable
-   *          The localVariable to set.
+   * @param localVariable The localVariable to set.
    */
   public void setVariableType( int[] localVariable ) {
     this.variableType = localVariable;
@@ -404,9 +394,9 @@ public class JobEntrySetVariables extends JobEntryBase implements Cloneable, Job
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     boolean res = JobEntryValidatorUtils.andValidator().validate( this, "variableName", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
 
     if ( res == false ) {
       return;
@@ -426,7 +416,7 @@ public class JobEntrySetVariables extends JobEntryBase implements Cloneable, Job
     if ( variableName != null ) {
       ResourceReference reference = null;
       for ( int i = 0; i < variableName.length; i++ ) {
-        String filename = jobMeta.environmentSubstitute( variableName[i] );
+        String filename = jobMeta.environmentSubstitute( variableName[ i ] );
         if ( reference == null ) {
           reference = new ResourceReference( this );
           references.add( reference );
@@ -445,8 +435,7 @@ public class JobEntrySetVariables extends JobEntryBase implements Cloneable, Job
   }
 
   /**
-   * @param filename
-   *          the filename to set
+   * @param filename the filename to set
    */
   public void setFilename( String filename ) {
     this.filename = filename;
@@ -460,8 +449,7 @@ public class JobEntrySetVariables extends JobEntryBase implements Cloneable, Job
   }
 
   /**
-   * @param fileVariableType
-   *          the fileVariableType to set
+   * @param fileVariableType the fileVariableType to set
    */
   public void setFileVariableType( int fileVariableType ) {
     this.fileVariableType = fileVariableType;

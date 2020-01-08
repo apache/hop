@@ -22,23 +22,6 @@
 
 package org.apache.hop.trans.steps.regexeval;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
@@ -57,6 +40,23 @@ import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class RegexEvalMetaTest implements InitializerInterface<StepMetaInterface> {
   RowMetaInterface mockInputRowMeta;
@@ -119,7 +119,7 @@ public class RegexEvalMetaTest implements InitializerInterface<StepMetaInterface
     regexEvalMeta.allocate( 1 );
     String fieldName = "fieldname";
     //CHECKSTYLE:Indentation:OFF
-    regexEvalMeta.getFieldName()[0] = fieldName;
+    regexEvalMeta.getFieldName()[ 0 ] = fieldName;
     when( mockInputRowMeta.indexOfValue( fieldName ) ).thenReturn( 0 );
     ValueMetaInterface mockValueMeta = mock( ValueMetaInterface.class );
     String mockName = "MOCK_NAME";
@@ -139,7 +139,7 @@ public class RegexEvalMetaTest implements InitializerInterface<StepMetaInterface
     String name = "TEST_NAME";
     regexEvalMeta.allocate( 1 );
     String fieldName = "fieldname";
-    regexEvalMeta.getFieldName()[0] = fieldName;
+    regexEvalMeta.getFieldName()[ 0 ] = fieldName;
     when( mockInputRowMeta.indexOfValue( fieldName ) ).thenReturn( -1 );
     ValueMetaInterface mockValueMeta = mock( ValueMetaInterface.class );
     String mockName = "MOCK_NAME";
@@ -158,10 +158,10 @@ public class RegexEvalMetaTest implements InitializerInterface<StepMetaInterface
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "script", "matcher", "resultfieldname", "usevar", "allowcapturegroups", "replacefields", "canoneq",
-            "caseinsensitive", "comment", "dotall", "multiline", "unicode", "unix", "fieldName", "fieldFormat", "fieldGroup",
-            "fieldDecimal", "fieldCurrency", "fieldNullIf", "fieldIfNull", "fieldTrimType", "fieldLength", "fieldPrecision",
-            "fieldType" );
+      Arrays.asList( "script", "matcher", "resultfieldname", "usevar", "allowcapturegroups", "replacefields", "canoneq",
+        "caseinsensitive", "comment", "dotall", "multiline", "unicode", "unix", "fieldName", "fieldFormat", "fieldGroup",
+        "fieldDecimal", "fieldCurrency", "fieldNullIf", "fieldIfNull", "fieldTrimType", "fieldLength", "fieldPrecision",
+        "fieldType" );
 
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
@@ -220,7 +220,7 @@ public class RegexEvalMetaTest implements InitializerInterface<StepMetaInterface
       }
     };
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
@@ -240,8 +240,8 @@ public class RegexEvalMetaTest implements InitializerInterface<StepMetaInterface
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
-            getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class

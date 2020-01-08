@@ -22,11 +22,10 @@
 
 package org.apache.hop.trans.steps.mailinput;
 
-import java.util.Iterator;
-
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import java.util.Iterator;
 
 public class BatchFolderIterator implements Iterator<Message> {
 
@@ -66,7 +65,7 @@ public class BatchFolderIterator implements Iterator<Message> {
     this.batchFirst = this.start;
     this.batchLast = this.start - 1;
 
-    messages = new Message[0];
+    messages = new Message[ 0 ];
     // if (!getNextBatch() || msgCount == SIZE_ERR) throw new RuntimeException("TODO:"); //TODO
 
   }
@@ -102,7 +101,7 @@ public class BatchFolderIterator implements Iterator<Message> {
 
   @Override
   public Message next() {
-    return messages[buffIndex++];
+    return messages[ buffIndex++ ];
   }
 
   /**

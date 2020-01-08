@@ -22,12 +22,12 @@
 
 package org.apache.hop.trans;
 
-import java.util.List;
-
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.GCInterface;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.trans.step.StepMeta;
+
+import java.util.List;
 
 public class TransPainterFlyoutExtension {
 
@@ -43,7 +43,7 @@ public class TransPainterFlyoutExtension {
   public float magnification;
 
   public TransPainterFlyoutExtension( GCInterface gc, List<AreaOwner> areaOwners, TransMeta transMeta,
-      StepMeta stepMeta, float translationX, float translationY, float magnification, Point area, Point offset ) {
+                                      StepMeta stepMeta, float translationX, float translationY, float magnification, Point area, Point offset ) {
     super();
     this.gc = gc;
     this.areaOwners = areaOwners;

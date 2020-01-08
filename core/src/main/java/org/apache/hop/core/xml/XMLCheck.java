@@ -22,14 +22,13 @@
 
 package org.apache.hop.core.xml;
 
-import java.io.InputStream;
-
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.InputStream;
 
 public class XMLCheck {
 
@@ -40,8 +39,7 @@ public class XMLCheck {
   /**
    * Checks an xml file is well formed.
    *
-   * @param file
-   *          The file to check
+   * @param file The file to check
    * @return true if the file is well formed.
    */
   public static final boolean isXMLFileWellFormed( FileObject file ) throws HopException {
@@ -58,8 +56,7 @@ public class XMLCheck {
   /**
    * Checks an xml string is well formed.
    *
-   * @param is
-   *          inputstream
+   * @param is inputstream
    * @return true if the xml is well formed.
    */
   public static boolean isXMLWellFormed( InputStream is ) throws HopException {

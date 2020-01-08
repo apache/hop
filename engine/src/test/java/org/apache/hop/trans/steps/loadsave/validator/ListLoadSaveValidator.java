@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Random;
 
 public class ListLoadSaveValidator<ObjectType> implements
-    FieldLoadSaveValidator<List<ObjectType>> {
+  FieldLoadSaveValidator<List<ObjectType>> {
   private final FieldLoadSaveValidator<ObjectType> validator;
   private final Integer elements;
 

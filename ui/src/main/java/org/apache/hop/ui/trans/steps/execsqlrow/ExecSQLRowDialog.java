@@ -22,8 +22,19 @@
 
 package org.apache.hop.ui.trans.steps.execsqlrow;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.execsqlrow.ExecSQLRowMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusListener;
@@ -46,17 +57,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.execsqlrow.ExecSQLRowMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class ExecSQLRowDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = ExecSQLRowMeta.class; // for i18n purposes, needed by Translator2!!
@@ -480,7 +480,7 @@ public class ExecSQLRowDialog extends BaseStepDialog implements StepDialogInterf
       } catch ( HopException ke ) {
         new ErrorDialog(
           shell, BaseMessages.getString( PKG, "ExecSQLRowDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-            .getString( PKG, "ExecSQLRowDialog.FailedToGetFields.DialogMessage" ), ke );
+          .getString( PKG, "ExecSQLRowDialog.FailedToGetFields.DialogMessage" ), ke );
       }
     }
   }

@@ -26,24 +26,23 @@
 
 package org.apache.hop.trans.steps.excelinput.staxpoi;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-
-import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.spreadsheet.KSheet;
 import org.apache.hop.core.spreadsheet.KWorkbook;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.xssf.eventusermodel.XSSFReader;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Streaming reader for XLSX files.<br>
@@ -103,7 +102,7 @@ public class StaxPoiWorkbook implements KWorkbook {
       workbookReader = factory.createXMLStreamReader( workbookData );
       while ( workbookReader.hasNext() ) {
         if ( workbookReader.next() == XMLStreamConstants.START_ELEMENT
-            && workbookReader.getLocalName().equals( "sheet" ) ) {
+          && workbookReader.getLocalName().equals( "sheet" ) ) {
           String sheetName = workbookReader.getAttributeValue( null, "name" );
           String sheetID = workbookReader.getAttributeValue( RELATION_NS_URI, "id" );
           sheetNameIDMap.put( sheetName, sheetID );
@@ -112,7 +111,7 @@ public class StaxPoiWorkbook implements KWorkbook {
       sheetNames = new String[ sheetNameIDMap.size() ];
       int i = 0;
       for ( String sheetName : sheetNameIDMap.keySet() ) {
-        sheetNames[i++] = sheetName;
+        sheetNames[ i++ ] = sheetName;
       }
     } catch ( Exception e ) {
       throw new HopException( e );
@@ -157,7 +156,7 @@ public class StaxPoiWorkbook implements KWorkbook {
 
   @Override
   public String[] getSheetNames() {
-    String[] sheets = new String[sheetNameIDMap.size()];
+    String[] sheets = new String[ sheetNameIDMap.size() ];
     return sheetNameIDMap.keySet().toArray( sheets );
   }
 
@@ -187,7 +186,7 @@ public class StaxPoiWorkbook implements KWorkbook {
   @Override
   public KSheet getSheet( int sheetNr ) {
     if ( sheetNr >= 0 && sheetNr < sheetNames.length ) {
-      return getSheet( sheetNames[sheetNr] );
+      return getSheet( sheetNames[ sheetNr ] );
     }
     return null;
   }
@@ -195,7 +194,7 @@ public class StaxPoiWorkbook implements KWorkbook {
   @Override
   public String getSheetName( int sheetNr ) {
     if ( sheetNr >= 0 && sheetNr < sheetNames.length ) {
-      return sheetNames[sheetNr];
+      return sheetNames[ sheetNr ];
     }
     return null;
   }

@@ -22,12 +22,12 @@
 
 package org.apache.hop.trans.steps.dynamicsqlrow;
 
-import java.util.ArrayList;
-
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import java.util.ArrayList;
 
 /**
  * @author Matt

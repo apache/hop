@@ -22,6 +22,8 @@
 
 package org.apache.hop.trans.steps.samplerows;
 
+import com.google.common.collect.ImmutableRangeSet;
+import com.google.common.collect.Range;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
@@ -33,9 +35,6 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-
-import com.google.common.collect.ImmutableRangeSet;
-import com.google.common.collect.Range;
 
 /**
  * Sample rows. Filter rows based on line number
@@ -92,8 +91,8 @@ public class SampleRows extends BaseStep implements StepInterface {
 
         } else if ( part.matches( "\\d+\\.\\.\\d+" ) ) {
           String[] rangeMultiPart = part.split( "\\.\\." );
-          Integer start = Integer.valueOf( rangeMultiPart[0] );
-          Integer end = Integer.valueOf( rangeMultiPart[1] );
+          Integer start = Integer.valueOf( rangeMultiPart[ 0 ] );
+          Integer end = Integer.valueOf( rangeMultiPart[ 1 ] );
           Range<Integer> range = Range.closed( start, end );
           if ( log.isDebug() ) {
             logDebug( BaseMessages.getString( PKG, "SampleRows.Log.RangeValue", range ) );
@@ -107,7 +106,7 @@ public class SampleRows extends BaseStep implements StepInterface {
     if ( data.addlineField ) {
       data.outputRow = RowDataUtil.allocateRowData( data.outputRowMeta.size() );
       for ( int i = 0; i < data.NrPrevFields; i++ ) {
-        data.outputRow[i] = r[i];
+        data.outputRow[ i ] = r[ i ];
       }
     } else {
       data.outputRow = r;
@@ -116,7 +115,7 @@ public class SampleRows extends BaseStep implements StepInterface {
     int linesRead = (int) getLinesRead();
     if ( data.rangeSet.contains( linesRead ) ) {
       if ( data.addlineField ) {
-        data.outputRow[data.NrPrevFields] = getLinesRead();
+        data.outputRow[ data.NrPrevFields ] = getLinesRead();
       }
 
       // copy row to possible alternate rowset(s).

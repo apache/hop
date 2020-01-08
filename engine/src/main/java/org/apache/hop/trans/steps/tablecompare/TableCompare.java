@@ -22,16 +22,14 @@
 
 package org.apache.hop.trans.steps.tablecompare;
 
-import java.sql.ResultSet;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -40,6 +38,8 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.sql.ResultSet;
 
 /**
  * @author Matt
@@ -53,7 +53,7 @@ public class TableCompare extends BaseStep implements StepInterface {
   private TableCompareData data;
 
   public TableCompare( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                       Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
 
     meta = (TableCompareMeta) getStepMeta().getStepMetaInterface();
@@ -211,7 +211,7 @@ public class TableCompare extends BaseStep implements StepInterface {
   }
 
   private Object[] compareTables( RowMetaInterface rowMeta, Object[] r, String referenceSchema,
-    String referenceTable, String compareSchema, String compareTable, String keyFields, String excludeFields ) throws HopException {
+                                  String referenceTable, String compareSchema, String compareTable, String keyFields, String excludeFields ) throws HopException {
     long nrErrors = 0L;
     long nrLeftErrors = 0L;
     long nrRightErrors = 0L;
@@ -219,7 +219,7 @@ public class TableCompare extends BaseStep implements StepInterface {
     long nrRecordsReference = 0L;
     long nrRecordsCompare = 0L;
 
-    Object[] result = new Object[6];
+    Object[] result = new Object[ 6 ];
 
     if ( Utils.isEmpty( referenceTable ) ) {
       Object[] errorRowData = constructErrorRow( rowMeta, r, null, null, null );
@@ -250,17 +250,17 @@ public class TableCompare extends BaseStep implements StepInterface {
     // If something is wrong here, we can't continue...
     //
     if ( nrErrors > 0 ) {
-      result[0] = Long.valueOf( nrErrors );
+      result[ 0 ] = Long.valueOf( nrErrors );
       return result;
     }
 
     String[] keys = keyFields.split( "," );
     for ( int i = 0; i < keys.length; i++ ) {
-      keys[i] = Kjube.trim( keys[i] );
+      keys[ i ] = Kjube.trim( keys[ i ] );
     }
-    String[] excluded = Utils.isEmpty( excludeFields ) ? new String[0] : excludeFields.split( "," );
+    String[] excluded = Utils.isEmpty( excludeFields ) ? new String[ 0 ] : excludeFields.split( "," );
     for ( int i = 0; i < excluded.length; i++ ) {
-      excluded[i] = Kjube.trim( excluded[i] );
+      excluded[ i ] = Kjube.trim( excluded[ i ] );
     }
 
     try {
@@ -317,7 +317,7 @@ public class TableCompare extends BaseStep implements StepInterface {
         // If we can't find all key fields, stop here...
         //
         if ( nrErrors > 0 ) {
-          result[0] = Long.valueOf( nrErrors );
+          result[ 0 ] = Long.valueOf( nrErrors );
           return result;
         }
 
@@ -327,7 +327,7 @@ public class TableCompare extends BaseStep implements StepInterface {
         RowMetaInterface keyRowMeta = new RowMeta();
         RowMetaInterface valueRowMeta = new RowMeta();
 
-        int[] keyNrs = new int[keys.length];
+        int[] keyNrs = new int[ keys.length ];
 
         String refSql = "SELECT ";
         String cmpSql = "SELECT ";
@@ -336,19 +336,19 @@ public class TableCompare extends BaseStep implements StepInterface {
             refSql += ", ";
             cmpSql += ", ";
           }
-          keyNrs[i] = i;
-          refSql += meta.getReferenceConnection().quoteField( keys[i] );
-          cmpSql += meta.getReferenceConnection().quoteField( keys[i] );
+          keyNrs[ i ] = i;
+          refSql += meta.getReferenceConnection().quoteField( keys[ i ] );
+          cmpSql += meta.getReferenceConnection().quoteField( keys[ i ] );
         }
-        int[] valueNrs = new int[refFields.size() - keys.length];
+        int[] valueNrs = new int[ refFields.size() - keys.length ];
         int valueNr = keys.length;
         int valueIndex = 0;
         for ( int i = 0; i < refFields.getFieldNames().length; i++ ) {
-          String field = refFields.getFieldNames()[i];
+          String field = refFields.getFieldNames()[ i ];
           if ( Const.indexOfString( field, keys ) < 0 ) {
             refSql += ", " + meta.getReferenceConnection().quoteField( field );
             valueRowMeta.addValueMeta( refFields.searchValueMeta( field ) );
-            valueNrs[valueIndex++] = valueNr++;
+            valueNrs[ valueIndex++ ] = valueNr++;
           }
         }
 
@@ -364,8 +364,8 @@ public class TableCompare extends BaseStep implements StepInterface {
             refSql += ", ";
             cmpSql += ", ";
           }
-          refSql += meta.getReferenceConnection().quoteField( keys[i] );
-          cmpSql += meta.getReferenceConnection().quoteField( keys[i] );
+          refSql += meta.getReferenceConnection().quoteField( keys[ i ] );
+          cmpSql += meta.getReferenceConnection().quoteField( keys[ i ] );
         }
 
         // Now we execute the SQL...
@@ -383,7 +383,7 @@ public class TableCompare extends BaseStep implements StepInterface {
           if ( oneMeta == null ) {
             oneMeta = data.referenceDb.getReturnRowMeta();
             for ( int i = 0; i < keys.length; i++ ) {
-              keyRowMeta.addValueMeta( oneMeta.searchValueMeta( keys[i] ) );
+              keyRowMeta.addValueMeta( oneMeta.searchValueMeta( keys[ i ] ) );
             }
           }
         }
@@ -394,7 +394,7 @@ public class TableCompare extends BaseStep implements StepInterface {
             twoMeta = data.compareDb.getReturnRowMeta();
             if ( keyRowMeta.isEmpty() ) {
               for ( int i = 0; i < keys.length; i++ ) {
-                keyRowMeta.addValueMeta( twoMeta.searchValueMeta( keys[i] ) );
+                keyRowMeta.addValueMeta( twoMeta.searchValueMeta( keys[ i ] ) );
               }
             }
           }
@@ -460,8 +460,8 @@ public class TableCompare extends BaseStep implements StepInterface {
                     //
                     for ( int idx : valueNrs ) {
                       ValueMetaInterface valueMeta = oneMeta.getValueMeta( idx );
-                      Object oneData = one[idx];
-                      Object twoData = two[idx];
+                      Object oneData = one[ idx ];
+                      Object twoData = two[ idx ];
                       int cmp = valueMeta.compare( oneData, twoData );
                       if ( cmp != 0 ) {
 
@@ -540,16 +540,16 @@ public class TableCompare extends BaseStep implements StepInterface {
     }
 
     int index = 0;
-    result[index++] = Long.valueOf( nrErrors );
-    result[index++] = Long.valueOf( nrRecordsReference );
-    result[index++] = Long.valueOf( nrRecordsCompare );
-    result[index++] = Long.valueOf( nrLeftErrors );
-    result[index++] = Long.valueOf( nrInnerErrors );
-    result[index++] = Long.valueOf( nrRightErrors );
+    result[ index++ ] = Long.valueOf( nrErrors );
+    result[ index++ ] = Long.valueOf( nrRecordsReference );
+    result[ index++ ] = Long.valueOf( nrRecordsCompare );
+    result[ index++ ] = Long.valueOf( nrLeftErrors );
+    result[ index++ ] = Long.valueOf( nrInnerErrors );
+    result[ index++ ] = Long.valueOf( nrRightErrors );
 
-    r[data.keyDescIndex] = null;
-    r[data.valueReferenceIndex] = null;
-    r[data.valueCompareIndex] = null;
+    r[ data.keyDescIndex ] = null;
+    r[ data.valueReferenceIndex ] = null;
+    r[ data.valueCompareIndex ] = null;
 
     return result;
   }
@@ -558,7 +558,7 @@ public class TableCompare extends BaseStep implements StepInterface {
     StringBuilder keyDesc = new StringBuilder();
     for ( int x = 0; x < keyNrs.length; x++ ) {
       ValueMetaInterface keyValueMeta = keyRowMeta.getValueMeta( x );
-      Object keyValueData = one[keyNrs[x]];
+      Object keyValueData = one[ keyNrs[ x ] ];
 
       if ( keyDesc.length() > 0 ) {
         keyDesc.append( " and " );
@@ -571,15 +571,15 @@ public class TableCompare extends BaseStep implements StepInterface {
   }
 
   private Object[] constructErrorRow( RowMetaInterface rowMeta, Object[] r, String keyField,
-    String referenceValue, String compareValue ) throws HopException {
+                                      String referenceValue, String compareValue ) throws HopException {
 
     if ( data.errorRowMeta == null ) {
       data.errorRowMeta = rowMeta.clone();
     }
 
-    r[data.keyDescIndex] = keyField;
-    r[data.valueReferenceIndex] = referenceValue;
-    r[data.valueCompareIndex] = compareValue;
+    r[ data.keyDescIndex ] = keyField;
+    r[ data.valueReferenceIndex ] = referenceValue;
+    r[ data.valueCompareIndex ] = compareValue;
 
     return r;
   }

@@ -22,12 +22,12 @@
 
 package org.apache.hop.job.entry.validator;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.CheckResultSourceInterface;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 /**
  * Fails if a field's value is <code>null</code>.
@@ -41,7 +41,7 @@ public class NotNullValidator implements JobEntryValidator {
   private static final String VALIDATOR_NAME = "notNull";
 
   public boolean validate( CheckResultSourceInterface source, String propertyName,
-    List<CheckResultInterface> remarks, ValidatorContext context ) {
+                           List<CheckResultInterface> remarks, ValidatorContext context ) {
     Object value = null;
     try {
       value = PropertyUtils.getProperty( source, propertyName );

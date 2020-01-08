@@ -22,14 +22,14 @@
 
 package org.apache.hop.trans.steps.calculator;
 
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-import org.apache.hop.core.row.ValueMetaInterface;
 
 public class CalculatorMetaFunctionTest {
 

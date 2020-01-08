@@ -22,8 +22,8 @@
 
 package org.apache.hop.concurrency;
 
-import org.junit.Test;
 import org.apache.hop.trans.Trans;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,16 +33,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * In this test we add new elements to shared transformation concurrently
  * and get added elements from this transformation concurrently.
- *
+ * <p>
  * When working with {@link java.util.HashMap} with default loadFactor this test will fail
  * when HashMap will try to rearrange it's elements (it will happen when number of elements in map will be equal to
  * capacity/loadFactor).
- *
+ * <p>
  * Map will be in inconsistent state, because in the same time, when rearrange happens other threads will be adding
  * new elements to map.
  * This will lead to unpredictable result of executing {@link java.util.HashMap#size()} method (as a result there
  * would be an error in {@link Getter#call()} ).
- *
  */
 public class ActiveSubTransformationsConcurrencyTest {
   private static final int NUMBER_OF_GETTERS = 10;

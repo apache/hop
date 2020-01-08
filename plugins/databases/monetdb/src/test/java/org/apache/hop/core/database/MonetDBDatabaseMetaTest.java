@@ -21,13 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
@@ -36,6 +29,13 @@ import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class MonetDBDatabaseMetaTest {
 
@@ -52,14 +52,14 @@ public class MonetDBDatabaseMetaTest {
   @Test
   public void testSettings() throws Exception {
     assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
-        nativeMeta.getAccessTypeList() );
+      nativeMeta.getAccessTypeList() );
     assertEquals( 50000, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertTrue( nativeMeta.supportsAutoInc() );
     assertEquals( 1, nativeMeta.getNotFoundTK( true ) );
     assertEquals( 0, nativeMeta.getNotFoundTK( false ) );
     assertEquals( "nl.cwi.monetdb.jdbc.MonetDriver", nativeMeta.getDriverClass() );
-    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL(  "IGNORED", "IGNORED", "FOO" ) );
+    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "IGNORED", "IGNORED", "FOO" ) );
     assertEquals( "jdbc:monetdb://FOO:BAR/WIBBLE", nativeMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
     assertEquals( "jdbc:monetdb://FOO/WIBBLE", nativeMeta.getURL( "FOO", "", "WIBBLE" ) );
     assertFalse( nativeMeta.isFetchSizeSupported() );
@@ -84,15 +84,15 @@ public class MonetDBDatabaseMetaTest {
   @Test
   public void testSQLStatements() {
     assertEquals( "ALTER TABLE FOO ADD BAR VARCHAR(15)",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO MODIFY BAR VARCHAR(15)",
-        nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
+      nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
 
     assertEquals( "insert into FOO(FOOKEY, FOOVERSION) values (0, 1)",
-        nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
+      nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
     assertEquals( "DELETE FROM FOO",
-        nativeMeta.getTruncateTableStatement( "FOO" ) );
+      nativeMeta.getTruncateTableStatement( "FOO" ) );
     assertEquals( "SELECT * FROM FOO;", nativeMeta.getSQLQueryFields( "FOO" ) ); // Pretty sure the semicolon shouldn't be there - likely bug.
     assertEquals( "SELECT name FROM sys.sequences", nativeMeta.getSQLListOfSequences() );
     assertEquals( "SELECT * FROM sys.sequences WHERE name = 'FOO'", nativeMeta.getSQLSequenceExists( "FOO" ) );
@@ -105,51 +105,51 @@ public class MonetDBDatabaseMetaTest {
   @Test
   public void testGetFieldDefinition() {
     assertEquals( "FOO TIMESTAMP",
-        nativeMeta.getFieldDefinition( new ValueMetaDate( "FOO" ), "", "", false, true, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaDate( "FOO" ), "", "", false, true, false ) );
     assertEquals( "TIMESTAMP",
-        nativeMeta.getFieldDefinition( new ValueMetaTimestamp( "FOO" ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaTimestamp( "FOO" ), "", "", false, false, false ) );
 
     // Simple hack to prevent duplication of code. Checking the case of supported boolean type
     // both supported and unsupported. Should return BOOLEAN if supported, or CHAR(1) if not.
     String[] typeCk = new String[] { "CHAR(1)", "BOOLEAN", "CHAR(1)" };
     int i = ( nativeMeta.supportsBooleanDataType() ? 1 : 0 );
-    assertEquals( typeCk[i],
-        nativeMeta.getFieldDefinition( new ValueMetaBoolean( "FOO" ), "", "", false, false, false ) );
+    assertEquals( typeCk[ i ],
+      nativeMeta.getFieldDefinition( new ValueMetaBoolean( "FOO" ), "", "", false, false, false ) );
     odbcMeta.setSupportsBooleanDataType( !( odbcMeta.supportsBooleanDataType() ) );
     assertEquals( typeCk[ i + 1 ],
-        odbcMeta.getFieldDefinition( new ValueMetaBoolean( "FOO" ), "", "", false, false, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaBoolean( "FOO" ), "", "", false, false, false ) );
     odbcMeta.setSupportsBooleanDataType( !( odbcMeta.supportsBooleanDataType() ) );
 
     assertEquals( "SERIAL",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 8, 0 ), "", "FOO", true, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 8, 0 ), "", "FOO", true, false, false ) );
     assertEquals( "BIGINT",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 10, 0 ), "FOO", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 10, 0 ), "FOO", "", false, false, false ) );
     assertEquals( "BIGINT",
-        nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 8, 0 ), "", "FOO", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 8, 0 ), "", "FOO", false, false, false ) );
 
     // integer types ( precision == 0 )
     assertEquals( "BIGINT",
-        nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 8, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 8, 0 ), "", "", false, false, false ) );
     assertEquals( "BIGINT",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 10, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 10, 0 ), "", "", false, false, false ) );
     assertEquals( "DECIMAL(19)",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 19, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 19, 0 ), "", "", false, false, false ) );
     assertEquals( "DOUBLE",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 8, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 8, 0 ), "", "", false, false, false ) );
 
     // Numerics with precisions
     assertEquals( "DECIMAL(19, 5)",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 19, 5 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 19, 5 ), "", "", false, false, false ) );
 
     assertEquals( "DECIMAL(19)",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 19, -5 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 19, -5 ), "", "", false, false, false ) );
 
     assertEquals( "DOUBLE",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 11, 5 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 11, 5 ), "", "", false, false, false ) );
 
     // String Types
     assertEquals( "VARCHAR(10)",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", 10, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", 10, 0 ), "", "", false, false, false ) );
 
 
     // This next one is a bug:
@@ -157,19 +157,19 @@ public class MonetDBDatabaseMetaTest {
     //   if statement for CLOB trips if length > getMaxVARCHARLength()
     //   length is of type int - so this could never happen
     assertEquals( "VARCHAR()",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", nativeMeta.getMaxVARCHARLength() + 1, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", nativeMeta.getMaxVARCHARLength() + 1, 0 ), "", "", false, false, false ) );
 
     assertEquals( "VARCHAR()",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", -2, 0 ), "", "", false, false, false ) ); // should end up with (100) if "safeMode = true"
+      nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", -2, 0 ), "", "", false, false, false ) ); // should end up with (100) if "safeMode = true"
 
     MonetDBDatabaseMeta.safeModeLocal.set( new Boolean( true ) );
     assertEquals( "VARCHAR(100)",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", -2, 0 ), "", "", false, false, false ) ); // should end up with (100) if "safeMode = true"
+      nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", -2, 0 ), "", "", false, false, false ) ); // should end up with (100) if "safeMode = true"
 
     assertEquals( " UNKNOWN",
-        nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, false ) );
     assertEquals( " UNKNOWN" + System.getProperty( "line.separator" ),
-        nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, true ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, true ) );
 
   }
 

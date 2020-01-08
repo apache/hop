@@ -22,10 +22,6 @@
 
 package org.apache.hop.trans.steps.csvinput;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
@@ -36,6 +32,10 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.steps.StepMockUtil;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
 import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;

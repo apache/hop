@@ -17,21 +17,6 @@
 
 package org.apache.hop.metastore.stores.xml;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
 import org.apache.hop.metastore.api.IMetaStoreElement;
 import org.apache.hop.metastore.api.IMetaStoreElementType;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
@@ -41,6 +26,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class XmlMetaStoreElement extends XmlMetaStoreAttribute implements IMetaStoreElement {
 
@@ -77,11 +76,9 @@ public class XmlMetaStoreElement extends XmlMetaStoreAttribute implements IMetaS
 
   /**
    * Load element data recursively from an XML file...
-   * 
-   * @param filename
-   *          The file to load the element (with children) from.
-   * @throws MetaStoreException
-   *           In case there is a problem reading the file.
+   *
+   * @param filename The file to load the element (with children) from.
+   * @throws MetaStoreException In case there is a problem reading the file.
    */
   public XmlMetaStoreElement( String filename ) throws MetaStoreException {
     this();
@@ -234,7 +231,7 @@ public class XmlMetaStoreElement extends XmlMetaStoreAttribute implements IMetaS
 
   /**
    * Duplicate the element data into this structure.
-   * 
+   *
    * @param element
    */
   public XmlMetaStoreElement( IMetaStoreElement element ) {
@@ -246,7 +243,7 @@ public class XmlMetaStoreElement extends XmlMetaStoreAttribute implements IMetaS
     }
     for ( MetaStoreOwnerPermissions ownerPermissions : element.getOwnerPermissionsList() ) {
       this.getOwnerPermissionsList().add(
-          new MetaStoreOwnerPermissions( ownerPermissions.getOwner(), ownerPermissions.getPermissions() ) );
+        new MetaStoreOwnerPermissions( ownerPermissions.getOwner(), ownerPermissions.getPermissions() ) );
     }
   }
 

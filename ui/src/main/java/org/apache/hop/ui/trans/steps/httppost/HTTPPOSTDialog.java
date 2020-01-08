@@ -22,13 +22,27 @@
 
 package org.apache.hop.ui.trans.steps.httppost;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.httppost.HTTPPOSTMeta;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.ComponentSelectionListener;
+import org.apache.hop.ui.trans.step.TableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -54,27 +68,13 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.httppost.HTTPPOSTMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.PasswordTextVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.ComponentSelectionListener;
-import org.apache.hop.ui.trans.step.TableItemInsertListener;
+
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class HTTPPOSTDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = HTTPPOSTMeta.class; // for i18n purposes, needed by Translator2!!
@@ -729,7 +729,7 @@ public class HTTPPOSTDialog extends BaseStepDialog implements StepDialogInterfac
         new ColumnInfo(
           BaseMessages.getString( PKG, "HTTPPOSTDialog.ColumnInfo.Header" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
           YES_NO_COMBO ), };
-    colinf[1].setUsingVariables( true );
+    colinf[ 1 ].setUsingVariables( true );
     wFields =
       new TableView(
         transMeta, wAdditionalComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
@@ -767,7 +767,7 @@ public class HTTPPOSTDialog extends BaseStepDialog implements StepDialogInterfac
         new ColumnInfo(
           BaseMessages.getString( PKG, "HTTPPOSTDialog.ColumnInfo.QueryParameter" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false ), };
-    colinfquery[1].setUsingVariables( true );
+    colinfquery[ 1 ].setUsingVariables( true );
     wQuery =
       new TableView(
         transMeta, wAdditionalComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinfquery, QueryRows,
@@ -920,11 +920,11 @@ public class HTTPPOSTDialog extends BaseStepDialog implements StepDialogInterfac
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    fieldNames = entries.toArray( new String[entries.size()] );
+    fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    colinf[0].setComboValues( fieldNames );
-    colinfquery[0].setComboValues( fieldNames );
+    colinf[ 0 ].setComboValues( fieldNames );
+    colinfquery[ 0 ].setComboValues( fieldNames );
   }
 
   private void setStreamFields() {
@@ -986,23 +986,23 @@ public class HTTPPOSTDialog extends BaseStepDialog implements StepDialogInterfac
     if ( input.getArgumentField() != null ) {
       for ( int i = 0; i < input.getArgumentField().length; i++ ) {
         TableItem item = wFields.table.getItem( i );
-        if ( input.getArgumentField()[i] != null ) {
-          item.setText( 1, input.getArgumentField()[i] );
+        if ( input.getArgumentField()[ i ] != null ) {
+          item.setText( 1, input.getArgumentField()[ i ] );
         }
-        if ( input.getArgumentParameter()[i] != null ) {
-          item.setText( 2, input.getArgumentParameter()[i] );
+        if ( input.getArgumentParameter()[ i ] != null ) {
+          item.setText( 2, input.getArgumentParameter()[ i ] );
         }
-        item.setText( 3, ( input.getArgumentHeader()[i] ) ? YES : NO );
+        item.setText( 3, ( input.getArgumentHeader()[ i ] ) ? YES : NO );
       }
     }
     if ( input.getQueryField() != null ) {
       for ( int i = 0; i < input.getQueryField().length; i++ ) {
         TableItem item = wQuery.table.getItem( i );
-        if ( input.getQueryField()[i] != null ) {
-          item.setText( 1, input.getQueryField()[i] );
+        if ( input.getQueryField()[ i ] != null ) {
+          item.setText( 1, input.getQueryField()[ i ] );
         }
-        if ( input.getQueryParameter()[i] != null ) {
-          item.setText( 2, input.getQueryParameter()[i] );
+        if ( input.getQueryParameter()[ i ] != null ) {
+          item.setText( 2, input.getQueryParameter()[ i ] );
         }
       }
     }
@@ -1077,9 +1077,9 @@ public class HTTPPOSTDialog extends BaseStepDialog implements StepDialogInterfac
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrargs; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      input.getArgumentField()[i] = item.getText( 1 );
-      input.getArgumentParameter()[i] = item.getText( 2 );
-      input.getArgumentHeader()[i] = YES.equals( item.getText( 3 ) );
+      input.getArgumentField()[ i ] = item.getText( 1 );
+      input.getArgumentParameter()[ i ] = item.getText( 2 );
+      input.getArgumentHeader()[ i ] = YES.equals( item.getText( 3 ) );
     }
 
     int nrqueryparams = wQuery.nrNonEmpty();
@@ -1092,8 +1092,8 @@ public class HTTPPOSTDialog extends BaseStepDialog implements StepDialogInterfac
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrqueryparams; i++ ) {
       TableItem item = wQuery.getNonEmpty( i );
-      input.getQueryField()[i] = item.getText( 1 );
-      input.getQueryParameter()[i] = item.getText( 2 );
+      input.getQueryField()[ i ] = item.getText( 1 );
+      input.getQueryParameter()[ i ] = item.getText( 2 );
     }
 
     input.setUrl( wUrl.getText() );
@@ -1134,7 +1134,7 @@ public class HTTPPOSTDialog extends BaseStepDialog implements StepDialogInterfac
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "HTTPPOSTDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "HTTPPOSTDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "HTTPPOSTDialog.FailedToGetFields.DialogMessage" ), ke );
     }
 
   }
@@ -1148,7 +1148,7 @@ public class HTTPPOSTDialog extends BaseStepDialog implements StepDialogInterfac
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "HTTPPOSTDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "HTTPPOSTDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "HTTPPOSTDialog.FailedToGetFields.DialogMessage" ), ke );
     }
 
   }

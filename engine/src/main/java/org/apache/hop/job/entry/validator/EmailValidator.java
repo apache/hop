@@ -22,13 +22,12 @@
 
 package org.apache.hop.job.entry.validator;
 
-import org.apache.commons.validator.util.ValidatorUtils;
-
-import java.util.List;
-
 import org.apache.commons.validator.GenericValidator;
+import org.apache.commons.validator.util.ValidatorUtils;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.CheckResultSourceInterface;
+
+import java.util.List;
 
 public class EmailValidator implements JobEntryValidator {
 
@@ -41,7 +40,7 @@ public class EmailValidator implements JobEntryValidator {
   }
 
   public boolean validate( CheckResultSourceInterface source, String propertyName,
-    List<CheckResultInterface> remarks, ValidatorContext context ) {
+                           List<CheckResultInterface> remarks, ValidatorContext context ) {
     String value = null;
 
     value = ValidatorUtils.getValueAsString( source, propertyName );

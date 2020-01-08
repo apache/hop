@@ -22,19 +22,19 @@
 
 package org.apache.hop.version;
 
+import org.apache.hop.core.exception.HopVersionException;
+import org.apache.hop.core.row.ValueMeta;
+import org.apache.hop.core.xml.XMLHandler;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import org.apache.hop.core.exception.HopVersionException;
-import org.apache.hop.core.row.ValueMeta;
-import org.apache.hop.core.xml.XMLHandler;
-
 /**
  * Singleton class to allow us to see on which date & time the kettle3.jar was built.
- * 
+ *
  * @author Matt
  * @since 2006-aug-12
  */
@@ -142,8 +142,7 @@ public class BuildVersion {
   }
 
   /**
-   * @param buildDate
-   *          the buildDate to set
+   * @param buildDate the buildDate to set
    */
   public void setBuildDate( String buildDate ) throws HopVersionException {
     // don't let them set a bogus date...
@@ -154,7 +153,7 @@ public class BuildVersion {
       // reset it to the old date...
       this.buildDate = tempDate;
       throw new HopVersionException( "Error:  Invalid date being set as build date" ); // this should be
-                                                                                          // localizable... next
+      // localizable... next
       // pass....
     }
   }
@@ -167,8 +166,7 @@ public class BuildVersion {
   }
 
   /**
-   * @param revision
-   *          the version to set
+   * @param revision the version to set
    */
   public void setVersion( String version ) {
     this.version = version;
@@ -182,8 +180,7 @@ public class BuildVersion {
   }
 
   /**
-   * @param revision
-   *          the revision to set
+   * @param revision the revision to set
    */
   public void setRevision( String revision ) {
     this.revision = revision;
@@ -197,8 +194,7 @@ public class BuildVersion {
   }
 
   /**
-   * @param buildUser
-   *          the buildUser to set
+   * @param buildUser the buildUser to set
    */
   public void setBuildUser( String buildUser ) {
     this.buildUser = buildUser;

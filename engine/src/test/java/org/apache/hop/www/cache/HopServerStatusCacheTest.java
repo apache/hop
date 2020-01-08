@@ -31,10 +31,10 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Map;
 
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class HopServerStatusCacheTest {
 
@@ -61,7 +61,7 @@ public class HopServerStatusCacheTest {
     id = "20";
     File mockFile = cache.getMap().get( "logId" + id ).getFile();
     when( mockFile.exists() ).thenReturn( true );
-    cacheSpy.put(   "logId" + id, "test string data", 0  );
+    cacheSpy.put( "logId" + id, "test string data", 0 );
     Assert.assertEquals( 41, cache.getMap().size() );
   }
 

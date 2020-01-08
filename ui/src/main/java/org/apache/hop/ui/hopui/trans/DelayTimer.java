@@ -30,7 +30,6 @@ import java.util.concurrent.Callable;
  * A timer where you can attach a timer to. Once the time is up, the listeners are fired off.
  *
  * @author matt
- *
  */
 public class DelayTimer implements Runnable {
 
@@ -117,8 +116,7 @@ public class DelayTimer implements Runnable {
   }
 
   /**
-   * @param delayInMilliseconds
-   *          the delay in milliseconds to set
+   * @param delayInMilliseconds the delay in milliseconds to set
    */
   public void setDelayInSeconds( int delayInMilliseconds ) {
     this.delayInMiliseconds = delayInMilliseconds;

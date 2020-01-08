@@ -22,19 +22,19 @@
 
 package org.apache.hop.www;
 
-import java.io.IOException;
-import java.util.Date;
-
 import org.apache.hop.cluster.HttpUtil;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.trans.Trans;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import java.io.IOException;
+import java.util.Date;
 
 public class SlaveServerJobStatus {
   public static final String XML_TAG = "jobstatus";
@@ -143,8 +143,7 @@ public class SlaveServerJobStatus {
   }
 
   /**
-   * @param statusDescription
-   *          the statusDescription to set
+   * @param statusDescription the statusDescription to set
    */
   public void setStatusDescription( String statusDescription ) {
     this.statusDescription = statusDescription;
@@ -158,8 +157,7 @@ public class SlaveServerJobStatus {
   }
 
   /**
-   * @param jobName
-   *          the job name to set
+   * @param jobName the job name to set
    */
   public void setJobName( String jobName ) {
     this.jobName = jobName;
@@ -173,8 +171,7 @@ public class SlaveServerJobStatus {
   }
 
   /**
-   * @param errorDescription
-   *          the errorDescription to set
+   * @param errorDescription the errorDescription to set
    */
   public void setErrorDescription( String errorDescription ) {
     this.errorDescription = errorDescription;
@@ -188,8 +185,7 @@ public class SlaveServerJobStatus {
   }
 
   /**
-   * @param loggingString
-   *          the loggingString to set
+   * @param loggingString the loggingString to set
    */
   public void setLoggingString( String loggingString ) {
     this.loggingString = loggingString;
@@ -222,8 +218,7 @@ public class SlaveServerJobStatus {
   }
 
   /**
-   * @param result
-   *          the result to set
+   * @param result the result to set
    */
   public void setResult( Result result ) {
     this.result = result;
@@ -237,8 +232,7 @@ public class SlaveServerJobStatus {
   }
 
   /**
-   * @param firstLoggingLineNr
-   *          the firstLoggingLineNr to set
+   * @param firstLoggingLineNr the firstLoggingLineNr to set
    */
   public void setFirstLoggingLineNr( int firstLoggingLineNr ) {
     this.firstLoggingLineNr = firstLoggingLineNr;
@@ -252,8 +246,7 @@ public class SlaveServerJobStatus {
   }
 
   /**
-   * @param lastLoggingLineNr
-   *          the lastLoggingLineNr to set
+   * @param lastLoggingLineNr the lastLoggingLineNr to set
    */
   public void setLastLoggingLineNr( int lastLoggingLineNr ) {
     this.lastLoggingLineNr = lastLoggingLineNr;
@@ -281,8 +274,7 @@ public class SlaveServerJobStatus {
   }
 
   /**
-   * @param id
-   *          the id to set
+   * @param id the id to set
    */
   public void setId( String id ) {
     this.id = id;

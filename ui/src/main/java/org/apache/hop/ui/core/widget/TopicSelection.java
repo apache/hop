@@ -22,6 +22,9 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.ui.core.PropsUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -29,13 +32,10 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.ui.core.PropsUI;
 
 import static org.apache.hop.ui.core.WidgetUtils.createFieldDropDown;
 

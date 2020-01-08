@@ -43,30 +43,30 @@ public class PluginTest {
   @Test
   public void testFragmentMerge() {
     Map<Class<?>, String> classMap = new HashMap<Class<?>, String>() {{
-        put( PluginTypeInterface.class, String.class.getName() );
-      }};
+      put( PluginTypeInterface.class, String.class.getName() );
+    }};
     List<String> libraries = new ArrayList<String>() {{
-        add( String.class.getName() );
-      }};
+      add( String.class.getName() );
+    }};
 
     PluginInterface plugin =
       new Plugin(
-        new String[] {"plugintest"}, BasePluginType.class, String.class, "", "plugin test", "",
+        new String[] { "plugintest" }, BasePluginType.class, String.class, "", "plugin test", "",
         "", false, null, false, classMap, libraries, null,
         null, null, null, null );
 
     PluginInterface fragment =
       new Plugin(
-        new String[] {"plugintest"}, BaseFragmentType.class, String.class, "", null,
+        new String[] { "plugintest" }, BaseFragmentType.class, String.class, "", null,
         "fragment test",
         "fragment image",
         false, null, false,
-        new HashMap<Class<?>, String>()  {{
-            put( PluginTypeListener.class, Integer.class.getName() );
-          }},
+        new HashMap<Class<?>, String>() {{
+          put( PluginTypeListener.class, Integer.class.getName() );
+        }},
         new ArrayList<String>() {{
           add( Integer.class.getName() );
-          }},
+        }},
         null, null,
         "fragment doc url",
         "fragment cases url",
@@ -88,7 +88,7 @@ public class PluginTest {
   public void testFragmentMergeWithNull() {
     PluginInterface plugin =
       new Plugin(
-        new String[] {"plugintest"}, BasePluginType.class, String.class, "", "plugin test", "",
+        new String[] { "plugintest" }, BasePluginType.class, String.class, "", "plugin test", "",
         "a", false, null, false, new HashMap<>(), Collections.emptyList(), null,
         null, null, null, null );
 

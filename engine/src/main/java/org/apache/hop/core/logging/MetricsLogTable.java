@@ -22,13 +22,8 @@
 
 package org.apache.hop.core.logging;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.metrics.MetricsSnapshotInterface;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -36,15 +31,17 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.trans.HasDatabasesInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * This class describes a logging channel logging table
  *
  * @author matt
- *
  */
 public class MetricsLogTable extends BaseLogTable implements Cloneable, LogTableInterface {
 
@@ -56,11 +53,11 @@ public class MetricsLogTable extends BaseLogTable implements Cloneable, LogTable
 
     ID_BATCH( "ID_BATCH" ), CHANNEL_ID( "CHANNEL_ID" ), LOG_DATE( "LOG_DATE" ), // The date this record got logged
     METRICS_DATE( "METRICS_DATE" ), // For snapshot: the date/time of snapshot
-      METRICS_CODE( "METRICS_CODE" ), // The unique code of the metric
-      METRICS_DESCRIPTION( "METRICS_DESCRIPTION" ), // The description of the metric
-      METRICS_SUBJECT( "METRICS_SUBJECT" ), // The subject of the metric
-      METRICS_TYPE( "METRICS_TYPE" ), // For snapshots: START or STOP, for metrics: MAX, MIN, SUM
-      METRICS_VALUE( "METRICS_VALUE" ); // For metrics: the value measured (max, min, sum)
+    METRICS_CODE( "METRICS_CODE" ), // The unique code of the metric
+    METRICS_DESCRIPTION( "METRICS_DESCRIPTION" ), // The description of the metric
+    METRICS_SUBJECT( "METRICS_SUBJECT" ), // The subject of the metric
+    METRICS_TYPE( "METRICS_TYPE" ), // For snapshots: START or STOP, for metrics: MAX, MIN, SUM
+    METRICS_VALUE( "METRICS_VALUE" ); // For metrics: the value measured (max, min, sum)
 
     private String id;
 
@@ -128,15 +125,24 @@ public class MetricsLogTable extends BaseLogTable implements Cloneable, LogTable
     MetricsLogTable table = new MetricsLogTable( space, metaStore );
 
     //CHECKSTYLE:LineLength:OFF
-    table.fields.add( new LogTableField( ID.ID_BATCH.id, true, false, "ID_BATCH", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.IdBatch" ), BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.IdBatch" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
-    table.fields.add( new LogTableField( ID.CHANNEL_ID.id, true, false, "CHANNEL_ID", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.ChannelId" ), BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.ChannelId" ), ValueMetaInterface.TYPE_STRING, 255 ) );
-    table.fields.add( new LogTableField( ID.LOG_DATE.id, true, false, "LOG_DATE", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.LogDate" ), BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.LogDate" ), ValueMetaInterface.TYPE_DATE, -1 ) );
-    table.fields.add( new LogTableField( ID.METRICS_DATE.id, true, false, "METRICS_DATE", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.MetricsDate" ), BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsDate" ), ValueMetaInterface.TYPE_DATE, -1 ) );
-    table.fields.add( new LogTableField( ID.METRICS_CODE.id, true, false, "METRICS_CODE", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.MetricsDescription" ), BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsCode" ), ValueMetaInterface.TYPE_STRING, 255 ) );
-    table.fields.add( new LogTableField( ID.METRICS_DESCRIPTION.id, true, false, "METRICS_DESCRIPTION", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.MetricsDescription" ), BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsDescription" ), ValueMetaInterface.TYPE_STRING, 255 ) );
-    table.fields.add( new LogTableField( ID.METRICS_SUBJECT.id, true, false, "METRICS_SUBJECT", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.MetricsSubject" ), BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsSubject" ), ValueMetaInterface.TYPE_STRING, 255 ) );
-    table.fields.add( new LogTableField( ID.METRICS_TYPE.id, true, false, "METRICS_TYPE", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.MetricsType" ), BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsType" ), ValueMetaInterface.TYPE_STRING, 255 ) );
-    table.fields.add( new LogTableField( ID.METRICS_VALUE.id, true, false, "METRICS_VALUE", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.MetricsValue" ), BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsValue" ), ValueMetaInterface.TYPE_INTEGER, 12 ) );
+    table.fields.add( new LogTableField( ID.ID_BATCH.id, true, false, "ID_BATCH", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.IdBatch" ),
+      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.IdBatch" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
+    table.fields.add( new LogTableField( ID.CHANNEL_ID.id, true, false, "CHANNEL_ID", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.ChannelId" ),
+      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.ChannelId" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+    table.fields.add( new LogTableField( ID.LOG_DATE.id, true, false, "LOG_DATE", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.LogDate" ),
+      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.LogDate" ), ValueMetaInterface.TYPE_DATE, -1 ) );
+    table.fields.add( new LogTableField( ID.METRICS_DATE.id, true, false, "METRICS_DATE", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.MetricsDate" ),
+      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsDate" ), ValueMetaInterface.TYPE_DATE, -1 ) );
+    table.fields.add( new LogTableField( ID.METRICS_CODE.id, true, false, "METRICS_CODE", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.MetricsDescription" ),
+      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsCode" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+    table.fields.add( new LogTableField( ID.METRICS_DESCRIPTION.id, true, false, "METRICS_DESCRIPTION", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.MetricsDescription" ),
+      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsDescription" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+    table.fields.add( new LogTableField( ID.METRICS_SUBJECT.id, true, false, "METRICS_SUBJECT", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.MetricsSubject" ),
+      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsSubject" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+    table.fields.add( new LogTableField( ID.METRICS_TYPE.id, true, false, "METRICS_TYPE", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.MetricsType" ),
+      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsType" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+    table.fields.add( new LogTableField( ID.METRICS_VALUE.id, true, false, "METRICS_VALUE", BaseMessages.getString( PKG, "MetricsLogTable.FieldName.MetricsValue" ),
+      BaseMessages.getString( PKG, "MetricsLogTable.FieldDescription.MetricsValue" ), ValueMetaInterface.TYPE_INTEGER, 12 ) );
 
     table.findField( ID.LOG_DATE.id ).setLogDateField( true );
     table.findField( ID.ID_BATCH.id ).setKey( true );
@@ -147,12 +153,10 @@ public class MetricsLogTable extends BaseLogTable implements Cloneable, LogTable
   /**
    * This method calculates all the values that are required
    *
-   * @param status
-   *          the log status to use
+   * @param status  the log status to use
    * @param subject
-   * @param parent
-   * *
-   * */
+   * @param parent  *
+   */
   public RowMetaAndData getLogRecord( LogStatus status, Object subject, Object parent ) {
     if ( subject == null || subject instanceof LoggingMetric ) {
 

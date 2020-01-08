@@ -22,6 +22,25 @@
 
 package org.apache.hop.ui.trans.steps.symmetriccrypto.secretkeygenerator;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPreviewFactory;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.symmetriccrypto.secretkeygenerator.SecretKeyGeneratorMeta;
+import org.apache.hop.trans.steps.symmetriccrypto.symmetricalgorithm.SymmetricCryptoMeta;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -41,25 +60,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPreviewFactory;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.symmetriccrypto.secretkeygenerator.SecretKeyGeneratorMeta;
-import org.apache.hop.trans.steps.symmetriccrypto.symmetricalgorithm.SymmetricCryptoMeta;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * Generate secret key. for symmetric algorithms
@@ -272,27 +272,27 @@ public class SecretKeyGeneratorDialog extends BaseStepDialog implements StepDial
     final int FieldsCols = 4;
     final int FieldsRows = input.getAlgorithm().length;
 
-    ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
+    ColumnInfo[] colinf = new ColumnInfo[ FieldsCols ];
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SecretKeyGeneratorDialog.AlgorithmColumn.Column" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, SymmetricCryptoMeta.TYPE_ALGORYTHM_CODE );
-    colinf[0].setReadOnly( true );
-    colinf[1] =
+    colinf[ 0 ].setReadOnly( true );
+    colinf[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SecretKeyGeneratorDialog.SchemeColumn.Column" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinf[1].setUsingVariables( true );
-    colinf[2] =
+    colinf[ 1 ].setUsingVariables( true );
+    colinf[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SecretKeyGeneratorDialog.SecretKeyLengthColumn.Column" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinf[2].setUsingVariables( true );
-    colinf[3] =
+    colinf[ 2 ].setUsingVariables( true );
+    colinf[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SecretKeyGeneratorDialog.HowMany.Column" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    colinf[3].setUsingVariables( true );
+    colinf[ 3 ].setUsingVariables( true );
 
     wFields =
       new TableView(
@@ -373,10 +373,10 @@ public class SecretKeyGeneratorDialog extends BaseStepDialog implements StepDial
 
     for ( int i = 0; i < input.getAlgorithm().length; i++ ) {
       TableItem item = wFields.table.getItem( i );
-      String algorithm = input.getAlgorithm()[i];
-      String scheme = input.getScheme()[i];
-      String len = input.getSecretKeyLength()[i];
-      String size = input.getSecretKeyCount()[i];
+      String algorithm = input.getAlgorithm()[ i ];
+      String scheme = input.getScheme()[ i ];
+      String len = input.getSecretKeyLength()[ i ];
+      String size = input.getSecretKeyCount()[ i ];
 
       if ( algorithm != null ) {
         item.setText( 1, algorithm );
@@ -440,10 +440,10 @@ public class SecretKeyGeneratorDialog extends BaseStepDialog implements StepDial
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < count; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      in.getAlgorithm()[i] = item.getText( 1 );
-      in.getScheme()[i] = item.getText( 2 );
-      in.getSecretKeyLength()[i] = item.getText( 3 );
-      in.getSecretKeyCount()[i] = item.getText( 4 );
+      in.getAlgorithm()[ i ] = item.getText( 1 );
+      in.getScheme()[ i ] = item.getText( 2 );
+      in.getSecretKeyLength()[ i ] = item.getText( 3 );
+      in.getSecretKeyCount()[ i ] = item.getText( 4 );
     }
     in.setSecretKeyFieldName( wSecretKeyField.getText() );
     in.setAlgorithmFieldName( wAlgorithmField.getText() );
@@ -479,7 +479,7 @@ public class SecretKeyGeneratorDialog extends BaseStepDialog implements StepDial
             EnterTextDialog etd =
               new EnterTextDialog(
                 shell, BaseMessages.getString( PKG, "System.Dialog.PreviewError.Title" ), BaseMessages
-                  .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
+                .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
             etd.setReadOnly();
             etd.open();
           }
@@ -487,7 +487,7 @@ public class SecretKeyGeneratorDialog extends BaseStepDialog implements StepDial
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
               shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta( wStepname
-                .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
+              .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
           prd.open();
 
         }

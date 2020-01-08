@@ -22,9 +22,6 @@
 
 package org.apache.hop.trans.steps.scriptvalues_mod;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
@@ -33,6 +30,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepData.StepExecutionStatus;
@@ -42,7 +40,9 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepListener;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Dummy class used for test().

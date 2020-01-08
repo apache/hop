@@ -22,8 +22,8 @@
 
 package org.apache.hop.ui.hopui.partition;
 
-import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.eclipse.swt.widgets.Shell;
 
 /**
  * @author Evgeniy_Lyakhov@epam.com

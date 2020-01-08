@@ -22,20 +22,19 @@
 
 package org.apache.hop.ui.job.dialog;
 
-import java.lang.annotation.Annotation;
-import java.util.Map;
-
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 import org.apache.hop.core.plugins.PluginTypeInterface;
 
+import java.lang.annotation.Annotation;
+import java.util.Map;
+
 /**
  * This plugin allows you to capture additional information concerning job entries.
  *
  * @author matt
- *
  */
 @PluginMainClassType( JobDialogPluginInterface.class )
 @PluginAnnotationType( JobDialogPlugin.class )

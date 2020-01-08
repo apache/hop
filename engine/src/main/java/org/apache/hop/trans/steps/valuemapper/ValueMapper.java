@@ -22,12 +22,10 @@
 
 package org.apache.hop.trans.steps.valuemapper;
 
-import java.util.Hashtable;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -36,6 +34,8 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.util.Hashtable;
 
 /**
  * Convert Values in a certain fields to other values
@@ -51,7 +51,7 @@ public class ValueMapper extends BaseStep implements StepInterface {
   private boolean nonMatchActivated = false;
 
   public ValueMapper( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                      Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -90,7 +90,7 @@ public class ValueMapper extends BaseStep implements StepInterface {
       // 0 or 1 empty mapping is allowed, not 2 or more.
       //
       for ( int i = 0; i < meta.getSourceValue().length; i++ ) {
-        if ( Utils.isEmpty( meta.getSourceValue()[i] ) ) {
+        if ( Utils.isEmpty( meta.getSourceValue()[ i ] ) ) {
           if ( data.emptyFieldIndex < 0 ) {
             data.emptyFieldIndex = i;
           } else {
@@ -110,14 +110,14 @@ public class ValueMapper extends BaseStep implements StepInterface {
       }
     }
 
-    Object sourceData = r[data.keynr];
+    Object sourceData = r[ data.keynr ];
     String source = data.sourceValueMeta.getCompatibleString( sourceData );
     String target = null;
 
     // Null/Empty mapping to value...
     //
-    if ( data.emptyFieldIndex >= 0 && ( r[data.keynr] == null || Utils.isEmpty( source ) ) ) {
-      target = meta.getTargetValue()[data.emptyFieldIndex]; // that's all there is to it.
+    if ( data.emptyFieldIndex >= 0 && ( r[ data.keynr ] == null || Utils.isEmpty( source ) ) ) {
+      target = meta.getTargetValue()[ data.emptyFieldIndex ]; // that's all there is to it.
     } else {
       if ( !Utils.isEmpty( source ) ) {
         target = data.hashtable.get( source );
@@ -133,9 +133,9 @@ public class ValueMapper extends BaseStep implements StepInterface {
       r = RowDataUtil.resizeArray( r, data.outputMeta.size() );
       // Did we find anything to map to?
       if ( !Utils.isEmpty( target ) ) {
-        r[data.outputMeta.size() - 1] = target;
+        r[ data.outputMeta.size() - 1 ] = target;
       } else {
-        r[data.outputMeta.size() - 1] = null;
+        r[ data.outputMeta.size() - 1 ] = null;
       }
     } else {
       // Don't set the original value to null if we don't have a target.
@@ -144,23 +144,23 @@ public class ValueMapper extends BaseStep implements StepInterface {
           // See if the expected type is a String...
           //
           if ( data.sourceValueMeta.isString() ) {
-            r[data.keynr] = target;
+            r[ data.keynr ] = target;
           } else {
             // Do implicit conversion of the String to the target type...
             //
-            r[data.keynr] = data.outputValueMeta.convertData( data.stringMeta, target );
+            r[ data.keynr ] = data.outputValueMeta.convertData( data.stringMeta, target );
           }
         } else {
           // allow target to be set to null since 3.0
-          r[data.keynr] = null;
+          r[ data.keynr ] = null;
         }
       } else {
         // Convert to normal storage type.
         // Otherwise we're going to be mixing storage types.
         //
         if ( data.sourceValueMeta.isStorageBinaryString() ) {
-          Object normal = data.sourceValueMeta.convertToNormalStorageType( r[data.keynr] );
-          r[data.keynr] = normal;
+          Object normal = data.sourceValueMeta.convertToNormalStorageType( r[ data.keynr ] );
+          r[ data.keynr ] = normal;
         }
       }
     }
@@ -190,8 +190,8 @@ public class ValueMapper extends BaseStep implements StepInterface {
 
       // Add all source to target mappings in here...
       for ( int i = 0; i < meta.getSourceValue().length; i++ ) {
-        String src = meta.getSourceValue()[i];
-        String tgt = meta.getTargetValue()[i];
+        String src = meta.getSourceValue()[ i ];
+        String tgt = meta.getTargetValue()[ i ];
 
         if ( !Utils.isEmpty( src ) && !Utils.isEmpty( tgt ) ) {
           data.hashtable.put( src, tgt );

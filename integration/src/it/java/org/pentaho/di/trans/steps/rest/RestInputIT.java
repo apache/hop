@@ -22,16 +22,7 @@
 
 package org.apache.hop.trans.steps.rest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
-
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.testing.ServletTester;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import com.sun.jersey.spi.container.servlet.ServletContainer;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -48,8 +39,16 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.testing.ServletTester;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import com.sun.jersey.spi.container.servlet.ServletContainer;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Regression test case for PDI-13072
@@ -81,7 +80,7 @@ public class RestInputIT {
   }
 
   protected Trans createAndTestTrans( PluginRegistry registry, TransMeta transMeta, StepMeta inputStep,
-      RowStepCollector rowStepCollector, String name, int limit ) throws HopException {
+                                      RowStepCollector rowStepCollector, String name, int limit ) throws HopException {
     //
     // Create a dummy step
     //
@@ -167,13 +166,13 @@ public class RestInputIT {
     final String[] fieldNames = rowMeta.getFieldNames();
     final Object[] data = rowMetaAndData.getData();
 
-    assertEquals( "pageSize", fieldNames[0] );
-    assertEquals( "name", fieldNames[1] );
-    assertEquals( "result", fieldNames[2] );
+    assertEquals( "pageSize", fieldNames[ 0 ] );
+    assertEquals( "name", fieldNames[ 1 ] );
+    assertEquals( "result", fieldNames[ 2 ] );
 
-    assertEquals( Integer.valueOf( 5 ), data[0] );
-    assertEquals( "limit", data[1] );
-    assertEquals( "limit:5", data[2] );
+    assertEquals( Integer.valueOf( 5 ), data[ 0 ] );
+    assertEquals( "limit", data[ 1 ] );
+    assertEquals( "limit:5", data[ 2 ] );
   }
 
 }

@@ -22,15 +22,6 @@
 
 package org.apache.hop.trans.steps.switchcase;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.step.StepMeta;
@@ -40,6 +31,15 @@ import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidatorFactory;
 import org.apache.hop.trans.steps.loadsave.validator.ListLoadSaveValidator;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author nhudak

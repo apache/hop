@@ -22,10 +22,10 @@
 
 package org.apache.hop.trans.steps.loadsave.validator;
 
+import org.apache.hop.core.util.Utils;
+
 import java.util.Locale;
 import java.util.Random;
-
-import org.apache.hop.core.util.Utils;
 
 /**
  * @author Andrey Khayrutdinov

@@ -22,15 +22,7 @@
 
 package org.apache.hop.trans.steps.nullif;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -38,6 +30,15 @@ import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.nullif.NullIfMeta.Field;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
 
 public class NullIfMetaTest {
@@ -64,7 +65,7 @@ public class NullIfMetaTest {
     field.setFieldName( "fieldName" );
     field.setFieldValue( "fieldValue" );
     FieldLoadSaveValidator<Field[]> fieldArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<Field>( new NullIfFieldLoadSaveValidator( field ), 5 );
+      new ArrayLoadSaveValidator<Field>( new NullIfFieldLoadSaveValidator( field ), 5 );
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     typeValidatorMap.put( Field[].class.getCanonicalName(), fieldArrayLoadSaveValidator );
@@ -72,7 +73,7 @@ public class NullIfMetaTest {
     attrValidatorMap.put( "fields", fieldArrayLoadSaveValidator );
 
     loadSaveTester =
-        new LoadSaveTester( NullIfMeta.class, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
+      new LoadSaveTester( NullIfMeta.class, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
   }
 
   @Test

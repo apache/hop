@@ -22,27 +22,31 @@
 
 package org.apache.hop.cluster;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.changed.ChangedFlag;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.core.xml.XMLInterface;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.IHopMetaStoreElement;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metastore.persist.MetaStoreElementType;
+import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metastore.util.HopDefaults;
 import org.apache.hop.www.SlaveServerDetection;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A cluster schema combines a list of slave servers so that they can be set altogether. It (can) also contain a number
@@ -52,36 +56,59 @@ import org.w3c.dom.Node;
  * @author Matt
  * @since 17-nov-2006
  */
-public class ClusterSchema extends ChangedFlag implements Cloneable, SharedObjectInterface, VariableSpace,
-  XMLInterface {
+@MetaStoreElementType(
+  name = "Cluster Schema",
+  description = "This describes a Hop Cluster Schema"
+)
+public class ClusterSchema extends ChangedFlag implements Cloneable, VariableSpace, XMLInterface, IHopMetaStoreElement<ClusterSchema> {
   private static Class<?> PKG = ClusterSchema.class; // for i18n purposes, needed by Translator2!!
+  public static final String METASTORE_SLAVES_FACTORY_KEY = "SLAVES_FACTORY";
 
   public static final String XML_TAG = "clusterschema";
 
-  /** the name of the cluster schema */
+  /**
+   * the name of the cluster schema
+   */
   private String name;
 
-  /** The list of slave servers we can address */
+  /**
+   * The list of slave servers we can address
+   */
+  @MetaStoreAttribute(
+    factoryNameReference = true,
+    factoryNameKey = METASTORE_SLAVES_FACTORY_KEY
+  )
   private List<SlaveServer> slaveServers;
 
-  /** The data socket port where we start numbering. The upper limit is the number of remote socket connections. */
+  /**
+   * The data socket port where we start numbering. The upper limit is the number of remote socket connections.
+   */
+  @MetaStoreAttribute
   private String basePort;
 
-  private boolean shared;
-
-  /** Size of the buffer for the created socket reader/writers */
+  /**
+   * Size of the buffer for the created socket reader/writers
+   */
+  @MetaStoreAttribute
   private String socketsBufferSize;
 
-  /** Flush outputstreams every X rows */
+  /**
+   * Flush outputstreams every X rows
+   */
+  @MetaStoreAttribute
   private String socketsFlushInterval;
 
-  /** flag to compress data over the sockets or not */
+  /**
+   * flag to compress data over the sockets or not
+   */
+  @MetaStoreAttribute
   private boolean socketsCompressed;
 
   /**
    * Flag to indicate that this cluster schema is dynamic.<br>
    * This means that the slave server configuration is taken from one of the defined master servers.<br>
    */
+  @MetaStoreAttribute
   private boolean dynamic;
 
   private VariableSpace variables = new Variables();
@@ -125,7 +152,6 @@ public class ClusterSchema extends ChangedFlag implements Cloneable, SharedObjec
     this.slaveServers.clear();
     this.slaveServers.addAll( clusterSchema.slaveServers ); // no clone() of the slave server please!
 
-    this.shared = clusterSchema.shared;
     this.setChanged( true );
   }
 
@@ -196,8 +222,7 @@ public class ClusterSchema extends ChangedFlag implements Cloneable, SharedObjec
   }
 
   /**
-   * @param name
-   *          the name to set
+   * @param name the name to set
    */
   public void setName( String name ) {
     this.name = name;
@@ -211,8 +236,7 @@ public class ClusterSchema extends ChangedFlag implements Cloneable, SharedObjec
   }
 
   /**
-   * @param slaveServers
-   *          the slaveServers to set
+   * @param slaveServers the slaveServers to set
    */
   public void setSlaveServers( List<SlaveServer> slaveServers ) {
     this.slaveServers = slaveServers;
@@ -222,26 +246,11 @@ public class ClusterSchema extends ChangedFlag implements Cloneable, SharedObjec
    * @return The slave server strings from this cluster schema
    */
   public String[] getSlaveServerStrings() {
-    String[] strings = new String[slaveServers.size()];
+    String[] strings = new String[ slaveServers.size() ];
     for ( int i = 0; i < strings.length; i++ ) {
-      strings[i] = ( slaveServers.get( i ) ).toString();
+      strings[ i ] = ( slaveServers.get( i ) ).toString();
     }
     return strings;
-  }
-
-  /**
-   * @return the shared
-   */
-  public boolean isShared() {
-    return shared;
-  }
-
-  /**
-   * @param shared
-   *          the shared to set
-   */
-  public void setShared( boolean shared ) {
-    this.shared = shared;
   }
 
   /**
@@ -252,8 +261,7 @@ public class ClusterSchema extends ChangedFlag implements Cloneable, SharedObjec
   }
 
   /**
-   * @param basePort
-   *          the basePort to set
+   * @param basePort the basePort to set
    */
   public void setBasePort( String basePort ) {
     this.basePort = basePort;
@@ -294,8 +302,7 @@ public class ClusterSchema extends ChangedFlag implements Cloneable, SharedObjec
   }
 
   /**
-   * @param socketFlushInterval
-   *          the socketFlushInterval to set
+   * @param socketFlushInterval the socketFlushInterval to set
    */
   public void setSocketsFlushInterval( String socketFlushInterval ) {
     this.socketsFlushInterval = socketFlushInterval;
@@ -309,8 +316,7 @@ public class ClusterSchema extends ChangedFlag implements Cloneable, SharedObjec
   }
 
   /**
-   * @param socketsBufferSize
-   *          the socketsBufferSize to set
+   * @param socketsBufferSize the socketsBufferSize to set
    */
   public void setSocketsBufferSize( String socketsBufferSize ) {
     this.socketsBufferSize = socketsBufferSize;
@@ -324,8 +330,7 @@ public class ClusterSchema extends ChangedFlag implements Cloneable, SharedObjec
   }
 
   /**
-   * @param socketsCompressed
-   *          the socketsCompressed to set
+   * @param socketsCompressed the socketsCompressed to set
    */
   public void setSocketsCompressed( boolean socketsCompressed ) {
     this.socketsCompressed = socketsCompressed;
@@ -411,8 +416,7 @@ public class ClusterSchema extends ChangedFlag implements Cloneable, SharedObjec
   }
 
   /**
-   * @param dynamic
-   *          the dynamic to set
+   * @param dynamic the dynamic to set
    */
   public void setDynamic( boolean dynamic ) {
     this.dynamic = dynamic;
@@ -420,8 +424,7 @@ public class ClusterSchema extends ChangedFlag implements Cloneable, SharedObjec
 
   /**
    * @return A list of dynamic slave servers, retrieved from the first master server that was available.
-   * @throws HopException
-   *           when none of the masters can be contacted.
+   * @throws HopException when none of the masters can be contacted.
    */
   public List<SlaveServer> getSlaveServersFromMasterOrLocal() throws HopException {
     if ( isDynamic() ) {
@@ -478,10 +481,25 @@ public class ClusterSchema extends ChangedFlag implements Cloneable, SharedObjec
   }
 
   /**
-   * @param changedDate
-   *          the changedDate to set
+   * @param changedDate the changedDate to set
    */
   public void setChangedDate( Date changedDate ) {
     this.changedDate = changedDate;
+  }
+
+  /**
+   * This factory knows how to use the SlaveServer factory to reference those
+   *
+   * @param metaStore The metastore to use
+   * @return
+   */
+  @Override public MetaStoreFactory<ClusterSchema> getFactory( IMetaStore metaStore ) {
+    return createFactory( metaStore );
+  }
+
+  public static final MetaStoreFactory<ClusterSchema> createFactory( IMetaStore metaStore ) {
+    MetaStoreFactory<ClusterSchema> factory = new MetaStoreFactory<>( ClusterSchema.class, metaStore, HopDefaults.NAMESPACE );
+    factory.addNameFactory( METASTORE_SLAVES_FACTORY_KEY, SlaveServer.createFactory( metaStore ) );
+    return factory;
   }
 }

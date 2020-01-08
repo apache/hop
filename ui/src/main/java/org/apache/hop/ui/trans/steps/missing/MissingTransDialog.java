@@ -21,19 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.ui.trans.steps.missing;
 
-import java.util.List;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.TransMeta;
@@ -45,6 +32,19 @@ import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+
+import java.util.List;
 
 public class MissingTransDialog extends BaseStepDialog implements StepDialogInterface {
 
@@ -61,7 +61,7 @@ public class MissingTransDialog extends BaseStepDialog implements StepDialogInte
   public static final int MISSING_TRANS_STEP_ID = 2;
 
   public MissingTransDialog( Shell parent, List<MissingTrans> missingTrans, StepMetaInterface baseStepMeta,
-      TransMeta transMeta, String stepname ) {
+                             TransMeta transMeta, String stepname ) {
     super( parent, baseStepMeta, transMeta, stepname );
     this.shellParent = parent;
     this.missingTrans = missingTrans;
@@ -90,8 +90,8 @@ public class MissingTransDialog extends BaseStepDialog implements StepDialogInte
 
     if ( mode == MISSING_TRANS_STEP_ID ) {
       message =
-          BaseMessages.getString( PKG, "MissingTransDialog.MissingTransStepId", stepname + " - "
-              + ( (MissingTrans) baseStepMeta ).getMissingPluginId() );
+        BaseMessages.getString( PKG, "MissingTransDialog.MissingTransStepId", stepname + " - "
+          + ( (MissingTrans) baseStepMeta ).getMissingPluginId() );
     }
     return message.toString();
   }
@@ -102,8 +102,8 @@ public class MissingTransDialog extends BaseStepDialog implements StepDialogInte
     int margin = Const.MARGIN;
 
     shell =
-        new Shell( shellParent, SWT.DIALOG_TRIM | SWT.CLOSE | SWT.ICON
-            | SWT.APPLICATION_MODAL );
+      new Shell( shellParent, SWT.DIALOG_TRIM | SWT.CLOSE | SWT.ICON
+        | SWT.APPLICATION_MODAL );
 
     props.setLook( shell );
     shell.setImage( GUIResource.getInstance().getImageHopUi() );

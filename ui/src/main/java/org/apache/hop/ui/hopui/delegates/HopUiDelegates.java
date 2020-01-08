@@ -24,8 +24,8 @@ package org.apache.hop.ui.hopui.delegates;
 
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.ui.hopui.InstanceCreationException;
 import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopui.InstanceCreationException;
 
 public class HopUiDelegates {
   public HopUiJobDelegate jobs;

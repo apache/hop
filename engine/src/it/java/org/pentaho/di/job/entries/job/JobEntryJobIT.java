@@ -23,9 +23,6 @@
 package org.apache.hop.job.entries.job;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
@@ -35,6 +32,9 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.www.SlaveServerJobStatus;
+import org.junit.After;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -59,7 +59,7 @@ public class JobEntryJobIT extends JobEntryJob {
   private final String REMOTE_SLAVE_SERVER_NAME = "RemoteSlaveServerName";
   private final String JOB_META_NAME = "JobMetaName";
   private final String REPLY = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-          + "<webresult><result>OK</result><id>0</id></webresult>";
+    + "<webresult><result>OK</result><id>0</id></webresult>";
   private final String LOG = "Log";
 
   private Path file;

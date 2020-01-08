@@ -39,9 +39,9 @@ import org.eclipse.swt.widgets.Composite;
 
 /**
  * @author Matt
- *
- *         To change the template for this generated type comment go to Window&gt;Preferences&gt;Java&gt;Code
- *         Generation&gt;Code and Comments
+ * <p>
+ * To change the template for this generated type comment go to Window&gt;Preferences&gt;Java&gt;Code
+ * Generation&gt;Code and Comments
  */
 public class TextFileImportWizard implements IWizard {
   public TextFileImportWizard() {

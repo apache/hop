@@ -26,7 +26,6 @@ package org.apache.hop.core.logging;
  * A listener to detect that content was added to a string buffer.
  *
  * @author matt
- *
  */
 public interface BufferChangedListener {
   // Left as StringBuffer as this is used across threads.

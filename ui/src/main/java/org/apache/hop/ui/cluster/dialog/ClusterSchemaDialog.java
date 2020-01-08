@@ -22,10 +22,21 @@
 
 package org.apache.hop.ui.cluster.dialog;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
+import org.apache.hop.cluster.ClusterSchema;
+import org.apache.hop.cluster.SlaveServer;
+import org.apache.hop.core.Const;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -46,38 +57,25 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.cluster.ClusterSchema;
-import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.Const;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.util.DialogUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
- *
  * Dialog that allows you to edit the settings of the cluster schema
  *
- * @see ClusterSchema
  * @author Matt
+ * @see ClusterSchema
  * @since 17-11-2006
- *
  */
 
 public class ClusterSchemaDialog extends Dialog {
   private static Class<?> PKG = ClusterSchemaDialog.class; // for i18n purposes, needed by Translator2!!
 
-  // private static LogWriter log = LogWriter.getInstance();
+  private final IMetaStore metaStore;
 
   private ClusterSchema clusterSchema;
-
-  private Collection<ClusterSchema> existingSchemas;
 
   private Shell shell;
 
@@ -111,22 +109,14 @@ public class ClusterSchemaDialog extends Dialog {
 
   private Button wDynamic;
 
-  private List<SlaveServer> slaveServers;
-
-  public ClusterSchemaDialog( Shell par, ClusterSchema clusterSchema, Collection<ClusterSchema> existingSchemas,
-      List<SlaveServer> slaveServers ) {
+  public ClusterSchemaDialog( Shell par, IMetaStore metaStore, ClusterSchema clusterSchema ) {
     super( par, SWT.NONE );
+    this.metaStore = metaStore;
     this.clusterSchema = clusterSchema.clone();
     this.originalSchema = clusterSchema;
-    this.existingSchemas = existingSchemas;
-    this.slaveServers = slaveServers;
 
     props = PropsUI.getInstance();
     ok = false;
-  }
-
-  public ClusterSchemaDialog( Shell par, ClusterSchema clusterSchema, List<SlaveServer> slaveServers ) {
-    this( par, clusterSchema, Collections.<ClusterSchema>emptyList(), slaveServers );
   }
 
   public boolean open() {
@@ -377,9 +367,9 @@ public class ClusterSchemaDialog extends Dialog {
   private void editSlaveServer() {
     int idx = wServers.getSelectionIndex();
     if ( idx >= 0 ) {
-      SlaveServer slaveServer = clusterSchema.findSlaveServer( wServers.getItems( 0 )[idx] );
+      SlaveServer slaveServer = clusterSchema.findSlaveServer( wServers.getItems( 0 )[ idx ] );
       if ( slaveServer != null ) {
-        SlaveServerDialog dialog = new SlaveServerDialog( shell, slaveServer, slaveServers );
+        SlaveServerDialog dialog = new SlaveServerDialog( shell, metaStore, slaveServer );
         if ( dialog.open() ) {
           refreshSlaveServers();
         }
@@ -388,25 +378,33 @@ public class ClusterSchemaDialog extends Dialog {
   }
 
   private void selectSlaveServers() {
-    String[] names = SlaveServer.getSlaveServerNames( slaveServers );
-    int[] idx = Const.indexsOfFoundStrings( wServers.getItems( 0 ), names );
+    try {
+      MetaStoreFactory<SlaveServer> factory = SlaveServer.createFactory( metaStore );
+      List<String> names = factory.getElementNames();
 
-    EnterSelectionDialog dialog =
-      new EnterSelectionDialog( shell, names,
-        BaseMessages.getString( PKG, "ClusterSchemaDialog.SelectServers.Label" ),
-        BaseMessages.getString( PKG, "ClusterSchemaDialog.SelectServersCluster.Label" ) );
-    dialog.setAvoidQuickSearch();
-    dialog.setSelectedNrs( idx );
-    dialog.setMulti( true );
-    if ( dialog.open() != null ) {
-      clusterSchema.getSlaveServers().clear();
-      int[] indeces = dialog.getSelectionIndeces();
-      for ( int i = 0; i < indeces.length; i++ ) {
-        SlaveServer slaveServer = SlaveServer.findSlaveServer( slaveServers, names[indeces[i]] );
-        clusterSchema.getSlaveServers().add( slaveServer );
+      List<String> selection = new ArrayList<>( Arrays.asList( wServers.getItems( 0 ) ) );
+
+      List<Integer> idx = Const.indexesOfFoundStrings( selection, names );
+
+      EnterSelectionDialog dialog =
+        new EnterSelectionDialog( shell, names.toArray( new String[ 0 ] ),
+          BaseMessages.getString( PKG, "ClusterSchemaDialog.SelectServers.Label" ),
+          BaseMessages.getString( PKG, "ClusterSchemaDialog.SelectServersCluster.Label" ) );
+      dialog.setAvoidQuickSearch();
+      dialog.setSelectedNrs( idx );
+      dialog.setMulti( true );
+      if ( dialog.open() != null ) {
+        clusterSchema.getSlaveServers().clear();
+        int[] indeces = dialog.getSelectionIndeces();
+        for ( int i = 0; i < indeces.length; i++ ) {
+          SlaveServer slaveServer = factory.loadElement( names.get( indeces[ i ] ) );
+          clusterSchema.getSlaveServers().add( slaveServer );
+        }
+
+        refreshSlaveServers();
       }
-
-      refreshSlaveServers();
+    } catch ( Exception e ) {
+      new ErrorDialog( shell, "Error", "Error editing cluster schema", e );
     }
   }
 
@@ -449,66 +447,64 @@ public class ClusterSchemaDialog extends Dialog {
   }
 
   public void ok() {
-    getInfo();
+    try {
+      getInfo();
 
-    if ( !clusterSchema.getName().equals( originalSchema.getName() ) ) {
-      if ( DialogUtils.objectWithTheSameNameExists( clusterSchema, existingSchemas ) ) {
-        String title = BaseMessages.getString( PKG, "ClusterSchemaDialog.ClusterSchemaNameExists.Title" );
-        String message =
+      MetaStoreFactory<ClusterSchema> factory = ClusterSchema.createFactory( metaStore );
+      if ( !clusterSchema.getName().equals( originalSchema.getName() ) ) {
+        if ( factory.elementExists( clusterSchema.getName() ) ) {
+          String title = BaseMessages.getString( PKG, "ClusterSchemaDialog.ClusterSchemaNameExists.Title" );
+          String message =
             BaseMessages.getString( PKG, "ClusterSchemaDialog.ClusterSchemaNameExists", clusterSchema.getName() );
-        String okButton = BaseMessages.getString( PKG, "System.Button.OK" );
-        MessageDialog dialog =
+          String okButton = BaseMessages.getString( PKG, "System.Button.OK" );
+          MessageDialog dialog =
             new MessageDialog( shell, title, null, message, MessageDialog.ERROR, new String[] { okButton }, 0 );
 
-        dialog.open();
-        return;
+          dialog.open();
+          return;
+        }
       }
+
+      originalSchema.setName( clusterSchema.getName() );
+      originalSchema.setBasePort( clusterSchema.getBasePort() );
+      originalSchema.setSocketsBufferSize( clusterSchema.getSocketsBufferSize() );
+      originalSchema.setSocketsFlushInterval( clusterSchema.getSocketsFlushInterval() );
+      originalSchema.setSocketsCompressed( clusterSchema.isSocketsCompressed() );
+      originalSchema.setDynamic( clusterSchema.isDynamic() );
+      originalSchema.setSlaveServers( clusterSchema.getSlaveServers() );
+      originalSchema.setChanged();
+
+      ok = true;
+
+      dispose();
+    } catch ( Exception e ) {
+      new ErrorDialog( shell, "Error", "Error validating cluster schema", e );
     }
-
-    originalSchema.setName( clusterSchema.getName() );
-    originalSchema.setBasePort( clusterSchema.getBasePort() );
-    originalSchema.setSocketsBufferSize( clusterSchema.getSocketsBufferSize() );
-    originalSchema.setSocketsFlushInterval( clusterSchema.getSocketsFlushInterval() );
-    originalSchema.setSocketsCompressed( clusterSchema.isSocketsCompressed() );
-    originalSchema.setDynamic( clusterSchema.isDynamic() );
-    originalSchema.setSlaveServers( clusterSchema.getSlaveServers() );
-    originalSchema.setChanged();
-
-    ok = true;
-
-    // Debug: dynamic lis names/urls of slaves on the console
-    //
-    /*
-     * if (originalSchema.isDynamic()) { // Find a master that is available // List<SlaveServer> dynamicSlaves = null;
-     * for (SlaveServer slave : originalSchema.getSlaveServers()) { if (slave.isMaster() && dynamicSlaves==null) { try {
-     * List<SlaveServerDetection> detections = slave.getSlaveServerDetections(); dynamicSlaves = new
-     * ArrayList<SlaveServer>(); for (SlaveServerDetection detection : detections) { if (detection.isActive()) {
-     * dynamicSlaves.add(detection.getSlaveServer());
-     * logBasic("Found dynamic slave : "+detection.getSlaveServer().getName
-     * ()+" --> "+detection.getSlaveServer().getServerAndPort()); } } } catch (Exception e) {
-     * logError("Unable to contact master : "+slave.getName()+" --> "+slave.getServerAndPort(), e); } } } }
-     */
-
-    dispose();
   }
 
   private void getInfo() {
-    clusterSchema.setName( wName.getText() );
-    clusterSchema.setBasePort( wPort.getText() );
-    clusterSchema.setSocketsBufferSize( wBufferSize.getText() );
-    clusterSchema.setSocketsFlushInterval( wFlushInterval.getText() );
-    clusterSchema.setSocketsCompressed( wCompressed.getSelection() );
-    clusterSchema.setDynamic( wDynamic.getSelection() );
+    try {
+      MetaStoreFactory<SlaveServer> slaveFactory = SlaveServer.createFactory( metaStore );
 
-    String[] names = SlaveServer.getSlaveServerNames( slaveServers );
-    int[] idx = Const.indexsOfFoundStrings( wServers.getItems( 0 ), names );
+      clusterSchema.setName( wName.getText() );
+      clusterSchema.setBasePort( wPort.getText() );
+      clusterSchema.setSocketsBufferSize( wBufferSize.getText() );
+      clusterSchema.setSocketsFlushInterval( wFlushInterval.getText() );
+      clusterSchema.setSocketsCompressed( wCompressed.getSelection() );
+      clusterSchema.setDynamic( wDynamic.getSelection() );
 
-    clusterSchema.getSlaveServers().clear();
-    for ( int i = 0; i < idx.length; i++ ) {
-      SlaveServer slaveServer = SlaveServer.findSlaveServer( slaveServers, names[idx[i]] );
-      clusterSchema.getSlaveServers().add( slaveServer );
+      List<String> slaveNames = slaveFactory.getElementNames();
+      List<String> selection = Arrays.asList( wServers.getItems( 0 ) );
+      List<Integer> idx = Const.indexesOfFoundStrings( selection, slaveNames );
+
+      clusterSchema.getSlaveServers().clear();
+      for ( int index : idx ) {
+        SlaveServer slaveServer = slaveFactory.loadElement( slaveNames.get( index ) );
+        clusterSchema.getSlaveServers().add( slaveServer );
+      }
+    } catch ( Exception e ) {
+      new ErrorDialog( shell, "Error", "Error getting dialog information for this cluster schema", e );
     }
-
   }
 
   @Override

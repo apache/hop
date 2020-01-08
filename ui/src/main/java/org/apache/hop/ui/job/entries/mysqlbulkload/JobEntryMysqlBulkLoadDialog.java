@@ -23,8 +23,26 @@
 package org.apache.hop.ui.job.entries.mysqlbulkload;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.mysqlbulkload.JobEntryMysqlBulkLoad;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -46,24 +64,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.mysqlbulkload.JobEntryMysqlBulkLoad;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * Dialog class for the MySqlBulkLoader.
@@ -756,7 +756,7 @@ public class JobEntryMysqlBulkLoadDialog extends JobEntryDialog implements JobEn
 
   private void getTableName() {
     String databaseName = wConnection.getText();
-    if ( StringUtils.isNotEmpty(databaseName) ) {
+    if ( StringUtils.isNotEmpty( databaseName ) ) {
       DatabaseMeta databaseMeta = jobMeta.findDatabase( databaseName );
       if ( databaseMeta != null ) {
         DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, jobMeta.getDatabases() );
@@ -791,7 +791,7 @@ public class JobEntryMysqlBulkLoadDialog extends JobEntryDialog implements JobEn
 
           String[] source = wListattribut.getText().split( "," );
           for ( int i = 0; i < source.length; i++ ) {
-            source[i] = Const.trim( source[i] );
+            source[ i ] = Const.trim( source[ i ] );
           }
           int[] idxSource = Const.indexsOfStrings( source, available );
           EnterSelectionDialog dialog = new EnterSelectionDialog( shell, available,
@@ -807,7 +807,7 @@ public class JobEntryMysqlBulkLoadDialog extends JobEntryDialog implements JobEn
               if ( i > 0 ) {
                 columns += ", ";
               }
-              columns += available[idx[i]];
+              columns += available[ idx[ i ] ];
             }
             wListattribut.setText( columns );
           }

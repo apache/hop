@@ -22,20 +22,19 @@
 
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for the Vertica Database Meta classes.
  *
  * @author sflatley
- *
  */
 public class VerticaDatabaseMetaIT {
 
@@ -81,7 +80,7 @@ public class VerticaDatabaseMetaIT {
 
     DatabaseInterface databaseInterface = new VerticaDatabaseMeta();
     String defaultBinaryField =
-        databaseInterface.getFieldDefinition( vm, TECHNICAL_KEY_NAME, PRIMARY_KEY_NAME, false, false, false );
+      databaseInterface.getFieldDefinition( vm, TECHNICAL_KEY_NAME, PRIMARY_KEY_NAME, false, false, false );
     String assertMessage = defaultBinaryField + " should be equal to expected " + expDefaultBinaryField;
 
     assertTrue( assertMessage, expDefaultBinaryField.equals( defaultBinaryField ) );
@@ -95,7 +94,7 @@ public class VerticaDatabaseMetaIT {
 
     DatabaseInterface databaseInterface = new VerticaDatabaseMeta();
     String defaultBinaryField =
-        databaseInterface.getFieldDefinition( vm, TECHNICAL_KEY_NAME, PRIMARY_KEY_NAME, false, false, false );
+      databaseInterface.getFieldDefinition( vm, TECHNICAL_KEY_NAME, PRIMARY_KEY_NAME, false, false, false );
     String assertMessage = defaultBinaryField + " should be equal to expected " + expDefaultBinaryField;
 
     assertTrue( assertMessage, expDefaultBinaryField.equals( defaultBinaryField ) );
@@ -109,7 +108,7 @@ public class VerticaDatabaseMetaIT {
 
     DatabaseInterface databaseInterface = new VerticaDatabaseMeta();
     String defaultBinaryField =
-        databaseInterface.getFieldDefinition( vm, TECHNICAL_KEY_NAME, PRIMARY_KEY_NAME, false, false, false );
+      databaseInterface.getFieldDefinition( vm, TECHNICAL_KEY_NAME, PRIMARY_KEY_NAME, false, false, false );
     String assertMessage = defaultBinaryField + " should be equal to expected " + expDefaultBinaryField;
 
     assertTrue( assertMessage, expDefaultBinaryField.equals( defaultBinaryField ) );

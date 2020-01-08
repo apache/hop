@@ -27,7 +27,17 @@
 
 package org.apache.hop.job.entries.dummy;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -45,43 +55,32 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-
 
 
 /**
  * This dialog allows you to edit the SQL job entry settings. (select the connection and the sql script to be executed)
  *
  * @author Matt
- * @since  19-06-2003
+ * @since 19-06-2003
  */
 public class JobEntryDummyDialog extends JobEntryDialog implements JobEntryDialogInterface {
   private static Class<?> PKG = JobEntryDummyDialog.class; // i18n
 
-  private Label        wlName;
-  private Text         wName;
-  private FormData     fdlName, fdName;
+  private Label wlName;
+  private Text wName;
+  private FormData fdlName, fdName;
 
-  private Label        wlSourceDirectory;
-  private TextVar      wSourceDirectory;
-  private FormData     fdlSourceDirectory, fdSourceDirectory;
+  private Label wlSourceDirectory;
+  private TextVar wSourceDirectory;
+  private FormData fdlSourceDirectory, fdSourceDirectory;
 
-  private Label        wlTargetDirectory;
-  private TextVar      wTargetDirectory;
-  private FormData     fdlTargetDirectory, fdTargetDirectory;
+  private Label wlTargetDirectory;
+  private TextVar wTargetDirectory;
+  private FormData fdlTargetDirectory, fdTargetDirectory;
 
-  private Label        wlWildcard;
-  private TextVar      wWildcard;
-  private FormData     fdlWildcard, fdWildcard;
+  private Label wlWildcard;
+  private TextVar wWildcard;
+  private FormData fdlWildcard, fdWildcard;
 
   private Button wOK, wCancel;
   private Listener lsOK, lsCancel;

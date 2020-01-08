@@ -22,6 +22,17 @@
 
 package org.apache.hop.ui.trans.steps.filestoresult;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.filestoresult.FilesToResultMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -41,17 +52,6 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.filestoresult.FilesToResultMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class FilesToResultDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = FilesToResultMeta.class; // for i18n purposes, needed by Translator2!!
@@ -186,7 +186,7 @@ public class FilesToResultDialog extends BaseStepDialog implements StepDialogInt
     fdTypes.right = new FormAttachment( 100, 0 );
     wTypes.setLayoutData( fdTypes );
     for ( int i = 0; i < ResultFile.getAllTypeDesc().length; i++ ) {
-      wTypes.add( ResultFile.getAllTypeDesc()[i] );
+      wTypes.add( ResultFile.getAllTypeDesc()[ i ] );
     }
 
     // Add listeners

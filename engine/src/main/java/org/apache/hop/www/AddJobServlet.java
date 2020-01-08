@@ -23,26 +23,25 @@
 package org.apache.hop.www;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.Job;
-import org.apache.hop.job.JobAdapter;
 import org.apache.hop.job.JobConfiguration;
 import org.apache.hop.job.JobExecutionConfiguration;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 //has been replaced by RegisterJobServlet
 @Deprecated
@@ -59,93 +58,92 @@ public class AddJobServlet extends BaseHttpServlet implements HopServerPluginInt
   }
 
   /**
-
- /**
-
-    <div id="mindtouch">
-    <h1>/hop/addJob</h1>
-    <a name="POST"></a>
-    <h2>POST</h2>
-    <p>Uploads and executes job configuration XML file.
-  Uploads xml file containing job and job_execution_configuration (wrapped in job_configuration tag) 
-  to be executed and executes it. Method relies on the input parameter to determine if xml or html 
-  reply should be produced. The job_configuration xml is
-  transferred within request body.
-  
-  <code>Job name of the executed job </code> will be returned in the Response object 
-  or <code>message</code> describing error occurred. To determine if the call successful or not you should 
-  rely on <code>result</code> parameter in response.</p>
-    
-    <p><b>Example Request:</b><br />
-    <pre function="syntax.xml">
-    POST /hop/addJob/?xml=Y
-    </pre>
-    <p>Request body should contain xml containing job_configuration (job + job_execution_configuration 
-  wrapped in job_configuration tag).</p>
-    </p>
-    <h3>Parameters</h3>
-    <table class="pentaho-table">
-    <tbody>
-    <tr>
-      <th>name</th>
-      <th>description</th>
-      <th>type</th>
-    </tr>
-    <tr>
-    <td>xml</td>
-    <td>Boolean flag set to either <code>Y</code> or <code>N</code> describing if xml or html reply 
-  should be produced.</td>
-    <td>boolean, optional</td>
-    </tr>
-    </tbody>
-    </table>
-  
-  <h3>Response Body</h3>
-
-  <table class="pentaho-table">
-    <tbody>
-      <tr>
-        <td align="right">element:</td>
-        <td>(custom)</td>
-      </tr>
-      <tr>
-        <td align="right">media types:</td>
-        <td>text/xml, text/html</td>
-      </tr>
-    </tbody>
-  </table>
-    <p>Response wraps job name that was executed or error stack trace
-  if an error occurred. Response has <code>result</code> OK if there were no errors. Otherwise it returns ERROR.</p>
-    
-    <p><b>Example Response:</b></p>
-    <pre function="syntax.xml">
-    <?xml version="1.0" encoding="UTF-8"?>
-    <webresult>
-      <result>OK</result>
-      <message>Job &#x27;dummy_job&#x27; was added to the list with id 1e90eca8-4d4c-47f7-8e5c-99ec36525e7c</message>
-      <id>1e90eca8-4d4c-47f7-8e5c-99ec36525e7c</id>
-    </webresult>
-    </pre>
-    
-    <h3>Status Codes</h3>
-    <table class="pentaho-table">
-  <tbody>
-    <tr>
-      <th>code</th>
-      <th>description</th>
-    </tr>
-    <tr>
-      <td>200</td>
-      <td>Request was processed and XML response is returned.</td>
-    </tr>
-    <tr>
-      <td>500</td>
-      <td>Internal server error occurs during request processing.</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-  */
+   * /**
+   *
+   * <div id="mindtouch">
+   * <h1>/hop/addJob</h1>
+   * <a name="POST"></a>
+   * <h2>POST</h2>
+   * <p>Uploads and executes job configuration XML file.
+   * Uploads xml file containing job and job_execution_configuration (wrapped in job_configuration tag)
+   * to be executed and executes it. Method relies on the input parameter to determine if xml or html
+   * reply should be produced. The job_configuration xml is
+   * transferred within request body.
+   *
+   * <code>Job name of the executed job </code> will be returned in the Response object
+   * or <code>message</code> describing error occurred. To determine if the call successful or not you should
+   * rely on <code>result</code> parameter in response.</p>
+   *
+   * <p><b>Example Request:</b><br />
+   * <pre function="syntax.xml">
+   * POST /hop/addJob/?xml=Y
+   * </pre>
+   * <p>Request body should contain xml containing job_configuration (job + job_execution_configuration
+   * wrapped in job_configuration tag).</p>
+   * </p>
+   * <h3>Parameters</h3>
+   * <table class="pentaho-table">
+   * <tbody>
+   * <tr>
+   * <th>name</th>
+   * <th>description</th>
+   * <th>type</th>
+   * </tr>
+   * <tr>
+   * <td>xml</td>
+   * <td>Boolean flag set to either <code>Y</code> or <code>N</code> describing if xml or html reply
+   * should be produced.</td>
+   * <td>boolean, optional</td>
+   * </tr>
+   * </tbody>
+   * </table>
+   *
+   * <h3>Response Body</h3>
+   *
+   * <table class="pentaho-table">
+   * <tbody>
+   * <tr>
+   * <td align="right">element:</td>
+   * <td>(custom)</td>
+   * </tr>
+   * <tr>
+   * <td align="right">media types:</td>
+   * <td>text/xml, text/html</td>
+   * </tr>
+   * </tbody>
+   * </table>
+   * <p>Response wraps job name that was executed or error stack trace
+   * if an error occurred. Response has <code>result</code> OK if there were no errors. Otherwise it returns ERROR.</p>
+   *
+   * <p><b>Example Response:</b></p>
+   * <pre function="syntax.xml">
+   * <?xml version="1.0" encoding="UTF-8"?>
+   * <webresult>
+   * <result>OK</result>
+   * <message>Job &#x27;dummy_job&#x27; was added to the list with id 1e90eca8-4d4c-47f7-8e5c-99ec36525e7c</message>
+   * <id>1e90eca8-4d4c-47f7-8e5c-99ec36525e7c</id>
+   * </webresult>
+   * </pre>
+   *
+   * <h3>Status Codes</h3>
+   * <table class="pentaho-table">
+   * <tbody>
+   * <tr>
+   * <th>code</th>
+   * <th>description</th>
+   * </tr>
+   * <tr>
+   * <td>200</td>
+   * <td>Request was processed and XML response is returned.</td>
+   * </tr>
+   * <tr>
+   * <td>500</td>
+   * <td>Internal server error occurs during request processing.</td>
+   * </tr>
+   * </tbody>
+   * </table>
+   * </div>
+   */
   public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
     IOException {
     if ( isJettyMode() && !request.getRequestURI().startsWith( CONTEXT_PATH ) ) {
@@ -219,11 +217,11 @@ public class AddJobServlet extends BaseHttpServlet implements HopServerPluginInt
       for ( int idx = 0; idx < parameterNames.length; idx++ ) {
         // Grab the parameter value set in the job entry
         //
-        String thisValue = jobExecutionConfiguration.getParams().get( parameterNames[idx] );
+        String thisValue = jobExecutionConfiguration.getParams().get( parameterNames[ idx ] );
         if ( !Utils.isEmpty( thisValue ) ) {
           // Set the value as specified by the user in the job entry
           //
-          jobMeta.setParameterValue( parameterNames[idx], thisValue );
+          jobMeta.setParameterValue( parameterNames[ idx ], thisValue );
         }
       }
       jobMeta.activateParameters();
@@ -245,7 +243,6 @@ public class AddJobServlet extends BaseHttpServlet implements HopServerPluginInt
       }
 
       getJobMap().addJob( job.getJobname(), carteObjectId, job, jobConfiguration );
-
 
 
       String message = "Job '" + job.getJobname() + "' was added to the list with id " + carteObjectId;
@@ -281,12 +278,12 @@ public class AddJobServlet extends BaseHttpServlet implements HopServerPluginInt
       return null;
     }
 
-    String[] argNames = arguments.keySet().toArray( new String[arguments.size()] );
+    String[] argNames = arguments.keySet().toArray( new String[ arguments.size() ] );
     Arrays.sort( argNames );
 
-    String[] values = new String[argNames.length];
+    String[] values = new String[ argNames.length ];
     for ( int i = 0; i < argNames.length; i++ ) {
-      values[i] = arguments.get( argNames[i] );
+      values[ i ] = arguments.get( argNames[ i ] );
     }
 
     return values;

@@ -22,10 +22,6 @@
 
 package org.apache.hop.trans.steps.blockuntilstepsfinish;
 
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
@@ -37,6 +33,10 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Block all incoming rows until defined steps finish processing rows.
@@ -52,7 +52,7 @@ public class BlockUntilStepsFinish extends BaseStep implements StepInterface {
   private BlockUntilStepsFinishData data;
 
   public BlockUntilStepsFinish( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -76,25 +76,25 @@ public class BlockUntilStepsFinish extends BaseStep implements StepInterface {
       data.stepInterfaces = new ConcurrentHashMap<Integer, StepInterface>();
       for ( int i = 0; i < stepnrs; i++ ) {
         // We can not get metrics from current step
-        if ( stepnames[i].equals( getStepname() ) ) {
-          throw new HopException( "You can not wait for step [" + stepnames[i] + "] to finish!" );
+        if ( stepnames[ i ].equals( getStepname() ) ) {
+          throw new HopException( "You can not wait for step [" + stepnames[ i ] + "] to finish!" );
         }
         if ( targetSteps != null ) {
           // We can not metrics from the target steps
           for ( int j = 0; j < targetSteps.length; j++ ) {
-            if ( stepnames[i].equals( targetSteps[j] ) ) {
-              throw new HopException( "You can not get metrics for the target step [" + targetSteps[j] + "]!" );
+            if ( stepnames[ i ].equals( targetSteps[ j ] ) ) {
+              throw new HopException( "You can not get metrics for the target step [" + targetSteps[ j ] + "]!" );
             }
           }
         }
 
-        int CopyNr = Const.toInt( meta.getStepCopyNr()[i], 0 );
-        StepInterface step = getDispatcher().findBaseSteps( stepnames[i] ).get( CopyNr );
+        int CopyNr = Const.toInt( meta.getStepCopyNr()[ i ], 0 );
+        StepInterface step = getDispatcher().findBaseSteps( stepnames[ i ] ).get( CopyNr );
         if ( step == null ) {
-          throw new HopException( "Erreur finding step [" + stepnames[i] + "] nr copy=" + CopyNr + "!" );
+          throw new HopException( "Erreur finding step [" + stepnames[ i ] + "] nr copy=" + CopyNr + "!" );
         }
 
-        data.stepInterfaces.put( i, getDispatcher().findBaseSteps( stepnames[i] ).get( CopyNr ) );
+        data.stepInterfaces.put( i, getDispatcher().findBaseSteps( stepnames[ i ] ).get( CopyNr ) );
       }
     } // end if first
 

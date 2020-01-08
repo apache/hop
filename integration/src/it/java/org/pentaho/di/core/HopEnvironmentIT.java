@@ -22,21 +22,7 @@
 
 package org.apache.hop.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.google.common.util.concurrent.SettableFuture;
-import org.junit.Test;
 import org.apache.hop.core.annotations.HopLifecyclePlugin;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.lifecycle.HopLifecycleListener;
@@ -46,10 +32,23 @@ import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
+import org.junit.Test;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Tests for the Hop Environment
- * 
  */
 public class HopEnvironmentIT {
 
@@ -125,13 +124,13 @@ public class HopEnvironmentIT {
   public void lifecycleListenerEnvironmentInitCallback() throws Exception {
     resetHopEnvironmentInitializationFlag();
     assertFalse( "This test only works if the Hop Environment is not yet initialized", HopEnvironment
-        .isInitialized() );
+      .isInitialized() );
     System.setProperty( Const.HOP_PLUGIN_CLASSES, MockLifecycleListener.class.getName() );
     HopEnvironment.init();
 
     PluginInterface pi = PluginRegistry.getInstance().findPluginWithId( HopLifecyclePluginType.class, pluginId );
     MockLifecycleListener l =
-        (MockLifecycleListener) PluginRegistry.getInstance().loadClass( pi, HopLifecycleListener.class );
+      (MockLifecycleListener) PluginRegistry.getInstance().loadClass( pi, HopLifecycleListener.class );
     assertNotNull( "Test plugin not registered properly", l );
 
     assertTrue( environmentInitCalled.get() );
@@ -144,13 +143,13 @@ public class HopEnvironmentIT {
   public void lifecycleListenerEnvironmentInitCallback_exception_thrown() throws Exception {
     resetHopEnvironmentInitializationFlag();
     assertFalse( "This test only works if the Hop Environment is not yet initialized", HopEnvironment
-        .isInitialized() );
+      .isInitialized() );
     System.setProperty( Const.HOP_PLUGIN_CLASSES, FailingMockLifecycleListener.class.getName() );
     HopEnvironment.init();
 
     PluginInterface pi = PluginRegistry.getInstance().findPluginWithId( HopLifecyclePluginType.class, pluginId );
     MockLifecycleListener l =
-        (MockLifecycleListener) PluginRegistry.getInstance().loadClass( pi, HopLifecycleListener.class );
+      (MockLifecycleListener) PluginRegistry.getInstance().loadClass( pi, HopLifecycleListener.class );
     assertNotNull( "Test plugin not registered properly", l );
 
     assertTrue( HopEnvironment.isInitialized() );
@@ -163,7 +162,7 @@ public class HopEnvironmentIT {
   public void lifecycleListenerEnvironmentInitCallback_exception_thrown_severe() throws Exception {
     resetHopEnvironmentInitializationFlag();
     assertFalse( "This test only works if the Hop Environment is not yet initialized", HopEnvironment
-        .isInitialized() );
+      .isInitialized() );
     System.setProperty( Const.HOP_PLUGIN_CLASSES, SevereFailingMockLifecycleListener.class.getName() );
     try {
       HopEnvironment.init();
@@ -180,7 +179,7 @@ public class HopEnvironmentIT {
   public void lifecycleListenerEnvironmentInitCallback_throwable_thrown() throws Exception {
     resetHopEnvironmentInitializationFlag();
     assertFalse( "This test only works if the Hop Environment is not yet initialized", HopEnvironment
-        .isInitialized() );
+      .isInitialized() );
     System.setProperty( Const.HOP_PLUGIN_CLASSES, ThrowableFailingMockLifecycleListener.class.getName() );
     try {
       HopEnvironment.init();

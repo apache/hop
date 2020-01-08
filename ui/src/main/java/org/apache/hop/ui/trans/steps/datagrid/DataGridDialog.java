@@ -22,11 +22,25 @@
 
 package org.apache.hop.ui.trans.steps.datagrid;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPreviewFactory;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.datagrid.DataGridMeta;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -51,24 +65,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPreviewFactory;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.datagrid.DataGridMeta;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class DataGridDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = DataGridMeta.class; // for i18n purposes, needed by Translator2!!
@@ -182,8 +182,8 @@ public class DataGridDialog extends BaseStepDialog implements StepDialogInterfac
         new ColumnInfo(
           BaseMessages.getString( PKG, "DataGridDialog.Value.SetEmptyString" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-            BaseMessages.getString( PKG, "System.Combo.Yes" ),
-            BaseMessages.getString( PKG, "System.Combo.No" ) } ),
+          BaseMessages.getString( PKG, "System.Combo.Yes" ),
+          BaseMessages.getString( PKG, "System.Combo.No" ) } ),
 
       };
 
@@ -340,9 +340,9 @@ public class DataGridDialog extends BaseStepDialog implements StepDialogInterfac
       }
     }
 
-    ColumnInfo[] columns = new ColumnInfo[dataGridMeta.getFieldName().length];
+    ColumnInfo[] columns = new ColumnInfo[ dataGridMeta.getFieldName().length ];
     for ( int i = 0; i < columns.length; i++ ) {
-      columns[i] = new ColumnInfo( dataGridMeta.getFieldName()[i], ColumnInfo.COLUMN_TYPE_TEXT, false, false );
+      columns[ i ] = new ColumnInfo( dataGridMeta.getFieldName()[ i ], ColumnInfo.COLUMN_TYPE_TEXT, false, false );
     }
     List<List<String>> lines = dataGridMeta.getDataLines();
     wData = new TableView( transMeta, wDataComp, SWT.NONE, columns, lines.size(), lsMod, props );
@@ -385,13 +385,13 @@ public class DataGridDialog extends BaseStepDialog implements StepDialogInterfac
       public void moveRow( int position1, int position2 ) {
         //if one of rows is empty -- don't move data
         if ( !wFields.getNonEmptyIndexes().contains( position1 )
-                || !wFields.getNonEmptyIndexes().contains( position2 ) ) {
+          || !wFields.getNonEmptyIndexes().contains( position2 ) ) {
           wFields.nrNonEmpty();
           return;
         }
 
-        Integer fieldRealPosition1 =  getIdxByValue( wFields.getNonEmptyIndexes(), position1 );
-        Integer fieldRealPosition2 =  getIdxByValue( wFields.getNonEmptyIndexes(), position2 );
+        Integer fieldRealPosition1 = getIdxByValue( wFields.getNonEmptyIndexes(), position1 );
+        Integer fieldRealPosition2 = getIdxByValue( wFields.getNonEmptyIndexes(), position2 );
         if ( fieldRealPosition1 == null || fieldRealPosition2 == null ) {
           return; //can not happen (prevent warnings)
         }
@@ -423,7 +423,7 @@ public class DataGridDialog extends BaseStepDialog implements StepDialogInterfac
           return;
         }
         Collection<Integer> disjunction = CollectionUtils.disjunction( nonEmptyIndexesBeforeChanges, nonEmptyIndexesAfterChanges );
-        Integer disjunctionIdx = (Integer) disjunction.toArray()[0];
+        Integer disjunctionIdx = (Integer) disjunction.toArray()[ 0 ];
         if ( nonEmptyIndexesAfterChanges.contains( disjunctionIdx ) ) {
           // new Field was added
           Integer idxByValue = getIdxByValue( nonEmptyIndexesAfterChanges, disjunctionIdx );
@@ -480,19 +480,19 @@ public class DataGridDialog extends BaseStepDialog implements StepDialogInterfac
       nrfields = wFields.table.getItemCount();
     }
     for ( int i = 0; i < nrfields; i++ ) {
-      if ( input.getFieldName()[i] != null ) {
+      if ( input.getFieldName()[ i ] != null ) {
         TableItem item = wFields.table.getItem( i );
         int col = 1;
 
-        item.setText( col++, input.getFieldName()[i] );
-        String type = input.getFieldType()[i];
-        String format = input.getFieldFormat()[i];
-        String length = input.getFieldLength()[i] < 0 ? "" : ( "" + input.getFieldLength()[i] );
-        String prec = input.getFieldPrecision()[i] < 0 ? "" : ( "" + input.getFieldPrecision()[i] );
+        item.setText( col++, input.getFieldName()[ i ] );
+        String type = input.getFieldType()[ i ];
+        String format = input.getFieldFormat()[ i ];
+        String length = input.getFieldLength()[ i ] < 0 ? "" : ( "" + input.getFieldLength()[ i ] );
+        String prec = input.getFieldPrecision()[ i ] < 0 ? "" : ( "" + input.getFieldPrecision()[ i ] );
 
-        String curr = input.getCurrency()[i];
-        String group = input.getGroup()[i];
-        String decim = input.getDecimal()[i];
+        String curr = input.getCurrency()[ i ];
+        String group = input.getGroup()[ i ];
+        String decim = input.getDecimal()[ i ];
 
         item.setText( col++, Const.NVL( type, "" ) );
         item.setText( col++, Const.NVL( format, "" ) );
@@ -502,9 +502,9 @@ public class DataGridDialog extends BaseStepDialog implements StepDialogInterfac
         item.setText( col++, Const.NVL( decim, "" ) );
         item.setText( col++, Const.NVL( group, "" ) );
         item
-          .setText( col++, input.isSetEmptyString()[i]
+          .setText( col++, input.isSetEmptyString()[ i ]
             ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString(
-              PKG, "System.Combo.No" ) );
+            PKG, "System.Combo.No" ) );
 
       }
     }
@@ -548,30 +548,30 @@ public class DataGridDialog extends BaseStepDialog implements StepDialogInterfac
     for ( int i = 0; i < nrfields; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
       int col = 1;
-      meta.getFieldName()[i] = item.getText( col++ );
-      meta.getFieldType()[i] = item.getText( col++ );
-      meta.getFieldFormat()[i] = item.getText( col++ );
+      meta.getFieldName()[ i ] = item.getText( col++ );
+      meta.getFieldType()[ i ] = item.getText( col++ );
+      meta.getFieldFormat()[ i ] = item.getText( col++ );
       String slength = item.getText( col++ );
       String sprec = item.getText( col++ );
-      meta.getCurrency()[i] = item.getText( col++ );
-      meta.getDecimal()[i] = item.getText( col++ );
-      meta.getGroup()[i] = item.getText( col++ );
+      meta.getCurrency()[ i ] = item.getText( col++ );
+      meta.getDecimal()[ i ] = item.getText( col++ );
+      meta.getGroup()[ i ] = item.getText( col++ );
 
       try {
-        meta.getFieldLength()[i] = Integer.parseInt( slength );
+        meta.getFieldLength()[ i ] = Integer.parseInt( slength );
       } catch ( Exception e ) {
-        meta.getFieldLength()[i] = -1;
+        meta.getFieldLength()[ i ] = -1;
       }
       try {
-        meta.getFieldPrecision()[i] = Integer.parseInt( sprec );
+        meta.getFieldPrecision()[ i ] = Integer.parseInt( sprec );
       } catch ( Exception e ) {
-        meta.getFieldPrecision()[i] = -1;
+        meta.getFieldPrecision()[ i ] = -1;
       }
-      meta.isSetEmptyString()[i] =
+      meta.isSetEmptyString()[ i ] =
         BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( col++ ) );
 
-      if ( meta.isSetEmptyString()[i] ) {
-        meta.getFieldType()[i] = "String";
+      if ( meta.isSetEmptyString()[ i ] ) {
+        meta.getFieldType()[ i ] = "String";
       }
     }
   }
@@ -596,7 +596,6 @@ public class DataGridDialog extends BaseStepDialog implements StepDialogInterfac
 
   /**
    * Preview the data generated by this step. This generates a transformation using this step & a dummy and previews it.
-   *
    */
   private void preview() {
     // Create the table input reader step...
@@ -625,7 +624,7 @@ public class DataGridDialog extends BaseStepDialog implements StepDialogInterfac
           EnterTextDialog etd =
             new EnterTextDialog(
               shell, BaseMessages.getString( PKG, "System.Dialog.PreviewError.Title" ), BaseMessages
-                .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
+              .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
           etd.setReadOnly();
           etd.open();
         }
@@ -634,7 +633,7 @@ public class DataGridDialog extends BaseStepDialog implements StepDialogInterfac
       PreviewRowsDialog prd =
         new PreviewRowsDialog(
           shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta( wStepname
-            .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
+          .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
       prd.open();
     }
   }

@@ -21,17 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.fixedinput;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -42,6 +31,17 @@ import org.apache.hop.trans.steps.loadsave.initializer.InitializerInterface;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.IntLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 public class FixedInputMetaTest implements InitializerInterface<StepMetaInterface> {
   LoadSaveTester loadSaveTester;
@@ -53,21 +53,21 @@ public class FixedInputMetaTest implements InitializerInterface<StepMetaInterfac
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "filename", "headerPresent", "lineWidth", "bufferSize", "lazyConversionActive", "lineFeedPresent",
-            "runningInParallel", "fileType", "addResultFile", "encoding", "fieldDefinition" );
+      Arrays.asList( "filename", "headerPresent", "lineWidth", "bufferSize", "lazyConversionActive", "lineFeedPresent",
+        "runningInParallel", "fileType", "addResultFile", "encoding", "fieldDefinition" );
 
     Map<String, String> getterMap = new HashMap<String, String>();
     Map<String, String> setterMap = new HashMap<String, String>();
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "fieldDefinition",
-        new ArrayLoadSaveValidator<FixedFileInputField>( new FixedFileInputFieldLoadSaveValidator(), 5 ) );
+      new ArrayLoadSaveValidator<FixedFileInputField>( new FixedFileInputFieldLoadSaveValidator(), 5 ) );
     attrValidatorMap.put( "fileType", new IntLoadSaveValidator( FixedInputMeta.fileTypeDesc.length ) );
 
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
-            getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class
@@ -85,6 +85,7 @@ public class FixedInputMetaTest implements InitializerInterface<StepMetaInterfac
 
   public class FixedFileInputFieldLoadSaveValidator implements FieldLoadSaveValidator<FixedFileInputField> {
     final Random rand = new Random();
+
     @Override
     public FixedFileInputField getTestObject() {
       FixedFileInputField rtn = new FixedFileInputField();

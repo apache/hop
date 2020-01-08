@@ -22,6 +22,19 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.gui.GUIOption;
+import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.i18n.GlobalMessages;
+import org.apache.hop.i18n.LanguageChoice;
+import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -58,19 +71,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.gui.GUIOption;
-import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.i18n.GlobalMessages;
-import org.apache.hop.i18n.LanguageChoice;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * Allows you to set the configurable options for the Hop environment
@@ -1495,8 +1495,7 @@ public class EnterOptionsDialog extends Dialog {
   /**
    * Setting the layout of a <i>Reset</i> option button. Either a button image is set - if existing - or a text.
    *
-   * @param button
-   *          The button
+   * @param button The button
    */
   private FormData layoutResetOptionButton( Button button ) {
     FormData fd = new FormData();
@@ -1517,8 +1516,7 @@ public class EnterOptionsDialog extends Dialog {
   /**
    * Setting the layout of an <i>Edit</i> option button. Either a button image is set - if existing - or a text.
    *
-   * @param button
-   *          The button
+   * @param button The button
    */
   private FormData layoutEditOptionButton( Button button ) {
     FormData fd = new FormData();
@@ -1626,7 +1624,7 @@ public class EnterOptionsDialog extends Dialog {
       defaultLocaleIndex = 0;
     }
 
-    String defaultLocale = GlobalMessages.localeCodes[defaultLocaleIndex];
+    String defaultLocale = GlobalMessages.localeCodes[ defaultLocaleIndex ];
     LanguageChoice.getInstance().setDefaultLocale( EnvUtil.createLocale( defaultLocale ) );
 
     LanguageChoice.getInstance().saveSettings();

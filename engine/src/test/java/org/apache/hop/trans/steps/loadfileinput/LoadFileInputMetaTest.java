@@ -22,8 +22,25 @@
 
 package org.apache.hop.trans.steps.loadfileinput;
 
-import static org.junit.Assert.assertEquals;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
+import org.apache.hop.trans.steps.loadsave.initializer.InitializerInterface;
+import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
+import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.trans.steps.loadsave.validator.YNLoadSaveValidator;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,25 +50,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
-import org.apache.hop.trans.steps.loadsave.initializer.InitializerInterface;
-import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
-import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
-import org.apache.hop.trans.steps.loadsave.validator.YNLoadSaveValidator;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
+import static org.junit.Assert.assertEquals;
 
 /**
  * User: Dzmitry Stsiapanau Date: 12/17/13 Time: 3:11 PM
@@ -61,14 +60,14 @@ public class LoadFileInputMetaTest implements InitializerInterface<StepMetaInter
   LoadSaveTester loadSaveTester;
 
   String xmlOrig = "    " + "<include>N</include>    <include_field/>    <rownum>N</rownum>   "
-          + " <addresultfile>Y</addresultfile>    <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>   "
-          + " <IsIgnoreMissingPath>N</IsIgnoreMissingPath>    <rownum_field/>   "
-          + " <encoding/>    <file>      <name>D:\\DZMITRY</name>      <filemask>*/</filemask>     "
-          + " <exclude_filemask>/***</exclude_filemask>      <file_required>N</file_required>     "
-          + " <include_subfolders>N</include_subfolders>      </file>    <fields>      </fields>   "
-          + " <limit>0</limit>    <IsInFields>N</IsInFields>    <DynamicFilenameField/>   "
-          + " <shortFileFieldName/>    <pathFieldName/>    <hiddenFieldName/>    <lastModificationTimeFieldName/>   "
-          + " <uriNameFieldName/>    <rootUriNameFieldName/>    <extensionFieldName/>";
+    + " <addresultfile>Y</addresultfile>    <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>   "
+    + " <IsIgnoreMissingPath>N</IsIgnoreMissingPath>    <rownum_field/>   "
+    + " <encoding/>    <file>      <name>D:\\DZMITRY</name>      <filemask>*/</filemask>     "
+    + " <exclude_filemask>/***</exclude_filemask>      <file_required>N</file_required>     "
+    + " <include_subfolders>N</include_subfolders>      </file>    <fields>      </fields>   "
+    + " <limit>0</limit>    <IsInFields>N</IsInFields>    <DynamicFilenameField/>   "
+    + " <shortFileFieldName/>    <pathFieldName/>    <hiddenFieldName/>    <lastModificationTimeFieldName/>   "
+    + " <uriNameFieldName/>    <rootUriNameFieldName/>    <extensionFieldName/>";
 
   public LoadFileInputMeta createMeta() throws Exception {
     LoadFileInputMeta meta = new LoadFileInputMeta();
@@ -108,7 +107,7 @@ public class LoadFileInputMetaTest implements InitializerInterface<StepMetaInter
     LoadFileInputMeta testMeta = createMeta();
     String xml = testMeta.getXML();
     assertEquals( xmlOrig.replaceAll( "\n", "" ).replaceAll( "\r", "" ), xml.replaceAll( "\n", "" ).replaceAll( "\r",
-        "" ) );
+      "" ) );
   }
 
   @Test
@@ -126,11 +125,11 @@ public class LoadFileInputMetaTest implements InitializerInterface<StepMetaInter
   @Before
   public void setUp() throws Exception {
     List<String> attributes =
-        Arrays.asList( "includeFilename", "filenameField", "includeRowNumber", "rowNumberField", "rowLimit",
-            "encoding", "DynamicFilenameField", "fileinfield", "addresultfile", "IsIgnoreEmptyFile", "IsIgnoreMissingPath",
-            "shortFileFieldName", "pathFieldName", "hiddenFieldName", "lastModificationTimeFieldName",
-            "uriNameFieldName", "rootUriNameFieldName", "extensionFieldName", "includeSubFolders", "fileName",
-            "fileMask", "excludeFileMask", "fileRequired", "inputFields" );
+      Arrays.asList( "includeFilename", "filenameField", "includeRowNumber", "rowNumberField", "rowLimit",
+        "encoding", "DynamicFilenameField", "fileinfield", "addresultfile", "IsIgnoreEmptyFile", "IsIgnoreMissingPath",
+        "shortFileFieldName", "pathFieldName", "hiddenFieldName", "lastModificationTimeFieldName",
+        "uriNameFieldName", "rootUriNameFieldName", "extensionFieldName", "includeSubFolders", "fileName",
+        "fileMask", "excludeFileMask", "fileRequired", "inputFields" );
 
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
@@ -190,13 +189,13 @@ public class LoadFileInputMetaTest implements InitializerInterface<StepMetaInter
       }
     };
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
     FieldLoadSaveValidator<LoadFileInputField[]> lfifArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<LoadFileInputField>( new LoadFileInputFieldLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<LoadFileInputField>( new LoadFileInputFieldLoadSaveValidator(), 5 );
 
     FieldLoadSaveValidator<String[]> YNArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new YNLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<String>( new YNLoadSaveValidator(), 5 );
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "includeSubFolders", stringArrayLoadSaveValidator );
@@ -210,8 +209,8 @@ public class LoadFileInputMetaTest implements InitializerInterface<StepMetaInter
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( LoadFileInputMeta.class, attributes, new ArrayList<String>(), new ArrayList<String>(),
-            getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+      new LoadSaveTester( LoadFileInputMeta.class, attributes, new ArrayList<String>(), new ArrayList<String>(),
+        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class
@@ -230,6 +229,7 @@ public class LoadFileInputMetaTest implements InitializerInterface<StepMetaInter
 
   public class LoadFileInputFieldLoadSaveValidator implements FieldLoadSaveValidator<LoadFileInputField> {
     final Random rand = new Random();
+
     @Override
     public LoadFileInputField getTestObject() {
       LoadFileInputField rtn = new LoadFileInputField();
@@ -246,13 +246,14 @@ public class LoadFileInputMetaTest implements InitializerInterface<StepMetaInter
       rtn.setLength( rand.nextInt( 50 ) );
       return rtn;
     }
+
     @Override
     public boolean validateTestObject( LoadFileInputField testObject, Object actualObj ) {
       if ( !( actualObj instanceof LoadFileInputField ) ) {
         return false;
       }
       LoadFileInputField actual = (LoadFileInputField) actualObj;
-      boolean tst1 =  ( actual.getXML().equals( testObject.getXML() ) );
+      boolean tst1 = ( actual.getXML().equals( testObject.getXML() ) );
       LoadFileInputField aClone = (LoadFileInputField) testObject.clone();
       boolean tst2 = ( actual.getXML().equals( aClone.getXML() ) );
       return ( tst1 && tst2 );

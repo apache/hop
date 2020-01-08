@@ -22,16 +22,6 @@
 
 package org.apache.hop.ui.hopui.delegates;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -43,15 +33,25 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.hopui.trans.TransGraph;
 import org.apache.hop.ui.hopui.trans.TransLogDelegate;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 
 public class HopUiTransformationDelegateTest {
-  private static final String[] EMPTY_STRING_ARRAY = new String[]{};
+  private static final String[] EMPTY_STRING_ARRAY = new String[] {};
   private static final String TEST_PARAM_KEY = "paramKey";
   private static final String TEST_PARAM_VALUE = "paramValue";
   private static final Map<String, String> MAP_WITH_TEST_PARAM = new HashMap<String, String>() {
@@ -118,7 +118,7 @@ public class HopUiTransformationDelegateTest {
   @SuppressWarnings( "ResultOfMethodCallIgnored" )
   public void testSetParamsIntoMetaInExecuteTransformation() throws HopException {
     doCallRealMethod().when( delegate ).executeTransformation( transMeta, true, false, false,
-            false, false, null, false, LogLevel.BASIC );
+      false, false, null, false, LogLevel.BASIC );
 
     RowMetaInterface rowMeta = mock( RowMetaInterface.class );
     TransExecutionConfiguration transExecutionConfiguration = mock( TransExecutionConfiguration.class );
@@ -136,7 +136,7 @@ public class HopUiTransformationDelegateTest {
     doReturn( TEST_BOOLEAN_PARAM ).when( transExecutionConfiguration ).isGatheringMetrics();
 
     delegate.executeTransformation( transMeta, true, false, false, false, false,
-            null, false, LogLevel.BASIC );
+      null, false, LogLevel.BASIC );
 
     verify( transMeta ).setParameterValue( TEST_PARAM_KEY, TEST_PARAM_VALUE );
     verify( transMeta ).activateParameters();

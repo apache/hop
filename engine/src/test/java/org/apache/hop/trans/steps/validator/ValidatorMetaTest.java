@@ -22,17 +22,6 @@
 package org.apache.hop.trans.steps.validator;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -42,6 +31,17 @@ import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 import org.apache.hop.trans.steps.loadsave.initializer.InitializerInterface;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.ListLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 public class ValidatorMetaTest implements InitializerInterface<StepMetaInterface> {
   LoadSaveTester loadSaveTester;
@@ -53,7 +53,7 @@ public class ValidatorMetaTest implements InitializerInterface<StepMetaInterface
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "validatingAll", "concatenatingErrors", "concatenationSeparator", "validations" );
+      Arrays.asList( "validatingAll", "concatenatingErrors", "concatenationSeparator", "validations" );
 
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
@@ -78,8 +78,8 @@ public class ValidatorMetaTest implements InitializerInterface<StepMetaInterface
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
-            getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class
@@ -94,9 +94,11 @@ public class ValidatorMetaTest implements InitializerInterface<StepMetaInterface
   public void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
+
   //ValidationLoadSaveValidator
   public class ValidationLoadSaveValidator implements FieldLoadSaveValidator<Validation> {
     final Random rand = new Random();
+
     @Override
     public Validation getTestObject() {
       Validation rtn = new Validation();

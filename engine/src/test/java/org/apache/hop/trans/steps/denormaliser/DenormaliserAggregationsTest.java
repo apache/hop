@@ -22,20 +22,6 @@
 
 package org.apache.hop.trans.steps.denormaliser;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
-
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
@@ -45,6 +31,20 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 public class DenormaliserAggregationsTest {
 
@@ -58,10 +58,10 @@ public class DenormaliserAggregationsTest {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     mockHelper =
-        new StepMockHelper<DenormaliserMeta, DenormaliserData>( "Denormaliser", DenormaliserMeta.class,
-            DenormaliserData.class );
+      new StepMockHelper<DenormaliserMeta, DenormaliserData>( "Denormaliser", DenormaliserMeta.class,
+        DenormaliserData.class );
     when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        mockHelper.logChannelInterface );
+      mockHelper.logChannelInterface );
     when( mockHelper.trans.isRunning() ).thenReturn( true );
   }
 
@@ -89,7 +89,7 @@ public class DenormaliserAggregationsTest {
 
     step.deNormalise( testSumPreconditions( "SUM" ), new Object[] { JUNIT, null } );
 
-    Assert.assertEquals( "100 + null = 100 ", sto, data.targetResult[0] );
+    Assert.assertEquals( "100 + null = 100 ", sto, data.targetResult[ 0 ] );
   }
 
   @Test
@@ -100,7 +100,7 @@ public class DenormaliserAggregationsTest {
 
     step.deNormalise( testSumPreconditions( "SUM" ), new Object[] { JUNIT, sto } );
 
-    Assert.assertEquals( "null + 100 = 100 ", sto, data.targetResult[0] );
+    Assert.assertEquals( "null + 100 = 100 ", sto, data.targetResult[ 0 ] );
   }
 
   /**
@@ -117,7 +117,7 @@ public class DenormaliserAggregationsTest {
 
     step.deNormalise( testSumPreconditions( "MIN" ), new Object[] { JUNIT, null } );
 
-    Assert.assertNull( "Null now is new minimal", data.targetResult[0] );
+    Assert.assertNull( "Null now is new minimal", data.targetResult[ 0 ] );
   }
 
   /**
@@ -134,7 +134,7 @@ public class DenormaliserAggregationsTest {
 
     step.deNormalise( testSumPreconditions( "MIN" ), new Object[] { JUNIT, null } );
 
-    Assert.assertEquals( "Null is ignored", sto, data.targetResult[0] );
+    Assert.assertEquals( "Null is ignored", sto, data.targetResult[ 0 ] );
   }
 
   /**
@@ -183,25 +183,25 @@ public class DenormaliserAggregationsTest {
   public void testBuildResultWithNullsY() throws HopValueException {
     step.setAllNullsAreZero( true );
 
-    Object[] rowData = new Object[10];
-    data.targetResult = new Object[1];
+    Object[] rowData = new Object[ 10 ];
+    data.targetResult = new Object[ 1 ];
     // this removal of input rows?
     RowMetaInterface rmi = testSumPreconditions( "-" );
-    data.removeNrs = new int[]{ 0 };
+    data.removeNrs = new int[] { 0 };
     Object[] outputRowData = step.buildResult( rmi, rowData );
 
-    Assert.assertEquals( "Output row: nulls are zeros", new Long( 0 ), outputRowData[2] );
+    Assert.assertEquals( "Output row: nulls are zeros", new Long( 0 ), outputRowData[ 2 ] );
   }
 
   @Test
   public void testBuildResultWithNullsN() throws HopValueException {
     step.setAllNullsAreZero( false );
 
-    Object[] rowData = new Object[10];
-    data.targetResult = new Object[1];
+    Object[] rowData = new Object[ 10 ];
+    data.targetResult = new Object[ 1 ];
     Object[] outputRowData = step.buildResult( testSumPreconditions( "-" ), rowData );
 
-    Assert.assertNull( "Output row: nulls are nulls", outputRowData[3] );
+    Assert.assertNull( "Output row: nulls are nulls", outputRowData[ 3 ] );
   }
 
   /**
@@ -223,8 +223,8 @@ public class DenormaliserAggregationsTest {
 
     DenormaliserTargetField[] pivotField = new DenormaliserTargetField[] { field1, field2, field3 };
     meta.setDenormaliserTargetField( pivotField );
-    data.counters = new long[3];
-    data.sum = new Object[3];
+    data.counters = new long[ 3 ];
+    data.sum = new Object[ 3 ];
 
     Method newGroupMethod = step.getClass().getDeclaredMethod( "newGroup" );
     newGroupMethod.setAccessible( true );

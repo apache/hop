@@ -22,23 +22,6 @@
 
 package org.apache.hop.job.entries.evaluatetablecontent;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.stubbing.Answer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
@@ -55,6 +38,23 @@ import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.stubbing.Answer;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /*
  * tests fix for PDI-1044
@@ -77,7 +77,7 @@ public class JobEntryEvalTableContentTest {
 
     @Override
     public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-        boolean add_fieldname, boolean add_cr ) {
+                                      boolean add_fieldname, boolean add_cr ) {
       // TODO Auto-generated method stub
       return null;
     }
@@ -94,14 +94,14 @@ public class JobEntryEvalTableContentTest {
 
     @Override
     public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-        String pk, boolean semicolon ) {
+                                         String pk, boolean semicolon ) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
     public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk,
-        boolean use_autoinc, String pk, boolean semicolon ) {
+                                            boolean use_autoinc, String pk, boolean semicolon ) {
       // TODO Auto-generated method stub
       return null;
     }
@@ -175,7 +175,7 @@ public class JobEntryEvalTableContentTest {
 
     assertFalse( "Eval number of rows should fail", res.getResult() );
     assertEquals(
-        "No errors should be reported in result object accoding to the new behavior", res.getNrErrors(), 0 );
+      "No errors should be reported in result object accoding to the new behavior", res.getNrErrors(), 0 );
   }
 
   @Test
@@ -190,7 +190,7 @@ public class JobEntryEvalTableContentTest {
 
     assertFalse( "Eval number of rows should fail", res.getResult() );
     assertEquals(
-        "An error should be reported in result object accoding to the old behavior", res.getNrErrors(), 1 );
+      "An error should be reported in result object accoding to the old behavior", res.getNrErrors(), 1 );
   }
 
   @Test

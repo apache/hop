@@ -22,13 +22,6 @@
 
 package org.apache.hop.trans.steps.textfileinput;
 
-import java.io.InputStreamReader;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.compress.CompressionInputStream;
@@ -38,6 +31,13 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.errorhandling.FileErrorHandler;
+
+import java.io.InputStreamReader;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Matt

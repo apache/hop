@@ -40,7 +40,8 @@ public class ScriptValuesScript {
   @Injection( name = "SCRIPT", group = "SCRIPTS" )
   private String sScript;
 
-  public ScriptValuesScript() { }
+  public ScriptValuesScript() {
+  }
 
   // private Date dModDate;
   // private Date dFirstDate;

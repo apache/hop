@@ -22,6 +22,26 @@
 
 package org.apache.hop.ui.trans.steps.rowgenerator;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPreviewFactory;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -42,26 +62,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPreviewFactory;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class RowGeneratorDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = RowGeneratorMeta.class; // for i18n purposes, needed by Translator2!!
@@ -385,20 +385,20 @@ public class RowGeneratorDialog extends BaseStepDialog implements StepDialogInte
     wLastTimeField.setText( Const.NVL( input.getLastTimeField(), "" ) );
 
     for ( int i = 0; i < input.getFieldName().length; i++ ) {
-      if ( input.getFieldName()[i] != null ) {
+      if ( input.getFieldName()[ i ] != null ) {
         TableItem item = wFields.table.getItem( i );
         int col = 1;
-        item.setText( col++, input.getFieldName()[i] );
+        item.setText( col++, input.getFieldName()[ i ] );
 
-        String type = input.getFieldType()[i];
-        String format = input.getFieldFormat()[i];
-        String length = input.getFieldLength()[i] < 0 ? "" : ( "" + input.getFieldLength()[i] );
-        String prec = input.getFieldPrecision()[i] < 0 ? "" : ( "" + input.getFieldPrecision()[i] );
+        String type = input.getFieldType()[ i ];
+        String format = input.getFieldFormat()[ i ];
+        String length = input.getFieldLength()[ i ] < 0 ? "" : ( "" + input.getFieldLength()[ i ] );
+        String prec = input.getFieldPrecision()[ i ] < 0 ? "" : ( "" + input.getFieldPrecision()[ i ] );
 
-        String curr = input.getCurrency()[i];
-        String group = input.getGroup()[i];
-        String decim = input.getDecimal()[i];
-        String def = input.getValue()[i];
+        String curr = input.getCurrency()[ i ];
+        String group = input.getGroup()[ i ];
+        String decim = input.getDecimal()[ i ];
+        String def = input.getValue()[ i ];
 
         item.setText( col++, Const.NVL( type, "" ) );
         item.setText( col++, Const.NVL( format, "" ) );
@@ -409,9 +409,9 @@ public class RowGeneratorDialog extends BaseStepDialog implements StepDialogInte
         item.setText( col++, Const.NVL( group, "" ) );
         item.setText( col++, Const.NVL( def, "" ) );
         item
-          .setText( col++, input.isSetEmptyString()[i]
+          .setText( col++, input.isSetEmptyString()[ i ]
             ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString(
-              PKG, "System.Combo.No" ) );
+            PKG, "System.Combo.No" ) );
 
       }
     }
@@ -444,7 +444,7 @@ public class RowGeneratorDialog extends BaseStepDialog implements StepDialogInte
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "RowGeneratorDialog.Illegal.Dialog.Settings.Title" ), BaseMessages
-          .getString( PKG, "RowGeneratorDialog.Illegal.Dialog.Settings.Message" ), e );
+        .getString( PKG, "RowGeneratorDialog.Illegal.Dialog.Settings.Message" ), e );
     }
   }
 
@@ -463,21 +463,21 @@ public class RowGeneratorDialog extends BaseStepDialog implements StepDialogInte
     for ( int i = 0; i < nrfields; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
 
-      meta.getFieldName()[i] = item.getText( 1 );
+      meta.getFieldName()[ i ] = item.getText( 1 );
 
-      meta.getFieldFormat()[i] = item.getText( 3 );
+      meta.getFieldFormat()[ i ] = item.getText( 3 );
       String slength = item.getText( 4 );
       String sprec = item.getText( 5 );
-      meta.getCurrency()[i] = item.getText( 6 );
-      meta.getDecimal()[i] = item.getText( 7 );
-      meta.getGroup()[i] = item.getText( 8 );
-      meta.isSetEmptyString()[i] =
+      meta.getCurrency()[ i ] = item.getText( 6 );
+      meta.getDecimal()[ i ] = item.getText( 7 );
+      meta.getGroup()[ i ] = item.getText( 8 );
+      meta.isSetEmptyString()[ i ] =
         BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 10 ) );
 
-      meta.getValue()[i] = meta.isSetEmptyString()[i] ? "" : item.getText( 9 );
-      meta.getFieldType()[i] = meta.isSetEmptyString()[i] ? "String" : item.getText( 2 );
-      meta.getFieldLength()[i] = Const.toInt( slength, -1 );
-      meta.getFieldPrecision()[i] = Const.toInt( sprec, -1 );
+      meta.getValue()[ i ] = meta.isSetEmptyString()[ i ] ? "" : item.getText( 9 );
+      meta.getFieldType()[ i ] = meta.isSetEmptyString()[ i ] ? "String" : item.getText( 2 );
+      meta.getFieldLength()[ i ] = Const.toInt( slength, -1 );
+      meta.getFieldPrecision()[ i ] = Const.toInt( sprec, -1 );
     }
 
     // Performs checks...
@@ -491,7 +491,6 @@ public class RowGeneratorDialog extends BaseStepDialog implements StepDialogInte
 
   /**
    * Preview the data generated by this step. This generates a transformation using this step & a dummy and previews it.
-   *
    */
   private void preview() {
     RowGeneratorMeta oneMeta = new RowGeneratorMeta();
@@ -500,7 +499,7 @@ public class RowGeneratorDialog extends BaseStepDialog implements StepDialogInte
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "RowGeneratorDialog.Illegal.Dialog.Settings.Title" ), BaseMessages
-          .getString( PKG, "RowGeneratorDialog.Illegal.Dialog.Settings.Message" ), e );
+        .getString( PKG, "RowGeneratorDialog.Illegal.Dialog.Settings.Message" ), e );
       return;
     }
 
@@ -526,7 +525,7 @@ public class RowGeneratorDialog extends BaseStepDialog implements StepDialogInte
           EnterTextDialog etd =
             new EnterTextDialog(
               shell, BaseMessages.getString( PKG, "System.Dialog.PreviewError.Title" ), BaseMessages
-                .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
+              .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
           etd.setReadOnly();
           etd.open();
         }
@@ -535,7 +534,7 @@ public class RowGeneratorDialog extends BaseStepDialog implements StepDialogInte
       PreviewRowsDialog prd =
         new PreviewRowsDialog(
           shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta( wStepname
-            .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
+          .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
       prd.open();
     }
   }

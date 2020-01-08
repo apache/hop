@@ -22,30 +22,7 @@
 
 package org.apache.hop.trans.steps.calculator;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.when;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.ArgumentMatcher;
+import junit.framework.Assert;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowSet;
@@ -55,8 +32,8 @@ import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
+import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -64,8 +41,30 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.step.RowAdapter;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 
-import junit.framework.Assert;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for calculator step
@@ -126,7 +125,7 @@ public class CalculatorUnitTest {
     verify( calculator, times( 1 ) ).logError( argThat( new ArgumentMatcher<String>() {
       @Override
       public boolean matches( Object o ) {
-        return ((String) o ).contains( BaseMessages.getString( PKG, "Calculator.Log.NoFile" ) );
+        return ( (String) o ).contains( BaseMessages.getString( PKG, "Calculator.Log.NoFile" ) );
       }
     } ) );
     assertFalse( processed );
@@ -571,7 +570,7 @@ public class CalculatorUnitTest {
   }
 
   public void assertRoundGeneral( final Object expectedResult, final int calcFunction, final Number value,
-      final Long precision, final Long roundingMode, final int valueDataType, final int functionDataType ) throws HopException {
+                                  final Long precision, final Long roundingMode, final int valueDataType, final int functionDataType ) throws HopException {
 
     final String msg = getHopTypeName( valueDataType ) + "->" + getHopTypeName( functionDataType ) + " ";
 
@@ -592,7 +591,7 @@ public class CalculatorUnitTest {
         break;
       default:
         throw new IllegalArgumentException( msg + "Unexpected value dataType: " + value.getClass().getName()
-            + ". Long, Double or BigDecimal expected." );
+          + ". Long, Double or BigDecimal expected." );
     }
     inputRowMeta.addValueMeta( valueMeta );
     inputValues.add( value );
@@ -639,7 +638,7 @@ public class CalculatorUnitTest {
 
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] { new CalculatorMetaFunction( fieldResult, calcFunction, fieldA,
-        fieldB, fieldC, resultDataType, 2, 0, false, "", "", "", "" ) } );
+      fieldB, fieldC, resultDataType, 2, 0, false, "", "", "", "" ) } );
 
     // Verify output
     try {
@@ -649,7 +648,7 @@ public class CalculatorUnitTest {
           assertEquals( msg + " resultRowSize", expectedResultRowSize, rowMeta.size() );
           final int fieldResultIndex = rowMeta.size() - 1;
           assertEquals( msg + " fieldResult", fieldResult, rowMeta.getValueMeta( fieldResultIndex ).getName() );
-          assertEquals( msg, expectedResult, row[fieldResultIndex] );
+          assertEquals( msg, expectedResult, row[ fieldResultIndex ] );
         }
       } );
       calculator.processRow( meta, new CalculatorData() );
@@ -664,8 +663,7 @@ public class CalculatorUnitTest {
    * Double - TYPE_NUMBER, TYPE_BIGNUMBER<br/>
    * Integer - TYPE_NUMBER, TYPE_BIGNUMBER, TYPE_INTEGER
    *
-   * @param expectedResult
-   *          Double and Integer values allowed
+   * @param expectedResult Double and Integer values allowed
    * @param calcFunction
    * @param value
    * @param precision
@@ -673,40 +671,40 @@ public class CalculatorUnitTest {
    * @throws HopException
    */
   public void assertRoundEveryDataType( final Number expectedResult, final int calcFunction, final Number value,
-      final Long precision, final Long roundingMode ) throws HopException {
+                                        final Long precision, final Long roundingMode ) throws HopException {
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       final double resultValue = expectedResult.doubleValue();
       assertRoundGeneral( resultValue, calcFunction, value.doubleValue(), precision, roundingMode, ValueMetaInterface.TYPE_NUMBER,
-          ValueMetaInterface.TYPE_NUMBER );
+        ValueMetaInterface.TYPE_NUMBER );
       assertRoundGeneral( resultValue, calcFunction, new BigDecimal( String.valueOf( value.doubleValue() ) ),
-          precision, roundingMode, ValueMetaInterface.TYPE_BIGNUMBER, ValueMetaInterface.TYPE_NUMBER );
+        precision, roundingMode, ValueMetaInterface.TYPE_BIGNUMBER, ValueMetaInterface.TYPE_NUMBER );
       if ( isInt( value ) ) {
         assertRoundGeneral( resultValue, calcFunction, value.longValue(), precision, roundingMode, ValueMetaInterface.TYPE_INTEGER,
-            ValueMetaInterface.TYPE_NUMBER );
+          ValueMetaInterface.TYPE_NUMBER );
       }
     }
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       final BigDecimal resultValue = BigDecimal.valueOf( expectedResult.doubleValue() );
       assertRoundGeneral( resultValue, calcFunction, value.doubleValue(), precision, roundingMode, ValueMetaInterface.TYPE_NUMBER,
-          ValueMetaInterface.TYPE_BIGNUMBER );
+        ValueMetaInterface.TYPE_BIGNUMBER );
       assertRoundGeneral( resultValue, calcFunction, new BigDecimal( String.valueOf( value.doubleValue() ) ),
-          precision, roundingMode, ValueMetaInterface.TYPE_BIGNUMBER, ValueMetaInterface.TYPE_BIGNUMBER );
+        precision, roundingMode, ValueMetaInterface.TYPE_BIGNUMBER, ValueMetaInterface.TYPE_BIGNUMBER );
       if ( isInt( value ) ) {
         assertRoundGeneral( resultValue, calcFunction, value.longValue(), precision, roundingMode, ValueMetaInterface.TYPE_INTEGER,
-            ValueMetaInterface.TYPE_BIGNUMBER );
+          ValueMetaInterface.TYPE_BIGNUMBER );
       }
     }
     if ( isInt( expectedResult ) ) {
       final Long resultValue = expectedResult.longValue();
       assertRoundGeneral( resultValue, calcFunction, value.doubleValue(), precision, roundingMode, ValueMetaInterface.TYPE_NUMBER,
-          ValueMetaInterface.TYPE_INTEGER );
+        ValueMetaInterface.TYPE_INTEGER );
       assertRoundGeneral( resultValue, calcFunction, new BigDecimal( String.valueOf( value.doubleValue() ) ),
-          precision, roundingMode, ValueMetaInterface.TYPE_BIGNUMBER, ValueMetaInterface.TYPE_INTEGER );
+        precision, roundingMode, ValueMetaInterface.TYPE_BIGNUMBER, ValueMetaInterface.TYPE_INTEGER );
       if ( isInt( value ) ) {
         assertRoundGeneral( resultValue, calcFunction, value.longValue(), precision, roundingMode, ValueMetaInterface.TYPE_INTEGER,
-            ValueMetaInterface.TYPE_INTEGER );
+          ValueMetaInterface.TYPE_INTEGER );
       }
     }
   }
@@ -735,7 +733,7 @@ public class CalculatorUnitTest {
   }
 
   public void assertRoundCustom2( final Number expectedResult, final Number value, final long precision,
-      final long roundingMode ) throws HopException {
+                                  final long roundingMode ) throws HopException {
     assertRoundEveryDataType( expectedResult, CalculatorMetaFunction.CALC_ROUND_CUSTOM_2, value, precision, roundingMode );
   }
 
@@ -747,7 +745,7 @@ public class CalculatorUnitTest {
    */
   private static boolean isInt( Number value ) {
     if ( value instanceof Long || value instanceof Integer || value instanceof Short || value instanceof Byte
-        || value instanceof BigInteger ) {
+      || value instanceof BigInteger ) {
       return true;
     }
     final BigDecimal bigDecimalValue;
@@ -800,31 +798,31 @@ public class CalculatorUnitTest {
 
   @Test
   public void calculatorReminder() throws Exception {
-    assertCalculatorReminder( new Double( "0.10000000000000053" ), new Object[]{ new Long( "10" ), new Double( "3.3" ) },
-      new int[]{ ValueMetaInterface.TYPE_INTEGER, ValueMetaInterface.TYPE_NUMBER } );
-    assertCalculatorReminder( new Double( "1.0" ), new Object[]{ new Long( "10" ), new Double( "4.5" ) },
-      new int[]{ ValueMetaInterface.TYPE_INTEGER, ValueMetaInterface.TYPE_NUMBER } );
-    assertCalculatorReminder( new Double( "4.0" ), new Object[]{ new Double( "12.5" ), new Double( "4.25" ) },
-      new int[]{ ValueMetaInterface.TYPE_NUMBER, ValueMetaInterface.TYPE_NUMBER } );
-    assertCalculatorReminder( new Double( "2.6000000000000005" ), new Object[]{ new Double( "12.5" ), new Double( "3.3" ) },
-      new int[]{ ValueMetaInterface.TYPE_NUMBER, ValueMetaInterface.TYPE_NUMBER } );
+    assertCalculatorReminder( new Double( "0.10000000000000053" ), new Object[] { new Long( "10" ), new Double( "3.3" ) },
+      new int[] { ValueMetaInterface.TYPE_INTEGER, ValueMetaInterface.TYPE_NUMBER } );
+    assertCalculatorReminder( new Double( "1.0" ), new Object[] { new Long( "10" ), new Double( "4.5" ) },
+      new int[] { ValueMetaInterface.TYPE_INTEGER, ValueMetaInterface.TYPE_NUMBER } );
+    assertCalculatorReminder( new Double( "4.0" ), new Object[] { new Double( "12.5" ), new Double( "4.25" ) },
+      new int[] { ValueMetaInterface.TYPE_NUMBER, ValueMetaInterface.TYPE_NUMBER } );
+    assertCalculatorReminder( new Double( "2.6000000000000005" ), new Object[] { new Double( "12.5" ), new Double( "3.3" ) },
+      new int[] { ValueMetaInterface.TYPE_NUMBER, ValueMetaInterface.TYPE_NUMBER } );
   }
 
   private void assertCalculatorReminder( final Object expectedResult, final Object[] values, final int[] types ) throws Exception {
     RowMeta inputRowMeta = new RowMeta();
-    for( int i = 0; i < types.length; i++ ) {
-      switch ( types[i] ) {
+    for ( int i = 0; i < types.length; i++ ) {
+      switch ( types[ i ] ) {
         case ValueMetaInterface.TYPE_BIGNUMBER:
-          inputRowMeta.addValueMeta( new ValueMetaBigNumber("f" + i ) );
+          inputRowMeta.addValueMeta( new ValueMetaBigNumber( "f" + i ) );
           break;
         case ValueMetaInterface.TYPE_NUMBER:
-          inputRowMeta.addValueMeta( new ValueMetaNumber("f" + i ) );
+          inputRowMeta.addValueMeta( new ValueMetaNumber( "f" + i ) );
           break;
         case ValueMetaInterface.TYPE_INTEGER:
-          inputRowMeta.addValueMeta( new ValueMetaInteger("f" + i ) );
+          inputRowMeta.addValueMeta( new ValueMetaInteger( "f" + i ) );
           break;
         default:
-          throw new IllegalArgumentException( "Unexpected value dataType: " + types[i]
+          throw new IllegalArgumentException( "Unexpected value dataType: " + types[ i ]
             + ". Long, Double or BigDecimal expected." );
       }
     }
@@ -832,7 +830,7 @@ public class CalculatorUnitTest {
     RowSet inputRowSet = null;
     try {
       inputRowSet = smh.getMockInputRowSet( new Object[][] {
-        { values[0], values[1] } } );
+        { values[ 0 ], values[ 1 ] } } );
     } catch ( Exception pe ) {
       pe.printStackTrace();
       fail();

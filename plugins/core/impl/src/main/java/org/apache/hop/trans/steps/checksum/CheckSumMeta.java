@@ -22,28 +22,24 @@
 
 package org.apache.hop.trans.steps.checksum;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Step;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.injection.Injection;
+import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -51,8 +47,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*
  * Created on 30-06-2008
@@ -60,9 +57,9 @@ import org.w3c.dom.Node;
  * @author Samatar Hassan
  */
 @Step( id = "CheckSum", i18nPackageName = "org.apache.hop.trans.steps.checksum", name = "CheckSum.Name",
-    description = "CheckSum.Description",
-    categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Transform" )
-@InjectionSupported( localizationPrefix = "CheckSum.Injection.", groups = { "FIELDS" }  )
+  description = "CheckSum.Description",
+  categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Transform" )
+@InjectionSupported( localizationPrefix = "CheckSum.Injection.", groups = { "FIELDS" } )
 public class CheckSumMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = CheckSumMeta.class; // for i18n purposes, needed by Translator2!!
 
@@ -96,11 +93,13 @@ public class CheckSumMeta extends BaseStepMeta implements StepMetaInterface {
   public static final int result_TYPE_HEXADECIMAL = 1;
   public static final int result_TYPE_BINARY = 2;
 
-  /** by which fields to display? */
+  /**
+   * by which fields to display?
+   */
   @Injection( name = "FIELD_NAME", group = "FIELDS" )
   private String[] fieldName;
 
-  @Injection( name = "RESULT_FIELD"  )
+  @Injection( name = "RESULT_FIELD" )
   private String resultfieldName;
 
   @Injection( name = "TYPE" )
@@ -112,7 +111,9 @@ public class CheckSumMeta extends BaseStepMeta implements StepMetaInterface {
   @Injection( name = "OLD_CHECKSUM_BEHAVIOR" )
   private boolean oldChecksumBehaviour;
 
-  /** result type */
+  /**
+   * result type
+   */
   @Injection( name = "RESULT_TYPE" )
   private int resultType;
 
@@ -121,7 +122,7 @@ public class CheckSumMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void setCheckSumType( int i ) {
-    checksumtype = checksumtypeCodes[i];
+    checksumtype = checksumtypeCodes[ i ];
   }
 
   public int getTypeByDesc() {
@@ -129,7 +130,7 @@ public class CheckSumMeta extends BaseStepMeta implements StepMetaInterface {
       return 0;
     }
     for ( int i = 0; i < checksumtypeCodes.length; i++ ) {
-      if ( checksumtype.equals( checksumtypeCodes[i] ) ) {
+      if ( checksumtype.equals( checksumtypeCodes[ i ] ) ) {
         return i;
       }
     }
@@ -154,9 +155,9 @@ public class CheckSumMeta extends BaseStepMeta implements StepMetaInterface {
 
   public String getResultTypeDesc( int i ) {
     if ( i < 0 || i >= resultTypeDesc.length ) {
-      return resultTypeDesc[0];
+      return resultTypeDesc[ 0 ];
     }
-    return resultTypeDesc[i];
+    return resultTypeDesc[ i ];
   }
 
   public int getResultTypeByDesc( String tt ) {
@@ -165,7 +166,7 @@ public class CheckSumMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     for ( int i = 0; i < resultTypeDesc.length; i++ ) {
-      if ( resultTypeDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( resultTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -179,7 +180,7 @@ public class CheckSumMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     for ( int i = 0; i < resultTypeCode.length; i++ ) {
-      if ( resultTypeCode[i].equalsIgnoreCase( tt ) ) {
+      if ( resultTypeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -198,8 +199,7 @@ public class CheckSumMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param resultfieldName
-   *          The resultfieldName to set.
+   * @param resultfieldName The resultfieldName to set.
    */
   public void setResultFieldName( String resultfieldName ) {
     this.resultfieldName = resultfieldName;
@@ -222,7 +222,7 @@ public class CheckSumMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrfields ) {
-    fieldName = new String[nrfields];
+    fieldName = new String[ nrfields ];
   }
 
   /**
@@ -233,8 +233,7 @@ public class CheckSumMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param fieldName
-   *          The fieldName to set.
+   * @param fieldName The fieldName to set.
    */
   public void setFieldName( String[] fieldName ) {
     this.fieldName = fieldName;
@@ -255,7 +254,7 @@ public class CheckSumMeta extends BaseStepMeta implements StepMetaInterface {
 
       for ( int i = 0; i < nrfields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        fieldName[i] = XMLHandler.getTagValue( fnode, "name" );
+        fieldName[ i ] = XMLHandler.getTagValue( fnode, "name" );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( "Unable to load step info from XML", e );
@@ -280,9 +279,9 @@ public class CheckSumMeta extends BaseStepMeta implements StepMetaInterface {
 
   private static String getResultTypeCode( int i ) {
     if ( i < 0 || i >= resultTypeCode.length ) {
-      return resultTypeCode[0];
+      return resultTypeCode[ 0 ];
     }
-    return resultTypeCode[i];
+    return resultTypeCode[ i ];
   }
 
   @Override
@@ -297,7 +296,7 @@ public class CheckSumMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < fieldName.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", fieldName[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "name", fieldName[ i ] ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
     retval.append( "    </fields>" ).append( Const.CR );
@@ -308,20 +307,20 @@ public class CheckSumMeta extends BaseStepMeta implements StepMetaInterface {
   @Override
   public void setDefault() {
     resultfieldName = null;
-    checksumtype = checksumtypeCodes[0];
+    checksumtype = checksumtypeCodes[ 0 ];
     resultType = result_TYPE_HEXADECIMAL;
     int nrfields = 0;
 
     allocate( nrfields );
 
     for ( int i = 0; i < nrfields; i++ ) {
-      fieldName[i] = "field" + i;
+      fieldName[ i ] = "field" + i;
     }
   }
 
   @Override
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Output field (String)
     if ( !Utils.isEmpty( resultfieldName ) ) {
       ValueMetaInterface v = null;
@@ -344,8 +343,8 @@ public class CheckSumMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -374,9 +373,9 @@ public class CheckSumMeta extends BaseStepMeta implements StepMetaInterface {
 
       // Starting from selected fields in ...
       for ( int i = 0; i < fieldName.length; i++ ) {
-        int idx = prev.indexOfValue( fieldName[i] );
+        int idx = prev.indexOfValue( fieldName[ i ] );
         if ( idx < 0 ) {
-          error_message += "\t\t" + fieldName[i] + Const.CR;
+          error_message += "\t\t" + fieldName[ i ] + Const.CR;
           error_found = true;
         }
       }
@@ -429,7 +428,7 @@ public class CheckSumMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new CheckSum( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -444,8 +443,8 @@ public class CheckSumMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @deprecated update to non-compatibility mode
    * @return the Compatibility Mode
+   * @deprecated update to non-compatibility mode
    */
   @Deprecated
   public boolean isCompatibilityMode() {
@@ -457,8 +456,8 @@ public class CheckSumMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @deprecated Update to non-compatibility mode
    * @param compatibilityMode
+   * @deprecated Update to non-compatibility mode
    */
   @Deprecated
   public void setCompatibilityMode( boolean compatibilityMode ) {

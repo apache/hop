@@ -22,8 +22,10 @@
 
 package org.pentaho.test.ui.database;
 
-import java.util.Iterator;
-
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.PartitionDatabaseMeta;
+import org.apache.hop.core.exception.HopException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -31,16 +33,14 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.PartitionDatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.pentaho.ui.database.DatabaseConnectionDialog;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.containers.XulDialog;
 import org.pentaho.ui.xul.containers.XulRoot;
 import org.pentaho.ui.xul.containers.XulWindow;
+
+import java.util.Iterator;
 
 public class DatabaseDialogHarness {
 
@@ -120,13 +120,13 @@ public class DatabaseDialogHarness {
         message =
           "Name: "
             .concat( database.getName() ).concat( carriageReturn ).concat( "Database Name: " ).concat(
-              database.getDatabaseName() ).concat( carriageReturn ).concat( "Host Name: " ).concat(
-              database.getHostname() ).concat( carriageReturn ).concat( "Port Number: " ).concat(
-              database.getPort() ).concat( carriageReturn ).concat( "User Name: " )
+            database.getDatabaseName() ).concat( carriageReturn ).concat( "Host Name: " ).concat(
+            database.getHostname() ).concat( carriageReturn ).concat( "Port Number: " ).concat(
+            database.getPort() ).concat( carriageReturn ).concat( "User Name: " )
             .concat( database.getUsername() ).concat( carriageReturn ).concat( "Password: " ).concat(
-              database.getPassword() ).concat( carriageReturn ).concat( "Driver Class: " ).concat(
-              database.getDriverClass() ).concat( carriageReturn ).concat( "URL: " ).concat(
-              database.getURL() ).concat( carriageReturn );
+            database.getPassword() ).concat( carriageReturn ).concat( "Driver Class: " ).concat(
+            database.getDriverClass() ).concat( carriageReturn ).concat( "URL: " ).concat(
+            database.getURL() ).concat( carriageReturn );
 
         Iterator<String> keys = database.getExtraOptions().keySet().iterator();
         message = message.concat( carriageReturn ).concat( "Option Parameters:" ).concat( carriageReturn );
@@ -141,12 +141,12 @@ public class DatabaseDialogHarness {
         message =
           message
             .concat( carriageReturn ).concat( "SQL: " ).concat(
-              database.getConnectSQL() != null ? database.getConnectSQL() : "" ).concat( carriageReturn )
+            database.getConnectSQL() != null ? database.getConnectSQL() : "" ).concat( carriageReturn )
             .concat( "Quote Identifiers: " ).concat( Boolean.toString( database.isQuoteAllFields() ) ).concat(
-              carriageReturn ).concat( "Upper Case Identifiers: " ).concat(
-              Boolean.toString( database.isForcingIdentifiersToUpperCase() ) ).concat( carriageReturn )
+            carriageReturn ).concat( "Upper Case Identifiers: " ).concat(
+            Boolean.toString( database.isForcingIdentifiersToUpperCase() ) ).concat( carriageReturn )
             .concat( "Lower Case Identifiers: " ).concat(
-              Boolean.toString( database.isForcingIdentifiersToLowerCase() ) ).concat( carriageReturn );
+            Boolean.toString( database.isForcingIdentifiersToLowerCase() ) ).concat( carriageReturn );
 
         message =
           message.concat( carriageReturn ).concat( "Is Partitioned: " ).concat(
@@ -156,13 +156,13 @@ public class DatabaseDialogHarness {
           PartitionDatabaseMeta[] partitions = database.getPartitioningInformation();
           if ( partitions != null ) {
             for ( int i = 0; i < partitions.length; i++ ) {
-              PartitionDatabaseMeta pdm = partitions[i];
+              PartitionDatabaseMeta pdm = partitions[ i ];
               message =
                 message
                   .concat( carriageReturn ).concat( Integer.toString( i ) ).concat( ". ID: " ).concat(
-                    pdm.getPartitionId() ).concat( ", Host: " ).concat( pdm.getHostname() )
+                  pdm.getPartitionId() ).concat( ", Host: " ).concat( pdm.getHostname() )
                   .concat( ", Db: " ).concat( pdm.getDatabaseName() ).concat( ", Port: " ).concat(
-                    pdm.getPort() ).concat( ", User: " ).concat( pdm.getUsername() ).concat( ", Pass: " )
+                  pdm.getPort() ).concat( ", User: " ).concat( pdm.getUsername() ).concat( ", Pass: " )
                   .concat( pdm.getPassword() ).concat( carriageReturn );
             }
           }

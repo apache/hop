@@ -22,20 +22,19 @@
 
 package org.apache.hop.www;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URLEncoder;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.owasp.encoder.Encode;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
+import org.owasp.encoder.Encode;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URLEncoder;
 
 
 public class StopTransServlet extends BaseHttpServlet implements HopServerPluginInterface {
@@ -52,95 +51,95 @@ public class StopTransServlet extends BaseHttpServlet implements HopServerPlugin
   }
 
   /**
-  <div id="mindtouch">
-      <h1>/hop/stopTrans</h1>
-      <a name="GET"></a>
-      <h2>GET</h2>
-      <p>Stops transformation execution on HopServer server.</p>
-
-      <p><b>Example Request:</b><br />
-      <pre function="syntax.xml">
-      GET /hop/stopTrans/?name=dummy-trans&xml=Y
-      </pre>
-
-      </p>
-      <h3>Parameters</h3>
-      <table class="pentaho-table">
-      <tbody>
-      <tr>
-        <th>name</th>
-        <th>description</th>
-        <th>type</th>
-      </tr>
-      <tr>
-      <td>name</td>
-      <td>Name of the transformation to be stopped.</td>
-      <td>query</td>
-      </tr>
-      <tr>
-      <td>xml</td>
-      <td>Boolean flag which sets the output format required. Use <code>Y</code> to receive XML response.</td>
-      <td>boolean, optional</td>
-      </tr>
-      <tr>
-      <td>id</td>
-      <td>HopServer transformation ID of the transformation to be stopped. This parameter is optional when xml=Y is used.</td>
-      <td>query, optional</td>
-      </tr>
-      <tr>
-      <td>inputOnly</td>
-      <td>Boolean flag indicates which steps to stop.  Use <code>Y</code> to Stop input processing</td>
-      <td>boolean, optional</td>
-      </tr>
-      </tbody>
-      </table>
-
-    <h3>Response Body</h3>
-
-    <table class="pentaho-table">
-      <tbody>
-        <tr>
-          <td align="right">text:</td>
-          <td>HTML</td>
-        </tr>
-        <tr>
-          <td align="right">media types:</td>
-          <td>text/xml, text/html</td>
-        </tr>
-      </tbody>
-    </table>
-    <p>Response XML or HTML containing operation result. When using xml=Y <code>result</code> field indicates whether
-    operation was successful (<code>OK</code>) or not (<code>ERROR</code>).</p>
-
-     <p><b>Example Response:</b></p>
-    <pre function="syntax.xml">
-    <?xml version="1.0" encoding="UTF-8"?>
-    <webresult>
-      <result>OK</result>
-      <message>Transformation &#x5b;dummy-trans&#x5d; stop requested.</message>
-      <id>c56961b2-c848-49b8-abde-76c8015e29b0</id>
-    </webresult>
-    </pre>
-
-     <h3>Status Codes</h3>
-      <table class="pentaho-table">
-    <tbody>
-      <tr>
-        <th>code</th>
-        <th>description</th>
-      </tr>
-      <tr>
-        <td>200</td>
-        <td>Request was processed.</td>
-      </tr>
-      <tr>
-        <td>500</td>
-        <td>Internal server error occurs during request processing.</td>
-      </tr>
-    </tbody>
-  </table>
-  </div>
-    */
+   * <div id="mindtouch">
+   * <h1>/hop/stopTrans</h1>
+   * <a name="GET"></a>
+   * <h2>GET</h2>
+   * <p>Stops transformation execution on HopServer server.</p>
+   *
+   * <p><b>Example Request:</b><br />
+   * <pre function="syntax.xml">
+   * GET /hop/stopTrans/?name=dummy-trans&xml=Y
+   * </pre>
+   *
+   * </p>
+   * <h3>Parameters</h3>
+   * <table class="pentaho-table">
+   * <tbody>
+   * <tr>
+   * <th>name</th>
+   * <th>description</th>
+   * <th>type</th>
+   * </tr>
+   * <tr>
+   * <td>name</td>
+   * <td>Name of the transformation to be stopped.</td>
+   * <td>query</td>
+   * </tr>
+   * <tr>
+   * <td>xml</td>
+   * <td>Boolean flag which sets the output format required. Use <code>Y</code> to receive XML response.</td>
+   * <td>boolean, optional</td>
+   * </tr>
+   * <tr>
+   * <td>id</td>
+   * <td>HopServer transformation ID of the transformation to be stopped. This parameter is optional when xml=Y is used.</td>
+   * <td>query, optional</td>
+   * </tr>
+   * <tr>
+   * <td>inputOnly</td>
+   * <td>Boolean flag indicates which steps to stop.  Use <code>Y</code> to Stop input processing</td>
+   * <td>boolean, optional</td>
+   * </tr>
+   * </tbody>
+   * </table>
+   *
+   * <h3>Response Body</h3>
+   *
+   * <table class="pentaho-table">
+   * <tbody>
+   * <tr>
+   * <td align="right">text:</td>
+   * <td>HTML</td>
+   * </tr>
+   * <tr>
+   * <td align="right">media types:</td>
+   * <td>text/xml, text/html</td>
+   * </tr>
+   * </tbody>
+   * </table>
+   * <p>Response XML or HTML containing operation result. When using xml=Y <code>result</code> field indicates whether
+   * operation was successful (<code>OK</code>) or not (<code>ERROR</code>).</p>
+   *
+   * <p><b>Example Response:</b></p>
+   * <pre function="syntax.xml">
+   * <?xml version="1.0" encoding="UTF-8"?>
+   * <webresult>
+   * <result>OK</result>
+   * <message>Transformation &#x5b;dummy-trans&#x5d; stop requested.</message>
+   * <id>c56961b2-c848-49b8-abde-76c8015e29b0</id>
+   * </webresult>
+   * </pre>
+   *
+   * <h3>Status Codes</h3>
+   * <table class="pentaho-table">
+   * <tbody>
+   * <tr>
+   * <th>code</th>
+   * <th>description</th>
+   * </tr>
+   * <tr>
+   * <td>200</td>
+   * <td>Request was processed.</td>
+   * </tr>
+   * <tr>
+   * <td>500</td>
+   * <td>Internal server error occurs during request processing.</td>
+   * </tr>
+   * </tbody>
+   * </table>
+   * </div>
+   */
   public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
     IOException {
     if ( isJettyMode() && !request.getContextPath().startsWith( CONTEXT_PATH ) ) {

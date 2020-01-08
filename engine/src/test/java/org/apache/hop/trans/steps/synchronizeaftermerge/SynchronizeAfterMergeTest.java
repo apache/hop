@@ -22,7 +22,6 @@
 
 package org.apache.hop.trans.steps.synchronizeaftermerge;
 
-import org.junit.Test;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.MySQLDatabaseMeta;
@@ -30,6 +29,7 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.any;

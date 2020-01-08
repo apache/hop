@@ -22,15 +22,15 @@
 
 package org.apache.hop.trans.steps.databaselookup.readallcache;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.steps.databaselookup.DatabaseLookupData;
 import org.apache.hop.trans.steps.databaselookup.DatabaseLookupMeta;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Date;

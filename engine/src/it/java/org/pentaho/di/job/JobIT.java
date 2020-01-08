@@ -21,7 +21,11 @@
  ******************************************************************************/
 package org.apache.hop.job;
 
-import static org.junit.Assert.assertTrue;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.concurrent.Callable;
@@ -30,11 +34,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
+import static org.junit.Assert.assertTrue;
 
 public class JobIT {
 
@@ -90,8 +90,9 @@ public class JobIT {
     String[] tokens = { "Waiting", "Running", "Finished" };
     int offset = 0;
     for ( String t : tokens ) {
-      while ( status.startsWith( t, offset ) )
+      while ( status.startsWith( t, offset ) ) {
         offset += t.length();
+      }
     }
     return offset == status.length();
   }

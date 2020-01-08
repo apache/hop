@@ -23,10 +23,6 @@ package org.apache.hop.job.entries.checkdbconnection;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -36,6 +32,10 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.Assert;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.job.Job;
+import org.junit.After;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 public class JobEntryCheckDbConnectionsIT {
 
@@ -73,9 +73,9 @@ public class JobEntryCheckDbConnectionsIT {
     meta.setLogLevel( LogLevel.BASIC );
 
     DatabaseMeta db = new DatabaseMeta( "InMemory H2", "H2", null, null, H2_DATABASE, "-1", null, null );
-    meta.setConnections( new DatabaseMeta[]{ db } );
-    meta.setWaittimes( new int[]{ JobEntryCheckDbConnections.UNIT_TIME_MILLI_SECOND } );
-    meta.setWaitfors( new String[]{ String.valueOf( waitMilliseconds ) } );
+    meta.setConnections( new DatabaseMeta[] { db } );
+    meta.setWaittimes( new int[] { JobEntryCheckDbConnections.UNIT_TIME_MILLI_SECOND } );
+    meta.setWaitfors( new String[] { String.valueOf( waitMilliseconds ) } );
     Result result = meta.execute( new Result(), 0 );
     Assert.assertTrue( result.getResult() );
   }
@@ -91,9 +91,9 @@ public class JobEntryCheckDbConnectionsIT {
     meta.setLogLevel( LogLevel.DETAILED );
 
     DatabaseMeta db = new DatabaseMeta( "InMemory H2", "H2", null, null, H2_DATABASE, "-1", null, null );
-    meta.setConnections( new DatabaseMeta[]{ db } );
-    meta.setWaittimes( new int[]{ JobEntryCheckDbConnections.UNIT_TIME_SECOND } );
-    meta.setWaitfors( new String[]{ String.valueOf( waitTimes ) } );
+    meta.setConnections( new DatabaseMeta[] { db } );
+    meta.setWaittimes( new int[] { JobEntryCheckDbConnections.UNIT_TIME_SECOND } );
+    meta.setWaitfors( new String[] { String.valueOf( waitTimes ) } );
 
     Result result = meta.execute( new Result(), 0 );
 

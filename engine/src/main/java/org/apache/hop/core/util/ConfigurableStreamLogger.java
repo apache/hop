@@ -22,19 +22,19 @@
 
 package org.apache.hop.core.util;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.LogLevel;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.logging.LogLevel;
-
 /**
  * @author <a href="mailto:michael.gugerell@aschauer-edv.at">Michael Gugerell(asc145)</a>
- *
- *         Provides the ability to specify the desired logLevel on which the StreamLogger should write.
+ * <p>
+ * Provides the ability to specify the desired logLevel on which the StreamLogger should write.
  */
 public class ConfigurableStreamLogger implements Runnable {
 
@@ -44,15 +44,12 @@ public class ConfigurableStreamLogger implements Runnable {
   private LogChannelInterface log;
 
   /**
-   * @param in
-   *          the InputStream
-   * @param logLevel
-   *          the logLevel. Refer to org.apache.hop.core.logging.LogWriter for constants
-   * @param type
-   *          the label for logger entries.
+   * @param in       the InputStream
+   * @param logLevel the logLevel. Refer to org.apache.hop.core.logging.LogWriter for constants
+   * @param type     the label for logger entries.
    */
   public ConfigurableStreamLogger( LogChannelInterface logChannel, final InputStream in, final LogLevel logLevel,
-    final String type ) {
+                                   final String type ) {
     this.log = logChannel;
     this.is = in;
     this.type = type;

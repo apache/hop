@@ -22,6 +22,17 @@
 
 package org.apache.hop.trans.steps.ldifinput;
 
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.util.LDIF;
+import netscape.ldap.util.LDIFRecord;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.trans.step.BaseStepData;
+import org.apache.hop.trans.step.StepDataInterface;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.text.DateFormatSymbols;
@@ -31,18 +42,6 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.zip.ZipInputStream;
-
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.util.LDIF;
-import netscape.ldap.util.LDIFRecord;
-
-import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.trans.step.BaseStepData;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 /**
  * @author Samatar Hassan

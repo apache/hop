@@ -22,11 +22,7 @@
 
 package org.apache.hop.trans.steps.tableinput;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.database.Database;
@@ -36,6 +32,7 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -44,6 +41,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * Reads information from a database table by using freehand SQL
@@ -58,7 +58,7 @@ public class TableInput extends BaseStep implements StepInterface {
   private TableInputData data;
 
   public TableInput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                     Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -287,7 +287,9 @@ public class TableInput extends BaseStep implements StepInterface {
     super.dispose( smi, sdi );
   }
 
-  /** Stop the running query */
+  /**
+   * Stop the running query
+   */
   public synchronized void stopRunning( StepMetaInterface smi, StepDataInterface sdi ) throws HopException {
     if ( this.isStopped() || sdi.isDisposed() ) {
       return;

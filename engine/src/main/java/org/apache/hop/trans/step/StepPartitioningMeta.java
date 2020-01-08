@@ -22,21 +22,21 @@
 
 package org.apache.hop.trans.step;
 
-import java.util.List;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.PartitionerPluginType;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.core.xml.XMLInterface;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.trans.Partitioner;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 public class StepPartitioningMeta implements XMLInterface, Cloneable {
   public static final int PARTITIONING_METHOD_NONE = 0;
@@ -135,8 +135,7 @@ public class StepPartitioningMeta implements XMLInterface, Cloneable {
   }
 
   /**
-   * @param method
-   *          the partitioning method to set
+   * @param method the partitioning method to set
    */
   public void setMethod( String method ) throws HopPluginException {
     if ( !method.equals( this.method ) ) {
@@ -176,15 +175,15 @@ public class StepPartitioningMeta implements XMLInterface, Cloneable {
       if ( partitioner != null ) {
         return partitioner.getId();
       } else {
-        return methodCodes[PARTITIONING_METHOD_NONE];
+        return methodCodes[ PARTITIONING_METHOD_NONE ];
       }
     }
-    return methodCodes[methodType];
+    return methodCodes[ methodType ];
   }
 
   public String getMethodDescription() {
     if ( methodType != PARTITIONING_METHOD_SPECIAL ) {
-      return methodDescriptions[methodType];
+      return methodDescriptions[ methodType ];
     } else {
       return partitioner.getDescription();
     }
@@ -196,18 +195,18 @@ public class StepPartitioningMeta implements XMLInterface, Cloneable {
 
   public static final String getMethod( String name ) {
     if ( Utils.isEmpty( name ) ) {
-      return methodCodes[PARTITIONING_METHOD_NONE];
+      return methodCodes[ PARTITIONING_METHOD_NONE ];
     }
 
     for ( int i = 0; i < methodDescriptions.length; i++ ) {
-      if ( methodDescriptions[i].equalsIgnoreCase( name ) ) {
-        return methodCodes[i];
+      if ( methodDescriptions[ i ].equalsIgnoreCase( name ) ) {
+        return methodCodes[ i ];
       }
     }
 
     for ( int i = 0; i < methodCodes.length; i++ ) {
-      if ( methodCodes[i].equalsIgnoreCase( name ) ) {
-        return methodCodes[i];
+      if ( methodCodes[ i ].equalsIgnoreCase( name ) ) {
+        return methodCodes[ i ];
       }
     }
 
@@ -221,18 +220,18 @@ public class StepPartitioningMeta implements XMLInterface, Cloneable {
       return name;
     }
 
-    return methodCodes[PARTITIONING_METHOD_NONE];
+    return methodCodes[ PARTITIONING_METHOD_NONE ];
   }
 
   public static final int getMethodType( String description ) {
     for ( int i = 0; i < methodDescriptions.length; i++ ) {
-      if ( methodDescriptions[i].equalsIgnoreCase( description ) ) {
+      if ( methodDescriptions[ i ].equalsIgnoreCase( description ) ) {
         return i;
       }
     }
 
     for ( int i = 0; i < methodCodes.length; i++ ) {
-      if ( methodCodes[i].equalsIgnoreCase( description ) ) {
+      if ( methodCodes[ i ].equalsIgnoreCase( description ) ) {
         return i;
       }
     }
@@ -261,8 +260,7 @@ public class StepPartitioningMeta implements XMLInterface, Cloneable {
   }
 
   /**
-   * @param partitionSchema
-   *          the partitionSchema to set
+   * @param partitionSchema the partitionSchema to set
    */
   public void setPartitionSchema( PartitionSchema partitionSchema ) {
     this.partitionSchema = partitionSchema;
@@ -272,8 +270,7 @@ public class StepPartitioningMeta implements XMLInterface, Cloneable {
   /**
    * Set the partitioning schema after loading from XML or repository
    *
-   * @param partitionSchemas
-   *          the list of partitioning schemas
+   * @param partitionSchemas the list of partitioning schemas
    */
   public void setPartitionSchemaAfterLoading( List<PartitionSchema> partitionSchemas ) throws HopException {
     partitionSchema = null; // sorry, not found!
@@ -301,7 +298,7 @@ public class StepPartitioningMeta implements XMLInterface, Cloneable {
         PluginRegistry registry = PluginRegistry.getInstance();
         PluginInterface plugin = registry.findPluginWithId( PartitionerPluginType.class, method );
         partitioner = (Partitioner) registry.loadClass( plugin );
-        partitioner.setId( plugin.getIds()[0] );
+        partitioner.setId( plugin.getIds()[ 0 ] );
         break;
       }
       case PARTITIONING_METHOD_NONE:

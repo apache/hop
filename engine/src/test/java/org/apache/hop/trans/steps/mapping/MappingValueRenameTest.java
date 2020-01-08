@@ -23,7 +23,6 @@
 package org.apache.hop.trans.steps.mapping;
 
 import junit.framework.Assert;
-
 import org.junit.Test;
 
 public class MappingValueRenameTest {

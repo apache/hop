@@ -47,7 +47,7 @@ public class StepMetastructure extends BaseStep implements StepInterface {
   private StepMetastructureData data;
 
   public StepMetastructure( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,
-    TransMeta transMeta, Trans trans ) {
+                            TransMeta transMeta, Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 

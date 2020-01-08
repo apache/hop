@@ -22,8 +22,18 @@
 
 package org.apache.hop.www;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.apache.hop.cluster.HttpUtil;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.w3c.dom.Node;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -33,18 +43,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.apache.hop.cluster.HttpUtil;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
-import org.w3c.dom.Node;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SlaveServerJobStatusTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

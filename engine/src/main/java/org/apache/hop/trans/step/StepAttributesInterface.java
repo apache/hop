@@ -22,9 +22,9 @@
 
 package org.apache.hop.trans.step;
 
-import java.util.List;
-
 import org.apache.hop.core.HopAttributeInterface;
+
+import java.util.List;
 
 public interface StepAttributesInterface {
   public HopAttributeInterface findParent( List<HopAttributeInterface> attributes, String parentId );

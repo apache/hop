@@ -23,11 +23,9 @@ public class FileUtil {
 
   /**
    * Delete a folder with files and possible sub-folders with files.
-   * 
-   * @param folder
-   *          The folder to delete
-   * @param removeParent
-   *          remove parent folder
+   *
+   * @param folder       The folder to delete
+   * @param removeParent remove parent folder
    * @return true if the folder was deleted, false if there was a problem with that.
    */
   public static boolean cleanFolder( File folder, boolean removeParent ) {

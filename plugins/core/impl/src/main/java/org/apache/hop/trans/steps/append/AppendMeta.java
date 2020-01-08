@@ -25,8 +25,6 @@ package org.apache.hop.trans.steps.append;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.annotations.Step;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
@@ -35,7 +33,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMeta.TransformationType;
@@ -50,7 +48,6 @@ import org.apache.hop.trans.step.errorhandling.Stream;
 import org.apache.hop.trans.step.errorhandling.StreamIcon;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
 import org.apache.hop.trans.step.errorhandling.StreamInterface.StreamType;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -128,20 +125,20 @@ public class AppendMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // We don't have any input fields here in "r" as they are all info fields.
     // So we just take the info fields.
     //
     if ( info != null ) {
-      if ( info.length > 0 && info[0] != null ) {
-        r.mergeRowMeta( info[0] );
+      if ( info.length > 0 && info[ 0 ] != null ) {
+        r.mergeRowMeta( info[ 0 ] );
       }
     }
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     List<StreamInterface> infoStreams = getStepIOMeta().getInfoStreams();
@@ -167,7 +164,7 @@ public class AppendMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new Append( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 

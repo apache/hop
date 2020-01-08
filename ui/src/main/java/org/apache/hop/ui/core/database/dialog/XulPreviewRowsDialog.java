@@ -24,10 +24,10 @@ package org.apache.hop.ui.core.database.dialog;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
 import org.apache.hop.ui.xul.HopXulLoader;
+import org.eclipse.swt.widgets.Shell;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulRunner;
 import org.pentaho.ui.xul.containers.XulDialog;
@@ -47,7 +47,7 @@ public class XulPreviewRowsDialog {
   private static final String XUL = "org.apache.hop/ui/core/database/dialog/preview_rows.xul";
 
   public XulPreviewRowsDialog( Shell aShell, int aStyle, DatabaseMeta aDatabaseMeta, String aSchemaName,
-    String aTableName, int aLimit ) {
+                               String aTableName, int aLimit ) {
     this.shell = aShell;
     this.limit = aLimit;
     this.schema = aSchemaName;

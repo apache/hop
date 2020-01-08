@@ -20,12 +20,12 @@
 
 package org.apache.hop.core.util;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogLevel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

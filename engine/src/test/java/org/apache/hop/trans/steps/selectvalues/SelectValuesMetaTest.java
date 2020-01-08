@@ -22,25 +22,25 @@
 
 package org.apache.hop.trans.steps.selectvalues;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.selectvalues.SelectValuesMeta.SelectField;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class SelectValuesMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -67,14 +67,14 @@ public class SelectValuesMetaTest {
     selectField.setPrecision( 2 );
 
     Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap =
-        new HashMap<String, FieldLoadSaveValidator<?>>();
+      new HashMap<String, FieldLoadSaveValidator<?>>();
     fieldLoadSaveValidatorTypeMap.put( SelectField[].class.getCanonicalName(), new ArrayLoadSaveValidator<SelectField>(
-        new SelectFieldLoadSaveValidator( selectField ), 2 ) );
+      new SelectFieldLoadSaveValidator( selectField ), 2 ) );
 
     LoadSaveTester tester =
-        new LoadSaveTester( SelectValuesMeta.class, attributes, new HashMap<String, String>(),
-            new HashMap<String, String>(), new HashMap<String, FieldLoadSaveValidator<?>>(),
-            fieldLoadSaveValidatorTypeMap );
+      new LoadSaveTester( SelectValuesMeta.class, attributes, new HashMap<String, String>(),
+        new HashMap<String, String>(), new HashMap<String, FieldLoadSaveValidator<?>>(),
+        fieldLoadSaveValidatorTypeMap );
 
     tester.testSerialization();
   }
@@ -90,9 +90,9 @@ public class SelectValuesMetaTest {
     selectValuesMeta.setSelectName( new String[] { FIRST_FIELD, SECOND_FIELD } );
     assertArrayEquals( new String[] { null, null }, selectValuesMeta.getSelectRename() );
     assertArrayEquals( new int[] { SelectValuesMeta.UNDEFINED, SelectValuesMeta.UNDEFINED }, selectValuesMeta
-        .getSelectLength() );
+      .getSelectLength() );
     assertArrayEquals( new int[] { SelectValuesMeta.UNDEFINED, SelectValuesMeta.UNDEFINED }, selectValuesMeta
-        .getSelectPrecision() );
+      .getSelectPrecision() );
   }
 
   @Test
@@ -104,7 +104,7 @@ public class SelectValuesMetaTest {
 
   @Test
   public void getSelectName() {
-    assertArrayEquals( new String[0], selectValuesMeta.getSelectName() );
+    assertArrayEquals( new String[ 0 ], selectValuesMeta.getSelectName() );
   }
 
   @Test
@@ -118,9 +118,9 @@ public class SelectValuesMetaTest {
     selectValuesMeta.setSelectRename( new String[] { FIRST_FIELD, SECOND_FIELD } );
     assertArrayEquals( new String[] { null, null }, selectValuesMeta.getSelectName() );
     assertArrayEquals( new int[] { SelectValuesMeta.UNDEFINED, SelectValuesMeta.UNDEFINED }, selectValuesMeta
-        .getSelectLength() );
+      .getSelectLength() );
     assertArrayEquals( new int[] { SelectValuesMeta.UNDEFINED, SelectValuesMeta.UNDEFINED }, selectValuesMeta
-        .getSelectPrecision() );
+      .getSelectPrecision() );
   }
 
   @Test
@@ -132,7 +132,7 @@ public class SelectValuesMetaTest {
 
   @Test
   public void getSelectRename() {
-    assertArrayEquals( new String[0], selectValuesMeta.getSelectRename() );
+    assertArrayEquals( new String[ 0 ], selectValuesMeta.getSelectRename() );
   }
 
   @Test
@@ -147,7 +147,7 @@ public class SelectValuesMetaTest {
     assertArrayEquals( new String[] { null, null }, selectValuesMeta.getSelectName() );
     assertArrayEquals( new String[] { null, null }, selectValuesMeta.getSelectRename() );
     assertArrayEquals( new int[] { SelectValuesMeta.UNDEFINED, SelectValuesMeta.UNDEFINED }, selectValuesMeta
-        .getSelectPrecision() );
+      .getSelectPrecision() );
   }
 
   @Test
@@ -159,7 +159,7 @@ public class SelectValuesMetaTest {
 
   @Test
   public void getSelectLength() {
-    assertArrayEquals( new int[0], selectValuesMeta.getSelectLength() );
+    assertArrayEquals( new int[ 0 ], selectValuesMeta.getSelectLength() );
   }
 
   @Test
@@ -174,7 +174,7 @@ public class SelectValuesMetaTest {
     assertArrayEquals( new String[] { null, null }, selectValuesMeta.getSelectName() );
     assertArrayEquals( new String[] { null, null }, selectValuesMeta.getSelectRename() );
     assertArrayEquals( new int[] { SelectValuesMeta.UNDEFINED, SelectValuesMeta.UNDEFINED }, selectValuesMeta
-        .getSelectLength() );
+      .getSelectLength() );
   }
 
   @Test
@@ -207,7 +207,7 @@ public class SelectValuesMetaTest {
 
   @Test
   public void getSelectPrecision() {
-    assertArrayEquals( new int[0], selectValuesMeta.getSelectPrecision() );
+    assertArrayEquals( new int[ 0 ], selectValuesMeta.getSelectPrecision() );
   }
 
   public static class SelectFieldLoadSaveValidator implements FieldLoadSaveValidator<SelectField> {

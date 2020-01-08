@@ -21,19 +21,18 @@
  ******************************************************************************/
 package org.apache.hop.job.entries.unzip;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class JobEntryUnZipTest extends JobEntryLoadSaveTestSupport<JobEntryUnZip> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -46,73 +45,73 @@ public class JobEntryUnZipTest extends JobEntryLoadSaveTestSupport<JobEntryUnZip
   @Override
   protected List<String> listCommonAttributes() {
     return Arrays.asList(
-        "zipfilename",
-        "wildcard",
-        "wildcardexclude",
-        "targetdirectory",
-        "movetodirectory",
-        "addfiletoresult",
-        "isfromprevious",
-        "adddate",
-        "addtime",
-        "addOriginalTimestamp",
-        "SpecifyFormat",
-        "date_time_format",
-        "rootzip",
-        "createfolder",
-        "nr_limit",
-        "wildcardSource",
-        "success_condition",
-        "create_move_to_directory",
-        "setOriginalModificationDate" );
+      "zipfilename",
+      "wildcard",
+      "wildcardexclude",
+      "targetdirectory",
+      "movetodirectory",
+      "addfiletoresult",
+      "isfromprevious",
+      "adddate",
+      "addtime",
+      "addOriginalTimestamp",
+      "SpecifyFormat",
+      "date_time_format",
+      "rootzip",
+      "createfolder",
+      "nr_limit",
+      "wildcardSource",
+      "success_condition",
+      "create_move_to_directory",
+      "setOriginalModificationDate" );
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-        "zipfilename", "getZipFilename",
-        "wildcard", "getWildcard",
-        "wildcardexclude", "getWildcardExclude",
-        "targetdirectory", "getSourceDirectory",
-        "movetodirectory", "getMoveToDirectory",
-        "addfiletoresult", "isAddFileToResult",
-        "isfromprevious", "getDatafromprevious",
-        "adddate", "isDateInFilename",
-        "addtime", "isTimeInFilename",
-        "addOriginalTimestamp", "isOriginalTimestamp",
-        "SpecifyFormat", "isSpecifyFormat",
-        "date_time_format", "getDateTimeFormat",
-        "rootzip", "isCreateRootFolder",
-        "createfolder",  "isCreateFolder",
-        "nr_limit", "getLimit",
-        "wildcardSource", "getWildcardSource",
-        "success_condition", "getSuccessCondition",
-        "create_move_to_directory", "isCreateMoveToDirectory",
-        "setOriginalModificationDate", "isOriginalModificationDate" );
+      "zipfilename", "getZipFilename",
+      "wildcard", "getWildcard",
+      "wildcardexclude", "getWildcardExclude",
+      "targetdirectory", "getSourceDirectory",
+      "movetodirectory", "getMoveToDirectory",
+      "addfiletoresult", "isAddFileToResult",
+      "isfromprevious", "getDatafromprevious",
+      "adddate", "isDateInFilename",
+      "addtime", "isTimeInFilename",
+      "addOriginalTimestamp", "isOriginalTimestamp",
+      "SpecifyFormat", "isSpecifyFormat",
+      "date_time_format", "getDateTimeFormat",
+      "rootzip", "isCreateRootFolder",
+      "createfolder", "isCreateFolder",
+      "nr_limit", "getLimit",
+      "wildcardSource", "getWildcardSource",
+      "success_condition", "getSuccessCondition",
+      "create_move_to_directory", "isCreateMoveToDirectory",
+      "setOriginalModificationDate", "isOriginalModificationDate" );
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-        "zipfilename", "setZipFilename",
-        "wildcard", "setWildcard",
-        "wildcardexclude", "setWildcardExclude",
-        "targetdirectory", "setSourceDirectory",
-        "movetodirectory", "setMoveToDirectory",
-        "addfiletoresult", "setAddFileToResult",
-        "isfromprevious", "setDatafromprevious",
-        "adddate", "setDateInFilename",
-        "addtime", "setTimeInFilename",
-        "addOriginalTimestamp", "setAddOriginalTimestamp",
-        "SpecifyFormat", "setSpecifyFormat",
-        "date_time_format", "setDateTimeFormat",
-        "rootzip", "setCreateRootFolder",
-        "createfolder",  "setCreateFolder",
-        "nr_limit", "setLimit",
-        "wildcardSource", "setWildcardSource",
-        "success_condition", "setSuccessCondition",
-        "create_move_to_directory", "setCreateMoveToDirectory",
-        "setOriginalModificationDate", "setOriginalModificationDate" );
+      "zipfilename", "setZipFilename",
+      "wildcard", "setWildcard",
+      "wildcardexclude", "setWildcardExclude",
+      "targetdirectory", "setSourceDirectory",
+      "movetodirectory", "setMoveToDirectory",
+      "addfiletoresult", "setAddFileToResult",
+      "isfromprevious", "setDatafromprevious",
+      "adddate", "setDateInFilename",
+      "addtime", "setTimeInFilename",
+      "addOriginalTimestamp", "setAddOriginalTimestamp",
+      "SpecifyFormat", "setSpecifyFormat",
+      "date_time_format", "setDateTimeFormat",
+      "rootzip", "setCreateRootFolder",
+      "createfolder", "setCreateFolder",
+      "nr_limit", "setLimit",
+      "wildcardSource", "setWildcardSource",
+      "success_condition", "setSuccessCondition",
+      "create_move_to_directory", "setCreateMoveToDirectory",
+      "setOriginalModificationDate", "setOriginalModificationDate" );
   }
 
 

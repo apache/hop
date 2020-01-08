@@ -22,18 +22,18 @@
 
 package org.apache.hop.trans.steps.sasinput;
 
-import java.util.List;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import java.util.List;
 
 /**
  * Provides data for the XBaseInput step.
  *
  * @author Matt
- * @since 09-OCT-2011
  * @version 4.3
+ * @since 09-OCT-2011
  */
 public class SasInputData extends BaseStepData implements StepDataInterface {
   public SasInputHelper helper;

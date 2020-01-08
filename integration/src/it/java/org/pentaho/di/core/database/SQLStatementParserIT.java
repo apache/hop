@@ -22,35 +22,32 @@
 
 package org.apache.hop.core.database;
 
-import java.util.List;
-
 import junit.framework.TestCase;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.ValueMetaInterface;
 
+import java.util.List;
+
 /**
  * Verify the {@link BaseDatabaseMeta} can properly parse a script for individual statements
  *
  * @author Jordan Ganoff (jganoff@pentaho.com)
- *
  */
 public class SQLStatementParserIT extends TestCase {
   /**
    * Simple concrete class specifically created to facilitate testing the base class.
-   *
    */
   private class BaseDatabaseMetaForTest extends BaseDatabaseMeta {
     @Override
     public int[] getAccessTypeList() {
-      return new int[0];
+      return new int[ 0 ];
     }
 
     @Override
     public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-      boolean add_fieldname, boolean add_cr ) {
+                                      boolean add_fieldname, boolean add_cr ) {
       return null;
     }
 
@@ -66,13 +63,13 @@ public class SQLStatementParserIT extends TestCase {
 
     @Override
     public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-      String pk, boolean semicolon ) {
+                                         String pk, boolean semicolon ) {
       return null;
     }
 
     @Override
     public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk,
-      boolean use_autoinc, String pk, boolean semicolon ) {
+                                            boolean use_autoinc, String pk, boolean semicolon ) {
       return null;
     }
   }

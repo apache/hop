@@ -22,19 +22,6 @@
 
 package org.apache.hop.trans.steps.getsubfolders;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowMeta;
@@ -44,6 +31,19 @@ import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class GetSubFoldersMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -137,7 +137,7 @@ public class GetSubFoldersMetaTest {
 
     @Override
     public String getTestObject() {
-      return GetSubFoldersMeta.RequiredFoldersCode[new Random().nextInt( GetSubFoldersMeta.RequiredFoldersCode.length )];
+      return GetSubFoldersMeta.RequiredFoldersCode[ new Random().nextInt( GetSubFoldersMeta.RequiredFoldersCode.length ) ];
     }
 
     @Override

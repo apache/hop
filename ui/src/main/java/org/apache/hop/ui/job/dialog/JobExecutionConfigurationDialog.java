@@ -22,15 +22,6 @@
 
 package org.apache.hop.ui.job.dialog;
 
-import org.apache.hop.ui.hopui.HopUi;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -45,6 +36,15 @@ import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.ui.core.dialog.ConfigurationDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.hopui.HopUi;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -95,7 +95,7 @@ public class JobExecutionConfigurationDialog extends ConfigurationDialog {
     wGatherMetrics = new Button( gDetails, SWT.CHECK );
     wGatherMetrics.setText( BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.GatherMetrics.Label" ) );
     wGatherMetrics.setToolTipText( BaseMessages
-        .getString( PKG, "JobExecutionConfigurationDialog.GatherMetrics.Tooltip" ) );
+      .getString( PKG, "JobExecutionConfigurationDialog.GatherMetrics.Tooltip" ) );
     props.setLook( wGatherMetrics );
     FormData fdGatherMetrics = new FormData();
     fdGatherMetrics.top = new FormAttachment( wSafeMode, 7 );
@@ -142,10 +142,10 @@ public class JobExecutionConfigurationDialog extends ConfigurationDialog {
 
     JobMeta jobMeta = (JobMeta) super.abstractMeta;
 
-    String[] names = new String[jobMeta.getJobCopies().size()];
+    String[] names = new String[ jobMeta.getJobCopies().size() ];
     for ( int i = 0; i < names.length; i++ ) {
       JobEntryCopy copy = jobMeta.getJobCopies().get( i );
-      names[i] = getJobEntryCopyName( copy );
+      names[ i ] = getJobEntryCopyName( copy );
     }
     wStartCopy.setItems( names );
   }
@@ -158,7 +158,7 @@ public class JobExecutionConfigurationDialog extends ConfigurationDialog {
     parametersSectionLayout( PKG, "JobExecutionConfigurationDialog" );
 
     String docUrl =
-        Const.getDocUrl( BaseMessages.getString( HopUi.class, "Spoon.JobExecutionConfigurationDialog.Help" ) );
+      Const.getDocUrl( BaseMessages.getString( HopUi.class, "Spoon.JobExecutionConfigurationDialog.Help" ) );
     String docTitle = BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.docTitle" );
     String docHeader = BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.docHeader" );
     buttonsSectionLayout( PKG, "JobExecutionConfigurationDialog", docTitle, docUrl, docHeader );
@@ -228,8 +228,8 @@ public class JobExecutionConfigurationDialog extends ConfigurationDialog {
     String startCopy = "";
     if ( !Utils.isEmpty( getConfiguration().getStartCopyName() ) ) {
       JobEntryCopy copy =
-          ( (JobMeta) abstractMeta ).findJobEntry( getConfiguration().getStartCopyName(), getConfiguration()
-              .getStartCopyNr(), false );
+        ( (JobMeta) abstractMeta ).findJobEntry( getConfiguration().getStartCopyName(), getConfiguration()
+          .getStartCopyNr(), false );
       if ( copy != null ) {
         startCopy = getJobEntryCopyName( copy );
       }
@@ -250,7 +250,7 @@ public class JobExecutionConfigurationDialog extends ConfigurationDialog {
       configuration.setReplayDate( null );
       configuration.setSafeModeEnabled( wSafeMode.getSelection() );
       configuration.setClearingLog( wClearLog.getSelection() );
-      configuration.setLogLevel( LogLevel.values()[wLogLevel.getSelectionIndex()] );
+      configuration.setLogLevel( LogLevel.values()[ wLogLevel.getSelectionIndex() ] );
 
       String startCopyName = null;
       int startCopyNr = 0;

@@ -22,18 +22,10 @@
 
 package org.apache.hop.ui.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Display;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.SwtUniversalImageBitmap;
 import org.apache.hop.core.SwtUniversalImageSvg;
@@ -43,10 +35,18 @@ import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.svg.SvgSupport;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.ui.core.ConstUI;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
 /**
  * Class for loading images from SVG, PNG, or other bitmap formats.
- * 
+ * <p>
  * Logic is: if SVG is enabled, then SVG icon loaded if exist. Otherwise, class trying to change name into PNG and try
  * to load. If initial name is PNG, then PNG icon will be loaded.
  */
@@ -129,14 +129,14 @@ public class SwtSvgImageUtil {
 
   /**
    * Get an image using the provided classLoader and path.  An attempt will be made to load the image with the
-   * classLoader first using SVG (regardless of extension), and falling back to PNG.  If the image cannot be 
+   * classLoader first using SVG (regardless of extension), and falling back to PNG.  If the image cannot be
    * loaded with the provided classLoader, the search path will be expanded to include the file system (ui/images).
    *
-   * @param display the device to render the image to
+   * @param display     the device to render the image to
    * @param classLoader the classLoader to use to load the image resource
-   * @param filename the path to the image
-   * @param width the width to scale the image to
-   * @param height the height to scale the image to
+   * @param filename    the path to the image
+   * @param width       the width to scale the image to
+   * @param height      the height to scale the image to
    * @return an swt Image with width/height dimensions
    */
   public static Image getImage( Display display, ClassLoader classLoader, String filename, int width, int height ) {

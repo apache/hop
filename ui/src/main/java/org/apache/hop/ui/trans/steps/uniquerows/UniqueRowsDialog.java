@@ -22,13 +22,23 @@
 
 package org.apache.hop.ui.trans.steps.uniquerows;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.IntStream;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.uniquerows.UniqueRowsMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
@@ -50,23 +60,13 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransHopMeta;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.uniquerows.UniqueRowsMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.IntStream;
 
 public class UniqueRowsDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = UniqueRowsMeta.class; // for i18n purposes, needed by Translator2!!
@@ -387,10 +387,10 @@ public class UniqueRowsDialog extends BaseStepDialog implements StepDialogInterf
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    colinf[0].setComboValues( fieldNames );
+    colinf[ 0 ].setComboValues( fieldNames );
   }
 
   public void setFlags() {
@@ -414,10 +414,10 @@ public class UniqueRowsDialog extends BaseStepDialog implements StepDialogInterf
     setErrorDesc();
     for ( int i = 0; i < input.getCompareFields().length; i++ ) {
       TableItem item = wFields.table.getItem( i );
-      if ( input.getCompareFields()[i] != null ) {
-        item.setText( 1, input.getCompareFields()[i] );
+      if ( input.getCompareFields()[ i ] != null ) {
+        item.setText( 1, input.getCompareFields()[ i ] );
       }
-      item.setText( 2, input.getCaseInsensitive()[i] ? "Y" : "N" );
+      item.setText( 2, input.getCaseInsensitive()[ i ] ? "Y" : "N" );
     }
     wFields.setRowNums();
     wFields.optWidth( true );
@@ -443,8 +443,8 @@ public class UniqueRowsDialog extends BaseStepDialog implements StepDialogInterf
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrfields; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      input.getCompareFields()[i] = item.getText( 1 );
-      input.getCaseInsensitive()[i] = "Y".equalsIgnoreCase( item.getText( 2 ) );
+      input.getCompareFields()[ i ] = item.getText( 1 );
+      input.getCaseInsensitive()[ i ] = "Y".equalsIgnoreCase( item.getText( 2 ) );
     }
 
     input.setCountField( wCountField.getText() );
@@ -477,7 +477,7 @@ public class UniqueRowsDialog extends BaseStepDialog implements StepDialogInterf
           TransHopMeta hop = hops.get( hopInd );
           return (
             hop.isErrorHop()
-            && hop.getFromStep().getStepID().equals( this.input.getParentStepMeta().getStepID() ) );
+              && hop.getFromStep().getStepID().equals( this.input.getParentStepMeta().getStepID() ) );
         } )
         .forEach( hopInd -> this.transMeta.removeTransHop( hopInd ) );
     }
@@ -494,7 +494,7 @@ public class UniqueRowsDialog extends BaseStepDialog implements StepDialogInterf
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "UniqueRowsDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "UniqueRowsDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "UniqueRowsDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 

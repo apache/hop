@@ -22,19 +22,14 @@
 
 package org.apache.hop.trans.steps.ldapinput;
 
-import java.util.HashSet;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attribute;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -43,6 +38,10 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.Attribute;
+import java.util.HashSet;
 
 /**
  * Read LDAP Host, convert them to rows and writes these to one or more output streams.
@@ -57,7 +56,7 @@ public class LDAPInput extends BaseStep implements StepInterface {
   private LDAPInputData data;
 
   public LDAPInput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                    Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -71,8 +70,8 @@ public class LDAPInput extends BaseStep implements StepInterface {
         // Create the output row meta-data
         data.outputRowMeta = new RowMeta();
         meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore ); // get the
-                                                                                                      // metadata
-                                                                                                      // populated
+        // metadata
+        // populated
 
         // Create convert meta-data objects that will contain Date & Number formatters
         //
@@ -160,7 +159,7 @@ public class LDAPInput extends BaseStep implements StepInterface {
       data.nrIncomingFields = getInputRowMeta().size();
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore ); // get the metadata
-                                                                                                    // populated
+      // populated
 
       // Create convert meta-data objects that will contain Date & Number formatters
       //
@@ -242,19 +241,19 @@ public class LDAPInput extends BaseStep implements StepInterface {
       // Execute for each Input field...
       for ( int i = 0; i < meta.getInputFields().length; i++ ) {
 
-        LDAPInputField field = meta.getInputFields()[i];
+        LDAPInputField field = meta.getInputFields()[ i ];
         // Get attribute value
         int index = data.nrIncomingFields + i;
         Attribute attr = data.attributes.get( field.getRealAttribute() );
         if ( attr != null ) {
           // Let's try to get value of this attribute
-          outputRowData[index] = getAttributeValue( field, attr, index, outputRowData[index] );
+          outputRowData[ index ] = getAttributeValue( field, attr, index, outputRowData[ index ] );
         }
 
         // Do we need to repeat this field if it is null?
         if ( field.isRepeated() ) {
-          if ( data.previousRow != null && outputRowData[index] == null ) {
-            outputRowData[index] = data.previousRow[index];
+          if ( data.previousRow != null && outputRowData[ index ] == null ) {
+            outputRowData[ index ] = data.previousRow[ index ];
           }
         }
 
@@ -264,7 +263,7 @@ public class LDAPInput extends BaseStep implements StepInterface {
 
       // See if we need to add the row number to the row...
       if ( meta.includeRowNumber() && !Utils.isEmpty( meta.getRowNumberField() ) ) {
-        outputRowData[fIndex] = new Long( data.rownr );
+        outputRowData[ fIndex ] = new Long( data.rownr );
       }
 
       RowMetaInterface irow = getInputRowMeta();
@@ -339,12 +338,12 @@ public class LDAPInput extends BaseStep implements StepInterface {
 
   private void connectServerLdap() throws HopException {
     // Limit returned attributes to user selection
-    data.attrReturned = new String[meta.getInputFields().length];
+    data.attrReturned = new String[ meta.getInputFields().length ];
 
     data.attributesBinary = new HashSet<String>();
     // Get user selection attributes
     for ( int i = 0; i < meta.getInputFields().length; i++ ) {
-      LDAPInputField field = meta.getInputFields()[i];
+      LDAPInputField field = meta.getInputFields()[ i ];
       // get real attribute name
       String name = environmentSubstitute( field.getAttribute() );
       field.setRealAttribute( name );
@@ -354,17 +353,17 @@ public class LDAPInput extends BaseStep implements StepInterface {
         data.attributesBinary.add( name );
       }
 
-      data.attrReturned[i] = name;
+      data.attrReturned[ i ] = name;
     }
 
     // Define new LDAP connection
     data.connection = new LDAPConnection( log, this, meta, data.attributesBinary );
 
     for ( int i = 0; i < data.attrReturned.length; i++ ) {
-      LDAPInputField field = meta.getInputFields()[i];
+      LDAPInputField field = meta.getInputFields()[ i ];
       // Do we need to sort based on some attributes?
       if ( field.isSortedKey() ) {
-        data.connection.addSortingAttributes( data.attrReturned[i] );
+        data.connection.addSortingAttributes( data.attrReturned[ i ] );
       }
     }
 

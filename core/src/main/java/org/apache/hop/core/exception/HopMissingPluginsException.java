@@ -22,19 +22,18 @@
 
 package org.apache.hop.core.exception;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.PluginTypeInterface;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This Exception is throws when an error occurs loading plugins.
  *
  * @author Matt
  * @since 9-12-2004
- *
  */
 public class HopMissingPluginsException extends HopException {
   private static final long serialVersionUID = -3008319146447259788L;
@@ -55,8 +54,7 @@ public class HopMissingPluginsException extends HopException {
   /**
    * Constructs a new throwable with the specified detail message.
    *
-   * @param message
-   *          - the detail message. The detail message is saved for later retrieval by the getMessage() method.
+   * @param message - the detail message. The detail message is saved for later retrieval by the getMessage() method.
    */
   public HopMissingPluginsException( String message ) {
     super( message );
@@ -66,10 +64,8 @@ public class HopMissingPluginsException extends HopException {
   /**
    * Add a missing plugin id for a given plugin type.
    *
-   * @param pluginTypeClass
-   *          The class of the plugin type (ex. StepPluginType.class)
-   * @param pluginId
-   *          The id of the missing plugin
+   * @param pluginTypeClass The class of the plugin type (ex. StepPluginType.class)
+   * @param pluginId        The id of the missing plugin
    */
   public void addMissingPluginDetails( Class<? extends PluginTypeInterface> pluginTypeClass, String pluginId ) {
     missingPluginDetailsList.add( new PluginDetails( pluginTypeClass, pluginId ) );

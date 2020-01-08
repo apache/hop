@@ -22,14 +22,10 @@
 
 package org.apache.hop.trans.steps.cubeoutput;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -37,7 +33,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
@@ -47,8 +43,10 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
+import java.util.Map;
 
 /*
  * Created on 4-apr-2003
@@ -58,10 +56,14 @@ public class CubeOutputMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = CubeOutputMeta.class; // for i18n purposes, needed by Translator2!!
 
   private String filename;
-  /** Flag: add the filenames to result filenames */
+  /**
+   * Flag: add the filenames to result filenames
+   */
   private boolean addToResultFilenames;
 
-  /** Flag : Do not open new file when transformation start */
+  /**
+   * Flag : Do not open new file when transformation start
+   */
   private boolean doNotOpenNewFileInit;
 
   public CubeOutputMeta() {
@@ -73,8 +75,7 @@ public class CubeOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param filename
-   *          The filename to set.
+   * @param filename The filename to set.
    */
   public void setFilename( String filename ) {
     this.filename = filename;
@@ -95,8 +96,7 @@ public class CubeOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param addtoresultfilenamesin
-   *          The addtoresultfilenames to set.
+   * @param addtoresultfilenamesin The addtoresultfilenames to set.
    */
   public void setAddToResultFiles( boolean addtoresultfilenamesin ) {
     this.addToResultFilenames = addtoresultfilenamesin;
@@ -110,8 +110,7 @@ public class CubeOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param doNotOpenNewFileInit
-   *          The "do not open new file at init" flag to set.
+   * @param doNotOpenNewFileInit The "do not open new file at init" flag to set.
    */
   public void setDoNotOpenNewFileInit( boolean doNotOpenNewFileInit ) {
     this.doNotOpenNewFileInit = doNotOpenNewFileInit;
@@ -157,8 +156,8 @@ public class CubeOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     // Check output fields
@@ -176,7 +175,7 @@ public class CubeOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new CubeOutput( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -185,17 +184,14 @@ public class CubeOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param space
-   *          the variable space to use
+   * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
-   *
+   * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

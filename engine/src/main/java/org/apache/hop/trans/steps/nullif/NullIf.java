@@ -47,7 +47,7 @@ public class NullIf extends BaseStep implements StepInterface {
   private NullIfData data;
 
   public NullIf( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                 Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -69,23 +69,23 @@ public class NullIf extends BaseStep implements StepInterface {
       first = false;
       data.outputRowMeta = getInputRowMeta().clone();
       int fieldsLength = meta.getFields().length;
-      data.keynr = new int[fieldsLength];
-      data.nullValue = new Object[fieldsLength];
-      data.nullValueMeta = new ValueMetaInterface[fieldsLength];
+      data.keynr = new int[ fieldsLength ];
+      data.nullValue = new Object[ fieldsLength ];
+      data.nullValueMeta = new ValueMetaInterface[ fieldsLength ];
       for ( int i = 0; i < fieldsLength; i++ ) {
-        data.keynr[i] = data.outputRowMeta.indexOfValue( meta.getFields()[i].getFieldName() );
-        if ( data.keynr[i] < 0 ) {
-          logError( BaseMessages.getString( PKG, "NullIf.Log.CouldNotFindFieldInRow", meta.getFields()[i].getFieldName() ) );
+        data.keynr[ i ] = data.outputRowMeta.indexOfValue( meta.getFields()[ i ].getFieldName() );
+        if ( data.keynr[ i ] < 0 ) {
+          logError( BaseMessages.getString( PKG, "NullIf.Log.CouldNotFindFieldInRow", meta.getFields()[ i ].getFieldName() ) );
           setErrors( 1 );
           stopAll();
           return false;
         }
-        data.nullValueMeta[i] = data.outputRowMeta.getValueMeta( data.keynr[i] );
+        data.nullValueMeta[ i ] = data.outputRowMeta.getValueMeta( data.keynr[ i ] );
         // convert from input string entered by the user
         ValueMetaString vms = new ValueMetaString();
-        vms.setConversionMask( data.nullValueMeta[i].getConversionMask() );
-        data.nullValue[i] =
-          data.nullValueMeta[i].convertData( vms, meta.getFields()[i].getFieldValue() );
+        vms.setConversionMask( data.nullValueMeta[ i ].getConversionMask() );
+        data.nullValue[ i ] =
+          data.nullValueMeta[ i ].convertData( vms, meta.getFields()[ i ].getFieldValue() );
       }
     }
 
@@ -95,10 +95,10 @@ public class NullIf extends BaseStep implements StepInterface {
     }
 
     for ( int i = 0; i < meta.getFields().length; i++ ) {
-      Object field = r[data.keynr[i]];
-      if ( field != null && data.nullValueMeta[i].compare( field, data.nullValue[i] ) == 0 ) {
+      Object field = r[ data.keynr[ i ] ];
+      if ( field != null && data.nullValueMeta[ i ].compare( field, data.nullValue[ i ] ) == 0 ) {
         // OK, this value needs to be set to NULL
-        r[data.keynr[i]] = null;
+        r[ data.keynr[ i ] ] = null;
       }
     }
 

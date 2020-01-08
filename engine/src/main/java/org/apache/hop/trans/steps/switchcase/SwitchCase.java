@@ -22,10 +22,6 @@
 
 package org.apache.hop.trans.steps.switchcase;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -41,6 +37,10 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Filters input rows base on conditions.
@@ -81,7 +81,7 @@ public class SwitchCase extends BaseStep implements StepInterface {
     // one.
     // Perhaps there is some conversion needed.
     //
-    Object lookupData = data.valueMeta.convertData( data.inputValueMeta, r[data.fieldIndex] );
+    Object lookupData = data.valueMeta.convertData( data.inputValueMeta, r[ data.fieldIndex ] );
 
     // could not use byte[] as key in Maps, so we need to convert it to his specific hashCode for comparisons
     lookupData = prepareObjectType( lookupData );
@@ -109,7 +109,7 @@ public class SwitchCase extends BaseStep implements StepInterface {
   }
 
   /**
-   * @see StepInterface#init(org.apache.hop.trans.step.StepMetaInterface , org.apache.hop.trans.step.StepDataInterface)
+   * @see StepInterface#init(org.apache.hop.trans.step.StepMetaInterface, org.apache.hop.trans.step.StepDataInterface)
    */
   public boolean init( StepMetaInterface smi, StepDataInterface sdi ) {
     meta = (SwitchCaseMeta) smi;
@@ -149,8 +149,7 @@ public class SwitchCase extends BaseStep implements StepInterface {
    * <li>Discover default row set. We expect only one default rowset, even if technically can have many. *
    * </ol>
    *
-   * @throws HopException
-   *           if something goes wrong during step preparation.
+   * @throws HopException if something goes wrong during step preparation.
    */
   void createOutputValueMapping() throws HopException {
     data.outputRowMeta = getInputRowMeta().clone();
@@ -223,7 +222,7 @@ public class SwitchCase extends BaseStep implements StepInterface {
   }
 
   protected static Object prepareObjectType( Object o ) {
-    return ( o instanceof byte[] ) ?  Arrays.hashCode( (byte[]) o ) :  o;
+    return ( o instanceof byte[] ) ? Arrays.hashCode( (byte[]) o ) : o;
   }
 
 }

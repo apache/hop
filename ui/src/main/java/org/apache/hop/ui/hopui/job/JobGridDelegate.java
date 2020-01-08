@@ -22,11 +22,15 @@
 
 package org.apache.hop.ui.hopui.job;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.gui.JobTracker;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobEntryResult;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.TreeMemory;
+import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.hopui.delegates.HopUiDelegate;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
@@ -38,15 +42,11 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.gui.JobTracker;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobEntryResult;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.TreeMemory;
-import org.apache.hop.ui.hopui.HopUi;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class JobGridDelegate extends HopUiDelegate {
 
@@ -76,7 +76,6 @@ public class JobGridDelegate extends HopUiDelegate {
 
   /**
    * Add a grid with the execution metrics per step in a table view
-   *
    */
   public void addJobGrid() {
 
@@ -249,7 +248,7 @@ public class JobGridDelegate extends HopUiDelegate {
             if ( res != null ) {
               treeItem.setText( 2, res.getResult()
                 ? BaseMessages.getString( PKG, "JobLog.Tree.Success" ) : BaseMessages.getString(
-                  PKG, "JobLog.Tree.Failure" ) );
+                PKG, "JobLog.Tree.Failure" ) );
               treeItem.setText( 5, Long.toString( res.getEntryNr() ) );
               if ( res.getResult() ) {
                 treeItem.setForeground( GUIResource.getInstance().getColorSuccessGreen() );

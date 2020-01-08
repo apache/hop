@@ -22,10 +22,6 @@
 
 package org.apache.hop.job.entries.ftpsget.ftp4che;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
 import org.ftp4che.FTPConnection;
 import org.ftp4che.commands.Command;
 import org.ftp4che.exception.ConfigurationException;
@@ -33,6 +29,10 @@ import org.ftp4che.exception.FtpIOException;
 import org.ftp4che.exception.FtpWorkflowException;
 import org.ftp4che.impl.SecureFTPConnection;
 import org.ftp4che.util.ftpfile.FTPFile;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
 /**
  * SecureFTPConnection changed to force data channel encryption for implicit TLS/SSL connections with crypted data.
@@ -55,7 +55,7 @@ public class SecureDataFTPConnection extends SecureFTPConnection {
    * {@inheritDoc}
    */
   public List<FTPFile> getDirectoryListing( String directory )
-      throws IOException, FtpWorkflowException, FtpIOException {
+    throws IOException, FtpWorkflowException, FtpIOException {
     setDataProtIfImplicit();
     return super.getDirectoryListing( directory );
   }
@@ -83,13 +83,14 @@ public class SecureDataFTPConnection extends SecureFTPConnection {
 
   /**
    * Send a PROT P command if on implicit modes with crypted data.<br>
+   *
    * @throws IOException
    */
   protected void setDataProtIfImplicit() throws IOException {
     // enable PROT P for cases missing in super
     int connectionType = getConnectionType();
     if ( connectionType == FTPConnection.IMPLICIT_SSL_WITH_CRYPTED_DATA_FTP_CONNECTION
-        || connectionType == FTPConnection.IMPLICIT_TLS_WITH_CRYPTED_DATA_FTP_CONNECTION ) {
+      || connectionType == FTPConnection.IMPLICIT_TLS_WITH_CRYPTED_DATA_FTP_CONNECTION ) {
       setConnectionStatusLock( CSL_INDIRECT_CALL );
       setConnectionStatus( FTPConnection.BUSY );
       Command pbsz = new Command( Command.PBSZ, "0" );

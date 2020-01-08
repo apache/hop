@@ -22,14 +22,6 @@
 
 package org.apache.hop.trans.steps.http;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -38,6 +30,14 @@ import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class HTTPMetaLoadSaveTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -49,27 +49,28 @@ public class HTTPMetaLoadSaveTest {
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "url", "urlInField", "urlField", "encoding", "httpLogin", "httpPassword", "proxyHost",
-            "proxyPort", "socketTimeout", "connectionTimeout", "closeIdleConnectionsTime", "argumentField",
-            "argumentParameter", "headerField", "headerParameter", "fieldName", "resultCodeFieldName",
-            "responseTimeFieldName", "responseHeaderFieldName" );
+      Arrays.asList( "url", "urlInField", "urlField", "encoding", "httpLogin", "httpPassword", "proxyHost",
+        "proxyPort", "socketTimeout", "connectionTimeout", "closeIdleConnectionsTime", "argumentField",
+        "argumentParameter", "headerField", "headerParameter", "fieldName", "resultCodeFieldName",
+        "responseTimeFieldName", "responseHeaderFieldName" );
     Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-        new HashMap<String, FieldLoadSaveValidator<?>>();
+      new HashMap<String, FieldLoadSaveValidator<?>>();
 
     //Arrays need to be consistent length
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 25 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 25 );
     fieldLoadSaveValidatorAttributeMap.put( "argumentField", stringArrayLoadSaveValidator );
     fieldLoadSaveValidatorAttributeMap.put( "argumentParameter", stringArrayLoadSaveValidator );
     fieldLoadSaveValidatorAttributeMap.put( "headerField", stringArrayLoadSaveValidator );
     fieldLoadSaveValidatorAttributeMap.put( "headerParameter", stringArrayLoadSaveValidator );
 
     loadSaveTester =
-        new LoadSaveTester( HTTPMeta.class, attributes, new HashMap<String, String>(),
-            new HashMap<String, String>(), fieldLoadSaveValidatorAttributeMap,
-            new HashMap<String, FieldLoadSaveValidator<?>>() );
+      new LoadSaveTester( HTTPMeta.class, attributes, new HashMap<String, String>(),
+        new HashMap<String, String>(), fieldLoadSaveValidatorAttributeMap,
+        new HashMap<String, FieldLoadSaveValidator<?>>() );
 
   }
+
   @Test
   public void testSerialization() throws HopException {
     loadSaveTester.testSerialization();

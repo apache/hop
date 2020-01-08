@@ -23,16 +23,15 @@ package org.apache.hop.www;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.owasp.encoder.Encode;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.PackageMessages;
-
-import java.io.IOException;
-import java.io.PrintWriter;
+import org.owasp.encoder.Encode;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 
 public abstract class BodyHttpServlet extends BaseHttpServlet implements HopServerPluginInterface {

@@ -22,6 +22,19 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
@@ -37,25 +50,11 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * Shows a dialog that allows you to enter values for a number of strings.
  *
  * @author Matt
- *
  */
 public class EnterStringsDialog extends Dialog {
   private static Class<?> PKG = EnterStringsDialog.class; // for i18n purposes, needed by Translator2!!
@@ -79,12 +78,9 @@ public class EnterStringsDialog extends Dialog {
   /**
    * Constructs a new dialog
    *
-   * @param parent
-   *          The parent shell to link to
-   * @param style
-   *          The style in which we want to draw this shell.
-   * @param strings
-   *          The list of rows to change.
+   * @param parent  The parent shell to link to
+   * @param style   The style in which we want to draw this shell.
+   * @param strings The list of rows to change.
    */
   public EnterStringsDialog( Shell parent, int style, RowMetaAndData strings ) {
     super( parent, style );
@@ -207,7 +203,7 @@ public class EnterStringsDialog extends Dialog {
     if ( strings != null ) {
       for ( int i = 0; i < strings.getRowMeta().size(); i++ ) {
         ValueMetaInterface valueMeta = strings.getRowMeta().getValueMeta( i );
-        Object valueData = strings.getData()[i];
+        Object valueData = strings.getData()[ i ];
         String string;
         try {
           string = valueMeta.getString( valueData );
@@ -245,7 +241,7 @@ public class EnterStringsDialog extends Dialog {
           if ( valueMeta.getName().equalsIgnoreCase( name ) ) {
             String stringValue = item.getText( 2 );
             //CHECKSTYLE:Indentation:OFF
-            strings.getData()[j] = stringValue;
+            strings.getData()[ j ] = stringValue;
           }
         }
       }
@@ -272,8 +268,7 @@ public class EnterStringsDialog extends Dialog {
   }
 
   /**
-   * @param readOnly
-   *          The readOnly to set.
+   * @param readOnly The readOnly to set.
    */
   public void setReadOnly( boolean readOnly ) {
     this.readOnly = readOnly;
@@ -287,8 +282,7 @@ public class EnterStringsDialog extends Dialog {
   }
 
   /**
-   * @param message
-   *          the message to set
+   * @param message the message to set
    */
   public void setMessage( String message ) {
     this.message = message;
@@ -302,16 +296,14 @@ public class EnterStringsDialog extends Dialog {
   }
 
   /**
-   * @param title
-   *          the title to set
+   * @param title the title to set
    */
   public void setTitle( String title ) {
     this.title = title;
   }
 
   /**
-   * @param shellImage
-   *          the shellImage to set
+   * @param shellImage the shellImage to set
    */
   public void setShellImage( Image shellImage ) {
     this.shellImage = shellImage;

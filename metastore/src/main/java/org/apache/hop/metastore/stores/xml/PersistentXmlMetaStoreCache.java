@@ -22,7 +22,6 @@ import java.util.Map;
 /**
  * This implementation provides a simple XmlMetaStoreCache.
  * It uses strong references thus client should clear it manually.
- *
  */
 public class PersistentXmlMetaStoreCache extends BaseXmlMetaStoreCache implements XmlMetaStoreCache {
 
@@ -35,11 +34,11 @@ public class PersistentXmlMetaStoreCache extends BaseXmlMetaStoreCache implement
   protected ElementType createElementType( String elementId ) {
     return new ElementType( elementId, this.<String, String>createStorage() );
   }
-  
+
   protected static class ElementType extends BaseXmlMetaStoreCache.ElementType {
 
     private final Map<String, String> elementNameToIdMap;
-    
+
     public ElementType( String id, Map<String, String> elementNameToIdMap ) {
       super( id );
       this.elementNameToIdMap = elementNameToIdMap;
@@ -49,7 +48,7 @@ public class PersistentXmlMetaStoreCache extends BaseXmlMetaStoreCache implement
     protected Map<String, String> getElementNameToIdMap() {
       return elementNameToIdMap;
     }
-    
+
   }
-  
+
 }

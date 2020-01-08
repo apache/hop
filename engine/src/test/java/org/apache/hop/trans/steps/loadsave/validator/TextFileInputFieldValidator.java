@@ -21,12 +21,12 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.loadsave.validator;
 
-import java.util.Random;
-import java.util.UUID;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
+
+import java.util.Random;
+import java.util.UUID;
 
 @SuppressWarnings( "deprecation" )
 public class TextFileInputFieldValidator implements FieldLoadSaveValidator<TextFileInputField> {

@@ -22,13 +22,12 @@
 
 package org.apache.hop.resource;
 
-import java.util.Hashtable;
-import java.util.Map;
-
 import junit.framework.TestCase;
-
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.job.JobMeta;
+
+import java.util.Hashtable;
+import java.util.Map;
 
 public class ResourceExportIT extends TestCase {
 

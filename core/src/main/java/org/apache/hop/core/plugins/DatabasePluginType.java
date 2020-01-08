@@ -22,18 +22,17 @@
 
 package org.apache.hop.core.plugins;
 
-import java.lang.annotation.Annotation;
-import java.util.Map;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.exception.HopPluginException;
+
+import java.lang.annotation.Annotation;
+import java.util.Map;
 
 /**
  * This class represents the step plugin type.
  *
  * @author matt
- *
  */
 @PluginMainClassType( DatabaseInterface.class )
 @PluginAnnotationType( DatabaseMetaPlugin.class )
@@ -81,7 +80,7 @@ public class DatabasePluginType extends BasePluginType implements PluginTypeInte
   }
 
   public String[] getNaturalCategoriesOrder() {
-    return new String[0];
+    return new String[ 0 ];
   }
 
   @Override

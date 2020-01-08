@@ -21,13 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -35,6 +28,13 @@ import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class GuptaDatabaseMetaTest {
 
@@ -51,12 +51,12 @@ public class GuptaDatabaseMetaTest {
   @Test
   public void testSettings() throws Exception {
     assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
-        nativeMeta.getAccessTypeList() );
+      nativeMeta.getAccessTypeList() );
     assertEquals( 2155, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertFalse( nativeMeta.supportsAutoInc() );
     assertEquals( "jdbc.gupta.sqlbase.SqlbaseDriver", nativeMeta.getDriverClass() );
-    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL(  "IGNORED", "IGNORED", "FOO" ) );
+    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "IGNORED", "IGNORED", "FOO" ) );
     assertEquals( "jdbc:sqlbase://FOO:BAR/WIBBLE", nativeMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
     assertEquals( "jdbc:sqlbase://FOO:/WIBBLE", nativeMeta.getURL( "FOO", "", "WIBBLE" ) ); // Pretty sure this is a bug (colon after foo)
     assertFalse( nativeMeta.isFetchSizeSupported() );
@@ -77,55 +77,55 @@ public class GuptaDatabaseMetaTest {
   @Test
   public void testSQLStatements() {
     assertEquals( "ALTER TABLE FOO ADD BAR VARCHAR(15)",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
     String lineSep = System.getProperty( "line.separator" );
     assertEquals( "ALTER TABLE FOO DROP BAR" + lineSep + ";" + lineSep + "ALTER TABLE FOO ADD BAR VARCHAR(15)",
-        nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
+      nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
     assertEquals( "insert into FOO(FOOKEY, FOOVERSION) values (0, 1)",
-        nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
+      nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
   }
 
   @Test
   public void testGetFieldDefinition() {
     assertEquals( "FOO DATETIME NULL",
-        nativeMeta.getFieldDefinition( new ValueMetaDate( "FOO" ), "", "", false, true, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaDate( "FOO" ), "", "", false, true, false ) );
     assertEquals( "DATETIME NULL",
-        nativeMeta.getFieldDefinition( new ValueMetaTimestamp( "FOO" ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaTimestamp( "FOO" ), "", "", false, false, false ) );
 
     assertEquals( "INTEGER NOT NULL",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 10, 0 ), "FOO", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 10, 0 ), "FOO", "", false, false, false ) );
     assertEquals( "INTEGER NOT NULL",
-        nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 8, 0 ), "", "FOO", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 8, 0 ), "", "FOO", false, false, false ) );
 
 
     // Note - ValueMetaInteger returns zero always from the precision - so this avoids the weirdness
     assertEquals( "INTEGER",
-        nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", -8, -3 ), "", "", false, false, false ) ); // Weird if statement
+      nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", -8, -3 ), "", "", false, false, false ) ); // Weird if statement
     assertEquals( "DOUBLE PRECISION",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", -8, -3 ), "", "", false, false, false ) ); // Weird if statement ( length and precision less than zero)
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", -8, -3 ), "", "", false, false, false ) ); // Weird if statement ( length and precision less than zero)
     assertEquals( "DOUBLE PRECISION",
-        nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 10, 3 ), "", "", false, false, false ) ); // Weird if statement
+      nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 10, 3 ), "", "", false, false, false ) ); // Weird if statement
     assertEquals( "DOUBLE PRECISION",
-        nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 10, 0 ), "", "", false, false, false ) ); // Weird if statement
+      nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 10, 0 ), "", "", false, false, false ) ); // Weird if statement
     assertEquals( "INTEGER",
-        nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 9, 0 ), "", "", false, false, false ) ); // Weird if statement
+      nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 9, 0 ), "", "", false, false, false ) ); // Weird if statement
 
     assertEquals( "LONG VARCHAR",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", 255, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", 255, 0 ), "", "", false, false, false ) );
 
     assertEquals( "LONG VARCHAR",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", -33, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", -33, 0 ), "", "", false, false, false ) );
 
     assertEquals( "VARCHAR(15)",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", 15, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", 15, 0 ), "", "", false, false, false ) );
 
     assertEquals( "VARCHAR(0)",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", 0, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", 0, 0 ), "", "", false, false, false ) );
 
     assertEquals( " UNKNOWN",
-        nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, false ) );
     assertEquals( " UNKNOWN" + System.getProperty( "line.separator" ),
-        nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, true ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, true ) );
   }
 
 

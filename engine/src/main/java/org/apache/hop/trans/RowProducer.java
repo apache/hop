@@ -22,17 +22,16 @@
 
 package org.apache.hop.trans;
 
-import java.util.concurrent.TimeUnit;
-
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.StepInterface;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Allows you to "Inject" rows into a step.
  *
  * @author Matt
- *
  */
 public class RowProducer {
   private RowSet rowSet;
@@ -56,7 +55,7 @@ public class RowProducer {
    * Puts a row on to the underlying row set, optionally blocking until the row can be successfully put.
    *
    * @return true if the row was successfully added to the rowset and false if this buffer was full. If {@code block} is
-   *         true this will always return true.
+   * true this will always return true.
    * @see RowSet#putRow(RowMetaInterface, Object[])
    */
   public boolean putRow( RowMetaInterface rowMeta, Object[] row, boolean block ) {
@@ -94,8 +93,7 @@ public class RowProducer {
   }
 
   /**
-   * @param rowSet
-   *          The rowSet to set.
+   * @param rowSet The rowSet to set.
    */
   public void setRowSet( RowSet rowSet ) {
     this.rowSet = rowSet;
@@ -109,8 +107,7 @@ public class RowProducer {
   }
 
   /**
-   * @param stepInterface
-   *          The stepInterface to set.
+   * @param stepInterface The stepInterface to set.
    */
   public void setStepInterface( StepInterface stepInterface ) {
     this.stepInterface = stepInterface;

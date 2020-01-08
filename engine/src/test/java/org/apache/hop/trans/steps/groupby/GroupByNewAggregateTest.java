@@ -22,26 +22,25 @@
 
 package org.apache.hop.trans.steps.groupby;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
+import junit.framework.Assert;
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import junit.framework.Assert;
-
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.trans.steps.mock.StepMockHelper;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 public class GroupByNewAggregateTest {
 
@@ -59,7 +58,7 @@ public class GroupByNewAggregateTest {
   public static void setUpBeforeClass() throws Exception {
     mockHelper = new StepMockHelper<GroupByMeta, GroupByData>( "Group By", GroupByMeta.class, GroupByData.class );
     when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        mockHelper.logChannelInterface );
+      mockHelper.logChannelInterface );
     when( mockHelper.trans.isRunning() ).thenReturn( true );
 
     // In this step we will distinct String aggregations from numeric ones
@@ -82,16 +81,16 @@ public class GroupByNewAggregateTest {
   public void setUp() throws Exception {
     data = new GroupByData();
 
-    data.subjectnrs = new int[18];
-    int[] arr = new int[18];
-    String[] arrF = new String[18];
-    data.previousSums = new Object[18];
-    data.previousAvgCount = new long[18];
-    data.previousAvgSum = new Object[18];
+    data.subjectnrs = new int[ 18 ];
+    int[] arr = new int[ 18 ];
+    String[] arrF = new String[ 18 ];
+    data.previousSums = new Object[ 18 ];
+    data.previousAvgCount = new long[ 18 ];
+    data.previousAvgSum = new Object[ 18 ];
     for ( int i = 0; i < arr.length; i++ ) {
       // set aggregation types (hardcoded integer values from 1 to 18)
-      arr[i] = i + 1;
-      data.subjectnrs[i] = i;
+      arr[ i ] = i + 1;
+      data.subjectnrs[ i ] = i;
     }
     Arrays.fill( arrF, "x" );
     Arrays.fill( data.previousSums, 11 );
@@ -117,12 +116,12 @@ public class GroupByNewAggregateTest {
 
   /**
    * PDI-6960 - Group by and Memory group by ignores NULL values ("sum" aggregation)
-   * 
+   * <p>
    * We do not assign 0 instead of null.
    */
   @Test
   public void newAggregateInitializationTest() {
-    Object[] r = new Object[18];
+    Object[] r = new Object[ 18 ];
     Arrays.fill( r, null );
     step.newAggregate( r );
 
@@ -134,11 +133,11 @@ public class GroupByNewAggregateTest {
     for ( int i = 0; i < agg.length; i++ ) {
       int type = i + 1;
       if ( strings.contains( type ) ) {
-        Assert.assertTrue( "This is appendable type, type=" + type, agg[i] instanceof Appendable );
+        Assert.assertTrue( "This is appendable type, type=" + type, agg[ i ] instanceof Appendable );
       } else if ( statistics.contains( type ) ) {
-        Assert.assertTrue( "This is collection, type=" + type, agg[i] instanceof Collection );
+        Assert.assertTrue( "This is collection, type=" + type, agg[ i ] instanceof Collection );
       } else {
-        Assert.assertNull( "Aggregation initialized with null, type=" + type, agg[i] );
+        Assert.assertNull( "Aggregation initialized with null, type=" + type, agg[ i ] );
       }
     }
   }

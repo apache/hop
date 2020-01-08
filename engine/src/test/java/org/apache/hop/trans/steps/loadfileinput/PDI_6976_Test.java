@@ -22,29 +22,27 @@
 
 package org.apache.hop.trans.steps.loadfileinput;
 
+import junit.framework.TestCase;
+import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepMeta;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import javax.tools.FileObject;
+import java.util.List;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-
-import java.util.List;
-
-import javax.tools.FileObject;
-
-import junit.framework.TestCase;
-
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.metastore.api.IMetaStore;
 
 /**
  * Tests for LoadFileInputMeta class
@@ -69,7 +67,7 @@ public class PDI_6976_Test {
     doAnswer( new Answer<Object>() {
       @Override
       public Object answer( InvocationOnMock invocation ) throws Throwable {
-        if ( ( (CheckResultInterface) invocation.getArguments()[0] ).getType() != CheckResultInterface.TYPE_RESULT_OK ) {
+        if ( ( (CheckResultInterface) invocation.getArguments()[ 0 ] ).getType() != CheckResultInterface.TYPE_RESULT_OK ) {
           TestCase.fail( "We've got validation error" );
         }
 

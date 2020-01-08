@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.file;
 
-import java.util.List;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
@@ -33,6 +31,8 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.step.errorhandling.FileErrorHandler;
 
+import java.util.List;
+
 /**
  * Utils for file-based input steps.
  *
@@ -41,7 +41,7 @@ import org.apache.hop.trans.step.errorhandling.FileErrorHandler;
 public class BaseFileInputStepUtils {
 
   public static void handleMissingFiles( FileInputList files, LogChannelInterface log, boolean isErrorIgnored,
-      FileErrorHandler errorHandler ) throws HopException {
+                                         FileErrorHandler errorHandler ) throws HopException {
     List<FileObject> nonExistantFiles = files.getNonExistantFiles();
 
     if ( !nonExistantFiles.isEmpty() ) {

@@ -22,8 +22,8 @@
 
 package org.apache.hop.ui.hopui;
 
-import org.eclipse.swt.SWT;
 import org.apache.hop.i18n.BaseMessages;
+import org.eclipse.swt.SWT;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.components.XulMessageBox;

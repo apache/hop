@@ -23,6 +23,16 @@
 
 package org.apache.hop.compatibility;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopEOFException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.ValueDataUtil;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XMLInterface;
+import org.w3c.dom.Node;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
@@ -39,16 +49,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopEOFException;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueDataUtil;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.core.xml.XMLInterface;
-import org.w3c.dom.Node;
 
 /**
  * This class is one of the core classes of the Hop framework. It contains everything you need to manipulate atomic
@@ -114,7 +114,6 @@ public class Value implements Cloneable, XMLInterface, Serializable {
 
   /**
    * Constructs a new Value of type EMPTY
-   *
    */
   public Value() {
     // clearValue();
@@ -123,8 +122,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Constructs a new Value with a name.
    *
-   * @param name
-   *          Sets the name of the Value
+   * @param name Sets the name of the Value
    */
   public Value( String name ) {
     // clearValue();
@@ -134,10 +132,8 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Constructs a new Value with a name and a type.
    *
-   * @param name
-   *          Sets the name of the Value
-   * @param val_type
-   *          Sets the type of the Value (Value.VALUE_TYPE_*)
+   * @param name     Sets the name of the Value
+   * @param val_type Sets the type of the Value (Value.VALUE_TYPE_*)
    */
   public Value( String name, int val_type ) {
     // clearValue();
@@ -148,8 +144,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * This method allocates a new value of the appropriate type..
    *
-   * @param val_type
-   *          The new type of value
+   * @param val_type The new type of value
    */
   private void newValue( int val_type ) {
     switch ( val_type ) {
@@ -183,8 +178,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
    * Convert the value to another type. This only works if a value has been set previously. That is the reason this
    * method is private. Rather, use the public method setType(int type).
    *
-   * @param valType
-   *          The type to convert to.
+   * @param valType The type to convert to.
    */
   private void convertTo( int valType ) {
     if ( value != null ) {
@@ -219,14 +213,10 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Constructs a new Value with a name, a type, length and precision.
    *
-   * @param name
-   *          Sets the name of the Value
-   * @param valType
-   *          Sets the type of the Value (Value.VALUE_TYPE_*)
-   * @param length
-   *          The length of the value
-   * @param precision
-   *          The precision of the value
+   * @param name      Sets the name of the Value
+   * @param valType   Sets the type of the Value (Value.VALUE_TYPE_*)
+   * @param length    The length of the value
+   * @param precision The precision of the value
    */
   public Value( String name, int valType, int length, int precision ) {
     this( name, valType );
@@ -236,10 +226,8 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Constructs a new Value of Type VALUE_TYPE_BIGNUMBER, with a name, containing a BigDecimal number
    *
-   * @param name
-   *          Sets the name of the Value
-   * @param bignum
-   *          The number to store in this Value
+   * @param name   Sets the name of the Value
+   * @param bignum The number to store in this Value
    */
   public Value( String name, BigDecimal bignum ) {
     // clearValue();
@@ -250,10 +238,8 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Constructs a new Value of Type VALUE_TYPE_NUMBER, with a name, containing a number
    *
-   * @param name
-   *          Sets the name of the Value
-   * @param num
-   *          The number to store in this Value
+   * @param name Sets the name of the Value
+   * @param num  The number to store in this Value
    */
   public Value( String name, double num ) {
     // clearValue();
@@ -264,10 +250,8 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Constructs a new Value of Type VALUE_TYPE_STRING, with a name, containing a String
    *
-   * @param name
-   *          Sets the name of the Value
-   * @param str
-   *          The text to store in this Value
+   * @param name Sets the name of the Value
+   * @param str  The text to store in this Value
    */
   public Value( String name, StringBuffer str ) {
     this( name, str.toString() );
@@ -276,10 +260,8 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Constructs a new Value of Type VALUE_TYPE_STRING, with a name, containing a String
    *
-   * @param name
-   *          Sets the name of the Value
-   * @param str
-   *          The text to store in this Value
+   * @param name Sets the name of the Value
+   * @param str  The text to store in this Value
    */
   public Value( String name, StringBuilder str ) {
     this( name, str.toString() );
@@ -288,10 +270,8 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Constructs a new Value of Type VALUE_TYPE_STRING, with a name, containing a String
    *
-   * @param name
-   *          Sets the name of the Value
-   * @param str
-   *          The text to store in this Value
+   * @param name Sets the name of the Value
+   * @param str  The text to store in this Value
    */
   public Value( String name, String str ) {
     // clearValue();
@@ -302,10 +282,8 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Constructs a new Value of Type VALUE_TYPE_DATE, with a name, containing a Date
    *
-   * @param name
-   *          Sets the name of the Value
-   * @param dat
-   *          The date to store in this Value
+   * @param name Sets the name of the Value
+   * @param dat  The date to store in this Value
    */
   public Value( String name, Date dat ) {
     // clearValue();
@@ -316,10 +294,8 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Constructs a new Value of Type VALUE_TYPE_BOOLEAN, with a name, containing a boolean value
    *
-   * @param name
-   *          Sets the name of the Value
-   * @param bool
-   *          The boolean to store in this Value
+   * @param name Sets the name of the Value
+   * @param bool The boolean to store in this Value
    */
   public Value( String name, boolean bool ) {
     // clearValue();
@@ -330,10 +306,8 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Constructs a new Value of Type VALUE_TYPE_INTEGER, with a name, containing an integer number
    *
-   * @param name
-   *          Sets the name of the Value
-   * @param l
-   *          The integer to store in this Value
+   * @param name Sets the name of the Value
+   * @param l    The integer to store in this Value
    */
   public Value( String name, long l ) {
     // clearValue();
@@ -344,10 +318,8 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Constructs a new Value as a copy of another value and renames it...
    *
-   * @param name
-   *          The new name of the copied Value
-   * @param v
-   *          The value to be copied
+   * @param name The new name of the copied Value
+   * @param v    The value to be copied
    */
   public Value( String name, Value v ) {
     this( v );
@@ -357,10 +329,8 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Constructs a new Value of Type VALUE_TYPE_BINARY, with a name, containing a bytes value
    *
-   * @param name
-   *          Sets the name of the Value
-   * @param b
-   *          The bytes to store in this Value
+   * @param name Sets the name of the Value
+   * @param b    The bytes to store in this Value
    */
   public Value( String name, byte[] b ) {
     clearValue();
@@ -371,8 +341,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Constructs a new Value as a copy of another value
    *
-   * @param v
-   *          The Value to be copied
+   * @param v The Value to be copied
    */
   public Value( Value v ) {
     if ( v != null ) {
@@ -406,7 +375,6 @@ public class Value implements Cloneable, XMLInterface, Serializable {
    * Build a copy of this Value
    *
    * @return a copy of another value
-   *
    */
   public Value Clone() {
     Value v = new Value( this );
@@ -433,8 +401,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Sets the name of a Value
    *
-   * @param name
-   *          The new name of the value
+   * @param name The new name of the value
    */
   public void setName( String name ) {
     this.name = name;
@@ -452,8 +419,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * This method allows you to set the origin of the Value by means of the name of the originating step.
    *
-   * @param step_of_origin
-   *          The step of origin.
+   * @param step_of_origin The step of origin.
    */
   public void setOrigin( String step_of_origin ) {
     origin = step_of_origin;
@@ -471,8 +437,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Sets the value to a BigDecimal number value.
    *
-   * @param num
-   *          The number value to set the value to
+   * @param num The number value to set the value to
    */
   public void setValue( BigDecimal num ) {
     if ( value == null || value.getType() != VALUE_TYPE_BIGNUMBER ) {
@@ -487,8 +452,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Sets the value to a double Number value.
    *
-   * @param num
-   *          The number value to set the value to
+   * @param num The number value to set the value to
    */
   public void setValue( double num ) {
     if ( value == null || value.getType() != VALUE_TYPE_NUMBER ) {
@@ -502,8 +466,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Sets the Value to a String text
    *
-   * @param str
-   *          The StringBuffer to get the text from
+   * @param str The StringBuffer to get the text from
    */
   public void setValue( StringBuffer str ) {
     if ( value == null || value.getType() != VALUE_TYPE_STRING ) {
@@ -517,8 +480,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Sets the Value to a String text
    *
-   * @param str
-   *          The StringBuilder to get the text from
+   * @param str The StringBuilder to get the text from
    */
   public void setValue( StringBuilder str ) {
     if ( value == null || value.getType() != VALUE_TYPE_STRING ) {
@@ -532,8 +494,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Sets the Value to a String text
    *
-   * @param str
-   *          The String to get the text from
+   * @param str The String to get the text from
    */
   public void setValue( String str ) {
     if ( value == null || value.getType() != VALUE_TYPE_STRING ) {
@@ -556,8 +517,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Sets the Value to a Date
    *
-   * @param dat
-   *          The Date to set the Value to
+   * @param dat The Date to set the Value to
    */
   public void setValue( Date dat ) {
     if ( value == null || value.getType() != VALUE_TYPE_DATE ) {
@@ -571,8 +531,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Sets the Value to a boolean
    *
-   * @param bool
-   *          The boolean to set the Value to
+   * @param bool The boolean to set the Value to
    */
   public void setValue( boolean bool ) {
     if ( value == null || value.getType() != VALUE_TYPE_BOOLEAN ) {
@@ -590,8 +549,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Sets the Value to a long integer
    *
-   * @param b
-   *          The byte to convert to a long integer to which the Value is set.
+   * @param b The byte to convert to a long integer to which the Value is set.
    */
   public void setValue( byte b ) {
     setValue( (long) b );
@@ -600,8 +558,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Sets the Value to a long integer
    *
-   * @param i
-   *          The integer to convert to a long integer to which the Value is set.
+   * @param i The integer to convert to a long integer to which the Value is set.
    */
   public void setValue( int i ) {
     setValue( (long) i );
@@ -610,8 +567,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Sets the Value to a long integer
    *
-   * @param l
-   *          The long integer to which the Value is set.
+   * @param l The long integer to which the Value is set.
    */
   public void setValue( long l ) {
     if ( value == null || value.getType() != VALUE_TYPE_INTEGER ) {
@@ -625,8 +581,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Sets the Value to a byte array
    *
-   * @param b
-   *          The byte array to which the Value has to be set.
+   * @param b The byte array to which the Value has to be set.
    */
   public void setValue( byte[] b ) {
     if ( value == null || value.getType() != VALUE_TYPE_BINARY ) {
@@ -645,8 +600,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Copy the Value from another Value. It doesn't copy the name.
    *
-   * @param v
-   *          The Value to copy the settings and value from
+   * @param v The Value to copy the settings and value from
    */
   public void setValue( Value v ) {
     if ( v != null ) {
@@ -782,8 +736,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Set the type of this Value
    *
-   * @param val_type
-   *          The type to which the Value will be set.
+   * @param val_type The type to which the Value will be set.
    */
   public void setType( int val_type ) {
     if ( value == null ) {
@@ -927,8 +880,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Checks whether or not the specified type is either Integer or Number
    *
-   * @param t
-   *          the type to check
+   * @param t the type to check
    * @return true if the type is Integer or Number
    */
   public static final boolean isNumeric( int t ) {
@@ -948,8 +900,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * a String text representation of this Value, optionally padded to the specified length
    *
-   * @param pad
-   *          true if you want to pad the resulting String
+   * @param pad true if you want to pad the resulting String
    * @return a String text representation of this Value, optionally padded to the specified length
    */
   public String toString( boolean pad ) {
@@ -1031,8 +982,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Converts a String Value to String optionally padded to the specified length.
    *
-   * @param pad
-   *          true if you want to pad the resulting string to length.
+   * @param pad true if you want to pad the resulting string to length.
    * @return a String optionally padded to the specified length.
    */
   private String toStringString( boolean pad ) {
@@ -1080,8 +1030,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Converts a Number value to a String, optionally padding the result to the specified length.
    *
-   * @param pad
-   *          true if you want to pad the resulting string to length.
+   * @param pad true if you want to pad the resulting string to length.
    * @return a String optionally padded to the specified length.
    */
   private String toStringNumber( boolean pad ) {
@@ -1202,8 +1151,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Converts an Integer value to a String, optionally padding the result to the specified length.
    *
-   * @param pad
-   *          true if you want to pad the resulting string to length.
+   * @param pad true if you want to pad the resulting string to length.
    * @return a String optionally padded to the specified length.
    */
   private String toStringInteger( boolean pad ) {
@@ -1252,8 +1200,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Converts a BigNumber value to a String, optionally padding the result to the specified length.
    *
-   * @param pad
-   *          true if you want to pad the resulting string to length.
+   * @param pad true if you want to pad the resulting string to length.
    * @return a String optionally padded to the specified length.
    */
   private String toStringBigNumber() {
@@ -1304,8 +1251,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
    * Sets the length of the Number, Integer or String to the specified length Note: no truncation of the value takes
    * place, this is meta-data only!
    *
-   * @param l
-   *          the length to which you want to set the Value.
+   * @param l the length to which you want to set the Value.
    */
   public void setLength( int l ) {
     if ( value == null ) {
@@ -1318,10 +1264,8 @@ public class Value implements Cloneable, XMLInterface, Serializable {
    * Sets the length and the precision of the Number, Integer or String to the specified length & precision Note: no
    * truncation of the value takes place, this is meta-data only!
    *
-   * @param l
-   *          the length to which you want to set the Value.
-   * @param p
-   *          the precision to which you want to set this Value
+   * @param l the length to which you want to set the Value.
+   * @param p the precision to which you want to set this Value
    */
   public void setLength( int l, int p ) {
     if ( value == null ) {
@@ -1357,8 +1301,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Sets the precision of this Value Note: no rounding or truncation takes place, this is meta-data only!
    *
-   * @param p
-   *          the precision to which you want to set this Value.
+   * @param p the precision to which you want to set this Value.
    */
   public void setPrecision( int p ) {
     if ( value == null ) {
@@ -1383,26 +1326,24 @@ public class Value implements Cloneable, XMLInterface, Serializable {
    * Return the type of a value in a textual form: "String", "Number", "Integer", "Boolean", "Date", ... given a certain
    * integer type
    *
-   * @param t
-   *          the type to convert to text.
+   * @param t the type to convert to text.
    * @return A String describing the type of a certain value.
    */
   public static final String getTypeDesc( int t ) {
-    return valueTypeCode[t];
+    return valueTypeCode[ t ];
   }
 
   /**
    * Convert the String description of a type to an integer type.
    *
-   * @param desc
-   *          The description of the type to convert
+   * @param desc The description of the type to convert
    * @return The integer type of the given String. (Value.VALUE_TYPE_...)
    */
   public static final int getType( String desc ) {
     int i;
 
     for ( i = 1; i < valueTypeCode.length; i++ ) {
-      if ( valueTypeCode[i].equalsIgnoreCase( desc ) ) {
+      if ( valueTypeCode[ i ].equalsIgnoreCase( desc ) ) {
         return i;
       }
     }
@@ -1416,7 +1357,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
    * @return an array of String describing the possible types a Value can have.
    */
   public static final String[] getTypes() {
-    String[] retval = new String[valueTypeCode.length - 1];
+    String[] retval = new String[ valueTypeCode.length - 1 ];
     System.arraycopy( valueTypeCode, 1, retval, 0, valueTypeCode.length - 1 );
     return retval;
   }
@@ -1427,14 +1368,13 @@ public class Value implements Cloneable, XMLInterface, Serializable {
    * @return an array of String describing the possible types a Value can have.
    */
   public static final String[] getAllTypes() {
-    String[] retval = new String[valueTypeCode.length];
+    String[] retval = new String[ valueTypeCode.length ];
     System.arraycopy( valueTypeCode, 0, retval, 0, valueTypeCode.length );
     return retval;
   }
 
   /**
    * Sets the Value to null, no type is being changed.
-   *
    */
   public void setNull() {
     setNull( true );
@@ -1443,8 +1383,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Sets or unsets a value to null, no type is being changed.
    *
-   * @param n
-   *          true if you want the value to be null, false if you don't want this to be the case.
+   * @param n true if you want the value to be null, false if you don't want this to be the case.
    */
   public void setNull( boolean n ) {
     NULL = n;
@@ -1538,10 +1477,8 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Write the value, including the meta-data to a DataOutputStream
    *
-   * @param outputStream
-   *          the OutputStream to write to .
-   * @throws HopFileException
-   *           if something goes wrong.
+   * @param outputStream the OutputStream to write to .
+   * @throws HopFileException if something goes wrong.
    */
   public void write( OutputStream outputStream ) throws HopFileException {
     try {
@@ -1587,7 +1524,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
           if ( stringLength < 0 ) {
             setValue( (String) null );
           } else {
-            byte[] chars = new byte[stringLength];
+            byte[] chars = new byte[ stringLength ];
             dis.readFully( chars );
             setValue( new String( chars, Const.XML_ENCODING ) );
           }
@@ -1635,10 +1572,8 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Read the Value, including meta-data from a DataInputStream
    *
-   * @param is
-   *          The InputStream to read the value from
-   * @throws HopFileException
-   *           when the Value couldn't be created by reading it from the DataInputStream.
+   * @param is The InputStream to read the value from
+   * @throws HopFileException when the Value couldn't be created by reading it from the DataInputStream.
    */
   public Value( InputStream is ) throws HopFileException {
     try {
@@ -1653,8 +1588,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Write the data of this Value, without the meta-data to a DataOutputStream
    *
-   * @param dos
-   *          The DataOutputStream to write the data to
+   * @param dos The DataOutputStream to write the data to
    * @return true if all went well, false if something went wrong.
    */
   public boolean writeData( DataOutputStream dos ) throws HopFileException {
@@ -1714,10 +1648,8 @@ public class Value implements Cloneable, XMLInterface, Serializable {
    * Read the data of a Value from a DataInputStream, the meta-data of the value has to be set before calling this
    * method!
    *
-   * @param dis
-   *          the DataInputStream to read from
-   * @throws HopFileException
-   *           when the value couldn't be read from the DataInputStream
+   * @param dis the DataInputStream to read from
+   * @throws HopFileException when the value couldn't be read from the DataInputStream
    */
   public Value( Value metaData, DataInputStream dis ) throws HopFileException {
     setValue( metaData );
@@ -1736,7 +1668,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
             if ( stringLength < 0 ) {
               setValue( (String) null );
             } else {
-              byte[] chars = new byte[stringLength];
+              byte[] chars = new byte[ stringLength ];
               dis.readFully( chars );
               setValue( new String( chars, Const.XML_ENCODING ) );
             }
@@ -1789,8 +1721,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Compare 2 values of the same or different type! The comparison of Strings is case insensitive
    *
-   * @param v
-   *          the value to compare with.
+   * @param v the value to compare with.
    * @return -1 if The value was smaller, 1 bigger and 0 if both values are equal.
    */
   public int compare( Value v ) {
@@ -1800,10 +1731,8 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Compare 2 values of the same or different type!
    *
-   * @param v
-   *          the value to compare with.
-   * @param caseInsensitive
-   *          True if you want the comparison to be case insensitive
+   * @param v               the value to compare with.
+   * @param caseInsensitive True if you want the comparison to be case insensitive
    * @return -1 if The value was smaller, 1 bigger and 0 if both values are equal.
    */
   public int compare( Value v, boolean caseInsensitive ) {
@@ -1887,8 +1816,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Check whether this value is equal to the String supplied.
    *
-   * @param string
-   *          The string to check for equality
+   * @param string The string to check for equality
    * @return true if the String representation of the value is equal to string. (ignoring case)
    */
   public boolean isEqualTo( String string ) {
@@ -1898,8 +1826,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Check whether this value is equal to the BigDecimal supplied.
    *
-   * @param number
-   *          The BigDecimal to check for equality
+   * @param number The BigDecimal to check for equality
    * @return true if the BigDecimal representation of the value is equal to number.
    */
   public boolean isEqualTo( BigDecimal number ) {
@@ -1909,8 +1836,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Check whether this value is equal to the Number supplied.
    *
-   * @param number
-   *          The Number to check for equality
+   * @param number The Number to check for equality
    * @return true if the Number representation of the value is equal to number.
    */
   public boolean isEqualTo( double number ) {
@@ -1920,8 +1846,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Check whether this value is equal to the Integer supplied.
    *
-   * @param number
-   *          The Integer to check for equality
+   * @param number The Integer to check for equality
    * @return true if the Integer representation of the value is equal to number.
    */
   public boolean isEqualTo( long number ) {
@@ -1931,8 +1856,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Check whether this value is equal to the Integer supplied.
    *
-   * @param number
-   *          The Integer to check for equality
+   * @param number The Integer to check for equality
    * @return true if the Integer representation of the value is equal to number.
    */
   public boolean isEqualTo( int number ) {
@@ -1942,8 +1866,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Check whether this value is equal to the Integer supplied.
    *
-   * @param number
-   *          The Integer to check for equality
+   * @param number The Integer to check for equality
    * @return true if the Integer representation of the value is equal to number.
    */
   public boolean isEqualTo( byte number ) {
@@ -1953,8 +1876,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Check whether this value is equal to the Date supplied.
    *
-   * @param date
-   *          The Date to check for equality
+   * @param date The Date to check for equality
    * @return true if the Date representation of the value is equal to date.
    */
   public boolean isEqualTo( Date date ) {
@@ -2729,8 +2651,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
    *
    * @param decimalPlaces
    * @return The rounded Number Value
-   * @throws HopValueException
-   *           in case it's not a number (or other problem).
+   * @throws HopValueException in case it's not a number (or other problem).
    */
   public Value round( int decimalPlaces ) throws HopValueException {
     if ( isNull() ) {
@@ -3327,14 +3248,14 @@ public class Value implements Cloneable, XMLInterface, Serializable {
       i = 0;
       found = false;
       while ( i < args.length - 1 && !found ) {
-        if ( this.equals( args[i] ) ) {
-          setValue( args[i + 1] );
+        if ( this.equals( args[ i ] ) ) {
+          setValue( args[ i + 1 ] );
           found = true;
         }
         i += 2;
       }
       if ( !found ) {
-        setValue( args[args.length - 1] );
+        setValue( args[ args.length - 1 ] );
       }
     } else {
       // ERROR with nr of arguments
@@ -3350,15 +3271,15 @@ public class Value implements Cloneable, XMLInterface, Serializable {
     if ( getType() == VALUE_TYPE_BOOLEAN ) {
       if ( args.length == 1 ) {
         if ( getBoolean() ) {
-          setValue( args[0] );
+          setValue( args[ 0 ] );
         } else {
           setNull();
         }
       } else if ( args.length == 2 ) {
         if ( getBoolean() ) {
-          setValue( args[0] );
+          setValue( args[ 0 ] );
         } else {
-          setValue( args[1] );
+          setValue( args[ 1 ] );
         }
       }
     } else {
@@ -3401,8 +3322,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Add a number of days to a Date value.
    *
-   * @param days
-   *          The number of days to add to the current date value
+   * @param days The number of days to add to the current date value
    * @return The resulting value
    * @throws HopValueException
    */
@@ -3505,7 +3425,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
       cal.setTime( getDate() );
 
       switch ( level ) {
-      // MONTHS
+        // MONTHS
         case 5:
           cal.set( Calendar.MONTH, 1 );
           // DAYS
@@ -3537,7 +3457,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Change a string into its hexadecimal representation. E.g. if Value contains string "a" afterwards it would contain
    * value "61".
-   *
+   * <p>
    * Note that transformations happen in groups of 2 hex characters, so the value of a characters is always in the range
    * 0-255.
    *
@@ -3561,8 +3481,8 @@ public class Value implements Cloneable, XMLInterface, Serializable {
     StringBuilder hexString = new StringBuilder( 2 * s.length );
 
     for ( int i = 0; i < s.length; i++ ) {
-      hexString.append( hexDigits[( s[i] & 0x00F0 ) >> 4] ); // hi nibble
-      hexString.append( hexDigits[s[i] & 0x000F] ); // lo nibble
+      hexString.append( hexDigits[ ( s[ i ] & 0x00F0 ) >> 4 ] ); // hi nibble
+      hexString.append( hexDigits[ s[ i ] & 0x000F ] ); // lo nibble
     }
 
     setValue( hexString );
@@ -3572,7 +3492,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Change a hexadecimal string into normal ASCII representation. E.g. if Value contains string "61" afterwards it
    * would contain value "a". If the hexadecimal string is of odd length a leading zero will be used.
-   *
+   * <p>
    * Note that only the low byte of a character will be processed, this is for binary transformations.
    *
    * @return Value itself
@@ -3589,7 +3509,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
     String hexString = getString();
 
     int len = hexString.length();
-    char[] chArray = new char[( len + 1 ) / 2];
+    char[] chArray = new char[ ( len + 1 ) / 2 ];
     boolean evenByte = true;
     int nextByte = 0;
 
@@ -3617,7 +3537,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
         nextByte = ( nibble << 4 );
       } else {
         nextByte += nibble;
-        chArray[j] = (char) nextByte;
+        chArray[ j ] = (char) nextByte;
         j++;
       }
 
@@ -3631,7 +3551,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Change a string into its hexadecimal representation. E.g. if Value contains string "a" afterwards it would contain
    * value "0061".
-   *
+   * <p>
    * Note that transformations happen in groups of 4 hex characters, so the value of a characters is always in the range
    * 0-65535.
    *
@@ -3652,10 +3572,10 @@ public class Value implements Cloneable, XMLInterface, Serializable {
     StringBuilder hexString = new StringBuilder( 2 * s.length );
 
     for ( int i = 0; i < s.length; i++ ) {
-      hexString.append( hexDigits[( s[i] & 0xF000 ) >> 12] ); // hex 1
-      hexString.append( hexDigits[( s[i] & 0x0F00 ) >> 8] ); // hex 2
-      hexString.append( hexDigits[( s[i] & 0x00F0 ) >> 4] ); // hex 3
-      hexString.append( hexDigits[s[i] & 0x000F] ); // hex 4
+      hexString.append( hexDigits[ ( s[ i ] & 0xF000 ) >> 12 ] ); // hex 1
+      hexString.append( hexDigits[ ( s[ i ] & 0x0F00 ) >> 8 ] ); // hex 2
+      hexString.append( hexDigits[ ( s[ i ] & 0x00F0 ) >> 4 ] ); // hex 3
+      hexString.append( hexDigits[ s[ i ] & 0x000F ] ); // hex 4
     }
 
     setValue( hexString );
@@ -3665,7 +3585,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Change a hexadecimal string into normal ASCII representation. E.g. if Value contains string "61" afterwards it
    * would contain value "a". If the hexadecimal string is of a wrong length leading zeroes will be used.
-   *
+   * <p>
    * Note that transformations happen in groups of 4 hex characters, so the value of a characters is always in the range
    * 0-65535.
    *
@@ -3683,7 +3603,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
     String hexString = getString();
 
     int len = hexString.length();
-    char[] chArray = new char[( len + 3 ) / 4];
+    char[] chArray = new char[ ( len + 3 ) / 4 ];
     int charNr;
     int nextChar = 0;
 
@@ -3720,7 +3640,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
       } else {
         // charNr == 1
         nextChar += nibble;
-        chArray[j] = (char) nextChar;
+        chArray[ j ] = (char) nextChar;
         charNr = 4;
         j++;
       }
@@ -3776,8 +3696,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Construct a new Value and read the data from XML
    *
-   * @param valnode
-   *          The XML Node to read from.
+   * @param valnode The XML Node to read from.
    */
   public Value( Node valnode ) {
     this();
@@ -3787,8 +3706,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Read the data for this Value from an XML Node
    *
-   * @param valnode
-   *          The XML Node to read from
+   * @param valnode The XML Node to read from
    * @return true if all went well, false if something went wrong.
    */
   public boolean loadXML( Node valnode ) {
@@ -3823,8 +3741,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Convert this Value from type String to another type
    *
-   * @param newtype
-   *          The Value type to convert to.
+   * @param newtype The Value type to convert to.
    */
   public void convertString( int newtype ) throws HopValueException {
     switch ( newtype ) {
@@ -3857,9 +3774,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
   /**
    * Returns whether "types" of the values are exactly the same: type, name, length, precision.
    *
-   * @param v
-   *          Value to compare type against.
-   *
+   * @param v Value to compare type against.
    * @return == true when types are the same == false when the types differ
    */
   public boolean equalValueType( Value v, boolean checkTypeOnly ) {
@@ -3897,8 +3812,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
    * Merges another Value. That means, that if the other Value has got the same name and is of the same type as this
    * Value, it's real field value is set as this this' value, if our value is <code>null</code> or empty
    *
-   * @param other
-   *          The other value
+   * @param other The other value
    */
   public void merge( Value other ) {
     // Prechecks: Not null (of course) and same name and same type

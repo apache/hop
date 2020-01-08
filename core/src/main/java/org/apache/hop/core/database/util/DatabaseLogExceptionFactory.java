@@ -53,9 +53,8 @@ public class DatabaseLogExceptionFactory {
    * be used.
    * </p>
    *
-   * @param table
-   *     logging table that participated in exception. Must be instance of {@link LogTableCoreInterface}, otherwise
-   *     default suppress exception behavior will be used.
+   * @param table logging table that participated in exception. Must be instance of {@link LogTableCoreInterface}, otherwise
+   *              default suppress exception behavior will be used.
    * @return
    * @see {@link org.apache.hop.core.Const#HOP_VARIABLES_FILE}
    */
@@ -79,12 +78,10 @@ public class DatabaseLogExceptionFactory {
    * with short message can be chosen, otherwise throwable behavior will be used
    * </p>
    *
-   * @param table
-   *     logging table that participated in exception. Must be instance of {@link LogTableCoreInterface}, otherwise
-   *     default suppress exception behavior will be used.
-   * @param e
-   *     if key-value pair is not defined or value is set to FALSE/N, e will be checked and suppressable strategy
-   *     with short message can be chosen.
+   * @param table logging table that participated in exception. Must be instance of {@link LogTableCoreInterface}, otherwise
+   *              default suppress exception behavior will be used.
+   * @param e     if key-value pair is not defined or value is set to FALSE/N, e will be checked and suppressable strategy
+   *              with short message can be chosen.
    * @return
    * @see {@link org.apache.hop.core.Const#HOP_VARIABLES_FILE}
    */
@@ -122,12 +119,12 @@ public class DatabaseLogExceptionFactory {
 
     @Override
     public void registerException( LogChannelInterface log, Class<?> packageClass, String key, String... parameters )
-        throws HopDatabaseException {
+      throws HopDatabaseException {
       throw new HopDatabaseException( BaseMessages.getString( packageClass, key, parameters ) );
     }
 
     @Override public void registerException( LogChannelInterface log, Exception e, Class<?> packageClass, String key,
-        String... parameters ) throws HopDatabaseException {
+                                             String... parameters ) throws HopDatabaseException {
       throw new HopDatabaseException( BaseMessages.getString( packageClass, key, parameters ), e );
     }
   }
@@ -143,7 +140,7 @@ public class DatabaseLogExceptionFactory {
     }
 
     @Override public void registerException( LogChannelInterface log, Exception e, Class<?> packageClass, String key,
-        String... parameters ) throws HopDatabaseException {
+                                             String... parameters ) throws HopDatabaseException {
       log.logError( BaseMessages.getString( packageClass, key, parameters ), e );
     }
   }
@@ -154,7 +151,7 @@ public class DatabaseLogExceptionFactory {
   private static class SuppressableWithShortMessage extends SuppressBehaviour {
 
     @Override public void registerException( LogChannelInterface log, Exception e, Class<?> packageClass, String key,
-        String... parameters ) throws HopDatabaseException {
+                                             String... parameters ) throws HopDatabaseException {
       registerException( log, packageClass, key, parameters );
       log.logError( e.getMessage() );
     }

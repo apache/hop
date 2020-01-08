@@ -22,20 +22,19 @@
 
 package org.apache.hop.trans.steps.denormaliser;
 
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Data structure used by Denormaliser during processing
  *
  * @author Matt
  * @since 19-jan-2006
- *
  */
 public class DenormaliserData extends BaseStepData implements StepDataInterface {
   public RowMetaInterface outputRowMeta;

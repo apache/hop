@@ -22,13 +22,13 @@
 
 package org.apache.hop.trans.steps.fileinput.text;
 
-import org.junit.Before;
-import org.junit.Ignore;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.trans.steps.file.BaseFileField;
 import org.apache.hop.trans.steps.fileinput.BaseParsingTest;
+import org.junit.Before;
+import org.junit.Ignore;
 
 /**
  * Base class for all TextFileInput step tests.
@@ -72,7 +72,7 @@ public abstract class BaseTextParsingTest extends BaseParsingTest<TextFileInputM
 
   /**
    * Declare fields for test.
-   * 
+   * <p>
    * TODO: move to BaseParsingTest after CSV moving to BaseFileInput
    */
   protected void setFields( BaseFileField... fields ) throws Exception {

@@ -28,12 +28,14 @@ public interface TwoWayPasswordEncoderInterface {
 
   /**
    * Initialize the password encoder by loading key details from the environment (kettle.properties or system settings).
+   *
    * @throws HopException
    */
   public void init() throws HopException;
 
   /**
    * Encode the raw password, include a prefix indicating the type of encryption used.
+   *
    * @param password The password to encode
    * @return The encoded password string
    */
@@ -41,7 +43,8 @@ public interface TwoWayPasswordEncoderInterface {
 
   /**
    * Encode a password.
-   * @param password The password to encode
+   *
+   * @param password      The password to encode
    * @param includePrefix True if a prefix needs to be encoded
    * @return The encoded password string
    */
@@ -49,7 +52,8 @@ public interface TwoWayPasswordEncoderInterface {
 
   /**
    * Decode a password.
-   * @param encodedPassword The encoded password with or without a prefix
+   *
+   * @param encodedPassword     The encoded password with or without a prefix
    * @param optionallyEncrypted Set to true if the password is optionally encrypted (indicated by a prefix).
    * @return The decoded password string
    */
@@ -57,6 +61,7 @@ public interface TwoWayPasswordEncoderInterface {
 
   /**
    * Decode a password which does NOT have a prefix attached.
+   *
    * @param encodedPassword The encoded password without a prefix
    * @return The decoded password string
    */

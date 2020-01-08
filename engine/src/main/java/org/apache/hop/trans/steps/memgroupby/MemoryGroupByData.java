@@ -22,18 +22,17 @@
 
 package org.apache.hop.trans.steps.memgroupby;
 
-import java.util.HashMap;
-
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 
+import java.util.HashMap;
+
 /**
  * @author Matt
  * @since 24-jan-2005
- *
  */
 public class MemoryGroupByData extends BaseStepData implements StepDataInterface {
   public class HashEntry {
@@ -66,10 +65,10 @@ public class MemoryGroupByData extends BaseStepData implements StepDataInterface
     }
 
     private Object[] getHashValue() throws HopValueException {
-      Object[] groupDataHash = new Object[groupMeta.size()];
+      Object[] groupDataHash = new Object[ groupMeta.size() ];
       for ( int i = 0; i < groupMeta.size(); i++ ) {
         ValueMetaInterface valueMeta = groupMeta.getValueMeta( i );
-        groupDataHash[i] = valueMeta.convertToNormalStorageType( groupData[i] );
+        groupDataHash[ i ] = valueMeta.convertToNormalStorageType( groupData[ i ] );
       }
       return groupDataHash;
     }

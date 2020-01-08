@@ -22,21 +22,20 @@
 
 package org.apache.hop.core.row.value;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.ValueMetaInterface;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 /**
  * This class will hand out value meta objects from the plugin registry.
  *
  * @author matt
- *
  */
 public class ValueMetaFactory {
 
@@ -117,29 +116,29 @@ public class ValueMetaFactory {
     List<String> strings = new ArrayList<String>();
     List<PluginInterface> plugins = pluginRegistry.getPlugins( ValueMetaPluginType.class );
     for ( PluginInterface plugin : plugins ) {
-      int id = Integer.valueOf( plugin.getIds()[0] );
+      int id = Integer.valueOf( plugin.getIds()[ 0 ] );
       if ( id > 0 && id != ValueMetaInterface.TYPE_SERIALIZABLE ) {
         strings.add( plugin.getName() );
       }
     }
-    return strings.toArray( new String[strings.size()] );
+    return strings.toArray( new String[ strings.size() ] );
   }
 
   public static String[] getAllValueMetaNames() {
     List<String> strings = new ArrayList<String>();
     List<PluginInterface> plugins = pluginRegistry.getPlugins( ValueMetaPluginType.class );
     for ( PluginInterface plugin : plugins ) {
-      String id = plugin.getIds()[0];
+      String id = plugin.getIds()[ 0 ];
       if ( !( "0".equals( id ) ) ) {
         strings.add( plugin.getName() );
       }
     }
-    return strings.toArray( new String[strings.size()] );
+    return strings.toArray( new String[ strings.size() ] );
   }
 
   public static String getValueMetaName( int type ) {
     for ( PluginInterface plugin : pluginRegistry.getPlugins( ValueMetaPluginType.class ) ) {
-      if ( Integer.toString( type ).equals( plugin.getIds()[0] ) ) {
+      if ( Integer.toString( type ).equals( plugin.getIds()[ 0 ] ) ) {
         return plugin.getName();
       }
     }
@@ -149,7 +148,7 @@ public class ValueMetaFactory {
   public static int getIdForValueMeta( String valueMetaName ) {
     for ( PluginInterface plugin : pluginRegistry.getPlugins( ValueMetaPluginType.class ) ) {
       if ( valueMetaName != null && valueMetaName.equalsIgnoreCase( plugin.getName() ) ) {
-        return Integer.valueOf( plugin.getIds()[0] );
+        return Integer.valueOf( plugin.getIds()[ 0 ] );
       }
     }
     return ValueMetaInterface.TYPE_NONE;

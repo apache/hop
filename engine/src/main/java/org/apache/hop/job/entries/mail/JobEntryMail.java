@@ -22,18 +22,32 @@
 
 package org.apache.hop.job.entries.mail;
 
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileType;
+import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.gui.JobTracker;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobEntryResult;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.JobEntryBase;
+import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.resource.ResourceEntry;
+import org.apache.hop.resource.ResourceEntry.ResourceType;
+import org.apache.hop.resource.ResourceReference;
+import org.w3c.dom.Node;
 
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
@@ -48,41 +62,20 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileType;
-import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.gui.JobTracker;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobEntryResult;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
-
-import org.apache.hop.resource.ResourceEntry;
-import org.apache.hop.resource.ResourceEntry.ResourceType;
-import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.w3c.dom.Node;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Describes a Mail Job Entry.
  *
  * @author Matt Created on 17-06-2003
- *
  */
 public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInterface {
   private static Class<?> PKG = JobEntryMail.class; // for i18n purposes, needed by Translator2!!
@@ -95,10 +88,14 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
 
   private String destinationBCc;
 
-  /** Caution : It's sender address and NOT reply address **/
+  /**
+   * Caution : It's sender address and NOT reply address
+   **/
   private String replyAddress;
 
-  /** Caution : It's sender name name and NOT reply name **/
+  /**
+   * Caution : It's sender name name and NOT reply name
+   **/
   private String replyName;
 
   private String subject;
@@ -143,10 +140,14 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
 
   private String secureConnectionType;
 
-  /** The encoding to use for reading: null or empty string means system default encoding */
+  /**
+   * The encoding to use for reading: null or empty string means system default encoding
+   */
   private String encoding;
 
-  /** The reply to addresses */
+  /**
+   * The reply to addresses
+   */
   private String replyToAddresses;
 
   public String[] embeddedimages;
@@ -164,12 +165,12 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   public void allocate( int nrFileTypes ) {
-    fileType = new int[nrFileTypes];
+    fileType = new int[ nrFileTypes ];
   }
 
   public void allocateImages( int nrImages ) {
-    embeddedimages = new String[nrImages];
-    contentids = new String[nrImages];
+    embeddedimages = new String[ nrImages ];
+    contentids = new String[ nrImages ];
   }
 
   public Object clone() {
@@ -232,7 +233,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
     if ( fileType != null ) {
       for ( int i = 0; i < fileType.length; i++ ) {
         retval.append( "        " ).append(
-          XMLHandler.addTagValue( "filetype", ResultFile.getTypeCode( fileType[i] ) ) );
+          XMLHandler.addTagValue( "filetype", ResultFile.getTypeCode( fileType[ i ] ) ) );
       }
     }
     retval.append( "      </filetypes>" );
@@ -241,8 +242,8 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
     if ( embeddedimages != null ) {
       for ( int i = 0; i < embeddedimages.length; i++ ) {
         retval.append( "        <embeddedimage>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "image_name", embeddedimages[i] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "content_id", contentids[i] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "image_name", embeddedimages[ i ] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "content_id", contentids[ i ] ) );
         retval.append( "        </embeddedimage>" ).append( Const.CR );
       }
     }
@@ -251,10 +252,10 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       setServer( XMLHandler.getTagValue( entrynode, "server" ) );
       setPort( XMLHandler.getTagValue( entrynode, "port" ) );
       setDestination( XMLHandler.getTagValue( entrynode, "destination" ) );
@@ -291,7 +292,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
       allocate( nrTypes );
       for ( int i = 0; i < nrTypes; i++ ) {
         Node ftnode = XMLHandler.getSubNodeByNr( ftsnode, "filetype", i );
-        fileType[i] = ResultFile.getType( XMLHandler.getNodeValue( ftnode ) );
+        fileType[ i ] = ResultFile.getType( XMLHandler.getNodeValue( ftnode ) );
       }
 
       setZipFiles( "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "zip_files" ) ) );
@@ -308,8 +309,8 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
       for ( int i = 0; i < nrImages; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( images, "embeddedimage", i );
 
-        embeddedimages[i] = XMLHandler.getTagValue( fnode, "image_name" );
-        contentids[i] = XMLHandler.getTagValue( fnode, "content_id" );
+        embeddedimages[ i ] = XMLHandler.getTagValue( fnode, "image_name" );
+        contentids[ i ] = XMLHandler.getTagValue( fnode, "content_id" );
       }
 
     } catch ( HopException xe ) {
@@ -415,8 +416,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param fileType
-   *          the result file types to select for attachment
+   * @param fileType the result file types to select for attachment
    * @see ResultFile
    */
   public void setFileType( int[] fileType ) {
@@ -439,8 +439,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param zipFilename
-   *          The zipFilename to set.
+   * @param zipFilename The zipFilename to set.
    */
   public void setZipFilename( String zipFilename ) {
     this.zipFilename = zipFilename;
@@ -454,8 +453,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param zipFiles
-   *          The zipFiles to set.
+   * @param zipFiles The zipFiles to set.
    */
   public void setZipFiles( boolean zipFiles ) {
     this.zipFiles = zipFiles;
@@ -469,8 +467,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param authenticationPassword
-   *          The authenticationPassword to set.
+   * @param authenticationPassword The authenticationPassword to set.
    */
   public void setAuthenticationPassword( String authenticationPassword ) {
     this.authenticationPassword = authenticationPassword;
@@ -484,8 +481,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param authenticationUser
-   *          The authenticationUser to set.
+   * @param authenticationUser The authenticationUser to set.
    */
   public void setAuthenticationUser( String authenticationUser ) {
     this.authenticationUser = authenticationUser;
@@ -499,8 +495,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param usingAuthentication
-   *          The usingAuthentication to set.
+   * @param usingAuthentication The usingAuthentication to set.
    */
   public void setUsingAuthentication( boolean usingAuthentication ) {
     this.usingAuthentication = usingAuthentication;
@@ -514,8 +509,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param onlySendComment
-   *          the onlySendComment flag to set
+   * @param onlySendComment the onlySendComment flag to set
    */
   public void setOnlySendComment( boolean onlySendComment ) {
     this.onlySendComment = onlySendComment;
@@ -529,8 +523,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param useHTML
-   *          the useHTML to set
+   * @param useHTML the useHTML to set
    */
   public void setUseHTML( boolean useHTML ) {
     this.useHTML = useHTML;
@@ -551,24 +544,21 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param secureConnectionType
-   *          the secure connection type to set
+   * @param secureConnectionType the secure connection type to set
    */
   public void setSecureConnectionType( String secureConnectionType ) {
     this.secureConnectionType = secureConnectionType;
   }
 
   /**
-   * @param encoding
-   *          the encoding to set
+   * @param encoding the encoding to set
    */
   public void setEncoding( String encoding ) {
     this.encoding = encoding;
   }
 
   /**
-   * @param replyToAddresses
-   *          the replayToAddresses to set
+   * @param replyToAddresses the replayToAddresses to set
    */
   public void setReplyToAddresses( String replyToAddresses ) {
     this.replyToAddresses = replyToAddresses;
@@ -582,8 +572,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param usePriority
-   *          the usePriority to set
+   * @param usePriority the usePriority to set
    */
   public void setUsePriority( boolean usePriority ) {
     this.usePriority = usePriority;
@@ -604,8 +593,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param importance
-   *          the importance to set
+   * @param importance the importance to set
    */
   public void setImportance( String importance ) {
     this.importance = importance;
@@ -627,8 +615,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param priority
-   *          the priority to set
+   * @param priority the priority to set
    */
   public void setPriority( String priority ) {
     this.priority = priority;
@@ -726,18 +713,18 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
       if ( !Utils.isEmpty( reply_to_address ) ) {
         // Split the mail-address: space separated
         String[] reply_Address_List = environmentSubstitute( reply_to_address ).split( " " );
-        InternetAddress[] address = new InternetAddress[reply_Address_List.length];
+        InternetAddress[] address = new InternetAddress[ reply_Address_List.length ];
         for ( int i = 0; i < reply_Address_List.length; i++ ) {
-          address[i] = new InternetAddress( reply_Address_List[i] );
+          address[ i ] = new InternetAddress( reply_Address_List[ i ] );
         }
         msg.setReplyTo( address );
       }
 
       // Split the mail-address: space separated
       String[] destinations = environmentSubstitute( destination ).split( " " );
-      InternetAddress[] address = new InternetAddress[destinations.length];
+      InternetAddress[] address = new InternetAddress[ destinations.length ];
       for ( int i = 0; i < destinations.length; i++ ) {
-        address[i] = new InternetAddress( destinations[i] );
+        address[ i ] = new InternetAddress( destinations[ i ] );
       }
       msg.setRecipients( Message.RecipientType.TO, address );
 
@@ -745,9 +732,9 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
       if ( !Utils.isEmpty( realCC ) ) {
         // Split the mail-address Cc: space separated
         String[] destinationsCc = realCC.split( " " );
-        InternetAddress[] addressCc = new InternetAddress[destinationsCc.length];
+        InternetAddress[] addressCc = new InternetAddress[ destinationsCc.length ];
         for ( int i = 0; i < destinationsCc.length; i++ ) {
-          addressCc[i] = new InternetAddress( destinationsCc[i] );
+          addressCc[ i ] = new InternetAddress( destinationsCc[ i ] );
         }
 
         msg.setRecipients( Message.RecipientType.CC, addressCc );
@@ -757,9 +744,9 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
       if ( !Utils.isEmpty( realBCc ) ) {
         // Split the mail-address BCc: space separated
         String[] destinationsBCc = realBCc.split( " " );
-        InternetAddress[] addressBCc = new InternetAddress[destinationsBCc.length];
+        InternetAddress[] addressBCc = new InternetAddress[ destinationsBCc.length ];
         for ( int i = 0; i < destinationsBCc.length; i++ ) {
-          addressBCc[i] = new InternetAddress( destinationsBCc[i] );
+          addressBCc[ i ] = new InternetAddress( destinationsBCc[ i ] );
         }
 
         msg.setRecipients( Message.RecipientType.BCC, addressBCc );
@@ -798,39 +785,39 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
         messageText.append( "-----------------" ).append( endRow );
         messageText
           .append( BaseMessages.getString( PKG, "JobMail.Log.Comment.JobEntryNr" ) + "         : " ).append(
-            result.getEntryNr() ).append( endRow );
+          result.getEntryNr() ).append( endRow );
         messageText
           .append( BaseMessages.getString( PKG, "JobMail.Log.Comment.Errors" ) + "               : " ).append(
-            result.getNrErrors() ).append( endRow );
+          result.getNrErrors() ).append( endRow );
         messageText
           .append( BaseMessages.getString( PKG, "JobMail.Log.Comment.LinesRead" ) + "           : " ).append(
-            result.getNrLinesRead() ).append( endRow );
+          result.getNrLinesRead() ).append( endRow );
         messageText
           .append( BaseMessages.getString( PKG, "JobMail.Log.Comment.LinesWritten" ) + "        : " ).append(
-            result.getNrLinesWritten() ).append( endRow );
+          result.getNrLinesWritten() ).append( endRow );
         messageText
           .append( BaseMessages.getString( PKG, "JobMail.Log.Comment.LinesInput" ) + "          : " ).append(
-            result.getNrLinesInput() ).append( endRow );
+          result.getNrLinesInput() ).append( endRow );
         messageText
           .append( BaseMessages.getString( PKG, "JobMail.Log.Comment.LinesOutput" ) + "         : " ).append(
-            result.getNrLinesOutput() ).append( endRow );
+          result.getNrLinesOutput() ).append( endRow );
         messageText
           .append( BaseMessages.getString( PKG, "JobMail.Log.Comment.LinesUpdated" ) + "        : " ).append(
-            result.getNrLinesUpdated() ).append( endRow );
+          result.getNrLinesUpdated() ).append( endRow );
         messageText
           .append( BaseMessages.getString( PKG, "JobMail.Log.Comment.LinesRejected" ) + "       : " ).append(
-            result.getNrLinesRejected() ).append( endRow );
+          result.getNrLinesRejected() ).append( endRow );
         messageText.append( BaseMessages.getString( PKG, "JobMail.Log.Comment.Status" ) + "  : " ).append(
           result.getExitStatus() ).append( endRow );
         messageText
           .append( BaseMessages.getString( PKG, "JobMail.Log.Comment.Result" ) + "               : " ).append(
-            result.getResult() ).append( endRow );
+          result.getResult() ).append( endRow );
         messageText.append( endRow );
       }
 
       if ( !onlySendComment
         && ( !Utils.isEmpty( environmentSubstitute( contactPerson ) ) || !Utils
-          .isEmpty( environmentSubstitute( contactPhone ) ) ) ) {
+        .isEmpty( environmentSubstitute( contactPhone ) ) ) ) {
         messageText.append( BaseMessages.getString( PKG, "JobMail.Log.Comment.ContactInfo" ) + " :" ).append(
           endRow );
         messageText.append( "---------------------" ).append( endRow );
@@ -886,7 +873,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
               if ( file != null && file.exists() ) {
                 boolean found = false;
                 for ( int i = 0; i < fileType.length; i++ ) {
-                  if ( fileType[i] == resultFile.getType() ) {
+                  if ( fileType[ i ] == resultFile.getType() ) {
                     found = true;
                   }
                 }
@@ -922,7 +909,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
               for ( ResultFile resultFile : resultFiles ) {
                 boolean found = false;
                 for ( int i = 0; i < fileType.length; i++ ) {
-                  if ( fileType[i] == resultFile.getType() ) {
+                  if ( fileType[ i ] == resultFile.getType() ) {
                     found = true;
                   }
                 }
@@ -984,8 +971,8 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
       if ( embeddedimages != null && embeddedimages.length > 0 ) {
         FileObject imageFile = null;
         for ( int i = 0; i < embeddedimages.length; i++ ) {
-          String realImageFile = environmentSubstitute( embeddedimages[i] );
-          String realcontenID = environmentSubstitute( contentids[i] );
+          String realImageFile = environmentSubstitute( embeddedimages[ i ] );
+          String realcontenID = environmentSubstitute( contentids[ i ] );
           if ( messageText.indexOf( "cid:" + realcontenID ) < 0 ) {
             if ( log.isDebug() ) {
               log.logDebug( "Image [" + realImageFile + "] is not used in message body!" );
@@ -1080,7 +1067,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
           if ( invalid != null ) {
             logError( "    ** Invalid Addresses" );
             for ( int i = 0; i < invalid.length; i++ ) {
-              logError( "         " + invalid[i] );
+              logError( "         " + invalid[ i ] );
               result.setNrErrors( 1 );
             }
           }
@@ -1089,7 +1076,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
           if ( validUnsent != null ) {
             logError( "    ** ValidUnsent Addresses" );
             for ( int i = 0; i < validUnsent.length; i++ ) {
-              logError( "         " + validUnsent[i] );
+              logError( "         " + validUnsent[ i ] );
               result.setNrErrors( 1 );
             }
           }
@@ -1098,7 +1085,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
           if ( validSent != null ) {
             // System.out.println("    ** ValidSent Addresses");
             for ( int i = 0; i < validSent.length; i++ ) {
-              logError( "         " + validSent[i] );
+              logError( "         " + validSent[ i ] );
               result.setNrErrors( 1 );
             }
           }
@@ -1182,8 +1169,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param usingSecureAuthentication
-   *          the usingSecureAuthentication to set
+   * @param usingSecureAuthentication the usingSecureAuthentication to set
    */
   public void setUsingSecureAuthentication( boolean usingSecureAuthentication ) {
     this.usingSecureAuthentication = usingSecureAuthentication;
@@ -1197,8 +1183,7 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param port
-   *          the port to set
+   * @param port the port to set
    */
   public void setPort( String port ) {
     this.port = port;
@@ -1215,32 +1200,32 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
 
     JobEntryValidatorUtils.andValidator().validate( this, "server", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator()
       .validate( this, "replyAddress", remarks, AndValidator.putValidators(
-          JobEntryValidatorUtils.notBlankValidator(), JobEntryValidatorUtils.emailValidator() ) );
+        JobEntryValidatorUtils.notBlankValidator(), JobEntryValidatorUtils.emailValidator() ) );
 
     JobEntryValidatorUtils.andValidator().validate( this, "destination", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
 
     if ( usingAuthentication ) {
       JobEntryValidatorUtils.andValidator().validate( this, "authenticationUser", remarks,
-          AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
       JobEntryValidatorUtils.andValidator().validate( this, "authenticationPassword", remarks,
-          AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
+        AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
     }
 
     JobEntryValidatorUtils.andValidator().validate( this, "port", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.integerValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.integerValidator() ) );
 
   }
 
   public String getPassword( String authPassword ) {
     return Encr.decryptPasswordOptionallyEncrypted(
-        environmentSubstitute( Const.NVL( authPassword, "" ) ) );
+      environmentSubstitute( Const.NVL( authPassword, "" ) ) );
   }
 
 }

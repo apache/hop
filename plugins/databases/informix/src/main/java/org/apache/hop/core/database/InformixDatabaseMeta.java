@@ -36,14 +36,14 @@ import org.apache.hop.core.row.ValueMetaInterface;
  * @since 11-mrt-2005
  */
 @DatabaseMetaPlugin(
-        type = "INFORMIX",
-        typeDescription = "Informix"
+  type = "INFORMIX",
+  typeDescription = "Informix"
 )
-@GuiPlugin( id="GUI-InformixDatabaseMeta" )
+@GuiPlugin( id = "GUI-InformixDatabaseMeta" )
 public class InformixDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
 
   @GuiElement(
-    id="servername",
+    id = "servername",
     order = "10",
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.TEXT,
@@ -130,52 +130,40 @@ public class InformixDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
   /**
    * Generates the SQL statement to add a column to the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
   public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                       String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " ADD " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
   public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                          String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " MODIFY " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
   }
 
   @Override
   public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-    boolean add_fieldname, boolean add_cr ) {
+                                    boolean add_fieldname, boolean add_cr ) {
     String retval = "";
 
     String fieldname = v.getName();
@@ -254,7 +242,7 @@ public class InformixDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
   public String getSQLLockTables( String[] tableNames ) {
     String sql = "";
     for ( int i = 0; i < tableNames.length; i++ ) {
-      sql += "LOCK TABLE " + tableNames[i] + " IN EXCLUSIVE MODE;" + Const.CR;
+      sql += "LOCK TABLE " + tableNames[ i ] + " IN EXCLUSIVE MODE;" + Const.CR;
     }
     return sql;
   }
@@ -271,12 +259,9 @@ public class InformixDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
   /**
    * Get the SQL to insert a new empty unknown record in a dimension.
    *
-   * @param schemaTable
-   *          the schema-table name to insert into
-   * @param keyField
-   *          The key field
-   * @param versionField
-   *          the version field
+   * @param schemaTable  the schema-table name to insert into
+   * @param keyField     The key field
+   * @param versionField the version field
    * @return the SQL to insert the unknown record into the SCD.
    */
   @Override
@@ -285,6 +270,8 @@ public class InformixDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
   }
 
   @Override
-  public boolean isInformixVariant() { return true; }
+  public boolean isInformixVariant() {
+    return true;
+  }
 
 }

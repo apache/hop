@@ -21,14 +21,14 @@
  ******************************************************************************/
 package org.apache.hop.pan;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.base.CommandExecutorCodes;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -40,7 +40,6 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -52,18 +51,18 @@ public class PanIT {
   private static final String FINISHED_PROCESSING_ERROR_COUNT_REGEX = "(.*)\\sFinished processing\\s(.*)(E=){1}(.*)\\)";
   private static final Pattern FINISHED_PROCESSING_ERROR_COUNT_PATTERN = Pattern.compile( FINISHED_PROCESSING_ERROR_COUNT_REGEX );
 
-  private static final String BASE_PATH = "." +  File.separator + "test_ktrs" + File.separator;
+  private static final String BASE_PATH = "." + File.separator + "test_ktrs" + File.separator;
   private static final String EXPECTED_COMPLETE_WITH_SUCCESS_PATH = BASE_PATH + "expected_complete_with_success";
   private static final String EXPECTED_COMPLETE_WITH_FAILURE_PATH = BASE_PATH + "expected_complete_with_failure";
 
   private static final String[] KTRS_EXPECTED_COMPLETE_WITH_SUCCESS = new String[] {
-          "runs_well_hello_world.ktr"
+    "runs_well_hello_world.ktr"
   };
 
   private static final String[] KTRS_EXPECTED_COMPLETE_WITH_FAILURE = new String[] {
-          "fail_on_exec_hello_world.ktr",
-          "fail_on_exec_2_hello_world.ktr",
-          "fail_on_prep_hello_world.ktr"
+    "fail_on_exec_hello_world.ktr",
+    "fail_on_exec_2_hello_world.ktr",
+    "fail_on_prep_hello_world.ktr"
   };
 
   private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
@@ -109,7 +108,7 @@ public class PanIT {
       // use FINISHED_PROCESSING_ERROR_COUNT_REGEX to get execution error count
       int errorCount = parseErrorCount( logFileContent );
 
-      assertTrue( !logFileContent.contains( FAILED_TO_INITIALIZE_ERROR_PATTERN ) &&  errorCount == 0 );
+      assertTrue( !logFileContent.contains( FAILED_TO_INITIALIZE_ERROR_PATTERN ) && errorCount == 0 );
 
       Result result = Pan.getCommandExecutor().getResult();
       assertNotNull( result );
@@ -147,7 +146,7 @@ public class PanIT {
       // use FINISHED_PROCESSING_ERROR_COUNT_REGEX to get execution error count
       int errorCount = parseErrorCount( logFileContent );
 
-      assertTrue( !logFileContent.contains( FAILED_TO_INITIALIZE_ERROR_PATTERN ) &&  errorCount == 0 );
+      assertTrue( !logFileContent.contains( FAILED_TO_INITIALIZE_ERROR_PATTERN ) && errorCount == 0 );
 
       Result result = Pan.getCommandExecutor().getResult();
       assertNotNull( result );
@@ -176,7 +175,7 @@ public class PanIT {
 
       try {
 
-        Pan.main( new String[]{ "/file:" + testKTRFullPath, "/level:Basic", "/logfile:" + logFileFullPath } );
+        Pan.main( new String[] { "/file:" + testKTRFullPath, "/level:Basic", "/logfile:" + logFileFullPath } );
 
       } catch ( SecurityException e ) {
         // All OK / expected: SecurityException is purposely thrown when Pan triggers System.exitJVM()
@@ -187,7 +186,7 @@ public class PanIT {
         // use FINISHED_PROCESSING_ERROR_COUNT_REGEX to get execution error count
         int errorCount = parseErrorCount( logFileContent );
 
-        assertTrue( logFileContent.contains( FAILED_TO_INITIALIZE_ERROR_PATTERN ) ||  errorCount > 0 );
+        assertTrue( logFileContent.contains( FAILED_TO_INITIALIZE_ERROR_PATTERN ) || errorCount > 0 );
 
         Result result = Pan.getCommandExecutor().getResult();
         assertNotNull( result );
@@ -217,7 +216,7 @@ public class PanIT {
 
       try {
 
-        Pan.main( new String[]{ "/file:" + testKTRFullPath, "/level:Basic", "/logfile:" + logFileFullPath } );
+        Pan.main( new String[] { "/file:" + testKTRFullPath, "/level:Basic", "/logfile:" + logFileFullPath } );
 
       } catch ( SecurityException e ) {
         // All OK / expected: SecurityException is purposely thrown when Pan triggers System.exitJVM()
@@ -228,7 +227,7 @@ public class PanIT {
         // use FINISHED_PROCESSING_ERROR_COUNT_REGEX to get execution error count
         int errorCount = parseErrorCount( logFileContent );
 
-        assertTrue( !logFileContent.contains( FAILED_TO_INITIALIZE_ERROR_PATTERN ) &&  errorCount == 0 );
+        assertTrue( !logFileContent.contains( FAILED_TO_INITIALIZE_ERROR_PATTERN ) && errorCount == 0 );
 
         Result result = Pan.getCommandExecutor().getResult();
         assertNotNull( result );
@@ -265,11 +264,11 @@ public class PanIT {
     try {
 
       Pan.main( new String[] {
-              "/file:" + testKTRFullPath,
-              "/level:Basic",
-              "/logfile:" + logFileFullPath,
-              "/param:" + param1Name + "=" + param1Val,
-              "/param:" + param2Name + "=" + param2Val
+        "/file:" + testKTRFullPath,
+        "/level:Basic",
+        "/logfile:" + logFileFullPath,
+        "/param:" + param1Name + "=" + param1Val,
+        "/param:" + param2Name + "=" + param2Val
       } );
 
     } catch ( SecurityException e ) {
@@ -303,7 +302,7 @@ public class PanIT {
 
     try {
       BufferedReader rd = new BufferedReader(
-              new InputStreamReader( this.getClass().getResourceAsStream( relativePath ) ) );
+        new InputStreamReader( this.getClass().getResourceAsStream( relativePath ) ) );
       StringBuffer logFileContentBuffer = new StringBuffer();
       String line = "";
       while ( ( line = rd.readLine() ) != null ) {

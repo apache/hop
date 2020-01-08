@@ -22,12 +22,13 @@
 
 package org.apache.hop.core.logging;
 
-import java.util.List;
-
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMetaInterface;
+
+import java.util.List;
+
 public interface LogTableCoreInterface {
 
   public String getConnectionName();
@@ -50,28 +51,24 @@ public interface LogTableCoreInterface {
 
   /**
    * @return The actual schema name taking into account optionally defined HOP variables for global logging
-   *         configuration
+   * configuration
    */
   public String getActualSchemaName();
 
   /**
    * @return The actual table name taking into account optionally defined HOP variabled for global logging
-   *         configuration
+   * configuration
    */
   public String getActualTableName();
 
   /**
    * Assemble the log record from the logging subject.
    *
-   * @param status
-   *          The status to log
-   * @param subject
-   *          The subject object to log
-   * @param parent
-   *          The parent object to log
+   * @param status  The status to log
+   * @param subject The subject object to log
+   * @param parent  The parent object to log
    * @return The log record to write
-   * @throws HopException
-   *           case there is a problem with the log record creation (incorrect settings, ...)
+   * @throws HopException case there is a problem with the log record creation (incorrect settings, ...)
    */
   public RowMetaAndData getLogRecord( LogStatus status, Object subject, Object parent ) throws HopException;
 
@@ -140,8 +137,7 @@ public interface LogTableCoreInterface {
   /**
    * Replace the metadata of the logtable with the one of the specified
    *
-   * @param logTableInterface
-   *          the new log table details
+   * @param logTableInterface the new log table details
    */
   public void replaceMeta( LogTableCoreInterface logTableInterface );
 }

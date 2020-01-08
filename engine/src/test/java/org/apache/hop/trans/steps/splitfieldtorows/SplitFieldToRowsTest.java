@@ -22,8 +22,8 @@
 
 package org.apache.hop.trans.steps.splitfieldtorows;
 
-import org.junit.Test;
 import org.apache.hop.trans.steps.StepMockUtil;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 

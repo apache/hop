@@ -22,6 +22,9 @@
 
 package org.apache.hop.compatibility;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
+
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
@@ -29,15 +32,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-
 /**
  * This class contains a Value of type String and the length by which it is described.
  *
  * @author Matt
  * @since 15-10-2004
- *
  */
 public class ValueString implements ValueInterface, Cloneable {
   private String string;
@@ -102,7 +101,7 @@ public class ValueString implements ValueInterface, Cloneable {
   @Override
   public long getInteger() {
     return Const.toLong( Const.ltrim( string ), 0L ); // Remove the leading space to make "int to string to int"
-                                                      // conversion possible.
+    // conversion possible.
   }
 
   @Override
@@ -200,11 +199,11 @@ public class ValueString implements ValueInterface, Cloneable {
     }
 
     char[] arr = string.toCharArray();
-    byte[] retByte = new byte[arr.length];
+    byte[] retByte = new byte[ arr.length ];
 
     for ( int i = 0; i < arr.length; i++ ) {
       // only take low byte of char.
-      retByte[i] = (byte) ( arr[i] & 0xFF );
+      retByte[ i ] = (byte) ( arr[ i ] & 0xFF );
     }
     return retByte;
   }

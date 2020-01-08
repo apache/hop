@@ -22,14 +22,14 @@
 
 package org.apache.hop.trans.steps.datagrid;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.trans.step.StepInjectionMetaEntry;
 import org.apache.hop.trans.step.StepMetaInjectionInterface;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * To keep it simple, this metadata injection interface only supports the fields in the spreadsheet for the time being.
@@ -210,15 +210,15 @@ public class DataGridMetaInjection implements StepMetaInjectionInterface {
       for ( int i = 0; i < gridMetaEntries.size(); i++ ) {
         GridMetaEntry entry = gridMetaEntries.get( i );
         //CHECKSTYLE:Indentation:OFF
-        meta.getFieldName()[i] = entry.fieldName;
-        meta.getFieldType()[i] = entry.fieldType;
-        meta.getFieldFormat()[i] = entry.fieldFormat;
-        meta.getFieldLength()[i] = entry.fieldLength;
-        meta.getFieldPrecision()[i] = entry.fieldPrecision;
-        meta.getCurrency()[i] = entry.currency;
-        meta.getGroup()[i] = entry.group;
-        meta.getDecimal()[i] = entry.decimal;
-        meta.isSetEmptyString()[i] = entry.setEmptyString;
+        meta.getFieldName()[ i ] = entry.fieldName;
+        meta.getFieldType()[ i ] = entry.fieldType;
+        meta.getFieldFormat()[ i ] = entry.fieldFormat;
+        meta.getFieldLength()[ i ] = entry.fieldLength;
+        meta.getFieldPrecision()[ i ] = entry.fieldPrecision;
+        meta.getCurrency()[ i ] = entry.currency;
+        meta.getGroup()[ i ] = entry.group;
+        meta.getDecimal()[ i ] = entry.decimal;
+        meta.isSetEmptyString()[ i ] = entry.setEmptyString;
       }
     }
 
@@ -240,21 +240,21 @@ public class DataGridMetaInjection implements StepMetaInjectionInterface {
   private enum Entry {
 
     FIELDS( ValueMetaInterface.TYPE_NONE, "All the fields" ),
-      FIELD( ValueMetaInterface.TYPE_NONE, "One field" ),
+    FIELD( ValueMetaInterface.TYPE_NONE, "One field" ),
 
-      NAME( FIELD, ValueMetaInterface.TYPE_STRING, "Field name" ),
-      TYPE( FIELD, ValueMetaInterface.TYPE_STRING, "Field data type" ),
-      FORMAT( FIELD, ValueMetaInterface.TYPE_STRING, "Field conversion format" ),
-      CURRENCY( FIELD, ValueMetaInterface.TYPE_STRING, "Field currency symbol" ),
-      DECIMAL( FIELD, ValueMetaInterface.TYPE_STRING, "Field decimal symbol" ),
-      GROUP( FIELD, ValueMetaInterface.TYPE_STRING, "Field group symbol" ),
-      LENGTH( FIELD, ValueMetaInterface.TYPE_STRING, "Field length" ),
-      PRECISION( FIELD, ValueMetaInterface.TYPE_STRING, "Field precision" ),
-      EMPTY_STRING( FIELD, ValueMetaInterface.TYPE_STRING, "Set field to empty string?" ),
+    NAME( FIELD, ValueMetaInterface.TYPE_STRING, "Field name" ),
+    TYPE( FIELD, ValueMetaInterface.TYPE_STRING, "Field data type" ),
+    FORMAT( FIELD, ValueMetaInterface.TYPE_STRING, "Field conversion format" ),
+    CURRENCY( FIELD, ValueMetaInterface.TYPE_STRING, "Field currency symbol" ),
+    DECIMAL( FIELD, ValueMetaInterface.TYPE_STRING, "Field decimal symbol" ),
+    GROUP( FIELD, ValueMetaInterface.TYPE_STRING, "Field group symbol" ),
+    LENGTH( FIELD, ValueMetaInterface.TYPE_STRING, "Field length" ),
+    PRECISION( FIELD, ValueMetaInterface.TYPE_STRING, "Field precision" ),
+    EMPTY_STRING( FIELD, ValueMetaInterface.TYPE_STRING, "Set field to empty string?" ),
 
-      DATA_LINES( ValueMetaInterface.TYPE_NONE, "Nr Rows x Nr Columns values" ),
-      DATA_LINE( DATA_LINES, ValueMetaInterface.TYPE_NONE, "One data value" ),
-      DATA_VALUE( DATA_LINE, ValueMetaInterface.TYPE_STRING, "One value" );
+    DATA_LINES( ValueMetaInterface.TYPE_NONE, "Nr Rows x Nr Columns values" ),
+    DATA_LINE( DATA_LINES, ValueMetaInterface.TYPE_NONE, "One data value" ),
+    DATA_VALUE( DATA_LINE, ValueMetaInterface.TYPE_STRING, "One value" );
 
     private int valueType;
     private String description;

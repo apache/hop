@@ -22,14 +22,11 @@
 
 package org.apache.hop.trans.steps.splitfieldtorows;
 
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -39,6 +36,9 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 public class SplitFieldToRows extends BaseStep implements StepInterface {
   private static Class<?> PKG = SplitFieldToRowsMeta.class; // for i18n purposes, needed by Translator2!!
 
@@ -46,7 +46,7 @@ public class SplitFieldToRows extends BaseStep implements StepInterface {
   private SplitFieldToRowsData data;
 
   public SplitFieldToRows( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,
-    TransMeta transMeta, Trans trans ) {
+                           TransMeta transMeta, Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -94,7 +94,7 @@ public class SplitFieldToRows extends BaseStep implements StepInterface {
       data.splitMeta = rowMeta.getValueMeta( data.fieldnr );
     }
 
-    String originalString = data.splitMeta.getString( rowData[data.fieldnr] );
+    String originalString = data.splitMeta.getString( rowData[ data.fieldnr ] );
     if ( originalString == null ) {
       originalString = "";
     }
@@ -106,10 +106,10 @@ public class SplitFieldToRows extends BaseStep implements StepInterface {
     String[] splitStrings = data.delimiterPattern.split( originalString, -1 );
     for ( String string : splitStrings ) {
       Object[] outputRow = RowDataUtil.createResizedCopy( rowData, data.outputRowMeta.size() );
-      outputRow[rowMeta.size()] = string;
+      outputRow[ rowMeta.size() ] = string;
       // Include row number in output?
       if ( meta.includeRowNumber() ) {
-        outputRow[rowMeta.size() + 1] = data.rownr;
+        outputRow[ rowMeta.size() + 1 ] = data.rownr;
       }
       putRow( data.outputRowMeta, outputRow );
       data.rownr++;

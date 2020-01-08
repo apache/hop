@@ -65,7 +65,7 @@ public class DetailsDialog extends MessageDialog {
       this.detailsText = new Text( composite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL );
       this.detailsText.pack();
       this.detailsText.setText( this.details );
-      GridData gridData = new GridData( );
+      GridData gridData = new GridData();
       gridData.widthHint = 1024;
       gridData.heightHint = 300;
       this.detailsText.setLayoutData( gridData );

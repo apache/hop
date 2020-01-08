@@ -22,26 +22,26 @@
 
 package org.apache.hop.job.entries.folderisempty;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.attribute.FileAttribute;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileAttribute;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 public class JobEntryFolderIsEmptyTest {
   private Job job;
@@ -71,11 +71,11 @@ public class JobEntryFolderIsEmptyTest {
 
     job.setStopped( false );
 
-    File dir = Files.createTempDirectory( "dir", new FileAttribute<?>[0] ).toFile();
+    File dir = Files.createTempDirectory( "dir", new FileAttribute<?>[ 0 ] ).toFile();
     dir.deleteOnExit();
     emptyDir = dir.getPath();
 
-    dir = Files.createTempDirectory( "dir", new FileAttribute<?>[0] ).toFile();
+    dir = Files.createTempDirectory( "dir", new FileAttribute<?>[ 0 ] ).toFile();
     dir.deleteOnExit();
     nonEmptyDir = dir.getPath();
 

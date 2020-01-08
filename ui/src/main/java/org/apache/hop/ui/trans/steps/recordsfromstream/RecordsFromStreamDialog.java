@@ -21,11 +21,11 @@
  ******************************************************************************/
 package org.apache.hop.ui.trans.steps.recordsfromstream;
 
-import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.steps.recordsfromstream.RecordsFromStreamMeta;
 import org.apache.hop.ui.trans.steps.rowsfromresult.RowsFromResultDialog;
+import org.eclipse.swt.widgets.Shell;
 
 public class RecordsFromStreamDialog extends RowsFromResultDialog {
   private static Class<?> PKG = RecordsFromStreamMeta.class; // for i18n purposes, needed by Translator2!!

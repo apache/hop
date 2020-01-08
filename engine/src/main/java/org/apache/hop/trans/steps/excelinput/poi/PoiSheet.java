@@ -22,11 +22,11 @@
 
 package org.apache.hop.trans.steps.excelinput.poi;
 
+import org.apache.hop.core.spreadsheet.KCell;
+import org.apache.hop.core.spreadsheet.KSheet;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.hop.core.spreadsheet.KCell;
-import org.apache.hop.core.spreadsheet.KSheet;
 
 public class PoiSheet implements KSheet {
   private Sheet sheet;
@@ -53,11 +53,11 @@ public class PoiSheet implements KSheet {
     if ( cols < 0 ) { // this happens if a row has no cells, POI returns -1 then
       return new KCell[] {};
     }
-    PoiCell[] xlsCells = new PoiCell[cols];
+    PoiCell[] xlsCells = new PoiCell[ cols ];
     for ( int i = 0; i < cols; i++ ) {
       Cell cell = row.getCell( i );
       if ( cell != null ) {
-        xlsCells[i] = new PoiCell( cell );
+        xlsCells[ i ] = new PoiCell( cell );
       }
     }
     return xlsCells;

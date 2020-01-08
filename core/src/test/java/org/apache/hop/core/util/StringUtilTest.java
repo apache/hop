@@ -22,11 +22,11 @@
 
 package org.apache.hop.core.util;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import junit.framework.TestCase;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Test class for the basic functionality of StringUtil.

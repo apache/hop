@@ -24,7 +24,22 @@ package org.apache.hop.trans;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.StepLogTable;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.trans.step.StepDataInterface;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.StepMetaDataCombi;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -33,23 +48,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.ProgressMonitorListener;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.logging.StepLogTable;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaDataCombi;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -66,7 +64,6 @@ import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -79,7 +76,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith ( MockitoJUnitRunner.class )
+@RunWith( MockitoJUnitRunner.class )
 public class TransTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
   @Mock private StepInterface stepMock, stepMock2;
@@ -110,7 +107,7 @@ public class TransTest {
   /**
    * PDI-14948 - Execution of trans with no steps never ends
    */
-  @Test ( timeout = 1000 )
+  @Test( timeout = 1000 )
   public void transWithNoStepsIsNotEndless() throws Exception {
     Trans transWithNoSteps = new Trans( new TransMeta() );
     transWithNoSteps = spy( transWithNoSteps );
@@ -233,7 +230,7 @@ public class TransTest {
     verify( mockListener ).transFinished( trans );
   }
 
-  @Test ( expected = HopException.class )
+  @Test( expected = HopException.class )
   public void testFireTransFinishedListenersExceptionOnTransFinished() throws Exception {
     Trans trans = new Trans();
     TransListener mockListener = mock( TransListener.class );
@@ -532,8 +529,8 @@ public class TransTest {
   }
 
   @Test
-  public void testSetInternalEntryCurrentDirectoryWithFilename( ) {
-    Trans transTest = new Trans(  );
+  public void testSetInternalEntryCurrentDirectoryWithFilename() {
+    Trans transTest = new Trans();
     boolean hasFilename = true;
     boolean hasRepoDir = false;
     transTest.copyVariablesFrom( null );
@@ -546,8 +543,8 @@ public class TransTest {
   }
 
   @Test
-  public void testSetInternalEntryCurrentDirectoryWithoutFilename( ) {
-    Trans transTest = new Trans(  );
+  public void testSetInternalEntryCurrentDirectoryWithoutFilename() {
+    Trans transTest = new Trans();
     transTest.copyVariablesFrom( null );
     boolean hasFilename = false;
     boolean hasRepoDir = false;
@@ -555,7 +552,7 @@ public class TransTest {
     transTest.setVariable( Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
     transTest.setInternalEntryCurrentDirectory( hasFilename );
 
-    assertEquals( "Original value defined at run execution", transTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY )  );
+    assertEquals( "Original value defined at run execution", transTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
   }
 
 }

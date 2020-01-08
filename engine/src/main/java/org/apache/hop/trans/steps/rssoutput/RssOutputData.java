@@ -22,20 +22,19 @@
 
 package org.apache.hop.trans.steps.rssoutput;
 
+import com.sun.syndication.feed.synd.SyndEntry;
+import com.sun.syndication.feed.synd.SyndFeed;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.trans.step.BaseStepData;
+import org.apache.hop.trans.step.StepDataInterface;
+import org.dom4j.Document;
+import org.dom4j.Element;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.trans.step.BaseStepData;
-import org.apache.hop.trans.step.StepDataInterface;
-
-import com.sun.syndication.feed.synd.SyndEntry;
-import com.sun.syndication.feed.synd.SyndFeed;
 
 /**
  * @author Samatar

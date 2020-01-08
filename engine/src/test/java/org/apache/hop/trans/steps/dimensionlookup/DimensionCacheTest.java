@@ -22,14 +22,14 @@
 
 package org.apache.hop.trans.steps.dimensionlookup;
 
-import java.sql.Timestamp;
-import java.util.Date;
-
-import org.junit.Test;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.util.Assert;
+import org.junit.Test;
+
+import java.sql.Timestamp;
+import java.util.Date;
 
 public class DimensionCacheTest {
 
@@ -75,15 +75,15 @@ public class DimensionCacheTest {
   }
 
   private static void assertCompareDateInterval( DimensionCache dc, Object from1, Object to1, Object from2, Object to2,
-      int expectedValue ) {
+                                                 int expectedValue ) {
 
     final int actualValue = dc.compare( new Object[] { from1, to1 }, new Object[] { from2, to2 } );
 
     boolean success = ( expectedValue == 0 && actualValue == 0 ) //
-        || ( expectedValue < 0 && actualValue < 0 ) //
-        || ( expectedValue > 0 && actualValue > 0 );
+      || ( expectedValue < 0 && actualValue < 0 ) //
+      || ( expectedValue > 0 && actualValue > 0 );
     Assert.assertTrue( success, "{0} expected, {1} actual. compare( [({2}), ({3})], [({4}), ({5})] )", //
-        expectedValue, actualValue, from1, to1, from2, to2 );
+      expectedValue, actualValue, from1, to1, from2, to2 );
   }
 
 }

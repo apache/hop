@@ -28,7 +28,6 @@ package org.apache.hop.core;
  * it can manipulate during loading of data.
  *
  * @author jamesdixon
- *
  */
 public interface TableManager {
 

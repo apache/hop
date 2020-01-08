@@ -22,14 +22,14 @@
 
 package org.apache.hop.ui.hopui.tree.provider;
 
-import org.apache.hop.ui.hopui.HopUi;
-import org.eclipse.swt.graphics.Image;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.TransHopMeta;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.widget.tree.TreeNode;
+import org.apache.hop.ui.hopui.HopUi;
+import org.eclipse.swt.graphics.Image;
 
 /**
  * Created by bmorrise on 6/28/18.

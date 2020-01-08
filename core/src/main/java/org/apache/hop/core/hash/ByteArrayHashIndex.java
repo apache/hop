@@ -53,7 +53,7 @@ public class ByteArrayHashIndex {
     this.size = factor2Size;
     this.resizeThresHold = (int) ( factor2Size * STANDARD_LOAD_FACTOR );
 
-    index = new ByteArrayHashIndexEntry[factor2Size];
+    index = new ByteArrayHashIndexEntry[ factor2Size ];
   }
 
   public ByteArrayHashIndex( RowMetaInterface keyRowMeta ) {
@@ -72,7 +72,7 @@ public class ByteArrayHashIndex {
     int hashCode = generateHashCode( key, keyRowMeta );
 
     int indexPointer = hashCode & ( index.length - 1 );
-    ByteArrayHashIndexEntry check = index[indexPointer];
+    ByteArrayHashIndexEntry check = index[ indexPointer ];
 
     while ( check != null ) {
       if ( check.hashCode == hashCode && check.equalsKey( key ) ) {
@@ -91,7 +91,7 @@ public class ByteArrayHashIndex {
     //
     boolean searchEmptySpot = false;
 
-    ByteArrayHashIndexEntry check = index[indexPointer];
+    ByteArrayHashIndexEntry check = index[ indexPointer ];
     ByteArrayHashIndexEntry previousCheck = null;
 
     while ( check != null ) {
@@ -116,19 +116,19 @@ public class ByteArrayHashIndex {
       if ( indexPointer >= size ) {
         indexPointer = 0;
       }
-      if ( index[indexPointer] == null ) {
+      if ( index[ indexPointer ] == null ) {
         searchEmptySpot = false;
       }
     }
 
     // OK, now that we know where to put the entry, insert it...
     //
-    index[indexPointer] = new ByteArrayHashIndexEntry( hashCode, key, value, index[indexPointer] );
+    index[ indexPointer ] = new ByteArrayHashIndexEntry( hashCode, key, value, index[ indexPointer ] );
 
     // Don't forget to link to the previous check entry if there was any...
     //
     if ( previousCheck != null ) {
-      previousCheck.nextEntry = index[indexPointer];
+      previousCheck.nextEntry = index[ indexPointer ];
     }
 
     // If required, resize the table...
@@ -152,7 +152,7 @@ public class ByteArrayHashIndex {
       //
       int newSize = 2 * index.length;
 
-      ByteArrayHashIndexEntry[] newIndex = new ByteArrayHashIndexEntry[newSize];
+      ByteArrayHashIndexEntry[] newIndex = new ByteArrayHashIndexEntry[ newSize ];
 
       // Loop over the old index and re-distribute the entries
       // We want to make sure that the calculation
@@ -160,9 +160,9 @@ public class ByteArrayHashIndex {
       // ends up in the right location after re-sizing...
       //
       for ( int i = 0; i < oldIndex.length; i++ ) {
-        ByteArrayHashIndexEntry entry = oldIndex[i];
+        ByteArrayHashIndexEntry entry = oldIndex[ i ];
         if ( entry != null ) {
-          oldIndex[i] = null;
+          oldIndex[ i ] = null;
           entry.nextEntry = null; // we assume there is plenty of room in the new index...
 
           // Make sure we follow all the linked entries...
@@ -172,11 +172,11 @@ public class ByteArrayHashIndex {
 
           // Make sure on this new index pointer, we have room to put the entry
           //
-          ByteArrayHashIndexEntry check = newIndex[newIndexPointer];
+          ByteArrayHashIndexEntry check = newIndex[ newIndexPointer ];
           if ( check == null ) {
             // Yes, plenty of room
             //
-            newIndex[newIndexPointer] = check;
+            newIndex[ newIndexPointer ] = check;
           } else {
             // No, we need to look for a nice spot to put the hash entry...
             //
@@ -185,7 +185,7 @@ public class ByteArrayHashIndex {
               previousCheck = check;
               check = check.nextEntry;
             }
-            while ( newIndex[newIndexPointer] != null ) {
+            while ( newIndex[ newIndexPointer ] != null ) {
               newIndexPointer++;
               if ( newIndexPointer >= newSize ) {
                 newIndexPointer = 0;
@@ -194,9 +194,9 @@ public class ByteArrayHashIndex {
             // OK, now that we have a nice spot to put the entry, link the previous check entry to this one...
             //
             previousCheck.nextEntry = entry;
-            newIndex[newIndexPointer] = entry;
+            newIndex[ newIndexPointer ] = entry;
           }
-          newIndex[newIndexPointer] = entry;
+          newIndex[ newIndexPointer ] = entry;
         }
       }
 
@@ -257,7 +257,7 @@ public class ByteArrayHashIndex {
         return false;
       }
       for ( int i = value.length - 1; i >= 0; i-- ) {
-        if ( value[i] != cmpValue[i] ) {
+        if ( value[ i ] != cmpValue[ i ] ) {
           return false;
         }
       }

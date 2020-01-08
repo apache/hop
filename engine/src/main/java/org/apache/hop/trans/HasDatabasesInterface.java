@@ -22,9 +22,9 @@
 
 package org.apache.hop.trans;
 
-import java.util.List;
-
 import org.apache.hop.core.database.DatabaseMeta;
+
+import java.util.List;
 
 public interface HasDatabasesInterface {
 
@@ -36,16 +36,14 @@ public interface HasDatabasesInterface {
   public List<DatabaseMeta> getDatabases();
 
   /**
-   * @param databases
-   *          The databases to set.
+   * @param databases The databases to set.
    */
   public void setDatabases( List<DatabaseMeta> databases );
 
   /**
    * Add a database connection to the transformation.
    *
-   * @param databaseMeta
-   *          The database connection information.
+   * @param databaseMeta The database connection information.
    */
   public void addDatabase( DatabaseMeta databaseMeta );
 
@@ -53,26 +51,22 @@ public interface HasDatabasesInterface {
    * Add a database connection to the transformation if that connection didn't exists yet. Otherwise, replace the
    * connection in the transformation
    *
-   * @param databaseMeta
-   *          The database connection information.
+   * @param databaseMeta The database connection information.
    */
   public void addOrReplaceDatabase( DatabaseMeta databaseMeta );
 
   /**
    * Add a database connection to the transformation on a certain location.
    *
-   * @param p
-   *          The location
-   * @param ci
-   *          The database connection information.
+   * @param p  The location
+   * @param ci The database connection information.
    */
   public void addDatabase( int p, DatabaseMeta ci );
 
   /**
    * Retrieves a database connection information a a certain location.
    *
-   * @param i
-   *          The database number.
+   * @param i The database number.
    * @return The database connection information.
    */
   public DatabaseMeta getDatabase( int i );
@@ -80,8 +74,7 @@ public interface HasDatabasesInterface {
   /**
    * Removes a database from the transformation on a certain location.
    *
-   * @param i
-   *          The location
+   * @param i The location
    */
   public void removeDatabase( int i );
 
@@ -95,8 +88,7 @@ public interface HasDatabasesInterface {
   /**
    * Searches the list of databases for a database with a certain name
    *
-   * @param name
-   *          The name of the database connection
+   * @param name The name of the database connection
    * @return The database connection information or null if nothing was found.
    */
   public DatabaseMeta findDatabase( String name );
@@ -104,8 +96,7 @@ public interface HasDatabasesInterface {
   /**
    * Find the location of database
    *
-   * @param ci
-   *          The database queried
+   * @param ci The database queried
    * @return The location of the database, -1 if nothing was found.
    */
   public int indexOfDatabase( DatabaseMeta ci );

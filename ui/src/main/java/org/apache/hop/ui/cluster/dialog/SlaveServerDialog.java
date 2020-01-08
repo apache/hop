@@ -22,9 +22,21 @@
 
 package org.apache.hop.ui.cluster.dialog;
 
-import java.util.Collection;
-import java.util.Collections;
-
+import org.apache.hop.cluster.SlaveServer;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.www.RegisterTransServlet;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -48,37 +60,20 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.Props;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.PasswordTextVar;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.util.DialogUtils;
-import org.apache.hop.www.RegisterTransServlet;
 
 /**
- *
  * Dialog that allows you to edit the settings of the security service connection
  *
- * @see SlaveServer
  * @author Matt
+ * @see SlaveServer
  * @since 31-10-2006
- *
  */
 
 public class SlaveServerDialog extends Dialog {
   private static Class<?> PKG = SlaveServerDialog.class; // for i18n purposes, needed by Translator2!!
+  private final IMetaStore metaStore;
 
   private SlaveServer slaveServer;
-
-  private Collection<SlaveServer> existingServers;
 
   private CTabFolder wTabFolder;
   private FormData fdTabFolder;
@@ -111,18 +106,14 @@ public class SlaveServerDialog extends Dialog {
   private SlaveServer originalServer;
   private boolean ok;
 
-  public SlaveServerDialog( Shell par, SlaveServer slaveServer, Collection<SlaveServer> existingServers ) {
+  public SlaveServerDialog( Shell par, IMetaStore metaStore, SlaveServer slaveServer ) {
     super( par, SWT.NONE );
+    this.metaStore = metaStore;
     this.slaveServer = (SlaveServer) slaveServer.clone();
     this.slaveServer.shareVariablesWith( slaveServer );
     this.originalServer = slaveServer;
-    this.existingServers = existingServers;
     props = PropsUI.getInstance();
     ok = false;
-  }
-
-  public SlaveServerDialog( Shell par, SlaveServer slaveServer ) {
-    this( par, slaveServer, Collections.<SlaveServer>emptyList() );
   }
 
   public boolean open() {
@@ -522,39 +513,48 @@ public class SlaveServerDialog extends Dialog {
     getInfo();
 
     if ( !slaveServer.getName().equals( originalServer.getName() ) ) {
-      if ( DialogUtils.objectWithTheSameNameExists( slaveServer, existingServers ) ) {
-        String title = BaseMessages.getString( PKG, "SlaveServerDialog.SlaveServerNameExists.Title" );
-        String message =
+
+      // See if the name collides with an existing one...
+      // TODO: provide name changes utilities
+      //
+      try {
+        MetaStoreFactory<SlaveServer> factory = SlaveServer.createFactory( metaStore );
+        if ( factory.elementExists( slaveServer.getName() ) ) {
+          String title = BaseMessages.getString( PKG, "SlaveServerDialog.SlaveServerNameExists.Title" );
+          String message =
             BaseMessages.getString( PKG, "SlaveServerDialog.SlaveServerNameExists", slaveServer.getName() );
-        String okButton = BaseMessages.getString( PKG, "System.Button.OK" );
-        MessageDialog dialog =
+          String okButton = BaseMessages.getString( PKG, "System.Button.OK" );
+          MessageDialog dialog =
             new MessageDialog( shell, title, null, message, MessageDialog.ERROR, new String[] { okButton }, 0 );
 
-        dialog.open();
-        return;
+          dialog.open();
+          return;
+        }
+
+        originalServer.setName( slaveServer.getName() );
+        originalServer.setHostname( slaveServer.getHostname() );
+        originalServer.setPort( slaveServer.getPort() );
+        originalServer.setWebAppName( slaveServer.getWebAppName() );
+        originalServer.setUsername( slaveServer.getUsername() );
+        originalServer.setPassword( slaveServer.getPassword() );
+
+        originalServer.setProxyHostname( slaveServer.getProxyHostname() );
+        originalServer.setProxyPort( slaveServer.getProxyPort() );
+        originalServer.setNonProxyHosts( slaveServer.getNonProxyHosts() );
+
+        originalServer.setMaster( slaveServer.isMaster() );
+
+        originalServer.setSslMode( slaveServer.isSslMode() );
+
+        originalServer.setChanged();
+
+        ok = true;
+
+        dispose();
+      } catch ( Exception e ) {
+        new ErrorDialog( shell, "Error", "Error checking for name collisions after rename", e );
       }
     }
-
-    originalServer.setName( slaveServer.getName() );
-    originalServer.setHostname( slaveServer.getHostname() );
-    originalServer.setPort( slaveServer.getPort() );
-    originalServer.setWebAppName( slaveServer.getWebAppName() );
-    originalServer.setUsername( slaveServer.getUsername() );
-    originalServer.setPassword( slaveServer.getPassword() );
-
-    originalServer.setProxyHostname( slaveServer.getProxyHostname() );
-    originalServer.setProxyPort( slaveServer.getProxyPort() );
-    originalServer.setNonProxyHosts( slaveServer.getNonProxyHosts() );
-
-    originalServer.setMaster( slaveServer.isMaster() );
-
-    originalServer.setSslMode( slaveServer.isSslMode() );
-
-    originalServer.setChanged();
-
-    ok = true;
-
-    dispose();
   }
 
   // Get dialog info in securityService

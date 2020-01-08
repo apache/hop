@@ -22,18 +22,6 @@
 
 package org.apache.hop.job;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.After;
-import org.junit.Before;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -43,6 +31,18 @@ import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.parameters.UnknownParamException;
+import org.junit.After;
+import org.junit.Before;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class JobTrackerExecution {
 
@@ -59,7 +59,7 @@ public abstract class JobTrackerExecution {
     File file = File.createTempFile( JobTrackerExecution.class.getSimpleName(), "" );
     file.deleteOnExit();
     DatabaseMeta databaseMeta =
-        new DatabaseMeta( NAME, "Hypersonic", "JDBC", null, "mem:HSQLDB-JUNIT-LOGJOB", null, null, null );
+      new DatabaseMeta( NAME, "Hypersonic", "JDBC", null, "mem:HSQLDB-JUNIT-LOGJOB", null, null, null );
     Database logDataBase = new Database( log, databaseMeta );
     logDataBase.connect();
 
@@ -76,7 +76,7 @@ public abstract class JobTrackerExecution {
   public void after() throws HopDatabaseException {
     // DatabaseMeta databaseMeta = new DatabaseMeta( NAME, "H2", "JDBC", null, TMP, null, USER, USER );
     DatabaseMeta databaseMeta =
-        new DatabaseMeta( NAME, "Hypersonic", "JDBC", null, "mem:HSQLDB-JUNIT-LOGJOB", null, null, null );
+      new DatabaseMeta( NAME, "Hypersonic", "JDBC", null, "mem:HSQLDB-JUNIT-LOGJOB", null, null, null );
     LoggingObjectInterface log = new SimpleLoggingObject( "junit", LoggingObjectType.GENERAL, null );
     Database db = new Database( log, databaseMeta );
     db.connect();

@@ -27,11 +27,12 @@ import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.i18n.BaseMessages;
+
 @DatabaseMetaPlugin(
-        type = "GOOGLEBIGQUERY",
-        typeDescription = "Google BigQuery"
+  type = "GOOGLEBIGQUERY",
+  typeDescription = "Google BigQuery"
 )
-@GuiPlugin( id="GUI-GoogleBigQueryDatabaseMeta" )
+@GuiPlugin( id = "GUI-GoogleBigQueryDatabaseMeta" )
 public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
 
   private static Class<?> PKG = GoogleBigQueryDatabaseMeta.class; // for i18n purposes
@@ -55,7 +56,7 @@ public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements Data
   }
 
   @Override public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-    boolean add_fieldname, boolean add_cr ) {
+                                              boolean add_fieldname, boolean add_cr ) {
     String retval = "";
 
     String fieldname = v.getName();

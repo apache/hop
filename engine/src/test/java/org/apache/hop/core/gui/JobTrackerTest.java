@@ -22,14 +22,14 @@
 
 package org.apache.hop.core.gui;
 
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.Const;
 import org.apache.hop.job.JobEntryResult;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -103,7 +103,7 @@ public class JobTrackerTest {
 
     JobEntryCopy copy = createEntryCopy( "1" );
 
-    assertEquals( children[1], jobTracker.findJobTracker( copy ) );
+    assertEquals( children[ 1 ], jobTracker.findJobTracker( copy ) );
   }
 
 

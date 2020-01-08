@@ -17,9 +17,6 @@
 package org.apache.hop.metastore.test;
 
 import junit.framework.TestCase;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.IMetaStoreAttribute;
 import org.apache.hop.metastore.api.IMetaStoreElement;
@@ -45,6 +42,9 @@ import org.apache.hop.metastore.test.testclasses.my.MyMigrationElement;
 import org.apache.hop.metastore.test.testclasses.my.MyNameElement;
 import org.apache.hop.metastore.test.testclasses.my.MyOtherElement;
 import org.apache.hop.metastore.util.MetaStoreUtil;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,7 +58,9 @@ import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class MetaStoreFactoryTest extends TestCase {
 
@@ -347,7 +349,7 @@ public class MetaStoreFactoryTest extends TestCase {
   /**
    * Save and load a complete Cube object in the IMetaStore through named references and factories.
    * Some object are saved through a factory with a name reference.  One dimension is embedded in the cube.
-   * 
+   *
    * @throws Exception
    */
   @SuppressWarnings( "unchecked" )
@@ -373,7 +375,7 @@ public class MetaStoreFactoryTest extends TestCase {
     when( objectFactory.instantiateClass( anyString(), anyMap() ) ).thenAnswer( new Answer<Object>() {
       @Override
       public Object answer( InvocationOnMock invocation ) throws Throwable {
-        String className = (String) invocation.getArguments()[0];
+        String className = (String) invocation.getArguments()[ 0 ];
         return Class.forName( className ).newInstance();
       }
     } );

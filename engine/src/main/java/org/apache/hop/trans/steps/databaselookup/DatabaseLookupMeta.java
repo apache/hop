@@ -22,29 +22,24 @@
 
 package org.apache.hop.trans.steps.databaselookup;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.ProvidesModelerMeta;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -53,11 +48,13 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterface,
-    ProvidesModelerMeta {
+  ProvidesModelerMeta {
   private static Class<?> PKG = DatabaseLookupMeta.class; // for i18n purposes, needed by Translator2!!
 
   public static final String[] conditionStrings = new String[] {
@@ -74,55 +71,89 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
   public static final int CONDITION_IS_NULL = 8;
   public static final int CONDITION_IS_NOT_NULL = 9;
 
-  /** what's the lookup schema name? */
+  /**
+   * what's the lookup schema name?
+   */
   private String schemaName;
 
-  /** what's the lookup table? */
+  /**
+   * what's the lookup table?
+   */
   private String tablename;
 
-  /** database connection */
+  /**
+   * database connection
+   */
   private DatabaseMeta databaseMeta;
 
-  /** which field in input stream to compare with? */
+  /**
+   * which field in input stream to compare with?
+   */
   private String[] streamKeyField1;
 
-  /** Extra field for between... */
+  /**
+   * Extra field for between...
+   */
   private String[] streamKeyField2;
 
-  /** Comparator: =, <>, BETWEEN, ... */
+  /**
+   * Comparator: =, <>, BETWEEN, ...
+   */
   private String[] keyCondition;
 
-  /** field in table */
+  /**
+   * field in table
+   */
   private String[] tableKeyField;
 
-  /** return these field values after lookup */
+  /**
+   * return these field values after lookup
+   */
   private String[] returnValueField;
 
-  /** new name for value ... */
+  /**
+   * new name for value ...
+   */
   private String[] returnValueNewName;
 
-  /** default value in case not found... */
+  /**
+   * default value in case not found...
+   */
   private String[] returnValueDefault;
 
-  /** type of default value */
+  /**
+   * type of default value
+   */
   private int[] returnValueDefaultType;
 
-  /** order by clause... */
+  /**
+   * order by clause...
+   */
   private String orderByClause;
 
-  /** Cache values we look up --> faster */
+  /**
+   * Cache values we look up --> faster
+   */
   private boolean cached;
 
-  /** Limit the cache size to this! */
+  /**
+   * Limit the cache size to this!
+   */
   private int cacheSize;
 
-  /** Flag to make it load all data into the cache at startup */
+  /**
+   * Flag to make it load all data into the cache at startup
+   */
   private boolean loadingAllDataInCache;
 
-  /** Have the lookup fail if multiple results were found, renders the orderByClause useless */
+  /**
+   * Have the lookup fail if multiple results were found, renders the orderByClause useless
+   */
   private boolean failingOnMultipleResults;
 
-  /** Have the lookup eat the incoming row when nothing gets found */
+  /**
+   * Have the lookup eat the incoming row when nothing gets found
+   */
   private boolean eatingRowOnLookupFailure;
 
   public DatabaseLookupMeta() {
@@ -137,8 +168,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param cached
-   *          The cached to set.
+   * @param cached The cached to set.
    */
   public void setCached( boolean cached ) {
     this.cached = cached;
@@ -152,8 +182,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param cacheSize
-   *          The cacheSize to set.
+   * @param cacheSize The cacheSize to set.
    */
   public void setCacheSize( int cacheSize ) {
     this.cacheSize = cacheSize;
@@ -172,8 +201,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param database
-   *          The database to set.
+   * @param database The database to set.
    */
   public void setDatabaseMeta( DatabaseMeta database ) {
     this.databaseMeta = database;
@@ -187,8 +215,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param keyCondition
-   *          The keyCondition to set.
+   * @param keyCondition The keyCondition to set.
    */
   public void setKeyCondition( String[] keyCondition ) {
     this.keyCondition = keyCondition;
@@ -202,8 +229,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param orderByClause
-   *          The orderByClause to set.
+   * @param orderByClause The orderByClause to set.
    */
   public void setOrderByClause( String orderByClause ) {
     this.orderByClause = orderByClause;
@@ -217,8 +243,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param returnValueDefault
-   *          The returnValueDefault to set.
+   * @param returnValueDefault The returnValueDefault to set.
    */
   public void setReturnValueDefault( String[] returnValueDefault ) {
     this.returnValueDefault = returnValueDefault;
@@ -232,8 +257,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param returnValueDefaultType
-   *          The returnValueDefaultType to set.
+   * @param returnValueDefaultType The returnValueDefaultType to set.
    */
   public void setReturnValueDefaultType( int[] returnValueDefaultType ) {
     this.returnValueDefaultType = returnValueDefaultType;
@@ -247,8 +271,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param returnValueField
-   *          The returnValueField to set.
+   * @param returnValueField The returnValueField to set.
    */
   public void setReturnValueField( String[] returnValueField ) {
     this.returnValueField = returnValueField;
@@ -262,8 +285,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param returnValueNewName
-   *          The returnValueNewName to set.
+   * @param returnValueNewName The returnValueNewName to set.
    */
   public void setReturnValueNewName( String[] returnValueNewName ) {
     this.returnValueNewName = returnValueNewName;
@@ -277,8 +299,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param streamKeyField1
-   *          The streamKeyField1 to set.
+   * @param streamKeyField1 The streamKeyField1 to set.
    */
   public void setStreamKeyField1( String[] streamKeyField1 ) {
     this.streamKeyField1 = streamKeyField1;
@@ -292,8 +313,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param streamKeyField2
-   *          The streamKeyField2 to set.
+   * @param streamKeyField2 The streamKeyField2 to set.
    */
   public void setStreamKeyField2( String[] streamKeyField2 ) {
     this.streamKeyField2 = streamKeyField2;
@@ -307,8 +327,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param tableKeyField
-   *          The tableKeyField to set.
+   * @param tableKeyField The tableKeyField to set.
    */
   public void setTableKeyField( String[] tableKeyField ) {
     this.tableKeyField = tableKeyField;
@@ -322,8 +341,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param tablename
-   *          The tablename to set.
+   * @param tablename The tablename to set.
    */
   public void setTablename( String tablename ) {
     this.tablename = tablename;
@@ -337,8 +355,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param failOnMultipleResults
-   *          The failOnMultipleResults to set.
+   * @param failOnMultipleResults The failOnMultipleResults to set.
    */
   public void setFailingOnMultipleResults( boolean failOnMultipleResults ) {
     this.failingOnMultipleResults = failOnMultipleResults;
@@ -353,14 +370,14 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   public void allocate( int nrkeys, int nrvalues ) {
-    streamKeyField1 = new String[nrkeys];
-    tableKeyField = new String[nrkeys];
-    keyCondition = new String[nrkeys];
-    streamKeyField2 = new String[nrkeys];
-    returnValueField = new String[nrvalues];
-    returnValueNewName = new String[nrvalues];
-    returnValueDefault = new String[nrvalues];
-    returnValueDefaultType = new int[nrvalues];
+    streamKeyField1 = new String[ nrkeys ];
+    tableKeyField = new String[ nrkeys ];
+    keyCondition = new String[ nrkeys ];
+    streamKeyField2 = new String[ nrkeys ];
+    returnValueField = new String[ nrvalues ];
+    returnValueNewName = new String[ nrvalues ];
+    returnValueDefault = new String[ nrvalues ];
+    returnValueDefaultType = new int[ nrvalues ];
   }
 
   @Override
@@ -409,29 +426,29 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
       for ( int i = 0; i < nrkeys; i++ ) {
         Node knode = XMLHandler.getSubNodeByNr( lookup, "key", i );
 
-        streamKeyField1[i] = XMLHandler.getTagValue( knode, "name" );
-        tableKeyField[i] = XMLHandler.getTagValue( knode, "field" );
-        keyCondition[i] = XMLHandler.getTagValue( knode, "condition" );
-        if ( keyCondition[i] == null ) {
-          keyCondition[i] = "=";
+        streamKeyField1[ i ] = XMLHandler.getTagValue( knode, "name" );
+        tableKeyField[ i ] = XMLHandler.getTagValue( knode, "field" );
+        keyCondition[ i ] = XMLHandler.getTagValue( knode, "condition" );
+        if ( keyCondition[ i ] == null ) {
+          keyCondition[ i ] = "=";
         }
-        streamKeyField2[i] = XMLHandler.getTagValue( knode, "name2" );
+        streamKeyField2[ i ] = XMLHandler.getTagValue( knode, "name2" );
       }
 
       for ( int i = 0; i < nrvalues; i++ ) {
         Node vnode = XMLHandler.getSubNodeByNr( lookup, "value", i );
 
-        returnValueField[i] = XMLHandler.getTagValue( vnode, "name" );
-        returnValueNewName[i] = XMLHandler.getTagValue( vnode, "rename" );
-        if ( returnValueNewName[i] == null ) {
-          returnValueNewName[i] = returnValueField[i]; // default: the same name!
+        returnValueField[ i ] = XMLHandler.getTagValue( vnode, "name" );
+        returnValueNewName[ i ] = XMLHandler.getTagValue( vnode, "rename" );
+        if ( returnValueNewName[ i ] == null ) {
+          returnValueNewName[ i ] = returnValueField[ i ]; // default: the same name!
         }
-        returnValueDefault[i] = XMLHandler.getTagValue( vnode, "default" );
+        returnValueDefault[ i ] = XMLHandler.getTagValue( vnode, "default" );
         dtype = XMLHandler.getTagValue( vnode, "type" );
-        returnValueDefaultType[i] = ValueMetaFactory.getIdForValueMeta( dtype );
-        if ( returnValueDefaultType[i] < 0 ) {
+        returnValueDefaultType[ i ] = ValueMetaFactory.getIdForValueMeta( dtype );
+        if ( returnValueDefaultType[ i ] < 0 ) {
           // logError("unknown default value type: "+dtype+" for value "+value[i]+", default to type: String!");
-          returnValueDefaultType[i] = ValueMetaInterface.TYPE_STRING;
+          returnValueDefaultType[ i ] = ValueMetaInterface.TYPE_STRING;
         }
       }
       orderByClause = XMLHandler.getTagValue( lookup, "orderby" ); // Optional, can by null
@@ -459,18 +476,18 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
     allocate( nrkeys, nrvalues );
 
     for ( int i = 0; i < nrkeys; i++ ) {
-      tableKeyField[i] = BaseMessages.getString( PKG, "DatabaseLookupMeta.Default.KeyFieldPrefix" );
-      keyCondition[i] = BaseMessages.getString( PKG, "DatabaseLookupMeta.Default.KeyCondition" );
-      streamKeyField1[i] = BaseMessages.getString( PKG, "DatabaseLookupMeta.Default.KeyStreamField1" );
-      streamKeyField2[i] = BaseMessages.getString( PKG, "DatabaseLookupMeta.Default.KeyStreamField2" );
+      tableKeyField[ i ] = BaseMessages.getString( PKG, "DatabaseLookupMeta.Default.KeyFieldPrefix" );
+      keyCondition[ i ] = BaseMessages.getString( PKG, "DatabaseLookupMeta.Default.KeyCondition" );
+      streamKeyField1[ i ] = BaseMessages.getString( PKG, "DatabaseLookupMeta.Default.KeyStreamField1" );
+      streamKeyField2[ i ] = BaseMessages.getString( PKG, "DatabaseLookupMeta.Default.KeyStreamField2" );
     }
 
     for ( int i = 0; i < nrvalues; i++ ) {
-      returnValueField[i] = BaseMessages.getString( PKG, "DatabaseLookupMeta.Default.ReturnFieldPrefix" ) + i;
-      returnValueNewName[i] = BaseMessages.getString( PKG, "DatabaseLookupMeta.Default.ReturnNewNamePrefix" ) + i;
-      returnValueDefault[i] =
+      returnValueField[ i ] = BaseMessages.getString( PKG, "DatabaseLookupMeta.Default.ReturnFieldPrefix" ) + i;
+      returnValueNewName[ i ] = BaseMessages.getString( PKG, "DatabaseLookupMeta.Default.ReturnNewNamePrefix" ) + i;
+      returnValueDefault[ i ] =
         BaseMessages.getString( PKG, "DatabaseLookupMeta.Default.ReturnDefaultValuePrefix" ) + i;
-      returnValueDefaultType[i] = ValueMetaInterface.TYPE_STRING;
+      returnValueDefaultType[ i ] = ValueMetaInterface.TYPE_STRING;
     }
 
     orderByClause = "";
@@ -480,12 +497,12 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, IMetaStore metaStore ) throws HopStepException {
-    if ( Utils.isEmpty( info ) || info[0] == null ) { // null or length 0 : no info from database
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+    if ( Utils.isEmpty( info ) || info[ 0 ] == null ) { // null or length 0 : no info from database
       for ( int i = 0; i < getReturnValueNewName().length; i++ ) {
         try {
           ValueMetaInterface v =
-              ValueMetaFactory.createValueMeta( getReturnValueNewName()[i], getReturnValueDefaultType()[i] );
+            ValueMetaFactory.createValueMeta( getReturnValueNewName()[ i ], getReturnValueDefaultType()[ i ] );
           v.setOrigin( name );
           row.addValueMeta( v );
         } catch ( Exception e ) {
@@ -494,10 +511,10 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
       }
     } else {
       for ( int i = 0; i < returnValueNewName.length; i++ ) {
-        ValueMetaInterface v = info[0].searchValueMeta( returnValueField[i] );
+        ValueMetaInterface v = info[ 0 ].searchValueMeta( returnValueField[ i ] );
         if ( v != null ) {
           ValueMetaInterface copy = v.clone(); // avoid renaming other value meta - PDI-9844
-          copy.setName( returnValueNewName[i] );
+          copy.setName( returnValueNewName[ i ] );
           copy.setOrigin( name );
           row.addValueMeta( copy );
         }
@@ -510,8 +527,8 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
     StringBuilder retval = new StringBuilder( 500 );
 
     retval
-        .append( "    " ).append(
-        XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+      .append( "    " ).append(
+      XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "cache", cached ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "cache_load_all", loadingAllDataInCache ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "cache_size", cacheSize ) );
@@ -524,20 +541,20 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
 
     for ( int i = 0; i < streamKeyField1.length; i++ ) {
       retval.append( "      <key>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", streamKeyField1[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field", tableKeyField[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "condition", keyCondition[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name2", streamKeyField2[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "name", streamKeyField1[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "field", tableKeyField[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "condition", keyCondition[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "name2", streamKeyField2[ i ] ) );
       retval.append( "      </key>" ).append( Const.CR );
     }
 
     for ( int i = 0; i < returnValueField.length; i++ ) {
       retval.append( "      <value>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", returnValueField[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "rename", returnValueNewName[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "default", returnValueDefault[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "name", returnValueField[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "rename", returnValueNewName[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "default", returnValueDefault[ i ] ) );
       retval.append( "        " ).append(
-          XMLHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( returnValueDefaultType[i] ) ) );
+        XMLHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( returnValueDefaultType[ i ] ) ) );
       retval.append( "      </value>" ).append( Const.CR );
     }
 
@@ -548,8 +565,8 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-      RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-      IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -575,7 +592,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
             // Check the keys used to do the lookup...
 
             for ( int i = 0; i < tableKeyField.length; i++ ) {
-              String lufield = tableKeyField[i];
+              String lufield = tableKeyField[ i ];
 
               ValueMetaInterface v = r.searchValueMeta( lufield );
               if ( v == null ) {
@@ -601,7 +618,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
             // Also check the returned values!
 
             for ( int i = 0; i < returnValueField.length; i++ ) {
-              String lufield = returnValueField[i];
+              String lufield = returnValueField[ i ];
 
               ValueMetaInterface v = r.searchValueMeta( lufield );
               if ( v == null ) {
@@ -638,7 +655,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
           boolean error_found = false;
 
           for ( int i = 0; i < streamKeyField1.length; i++ ) {
-            ValueMetaInterface v = prev.searchValueMeta( streamKeyField1[i] );
+            ValueMetaInterface v = prev.searchValueMeta( streamKeyField1[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
@@ -647,7 +664,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
                     + Const.CR;
               }
               error_found = true;
-              error_message += "\t\t" + streamKeyField1[i] + Const.CR;
+              error_message += "\t\t" + streamKeyField1[ i ] + Const.CR;
             }
           }
           if ( error_found ) {
@@ -708,7 +725,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
 
       } catch ( HopDatabaseException dbe ) {
         logError( BaseMessages.getString( PKG, "DatabaseLookupMeta.ERROR0004.ErrorGettingTableFields" )
-            + dbe.getMessage() );
+          + dbe.getMessage() );
       } finally {
         db.disconnect();
       }
@@ -718,7 +735,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-      TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new DatabaseLookup( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -729,25 +746,25 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
 
   @Override
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepinfo,
-      RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
-      IMetaStore metaStore ) {
+                             RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
+                             IMetaStore metaStore ) {
     // The keys are read-only...
     for ( int i = 0; i < streamKeyField1.length; i++ ) {
-      ValueMetaInterface v = prev.searchValueMeta( streamKeyField1[i] );
+      ValueMetaInterface v = prev.searchValueMeta( streamKeyField1[ i ] );
       DatabaseImpact ii =
-          new DatabaseImpact(
+        new DatabaseImpact(
           DatabaseImpact.TYPE_IMPACT_READ, transMeta.getName(), stepinfo.getName(), databaseMeta
-            .getDatabaseName(), tablename, tableKeyField[i], streamKeyField1[i], v != null
-            ? v.getOrigin() : "?", "", BaseMessages.getString( PKG, "DatabaseLookupMeta.Impact.Key" ) );
+          .getDatabaseName(), tablename, tableKeyField[ i ], streamKeyField1[ i ], v != null
+          ? v.getOrigin() : "?", "", BaseMessages.getString( PKG, "DatabaseLookupMeta.Impact.Key" ) );
       impact.add( ii );
     }
 
     // The Return fields are read-only too...
     for ( int i = 0; i < returnValueField.length; i++ ) {
       DatabaseImpact ii =
-          new DatabaseImpact(
+        new DatabaseImpact(
           DatabaseImpact.TYPE_IMPACT_READ, transMeta.getName(), stepinfo.getName(),
-          databaseMeta.getDatabaseName(), tablename, returnValueField[i], "", "", "",
+          databaseMeta.getDatabaseName(), tablename, returnValueField[ i ], "", "", "",
           BaseMessages.getString( PKG, "DatabaseLookupMeta.Impact.ReturnValue" ) );
       impact.add( ii );
     }
@@ -770,8 +787,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param eatingRowOnLookupFailure
-   *          The eatingRowOnLookupFailure to set.
+   * @param eatingRowOnLookupFailure The eatingRowOnLookupFailure to set.
    */
   public void setEatingRowOnLookupFailure( boolean eatingRowOnLookupFailure ) {
     this.eatingRowOnLookupFailure = eatingRowOnLookupFailure;
@@ -790,8 +806,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param schemaName
-   *          the schemaName to set
+   * @param schemaName the schemaName to set
    */
   public void setSchemaName( String schemaName ) {
     this.schemaName = schemaName;
@@ -810,8 +825,7 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param loadingAllDataInCache
-   *          the loadingAllDataInCache to set
+   * @param loadingAllDataInCache the loadingAllDataInCache to set
    */
   public void setLoadingAllDataInCache( boolean loadingAllDataInCache ) {
     this.loadingAllDataInCache = loadingAllDataInCache;

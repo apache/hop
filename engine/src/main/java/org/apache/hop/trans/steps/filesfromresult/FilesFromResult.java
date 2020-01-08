@@ -48,7 +48,7 @@ public class FilesFromResult extends BaseStep implements StepInterface {
   private FilesFromResultData data;
 
   public FilesFromResult( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                          Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
 
     data = (FilesFromResultData) stepDataInterface;

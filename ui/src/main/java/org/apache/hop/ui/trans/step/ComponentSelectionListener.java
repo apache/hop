@@ -22,9 +22,9 @@
 
 package org.apache.hop.ui.trans.step;
 
+import org.apache.hop.trans.step.BaseStepMeta;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.apache.hop.trans.step.BaseStepMeta;
 
 public class ComponentSelectionListener extends SelectionAdapter {
   private BaseStepMeta input;
@@ -32,6 +32,7 @@ public class ComponentSelectionListener extends SelectionAdapter {
   public ComponentSelectionListener( BaseStepMeta input ) {
     this.input = input;
   }
+
   @Override
   public void widgetSelected( SelectionEvent arg0 ) {
     input.setChanged();

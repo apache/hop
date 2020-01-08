@@ -22,18 +22,18 @@
 
 package org.apache.hop.trans.steps.file;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.resource.ResourceEntry;
-import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
+import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Input files settings.
@@ -47,46 +47,66 @@ public class BaseFileInputFiles implements Cloneable {
 
   public static final String[] RequiredFilesCode = new String[] { "N", "Y" };
   public static final String[] RequiredFilesDesc =
-      new String[] { BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG,
-          "System.Combo.Yes" ) };
+    new String[] { BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG,
+      "System.Combo.Yes" ) };
 
-  /** Array of filenames */
+  /**
+   * Array of filenames
+   */
   @Injection( name = "FILENAME", group = "FILENAME_LINES" )
   public String[] fileName = {};
 
-  /** Wildcard or filemask (regular expression) */
+  /**
+   * Wildcard or filemask (regular expression)
+   */
   @Injection( name = "FILEMASK", group = "FILENAME_LINES" )
   public String[] fileMask = {};
 
-  /** Wildcard or filemask to exclude (regular expression) */
+  /**
+   * Wildcard or filemask to exclude (regular expression)
+   */
   @Injection( name = "EXCLUDE_FILEMASK", group = "FILENAME_LINES" )
   public String[] excludeFileMask = {};
 
-  /** Array of boolean values as string, indicating if a file is required. */
+  /**
+   * Array of boolean values as string, indicating if a file is required.
+   */
   @Injection( name = "FILE_REQUIRED", group = "FILENAME_LINES" )
   public String[] fileRequired = {};
 
-  /** Array of boolean values as string, indicating if we need to fetch sub folders. */
+  /**
+   * Array of boolean values as string, indicating if we need to fetch sub folders.
+   */
   @Injection( name = "INCLUDE_SUBFOLDERS", group = "FILENAME_LINES" )
   public String[] includeSubFolders = {};
 
-  /** Are we accepting filenames in input rows? */
+  /**
+   * Are we accepting filenames in input rows?
+   */
   @Injection( name = "ACCEPT_FILE_NAMES" )
   public boolean acceptingFilenames;
 
-  /** The stepname to accept filenames from */
+  /**
+   * The stepname to accept filenames from
+   */
   @Injection( name = "ACCEPT_FILE_STEP" )
   public String acceptingStepName;
 
-  /** If receiving input rows, should we pass through existing fields? */
+  /**
+   * If receiving input rows, should we pass through existing fields?
+   */
   @Injection( name = "PASS_THROUGH_FIELDS" )
   public boolean passingThruFields;
 
-  /** The field in which the filename is placed */
+  /**
+   * The field in which the filename is placed
+   */
   @Injection( name = "ACCEPT_FILE_FIELD" )
   public String acceptingField;
 
-  /** The add filenames to result filenames flag */
+  /**
+   * The add filenames to result filenames flag
+   */
   @Injection( name = "ADD_FILES_TO_RESULT" )
   public boolean isaddresult;
 
@@ -107,24 +127,24 @@ public class BaseFileInputFiles implements Cloneable {
 
   public void setFileRequired( String[] fileRequiredin ) {
     for ( int i = 0; i < fileRequiredin.length; i++ ) {
-      this.fileRequired[i] = getRequiredFilesCode( fileRequiredin[i] );
+      this.fileRequired[ i ] = getRequiredFilesCode( fileRequiredin[ i ] );
     }
   }
 
   public void setIncludeSubFolders( String[] includeSubFoldersin ) {
     for ( int i = 0; i < includeSubFoldersin.length; i++ ) {
-      this.includeSubFolders[i] = getRequiredFilesCode( includeSubFoldersin[i] );
+      this.includeSubFolders[ i ] = getRequiredFilesCode( includeSubFoldersin[ i ] );
     }
   }
 
   public static String getRequiredFilesCode( String tt ) {
     if ( tt == null ) {
-      return RequiredFilesCode[0];
+      return RequiredFilesCode[ 0 ];
     }
-    if ( tt.equals( RequiredFilesDesc[1] ) ) {
-      return RequiredFilesCode[1];
+    if ( tt.equals( RequiredFilesDesc[ 1 ] ) ) {
+      return RequiredFilesCode[ 1 ];
     } else {
-      return RequiredFilesCode[0];
+      return RequiredFilesCode[ 0 ];
     }
   }
 
@@ -138,9 +158,9 @@ public class BaseFileInputFiles implements Cloneable {
   protected static String[] normalizeAllocation( String[] oldAllocation, int length ) {
     String[] newAllocation = null;
     if ( oldAllocation.length < length ) {
-      newAllocation = new String[length];
+      newAllocation = new String[ length ];
       for ( int i = 0; i < oldAllocation.length; i++ ) {
-        newAllocation[i] = oldAllocation[i];
+        newAllocation[ i ] = oldAllocation[ i ];
       }
     } else {
       newAllocation = oldAllocation;
@@ -150,9 +170,9 @@ public class BaseFileInputFiles implements Cloneable {
 
   public boolean[] includeSubFolderBoolean() {
     int len = fileName.length;
-    boolean[] includeSubFolderBoolean = new boolean[len];
+    boolean[] includeSubFolderBoolean = new boolean[ len ];
     for ( int i = 0; i < len; i++ ) {
-      includeSubFolderBoolean[i] = YES.equalsIgnoreCase( includeSubFolders[i] );
+      includeSubFolderBoolean[ i ] = YES.equalsIgnoreCase( includeSubFolders[ i ] );
     }
     return includeSubFolderBoolean;
   }
@@ -163,11 +183,11 @@ public class BaseFileInputFiles implements Cloneable {
     references.add( reference );
 
     String[] textFiles =
-        FileInputList.createFilePathList( transMeta, fileName, fileMask, excludeFileMask, fileRequired,
-            includeSubFolderBoolean() );
+      FileInputList.createFilePathList( transMeta, fileName, fileMask, excludeFileMask, fileRequired,
+        includeSubFolderBoolean() );
     if ( textFiles != null ) {
       for ( int i = 0; i < textFiles.length; i++ ) {
-        reference.getEntries().add( new ResourceEntry( textFiles[i], ResourceType.FILE ) );
+        reference.getEntries().add( new ResourceEntry( textFiles[ i ], ResourceType.FILE ) );
       }
     }
     return references;

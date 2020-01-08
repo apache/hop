@@ -22,12 +22,12 @@
 
 package org.apache.hop.trans.steps.databasejoin;
 
-import java.sql.PreparedStatement;
-
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import java.sql.PreparedStatement;
 
 /**
  * @author Matt

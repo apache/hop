@@ -22,24 +22,24 @@
 
 package org.apache.hop.trans;
 
+import org.apache.hop.base.LoadSaveBase;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
-import org.apache.hop.base.LoadSaveBase;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.xml.XMLHandler;
-
 public class LoadSaveTester<T extends Partitioner> extends LoadSaveBase<T> {
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes, List<String> xmlAttributes,
-      List<String> repoAttributes, Map<String, String> getterMap, Map<String, String> setterMap,
-      Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-      Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
+                         List<String> repoAttributes, Map<String, String> getterMap, Map<String, String> setterMap,
+                         Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
+                         Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
     super( clazz, commonAttributes, xmlAttributes, repoAttributes, getterMap, setterMap,
-        fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap );
+      fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap );
   }
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes ) {
@@ -54,7 +54,7 @@ public class LoadSaveTester<T extends Partitioner> extends LoadSaveBase<T> {
   public void testXmlRoundTrip() throws HopException {
     T metaToSave = createMeta();
     Map<String, FieldLoadSaveValidator<?>> validatorMap =
-        createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
+      createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
     T metaLoaded = createMeta();
     String xml = "<step>" + metaToSave.getXML() + "</step>";
     InputStream is = new ByteArrayInputStream( xml.getBytes() );
@@ -66,7 +66,7 @@ public class LoadSaveTester<T extends Partitioner> extends LoadSaveBase<T> {
   protected void testClone() {
     T metaToSave = createMeta();
     Map<String, FieldLoadSaveValidator<?>> validatorMap =
-        createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
+      createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
 
     @SuppressWarnings( "unchecked" )
     T metaLoaded = (T) metaToSave.clone();

@@ -42,7 +42,7 @@ public class DummyTrans extends BaseStep implements StepInterface {
   private static Class<?> PKG = DummyTransMeta.class; // for i18n purposes, needed by Translator2!!
 
   public DummyTrans( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                     Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 

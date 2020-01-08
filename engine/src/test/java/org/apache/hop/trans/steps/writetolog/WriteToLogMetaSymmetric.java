@@ -31,7 +31,7 @@ public class WriteToLogMetaSymmetric extends WriteToLogMeta {
    * The only getter for the variable actually returns a LogLevel object,
    * and the setter expects an int. The underlying storage is a String.
    * This asymmetry causes issues with test harnesses using reflection.
-   *
+   * <p>
    * MB - 5/2016
    */
   public WriteToLogMetaSymmetric() {

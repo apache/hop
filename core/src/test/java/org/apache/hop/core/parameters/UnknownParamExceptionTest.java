@@ -22,12 +22,12 @@
 package org.apache.hop.core.parameters;
 
 
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import org.junit.Test;
 
 /**
  * Created by mburgess on 10/13/15.
@@ -46,7 +46,7 @@ public class UnknownParamExceptionTest {
     NamedParamsExceptionTest.assertMessage( "message", exception );
 
     Throwable t = mock( Throwable.class );
-    when( t.getStackTrace() ).thenReturn( new StackTraceElement[0] );
+    when( t.getStackTrace() ).thenReturn( new StackTraceElement[ 0 ] );
     exception = new UnknownParamException( t );
     assertEquals( t, exception.getCause() );
 

@@ -11,9 +11,6 @@
 
 package org.apache.hop.ui.hopui;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
@@ -41,11 +38,13 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 /**
  * Instructions on how to use the Sleak tool with a standlaone SWT example:
- *
+ * <p>
  * Modify the main method below to launch your application. Run Sleak.
- *
  */
 public class Sleak {
   List list;
@@ -54,10 +53,10 @@ public class Sleak {
   Text text;
   Label label;
 
-  Object[] oldObjects = new Object[0];
-  Error[] oldErrors = new Error[0];
-  Object[] objects = new Object[0];
-  Error[] errors = new Error[0];
+  Object[] oldObjects = new Object[ 0 ];
+  Error[] oldErrors = new Error[ 0 ];
+  Object[] objects = new Object[ 0 ];
+  Error[] errors = new Error[ 0 ];
 
   public static void main( String[] args ) {
     DeviceData data = new DeviceData();
@@ -142,7 +141,7 @@ public class Sleak {
     int colors = 0, cursors = 0, fonts = 0, gcs = 0, images = 0;
     int paths = 0, patterns = 0, regions = 0, textLayouts = 0, transforms = 0;
     for ( int i = 0; i < objects.length; i++ ) {
-      Object object = objects[i];
+      Object object = objects[ i ];
       if ( object instanceof Color ) {
         colors++;
       }
@@ -223,32 +222,32 @@ public class Sleak {
     }
     Object[] newObjects = info.objects;
     Error[] newErrors = info.errors;
-    Object[] diffObjects = new Object[newObjects.length];
-    Error[] diffErrors = new Error[newErrors.length];
+    Object[] diffObjects = new Object[ newObjects.length ];
+    Error[] diffErrors = new Error[ newErrors.length ];
     int count = 0;
     for ( int i = 0; i < newObjects.length; i++ ) {
       int index = 0;
       while ( index < oldObjects.length ) {
-        if ( newObjects[i] == oldObjects[index] ) {
+        if ( newObjects[ i ] == oldObjects[ index ] ) {
           break;
         }
         index++;
       }
       if ( index == oldObjects.length ) {
-        diffObjects[count] = newObjects[i];
-        diffErrors[count] = newErrors[i];
+        diffObjects[ count ] = newObjects[ i ];
+        diffErrors[ count ] = newErrors[ i ];
         count++;
       }
     }
-    objects = new Object[count];
-    errors = new Error[count];
+    objects = new Object[ count ];
+    errors = new Error[ count ];
     System.arraycopy( diffObjects, 0, objects, 0, count );
     System.arraycopy( diffErrors, 0, errors, 0, count );
     list.removeAll();
     text.setText( "" );
     canvas.redraw();
     for ( int i = 0; i < objects.length; i++ ) {
-      list.add( objects[i].toString() );
+      list.add( objects[ i ].toString() );
     }
     refreshLabel();
     layout();
@@ -266,7 +265,7 @@ public class Sleak {
       return;
     }
     GC gc = event.gc;
-    Object object = objects[index];
+    Object object = objects[ index ];
     if ( object instanceof Color ) {
       if ( ( (Color) object ).isDisposed() ) {
         return;
@@ -291,7 +290,7 @@ public class Sleak {
       String string = "";
       String lf = text.getLineDelimiter();
       for ( int i = 0; i < array.length; i++ ) {
-        FontData data = array[i];
+        FontData data = array[ i ];
         String style = "NORMAL";
         int bits = data.getStyle();
         if ( bits != 0 ) {
@@ -367,7 +366,7 @@ public class Sleak {
     if ( check.getSelection() ) {
       ByteArrayOutputStream stream = new ByteArrayOutputStream();
       PrintStream s = new PrintStream( stream );
-      errors[index].printStackTrace( s );
+      errors[ index ].printStackTrace( s );
       text.setText( stream.toString() );
       text.setVisible( true );
       canvas.setVisible( false );
@@ -379,8 +378,8 @@ public class Sleak {
   }
 
   void refreshAll() {
-    oldObjects = new Object[0];
-    oldErrors = new Error[0];
+    oldObjects = new Object[ 0 ];
+    oldErrors = new Error[ 0 ];
     refreshDifference();
     oldObjects = objects;
     oldErrors = errors;
@@ -393,7 +392,7 @@ public class Sleak {
     String[] items = list.getItems();
     GC gc = new GC( list );
     for ( int i = 0; i < objects.length; i++ ) {
-      width = Math.max( width, gc.stringExtent( items[i] ).x );
+      width = Math.max( width, gc.stringExtent( items[ i ] ).x );
     }
     gc.dispose();
     Point size1 = start.computeSize( SWT.DEFAULT, SWT.DEFAULT );

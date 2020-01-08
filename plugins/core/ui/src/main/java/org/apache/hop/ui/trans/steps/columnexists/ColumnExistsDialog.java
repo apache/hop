@@ -23,8 +23,24 @@
 package org.apache.hop.ui.trans.steps.columnexists;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.columnexists.ColumnExistsMeta;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusListener;
@@ -46,25 +62,9 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.PluginDialog;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.columnexists.ColumnExistsMeta;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 @PluginDialog( id = "ColumnExists", image = "CEX.svg", pluginType = PluginDialog.PluginType.STEP,
-    documentationUrl = "https://wiki.pentaho.com/display/EAI/Check+if+a+column+exists" )
+  documentationUrl = "https://wiki.pentaho.com/display/EAI/Check+if+a+column+exists" )
 public class ColumnExistsDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = ColumnExistsDialog.class; // for i18n purposes, needed by Translator2!!
 
@@ -465,22 +465,22 @@ public class ColumnExistsDialog extends BaseStepDialog implements StepDialogInte
         r.getFieldNames();
 
         for ( int i = 0; i < r.getFieldNames().length; i++ ) {
-          wTableName.add( r.getFieldNames()[i] );
-          wColumnName.add( r.getFieldNames()[i] );
+          wTableName.add( r.getFieldNames()[ i ] );
+          wColumnName.add( r.getFieldNames()[ i ] );
         }
       }
       wColumnName.setText( columnName );
       wTableName.setText( tableName );
     } catch ( HopException ke ) {
       new ErrorDialog( shell, BaseMessages.getString( PKG, "ColumnExistsDialog.FailedToGetFields.DialogTitle" ),
-          BaseMessages.getString( PKG, "ColumnExistsDialog.FailedToGetFields.DialogMessage" ), ke );
+        BaseMessages.getString( PKG, "ColumnExistsDialog.FailedToGetFields.DialogMessage" ), ke );
     }
 
   }
 
   private void getTableName() {
     String connectionName = wConnection.getText();
-    if ( StringUtils.isEmpty(connectionName)) {
+    if ( StringUtils.isEmpty( connectionName ) ) {
       return;
     }
     DatabaseMeta databaseMeta = transMeta.findDatabase( connectionName );
@@ -515,9 +515,9 @@ public class ColumnExistsDialog extends BaseStepDialog implements StepDialogInte
         if ( null != schemas && schemas.length > 0 ) {
           schemas = Const.sortStrings( schemas );
           EnterSelectionDialog dialog =
-              new EnterSelectionDialog( shell, schemas,
-                  BaseMessages.getString( PKG, "System.Dialog.AvailableSchemas.Title", wConnection.getText() ),
-                  BaseMessages.getString( PKG, "System.Dialog.AvailableSchemas.Message" ) );
+            new EnterSelectionDialog( shell, schemas,
+              BaseMessages.getString( PKG, "System.Dialog.AvailableSchemas.Title", wConnection.getText() ),
+              BaseMessages.getString( PKG, "System.Dialog.AvailableSchemas.Message" ) );
           String d = dialog.open();
           if ( d != null ) {
             wSchemaname.setText( Const.NVL( d.toString(), "" ) );
@@ -531,7 +531,7 @@ public class ColumnExistsDialog extends BaseStepDialog implements StepDialogInte
         }
       } catch ( Exception e ) {
         new ErrorDialog( shell, BaseMessages.getString( PKG, "System.Dialog.Error.Title" ),
-            BaseMessages.getString( PKG, "System.Dialog.AvailableSchemas.ConnectionError" ), e );
+          BaseMessages.getString( PKG, "System.Dialog.AvailableSchemas.ConnectionError" ), e );
       } finally {
         if ( database != null ) {
           database.disconnect();

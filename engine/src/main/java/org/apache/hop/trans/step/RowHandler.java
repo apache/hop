@@ -32,14 +32,14 @@ import org.apache.hop.i18n.BaseMessages;
 
 /**
  * Defines methods used for handling row data within steps.
- *
+ * <p>
  * By default, the implementation used in BaseStep leverages
  * the logic defined within BaseStep.
  * (see {@link BaseStep#handleGetRow()}
- *      {@link BaseStep#handlePutRow(RowMetaInterface, Object[])}
- *      {@link BaseStep#handlePutError }
- *
- * {@link BaseStep#setRowHandler( RowHandler) } can be used to override
+ * {@link BaseStep#handlePutRow(RowMetaInterface, Object[])}
+ * {@link BaseStep#handlePutError }
+ * <p>
+ * {@link BaseStep#setRowHandler(RowHandler) } can be used to override
  * this behavior.
  */
 public interface RowHandler {

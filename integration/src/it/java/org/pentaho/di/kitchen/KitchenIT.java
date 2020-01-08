@@ -23,7 +23,6 @@
 package org.apache.hop.kitchen;
 
 import junit.framework.TestCase;
-
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;

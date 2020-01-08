@@ -22,24 +22,32 @@
 
 package org.apache.hop.ui.hopui;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import org.junit.Test;
-import org.mockito.AdditionalMatchers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.apache.hop.core.gui.GUIPositionInterface;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.ui.hopui.job.JobGraph;
 import org.apache.hop.ui.hopui.trans.TransGraph;
+import org.junit.Test;
+import org.mockito.AdditionalMatchers;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class GraphTest {
 
@@ -139,25 +147,25 @@ public class GraphTest {
 
     jobGraph.delSelected( null );
     verify( hopUi ).deleteJobEntryCopies( eq( jobMeta ),
-        AdditionalMatchers.aryEq( new JobEntryCopy[] { selected1, selected2 } ) );
+      AdditionalMatchers.aryEq( new JobEntryCopy[] { selected1, selected2 } ) );
   }
 
   private boolean[] wireSelected( GUIPositionInterface... mockedElements ) {
-    final boolean[] selections = new boolean[mockedElements.length];
+    final boolean[] selections = new boolean[ mockedElements.length ];
     Arrays.fill( selections, false );
     for ( int i = 0; i < mockedElements.length; i++ ) {
       final int j = i;
-      when( mockedElements[i].isSelected() ).then( new Answer<Boolean>() {
+      when( mockedElements[ i ].isSelected() ).then( new Answer<Boolean>() {
         public Boolean answer( InvocationOnMock invocation ) throws Throwable {
-          return selections[j];
+          return selections[ j ];
         }
       } );
       doAnswer( new Answer<Void>() {
         public Void answer( InvocationOnMock invocation ) throws Throwable {
-          selections[j] = (boolean) invocation.getArguments()[0];
+          selections[ j ] = (boolean) invocation.getArguments()[ 0 ];
           return null;
         }
-      } ).when( mockedElements[i] ).setSelected( any( Boolean.class ) );
+      } ).when( mockedElements[ i ] ).setSelected( any( Boolean.class ) );
     }
     return selections;
   }

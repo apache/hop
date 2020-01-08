@@ -44,7 +44,7 @@ class SftpFileObjectWithWindowsSupport extends SftpFileObject {
   private String path;
 
   SftpFileObjectWithWindowsSupport( AbstractFileName name, SftpFileSystemWindows fileSystem )
-          throws FileSystemException {
+    throws FileSystemException {
     super( name, fileSystem );
     this.path = name.getPath();
   }
@@ -62,9 +62,9 @@ class SftpFileObjectWithWindowsSupport extends SftpFileObject {
         String acl = filePermissions.get( group );
         if ( acl != null ) {
           return acl.contains( FULL_ACCESS ) || acl.contains( MODIFY_ACCESS )
-                  || acl.contains( READ_AND_EXECUTE_ACCESS ) || acl.contains( READ_ACCESS )
-                  || acl.contains( WRITE_ACCESS ) || acl.contains( WRITE_DATA_ADD_FILES_ACCESS )
-                  || acl.contains( READ_DATA_ADD_FILES_ACCESS );
+            || acl.contains( READ_AND_EXECUTE_ACCESS ) || acl.contains( READ_ACCESS )
+            || acl.contains( WRITE_ACCESS ) || acl.contains( WRITE_DATA_ADD_FILES_ACCESS )
+            || acl.contains( READ_DATA_ADD_FILES_ACCESS );
         }
       }
       return false;
@@ -84,7 +84,7 @@ class SftpFileObjectWithWindowsSupport extends SftpFileObject {
         String acl = filePermissions.get( group );
         if ( acl != null ) {
           return acl.contains( FULL_ACCESS ) || acl.contains( MODIFY_ACCESS )
-                  || acl.contains( WRITE_ACCESS ) || acl.contains( WRITE_DATA_ADD_FILES_ACCESS );
+            || acl.contains( WRITE_ACCESS ) || acl.contains( WRITE_DATA_ADD_FILES_ACCESS );
         }
       }
       return false;
@@ -117,10 +117,10 @@ class SftpFileObjectWithWindowsSupport extends SftpFileObject {
   public class PretendUserIsOwnerPosixPermissions extends PosixPermissions {
     public PretendUserIsOwnerPosixPermissions() {
       super( PosixPermissions.Type.UserReadable.getMask() + PosixPermissions.Type.UserWritable.getMask()
-        + PosixPermissions.Type.UserExecutable.getMask() + PosixPermissions.Type.GroupReadable.getMask()
-        + PosixPermissions.Type.GroupWritable.getMask() + PosixPermissions.Type.GroupExecutable.getMask()
-        + PosixPermissions.Type.OtherReadable.getMask() + PosixPermissions.Type.OtherWritable.getMask()
-        + PosixPermissions.Type.OtherExecutable.getMask(),
+          + PosixPermissions.Type.UserExecutable.getMask() + PosixPermissions.Type.GroupReadable.getMask()
+          + PosixPermissions.Type.GroupWritable.getMask() + PosixPermissions.Type.GroupExecutable.getMask()
+          + PosixPermissions.Type.OtherReadable.getMask() + PosixPermissions.Type.OtherWritable.getMask()
+          + PosixPermissions.Type.OtherExecutable.getMask(),
         true, true );
     }
   }

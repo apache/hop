@@ -22,12 +22,12 @@
 
 package org.apache.hop.job.entries.sftp;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.ClassRule;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.ClassRule;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class JobEntrySFTPLoadSaveTest extends JobEntryLoadSaveTestSupport<JobEntrySFTP> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

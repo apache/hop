@@ -22,11 +22,26 @@
 
 package org.apache.hop.ui.job.entries.truncatetables;
 
-import java.util.Arrays;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.truncatetables.JobEntryTruncateTables;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -45,24 +60,8 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.truncatetables.JobEntryTruncateTables;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.Arrays;
 
 /**
  * This dialog allows you to edit the Truncate Tables job entry settings. (select the connection and the table to be
@@ -234,10 +233,10 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
           BaseMessages.getString( PKG, "JobTruncateTables.Fields.Schema.Label" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false ), };
 
-    colinf[0].setUsingVariables( true );
-    colinf[0].setToolTip( BaseMessages.getString( PKG, "JobTruncateTables.Fields.Table.Tooltip" ) );
-    colinf[1].setUsingVariables( true );
-    colinf[1].setToolTip( BaseMessages.getString( PKG, "JobTruncateTables.Fields.Schema.Tooltip" ) );
+    colinf[ 0 ].setUsingVariables( true );
+    colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "JobTruncateTables.Fields.Table.Tooltip" ) );
+    colinf[ 1 ].setUsingVariables( true );
+    colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "JobTruncateTables.Fields.Schema.Tooltip" ) );
 
     wFields =
       new TableView(
@@ -350,11 +349,11 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
       for ( int i = 0; i < jobEntry.arguments.length; i++ ) {
         // TableItem ti = new TableItem(wFields.table, SWT.NONE);
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.arguments[i] != null ) {
-          ti.setText( 1, jobEntry.arguments[i] );
+        if ( jobEntry.arguments[ i ] != null ) {
+          ti.setText( 1, jobEntry.arguments[ i ] );
         }
-        if ( jobEntry.schemaname[i] != null ) {
-          ti.setText( 2, jobEntry.schemaname[i] );
+        if ( jobEntry.schemaname[ i ] != null ) {
+          ti.setText( 2, jobEntry.schemaname[ i ] );
         }
       }
 
@@ -394,15 +393,15 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
         nr++;
       }
     }
-    jobEntry.arguments = new String[nr];
-    jobEntry.schemaname = new String[nr];
+    jobEntry.arguments = new String[ nr ];
+    jobEntry.schemaname = new String[ nr ];
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       String wild = wFields.getNonEmpty( i ).getText( 2 );
       if ( arg != null && arg.length() != 0 ) {
-        jobEntry.arguments[nr] = arg;
-        jobEntry.schemaname[nr] = wild;
+        jobEntry.arguments[ nr ] = arg;
+        jobEntry.schemaname[ nr ] = wild;
         nr++;
       }
     }
@@ -427,7 +426,7 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
           int[] idx = dialog.getSelectionIndeces();
           for ( int i = 0; i < idx.length; i++ ) {
             TableItem tableItem = new TableItem( wFields.table, SWT.NONE );
-            tableItem.setText( 1, Tablenames[idx[i]] );
+            tableItem.setText( 1, Tablenames[ idx[ i ] ] );
           }
         }
       } catch ( HopDatabaseException e ) {

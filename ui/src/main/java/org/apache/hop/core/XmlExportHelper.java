@@ -49,8 +49,7 @@ public class XmlExportHelper {
    * Method makes clone for each table and deletes all global parameters.
    * We have to make clones of each table, because we don't want to change real tables content.
    *
-   * @param transMeta
-   *              meta, that contains log tables to be refactored before export
+   * @param transMeta meta, that contains log tables to be refactored before export
    */
   public static void swapTables( TransMeta transMeta ) {
     TransLogTable transLogTable = transMeta.getTransLogTable();
@@ -90,8 +89,7 @@ public class XmlExportHelper {
   }
 
   /**
-   * @param jobMeta
-   *            contains log tables to be refactored before export
+   * @param jobMeta contains log tables to be refactored before export
    */
   public static void swapTables( JobMeta jobMeta ) {
     JobLogTable jobLogTable = jobMeta.getJobLogTable();

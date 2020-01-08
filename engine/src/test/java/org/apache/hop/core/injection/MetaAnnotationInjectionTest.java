@@ -22,20 +22,6 @@
 
 package org.apache.hop.core.injection;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.injection.bean.BeanInjectionInfo;
@@ -45,6 +31,20 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class MetaAnnotationInjectionTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -103,7 +103,7 @@ public class MetaAnnotationInjectionTest {
     inj.setProperty( obj, "FIRST", rows, "fstrint" );
 
     assertEquals( "<sep>", obj.getSub().getSeparator() );
-    assertEquals( "/tmp/file.txt", obj.getSub().getFiles()[0].getName() );
+    assertEquals( "/tmp/file.txt", obj.getSub().getFiles()[ 0 ].getName() );
     assertTrue( obj.fboolean );
     assertEquals( 123, obj.fint );
     assertEquals( 1234567891213L, obj.flong );
@@ -135,8 +135,8 @@ public class MetaAnnotationInjectionTest {
     inj.setProperty( obj, "FILENAME", null, "f1" );
     inj.setProperty( obj, "FILENAME_ARRAY", null, "f2" );
     assertEquals( 2, obj.getSub().getFiles().length );
-    assertEquals( "f1", obj.getSub().getFiles()[0].getName() );
-    assertEquals( "f1", obj.getSub().getFiles()[1].getName() );
+    assertEquals( "f1", obj.getSub().getFiles()[ 0 ].getName() );
+    assertEquals( "f1", obj.getSub().getFiles()[ 1 ].getName() );
     assertArrayEquals( new String[] { "f2", "f2", "f2" }, obj.getSub().getFilenames() );
   }
 
@@ -148,7 +148,7 @@ public class MetaAnnotationInjectionTest {
 
     assertNotNull( targetBean.getComplexField() );
     assertTrue( targetBean.getComplexField().length == 1 );
-    assertEquals( TEST_NAME, targetBean.getComplexField()[0].getFieldName() );
+    assertEquals( TEST_NAME, targetBean.getComplexField()[ 0 ].getFieldName() );
   }
 
   @Test
@@ -159,7 +159,7 @@ public class MetaAnnotationInjectionTest {
 
     assertNotNull( targetBean.getComplexField() );
     assertTrue( targetBean.getComplexField().length == 1 );
-    assertEquals( TEST_NAME, targetBean.getComplexField()[0].getFieldName() );
+    assertEquals( TEST_NAME, targetBean.getComplexField()[ 0 ].getFieldName() );
   }
 
   @Test

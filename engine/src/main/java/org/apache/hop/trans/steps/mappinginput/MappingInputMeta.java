@@ -22,16 +22,9 @@
 
 package org.apache.hop.trans.steps.mappinginput;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
@@ -39,10 +32,11 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -51,8 +45,11 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.mapping.MappingValueRename;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /*
  * Created on 02-jun-2003
@@ -201,7 +198,7 @@ public class MappingInputMeta extends BaseStepMeta implements StepMetaInterface 
         retval.append( "        " ).append( XMLHandler.addTagValue( "name", fieldName[ i ] ) );
         retval
           .append( "        " ).append( XMLHandler.addTagValue( "type",
-            ValueMetaFactory.getValueMetaName( fieldType[ i ] ) ) );
+          ValueMetaFactory.getValueMetaName( fieldType[ i ] ) ) );
         retval.append( "        " ).append( XMLHandler.addTagValue( "length", fieldLength[ i ] ) );
         retval.append( "        " ).append( XMLHandler.addTagValue( "precision", fieldPrecision[ i ] ) );
         retval.append( "      </field>" ).append( Const.CR );

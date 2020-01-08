@@ -49,7 +49,7 @@ public class GetSlaveSequence extends BaseStep implements StepInterface {
   private GetSlaveSequenceData data;
 
   public GetSlaveSequence( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,
-    TransMeta transMeta, Trans trans ) {
+                           TransMeta transMeta, Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -73,7 +73,7 @@ public class GetSlaveSequence extends BaseStep implements StepInterface {
       if ( inputRowData.length < inputRowMeta.size() + 1 ) {
         outputRowData = RowDataUtil.resizeArray( inputRowData, inputRowMeta.size() + 1 );
       }
-      outputRowData[inputRowMeta.size()] = next;
+      outputRowData[ inputRowMeta.size() ] = next;
       return outputRowData;
     } else {
       throw new HopStepException( BaseMessages.getString(

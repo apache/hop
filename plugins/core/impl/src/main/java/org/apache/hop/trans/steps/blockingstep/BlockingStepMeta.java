@@ -22,15 +22,10 @@
 
 package org.apache.hop.trans.steps.blockingstep;
 
-import java.io.File;
-import java.util.List;
-
-import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -38,7 +33,6 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
-
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMeta.TransformationType;
@@ -49,20 +43,29 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.w3c.dom.Node;
 
+import java.io.File;
+import java.util.List;
+
 @Step( id = "BlockingStep", i18nPackageName = "org.apache.hop.trans.steps.blockingstep", name = "BlockingStep.Name",
-    description = "BlockingStep.Description",
-    categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Flow" )
+  description = "BlockingStep.Description",
+  categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Flow" )
 public class BlockingStepMeta extends BaseStepMeta implements StepMetaInterface {
 
   private static Class<?> PKG = BlockingStepMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** Directory to store the temp files */
+  /**
+   * Directory to store the temp files
+   */
   private String directory;
 
-  /** Temp files prefix... */
+  /**
+   * Temp files prefix...
+   */
   private String prefix;
 
-  /** The cache size: number of rows to keep in memory */
+  /**
+   * The cache size: number of rows to keep in memory
+   */
   private int cacheSize;
 
   /**
@@ -82,7 +85,7 @@ public class BlockingStepMeta extends BaseStepMeta implements StepMetaInterface 
   public static final int CACHE_SIZE = 5000;
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space, IMetaStore metaStore ) {
+                     String[] input, String[] output, RowMetaInterface info, VariableSpace space, IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( prev != null && prev.size() > 0 ) {
@@ -93,53 +96,53 @@ public class BlockingStepMeta extends BaseStepMeta implements StepMetaInterface 
       if ( f.exists() ) {
         if ( f.isDirectory() ) {
           cr =
-              new CheckResult( CheckResultInterface.TYPE_RESULT_OK,
-                  BaseMessages.getString( PKG, "BlockingStepMeta.CheckResult.DirectoryExists", realDirectory ),
-                  stepMeta );
+            new CheckResult( CheckResultInterface.TYPE_RESULT_OK,
+              BaseMessages.getString( PKG, "BlockingStepMeta.CheckResult.DirectoryExists", realDirectory ),
+              stepMeta );
           remarks.add( cr );
         } else {
           cr =
-              new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR,
-                  BaseMessages.getString( PKG, "BlockingStepMeta.CheckResult.ExistsButNoDirectory", realDirectory ),
-                  stepMeta );
+            new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR,
+              BaseMessages.getString( PKG, "BlockingStepMeta.CheckResult.ExistsButNoDirectory", realDirectory ),
+              stepMeta );
           remarks.add( cr );
         }
       } else {
         cr =
-            new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR,
-                BaseMessages.getString( PKG, "BlockingStepMeta.CheckResult.DirectoryNotExists", realDirectory ),
-                stepMeta );
+          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR,
+            BaseMessages.getString( PKG, "BlockingStepMeta.CheckResult.DirectoryNotExists", realDirectory ),
+            stepMeta );
         remarks.add( cr );
       }
     } else {
       cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR,
-              BaseMessages.getString( PKG, "BlockingStepMeta.CheckResult.NoFields" ), stepMeta );
+        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR,
+          BaseMessages.getString( PKG, "BlockingStepMeta.CheckResult.NoFields" ), stepMeta );
       remarks.add( cr );
     }
 
     // See if we have input streams leading to this step!
     if ( input.length > 0 ) {
       cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK,
-              BaseMessages.getString( PKG, "BlockingStepMeta.CheckResult.StepExpectingRowsFromOtherSteps" ), stepMeta );
+        new CheckResult( CheckResultInterface.TYPE_RESULT_OK,
+          BaseMessages.getString( PKG, "BlockingStepMeta.CheckResult.StepExpectingRowsFromOtherSteps" ), stepMeta );
       remarks.add( cr );
     } else {
       cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR,
-              BaseMessages.getString( PKG, "BlockingStepMeta.CheckResult.NoInputReceivedError" ), stepMeta );
+        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR,
+          BaseMessages.getString( PKG, "BlockingStepMeta.CheckResult.NoInputReceivedError" ), stepMeta );
       remarks.add( cr );
     }
   }
 
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, IMetaStore metaStore )
+                         VariableSpace space, IMetaStore metaStore )
     throws HopStepException {
     // Default: no values are added to the row in the step
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
+                                Trans trans ) {
     return new BlockingStep( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -187,8 +190,7 @@ public class BlockingStepMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param cacheSize
-   *          The cacheSize to set.
+   * @param cacheSize The cacheSize to set.
    */
   public void setCacheSize( int cacheSize ) {
     this.cacheSize = cacheSize;
@@ -202,8 +204,7 @@ public class BlockingStepMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param prefix
-   *          The prefix to set.
+   * @param prefix The prefix to set.
    */
   public void setPrefix( String prefix ) {
     this.prefix = prefix;
@@ -217,8 +218,7 @@ public class BlockingStepMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param compressFiles
-   *          Whether to compress temporary files created during sorting
+   * @param compressFiles Whether to compress temporary files created during sorting
    */
   public void setCompress( boolean compressFiles ) {
     this.compressFiles = compressFiles;
@@ -232,8 +232,7 @@ public class BlockingStepMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param passAllRows
-   *          set to true if all rows should be passed and false if only the last one should be passed
+   * @param passAllRows set to true if all rows should be passed and false if only the last one should be passed
    */
   public void setPassAllRows( boolean passAllRows ) {
     this.passAllRows = passAllRows;

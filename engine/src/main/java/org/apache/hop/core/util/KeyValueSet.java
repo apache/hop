@@ -22,13 +22,6 @@
 
 package org.apache.hop.core.util;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
 import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.functors.TruePredicate;
@@ -36,9 +29,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
 /**
  * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- *
  */
 public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
 
@@ -52,8 +51,7 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
   /**
    * Add key value(s).
    *
-   * @param keyValues
-   *          key values to add.
+   * @param keyValues key values to add.
    * @return this.
    */
   public KeyValueSet add( final KeyValue<?>... keyValues ) {
@@ -76,8 +74,7 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
   }
 
   /**
-   * @param key
-   *          the key.
+   * @param key the key.
    * @return key value or null.
    */
   public KeyValue<?> get( final String key ) {
@@ -88,11 +85,9 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
   }
 
   /**
-   * @param filter
-   *          filter to use.
+   * @param filter filter to use.
    * @return matching key values.
-   * @throws IllegalArgumentException
-   *           if filter is null.
+   * @throws IllegalArgumentException if filter is null.
    */
   public List<KeyValue<?>> get( final Predicate filter ) throws IllegalArgumentException {
     final AddClosureArrayList<KeyValue<?>> result = new AddClosureArrayList<KeyValue<?>>();
@@ -101,8 +96,7 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
   }
 
   /**
-   * @param key
-   *          the key.
+   * @param key the key.
    * @return key value, never null.
    */
   public KeyValue<?> getRequired( final String key ) {
@@ -152,12 +146,9 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
   /**
    * Walk entries.
    *
-   * @param handler
-   *          handler to call.
-   * @param filter
-   *          filter to use.
-   * @throws IllegalArgumentException
-   *           if closure or filter is null.
+   * @param handler handler to call.
+   * @param filter  filter to use.
+   * @throws IllegalArgumentException if closure or filter is null.
    */
   public void walk( final Closure handler, final Predicate filter ) throws IllegalArgumentException {
     Assert.assertNotNull( handler, "Handler cannot be null" );
@@ -172,18 +163,15 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
   /**
    * Walk entries.
    *
-   * @param handler
-   *          handler to call.
-   * @throws IllegalArgumentException
-   *           if handler is null.
+   * @param handler handler to call.
+   * @throws IllegalArgumentException if handler is null.
    */
   public void walk( final Closure handler ) throws IllegalArgumentException {
     this.walk( handler, TruePredicate.INSTANCE );
   }
 
   /**
-   * @param key
-   *          the key.
+   * @param key the key.
    * @return previous or null.
    */
   public KeyValue<?> remove( final String key ) {
@@ -194,8 +182,7 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
   }
 
   /**
-   * @param key
-   *          key to test.
+   * @param key key to test.
    * @return true if ...
    */
   public boolean containsKey( final String key ) {

@@ -22,13 +22,13 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.FormDataBuilder;
+import org.apache.hop.ui.core.WidgetUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.FormDataBuilder;
-import org.apache.hop.ui.core.WidgetUtils;
 
 public class CheckBox extends Composite {
   private Button button;

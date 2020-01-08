@@ -22,18 +22,17 @@
 
 package org.apache.hop.compatibility;
 
+import org.apache.hop.core.Const;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-
-import org.apache.hop.core.Const;
 
 /**
  * This class contains a Value of type Integer and the length by which it is described.
  *
  * @author Matt
  * @since 15-10-2004
- *
  */
 public class ValueInteger implements ValueInterface, Cloneable {
   private long number;

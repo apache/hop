@@ -25,8 +25,6 @@ package org.apache.hop.trans.steps.fuzzymatch;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -38,8 +36,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -53,7 +50,6 @@ import org.apache.hop.trans.step.errorhandling.Stream;
 import org.apache.hop.trans.step.errorhandling.StreamIcon;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
 import org.apache.hop.trans.step.errorhandling.StreamInterface.StreamType;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -62,7 +58,9 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = FuzzyMatchMeta.class; // for i18n purposes, needed by Translator2!!
 
   public static final String DEFAULT_SEPARATOR = ",";
-  /** Algorithms type */
+  /**
+   * Algorithms type
+   */
   private int algorithm;
 
   /**
@@ -107,37 +105,59 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
 
   public static final int OPERATION_TYPE_REFINED_SOUNDEX = 9;
 
-  /** field in lookup stream with which we look up values */
+  /**
+   * field in lookup stream with which we look up values
+   */
   private String lookupfield;
 
-  /** field in input stream for which we lookup values */
+  /**
+   * field in input stream for which we lookup values
+   */
   private String mainstreamfield;
 
-  /** output match fieldname **/
+  /**
+   * output match fieldname
+   **/
   private String outputmatchfield;
 
-  /** ouput value fieldname **/
+  /**
+   * ouput value fieldname
+   **/
   private String outputvaluefield;
 
-  /** case sensitive **/
+  /**
+   * case sensitive
+   **/
   private boolean caseSensitive;
 
-  /** minimal value, distance for levenshtein, similarity, ... **/
+  /**
+   * minimal value, distance for levenshtein, similarity, ...
+   **/
   private String minimalValue;
 
-  /** maximal value, distance for levenshtein, similarity, ... **/
+  /**
+   * maximal value, distance for levenshtein, similarity, ...
+   **/
   private String maximalValue;
 
-  /** values separator ... **/
+  /**
+   * values separator ...
+   **/
   private String separator;
 
-  /** get closer matching value **/
+  /**
+   * get closer matching value
+   **/
   private boolean closervalue;
 
-  /** return these field values from lookup */
+  /**
+   * return these field values from lookup
+   */
   private String[] value;
 
-  /** rename to this after lookup */
+  /**
+   * rename to this after lookup
+   */
   private String[] valueName;
 
   public FuzzyMatchMeta() {
@@ -152,16 +172,15 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param value
-   *          The value to set.
+   * @param value The value to set.
    */
   public void setValue( String[] value ) {
     this.value = value;
   }
 
   public void allocate( int nrvalues ) {
-    value = new String[nrvalues];
-    valueName = new String[nrvalues];
+    value = new String[ nrvalues ];
+    valueName = new String[ nrvalues ];
   }
 
   public Object clone() {
@@ -185,8 +204,7 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param mainstreamfield
-   *          The mainstreamfield to set.
+   * @param mainstreamfield The mainstreamfield to set.
    */
   public void setMainStreamField( String mainstreamfield ) {
     this.mainstreamfield = mainstreamfield;
@@ -200,8 +218,7 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param lookupfield
-   *          The lookupfield to set.
+   * @param lookupfield The lookupfield to set.
    */
   public void setLookupField( String lookupfield ) {
     this.lookupfield = lookupfield;
@@ -215,8 +232,7 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param outputmatchfield
-   *          The outputmatchfield to set.
+   * @param outputmatchfield The outputmatchfield to set.
    */
   public void setOutputMatchField( String outputmatchfield ) {
     this.outputmatchfield = outputmatchfield;
@@ -230,8 +246,7 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param outputvaluefield
-   *          The outputvaluefield to set.
+   * @param outputvaluefield The outputvaluefield to set.
    */
   public void setOutputValueField( String outputvaluefield ) {
     this.outputvaluefield = outputvaluefield;
@@ -252,16 +267,14 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param valueName
-   *          The valueName to set.
+   * @param valueName The valueName to set.
    */
   public void setValueName( String[] valueName ) {
     this.valueName = valueName;
   }
 
   /**
-   * @param closervalue
-   *          The closervalue to set.
+   * @param closervalue The closervalue to set.
    */
   public void setGetCloserValue( boolean closervalue ) {
     this.closervalue = closervalue;
@@ -275,8 +288,7 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param caseSensitive
-   *          The caseSensitive to set.
+   * @param caseSensitive The caseSensitive to set.
    */
   public void setCaseSensitive( boolean caseSensitive ) {
     this.caseSensitive = caseSensitive;
@@ -290,8 +302,7 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param minimalValue
-   *          The minimalValue to set.
+   * @param minimalValue The minimalValue to set.
    */
   public void setMinimalValue( String minimalValue ) {
     this.minimalValue = minimalValue;
@@ -305,8 +316,7 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param maximalValue
-   *          The maximalValue to set.
+   * @param maximalValue The maximalValue to set.
    */
   public void setMaximalValue( String maximalValue ) {
     this.maximalValue = maximalValue;
@@ -320,8 +330,7 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param separator
-   *          The separator to set.
+   * @param separator The separator to set.
    */
   public void setSeparator( String separator ) {
     this.separator = separator;
@@ -341,9 +350,9 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
 
   public static String getAlgorithmTypeDesc( int i ) {
     if ( i < 0 || i >= algorithmDesc.length ) {
-      return algorithmDesc[0];
+      return algorithmDesc[ 0 ];
     }
-    return algorithmDesc[i];
+    return algorithmDesc[ i ];
   }
 
   public static int getAlgorithmTypeByDesc( String tt ) {
@@ -352,7 +361,7 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     for ( int i = 0; i < algorithmDesc.length; i++ ) {
-      if ( algorithmDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( algorithmDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -366,7 +375,7 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     for ( int i = 0; i < algorithmCode.length; i++ ) {
-      if ( algorithmCode[i].equalsIgnoreCase( tt ) ) {
+      if ( algorithmCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -402,10 +411,10 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
       for ( int i = 0; i < nrvalues; i++ ) {
         Node vnode = XMLHandler.getSubNodeByNr( lookup, "value", i );
 
-        value[i] = XMLHandler.getTagValue( vnode, "name" );
-        valueName[i] = XMLHandler.getTagValue( vnode, "rename" );
-        if ( valueName[i] == null ) {
-          valueName[i] = value[i]; // default: same name to return!
+        value[ i ] = XMLHandler.getTagValue( vnode, "name" );
+        valueName[ i ] = XMLHandler.getTagValue( vnode, "rename" );
+        if ( valueName[ i ] == null ) {
+          valueName[ i ] = value[ i ]; // default: same name to return!
         }
       }
 
@@ -417,9 +426,9 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
 
   private static String getAlgorithmTypeCode( int i ) {
     if ( i < 0 || i >= algorithmCode.length ) {
-      return algorithmCode[0];
+      return algorithmCode[ 0 ];
     }
-    return algorithmCode[i];
+    return algorithmCode[ i ];
   }
 
   public void setDefault() {
@@ -440,14 +449,14 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( nrvalues );
 
     for ( int i = 0; i < nrvalues; i++ ) {
-      value[i] = "value" + i;
-      valueName[i] = "valuename" + i;
+      value[ i ] = "value" + i;
+      valueName[ i ] = "valuename" + i;
     }
 
   }
 
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Add match field
     ValueMetaInterface v =
       new ValueMetaString( space.environmentSubstitute( getOutputMatchField() ) );
@@ -486,24 +495,24 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
         || ( getAlgorithmType() == FuzzyMatchMeta.OPERATION_TYPE_METAPHONE );
 
     if ( activateAdditionalFields ) {
-      if ( info != null && info.length == 1 && info[0] != null ) {
+      if ( info != null && info.length == 1 && info[ 0 ] != null ) {
         for ( int i = 0; i < valueName.length; i++ ) {
-          v = info[0].searchValueMeta( value[i] );
+          v = info[ 0 ].searchValueMeta( value[ i ] );
           if ( v != null ) {
             // Configuration error/missing resources...
 
-            v.setName( valueName[i] );
+            v.setName( valueName[ i ] );
             v.setOrigin( name );
             v.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL ); // Only normal storage goes into the cache
             inputRowMeta.addValueMeta( v );
           } else {
             throw new HopStepException( BaseMessages.getString(
-              PKG, "FuzzyMatchMeta.Exception.ReturnValueCanNotBeFound", value[i] ) );
+              PKG, "FuzzyMatchMeta.Exception.ReturnValueCanNotBeFound", value[ i ] ) );
           }
         }
       } else {
         for ( int i = 0; i < valueName.length; i++ ) {
-          v = new ValueMetaString( valueName[i] );
+          v = new ValueMetaString( valueName[ i ] );
           v.setOrigin( name );
           inputRowMeta.addValueMeta( v );
         }
@@ -532,8 +541,8 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "    <lookup>" + Const.CR );
     for ( int i = 0; i < value.length; i++ ) {
       retval.append( "      <value>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", value[i] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "rename", valueName[i] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "name", value[ i ] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "rename", valueName[ i ] ) );
       retval.append( "      </value>" + Const.CR );
     }
     retval.append( "    </lookup>" + Const.CR );
@@ -542,8 +551,8 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( prev != null && prev.size() > 0 ) {
@@ -600,9 +609,9 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
 
       // Check the values to retrieve from the lookup stream!
       for ( int i = 0; i < value.length; i++ ) {
-        idx = info.indexOfValue( value[i] );
+        idx = info.indexOfValue( value[ i ] );
         if ( idx < 0 ) {
-          error_message += "\t\t" + value[i] + Const.CR;
+          error_message += "\t\t" + value[ i ] + Const.CR;
           error_found = true;
         }
       }
@@ -648,7 +657,7 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
         cr =
           new CheckResult(
             CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-              PKG, "FuzzyMatchMeta.CheckResult.SourceStepDoesNotExist", infoStream.getStepname() + "" ),
+            PKG, "FuzzyMatchMeta.CheckResult.SourceStepDoesNotExist", infoStream.getStepname() + "" ),
             stepMeta );
         remarks.add( cr );
       }
@@ -677,7 +686,7 @@ public class FuzzyMatchMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new FuzzyMatch( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

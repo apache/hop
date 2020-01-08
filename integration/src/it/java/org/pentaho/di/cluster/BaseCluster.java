@@ -22,11 +22,7 @@
 
 package org.apache.hop.cluster;
 
-import java.nio.charset.Charset;
-import java.util.Arrays;
-
 import junit.framework.TestCase;
-
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
@@ -35,6 +31,9 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.trans.TransExecutionConfiguration;
 import org.apache.hop.trans.TransMeta;
+
+import java.nio.charset.Charset;
+import java.util.Arrays;
 
 public class BaseCluster extends TestCase {
 

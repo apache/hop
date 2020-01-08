@@ -22,36 +22,6 @@
 
 package org.apache.hop.core.database;
 
-import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.AdditionalMatchers.aryEq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.lang.reflect.Field;
-import java.sql.*;
-import java.util.List;
-import java.util.Properties;
-
-import javax.sql.DataSource;
-
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.*;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopDatabaseBatchException;
@@ -62,6 +32,44 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.lang.reflect.Field;
+import java.sql.BatchUpdateException;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.List;
+
+import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.AdditionalMatchers.aryEq;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings( "deprecation" )
 public class DatabaseTest {
@@ -134,7 +142,6 @@ public class DatabaseTest {
     assertEquals( rowMetaInterface.getValueMeta( 0 ).getOriginalColumnTypeName(), columnType );
     assertEquals( rowMetaInterface.getValueMeta( 0 ).getLength(), columnSize );
   }
-
 
 
   /**
@@ -714,7 +721,7 @@ public class DatabaseTest {
 
     assertEquals( rowMetaInterface.size(), 1 );
     assertEquals( rowMetaInterface.getValueMeta( 0 ).getName(), columnName );
-    assertTrue( rowMetaInterface.getValueMeta( 0 ) instanceof ValueMetaNumber);
+    assertTrue( rowMetaInterface.getValueMeta( 0 ) instanceof ValueMetaNumber );
   }
 
   @Test

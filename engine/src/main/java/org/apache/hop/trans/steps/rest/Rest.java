@@ -33,11 +33,6 @@ import com.sun.jersey.client.apache4.config.ApacheHttpClient4Config;
 import com.sun.jersey.client.apache4.config.DefaultApacheHttpClient4Config;
 import com.sun.jersey.client.urlconnection.HTTPSProperties;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.json.simple.JSONObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
@@ -51,6 +46,11 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.json.simple.JSONObject;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -72,7 +72,6 @@ import java.util.List;
 /**
  * @author Samatar
  * @since 16-jan-2011
- *
  */
 
 public class Rest extends BaseStep implements StepInterface {
@@ -129,11 +128,11 @@ public class Rest extends BaseStep implements StepInterface {
         // Add matrix parameters
         UriBuilder builder = webResource.getUriBuilder();
         for ( int i = 0; i < data.nrMatrixParams; i++ ) {
-          String value = data.inputRowMeta.getString( rowData, data.indexOfMatrixParamFields[i] );
+          String value = data.inputRowMeta.getString( rowData, data.indexOfMatrixParamFields[ i ] );
           if ( isDebug() ) {
-            logDebug( BaseMessages.getString( PKG, "Rest.Log.matrixParameterValue", data.matrixParamNames[i], value ) );
+            logDebug( BaseMessages.getString( PKG, "Rest.Log.matrixParameterValue", data.matrixParamNames[ i ], value ) );
           }
-          builder = builder.matrixParam( data.matrixParamNames[i], UriComponent.encode( value, UriComponent.Type.QUERY_PARAM ) );
+          builder = builder.matrixParam( data.matrixParamNames[ i ], UriComponent.encode( value, UriComponent.Type.QUERY_PARAM ) );
         }
         webResource = client.resource( builder.build() );
       }
@@ -141,11 +140,11 @@ public class Rest extends BaseStep implements StepInterface {
       if ( data.useParams ) {
         // Add query parameters
         for ( int i = 0; i < data.nrParams; i++ ) {
-          String value = data.inputRowMeta.getString( rowData, data.indexOfParamFields[i] );
+          String value = data.inputRowMeta.getString( rowData, data.indexOfParamFields[ i ] );
           if ( isDebug() ) {
-            logDebug( BaseMessages.getString( PKG, "Rest.Log.queryParameterValue", data.paramNames[i], value ) );
+            logDebug( BaseMessages.getString( PKG, "Rest.Log.queryParameterValue", data.paramNames[ i ], value ) );
           }
-          webResource = webResource.queryParams( createMultivalueMap( data.paramNames[i], value ) );
+          webResource = webResource.queryParams( createMultivalueMap( data.paramNames[ i ], value ) );
         }
       }
       if ( isDebug() ) {
@@ -156,15 +155,15 @@ public class Rest extends BaseStep implements StepInterface {
       if ( data.useHeaders ) {
         // Add headers
         for ( int i = 0; i < data.nrheader; i++ ) {
-          String value = data.inputRowMeta.getString( rowData, data.indexOfHeaderFields[i] );
+          String value = data.inputRowMeta.getString( rowData, data.indexOfHeaderFields[ i ] );
 
           // unsure if an already set header will be returned to builder
-          builder = builder.header( data.headerNames[i], value );
-          if ( "Content-Type".equals( data.headerNames[i] ) ) {
+          builder = builder.header( data.headerNames[ i ], value );
+          if ( "Content-Type".equals( data.headerNames[ i ] ) ) {
             contentType = value;
           }
           if ( isDebug() ) {
-            logDebug( BaseMessages.getString( PKG, "Rest.Log.HeaderValue", data.headerNames[i], value ) );
+            logDebug( BaseMessages.getString( PKG, "Rest.Log.HeaderValue", data.headerNames[ i ], value ) );
           }
         }
       }
@@ -204,7 +203,7 @@ public class Rest extends BaseStep implements StepInterface {
             response = builder.type( contentType ).method( RestMeta.HTTP_METHOD_PATCH, ClientResponse.class, entityString );
           } else {
             response = builder.type( data.mediaType ).method( RestMeta.HTTP_METHOD_PATCH, ClientResponse.class,
-                entityString );
+              entityString );
           }
         } else {
           throw new HopException( BaseMessages.getString( PKG, "Rest.Error.UnknownMethod", data.method ) );
@@ -398,17 +397,17 @@ public class Rest extends BaseStep implements StepInterface {
       int nrargs = meta.getHeaderName() == null ? 0 : meta.getHeaderName().length;
       if ( nrargs > 0 ) {
         data.nrheader = nrargs;
-        data.indexOfHeaderFields = new int[nrargs];
-        data.headerNames = new String[nrargs];
+        data.indexOfHeaderFields = new int[ nrargs ];
+        data.headerNames = new String[ nrargs ];
         for ( int i = 0; i < nrargs; i++ ) {
           // split into body / header
-          data.headerNames[i] = environmentSubstitute( meta.getHeaderName()[i] );
-          String field = environmentSubstitute( meta.getHeaderField()[i] );
+          data.headerNames[ i ] = environmentSubstitute( meta.getHeaderName()[ i ] );
+          String field = environmentSubstitute( meta.getHeaderField()[ i ] );
           if ( Utils.isEmpty( field ) ) {
             throw new HopException( BaseMessages.getString( PKG, "Rest.Exception.HeaderFieldEmpty" ) );
           }
-          data.indexOfHeaderFields[i] = data.inputRowMeta.indexOfValue( field );
-          if ( data.indexOfHeaderFields[i] < 0 ) {
+          data.indexOfHeaderFields[ i ] = data.inputRowMeta.indexOfValue( field );
+          if ( data.indexOfHeaderFields[ i ] < 0 ) {
             throw new HopException( BaseMessages.getString( PKG, "Rest.Exception.ErrorFindingField", field ) );
           }
         }
@@ -419,16 +418,16 @@ public class Rest extends BaseStep implements StepInterface {
         int nrparams = meta.getParameterField() == null ? 0 : meta.getParameterField().length;
         if ( nrparams > 0 ) {
           data.nrParams = nrparams;
-          data.paramNames = new String[nrparams];
-          data.indexOfParamFields = new int[nrparams];
+          data.paramNames = new String[ nrparams ];
+          data.indexOfParamFields = new int[ nrparams ];
           for ( int i = 0; i < nrparams; i++ ) {
-            data.paramNames[i] = environmentSubstitute( meta.getParameterName()[i] );
-            String field = environmentSubstitute( meta.getParameterField()[i] );
+            data.paramNames[ i ] = environmentSubstitute( meta.getParameterName()[ i ] );
+            String field = environmentSubstitute( meta.getParameterField()[ i ] );
             if ( Utils.isEmpty( field ) ) {
               throw new HopException( BaseMessages.getString( PKG, "Rest.Exception.ParamFieldEmpty" ) );
             }
-            data.indexOfParamFields[i] = data.inputRowMeta.indexOfValue( field );
-            if ( data.indexOfParamFields[i] < 0 ) {
+            data.indexOfParamFields[ i ] = data.inputRowMeta.indexOfValue( field );
+            if ( data.indexOfParamFields[ i ] < 0 ) {
               throw new HopException( BaseMessages.getString( PKG, "Rest.Exception.ErrorFindingField", field ) );
             }
           }
@@ -437,16 +436,16 @@ public class Rest extends BaseStep implements StepInterface {
         int nrmatrixparams = meta.getMatrixParameterField() == null ? 0 : meta.getMatrixParameterField().length;
         if ( nrmatrixparams > 0 ) {
           data.nrMatrixParams = nrmatrixparams;
-          data.matrixParamNames = new String[nrmatrixparams];
-          data.indexOfMatrixParamFields = new int[nrmatrixparams];
+          data.matrixParamNames = new String[ nrmatrixparams ];
+          data.indexOfMatrixParamFields = new int[ nrmatrixparams ];
           for ( int i = 0; i < nrmatrixparams; i++ ) {
-            data.matrixParamNames[i] = environmentSubstitute( meta.getMatrixParameterName()[i] );
-            String field = environmentSubstitute( meta.getMatrixParameterField()[i] );
+            data.matrixParamNames[ i ] = environmentSubstitute( meta.getMatrixParameterName()[ i ] );
+            String field = environmentSubstitute( meta.getMatrixParameterField()[ i ] );
             if ( Utils.isEmpty( field ) ) {
               throw new HopException( BaseMessages.getString( PKG, "Rest.Exception.MatrixParamFieldEmpty" ) );
             }
-            data.indexOfMatrixParamFields[i] = data.inputRowMeta.indexOfValue( field );
-            if ( data.indexOfMatrixParamFields[i] < 0 ) {
+            data.indexOfMatrixParamFields[ i ] = data.inputRowMeta.indexOfValue( field );
+            if ( data.indexOfMatrixParamFields[ i ] < 0 ) {
               throw new HopException( BaseMessages.getString( PKG, "Rest.Exception.ErrorFindingField", field ) );
             }
           }

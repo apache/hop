@@ -16,8 +16,8 @@
  */
 package org.apache.hop.metastore.stores.xml;
 
-import org.junit.Test;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;

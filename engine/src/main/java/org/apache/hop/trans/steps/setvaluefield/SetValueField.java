@@ -48,7 +48,7 @@ public class SetValueField extends BaseStep implements StepInterface {
   private SetValueFieldData data;
 
   public SetValueField( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                        Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -71,40 +71,40 @@ public class SetValueField extends BaseStep implements StepInterface {
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
-      data.indexOfField = new int[meta.getFieldName().length];
-      data.indexOfReplaceByValue = new int[meta.getFieldName().length];
+      data.indexOfField = new int[ meta.getFieldName().length ];
+      data.indexOfReplaceByValue = new int[ meta.getFieldName().length ];
       for ( int i = 0; i < meta.getFieldName().length; i++ ) {
         // Check if this field was specified only one time
         for ( int j = 0; j < meta.getFieldName().length; j++ ) {
-          if ( meta.getFieldName()[j].equals( meta.getFieldName()[i] ) ) {
+          if ( meta.getFieldName()[ j ].equals( meta.getFieldName()[ i ] ) ) {
             if ( j != i ) {
               throw new HopException( BaseMessages.getString(
-                PKG, "SetValueField.Log.FieldSpecifiedMoreThatOne", meta.getFieldName()[i], "" + i, "" + j ) );
+                PKG, "SetValueField.Log.FieldSpecifiedMoreThatOne", meta.getFieldName()[ i ], "" + i, "" + j ) );
             }
           }
         }
 
-        data.indexOfField[i] = data.outputRowMeta.indexOfValue( environmentSubstitute( meta.getFieldName()[i] ) );
-        if ( data.indexOfField[i] < 0 ) {
+        data.indexOfField[ i ] = data.outputRowMeta.indexOfValue( environmentSubstitute( meta.getFieldName()[ i ] ) );
+        if ( data.indexOfField[ i ] < 0 ) {
           throw new HopStepException( BaseMessages.getString(
-            PKG, "SetValueField.Log.CouldNotFindFieldInRow", meta.getFieldName()[i] ) );
+            PKG, "SetValueField.Log.CouldNotFindFieldInRow", meta.getFieldName()[ i ] ) );
         }
         String sourceField = environmentSubstitute(
           meta.getReplaceByFieldValue() != null && meta.getReplaceByFieldValue().length > 0
-            ? meta.getReplaceByFieldValue()[i] : null
+            ? meta.getReplaceByFieldValue()[ i ] : null
         );
         if ( Utils.isEmpty( sourceField ) ) {
           throw new HopStepException( BaseMessages.getString(
             PKG, "SetValueField.Log.ReplaceByValueFieldMissing", "" + i ) );
         }
-        data.indexOfReplaceByValue[i] = data.outputRowMeta.indexOfValue( sourceField );
-        if ( data.indexOfReplaceByValue[i] < 0 ) {
+        data.indexOfReplaceByValue[ i ] = data.outputRowMeta.indexOfValue( sourceField );
+        if ( data.indexOfReplaceByValue[ i ] < 0 ) {
           throw new HopStepException( BaseMessages.getString(
             PKG, "SetValueField.Log.CouldNotFindFieldInRow", sourceField ) );
         }
         // Compare fields type
-        ValueMetaInterface SourceValue = getInputRowMeta().getValueMeta( data.indexOfField[i] );
-        ValueMetaInterface ReplaceByValue = getInputRowMeta().getValueMeta( data.indexOfReplaceByValue[i] );
+        ValueMetaInterface SourceValue = getInputRowMeta().getValueMeta( data.indexOfField[ i ] );
+        ValueMetaInterface ReplaceByValue = getInputRowMeta().getValueMeta( data.indexOfReplaceByValue[ i ] );
 
         if ( SourceValue.getType() != ReplaceByValue.getType() ) {
           String err =
@@ -117,7 +117,7 @@ public class SetValueField extends BaseStep implements StepInterface {
     }
     try {
       for ( int i = 0; i < data.indexOfField.length; i++ ) {
-        r[data.indexOfField[i]] = r[data.indexOfReplaceByValue[i]];
+        r[ data.indexOfField[ i ] ] = r[ data.indexOfReplaceByValue[ i ] ];
       }
       putRow( data.outputRowMeta, r ); // copy row to output rowset(s);
     } catch ( HopException e ) {

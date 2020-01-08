@@ -22,14 +22,14 @@
 
 package org.apache.hop.ui.job.entries.job;
 
-import org.eclipse.swt.widgets.Shell;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.job.JobEntryJob;
 import org.apache.hop.ui.core.PropsUI;
+import org.eclipse.swt.widgets.Shell;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -51,7 +51,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 @PrepareForTest( { PropsUI.class, LoggingRegistry.class } )
 public class JobEntryJobDialogTest {
 
-  private static final String FILE_NAME =  "TestJob.kjb";
+  private static final String FILE_NAME = "TestJob.kjb";
 
   private JobEntryJobDialog dialog;
   private JobEntryJob job = mock( JobEntryJob.class );

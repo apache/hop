@@ -22,23 +22,9 @@
 
 package org.apache.hop.trans.steps.rest;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import org.junit.Assume;
-import org.apache.hop.core.util.Assert;
-
-import java.util.*;
-
 import com.sun.jersey.api.client.ClientResponse;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.Mockito;
+import com.sun.jersey.api.container.httpserver.HttpServerFactory;
+import com.sun.net.httpserver.HttpServer;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
@@ -47,16 +33,26 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Assert;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
-
-import com.sun.jersey.api.container.httpserver.HttpServerFactory;
-import com.sun.net.httpserver.HttpServer;
+import org.junit.After;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import javax.ws.rs.core.MultivaluedMap;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * User: Dzmitry Stsiapanau Date: 11/29/13 Time: 3:42 PM
@@ -69,10 +65,10 @@ public class RestIT {
 
     Object[] row = new Object[] { "anyData" };
     Object[] outputRow;
-    boolean  override;
+    boolean override;
 
     public RestHandler( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-        Trans trans, boolean override ) {
+                        Trans trans, boolean override ) {
       super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
       this.override = override;
     }
@@ -96,10 +92,8 @@ public class RestIT {
      * (synchronized) If distribute is true, a row is copied only once to the output rowsets, otherwise copies are sent
      * to each rowset!
      *
-     * @param row
-     *          The row to put to the destination rowset(s).
+     * @param row The row to put to the destination rowset(s).
      * @throws org.apache.hop.core.exception.HopStepException
-     *
      */
     @Override
     public void putRow( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
@@ -154,7 +148,7 @@ public class RestIT {
     Assume.assumeTrue( !System.getProperty( "java.version" ).startsWith( "1.8" ) );
     stepMockHelper = new StepMockHelper<RestMeta, RestData>( "REST CLIENT TEST", RestMeta.class, RestData.class );
     when( stepMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        stepMockHelper.logChannelInterface );
+      stepMockHelper.logChannelInterface );
     when( stepMockHelper.trans.isRunning() ).thenReturn( true );
     verify( stepMockHelper.trans, never() ).stopAll();
     server = HttpServerFactory.create( HTTP_LOCALHOST_9998 );

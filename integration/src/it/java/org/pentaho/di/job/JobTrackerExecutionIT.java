@@ -22,35 +22,35 @@
 
 package org.apache.hop.job;
 
+import org.apache.hop.core.database.util.DatabaseLogExceptionFactory;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.gui.JobTracker;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.parameters.UnknownParamException;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-import org.apache.hop.core.database.util.DatabaseLogExceptionFactory;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.gui.JobTracker;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.parameters.UnknownParamException;
-
 @RunWith( value = Parameterized.class )
 public class JobTrackerExecutionIT extends JobTrackerExecution {
 
   private Result res;
 
-  public JobTrackerExecutionIT(Result res ) {
+  public JobTrackerExecutionIT( Result res ) {
     this.res = res;
   }
 
   /**
    * Simulates log table exception at job start 5 cases: not set, set at kettle-variables (2) or kettle.properties (2)
-   * 
+   *
    * @return
    */
   private static Result[] testJobStartLogException() {
@@ -58,14 +58,14 @@ public class JobTrackerExecutionIT extends JobTrackerExecution {
     Result res = new Result();
     res.fileName = "log_job_1.kjb";
     res.assertMessage =
-        "[1] Log exception at start and end job execution: Job trackers shows positive result for all records.";
+      "[1] Log exception at start and end job execution: Job trackers shows positive result for all records.";
     res.jobTrackerStatus = new Boolean[] { null, null, true, null, true, true };
 
     // this is when kettle.properties key-value is set false
     Result resVarNotDef = new Result();
     resVarNotDef.fileName = "log_job_1.kjb";
     resVarNotDef.assertMessage =
-        "[1-1] Log exception at start and end job execution:  Job trackers shows positive result for all records.";
+      "[1-1] Log exception at start and end job execution:  Job trackers shows positive result for all records.";
     resVarNotDef.jobTrackerStatus = new Boolean[] { null, null, true, null, true, true };
     resVarNotDef.setAsVariable = false;
 
@@ -73,7 +73,7 @@ public class JobTrackerExecutionIT extends JobTrackerExecution {
     Result resVarDefTrue = new Result();
     resVarDefTrue.fileName = "log_job_1.kjb";
     resVarDefTrue.assertMessage =
-        "[1-2] Log exception at start and end job execution: Job trackers shows negative result, job is failed.";
+      "[1-2] Log exception at start and end job execution: Job trackers shows negative result, job is failed.";
     resVarDefTrue.jobTrackerStatus = new Boolean[] { null, false };
     resVarDefTrue.setAsVariable = true;
 
@@ -82,7 +82,7 @@ public class JobTrackerExecutionIT extends JobTrackerExecution {
 
   /**
    * Simulates log table issue at job start and job end
-   * 
+   *
    * @return
    */
   private static Result[] testJobEndLogException() {
@@ -108,21 +108,21 @@ public class JobTrackerExecutionIT extends JobTrackerExecution {
 
   /**
    * Simulates log table issue when job has child job, and child job throws exception
-   * 
+   *
    * @return
    */
   private static Result[] testJobLogCallerAtStartLogException() {
     Result res = new Result();
     res.fileName = "log_job_1_caller.kjb";
     res.assertMessage =
-        "[3] Log exception at start (see [1] log_job_1.kjb results) in job call from parent job: "
+      "[3] Log exception at start (see [1] log_job_1.kjb results) in job call from parent job: "
         + "Job trackers shows positive result for all records.";
     res.jobTrackerStatus = new Boolean[] { null, null, true, null, null, true, null, true, true };
 
     Result resVarFalse = new Result();
     resVarFalse.fileName = "log_job_1_caller.kjb";
     resVarFalse.assertMessage =
-        "[3-1] Log exception at start (see [1] log_job_1.kjb results) in job call from parent job: "
+      "[3-1] Log exception at start (see [1] log_job_1.kjb results) in job call from parent job: "
         + "Job trackers shows positive result for all records.";
     resVarFalse.jobTrackerStatus = new Boolean[] { null, null, true, null, null, true, null, true, true };
     resVarFalse.setAsVariable = false;
@@ -130,7 +130,7 @@ public class JobTrackerExecutionIT extends JobTrackerExecution {
     Result resParFalse = new Result();
     resParFalse.fileName = "log_job_1_caller.kjb";
     resParFalse.assertMessage =
-        "[3-2] Log exception at start (see [1] log_job_1.kjb results) in job call from parent job: "
+      "[3-2] Log exception at start (see [1] log_job_1.kjb results) in job call from parent job: "
         + "Job trackers shows negative result, job failed.";
     resParFalse.jobTrackerStatus = new Boolean[] { null, null, true, null, null, false, null, false, false };
     resParFalse.setAsVariable = true;
@@ -140,21 +140,21 @@ public class JobTrackerExecutionIT extends JobTrackerExecution {
 
   /**
    * Simulates log table issue when job has child job and child job throws exception at the end of his execution
-   * 
+   *
    * @return
    */
   private static Result[] testJobLogCallerAtEndLogException() {
     Result res = new Result();
     res.fileName = "log_job_2_caller.kjb";
     res.assertMessage =
-        "[4] Log exception at end (see [1] log_job_2.kjb results) in job call from parent job: "
+      "[4] Log exception at end (see [1] log_job_2.kjb results) in job call from parent job: "
         + "Job trackers shows positive result for all records.";
     res.jobTrackerStatus = new Boolean[] { null, null, true, null, null, true, null, true, true };
 
     Result resFalse = new Result();
     resFalse.fileName = "log_job_2_caller.kjb";
     resFalse.assertMessage =
-        "[4-1] Log exception at end (see [1] log_job_2.kjb results) in job call from parent job: "
+      "[4-1] Log exception at end (see [1] log_job_2.kjb results) in job call from parent job: "
         + "Job trackers shows positive result for all records.";
     resFalse.jobTrackerStatus = new Boolean[] { null, null, true, null, null, true, null, true, true };
     resFalse.setAsVariable = false;
@@ -162,7 +162,7 @@ public class JobTrackerExecutionIT extends JobTrackerExecution {
     Result resTrue = new Result();
     resTrue.fileName = "log_job_2_caller.kjb";
     resTrue.assertMessage =
-        "[4-2] Log exception at end (see [1] log_job_2.kjb results) in job call from parent job: "
+      "[4-2] Log exception at end (see [1] log_job_2.kjb results) in job call from parent job: "
         + "Job trackers shows negative result, job failed.";
     resTrue.jobTrackerStatus = new Boolean[] { null, null, true, null, null, false, null, false, false };
     resTrue.setAsVariable = true;
@@ -172,21 +172,21 @@ public class JobTrackerExecutionIT extends JobTrackerExecution {
 
   /**
    * Simulates log table issue at trans start and trans end. Trans is called form parent job.
-   * 
+   *
    * @return
    */
   private static Result[] testJobLogTransCallerStartException() {
     Result res = new Result();
     res.fileName = "log_trans_1_caller.kjb";
     res.assertMessage =
-        "[5] Log exception at transformation start and end when it was called by job: "
+      "[5] Log exception at transformation start and end when it was called by job: "
         + "Job trackers shows positive result for all records.";
     res.jobTrackerStatus = new Boolean[] { null, null, true, null, true, null, true, true };
 
     Result resFalse = new Result();
     resFalse.fileName = "log_trans_1_caller.kjb";
     resFalse.assertMessage =
-        "[5-1] Log exception at transformation start and end when it was called by job: "
+      "[5-1] Log exception at transformation start and end when it was called by job: "
         + "Job trackers shows positive result for all records.";
     resFalse.jobTrackerStatus = new Boolean[] { null, null, true, null, true, null, true, true };
     resFalse.setAsVariable = false;
@@ -194,7 +194,7 @@ public class JobTrackerExecutionIT extends JobTrackerExecution {
     Result resTrue = new Result();
     resTrue.fileName = "log_trans_1_caller.kjb";
     resTrue.assertMessage =
-        "[5-2] Log exception at transformation start and end when it was called by job: "
+      "[5-2] Log exception at transformation start and end when it was called by job: "
         + "Job trackers shows negative result, job failed.";
     resTrue.jobTrackerStatus = new Boolean[] { null, null, true, null, false, null, false, false };
     resTrue.setAsVariable = true;
@@ -204,21 +204,21 @@ public class JobTrackerExecutionIT extends JobTrackerExecution {
 
   /**
    * Simulates log table issue at trans end when transaction is called by parent job.
-   * 
+   *
    * @return
    */
   private static Result[] testJobLogTransCallerEndException() {
     Result res = new Result();
     res.fileName = "log_trans_2_caller.kjb";
     res.assertMessage =
-        "[6] Log exception at transformation and end when it was called by job: "
+      "[6] Log exception at transformation and end when it was called by job: "
         + "Job trackers shows positive result for all records.";
     res.jobTrackerStatus = new Boolean[] { null, null, true, null, true, null, true, true };
 
     Result resFalse = new Result();
     resFalse.fileName = "log_trans_2_caller.kjb";
     resFalse.assertMessage =
-        "[6-1] Log exception at transformation and end when it was called by job: "
+      "[6-1] Log exception at transformation and end when it was called by job: "
         + "Job trackers shows positive result for all records.";
     resFalse.jobTrackerStatus = new Boolean[] { null, null, true, null, true, null, true, true };
     resFalse.setAsVariable = false;
@@ -226,7 +226,7 @@ public class JobTrackerExecutionIT extends JobTrackerExecution {
     Result resTrue = new Result();
     resTrue.fileName = "log_trans_2_caller.kjb";
     resTrue.assertMessage =
-        "[6-2] Log exception at transformation and end when it was called by job: "
+      "[6-2] Log exception at transformation and end when it was called by job: "
         + "Job trackers shows negative result, job failed.";
     resTrue.jobTrackerStatus = new Boolean[] { null, null, true, null, false, null, false, false };
     resTrue.setAsVariable = true;
@@ -237,7 +237,7 @@ public class JobTrackerExecutionIT extends JobTrackerExecution {
   /**
    * Test data provider. For better readability test data generation is moved to isolated methods. Every method call
    * generates Object with unique test data and test results. See specific methods javadoc for details.
-   * 
+   *
    * @return
    */
   @Parameters
@@ -251,9 +251,9 @@ public class JobTrackerExecutionIT extends JobTrackerExecution {
     results.addAll( Arrays.asList( testJobLogTransCallerEndException() ) );
     results.trimToSize();
 
-    Result[][] data = new Result[results.size()][1];
+    Result[][] data = new Result[ results.size() ][ 1 ];
     for ( int i = 0; i < results.size(); i++ ) {
-      data[i][0] = results.get( i );
+      data[ i ][ 0 ] = results.get( i );
     }
     return Arrays.asList( data );
   }
@@ -262,7 +262,7 @@ public class JobTrackerExecutionIT extends JobTrackerExecution {
   public void testJobTracker() throws UnknownParamException, HopXMLException, URISyntaxException, IOException {
     if ( res.setAsVariable != null ) {
       System.getProperties().setProperty( DatabaseLogExceptionFactory.HOP_GLOBAL_PROP_NAME,
-          res.setAsVariable.toString() );
+        res.setAsVariable.toString() );
     }
 
     try {
@@ -275,7 +275,7 @@ public class JobTrackerExecutionIT extends JobTrackerExecution {
       JobTracker tracker = job.getJobTracker();
       List<JobTracker> trackers = tracker.getJobTrackers();
       Assert.assertEquals( "Job trackers count is correct: " + res.assertMessage, res.jobTrackerStatus.length, trackers
-          .size() );
+        .size() );
 
       for ( int i = 0; i < res.jobTrackerStatus.length; i++ ) {
         JobTracker record = trackers.get( i );
@@ -286,10 +286,10 @@ public class JobTrackerExecutionIT extends JobTrackerExecution {
           actual = null;
         } else {
           actual =
-              record.getJobEntryResult().getResult() == null ? null : Boolean.valueOf( record.getJobEntryResult()
-                  .getResult().getResult() );
+            record.getJobEntryResult().getResult() == null ? null : Boolean.valueOf( record.getJobEntryResult()
+              .getResult().getResult() );
         }
-        Assert.assertEquals( res.assertMessage + ": " + i, res.jobTrackerStatus[i], actual );
+        Assert.assertEquals( res.assertMessage + ": " + i, res.jobTrackerStatus[ i ], actual );
       }
     } finally {
       System.getProperties().remove( DatabaseLogExceptionFactory.HOP_GLOBAL_PROP_NAME );

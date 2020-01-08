@@ -22,17 +22,9 @@
 
 package org.apache.hop.job.entries.abort;
 
-import org.apache.hop.core.annotations.JobEntry;
-import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import java.util.List;
-
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.annotations.JobEntry;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
@@ -40,9 +32,11 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-
+import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * Job entry type to abort a job.
@@ -83,9 +77,9 @@ public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryIn
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       messageAbort = XMLHandler.getTagValue( entrynode, "message" );
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "JobEntryAbort.UnableToLoadFromXml.Label" ), e );
@@ -118,8 +112,7 @@ public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryIn
    * Execute this job entry and return the result. In this case it means, just set the result boolean in the Result
    * class.
    *
-   * @param previousResult
-   *          The result of the previous execution
+   * @param previousResult The result of the previous execution
    * @return The Result of the execution.
    */
   public Result execute( Result previousResult, int nr ) {
@@ -153,7 +146,7 @@ public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryIn
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     JobEntryValidatorUtils.addOkRemark( this, "messageabort", remarks );
   }
 }

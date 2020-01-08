@@ -22,6 +22,17 @@
 
 package org.apache.hop.ui.trans.steps.constant;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.constant.ConstantMeta;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -41,17 +52,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.constant.ConstantMeta;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class ConstantDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = ConstantMeta.class; // for i18n purposes, needed by Translator2!!
@@ -124,36 +124,36 @@ public class ConstantDialog extends BaseStepDialog implements StepDialogInterfac
     final int FieldsCols = 10;
     final int FieldsRows = input.getFieldName().length;
 
-    ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
+    ColumnInfo[] colinf = new ColumnInfo[ FieldsCols ];
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ConstantDialog.Name.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinf[1] =
+    colinf[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ConstantDialog.Type.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         ValueMetaFactory.getValueMetaNames() );
-    colinf[2] =
+    colinf[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ConstantDialog.Format.Column" ), ColumnInfo.COLUMN_TYPE_FORMAT, 2 );
-    colinf[3] =
+    colinf[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ConstantDialog.Length.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinf[4] =
+    colinf[ 4 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ConstantDialog.Precision.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinf[5] =
+    colinf[ 5 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ConstantDialog.Currency.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinf[6] =
+    colinf[ 6 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ConstantDialog.Decimal.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinf[7] =
+    colinf[ 7 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ConstantDialog.Group.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinf[8] =
+    colinf[ 8 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ConstantDialog.Value.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinf[9] =
+    colinf[ 9 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ConstantDialog.Value.SetEmptyString" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO,
@@ -248,20 +248,20 @@ public class ConstantDialog extends BaseStepDialog implements StepDialogInterfac
     }
 
     for ( i = 0; i < input.getFieldName().length; i++ ) {
-      if ( input.getFieldName()[i] != null ) {
+      if ( input.getFieldName()[ i ] != null ) {
         TableItem item = wFields.table.getItem( i );
         int col = 1;
-        item.setText( col++, input.getFieldName()[i] );
+        item.setText( col++, input.getFieldName()[ i ] );
 
-        String type = input.getFieldType()[i];
-        String format = input.getFieldFormat()[i];
-        String length = input.getFieldLength()[i] < 0 ? "" : ( "" + input.getFieldLength()[i] );
-        String prec = input.getFieldPrecision()[i] < 0 ? "" : ( "" + input.getFieldPrecision()[i] );
+        String type = input.getFieldType()[ i ];
+        String format = input.getFieldFormat()[ i ];
+        String length = input.getFieldLength()[ i ] < 0 ? "" : ( "" + input.getFieldLength()[ i ] );
+        String prec = input.getFieldPrecision()[ i ] < 0 ? "" : ( "" + input.getFieldPrecision()[ i ] );
 
-        String curr = input.getCurrency()[i];
-        String group = input.getGroup()[i];
-        String decim = input.getDecimal()[i];
-        String def = input.getValue()[i];
+        String curr = input.getCurrency()[ i ];
+        String group = input.getGroup()[ i ];
+        String decim = input.getDecimal()[ i ];
+        String def = input.getValue()[ i ];
 
         item.setText( col++, Const.NVL( type, "" ) );
         item.setText( col++, Const.NVL( format, "" ) );
@@ -272,9 +272,9 @@ public class ConstantDialog extends BaseStepDialog implements StepDialogInterfac
         item.setText( col++, Const.NVL( group, "" ) );
         item.setText( col++, Const.NVL( def, "" ) );
         item
-          .setText( col++, input.isSetEmptyString()[i]
+          .setText( col++, input.isSetEmptyString()[ i ]
             ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString(
-              PKG, "System.Combo.No" ) );
+            PKG, "System.Combo.No" ) );
 
       }
     }
@@ -310,27 +310,27 @@ public class ConstantDialog extends BaseStepDialog implements StepDialogInterfac
     //CHECKSTYLE:LineLength:OFF
     for ( i = 0; i < nrfields; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      input.getFieldName()[i] = item.getText( 1 );
-      input.isSetEmptyString()[i] = BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 10 ) );
+      input.getFieldName()[ i ] = item.getText( 1 );
+      input.isSetEmptyString()[ i ] = BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 10 ) );
 
-      input.getFieldType()[i] = input.isSetEmptyString()[i] ? "String" : item.getText( 2 );
-      input.getFieldFormat()[i] = item.getText( 3 );
+      input.getFieldType()[ i ] = input.isSetEmptyString()[ i ] ? "String" : item.getText( 2 );
+      input.getFieldFormat()[ i ] = item.getText( 3 );
       String slength = item.getText( 4 );
       String sprec = item.getText( 5 );
-      input.getCurrency()[i] = item.getText( 6 );
-      input.getDecimal()[i] = item.getText( 7 );
-      input.getGroup()[i] = item.getText( 8 );
-      input.getValue()[i] = input.isSetEmptyString()[i] ? "" : item.getText( 9 );
+      input.getCurrency()[ i ] = item.getText( 6 );
+      input.getDecimal()[ i ] = item.getText( 7 );
+      input.getGroup()[ i ] = item.getText( 8 );
+      input.getValue()[ i ] = input.isSetEmptyString()[ i ] ? "" : item.getText( 9 );
 
       try {
-        input.getFieldLength()[i] = Integer.parseInt( slength );
+        input.getFieldLength()[ i ] = Integer.parseInt( slength );
       } catch ( Exception e ) {
-        input.getFieldLength()[i] = -1;
+        input.getFieldLength()[ i ] = -1;
       }
       try {
-        input.getFieldPrecision()[i] = Integer.parseInt( sprec );
+        input.getFieldPrecision()[ i ] = Integer.parseInt( sprec );
       } catch ( Exception e ) {
-        input.getFieldPrecision()[i] = -1;
+        input.getFieldPrecision()[ i ] = -1;
       }
 
     }

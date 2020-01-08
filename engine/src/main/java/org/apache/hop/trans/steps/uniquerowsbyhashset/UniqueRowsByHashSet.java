@@ -40,7 +40,7 @@ public class UniqueRowsByHashSet extends BaseStep implements StepInterface {
   private UniqueRowsByHashSetData data;
 
   public UniqueRowsByHashSet( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,
-    TransMeta transMeta, Trans trans ) {
+                              TransMeta transMeta, Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
 
     meta = (UniqueRowsByHashSetMeta) getStepMeta().getStepMetaInterface();
@@ -73,21 +73,21 @@ public class UniqueRowsByHashSet extends BaseStep implements StepInterface {
       data.storeValues = meta.getStoreValues();
 
       // Cache lookup of fields
-      data.fieldnrs = new int[meta.getCompareFields().length];
+      data.fieldnrs = new int[ meta.getCompareFields().length ];
 
       for ( int i = 0; i < meta.getCompareFields().length; i++ ) {
-        data.fieldnrs[i] = getInputRowMeta().indexOfValue( meta.getCompareFields()[i] );
-        if ( data.fieldnrs[i] < 0 ) {
+        data.fieldnrs[ i ] = getInputRowMeta().indexOfValue( meta.getCompareFields()[ i ] );
+        if ( data.fieldnrs[ i ] < 0 ) {
           logError( BaseMessages.getString( PKG, "UniqueRowsByHashSet.Log.CouldNotFindFieldInRow", meta
-            .getCompareFields()[i] ) );
+            .getCompareFields()[ i ] ) );
           setErrors( 1 );
           stopAll();
           return false;
         }
         if ( data.sendDuplicateRows ) {
           data.compareFields =
-            data.compareFields == null ? meta.getCompareFields()[i] : data.compareFields
-              + "," + meta.getCompareFields()[i];
+            data.compareFields == null ? meta.getCompareFields()[ i ] : data.compareFields
+              + "," + meta.getCompareFields()[ i ];
         }
       }
       if ( data.sendDuplicateRows && !Utils.isEmpty( meta.getErrorDescription() ) ) {

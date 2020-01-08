@@ -22,20 +22,20 @@
 
 package org.apache.hop.job;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingBuffer;
-import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.parameters.UnknownParamException;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 public class SimultaneousJobsAppenderIT {
 
@@ -52,31 +52,31 @@ public class SimultaneousJobsAppenderIT {
 
   @Test
   public void testAppendersBuffer() throws HopXMLException, IOException, URISyntaxException, UnknownParamException {
-    Job[] jobs = new Job[howMany];
+    Job[] jobs = new Job[ howMany ];
     for ( int i = 0; i < jobs.length; i++ ) {
       JobMeta jm = new JobMeta( new File( SimultaneousJobsAppenderIT.class.getClassLoader().getResource( PKG + jobPath ).toURI() ).getCanonicalPath(), null );
       jm.setName( "Job number " + i );
       Job job = new Job( null, jm );
       // adjust the log level
       job.setLogLevel( LogLevel.BASIC );
-      jobs[i] = job;
+      jobs[ i ] = job;
     }
 
-    for (Job job : jobs) {
+    for ( Job job : jobs ) {
       job.start();
     }
 
-    for (Job job : jobs) {
+    for ( Job job : jobs ) {
       job.waitUntilFinished();
     }
 
     LoggingBuffer appender = HopLogStore.getAppender();
 
-    for (int i = 0; i < jobs.length; i++) {
+    for ( int i = 0; i < jobs.length; i++ ) {
       if ( prevJobBuffer != 0 ) {
-        Assert.assertEquals( "Uncorrect buffer size, job: " + i, prevJobBuffer, appender.getBuffer( jobs[i].getLogChannelId(), false ).length() );
+        Assert.assertEquals( "Uncorrect buffer size, job: " + i, prevJobBuffer, appender.getBuffer( jobs[ i ].getLogChannelId(), false ).length() );
       }
-      prevJobBuffer = appender.getBuffer( jobs[i].getLogChannelId(), false ).length();
+      prevJobBuffer = appender.getBuffer( jobs[ i ].getLogChannelId(), false ).length();
     }
   }
 }

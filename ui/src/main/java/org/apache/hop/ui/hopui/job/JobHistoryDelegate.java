@@ -22,16 +22,35 @@
 
 package org.apache.hop.ui.hopui.job;
 
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.logging.JobEntryLogTable;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogStatus;
+import org.apache.hop.core.logging.LogTableField;
+import org.apache.hop.core.logging.LogTableInterface;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMeta;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.JobEntryCopy;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopui.XulHopUiResourceBundle;
+import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
+import org.apache.hop.ui.hopui.delegates.HopUiDelegate;
+import org.apache.hop.ui.xul.HopXulLoader;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -49,38 +68,19 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.logging.JobEntryLogTable;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogStatus;
-import org.apache.hop.core.logging.LogTableField;
-import org.apache.hop.core.logging.LogTableInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.hopui.XulHopUiResourceBundle;
-import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
-import org.apache.hop.ui.hopui.delegates.HopUiDelegate;
-import org.apache.hop.ui.xul.HopXulLoader;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulLoader;
 import org.pentaho.ui.xul.components.XulToolbarbutton;
 import org.pentaho.ui.xul.containers.XulToolbar;
 import org.pentaho.ui.xul.impl.XulEventHandler;
+
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 public class JobHistoryDelegate extends HopUiDelegate implements XulEventHandler {
   private static Class<?> PKG = JobGraph.class; // for i18n purposes, needed by Translator2!!
@@ -110,10 +110,8 @@ public class JobHistoryDelegate extends HopUiDelegate implements XulEventHandler
   }
 
   /**
-   * @param hopUi
-   *          Spoon instance
-   * @param jobGraph
-   *          JobGraph instance
+   * @param hopUi    Spoon instance
+   * @param jobGraph JobGraph instance
    */
   public JobHistoryDelegate( HopUi hopUi, JobGraph jobGraph ) {
     super( hopUi );
@@ -197,9 +195,9 @@ public class JobHistoryDelegate extends HopUiDelegate implements XulEventHandler
     fdTabFolder.bottom = new FormAttachment( 100, 0 );
     tabFolder.setLayoutData( fdTabFolder );
 
-    models = new JobHistoryLogTab[jobMeta.getLogTables().size()];
+    models = new JobHistoryLogTab[ jobMeta.getLogTables().size() ];
     for ( int i = 0; i < models.length; i++ ) {
-      models[i] = new JobHistoryLogTab( tabFolder, jobMeta.getLogTables().get( i ) );
+      models[ i ] = new JobHistoryLogTab( tabFolder, jobMeta.getLogTables().get( i ) );
     }
   }
 
@@ -241,7 +239,7 @@ public class JobHistoryDelegate extends HopUiDelegate implements XulEventHandler
    * Better ask confirmation
    */
   private void clearLogTable( int index ) {
-    JobHistoryLogTab model = models[index];
+    JobHistoryLogTab model = models[ index ];
     LogTableInterface logTable = model.logTable;
 
     if ( logTable.isDefined() ) {
@@ -276,12 +274,12 @@ public class JobHistoryDelegate extends HopUiDelegate implements XulEventHandler
    * Public for XUL.
    */
   public void replayHistory() {
-    JobHistoryLogTab model = models[tabFolder.getSelectionIndex()];
+    JobHistoryLogTab model = models[ tabFolder.getSelectionIndex() ];
 
     int idx = model.logDisplayTableView.getSelectionIndex();
     if ( idx >= 0 ) {
       String[] fields = model.logDisplayTableView.getItem( idx );
-      int batchId = Const.toInt( fields[0], -1 );
+      int batchId = Const.toInt( fields[ 0 ], -1 );
       // String dateString = fields[13];
       // Date replayDate = XMLHandler.stringToDate(dateString);
 
@@ -342,7 +340,7 @@ public class JobHistoryDelegate extends HopUiDelegate implements XulEventHandler
         } catch ( Exception e ) {
           new ErrorDialog(
             hopUi.getShell(), BaseMessages.getString(
-              PKG, "JobHistoryDelegate.ReplayHistory.UnexpectedErrorReadingJobEntryHistory.Text" ),
+            PKG, "JobHistoryDelegate.ReplayHistory.UnexpectedErrorReadingJobEntryHistory.Text" ),
             BaseMessages.getString(
               PKG, "JobHistoryDelegate.ReplayHistory.UnexpectedErrorReadingJobEntryHistory.Message" ), e );
 
@@ -424,7 +422,7 @@ public class JobHistoryDelegate extends HopUiDelegate implements XulEventHandler
           @Override
           public void run() {
             setQueryInProgress( true );
-            JobHistoryLogTab model = models[index];
+            JobHistoryLogTab model = models[ index ];
             model.setLogTable( jobMeta.getLogTables().get( index ) );
           }
         } );
@@ -452,8 +450,7 @@ public class JobHistoryDelegate extends HopUiDelegate implements XulEventHandler
   /**
    * Don't allow more queries until this one finishes.
    *
-   * @param inProgress
-   *          is query in progress
+   * @param inProgress is query in progress
    */
   private void setQueryInProgress( final boolean inProgress ) {
     refreshButton.setDisabled( inProgress );
@@ -464,7 +461,7 @@ public class JobHistoryDelegate extends HopUiDelegate implements XulEventHandler
   private boolean getHistoryData( final int index, final Mode mode ) {
     final int BATCH_SIZE = Props.getInstance().getLinesInHistoryFetchSize();
     boolean moreRows = false;
-    JobHistoryLogTab model = models[index];
+    JobHistoryLogTab model = models[ index ];
     LogTableInterface logTable = model.logTable;
     // See if there is a job loaded that has a connection table specified.
     //
@@ -525,7 +522,7 @@ public class JobHistoryDelegate extends HopUiDelegate implements XulEventHandler
         if ( nameField != null ) {
           sql
             .append( " WHERE " ).append( logConnection.quoteField( nameField.getFieldName() ) ).append(
-              " LIKE ?" );
+            " LIKE ?" );
           params
             .addValue( new ValueMetaString( "transname_literal", 255, -1 ), jobMeta.getName() );
         }
@@ -533,7 +530,7 @@ public class JobHistoryDelegate extends HopUiDelegate implements XulEventHandler
         if ( keyField != null && keyField.isEnabled() ) {
           sql
             .append( " ORDER BY " ).append( logConnection.quoteField( keyField.getFieldName() ) ).append(
-              " DESC" );
+            " DESC" );
         }
 
         ResultSet resultSet = database.openQuery( sql.toString(), params.getRowMeta(), params.getData() );
@@ -553,23 +550,24 @@ public class JobHistoryDelegate extends HopUiDelegate implements XulEventHandler
 
         database.closeQuery( resultSet );
 
-        models[index].rows = rows;
+        models[ index ].rows = rows;
       } catch ( Exception e ) {
-        LogChannel.GENERAL.logError( "Unable to get rows of data from logging table " + models[index].logTable, e );
-        models[index].rows = new ArrayList<Object[]>();
+        LogChannel.GENERAL.logError( "Unable to get rows of data from logging table " + models[ index ].logTable, e );
+        models[ index ].rows = new ArrayList<Object[]>();
       } finally {
         if ( database != null ) {
           database.disconnect();
         }
       }
     } else {
-      models[index].rows = new ArrayList<Object[]>();
+      models[ index ].rows = new ArrayList<Object[]>();
     }
     return moreRows;
   }
 
   /**
    * Maps UI columns to DB columns
+   *
    * @return {@link Map} with the mapping between UI column names and index of the corresponding DB column
    */
   @VisibleForTesting
@@ -590,8 +588,9 @@ public class JobHistoryDelegate extends HopUiDelegate implements XulEventHandler
 
   /**
    * Returns the {@link ValueMetaInterface} for a specified log table field
+   *
    * @param columns The list of UI columns
-   * @param field The field to look for
+   * @param field   The field to look for
    * @return The {@link ValueMetaInterface} for the specified field
    */
   @VisibleForTesting
@@ -604,7 +603,7 @@ public class JobHistoryDelegate extends HopUiDelegate implements XulEventHandler
   }
 
   private void displayHistoryData( final int index ) {
-    JobHistoryLogTab model = models[index];
+    JobHistoryLogTab model = models[ index ];
 
     if ( model.logDisplayTableView == null || model.logDisplayTableView.isDisposed() ) {
       return;
@@ -630,7 +629,7 @@ public class JobHistoryDelegate extends HopUiDelegate implements XulEventHandler
         TableItem item = new TableItem( model.logDisplayTableView.table, SWT.NONE );
 
         for ( int c = 0; c < colinf.length; c++ ) {
-          ColumnInfo column = colinf[c];
+          ColumnInfo column = colinf[ c ];
 
           ValueMetaInterface valueMeta = column.getValueMeta();
           String string = null;
@@ -689,7 +688,7 @@ public class JobHistoryDelegate extends HopUiDelegate implements XulEventHandler
   }
 
   private void showLogEntry() {
-    JobHistoryLogTab model = models[tabFolder.getSelectionIndex()];
+    JobHistoryLogTab model = models[ tabFolder.getSelectionIndex() ];
 
     Text text = model.logDisplayText;
 
@@ -722,7 +721,7 @@ public class JobHistoryDelegate extends HopUiDelegate implements XulEventHandler
       if ( logField != null ) {
         int index = model.logTableFields.indexOf( logField );
         if ( index >= 0 ) {
-          String logText = row[index].toString();
+          String logText = row[ index ].toString();
 
           text.setText( Const.NVL( logText, "" ) );
 
@@ -940,7 +939,7 @@ public class JobHistoryDelegate extends HopUiDelegate implements XulEventHandler
       }
 
       TableView tableView = new TableView( jobMeta, parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE,
-        columnList.toArray( new ColumnInfo[columnList.size()] ), 1,
+        columnList.toArray( new ColumnInfo[ columnList.size() ] ), 1,
         true, // readonly!
         null,
         hopUi.props );

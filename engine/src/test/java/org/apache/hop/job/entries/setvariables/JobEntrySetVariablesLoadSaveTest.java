@@ -22,13 +22,6 @@
 
 package org.apache.hop.job.entries.setvariables;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import org.junit.ClassRule;
 import org.apache.hop.job.entries.pgpencryptfiles.JobEntryPGPEncryptFiles;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -37,6 +30,13 @@ import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.ClassRule;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 public class JobEntrySetVariablesLoadSaveTest extends JobEntryLoadSaveTestSupport<JobEntrySetVariables> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

@@ -22,6 +22,14 @@
 
 package org.apache.hop.trans.steps.getfilenames;
 
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.playlist.FilePlayList;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.trans.step.BaseStepData;
+import org.apache.hop.trans.step.StepDataInterface;
+import org.apache.hop.trans.step.errorhandling.FileErrorHandler;
+
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.text.DateFormatSymbols;
@@ -32,14 +40,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipInputStream;
-
-import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.playlist.FilePlayList;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.trans.step.BaseStepData;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.errorhandling.FileErrorHandler;
 
 /**
  * @author Matt

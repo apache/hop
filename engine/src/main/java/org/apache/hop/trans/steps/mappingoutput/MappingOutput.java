@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.mappingoutput;
 
-import java.util.List;
-
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
@@ -35,6 +33,8 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.mapping.MappingValueRename;
+
+import java.util.List;
 
 /**
  * Do nothing. Pass all input data to the next steps.
@@ -49,7 +49,7 @@ public class MappingOutput extends BaseStep implements StepInterface {
   private MappingOutputData data;
 
   public MappingOutput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                        Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -124,7 +124,7 @@ public class MappingOutput extends BaseStep implements StepInterface {
   }
 
   public void setConnectorSteps( StepInterface[] targetSteps, List<MappingValueRename> inputValueRenames,
-    List<MappingValueRename> outputValueRenames ) {
+                                 List<MappingValueRename> outputValueRenames ) {
     for ( int i = 0; i < targetSteps.length; i++ ) {
 
       // OK, before we leave, make sure there is a rowset that covers the path to this target step.
@@ -134,7 +134,7 @@ public class MappingOutput extends BaseStep implements StepInterface {
 
       // This is always a single copy, but for source and target...
       //
-      rowSet.setThreadNameFromToCopy( getStepname(), 0, targetSteps[i].getStepname(), 0 );
+      rowSet.setThreadNameFromToCopy( getStepname(), 0, targetSteps[ i ].getStepname(), 0 );
 
       // Make sure to connect it to both sides...
       //
@@ -150,7 +150,7 @@ public class MappingOutput extends BaseStep implements StepInterface {
       // As such, we'll simply grab the remaining row sets at the Mapping#processRow() level and assign them to a
       // Mapping Input step.
       //
-      targetSteps[i].addRowSetToInputRowSets( rowSet );
+      targetSteps[ i ].addRowSetToInputRowSets( rowSet );
     }
 
     data.inputValueRenames = inputValueRenames;

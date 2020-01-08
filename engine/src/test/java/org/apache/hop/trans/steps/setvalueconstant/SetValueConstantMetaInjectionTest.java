@@ -22,11 +22,11 @@
 
 package org.apache.hop.trans.steps.setvalueconstant;
 
+import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 /**
  * Created by bmorrise on 5/18/18.

@@ -22,6 +22,23 @@
 
 package org.apache.hop.ui.job.entries.http;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.HTTPProtocol;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.http.JobEntryHTTP;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -46,23 +63,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.HTTPProtocol;
-import org.apache.hop.core.Props;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.http.JobEntryHTTP;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.PasswordTextVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * This dialog allows you to edit the SQL job entry settings. (select the connection and the sql script to be executed)
@@ -745,8 +745,8 @@ public class JobEntryHTTPDialog extends JobEntryDialog implements JobEntryDialog
 
         new ColumnInfo(
           BaseMessages.getString( PKG, "JobHTTP.ColumnInfo.Value" ), ColumnInfo.COLUMN_TYPE_TEXT, false ), };
-    colinf[0].setUsingVariables( true );
-    colinf[1].setUsingVariables( true );
+    colinf[ 0 ].setUsingVariables( true );
+    colinf[ 1 ].setUsingVariables( true );
 
     wHeaders =
       new TableView(
@@ -840,7 +840,7 @@ public class JobEntryHTTPDialog extends JobEntryDialog implements JobEntryDialog
     wFieldURL.setEnabled( wRunEveryRow.getSelection() );
     wlFieldUpload.setEnabled( wRunEveryRow.getSelection() );
     wFieldUpload.setEnabled( wRunEveryRow.getSelection() );
-    wlFieldTarget.setEnabled(  wRunEveryRow.getSelection() );
+    wlFieldTarget.setEnabled( wRunEveryRow.getSelection() );
     wFieldTarget.setEnabled( wRunEveryRow.getSelection() );
 
     wlUploadFile.setEnabled( !wRunEveryRow.getSelection() );
@@ -896,11 +896,11 @@ public class JobEntryHTTPDialog extends JobEntryDialog implements JobEntryDialog
     if ( headerNames != null ) {
       for ( int i = 0; i < headerNames.length; i++ ) {
         TableItem ti = wHeaders.table.getItem( i );
-        if ( headerNames[i] != null ) {
-          ti.setText( 1, headerNames[i] );
+        if ( headerNames[ i ] != null ) {
+          ti.setText( 1, headerNames[ i ] );
         }
-        if ( headerValues[i] != null ) {
-          ti.setText( 2, headerValues[i] );
+        if ( headerValues[ i ] != null ) {
+          ti.setText( 2, headerValues[ i ] );
         }
       }
       wHeaders.setRowNums();
@@ -957,8 +957,8 @@ public class JobEntryHTTPDialog extends JobEntryDialog implements JobEntryDialog
         nr++;
       }
     }
-    String[] headerNames = new String[nr];
-    String[] headerValues = new String[nr];
+    String[] headerNames = new String[ nr ];
+    String[] headerValues = new String[ nr ];
 
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
@@ -966,8 +966,8 @@ public class JobEntryHTTPDialog extends JobEntryDialog implements JobEntryDialog
       String varvalue = wHeaders.getNonEmpty( i ).getText( 2 );
 
       if ( varname != null && varname.length() != 0 ) {
-        headerNames[nr] = varname;
-        headerValues[nr] = varvalue;
+        headerNames[ nr ] = varname;
+        headerValues[ nr ] = varvalue;
         nr++;
       }
     }

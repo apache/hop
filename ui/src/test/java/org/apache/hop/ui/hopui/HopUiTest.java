@@ -22,36 +22,12 @@
 
 package org.apache.hop.ui.hopui;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
-import static junit.framework.Assert.*;
-
-import java.util.ArrayList;
-import java.util.Collections;
-
-import org.apache.hop.ui.hopui.delegates.HopUiTabsDelegate;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Shell;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.apache.hop.base.AbstractMeta;
-import org.apache.hop.core.EngineMetaInterface;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.LastUsedFile;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-
 import org.apache.hop.trans.TransHopMeta;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepErrorMeta;
@@ -59,12 +35,37 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.csvinput.CsvInputMeta;
 import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
-import org.apache.hop.ui.core.FileDialogOperation;
-import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.hopui.delegates.HopUiDelegates;
-import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
-import org.apache.xul.swt.tab.TabItem;
+import org.apache.hop.ui.hopui.delegates.HopUiTabsDelegate;
 import org.apache.xul.swt.tab.TabSet;
+import org.eclipse.swt.SWT;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import java.util.ArrayList;
+import java.util.Collections;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyListOf;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * HopUI tests
@@ -88,7 +89,7 @@ public class HopUiTest {
   @Before
   public void setUp() throws HopException {
     doCallRealMethod().when( hopUi ).copySelected( any( TransMeta.class ), anyListOf( StepMeta.class ),
-        anyListOf( NotePadMeta.class ) );
+      anyListOf( NotePadMeta.class ) );
     doCallRealMethod().when( hopUi ).pasteXML( any( TransMeta.class ), anyString(), any( Point.class ) );
     doCallRealMethod().when( hopUi ).delHop( any( TransMeta.class ), any( TransHopMeta.class ) );
     when( hopUi.getLog() ).thenReturn( log );
@@ -99,7 +100,7 @@ public class HopUiTest {
   /**
    * test two steps
    * see also http://jira.pentaho.com/browse/PDI-689
-   * 
+   *
    * @throws HopException
    */
   @Test
@@ -115,7 +116,7 @@ public class HopUiTest {
     targetStep.setSelected( true );
 
     transMeta.addStep( sourceStep );
-    transMeta.addStep( targetStep  );
+    transMeta.addStep( targetStep );
 
     StepErrorMeta errorMeta = new StepErrorMeta( transMeta, sourceStep, targetStep );
     sourceStep.setStepErrorMeta( errorMeta );
@@ -126,10 +127,10 @@ public class HopUiTest {
     doAnswer( new Answer() {
       @Override
       public Object answer( InvocationOnMock invocation ) throws Throwable {
-        hopUi.pasteXML( transMeta, (String) invocation.getArguments()[0], mock( Point.class ) );
+        hopUi.pasteXML( transMeta, (String) invocation.getArguments()[ 0 ], mock( Point.class ) );
         assertTrue( "Steps was not copied", stepsSizeBefore < transMeta.getSteps().size() );
         //selected copied step
-        for ( StepMeta s:transMeta.getSelectedSteps() ) {
+        for ( StepMeta s : transMeta.getSelectedSteps() ) {
           if ( s.getStepMetaInterface() instanceof CsvInputMeta ) {
             //check that stepError was copied
             assertNotNull( "Error hop was not copied", s.getStepErrorMeta() );
@@ -142,9 +143,9 @@ public class HopUiTest {
   }
 
   /**
-   * test copy one step with error handling 
+   * test copy one step with error handling
    * see http://jira.pentaho.com/browse/PDI-13358
-   * 
+   *
    * @throws HopException
    */
   @Test
@@ -167,10 +168,10 @@ public class HopUiTest {
     doAnswer( new Answer() {
       @Override
       public Object answer( InvocationOnMock invocation ) throws Throwable {
-        hopUi.pasteXML( transMeta, (String) invocation.getArguments()[0], mock( Point.class ) );
+        hopUi.pasteXML( transMeta, (String) invocation.getArguments()[ 0 ], mock( Point.class ) );
         assertTrue( "Steps was not copied", stepsSizeBefore < transMeta.getSteps().size() );
         //selected copied step
-        for ( StepMeta s:transMeta.getSelectedSteps() ) {
+        for ( StepMeta s : transMeta.getSelectedSteps() ) {
           if ( s.getStepMetaInterface() instanceof CsvInputMeta ) {
             //check that stepError was empty, because we copy only one step from pair
             assertNull( "Error hop was not copied", s.getStepErrorMeta() );
@@ -182,7 +183,6 @@ public class HopUiTest {
 
     hopUi.copySelected( transMeta, transMeta.getSelectedSteps(), Collections.<NotePadMeta>emptyList() );
   }
-
 
 
   @Test

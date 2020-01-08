@@ -22,31 +22,29 @@
 
 package org.apache.hop.trans.steps.univariatestats;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.util.UUID;
-
 import org.apache.commons.io.IOUtils;
-import org.json.simple.parser.ParseException;
-import org.junit.Test;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.test.util.GetterSetterTester;
 import org.apache.test.util.ObjectTester;
 import org.apache.test.util.ObjectTesterBuilder;
 import org.apache.test.util.ObjectValidator;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class UnivariateStatsMetaFunctionTest {
   @Test
   public void testValuesConstructor() {
     UnivariateStatsMetaFunction function =
-        new UnivariateStatsMetaFunction( null, false, false, false, false, false, false, 0, false );
+      new UnivariateStatsMetaFunction( null, false, false, false, false, false, false, 0, false );
     assertNull( function.getSourceFieldName() );
     assertFalse( function.getCalcN() );
     assertFalse( function.getCalcMean() );
@@ -72,10 +70,10 @@ public class UnivariateStatsMetaFunctionTest {
   @Test
   public void testNodeConstructor() throws IOException, HopXMLException {
     String functionXml =
-        IOUtils.toString( UnivariateStatsMetaTest.class.getClassLoader().getResourceAsStream(
-            "org/apache/hop/trans/steps/univariatestats/trueValuesUnivariateStatsMetaFunctionNode.xml" ) );
+      IOUtils.toString( UnivariateStatsMetaTest.class.getClassLoader().getResourceAsStream(
+        "org/apache/hop/trans/steps/univariatestats/trueValuesUnivariateStatsMetaFunctionNode.xml" ) );
     UnivariateStatsMetaFunction function =
-        new UnivariateStatsMetaFunction( XMLHandler.loadXMLString( functionXml ).getFirstChild() );
+      new UnivariateStatsMetaFunction( XMLHandler.loadXMLString( functionXml ).getFirstChild() );
     assertEquals( "a", function.getSourceFieldName() );
     assertTrue( function.getCalcN() );
     assertTrue( function.getCalcMean() );
@@ -87,8 +85,8 @@ public class UnivariateStatsMetaFunctionTest {
     assertTrue( function.getInterpolatePercentile() );
 
     functionXml =
-        IOUtils.toString( UnivariateStatsMetaTest.class.getClassLoader().getResourceAsStream(
-            "org/apache/hop/trans/steps/univariatestats/falseValuesUnivariateStatsMetaFunctionNode.xml" ) );
+      IOUtils.toString( UnivariateStatsMetaTest.class.getClassLoader().getResourceAsStream(
+        "org/apache/hop/trans/steps/univariatestats/falseValuesUnivariateStatsMetaFunctionNode.xml" ) );
     function = new UnivariateStatsMetaFunction( XMLHandler.loadXMLString( functionXml ).getFirstChild() );
     assertTrue( Utils.isEmpty( function.getSourceFieldName() ) );
     assertFalse( function.getCalcN() );
@@ -104,17 +102,17 @@ public class UnivariateStatsMetaFunctionTest {
   @Test
   public void testEquals() throws IOException, HopXMLException {
     String functionXml =
-        IOUtils.toString( UnivariateStatsMetaTest.class.getClassLoader().getResourceAsStream(
-            "org/apache/hop/trans/steps/univariatestats/trueValuesUnivariateStatsMetaFunctionNode.xml" ) );
+      IOUtils.toString( UnivariateStatsMetaTest.class.getClassLoader().getResourceAsStream(
+        "org/apache/hop/trans/steps/univariatestats/trueValuesUnivariateStatsMetaFunctionNode.xml" ) );
     UnivariateStatsMetaFunction function =
-        new UnivariateStatsMetaFunction( XMLHandler.loadXMLString( functionXml ).getFirstChild() );
+      new UnivariateStatsMetaFunction( XMLHandler.loadXMLString( functionXml ).getFirstChild() );
     UnivariateStatsMetaFunction function2 =
-        new UnivariateStatsMetaFunction( XMLHandler.loadXMLString( functionXml ).getFirstChild() );
+      new UnivariateStatsMetaFunction( XMLHandler.loadXMLString( functionXml ).getFirstChild() );
     assertEquals( function, function2 );
 
     functionXml =
-        IOUtils.toString( UnivariateStatsMetaTest.class.getClassLoader().getResourceAsStream(
-            "org/apache/hop/trans/steps/univariatestats/falseValuesUnivariateStatsMetaFunctionNode.xml" ) );
+      IOUtils.toString( UnivariateStatsMetaTest.class.getClassLoader().getResourceAsStream(
+        "org/apache/hop/trans/steps/univariatestats/falseValuesUnivariateStatsMetaFunctionNode.xml" ) );
     function = new UnivariateStatsMetaFunction( XMLHandler.loadXMLString( functionXml ).getFirstChild() );
     assertFalse( function.equals( function2 ) );
     function2 = new UnivariateStatsMetaFunction( XMLHandler.loadXMLString( functionXml ).getFirstChild() );
@@ -124,18 +122,18 @@ public class UnivariateStatsMetaFunctionTest {
   @Test
   public void testClone() {
     UnivariateStatsMetaFunction function =
-        new UnivariateStatsMetaFunction( null, false, false, false, false, false, false, 0, false );
+      new UnivariateStatsMetaFunction( null, false, false, false, false, false, false, 0, false );
     assertEquals( UnivariateStatsMetaFunction.class, function.clone().getClass() );
   }
 
   @Test
   public void testGettersAndSetters() {
     GetterSetterTester<UnivariateStatsMetaFunction> getterSetterTest =
-        new GetterSetterTester<UnivariateStatsMetaFunction>( UnivariateStatsMetaFunction.class );
+      new GetterSetterTester<UnivariateStatsMetaFunction>( UnivariateStatsMetaFunction.class );
     ObjectTester<Boolean> primitiveBooleanTester =
-        new ObjectTesterBuilder<Boolean>().addObject( true ).addObject( false ).build();
+      new ObjectTesterBuilder<Boolean>().addObject( true ).addObject( false ).build();
     getterSetterTest.addObjectTester( "sourceFieldName", new ObjectTesterBuilder<String>().addObject( null ).addObject(
-        UUID.randomUUID().toString() ).build() );
+      UUID.randomUUID().toString() ).build() );
     getterSetterTest.addObjectTester( "calcN", primitiveBooleanTester );
     getterSetterTest.addObjectTester( "calcMean", primitiveBooleanTester );
     getterSetterTest.addObjectTester( "calcStdDev", primitiveBooleanTester );
@@ -144,19 +142,19 @@ public class UnivariateStatsMetaFunctionTest {
     getterSetterTest.addObjectTester( "calcMedian", primitiveBooleanTester );
     getterSetterTest.addObjectTester( "interpolatePercentile", primitiveBooleanTester );
     getterSetterTest.addObjectTester( "calcPercentile", new ObjectTesterBuilder<Double>().addObject( -100.0 )
-        .addObject( 0.0 ).addObject( 55.5 ).addObject( 100.0 ).setValidator( new ObjectValidator<Double>() {
+      .addObject( 0.0 ).addObject( 55.5 ).addObject( 100.0 ).setValidator( new ObjectValidator<Double>() {
 
-          @Override
-          public void validate( Double expected, Object actual ) {
-            assertEquals( Double.class, actual.getClass() );
-            double actualValue = ( (Double) actual ).doubleValue();
-            if ( 0 <= expected && expected <= 100 ) {
-              assertEquals( expected / 100.0, actualValue, 0 );
-            } else {
-              assertEquals( -1.0, actualValue, 0 );
-            }
+        @Override
+        public void validate( Double expected, Object actual ) {
+          assertEquals( Double.class, actual.getClass() );
+          double actualValue = ( (Double) actual ).doubleValue();
+          if ( 0 <= expected && expected <= 100 ) {
+            assertEquals( expected / 100.0, actualValue, 0 );
+          } else {
+            assertEquals( -1.0, actualValue, 0 );
           }
-        } ).build() );
+        }
+      } ).build() );
     getterSetterTest.test( new UnivariateStatsMetaFunction( null, false, false, false, false, false, false, 0, false ) );
   }
 }

@@ -30,7 +30,8 @@ public @interface MetaStoreAttribute {
   String nameListKey() default "";
 
   /**
-   * @return true if this attribute is a reference to an object which needs to be resolved by filename from a list.  The list is provided to the factory.  The list has a name specified with filenameListKey().
+   * @return true if this attribute is a reference to an object which needs to be resolved by filename from a list.  The list is provided to the factory.  The list has a name specified with
+   * filenameListKey().
    */
   boolean filenameReference() default false;
 
@@ -50,7 +51,8 @@ public @interface MetaStoreAttribute {
   String factoryNameKey() default "";
 
   /**
-   * @return the name of the shared flag indicator.  This is the name of the method in the referenced object which indicates whether or not the object should be updated/referenced centrally (true) or embedded locally (false).
+   * @return the name of the shared flag indicator.  This is the name of the method in the referenced object which indicates whether or not the object should be updated/referenced centrally (true)
+   * or embedded locally (false).
    * As the method name implies, this ONLY works with the use of a factory, not through a simple name or file reference.
    */
   String factorySharedIndicatorName() default "";

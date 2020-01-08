@@ -21,14 +21,15 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.loadsave.validator;
 
-import java.util.Random;
-import java.util.UUID;
-
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.exception.HopException;
 
+import java.util.Random;
+import java.util.UUID;
+
 public class ConditionLoadSaveValidator implements FieldLoadSaveValidator<Condition> {
   final Random rand = new Random();
+
   @Override
   public Condition getTestObject() {
     Condition rtn = new Condition();

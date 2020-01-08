@@ -26,10 +26,9 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobConfiguration;
 
-import java.io.IOException;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 public class RegisterJobServlet extends BaseJobServlet {
 

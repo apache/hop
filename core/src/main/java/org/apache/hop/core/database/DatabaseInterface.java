@@ -22,6 +22,11 @@
 
 package org.apache.hop.core.database;
 
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.variables.VariableSpace;
+
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -29,11 +34,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
 
 
 /**
@@ -49,8 +49,7 @@ public interface DatabaseInterface extends Cloneable {
   public String getPluginId();
 
   /**
-   * @param pluginId
-   *          set the plugin id of this plugin (after instantiation)
+   * @param pluginId set the plugin id of this plugin (after instantiation)
    */
   public void setPluginId( String pluginId );
 
@@ -60,9 +59,7 @@ public interface DatabaseInterface extends Cloneable {
   public String getPluginName();
 
   /**
-   *
-   * @param pluginName
-   *          set the plugin name of this plugin (after instantiation)
+   * @param pluginName set the plugin name of this plugin (after instantiation)
    */
   public void setPluginName( String pluginName );
 
@@ -72,8 +69,7 @@ public interface DatabaseInterface extends Cloneable {
   public int getAccessType();
 
   /**
-   * @param accessType
-   *          The accessType to set.
+   * @param accessType The accessType to set.
    */
   public void setAccessType( int accessType );
 
@@ -83,8 +79,7 @@ public interface DatabaseInterface extends Cloneable {
   public boolean isChanged();
 
   /**
-   * @param changed
-   *          The changed to set.
+   * @param changed The changed to set.
    */
   public void setChanged( boolean changed );
 
@@ -94,19 +89,17 @@ public interface DatabaseInterface extends Cloneable {
   public String getDatabaseName();
 
   /**
-   * @param databaseName
-   *          The databaseName to set.
+   * @param databaseName The databaseName to set.
    */
   public void setDatabaseName( String databaseName );
-  
+
   /**
    * @return Returns the hostname.
    */
   public String getHostname();
 
   /**
-   * @param hostname
-   *          The hostname to set.
+   * @param hostname The hostname to set.
    */
   public void setHostname( String hostname );
 
@@ -116,8 +109,7 @@ public interface DatabaseInterface extends Cloneable {
   public String getUsername();
 
   /**
-   * @param username
-   *          Sets the username to log onto the database with.
+   * @param username Sets the username to log onto the database with.
    */
   public void setUsername( String username );
 
@@ -127,8 +119,7 @@ public interface DatabaseInterface extends Cloneable {
   public String getPassword();
 
   /**
-   * @param password
-   *          The password to set.
+   * @param password The password to set.
    */
   public void setPassword( String password );
 
@@ -138,8 +129,7 @@ public interface DatabaseInterface extends Cloneable {
   public String getServername();
 
   /**
-   * @param servername
-   *          The servername to set.
+   * @param servername The servername to set.
    */
   public void setServername( String servername );
 
@@ -149,8 +139,7 @@ public interface DatabaseInterface extends Cloneable {
   public String getDataTablespace();
 
   /**
-   * @param data_tablespace
-   *          the tablespace to store data in
+   * @param data_tablespace the tablespace to store data in
    */
   public void setDataTablespace( String data_tablespace );
 
@@ -160,8 +149,7 @@ public interface DatabaseInterface extends Cloneable {
   public String getIndexTablespace();
 
   /**
-   * @param index_tablespace
-   *          the tablespace to store indexes in
+   * @param index_tablespace the tablespace to store indexes in
    */
   public void setIndexTablespace( String index_tablespace );
 
@@ -173,29 +161,34 @@ public interface DatabaseInterface extends Cloneable {
   /**
    * Set extra attributes on this database connection
    *
-   * @param attributes
-   *          The extra attributes to set on this database connection.
+   * @param attributes The extra attributes to set on this database connection.
    */
   public void setAttributes( Properties attributes );
 
   /**
    * Add extra attribute on this connection
+   *
    * @param attributeId the attribute identifier
-   * @param value the value of the attribute
+   * @param value       the value of the attribute
    */
   public default void addAttribute( String attributeId, String value ) {
     // Default implementation does nothing
-  };
+  }
+
+  ;
 
   /**
    * Gets an attribute from the connection
-   * @param attributeId the attribute identifier
+   *
+   * @param attributeId  the attribute identifier
    * @param defaultValue the default value in case the attribute is not found
    * @return the attribute value
    */
   public default String getAttribute( String attributeId, String defaultValue ) {
     return "";
-  };
+  }
+
+  ;
 
   /**
    * See if this database supports the setCharacterStream() method on a PreparedStatement.
@@ -212,22 +205,16 @@ public interface DatabaseInterface extends Cloneable {
   /**
    * Describe a Value as a field in the database.
    *
-   * @param v
-   *          The value to describe
-   * @param tk
-   *          The field that's going to be the technical key
-   * @param pk
-   *          The field that's going to be the primary key
-   * @param use_autoinc
-   *          Use autoincrement or not
-   * @param add_fieldname
-   *          Add the fieldname to the definition or not
-   * @param add_cr
-   *          Add a cariage return at the end of the definition or not.
+   * @param v             The value to describe
+   * @param tk            The field that's going to be the technical key
+   * @param pk            The field that's going to be the primary key
+   * @param use_autoinc   Use autoincrement or not
+   * @param add_fieldname Add the fieldname to the definition or not
+   * @param add_cr        Add a cariage return at the end of the definition or not.
    * @return a value described as a field in this database.
    */
   public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-    boolean add_fieldname, boolean add_cr );
+                                    boolean add_fieldname, boolean add_cr );
 
   /**
    * Get the list of possible access types for a database.
@@ -247,8 +234,7 @@ public interface DatabaseInterface extends Cloneable {
   public Map<String, String> getDefaultOptions();
 
   /**
-   * @param nrRows
-   *          The number of rows to which we want to limit the result of the query.
+   * @param nrRows The number of rows to which we want to limit the result of the query.
    * @return the clause after a select statement to limit the number of rows
    */
   public String getLimitClause( int nrRows );
@@ -256,8 +242,7 @@ public interface DatabaseInterface extends Cloneable {
   /**
    * Returns the minimal SQL to launch in order to determine the layout of the resultset for a given database table
    *
-   * @param tableName
-   *          The name of the table to determine the layout for
+   * @param tableName The name of the table to determine the layout for
    * @return The SQL to launch.
    */
   public String getSQLQueryFields( String tableName );
@@ -265,8 +250,7 @@ public interface DatabaseInterface extends Cloneable {
   /**
    * Get the not found technical key.
    *
-   * @param use_autoinc
-   *          Whether or not we want to use an auto increment field
+   * @param use_autoinc Whether or not we want to use an auto increment field
    * @return the lowest possible technical key to be used as the NOT FOUND row in a slowly changing dimension.
    */
   public int getNotFoundTK( boolean use_autoinc );
@@ -279,15 +263,11 @@ public interface DatabaseInterface extends Cloneable {
   public String getDriverClass();
 
   /**
-   * @param hostname
-   *          the hostname
-   * @param port
-   *          the port as a string
-   * @param databaseName
-   *          the database name
+   * @param hostname     the hostname
+   * @param port         the port as a string
+   * @param databaseName the database name
    * @return the URL to use for connecting to the database.
-   * @throws HopDatabaseException
-   *           in case a configuration error is detected.
+   * @throws HopDatabaseException in case a configuration error is detected.
    */
   public String getURL( String hostname, String port, String databaseName ) throws HopDatabaseException;
 
@@ -299,8 +279,7 @@ public interface DatabaseInterface extends Cloneable {
   /**
    * Get the SQL to get the next value of a sequence.
    *
-   * @param sequenceName
-   *          The sequence name
+   * @param sequenceName The sequence name
    * @return the SQL to get the next value of a sequence.
    */
   public String getSQLNextSequenceValue( String sequenceName );
@@ -308,8 +287,7 @@ public interface DatabaseInterface extends Cloneable {
   /**
    * Get the current value of a database sequence
    *
-   * @param sequenceName
-   *          The sequence to check
+   * @param sequenceName The sequence to check
    * @return The current value of a database sequence
    */
   public String getSQLCurrentSequenceValue( String sequenceName );
@@ -317,8 +295,7 @@ public interface DatabaseInterface extends Cloneable {
   /**
    * Check if a sequence exists.
    *
-   * @param sequenceName
-   *          The sequence to check
+   * @param sequenceName The sequence to check
    * @return The SQL to get the name of the sequence back from the databases data dictionary
    */
   public String getSQLSequenceExists( String sequenceName );
@@ -356,7 +333,6 @@ public interface DatabaseInterface extends Cloneable {
   public boolean supportsCatalogs();
 
   /**
-   *
    * @return true when the database engine supports empty transaction. (for example Informix does not!)
    */
   public boolean supportsEmptyTransactions();
@@ -397,10 +373,8 @@ public interface DatabaseInterface extends Cloneable {
    * Get the schema-table combination to query the right table. Usually that is SCHEMA.TABLENAME, however there are
    * exceptions to this rule...
    *
-   * @param schema_name
-   *          The schema name
-   * @param table_part
-   *          The tablename
+   * @param schema_name The schema name
+   * @param table_part  The tablename
    * @return the schema-table combination to query the right table.
    */
   public String getSchemaTableCombination( String schema_name, String table_part );
@@ -417,69 +391,51 @@ public interface DatabaseInterface extends Cloneable {
    * Get the maximum length of a text field (VARCHAR) for this database connection. If this size is exceeded use a CLOB.
    *
    * @return The maximum VARCHAR field length for this database type. (mostly identical to getMaxTextFieldLength() -
-   *         CLOB_LENGTH)
+   * CLOB_LENGTH)
    */
   public int getMaxVARCHARLength();
 
   /**
    * Generates the SQL statement to add a column to the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon );
+                                       String pk, boolean semicolon );
 
   /**
    * Generates the SQL statement to drop a column from the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to drop a column from the specified table
    */
   public String getDropColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon );
+                                        String pk, boolean semicolon );
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon );
+                                          String pk, boolean semicolon );
 
   /**
    * Clone this database interface: copy all info to a new object
@@ -549,31 +505,28 @@ public interface DatabaseInterface extends Cloneable {
   public String getSQLListOfProcedures();
 
   /**
-   * @param tableName
-   *          The table to be truncated.
+   * @param tableName The table to be truncated.
    * @return The SQL statement to truncate a table: remove all rows from it without a transaction
    */
   public String getTruncateTableStatement( String tableName );
 
   /**
    * @return true if the database rounds floating point numbers to the right precision. For example if the target field
-   *         is number(7,2) the value 12.399999999 is converted into 12.40
+   * is number(7,2) the value 12.399999999 is converted into 12.40
    */
   public boolean supportsFloatRoundingOnUpdate();
 
   /**
-   * @param tableNames
-   *          The names of the tables to lock
+   * @param tableNames The names of the tables to lock
    * @return The SQL command to lock database tables for write purposes. null is returned in case locking is not
-   *         supported on the target database.
+   * supported on the target database.
    */
   public String getSQLLockTables( String[] tableNames );
 
   /**
-   * @param tableNames
-   *          The names of the tables to unlock
+   * @param tableNames The names of the tables to unlock
    * @return The SQL command to unlock the database tables. null is returned in case locking is not supported on the
-   *         target database.
+   * target database.
    */
   public String getSQLUnlockTables( String[] tableNames );
 
@@ -593,8 +546,7 @@ public interface DatabaseInterface extends Cloneable {
   public boolean supportsBooleanDataType();
 
   /**
-   * @param b
-   *          Set to true if the database supports a boolean, bit, logical, ... datatype
+   * @param b Set to true if the database supports a boolean, bit, logical, ... datatype
    */
   public void setSupportsBooleanDataType( boolean b );
 
@@ -604,14 +556,13 @@ public interface DatabaseInterface extends Cloneable {
   public boolean preserveReservedCase();
 
   /**
-   * @param b
-   *          Set to true if reserved words' case should be preserved
+   * @param b Set to true if reserved words' case should be preserved
    */
   public void setPreserveReservedCase( boolean b );
 
   /**
    * @return true if the database defaults to naming tables and fields in upper case. True for most databases except for
-   *         stuborn stuff like Postgres ;-)
+   * stuborn stuff like Postgres ;-)
    */
   public boolean isDefaultingToUppercase();
 
@@ -623,12 +574,9 @@ public interface DatabaseInterface extends Cloneable {
   /**
    * Add an extra option to the attributes list
    *
-   * @param databaseTypeCode
-   *          The database type code for which the option applies
-   * @param option
-   *          The option to set
-   * @param value
-   *          The value of the option
+   * @param databaseTypeCode The database type code for which the option applies
+   * @param option           The option to set
+   * @param value            The value of the option
    */
   public void addExtraOption( String databaseTypeCode, String option, String value );
 
@@ -659,7 +607,7 @@ public interface DatabaseInterface extends Cloneable {
 
   /**
    * @return true if the database JDBC driver supports getBlob on the resultset. If not we must use getBytes() to get
-   *         the data.
+   * the data.
    */
   public boolean supportsGetBlob();
 
@@ -669,8 +617,7 @@ public interface DatabaseInterface extends Cloneable {
   public String getConnectSQL();
 
   /**
-   * @param sql
-   *          The SQL to execute right after connecting
+   * @param sql The SQL to execute right after connecting
    */
   public void setConnectSQL( String sql );
 
@@ -680,20 +627,17 @@ public interface DatabaseInterface extends Cloneable {
   public boolean supportsSetMaxRows();
 
   /**
-   * @param tablename
-   *          The table to verify the existance for
+   * @param tablename The table to verify the existance for
    * @return The SQL to execute to verify if the given table exists. If an Exception is thrown for this SQL, we don't
-   *         have the table.
+   * have the table.
    */
   public String getSQLTableExists( String tablename );
 
   /**
-   * @param column
-   *          The column to verify the existance for
-   * @param tablename
-   *          The table to verify the existance for
+   * @param column    The column to verify the existance for
+   * @param tablename The table to verify the existance for
    * @return The SQL to execute to verify if the given table exists. If an Exception is thrown for this SQL, we don't
-   *         have the column.
+   * have the column.
    */
   public String getSQLColumnExists( String column, String tablename );
 
@@ -708,8 +652,7 @@ public interface DatabaseInterface extends Cloneable {
   public boolean isStreamingResults();
 
   /**
-   * @param useStreaming
-   *          true if we want the database to stream results (normally this is an option just for MySQL).
+   * @param useStreaming true if we want the database to stream results (normally this is an option just for MySQL).
    */
   public void setStreamingResults( boolean useStreaming );
 
@@ -719,8 +662,7 @@ public interface DatabaseInterface extends Cloneable {
   public boolean isQuoteAllFields();
 
   /**
-   * @param quoteAllFields
-   *          true if all fields in DB should be quoted.
+   * @param quoteAllFields true if all fields in DB should be quoted.
    */
   public void setQuoteAllFields( boolean quoteAllFields );
 
@@ -730,8 +672,7 @@ public interface DatabaseInterface extends Cloneable {
   public boolean isForcingIdentifiersToLowerCase();
 
   /**
-   * @param forceLowerCase
-   *          true if all identifiers should be forced to lower case
+   * @param forceLowerCase true if all identifiers should be forced to lower case
    */
   public void setForcingIdentifiersToLowerCase( boolean forceLowerCase );
 
@@ -741,8 +682,7 @@ public interface DatabaseInterface extends Cloneable {
   public boolean isForcingIdentifiersToUpperCase();
 
   /**
-   * @param forceUpperCase
-   *          true if all identifiers should be forced to upper case
+   * @param forceUpperCase true if all identifiers should be forced to upper case
    */
   public void setForcingIdentifiersToUpperCase( boolean forceUpperCase );
 
@@ -752,8 +692,7 @@ public interface DatabaseInterface extends Cloneable {
   public boolean isUsingDoubleDecimalAsSchemaTableSeparator();
 
   /**
-   * @param useDoubleDecimalSeparator
-   *          true if we should use a double decimal separator to specify schema/table combinations on MS-SQL server
+   * @param useDoubleDecimalSeparator true if we should use a double decimal separator to specify schema/table combinations on MS-SQL server
    */
   public void setUsingDoubleDecimalAsSchemaTableSeparator( boolean useDoubleDecimalSeparator );
 
@@ -776,8 +715,7 @@ public interface DatabaseInterface extends Cloneable {
   public String getPreferredSchemaName();
 
   /**
-   * @param preferredSchemaName
-   *          The preferred schema name of this database connection.
+   * @param preferredSchemaName The preferred schema name of this database connection.
    */
   public void setPreferredSchemaName( String preferredSchemaName );
 
@@ -800,19 +738,18 @@ public interface DatabaseInterface extends Cloneable {
 
   /**
    * @return true if we need to append the PRIMARY KEY block in the create table block after the fields, required for
-   *         Cache.
+   * Cache.
    */
   public boolean requiresCreateTablePrimaryKeyAppend();
 
   /**
    * @return true if the database requires you to cast a parameter to varchar before comparing to null.
-   *
    */
   public boolean requiresCastToVariousForIsNull();
 
   /**
    * @return Handles the special case of DB2 where the display size returned is twice the precision. In that case, the
-   *         length is the precision.
+   * length is the precision.
    */
   public boolean isDisplaySizeTwiceThePrecision();
 
@@ -820,7 +757,7 @@ public interface DatabaseInterface extends Cloneable {
    * Most databases allow you to retrieve result metadata by preparing a SELECT statement.
    *
    * @return true if the database supports retrieval of query metadata from a prepared statement. False if the query
-   *         needs to be executed first.
+   * needs to be executed first.
    */
   public boolean supportsPreparedStatementMetadataRetrieval();
 
@@ -853,12 +790,9 @@ public interface DatabaseInterface extends Cloneable {
   /**
    * Get the SQL to insert a new empty unknown record in a dimension.
    *
-   * @param schemaTable
-   *          the schema-table name to insert into
-   * @param keyField
-   *          The key field
-   * @param versionField
-   *          the version field
+   * @param schemaTable  the schema-table name to insert into
+   * @param keyField     The key field
+   * @param versionField the version field
    * @return the SQL to insert the unknown record into the SCD.
    */
   public String getSQLInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField, String versionField );
@@ -870,7 +804,7 @@ public interface DatabaseInterface extends Cloneable {
 
   /**
    * @return The name of the XUL overlay file to display extra options. This is only used in case of a non-standard
-   *         plugin. Usually this method returns null.
+   * plugin. Usually this method returns null.
    */
   public String getXulOverlayFile();
 
@@ -899,10 +833,8 @@ public interface DatabaseInterface extends Cloneable {
   /**
    * Generate a column alias given the column index and suggested name.
    *
-   * @param columnIndex
-   *          Index of column in query
-   * @param suggestedName
-   *          Suggested column name
+   * @param columnIndex   Index of column in query
+   * @param suggestedName Suggested column name
    * @return Column alias that is valid for this database
    */
   public String generateColumnAlias( int columnIndex, String suggestedName );
@@ -910,8 +842,7 @@ public interface DatabaseInterface extends Cloneable {
   /**
    * Parse all possible statements from the provided SQL script.
    *
-   * @param sqlScript
-   *          Raw SQL Script to be parsed into executable statements.
+   * @param sqlScript Raw SQL Script to be parsed into executable statements.
    * @return List of parsed SQL statements to be executed separately.
    */
   public List<String> parseStatements( String sqlScript );
@@ -919,8 +850,7 @@ public interface DatabaseInterface extends Cloneable {
   /**
    * Parse the statements in the provided SQL script, provide more information about where each was found in the script.
    *
-   * @param sqlScript
-   *          Raw SQL Script to be parsed into executable statements.
+   * @param sqlScript Raw SQL Script to be parsed into executable statements.
    * @return List of SQL script statements to be executed separately.
    */
   public List<SqlScriptStatement> getSqlScriptStatements( String sqlScript );
@@ -1006,16 +936,11 @@ public interface DatabaseInterface extends Cloneable {
   /**
    * Get the next Batch ID from the logging tables.
    *
-   * @param dbm
-   *          DatabaseMeta object
-   * @param ldb
-   *          Database connection
-   * @param schemaName
-   *          Logging Schema Name
-   * @param tableName
-   *          Logging Table Name
-   * @param fieldName
-   *          Batch Id Field name
+   * @param dbm        DatabaseMeta object
+   * @param ldb        Database connection
+   * @param schemaName Logging Schema Name
+   * @param tableName  Logging Table Name
+   * @param fieldName  Batch Id Field name
    * @return next batch ID
    * @throws HopDatabaseException
    */
@@ -1025,40 +950,31 @@ public interface DatabaseInterface extends Cloneable {
    * Returns the tablespace DDL fragment for a "Data" tablespace. In most databases that use tablespaces this is where
    * the tables are to be created.
    *
-   * @param variables
-   *          variables used for possible substitution
-   * @param databaseMeta
-   *          databaseMeta the database meta used for possible string enclosure of the tablespace. This method needs
-   *          this as this is done after environmental substitution.
-   *
+   * @param variables    variables used for possible substitution
+   * @param databaseMeta databaseMeta the database meta used for possible string enclosure of the tablespace. This method needs
+   *                     this as this is done after environmental substitution.
    * @return String the tablespace name for tables in the format "tablespace TABLESPACE_NAME". The TABLESPACE_NAME and
-   *         the passed DatabaseMata determines if TABLESPACE_NAME is to be enclosed in quotes.
+   * the passed DatabaseMata determines if TABLESPACE_NAME is to be enclosed in quotes.
    */
   public String getDataTablespaceDDL( VariableSpace variables, DatabaseMeta databaseMeta );
 
   /**
    * Returns the tablespace DDL fragment for a "Index" tablespace.
    *
-   * @param variables
-   *          variables used for possible substitution
-   * @param databaseMeta
-   *          databaseMeta the database meta used for possible string enclosure of the tablespace. This method needs
-   *          this as this is done after environmental substitution.
-   *
+   * @param variables    variables used for possible substitution
+   * @param databaseMeta databaseMeta the database meta used for possible string enclosure of the tablespace. This method needs
+   *                     this as this is done after environmental substitution.
    * @return String the tablespace name for indicis in the format "tablespace TABLESPACE_NAME". The TABLESPACE_NAME and
-   *         the passed DatabaseMata determines if TABLESPACE_NAME is to be enclosed in quotes.
+   * the passed DatabaseMata determines if TABLESPACE_NAME is to be enclosed in quotes.
    */
   public String getIndexTablespaceDDL( VariableSpace variables, DatabaseMeta databaseMeta );
 
   /**
    * This method allows a database dialect to convert database specific data types to Hop data types.
    *
-   * @param resultSet
-   *          The result set to use
-   * @param valueMeta
-   *          The description of the value to retrieve
-   * @param index
-   *          the index on which we need to retrieve the value, 0-based.
+   * @param resultSet The result set to use
+   * @param valueMeta The description of the value to retrieve
+   * @param index     the index on which we need to retrieve the value, 0-based.
    * @return The correctly converted Hop data type corresponding to the valueMeta description.
    * @throws HopDatabaseException
    */
@@ -1066,13 +982,13 @@ public interface DatabaseInterface extends Cloneable {
 
   /**
    * @return true if the database supports the use of safe-points and if it is appropriate to ever use it (default to
-   *         false)
+   * false)
    */
   public boolean useSafePoints();
 
   /**
    * @return true if the database supports error handling (the default). Returns false for certain databases (SQLite)
-   *         that invalidate a prepared statement or even the complete connection when an error occurs.
+   * that invalidate a prepared statement or even the complete connection when an error occurs.
    */
   public boolean supportsErrorHandling();
 
@@ -1080,20 +996,17 @@ public interface DatabaseInterface extends Cloneable {
    * Convert a value in the SQL equivalent. For example, convert String "Pentaho" into 'Pentaho' or into Oracle date
    * format TO_DATE('2012/08/16 15:36:59', 'YYYY/MM/DD HH24:MI:SS')
    *
-   * @param valueMeta
-   *          The description of the value. The date format used is taken from this value unless dateFormat is specified
-   *          (not null or empty)
-   * @param valueData
-   *          The data to convert.
+   * @param valueMeta The description of the value. The date format used is taken from this value unless dateFormat is specified
+   *                  (not null or empty)
+   * @param valueData The data to convert.
    * @return The value SQL clause
-   * @throws HopValueException
-   *           in case there is a data conversion error.
+   * @throws HopValueException in case there is a data conversion error.
    */
   public String getSQLValue( ValueMetaInterface valueMeta, Object valueData, String dateFormat ) throws HopValueException;
 
   /**
    * @return true if this database only supports metadata retrieval on a result set, never on a statement (even if the
-   *         statement has been executed)
+   * statement has been executed)
    */
   public boolean supportsResultSetMetadataRetrievalOnly();
 
@@ -1103,17 +1016,14 @@ public interface DatabaseInterface extends Cloneable {
   public boolean supportsTimestampDataType();
 
   /**
-   *
-   * @param b
-   *          Set to true if the database supports the Timestamp data type (nanosecond precision and all)
+   * @param b Set to true if the database supports the Timestamp data type (nanosecond precision and all)
    */
   public void setSupportsTimestampDataType( boolean b );
 
   /**
    * Given a String, this will sanitize and return a value safe for usage as a column name
    *
-   * @param fieldname
-   *          value to sanitize
+   * @param fieldname value to sanitize
    * @return a String safe for usage as a column name without the need for quoting
    */
   public String getSafeFieldname( String fieldname );
@@ -1131,13 +1041,13 @@ public interface DatabaseInterface extends Cloneable {
   /**
    * Customizes the ValueMetaInterface defined in the base
    *
-   * @param v the determined valueMetaInterface
-   * @param rm the sql column type
+   * @param v     the determined valueMetaInterface
+   * @param rm    the sql column type
    * @param index the index to the column to customize
    * @return ValueMetaInterface customized with the data base specific types
    */
   public ValueMetaInterface customizeValueFromSQLType( ValueMetaInterface v, java.sql.ResultSetMetaData rm, int index )
-      throws SQLException;
+    throws SQLException;
 
   /**
    * Customizes the ValueMetaInterface defined in the base
@@ -1146,7 +1056,7 @@ public interface DatabaseInterface extends Cloneable {
    */
   public String getCreateTableStatement();
 
-   /**
+  /**
    * Set default options for this database
    */
   default void addDefaultOptions() {
@@ -1155,6 +1065,7 @@ public interface DatabaseInterface extends Cloneable {
 
   /**
    * Create SqlScriptParser for current database dialect
+   *
    * @return instance of SqlScriptParser for current database dialect
    */
   default SqlScriptParser createSqlScriptParser() {
@@ -1230,5 +1141,5 @@ public interface DatabaseInterface extends Cloneable {
   /**
    * @param manualUrl A manually entered URL which will be used over the internally generated one
    */
-  public void setManualUrl(String manualUrl);
+  public void setManualUrl( String manualUrl );
 }

@@ -21,18 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.scriptvalues_mod;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -48,7 +36,19 @@ import org.apache.hop.trans.steps.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.powermock.reflect.Whitebox;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 public class ScriptValuesMetaModTest implements InitializerInterface<StepMetaInterface> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -61,7 +61,7 @@ public class ScriptValuesMetaModTest implements InitializerInterface<StepMetaInt
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "fieldname", "rename", "type", "length", "precision", "replace", "jsScripts", "compatible", "optimizationLevel" );
+      Arrays.asList( "fieldname", "rename", "type", "length", "precision", "replace", "jsScripts", "compatible", "optimizationLevel" );
 
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
@@ -90,10 +90,10 @@ public class ScriptValuesMetaModTest implements InitializerInterface<StepMetaInt
       }
     };
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
     FieldLoadSaveValidator<ScriptValuesScript[]> svsArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<ScriptValuesScript>( new ScriptValuesScriptLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<ScriptValuesScript>( new ScriptValuesScriptLoadSaveValidator(), 5 );
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "fieldname", stringArrayLoadSaveValidator );
@@ -102,14 +102,14 @@ public class ScriptValuesMetaModTest implements InitializerInterface<StepMetaInt
     attrValidatorMap.put( "length", new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( 100 ), 5 ) );
     attrValidatorMap.put( "precision", new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( 6 ), 5 ) );
     attrValidatorMap.put( "replace",
-        new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 5 ) );
+      new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 5 ) );
     attrValidatorMap.put( "jsScripts", svsArrayLoadSaveValidator );
 
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
-            getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class
@@ -126,6 +126,7 @@ public class ScriptValuesMetaModTest implements InitializerInterface<StepMetaInt
 
   public class ScriptValuesScriptLoadSaveValidator implements FieldLoadSaveValidator<ScriptValuesScript> {
     final Random rand = new Random();
+
     @Override
     public ScriptValuesScript getTestObject() {
       int scriptType = rand.nextInt( 4 );

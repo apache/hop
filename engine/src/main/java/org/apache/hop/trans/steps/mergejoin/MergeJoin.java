@@ -22,10 +22,6 @@
 
 package org.apache.hop.trans.steps.mergejoin;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowDataUtil;
@@ -42,10 +38,14 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 /**
  * Merge rows from 2 sorted streams and output joined rows with matched key fields. Use this instead of hash join is
  * both your input streams are too big to fit in memory. Note that both the inputs must be sorted on the join key.
- *
+ * <p>
  * This is a first prototype implementation that only handles two streams and inner join. It also always outputs all
  * values from both streams. Ideally, we should: 1) Support any number of incoming streams 2) Allow user to choose the
  * join type (inner, outer) for each stream 3) Allow user to choose which fields to push to next step 4) Have multiple
@@ -63,7 +63,7 @@ public class MergeJoin extends BaseStep implements StepInterface {
   private MergeJoinData data;
 
   public MergeJoin( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                    Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -115,13 +115,13 @@ public class MergeJoin extends BaseStep implements StepInterface {
 
       if ( data.one != null ) {
         // Find the key indexes:
-        data.keyNrs1 = new int[meta.getKeyFields1().length];
+        data.keyNrs1 = new int[ meta.getKeyFields1().length ];
         for ( int i = 0; i < data.keyNrs1.length; i++ ) {
-          data.keyNrs1[i] = data.oneMeta.indexOfValue( meta.getKeyFields1()[i] );
-          if ( data.keyNrs1[i] < 0 ) {
+          data.keyNrs1[ i ] = data.oneMeta.indexOfValue( meta.getKeyFields1()[ i ] );
+          if ( data.keyNrs1[ i ] < 0 ) {
             String message =
               BaseMessages.getString( PKG, "MergeJoin.Exception.UnableToFindFieldInReferenceStream", meta
-                .getKeyFields1()[i] );
+                .getKeyFields1()[ i ] );
             logError( message );
             throw new HopStepException( message );
           }
@@ -130,13 +130,13 @@ public class MergeJoin extends BaseStep implements StepInterface {
 
       if ( data.two != null ) {
         // Find the key indexes:
-        data.keyNrs2 = new int[meta.getKeyFields2().length];
+        data.keyNrs2 = new int[ meta.getKeyFields2().length ];
         for ( int i = 0; i < data.keyNrs2.length; i++ ) {
-          data.keyNrs2[i] = data.twoMeta.indexOfValue( meta.getKeyFields2()[i] );
-          if ( data.keyNrs2[i] < 0 ) {
+          data.keyNrs2[ i ] = data.twoMeta.indexOfValue( meta.getKeyFields2()[ i ] );
+          if ( data.keyNrs2[ i ] < 0 ) {
             String message =
               BaseMessages.getString( PKG, "MergeJoin.Exception.UnableToFindFieldInReferenceStream", meta
-                .getKeyFields2()[i] );
+                .getKeyFields2()[ i ] );
             logError( message );
             throw new HopStepException( message );
           }
@@ -148,7 +148,7 @@ public class MergeJoin extends BaseStep implements StepInterface {
 
       // Calculate two_dummy... defaults to null
       //
-      data.two_dummy = new Object[data.twoMeta.size()];
+      data.two_dummy = new Object[ data.twoMeta.size() ];
     }
 
     if ( log.isRowLevel() ) {
@@ -395,7 +395,7 @@ public class MergeJoin extends BaseStep implements StepInterface {
   }
 
   /**
-   * @see StepInterface#init(org.apache.hop.trans.step.StepMetaInterface , org.apache.hop.trans.step.StepDataInterface)
+   * @see StepInterface#init(org.apache.hop.trans.step.StepMetaInterface, org.apache.hop.trans.step.StepDataInterface)
    */
   public boolean init( StepMetaInterface smi, StepDataInterface sdi ) {
     meta = (MergeJoinMeta) smi;
@@ -409,9 +409,9 @@ public class MergeJoin extends BaseStep implements StepInterface {
       }
       String joinType = meta.getJoinType();
       for ( int i = 0; i < MergeJoinMeta.join_types.length; ++i ) {
-        if ( joinType.equalsIgnoreCase( MergeJoinMeta.join_types[i] ) ) {
-          data.one_optional = MergeJoinMeta.one_optionals[i];
-          data.two_optional = MergeJoinMeta.two_optionals[i];
+        if ( joinType.equalsIgnoreCase( MergeJoinMeta.join_types[ i ] ) ) {
+          data.one_optional = MergeJoinMeta.one_optionals[ i ];
+          data.two_optional = MergeJoinMeta.two_optionals[ i ];
           return true;
         }
       }
@@ -425,11 +425,8 @@ public class MergeJoin extends BaseStep implements StepInterface {
    * Checks whether incoming rows are join compatible. This essentially means that the keys being compared should be of
    * the same datatype and both rows should have the same number of keys specified
    *
-   * @param row1
-   *          Reference row
-   * @param row2
-   *          Row to compare to
-   *
+   * @param row1 Reference row
+   * @param row2 Row to compare to
    * @return true when templates are compatible.
    */
   protected boolean isInputLayoutValid( RowMetaInterface row1, RowMetaInterface row2 ) {
@@ -446,11 +443,11 @@ public class MergeJoin extends BaseStep implements StepInterface {
       }
 
       for ( int i = 0; i < nrKeyFields1; i++ ) {
-        ValueMetaInterface v1 = row1.searchValueMeta( keyFields1[i] );
+        ValueMetaInterface v1 = row1.searchValueMeta( keyFields1[ i ] );
         if ( v1 == null ) {
           return false;
         }
-        ValueMetaInterface v2 = row2.searchValueMeta( keyFields2[i] );
+        ValueMetaInterface v2 = row2.searchValueMeta( keyFields2[ i ] );
         if ( v2 == null ) {
           return false;
         }

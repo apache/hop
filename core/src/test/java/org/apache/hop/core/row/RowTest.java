@@ -22,16 +22,6 @@
 
 package org.apache.hop.core.row;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopEOFException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
@@ -41,8 +31,17 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
-
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -54,8 +53,8 @@ public class RowTest {
   public void testNormalStringConversion() throws Exception {
     SimpleDateFormat fmt = new SimpleDateFormat( "yyyy/MM/dd HH:mm:ss.SSS" );
     Object[] rowData1 =
-        new Object[] { "sampleString", fmt.parse( "2007/05/07 13:04:13.203" ), new Double( 9123.00 ),
-          new Long( 12345 ), new BigDecimal( "123456789012345678.9349" ), Boolean.TRUE, };
+      new Object[] { "sampleString", fmt.parse( "2007/05/07 13:04:13.203" ), new Double( 9123.00 ),
+        new Long( 12345 ), new BigDecimal( "123456789012345678.9349" ), Boolean.TRUE, };
     RowMetaInterface rowMeta1 = createTestRowMetaNormalStringConversion1();
 
     assertEquals( "sampleString", rowMeta1.getString( rowData1, 0 ) );
@@ -67,8 +66,8 @@ public class RowTest {
 
     fmt = new SimpleDateFormat( "yyyyMMddHHmmss" );
     Object[] rowData2 =
-        new Object[] { null, fmt.parse( "20070507130413" ), new Double( 9123.9 ), new Long( 12345 ),
-          new BigDecimal( "123456789012345678.9349" ), Boolean.FALSE, };
+      new Object[] { null, fmt.parse( "20070507130413" ), new Double( 9123.9 ), new Long( 12345 ),
+        new BigDecimal( "123456789012345678.9349" ), Boolean.FALSE, };
     RowMetaInterface rowMeta2 = createTestRowMetaNormalStringConversion2();
 
     assertTrue( rowMeta2.getString( rowData2, 0 ) == null );
@@ -86,8 +85,8 @@ public class RowTest {
     // create some timezone friendly dates
     SimpleDateFormat fmt = new SimpleDateFormat( "yyyy/MM/dd HH:mm:ss.SSS" );
     Date[] dates =
-        new Date[] { fmt.parse( "2007/05/07 13:04:13.203" ), null, fmt.parse( "2007/05/05 05:15:49.349" ),
-          fmt.parse( "2007/05/05 19:08:44.736" ), };
+      new Date[] { fmt.parse( "2007/05/07 13:04:13.203" ), null, fmt.parse( "2007/05/05 05:15:49.349" ),
+        fmt.parse( "2007/05/05 19:08:44.736" ), };
 
     RowMetaInterface rowMeta = createTestRowMetaIndexedStringConversion1( colors, dates );
 
@@ -121,14 +120,14 @@ public class RowTest {
 
     makeTestExtractDataWithTimestampConversion( rowMeta, " Test1", constTimestamp, constTimestamp );
     makeTestExtractDataWithTimestampConversion( rowMeta, " Test2", new Date( constTimestamp.getTime() ),
-        constTimestampForDate );
+      constTimestampForDate );
     makeTestExtractDataWithTimestampConversion( rowMeta, " Test3", new java.sql.Date( constTimestamp.getTime() ),
-        constTimestampForDate );
+      constTimestampForDate );
 
   }
 
   private void makeTestExtractDataWithTimestampConversion( RowMetaInterface rowMeta, String str, Date date,
-      Timestamp constTimestamp ) throws HopEOFException, HopFileException, IOException {
+                                                           Timestamp constTimestamp ) throws HopEOFException, HopFileException, IOException {
     Object[] rowData = new Object[] { str, date };
     byte[] result = RowMeta.extractData( rowMeta, rowData );
     DataInputStream stream = new DataInputStream( new ByteArrayInputStream( result ) );

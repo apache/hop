@@ -22,20 +22,10 @@
 
 package org.apache.hop.job.entry;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.AttributesInterface;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.CheckResultSourceInterface;
-import org.apache.hop.core.database.DatabaseInterface;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.ExtensionDataInterface;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.attributes.AttributesUtil;
@@ -54,21 +44,25 @@ import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.persist.IMetaStoreObjectFactory;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
-import org.apache.hop.metastore.util.HopDefaults;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceHolderInterface;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Base class for the different types of job-entries. Job entries can extend this base class to get access to common
@@ -77,15 +71,18 @@ import org.w3c.dom.Node;
  * specifically the <code>execute()</code> method.
  *
  * @author Matt Created on 18-jun-04
- *
  */
 public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInterface,
   AttributesInterface, ExtensionDataInterface, CheckResultSourceInterface, ResourceHolderInterface {
 
-  /** The name of the job entry */
+  /**
+   * The name of the job entry
+   */
   private String name;
 
-  /** The description of the job entry */
+  /**
+   * The description of the job entry
+   */
   private String description;
 
   /**
@@ -93,25 +90,39 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    */
   private String configId;
 
-  /** Whether the job entry has changed. */
+  /**
+   * Whether the job entry has changed.
+   */
   private boolean changed;
 
-  /** The variable bindings for the job entry */
+  /**
+   * The variable bindings for the job entry
+   */
   protected VariableSpace variables = new Variables();
 
-  /** The map for setVariablesStep bindings for the job entry */
+  /**
+   * The map for setVariablesStep bindings for the job entry
+   */
   protected Map<String, String> entryStepSetVariablesMap = new ConcurrentHashMap<>();
 
-  /** The parent job */
+  /**
+   * The parent job
+   */
   protected Job parentJob;
 
-  /** The log channel interface object, used for logging */
+  /**
+   * The log channel interface object, used for logging
+   */
   protected LogChannelInterface log;
 
-  /** The log level */
+  /**
+   * The log level
+   */
   private LogLevel logLevel = DefaultLogLevel.getLogLevel();
 
-  /** The container object id */
+  /**
+   * The container object id
+   */
   protected String containerObjectId;
 
   protected IMetaStore metaStore;
@@ -136,10 +147,8 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Instantiates a new job entry base object with the given name and description.
    *
-   * @param name
-   *          the name of the job entry
-   * @param description
-   *          the description of the job entry
+   * @param name        the name of the job entry
+   * @param description the description of the job entry
    */
   public JobEntryBase( String name, String description ) {
     setName( name );
@@ -194,8 +203,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Sets the name of the job entry
    *
-   * @param name
-   *          the new name
+   * @param name the new name
    */
   public void setName( String name ) {
     this.name = name;
@@ -214,8 +222,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Sets the description for the job entry.
    *
-   * @param Description
-   *          the new description
+   * @param Description the new description
    */
   public void setDescription( String Description ) {
     this.description = Description;
@@ -247,8 +254,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Sets whether the job entry has changed
    *
-   * @param ch
-   *          true if the job entry has changed, false otherwise
+   * @param ch true if the job entry has changed, false otherwise
    */
   public void setChanged( boolean ch ) {
     changed = ch;
@@ -388,14 +394,10 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * job entry's settings is passed in as an argument. Again, the helper class org.apache.hop.core.xml.XMLHandler is
    * typically used to conveniently read the settings from the XML node.
    *
-   * @param entrynode
-   *          the top-level XML node
-   * @param slaveServers
-   *          the list of slave servers
-   * @throws HopXMLException
-   *           if any errors occur during the loading of the XML
+   * @param entrynode the top-level XML node
+   * @throws HopXMLException if any errors occur during the loading of the XML
    */
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers ) throws HopXMLException {
+  public void loadXML( Node entrynode ) throws HopXMLException {
     try {
       setName( XMLHandler.getTagValue( entrynode, "name" ) );
       setDescription( XMLHandler.getTagValue( entrynode, "description" ) );
@@ -470,11 +472,9 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * Gets the SQL statements needed by this job entry to execute successfully, given a set of variables. For
    * JobEntryBase, this method returns an empty list.
    *
-   * @param space
-   *          a variable space object containing variable bindings
+   * @param space a variable space object containing variable bindings
    * @return an empty list
-   * @throws HopException
-   *           if any errors occur during the generation of SQL statements
+   * @throws HopException if any errors occur during the generation of SQL statements
    */
   public List<SQLStatement> getSQLStatements( IMetaStore metaStore, VariableSpace space ) throws HopException {
     return new ArrayList<>();
@@ -563,7 +563,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * Sets the parent variable space
    *
    * @see org.apache.hop.core.variables.VariableSpace#setParentVariableSpace(
-   *   org.apache.hop.core.variables.VariableSpace)
+   *org.apache.hop.core.variables.VariableSpace)
    */
   @Override
   public void setParentVariableSpace( VariableSpace parent ) {
@@ -596,10 +596,9 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * Returns a boolean representation of the specified variable after performing any necessary substitution. Truth
    * values include case-insensitive versions of "Y", "YES", "TRUE" or "1".
    *
-   * @param variableName
-   *          the name of the variable to interrogate
-   * @boolean defaultValue the value to use if the specified variable is unassigned.
+   * @param variableName the name of the variable to interrogate
    * @return a boolean representation of the specified variable after performing any necessary substitution
+   * @boolean defaultValue the value to use if the specified variable is unassigned.
    * @see org.apache.hop.core.variables.VariableSpace#getBooleanValueOfVariable(java.lang.String, boolean)
    */
   @Override
@@ -617,7 +616,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * Sets the values of the job entry's variables to the values from the parent variables
    *
    * @see org.apache.hop.core.variables.VariableSpace#initializeVariablesFrom(
-   *   org.apache.hop.core.variables.VariableSpace)
+   *org.apache.hop.core.variables.VariableSpace)
    */
   @Override
   public void initializeVariablesFrom( VariableSpace parent ) {
@@ -671,14 +670,10 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Allows JobEntry objects to check themselves for consistency
    *
-   * @param remarks
-   *          List of CheckResult objects indicating consistency status
-   * @param jobMeta
-   *          the metadata object for the job entry
-   * @param space
-   *          the variable space to resolve string expressions with variables with
-   * @param metaStore
-   *          the MetaStore to load common elements from
+   * @param remarks   List of CheckResult objects indicating consistency status
+   * @param jobMeta   the metadata object for the job entry
+   * @param space     the variable space to resolve string expressions with variables with
+   * @param metaStore the MetaStore to load common elements from
    */
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space, IMetaStore metaStore ) {
 
@@ -693,7 +688,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    */
   public List<ResourceReference> getResourceDependencies( JobMeta jobMeta ) {
     return new ArrayList<ResourceReference>( 5 ); // default: return an empty resource dependency list. Lower the
-                                                  // initial capacity
+    // initial capacity
   }
 
   /**
@@ -701,21 +696,15 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
    * resource naming interface allows the object to name appropriately without worrying about those parts of the
    * implementation specific details.
    *
-   * @param space
-   *          The variable space to resolve (environment) variables with.
-   * @param definitions
-   *          The map containing the filenames and content
-   * @param namingInterface
-   *          The resource naming interface allows the object to be named appropriately
-   * @param metaStore
-   *          the metaStore to load external metadata from
-   *
+   * @param space           The variable space to resolve (environment) variables with.
+   * @param definitions     The map containing the filenames and content
+   * @param namingInterface The resource naming interface allows the object to be named appropriately
+   * @param metaStore       the metaStore to load external metadata from
    * @return The filename for this object. (also contained in the definitions map)
-   * @throws HopException
-   *           in case something goes wrong during the export
+   * @throws HopException in case something goes wrong during the export
    */
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException {
+                                 ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException {
     return null;
   }
 
@@ -731,8 +720,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Sets the plugin id.
    *
-   * @param configId
-   *          the new plugin id
+   * @param configId the new plugin id
    */
   public void setPluginId( String configId ) {
     this.configId = configId;
@@ -741,15 +729,14 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * This returns the expected name for the dialog that edits a job entry. The expected name is in the org.apache.hop.ui
    * tree and has a class name that is the name of the job entry with 'Dialog' added to the end.
-   *
+   * <p>
    * e.g. if the job entry is org.apache.hop.job.entries.zipfile.JobEntryZipFile the dialog would be
    * org.apache.hop.ui.job.entries.zipfile.JobEntryZipFileDialog
-   *
+   * <p>
    * If the dialog class for a job entry does not match this pattern it should override this method and return the
    * appropriate class name
    *
    * @return full class name of the dialog
-   *
    * @deprecated As of release 8.1, use annotated-based dialog instead {@see org.apache.hop.core.annotations.PluginDialog}
    */
   @Deprecated
@@ -772,8 +759,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Sets the parent job.
    *
-   * @param parentJob
-   *          the new parent job
+   * @param parentJob the new parent job
    */
   public void setParentJob( Job parentJob ) {
     this.parentJob = parentJob;
@@ -830,8 +816,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Logs the specified string at the minimal level.
    *
-   * @param message
-   *          the message
+   * @param message the message
    */
   public void logMinimal( String message ) {
     log.logMinimal( message );
@@ -840,10 +825,8 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Logs the specified string and arguments at the minimal level.
    *
-   * @param message
-   *          the message
-   * @param arguments
-   *          the arguments
+   * @param message   the message
+   * @param arguments the arguments
    */
   public void logMinimal( String message, Object... arguments ) {
     log.logMinimal( message, arguments );
@@ -852,8 +835,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Logs the specified string at the basic level.
    *
-   * @param message
-   *          the message
+   * @param message the message
    */
   public void logBasic( String message ) {
     log.logBasic( message );
@@ -862,10 +844,8 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Logs the specified string and arguments at the basic level.
    *
-   * @param message
-   *          the message
-   * @param arguments
-   *          the arguments
+   * @param message   the message
+   * @param arguments the arguments
    */
   public void logBasic( String message, Object... arguments ) {
     log.logBasic( message, arguments );
@@ -874,8 +854,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Logs the specified string at the detailed level.
    *
-   * @param message
-   *          the message
+   * @param message the message
    */
   public void logDetailed( String message ) {
     log.logDetailed( message );
@@ -884,10 +863,8 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Logs the specified string and arguments at the detailed level.
    *
-   * @param message
-   *          the message
-   * @param arguments
-   *          the arguments
+   * @param message   the message
+   * @param arguments the arguments
    */
   public void logDetailed( String message, Object... arguments ) {
     log.logDetailed( message, arguments );
@@ -896,8 +873,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Logs the specified string at the debug level.
    *
-   * @param message
-   *          the message
+   * @param message the message
    */
   public void logDebug( String message ) {
     log.logDebug( message );
@@ -906,10 +882,8 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Logs the specified string and arguments at the debug level.
    *
-   * @param message
-   *          the message
-   * @param arguments
-   *          the arguments
+   * @param message   the message
+   * @param arguments the arguments
    */
   public void logDebug( String message, Object... arguments ) {
     log.logDebug( message, arguments );
@@ -918,8 +892,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Logs the specified string at the row level.
    *
-   * @param message
-   *          the message
+   * @param message the message
    */
   public void logRowlevel( String message ) {
     log.logRowlevel( message );
@@ -928,10 +901,8 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Logs the specified string and arguments at the row level.
    *
-   * @param message
-   *          the message
-   * @param arguments
-   *          the arguments
+   * @param message   the message
+   * @param arguments the arguments
    */
   public void logRowlevel( String message, Object... arguments ) {
     log.logRowlevel( message, arguments );
@@ -940,8 +911,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Logs the specified string at the error level.
    *
-   * @param message
-   *          the message
+   * @param message the message
    */
   public void logError( String message ) {
     log.logError( message );
@@ -950,10 +920,8 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Logs the specified string and Throwable object at the error level.
    *
-   * @param message
-   *          the message
-   * @param e
-   *          the e
+   * @param message the message
+   * @param e       the e
    */
   public void logError( String message, Throwable e ) {
     log.logError( message, e );
@@ -962,10 +930,8 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Logs the specified string and arguments at the error level.
    *
-   * @param message
-   *          the message
-   * @param arguments
-   *          the arguments
+   * @param message   the message
+   * @param arguments the arguments
    */
   public void logError( String message, Object... arguments ) {
     log.logError( message, arguments );
@@ -1049,8 +1015,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Sets the logging level for the job entry
    *
-   * @param logLevel
-   *          the new log level
+   * @param logLevel the new log level
    */
   public void setLogLevel( LogLevel logLevel ) {
     this.logLevel = logLevel;
@@ -1070,8 +1035,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Sets the container object id
    *
-   * @param containerObjectId
-   *          the container object id to set
+   * @param containerObjectId the container object id to set
    */
   public void setContainerObjectId( String containerObjectId ) {
     this.containerObjectId = containerObjectId;
@@ -1113,12 +1077,9 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   /**
    * Load the referenced object
    *
-   * @param index
-   *          the referenced object index to load (in case there are multiple references)
-   * @param metaStore
-   *          the metaStore to load from
-   * @param space
-   *          the variable space to use
+   * @param index     the referenced object index to load (in case there are multiple references)
+   * @param metaStore the metaStore to load from
+   * @param space     the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
@@ -1227,9 +1188,9 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   protected Map<String, String> getEntryStepSetVariablesMap() {
     return entryStepSetVariablesMap;
   }
+
   /**
    * Sets the value of the specified EntryStepSetVariable
-   *
    */
   public void setEntryStepSetVariable( String variableName, String variableValue ) {
     // ConcurrentHashMap does not allow null keys and null values.
@@ -1244,7 +1205,6 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
 
   /**
    * Gets the value of the specified EntryStepSetVariable
-   *
    */
   public String getEntryStepSetVariable( String variableName ) {
     return entryStepSetVariablesMap.get( variableName );

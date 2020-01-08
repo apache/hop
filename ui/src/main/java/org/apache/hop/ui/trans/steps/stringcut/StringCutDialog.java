@@ -22,12 +22,22 @@
 
 package org.apache.hop.ui.trans.steps.stringcut;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.stringcut.StringCutMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.TableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -46,22 +56,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.stringcut.StringCutMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.TableItemInsertListener;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class StringCutDialog extends BaseStepDialog implements StepDialogInterface {
 
@@ -140,26 +140,26 @@ public class StringCutDialog extends BaseStepDialog implements StepDialogInterfa
     int nrFieldCols = 4;
     int nrFieldRows = ( input.getFieldInStream() != null ? input.getFieldInStream().length : 1 );
 
-    ciKey = new ColumnInfo[nrFieldCols];
-    ciKey[0] =
+    ciKey = new ColumnInfo[ nrFieldCols ];
+    ciKey[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StringCutDialog.ColumnInfo.InStreamField" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    ciKey[1] =
+    ciKey[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StringCutDialog.ColumnInfo.OutStreamField" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    ciKey[2] =
+    ciKey[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StringCutDialog.ColumnInfo.CutFrom" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    ciKey[3] =
+    ciKey[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StringCutDialog.ColumnInfo.CutTo" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
 
-    ciKey[2].setUsingVariables( true );
-    ciKey[1].setToolTip( BaseMessages.getString( PKG, "StringCutDialog.ColumnInfo.OutStreamField.Tooltip" ) );
-    ciKey[3].setUsingVariables( true );
+    ciKey[ 2 ].setUsingVariables( true );
+    ciKey[ 1 ].setToolTip( BaseMessages.getString( PKG, "StringCutDialog.ColumnInfo.OutStreamField.Tooltip" ) );
+    ciKey[ 3 ].setUsingVariables( true );
 
     wFields =
       new TableView(
@@ -274,10 +274,10 @@ public class StringCutDialog extends BaseStepDialog implements StepDialogInterfa
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    ciKey[0].setComboValues( fieldNames );
+    ciKey[ 0 ].setComboValues( fieldNames );
   }
 
   /**
@@ -287,17 +287,17 @@ public class StringCutDialog extends BaseStepDialog implements StepDialogInterfa
     if ( input.getFieldInStream() != null ) {
       for ( int i = 0; i < input.getFieldInStream().length; i++ ) {
         TableItem item = wFields.table.getItem( i );
-        if ( input.getFieldInStream()[i] != null ) {
-          item.setText( 1, input.getFieldInStream()[i] );
+        if ( input.getFieldInStream()[ i ] != null ) {
+          item.setText( 1, input.getFieldInStream()[ i ] );
         }
-        if ( input.getFieldOutStream()[i] != null ) {
-          item.setText( 2, input.getFieldOutStream()[i] );
+        if ( input.getFieldOutStream()[ i ] != null ) {
+          item.setText( 2, input.getFieldOutStream()[ i ] );
         }
-        if ( input.getCutFrom()[i] != null ) {
-          item.setText( 3, input.getCutFrom()[i] );
+        if ( input.getCutFrom()[ i ] != null ) {
+          item.setText( 3, input.getCutFrom()[ i ] );
         }
-        if ( input.getCutTo()[i] != null ) {
-          item.setText( 4, input.getCutTo()[i] );
+        if ( input.getCutTo()[ i ] != null ) {
+          item.setText( 4, input.getCutTo()[ i ] );
         }
       }
     }
@@ -325,10 +325,10 @@ public class StringCutDialog extends BaseStepDialog implements StepDialogInterfa
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrkeys; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      inf.getFieldInStream()[i] = item.getText( 1 );
-      inf.getFieldOutStream()[i] = item.getText( 2 );
-      inf.getCutFrom()[i] = item.getText( 3 );
-      inf.getCutTo()[i] = item.getText( 4 );
+      inf.getFieldInStream()[ i ] = item.getText( 1 );
+      inf.getFieldOutStream()[ i ] = item.getText( 2 );
+      inf.getCutFrom()[ i ] = item.getText( 3 );
+      inf.getCutTo()[ i ] = item.getText( 4 );
     }
 
     stepname = wStepname.getText(); // return value
@@ -366,7 +366,7 @@ public class StringCutDialog extends BaseStepDialog implements StepDialogInterfa
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "StringCutDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "StringCutDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "StringCutDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 }

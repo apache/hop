@@ -22,11 +22,11 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.hop.i18n.BaseMessages;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.i18n.BaseMessages;
 
 /**
  * Created by bmorrise on 10/13/16.

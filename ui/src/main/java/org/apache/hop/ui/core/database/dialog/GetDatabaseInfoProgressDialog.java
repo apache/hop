@@ -22,18 +22,18 @@
 
 package org.apache.hop.ui.core.database.dialog;
 
-import java.lang.reflect.InvocationTargetException;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaInformation;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopui.HopUi;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.swt.widgets.Shell;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Takes care of displaying a dialog that will handle the wait while we're finding out what tables, views etc we can
@@ -93,6 +93,6 @@ public class GetDatabaseInfoProgressDialog {
   private void showErrorDialog( Exception e ) {
     new ErrorDialog(
       shell, BaseMessages.getString( PKG, "GetDatabaseInfoProgressDialog.Error.Title" ), BaseMessages.getString(
-        PKG, "GetDatabaseInfoProgressDialog.Error.Message" ), e );
+      PKG, "GetDatabaseInfoProgressDialog.Error.Message" ), e );
   }
 }

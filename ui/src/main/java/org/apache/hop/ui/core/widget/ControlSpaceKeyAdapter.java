@@ -22,6 +22,11 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
 import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
@@ -40,11 +45,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -65,23 +65,20 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
 
   /**
    * @param space
-   * @param control
-   *          a Text or CCombo box object
+   * @param control a Text or CCombo box object
    */
   public ControlSpaceKeyAdapter( final VariableSpace space, final Control control ) {
     this( space, control, null, null );
   }
 
   /**
-   *
    * @param space
-   * @param control
-   *          a Text or CCombo box object
+   * @param control                   a Text or CCombo box object
    * @param getCaretPositionInterface
    * @param insertTextInterface
    */
   public ControlSpaceKeyAdapter( VariableSpace space, final Control control,
-    final GetCaretPositionInterface getCaretPositionInterface, final InsertTextInterface insertTextInterface ) {
+                                 final GetCaretPositionInterface getCaretPositionInterface, final InsertTextInterface insertTextInterface ) {
 
     this.variables = space;
     this.control = control;
@@ -156,7 +153,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
           if ( list.getSelectionCount() <= 0 ) {
             return;
           }
-          String name = list.getSelection()[0];
+          String name = list.getSelection()[ 0 ];
           String value = variables.getVariable( name );
           Rectangle shellBounds = shell.getBounds();
           String message = BaseMessages.getString( PKG, "TextVar.VariableValue.Message", name, value );
@@ -193,11 +190,11 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
   }
 
   private static final void applyChanges( Shell shell, List list, Control control, int position,
-    InsertTextInterface insertTextInterface ) {
+                                          InsertTextInterface insertTextInterface ) {
     String selection =
-        list.getSelection()[0].contains( Const.getDeprecatedPrefix() )
-        ? list.getSelection()[0].replace( Const.getDeprecatedPrefix(), "" )
-        : list.getSelection()[0];
+      list.getSelection()[ 0 ].contains( Const.getDeprecatedPrefix() )
+        ? list.getSelection()[ 0 ].replace( Const.getDeprecatedPrefix(), "" )
+        : list.getSelection()[ 0 ];
     String extra = "${" + selection + "}";
     if ( insertTextInterface != null ) {
       insertTextInterface.insertText( extra, position );
@@ -232,8 +229,8 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
     String[] variableNames = space.listVariables();
     for ( int i = 0; i < variableNames.length; i++ ) {
       for ( int j = 0; j < Const.DEPRECATED_VARIABLES.length; j++ ) {
-        if ( variableNames[i].equals( Const.DEPRECATED_VARIABLES[j] ) ) {
-          variableNames[i] = variableNames[i] + Const.getDeprecatedPrefix();
+        if ( variableNames[ i ].equals( Const.DEPRECATED_VARIABLES[ j ] ) ) {
+          variableNames[ i ] = variableNames[ i ] + Const.getDeprecatedPrefix();
           break;
         }
       }

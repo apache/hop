@@ -22,15 +22,15 @@
 
 package org.apache.hop.core.database;
 
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.map.DatabaseConnectionMap;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.After;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.sql.Connection;
 import java.util.ArrayList;

@@ -17,14 +17,7 @@
 
 package org.apache.hop.metastore.test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import junit.framework.TestCase;
-
-import org.junit.Ignore;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.IMetaStoreAttribute;
 import org.apache.hop.metastore.api.IMetaStoreElement;
@@ -37,6 +30,12 @@ import org.apache.hop.metastore.api.security.MetaStoreElementOwnerType;
 import org.apache.hop.metastore.api.security.MetaStoreObjectPermission;
 import org.apache.hop.metastore.api.security.MetaStoreOwnerPermissions;
 import org.apache.hop.metastore.util.HopDefaults;
+import org.junit.Ignore;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 @Ignore
 public class MetaStoreTestBase extends TestCase {
@@ -192,7 +191,7 @@ public class MetaStoreTestBase extends TestCase {
     fieldsElement.addChild( fieldElement );
     fieldElement.addChild( metaStore.newAttribute( "field_name", "Customer ID" ) );
     fieldElement.addChild( metaStore.newAttribute( "field_description",
-        "Customer ID as a natural key of this dimension" ) );
+      "Customer ID as a natural key of this dimension" ) );
     fieldElement.addChild( metaStore.newAttribute( "field_phyiscal_name", "customer_id" ) );
     fieldElement.addChild( metaStore.newAttribute( "field_kettle_type", "Integer" ) );
 
@@ -233,7 +232,7 @@ public class MetaStoreTestBase extends TestCase {
     //
     IMetaStoreElementOwner usersRole = metaStore.newElementOwner( "users", MetaStoreElementOwnerType.ROLE );
     MetaStoreOwnerPermissions usersRoleOwnerPermissions =
-        new MetaStoreOwnerPermissions( usersRole, MetaStoreObjectPermission.READ, MetaStoreObjectPermission.UPDATE );
+      new MetaStoreOwnerPermissions( usersRole, MetaStoreObjectPermission.READ, MetaStoreObjectPermission.UPDATE );
     element.getOwnerPermissionsList().add( usersRoleOwnerPermissions );
 
     return element;

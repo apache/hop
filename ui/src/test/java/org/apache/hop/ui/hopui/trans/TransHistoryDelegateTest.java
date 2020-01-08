@@ -22,14 +22,14 @@
 
 package org.apache.hop.ui.hopui.trans;
 
-import org.apache.hop.ui.hopui.HopUi;
-import org.junit.Test;
 import org.apache.hop.core.logging.LogTableField;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.hopui.HopUi;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -90,8 +90,8 @@ public class TransHistoryDelegateTest {
       new ColumnInfo( "COLUMN_6", ColumnInfo.COLUMN_TYPE_TEXT )
     };
 
-    colinf[1].setValueMeta( new ValueMetaString( "COLUMN_2" ) );
-    colinf[3].setValueMeta( new ValueMetaInteger( "COLUMN_5" ) );
+    colinf[ 1 ].setValueMeta( new ValueMetaString( "COLUMN_2" ) );
+    colinf[ 3 ].setValueMeta( new ValueMetaInteger( "COLUMN_5" ) );
 
     return colinf;
   }

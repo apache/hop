@@ -22,12 +22,23 @@
 
 package org.apache.hop.ui.trans.steps.stringoperations;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.stringoperations.StringOperationsMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.TableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -46,23 +57,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.stringoperations.StringOperationsMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.TableItemInsertListener;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Dialog class for the StringOperations step.
@@ -148,59 +148,59 @@ public class StringOperationsDialog extends BaseStepDialog implements StepDialog
     int nrFieldCols = 11;
     int nrFieldRows = ( input.getFieldInStream() != null ? input.getFieldInStream().length : 1 );
 
-    ciKey = new ColumnInfo[nrFieldCols];
-    ciKey[0] =
+    ciKey = new ColumnInfo[ nrFieldCols ];
+    ciKey[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StringOperationsDialog.ColumnInfo.InStreamField" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    ciKey[1] =
+    ciKey[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StringOperationsDialog.ColumnInfo.OutStreamField" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    ciKey[2] =
+    ciKey[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StringOperationsDialog.ColumnInfo.Trim" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, StringOperationsMeta.trimTypeDesc, true );
-    ciKey[3] =
+    ciKey[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StringOperationsDialog.ColumnInfo.LowerUpper" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, StringOperationsMeta.lowerUpperDesc, true );
-    ciKey[4] =
+    ciKey[ 4 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StringOperationsDialog.ColumnInfo.Padding" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, StringOperationsMeta.paddingDesc, true );
-    ciKey[5] =
+    ciKey[ 5 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StringOperationsDialog.ColumnInfo.CharPad" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    ciKey[6] =
+    ciKey[ 6 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StringOperationsDialog.ColumnInfo.LenPad" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    ciKey[7] =
+    ciKey[ 7 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StringOperationsDialog.ColumnInfo.InitCap" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, StringOperationsMeta.initCapDesc );
-    ciKey[8] =
+    ciKey[ 8 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StringOperationsDialog.ColumnInfo.MaskXML" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, StringOperationsMeta.maskXMLDesc );
-    ciKey[9] =
+    ciKey[ 9 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StringOperationsDialog.ColumnInfo.Digits" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, StringOperationsMeta.digitsDesc );
-    ciKey[10] =
+    ciKey[ 10 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StringOperationsDialog.ColumnInfo.RemoveSpecialCharacters" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, StringOperationsMeta.removeSpecialCharactersDesc );
 
-    ciKey[1]
+    ciKey[ 1 ]
       .setToolTip( BaseMessages.getString( PKG, "StringOperationsDialog.ColumnInfo.OutStreamField.Tooltip" ) );
-    ciKey[1].setUsingVariables( true );
-    ciKey[4].setUsingVariables( true );
-    ciKey[5].setUsingVariables( true );
-    ciKey[6].setUsingVariables( true );
-    ciKey[7].setUsingVariables( true );
+    ciKey[ 1 ].setUsingVariables( true );
+    ciKey[ 4 ].setUsingVariables( true );
+    ciKey[ 5 ].setUsingVariables( true );
+    ciKey[ 6 ].setUsingVariables( true );
+    ciKey[ 7 ].setUsingVariables( true );
 
     wFields =
       new TableView(
@@ -327,9 +327,9 @@ public class StringOperationsDialog extends BaseStepDialog implements StepDialog
   protected void setComboBoxes() {
     Set<String> keySet = inputFields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
     Const.sortStrings( fieldNames );
-    ciKey[0].setComboValues( fieldNames );
+    ciKey[ 0 ].setComboValues( fieldNames );
 
   }
 
@@ -340,26 +340,26 @@ public class StringOperationsDialog extends BaseStepDialog implements StepDialog
     if ( input.getFieldInStream() != null ) {
       for ( int i = 0; i < input.getFieldInStream().length; i++ ) {
         TableItem item = wFields.table.getItem( i );
-        if ( input.getFieldInStream()[i] != null ) {
-          item.setText( 1, input.getFieldInStream()[i] );
+        if ( input.getFieldInStream()[ i ] != null ) {
+          item.setText( 1, input.getFieldInStream()[ i ] );
         }
-        if ( input.getFieldOutStream()[i] != null ) {
-          item.setText( 2, input.getFieldOutStream()[i] );
+        if ( input.getFieldOutStream()[ i ] != null ) {
+          item.setText( 2, input.getFieldOutStream()[ i ] );
         }
-        item.setText( 3, StringOperationsMeta.getTrimTypeDesc( input.getTrimType()[i] ) );
-        item.setText( 4, StringOperationsMeta.getLowerUpperDesc( input.getLowerUpper()[i] ) );
-        item.setText( 5, StringOperationsMeta.getPaddingDesc( input.getPaddingType()[i] ) );
-        if ( input.getPadChar()[i] != null ) {
-          item.setText( 6, input.getPadChar()[i] );
+        item.setText( 3, StringOperationsMeta.getTrimTypeDesc( input.getTrimType()[ i ] ) );
+        item.setText( 4, StringOperationsMeta.getLowerUpperDesc( input.getLowerUpper()[ i ] ) );
+        item.setText( 5, StringOperationsMeta.getPaddingDesc( input.getPaddingType()[ i ] ) );
+        if ( input.getPadChar()[ i ] != null ) {
+          item.setText( 6, input.getPadChar()[ i ] );
         }
-        if ( input.getPadLen()[i] != null ) {
-          item.setText( 7, input.getPadLen()[i] );
+        if ( input.getPadLen()[ i ] != null ) {
+          item.setText( 7, input.getPadLen()[ i ] );
         }
-        item.setText( 8, StringOperationsMeta.getInitCapDesc( input.getInitCap()[i] ) );
-        item.setText( 9, StringOperationsMeta.getMaskXMLDesc( input.getMaskXML()[i] ) );
-        item.setText( 10, StringOperationsMeta.getDigitsDesc( input.getDigits()[i] ) );
+        item.setText( 8, StringOperationsMeta.getInitCapDesc( input.getInitCap()[ i ] ) );
+        item.setText( 9, StringOperationsMeta.getMaskXMLDesc( input.getMaskXML()[ i ] ) );
+        item.setText( 10, StringOperationsMeta.getDigitsDesc( input.getDigits()[ i ] ) );
         item.setText( 11, StringOperationsMeta
-          .getRemoveSpecialCharactersDesc( input.getRemoveSpecialCharacters()[i] ) );
+          .getRemoveSpecialCharactersDesc( input.getRemoveSpecialCharacters()[ i ] ) );
       }
     }
 
@@ -386,17 +386,17 @@ public class StringOperationsDialog extends BaseStepDialog implements StepDialog
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrkeys; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      inf.getFieldInStream()[i] = item.getText( 1 );
-      inf.getFieldOutStream()[i] = item.getText( 2 );
-      inf.getTrimType()[i] = StringOperationsMeta.getTrimTypeByDesc( item.getText( 3 ) );
-      inf.getLowerUpper()[i] = StringOperationsMeta.getLowerUpperByDesc( item.getText( 4 ) );
-      inf.getPaddingType()[i] = StringOperationsMeta.getPaddingByDesc( item.getText( 5 ) );
-      inf.getPadChar()[i] = item.getText( 6 );
-      inf.getPadLen()[i] = item.getText( 7 );
-      inf.getInitCap()[i] = StringOperationsMeta.getInitCapByDesc( item.getText( 8 ) );
-      inf.getMaskXML()[i] = StringOperationsMeta.getMaskXMLByDesc( item.getText( 9 ) );
-      inf.getDigits()[i] = StringOperationsMeta.getDigitsByDesc( item.getText( 10 ) );
-      inf.getRemoveSpecialCharacters()[i] = StringOperationsMeta.getRemoveSpecialCharactersByDesc( item.getText( 11 ) );
+      inf.getFieldInStream()[ i ] = item.getText( 1 );
+      inf.getFieldOutStream()[ i ] = item.getText( 2 );
+      inf.getTrimType()[ i ] = StringOperationsMeta.getTrimTypeByDesc( item.getText( 3 ) );
+      inf.getLowerUpper()[ i ] = StringOperationsMeta.getLowerUpperByDesc( item.getText( 4 ) );
+      inf.getPaddingType()[ i ] = StringOperationsMeta.getPaddingByDesc( item.getText( 5 ) );
+      inf.getPadChar()[ i ] = item.getText( 6 );
+      inf.getPadLen()[ i ] = item.getText( 7 );
+      inf.getInitCap()[ i ] = StringOperationsMeta.getInitCapByDesc( item.getText( 8 ) );
+      inf.getMaskXML()[ i ] = StringOperationsMeta.getMaskXMLByDesc( item.getText( 9 ) );
+      inf.getDigits()[ i ] = StringOperationsMeta.getDigitsByDesc( item.getText( 10 ) );
+      inf.getRemoveSpecialCharacters()[ i ] = StringOperationsMeta.getRemoveSpecialCharactersByDesc( item.getText( 11 ) );
     }
 
     stepname = wStepname.getText(); // return value

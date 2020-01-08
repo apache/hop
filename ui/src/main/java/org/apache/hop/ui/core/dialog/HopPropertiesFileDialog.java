@@ -22,20 +22,6 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopVariablesList;
 import org.apache.hop.core.logging.LogChannel;
@@ -50,6 +36,20 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.FieldDisabledListener;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -68,7 +68,6 @@ import java.util.Set;
  * Allows the user to edit the kettle.properties file.
  *
  * @author Matt
- *
  */
 public class HopPropertiesFileDialog extends Dialog {
   private static Class<?> PKG = HopPropertiesFileDialog.class; // for i18n purposes, needed by Translator2!!
@@ -90,12 +89,9 @@ public class HopPropertiesFileDialog extends Dialog {
   /**
    * Constructs a new dialog
    *
-   * @param parent
-   *          The parent shell to link to
-   * @param style
-   *          The style in which we want to draw this shell.
-   * @param strings
-   *          The list of rows to change.
+   * @param parent  The parent shell to link to
+   * @param style   The style in which we want to draw this shell.
+   * @param strings The list of rows to change.
    */
   public HopPropertiesFileDialog( Shell parent, int style ) {
     super( parent, style );
@@ -143,7 +139,7 @@ public class HopPropertiesFileDialog extends Dialog {
         new ColumnInfo(
           BaseMessages.getString( PKG, "HopPropertiesFileDialog.Description.Label" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false, true ), };
-    colinf[2].setDisabledListener( new FieldDisabledListener() {
+    colinf[ 2 ].setDisabledListener( new FieldDisabledListener() {
       public boolean isFieldDisabled( int rowNr ) {
         return false;
       }

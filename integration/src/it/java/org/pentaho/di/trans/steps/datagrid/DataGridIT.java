@@ -22,14 +22,6 @@
 
 package org.apache.hop.trans.steps.datagrid;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -39,7 +31,15 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransTestFactory;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.pentaho.test.util.FieldAccessorUtl;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class DataGridIT {
 

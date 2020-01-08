@@ -26,7 +26,7 @@ import org.apache.hop.core.gui.PrimitiveGCInterface;
 import org.apache.hop.core.row.RowMetaInterface;
 
 @RowDistributionPlugin( code = "FakeDistribution", name = "Fake distribution",
-    description = "Useful only for unit testing" )
+  description = "Useful only for unit testing" )
 public class FakeRowDistribution implements RowDistributionInterface {
 
   @Override
@@ -41,7 +41,7 @@ public class FakeRowDistribution implements RowDistributionInterface {
 
   @Override
   public void distributeRow( RowMetaInterface paramRowMetaInterface, Object[] paramArrayOfObject,
-      StepInterface paramStepInterface ) throws HopStepException {
+                             StepInterface paramStepInterface ) throws HopStepException {
     // TODO: Implement some distribution for test cases
   }
 

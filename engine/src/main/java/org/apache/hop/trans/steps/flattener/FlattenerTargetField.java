@@ -50,18 +50,18 @@ public class FlattenerTargetField {
   public static final int TYPE_AGGR_CONCAT_COMMA = 6;
 
   public static final String[] typeAggrCode = /* WARNING: DO NOT TRANSLATE THIS. WE ARE SERIOUS, DON'T TRANSLATE! */
-  { "-", "SUM", "AVERAGE", "MIN", "MAX", "COUNT_ALL", "CONCAT_COMMA"
-  };
+    { "-", "SUM", "AVERAGE", "MIN", "MAX", "COUNT_ALL", "CONCAT_COMMA"
+    };
 
   public static final String[] typeAggrLongDesc =
-  {
-    "-", BaseMessages.getString( PKG, "FlattenerTargetField.TypeAggrLongDesc.SUM" ),
-    BaseMessages.getString( PKG, "FlattenerTargetField.TypeAggrLongDesc.AVERAGE" ),
-    BaseMessages.getString( PKG, "FlattenerTargetField.TypeAggrLongDesc.MIN" ),
-    BaseMessages.getString( PKG, "FlattenerTargetField.TypeAggrLongDesc.MAX" ),
-    BaseMessages.getString( PKG, "FlattenerTargetField.TypeAggrLongDesc.COUNT_ALL" ),
-    BaseMessages.getString( PKG, "FlattenerTargetField.TypeAggrLongDesc.CONCAT_COMMA" )
-  };
+    {
+      "-", BaseMessages.getString( PKG, "FlattenerTargetField.TypeAggrLongDesc.SUM" ),
+      BaseMessages.getString( PKG, "FlattenerTargetField.TypeAggrLongDesc.AVERAGE" ),
+      BaseMessages.getString( PKG, "FlattenerTargetField.TypeAggrLongDesc.MIN" ),
+      BaseMessages.getString( PKG, "FlattenerTargetField.TypeAggrLongDesc.MAX" ),
+      BaseMessages.getString( PKG, "FlattenerTargetField.TypeAggrLongDesc.COUNT_ALL" ),
+      BaseMessages.getString( PKG, "FlattenerTargetField.TypeAggrLongDesc.CONCAT_COMMA" )
+    };
 
   /**
    * @return Returns the fieldName.
@@ -71,8 +71,7 @@ public class FlattenerTargetField {
   }
 
   /**
-   * @param fieldName
-   *          The fieldName to set.
+   * @param fieldName The fieldName to set.
    */
   public void setFieldName( String fieldName ) {
     this.fieldName = fieldName;
@@ -86,8 +85,7 @@ public class FlattenerTargetField {
   }
 
   /**
-   * @param targetFormat
-   *          The targetFormat to set.
+   * @param targetFormat The targetFormat to set.
    */
   public void setTargetFormat( String targetFormat ) {
     this.targetFormat = targetFormat;
@@ -107,8 +105,7 @@ public class FlattenerTargetField {
   }
 
   /**
-   * @param keyValue
-   *          The keyValue to set.
+   * @param keyValue The keyValue to set.
    */
   public void setKeyValue( String keyValue ) {
     this.keyValue = keyValue;
@@ -122,8 +119,7 @@ public class FlattenerTargetField {
   }
 
   /**
-   * @param targetCurrencySymbol
-   *          The targetCurrencySymbol to set.
+   * @param targetCurrencySymbol The targetCurrencySymbol to set.
    */
   public void setTargetCurrencySymbol( String targetCurrencySymbol ) {
     this.targetCurrencySymbol = targetCurrencySymbol;
@@ -137,8 +133,7 @@ public class FlattenerTargetField {
   }
 
   /**
-   * @param targetDecimalSymbol
-   *          The targetDecimalSymbol to set.
+   * @param targetDecimalSymbol The targetDecimalSymbol to set.
    */
   public void setTargetDecimalSymbol( String targetDecimalSymbol ) {
     this.targetDecimalSymbol = targetDecimalSymbol;
@@ -152,8 +147,7 @@ public class FlattenerTargetField {
   }
 
   /**
-   * @param targetGroupingSymbol
-   *          The targetGroupingSymbol to set.
+   * @param targetGroupingSymbol The targetGroupingSymbol to set.
    */
   public void setTargetGroupingSymbol( String targetGroupingSymbol ) {
     this.targetGroupingSymbol = targetGroupingSymbol;
@@ -167,8 +161,7 @@ public class FlattenerTargetField {
   }
 
   /**
-   * @param targetLength
-   *          The targetLength to set.
+   * @param targetLength The targetLength to set.
    */
   public void setTargetLength( int targetLength ) {
     this.targetLength = targetLength;
@@ -182,8 +175,7 @@ public class FlattenerTargetField {
   }
 
   /**
-   * @param targetName
-   *          The targetName to set.
+   * @param targetName The targetName to set.
    */
   public void setTargetName( String targetName ) {
     this.targetName = targetName;
@@ -197,8 +189,7 @@ public class FlattenerTargetField {
   }
 
   /**
-   * @param targetNullString
-   *          The targetNullString to set.
+   * @param targetNullString The targetNullString to set.
    */
   public void setTargetNullString( String targetNullString ) {
     this.targetNullString = targetNullString;
@@ -212,8 +203,7 @@ public class FlattenerTargetField {
   }
 
   /**
-   * @param targetPrecision
-   *          The targetPrecision to set.
+   * @param targetPrecision The targetPrecision to set.
    */
   public void setTargetPrecision( int targetPrecision ) {
     this.targetPrecision = targetPrecision;
@@ -227,8 +217,7 @@ public class FlattenerTargetField {
   }
 
   /**
-   * @param targetType
-   *          The targetType to set.
+   * @param targetType The targetType to set.
    */
   public void setTargetType( int targetType ) {
     this.targetType = targetType;
@@ -244,8 +233,7 @@ public class FlattenerTargetField {
   /**
    * Set the target type
    *
-   * @param typeDesc
-   *          the target value type description
+   * @param typeDesc the target value type description
    */
   public void setTargetType( String typeDesc ) {
     targetType = ValueMetaFactory.getIdForValueMeta( typeDesc );
@@ -259,8 +247,7 @@ public class FlattenerTargetField {
   }
 
   /**
-   * @param targetAggregationType
-   *          Specify the The aggregation type: when a key-value collision occurs, what it the aggregation to use.
+   * @param targetAggregationType Specify the The aggregation type: when a key-value collision occurs, what it the aggregation to use.
    */
   public void setTargetAggregationType( int targetAggregationType ) {
     this.targetAggregationType = targetAggregationType;
@@ -268,12 +255,12 @@ public class FlattenerTargetField {
 
   public static final int getAggregationType( String desc ) {
     for ( int i = 0; i < typeAggrCode.length; i++ ) {
-      if ( typeAggrCode[i].equalsIgnoreCase( desc ) ) {
+      if ( typeAggrCode[ i ].equalsIgnoreCase( desc ) ) {
         return i;
       }
     }
     for ( int i = 0; i < typeAggrLongDesc.length; i++ ) {
-      if ( typeAggrLongDesc[i].equalsIgnoreCase( desc ) ) {
+      if ( typeAggrLongDesc[ i ].equalsIgnoreCase( desc ) ) {
         return i;
       }
     }
@@ -284,14 +271,14 @@ public class FlattenerTargetField {
     if ( i < 0 || i >= typeAggrCode.length ) {
       return null;
     }
-    return typeAggrCode[i];
+    return typeAggrCode[ i ];
   }
 
   public static final String getAggregationTypeDescLong( int i ) {
     if ( i < 0 || i >= typeAggrLongDesc.length ) {
       return null;
     }
-    return typeAggrLongDesc[i];
+    return typeAggrLongDesc[ i ];
   }
 
   public void setTargetAggregationType( String aggregationType ) {

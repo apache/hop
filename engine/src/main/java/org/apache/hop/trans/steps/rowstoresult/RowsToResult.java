@@ -47,7 +47,7 @@ public class RowsToResult extends BaseStep implements StepInterface {
   private RowsToResultData data;
 
   public RowsToResult( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                       Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 

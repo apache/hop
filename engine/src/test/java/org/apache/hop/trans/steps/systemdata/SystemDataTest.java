@@ -22,17 +22,6 @@
 
 package org.apache.hop.trans.steps.systemdata;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
@@ -43,6 +32,17 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * User: Dzmitry Stsiapanau Date: 1/20/14 Time: 12:12 PM
@@ -54,7 +54,7 @@ public class SystemDataTest {
     Object[] outputRow;
 
     public SystemDataHandler( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
+                              Trans trans ) {
       super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
     }
 
@@ -77,10 +77,8 @@ public class SystemDataTest {
      * (synchronized) If distribute is true, a row is copied only once to the output rowsets, otherwise copies are sent
      * to each rowset!
      *
-     * @param row
-     *          The row to put to the destination rowset(s).
+     * @param row The row to put to the destination rowset(s).
      * @throws org.apache.hop.core.exception.HopStepException
-     *
      */
     @Override
     public void putRow( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
@@ -118,10 +116,10 @@ public class SystemDataTest {
     systemDataMeta.allocate( 2 );
     String[] names = systemDataMeta.getFieldName();
     SystemDataTypes[] types = systemDataMeta.getFieldType();
-    names[0] = "hostname";
-    names[1] = "hostname_real";
-    types[0] = SystemDataTypes.getTypeFromString( SystemDataTypes.TYPE_SYSTEM_INFO_HOSTNAME.getDescription() );
-    types[1] = SystemDataTypes.getTypeFromString( SystemDataTypes.TYPE_SYSTEM_INFO_HOSTNAME_REAL.getDescription() );
+    names[ 0 ] = "hostname";
+    names[ 1 ] = "hostname_real";
+    types[ 0 ] = SystemDataTypes.getTypeFromString( SystemDataTypes.TYPE_SYSTEM_INFO_HOSTNAME.getDescription() );
+    types[ 1 ] = SystemDataTypes.getTypeFromString( SystemDataTypes.TYPE_SYSTEM_INFO_HOSTNAME_REAL.getDescription() );
     SystemDataHandler systemData =
       new SystemDataHandler( stepMockHelper.stepMeta, stepMockHelper.stepDataInterface, 0, stepMockHelper.transMeta,
         stepMockHelper.trans );

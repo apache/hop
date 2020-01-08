@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.ui.core.PropsUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -32,9 +33,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
-import org.apache.hop.ui.core.PropsUI;
 
-public class RadioTab  extends Composite {
+public class RadioTab extends Composite {
   Group radioGroup;
   Composite contentArea;
   private PropsUI props;
@@ -88,7 +88,7 @@ public class RadioTab  extends Composite {
     FormData fdButton = new FormData();
     fdButton.top = new FormAttachment( 0 );
     fdButton.left = existingButtons.length == 0
-      ? new FormAttachment( 0 ) : new FormAttachment( existingButtons[existingButtons.length - 1], 40 );
+      ? new FormAttachment( 0 ) : new FormAttachment( existingButtons[ existingButtons.length - 1 ], 40 );
     button.setLayoutData( fdButton );
     button.setSelection( existingButtons.length == 0 );
     Composite content = new Composite( contentArea, SWT.NONE );
@@ -124,6 +124,6 @@ public class RadioTab  extends Composite {
       ( (Button) control ).setSelection( false );
     }
     ( (Button) radioGroup.getChildren()[ index ] ).setSelection( true );
-    radioGroup.getChildren()[index].notifyListeners( SWT.Selection, new Event() );
+    radioGroup.getChildren()[ index ].notifyListeners( SWT.Selection, new Event() );
   }
 }

@@ -22,33 +22,26 @@
 
 package org.apache.hop.job.entries.webserviceavailable;
 
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.List;
-
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 
 /**
  * This defines a webservice available job entry.
  *
  * @author Samatar
  * @since 05-11-2009
- *
  */
 
 public class JobEntryWebServiceAvailable extends JobEntryBase implements Cloneable, JobEntryInterface {
@@ -84,10 +77,10 @@ public class JobEntryWebServiceAvailable extends JobEntryBase implements Cloneab
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       url = XMLHandler.getTagValue( entrynode, "url" );
       connectTimeOut = XMLHandler.getTagValue( entrynode, "connectTimeOut" );
       readTimeOut = XMLHandler.getTagValue( entrynode, "readTimeOut" );

@@ -35,10 +35,8 @@ public class XMLHandlerCacheEntry {
   private String tag;
 
   /**
-   * @param parentNode
-   *          The parent node
-   * @param tag
-   *          The tag
+   * @param parentNode The parent node
+   * @param tag        The tag
    */
   public XMLHandlerCacheEntry( Node parentNode, String tag ) {
     this.parentNode = parentNode;
@@ -53,8 +51,7 @@ public class XMLHandlerCacheEntry {
   }
 
   /**
-   * @param parentNode
-   *          The parentNode to set.
+   * @param parentNode The parentNode to set.
    */
   public void setParentNode( Node parentNode ) {
     this.parentNode = parentNode;
@@ -68,8 +65,7 @@ public class XMLHandlerCacheEntry {
   }
 
   /**
-   * @param tag
-   *          The tag to set.
+   * @param tag The tag to set.
    */
   public void setTag( String tag ) {
     this.tag = tag;

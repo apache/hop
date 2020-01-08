@@ -22,14 +22,6 @@
 
 package org.apache.hop.trans.steps.httppost;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -40,6 +32,14 @@ import org.apache.hop.trans.steps.loadsave.validator.BooleanLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -53,19 +53,19 @@ public class HTTPPOSTMetaTest {
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "postAFile", "encoding", "url", "urlInField", "urlField", "requestEntity", "httpLogin",
-            "httpPassword", "proxyHost", "proxyPort", "socketTimeout", "connectionTimeout",
-            "closeIdleConnectionsTime", "argumentField", "argumentParameter", "argumentHeader", "queryField",
-            "queryParameter", "fieldName", "resultCodeFieldName", "responseTimeFieldName", "responseHeaderFieldName" );
+      Arrays.asList( "postAFile", "encoding", "url", "urlInField", "urlField", "requestEntity", "httpLogin",
+        "httpPassword", "proxyHost", "proxyPort", "socketTimeout", "connectionTimeout",
+        "closeIdleConnectionsTime", "argumentField", "argumentParameter", "argumentHeader", "queryField",
+        "queryParameter", "fieldName", "resultCodeFieldName", "responseTimeFieldName", "responseHeaderFieldName" );
 
     Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-        new HashMap<String, FieldLoadSaveValidator<?>>();
+      new HashMap<String, FieldLoadSaveValidator<?>>();
 
     //Arrays need to be consistent length
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 25 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 25 );
     FieldLoadSaveValidator<boolean[]> booleanArrayLoadSaveValidator =
-        new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 25 );
+      new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 25 );
     fieldLoadSaveValidatorAttributeMap.put( "argumentField", stringArrayLoadSaveValidator );
     fieldLoadSaveValidatorAttributeMap.put( "argumentParameter", stringArrayLoadSaveValidator );
     fieldLoadSaveValidatorAttributeMap.put( "argumentHeader", booleanArrayLoadSaveValidator );
@@ -73,7 +73,7 @@ public class HTTPPOSTMetaTest {
     fieldLoadSaveValidatorAttributeMap.put( "queryParameter", stringArrayLoadSaveValidator );
 
     loadSaveTester = new LoadSaveTester( HTTPPOSTMeta.class, attributes, new HashMap<String, String>(),
-        new HashMap<String, String>(), fieldLoadSaveValidatorAttributeMap, new HashMap<String, FieldLoadSaveValidator<?>>() );
+      new HashMap<String, String>(), fieldLoadSaveValidatorAttributeMap, new HashMap<String, FieldLoadSaveValidator<?>>() );
   }
 
   @Test

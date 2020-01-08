@@ -22,12 +22,6 @@
 
 package org.apache.hop.trans.steps.regexeval;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.row.RowMeta;
@@ -38,12 +32,18 @@ import org.apache.hop.trans.TransTestingUtil;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.steps.StepMockUtil;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import java.util.Arrays;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;

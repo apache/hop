@@ -22,40 +22,36 @@
 
 package org.apache.hop.job.entries.columnsexist;
 
-import org.apache.hop.job.entry.validator.AndValidator;
-import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import java.util.List;
-
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-
+import org.apache.hop.job.entry.validator.AndValidator;
+import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * This defines a column exists job entry.
  *
  * @author Samatar
  * @since 16-06-2008
- *
  */
 
 public class JobEntryColumnsExist extends JobEntryBase implements Cloneable, JobEntryInterface {
@@ -77,7 +73,7 @@ public class JobEntryColumnsExist extends JobEntryBase implements Cloneable, Job
   }
 
   public void allocate( int nrFields ) {
-    arguments = new String[nrFields];
+    arguments = new String[ nrFields ];
   }
 
   public Object clone() {
@@ -104,7 +100,7 @@ public class JobEntryColumnsExist extends JobEntryBase implements Cloneable, Job
     if ( arguments != null ) {
       for ( int i = 0; i < arguments.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "name", arguments[i] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "name", arguments[ i ] ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
@@ -113,9 +109,9 @@ public class JobEntryColumnsExist extends JobEntryBase implements Cloneable, Job
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       tablename = XMLHandler.getTagValue( entrynode, "tablename" );
       schemaname = XMLHandler.getTagValue( entrynode, "schemaname" );
 
@@ -131,7 +127,7 @@ public class JobEntryColumnsExist extends JobEntryBase implements Cloneable, Job
       // Read them all...
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        arguments[i] = XMLHandler.getTagValue( fnode, "name" );
+        arguments[ i ] = XMLHandler.getTagValue( fnode, "name" );
       }
 
     } catch ( HopException e ) {
@@ -210,7 +206,7 @@ public class JobEntryColumnsExist extends JobEntryBase implements Cloneable, Job
           }
 
           for ( int i = 0; i < arguments.length && !parentJob.isStopped(); i++ ) {
-            String realColumnname = environmentSubstitute( arguments[i] );
+            String realColumnname = environmentSubstitute( arguments[ i ] );
 
             if ( db.checkColumnExists( realSchemaname, realTablename, realColumnname ) ) {
               if ( log.isDetailed() ) {
@@ -244,7 +240,7 @@ public class JobEntryColumnsExist extends JobEntryBase implements Cloneable, Job
     result.setEntryNr( nrnotexistcolums );
     result.setNrLinesWritten( nrexistcolums );
     // result is true only if all columns found (PDI-15801)
-    if (  nrexistcolums == arguments.length ) {
+    if ( nrexistcolums == arguments.length ) {
       result.setNrErrors( 0 );
       result.setResult( true );
     }
@@ -272,7 +268,7 @@ public class JobEntryColumnsExist extends JobEntryBase implements Cloneable, Job
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "tablename", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "columnname", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
   }

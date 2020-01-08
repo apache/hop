@@ -28,9 +28,8 @@ import java.util.Iterator;
 /**
  * A factory delegate for a specific kind of LAFHandler
  *
- * @author dhushon
- *
  * @param <E>
+ * @author dhushon
  */
 public class LAFDelegate<E extends Handler> {
 

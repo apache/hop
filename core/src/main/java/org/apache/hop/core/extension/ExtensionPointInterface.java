@@ -30,12 +30,9 @@ public interface ExtensionPointInterface {
   /**
    * This method is called by the Hop code
    *
-   * @param log
-   *          the logging channel to log debugging information to
-   * @param object
-   *          The subject object that is passed to the plugin code
-   * @throws HopException
-   *           In case the plugin decides that an error has occurred and the parent process should stop.
+   * @param log    the logging channel to log debugging information to
+   * @param object The subject object that is passed to the plugin code
+   * @throws HopException In case the plugin decides that an error has occurred and the parent process should stop.
    */
   public void callExtensionPoint( LogChannelInterface log, Object object ) throws HopException;
 }

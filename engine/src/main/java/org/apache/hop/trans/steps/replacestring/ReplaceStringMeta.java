@@ -22,28 +22,23 @@
 
 package org.apache.hop.trans.steps.replacestring;
 
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.injection.AfterInjection;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -51,8 +46,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 @InjectionSupported( localizationPrefix = "ReplaceString.Injection.", groups = { "FIELDS" } )
 public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface {
@@ -74,7 +70,9 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
   @Injection( name = "REPLACE_BY", group = "FIELDS" )
   private String[] replaceByString;
 
-  /** Flag : set empty string **/
+  /**
+   * Flag : set empty string
+   **/
   @Injection( name = "EMPTY_STRING", group = "FIELDS" )
   private boolean[] setEmptyString;
 
@@ -138,8 +136,7 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param keyStream
-   *          The fieldInStream to set.
+   * @param keyStream The fieldInStream to set.
    */
   public void setFieldInStream( String[] keyStream ) {
     this.fieldInStream = keyStream;
@@ -177,8 +174,7 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param setEmptyString
-   *          the setEmptyString to set
+   * @param setEmptyString the setEmptyString to set
    */
   public void setEmptyString( boolean[] setEmptyString ) {
     this.setEmptyString = setEmptyString;
@@ -192,8 +188,7 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param keyStream
-   *          The fieldOutStream to set.
+   * @param keyStream The fieldOutStream to set.
    */
   public void setFieldOutStream( String[] keyStream ) {
     this.fieldOutStream = keyStream;
@@ -236,16 +231,16 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void allocate( int nrkeys ) {
-    fieldInStream = new String[nrkeys];
-    fieldOutStream = new String[nrkeys];
-    useRegEx = new int[nrkeys];
-    replaceString = new String[nrkeys];
-    replaceByString = new String[nrkeys];
-    setEmptyString = new boolean[nrkeys];
-    replaceFieldByString = new String[nrkeys];
-    wholeWord = new int[nrkeys];
-    caseSensitive = new int[nrkeys];
-    isUnicode = new int[nrkeys];
+    fieldInStream = new String[ nrkeys ];
+    fieldOutStream = new String[ nrkeys ];
+    useRegEx = new int[ nrkeys ];
+    replaceString = new String[ nrkeys ];
+    replaceByString = new String[ nrkeys ];
+    setEmptyString = new boolean[ nrkeys ];
+    replaceFieldByString = new String[ nrkeys ];
+    wholeWord = new int[ nrkeys ];
+    caseSensitive = new int[ nrkeys ];
+    isUnicode = new int[ nrkeys ];
   }
 
   public Object clone() {
@@ -279,19 +274,19 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
       for ( int i = 0; i < nrkeys; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( lookup, "field", i );
 
-        fieldInStream[i] = Const.NVL( XMLHandler.getTagValue( fnode, "in_stream_name" ), "" );
-        fieldOutStream[i] = Const.NVL( XMLHandler.getTagValue( fnode, "out_stream_name" ), "" );
-        useRegEx[i] = getCaseSensitiveByCode( Const.NVL( XMLHandler.getTagValue( fnode, "use_regex" ), "" ) );
-        replaceString[i] = Const.NVL( XMLHandler.getTagValue( fnode, "replace_string" ), "" );
-        replaceByString[i] = Const.NVL( XMLHandler.getTagValue( fnode, "replace_by_string" ), "" );
+        fieldInStream[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "in_stream_name" ), "" );
+        fieldOutStream[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "out_stream_name" ), "" );
+        useRegEx[ i ] = getCaseSensitiveByCode( Const.NVL( XMLHandler.getTagValue( fnode, "use_regex" ), "" ) );
+        replaceString[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "replace_string" ), "" );
+        replaceByString[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "replace_by_string" ), "" );
         String emptyString = XMLHandler.getTagValue( fnode, "set_empty_string" );
 
-        setEmptyString[i] = !Utils.isEmpty( emptyString ) && "Y".equalsIgnoreCase( emptyString );
-        replaceFieldByString[i] = Const.NVL( XMLHandler.getTagValue( fnode, "replace_field_by_string" ), "" );
-        wholeWord[i] = getWholeWordByCode( Const.NVL( XMLHandler.getTagValue( fnode, "whole_word" ), "" ) );
-        caseSensitive[i] =
+        setEmptyString[ i ] = !Utils.isEmpty( emptyString ) && "Y".equalsIgnoreCase( emptyString );
+        replaceFieldByString[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "replace_field_by_string" ), "" );
+        wholeWord[ i ] = getWholeWordByCode( Const.NVL( XMLHandler.getTagValue( fnode, "whole_word" ), "" ) );
+        caseSensitive[ i ] =
           getCaseSensitiveByCode( Const.NVL( XMLHandler.getTagValue( fnode, "case_sensitive" ), "" ) );
-        isUnicode[i] =
+        isUnicode[ i ] =
           getIsUniCodeByCode( Const.NVL( XMLHandler.getTagValue( fnode, "is_unicode" ), "" ) );
 
       }
@@ -307,7 +302,7 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
     }
 
     for ( int i = 0; i < isUnicodeCode.length; i++ ) {
-      if ( isUnicodeCode[i].equalsIgnoreCase( tt ) ) {
+      if ( isUnicodeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -329,20 +324,20 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
 
     for ( int i = 0; i < fieldInStream.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "in_stream_name", fieldInStream[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "out_stream_name", fieldOutStream[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "use_regex", getUseRegExCode( useRegEx[i] ) ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "replace_string", replaceString[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "replace_by_string", replaceByString[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "set_empty_string", setEmptyString[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "in_stream_name", fieldInStream[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "out_stream_name", fieldOutStream[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "use_regex", getUseRegExCode( useRegEx[ i ] ) ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "replace_string", replaceString[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "replace_by_string", replaceByString[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "set_empty_string", setEmptyString[ i ] ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( "replace_field_by_string", replaceFieldByString[i] ) );
+        XMLHandler.addTagValue( "replace_field_by_string", replaceFieldByString[ i ] ) );
       retval
-        .append( "        " ).append( XMLHandler.addTagValue( "whole_word", getWholeWordCode( wholeWord[i] ) ) );
+        .append( "        " ).append( XMLHandler.addTagValue( "whole_word", getWholeWordCode( wholeWord[ i ] ) ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( "case_sensitive", getCaseSensitiveCode( caseSensitive[i] ) ) );
+        XMLHandler.addTagValue( "case_sensitive", getCaseSensitiveCode( caseSensitive[ i ] ) ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( "is_unicode", getIsUniCodeCode( isUnicode[i] ) ) );
+        XMLHandler.addTagValue( "is_unicode", getIsUniCodeCode( isUnicode[ i ] ) ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
 
@@ -353,29 +348,29 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
 
   private static String getIsUniCodeCode( int i ) {
     if ( i < 0 || i >= isUnicodeCode.length ) {
-      return isUnicodeCode[0];
+      return isUnicodeCode[ 0 ];
     }
-    return isUnicodeCode[i];
+    return isUnicodeCode[ i ];
   }
 
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     int nrFields = fieldInStream == null ? 0 : fieldInStream.length;
     for ( int i = 0; i < nrFields; i++ ) {
-      String fieldName = space.environmentSubstitute( fieldOutStream[i] );
+      String fieldName = space.environmentSubstitute( fieldOutStream[ i ] );
       ValueMetaInterface valueMeta;
-      if ( !Utils.isEmpty( fieldOutStream[i] ) ) {
+      if ( !Utils.isEmpty( fieldOutStream[ i ] ) ) {
         // We have a new field
         valueMeta = new ValueMetaString( fieldName );
         valueMeta.setOrigin( name );
         //set encoding to new field from source field http://jira.pentaho.com/browse/PDI-11839
-        ValueMetaInterface sourceField = inputRowMeta.searchValueMeta( fieldInStream[i] );
+        ValueMetaInterface sourceField = inputRowMeta.searchValueMeta( fieldInStream[ i ] );
         if ( sourceField != null ) {
           valueMeta.setStringEncoding( sourceField.getStringEncoding() );
         }
         inputRowMeta.addValueMeta( valueMeta );
       } else {
-        valueMeta = inputRowMeta.searchValueMeta( fieldInStream[i] );
+        valueMeta = inputRowMeta.searchValueMeta( fieldInStream[ i ] );
         if ( valueMeta == null ) {
           continue;
         }
@@ -385,8 +380,8 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepinfo,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
 
     CheckResult cr;
     String error_message = "";
@@ -400,7 +395,7 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
     } else {
 
       for ( int i = 0; i < fieldInStream.length; i++ ) {
-        String field = fieldInStream[i];
+        String field = fieldInStream[ i ];
 
         ValueMetaInterface v = prev.searchValueMeta( field );
         if ( v == null ) {
@@ -426,7 +421,7 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
       first = true;
       error_found = false;
       for ( int i = 0; i < fieldInStream.length; i++ ) {
-        String field = fieldInStream[i];
+        String field = fieldInStream[ i ];
 
         ValueMetaInterface v = prev.searchValueMeta( field );
         if ( v != null ) {
@@ -453,12 +448,12 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
 
       if ( fieldInStream.length > 0 ) {
         for ( int idx = 0; idx < fieldInStream.length; idx++ ) {
-          if ( Utils.isEmpty( fieldInStream[idx] ) ) {
+          if ( Utils.isEmpty( fieldInStream[ idx ] ) ) {
             cr =
               new CheckResult(
                 CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-                  PKG, "ReplaceStringMeta.CheckResult.InStreamFieldMissing", new Integer( idx + 1 )
-                    .toString() ), stepinfo );
+                PKG, "ReplaceStringMeta.CheckResult.InStreamFieldMissing", new Integer( idx + 1 )
+                  .toString() ), stepinfo );
             remarks.add( cr );
 
           }
@@ -468,9 +463,9 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
       // Check if all input fields are distinct.
       for ( int idx = 0; idx < fieldInStream.length; idx++ ) {
         for ( int jdx = 0; jdx < fieldInStream.length; jdx++ ) {
-          if ( fieldInStream[idx].equals( fieldInStream[jdx] ) && idx != jdx && idx < jdx ) {
+          if ( fieldInStream[ idx ].equals( fieldInStream[ jdx ] ) && idx != jdx && idx < jdx ) {
             error_message =
-              BaseMessages.getString( PKG, "ReplaceStringMeta.CheckResult.FieldInputError", fieldInStream[idx] );
+              BaseMessages.getString( PKG, "ReplaceStringMeta.CheckResult.FieldInputError", fieldInStream[ idx ] );
             cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, stepinfo );
             remarks.add( cr );
           }
@@ -481,7 +476,7 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new ReplaceString( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -495,51 +490,51 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
 
   private static String getCaseSensitiveCode( int i ) {
     if ( i < 0 || i >= caseSensitiveCode.length ) {
-      return caseSensitiveCode[0];
+      return caseSensitiveCode[ 0 ];
     }
-    return caseSensitiveCode[i];
+    return caseSensitiveCode[ i ];
   }
 
   private static String getWholeWordCode( int i ) {
     if ( i < 0 || i >= wholeWordCode.length ) {
-      return wholeWordCode[0];
+      return wholeWordCode[ 0 ];
     }
-    return wholeWordCode[i];
+    return wholeWordCode[ i ];
   }
 
   private static String getUseRegExCode( int i ) {
     if ( i < 0 || i >= useRegExCode.length ) {
-      return useRegExCode[0];
+      return useRegExCode[ 0 ];
     }
-    return useRegExCode[i];
+    return useRegExCode[ i ];
   }
 
   public static String getCaseSensitiveDesc( int i ) {
     if ( i < 0 || i >= caseSensitiveDesc.length ) {
-      return caseSensitiveDesc[0];
+      return caseSensitiveDesc[ 0 ];
     }
-    return caseSensitiveDesc[i];
+    return caseSensitiveDesc[ i ];
   }
 
   public static String getIsUnicodeDesc( int i ) {
     if ( i < 0 || i >= isUnicodeDesc.length ) {
-      return isUnicodeDesc[0];
+      return isUnicodeDesc[ 0 ];
     }
-    return isUnicodeDesc[i];
+    return isUnicodeDesc[ i ];
   }
 
   public static String getWholeWordDesc( int i ) {
     if ( i < 0 || i >= wholeWordDesc.length ) {
-      return wholeWordDesc[0];
+      return wholeWordDesc[ 0 ];
     }
-    return wholeWordDesc[i];
+    return wholeWordDesc[ i ];
   }
 
   public static String getUseRegExDesc( int i ) {
     if ( i < 0 || i >= useRegExDesc.length ) {
-      return useRegExDesc[0];
+      return useRegExDesc[ 0 ];
     }
-    return useRegExDesc[i];
+    return useRegExDesc[ i ];
   }
 
   private static int getCaseSensitiveByCode( String tt ) {
@@ -548,7 +543,7 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
     }
 
     for ( int i = 0; i < caseSensitiveCode.length; i++ ) {
-      if ( caseSensitiveCode[i].equalsIgnoreCase( tt ) ) {
+      if ( caseSensitiveCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -561,7 +556,7 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
     }
 
     for ( int i = 0; i < wholeWordCode.length; i++ ) {
-      if ( wholeWordCode[i].equalsIgnoreCase( tt ) ) {
+      if ( wholeWordCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -574,7 +569,7 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
     }
 
     for ( int i = 0; i < useRegExCode.length; i++ ) {
-      if ( useRegExCode[i].equalsIgnoreCase( tt ) ) {
+      if ( useRegExCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -587,7 +582,7 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
     }
 
     for ( int i = 0; i < caseSensitiveDesc.length; i++ ) {
-      if ( caseSensitiveDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( caseSensitiveDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -602,7 +597,7 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
     }
 
     for ( int i = 0; i < isUnicodeDesc.length; i++ ) {
-      if ( isUnicodeDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( isUnicodeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -617,7 +612,7 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
     }
 
     for ( int i = 0; i < wholeWordDesc.length; i++ ) {
-      if ( wholeWordDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( wholeWordDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -632,7 +627,7 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
     }
 
     for ( int i = 0; i < useRegExDesc.length; i++ ) {
-      if ( useRegExDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( useRegExDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -641,13 +636,14 @@ public class ReplaceStringMeta extends BaseStepMeta implements StepMetaInterface
     return getRegExByCode( tt );
   }
 
-  private void nullToEmpty( String [] strings ) {
+  private void nullToEmpty( String[] strings ) {
     for ( int i = 0; i < strings.length; i++ ) {
       if ( strings[ i ] == null ) {
         strings[ i ] = StringUtils.EMPTY;
       }
     }
   }
+
   /**
    * If we use injection we can have different arrays lengths.
    * We need synchronize them for consistency behavior with UI

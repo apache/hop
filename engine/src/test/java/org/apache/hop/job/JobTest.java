@@ -22,9 +22,6 @@
 
 package org.apache.hop.job;
 
-import org.apache.hop.metastore.api.IMetaStore;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -37,7 +34,9 @@ import org.apache.hop.core.logging.LogTableField;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.job.entries.special.JobEntrySpecial;
 import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.trans.HasDatabasesInterface;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -50,7 +49,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.reflect.Whitebox.setInternalState;
 
 public class JobTest {
   private static final String STRING_DEFAULT = "<def>";
@@ -84,7 +82,7 @@ public class JobTest {
     JobEntryLogTable jobEntryLogTable = JobEntryLogTable.getDefault( mockedVariableSpace, mockedMetaStore );
     setAllTableParamsDefault( jobEntryLogTable );
 
-    JobMeta jobMeta = new JobMeta(  );
+    JobMeta jobMeta = new JobMeta();
     jobMeta.setJobEntryLogTable( jobEntryLogTable );
 
     when( mockedJob.getJobMeta() ).thenReturn( jobMeta );
@@ -164,8 +162,8 @@ public class JobTest {
   }
 
   @Test
-  public void testSetInternalEntryCurrentDirectoryWithFilename( ) {
-    Job jobTest = new Job(  );
+  public void testSetInternalEntryCurrentDirectoryWithFilename() {
+    Job jobTest = new Job();
     boolean hasFilename = true;
     boolean hasRepoDir = false;
     jobTest.copyVariablesFrom( null );
@@ -178,15 +176,15 @@ public class JobTest {
   }
 
   @Test
-  public void testSetInternalEntryCurrentDirectoryWithoutFilename( ) {
-    Job jobTest = new Job(  );
+  public void testSetInternalEntryCurrentDirectoryWithoutFilename() {
+    Job jobTest = new Job();
     jobTest.copyVariablesFrom( null );
     boolean hasFilename = false;
     jobTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
     jobTest.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
     jobTest.setInternalEntryCurrentDirectory( hasFilename );
 
-    assertEquals( "Original value defined at run execution", jobTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY )  );
+    assertEquals( "Original value defined at run execution", jobTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
   }
 
 

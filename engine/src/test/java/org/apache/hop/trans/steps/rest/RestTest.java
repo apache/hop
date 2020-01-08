@@ -26,15 +26,14 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.util.Assert;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepMeta;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -118,8 +117,8 @@ public class RestTest {
     Object[] output = rest.callRest( new Object[] { 0 } );
 
     verify( builder, times( 1 ) ).delete( ClientResponse.class );
-    assertEquals( "true", output[1] );
-    assertEquals( 200L, output[2] );
-    assertEquals( "{\"Content-Type\":\"application\\/json\"}", output[3] );
+    assertEquals( "true", output[ 1 ] );
+    assertEquals( 200L, output[ 2 ] );
+    assertEquals( "{\"Content-Type\":\"application\\/json\"}", output[ 3 ] );
   }
 }

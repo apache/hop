@@ -22,15 +22,15 @@
 
 package org.apache.hop.core.logging;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.EnvUtil;
+
 import java.io.PrintStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.EnvUtil;
 
 public class HopLogStore {
 
@@ -58,10 +58,8 @@ public class HopLogStore {
   /**
    * Create the central log store with optional limitation to the size
    *
-   * @param maxSize
-   *          the maximum size
-   * @param maxLogTimeoutMinutes
-   *          The maximum time that a log line times out in Minutes.
+   * @param maxSize              the maximum size
+   * @param maxLogTimeoutMinutes The maximum time that a log line times out in Minutes.
    */
   private HopLogStore( int maxSize, int maxLogTimeoutMinutes, boolean redirectStdOut, boolean redirectStdErr ) {
     this.appender = new LoggingBuffer( maxSize );
@@ -104,14 +102,10 @@ public class HopLogStore {
   /**
    * Initialize the central log store with optional limitation to the size and redirect of stdout and stderr
    *
-   * @param maxSize
-   *          the maximum size
-   * @param maxLogTimeoutMinutes
-   *          the maximum time that a log line times out in hours
-   * @param redirectStdOut
-   *          a boolean indicating whether to redirect stdout to the logging framework
-   * @param redirectStdErr
-   *          a boolean indicating whether to redirect stderr to the logging framework
+   * @param maxSize              the maximum size
+   * @param maxLogTimeoutMinutes the maximum time that a log line times out in hours
+   * @param redirectStdOut       a boolean indicating whether to redirect stdout to the logging framework
+   * @param redirectStdErr       a boolean indicating whether to redirect stderr to the logging framework
    */
   public static void init( int maxSize, int maxLogTimeoutMinutes, boolean redirectStdOut, boolean redirectStdErr ) {
     if ( maxSize > 0 || maxLogTimeoutMinutes > 0 ) {
@@ -124,10 +118,8 @@ public class HopLogStore {
   /**
    * Initialize the central log store with optional limitation to the size
    *
-   * @param maxSize
-   *          the maximum size
-   * @param maxLogTimeoutMinutes
-   *          The maximum time that a log line times out in hours.
+   * @param maxSize              the maximum size
+   * @param maxLogTimeoutMinutes The maximum time that a log line times out in hours.
    */
   public static void init( int maxSize, int maxLogTimeoutMinutes ) {
     init( maxSize, maxLogTimeoutMinutes, EnvUtil
@@ -143,10 +135,8 @@ public class HopLogStore {
   /**
    * Initialize the central log store with arguments specifying whether to redirect of stdout and stderr
    *
-   * @param redirectStdOut
-   *          a boolean indicating whether to redirect stdout to the logging framework
-   * @param redirectStdErr
-   *          a boolean indicating whether to redirect stderr to the logging framework
+   * @param redirectStdOut a boolean indicating whether to redirect stdout to the logging framework
+   * @param redirectStdErr a boolean indicating whether to redirect stderr to the logging framework
    */
   public static void init( boolean redirectStdOut, boolean redirectStdErr ) {
     int maxSize = Const.toInt( EnvUtil.getSystemProperty( Const.HOP_MAX_LOG_SIZE_IN_LINES ), 5000 );
@@ -158,13 +148,11 @@ public class HopLogStore {
   /**
    * Initialize the central log store. If it has already been initialized the configuration will be updated.
    *
-   * @param maxSize
-   *          the maximum size of the log buffer
-   * @param maxLogTimeoutMinutes
-   *          The maximum time that a log line times out in minutes
+   * @param maxSize              the maximum size of the log buffer
+   * @param maxLogTimeoutMinutes The maximum time that a log line times out in minutes
    */
   private static synchronized void init0( int maxSize, int maxLogTimeoutMinutes, boolean redirectStdOut,
-    boolean redirectStdErr ) {
+                                          boolean redirectStdErr ) {
     if ( store != null ) {
       // CentralLogStore already initialized. Just update the values.
       store.appender.setMaxNrLines( maxSize );
@@ -190,41 +178,36 @@ public class HopLogStore {
   }
 
   /**
-   *
    * Get all the log lines pertaining to the specified parent log channel id (including all children)
    *
-   * @param parentLogChannelId
-   *          the parent log channel ID to grab
-   * @param includeGeneral
-   *          include general log lines
+   * @param parentLogChannelId the parent log channel ID to grab
+   * @param includeGeneral     include general log lines
    * @param from
    * @param to
    * @return the log lines found
    */
   public static List<HopLoggingEvent> getLogBufferFromTo( String parentLogChannelId, boolean includeGeneral,
-    int from, int to ) {
+                                                          int from, int to ) {
     return getInstance().appender.getLogBufferFromTo( parentLogChannelId, includeGeneral, from, to );
   }
 
   /**
    * Get all the log lines for the specified parent log channel id (including all children)
    *
-   * @param channelId
-   *          channel IDs to grab
-   * @param includeGeneral
-   *          include general log lines
+   * @param channelId      channel IDs to grab
+   * @param includeGeneral include general log lines
    * @param from
    * @param to
    * @return
    */
   public static List<HopLoggingEvent> getLogBufferFromTo( List<String> channelId, boolean includeGeneral,
-    int from, int to ) {
+                                                          int from, int to ) {
     return getInstance().appender.getLogBufferFromTo( channelId, includeGeneral, from, to );
   }
 
   /**
    * @return The appender that represents the central logging store. It is capable of giving back log rows in an
-   *         incremental fashion, etc.
+   * incremental fashion, etc.
    */
   public static LoggingBuffer getAppender() {
     return getInstance().appender;
@@ -233,8 +216,7 @@ public class HopLogStore {
   /**
    * Discard all the lines for the specified log channel id AND all the children.
    *
-   * @param parentLogChannelId
-   *          the parent log channel id to be removed along with all its children.
+   * @param parentLogChannelId the parent log channel id to be removed along with all its children.
    */
   public static void discardLines( String parentLogChannelId, boolean includeGeneralMessages ) {
     LoggingRegistry registry = LoggingRegistry.getInstance();

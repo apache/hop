@@ -23,10 +23,6 @@
 package org.apache.hop.trans.steps.denormaliser;
 
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -34,6 +30,10 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -76,7 +76,7 @@ public class PDI4910_DenormaliserTest {
     stepData.outputRowMeta = new RowMeta();
     stepData.outputRowMeta.addValueMeta( 0, outDateField1 );
     stepData.outputRowMeta.addValueMeta( 1, outDateField2 );
-    stepData.removeNrs = new int[] { };
+    stepData.removeNrs = new int[] {};
     stepData.targetResult = new Object[] { null, null };
 
     // init step meta

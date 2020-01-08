@@ -21,24 +21,23 @@
  ******************************************************************************/
 package org.apache.hop.core.database;
 
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Map;
 
-import org.junit.Ignore;
-import org.junit.Test;
-
-import org.apache.hop.core.exception.HopDatabaseException;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.doReturn;
 import static org.mockito.BDDMockito.doThrow;
 import static org.mockito.BDDMockito.mock;
 
 public class MariaDBDatabaseMetaTest {
   /**
-   *
    * @return
    * @throws Exception
    */
@@ -70,7 +69,6 @@ public class MariaDBDatabaseMetaTest {
   }
 
   /**
-   *
    * @return
    * @throws Exception
    */
@@ -138,7 +136,7 @@ public class MariaDBDatabaseMetaTest {
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
 
     assertEquals( "org.mariadb.jdbc.Driver", nativeMeta.getDriverClass() );
-    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL(  "IGNORED", "IGNORED", "FOO" ) );
+    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "IGNORED", "IGNORED", "FOO" ) );
     assertEquals( "jdbc:mariadb://FOO:BAR/WIBBLE", nativeMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
     assertEquals( "jdbc:mariadb://FOO/WIBBLE", nativeMeta.getURL( "FOO", "", "WIBBLE" ) );
 

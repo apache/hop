@@ -17,16 +17,6 @@
 
 package org.apache.hop.metastore.stores.memory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
-
 import org.apache.hop.metastore.api.BaseMetaStore;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.IMetaStoreAttribute;
@@ -40,6 +30,16 @@ import org.apache.hop.metastore.api.exceptions.MetaStoreNamespaceExistsException
 import org.apache.hop.metastore.api.security.IMetaStoreElementOwner;
 import org.apache.hop.metastore.api.security.MetaStoreElementOwnerType;
 import org.apache.hop.metastore.util.MetaStoreUtil;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 public class MemoryMetaStore extends BaseMetaStore implements IMetaStore {
 
@@ -98,7 +98,7 @@ public class MemoryMetaStore extends BaseMetaStore implements IMetaStore {
       public Void call() throws Exception {
         if ( namespacesMap.containsKey( namespace ) ) {
           throw new MetaStoreNamespaceExistsException( "Unable to create namespace '" + namespace
-              + "' as it already exists!" );
+            + "' as it already exists!" );
         } else {
           MemoryMetaStoreNamespace storeNamespace = new MemoryMetaStoreNamespace( namespace );
           namespacesMap.put( namespace, storeNamespace );
@@ -131,7 +131,7 @@ public class MemoryMetaStore extends BaseMetaStore implements IMetaStore {
               namespacesMap.remove( namespace );
             } else {
               throw new MetaStoreDependenciesExistsException( elementTypeIds, "Namespace '" + namespace
-                  + "' is not empty!" );
+                + "' is not empty!" );
             }
             return null;
           }
@@ -295,7 +295,7 @@ public class MemoryMetaStore extends BaseMetaStore implements IMetaStore {
 
   @Override
   public IMetaStoreElement getElement( final String namespace, final IMetaStoreElementType elementType,
-      final String elementId ) throws MetaStoreException {
+                                       final String elementId ) throws MetaStoreException {
     return MetaStoreUtil.executeLockedOperation( readLock, new Callable<IMetaStoreElement>() {
 
       @Override
@@ -311,7 +311,7 @@ public class MemoryMetaStore extends BaseMetaStore implements IMetaStore {
 
   @Override
   public IMetaStoreElement getElementByName( final String namespace, final IMetaStoreElementType elementType,
-      final String name ) throws MetaStoreException {
+                                             final String name ) throws MetaStoreException {
     return MetaStoreUtil.executeLockedOperation( readLock, new Callable<IMetaStoreElement>() {
 
       @Override
@@ -327,7 +327,7 @@ public class MemoryMetaStore extends BaseMetaStore implements IMetaStore {
 
   @Override
   public void createElement( final String namespace, final IMetaStoreElementType elementType,
-      final IMetaStoreElement element ) throws MetaStoreException, MetaStoreElementExistException {
+                             final IMetaStoreElement element ) throws MetaStoreException, MetaStoreElementExistException {
     MetaStoreUtil.executeLockedOperation( readLock, new Callable<Void>() {
 
       @Override
@@ -345,13 +345,13 @@ public class MemoryMetaStore extends BaseMetaStore implements IMetaStore {
 
   @Override
   public void updateElement( final String namespace, final IMetaStoreElementType elementType, final String elementId,
-      final IMetaStoreElement element ) throws MetaStoreException {
+                             final IMetaStoreElement element ) throws MetaStoreException {
 
     // verify that the element type belongs to this meta store
     //
     if ( elementType.getMetaStoreName() == null || !elementType.getMetaStoreName().equals( getName() ) ) {
       throw new MetaStoreException( "The element type '" + elementType.getName()
-          + "' needs to explicitly belong to the meta store in which you are updating." );
+        + "' needs to explicitly belong to the meta store in which you are updating." );
     }
 
     MetaStoreUtil.executeLockedOperation( readLock, new Callable<Void>() {

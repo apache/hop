@@ -21,13 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -36,6 +29,13 @@ import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class SQLiteDatabaseMetaTest {
 
@@ -52,14 +52,14 @@ public class SQLiteDatabaseMetaTest {
   @Test
   public void testSettings() throws Exception {
     assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
-        nativeMeta.getAccessTypeList() );
+      nativeMeta.getAccessTypeList() );
     assertEquals( -1, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertTrue( nativeMeta.supportsAutoInc() );
     assertEquals( 1, nativeMeta.getNotFoundTK( true ) );
     assertEquals( 0, nativeMeta.getNotFoundTK( false ) );
     assertEquals( "org.sqlite.JDBC", nativeMeta.getDriverClass() );
-    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL(  "IGNORED", "IGNORED", "FOO" ) );
+    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "IGNORED", "IGNORED", "FOO" ) );
     assertEquals( "jdbc:sqlite:WIBBLE", nativeMeta.getURL( "IGNORED", "IGNORED", "WIBBLE" ) );
     assertFalse( nativeMeta.isFetchSizeSupported() );
     assertFalse( nativeMeta.supportsBitmapIndex() );
@@ -75,54 +75,54 @@ public class SQLiteDatabaseMetaTest {
   public void testSQLStatements() {
     assertEquals( "DELETE FROM FOO", nativeMeta.getTruncateTableStatement( "FOO" ) );
     assertEquals( "ALTER TABLE FOO ADD BAR TEXT",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO MODIFY BAR TEXT",
-        nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
+      nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
 
   }
 
   @Test
   public void testGetFieldDefinition() {
     assertEquals( "FOO DATETIME",
-        nativeMeta.getFieldDefinition( new ValueMetaDate( "FOO" ), "", "", false, true, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaDate( "FOO" ), "", "", false, true, false ) );
     assertEquals( "DATETIME",
-        nativeMeta.getFieldDefinition( new ValueMetaTimestamp( "FOO" ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaTimestamp( "FOO" ), "", "", false, false, false ) );
     assertEquals( "CHAR(1)",
-        nativeMeta.getFieldDefinition( new ValueMetaBoolean( "FOO" ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBoolean( "FOO" ), "", "", false, false, false ) );
 
     // PK/TK
     assertEquals( "INTEGER PRIMARY KEY AUTOINCREMENT",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 10, 0 ), "FOO", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 10, 0 ), "FOO", "", false, false, false ) );
     assertEquals( "INTEGER PRIMARY KEY AUTOINCREMENT",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 8, 0 ), "", "FOO", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 8, 0 ), "", "FOO", false, false, false ) );
 
     // Numeric Types
     assertEquals( "NUMERIC",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 8, -6 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 8, -6 ), "", "", false, false, false ) );
     assertEquals( "NUMERIC",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", -13, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", -13, 0 ), "", "", false, false, false ) );
     assertEquals( "NUMERIC",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 19, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 19, 0 ), "", "", false, false, false ) );
 
     assertEquals( "INTEGER",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 11, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 11, 0 ), "", "", false, false, false ) );
 
     // Strings
     assertEquals( "TEXT",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", 50, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", 50, 0 ), "", "", false, false, false ) );
 
     assertEquals( "BLOB",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", DatabaseMeta.CLOB_LENGTH + 1, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", DatabaseMeta.CLOB_LENGTH + 1, 0 ), "", "", false, false, false ) );
 
     // Others
     assertEquals( "BLOB",
-        nativeMeta.getFieldDefinition( new ValueMetaBinary( "FOO", 15, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBinary( "FOO", 15, 0 ), "", "", false, false, false ) );
 
     assertEquals( "UNKNOWN",
-        nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, false ) );
 
     assertEquals( "UNKNOWN" + System.getProperty( "line.separator" ),
-        nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, true ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, true ) );
   }
 
 }

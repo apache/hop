@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.apache.hop.metastore.api.IMetaStoreAttribute;
 import org.apache.hop.metastore.api.IMetaStoreElement;
@@ -38,8 +39,6 @@ import org.apache.hop.metastore.stores.memory.MemoryMetaStoreElement;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStoreElementOwner;
 
 import java.io.IOException;
-
-import com.google.common.base.Preconditions;
 
 /**
  * @author nhudak

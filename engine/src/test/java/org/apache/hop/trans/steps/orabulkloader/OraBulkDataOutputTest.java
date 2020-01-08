@@ -22,16 +22,16 @@
 package org.apache.hop.trans.steps.orabulkloader;
 
 import org.apache.commons.vfs2.provider.local.LocalFile;
-import org.apache.poi.util.TempFile;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.poi.util.TempFile;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;

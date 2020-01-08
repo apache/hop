@@ -22,9 +22,6 @@
 
 package org.apache.xul.swt.tab;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Listener;
@@ -36,8 +33,9 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.apache.xul.swt.tab.TabItem;
-import org.apache.xul.swt.tab.TabListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TabSet implements SelectionListener, CTabFolder2Listener {
 
@@ -80,7 +78,7 @@ public class TabSet implements SelectionListener, CTabFolder2Listener {
       private boolean isTabOverflowing( CTabFolder tabfolder ) {
         // overflow happens when size of inner toolbar exceeds assigned tabHeight
         return ( tabfolder.getChildren().length > 0
-            && tabfolder.getChildren()[0].getSize().y > tabfolder.getTabHeight() );
+          && tabfolder.getChildren()[ 0 ].getSize().y > tabfolder.getTabHeight() );
       }
     } );
   }
@@ -147,8 +145,7 @@ public class TabSet implements SelectionListener, CTabFolder2Listener {
   /**
    * Add a tab item to the tab usage history
    *
-   * @param item
-   *          the tab item to add
+   * @param item the tab item to add
    */
   private void addItemToHistory( TabItem item ) {
     // Just don't add the same item twice in a row
@@ -161,8 +158,7 @@ public class TabSet implements SelectionListener, CTabFolder2Listener {
   /**
    * Remove all occurrences of the specified item from the last used list.
    *
-   * @param item
-   *          the tab item to remove
+   * @param item the tab item to remove
    */
   private void removeItemFromHistory( TabItem item ) {
     // Remove

@@ -23,11 +23,6 @@
 package org.apache.hop.core.row;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
@@ -39,10 +34,19 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.w3c.dom.Document;
 
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -85,13 +89,13 @@ public class RowMetaTest {
     charly = ValueMetaFactory.createValueMeta( "charly", ValueMetaInterface.TYPE_SERIALIZABLE );
 
     dup = ValueMetaFactory.createValueMeta( "dup", ValueMetaInterface.TYPE_SERIALIZABLE );
-    bin = ValueMetaFactory.createValueMeta(  "bin", ValueMetaInterface.TYPE_BINARY );
+    bin = ValueMetaFactory.createValueMeta( "bin", ValueMetaInterface.TYPE_BINARY );
   }
 
   private List<ValueMetaInterface> generateVList( String[] names, int[] types ) throws HopPluginException {
     List<ValueMetaInterface> list = new ArrayList<ValueMetaInterface>();
     for ( int i = 0; i < names.length; i++ ) {
-      ValueMetaInterface vm = ValueMetaFactory.createValueMeta( names[i], types[i] );
+      ValueMetaInterface vm = ValueMetaFactory.createValueMeta( names[ i ], types[ i ] );
       vm.setOrigin( "originStep" );
       list.add( vm );
     }
@@ -127,7 +131,7 @@ public class RowMetaTest {
 
   @Test
   public void testSetValueMetaList() throws HopPluginException {
-    List<ValueMetaInterface> setList = this.generateVList( new String[]{ "alpha", "bravo" }, new int[]{ 2, 2 } );
+    List<ValueMetaInterface> setList = this.generateVList( new String[] { "alpha", "bravo" }, new int[] { 2, 2 } );
     rowMeta.setValueMetaList( setList );
     assertTrue( setList.contains( rowMeta.searchValueMeta( "alpha" ) ) );
     assertTrue( setList.contains( rowMeta.searchValueMeta( "bravo" ) ) );
@@ -139,7 +143,7 @@ public class RowMetaTest {
 
   @Test
   public void testSetValueMetaListNullName() throws HopPluginException {
-    List<ValueMetaInterface> setList = this.generateVList( new String[]{ "alpha", null }, new int[]{ 2, 2 } );
+    List<ValueMetaInterface> setList = this.generateVList( new String[] { "alpha", null }, new int[] { 2, 2 } );
     rowMeta.setValueMetaList( setList );
     assertTrue( setList.contains( rowMeta.searchValueMeta( "alpha" ) ) );
     assertFalse( setList.contains( rowMeta.searchValueMeta( null ) ) );
@@ -249,7 +253,7 @@ public class RowMetaTest {
   @Test
   public void testAddRowMeta() throws HopPluginException {
     List<ValueMetaInterface> list =
-      this.generateVList( new String[]{ "alfa", "bravo", "charly", "delta" }, new int[]{ 2, 2, 3, 4 } );
+      this.generateVList( new String[] { "alfa", "bravo", "charly", "delta" }, new int[] { 2, 2, 3, 4 } );
     RowMeta added = new RowMeta();
     added.setValueMetaList( list );
     rowMeta.addRowMeta( added );
@@ -261,7 +265,7 @@ public class RowMetaTest {
   @Test
   public void testMergeRowMeta() throws HopPluginException {
     List<ValueMetaInterface> list =
-      this.generateVList( new String[]{ "phobos", "demos", "mars" }, new int[]{ 6, 6, 6 } );
+      this.generateVList( new String[] { "phobos", "demos", "mars" }, new int[] { 6, 6, 6 } );
     list.add( 1, integer );
     RowMeta toMerge = new RowMeta();
     toMerge.setValueMetaList( list );
@@ -455,7 +459,7 @@ public class RowMetaTest {
   public void testMergeRowMetaWithOriginStep() throws Exception {
 
     List<ValueMetaInterface> list =
-      this.generateVList( new String[]{ "phobos", "demos", "mars" }, new int[]{ 6, 6, 6 } );
+      this.generateVList( new String[] { "phobos", "demos", "mars" }, new int[] { 6, 6, 6 } );
     list.add( 1, integer );
     RowMeta toMerge = new RowMeta();
     toMerge.setValueMetaList( list );
@@ -488,20 +492,20 @@ public class RowMetaTest {
     fillRowMeta();
     String[] names = rowMeta.getFieldNames();
     assertEquals( 10, names.length );
-    assertEquals( "sample", names[0] );
+    assertEquals( "sample", names[ 0 ] );
     for ( int i = 1; i < names.length; i++ ) {
-      assertEquals( "", names[i] );
+      assertEquals( "", names[ i ] );
     }
   }
 
   @Test
   public void testHashCode() {
     rowMeta.clear();
-    byte[] byteArray = new byte[]{ 49, 50, 51 };
-    Object[] objArray = new Object[]{ byteArray };
+    byte[] byteArray = new byte[] { 49, 50, 51 };
+    Object[] objArray = new Object[] { byteArray };
     try {
       assertEquals( 78512, rowMeta.hashCode( objArray ) );
-    } catch (HopValueException e) {
+    } catch ( HopValueException e ) {
       e.printStackTrace();
     }
   }

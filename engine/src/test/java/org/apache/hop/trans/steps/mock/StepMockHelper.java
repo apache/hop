@@ -22,24 +22,6 @@
 
 package org.apache.hop.trans.steps.mock;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
@@ -53,6 +35,24 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 public class StepMockHelper<Meta extends StepMetaInterface, Data extends StepDataInterface> {
   public final StepMeta stepMeta;
@@ -121,11 +121,11 @@ public class StepMockHelper<Meta extends StepMetaInterface, Data extends StepDat
   }
 
   /**
-   *  In case you need to use log methods during the tests
-   *  use redirectLog method after creating new StepMockHelper object.
-   *  Examples:
-   *    stepMockHelper.redirectLog( System.out, LogLevel.ROWLEVEL );
-   *    stepMockHelper.redirectLog( new FileOutputStream("log.txt"), LogLevel.BASIC );
+   * In case you need to use log methods during the tests
+   * use redirectLog method after creating new StepMockHelper object.
+   * Examples:
+   * stepMockHelper.redirectLog( System.out, LogLevel.ROWLEVEL );
+   * stepMockHelper.redirectLog( new FileOutputStream("log.txt"), LogLevel.BASIC );
    */
   public void redirectLog( final OutputStream out, LogLevel channelLogLevel ) {
     final LogChannel log = spy( new LogChannel( this.getClass().getName(), true ) );
@@ -136,14 +136,14 @@ public class StepMockHelper<Meta extends StepMetaInterface, Data extends StepDat
       public Object answer( InvocationOnMock invocation ) throws Throwable {
         Object[] args = invocation.getArguments();
 
-        LogLevel logLevel = (LogLevel) args[1];
+        LogLevel logLevel = (LogLevel) args[ 1 ];
         LogLevel channelLogLevel = log.getLogLevel();
 
         if ( !logLevel.isVisible( channelLogLevel ) ) {
           return null; // not for our eyes.
         }
         if ( channelLogLevel.getLevel() >= logLevel.getLevel() ) {
-          LogMessageInterface logMessage = (LogMessageInterface) args[0];
+          LogMessageInterface logMessage = (LogMessageInterface) args[ 0 ];
           out.write( logMessage.getMessage().getBytes() );
           out.write( '\n' );
           out.write( '\r' );

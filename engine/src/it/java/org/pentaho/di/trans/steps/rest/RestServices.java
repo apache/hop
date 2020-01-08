@@ -22,12 +22,12 @@
 
 package org.apache.hop.trans.steps.rest;
 
-import com.sun.net.httpserver.HttpServer;
 import com.sun.jersey.api.container.httpserver.HttpServerFactory;
-import java.io.IOException;
+import com.sun.net.httpserver.HttpServer;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import java.io.IOException;
 
 /**
  * User: Dzmitry Stsiapanau Date: 11/29/13 Time: 3:36 PM
@@ -42,7 +42,7 @@ public class RestServices {
   }
 
   public static void main( String[] args ) throws IOException {
-    String param = args.length > 0 ? args[0] : RestIT.HTTP_LOCALHOST_9998;
+    String param = args.length > 0 ? args[ 0 ] : RestIT.HTTP_LOCALHOST_9998;
     HttpServer server = HttpServerFactory.create( param );
     server.start();
 

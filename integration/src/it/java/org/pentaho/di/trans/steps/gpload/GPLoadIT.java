@@ -17,18 +17,6 @@
 
 package org.apache.hop.trans.steps.gpload;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -39,27 +27,38 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
+import org.junit.Before;
+import org.junit.Test;
 
-/* Copyright (c) 2007 - 2017 Hitachi Vantara.  All rights reserved. 
- * This software was developed by Hitachi Vantara and is provided under the terms 
- * of the GNU Lesser General Public License, Version 2.1. You may not use 
- * this file except in compliance with the license. If you need a copy of the license, 
- * please go to http://www.gnu.org/licenses/lgpl-2.1.txt. The Original Code is Pentaho 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+/* Copyright (c) 2007 - 2017 Hitachi Vantara.  All rights reserved.
+ * This software was developed by Hitachi Vantara and is provided under the terms
+ * of the GNU Lesser General Public License, Version 2.1. You may not use
+ * this file except in compliance with the license. If you need a copy of the license,
+ * please go to http://www.gnu.org/licenses/lgpl-2.1.txt. The Original Code is Pentaho
  * Data Integration.  The Initial Developer is Pentaho Corporation.
  *
- * Software distributed under the GNU Lesser Public License is distributed on an "AS IS" 
- * basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to 
+ * Software distributed under the GNU Lesser Public License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to
  * the license for the specific language governing your rights and limitations.*/
 
 /**
  * JUnit test for GPLoad step.
- * 
+ * <p>
  * These test will verify that correct YAML is being generated. YAML contains the specifics of a GPLoad job.
- * 
+ * <p>
  * There are also tests for the gpload command line generation.
- * 
+ *
  * @author sflatley
- * 
  */
 public class GPLoadIT {
 
@@ -124,7 +123,7 @@ public class GPLoadIT {
 
   /**
    * Returns the contents of the passed file name
-   * 
+   *
    * @param filename
    * @return String the content of filename which is located in GPLoadTest.YAML_TEST_FILE_LOCATION.
    */
@@ -163,10 +162,8 @@ public class GPLoadIT {
 
   /**
    * Creates a transformation with a row generator step and hopped to a GPLoadStep with the passed name.
-   * 
-   * @param gpLoadStepname
-   *          The name of the GPLoad step.
-   * 
+   *
+   * @param gpLoadStepname The name of the GPLoad step.
    * @throws HopException
    */
   public TransMeta createTransformationMeta( String gpLoadStepname ) throws Exception {
@@ -194,16 +191,16 @@ public class GPLoadIT {
   }
 
   private GPLoadMeta createGPLoadMeta( String gpLoadStepname, String actionInsert, String targetTable,
-    String gploadErrorTable, String insertDataFile, String s, String pathToGPLoadExecutable,
-    String pathToControlFile, String pathToLogfile, String[] strings, boolean[] booleans, boolean[] booleans1,
-    String o, String[] o1, String o2, String o3 ) throws Exception {
+                                       String gploadErrorTable, String insertDataFile, String s, String pathToGPLoadExecutable,
+                                       String pathToControlFile, String pathToLogfile, String[] strings, boolean[] booleans, boolean[] booleans1,
+                                       String o, String[] o1, String o2, String o3 ) throws Exception {
     return createGPLoadMeta( gpLoadStepname, actionInsert, null, targetTable, gploadErrorTable, insertDataFile, s,
       pathToGPLoadExecutable, pathToControlFile, pathToLogfile, strings, booleans, booleans1, o, o1, o2, o3 );
   }
 
   /**
    * Creates and returns a GPLoad meta.
-   * 
+   *
    * @param gpLoadStepname
    * @param action
    * @param targetTableName
@@ -219,8 +216,8 @@ public class GPLoadIT {
    * @throws Exception
    */
   private GPLoadMeta createGPLoadMeta( String gpLoadStepname, String action, String targetTableName,
-    String errorTableName, String dataFilename, String delimiter, String[] tableColumn, boolean[] matchColumn,
-    boolean[] updateColumn, String localhostPort, String[] localHosts, String updateCondition, String encoding ) throws Exception {
+                                       String errorTableName, String dataFilename, String delimiter, String[] tableColumn, boolean[] matchColumn,
+                                       boolean[] updateColumn, String localhostPort, String[] localHosts, String updateCondition, String encoding ) throws Exception {
 
     return createGPLoadMeta( gpLoadStepname, action, null, targetTableName, errorTableName, dataFilename, delimiter,
       null, null, null, tableColumn, matchColumn, updateColumn, localhostPort, localHosts, updateCondition, encoding );
@@ -228,7 +225,7 @@ public class GPLoadIT {
 
   /**
    * Creates and returns a GPLoad meta.
-   * 
+   *
    * @param gpLoadStepname
    * @param action
    * @param targetTableName
@@ -244,8 +241,8 @@ public class GPLoadIT {
    * @throws Exception
    */
   private GPLoadMeta createGPLoadMeta( String gpLoadStepname, String action, String schemaName, String targetTableName,
-    String errorTableName, String dataFilename, String delimiter, String[] tableColumn, boolean[] matchColumn,
-    boolean[] updateColumn, String localhostPort, String[] localHosts, String updateCondition, String encoding ) throws Exception {
+                                       String errorTableName, String dataFilename, String delimiter, String[] tableColumn, boolean[] matchColumn,
+                                       boolean[] updateColumn, String localhostPort, String[] localHosts, String updateCondition, String encoding ) throws Exception {
 
     return createGPLoadMeta( gpLoadStepname, action, schemaName, targetTableName, errorTableName, dataFilename,
       delimiter, null, null, null, tableColumn, matchColumn, updateColumn, localhostPort, localHosts,
@@ -254,7 +251,7 @@ public class GPLoadIT {
 
   /**
    * Creates and returns a GPLoadMeta.
-   * 
+   *
    * @param gpLoadStepname
    * @param action
    * @param targetTableName
@@ -262,14 +259,14 @@ public class GPLoadIT {
    * @param dataFilename
    * @param delimiter
    * @param logFilename
-   * @param[] tableColumns
    * @param matchColumns
    * @param updateColumns
+   * @param[] tableColumns
    */
   private GPLoadMeta createGPLoadMeta( String gpLoadStepname, String action, String schemaTableName,
-    String targetTableName, String errorTableName, String dataFilename, String delimiter, String pathToGPLoad,
-    String pathToControlfile, String logFilename, String[] tableColumn, boolean[] matchColumn,
-    boolean[] updateColumn, String localhostPort, String[] localHosts, String updateCondition, String encoding ) throws Exception {
+                                       String targetTableName, String errorTableName, String dataFilename, String delimiter, String pathToGPLoad,
+                                       String pathToControlfile, String logFilename, String[] tableColumn, boolean[] matchColumn,
+                                       boolean[] updateColumn, String localhostPort, String[] localHosts, String updateCondition, String encoding ) throws Exception {
 
     // create the trans meta
     TransMeta transMeta = createTransformationMeta( gpLoadStepname );
@@ -305,11 +302,10 @@ public class GPLoadIT {
 
   /**
    * Tests the YAML contents generated by the GPLoad step in the transformation.
-   * 
+   *
    * @param GPLoadMeta
    * @param TransMeta
-   * @param expectedYAMLFilename
-   *          The file name of the YAML file whose contents should match the YAML generated by the GPLoad step.
+   * @param expectedYAMLFilename The file name of the YAML file whose contents should match the YAML generated by the GPLoad step.
    */
   private void testYAMLContents( GPLoadMeta gpLoadMeta, TransMeta transMeta, String expectedYAMLFileName ) throws HopException, Exception {
 
@@ -339,14 +335,12 @@ public class GPLoadIT {
 
   /**
    * Tests the command line generated by the GPLoad step in the transformation.
-   * 
+   * <p>
    * The default control file is used and a log file is specified.
-   * 
+   *
    * @param GPLoadMeta
    * @param TransMeta
-   * @param expectedCommadnLine
-   *          The expected command line to be generated.
-   * 
+   * @param expectedCommadnLine The expected command line to be generated.
    */
   private void testCommandLine( GPLoadMeta gpLoadMeta, TransMeta transMeta, String expectedCommandLine ) throws HopException, Exception {
 
@@ -392,8 +386,8 @@ public class GPLoadIT {
     // and specifying to columns
     GPLoadMeta gpLoadMeta =
       createGPLoadMeta( gpLoadStepname, GPLoadMeta.ACTION_INSERT, GPLoadIT.TARGET_TABLE,
-        GPLoadIT.GPLOAD_ERROR_TABLE, GPLoadIT.INSERT_DATA_FILE, ";", new String[0], new boolean[0],
-        new boolean[0], null, null, // no local host port or localhosts
+        GPLoadIT.GPLOAD_ERROR_TABLE, GPLoadIT.INSERT_DATA_FILE, ";", new String[ 0 ], new boolean[ 0 ],
+        new boolean[ 0 ], null, null, // no local host port or localhosts
         null, null );
 
     testYAMLContents( gpLoadMeta, transMeta, "GPLoad-insert1.cfg" );
@@ -401,7 +395,7 @@ public class GPLoadIT {
 
   /**
    * Tests inserting with local host port and one local host specified.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -416,15 +410,15 @@ public class GPLoadIT {
     // and specifying to columns
     GPLoadMeta gpLoadMeta =
       createGPLoadMeta( gpLoadStepname, GPLoadMeta.ACTION_INSERT, GPLoadIT.TARGET_TABLE,
-        GPLoadIT.GPLOAD_ERROR_TABLE, GPLoadIT.INSERT_DATA_FILE, ",", new String[0], new boolean[0],
-        new boolean[0], "8000", new String[] { "localhost" }, null, null );
+        GPLoadIT.GPLOAD_ERROR_TABLE, GPLoadIT.INSERT_DATA_FILE, ",", new String[ 0 ], new boolean[ 0 ],
+        new boolean[ 0 ], "8000", new String[] { "localhost" }, null, null );
 
     testYAMLContents( gpLoadMeta, transMeta, "GPLoad-insert2.cfg" );
   }
 
   /**
    * Tests inserting with local host port and two local hosts specified.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -439,15 +433,15 @@ public class GPLoadIT {
     // and specifying to columns
     GPLoadMeta gpLoadMeta =
       createGPLoadMeta( gpLoadStepname, GPLoadMeta.ACTION_INSERT, GPLoadIT.TARGET_TABLE,
-        GPLoadIT.GPLOAD_ERROR_TABLE, GPLoadIT.INSERT_DATA_FILE, ",", new String[0], new boolean[0],
-        new boolean[0], "8000", new String[] { "etl-host1", "etl-host2" }, null, null );
+        GPLoadIT.GPLOAD_ERROR_TABLE, GPLoadIT.INSERT_DATA_FILE, ",", new String[ 0 ], new boolean[ 0 ],
+        new boolean[ 0 ], "8000", new String[] { "etl-host1", "etl-host2" }, null, null );
 
     testYAMLContents( gpLoadMeta, transMeta, "GPLoad-insert3.cfg" );
   }
 
   /**
    * Tests inserting with encoding specified.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -462,8 +456,8 @@ public class GPLoadIT {
     // and specifying to columns
     GPLoadMeta gpLoadMeta =
       createGPLoadMeta( gpLoadStepname, GPLoadMeta.ACTION_INSERT, GPLoadIT.TARGET_TABLE,
-        GPLoadIT.GPLOAD_ERROR_TABLE, GPLoadIT.INSERT_DATA_FILE, ";", new String[0], new boolean[0],
-        new boolean[0], null, null, // no local host port or localhosts
+        GPLoadIT.GPLOAD_ERROR_TABLE, GPLoadIT.INSERT_DATA_FILE, ";", new String[ 0 ], new boolean[ 0 ],
+        new boolean[ 0 ], null, null, // no local host port or localhosts
         null, "UTF-8" );
 
     testYAMLContents( gpLoadMeta, transMeta, "GPLoad-insert4.cfg" );
@@ -484,8 +478,8 @@ public class GPLoadIT {
     // and specifying to columns
     GPLoadMeta gpLoadMeta =
       createGPLoadMeta( gpLoadStepname, GPLoadMeta.ACTION_INSERT, GPLoadIT.SCHEMA_NAME, GPLoadIT.TARGET_TABLE,
-        GPLoadIT.GPLOAD_ERROR_TABLE, GPLoadIT.INSERT_DATA_FILE, ";", new String[0], new boolean[0],
-        new boolean[0], null, null, // no local host port or localhosts
+        GPLoadIT.GPLOAD_ERROR_TABLE, GPLoadIT.INSERT_DATA_FILE, ";", new String[ 0 ], new boolean[ 0 ],
+        new boolean[ 0 ], null, null, // no local host port or localhosts
         null, null );
 
     testYAMLContents( gpLoadMeta, transMeta, "GPLoad-schemaSpecified.cfg" );
@@ -526,7 +520,7 @@ public class GPLoadIT {
 
   /**
    * Test an update where the match columns are not specified.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -557,7 +551,7 @@ public class GPLoadIT {
 
   /**
    * Tests an update where no update columns are specified.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -591,7 +585,7 @@ public class GPLoadIT {
   /**
    * Tests an update where no match or update columns are specified. The match column missing exception should be
    * thrown.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -666,7 +660,7 @@ public class GPLoadIT {
     GPLoadMeta gpLoadMeta =
       createGPLoadMeta( gpLoadStepname, GPLoadMeta.ACTION_UPDATE, null, GPLoadIT.GPLOAD_ERROR_TABLE,
         GPLoadIT.UPDATE_DATA_FILE, ";", TABLE_FIELD, matchColumn, updateColumn, null, null, // no local host port
-                                                                                              // or localhosts);
+        // or localhosts);
         null, null );
 
     try {
@@ -743,7 +737,6 @@ public class GPLoadIT {
 
   /**
    * Tests the GPLoad command line generation with a log file specified.
-   * 
    */
   @Test
   public void testCommandLine1() throws Exception {
@@ -758,9 +751,9 @@ public class GPLoadIT {
     GPLoadMeta gpLoadMeta =
       createGPLoadMeta( gpLoadStepname, GPLoadMeta.ACTION_INSERT, GPLoadIT.TARGET_TABLE,
         GPLoadIT.GPLOAD_ERROR_TABLE, GPLoadIT.INSERT_DATA_FILE, ",", pathToGPLoadExecutable, pathToControlFile,
-        pathToLogfile, new String[0], new boolean[0], new boolean[0], null, null, // no local
-                                                                                  // host port or
-                                                                                  // localhosts);
+        pathToLogfile, new String[ 0 ], new boolean[ 0 ], new boolean[ 0 ], null, null, // no local
+        // host port or
+        // localhosts);
         null, null );
 
     // get the path to the control file
@@ -773,7 +766,6 @@ public class GPLoadIT {
 
   /**
    * Tests the GPLoad command line generation with a log file NOT specified.
-   * 
    */
   @Test
   public void testCommandLine2() throws Exception {
@@ -788,7 +780,7 @@ public class GPLoadIT {
     GPLoadMeta gpLoadMeta =
       createGPLoadMeta( gpLoadStepname, GPLoadMeta.ACTION_INSERT, GPLoadIT.TARGET_TABLE,
         GPLoadIT.GPLOAD_ERROR_TABLE, GPLoadIT.INSERT_DATA_FILE, ",", pathToGPLoadExecutable, null, null,
-        new String[0], new boolean[0], new boolean[0], null, null, // no local host port or localhosts);
+        new String[ 0 ], new boolean[ 0 ], new boolean[ 0 ], null, null, // no local host port or localhosts);
         null, null );
 
     // get the path to the control file
@@ -801,7 +793,6 @@ public class GPLoadIT {
 
   /**
    * Tests the GPLoad command line generation with an invalid path to GPLoad.
-   * 
    */
   @Test
   public void testCommandLine4() throws Exception {
@@ -818,8 +809,8 @@ public class GPLoadIT {
     // and specifying to columns
     GPLoadMeta gpLoadMeta =
       createGPLoadMeta( gpLoadStepname, GPLoadMeta.ACTION_INSERT, GPLoadIT.TARGET_TABLE,
-        GPLoadIT.GPLOAD_ERROR_TABLE, GPLoadIT.INSERT_DATA_FILE, ",", invalidPath, null, null, new String[0],
-        new boolean[0], new boolean[0], null, null, // no local host port or localhosts);
+        GPLoadIT.GPLOAD_ERROR_TABLE, GPLoadIT.INSERT_DATA_FILE, ",", invalidPath, null, null, new String[ 0 ],
+        new boolean[ 0 ], new boolean[ 0 ], null, null, // no local host port or localhosts);
         null, null );
 
     String expectedCommandLine = ( "/invalid path" + " -f " + invalidPath );
@@ -851,7 +842,7 @@ public class GPLoadIT {
     GPLoadMeta gpLoadMeta =
       createGPLoadMeta( gpLoadStepname, GPLoadMeta.ACTION_INSERT, GPLoadIT.TARGET_TABLE,
         GPLoadIT.GPLOAD_ERROR_TABLE, GPLoadIT.INSERT_DATA_FILE, ",", pathToGPLoadExecutable, pathToControlFile,
-        invalidPath, new String[0], new boolean[0], new boolean[0], null, null, null, null );
+        invalidPath, new String[ 0 ], new boolean[ 0 ], new boolean[ 0 ], null, null, null, null );
 
     // get the path to the control file
     File controlFile = new File( gpLoadMeta.getControlFile() );
@@ -882,8 +873,8 @@ public class GPLoadIT {
     GPLoadMeta gpLoadMeta =
       createGPLoadMeta( gpLoadStepname, GPLoadMeta.ACTION_INSERT, GPLoadIT.TARGET_TABLE,
         GPLoadIT.GPLOAD_ERROR_TABLE, GPLoadIT.INSERT_DATA_FILE, ",", pathToGPLoadExecutable, pathToControlFile,
-        "/invalid path", new String[0], new boolean[0], new boolean[0], null, null, // no local host port or
-                                                                                    // localhosts);
+        "/invalid path", new String[ 0 ], new boolean[ 0 ], new boolean[ 0 ], null, null, // no local host port or
+        // localhosts);
         null, null );
 
     // get the path to the control file

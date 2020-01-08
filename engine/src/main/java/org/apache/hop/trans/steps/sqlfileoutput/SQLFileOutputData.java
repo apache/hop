@@ -22,14 +22,14 @@
 
 package org.apache.hop.trans.steps.sqlfileoutput;
 
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.text.SimpleDateFormat;
-
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
 
 /**
  * @author Matt
@@ -47,7 +47,9 @@ public class SQLFileOutputData extends BaseStepData implements StepDataInterface
   public OutputStream fos;
   public RowMetaInterface outputRowMeta;
 
-  /** Cache of the data formatter object */
+  /**
+   * Cache of the data formatter object
+   */
   public SimpleDateFormat dateFormater;
 
   public boolean sendToErrorRow;

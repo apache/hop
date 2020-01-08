@@ -22,25 +22,25 @@
 
 package org.apache.hop.ui.hopui;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.apache.hop.core.EngineMetaInterface;
 import org.apache.hop.core.gui.HopUiFactory;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.hopui.job.JobGraph;
 import org.apache.hop.ui.hopui.trans.TransGraph;
 import org.apache.hop.ui.util.ImageUtil;
+import org.apache.xul.swt.tab.TabItem;
+import org.apache.xul.swt.tab.TabSet;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.impl.DefaultXulOverlay;
 import org.pentaho.ui.xul.impl.XulEventHandler;
-import org.apache.xul.swt.tab.TabItem;
-import org.apache.xul.swt.tab.TabSet;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
 public class MainHopUiPerspective implements HopUiPerspectiveImageProvider {
 

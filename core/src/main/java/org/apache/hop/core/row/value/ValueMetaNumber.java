@@ -24,7 +24,6 @@ package org.apache.hop.core.row.value;
 
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.util.Utils;
 
 public class ValueMetaNumber extends ValueMetaBase implements ValueMetaInterface {
 

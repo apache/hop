@@ -22,20 +22,6 @@
 
 package org.apache.hop.job.entries.sftp;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetAddress;
-
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileType;
-import org.apache.commons.vfs2.FileUtil;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopJobException;
-import org.apache.hop.core.vfs.HopVFS;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
@@ -48,6 +34,19 @@ import com.jcraft.jsch.ProxySOCKS5;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.SftpException;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileType;
+import org.apache.commons.vfs2.FileUtil;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopJobException;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVFS;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetAddress;
 
 public class SFTPClient {
 
@@ -82,12 +81,9 @@ public class SFTPClient {
   /**
    * Init Helper Class with connection settings
    *
-   * @param serverIP
-   *          IP address of remote server
-   * @param serverPort
-   *          port of remote server
-   * @param userName
-   *          username of remote server
+   * @param serverIP   IP address of remote server
+   * @param serverPort port of remote server
+   * @param userName   username of remote server
    * @throws HopJobException
    */
   public SFTPClient( InetAddress serverIP, int serverPort, String userName ) throws HopJobException {
@@ -97,14 +93,10 @@ public class SFTPClient {
   /**
    * Init Helper Class with connection settings
    *
-   * @param serverIP
-   *          IP address of remote server
-   * @param serverPort
-   *          port of remote server
-   * @param userName
-   *          username of remote server
-   * @param privateKeyFilename
-   *          filename of private key
+   * @param serverIP           IP address of remote server
+   * @param serverPort         port of remote server
+   * @param userName           username of remote server
+   * @param privateKeyFilename filename of private key
    * @throws HopJobException
    */
   public SFTPClient( InetAddress serverIP, int serverPort, String userName, String privateKeyFilename ) throws HopJobException {
@@ -114,20 +106,15 @@ public class SFTPClient {
   /**
    * Init Helper Class with connection settings
    *
-   * @param serverIP
-   *          IP address of remote server
-   * @param serverPort
-   *          port of remote server
-   * @param userName
-   *          username of remote server
-   * @param privateKeyFilename
-   *          filename of private key
-   * @param passPhrase
-   *          passphrase
+   * @param serverIP           IP address of remote server
+   * @param serverPort         port of remote server
+   * @param userName           username of remote server
+   * @param privateKeyFilename filename of private key
+   * @param passPhrase         passphrase
    * @throws HopJobException
    */
   public SFTPClient( InetAddress serverIP, int serverPort, String userName, String privateKeyFilename,
-    String passPhrase ) throws HopJobException {
+                     String passPhrase ) throws HopJobException {
 
     if ( serverIP == null || serverPort < 0 || userName == null || userName.equals( "" ) ) {
       throw new HopJobException(
@@ -143,7 +130,7 @@ public class SFTPClient {
       if ( !Utils.isEmpty( privateKeyFilename ) ) {
         // We need to use private key authentication
         this.prvkey = privateKeyFilename;
-        byte[] passphrasebytes = new byte[0];
+        byte[] passphrasebytes = new byte[ 0 ];
         if ( !Utils.isEmpty( passPhrase ) ) {
           // Set passphrase
           this.passphrase = passPhrase;
@@ -215,7 +202,7 @@ public class SFTPClient {
         }
       }
       if ( o.size() > 0 ) {
-        fileList = new String[o.size()];
+        fileList = new String[ o.size() ];
         o.copyInto( fileList );
       }
     } catch ( SftpException e ) {
@@ -246,10 +233,10 @@ public class SFTPClient {
   }
 
   /**
-   * @deprecated use {@link #get(FileObject, String)}
    * @param localFilePath
    * @param remoteFile
    * @throws HopJobException
+   * @deprecated use {@link #get(FileObject, String)}
    */
   @Deprecated
   public void get( String localFilePath, String remoteFile ) throws HopJobException {

@@ -225,6 +225,7 @@ public class LoggingRegistry {
 
   /**
    * For junit testing purposes
+   *
    * @return ro items map
    */
   Map<String, LoggingObjectInterface> dumpItems() {
@@ -233,6 +234,7 @@ public class LoggingRegistry {
 
   /**
    * For junit testing purposes
+   *
    * @return ro parent-child relations map
    */
   Map<String, List<String>> dumpChildren() {

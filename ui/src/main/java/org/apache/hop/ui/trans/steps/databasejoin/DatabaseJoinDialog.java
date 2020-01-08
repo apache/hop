@@ -22,16 +22,27 @@
 
 package org.apache.hop.ui.trans.steps.databasejoin;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.databasejoin.DatabaseJoinMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.steps.tableinput.SQLValuesHighlight;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
@@ -56,24 +67,12 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.databasejoin.DatabaseJoinMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.StyledTextComp;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.steps.tableinput.SQLValuesHighlight;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class DatabaseJoinDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = DatabaseJoinMeta.class; // for i18n purposes, needed by Translator2!!
@@ -321,12 +320,12 @@ public class DatabaseJoinDialog extends BaseStepDialog implements StepDialogInte
     int nrKeyCols = 2;
     int nrKeyRows = ( input.getParameterField() != null ? input.getParameterField().length : 1 );
 
-    ciKey = new ColumnInfo[nrKeyCols];
-    ciKey[0] =
+    ciKey = new ColumnInfo[ nrKeyCols ];
+    ciKey[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "DatabaseJoinDialog.ColumnInfo.ParameterFieldname" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    ciKey[1] =
+    ciKey[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "DatabaseJoinDialog.ColumnInfo.ParameterType" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaFactory.getValueMetaNames() );
@@ -429,10 +428,10 @@ public class DatabaseJoinDialog extends BaseStepDialog implements StepDialogInte
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    ciKey[0].setComboValues( fieldNames );
+    ciKey[ 0 ].setComboValues( fieldNames );
   }
 
   public void setPosition() {
@@ -466,11 +465,11 @@ public class DatabaseJoinDialog extends BaseStepDialog implements StepDialogInte
     if ( input.getParameterField() != null ) {
       for ( int i = 0; i < input.getParameterField().length; i++ ) {
         TableItem item = wParam.table.getItem( i );
-        if ( input.getParameterField()[i] != null ) {
-          item.setText( 1, input.getParameterField()[i] );
+        if ( input.getParameterField()[ i ] != null ) {
+          item.setText( 1, input.getParameterField()[ i ] );
         }
-        if ( input.getParameterType()[i] != 0 ) {
-          item.setText( 2, ValueMetaFactory.getValueMetaName( input.getParameterType()[i] ) );
+        if ( input.getParameterType()[ i ] != 0 ) {
+          item.setText( 2, ValueMetaFactory.getValueMetaName( input.getParameterType()[ i ] ) );
         }
       }
     }
@@ -510,8 +509,8 @@ public class DatabaseJoinDialog extends BaseStepDialog implements StepDialogInte
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrparam; i++ ) {
       TableItem item = wParam.getNonEmpty( i );
-      input.getParameterField()[i] = item.getText( 1 );
-      input.getParameterType()[i] = ValueMetaFactory.getIdForValueMeta( item.getText( 2 ) );
+      input.getParameterField()[ i ] = item.getText( 1 );
+      input.getParameterType()[ i ] = ValueMetaFactory.getIdForValueMeta( item.getText( 2 ) );
     }
 
     input.setDatabaseMeta( transMeta.findDatabase( wConnection.getText() ) );
@@ -537,7 +536,7 @@ public class DatabaseJoinDialog extends BaseStepDialog implements StepDialogInte
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "DatabaseJoinDialog.GetFieldsFailed.DialogTitle" ), BaseMessages
-          .getString( PKG, "DatabaseJoinDialog.GetFieldsFailed.DialogMessage" ), ke );
+        .getString( PKG, "DatabaseJoinDialog.GetFieldsFailed.DialogMessage" ), ke );
     }
 
   }

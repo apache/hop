@@ -23,11 +23,11 @@
 package org.apache.hop.trans.steps.xbaseinput;
 
 import org.apache.commons.vfs2.FileObject;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.trans.steps.file.BaseFileField;
 import org.apache.hop.trans.steps.fileinput.BaseParsingTest;
+import org.junit.Before;
+import org.junit.Ignore;
 
 /**
  * Base class for all XBase input step tests.

@@ -22,25 +22,23 @@
 
 package org.apache.hop.job.entry;
 
-import java.util.List;
-import java.util.Map;
-
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.SQLStatement;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * JobEntryInterface is the main Java interface that a plugin implements. The responsibilities of the implementing class
@@ -138,7 +136,6 @@ import org.w3c.dom.Node;
  *
  * @author Matt Casters
  * @since 18-06-04
- *
  */
 
 public interface JobEntryInterface {
@@ -147,21 +144,17 @@ public interface JobEntryInterface {
    * Execute the job entry. The previous result and number of rows are provided to the method for the purpose of
    * chaining job entries, transformations, etc.
    *
-   * @param prev_result
-   *          the previous result
-   * @param nr
-   *          the number of rows
+   * @param prev_result the previous result
+   * @param nr          the number of rows
    * @return the Result object from execution of this job entry
-   * @throws HopException
-   *           if any Hop exceptions occur
+   * @throws HopException if any Hop exceptions occur
    */
   Result execute( Result prev_result, int nr ) throws HopException;
 
   /**
    * Sets the parent job.
    *
-   * @param job
-   *          the parent job
+   * @param job the parent job
    */
   void setParentJob( Job job );
 
@@ -182,8 +175,7 @@ public interface JobEntryInterface {
   /**
    * Sets the MetaStore
    *
-   * @param metaStore
-   *          The new MetaStore to use
+   * @param metaStore The new MetaStore to use
    */
   void setMetaStore( IMetaStore metaStore );
 
@@ -202,8 +194,7 @@ public interface JobEntryInterface {
   /**
    * Sets the name for this job entry.
    *
-   * @param name
-   *          the new name
+   * @param name the new name
    */
   void setName( String name );
 
@@ -217,8 +208,7 @@ public interface JobEntryInterface {
   /**
    * Sets the plugin id.
    *
-   * @param pluginId
-   *          the new plugin id
+   * @param pluginId the new plugin id
    */
   void setPluginId( String pluginId );
 
@@ -232,8 +222,7 @@ public interface JobEntryInterface {
   /**
    * Sets the description of this job entry
    *
-   * @param description
-   *          the new description
+   * @param description the new description
    */
   void setDescription( String description );
 
@@ -245,8 +234,7 @@ public interface JobEntryInterface {
   /**
    * Sets whether the job entry has changed
    *
-   * @param ch
-   *          true if the job entry has changed, false otherwise
+   * @param ch true if the job entry has changed, false otherwise
    */
   void setChanged( boolean ch );
 
@@ -262,17 +250,11 @@ public interface JobEntryInterface {
    * job entry's settings is passed in as an argument. Again, the helper class org.apache.hop.core.xml.XMLHandler is
    * typically used to conveniently read the settings from the XML node.
    *
-   * @param entrynode
-   *          the top-level XML node
-   * @param slaveServers
-   *          the list of slave servers
-   * @param metaStore
-   *          The metaStore to optionally load from.
-   * @throws HopXMLException
-   *           if any errors occur during the loading of the XML
+   * @param entrynode the top-level XML node
+   * @param metaStore The metaStore to optionally load from.
+   * @throws HopXMLException if any errors occur during the loading of the XML
    */
-  void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException;
+  void loadXML( Node entrynode, IMetaStore metaStore ) throws HopXMLException;
 
   /**
    * This method is called by PDI whenever a job entry needs to serialize its settings to XML. It is called when saving
@@ -375,13 +357,10 @@ public interface JobEntryInterface {
   /**
    * Gets the SQL statements needed by this job entry to execute successfully, given a set of variables.
    *
-   * @param metaStore
-   *          the MetaStore to use
-   * @param space
-   *          a variable space object containing variable bindings
+   * @param metaStore the MetaStore to use
+   * @param space     a variable space object containing variable bindings
    * @return a list of SQL statements
-   * @throws HopException
-   *           if any errors occur during the generation of SQL statements
+   * @throws HopException if any errors occur during the generation of SQL statements
    */
   List<SQLStatement> getSQLStatements( IMetaStore metaStore, VariableSpace space ) throws HopException;
 
@@ -389,8 +368,7 @@ public interface JobEntryInterface {
    * Get the name of the class that implements the dialog for the job entry JobEntryBase provides a default
    *
    * @return the name of the class implementing the dialog for the job entry
-   *
-   * @deprecated  As of release 8.1, use annotated-based dialog instead {@see org.apache.hop.core.annotations.PluginDialog}
+   * @deprecated As of release 8.1, use annotated-based dialog instead {@see org.apache.hop.core.annotations.PluginDialog}
    */
   @Deprecated
   String getDialogClassName();
@@ -413,14 +391,10 @@ public interface JobEntryInterface {
   /**
    * Allows JobEntry objects to check themselves for consistency
    *
-   * @param remarks
-   *          List of CheckResult objects indicating consistency status
-   * @param jobMeta
-   *          the metadata object for the job entry
-   * @param space
-   *          the variable space to resolve string expressions with variables with
-   * @param metaStore
-   *          the MetaStore to load common elements from
+   * @param remarks   List of CheckResult objects indicating consistency status
+   * @param jobMeta   the metadata object for the job entry
+   * @param space     the variable space to resolve string expressions with variables with
+   * @param metaStore the MetaStore to load common elements from
    */
   void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space, IMetaStore metaStore );
 
@@ -436,21 +410,15 @@ public interface JobEntryInterface {
    * resource naming interface allows the object to name appropriately without worrying about those parts of the
    * implementation specific details.
    *
-   * @param space
-   *          The variable space to resolve (environment) variables with.
-   * @param definitions
-   *          The map containing the filenames and content
-   * @param namingInterface
-   *          The resource naming interface allows the object to be named appropriately
-   * @param metaStore
-   *          the metaStore to load external metadata from
-   *
+   * @param space           The variable space to resolve (environment) variables with.
+   * @param definitions     The map containing the filenames and content
+   * @param namingInterface The resource naming interface allows the object to be named appropriately
+   * @param metaStore       the metaStore to load external metadata from
    * @return The filename for this object. (also contained in the definitions map)
-   * @throws HopException
-   *           in case something goes wrong during the export
+   * @throws HopException in case something goes wrong during the export
    */
   String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException;
+                          ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException;
 
   /**
    * Checks whether the job entry defines one or more references to a repository object
@@ -472,12 +440,9 @@ public interface JobEntryInterface {
   /**
    * Load the referenced object
    *
-   * @param index
-   *          the referenced object index to load (in case there are multiple references)
-   * @param metaStore
-   *          the metaStore
-   * @param space
-   *          the variable space to use
+   * @param index     the referenced object index to load (in case there are multiple references)
+   * @param metaStore the metaStore
+   * @param space     the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
@@ -497,7 +462,7 @@ public interface JobEntryInterface {
    * Return Gets the parent jobMeta.  This default method will throw an exception if a job entry attempts to call the
    * getter when not implemented.
    */
-  default JobMeta getParentJobMeta( ) {
+  default JobMeta getParentJobMeta() {
     throw new UnsupportedOperationException( "Attemped access of getJobMet not supported by JobEntryInterface implementation" );
   }
 

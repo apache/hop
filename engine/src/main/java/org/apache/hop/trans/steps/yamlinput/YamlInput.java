@@ -22,11 +22,8 @@
 
 package org.apache.hop.trans.steps.yamlinput;
 
-import java.util.List;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
@@ -34,6 +31,7 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
@@ -43,6 +41,8 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.util.List;
 
 /**
  * Read YAML files, parse them and convert them to rows and writes these to one or more output streams.
@@ -58,7 +58,7 @@ public class YamlInput extends BaseStep implements StepInterface {
   private YamlInputData data;
 
   public YamlInput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                    Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -347,11 +347,11 @@ public class YamlInput extends BaseStep implements StepInterface {
 
       // See if we need to add the filename to the row...
       if ( meta.includeFilename() && !Utils.isEmpty( meta.getFilenameField() ) ) {
-        outputRowData[rowIndex++] = HopVFS.getFilename( data.file );
+        outputRowData[ rowIndex++ ] = HopVFS.getFilename( data.file );
       }
       // See if we need to add the row number to the row...
       if ( meta.includeRowNumber() && !Utils.isEmpty( meta.getRowNumberField() ) ) {
-        outputRowData[rowIndex++] = new Long( data.rownr );
+        outputRowData[ rowIndex++ ] = new Long( data.rownr );
       }
 
     } catch ( Exception e ) {
@@ -387,7 +387,7 @@ public class YamlInput extends BaseStep implements StepInterface {
 
       data.rowMeta = new RowMeta();
       for ( int i = 0; i < data.nrInputFields; i++ ) {
-        YamlInputField field = meta.getInputFields()[i];
+        YamlInputField field = meta.getInputFields()[ i ];
         String path = environmentSubstitute( field.getPath() );
 
         try {

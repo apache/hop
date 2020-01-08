@@ -17,18 +17,18 @@
 
 package org.apache.hop.metastore.stores.xml;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.hop.metastore.api.IMetaStoreAttribute;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class XmlMetaStoreAttribute implements IMetaStoreAttribute {
 
@@ -55,7 +55,7 @@ public class XmlMetaStoreAttribute implements IMetaStoreAttribute {
 
   /**
    * Duplicate the element data into this structure.
-   * 
+   *
    * @param element
    */
   public XmlMetaStoreAttribute( IMetaStoreAttribute element ) {
@@ -84,8 +84,8 @@ public class XmlMetaStoreAttribute implements IMetaStoreAttribute {
         } else if ( "Long".equals( type ) ) {
           value = Long.valueOf( (String) value );
         } /*
-           * else { value = value; }
-           */
+         * else { value = value; }
+         */
       } else if ( "children".equals( elementNode.getNodeName() ) ) {
         NodeList childNodes = elementNode.getChildNodes();
         for ( int c = 0; c < childNodes.getLength(); c++ ) {
@@ -120,8 +120,7 @@ public class XmlMetaStoreAttribute implements IMetaStoreAttribute {
   }
 
   /**
-   * @param id
-   *          the id to set
+   * @param id the id to set
    */
   public void setId( String id ) {
     this.id = id;
@@ -135,8 +134,7 @@ public class XmlMetaStoreAttribute implements IMetaStoreAttribute {
   }
 
   /**
-   * @param value
-   *          the value to set
+   * @param value the value to set
    */
   public void setValue( Object value ) {
     this.value = value;
@@ -150,8 +148,7 @@ public class XmlMetaStoreAttribute implements IMetaStoreAttribute {
   }
 
   /**
-   * @param children
-   *          the children to set
+   * @param children the children to set
    */
   public void setChildren( List<IMetaStoreAttribute> children ) {
     this.children.clear();
@@ -182,8 +179,7 @@ public class XmlMetaStoreAttribute implements IMetaStoreAttribute {
   }
 
   /**
-   * @param filename
-   *          the filename to set
+   * @param filename the filename to set
    */
   public void setFilename( String filename ) {
     this.filename = filename;
@@ -200,7 +196,7 @@ public class XmlMetaStoreAttribute implements IMetaStoreAttribute {
 
     Element valueElement = doc.createElement( "value" );
     valueElement
-        .appendChild( doc.createTextNode( attribute.getValue() != null ? attribute.getValue().toString() : "" ) );
+      .appendChild( doc.createTextNode( attribute.getValue() != null ? attribute.getValue().toString() : "" ) );
     parentElement.appendChild( valueElement );
 
     Element typeElement = doc.createElement( "type" );

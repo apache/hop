@@ -22,10 +22,6 @@
 
 package org.apache.hop.trans.steps.systemdata;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -40,6 +36,11 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.version.BuildVersion;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
 /**
  * Get information from the System or the supervising transformation.
  *
@@ -51,38 +52,38 @@ public class SystemData extends BaseStep implements StepInterface {
   private SystemDataData data;
 
   public SystemData( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                     Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
   private Object[] getSystemData( RowMetaInterface inputRowMeta, Object[] inputRowData ) throws HopException {
-    Object[] row = new Object[data.outputRowMeta.size()];
+    Object[] row = new Object[ data.outputRowMeta.size() ];
     for ( int i = 0; i < inputRowMeta.size(); i++ ) {
-      row[i] = inputRowData[i]; // no data is changed, clone is not needed here.
+      row[ i ] = inputRowData[ i ]; // no data is changed, clone is not needed here.
     }
     for ( int i = 0, index = inputRowMeta.size(); i < meta.getFieldName().length; i++, index++ ) {
       Calendar cal;
 
       int argnr = 0;
 
-      switch ( meta.getFieldType()[i] ) {
+      switch ( meta.getFieldType()[ i ] ) {
         case TYPE_SYSTEM_INFO_SYSTEM_START:
-          row[index] = getTrans().getCurrentDate();
+          row[ index ] = getTrans().getCurrentDate();
           break;
         case TYPE_SYSTEM_INFO_SYSTEM_DATE:
-          row[index] = new Date();
+          row[ index ] = new Date();
           break;
         case TYPE_SYSTEM_INFO_TRANS_DATE_FROM:
-          row[index] = getTrans().getStartDate();
+          row[ index ] = getTrans().getStartDate();
           break;
         case TYPE_SYSTEM_INFO_TRANS_DATE_TO:
-          row[index] = getTrans().getEndDate();
+          row[ index ] = getTrans().getEndDate();
           break;
         case TYPE_SYSTEM_INFO_JOB_DATE_FROM:
-          row[index] = getTrans().getJobStartDate();
+          row[ index ] = getTrans().getJobStartDate();
           break;
         case TYPE_SYSTEM_INFO_JOB_DATE_TO:
-          row[index] = getTrans().getJobEndDate();
+          row[ index ] = getTrans().getJobEndDate();
           break;
         case TYPE_SYSTEM_INFO_PREV_DAY_START:
           cal = Calendar.getInstance();
@@ -91,7 +92,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, 0 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_PREV_DAY_END:
           cal = Calendar.getInstance();
@@ -100,7 +101,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 59 );
           cal.set( Calendar.SECOND, 59 );
           cal.set( Calendar.MILLISECOND, 999 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_THIS_DAY_START:
           cal = Calendar.getInstance();
@@ -108,7 +109,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, 0 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_THIS_DAY_END:
           cal = Calendar.getInstance();
@@ -116,7 +117,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 59 );
           cal.set( Calendar.SECOND, 59 );
           cal.set( Calendar.MILLISECOND, 999 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_NEXT_DAY_START:
           cal = Calendar.getInstance();
@@ -125,7 +126,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, 0 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_NEXT_DAY_END:
           cal = Calendar.getInstance();
@@ -134,7 +135,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 59 );
           cal.set( Calendar.SECOND, 59 );
           cal.set( Calendar.MILLISECOND, 999 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_PREV_MONTH_START:
           cal = Calendar.getInstance();
@@ -144,7 +145,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, 0 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_PREV_MONTH_END:
           cal = Calendar.getInstance();
@@ -154,7 +155,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 59 );
           cal.set( Calendar.SECOND, 59 );
           cal.set( Calendar.MILLISECOND, 999 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_THIS_MONTH_START:
           cal = Calendar.getInstance();
@@ -163,7 +164,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, 0 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_THIS_MONTH_END:
           cal = Calendar.getInstance();
@@ -172,7 +173,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 59 );
           cal.set( Calendar.SECOND, 59 );
           cal.set( Calendar.MILLISECOND, 999 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_NEXT_MONTH_START:
           cal = Calendar.getInstance();
@@ -182,7 +183,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, 0 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_NEXT_MONTH_END:
           cal = Calendar.getInstance();
@@ -192,41 +193,41 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 59 );
           cal.set( Calendar.SECOND, 59 );
           cal.set( Calendar.MILLISECOND, 999 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_COPYNR:
-          row[index] = new Long( getCopy() );
+          row[ index ] = new Long( getCopy() );
           break;
         case TYPE_SYSTEM_INFO_TRANS_NAME:
-          row[index] = getTransMeta().getName();
+          row[ index ] = getTransMeta().getName();
           break;
         case TYPE_SYSTEM_INFO_MODIFIED_USER:
-          row[index] = getTransMeta().getModifiedUser();
+          row[ index ] = getTransMeta().getModifiedUser();
           break;
         case TYPE_SYSTEM_INFO_MODIFIED_DATE:
-          row[index] = getTransMeta().getModifiedDate();
+          row[ index ] = getTransMeta().getModifiedDate();
           break;
         case TYPE_SYSTEM_INFO_TRANS_BATCH_ID:
-          row[index] = new Long( getTrans().getBatchId() );
+          row[ index ] = new Long( getTrans().getBatchId() );
           break;
         case TYPE_SYSTEM_INFO_JOB_BATCH_ID:
-          row[index] = new Long( getTrans().getPassedBatchId() );
+          row[ index ] = new Long( getTrans().getPassedBatchId() );
           break;
         case TYPE_SYSTEM_INFO_HOSTNAME_REAL:
-          row[index] = Const.getHostnameReal();
+          row[ index ] = Const.getHostnameReal();
           break;
         case TYPE_SYSTEM_INFO_HOSTNAME:
-          row[index] = Const.getHostname();
+          row[ index ] = Const.getHostname();
           break;
         case TYPE_SYSTEM_INFO_IP_ADDRESS:
           try {
-            row[index] = Const.getIPAddress();
+            row[ index ] = Const.getIPAddress();
           } catch ( Exception e ) {
             throw new HopException( e );
           }
           break;
         case TYPE_SYSTEM_INFO_FILENAME:
-          row[index] = getTransMeta().getFilename();
+          row[ index ] = getTransMeta().getFilename();
           break;
         case TYPE_SYSTEM_INFO_ARGUMENT_01:
         case TYPE_SYSTEM_INFO_ARGUMENT_02:
@@ -238,58 +239,58 @@ public class SystemData extends BaseStep implements StepInterface {
         case TYPE_SYSTEM_INFO_ARGUMENT_08:
         case TYPE_SYSTEM_INFO_ARGUMENT_09:
         case TYPE_SYSTEM_INFO_ARGUMENT_10:
-          argnr = meta.getFieldType()[i].ordinal() - SystemDataTypes.TYPE_SYSTEM_INFO_ARGUMENT_01.ordinal();
+          argnr = meta.getFieldType()[ i ].ordinal() - SystemDataTypes.TYPE_SYSTEM_INFO_ARGUMENT_01.ordinal();
           if ( getTrans().getArguments() != null && argnr < getTrans().getArguments().length ) {
-            row[index] = getTrans().getArguments()[argnr];
+            row[ index ] = getTrans().getArguments()[ argnr ];
           } else {
-            row[index] = null;
+            row[ index ] = null;
           }
           break;
         case TYPE_SYSTEM_INFO_HOP_VERSION:
-          row[index] = BuildVersion.getInstance().getVersion();
+          row[ index ] = BuildVersion.getInstance().getVersion();
           break;
         case TYPE_SYSTEM_INFO_HOP_BUILD_VERSION:
-          row[index] = BuildVersion.getInstance().getVersion();
+          row[ index ] = BuildVersion.getInstance().getVersion();
           break;
         case TYPE_SYSTEM_INFO_HOP_BUILD_DATE:
-          row[index] = BuildVersion.getInstance().getBuildDateAsLocalDate();
+          row[ index ] = BuildVersion.getInstance().getBuildDateAsLocalDate();
           break;
         case TYPE_SYSTEM_INFO_CURRENT_PID:
-          row[index] = new Long( Management.getPID() );
+          row[ index ] = new Long( Management.getPID() );
           break;
         case TYPE_SYSTEM_INFO_JVM_TOTAL_MEMORY:
-          row[index] = Runtime.getRuntime().totalMemory();
+          row[ index ] = Runtime.getRuntime().totalMemory();
           break;
         case TYPE_SYSTEM_INFO_JVM_FREE_MEMORY:
-          row[index] = Runtime.getRuntime().freeMemory();
+          row[ index ] = Runtime.getRuntime().freeMemory();
           break;
         case TYPE_SYSTEM_INFO_JVM_MAX_MEMORY:
-          row[index] = Runtime.getRuntime().maxMemory();
+          row[ index ] = Runtime.getRuntime().maxMemory();
           break;
         case TYPE_SYSTEM_INFO_JVM_AVAILABLE_MEMORY:
           Runtime rt = Runtime.getRuntime();
-          row[index] = rt.freeMemory() + ( rt.maxMemory() - rt.totalMemory() );
+          row[ index ] = rt.freeMemory() + ( rt.maxMemory() - rt.totalMemory() );
           break;
         case TYPE_SYSTEM_INFO_AVAILABLE_PROCESSORS:
-          row[index] = (long) Runtime.getRuntime().availableProcessors();
+          row[ index ] = (long) Runtime.getRuntime().availableProcessors();
           break;
         case TYPE_SYSTEM_INFO_JVM_CPU_TIME:
-          row[index] = Management.getJVMCpuTime() / 1000000;
+          row[ index ] = Management.getJVMCpuTime() / 1000000;
           break;
         case TYPE_SYSTEM_INFO_TOTAL_PHYSICAL_MEMORY_SIZE:
-          row[index] = Management.getTotalPhysicalMemorySize();
+          row[ index ] = Management.getTotalPhysicalMemorySize();
           break;
         case TYPE_SYSTEM_INFO_TOTAL_SWAP_SPACE_SIZE:
-          row[index] = Management.getTotalSwapSpaceSize();
+          row[ index ] = Management.getTotalSwapSpaceSize();
           break;
         case TYPE_SYSTEM_INFO_COMMITTED_VIRTUAL_MEMORY_SIZE:
-          row[index] = Management.getCommittedVirtualMemorySize();
+          row[ index ] = Management.getCommittedVirtualMemorySize();
           break;
         case TYPE_SYSTEM_INFO_FREE_PHYSICAL_MEMORY_SIZE:
-          row[index] = Management.getFreePhysicalMemorySize();
+          row[ index ] = Management.getFreePhysicalMemorySize();
           break;
         case TYPE_SYSTEM_INFO_FREE_SWAP_SPACE_SIZE:
-          row[index] = Management.getFreeSwapSpaceSize();
+          row[ index ] = Management.getFreeSwapSpaceSize();
           break;
 
         case TYPE_SYSTEM_INFO_PREV_WEEK_START:
@@ -300,7 +301,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, 0 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_PREV_WEEK_END:
           cal = Calendar.getInstance();
@@ -309,7 +310,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, -1 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_PREV_WEEK_OPEN_END:
           cal = Calendar.getInstance( Locale.ROOT );
@@ -319,7 +320,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, -1 );
           cal.add( Calendar.DAY_OF_WEEK, -1 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_PREV_WEEK_START_US:
           cal = Calendar.getInstance( Locale.US );
@@ -329,7 +330,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, 0 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_PREV_WEEK_END_US:
           cal = Calendar.getInstance( Locale.US );
@@ -338,7 +339,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, -1 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_THIS_WEEK_START:
           cal = Calendar.getInstance();
@@ -347,7 +348,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, 0 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_THIS_WEEK_END:
           cal = Calendar.getInstance();
@@ -357,7 +358,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, -1 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_THIS_WEEK_OPEN_END:
           cal = Calendar.getInstance( Locale.ROOT );
@@ -368,7 +369,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, -1 );
           cal.add( Calendar.DAY_OF_WEEK, -1 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_THIS_WEEK_START_US:
           cal = Calendar.getInstance( Locale.US );
@@ -377,7 +378,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, 0 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_THIS_WEEK_END_US:
           cal = Calendar.getInstance( Locale.US );
@@ -387,7 +388,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, -1 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_NEXT_WEEK_START:
           cal = Calendar.getInstance();
@@ -397,7 +398,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, 0 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_NEXT_WEEK_END:
           cal = Calendar.getInstance();
@@ -407,7 +408,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, -1 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_NEXT_WEEK_OPEN_END:
           cal = Calendar.getInstance( Locale.ROOT );
@@ -418,7 +419,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, -1 );
           cal.add( Calendar.DAY_OF_WEEK, -1 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_NEXT_WEEK_START_US:
           cal = Calendar.getInstance( Locale.US );
@@ -428,7 +429,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, 0 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_NEXT_WEEK_END_US:
           cal = Calendar.getInstance( Locale.US );
@@ -438,7 +439,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, -1 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_PREV_QUARTER_START:
           cal = Calendar.getInstance();
@@ -448,7 +449,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, 0 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_PREV_QUARTER_END:
           cal = Calendar.getInstance();
@@ -458,7 +459,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 59 );
           cal.set( Calendar.SECOND, 59 );
           cal.set( Calendar.MILLISECOND, 999 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_THIS_QUARTER_START:
           cal = Calendar.getInstance();
@@ -468,7 +469,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, 0 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_THIS_QUARTER_END:
           cal = Calendar.getInstance();
@@ -478,7 +479,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 59 );
           cal.set( Calendar.SECOND, 59 );
           cal.set( Calendar.MILLISECOND, 999 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_NEXT_QUARTER_START:
           cal = Calendar.getInstance();
@@ -488,7 +489,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, 0 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_NEXT_QUARTER_END:
           cal = Calendar.getInstance();
@@ -498,7 +499,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 59 );
           cal.set( Calendar.SECOND, 59 );
           cal.set( Calendar.MILLISECOND, 999 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_PREV_YEAR_START:
           cal = Calendar.getInstance();
@@ -508,7 +509,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, 0 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_PREV_YEAR_END:
           cal = Calendar.getInstance();
@@ -518,7 +519,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 59 );
           cal.set( Calendar.SECOND, 59 );
           cal.set( Calendar.MILLISECOND, 999 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_THIS_YEAR_START:
           cal = Calendar.getInstance();
@@ -527,7 +528,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, 0 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_THIS_YEAR_END:
           cal = Calendar.getInstance();
@@ -538,7 +539,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 59 );
           cal.set( Calendar.SECOND, 59 );
           cal.set( Calendar.MILLISECOND, 999 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_NEXT_YEAR_START:
           cal = Calendar.getInstance();
@@ -548,7 +549,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 0 );
           cal.set( Calendar.SECOND, 0 );
           cal.set( Calendar.MILLISECOND, 0 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_NEXT_YEAR_END:
           cal = Calendar.getInstance();
@@ -559,7 +560,7 @@ public class SystemData extends BaseStep implements StepInterface {
           cal.set( Calendar.MINUTE, 59 );
           cal.set( Calendar.SECOND, 59 );
           cal.set( Calendar.MILLISECOND, 999 );
-          row[index] = cal.getTime();
+          row[ index ] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_RESULT:
           Result previousResult = getTrans().getPreviousResult();
@@ -567,7 +568,7 @@ public class SystemData extends BaseStep implements StepInterface {
           if ( previousResult != null ) {
             result = previousResult.getResult();
           }
-          row[index] = result;
+          row[ index ] = result;
           break;
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_EXIT_STATUS:
           previousResult = getTrans().getPreviousResult();
@@ -575,7 +576,7 @@ public class SystemData extends BaseStep implements StepInterface {
           if ( previousResult != null ) {
             value = previousResult.getExitStatus();
           }
-          row[index] = value;
+          row[ index ] = value;
           break;
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_ENTRY_NR:
           previousResult = getTrans().getPreviousResult();
@@ -583,7 +584,7 @@ public class SystemData extends BaseStep implements StepInterface {
           if ( previousResult != null ) {
             value = previousResult.getEntryNr();
           }
-          row[index] = value;
+          row[ index ] = value;
           break;
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_NR_FILES:
           previousResult = getTrans().getPreviousResult();
@@ -592,7 +593,7 @@ public class SystemData extends BaseStep implements StepInterface {
           if ( previousResult != null ) {
             value = previousResult.getResultFiles().size();
           }
-          row[index] = value;
+          row[ index ] = value;
           break;
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_NR_FILES_RETRIEVED:
           previousResult = getTrans().getPreviousResult();
@@ -600,7 +601,7 @@ public class SystemData extends BaseStep implements StepInterface {
           if ( previousResult != null ) {
             value = previousResult.getNrFilesRetrieved();
           }
-          row[index] = value;
+          row[ index ] = value;
           break;
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_NR_LINES_DELETED:
           previousResult = getTrans().getPreviousResult();
@@ -608,7 +609,7 @@ public class SystemData extends BaseStep implements StepInterface {
           if ( previousResult != null ) {
             value = previousResult.getNrLinesDeleted();
           }
-          row[index] = value;
+          row[ index ] = value;
           break;
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_NR_LINES_INPUT:
           previousResult = getTrans().getPreviousResult();
@@ -616,7 +617,7 @@ public class SystemData extends BaseStep implements StepInterface {
           if ( previousResult != null ) {
             value = previousResult.getNrLinesInput();
           }
-          row[index] = value;
+          row[ index ] = value;
           break;
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_NR_LINES_OUTPUT:
           previousResult = getTrans().getPreviousResult();
@@ -624,7 +625,7 @@ public class SystemData extends BaseStep implements StepInterface {
           if ( previousResult != null ) {
             value = previousResult.getNrLinesOutput();
           }
-          row[index] = value;
+          row[ index ] = value;
           break;
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_NR_LINES_READ:
           previousResult = getTrans().getPreviousResult();
@@ -632,7 +633,7 @@ public class SystemData extends BaseStep implements StepInterface {
           if ( previousResult != null ) {
             value = previousResult.getNrLinesRead();
           }
-          row[index] = value;
+          row[ index ] = value;
           break;
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_NR_LINES_REJECTED:
           previousResult = getTrans().getPreviousResult();
@@ -640,7 +641,7 @@ public class SystemData extends BaseStep implements StepInterface {
           if ( previousResult != null ) {
             value = previousResult.getNrLinesRejected();
           }
-          row[index] = value;
+          row[ index ] = value;
           break;
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_NR_LINES_UPDATED:
           previousResult = getTrans().getPreviousResult();
@@ -648,7 +649,7 @@ public class SystemData extends BaseStep implements StepInterface {
           if ( previousResult != null ) {
             value = previousResult.getNrLinesUpdated();
           }
-          row[index] = value;
+          row[ index ] = value;
           break;
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_NR_LINES_WRITTEN:
           previousResult = getTrans().getPreviousResult();
@@ -656,7 +657,7 @@ public class SystemData extends BaseStep implements StepInterface {
           if ( previousResult != null ) {
             value = previousResult.getNrLinesWritten();
           }
-          row[index] = value;
+          row[ index ] = value;
           break;
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_NR_ROWS:
           previousResult = getTrans().getPreviousResult();
@@ -664,7 +665,7 @@ public class SystemData extends BaseStep implements StepInterface {
           if ( previousResult != null ) {
             value = previousResult.getRows().size();
           }
-          row[index] = value;
+          row[ index ] = value;
           break;
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_IS_STOPPED:
           previousResult = getTrans().getPreviousResult();
@@ -672,7 +673,7 @@ public class SystemData extends BaseStep implements StepInterface {
           if ( previousResult != null ) {
             stop = previousResult.isStopped();
           }
-          row[index] = stop;
+          row[ index ] = stop;
           break;
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_NR_ERRORS:
           previousResult = getTrans().getPreviousResult();
@@ -680,7 +681,7 @@ public class SystemData extends BaseStep implements StepInterface {
           if ( previousResult != null ) {
             value = previousResult.getNrErrors();
           }
-          row[index] = value;
+          row[ index ] = value;
           break;
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_LOG_TEXT:
           previousResult = getTrans().getPreviousResult();
@@ -688,7 +689,7 @@ public class SystemData extends BaseStep implements StepInterface {
           if ( previousResult != null ) {
             errorReason = previousResult.getLogText();
           }
-          row[index] = errorReason;
+          row[ index ] = errorReason;
           break;
 
         default:

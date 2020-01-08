@@ -22,21 +22,19 @@
 
 package org.apache.hop.job.entry.loadSave;
 
+import org.apache.hop.base.LoadSaveBase;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.trans.steps.loadsave.initializer.JobEntryInitializer;
+import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.hop.base.LoadSaveBase;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.trans.steps.loadsave.initializer.JobEntryInitializer;
-import org.apache.hop.trans.steps.loadsave.validator.DatabaseMetaLoadSaveValidator;
-import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 
 public class LoadSaveTester<T extends JobEntryInterface> extends LoadSaveBase<T> {
 
@@ -81,7 +79,7 @@ public class LoadSaveTester<T extends JobEntryInterface> extends LoadSaveBase<T>
   }
 
   protected void validateLoadedMeta( List<String> attributes, Map<String, FieldLoadSaveValidator<?>> validatorMap,
-      T metaSaved, T metaLoaded ) {
+                                     T metaSaved, T metaLoaded ) {
     super.validateLoadedMeta( attributes, validatorMap, metaSaved, metaLoaded );
   }
 
@@ -97,11 +95,11 @@ public class LoadSaveTester<T extends JobEntryInterface> extends LoadSaveBase<T>
       initializer.modify( metaToSave );
     }
     Map<String, FieldLoadSaveValidator<?>> validatorMap =
-        createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
+      createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
     T metaLoaded = createMeta();
     String xml = "<step>" + metaToSave.getXML() + "</step>";
     InputStream is = new ByteArrayInputStream( xml.getBytes() );
-    metaLoaded.loadXML( XMLHandler.getSubNode( XMLHandler.loadXMLFile( is, null, false, false ), "step" ), null, metaStore );
+    metaLoaded.loadXML( XMLHandler.getSubNode( XMLHandler.loadXMLFile( is, null, false, false ), "step" ), metaStore );
     validateLoadedMeta( xmlAttributes, validatorMap, metaToSave, metaLoaded );
   }
 
@@ -112,7 +110,7 @@ public class LoadSaveTester<T extends JobEntryInterface> extends LoadSaveBase<T>
       initializer.modify( metaToSave );
     }
     Map<String, FieldLoadSaveValidator<?>> validatorMap =
-        createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
+      createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
 
     @SuppressWarnings( "unchecked" )
     T metaLoaded = (T) metaToSave.clone();

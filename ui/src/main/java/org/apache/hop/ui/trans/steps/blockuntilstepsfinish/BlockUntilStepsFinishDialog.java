@@ -22,9 +22,17 @@
 
 package org.apache.hop.ui.trans.steps.blockuntilstepsfinish;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.blockuntilstepsfinish.BlockUntilStepsFinishMeta;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -44,17 +52,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.blockuntilstepsfinish.BlockUntilStepsFinishMeta;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BlockUntilStepsFinishDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = BlockUntilStepsFinishMeta.class; // for i18n purposes, needed by Translator2!!
@@ -139,16 +139,16 @@ public class BlockUntilStepsFinishDialog extends BaseStepDialog implements StepD
     final int FieldsCols = 2;
     final int FieldsRows = input.getStepName().length;
 
-    ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
+    ColumnInfo[] colinf = new ColumnInfo[ FieldsCols ];
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "BlockUntilStepsFinishDialog.Fieldname.Step" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, previousSteps, false );
-    colinf[1] =
+    colinf[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "BlockUntilStepsFinishDialog.Fieldname.CopyNr" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinf[1].setUsingVariables( true );
+    colinf[ 1 ].setUsingVariables( true );
     wFields =
       new TableView(
         transMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
@@ -217,17 +217,17 @@ public class BlockUntilStepsFinishDialog extends BaseStepDialog implements StepD
 
     List<String> entries = new ArrayList<String>();
     for ( int i = 0; i < previousSteps.length; i++ ) {
-      if ( !previousSteps[i].equals( stepname ) ) {
+      if ( !previousSteps[ i ].equals( stepname ) ) {
         if ( nextSteps != null ) {
           for ( int j = 0; j < nextSteps.length; j++ ) {
-            if ( !nextSteps[j].equals( previousSteps[i] ) ) {
-              entries.add( previousSteps[i] );
+            if ( !nextSteps[ j ].equals( previousSteps[ i ] ) ) {
+              entries.add( previousSteps[ i ] );
             }
           }
         }
       }
     }
-    previousSteps = entries.toArray( new String[entries.size()] );
+    previousSteps = entries.toArray( new String[ entries.size() ] );
   }
 
   private void get() {
@@ -237,7 +237,7 @@ public class BlockUntilStepsFinishDialog extends BaseStepDialog implements StepD
     for ( int i = 0; i < previousSteps.length; i++ ) {
       TableItem ti = new TableItem( table, SWT.NONE );
       ti.setText( 0, "" + ( i + 1 ) );
-      ti.setText( 1, previousSteps[i] );
+      ti.setText( 1, previousSteps[ i ] );
       ti.setText( 2, "0" );
     }
     wFields.removeEmptyRows();
@@ -257,9 +257,9 @@ public class BlockUntilStepsFinishDialog extends BaseStepDialog implements StepD
     for ( int i = 0; i < input.getStepName().length; i++ ) {
       TableItem ti = new TableItem( table, SWT.NONE );
       ti.setText( 0, "" + ( i + 1 ) );
-      if ( input.getStepName()[i] != null ) {
-        ti.setText( 1, input.getStepName()[i] );
-        ti.setText( 2, "" + Const.toInt( input.getStepCopyNr()[i], 0 ) );
+      if ( input.getStepName()[ i ] != null ) {
+        ti.setText( 1, input.getStepName()[ i ] );
+        ti.setText( 2, "" + Const.toInt( input.getStepCopyNr()[ i ], 0 ) );
       }
     }
 
@@ -290,8 +290,8 @@ public class BlockUntilStepsFinishDialog extends BaseStepDialog implements StepD
       StepMeta tm = transMeta.findStep( ti.getText( 1 ) );
       if ( tm != null ) {
         //CHECKSTYLE:Indentation:OFF
-        input.getStepName()[i] = tm.getName();
-        input.getStepCopyNr()[i] = String.valueOf( Const.toInt( ti.getText( 2 ), 0 ) );
+        input.getStepName()[ i ] = tm.getName();
+        input.getStepCopyNr()[ i ] = String.valueOf( Const.toInt( ti.getText( 2 ), 0 ) );
       }
 
     }

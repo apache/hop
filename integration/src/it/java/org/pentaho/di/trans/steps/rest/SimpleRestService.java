@@ -22,8 +22,8 @@
 
 package org.apache.hop.trans.steps.rest;
 
-import javax.ws.rs.POST;
 import javax.ws.rs.MatrixParam;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -31,7 +31,7 @@ import javax.ws.rs.core.MediaType;
 
 /**
  * A simple rest service
- * 
+ *
  * @author vladimir.dolzhenko@gmail.com
  */
 @Path( "/simple" )

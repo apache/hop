@@ -22,15 +22,15 @@
 
 package org.apache.hop.trans.steps.denormaliser;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.trans.step.StepInjectionMetaEntry;
 import org.apache.hop.trans.step.StepMetaInjectionInterface;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * To keep it simple, this metadata injection interface only supports the fields to denormalize for the time being.
@@ -143,7 +143,7 @@ public class DenormaliserMetaInjection implements StepMetaInjectionInterface {
       // Pass the grid to the step metadata
       //
       meta.setDenormaliserTargetField( denormaliserTargetFields.toArray(
-          new DenormaliserTargetField[denormaliserTargetFields.size()] ) );
+        new DenormaliserTargetField[ denormaliserTargetFields.size() ] ) );
     }
 
   }
@@ -160,20 +160,20 @@ public class DenormaliserMetaInjection implements StepMetaInjectionInterface {
   private enum Entry {
 
     FIELDS( ValueMetaInterface.TYPE_NONE, "All the fields" ),
-      FIELD( ValueMetaInterface.TYPE_NONE, "One field" ),
+    FIELD( ValueMetaInterface.TYPE_NONE, "One field" ),
 
-      TARGET_NAME( ValueMetaInterface.TYPE_STRING, "Target field name" ),
-      NAME( ValueMetaInterface.TYPE_STRING, "Value field name" ),
-      KEY_VALUE( ValueMetaInterface.TYPE_STRING, "Key value" ),
-      TARGET_TYPE( ValueMetaInterface.TYPE_STRING, "Target field type" ),
-      TARGET_LENGTH( ValueMetaInterface.TYPE_STRING, "Target field length" ),
-      TARGET_PRECISION( ValueMetaInterface.TYPE_STRING, "Target field precision" ),
-      TARGET_CURRENCY( ValueMetaInterface.TYPE_STRING, "Target field currency symbol" ),
-      TARGET_DECIMAL( ValueMetaInterface.TYPE_STRING, "Target field decimal symbol" ),
-      TARGET_GROUP( ValueMetaInterface.TYPE_STRING, "Target field group symbol" ),
-      TARGET_FORMAT( ValueMetaInterface.TYPE_STRING, "Target field format" ),
-      TARGET_AGGREGATION(
-        ValueMetaInterface.TYPE_STRING, "Target aggregation (-, SUM, AVERAGE, MIN, MAX, COUNT_ALL, CONCAT_COMMA)" );
+    TARGET_NAME( ValueMetaInterface.TYPE_STRING, "Target field name" ),
+    NAME( ValueMetaInterface.TYPE_STRING, "Value field name" ),
+    KEY_VALUE( ValueMetaInterface.TYPE_STRING, "Key value" ),
+    TARGET_TYPE( ValueMetaInterface.TYPE_STRING, "Target field type" ),
+    TARGET_LENGTH( ValueMetaInterface.TYPE_STRING, "Target field length" ),
+    TARGET_PRECISION( ValueMetaInterface.TYPE_STRING, "Target field precision" ),
+    TARGET_CURRENCY( ValueMetaInterface.TYPE_STRING, "Target field currency symbol" ),
+    TARGET_DECIMAL( ValueMetaInterface.TYPE_STRING, "Target field decimal symbol" ),
+    TARGET_GROUP( ValueMetaInterface.TYPE_STRING, "Target field group symbol" ),
+    TARGET_FORMAT( ValueMetaInterface.TYPE_STRING, "Target field format" ),
+    TARGET_AGGREGATION(
+      ValueMetaInterface.TYPE_STRING, "Target aggregation (-, SUM, AVERAGE, MIN, MAX, COUNT_ALL, CONCAT_COMMA)" );
 
     private int valueType;
     private String description;

@@ -22,12 +22,12 @@
 
 package org.apache.hop.trans.steps.excelinput;
 
-import org.junit.Before;
-import org.junit.Ignore;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.trans.steps.file.BaseFileField;
 import org.apache.hop.trans.steps.fileinput.BaseParsingTest;
+import org.junit.Before;
+import org.junit.Ignore;
 
 /**
  * Base class for all Fixed input step tests.
@@ -54,7 +54,7 @@ public class BaseExcelParsingTest extends BaseParsingTest<ExcelInputMeta, ExcelI
   protected void init( String file ) throws Exception {
     meta.setFileName( new String[] { getFile( file ).getURL().getFile() } );
     meta.setFileMask( new String[] { "" } );
-    meta.setExcludeFileMask( new String[] { "" }  );
+    meta.setExcludeFileMask( new String[] { "" } );
     meta.setFileRequired( new String[] { "Y" } );
     meta.setIncludeSubFolders( new String[] { "N" } );
 

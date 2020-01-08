@@ -135,7 +135,7 @@ public class PostgreSQLValueMetaBaseTest {
     listener = new StoreLoggingEventListener();
     HopLogStore.getAppender().addLoggingEventListener( listener );
 
-    valueMetaBase = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_NONE);
+    valueMetaBase = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_NONE );
 
     dbMeta = spy( new DatabaseMeta() );
     resultSet = mock( ResultSet.class );
@@ -207,7 +207,7 @@ public class PostgreSQLValueMetaBaseTest {
       dateMetaBase.getDataXML( date ) );
 
     InetAddress inetAddress = InetAddress.getByName( "127.0.0.1" );
-    ValueMetaInterface inetAddressMetaBase =ValueMetaFactory.createValueMeta(
+    ValueMetaInterface inetAddressMetaBase = ValueMetaFactory.createValueMeta(
       inetAddress.toString(), ValueMetaInterface.TYPE_INET );
     assertEquals( "<value-data>" + Encode.forXml( inetAddress.toString() ) + "</value-data>" + SystemUtils.LINE_SEPARATOR,
       inetAddressMetaBase.getDataXML( inetAddress ) );
@@ -796,7 +796,6 @@ public class PostgreSQLValueMetaBaseTest {
   }
 
 
-
   @Test
   public void testGetValueFromNode() throws Exception {
 
@@ -969,47 +968,47 @@ public class PostgreSQLValueMetaBaseTest {
   public void testHashCodes() throws Exception {
     ValueMetaInterface valueMetaString;
 
-    valueMetaString = ValueMetaFactory.createValueMeta(ValueMetaInterface.TYPE_BOOLEAN);
+    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_BOOLEAN );
     assertEquals( valueMetaString.hashCode( true ), 1231 );
 
     SimpleDateFormat sdf = new SimpleDateFormat( "dd/M/yyyy" );
     String dateInString = "1/1/2018";
     Date dateObj = sdf.parse( dateInString );
 
-    valueMetaString = ValueMetaFactory.createValueMeta(ValueMetaInterface.TYPE_DATE);
+    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_DATE );
     assertEquals( valueMetaString.hashCode( dateObj ), -1358655136 );
 
     Double numberObj = Double.valueOf( 5.1 );
-    valueMetaString = ValueMetaFactory.createValueMeta(ValueMetaInterface.TYPE_NUMBER);
+    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_NUMBER );
     assertEquals( valueMetaString.hashCode( numberObj ), 645005312 );
 
-    valueMetaString = ValueMetaFactory.createValueMeta(ValueMetaInterface.TYPE_STRING);
+    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_STRING );
     assertEquals( valueMetaString.hashCode( "test" ), 3556498 );
 
     Long longObj = 123L;
-    valueMetaString = ValueMetaFactory.createValueMeta(ValueMetaInterface.TYPE_INTEGER);
+    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_INTEGER );
     assertEquals( valueMetaString.hashCode( longObj ), 123 );
 
     BigDecimal bDecimalObj = new BigDecimal( 123.1 );
-    valueMetaString = ValueMetaFactory.createValueMeta(ValueMetaInterface.TYPE_BIGNUMBER);
+    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_BIGNUMBER );
     assertEquals( valueMetaString.hashCode( bDecimalObj ), 465045870 );
 
     byte[] bBinary = new byte[ 2 ];
     bBinary[ 0 ] = 1;
     bBinary[ 1 ] = 0;
-    valueMetaString = ValueMetaFactory.createValueMeta(ValueMetaInterface.TYPE_BINARY);
+    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_BINARY );
     assertEquals( valueMetaString.hashCode( bBinary ), 992 );
 
     Timestamp timestampObj = Timestamp.valueOf( "2018-01-01 10:10:10.000000000" );
-    valueMetaString = ValueMetaFactory.createValueMeta(ValueMetaInterface.TYPE_TIMESTAMP);
+    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_TIMESTAMP );
     assertEquals( valueMetaString.hashCode( timestampObj ), -1322045776 );
 
     byte[] ipAddr = new byte[] { 127, 0, 0, 1 };
     InetAddress addrObj = InetAddress.getByAddress( ipAddr );
-    valueMetaString = ValueMetaFactory.createValueMeta(ValueMetaInterface.TYPE_INET);
+    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_INET );
     assertEquals( valueMetaString.hashCode( addrObj ), 2130706433 );
 
-    valueMetaString = ValueMetaFactory.createValueMeta(ValueMetaInterface.TYPE_NONE);
+    valueMetaString = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_NONE );
     assertEquals( valueMetaString.hashCode( "any" ), 0 );
   }
 

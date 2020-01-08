@@ -23,15 +23,15 @@
 package org.apache.hop.job.entries.ftpsget;
 
 import org.apache.commons.vfs2.FileObject;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.entry.JobEntryBase;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -95,7 +95,7 @@ public class JobEntryFTPSGetIT {
 
     FileObject downloaded = HopVFS.getFileObject( ramDir + "/" + FtpsServer.SAMPLE_FILE );
     assertFalse( downloaded.exists() );
-    try{
+    try {
       job.execute( new Result(), 1 );
       downloaded = HopVFS.getFileObject( ramDir + "/" + FtpsServer.SAMPLE_FILE );
       assertTrue( downloaded.exists() );

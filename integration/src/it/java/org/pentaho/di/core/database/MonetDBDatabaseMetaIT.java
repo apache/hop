@@ -22,9 +22,9 @@
 
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * User: RFellows Date: 3/4/13

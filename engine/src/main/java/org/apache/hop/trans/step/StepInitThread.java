@@ -99,8 +99,7 @@ public class StepInitThread implements Runnable {
   }
 
   /**
-   * @param combi
-   *          The combi to set.
+   * @param combi The combi to set.
    */
   public void setCombi( StepMetaDataCombi combi ) {
     this.combi = combi;

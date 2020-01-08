@@ -23,9 +23,9 @@
 package org.apache.hop.trans.steps.creditcardvalidator;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -40,7 +40,6 @@ import org.apache.hop.trans.step.StepMetaInterface;
  *
  * @author Samatar
  * @since 03-Juin-2008
- *
  */
 
 public class CreditCardValidator extends BaseStep implements StepInterface {
@@ -50,7 +49,7 @@ public class CreditCardValidator extends BaseStep implements StepInterface {
   private CreditCardValidatorData data;
 
   public CreditCardValidator( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,
-    TransMeta transMeta, Trans trans ) {
+                              TransMeta transMeta, Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -108,7 +107,7 @@ public class CreditCardValidator extends BaseStep implements StepInterface {
 
     Object[] outputRow = RowDataUtil.allocateRowData( data.outputRowMeta.size() );
     for ( int i = 0; i < data.NrPrevFields; i++ ) {
-      outputRow[i] = r[i];
+      outputRow[ i ] = r[ i ];
     }
     try {
       // get field
@@ -131,17 +130,17 @@ public class CreditCardValidator extends BaseStep implements StepInterface {
       }
 
       // add card is Valid
-      outputRow[data.NrPrevFields] = isValid;
+      outputRow[ data.NrPrevFields ] = isValid;
       int rowIndex = data.NrPrevFields;
       rowIndex++;
 
       // add card type?
       if ( !Utils.isEmpty( data.realCardTypeFieldname ) ) {
-        outputRow[rowIndex++] = cardType;
+        outputRow[ rowIndex++ ] = cardType;
       }
       // add not valid message?
       if ( !Utils.isEmpty( data.realNotValidMsgFieldname ) ) {
-        outputRow[rowIndex++] = unValid;
+        outputRow[ rowIndex++ ] = unValid;
       }
 
       // add new values to the row.

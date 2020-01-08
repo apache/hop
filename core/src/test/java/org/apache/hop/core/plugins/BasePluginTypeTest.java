@@ -22,17 +22,17 @@
 
 package org.apache.hop.core.plugins;
 
-import org.junit.Test;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
+import org.junit.Test;
 
 import java.io.InputStream;
 
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 public class BasePluginTypeTest {
   @Test

@@ -29,7 +29,6 @@ import org.apache.hop.core.database.DatabaseMeta;
  * loader. This interface is used by the Agile BI plugin to determine which steps it can model or visualize.
  *
  * @author jamesdixon
- *
  */
 public interface ProvidesDatabaseConnectionInformation {
 

@@ -22,6 +22,30 @@
 
 package org.apache.hop.job.entries.http;
 
+import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.JobEntryBase;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.validator.AndValidator;
+import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.resource.ResourceEntry;
+import org.apache.hop.resource.ResourceEntry.ResourceType;
+import org.apache.hop.resource.ResourceReference;
+import org.w3c.dom.Node;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,41 +62,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.job.entry.validator.AndValidator;
-import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import org.apache.hop.resource.ResourceEntry;
-import org.apache.hop.resource.ResourceEntry.ResourceType;
-import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.w3c.dom.Node;
-
 /**
  * This defines an HTTP job entry.
  *
  * @author Matt
  * @since 05-11-2003
- *
  */
 public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInterface {
   private static Class<?> PKG = JobEntryHTTP.class; // for i18n purposes, needed by Translator2!!
@@ -132,8 +126,8 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   private void allocate( int nrHeaders ) {
-    headerName = new String[nrHeaders];
-    headerValue = new String[nrHeaders];
+    headerName = new String[ nrHeaders ];
+    headerValue = new String[ nrHeaders ];
   }
 
   @Override
@@ -179,8 +173,8 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
     if ( headerName != null ) {
       for ( int i = 0; i < headerName.length; i++ ) {
         retval.append( "        <header>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "header_name", headerName[i] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "header_value", headerValue[i] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "header_name", headerName[ i ] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "header_value", headerValue[ i ] ) );
         retval.append( "        </header>" ).append( Const.CR );
       }
     }
@@ -190,16 +184,16 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   @Override
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       url = XMLHandler.getTagValue( entrynode, "url" );
       targetFilename = XMLHandler.getTagValue( entrynode, "targetfilename" );
       fileAppended = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "file_appended" ) );
       dateTimeAdded = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "date_time_added" ) );
       targetFilenameExtension = Const.NVL( XMLHandler.getTagValue( entrynode, "targetfilename_extension" ),
-          XMLHandler.getTagValue( entrynode, "targetfilename_extention" ) );
+        XMLHandler.getTagValue( entrynode, "targetfilename_extention" ) );
 
       uploadFilename = XMLHandler.getTagValue( entrynode, "uploadfilename" );
 
@@ -223,8 +217,8 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
       allocate( nrHeaders );
       for ( int i = 0; i < nrHeaders; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( headers, "header", i );
-        headerName[i] = XMLHandler.getTagValue( fnode, "header_name" );
-        headerValue[i] = XMLHandler.getTagValue( fnode, "header_value" );
+        headerName[ i ] = XMLHandler.getTagValue( fnode, "header_name" );
+        headerValue[ i ] = XMLHandler.getTagValue( fnode, "header_value" );
       }
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( "Unable to load job entry of type 'HTTP' from XML node", xe );
@@ -239,8 +233,7 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param url
-   *          The URL to set.
+   * @param url The URL to set.
    */
   public void setUrl( String url ) {
     this.url = url;
@@ -254,8 +247,7 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param targetFilename
-   *          The target filename to set.
+   * @param targetFilename The target filename to set.
    */
   public void setTargetFilename( String targetFilename ) {
     this.targetFilename = targetFilename;
@@ -347,13 +339,13 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
       urlFieldnameToUse = urlFieldname;
     }
 
-    if ( Utils.isEmpty( uploadFieldname ) )  {
+    if ( Utils.isEmpty( uploadFieldname ) ) {
       uploadFieldnameToUse = UPLOADFILE_FIELDNAME;
     } else {
       uploadFieldnameToUse = uploadFieldname;
     }
 
-    if ( Utils.isEmpty( destinationFieldname ) )  {
+    if ( Utils.isEmpty( destinationFieldname ) ) {
       destinationFieldnameToUse = TARGETFILE_FIELDNAME;
     } else {
       destinationFieldnameToUse = destinationFieldname;
@@ -395,7 +387,7 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
       try {
         String urlToUse = environmentSubstitute( row.getString( urlFieldnameToUse, "" ) );
         String realUploadFile = environmentSubstitute( row.getString( uploadFieldnameToUse, "" ) );
-        String realTargetFile = environmentSubstitute( row.getString(  destinationFieldnameToUse,  "" ) );
+        String realTargetFile = environmentSubstitute( row.getString( destinationFieldnameToUse, "" ) );
 
         logBasic( BaseMessages.getString( PKG, "JobHTTP.Log.ConnectingURL", urlToUse ) );
 
@@ -445,13 +437,13 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
             log.logDebug( BaseMessages.getString( PKG, "JobHTTP.Log.HeadersProvided" ) );
           }
           for ( int j = 0; j < headerName.length; j++ ) {
-            if ( !Utils.isEmpty( headerValue[j] ) ) {
+            if ( !Utils.isEmpty( headerValue[ j ] ) ) {
               connection.setRequestProperty(
-                environmentSubstitute( headerName[j] ), environmentSubstitute( headerValue[j] ) );
+                environmentSubstitute( headerName[ j ] ), environmentSubstitute( headerValue[ j ] ) );
               if ( log.isDebug() ) {
                 log.logDebug( BaseMessages.getString(
-                  PKG, "JobHTTP.Log.HeaderSet", environmentSubstitute( headerName[j] ),
-                  environmentSubstitute( headerValue[j] ) ) );
+                  PKG, "JobHTTP.Log.HeaderSet", environmentSubstitute( headerName[ j ] ),
+                  environmentSubstitute( headerValue[ j ] ) ) );
               }
             }
           }
@@ -512,7 +504,7 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
           ResultFile resultFile =
             new ResultFile(
               ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( realTargetFile, this ), parentJob
-                .getJobname(), toString() );
+              .getJobname(), toString() );
           result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
         }
 
@@ -582,8 +574,7 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param getFieldname
-   *          The Result URL Fieldname to set.
+   * @param getFieldname The Result URL Fieldname to set.
    */
   public void setUrlFieldname( String getFieldname ) {
     this.urlFieldname = getFieldname;
@@ -627,8 +618,7 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param runForEveryRow
-   *          The runForEveryRow to set.
+   * @param runForEveryRow The runForEveryRow to set.
    */
   public void setRunForEveryRow( boolean runForEveryRow ) {
     this.runForEveryRow = runForEveryRow;
@@ -642,8 +632,7 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param fileAppended
-   *          The fileAppended to set.
+   * @param fileAppended The fileAppended to set.
    */
   public void setFileAppended( boolean fileAppended ) {
     this.fileAppended = fileAppended;
@@ -657,8 +646,7 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param dateTimeAdded
-   *          The dateTimeAdded to set.
+   * @param dateTimeAdded The dateTimeAdded to set.
    */
   public void setDateTimeAdded( boolean dateTimeAdded ) {
     this.dateTimeAdded = dateTimeAdded;
@@ -672,8 +660,7 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param uploadFilenameExtension
-   *          The uploadFilenameExtension to set.
+   * @param uploadFilenameExtension The uploadFilenameExtension to set.
    */
   public void setTargetFilenameExtension( String uploadFilenameExtension ) {
     this.targetFilenameExtension = uploadFilenameExtension;
@@ -689,9 +676,8 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   /**
-   * @param uploadFilenameExtension
-   *          The uploadFilenameExtension to set.
-   * @deprecated Use {@link JobEntryHTTP#setTargetFilenameExtension( String uploadFilenameExtension )} instead
+   * @param uploadFilenameExtension The uploadFilenameExtension to set.
+   * @deprecated Use {@link JobEntryHTTP#setTargetFilenameExtension(String uploadFilenameExtension)} instead
    */
   @Deprecated
   public void setTargetFilenameExtention( String uploadFilenameExtension ) {
@@ -710,15 +696,15 @@ public class JobEntryHTTP extends JobEntryBase implements Cloneable, JobEntryInt
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "targetFilename", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "targetFilenameExtention", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "uploadFilename", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "proxyPort", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.integerValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.integerValidator() ) );
   }
 
 }

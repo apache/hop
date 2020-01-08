@@ -27,5 +27,5 @@ import org.apache.hop.core.exception.HopXMLException;
 import org.w3c.dom.Node;
 
 public interface TransMetaFactory {
-  public TransMeta create( Node transnode  ) throws HopXMLException, HopMissingPluginsException;
+  public TransMeta create( Node transnode ) throws HopXMLException, HopMissingPluginsException;
 }

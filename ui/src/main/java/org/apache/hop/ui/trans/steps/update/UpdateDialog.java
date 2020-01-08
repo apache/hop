@@ -22,15 +22,31 @@
 
 package org.apache.hop.ui.trans.steps.update;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.update.UpdateMeta;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.database.dialog.SQLEditor;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.TableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -51,28 +67,12 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.SQLStatement;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.update.UpdateMeta;
-import org.apache.hop.ui.core.database.dialog.SQLEditor;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.TableItemInsertListener;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class UpdateDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = UpdateMeta.class; // for i18n purposes, needed by Translator2!!
@@ -370,25 +370,25 @@ public class UpdateDialog extends BaseStepDialog implements StepDialogInterface 
     int nrKeyCols = 4;
     int nrKeyRows = ( input.getKeyStream() != null ? input.getKeyStream().length : 1 );
 
-    ciKey = new ColumnInfo[nrKeyCols];
-    ciKey[0] =
+    ciKey = new ColumnInfo[ nrKeyCols ];
+    ciKey[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "UpdateDialog.ColumnInfo.TableField" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] { "" }, false );
-    ciKey[1] =
+    ciKey[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "UpdateDialog.ColumnInfo.Comparator" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] { "=", "= ~NULL", "<>", "<", "<=", ">", ">=", "LIKE", "BETWEEN", "IS NULL", "IS NOT NULL" } );
-    ciKey[2] =
+    ciKey[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "UpdateDialog.ColumnInfo.StreamField1" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] { "" }, false );
-    ciKey[3] =
+    ciKey[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "UpdateDialog.ColumnInfo.StreamField2" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] { "" }, false );
-    tableFieldColumns.add( ciKey[0] );
+    tableFieldColumns.add( ciKey[ 0 ] );
     wKey =
       new TableView(
         transMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
@@ -430,16 +430,16 @@ public class UpdateDialog extends BaseStepDialog implements StepDialogInterface 
     int UpInsCols = 2;
     int UpInsRows = ( input.getUpdateLookup() != null ? input.getUpdateLookup().length : 1 );
 
-    ciReturn = new ColumnInfo[UpInsCols];
-    ciReturn[0] =
+    ciReturn = new ColumnInfo[ UpInsCols ];
+    ciReturn[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "UpdateDialog.ColumnInfo.TableField" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] { "" }, false );
-    ciReturn[1] =
+    ciReturn[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "UpdateDialog.ColumnInfo.StreamField" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] { "" }, false );
-    tableFieldColumns.add( ciReturn[0] );
+    tableFieldColumns.add( ciReturn[ 0 ] );
     wReturn =
       new TableView(
         transMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
@@ -585,13 +585,13 @@ public class UpdateDialog extends BaseStepDialog implements StepDialogInterface 
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
     Const.sortStrings( fieldNames );
     // Key fields
-    ciKey[2].setComboValues( fieldNames );
-    ciKey[3].setComboValues( fieldNames );
+    ciKey[ 2 ].setComboValues( fieldNames );
+    ciKey[ 3 ].setComboValues( fieldNames );
     // return fields
-    ciReturn[1].setComboValues( fieldNames );
+    ciReturn[ 1 ].setComboValues( fieldNames );
   }
 
   public void setFlags() {
@@ -684,17 +684,17 @@ public class UpdateDialog extends BaseStepDialog implements StepDialogInterface 
     if ( input.getKeyStream() != null ) {
       for ( int i = 0; i < input.getKeyStream().length; i++ ) {
         TableItem item = wKey.table.getItem( i );
-        if ( input.getKeyLookup()[i] != null ) {
-          item.setText( 1, input.getKeyLookup()[i] );
+        if ( input.getKeyLookup()[ i ] != null ) {
+          item.setText( 1, input.getKeyLookup()[ i ] );
         }
-        if ( input.getKeyCondition()[i] != null ) {
-          item.setText( 2, input.getKeyCondition()[i] );
+        if ( input.getKeyCondition()[ i ] != null ) {
+          item.setText( 2, input.getKeyCondition()[ i ] );
         }
-        if ( input.getKeyStream()[i] != null ) {
-          item.setText( 3, input.getKeyStream()[i] );
+        if ( input.getKeyStream()[ i ] != null ) {
+          item.setText( 3, input.getKeyStream()[ i ] );
         }
-        if ( input.getKeyStream2()[i] != null ) {
-          item.setText( 4, input.getKeyStream2()[i] );
+        if ( input.getKeyStream2()[ i ] != null ) {
+          item.setText( 4, input.getKeyStream2()[ i ] );
         }
       }
     }
@@ -702,11 +702,11 @@ public class UpdateDialog extends BaseStepDialog implements StepDialogInterface 
     if ( input.getUpdateLookup() != null ) {
       for ( int i = 0; i < input.getUpdateLookup().length; i++ ) {
         TableItem item = wReturn.table.getItem( i );
-        if ( input.getUpdateLookup()[i] != null ) {
-          item.setText( 1, input.getUpdateLookup()[i] );
+        if ( input.getUpdateLookup()[ i ] != null ) {
+          item.setText( 1, input.getUpdateLookup()[ i ] );
         }
-        if ( input.getUpdateStream()[i] != null ) {
-          item.setText( 2, input.getUpdateStream()[i] );
+        if ( input.getUpdateStream()[ i ] != null ) {
+          item.setText( 2, input.getUpdateStream()[ i ] );
         }
       }
     }
@@ -745,7 +745,7 @@ public class UpdateDialog extends BaseStepDialog implements StepDialogInterface 
 
     inf.allocate( nrkeys, nrfields );
 
-    inf.setCommitSize(  wCommit.getText() );
+    inf.setCommitSize( wCommit.getText() );
     inf.setUseBatchUpdate( wBatch.getSelection() );
     inf.setSkipLookup( wSkipLookup.getSelection() );
 
@@ -755,10 +755,10 @@ public class UpdateDialog extends BaseStepDialog implements StepDialogInterface 
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrkeys; i++ ) {
       TableItem item = wKey.getNonEmpty( i );
-      inf.getKeyLookup()[i] = item.getText( 1 );
-      inf.getKeyCondition()[i] = item.getText( 2 );
-      inf.getKeyStream()[i] = item.getText( 3 );
-      inf.getKeyStream2()[i] = item.getText( 4 );
+      inf.getKeyLookup()[ i ] = item.getText( 1 );
+      inf.getKeyCondition()[ i ] = item.getText( 2 );
+      inf.getKeyStream()[ i ] = item.getText( 3 );
+      inf.getKeyStream2()[ i ] = item.getText( 4 );
     }
 
     // Table ftable = wReturn.table;
@@ -767,8 +767,8 @@ public class UpdateDialog extends BaseStepDialog implements StepDialogInterface 
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrfields; i++ ) {
       TableItem item = wReturn.getNonEmpty( i );
-      inf.getUpdateLookup()[i] = item.getText( 1 );
-      inf.getUpdateStream()[i] = item.getText( 2 );
+      inf.getUpdateLookup()[ i ] = item.getText( 1 );
+      inf.getUpdateStream()[ i ] = item.getText( 2 );
     }
 
     inf.setSchemaName( wSchema.getText() );
@@ -802,7 +802,7 @@ public class UpdateDialog extends BaseStepDialog implements StepDialogInterface 
 
   private void getTableName() {
     String connectionName = wConnection.getText();
-    if ( StringUtils.isEmpty(connectionName)) {
+    if ( StringUtils.isEmpty( connectionName ) ) {
       return;
     }
     DatabaseMeta databaseMeta = transMeta.findDatabase( connectionName );
@@ -841,7 +841,7 @@ public class UpdateDialog extends BaseStepDialog implements StepDialogInterface 
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "UpdateDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "UpdateDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "UpdateDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 
@@ -854,7 +854,7 @@ public class UpdateDialog extends BaseStepDialog implements StepDialogInterface 
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "UpdateDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "UpdateDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "UpdateDialog.FailedToGetFields.DialogMessage" ), ke );
     }
 
   }
@@ -892,7 +892,7 @@ public class UpdateDialog extends BaseStepDialog implements StepDialogInterface 
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "UpdateDialog.CouldNotBuildSQL.DialogTitle" ), BaseMessages
-          .getString( PKG, "UpdateDialog.CouldNotBuildSQL.DialogMessage" ), ke );
+        .getString( PKG, "UpdateDialog.CouldNotBuildSQL.DialogMessage" ), ke );
     }
 
   }

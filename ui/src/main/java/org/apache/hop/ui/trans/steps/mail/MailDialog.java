@@ -23,6 +23,23 @@
 
 package org.apache.hop.ui.trans.steps.mail;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.mail.MailMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.LabelText;
+import org.apache.hop.ui.core.widget.LabelTextVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -50,23 +67,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.mail.MailMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.LabelText;
-import org.apache.hop.ui.core.widget.LabelTextVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -1033,7 +1033,7 @@ public class MailDialog extends BaseStepDialog implements StepDialogInterface {
     wOnlyComment.setLayoutData( fdOnlyComment );
     wOnlyComment.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-          input.setChanged();
+        input.setChanged();
       }
     } );
 
@@ -1759,7 +1759,7 @@ public class MailDialog extends BaseStepDialog implements StepDialogInterface {
     wZipFilename =
       new LabelTextVar(
         transMeta, wZipGroup, BaseMessages.getString( PKG, "MailDialog.ZipFilename.Label" ), BaseMessages
-          .getString( PKG, "MailDialog.ZipFilename.Tooltip" ) );
+        .getString( PKG, "MailDialog.ZipFilename.Tooltip" ) );
     wZipFilename.addModifyListener( lsMod );
     fdZipFilename = new FormData();
     fdZipFilename.left = new FormAttachment( 0, -margin );
@@ -1771,7 +1771,7 @@ public class MailDialog extends BaseStepDialog implements StepDialogInterface {
     wZipSizeCondition =
       new LabelTextVar(
         transMeta, wZipGroup, BaseMessages.getString( PKG, "MailDialog.ZipSizeCondition.Label" ), BaseMessages
-          .getString( PKG, "MailDialog.ZipSizeCondition.Tooltip" ) );
+        .getString( PKG, "MailDialog.ZipSizeCondition.Tooltip" ) );
     wZipSizeCondition.addModifyListener( lsMod );
     fdZipSizeCondition = new FormData();
     fdZipSizeCondition.left = new FormAttachment( 0, -margin );
@@ -1941,10 +1941,10 @@ public class MailDialog extends BaseStepDialog implements StepDialogInterface {
           BaseMessages.getString( PKG, "MailDialog.Fields.ContentID.Label" ), ColumnInfo.COLUMN_TYPE_TEXT,
           false ), };
 
-    colinf[0].setUsingVariables( true );
-    colinf[0].setToolTip( BaseMessages.getString( PKG, "MailDialog.Fields.Image.Tooltip" ) );
-    colinf[1].setUsingVariables( true );
-    colinf[1].setToolTip( BaseMessages.getString( PKG, "MailDialog.Fields.ContentID.Tooltip" ) );
+    colinf[ 0 ].setUsingVariables( true );
+    colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "MailDialog.Fields.Image.Tooltip" ) );
+    colinf[ 1 ].setUsingVariables( true );
+    colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "MailDialog.Fields.ContentID.Tooltip" ) );
 
     wFields =
       new TableView(
@@ -1988,8 +1988,8 @@ public class MailDialog extends BaseStepDialog implements StepDialogInterface {
         int idx = wFields.getSelectionIndex();
         if ( idx >= 0 ) {
           String[] string = wFields.getItem( idx );
-          wImageFilename.setText( string[0] );
-          wContentID.setText( string[1] );
+          wImageFilename.setText( string[ 0 ] );
+          wContentID.setText( string[ 1 ] );
           wFields.remove( idx );
         }
         wFields.removeEmptyRows();
@@ -2309,7 +2309,7 @@ public class MailDialog extends BaseStepDialog implements StepDialogInterface {
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "MailDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "MailDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "MailDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 
@@ -2538,11 +2538,11 @@ public class MailDialog extends BaseStepDialog implements StepDialogInterface {
     if ( input.getEmbeddedImages() != null ) {
       for ( int i = 0; i < input.getEmbeddedImages().length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( input.getEmbeddedImages()[i] != null ) {
-          ti.setText( 1, input.getEmbeddedImages()[i] );
+        if ( input.getEmbeddedImages()[ i ] != null ) {
+          ti.setText( 1, input.getEmbeddedImages()[ i ] );
         }
-        if ( input.getContentIds()[i] != null ) {
-          ti.setText( 2, input.getContentIds()[i] );
+        if ( input.getContentIds()[ i ] != null ) {
+          ti.setText( 2, input.getContentIds()[ i ] );
         }
       }
       wFields.setRowNums();

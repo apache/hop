@@ -22,15 +22,15 @@
 
 package org.apache.hop.trans.steps.excelwriter;
 
+import org.apache.hop.trans.step.StepDataInterface;
+import org.apache.hop.trans.steps.StepMockUtil;
+import org.apache.hop.trans.steps.mock.StepMockHelper;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.steps.StepMockUtil;
-import org.apache.hop.trans.steps.mock.StepMockHelper;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.anyBoolean;

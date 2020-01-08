@@ -22,10 +22,7 @@
 
 package org.apache.hop.imp.rule;
 
-import java.util.List;
-
 import junit.framework.TestCase;
-
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.ImportRulePluginType;
 import org.apache.hop.core.plugins.PluginInterface;
@@ -35,6 +32,8 @@ import org.apache.hop.trans.TransHopMeta;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
+
+import java.util.List;
 
 public class TransformationHasNoDisabledHopsImportRuleIT extends TestCase {
 

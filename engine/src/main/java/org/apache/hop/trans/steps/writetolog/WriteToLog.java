@@ -23,9 +23,9 @@
 package org.apache.hop.trans.steps.writetolog;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -51,7 +51,7 @@ public class WriteToLog extends BaseStep implements StepInterface {
   private boolean rowCounterLimitHit = false;
 
   public WriteToLog( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                     Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -77,20 +77,20 @@ public class WriteToLog extends BaseStep implements StepInterface {
       first = false;
 
       if ( meta.getFieldName() != null && meta.getFieldName().length > 0 ) {
-        data.fieldnrs = new int[meta.getFieldName().length];
+        data.fieldnrs = new int[ meta.getFieldName().length ];
 
         for ( int i = 0; i < data.fieldnrs.length; i++ ) {
-          data.fieldnrs[i] = getInputRowMeta().indexOfValue( meta.getFieldName()[i] );
-          if ( data.fieldnrs[i] < 0 ) {
-            logError( BaseMessages.getString( PKG, "WriteToLog.Log.CanNotFindField", meta.getFieldName()[i] ) );
+          data.fieldnrs[ i ] = getInputRowMeta().indexOfValue( meta.getFieldName()[ i ] );
+          if ( data.fieldnrs[ i ] < 0 ) {
+            logError( BaseMessages.getString( PKG, "WriteToLog.Log.CanNotFindField", meta.getFieldName()[ i ] ) );
             throw new HopException( BaseMessages.getString( PKG, "WriteToLog.Log.CanNotFindField", meta
-              .getFieldName()[i] ) );
+              .getFieldName()[ i ] ) );
           }
         }
       } else {
-        data.fieldnrs = new int[getInputRowMeta().size()];
+        data.fieldnrs = new int[ getInputRowMeta().size() ];
         for ( int i = 0; i < data.fieldnrs.length; i++ ) {
-          data.fieldnrs[i] = i;
+          data.fieldnrs[ i ] = i;
         }
       }
       data.fieldnr = data.fieldnrs.length;
@@ -111,10 +111,10 @@ public class WriteToLog extends BaseStep implements StepInterface {
 
     // Loop through fields
     for ( int i = 0; i < data.fieldnr; i++ ) {
-      String fieldvalue = getInputRowMeta().getString( r, data.fieldnrs[i] );
+      String fieldvalue = getInputRowMeta().getString( r, data.fieldnrs[ i ] );
 
       if ( meta.isdisplayHeader() ) {
-        String fieldname = getInputRowMeta().getFieldNames()[data.fieldnrs[i]];
+        String fieldname = getInputRowMeta().getFieldNames()[ data.fieldnrs[ i ] ];
         out.append( fieldname + " = " + fieldvalue + Const.CR );
       } else {
         out.append( fieldvalue + Const.CR );

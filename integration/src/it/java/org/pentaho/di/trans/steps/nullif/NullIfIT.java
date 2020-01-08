@@ -22,10 +22,7 @@
 
 package org.apache.hop.trans.steps.nullif;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
+import junit.framework.TestCase;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
@@ -47,7 +44,9 @@ import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
 import org.apache.hop.trans.steps.injector.InjectorMeta;
 import org.apache.hop.trans.steps.nullif.NullIfMeta.Field;
 
-import junit.framework.TestCase;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Test class for the NullIf step.
@@ -59,10 +58,10 @@ public class NullIfIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    { new ValueMetaString( "field1" ), new ValueMetaInteger( "field2" ), };
+      { new ValueMetaString( "field1" ), new ValueMetaInteger( "field2" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -148,9 +147,9 @@ public class NullIfIT extends TestCase {
       if ( rm1.size() != rm2.size() ) {
         fail( "row nr " + idx + " is not equal" );
       }
-      int[] fields = new int[r1.length];
+      int[] fields = new int[ r1.length ];
       for ( int ydx = 0; ydx < r1.length; ydx++ ) {
-        fields[ydx] = ydx;
+        fields[ ydx ] = ydx;
       }
       try {
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {
@@ -208,13 +207,13 @@ public class NullIfIT extends TestCase {
     String nullIfName = "nullif step";
     NullIfMeta ni = new NullIfMeta();
 
-    Field[] fields = new Field[2];
-    fields[0] = new Field();
-    fields[0].setFieldName( "field2" );
-    fields[0].setFieldValue( "1" );
-    fields[1] = new Field();
-    fields[1].setFieldName( "field1" );
-    fields[1].setFieldValue( "tst" );
+    Field[] fields = new Field[ 2 ];
+    fields[ 0 ] = new Field();
+    fields[ 0 ].setFieldName( "field2" );
+    fields[ 0 ].setFieldValue( "1" );
+    fields[ 1 ] = new Field();
+    fields[ 1 ].setFieldName( "field1" );
+    fields[ 1 ].setFieldValue( "tst" );
     ni.setFields( fields );
 
     String nullIfPid = registry.getPluginId( StepPluginType.class, ni );

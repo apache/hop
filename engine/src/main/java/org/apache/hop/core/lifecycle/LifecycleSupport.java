@@ -81,8 +81,7 @@ public class LifecycleSupport {
    * Instantiate the main plugin class types for the plugin type provided from the set of registered plugins via
    * {@link PluginRegistry}.
    *
-   * @param pluginType
-   *          Type of plugin whose main class types should be instanticated
+   * @param pluginType Type of plugin whose main class types should be instanticated
    * @return Set of plugin main class instances (a.k.a. plugins)
    */
   static <T> Set<T> loadPlugins( Class<? extends PluginTypeInterface> pluginType, Class<T> mainPluginClass ) {

@@ -22,25 +22,24 @@
 
 package org.apache.hop.job.entries.ftp;
 
+import com.enterprisedt.net.ftp.FTPFile;
+import com.enterprisedt.net.ftp.FTPFileParser;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.i18n.BaseMessages;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.i18n.BaseMessages;
-
-import com.enterprisedt.net.ftp.FTPFile;
-import com.enterprisedt.net.ftp.FTPFileParser;
-
 /**
  * MVS Folder Listing Parser The purpose of this parser is to be able handle responses from an MVS z/OS mainframe FTP
  * server.
- *
+ * <p>
  * Many places on the 'net were consulted for input to this parser. Importantly, this information from
  * com.os.os2.networking.tcp-ip group:
- *
+ * <p>
  * http://groups.google.com/group/comp.os.os2.networking.tcp-ip/msg/25acc89563f1e93e
  * http://groups.google.com/group/comp.
  * os.os2.networking.tcp-ip/browse_frm/thread/11af1ba1bc6b0edd?hl=en&lr&ie=UTF-8&oe=UTF
@@ -48,19 +47,18 @@ import com.enterprisedt.net.ftp.FTPFileParser;
  * %2Bdata%2Bset%2Bdirectory%26hl%3Den%26lr%3D%26ie%3DUTF-8%26oe%3DUTF-8%26selm
  * %3D4e7k0p%2524t1v%2540blackice.winternet.com%26rnum%3D6&pli=1
  * http://publibz.boulder.ibm.com/cgi-bin/bookmgr_OS390/BOOKS/F1AA2032/1.5.15?SHELF=&DT=20001127174124
- *
+ * <p>
  * Implementation Details 1- This supports folders and partitioned data sets only. This does not support JCL or HFS 2-
  * You must treat partitioned data sets (Dsorg PO/PO-E) like folders and CD to them 3- Dsorg=PS is a downloadable file
  * as are all the contents of a Partitioned Data Set. 4- When downloading from a folder, the Recfm must start with V or
  * F.
- *
+ * <p>
  * Note - the location for this is completely up for debate. I modeled this after the ftpsget/FTPSConnection and how
  * ftpsput reaches up and into the ftpsget package to get it. However, I think a better solution is to have an
  * entry/common. James and I agreed (in Matt's absense) to model the behavior after something already existing rather
  * than introduce a new folder (like entry/common or entry/util).
  *
  * @author mbatchelor September 2010
- *
  */
 
 public class MVSFileParser extends FTPFileParser {
@@ -111,7 +109,6 @@ public class MVSFileParser extends FTPFileParser {
    * Note: Date Format needs to be deciphered since for other sites it looks like this: BALP4B 3390 09/12/95 6 57 FB 80
    * 800 PO BMS
    */
-
   @Override
   public boolean isValidFormat( String[] listing ) {
 
@@ -119,15 +116,15 @@ public class MVSFileParser extends FTPFileParser {
       log.logDebug( BaseMessages.getString( PKG, "MVSFileParser.DEBUG.Checking.Parser" ) );
     }
     if ( listing.length > 0 ) {
-      String[] header = splitMVSLine( listing[0] ); // first line of MVS listings is a header
+      String[] header = splitMVSLine( listing[ 0 ] ); // first line of MVS listings is a header
       if ( ( header.length == FOLDER_LISTING_LENGTH_NORMAL ) || ( header.length == FOLDER_LISTING_LENGTH_ARCIVE ) ) {
-        if ( header[FOLDER_HEADER_TYPE_IDX].equals( HEADER_VOLUME ) ) {
+        if ( header[ FOLDER_HEADER_TYPE_IDX ].equals( HEADER_VOLUME ) ) {
           this.partitionedDataset = false; // This is a directory listing, not PDS listing
           if ( log.isDebug() ) {
             log.logDebug( BaseMessages.getString( PKG, "MVSFileParser.INFO.Detected.Dir" ) );
           }
           return isValidDirectoryFormat( listing );
-        } else if ( header[FOLDER_HEADER_TYPE_IDX].equals( HEADER_NAME ) ) {
+        } else if ( header[ FOLDER_HEADER_TYPE_IDX ].equals( HEADER_NAME ) ) {
           this.partitionedDataset = true; // Suspect PDS listing.
           if ( log.isDebug() ) {
             log.logDebug( BaseMessages.getString( PKG, "MVSFileParser.INFO.Detected.PDS" ) );
@@ -141,7 +138,6 @@ public class MVSFileParser extends FTPFileParser {
 
   /**
    * This parses an individual line from the directory listing.
-   *
    */
   @Override
   public FTPFile parse( String raw ) throws ParseException {
@@ -180,28 +176,26 @@ public class MVSFileParser extends FTPFileParser {
   /**
    * Parses a Partitioned Dataset Entry, and returns an FTPFile object.
    *
-   * @param aLine
-   *          Split line
-   * @param raw
-   *          Unparsed raw string
+   * @param aLine Split line
+   * @param raw   Unparsed raw string
    * @return FTPFile unless it's the header row.
    * @throws ParseException
    */
   protected FTPFile parsePDSLine( String[] aLine, String raw ) throws ParseException {
     FTPFile rtn = null;
-    if ( aLine[0].equals( HEADER_NAME ) ) {
+    if ( aLine[ 0 ].equals( HEADER_NAME ) ) {
       if ( log.isDebug() ) {
         log.logDebug( BaseMessages.getString( PKG, "MVSFileParser.DEBUG.Skip.Header" ) );
       }
       return null;
     }
     rtn = new FTPFile( raw );
-    rtn.setName( aLine[0] );
+    rtn.setName( aLine[ 0 ] );
     if ( dateTimeFormat == null ) {
       dateTimeFormat = new SimpleDateFormat( dateFormatString + " HH:mm" );
     }
-    rtn.setCreated( dateFormat.parse( aLine[2] ) );
-    String modDateTime = aLine[3] + ' ' + aLine[4];
+    rtn.setCreated( dateFormat.parse( aLine[ 2 ] ) );
+    String modDateTime = aLine[ 3 ] + ' ' + aLine[ 4 ];
     rtn.setLastModified( dateTimeFormat.parse( modDateTime ) );
     rtn.setDir( false );
     return rtn;
@@ -209,43 +203,41 @@ public class MVSFileParser extends FTPFileParser {
 
   /**
    * Parses a line from a folder listing.
-   *
+   * <p>
    * Note: Returns NULL if it's the header line, if it is ARCIVE or Migrated, if the record format doesn't start with
    * 'F' or 'V', and if the dsorg doesn't start with 'P'.
    *
-   * @param aLine
-   *          Line split apart
-   * @param raw
-   *          Raw line from the transport
+   * @param aLine Line split apart
+   * @param raw   Raw line from the transport
    * @return FTPFile for the line unless it is expressly exluded
    */
   protected FTPFile parseFolder( String[] aLine, String raw ) {
-    if ( aLine[0].equals( HEADER_VOLUME ) ) {
+    if ( aLine[ 0 ].equals( HEADER_VOLUME ) ) {
       if ( log.isDebug() ) {
         log.logDebug( BaseMessages.getString( PKG, "MVSFileParser.DEBUG.Skip.Header" ) );
       }
       return null;
     }
     // Directory format
-    if ( aLine[0].equals( LINE_TYPE_ARCIVE ) ) { // It's on tape somewhere
+    if ( aLine[ 0 ].equals( LINE_TYPE_ARCIVE ) ) { // It's on tape somewhere
       if ( log.isDebug() ) {
         log.logDebug( BaseMessages.getString( PKG, "MVSFileParser.DEBUG.Skip.ARCIVE" ) );
       }
       return null;
     }
-    if ( aLine[0].equals( LINE_TYPE_MIGRATED ) ) { // It's been moved.
+    if ( aLine[ 0 ].equals( LINE_TYPE_MIGRATED ) ) { // It's been moved.
       if ( log.isDebug() ) {
         log.logDebug( BaseMessages.getString( PKG, "MVSFileParser.DEBUG.Skip.Migrated" ) );
       }
       return null;
     }
-    if ( aLine[5].charAt( 0 ) != 'F' && aLine[5].charAt( 0 ) != 'V' ) {
+    if ( aLine[ 5 ].charAt( 0 ) != 'F' && aLine[ 5 ].charAt( 0 ) != 'V' ) {
       if ( log.isDebug() ) {
         log.logDebug( BaseMessages.getString( PKG, "MVSFileParser.DEBUG.Skip.recf" ) );
       }
       return null;
     }
-    if ( aLine[8].charAt( 0 ) != 'P' ) { // Only handle PO, PS, or PO-E
+    if ( aLine[ 8 ].charAt( 0 ) != 'P' ) { // Only handle PO, PS, or PO-E
       if ( log.isDebug() ) {
         log.logDebug( BaseMessages.getString( PKG, "MVSFileParser.DEBUG.Skip.dso" ) );
       }
@@ -253,26 +245,26 @@ public class MVSFileParser extends FTPFileParser {
     }
     // OK, I think I can handle this.
     FTPFile rtn = new FTPFile( raw );
-    rtn.setName( aLine[9] );
+    rtn.setName( aLine[ 9 ] );
     // Fake out dates - these are all newly created files / folders
     rtn.setCreated( new Date() );
     rtn.setLastModified( new Date() );
-    if ( aLine[8].equals( ENTRY_FILE_TYPE ) ) {
+    if ( aLine[ 8 ].equals( ENTRY_FILE_TYPE ) ) {
       if ( log.isDebug() ) {
-        log.logDebug( BaseMessages.getString( PKG, "MVSFileParser.DEBUG.Found.File", aLine[9] ) );
+        log.logDebug( BaseMessages.getString( PKG, "MVSFileParser.DEBUG.Found.File", aLine[ 9 ] ) );
       }
       // This is a file...
       rtn.setDir( false );
       long l = -1;
       try {
-        l = Long.parseLong( aLine[4] );
+        l = Long.parseLong( aLine[ 4 ] );
       } catch ( Exception ignored ) {
         // Ignore errors
       }
       rtn.setSize( l );
     } else {
       if ( log.isDebug() ) {
-        log.logDebug( BaseMessages.getString( PKG, "MVSFileParser.DEBUG.Found.Folder", aLine[9] ) );
+        log.logDebug( BaseMessages.getString( PKG, "MVSFileParser.DEBUG.Found.Folder", aLine[ 9 ] ) );
       }
       rtn.setDir( true );
     }
@@ -290,8 +282,7 @@ public class MVSFileParser extends FTPFileParser {
    * white-space characters. StringTokenizer handles this very well. This should never fail to return an array, even if
    * the array is empty. In other words, this should never return null.
    *
-   * @param raw
-   *          The string to tokenize from the MainFrame
+   * @param raw The string to tokenize from the MainFrame
    * @return String array of all the elements from the parse.
    */
   protected String[] splitMVSLine( String raw ) {
@@ -299,11 +290,11 @@ public class MVSFileParser extends FTPFileParser {
       return new String[] {};
     }
     StringTokenizer st = new StringTokenizer( raw );
-    String[] rtn = new String[st.countTokens()];
+    String[] rtn = new String[ st.countTokens() ];
     int i = 0;
     while ( st.hasMoreTokens() ) {
       String nextToken = st.nextToken();
-      rtn[i] = nextToken.trim();
+      rtn[ i ] = nextToken.trim();
       i++;
     }
     return rtn;
@@ -318,24 +309,24 @@ public class MVSFileParser extends FTPFileParser {
   protected boolean isValidDirectoryFormat( String[] listing ) {
     String[] aLine;
     for ( int i = 1; i < listing.length; i++ ) {
-      aLine = splitMVSLine( listing[i] );
-      if ( ( aLine.length == 2 ) && ( aLine[0].equals( LINE_TYPE_MIGRATED ) ) ) {
+      aLine = splitMVSLine( listing[ i ] );
+      if ( ( aLine.length == 2 ) && ( aLine[ 0 ].equals( LINE_TYPE_MIGRATED ) ) ) {
         if ( log.isDebug() ) {
           log.logDebug( BaseMessages.getString( PKG, "MVSFileParser.DEBUG.Detected.Migrated" ) );
         }
-      } else if ( aLine.length != 10 && ( !aLine[0].equals( LINE_TYPE_ARCIVE ) ) ) { // 10 = regular, ARCIVE=on tape
-        log.logError( BaseMessages.getString( PKG, "MVSFileParser.ERROR.Invalid.Folder.Line", listing[i] ) );
+      } else if ( aLine.length != 10 && ( !aLine[ 0 ].equals( LINE_TYPE_ARCIVE ) ) ) { // 10 = regular, ARCIVE=on tape
+        log.logError( BaseMessages.getString( PKG, "MVSFileParser.ERROR.Invalid.Folder.Line", listing[ i ] ) );
         return false;
       }
       if ( dateFormatString != null ) {
         // validate date
-        if ( !checkDateFormat( aLine[2] ) ) {
+        if ( !checkDateFormat( aLine[ 2 ] ) ) {
           return false;
         }
       } else {
         if ( aLine.length == 10 ) {
           // Try to parse the date.
-          guessDateFormat( aLine[2] );
+          guessDateFormat( aLine[ 2 ] );
         }
       }
     }
@@ -351,17 +342,17 @@ public class MVSFileParser extends FTPFileParser {
   protected boolean isValidPDSFormat( String[] listing ) {
     String[] aLine;
     for ( int i = 1; i < listing.length; i++ ) {
-      aLine = splitMVSLine( listing[i] );
+      aLine = splitMVSLine( listing[ i ] );
       if ( aLine.length != 9 ) { // 9 because there are two fields for changed...
-        log.logError( BaseMessages.getString( PKG, "MVSFileParser.ERROR.Invalid.PDS.Line", listing[i] ) );
+        log.logError( BaseMessages.getString( PKG, "MVSFileParser.ERROR.Invalid.PDS.Line", listing[ i ] ) );
         return false;
       }
       if ( dateFormatString != null ) {
-        if ( !checkDateFormat( aLine[3] ) ) {
+        if ( !checkDateFormat( aLine[ 3 ] ) ) {
           return false;
         }
       } else {
-        guessDateFormat( aLine[2] );
+        guessDateFormat( aLine[ 2 ] );
       }
     }
     return true;
@@ -414,9 +405,9 @@ public class MVSFileParser extends FTPFileParser {
   /**
    * This method will look at the incoming date string and try to figure out the format of the date. Googling on the
    * internet showed several possible looks to the date:
-   *
+   * <p>
    * dd/MM/yy yy/MM/dd MM/dd/yy yyyy/MM/dd yyyy/dd/MM
-   *
+   * <p>
    * I never saw samples showing dd/MM/yyyy but I suppose it's possible. Not happy with this algorithm because it feels
    * clumsy. It works, but it's not very elegant (time crunch).
    *
@@ -432,8 +423,8 @@ public class MVSFileParser extends FTPFileParser {
     int dayPos = -1;
     // quick look for either yyyy/xx/xx or xx/xx/yyyy
     for ( int i = 0; i < dateSplit.length; i++ ) {
-      int aDigit = Integer.parseInt( dateSplit[i] );
-      if ( dateSplit[i].length() == 4 ) {
+      int aDigit = Integer.parseInt( dateSplit[ i ] );
+      if ( dateSplit[ i ].length() == 4 ) {
         yrFmt = "yyyy";
         yrPos = i;
       } else if ( aDigit > 31 ) {
@@ -449,12 +440,12 @@ public class MVSFileParser extends FTPFileParser {
       StringBuilder fmt = new StringBuilder();
       if ( dayPos >= 0 ) {
         // OK, we know everything.
-        String[] tmp = new String[3];
-        tmp[yrPos] = yrFmt;
-        tmp[dayPos] = "dd";
+        String[] tmp = new String[ 3 ];
+        tmp[ yrPos ] = yrFmt;
+        tmp[ dayPos ] = "dd";
         for ( int i = 0; i < tmp.length; i++ ) {
           fmt.append( i > 0 ? "/" : "" );
-          fmt.append( tmp[i] == null ? "MM" : tmp[i] );
+          fmt.append( tmp[ i ] == null ? "MM" : tmp[ i ] );
         }
         if ( log.isDebug() ) {
           log.logDebug( BaseMessages.getString( PKG, "MVSFileParser.DEBUG.Guess.Date.Obvious" ) );
@@ -521,8 +512,7 @@ public class MVSFileParser extends FTPFileParser {
   /**
    * Provides ability to pre-specify the format that the parser will use to parse dates.
    *
-   * @param value
-   *          the string to set.
+   * @param value the string to set.
    */
   public void setDateFormatString( String value ) {
     this.dateFormatString = value;

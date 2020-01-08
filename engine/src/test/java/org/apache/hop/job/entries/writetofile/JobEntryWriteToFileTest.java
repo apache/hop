@@ -21,14 +21,13 @@
  ******************************************************************************/
 package org.apache.hop.job.entries.writetofile;
 
-import java.util.Arrays;
-
-import java.util.List;
-import java.util.Map;
-
-import org.junit.ClassRule;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.ClassRule;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class JobEntryWriteToFileTest extends JobEntryLoadSaveTestSupport<JobEntryWriteToFile> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -41,31 +40,31 @@ public class JobEntryWriteToFileTest extends JobEntryLoadSaveTestSupport<JobEntr
   @Override
   protected List<String> listCommonAttributes() {
     return Arrays.asList(
-        "filename",
-        "createParentFolder",
-        "appendFile",
-        "content",
-        "encoding" );
+      "filename",
+      "createParentFolder",
+      "appendFile",
+      "content",
+      "encoding" );
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-        "filename", "getFilename",
-        "createParentFolder", "isCreateParentFolder",
-        "appendFile",  "isAppendFile",
-        "content", "getContent",
-        "encoding", "getEncoding" );
+      "filename", "getFilename",
+      "createParentFolder", "isCreateParentFolder",
+      "appendFile", "isAppendFile",
+      "content", "getContent",
+      "encoding", "getEncoding" );
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-        "filename", "setFilename",
-        "createParentFolder", "setCreateParentFolder",
-        "appendFile",  "setAppendFile",
-        "content", "setContent",
-        "encoding", "setEncoding" );
+      "filename", "setFilename",
+      "createParentFolder", "setCreateParentFolder",
+      "appendFile", "setAppendFile",
+      "content", "setContent",
+      "encoding", "setEncoding" );
   }
 
 }

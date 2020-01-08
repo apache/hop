@@ -22,11 +22,21 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.HasDatabasesInterface;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopui.delegates.HopUiDBDelegate;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
@@ -49,20 +59,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.HasDatabasesInterface;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopui.delegates.HopUiDBDelegate;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.util.HelpUtils;
+
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Allows the user to make a selection from a list of values.
@@ -129,14 +129,10 @@ public class EnterSelectionDialog extends Dialog {
   /**
    * Create a new dialog allow someone to pick one value out of a list of values
    *
-   * @param parent
-   *          the parent shell.
-   * @param choices
-   *          The available list of options
-   * @param shellText
-   *          The shell text
-   * @param message
-   *          the message to display as extra information about the possible choices
+   * @param parent    the parent shell.
+   * @param choices   The available list of options
+   * @param shellText The shell text
+   * @param message   the message to display as extra information about the possible choices
    */
   public EnterSelectionDialog( Shell parent, String[] choices, String shellText, String message ) {
     super( parent, SWT.NONE );
@@ -163,7 +159,7 @@ public class EnterSelectionDialog extends Dialog {
   }
 
   public EnterSelectionDialog( Shell parent, String[] choices, String shellText, String message,
-    HasDatabasesInterface databasesInterface ) {
+                               HasDatabasesInterface databasesInterface ) {
     this( parent, choices, shellText, message );
     this.databasesInterface = databasesInterface;
   }
@@ -298,7 +294,7 @@ public class EnterSelectionDialog extends Dialog {
 
     wSelection = new List( shell, options );
     for ( int i = 0; i < choices.length; i++ ) {
-      wSelection.add( choices[i] );
+      wSelection.add( choices[ i ] );
     }
     if ( selectedNrs != null ) {
       wSelection.select( selectedNrs );
@@ -433,8 +429,8 @@ public class EnterSelectionDialog extends Dialog {
     Display display = parent.getDisplay();
 
     shell =
-        new Shell( parent, SWT.DIALOG_TRIM | ( modal ? SWT.APPLICATION_MODAL | SWT.SHEET : SWT.NONE ) | SWT.MIN
-            | SWT.MAX );
+      new Shell( parent, SWT.DIALOG_TRIM | ( modal ? SWT.APPLICATION_MODAL | SWT.SHEET : SWT.NONE ) | SWT.MIN
+        | SWT.MAX );
     props.setLook( shell );
 
     FormLayout formLayout = new FormLayout();
@@ -459,12 +455,12 @@ public class EnterSelectionDialog extends Dialog {
     String pentRepo = "";
     boolean found = false;
     for ( int i = 0; i < choices.length; i++ ) {
-      if ( choices[i] != null && choices[i].startsWith( BaseMessages.getString( PKG,
-          "EnterSelectionDialog.PentahoRepo" ) ) ) {
-        pentRepo = choices[i];
+      if ( choices[ i ] != null && choices[ i ].startsWith( BaseMessages.getString( PKG,
+        "EnterSelectionDialog.PentahoRepo" ) ) ) {
+        pentRepo = choices[ i ];
         found = true;
       } else {
-        wSelection.add( choices[i] );
+        wSelection.add( choices[ i ] );
       }
     }
 
@@ -495,9 +491,9 @@ public class EnterSelectionDialog extends Dialog {
       @Override
       public void widgetSelected( SelectionEvent arg0 ) {
         HelpUtils.openHelpDialog( shell,
-                                  BaseMessages.getString( PKG, "EnterSelectionDialog.Help.Title" ),
-                                  Const.getDocUrl( BaseMessages.getString( PKG, "EnterSelectionDialog.Help" ) ),
-                                  BaseMessages.getString( PKG, "EnterSelectionDialog.Help.Header" ) );
+          BaseMessages.getString( PKG, "EnterSelectionDialog.Help.Title" ),
+          Const.getDocUrl( BaseMessages.getString( PKG, "EnterSelectionDialog.Help" ) ),
+          BaseMessages.getString( PKG, "EnterSelectionDialog.Help.Header" ) );
       }
     } );
 
@@ -594,11 +590,11 @@ public class EnterSelectionDialog extends Dialog {
     if ( constant != null && wbUseConstant.getSelection() ) {
       selection = wConstantValue.getText();
     } else if ( wSelection.getSelectionCount() > 0 ) {
-      selection = wSelection.getSelection()[0];
-      selectionNr = wSelection.getSelectionIndices()[0];
+      selection = wSelection.getSelection()[ 0 ];
+      selectionNr = wSelection.getSelectionIndices()[ 0 ];
       if ( quickSearch ) {
         for ( int i = 0; i < choices.length; i++ ) {
-          if ( choices[i].equals( selection ) ) {
+          if ( choices[ i ].equals( selection ) ) {
             selectionNr = i;
           }
         }
@@ -607,12 +603,12 @@ public class EnterSelectionDialog extends Dialog {
       // So we have to get the current index from choices and store it in the indices
       String[] selections = wSelection.getSelection();
       boolean found = false;
-      indices = new int[selections.length];
+      indices = new int[ selections.length ];
       for ( int i = 0; i < selections.length; i++ ) {
         found = false;
         for ( int j = 0; j < choices.length; j++ ) {
-          if ( selections[i].equals( choices[j] ) ) {
-            indices[i] = j;
+          if ( selections[ i ].equals( choices[ j ] ) ) {
+            indices[ i ] = j;
             found = true;
             break;
           }
@@ -624,14 +620,14 @@ public class EnterSelectionDialog extends Dialog {
     } else {
       selection = null;
       selectionNr = -1;
-      indices = new int[0];
+      indices = new int[ 0 ];
     }
     dispose();
   }
 
   public int getSelectionNr( String str ) {
     for ( int i = 0; i < choices.length; i++ ) {
-      if ( choices[i].equalsIgnoreCase( str ) ) {
+      if ( choices[ i ].equalsIgnoreCase( str ) ) {
         return i;
       }
     }
@@ -662,8 +658,7 @@ public class EnterSelectionDialog extends Dialog {
   }
 
   /**
-   * @param fixed
-   *          the fixed to set
+   * @param fixed the fixed to set
    */
   public void setFixed( boolean fixed ) {
     this.fixed = fixed;
@@ -677,11 +672,20 @@ public class EnterSelectionDialog extends Dialog {
   }
 
   /**
-   * @param selectedNrs
-   *          the selectedNrs to set
+   * @param selectedNrs the selectedNrs to set
    */
   public void setSelectedNrs( int[] selectedNrs ) {
     this.selectedNrs = selectedNrs;
+  }
+
+  /**
+   * @param selectedNrs the selectedNrs to set
+   */
+  public void setSelectedNrs( java.util.List<Integer> selectedNrs ) {
+    this.selectedNrs = new int[ selectedNrs.size() ];
+    for ( int i = 0; i < selectedNrs.size(); i++ ) {
+      this.selectedNrs[ i ] = selectedNrs.get( i );
+    }
   }
 
   protected void updateFilter() {
@@ -712,7 +716,7 @@ public class EnterSelectionDialog extends Dialog {
       }
       this.choices = theNames;
       refresh();
-    } catch(Exception e) {
+    } catch ( Exception e ) {
       new ErrorDialog( shell, "Error", "Error adding datasource", e );
     }
   }
@@ -725,24 +729,24 @@ public class EnterSelectionDialog extends Dialog {
         if ( wbRegex.getSelection() ) {
           // use regex
           if ( pattern != null ) {
-            Matcher matcher = pattern.matcher( choices[i] );
+            Matcher matcher = pattern.matcher( choices[ i ] );
             if ( matcher.matches() ) {
-              wSelection.add( choices[i] );
+              wSelection.add( choices[ i ] );
             }
           } else {
-            wSelection.add( choices[i] );
+            wSelection.add( choices[ i ] );
           }
         } else {
           if ( filterString != null ) {
-            if ( choices[i].toUpperCase().contains( filterString ) ) {
-              wSelection.add( choices[i] );
+            if ( choices[ i ].toUpperCase().contains( filterString ) ) {
+              wSelection.add( choices[ i ] );
             }
           } else {
-            wSelection.add( choices[i] );
+            wSelection.add( choices[ i ] );
           }
         }
       } else {
-        wSelection.add( choices[i] );
+        wSelection.add( choices[ i ] );
       }
     }
     wSelection.redraw();

@@ -32,10 +32,8 @@ public interface SubComponentExecutionListener {
    * This method is called right before a sub-transformation, mapping, single threader template, ... is to be executed
    * in a parent job or transformation.
    *
-   * @param trans
-   *          The transformation that is about to be executed.
-   * @throws HopException
-   *           In case something goes wrong
+   * @param trans The transformation that is about to be executed.
+   * @throws HopException In case something goes wrong
    */
   public void beforeTransformationExecution( Trans trans ) throws HopException;
 
@@ -43,10 +41,8 @@ public interface SubComponentExecutionListener {
    * This method is called right after a sub-transformation, mapping, single threader template, ... was executed in a
    * parent job or transformation.
    *
-   * @param trans
-   *          The transformation that was just executed.
-   * @throws HopException
-   *           In case something goes wrong
+   * @param trans The transformation that was just executed.
+   * @throws HopException In case something goes wrong
    */
   public void afterTransformationExecution( Trans trans ) throws HopException;
 
@@ -54,10 +50,8 @@ public interface SubComponentExecutionListener {
    * This method is called right before a job is to be executed in a parent job or transformation (Job job-entry, Job
    * Executor step).
    *
-   * @param trans
-   *          The job that is about to be executed.
-   * @throws HopException
-   *           In case something goes wrong
+   * @param trans The job that is about to be executed.
+   * @throws HopException In case something goes wrong
    */
   public void beforeJobExecution( Job job ) throws HopException;
 
@@ -65,10 +59,8 @@ public interface SubComponentExecutionListener {
    * This method is called right after a job was executed in a parent job or transformation (Job job-entry, Job Executor
    * step).
    *
-   * @param trans
-   *          The job that was executed.
-   * @throws HopException
-   *           In case something goes wrong
+   * @param trans The job that was executed.
+   * @throws HopException In case something goes wrong
    */
   public void afterJobExecution( Job job ) throws HopException;
 }

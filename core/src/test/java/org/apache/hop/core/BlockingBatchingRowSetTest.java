@@ -22,16 +22,16 @@
 
 package org.apache.hop.core;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -53,7 +53,7 @@ public class BlockingBatchingRowSetTest {
     ValueMetaInterface[] valuesMeta = { new ValueMetaInteger( "ROWNR" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;

@@ -22,18 +22,6 @@
 
 package org.apache.hop.trans.steps.textfileoutput;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -43,6 +31,18 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
 
 public class TextFileOutputMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -171,8 +171,8 @@ public class TextFileOutputMetaTest {
     public TextFileField getTestObject() {
       String name = UUID.randomUUID().toString();
       int type =
-        ValueMetaFactory.getIdForValueMeta( ValueMetaFactory.getValueMetaNames()[rand.nextInt( ValueMetaFactory
-          .getValueMetaNames().length )] );
+        ValueMetaFactory.getIdForValueMeta( ValueMetaFactory.getValueMetaNames()[ rand.nextInt( ValueMetaFactory
+          .getValueMetaNames().length ) ] );
       String format = UUID.randomUUID().toString();
       int length = Math.abs( rand.nextInt() );
       int precision = Math.abs( rand.nextInt() );
@@ -182,7 +182,7 @@ public class TextFileOutputMetaTest {
       String nullString = UUID.randomUUID().toString();
 
       return new TextFileField( name, type, format, length, precision, currencySymbol, decimalSymbol, groupSymbol,
-          nullString );
+        nullString );
     }
 
     @Override
@@ -192,14 +192,14 @@ public class TextFileOutputMetaTest {
       }
       TextFileField act = (TextFileField) actual;
       if ( testObject.getName().equals( act.getName() )
-          && testObject.getType() == act.getType()
-          && testObject.getFormat().equals( act.getFormat() )
-          && testObject.getLength() == act.getLength()
-          && testObject.getPrecision() == act.getPrecision()
-          && testObject.getCurrencySymbol().equals( act.getCurrencySymbol() )
-          && testObject.getDecimalSymbol().equals( act.getDecimalSymbol() )
-          && testObject.getGroupingSymbol().equals( act.getGroupingSymbol() )
-          && testObject.getNullString().equals( act.getNullString() ) ) {
+        && testObject.getType() == act.getType()
+        && testObject.getFormat().equals( act.getFormat() )
+        && testObject.getLength() == act.getLength()
+        && testObject.getPrecision() == act.getPrecision()
+        && testObject.getCurrencySymbol().equals( act.getCurrencySymbol() )
+        && testObject.getDecimalSymbol().equals( act.getDecimalSymbol() )
+        && testObject.getGroupingSymbol().equals( act.getGroupingSymbol() )
+        && testObject.getNullString().equals( act.getNullString() ) ) {
         return true;
       } else {
         return false;

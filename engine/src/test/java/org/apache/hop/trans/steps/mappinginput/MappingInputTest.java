@@ -22,9 +22,6 @@
 
 package org.apache.hop.trans.steps.mappinginput;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.trans.step.StepErrorMeta;
@@ -33,6 +30,9 @@ import org.apache.hop.trans.steps.mapping.MappingValueRename;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
 import org.apache.hop.trans.steps.validator.Validator;
 import org.apache.hop.trans.steps.validator.ValidatorData;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Collections;
 

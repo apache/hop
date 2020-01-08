@@ -22,11 +22,29 @@
 
 package org.apache.hop.ui.job.entries.copyfiles;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.copyfiles.JobEntryCopyFiles;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVarButtonRenderCallback;
+import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -53,28 +71,10 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.copyfiles.JobEntryCopyFiles;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVarButtonRenderCallback;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.hopui.HopUi;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This dialog allows you to edit the Copy Files job entry settings.
@@ -241,28 +241,28 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
     };
 
     wIncludeSubfolders = createSettingsButton(
-        wSettingsComp, "JobCopyFiles.IncludeSubfolders.Label", "JobCopyFiles.IncludeSubfolders.Tooltip", null, listener );
+      wSettingsComp, "JobCopyFiles.IncludeSubfolders.Label", "JobCopyFiles.IncludeSubfolders.Tooltip", null, listener );
 
     wDestinationIsAFile = createSettingsButton(
-        wSettingsComp, "JobCopyFiles.DestinationIsAFile.Label", "JobCopyFiles.DestinationIsAFile.Tooltip", wIncludeSubfolders, listener );
+      wSettingsComp, "JobCopyFiles.DestinationIsAFile.Label", "JobCopyFiles.DestinationIsAFile.Tooltip", wIncludeSubfolders, listener );
 
     wCopyEmptyFolders = createSettingsButton(
-        wSettingsComp, "JobCopyFiles.CopyEmptyFolders.Label", "JobCopyFiles.CopyEmptyFolders.Tooltip", wDestinationIsAFile, listener );
+      wSettingsComp, "JobCopyFiles.CopyEmptyFolders.Label", "JobCopyFiles.CopyEmptyFolders.Tooltip", wDestinationIsAFile, listener );
 
     wCreateDestinationFolder = createSettingsButton(
-        wSettingsComp, "JobCopyFiles.CreateDestinationFolder.Label", "JobCopyFiles.CreateDestinationFolder.Tooltip", wCopyEmptyFolders, listener );
+      wSettingsComp, "JobCopyFiles.CreateDestinationFolder.Label", "JobCopyFiles.CreateDestinationFolder.Tooltip", wCopyEmptyFolders, listener );
 
     wOverwriteFiles = createSettingsButton(
-        wSettingsComp, "JobCopyFiles.OverwriteFiles.Label", "JobCopyFiles.OverwriteFiles.Tooltip", wCreateDestinationFolder, listener );
+      wSettingsComp, "JobCopyFiles.OverwriteFiles.Label", "JobCopyFiles.OverwriteFiles.Tooltip", wCreateDestinationFolder, listener );
 
     wRemoveSourceFiles = createSettingsButton(
-        wSettingsComp, "JobCopyFiles.RemoveSourceFiles.Label", "JobCopyFiles.RemoveSourceFiles.Tooltip", wOverwriteFiles, listener );
+      wSettingsComp, "JobCopyFiles.RemoveSourceFiles.Label", "JobCopyFiles.RemoveSourceFiles.Tooltip", wOverwriteFiles, listener );
 
     wPrevious = createSettingsButton(
-        wSettingsComp, "JobCopyFiles.Previous.Label", "JobCopyFiles.Previous.Tooltip", wRemoveSourceFiles, listener );
+      wSettingsComp, "JobCopyFiles.Previous.Label", "JobCopyFiles.Previous.Tooltip", wRemoveSourceFiles, listener );
 
     wAddFileToResult = createSettingsButton(
-        wSettingsComp, "JobCopyFiles.AddFileToResult.Label", "JobCopyFiles.AddFileToResult.Tooltip", wPrevious, listener );
+      wSettingsComp, "JobCopyFiles.AddFileToResult.Label", "JobCopyFiles.AddFileToResult.Tooltip", wPrevious, listener );
 
     FormData fdSettingsComp = new FormData();
     fdSettingsComp.left = new FormAttachment( 0, 0 );
@@ -313,19 +313,19 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo( BaseMessages.getString( PKG, "JobCopyFiles.Fields.SourceEnvironment.Label" ),
-              ColumnInfo.COLUMN_TYPE_CCOMBO, false, true ),
-          new ColumnInfo( BaseMessages.getString( PKG, "JobCopyFiles.Fields.SourceFileFolder.Label" ),
-              ColumnInfo.COLUMN_TYPE_TEXT_BUTTON, false ),
-          new ColumnInfo( BaseMessages.getString( PKG, "JobCopyFiles.Fields.Wildcard.Label" ),
-              ColumnInfo.COLUMN_TYPE_TEXT, false ),
-          new ColumnInfo( BaseMessages.getString( PKG, "JobCopyFiles.Fields.DestinationEnvironment.Label" ),
-              ColumnInfo.COLUMN_TYPE_CCOMBO, false, true ),
-          new ColumnInfo( BaseMessages.getString( PKG, "JobCopyFiles.Fields.DestinationFileFolder.Label" ),
-              ColumnInfo.COLUMN_TYPE_TEXT_BUTTON, false ) };
+      new ColumnInfo[] {
+        new ColumnInfo( BaseMessages.getString( PKG, "JobCopyFiles.Fields.SourceEnvironment.Label" ),
+          ColumnInfo.COLUMN_TYPE_CCOMBO, false, true ),
+        new ColumnInfo( BaseMessages.getString( PKG, "JobCopyFiles.Fields.SourceFileFolder.Label" ),
+          ColumnInfo.COLUMN_TYPE_TEXT_BUTTON, false ),
+        new ColumnInfo( BaseMessages.getString( PKG, "JobCopyFiles.Fields.Wildcard.Label" ),
+          ColumnInfo.COLUMN_TYPE_TEXT, false ),
+        new ColumnInfo( BaseMessages.getString( PKG, "JobCopyFiles.Fields.DestinationEnvironment.Label" ),
+          ColumnInfo.COLUMN_TYPE_CCOMBO, false, true ),
+        new ColumnInfo( BaseMessages.getString( PKG, "JobCopyFiles.Fields.DestinationFileFolder.Label" ),
+          ColumnInfo.COLUMN_TYPE_TEXT_BUTTON, false ) };
 
-    setComboValues( colinf[0] );
+    setComboValues( colinf[ 0 ] );
 
     TextVarButtonRenderCallback callback = new TextVarButtonRenderCallback() {
       public boolean shouldRenderButton() {
@@ -334,19 +334,19 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
       }
     };
 
-    colinf[1].setUsingVariables( true );
-    colinf[1].setToolTip( BaseMessages.getString( PKG, "JobCopyFiles.Fields.SourceFileFolder.Tooltip" ) );
-    colinf[1].setTextVarButtonSelectionListener( getFileSelectionAdapter() );
-    colinf[1].setRenderTextVarButtonCallback( callback );
+    colinf[ 1 ].setUsingVariables( true );
+    colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "JobCopyFiles.Fields.SourceFileFolder.Tooltip" ) );
+    colinf[ 1 ].setTextVarButtonSelectionListener( getFileSelectionAdapter() );
+    colinf[ 1 ].setRenderTextVarButtonCallback( callback );
 
-    colinf[2].setUsingVariables( true );
-    colinf[2].setToolTip( BaseMessages.getString( PKG, "JobCopyFiles.Fields.Wildcard.Tooltip" ) );
+    colinf[ 2 ].setUsingVariables( true );
+    colinf[ 2 ].setToolTip( BaseMessages.getString( PKG, "JobCopyFiles.Fields.Wildcard.Tooltip" ) );
 
-    setComboValues( colinf[3] );
+    setComboValues( colinf[ 3 ] );
 
-    colinf[4].setUsingVariables( true );
-    colinf[4].setToolTip( BaseMessages.getString( PKG, "JobCopyFiles.Fields.DestinationFileFolder.Tooltip" ) );
-    colinf[4].setTextVarButtonSelectionListener( getFileSelectionAdapter() );
+    colinf[ 4 ].setUsingVariables( true );
+    colinf[ 4 ].setToolTip( BaseMessages.getString( PKG, "JobCopyFiles.Fields.DestinationFileFolder.Tooltip" ) );
+    colinf[ 4 ].setTextVarButtonSelectionListener( getFileSelectionAdapter() );
 
     wFields =
       new TableView(
@@ -485,8 +485,8 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
           fileChooserDialog.defaultInitialFile = defaultInitialFile;
 
           selectedFile =
-              fileChooserDialog.open( shell, new String[] { "file" }, "file", true, null, new String[] { "*.*" },
-                  FILETYPES, true, VfsFileChooserDialog.VFS_DIALOG_OPEN_FILE_OR_DIRECTORY, false, false );
+            fileChooserDialog.open( shell, new String[] { "file" }, "file", true, null, new String[] { "*.*" },
+              FILETYPES, true, VfsFileChooserDialog.VFS_DIALOG_OPEN_FILE_OR_DIRECTORY, false, false );
 
           if ( selectedFile != null ) {
             String url = selectedFile.getURL().toString();
@@ -524,19 +524,19 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
     if ( jobEntry.source_filefolder != null ) {
       for ( int i = 0; i < jobEntry.source_filefolder.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.source_filefolder[i] != null ) {
-          String sourceUrl = jobEntry.source_filefolder[i];
+        if ( jobEntry.source_filefolder[ i ] != null ) {
+          String sourceUrl = jobEntry.source_filefolder[ i ];
           String clusterName = jobEntry.getConfigurationBy( sourceUrl );
           if ( clusterName != null ) {
             clusterName =
-                clusterName.startsWith( JobEntryCopyFiles.LOCAL_SOURCE_FILE ) ? LOCAL_ENVIRONMENT : clusterName;
+              clusterName.startsWith( JobEntryCopyFiles.LOCAL_SOURCE_FILE ) ? LOCAL_ENVIRONMENT : clusterName;
             clusterName =
-                clusterName.startsWith( JobEntryCopyFiles.STATIC_SOURCE_FILE ) ? STATIC_ENVIRONMENT : clusterName;
+              clusterName.startsWith( JobEntryCopyFiles.STATIC_SOURCE_FILE ) ? STATIC_ENVIRONMENT : clusterName;
 
             ti.setText( 1, clusterName );
             sourceUrl =
-                clusterName.equals( LOCAL_ENVIRONMENT ) || clusterName.equals( STATIC_ENVIRONMENT ) ? sourceUrl
-                    : jobEntry.getUrlPath( sourceUrl );
+              clusterName.equals( LOCAL_ENVIRONMENT ) || clusterName.equals( STATIC_ENVIRONMENT ) ? sourceUrl
+                : jobEntry.getUrlPath( sourceUrl );
           }
           if ( sourceUrl != null ) {
             sourceUrl = sourceUrl.replace( JobEntryCopyFiles.SOURCE_URL + i + "-", "" );
@@ -545,20 +545,20 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
           }
           ti.setText( 2, sourceUrl );
         }
-        if ( jobEntry.wildcard[i] != null ) {
-          ti.setText( 3, jobEntry.wildcard[i] );
+        if ( jobEntry.wildcard[ i ] != null ) {
+          ti.setText( 3, jobEntry.wildcard[ i ] );
         }
-        if ( jobEntry.destination_filefolder[i] != null ) {
-          String destinationURL = jobEntry.destination_filefolder[i];
+        if ( jobEntry.destination_filefolder[ i ] != null ) {
+          String destinationURL = jobEntry.destination_filefolder[ i ];
           String clusterName = jobEntry.getConfigurationBy( destinationURL );
           if ( clusterName != null ) {
             clusterName = clusterName.startsWith( JobEntryCopyFiles.LOCAL_DEST_FILE ) ? LOCAL_ENVIRONMENT : clusterName;
             clusterName =
-                clusterName.startsWith( JobEntryCopyFiles.STATIC_DEST_FILE ) ? STATIC_ENVIRONMENT : clusterName;
+              clusterName.startsWith( JobEntryCopyFiles.STATIC_DEST_FILE ) ? STATIC_ENVIRONMENT : clusterName;
             ti.setText( 4, clusterName );
             destinationURL =
-                clusterName.equals( LOCAL_ENVIRONMENT ) || clusterName.equals( STATIC_ENVIRONMENT ) ? destinationURL
-                    : jobEntry.getUrlPath( destinationURL );
+              clusterName.equals( LOCAL_ENVIRONMENT ) || clusterName.equals( STATIC_ENVIRONMENT ) ? destinationURL
+                : jobEntry.getUrlPath( destinationURL );
           }
           if ( destinationURL != null ) {
             destinationURL = destinationURL.replace( JobEntryCopyFiles.DEST_URL + i + "-", "" );
@@ -614,9 +614,9 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
 
 
     Map<String, String> sourceDestinationMappings = new HashMap<String, String>();
-    jobEntry.source_filefolder = new String[nritems];
-    jobEntry.destination_filefolder = new String[nritems];
-    jobEntry.wildcard = new String[nritems];
+    jobEntry.source_filefolder = new String[ nritems ];
+    jobEntry.destination_filefolder = new String[ nritems ];
+    jobEntry.wildcard = new String[ nritems ];
 
     for ( int i = 0; i < nritems; i++ ) {
       String sourceNc = wFields.getNonEmpty( i ).getText( 1 );
@@ -630,9 +630,9 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
       String dest = wFields.getNonEmpty( i ).getText( 5 );
       source = JobEntryCopyFiles.SOURCE_URL + i + "-" + source;
       dest = JobEntryCopyFiles.DEST_URL + i + "-" + dest;
-      jobEntry.source_filefolder[i] = jobEntry.loadURL( source, sourceNc, getMetaStore(), sourceDestinationMappings );
-      jobEntry.destination_filefolder[i] = jobEntry.loadURL( dest, destNc, getMetaStore(), sourceDestinationMappings );
-      jobEntry.wildcard[i] = wild;
+      jobEntry.source_filefolder[ i ] = jobEntry.loadURL( source, sourceNc, getMetaStore(), sourceDestinationMappings );
+      jobEntry.destination_filefolder[ i ] = jobEntry.loadURL( dest, destNc, getMetaStore(), sourceDestinationMappings );
+      jobEntry.wildcard[ i ] = wild;
     }
     jobEntry.setConfigurationMappings( sourceDestinationMappings );
 

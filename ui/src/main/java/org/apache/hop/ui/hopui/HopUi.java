@@ -48,7 +48,6 @@ import org.apache.hop.core.XmlExportHelper;
 import org.apache.hop.core.changed.ChangedFlagInterface;
 import org.apache.hop.core.changed.HopObserver;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.metastore.DatabaseMetaStoreObjectFactory;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopMissingPluginsException;
@@ -124,13 +123,10 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
-import org.apache.hop.metastore.util.HopDefaults;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.resource.ResourceExportInterface;
 import org.apache.hop.resource.ResourceUtil;
 import org.apache.hop.resource.TopLevelResource;
-import org.apache.hop.shared.SharedObjectInterface;
-import org.apache.hop.shared.SharedObjects;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.HasDatabasesInterface;
 import org.apache.hop.trans.HasSlaveServersInterface;
@@ -185,12 +181,9 @@ import org.apache.hop.ui.hopui.partition.processor.MethodProcessor;
 import org.apache.hop.ui.hopui.partition.processor.MethodProcessorFactory;
 import org.apache.hop.ui.hopui.trans.TransGraph;
 import org.apache.hop.ui.hopui.tree.TreeManager;
-import org.apache.hop.ui.hopui.tree.provider.ClustersFolderProvider;
 import org.apache.hop.ui.hopui.tree.provider.DBConnectionFolderProvider;
 import org.apache.hop.ui.hopui.tree.provider.HopsFolderProvider;
 import org.apache.hop.ui.hopui.tree.provider.JobEntriesFolderProvider;
-import org.apache.hop.ui.hopui.tree.provider.PartitionsFolderProvider;
-import org.apache.hop.ui.hopui.tree.provider.SlavesFolderProvider;
 import org.apache.hop.ui.hopui.tree.provider.StepsFolderProvider;
 import org.apache.hop.ui.job.dialog.JobDialogPluginType;
 import org.apache.hop.ui.trans.dialog.TransDialogPluginType;
@@ -417,8 +410,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   // THE HANDLERS
   public HopUiDelegates delegates = new HopUiDelegates( this );
 
-  private SharedObjectSyncUtil sharedObjectSyncUtil = new SharedObjectSyncUtil( this );
-
   public RowMetaAndData variables = new RowMetaAndData( new RowMeta() );
 
   /**
@@ -506,8 +497,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   private Map<String, String> coreJobToolTipMap;
 
   private DefaultToolTip toolTip;
-
-  public Map<String, SharedObjects> sharedObjectsFileMap;
 
   /**
    * We can use this to set a default filter path in the open and save dialogs
@@ -675,8 +664,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     }
 
     props = PropsUI.getInstance();
-    sharedObjectsFileMap = new Hashtable<>();
-    // sharedObjectSyncUtil = new SharedObjectSyncUtil( delegates, sharedObjectsFileMap );
+
     Thread uiThread = Thread.currentThread();
 
     display = Display.findDisplay( uiThread );
@@ -2321,63 +2309,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     previousShowJob = showJob;
   }
 
-  protected void shareObject( SharedObjectInterface sharedObject ) {
-    sharedObject.setShared( true );
-    EngineMetaInterface meta = getActiveMeta();
-    try {
-      if ( meta != null ) {
-        SharedObjects sharedObjects = null;
-        if ( meta instanceof TransMeta ) {
-          sharedObjects = ( (TransMeta) meta ).getSharedObjects();
-        }
-        if ( meta instanceof JobMeta ) {
-          sharedObjects = ( (JobMeta) meta ).getSharedObjects();
-        }
-        if ( sharedObjects != null ) {
-          sharedObjects.storeObject( sharedObject );
-          sharedObjects.saveToFile();
-        }
-      }
-    } catch ( Exception e ) {
-      new ErrorDialog(
-        shell, BaseMessages.getString( PKG, "Spoon.Dialog.ErrorWritingSharedObjects.Title" ), BaseMessages
-        .getString( PKG, "Spoon.Dialog.ErrorWritingSharedObjects.Message" ), e );
-    }
-    refreshTree( selectionTreeManager.getNameByType( sharedObject.getClass() ) );
-  }
-
-  protected void unShareObject( SharedObjectInterface sharedObject ) {
-    MessageBox mb = new MessageBox( shell, SWT.YES | SWT.NO | SWT.ICON_WARNING );
-    // "Are you sure you want to stop sharing?"
-    mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.StopSharing.Message" ) );
-    mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.StopSharing.Title" ) ); // Warning!
-    int answer = mb.open();
-    if ( answer == SWT.YES ) {
-      sharedObject.setShared( false );
-      EngineMetaInterface meta = getActiveMeta();
-      try {
-        if ( meta != null ) {
-          SharedObjects sharedObjects = null;
-          if ( meta instanceof TransMeta ) {
-            sharedObjects = ( (TransMeta) meta ).getSharedObjects();
-          }
-          if ( meta instanceof JobMeta ) {
-            sharedObjects = ( (JobMeta) meta ).getSharedObjects();
-          }
-          if ( sharedObjects != null ) {
-            sharedObjects.removeObject( sharedObject );
-            sharedObjects.saveToFile();
-          }
-        }
-      } catch ( Exception e ) {
-        new ErrorDialog(
-          shell, BaseMessages.getString( PKG, "Spoon.Dialog.ErrorWritingSharedObjects.Title" ), BaseMessages
-          .getString( PKG, "Spoon.Dialog.ErrorWritingSharedObjects.Message" ), e );
-      }
-      refreshTree( selectionTreeManager.getNameByType( sharedObject.getClass() ) );
-    }
-  }
-
   /**
    * @return The object that is selected in the tree or null if we couldn't figure it out. (titles etc. == null)
    */
@@ -2625,7 +2556,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     final TransMeta transMeta = (TransMeta) selectionObjectParent;
     final StepMeta stepMeta = (StepMeta) selectionObject;
     delegates.steps.editStep( transMeta, stepMeta );
-    sharedObjectSyncUtil.synchronizeSteps( stepMeta );
   }
 
   public void dupeStep() {
@@ -2645,27 +2575,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     PluginInterface stepPlugin =
       PluginRegistry.getInstance().findPluginWithId( StepPluginType.class, stepMeta.getStepID() );
     HelpUtils.openHelpDialog( shell, stepPlugin );
-  }
-
-  public void shareObject( String id ) {
-
-    if ( "step-inst-share".equals( id ) ) {
-      final StepMeta stepMeta = (StepMeta) selectionObject;
-      shareObject( stepMeta );
-    }
-    if ( "partition-schema-inst-share".equals( id ) ) {
-      final PartitionSchema partitionSchema = (PartitionSchema) selectionObject;
-      shareObject( partitionSchema );
-    }
-    if ( "cluster-schema-inst-share".equals( id ) ) {
-      final ClusterSchema clusterSchema = (ClusterSchema) selectionObject;
-      shareObject( clusterSchema );
-    }
-    if ( "slave-server-inst-share".equals( id ) ) {
-      final SlaveServer slaveServer = (SlaveServer) selectionObject;
-      shareObject( slaveServer );
-    }
-    sharedObjectSyncUtil.reloadSharedObjects();
   }
 
   public void editJobEntry() {
@@ -2813,15 +2722,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
             + databaseMeta.getName() ); // Clear
         }
 
-        item = (XulMenuitem) mainSpoonContainer.getDocumentRoot().getElementById( "database-inst-share" );
-        if ( item != null ) {
-          final DatabaseMeta databaseMeta = (DatabaseMeta) selection;
-          if ( databaseMeta.isShared() ) {
-            item.setLabel( BaseMessages.getString( PKG, "Spoon.Menu.Popup.CONNECTIONS.UnShare" ) );
-          } else {
-            item.setLabel( BaseMessages.getString( PKG, "Spoon.Menu.Popup.CONNECTIONS.Share" ) );
-          }
-        }
       } else if ( selection instanceof StepMeta ) {
         spoonMenu = (XulMenupopup) menuMap.get( "step-inst" );
       } else if ( selection instanceof JobEntryCopy ) {
@@ -2916,7 +2816,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       if ( selection instanceof StepMeta ) {
         StepMeta step = (StepMeta) selection;
         delegates.steps.editStep( (TransMeta) parent, step );
-        sharedObjectSyncUtil.synchronizeSteps( step );
       }
       if ( selection instanceof JobEntryCopy ) {
         editJobEntry( (JobMeta) parent, (JobEntryCopy) selection );
@@ -3544,99 +3443,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     newHop( transMeta, null, null );
   }
 
-  private void loadSessionInformation( boolean saveOldDatabases ) {
-
-    JobMeta[] jobMetas = getLoadedJobs();
-    for ( JobMeta jobMeta : jobMetas ) {
-
-      // Keep track of the old databases for now.
-      List<DatabaseMeta> oldDatabases = jobMeta.getDatabases();
-
-      // In order to re-match the databases on name (not content), we
-      // need to load the databases from the new repository.
-      // NOTE: for purposes such as DEVELOP - TEST - PRODUCTION
-      // cycles.
-
-      // first clear the list of databases and slave servers
-      jobMeta.setSlaveServers( new ArrayList<SlaveServer>() );
-
-      // Read them from the new repository.
-      try {
-        SharedObjects sharedObjects = jobMeta.readSharedObjects();
-        sharedObjectsFileMap.put( sharedObjects.getFilename(), sharedObjects );
-
-      } catch ( HopException e ) {
-        new ErrorDialog(
-          shell, BaseMessages.getString( PKG, "Spoon.Dialog.ErrorReadingSharedObjects.Title" ), BaseMessages
-          .getString( PKG, "Spoon.Dialog.ErrorReadingSharedObjects.Message", makeTabName( jobMeta, true ) ),
-          e
-        );
-      }
-
-      // Then we need to re-match the databases at save time...
-      for ( DatabaseMeta oldDatabase : oldDatabases ) {
-        DatabaseMeta newDatabase = DatabaseMeta.findDatabase( jobMeta.getDatabases(), oldDatabase.getName() );
-
-        // If it exists, change the settings...
-        if ( newDatabase != null ) {
-          //
-          // A database connection with the same name exists in
-          // the new repository.
-          // Change the old connections to reflect the settings in
-          // the new repository
-          //
-          oldDatabase.setDatabaseInterface( newDatabase.getDatabaseInterface() );
-        }
-      }
-    }
-
-    TransMeta[] transMetas = getLoadedTransformations();
-    for ( TransMeta transMeta : transMetas ) {
-      // Keep track of the old databases for now.
-      List<DatabaseMeta> oldDatabases = transMeta.getDatabases();
-
-      // In order to re-match the databases on name (not content), we
-      // need to load the databases from the new repository.
-      // NOTE: for purposes such as DEVELOP - TEST - PRODUCTION
-      // cycles.
-
-      // first clear the list of databases, partition schemas, slave
-      // servers, clusters
-      transMeta.setPartitionSchemas( new ArrayList<PartitionSchema>() );
-      transMeta.setSlaveServers( new ArrayList<SlaveServer>() );
-      transMeta.setClusterSchemas( new ArrayList<ClusterSchema>() );
-
-      // Read them from the new repository.
-      try {
-        SharedObjects sharedObjects = transMeta.readSharedObjects();
-        sharedObjectsFileMap.put( sharedObjects.getFilename(), sharedObjects );
-      } catch ( HopException e ) {
-        new ErrorDialog(
-          shell, BaseMessages.getString( PKG, "Spoon.Dialog.ErrorReadingSharedObjects.Title" ),
-          BaseMessages.getString( PKG, "Spoon.Dialog.ErrorReadingSharedObjects.Message", makeTabName(
-            transMeta, true ) ), e
-        );
-      }
-
-      // Then we need to re-match the databases at save time...
-      for ( DatabaseMeta oldDatabase : oldDatabases ) {
-        DatabaseMeta newDatabase = DatabaseMeta.findDatabase( transMeta.getDatabases(), oldDatabase.getName() );
-
-        // If it exists, change the settings...
-        if ( newDatabase != null ) {
-          //
-          // A database connection with the same name exists in
-          // the new repository.
-          // Change the old connections to reflect the settings in
-          // the new repository
-          //
-          oldDatabase.setDatabaseInterface( newDatabase.getDatabaseInterface() );
-        }
-      }
-    }
-  }
-
-
   public void openFile() {
     openFile( false );
   }
@@ -3938,16 +3744,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     //
     transMeta.setMetaStore( metaStore );
 
-    try {
-      SharedObjects sharedObjects = transMeta.readSharedObjects();
-      sharedObjectsFileMap.put( sharedObjects.getFilename(), sharedObjects );
-      transMeta.setSharedObjects( sharedObjects );
-      transMeta.clearChanged();
-    } catch ( Exception e ) {
-      new ErrorDialog(
-        shell, BaseMessages.getString( PKG, "Spoon.Exception.ErrorReadingSharedObjects.Title" ), BaseMessages
-        .getString( PKG, "Spoon.Exception.ErrorReadingSharedObjects.Message" ), e );
-    }
+    transMeta.clearChanged();
 
     int nr = 1;
     transMeta.setName( STRING_TRANSFORMATION + " " + nr );
@@ -3984,21 +3781,9 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       //
       setJobMetaVariables( jobMeta );
 
-      // Pass repository information
+      // Pass metastore information
       //
       jobMeta.setMetaStore( metaStore );
-
-      try {
-        // TODO: MAKE LIKE TRANS
-        SharedObjects sharedObjects = jobMeta.readSharedObjects();
-        sharedObjectsFileMap.put( sharedObjects.getFilename(), sharedObjects );
-        jobMeta.setSharedObjects( sharedObjects );
-      } catch ( Exception e ) {
-        new ErrorDialog(
-          shell, BaseMessages.getString( PKG, "Spoon.Dialog.ErrorReadingSharedObjects.Title" ), BaseMessages
-          .getString( PKG, "Spoon.Dialog.ErrorReadingSharedObjects.Message", delegates.tabs.makeTabName(
-            jobMeta, true ) ), e );
-      }
 
       int nr = 1;
       jobMeta.setName( STRING_JOB + " " + nr );
@@ -4259,8 +4044,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         saved = saveFileAs( meta );
       }
     }
-
-    meta.saveSharedObjects(); // throws Exception in case anything goes wrong
 
     try {
       if ( props.useDBCache() && meta instanceof TransMeta ) {
@@ -4959,10 +4742,9 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     selectionTree = new Tree( viewTreeComposite, SWT.SINGLE );
     selectionTreeManager = new TreeManager( selectionTree );
     selectionTreeManager.addRoot( STRING_TRANSFORMATIONS, Arrays.asList( new DBConnectionFolderProvider(), new
-      StepsFolderProvider(), new HopsFolderProvider(), new PartitionsFolderProvider(), new SlavesFolderProvider(), new
-      ClustersFolderProvider() ) );
+      StepsFolderProvider(), new HopsFolderProvider() ) );
     selectionTreeManager.addRoot( STRING_JOBS, Arrays.asList( new DBConnectionFolderProvider(), new
-      JobEntriesFolderProvider(), new SlavesFolderProvider() ) );
+      JobEntriesFolderProvider() ) );
 
     props.setLook( selectionTree );
     selectionTree.setLayout( new FillLayout() );
@@ -5671,7 +5453,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   public VariableSpace getActiveVariableSpace() {
     TransMeta transMeta = getActiveTransformation();
-    if (transMeta!=null) {
+    if ( transMeta != null ) {
       return transMeta;
     }
     return getActiveJob();
@@ -6140,7 +5922,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       TransMeta transMeta = new TransMeta( XMLHandler.getSubNode( doc, TransMeta.XML_TAG ) );
       setTransMetaVariables( transMeta );
       addTransGraph( transMeta ); // create a new tab
-      sharedObjectsFileMap.put( transMeta.getSharedObjects().getFilename(), transMeta.getSharedObjects() );
       refreshGraph();
       refreshTree();
     } catch ( HopException e ) {
@@ -6502,36 +6283,44 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
    * @param stepMetas The steps (at least one!) to set the clustering schema for.
    */
   public void editClustering( TransMeta transMeta, List<StepMeta> stepMetas ) {
-    String[] clusterSchemaNames = transMeta.getClusterSchemaNames();
+    try {
+      MetaStoreFactory<ClusterSchema> clusterFactory = ClusterSchema.createFactory( metaStore );
+      String[] clusterSchemaNames = clusterFactory.getElementNames().toArray( new String[ 0 ] );
 
-    StepMeta stepMeta = stepMetas.get( 0 );
-    int idx = -1;
-    if ( stepMeta.getClusterSchema() != null ) {
-      idx = transMeta.getClusterSchemas().indexOf( stepMeta.getClusterSchema() );
-    }
-
-    EnterSelectionDialog dialog = new EnterSelectionDialog(
-      shell,
-      clusterSchemaNames,
-      BaseMessages.getString( PKG, "Spoon.Dialog.SelectClusteringSchema.Title" ),
-      BaseMessages.getString( PKG, "Spoon.Dialog.SelectClusteringSchema.Message" )
-    );
-    String schemaName = dialog.open( idx );
-
-    if ( schemaName == null ) {
-      for ( StepMeta step : stepMetas ) {
-        step.setClusterSchema( null );
+      StepMeta stepMeta = stepMetas.get( 0 );
+      int idx = -1;
+      ClusterSchema existing = stepMeta.getClusterSchema();
+      if ( existing != null ) {
+        idx = Const.indexOfString( existing.getName(), clusterSchemaNames );
       }
-    } else {
-      ClusterSchema clusterSchema = transMeta.findClusterSchema( schemaName );
-      for ( StepMeta step : stepMetas ) {
-        step.setClusterSchema( clusterSchema );
-      }
-    }
 
-    transMeta.setChanged();
-    refreshTree();
-    refreshGraph();
+      EnterSelectionDialog dialog = new EnterSelectionDialog(
+        shell,
+        clusterSchemaNames,
+        BaseMessages.getString( PKG, "Spoon.Dialog.SelectClusteringSchema.Title" ),
+        BaseMessages.getString( PKG, "Spoon.Dialog.SelectClusteringSchema.Message" )
+      );
+      String schemaName = dialog.open( idx );
+
+      if ( schemaName == null ) {
+        for ( StepMeta step : stepMetas ) {
+          step.setClusterSchema( null );
+        }
+      } else {
+        ClusterSchema clusterSchema = clusterFactory.loadElement( schemaName );
+        for ( StepMeta step : stepMetas ) {
+          step.setClusterSchema( clusterSchema );
+        }
+      }
+      transMeta.setChanged();
+
+
+    } catch ( Exception e ) {
+      new ErrorDialog( shell, "Error", "Error setting clustering schema on step", e );
+    } finally {
+      refreshTree();
+      refreshGraph();
+    }
   }
 
   /**
@@ -6577,7 +6366,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   protected void editSlaveServer( SlaveServer slaveServer ) {
     List<SlaveServer> existingServers = getActiveAbstractMeta().getSlaveServers();
     // List<SlaveServer> existingServers = pickupSlaveServers( getActiveAbstractMeta() );
-    delegates.slaves.edit( slaveServer, existingServers );
+    delegates.slaves.edit( slaveServer );
   }
 
   /**
@@ -6824,7 +6613,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   public String editStep( TransMeta transMeta, StepMeta stepMeta ) {
     String stepname = delegates.steps.editStep( transMeta, stepMeta );
-    sharedObjectSyncUtil.synchronizeSteps( stepMeta );
     return stepname;
   }
 

@@ -21,14 +21,13 @@
  ******************************************************************************/
 package org.apache.hop.job.entries.sendnagiospassivecheck;
 
-import java.util.Arrays;
-
-import java.util.List;
-import java.util.Map;
-
-import org.junit.ClassRule;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.ClassRule;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class JobEntrySendNagiosPassiveCheckTest extends JobEntryLoadSaveTestSupport<JobEntrySendNagiosPassiveCheck> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -41,40 +40,40 @@ public class JobEntrySendNagiosPassiveCheckTest extends JobEntryLoadSaveTestSupp
   @Override
   protected List<String> listCommonAttributes() {
     return Arrays.asList(
-        "port",
-        "serverName",
-        "password",
-        "responseTimeOut",
-        "connectionTimeOut",
-        "senderServerName",
-        "senderServiceName",
-        "message" );
+      "port",
+      "serverName",
+      "password",
+      "responseTimeOut",
+      "connectionTimeOut",
+      "senderServerName",
+      "senderServiceName",
+      "message" );
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-        "port", "getPort",
-        "serverName", "getServerName",
-        "password", "getPassword",
-        "responseTimeOut", "getResponseTimeOut",
-        "connectionTimeOut", "getConnectionTimeOut",
-        "senderServerName", "getSenderServerName",
-        "senderServiceName", "getSenderServiceName",
-        "message", "getMessage" );
+      "port", "getPort",
+      "serverName", "getServerName",
+      "password", "getPassword",
+      "responseTimeOut", "getResponseTimeOut",
+      "connectionTimeOut", "getConnectionTimeOut",
+      "senderServerName", "getSenderServerName",
+      "senderServiceName", "getSenderServiceName",
+      "message", "getMessage" );
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-        "port", "setPort",
-        "serverName", "setServerName",
-        "password", "setPassword",
-        "responseTimeOut", "setResponseTimeOut",
-        "connectionTimeOut", "setConnectionTimeOut",
-        "senderServerName", "setSenderServerName",
-        "senderServiceName", "setSenderServiceName",
-        "message", "setMessage" );
+      "port", "setPort",
+      "serverName", "setServerName",
+      "password", "setPassword",
+      "responseTimeOut", "setResponseTimeOut",
+      "connectionTimeOut", "setConnectionTimeOut",
+      "senderServerName", "setSenderServerName",
+      "senderServiceName", "setSenderServiceName",
+      "message", "setMessage" );
   }
 
 }

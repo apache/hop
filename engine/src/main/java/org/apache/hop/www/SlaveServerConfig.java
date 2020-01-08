@@ -24,7 +24,6 @@ package org.apache.hop.www;
 
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -35,6 +34,7 @@ import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.metastore.MetaStoreConst;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
@@ -218,7 +218,9 @@ public class SlaveServerConfig {
     setUpJettyOptions( node );
   }
 
-  /** Set up jetty options to the system properties
+  /**
+   * Set up jetty options to the system properties
+   *
    * @param node
    */
   protected void setUpJettyOptions( Node node ) {
@@ -234,8 +236,7 @@ public class SlaveServerConfig {
   /**
    * Read and parse jetty options
    *
-   * @param node
-   *          that contains jetty options nodes
+   * @param node that contains jetty options nodes
    * @return map of not empty jetty options
    */
   protected Map<String, String> parseJettyOptions( Node node ) {
@@ -252,11 +253,11 @@ public class SlaveServerConfig {
       }
       if ( XMLHandler.getTagValue( jettyOptionsNode, XML_TAG_ACCEPT_QUEUE_SIZE ) != null ) {
         jettyOptions.put( Const.HOP_CARTE_JETTY_ACCEPT_QUEUE_SIZE, XMLHandler.getTagValue( jettyOptionsNode,
-            XML_TAG_ACCEPT_QUEUE_SIZE ) );
+          XML_TAG_ACCEPT_QUEUE_SIZE ) );
       }
       if ( XMLHandler.getTagValue( jettyOptionsNode, XML_TAG_LOW_RES_MAX_IDLE_TIME ) != null ) {
         jettyOptions.put( Const.HOP_CARTE_JETTY_RES_MAX_IDLE_TIME, XMLHandler.getTagValue( jettyOptionsNode,
-            XML_TAG_LOW_RES_MAX_IDLE_TIME ) );
+          XML_TAG_LOW_RES_MAX_IDLE_TIME ) );
       }
     }
     return jettyOptions;
@@ -350,9 +351,8 @@ public class SlaveServerConfig {
   }
 
   /**
-   * @param masters
-   *          the list of masters to set. It is the list of masters to report back to if the report to masters flag is
-   *          enabled.
+   * @param masters the list of masters to set. It is the list of masters to report back to if the report to masters flag is
+   *                enabled.
    */
   public void setMasters( List<SlaveServer> masters ) {
     this.masters = masters;
@@ -360,16 +360,15 @@ public class SlaveServerConfig {
 
   /**
    * @return the slave server.<br>
-   *         The user name and password defined in here are used to contact this slave by the masters.
+   * The user name and password defined in here are used to contact this slave by the masters.
    */
   public SlaveServer getSlaveServer() {
     return slaveServer;
   }
 
   /**
-   * @param slaveServer
-   *          the slave server details to set.<br>
-   *          The user name and password defined in here are used to contact this slave by the masters.
+   * @param slaveServer the slave server details to set.<br>
+   *                    The user name and password defined in here are used to contact this slave by the masters.
    */
   public void setSlaveServer( SlaveServer slaveServer ) {
     this.slaveServer = slaveServer;
@@ -383,8 +382,7 @@ public class SlaveServerConfig {
   }
 
   /**
-   * @param reportingToMaster
-   *          set to true if this slave should report to the masters
+   * @param reportingToMaster set to true if this slave should report to the masters
    */
   public void setReportingToMasters( boolean reportingToMaster ) {
     this.reportingToMasters = reportingToMaster;
@@ -398,8 +396,7 @@ public class SlaveServerConfig {
   }
 
   /**
-   * @param joining
-   *          Set to true if the webserver needs to join with the webserver threads (wait/block until finished)
+   * @param joining Set to true if the webserver needs to join with the webserver threads (wait/block until finished)
    */
   public void setJoining( boolean joining ) {
     this.joining = joining;
@@ -413,8 +410,7 @@ public class SlaveServerConfig {
   }
 
   /**
-   * @param maxLogLines
-   *          the maxLogLines to set
+   * @param maxLogLines the maxLogLines to set
    */
   public void setMaxLogLines( int maxLogLines ) {
     this.maxLogLines = maxLogLines;
@@ -428,8 +424,7 @@ public class SlaveServerConfig {
   }
 
   /**
-   * @param maxLogTimeoutMinutes
-   *          the maxLogTimeoutMinutes to set
+   * @param maxLogTimeoutMinutes the maxLogTimeoutMinutes to set
    */
   public void setMaxLogTimeoutMinutes( int maxLogTimeoutMinutes ) {
     this.maxLogTimeoutMinutes = maxLogTimeoutMinutes;
@@ -443,8 +438,7 @@ public class SlaveServerConfig {
   }
 
   /**
-   * @param objectTimeoutMinutes
-   *          the objectTimeoutMinutes to set
+   * @param objectTimeoutMinutes the objectTimeoutMinutes to set
    */
   public void setObjectTimeoutMinutes( int objectTimeoutMinutes ) {
     this.objectTimeoutMinutes = objectTimeoutMinutes;
@@ -458,8 +452,7 @@ public class SlaveServerConfig {
   }
 
   /**
-   * @param filename
-   *          the filename to set
+   * @param filename the filename to set
    */
   public void setFilename( String filename ) {
     this.filename = filename;
@@ -473,8 +466,7 @@ public class SlaveServerConfig {
   }
 
   /**
-   * @param databases
-   *          the databases to set
+   * @param databases the databases to set
    */
   public void setDatabases( List<DatabaseMeta> databases ) {
     this.databases = databases;
@@ -488,8 +480,7 @@ public class SlaveServerConfig {
   }
 
   /**
-   * @param slaveSequences
-   *          the slaveSequences to set
+   * @param slaveSequences the slaveSequences to set
    */
   public void setSlaveSequences( List<SlaveSequence> slaveSequences ) {
     this.slaveSequences = slaveSequences;
@@ -503,8 +494,7 @@ public class SlaveServerConfig {
   }
 
   /**
-   * @param autoSequence
-   *          the autoSequence to set
+   * @param autoSequence the autoSequence to set
    */
   public void setAutoSequence( SlaveSequence autoSequence ) {
     this.autoSequence = autoSequence;
@@ -518,8 +508,7 @@ public class SlaveServerConfig {
   }
 
   /**
-   * @param automaticCreationAllowed
-   *          the automaticCreationAllowed to set
+   * @param automaticCreationAllowed the automaticCreationAllowed to set
    */
   public void setAutomaticCreationAllowed( boolean automaticCreationAllowed ) {
     this.automaticCreationAllowed = automaticCreationAllowed;

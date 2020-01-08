@@ -17,6 +17,9 @@
 
 package org.apache.hop.metastore.stores.memory;
 
+import org.apache.hop.metastore.api.IMetaStoreAttribute;
+import org.apache.hop.metastore.util.MetaStoreUtil;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -26,9 +29,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
-
-import org.apache.hop.metastore.api.IMetaStoreAttribute;
-import org.apache.hop.metastore.util.MetaStoreUtil;
 
 public class MemoryMetaStoreAttribute implements IMetaStoreAttribute {
 
@@ -70,8 +70,7 @@ public class MemoryMetaStoreAttribute implements IMetaStoreAttribute {
   }
 
   /**
-   * @param id
-   *          the id to set
+   * @param id the id to set
    */
   public void setId( String id ) {
     this.id = id;
@@ -85,8 +84,7 @@ public class MemoryMetaStoreAttribute implements IMetaStoreAttribute {
   }
 
   /**
-   * @param value
-   *          the value to set
+   * @param value the value to set
    */
   public void setValue( Object value ) {
     this.value = value;
@@ -106,8 +104,7 @@ public class MemoryMetaStoreAttribute implements IMetaStoreAttribute {
   }
 
   /**
-   * @param children
-   *          the children to set
+   * @param children the children to set
    */
   public void setChildren( final List<IMetaStoreAttribute> childrenList ) {
     MetaStoreUtil.executeLockedOperationQuietly( writeLock, new Callable<Void>() {

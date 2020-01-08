@@ -22,9 +22,6 @@
 
 package org.apache.hop.trans.steps.mappingoutput;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.exception.HopStepException;
@@ -32,6 +29,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -40,7 +38,9 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.mapping.MappingValueRename;
-import org.apache.hop.metastore.api.IMetaStore;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /*
  * Created on 02-jun-2003
@@ -75,7 +75,7 @@ public class MappingOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // It's best that this method doesn't change anything by itself.
     // Eventually it's the Mapping step that's going to tell this step how to behave meta-data wise.
     // It is the mapping step that tells the mapping output step what fields to rename.
@@ -94,7 +94,7 @@ public class MappingOutputMeta extends BaseStepMeta implements StepMetaInterface
     if ( outputValueRenames != null ) {
       for ( MappingValueRename valueRename : outputValueRenames ) {
         int valueMetaRenameIndex = r.indexOfValue( valueRename.getSourceValueName() );
-        if ( valueMetaRenameIndex >= 0  ) {
+        if ( valueMetaRenameIndex >= 0 ) {
           ValueMetaInterface valueMetaRename = r.getValueMeta( valueMetaRenameIndex ).clone();
           valueMetaRename.setName( valueRename.getTargetValueName() );
           // must maintain the same columns order. Noticed when implementing the Mapping step in AEL (BACKLOG-23372)
@@ -106,8 +106,8 @@ public class MappingOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -136,7 +136,7 @@ public class MappingOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new MappingOutput( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -152,8 +152,7 @@ public class MappingOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param inputValueRenames
-   *          the inputValueRenames to set
+   * @param inputValueRenames the inputValueRenames to set
    */
   public void setInputValueRenames( List<MappingValueRename> inputValueRenames ) {
     this.inputValueRenames = inputValueRenames;
@@ -167,8 +166,7 @@ public class MappingOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param outputValueRenames
-   *          the outputValueRenames to set
+   * @param outputValueRenames the outputValueRenames to set
    */
   public void setOutputValueRenames( List<MappingValueRename> outputValueRenames ) {
     this.outputValueRenames = outputValueRenames;

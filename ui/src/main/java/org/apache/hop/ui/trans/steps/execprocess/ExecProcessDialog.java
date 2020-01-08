@@ -22,6 +22,22 @@
 
 package org.apache.hop.ui.trans.steps.execprocess;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.execprocess.ExecProcessMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.LabelTextVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -46,22 +62,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopStepException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.execprocess.ExecProcessMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.LabelTextVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class ExecProcessDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator2!!
@@ -146,7 +146,7 @@ public class ExecProcessDialog extends BaseStepDialog implements StepDialogInter
 
     // The Tab Folders
     wTabFolder = new CTabFolder( shell, SWT.BORDER );
-    props.setLook(  wTabFolder, Props.WIDGET_STYLE_TAB );
+    props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );
 
     // ///////////////////////
     // START OF GENERAL TAB //
@@ -256,11 +256,11 @@ public class ExecProcessDialog extends BaseStepDialog implements StepDialogInter
     fdlArgumentFields.top = new FormAttachment( wFailWhenNotSuccess, margin );
     fdlArgumentFields.right = new FormAttachment( middle, -margin );
     wlArgumentFields.setLayoutData( fdlArgumentFields );
-    ColumnInfo[] colinf = new ColumnInfo[1];
-    colinf[0] = new ColumnInfo(
+    ColumnInfo[] colinf = new ColumnInfo[ 1 ];
+    colinf[ 0 ] = new ColumnInfo(
       BaseMessages.getString( PKG, "ExecProcessDialog.ArgumentField.Label" ),
       ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    colinf[0].setToolTip( BaseMessages.getString( PKG, "ExecProcessDialog.ArgumentField.Tooltip" ) );
+    colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "ExecProcessDialog.ArgumentField.Tooltip" ) );
     wArgumentFields =
       new TableView(
         null, wGeneralComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, 1, lsMod, props );
@@ -421,7 +421,7 @@ public class ExecProcessDialog extends BaseStepDialog implements StepDialogInter
     try {
       r = transMeta.getPrevStepFields( stepname );
       if ( r != null ) {
-        wArgumentFields.getColumns()[0].setComboValues( r.getFieldNames() );
+        wArgumentFields.getColumns()[ 0 ].setComboValues( r.getFieldNames() );
       }
     } catch ( HopStepException ignore ) {
       // Do nothing
@@ -473,7 +473,7 @@ public class ExecProcessDialog extends BaseStepDialog implements StepDialogInter
       wArgumentFields.getTable().setItemCount( nrRows );
       for ( int i = 0; i < input.getArgumentFieldNames().length; i++ ) {
         TableItem item = wArgumentFields.getTable().getItem( i );
-        item.setText( 1, input.getArgumentFieldNames()[i] );
+        item.setText( 1, input.getArgumentFieldNames()[ i ] );
       }
     }
     wArgumentFields.setRowNums();
@@ -505,12 +505,12 @@ public class ExecProcessDialog extends BaseStepDialog implements StepDialogInter
     input.setArgumentsInFields( wArgumentsInFields.getSelection() );
     String[] argumentFields = null;
     if ( wArgumentsInFields.getSelection() ) {
-      argumentFields = new String[wArgumentFields.nrNonEmpty()];
+      argumentFields = new String[ wArgumentFields.nrNonEmpty() ];
     } else {
-      argumentFields = new String[0];
+      argumentFields = new String[ 0 ];
     }
     for ( int i = 0; i < argumentFields.length; i++ ) {
-      argumentFields[i] = wArgumentFields.getNonEmpty( i ).getText( 1 );
+      argumentFields[ i ] = wArgumentFields.getNonEmpty( i ).getText( 1 );
     }
     input.setArgumentFieldNames( argumentFields );
     stepname = wStepname.getText(); // return value
@@ -534,7 +534,7 @@ public class ExecProcessDialog extends BaseStepDialog implements StepDialogInter
       } catch ( HopException ke ) {
         new ErrorDialog(
           shell, BaseMessages.getString( PKG, "ExecProcessDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-            .getString( PKG, "ExecProcessDialog.FailedToGetFields.DialogMessage" ), ke );
+          .getString( PKG, "ExecProcessDialog.FailedToGetFields.DialogMessage" ), ke );
       }
     }
   }

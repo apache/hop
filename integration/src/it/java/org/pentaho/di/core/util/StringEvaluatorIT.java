@@ -22,6 +22,13 @@
 
 package org.apache.hop.core.util;
 
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.PluginTypeInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.core.row.value.ValueMetaPluginType;
+
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -30,14 +37,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import org.junit.*;
-import org.apache.hop.core.plugins.PluginInterface;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.PluginTypeInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.core.row.value.ValueMetaPluginType;
 
 import static org.junit.Assert.*;
 

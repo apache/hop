@@ -22,15 +22,10 @@
 
 package org.apache.hop.trans.steps.xbaseinput;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
@@ -40,11 +35,12 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
@@ -54,8 +50,10 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
+import java.util.Map;
 
 /*
  * Created on 2-jun-2003
@@ -70,25 +68,39 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
   private boolean rowNrAdded;
   private String rowNrField;
 
-  /** Are we accepting filenames in input rows? */
+  /**
+   * Are we accepting filenames in input rows?
+   */
   private boolean acceptingFilenames;
 
-  /** The field in which the filename is placed */
+  /**
+   * The field in which the filename is placed
+   */
   private String acceptingField;
 
-  /** The stepname to accept filenames from */
+  /**
+   * The stepname to accept filenames from
+   */
   private String acceptingStepName;
 
-  /** The step to accept filenames from */
+  /**
+   * The step to accept filenames from
+   */
   private StepMeta acceptingStep;
 
-  /** Flag indicating that we should include the filename in the output */
+  /**
+   * Flag indicating that we should include the filename in the output
+   */
   private boolean includeFilename;
 
-  /** The name of the field in the output containing the filename */
+  /**
+   * The name of the field in the output containing the filename
+   */
   private String filenameField;
 
-  /** The character set / encoding used in the string or memo fields */
+  /**
+   * The character set / encoding used in the string or memo fields
+   */
   private String charactersetName;
 
   public XBaseInputMeta() {
@@ -103,8 +115,7 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param dbfFileName
-   *          The dbfFileName to set.
+   * @param dbfFileName The dbfFileName to set.
    */
   public void setDbfFileName( String dbfFileName ) {
     this.dbfFileName = dbfFileName;
@@ -118,8 +129,7 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param rowLimit
-   *          The rowLimit to set.
+   * @param rowLimit The rowLimit to set.
    */
   public void setRowLimit( int rowLimit ) {
     this.rowLimit = rowLimit;
@@ -133,8 +143,7 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param rowNrField
-   *          The rowNrField to set.
+   * @param rowNrField The rowNrField to set.
    */
   public void setRowNrField( String rowNrField ) {
     this.rowNrField = rowNrField;
@@ -148,8 +157,7 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param rowNrAdded
-   *          The rowNrAdded to set.
+   * @param rowNrAdded The rowNrAdded to set.
    */
   public void setRowNrAdded( boolean rowNrAdded ) {
     this.rowNrAdded = rowNrAdded;
@@ -163,8 +171,7 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param acceptingField
-   *          The acceptingField to set.
+   * @param acceptingField The acceptingField to set.
    */
   public void setAcceptingField( String acceptingField ) {
     this.acceptingField = acceptingField;
@@ -178,8 +185,7 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param acceptingFilenames
-   *          The acceptingFilenames to set.
+   * @param acceptingFilenames The acceptingFilenames to set.
    */
   public void setAcceptingFilenames( boolean acceptingFilenames ) {
     this.acceptingFilenames = acceptingFilenames;
@@ -193,8 +199,7 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param acceptingStep
-   *          The acceptingStep to set.
+   * @param acceptingStep The acceptingStep to set.
    */
   public void setAcceptingStep( StepMeta acceptingStep ) {
     this.acceptingStep = acceptingStep;
@@ -208,8 +213,7 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param acceptingStepName
-   *          The acceptingStepName to set.
+   * @param acceptingStepName The acceptingStepName to set.
    */
   public void setAcceptingStepName( String acceptingStepName ) {
     this.acceptingStepName = acceptingStepName;
@@ -223,8 +227,7 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param filenameField
-   *          The filenameField to set.
+   * @param filenameField The filenameField to set.
    */
   public void setFilenameField( String filenameField ) {
     this.filenameField = filenameField;
@@ -238,8 +241,7 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param includeFilename
-   *          The includeFilename to set.
+   * @param includeFilename The includeFilename to set.
    */
   public void setIncludeFilename( boolean includeFilename ) {
     this.includeFilename = includeFilename;
@@ -346,7 +348,7 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     FileInputList fileList = getTextFileList( space );
     if ( fileList.nrOfFiles() == 0 ) {
@@ -383,8 +385,8 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
 
     CheckResult cr;
 
@@ -443,7 +445,7 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new XBaseInput( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -470,8 +472,7 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param charactersetName
-   *          the charactersetName to set
+   * @param charactersetName the charactersetName to set
    */
   public void setCharactersetName( String charactersetName ) {
     this.charactersetName = charactersetName;
@@ -483,18 +484,15 @@ public class XBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param space
-   *          the variable space to use
+   * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
-   *
+   * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

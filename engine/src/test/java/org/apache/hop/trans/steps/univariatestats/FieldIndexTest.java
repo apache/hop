@@ -22,11 +22,11 @@
 
 package org.apache.hop.trans.steps.univariatestats;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 import java.util.ArrayList;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class FieldIndexTest {
   @Test
@@ -60,7 +60,7 @@ public class FieldIndexTest {
     fieldIndex.calculateDerived();
     assertEquals( fieldIndex.m_sum / fieldIndex.m_count, fieldIndex.m_mean, 0 );
     assertEquals( Math.sqrt( ( fieldIndex.m_sumSq - ( fieldIndex.m_sum * fieldIndex.m_sum ) / fieldIndex.m_count )
-        / ( fieldIndex.m_count - 1 ) ), fieldIndex.m_stdDev, 0 );
+      / ( fieldIndex.m_count - 1 ) ), fieldIndex.m_stdDev, 0 );
   }
 
   @Test
@@ -78,8 +78,8 @@ public class FieldIndexTest {
   public void testGenerateOutputValuesNoCacheNoCalc() {
     FieldIndex fieldIndex = new FieldIndex();
     Object[] outputValues =
-        fieldIndex.generateOutputValues( new UnivariateStatsMetaFunction( null, false, false, false, false, false,
-            false, -1, false ), null );
+      fieldIndex.generateOutputValues( new UnivariateStatsMetaFunction( null, false, false, false, false, false,
+        false, -1, false ), null );
     assertEquals( 0, outputValues.length );
   }
 
@@ -94,16 +94,16 @@ public class FieldIndexTest {
     fieldIndex.m_median = 6;
     fieldIndex.m_arbitraryPercentile = 7;
     Object[] outputValues =
-        fieldIndex.generateOutputValues( new UnivariateStatsMetaFunction( null, true, true, true, true, true, true,
-            .55, false ), null );
+      fieldIndex.generateOutputValues( new UnivariateStatsMetaFunction( null, true, true, true, true, true, true,
+        .55, false ), null );
     int index = 0;
-    assertEquals( ( (Double) outputValues[index++] ).doubleValue(), fieldIndex.m_count, 0 );
-    assertEquals( ( (Double) outputValues[index++] ).doubleValue(), fieldIndex.m_mean, 0 );
-    assertEquals( ( (Double) outputValues[index++] ).doubleValue(), fieldIndex.m_stdDev, 0 );
-    assertEquals( ( (Double) outputValues[index++] ).doubleValue(), fieldIndex.m_min, 0 );
-    assertEquals( ( (Double) outputValues[index++] ).doubleValue(), fieldIndex.m_max, 0 );
-    assertEquals( ( (Double) outputValues[index++] ).doubleValue(), fieldIndex.m_median, 0 );
-    assertEquals( ( (Double) outputValues[index++] ).doubleValue(), fieldIndex.m_arbitraryPercentile, 0 );
+    assertEquals( ( (Double) outputValues[ index++ ] ).doubleValue(), fieldIndex.m_count, 0 );
+    assertEquals( ( (Double) outputValues[ index++ ] ).doubleValue(), fieldIndex.m_mean, 0 );
+    assertEquals( ( (Double) outputValues[ index++ ] ).doubleValue(), fieldIndex.m_stdDev, 0 );
+    assertEquals( ( (Double) outputValues[ index++ ] ).doubleValue(), fieldIndex.m_min, 0 );
+    assertEquals( ( (Double) outputValues[ index++ ] ).doubleValue(), fieldIndex.m_max, 0 );
+    assertEquals( ( (Double) outputValues[ index++ ] ).doubleValue(), fieldIndex.m_median, 0 );
+    assertEquals( ( (Double) outputValues[ index++ ] ).doubleValue(), fieldIndex.m_arbitraryPercentile, 0 );
   }
 
   @Test
@@ -119,10 +119,10 @@ public class FieldIndexTest {
     cache.add( 5 );
 
     Object[] outputValues =
-        fieldIndex.generateOutputValues( new UnivariateStatsMetaFunction( null, false, false, false, false, false,
-            false, 0, true ), cache );
+      fieldIndex.generateOutputValues( new UnivariateStatsMetaFunction( null, false, false, false, false, false,
+        false, 0, true ), cache );
     assertEquals( 1, outputValues.length );
-    assertEquals( fieldIndex.m_min, outputValues[0] );
+    assertEquals( fieldIndex.m_min, outputValues[ 0 ] );
   }
 
   @Test
@@ -138,10 +138,10 @@ public class FieldIndexTest {
     cache.add( 5 );
 
     Object[] outputValues =
-        fieldIndex.generateOutputValues( new UnivariateStatsMetaFunction( null, false, false, false, false, false,
-            false, 1, true ), cache );
+      fieldIndex.generateOutputValues( new UnivariateStatsMetaFunction( null, false, false, false, false, false,
+        false, 1, true ), cache );
     assertEquals( 1, outputValues.length );
-    assertEquals( fieldIndex.m_max, outputValues[0] );
+    assertEquals( fieldIndex.m_max, outputValues[ 0 ] );
   }
 
   @Test
@@ -159,10 +159,10 @@ public class FieldIndexTest {
     cache.add( 7 );
 
     Object[] outputValues =
-        fieldIndex.generateOutputValues( new UnivariateStatsMetaFunction( null, false, false, false, false, false,
-            false, .55, true ), cache );
+      fieldIndex.generateOutputValues( new UnivariateStatsMetaFunction( null, false, false, false, false, false,
+        false, .55, true ), cache );
     assertEquals( 1, outputValues.length );
-    assertEquals( 5.3, ( (Double) outputValues[0] ).doubleValue(), .0005 );
+    assertEquals( 5.3, ( (Double) outputValues[ 0 ] ).doubleValue(), .0005 );
   }
 
   @Test
@@ -178,10 +178,10 @@ public class FieldIndexTest {
     cache.add( 5 );
 
     Object[] outputValues =
-        fieldIndex.generateOutputValues( new UnivariateStatsMetaFunction( null, false, false, false, false, false,
-            false, 0, false ), cache );
+      fieldIndex.generateOutputValues( new UnivariateStatsMetaFunction( null, false, false, false, false, false,
+        false, 0, false ), cache );
     assertEquals( 1, outputValues.length );
-    assertEquals( fieldIndex.m_min, outputValues[0] );
+    assertEquals( fieldIndex.m_min, outputValues[ 0 ] );
   }
 
   @Test
@@ -197,10 +197,10 @@ public class FieldIndexTest {
     cache.add( 5 );
 
     Object[] outputValues =
-        fieldIndex.generateOutputValues( new UnivariateStatsMetaFunction( null, false, false, false, false, false,
-            false, 1, false ), cache );
+      fieldIndex.generateOutputValues( new UnivariateStatsMetaFunction( null, false, false, false, false, false,
+        false, 1, false ), cache );
     assertEquals( 1, outputValues.length );
-    assertEquals( fieldIndex.m_max, outputValues[0] );
+    assertEquals( fieldIndex.m_max, outputValues[ 0 ] );
   }
 
   @Test
@@ -218,10 +218,10 @@ public class FieldIndexTest {
     cache.add( 7 );
 
     Object[] outputValues =
-        fieldIndex.generateOutputValues( new UnivariateStatsMetaFunction( null, false, false, false, false, false,
-            false, .50, false ), cache );
+      fieldIndex.generateOutputValues( new UnivariateStatsMetaFunction( null, false, false, false, false, false,
+        false, .50, false ), cache );
     assertEquals( 1, outputValues.length );
-    assertEquals( 5.0, ( (Double) outputValues[0] ).doubleValue(), .0005 );
+    assertEquals( 5.0, ( (Double) outputValues[ 0 ] ).doubleValue(), .0005 );
   }
 
   @Test
@@ -240,9 +240,9 @@ public class FieldIndexTest {
     cache.add( 8 );
 
     Object[] outputValues =
-        fieldIndex.generateOutputValues( new UnivariateStatsMetaFunction( null, false, false, false, false, false,
-            false, .50, false ), cache );
+      fieldIndex.generateOutputValues( new UnivariateStatsMetaFunction( null, false, false, false, false, false,
+        false, .50, false ), cache );
     assertEquals( 1, outputValues.length );
-    assertEquals( 5.5, ( (Double) outputValues[0] ).doubleValue(), .0005 );
+    assertEquals( 5.5, ( (Double) outputValues[ 0 ] ).doubleValue(), .0005 );
   }
 }

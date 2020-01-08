@@ -22,26 +22,6 @@
 
 package org.apache.hop.blackbox;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Scanner;
-
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
@@ -55,6 +35,26 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.GlobalMessageUtil;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Scanner;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith( Parameterized.class )
 public class BlackBoxIT {
@@ -64,7 +64,7 @@ public class BlackBoxIT {
 
   private static ArrayList<Object> allTests;
 
-  public BlackBoxIT(File transFile, List<File> expectedFiles ) {
+  public BlackBoxIT( File transFile, List<File> expectedFiles ) {
     this.transFile = transFile;
     this.expectedFiles = expectedFiles;
   }
@@ -94,13 +94,13 @@ public class BlackBoxIT {
     assertTrue( dir.isDirectory() );
     processDirectory( dir );
 
-    Object[][] d = new Object[allTests.size()][2];
+    Object[][] d = new Object[ allTests.size() ][ 2 ];
 
     for ( int i = 0; i < allTests.size(); i++ ) {
       Object[] params = (Object[]) allTests.get( i );
 
-      d[i][0] = params[0];
-      d[i][1] = params[1];
+      d[ i ][ 0 ] = params[ 0 ];
+      d[ i ][ 1 ] = params[ 1 ];
     }
 
     return Arrays.asList( d );
@@ -140,10 +140,8 @@ public class BlackBoxIT {
   /**
    * Tries to find an output file to match a transformation or job file
    *
-   * @param dir
-   *          The directory to look in
-   * @param baseName
-   *          Name of the transformation or the job without the extension
+   * @param dir      The directory to look in
+   * @param baseName Name of the transformation or the job without the extension
    * @return list of output files
    */
   protected static List<File> getExpectedOutputFile( File dir, String baseName ) {

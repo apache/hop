@@ -22,13 +22,13 @@
 
 package org.apache.hop.job.entries.missing;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;

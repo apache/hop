@@ -22,6 +22,22 @@
 
 package org.apache.hop.ui.job.entries.sendnagiospassivecheck;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.SocketUtil;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.sendnagiospassivecheck.JobEntrySendNagiosPassiveCheck;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.LabelText;
+import org.apache.hop.ui.core.widget.LabelTextVar;
+import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -44,22 +60,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.util.SocketUtil;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.sendnagiospassivecheck.JobEntrySendNagiosPassiveCheck;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.LabelText;
-import org.apache.hop.ui.core.widget.LabelTextVar;
-import org.apache.hop.ui.core.widget.StyledTextComp;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * This dialog allows you to edit the SendNagiosPassiveCheck job entry settings.
@@ -149,7 +149,7 @@ public class JobEntrySendNagiosPassiveCheckDialog extends JobEntryDialog impleme
   private FormData fdlLevelMode, fdLevelMode;
 
   public JobEntrySendNagiosPassiveCheckDialog( Shell parent, JobEntryInterface jobEntryInt,
-    JobMeta jobMeta ) {
+                                               JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntrySendNagiosPassiveCheck) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {

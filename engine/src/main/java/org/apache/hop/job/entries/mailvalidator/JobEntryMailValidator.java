@@ -22,31 +22,25 @@
 
 package org.apache.hop.job.entries.mailvalidator;
 
-import org.apache.hop.job.entry.validator.AndValidator;
-import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import java.util.List;
-
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-
+import org.apache.hop.job.entry.validator.AndValidator;
+import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.steps.mailvalidator.MailValidation;
 import org.apache.hop.trans.steps.mailvalidator.MailValidationResult;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * Job entry mail validator.
@@ -100,8 +94,7 @@ public class JobEntryMailValidator extends JobEntryBase implements Cloneable, Jo
   }
 
   /**
-   * @param timeout
-   *          The timeout to set.
+   * @param timeout The timeout to set.
    */
   public void setTimeOut( String timeout ) {
     this.timeout = timeout;
@@ -115,8 +108,7 @@ public class JobEntryMailValidator extends JobEntryBase implements Cloneable, Jo
   }
 
   /**
-   * @param defaultSMTP
-   *          The defaultSMTP to set.
+   * @param defaultSMTP The defaultSMTP to set.
    */
   public void setDefaultSMTP( String defaultSMTP ) {
     this.defaultSMTP = defaultSMTP;
@@ -130,8 +122,7 @@ public class JobEntryMailValidator extends JobEntryBase implements Cloneable, Jo
   }
 
   /**
-   * @param emailSender
-   *          The emailSender to set.
+   * @param emailSender The emailSender to set.
    */
   public void seteMailSender( String emailSender ) {
     this.emailSender = emailSender;
@@ -155,10 +146,10 @@ public class JobEntryMailValidator extends JobEntryBase implements Cloneable, Jo
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       smtpCheck = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "smtpCheck" ) );
       timeout = XMLHandler.getTagValue( entrynode, "timeout" );
       defaultSMTP = XMLHandler.getTagValue( entrynode, "defaultSMTP" );
@@ -175,8 +166,7 @@ public class JobEntryMailValidator extends JobEntryBase implements Cloneable, Jo
    * Execute this job entry and return the result. In this case it means, just set the result boolean in the Result
    * class.
    *
-   * @param previousResult
-   *          The result of the previous execution
+   * @param previousResult The result of the previous execution
    * @return The Result of the execution.
    */
   public Result execute( Result previousResult, int nr ) {
@@ -207,7 +197,7 @@ public class JobEntryMailValidator extends JobEntryBase implements Cloneable, Jo
     boolean mailIsValid = false;
     String MailError = null;
     for ( int i = 0; i < mailsCheck.length && !exitloop; i++ ) {
-      String email = mailsCheck[i];
+      String email = mailsCheck[ i ];
       if ( log.isDetailed() ) {
         logDetailed( BaseMessages.getString( PKG, "JobEntryMailValidator.CheckingMail", email ) );
       }
@@ -250,16 +240,16 @@ public class JobEntryMailValidator extends JobEntryBase implements Cloneable, Jo
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
 
     JobEntryValidatorUtils.andValidator().validate( this, "emailAddress", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "emailSender", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator(), JobEntryValidatorUtils.emailValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator(), JobEntryValidatorUtils.emailValidator() ) );
 
     if ( isSMTPCheck() ) {
       JobEntryValidatorUtils.andValidator().validate( this, "defaultSMTP", remarks,
-          AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     }
   }
 }

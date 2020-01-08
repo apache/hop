@@ -22,13 +22,13 @@
 
 package org.apache.hop.trans;
 
-import java.io.IOException;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import java.io.IOException;
 
 public class TransConfiguration {
   public static final String XML_TAG = "transformation_configuration";
@@ -79,8 +79,7 @@ public class TransConfiguration {
   }
 
   /**
-   * @param transExecutionConfiguration
-   *          the transExecutionConfiguration to set
+   * @param transExecutionConfiguration the transExecutionConfiguration to set
    */
   public void setTransExecutionConfiguration( TransExecutionConfiguration transExecutionConfiguration ) {
     this.transExecutionConfiguration = transExecutionConfiguration;
@@ -94,8 +93,7 @@ public class TransConfiguration {
   }
 
   /**
-   * @param transMeta
-   *          the transMeta to set
+   * @param transMeta the transMeta to set
    */
   public void setTransMeta( TransMeta transMeta ) {
     this.transMeta = transMeta;

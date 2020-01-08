@@ -22,12 +22,12 @@
 
 package org.apache.hop.trans.steps.splitfieldtorows;
 
-import java.util.regex.Pattern;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import java.util.regex.Pattern;
 
 public class SplitFieldToRowsData extends BaseStepData implements StepDataInterface {
   public int fieldnr;

@@ -22,14 +22,8 @@
 
 package org.apache.hop.trans.steps.selectvalues;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopConversionException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
@@ -37,6 +31,7 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -45,6 +40,11 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Select, re-order, remove or change the meta-data of the fields in the inputstreams.
@@ -85,8 +85,8 @@ public class SelectValues extends BaseStep implements StepInterface {
       for ( int i = 0; i < data.fieldnrs.length; i++ ) {
         data.fieldnrs[ i ] = rowMeta.indexOfValue( meta.getSelectFields()[ i ].getName() );
         if ( data.fieldnrs[ i ] < 0 ) {
-          logError( BaseMessages.getString( PKG, "SelectValues.Log.CouldNotFindField", meta.getSelectFields()[i]
-              .getName() ) );
+          logError( BaseMessages.getString( PKG, "SelectValues.Log.CouldNotFindField", meta.getSelectFields()[ i ]
+            .getName() ) );
           setErrors( 1 );
           stopAll();
           return null;

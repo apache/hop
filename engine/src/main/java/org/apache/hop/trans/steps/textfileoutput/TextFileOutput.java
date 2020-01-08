@@ -22,24 +22,14 @@
 
 package org.apache.hop.trans.steps.textfileoutput;
 
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.compress.CompressionOutputStream;
-import org.apache.hop.core.compress.zip.ZIPCompressionProvider;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.WriterOutputStream;
+import org.apache.hop.core.compress.CompressionOutputStream;
 import org.apache.hop.core.compress.CompressionProvider;
 import org.apache.hop.core.compress.CompressionProviderFactory;
+import org.apache.hop.core.compress.zip.ZIPCompressionProvider;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopStepException;
@@ -47,6 +37,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.fileinput.CharsetToolkit;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
@@ -57,6 +48,15 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Converts input rows to text and then writes this text to one or more files.
@@ -69,25 +69,25 @@ public class TextFileOutput extends BaseStep implements StepInterface {
   private static Class<?> PKG = TextFileOutputMeta.class; // for i18n purposes, needed by Translator2!!
 
   private static final String FILE_COMPRESSION_TYPE_NONE =
-      TextFileOutputMeta.fileCompressionTypeCodes[TextFileOutputMeta.FILE_COMPRESSION_TYPE_NONE];
+    TextFileOutputMeta.fileCompressionTypeCodes[ TextFileOutputMeta.FILE_COMPRESSION_TYPE_NONE ];
   private static final boolean COMPATIBILITY_APPEND_NO_HEADER = "Y".equals(
-          Const.NVL( System.getProperty( Const.HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER ), "N" ) );
+    Const.NVL( System.getProperty( Const.HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER ), "N" ) );
 
   public TextFileOutputMeta meta;
 
   public TextFileOutputData data;
 
   public TextFileOutput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
+                         Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
   private void initFieldNumbers( RowMetaInterface outputRowMeta, TextFileField[] outputFields ) throws HopException {
-    data.fieldnrs = new int[outputFields.length];
+    data.fieldnrs = new int[ outputFields.length ];
     for ( int i = 0; i < outputFields.length; i++ ) {
-      data.fieldnrs[i] = outputRowMeta.indexOfValue( outputFields[i].getName() );
-      if ( data.fieldnrs[i] < 0 ) {
-        throw new HopStepException( "Field [" + outputFields[i].getName()
+      data.fieldnrs[ i ] = outputRowMeta.indexOfValue( outputFields[ i ].getName() );
+      if ( data.fieldnrs[ i ] < 0 ) {
+        throw new HopStepException( "Field [" + outputFields[ i ].getName()
           + "] couldn't be found in the input stream!" );
       }
     }
@@ -118,14 +118,14 @@ public class TextFileOutput extends BaseStep implements StepInterface {
     return compressionProvider;
   }
 
-  private void initServletStreamWriter(  ) throws HopException {
+  private void initServletStreamWriter() throws HopException {
     data.writer = null;
     try {
       Writer writer = getTrans().getServletPrintWriter();
-      if ( Utils.isEmpty( meta.getEncoding( ) ) ) {
+      if ( Utils.isEmpty( meta.getEncoding() ) ) {
         data.writer = new WriterOutputStream( writer );
       } else {
-        data.writer = new WriterOutputStream( writer, meta.getEncoding( ) );
+        data.writer = new WriterOutputStream( writer, meta.getEncoding() );
       }
     } catch ( Exception e ) {
       throw new HopException( "Error opening new file : " + e.toString() );
@@ -140,7 +140,7 @@ public class TextFileOutput extends BaseStep implements StepInterface {
       try {
         if ( data.splitEvery > 0 ) {
           if ( filename.equals( data.getFileStreamsCollection().getLastFileName() ) ) {
-            fileStreams = data.getFileStreamsCollection().getLastStream( );
+            fileStreams = data.getFileStreamsCollection().getLastStream();
           }
         } else {
           fileStreams = data.getFileStreamsCollection().getStream( filename );
@@ -178,7 +178,7 @@ public class TextFileOutput extends BaseStep implements StepInterface {
             data.getFileStreamsCollection().closeOldestOpenFile( isZipFile );
           }
 
-          if ( createParentDirIfNotExists && ( ( data.getFileStreamsCollection().size( ) == 0 )  || meta.isFileNameInField( ) ) ) {
+          if ( createParentDirIfNotExists && ( ( data.getFileStreamsCollection().size() == 0 ) || meta.isFileNameInField() ) ) {
             createParentFolder( filename );
           }
           if ( log.isDetailed() ) {
@@ -251,7 +251,7 @@ public class TextFileOutput extends BaseStep implements StepInterface {
     String filename = null;
     if ( row == null ) {
       if ( data.writer != null ) {
-        filename = data.getFileStreamsCollection().getLastFileName( );
+        filename = data.getFileStreamsCollection().getLastFileName();
       } else {
         filename = meta.getFileName();
         if ( filename == null ) {
@@ -265,7 +265,7 @@ public class TextFileOutput extends BaseStep implements StepInterface {
         throw new HopStepException( BaseMessages.getString( PKG, "TextFileOutput.Exception.FileNameFieldNotFound", meta.getFileNameField() ) );
       }
       data.fileNameMeta = getInputRowMeta().getValueMeta( data.fileNameFieldIndex );
-      data.fileName = data.fileNameMeta.getString( row[data.fileNameFieldIndex] );
+      data.fileName = data.fileNameMeta.getString( row[ data.fileNameFieldIndex ] );
 
       if ( data.fileName == null ) {
         throw new HopFileException( BaseMessages.getString( PKG, "TextFileOutput.Exception.FileNameNotSet" ) );
@@ -276,7 +276,7 @@ public class TextFileOutput extends BaseStep implements StepInterface {
     return filename;
   }
 
-  public int getFlushInterval(  )  {
+  public int getFlushInterval() {
     String var = getTransMeta().getVariable( "HOP_FILE_OUTPUT_MAX_STREAM_LIFE" );
     int flushInterval = 0;
     if ( var != null ) {
@@ -289,7 +289,7 @@ public class TextFileOutput extends BaseStep implements StepInterface {
     return flushInterval;
   }
 
-  public int getMaxOpenFiles(  )  {
+  public int getMaxOpenFiles() {
     String var = getTransMeta().getVariable( "HOP_FILE_OUTPUT_MAX_STREAM_COUNT" );
     int maxStreamCount = 0;
     if ( var != null ) {
@@ -306,7 +306,7 @@ public class TextFileOutput extends BaseStep implements StepInterface {
   private boolean writeRowToServlet( Object[] row ) throws HopException {
     if ( row != null ) {
       if ( data.writer == null ) {
-        initServletStreamWriter( );
+        initServletStreamWriter();
       }
       first = false;
       writeRow( data.outputRowMeta, row );
@@ -319,7 +319,7 @@ public class TextFileOutput extends BaseStep implements StepInterface {
       return true;
     } else {
       if ( ( data.writer == null ) && !Utils.isEmpty( environmentSubstitute( meta.getEndedLine() ) ) ) {
-        initServletStreamWriter( );
+        initServletStreamWriter();
         initBinaryDataFields();
       }
       writeEndedLine();
@@ -338,7 +338,7 @@ public class TextFileOutput extends BaseStep implements StepInterface {
     boolean isWriteHeader = meta.isHeaderEnabled();
     if ( isWriteHeader ) {
       if ( data.splitEvery > 0 ) {
-        writingToFileForFirstTime |= !filename.equals( data.getFileStreamsCollection().getLastFileName( ) );
+        writingToFileForFirstTime |= !filename.equals( data.getFileStreamsCollection().getLastFileName() );
       } else {
         writingToFileForFirstTime |= data.getFileStreamsCollection().getStream( filename ) == null;
       }
@@ -363,9 +363,9 @@ public class TextFileOutput extends BaseStep implements StepInterface {
 
       // If file has reached max user defined size. Close current file and open a new file.
       if ( !meta.isFileNameInField()
-          && ( getLinesOutput() > 0 )
-          && ( data.splitEvery > 0 )
-          && ( ( getLinesOutput() + meta.getFooterShift() ) % data.splitEvery ) == 0 ) {
+        && ( getLinesOutput() > 0 )
+        && ( data.splitEvery > 0 )
+        && ( ( getLinesOutput() + meta.getFooterShift() ) % data.splitEvery ) == 0 ) {
         // If needed write footer to file before closing it.
         if ( meta.isFooterEnabled() ) {
           writeHeader();
@@ -444,7 +444,7 @@ public class TextFileOutput extends BaseStep implements StepInterface {
 
     Object[] row = getRow(); // This also waits for a row to be finished.
 
-    if ( row != null  && first ) {
+    if ( row != null && first ) {
       data.outputRowMeta = getInputRowMeta().clone();
     }
 
@@ -461,7 +461,7 @@ public class TextFileOutput extends BaseStep implements StepInterface {
   }
 
   protected boolean writeRowTo( Object[] row ) throws HopException {
-    if ( meta.isServletOutput( ) ) {
+    if ( meta.isServletOutput() ) {
       return writeRowToServlet( row );
     } else {
       return writeRowToFile( row );
@@ -479,7 +479,7 @@ public class TextFileOutput extends BaseStep implements StepInterface {
             data.writer.write( data.binarySeparator );
           }
           ValueMetaInterface v = rowMeta.getValueMeta( i );
-          Object valueData = r[i];
+          Object valueData = r[ i ];
 
           // no special null value default was specified since no fields are specified at all
           // As such, we pass null
@@ -496,9 +496,9 @@ public class TextFileOutput extends BaseStep implements StepInterface {
             data.writer.write( data.binarySeparator );
           }
 
-          ValueMetaInterface v = rowMeta.getValueMeta( data.fieldnrs[i] );
-          Object valueData = r[data.fieldnrs[i]];
-          writeField( v, valueData, data.binaryNullValue[i] );
+          ValueMetaInterface v = rowMeta.getValueMeta( data.fieldnrs[ i ] );
+          Object valueData = r[ data.fieldnrs[ i ] ];
+          writeField( v, valueData, data.binaryNullValue[ i ] );
         }
         data.writer.write( data.binaryNewline );
       }
@@ -513,7 +513,7 @@ public class TextFileOutput extends BaseStep implements StepInterface {
   private byte[] formatField( ValueMetaInterface v, Object valueData ) throws HopValueException {
     if ( v.isString() ) {
       if ( v.isStorageBinaryString() && v.getTrimType() == ValueMetaInterface.TRIM_TYPE_NONE && v.getLength() < 0
-          && Utils.isEmpty( v.getStringEncoding() ) ) {
+        && Utils.isEmpty( v.getStringEncoding() ) ) {
         return (byte[]) valueData;
       } else {
         String svalue = ( valueData instanceof String ) ? (String) valueData : v.getString( valueData );
@@ -541,7 +541,7 @@ public class TextFileOutput extends BaseStep implements StepInterface {
           return tmp.getBytes( v.getStringEncoding() );
         } catch ( UnsupportedEncodingException e ) {
           throw new HopValueException( "Unable to convert String to Binary with specified string encoding ["
-              + v.getStringEncoding() + "]", e );
+            + v.getStringEncoding() + "]", e );
         }
       }
     } else {
@@ -553,7 +553,7 @@ public class TextFileOutput extends BaseStep implements StepInterface {
           text = string.getBytes( meta.getEncoding() );
         } catch ( UnsupportedEncodingException e ) {
           throw new HopValueException( "Unable to convert String to Binary with specified string encoding ["
-              + v.getStringEncoding() + "]", e );
+            + v.getStringEncoding() + "]", e );
         }
       }
       if ( length > string.length() ) {
@@ -573,15 +573,15 @@ public class TextFileOutput extends BaseStep implements StepInterface {
         } catch ( UnsupportedEncodingException uee ) {
           throw new HopValueException( uee );
         }
-        byte[] bytes = new byte[size];
+        byte[] bytes = new byte[ size ];
         System.arraycopy( text, 0, bytes, 0, text.length );
         if ( filler.length == 1 ) {
-          java.util.Arrays.fill( bytes, text.length, size, filler[0] );
+          java.util.Arrays.fill( bytes, text.length, size, filler[ 0 ] );
         } else {
           int currIndex = text.length;
           for ( int i = 0; i < ( length - string.length() ); i++ ) {
             for ( int j = 0; j < filler.length; j++ ) {
-              bytes[currIndex++] = filler[j];
+              bytes[ currIndex++ ] = filler[ j ];
             }
           }
         }
@@ -634,7 +634,7 @@ public class TextFileOutput extends BaseStep implements StepInterface {
           if ( meta.isEnclosureForced() && !meta.isPadded() ) {
             writeEnclosures = true;
           } else if ( !meta.isEnclosureFixDisabled()
-              && containsSeparatorOrEnclosure( str, data.binarySeparator, data.binaryEnclosure ) ) {
+            && containsSeparatorOrEnclosure( str, data.binarySeparator, data.binaryEnclosure ) ) {
             writeEnclosures = true;
           }
         }
@@ -720,7 +720,7 @@ public class TextFileOutput extends BaseStep implements StepInterface {
       // If we have fields specified: list them in this order!
       if ( meta.getOutputFields() != null && meta.getOutputFields().length > 0 ) {
         for ( int i = 0; i < meta.getOutputFields().length; i++ ) {
-          String fieldName = meta.getOutputFields()[i].getName();
+          String fieldName = meta.getOutputFields()[ i ].getName();
           ValueMetaInterface v = r.searchValueMeta( fieldName );
 
           if ( i > 0 && data.binarySeparator.length > 0 ) {
@@ -728,9 +728,9 @@ public class TextFileOutput extends BaseStep implements StepInterface {
           }
 
           boolean writeEnclosure =
-              ( meta.isEnclosureForced() && data.binaryEnclosure.length > 0 && v != null && v.isString() )
-                  || ( ( !meta.isEnclosureFixDisabled() && containsSeparatorOrEnclosure( fieldName.getBytes(),
-                      data.binarySeparator, data.binaryEnclosure ) ) );
+            ( meta.isEnclosureForced() && data.binaryEnclosure.length > 0 && v != null && v.isString() )
+              || ( ( !meta.isEnclosureFixDisabled() && containsSeparatorOrEnclosure( fieldName.getBytes(),
+              data.binarySeparator, data.binaryEnclosure ) ) );
 
           if ( writeEnclosure ) {
             data.writer.write( data.binaryEnclosure );
@@ -750,9 +750,9 @@ public class TextFileOutput extends BaseStep implements StepInterface {
           ValueMetaInterface v = r.getValueMeta( i );
 
           boolean writeEnclosure =
-              ( meta.isEnclosureForced() && data.binaryEnclosure.length > 0 && v != null && v.isString() )
-                  || ( ( !meta.isEnclosureFixDisabled() && containsSeparatorOrEnclosure( v.getName().getBytes(),
-                      data.binarySeparator, data.binaryEnclosure ) ) );
+            ( meta.isEnclosureForced() && data.binaryEnclosure.length > 0 && v != null && v.isString() )
+              || ( ( !meta.isEnclosureFixDisabled() && containsSeparatorOrEnclosure( v.getName().getBytes(),
+              data.binarySeparator, data.binaryEnclosure ) ) );
 
           if ( writeEnclosure ) {
             data.writer.write( data.binaryEnclosure );
@@ -776,7 +776,7 @@ public class TextFileOutput extends BaseStep implements StepInterface {
   }
 
   public String buildFilename( String filename, boolean ziparchive ) {
-    return meta.buildFilename( filename, meta.getExtension(), this, getCopy(), getPartitionID(), data.splitnr,  ziparchive, meta );
+    return meta.buildFilename( filename, meta.getExtension(), this, getCopy(), getPartitionID(), data.splitnr, ziparchive, meta );
   }
 
   protected boolean closeFile( String filename ) {
@@ -830,8 +830,8 @@ public class TextFileOutput extends BaseStep implements StepInterface {
           initOutput();
         } catch ( Exception e ) {
           logError( "Couldn't open file "
-              + HopVFS.getFriendlyURI( getParentVariableSpace().environmentSubstitute( meta.getFileName() ) )
-              + "." + getParentVariableSpace().environmentSubstitute( meta.getExtension() ), e );
+            + HopVFS.getFriendlyURI( getParentVariableSpace().environmentSubstitute( meta.getFileName() ) )
+            + "." + getParentVariableSpace().environmentSubstitute( meta.getExtension() ), e );
           setErrors( 1L );
           stopAll();
         }
@@ -852,9 +852,9 @@ public class TextFileOutput extends BaseStep implements StepInterface {
   }
 
   protected void initOutput() throws HopException {
-    if ( meta.isServletOutput( ) ) {
-      initServletStreamWriter( );
-    } else  {
+    if ( meta.isServletOutput() ) {
+      initServletStreamWriter();
+    } else {
       String filename = getOutputFileName( null );
       initFileStreamWriter( filename );
     }
@@ -889,15 +889,15 @@ public class TextFileOutput extends BaseStep implements StepInterface {
         }
       }
 
-      data.binaryNullValue = new byte[meta.getOutputFields().length][];
+      data.binaryNullValue = new byte[ meta.getOutputFields().length ][];
       for ( int i = 0; i < meta.getOutputFields().length; i++ ) {
-        data.binaryNullValue[i] = null;
-        String nullString = meta.getOutputFields()[i].getNullString();
+        data.binaryNullValue[ i ] = null;
+        String nullString = meta.getOutputFields()[ i ].getNullString();
         if ( !Utils.isEmpty( nullString ) ) {
           if ( data.hasEncoding ) {
-            data.binaryNullValue[i] = nullString.getBytes( meta.getEncoding() );
+            data.binaryNullValue[ i ] = nullString.getBytes( meta.getEncoding() );
           } else {
-            data.binaryNullValue[i] = nullString.getBytes();
+            data.binaryNullValue[ i ] = nullString.getBytes();
           }
         }
       }
@@ -941,14 +941,14 @@ public class TextFileOutput extends BaseStep implements StepInterface {
 
       // Search for the first occurrence of the separator or enclosure
       for ( int index = 0; !result && index < source.length; index++ ) {
-        if ( enclosureExists && source[index] == enclosure[0] ) {
+        if ( enclosureExists && source[ index ] == enclosure[ 0 ] ) {
 
           // Potential match found, make sure there are enough bytes to support a full match
           if ( index + enclosure.length <= source.length ) {
             // First byte of enclosure found
             result = true; // Assume match
             for ( int i = 1; i < enclosure.length; i++ ) {
-              if ( source[index + i] != enclosure[i] ) {
+              if ( source[ index + i ] != enclosure[ i ] ) {
                 // Enclosure match is proven false
                 result = false;
                 break;
@@ -956,14 +956,14 @@ public class TextFileOutput extends BaseStep implements StepInterface {
             }
           }
 
-        } else if ( separatorExists && source[index] == separator[0] ) {
+        } else if ( separatorExists && source[ index ] == separator[ 0 ] ) {
 
           // Potential match found, make sure there are enough bytes to support a full match
           if ( index + separator.length <= source.length ) {
             // First byte of separator found
             result = true; // Assume match
             for ( int i = 1; i < separator.length; i++ ) {
-              if ( source[index + i] != separator[i] ) {
+              if ( source[ index + i ] != separator[ i ] ) {
                 // Separator match is proven false
                 result = false;
                 break;
@@ -988,22 +988,22 @@ public class TextFileOutput extends BaseStep implements StepInterface {
       if ( parentfolder.exists() ) {
         if ( isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "TextFileOutput.Log.ParentFolderExist",
-              HopVFS.getFriendlyURI( parentfolder ) ) );
+            HopVFS.getFriendlyURI( parentfolder ) ) );
         }
       } else {
         if ( isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "TextFileOutput.Log.ParentFolderNotExist",
-              HopVFS.getFriendlyURI( parentfolder ) ) );
+            HopVFS.getFriendlyURI( parentfolder ) ) );
         }
         if ( meta.isCreateParentFolder() ) {
           parentfolder.createFolder();
           if ( isDetailed() ) {
             logDetailed( BaseMessages.getString( PKG, "TextFileOutput.Log.ParentFolderCreated",
-                HopVFS.getFriendlyURI( parentfolder ) ) );
+              HopVFS.getFriendlyURI( parentfolder ) ) );
           }
         } else {
           throw new HopException( BaseMessages.getString( PKG, "TextFileOutput.Log.ParentFolderNotExistCreateIt",
-              HopVFS.getFriendlyURI( parentfolder ), HopVFS.getFriendlyURI( filename ) ) );
+            HopVFS.getFriendlyURI( parentfolder ), HopVFS.getFriendlyURI( filename ) ) );
         }
       }
     } finally {

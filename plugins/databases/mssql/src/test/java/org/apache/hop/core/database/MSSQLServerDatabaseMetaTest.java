@@ -22,19 +22,21 @@
 
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-
-import java.sql.ResultSet;
-
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.DatabasePluginType;
-import org.apache.hop.core.row.value.*;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaBigNumber;
+import org.apache.hop.core.row.value.ValueMetaBinary;
+import org.apache.hop.core.row.value.ValueMetaBoolean;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaInternetAddress;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -43,7 +45,14 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.apache.hop.core.row.RowMetaInterface;
+
+import java.sql.ResultSet;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 public class MSSQLServerDatabaseMetaTest {
   MSSQLServerDatabaseMeta nativeMeta, odbcMeta;
@@ -75,7 +84,7 @@ public class MSSQLServerDatabaseMetaTest {
   public void testSettings() throws Exception {
     assertFalse( nativeMeta.supportsCatalogs() );
     assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
-        nativeMeta.getAccessTypeList() );
+      nativeMeta.getAccessTypeList() );
     assertEquals( 1433, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertEquals( "net.sourceforge.jtds.jdbc.Driver", nativeMeta.getDriverClass() );
@@ -153,30 +162,30 @@ public class MSSQLServerDatabaseMetaTest {
     assertEquals( "SELECT TOP 1 * FROM FOO", nativeMeta.getSQLQueryFields( "FOO" ) );
     String lineSep = System.getProperty( "line.separator" );
     assertEquals( "SELECT top 0 * FROM FOO WITH (UPDLOCK, HOLDLOCK);"
-      + lineSep + "SELECT top 0 * FROM BAR WITH (UPDLOCK, HOLDLOCK);" + lineSep,
-      nativeMeta.getSQLLockTables(  new String[] { "FOO", "BAR" } ) );
+        + lineSep + "SELECT top 0 * FROM BAR WITH (UPDLOCK, HOLDLOCK);" + lineSep,
+      nativeMeta.getSQLLockTables( new String[] { "FOO", "BAR" } ) );
 
     assertEquals( "ALTER TABLE FOO ADD BAR DATETIME",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaDate( "BAR" ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaDate( "BAR" ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO ADD BAR DATETIME",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaTimestamp( "BAR" ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaTimestamp( "BAR" ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO DROP COLUMN BAR" + lineSep,
-        nativeMeta.getDropColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", true ) );
+      nativeMeta.getDropColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", true ) );
 
     assertEquals( "ALTER TABLE FOO ALTER COLUMN BAR VARCHAR(15)",
-        nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", true ) );
+      nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", true ) );
 
     assertEquals( "ALTER TABLE FOO ALTER COLUMN BAR VARCHAR(100)",
-        nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR" ), "", false, "", true ) );
+      nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR" ), "", false, "", true ) );
 
     odbcMeta.setSupportsBooleanDataType( true ); // some subclass of the MSSQL meta probably ...
     assertEquals( "ALTER TABLE FOO ADD BAR BIT",
-        odbcMeta.getAddColumnStatement( "FOO", new ValueMetaBoolean( "BAR" ), "", false, "", false ) );
+      odbcMeta.getAddColumnStatement( "FOO", new ValueMetaBoolean( "BAR" ), "", false, "", false ) );
     odbcMeta.setSupportsBooleanDataType( false );
 
     assertEquals( "select o.name from sysobjects o, sysusers u where  xtype in ( 'FN', 'P' ) and o.uid = u.uid order by o.name",
-        nativeMeta.getSQLListOfProcedures( "FOO" ) );
+      nativeMeta.getSQLListOfProcedures( "FOO" ) );
 
     assertEquals( "select name from sys.schemas", nativeMeta.getSQLListOfSchemas() );
     assertEquals( "insert into FOO(FOOVERSION) values (1)", nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
@@ -187,66 +196,66 @@ public class MSSQLServerDatabaseMetaTest {
   }
 
   @Test
-  public void testGetFieldDefinition( ) throws Exception {
+  public void testGetFieldDefinition() throws Exception {
     assertEquals( "CHAR(1)",
-        nativeMeta.getFieldDefinition( new ValueMetaBoolean( "BAR" ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBoolean( "BAR" ), "", "", false, false, false ) );
 
     assertEquals( "BIGINT",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "BAR", 10, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "BAR", 10, 0 ), "", "", false, false, false ) );
 
     assertEquals( "BIGINT",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "BAR", 10, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "BAR", 10, 0 ), "", "", false, false, false ) );
 
     assertEquals( "BIGINT",
-        nativeMeta.getFieldDefinition( new ValueMetaInteger( "BAR", 10, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInteger( "BAR", 10, 0 ), "", "", false, false, false ) );
 
     assertEquals( "INT",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "BAR", 0, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "BAR", 0, 0 ), "", "", false, false, false ) );
 
     assertEquals( "INT",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "BAR", 5, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "BAR", 5, 0 ), "", "", false, false, false ) );
 
     assertEquals( "DECIMAL(10,3)",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "BAR", 10, 3 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "BAR", 10, 3 ), "", "", false, false, false ) );
 
     assertEquals( "DECIMAL(10,3)",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "BAR", 10, 3 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "BAR", 10, 3 ), "", "", false, false, false ) );
 
     assertEquals( "DECIMAL(21,4)",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "BAR", 21, 4 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "BAR", 21, 4 ), "", "", false, false, false ) );
 
     assertEquals( "TEXT",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "BAR", nativeMeta.getMaxVARCHARLength() + 2, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaString( "BAR", nativeMeta.getMaxVARCHARLength() + 2, 0 ), "", "", false, false, false ) );
 
     assertEquals( "VARCHAR(15)",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "BAR", 15, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaString( "BAR", 15, 0 ), "", "", false, false, false ) );
 
     assertEquals( "FLOAT(53)",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "BAR", 10, -7 ), "", "", false, false, false ) ); // Bug here - invalid SQL
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "BAR", 10, -7 ), "", "", false, false, false ) ); // Bug here - invalid SQL
 
     assertEquals( "DECIMAL(22,7)",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "BAR", 22, 7 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "BAR", 22, 7 ), "", "", false, false, false ) );
     assertEquals( "FLOAT(53)",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "BAR", -10, 7 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "BAR", -10, 7 ), "", "", false, false, false ) );
     assertEquals( "DECIMAL(5,7)",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "BAR", 5, 7 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "BAR", 5, 7 ), "", "", false, false, false ) );
     assertEquals( " UNKNOWN",
-        nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "BAR" ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "BAR" ), "", "", false, false, false ) );
 
     assertEquals( "BIGINT PRIMARY KEY IDENTITY(0,1)",
-        nativeMeta.getFieldDefinition( new ValueMetaInteger( "BAR" ), "BAR", "", true, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInteger( "BAR" ), "BAR", "", true, false, false ) );
 
     assertEquals( "BIGINT PRIMARY KEY",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "BAR" ), "BAR", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "BAR" ), "BAR", "", false, false, false ) );
 
     assertEquals( "BIGINT PRIMARY KEY IDENTITY(0,1)",
-        nativeMeta.getFieldDefinition( new ValueMetaInteger( "BAR" ), "", "BAR", true, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInteger( "BAR" ), "", "BAR", true, false, false ) );
     assertEquals( "BIGINT PRIMARY KEY",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "BAR" ), "", "BAR", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "BAR" ), "", "BAR", false, false, false ) );
     assertEquals( "VARBINARY(MAX)",
-        nativeMeta.getFieldDefinition( new ValueMetaBinary( ), "", "BAR", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBinary(), "", "BAR", false, false, false ) );
     assertEquals( "VARBINARY(MAX)",
-        nativeMeta.getFieldDefinition( new ValueMetaBinary( "BAR" ), "", "BAR", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBinary( "BAR" ), "", "BAR", false, false, false ) );
   }
 
   private int rowCnt = 0;
@@ -255,8 +264,10 @@ public class MSSQLServerDatabaseMetaTest {
 
   @Test
   public void testCheckIndexExists() throws Exception {
-    String expectedSQL = "select i.name table_name, c.name column_name from     sysindexes i, sysindexkeys k, syscolumns c where    i.name = 'FOO' AND      i.id = k.id AND      i.id = c.id AND      k.colid = c.colid "; // yes, space at the end like in the dbmeta
-    Database db = Mockito.mock(  Database.class );
+    String expectedSQL =
+      "select i.name table_name, c.name column_name from     sysindexes i, sysindexkeys k, syscolumns c where    i.name = 'FOO' AND      i.id = k.id AND      i.id = c.id AND      k.colid = c.colid "
+      ; // yes, space at the end like in the dbmeta
+    Database db = Mockito.mock( Database.class );
     RowMetaInterface rm = Mockito.mock( RowMetaInterface.class );
     ResultSet rs = Mockito.mock( ResultSet.class );
     DatabaseMeta dm = Mockito.mock( DatabaseMeta.class );
@@ -267,19 +278,19 @@ public class MSSQLServerDatabaseMetaTest {
     Mockito.when( rm.getString( row1, "column_name", "" ) ).thenReturn( "ROW1COL2" );
     Mockito.when( rm.getString( row2, "column_name", "" ) ).thenReturn( "ROW2COL2" );
     Mockito.when( db.getRow( rs ) ).thenAnswer( new Answer<Object[]>() {
-        @Override
-        public Object[] answer( InvocationOnMock invocation ) throws Throwable {
-          rowCnt++;
-          if ( rowCnt == 1 ) {
-            return row1;
-          } else if ( rowCnt == 2 ) {
-            return row2;
-          } else {
-            return null;
-          }
+      @Override
+      public Object[] answer( InvocationOnMock invocation ) throws Throwable {
+        rowCnt++;
+        if ( rowCnt == 1 ) {
+          return row1;
+        } else if ( rowCnt == 2 ) {
+          return row2;
+        } else {
+          return null;
         }
+      }
     } );
-    Mockito.when(  db.getDatabaseMeta() ).thenReturn( dm );
+    Mockito.when( db.getDatabaseMeta() ).thenReturn( dm );
     assertTrue( nativeMeta.checkIndexExists( db, "", "FOO", new String[] { "ROW1COL2", "ROW2COL2" } ) );
     assertFalse( nativeMeta.checkIndexExists( db, "", "FOO", new String[] { "ROW2COL2", "NOTTHERE" } ) );
     assertFalse( nativeMeta.checkIndexExists( db, "", "FOO", new String[] { "NOTTHERE", "ROW1COL2" } ) );
@@ -298,7 +309,7 @@ public class MSSQLServerDatabaseMetaTest {
     DatabaseInterface mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
     mssqlServerDatabaseMeta.setPluginId( null );
     assertFalse(
-            databaseMeta.databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta, mssqlServerDatabaseMeta ) );
+      databaseMeta.databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta, mssqlServerDatabaseMeta ) );
   }
 
   @Test
@@ -326,8 +337,8 @@ public class MSSQLServerDatabaseMetaTest {
     DatabaseInterface mssqlServerNativeDatabaseMetaChild = new MSSQLServerNativeDatabaseMetaChild();
 
     assertTrue(
-            databaseMeta
-                    .databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta, mssqlServerNativeDatabaseMetaChild ) );
+      databaseMeta
+        .databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta, mssqlServerNativeDatabaseMetaChild ) );
   }
 
 }

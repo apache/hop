@@ -22,6 +22,11 @@
 
 package org.apache.hop.core.row;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopValueException;
+import org.w3c.dom.Node;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -29,11 +34,6 @@ import java.math.BigDecimal;
 import java.net.SocketTimeoutException;
 import java.util.Date;
 import java.util.List;
-
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopValueException;
-import org.w3c.dom.Node;
 
 /**
  * This interface provides methods to describe and manipulate a row&#39;s structure. The interface is similar to the
@@ -76,16 +76,14 @@ public interface RowMetaInterface extends Cloneable {
   /**
    * Sets the value meta list.
    *
-   * @param valueMetaList
-   *          the list of valueMeta to set
+   * @param valueMetaList the list of valueMeta to set
    */
   public void setValueMetaList( List<ValueMetaInterface> valueMetaList );
 
   /**
    * Check if a value is already present in this row with the same name.
    *
-   * @param meta
-   *          the value to check for existence
+   * @param meta the value to check for existence
    * @return true if a value with the same name already exists in the row
    */
   public boolean exists( ValueMetaInterface meta );
@@ -93,8 +91,7 @@ public interface RowMetaInterface extends Cloneable {
   /**
    * Add a metadata value, extends the array if needed. If a value with the same name already exists, it gets renamed.
    *
-   * @param meta
-   *          The metadata value to add
+   * @param meta The metadata value to add
    */
   public void addValueMeta( ValueMetaInterface meta );
 
@@ -102,18 +99,15 @@ public interface RowMetaInterface extends Cloneable {
    * Add a metadata value on a certain location in the row. If a value with the same name already exists, it gets
    * renamed. Remember to change the data row according to this.
    *
-   * @param index
-   *          The index where the metadata value needs to be put in the row
-   * @param meta
-   *          The metadata value to add to the row
+   * @param index The index where the metadata value needs to be put in the row
+   * @param meta  The metadata value to add to the row
    */
   public void addValueMeta( int index, ValueMetaInterface meta );
 
   /**
    * Get the value metadata on the specified index.
    *
-   * @param index
-   *          The index to get the value metadata from
+   * @param index The index to get the value metadata from
    * @return The value metadata specified by the index.
    */
   public ValueMetaInterface getValueMeta( int index );
@@ -121,125 +115,97 @@ public interface RowMetaInterface extends Cloneable {
   /**
    * Replaces a value meta entry in the row metadata with another one.
    *
-   * @param index
-   *          The index in the row to replace at
-   * @param valueMeta
-   *          the metadata to replace with
+   * @param index     The index in the row to replace at
+   * @param valueMeta the metadata to replace with
    */
   public void setValueMeta( int index, ValueMetaInterface valueMeta );
 
   /**
    * Get a String value from a row of data. Convert data if this needed.
    *
-   * @param dataRow
-   *          the data row
-   * @param index
-   *          the index
+   * @param dataRow the data row
+   * @param index   the index
    * @return The string found on that position in the row
-   * @throws HopValueException
-   *           in case there was a problem converting the data.
+   * @throws HopValueException in case there was a problem converting the data.
    */
   public String getString( Object[] dataRow, int index ) throws HopValueException;
 
   /**
    * Get an Integer value from a row of data. Convert data if this needed.
    *
-   * @param dataRow
-   *          the data row
-   * @param index
-   *          the index
+   * @param dataRow the data row
+   * @param index   the index
    * @return The integer found on that position in the row
-   * @throws HopValueException
-   *           in case there was a problem converting the data.
+   * @throws HopValueException in case there was a problem converting the data.
    */
   public Long getInteger( Object[] dataRow, int index ) throws HopValueException;
 
   /**
    * Get a Number value from a row of data. Convert data if this needed.
    *
-   * @param dataRow
-   *          the data row
-   * @param index
-   *          the index
+   * @param dataRow the data row
+   * @param index   the index
    * @return The number found on that position in the row
-   * @throws HopValueException
-   *           in case there was a problem converting the data.
+   * @throws HopValueException in case there was a problem converting the data.
    */
   public Double getNumber( Object[] dataRow, int index ) throws HopValueException;
 
   /**
    * Get a Date value from a row of data. Convert data if this needed.
    *
-   * @param dataRow
-   *          the data row
-   * @param index
-   *          the index
+   * @param dataRow the data row
+   * @param index   the index
    * @return The date found on that position in the row
-   * @throws HopValueException
-   *           in case there was a problem converting the data.
+   * @throws HopValueException in case there was a problem converting the data.
    */
   public Date getDate( Object[] dataRow, int index ) throws HopValueException;
 
   /**
    * Get a BigNumber value from a row of data. Convert data if this needed.
    *
-   * @param dataRow
-   *          the data row
-   * @param index
-   *          the index
+   * @param dataRow the data row
+   * @param index   the index
    * @return The bignumber found on that position in the row
-   * @throws HopValueException
-   *           in case there was a problem converting the data.
+   * @throws HopValueException in case there was a problem converting the data.
    */
   public BigDecimal getBigNumber( Object[] dataRow, int index ) throws HopValueException;
 
   /**
    * Get a Boolean value from a row of data. Convert data if this needed.
    *
-   * @param dataRow
-   *          the data row
-   * @param index
-   *          the index
+   * @param dataRow the data row
+   * @param index   the index
    * @return The boolean found on that position in the row
-   * @throws HopValueException
-   *           in case there was a problem converting the data.
+   * @throws HopValueException in case there was a problem converting the data.
    */
   public Boolean getBoolean( Object[] dataRow, int index ) throws HopValueException;
 
   /**
    * Get a Binary value from a row of data. Convert data if this needed.
    *
-   * @param dataRow
-   *          the data row
-   * @param index
-   *          the index
+   * @param dataRow the data row
+   * @param index   the index
    * @return The binary found on that position in the row
-   * @throws HopValueException
-   *           in case there was a problem converting the data.
+   * @throws HopValueException in case there was a problem converting the data.
    */
   public byte[] getBinary( Object[] dataRow, int index ) throws HopValueException;
 
   /**
    * Clone row.
    *
-   * @param objects
-   *          objects to clone
-   * @param cloneTo
-   *          objects to clone to
+   * @param objects objects to clone
+   * @param cloneTo objects to clone to
    * @return a cloned Object[] object.
-   * @throws HopValueException
-   *           in case something is not quite right with the expected data
+   * @throws HopValueException in case something is not quite right with the expected data
    */
   public Object[] cloneRow( Object[] objects, Object[] cloneTo ) throws HopValueException;
 
   /**
    * Clone row.
    *
-   * @param objects
-   *          object to clone
+   * @param objects object to clone
    * @return a cloned objects to clone to
-   * @throws HopValueException
-   *           in case something is not quite right with the expected data
+   * @throws HopValueException in case something is not quite right with the expected data
    */
   public Object[] cloneRow( Object[] objects ) throws HopValueException;
 
@@ -261,13 +227,10 @@ public interface RowMetaInterface extends Cloneable {
    * Determines whether a value in a row is null. A value is null when the object is null. As such, you can just as good
    * write dataRow[index]==null in your code.
    *
-   * @param dataRow
-   *          The row of data
-   * @param index
-   *          the index to reference
+   * @param dataRow The row of data
+   * @param index   the index to reference
    * @return true if the value on the index is null.
-   * @throws HopValueException
-   *           in case there is a conversion error (only thrown in case of lazy conversion)
+   * @throws HopValueException in case there is a conversion error (only thrown in case of lazy conversion)
    */
   public boolean isNull( Object[] dataRow, int index ) throws HopValueException;
 
@@ -281,64 +244,49 @@ public interface RowMetaInterface extends Cloneable {
   /**
    * This method copies the row metadata and sets all values to the specified type (usually String)
    *
-   * @param targetType
-   *          The target type
+   * @param targetType The target type
    * @return The cloned metadata
-   * @throws if
-   *           the target type could not be loaded from the plugin registry
+   * @throws if the target type could not be loaded from the plugin registry
    */
   public RowMetaInterface cloneToType( int targetType ) throws HopValueException;
 
   /**
    * Gets the string.
    *
-   * @param dataRow
-   *          the data row
-   * @param valueName
-   *          the value name
-   * @param defaultValue
-   *          the default value
+   * @param dataRow      the data row
+   * @param valueName    the value name
+   * @param defaultValue the default value
    * @return the string
-   * @throws HopValueException
-   *           the kettle value exception
+   * @throws HopValueException the kettle value exception
    */
   public String getString( Object[] dataRow, String valueName, String defaultValue ) throws HopValueException;
 
   /**
    * Gets the integer.
    *
-   * @param dataRow
-   *          the data row
-   * @param valueName
-   *          the value name
-   * @param defaultValue
-   *          the default value
+   * @param dataRow      the data row
+   * @param valueName    the value name
+   * @param defaultValue the default value
    * @return the integer
-   * @throws HopValueException
-   *           the kettle value exception
+   * @throws HopValueException the kettle value exception
    */
   public Long getInteger( Object[] dataRow, String valueName, Long defaultValue ) throws HopValueException;
 
   /**
    * Gets the date.
    *
-   * @param dataRow
-   *          the data row
-   * @param valueName
-   *          the value name
-   * @param defaultValue
-   *          the default value
+   * @param dataRow      the data row
+   * @param valueName    the value name
+   * @param defaultValue the default value
    * @return the date
-   * @throws HopValueException
-   *           the kettle value exception
+   * @throws HopValueException the kettle value exception
    */
   public Date getDate( Object[] dataRow, String valueName, Date defaultValue ) throws HopValueException;
 
   /**
    * Searches for a value with a certain name in the value meta list.
    *
-   * @param valueName
-   *          The value name to search for
+   * @param valueName The value name to search for
    * @return The value metadata or null if nothing was found
    */
   public ValueMetaInterface searchValueMeta( String valueName );
@@ -346,8 +294,7 @@ public interface RowMetaInterface extends Cloneable {
   /**
    * Searches the index of a value meta with a given name.
    *
-   * @param valueName
-   *          the name of the value metadata to look for
+   * @param valueName the name of the value metadata to look for
    * @return the index or -1 in case we didn't find the value
    */
   public int indexOfValue( String valueName );
@@ -355,8 +302,7 @@ public interface RowMetaInterface extends Cloneable {
   /**
    * Add a number of fields from another row (append to the end).
    *
-   * @param rowMeta
-   *          The row of metadata values to add
+   * @param rowMeta The row of metadata values to add
    */
   public void addRowMeta( RowMetaInterface rowMeta );
 
@@ -364,8 +310,7 @@ public interface RowMetaInterface extends Cloneable {
    * Merge the values of row r to this Row. The values that are not yet in the row are added unchanged. The values that
    * are in the row are renamed to name[2], name[3], etc.
    *
-   * @param r
-   *          The row to be merged with this row
+   * @param r The row to be merged with this row
    */
   @Deprecated
   public void mergeRowMeta( RowMetaInterface r );
@@ -374,8 +319,7 @@ public interface RowMetaInterface extends Cloneable {
    * Merge the values of row r to this Row. The values that are not yet in the row are added unchanged. The values that
    * are in the row are renamed to name[2], name[3], etc.
    *
-   * @param r
-   *          The row to be merged with this row
+   * @param r The row to be merged with this row
    */
   public void mergeRowMeta( RowMetaInterface r, String originStepName );
 
@@ -389,10 +333,8 @@ public interface RowMetaInterface extends Cloneable {
   /**
    * Write a serialized version of this class (Row Metadata) to the specified outputStream.
    *
-   * @param outputStream
-   *          the outputstream to write to
-   * @throws HopFileException
-   *           in case a I/O error occurs
+   * @param outputStream the outputstream to write to
+   * @throws HopFileException in case a I/O error occurs
    */
   public void writeMeta( DataOutputStream outputStream ) throws HopFileException;
 
@@ -400,25 +342,19 @@ public interface RowMetaInterface extends Cloneable {
    * Write a serialized version of the supplied data to the outputStream (based on the metadata but not the metadata
    * itself).
    *
-   * @param outputStream
-   *          the outputstream to write to
-   * @param data
-   *          the data to write after the metadata
-   * @throws HopFileException
-   *           in case a I/O error occurs
+   * @param outputStream the outputstream to write to
+   * @param data         the data to write after the metadata
+   * @throws HopFileException in case a I/O error occurs
    */
   public void writeData( DataOutputStream outputStream, Object[] data ) throws HopFileException;
 
   /**
    * De-serialize a row of data (no metadata is read) from an input stream.
    *
-   * @param inputStream
-   *          the inputstream to read from
+   * @param inputStream the inputstream to read from
    * @return a new row of data
-   * @throws HopFileException
-   *           in case a I/O error occurs
-   * @throws SocketTimeoutException
-   *           In case there is a timeout during reading.
+   * @throws HopFileException       in case a I/O error occurs
+   * @throws SocketTimeoutException In case there is a timeout during reading.
    */
   public Object[] readData( DataInputStream inputStream ) throws HopFileException, SocketTimeoutException;
 
@@ -430,29 +366,24 @@ public interface RowMetaInterface extends Cloneable {
   /**
    * Remove a value with a certain name from the row metadata.
    *
-   * @param string
-   *          the name of the value metadata to remove
-   * @throws HopValueException
-   *           in case the value couldn't be found in the row metadata
+   * @param string the name of the value metadata to remove
+   * @throws HopValueException in case the value couldn't be found in the row metadata
    */
   public void removeValueMeta( String string ) throws HopValueException;
 
   /**
    * Remove a value metadata object on a certain index in the row.
    *
-   * @param index
-   *          the index to remove the value metadata from
+   * @param index the index to remove the value metadata from
    */
   public void removeValueMeta( int index );
 
   /**
    * Get the string representation of the data in a row of data.
    *
-   * @param row
-   *          the row of data to convert to string
+   * @param row the row of data to convert to string
    * @return the row of data in string form
-   * @throws HopValueException
-   *           in case of a conversion error
+   * @throws HopValueException in case of a conversion error
    */
   public String getString( Object[] row ) throws HopValueException;
 
@@ -460,8 +391,7 @@ public interface RowMetaInterface extends Cloneable {
    * Get an array of strings showing the name of the values in the row padded to a maximum length, followed by the types
    * of the values.
    *
-   * @param maxlen
-   *          The length to which the name will be padded.
+   * @param maxlen The length to which the name will be padded.
    * @return an array of strings: the names and the types of the fieldnames in the row.
    */
   public String[] getFieldNamesAndTypes( int maxlen );
@@ -470,15 +400,11 @@ public interface RowMetaInterface extends Cloneable {
    * Compare 2 rows with each other using certain values in the rows and also considering the specified ascending
    * clauses of the value metadata.
    *
-   * @param rowData1
-   *          The first row of data
-   * @param rowData2
-   *          The second row of data
-   * @param fieldnrs
-   *          the fields to compare on (in that order)
+   * @param rowData1 The first row of data
+   * @param rowData2 The second row of data
+   * @param fieldnrs the fields to compare on (in that order)
    * @return 0 if the rows are considered equal, -1 is data1 is smaller, 1 if data2 is smaller.
-   * @throws HopValueException
-   *           the kettle value exception
+   * @throws HopValueException the kettle value exception
    */
   public int compare( Object[] rowData1, Object[] rowData2, int[] fieldnrs ) throws HopValueException;
 
@@ -486,15 +412,11 @@ public interface RowMetaInterface extends Cloneable {
    * Compare 2 rows with each other for equality using certain values in the rows and also considering the case
    * sensitivity flag.
    *
-   * @param rowData1
-   *          The first row of data
-   * @param rowData2
-   *          The second row of data
-   * @param fieldnrs
-   *          the fields to compare on (in that order)
+   * @param rowData1 The first row of data
+   * @param rowData2 The second row of data
+   * @param fieldnrs the fields to compare on (in that order)
    * @return true if the rows are considered equal, false if they are not.
-   * @throws HopValueException
-   *           the kettle value exception
+   * @throws HopValueException the kettle value exception
    */
   public boolean equals( Object[] rowData1, Object[] rowData2, int[] fieldnrs ) throws HopValueException;
 
@@ -502,17 +424,12 @@ public interface RowMetaInterface extends Cloneable {
    * Compare 2 rows with each other using certain values in the rows and also considering the specified ascending
    * clauses of the value metadata.
    *
-   * @param rowData1
-   *          The first row of data
-   * @param rowData2
-   *          The second row of data
-   * @param fieldnrs1
-   *          The indexes of the values to compare in the first row
-   * @param fieldnrs2
-   *          The indexes of the values to compare with in the second row
+   * @param rowData1  The first row of data
+   * @param rowData2  The second row of data
+   * @param fieldnrs1 The indexes of the values to compare in the first row
+   * @param fieldnrs2 The indexes of the values to compare with in the second row
    * @return 0 if the rows are considered equal, -1 is data1 is smaller, 1 if data2 is smaller.
-   * @throws HopValueException
-   *           the kettle value exception
+   * @throws HopValueException the kettle value exception
    */
   public int compare( Object[] rowData1, Object[] rowData2, int[] fieldnrs1, int[] fieldnrs2 ) throws HopValueException;
 
@@ -520,34 +437,25 @@ public interface RowMetaInterface extends Cloneable {
    * Compare 2 rows with each other using certain values in the rows and also considering the specified ascending
    * clauses of the value metadata.
    *
-   * @param rowData1
-   *          The first row of data
-   * @param rowMeta2
-   *          the metadat of the second row of data
-   * @param rowData2
-   *          The second row of data
-   * @param fieldnrs1
-   *          The indexes of the values to compare in the first row
-   * @param fieldnrs2
-   *          The indexes of the values to compare with in the second row
+   * @param rowData1  The first row of data
+   * @param rowMeta2  the metadat of the second row of data
+   * @param rowData2  The second row of data
+   * @param fieldnrs1 The indexes of the values to compare in the first row
+   * @param fieldnrs2 The indexes of the values to compare with in the second row
    * @return 0 if the rows are considered equal, -1 is data1 is smaller, 1 if data2 is smaller.
-   * @throws HopValueException
-   *           the kettle value exception
+   * @throws HopValueException the kettle value exception
    */
   public int compare( Object[] rowData1, RowMetaInterface rowMeta2, Object[] rowData2, int[] fieldnrs1,
-    int[] fieldnrs2 ) throws HopValueException;
+                      int[] fieldnrs2 ) throws HopValueException;
 
   /**
    * Compare 2 rows with each other using all values in the rows and also considering the specified ascending clauses of
    * the value metadata.
    *
-   * @param rowData1
-   *          The first row of data
-   * @param rowData2
-   *          The second row of data
+   * @param rowData1 The first row of data
+   * @param rowData2 The second row of data
    * @return 0 if the rows are considered equal, -1 is data1 is smaller, 1 if data2 is smaller.
-   * @throws HopValueException
-   *           the kettle value exception
+   * @throws HopValueException the kettle value exception
    */
   public int compare( Object[] rowData1, Object[] rowData2 ) throws HopValueException;
 
@@ -556,11 +464,9 @@ public interface RowMetaInterface extends Cloneable {
    * the individual hashCodes which can result in a lot of collisions for similar types of data (e.g. [A,B] == [B,A] and
    * is not suitable for normal use. It is kept to provide backward compatibility with CombinationLookup.lookupValues()
    *
-   * @param rowData
-   *          The data to calculate a hashCode with
+   * @param rowData The data to calculate a hashCode with
    * @return the calculated hashCode
-   * @throws HopValueException
-   *           in case there is a data conversion error
+   * @throws HopValueException in case there is a data conversion error
    * @deprecated
    */
   @Deprecated
@@ -574,11 +480,9 @@ public interface RowMetaInterface extends Cloneable {
    * value (as Date yyyy-MM-dd), the hashCodes will be different resulting in the two rows not being considered equal
    * via the hashCode even though compare() or equals() might consider them to be.
    *
-   * @param rowData
-   *          The data to calculate a hashCode with
+   * @param rowData The data to calculate a hashCode with
    * @return the calculated hashCode
-   * @throws HopValueException
-   *           in case there is a data conversion error
+   * @throws HopValueException in case there is a data conversion error
    */
   public int hashCode( Object[] rowData ) throws HopValueException;
 
@@ -588,11 +492,9 @@ public interface RowMetaInterface extends Cloneable {
    * ValueMeta converting them into the same value (e.g. ['2008-01-01:12:30'] and ['2008-01-01:00:00'] as Date
    * yyyy-MM-dd)
    *
-   * @param rowData
-   *          The data to calculate a hashCode with
+   * @param rowData The data to calculate a hashCode with
    * @return the calculated hashCode
-   * @throws HopValueException
-   *           in case there is a data conversion error
+   * @throws HopValueException in case there is a data conversion error
    */
   public int convertedValuesHashCode( Object[] rowData ) throws HopValueException;
 
@@ -607,30 +509,25 @@ public interface RowMetaInterface extends Cloneable {
    * Gets the meta xml.
    *
    * @return an XML representation of the row metadata
-   * @throws IOException
-   *           Thrown in case there is an (Base64/GZip) encoding problem
+   * @throws IOException Thrown in case there is an (Base64/GZip) encoding problem
    */
   public String getMetaXML() throws IOException;
 
   /**
    * Gets the data xml.
    *
-   * @param rowData
-   *          the row of data to serialize as XML
+   * @param rowData the row of data to serialize as XML
    * @return an XML representation of the row data
-   * @throws IOException
-   *           Thrown in case there is an (Base64/GZip) encoding problem
+   * @throws IOException Thrown in case there is an (Base64/GZip) encoding problem
    */
   public String getDataXML( Object[] rowData ) throws IOException;
 
   /**
    * Convert an XML node into binary data using the row metadata supplied.
    *
-   * @param node
-   *          The data row node
+   * @param node The data row node
    * @return a row of data de-serialized from XML
-   * @throws HopException
-   *           Thrown in case there is an (Base64/GZip) decoding problem
+   * @throws HopException Thrown in case there is an (Base64/GZip) decoding problem
    */
   public Object[] getRow( Node node ) throws HopException;
 

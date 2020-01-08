@@ -22,22 +22,18 @@
 
 package org.apache.hop.trans.steps.fieldschangesequence;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -45,8 +41,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*
  * Created on 30-06-2008
@@ -56,7 +53,9 @@ import org.w3c.dom.Node;
 public class FieldsChangeSequenceMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = FieldsChangeSequenceMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** by which fields to display? */
+  /**
+   * by which fields to display?
+   */
   private String[] fieldName;
 
   private String resultfieldName;
@@ -81,8 +80,7 @@ public class FieldsChangeSequenceMeta extends BaseStepMeta implements StepMetaIn
   }
 
   /**
-   * @param resultfieldName
-   *          The resultfieldName to set.
+   * @param resultfieldName The resultfieldName to set.
    */
   public void setResultFieldName( String resultfieldName ) {
     this.resultfieldName = resultfieldName;
@@ -106,7 +104,7 @@ public class FieldsChangeSequenceMeta extends BaseStepMeta implements StepMetaIn
   }
 
   public void allocate( int nrfields ) {
-    fieldName = new String[nrfields];
+    fieldName = new String[ nrfields ];
   }
 
   /**
@@ -117,8 +115,7 @@ public class FieldsChangeSequenceMeta extends BaseStepMeta implements StepMetaIn
   }
 
   /**
-   * @param fieldName
-   *          The fieldName to set.
+   * @param fieldName The fieldName to set.
    */
   public void setFieldName( String[] fieldName ) {
     this.fieldName = fieldName;
@@ -149,7 +146,7 @@ public class FieldsChangeSequenceMeta extends BaseStepMeta implements StepMetaIn
 
       for ( int i = 0; i < nrfields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        fieldName[i] = XMLHandler.getTagValue( fnode, "name" );
+        fieldName[ i ] = XMLHandler.getTagValue( fnode, "name" );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( "Unable to load step info from XML", e );
@@ -166,7 +163,7 @@ public class FieldsChangeSequenceMeta extends BaseStepMeta implements StepMetaIn
     retval.append( "    <fields>" + Const.CR );
     for ( int i = 0; i < fieldName.length; i++ ) {
       retval.append( "      <field>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", fieldName[i] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "name", fieldName[ i ] ) );
       retval.append( "        </field>" + Const.CR );
     }
     retval.append( "      </fields>" + Const.CR );
@@ -184,13 +181,13 @@ public class FieldsChangeSequenceMeta extends BaseStepMeta implements StepMetaIn
     allocate( nrfields );
 
     for ( int i = 0; i < nrfields; i++ ) {
-      fieldName[i] = "field" + i;
+      fieldName[ i ] = "field" + i;
     }
   }
 
   @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) {
+                         VariableSpace space, IMetaStore metaStore ) {
     if ( !Utils.isEmpty( resultfieldName ) ) {
       ValueMetaInterface v = new ValueMetaInteger( resultfieldName );
       v.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
@@ -201,8 +198,8 @@ public class FieldsChangeSequenceMeta extends BaseStepMeta implements StepMetaIn
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -231,9 +228,9 @@ public class FieldsChangeSequenceMeta extends BaseStepMeta implements StepMetaIn
 
       // Starting from selected fields in ...
       for ( int i = 0; i < fieldName.length; i++ ) {
-        int idx = prev.indexOfValue( fieldName[i] );
+        int idx = prev.indexOfValue( fieldName[ i ] );
         if ( idx < 0 ) {
-          error_message += "\t\t" + fieldName[i] + Const.CR;
+          error_message += "\t\t" + fieldName[ i ] + Const.CR;
           error_found = true;
         }
       }
@@ -275,7 +272,7 @@ public class FieldsChangeSequenceMeta extends BaseStepMeta implements StepMetaIn
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new FieldsChangeSequence( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

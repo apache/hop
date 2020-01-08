@@ -22,29 +22,25 @@
 
 package org.apache.hop.job.entries.simpleeval;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * This defines a 'simple evaluation' job entry.
@@ -183,37 +179,37 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
 
   private static String getValueTypeCode( int i ) {
     if ( i < 0 || i >= valueTypeCode.length ) {
-      return valueTypeCode[0];
+      return valueTypeCode[ 0 ];
     }
-    return valueTypeCode[i];
+    return valueTypeCode[ i ];
   }
 
   private static String getFieldTypeCode( int i ) {
     if ( i < 0 || i >= fieldTypeCode.length ) {
-      return fieldTypeCode[0];
+      return fieldTypeCode[ 0 ];
     }
-    return fieldTypeCode[i];
+    return fieldTypeCode[ i ];
   }
 
   private static String getSuccessConditionCode( int i ) {
     if ( i < 0 || i >= successConditionCode.length ) {
-      return successConditionCode[0];
+      return successConditionCode[ 0 ];
     }
-    return successConditionCode[i];
+    return successConditionCode[ i ];
   }
 
   public static String getSuccessNumberConditionCode( int i ) {
     if ( i < 0 || i >= successNumberConditionCode.length ) {
-      return successNumberConditionCode[0];
+      return successNumberConditionCode[ 0 ];
     }
-    return successNumberConditionCode[i];
+    return successNumberConditionCode[ i ];
   }
 
   private static String getSuccessBooleanConditionCode( int i ) {
     if ( i < 0 || i >= successBooleanConditionCode.length ) {
-      return successBooleanConditionCode[0];
+      return successBooleanConditionCode[ 0 ];
     }
-    return successBooleanConditionCode[i];
+    return successBooleanConditionCode[ i ];
   }
 
   @Override
@@ -233,8 +229,8 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
       XMLHandler.addTagValue( "successcondition", getSuccessConditionCode( successcondition ) ) );
     retval
       .append( "      " ).append(
-        XMLHandler.addTagValue(
-          "successnumbercondition", getSuccessNumberConditionCode( successnumbercondition ) ) );
+      XMLHandler.addTagValue(
+        "successnumbercondition", getSuccessNumberConditionCode( successnumbercondition ) ) );
     retval.append( "      " ).append(
       XMLHandler.addTagValue(
         "successbooleancondition", getSuccessBooleanConditionCode( successbooleancondition ) ) );
@@ -248,7 +244,7 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
     }
 
     for ( int i = 0; i < valueTypeCode.length; i++ ) {
-      if ( valueTypeCode[i].equalsIgnoreCase( tt ) ) {
+      if ( valueTypeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -261,7 +257,7 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
     }
 
     for ( int i = 0; i < successNumberConditionCode.length; i++ ) {
-      if ( successNumberConditionCode[i].equalsIgnoreCase( tt ) ) {
+      if ( successNumberConditionCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -274,7 +270,7 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
     }
 
     for ( int i = 0; i < successBooleanConditionCode.length; i++ ) {
-      if ( successBooleanConditionCode[i].equalsIgnoreCase( tt ) ) {
+      if ( successBooleanConditionCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -287,7 +283,7 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
     }
 
     for ( int i = 0; i < fieldTypeCode.length; i++ ) {
-      if ( fieldTypeCode[i].equalsIgnoreCase( tt ) ) {
+      if ( fieldTypeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -300,7 +296,7 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
     }
 
     for ( int i = 0; i < successConditionCode.length; i++ ) {
-      if ( successConditionCode[i].equalsIgnoreCase( tt ) ) {
+      if ( successConditionCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -321,7 +317,7 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
     }
 
     for ( int i = 0; i < successNumberConditionCode.length; i++ ) {
-      if ( successNumberConditionCode[i].equalsIgnoreCase( tt ) ) {
+      if ( successNumberConditionCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -334,7 +330,7 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
     }
 
     for ( int i = 0; i < successBooleanConditionCode.length; i++ ) {
-      if ( successBooleanConditionCode[i].equalsIgnoreCase( tt ) ) {
+      if ( successBooleanConditionCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -342,10 +338,10 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
   }
 
   @Override
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
 
       valuetype = getValueTypeByCode( Const.NVL( XMLHandler.getTagValue( entrynode, "valuetype" ), "" ) );
       fieldname = XMLHandler.getTagValue( entrynode, "fieldname" );
@@ -541,7 +537,7 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
             realCompareValue = Const.NVL( realCompareValue, "" );
             String[] parts = realCompareValue.split( "," );
             for ( int i = 0; i < parts.length && !success; i++ ) {
-              success = ( sourcevalue.equals( parts[i].trim() ) );
+              success = ( sourcevalue.equals( parts[ i ].trim() ) );
             }
             break;
           case SUCCESS_CONDITION_NOT_IN_LIST: // not in list
@@ -553,7 +549,7 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
             parts = realCompareValue.split( "," );
             success = true;
             for ( int i = 0; i < parts.length && success; i++ ) {
-              success = !( sourcevalue.equals( parts[i].trim() ) );
+              success = !( sourcevalue.equals( parts[ i ].trim() ) );
             }
             break;
           default:
@@ -690,10 +686,10 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
 
             for ( int i = 0; i < parts.length && !success; i++ ) {
               try {
-                valuecompare = Double.parseDouble( parts[i] );
+                valuecompare = Double.parseDouble( parts[ i ] );
               } catch ( Exception e ) {
                 logError( toString(), BaseMessages.getString(
-                  PKG, "JobEntrySimpleEval.Error.UnparsableNumber", parts[i], e.getMessage() ) );
+                  PKG, "JobEntrySimpleEval.Error.UnparsableNumber", parts[ i ], e.getMessage() ) );
                 return result;
               }
               success = ( valuenumber == valuecompare );
@@ -709,10 +705,10 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
             success = true;
             for ( int i = 0; i < parts.length && success; i++ ) {
               try {
-                valuecompare = Double.parseDouble( parts[i] );
+                valuecompare = Double.parseDouble( parts[ i ] );
               } catch ( Exception e ) {
                 logError( toString(), BaseMessages.getString(
-                  PKG, "JobEntrySimpleEval.Error.UnparsableNumber", parts[i], e.getMessage() ) );
+                  PKG, "JobEntrySimpleEval.Error.UnparsableNumber", parts[ i ], e.getMessage() ) );
                 return result;
               }
 
@@ -847,8 +843,8 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
 
             success =
               ( ( datevalue.after( datemin )
-              || datevalue.equals( datemin ) ) && ( datevalue.before( datemax )
-              || datevalue.equals( datemax ) ) );
+                || datevalue.equals( datemin ) ) && ( datevalue.before( datemax )
+                || datevalue.equals( datemax ) ) );
             break;
           case SUCCESS_NUMBER_CONDITION_IN_LIST: // in list
             if ( isDebug() ) {
@@ -929,7 +925,7 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
     if ( ( !variable.contains( StringUtil.UNIX_OPEN ) && !variable.contains( StringUtil.WINDOWS_OPEN ) && !variable
       .contains( StringUtil.HEX_OPEN ) )
       && ( ( !variable.contains( StringUtil.UNIX_CLOSE ) && !variable.contains( StringUtil.WINDOWS_CLOSE ) && !variable
-        .contains( StringUtil.HEX_CLOSE ) ) ) ) {
+      .contains( StringUtil.HEX_CLOSE ) ) ) ) {
       // Add specifications to variable
       variable = StringUtil.UNIX_OPEN + variable + StringUtil.UNIX_CLOSE;
       if ( isDetailed() ) {
@@ -952,37 +948,37 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
 
   public static String getValueTypeDesc( int i ) {
     if ( i < 0 || i >= valueTypeDesc.length ) {
-      return valueTypeDesc[0];
+      return valueTypeDesc[ 0 ];
     }
-    return valueTypeDesc[i];
+    return valueTypeDesc[ i ];
   }
 
   public static String getFieldTypeDesc( int i ) {
     if ( i < 0 || i >= fieldTypeDesc.length ) {
-      return fieldTypeDesc[0];
+      return fieldTypeDesc[ 0 ];
     }
-    return fieldTypeDesc[i];
+    return fieldTypeDesc[ i ];
   }
 
   public static String getSuccessConditionDesc( int i ) {
     if ( i < 0 || i >= successConditionDesc.length ) {
-      return successConditionDesc[0];
+      return successConditionDesc[ 0 ];
     }
-    return successConditionDesc[i];
+    return successConditionDesc[ i ];
   }
 
   public static String getSuccessNumberConditionDesc( int i ) {
     if ( i < 0 || i >= successNumberConditionDesc.length ) {
-      return successNumberConditionDesc[0];
+      return successNumberConditionDesc[ 0 ];
     }
-    return successNumberConditionDesc[i];
+    return successNumberConditionDesc[ i ];
   }
 
   public static String getSuccessBooleanConditionDesc( int i ) {
     if ( i < 0 || i >= successBooleanConditionDesc.length ) {
-      return successBooleanConditionDesc[0];
+      return successBooleanConditionDesc[ 0 ];
     }
-    return successBooleanConditionDesc[i];
+    return successBooleanConditionDesc[ i ];
   }
 
   public static int getValueTypeByDesc( String tt ) {
@@ -991,7 +987,7 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
     }
 
     for ( int i = 0; i < valueTypeDesc.length; i++ ) {
-      if ( valueTypeDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( valueTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1006,7 +1002,7 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
     }
 
     for ( int i = 0; i < fieldTypeDesc.length; i++ ) {
-      if ( fieldTypeDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( fieldTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1021,7 +1017,7 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
     }
 
     for ( int i = 0; i < successConditionDesc.length; i++ ) {
-      if ( successConditionDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( successConditionDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1036,7 +1032,7 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
     }
 
     for ( int i = 0; i < successNumberConditionDesc.length; i++ ) {
-      if ( successNumberConditionDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( successNumberConditionDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1051,7 +1047,7 @@ public class JobEntrySimpleEval extends JobEntryBase implements Cloneable, JobEn
     }
 
     for ( int i = 0; i < successBooleanConditionDesc.length; i++ ) {
-      if ( successBooleanConditionDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( successBooleanConditionDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }

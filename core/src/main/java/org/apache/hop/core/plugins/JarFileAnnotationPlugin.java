@@ -53,8 +53,7 @@ public class JarFileAnnotationPlugin {
   }
 
   /**
-   * @param jarFile
-   *          the jarFile to set
+   * @param jarFile the jarFile to set
    */
   public void setJarFile( URL jarFile ) {
     this.jarFile = jarFile;

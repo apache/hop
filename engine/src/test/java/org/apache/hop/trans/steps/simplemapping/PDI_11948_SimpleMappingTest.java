@@ -22,23 +22,23 @@
 
 package org.apache.hop.trans.steps.simplemapping;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.trans.steps.PDI_11948_StepsTestsParent;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.servlet.http.HttpServletResponse;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import javax.servlet.http.HttpServletResponse;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.trans.steps.PDI_11948_StepsTestsParent;
-
 /**
  * The PDI_11948_SimpleMappingTest class tests Simple Mapping step of PDI-11948 bug. It's check if HttpServletResponse
  * object is null and call or not setServletReponse( HttpServletResponse response ) method of appropriate Trans object.
- * 
+ *
  * @author Yury Bakhmutski
  * @see org.apache.hop.trans.steps.simplemapping.SimpleMapping
  */
@@ -63,7 +63,7 @@ public class PDI_11948_SimpleMappingTest extends PDI_11948_StepsTestsParent<Simp
     when( transMock.getServletResponse() ).thenReturn( null );
 
     doThrow( new RuntimeException( "The getServletResponse() mustn't be executed!" ) ).when( transMock )
-        .setServletReponse( any( HttpServletResponse.class ) );
+      .setServletReponse( any( HttpServletResponse.class ) );
 
     doCallRealMethod().when( stepMock ).initServletConfig();
     stepMock.initServletConfig();

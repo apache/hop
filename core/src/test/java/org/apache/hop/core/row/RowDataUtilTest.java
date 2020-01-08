@@ -23,7 +23,6 @@
 package org.apache.hop.core.row;
 
 import junit.framework.TestCase;
-
 import org.apache.hop.core.exception.HopValueException;
 
 public class RowDataUtilTest extends TestCase {
@@ -32,9 +31,9 @@ public class RowDataUtilTest extends TestCase {
 
     int idx = 0;
     while ( idx < len && rcode == true ) {
-      if ( arr1[start1 + idx] == null && arr2[start2 + idx] == null ) {
+      if ( arr1[ start1 + idx ] == null && arr2[ start2 + idx ] == null ) {
         // do nothing
-      } else if ( !arr1[start1 + idx].equals( arr2[start2 + idx] ) ) {
+      } else if ( !arr1[ start1 + idx ].equals( arr2[ start2 + idx ] ) ) {
         rcode = false;
       }
       idx++;

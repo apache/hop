@@ -22,12 +22,12 @@
 
 package org.apache.hop.ui.hopui;
 
-import org.eclipse.swt.widgets.Composite;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.EngineMetaInterface;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelInterface;
+import org.eclipse.swt.widgets.Composite;
+import org.junit.Before;
+import org.junit.Test;
 import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.containers.XulDeck;
 import org.pentaho.ui.xul.containers.XulToolbar;
@@ -41,7 +41,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 
 public class HopUiPerspectiveManagerTest {
@@ -99,7 +103,6 @@ public class HopUiPerspectiveManagerTest {
 
     verify( perspectiveManager ).setPerspectiveHidden( PERSPECTIVE_NAME, false );
   }
-
 
 
   private Map<HopUiPerspective, HopUiPerspectiveManager.PerspectiveManager> emulatePerspectiveManagerMap(

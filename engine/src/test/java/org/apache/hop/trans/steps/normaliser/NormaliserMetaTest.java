@@ -21,18 +21,7 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.normaliser;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -42,6 +31,17 @@ import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 import org.apache.hop.trans.steps.loadsave.initializer.InitializerInterface;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 public class NormaliserMetaTest implements InitializerInterface<StepMetaInterface> {
   LoadSaveTester loadSaveTester;
@@ -53,20 +53,20 @@ public class NormaliserMetaTest implements InitializerInterface<StepMetaInterfac
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "typeField", "normaliserFields" );
+      Arrays.asList( "typeField", "normaliserFields" );
 
     Map<String, String> getterMap = new HashMap<String, String>();
     Map<String, String> setterMap = new HashMap<String, String>();
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "normaliserFields",
-        new ArrayLoadSaveValidator<NormaliserMeta.NormaliserField>( new NormaliserFieldLoadSaveValidator(), 5 ) );
+      new ArrayLoadSaveValidator<NormaliserMeta.NormaliserField>( new NormaliserFieldLoadSaveValidator(), 5 ) );
 
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
-            getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class
@@ -85,6 +85,7 @@ public class NormaliserMetaTest implements InitializerInterface<StepMetaInterfac
   // NormaliserFieldLoadSaveValidator
   public class NormaliserFieldLoadSaveValidator implements FieldLoadSaveValidator<NormaliserMeta.NormaliserField> {
     final Random rand = new Random();
+
     @Override
     public NormaliserMeta.NormaliserField getTestObject() {
       NormaliserMeta.NormaliserField rtn = new NormaliserMeta.NormaliserField();
@@ -104,7 +105,7 @@ public class NormaliserMetaTest implements InitializerInterface<StepMetaInterfac
         .append( testObject.getName(), another.getName() )
         .append( testObject.getNorm(), another.getNorm() )
         .append( testObject.getValue(), another.getValue() )
-      .isEquals();
+        .isEquals();
     }
   }
 

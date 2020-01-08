@@ -23,9 +23,7 @@
 package org.apache.hop.core;
 
 
-
 /**
- *
  * Implementing classes of this interface can provide more information about the source of the CheckResult remark.
  *
  * @author mbatchel 6/25/07
@@ -43,7 +41,7 @@ public interface CheckResultSourceInterface {
 
   /**
    * @return The Type ID of the source generating the CheckResult. The Type ID is the system-defined type identifier
-   *         (like TRANS or SORT).
+   * (like TRANS or SORT).
    */
   public String getTypeId();
 }

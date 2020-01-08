@@ -23,19 +23,51 @@
 
 package org.apache.hop.ui.trans.steps.fileinput.text;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.Vector;
-import java.util.stream.Collectors;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.compress.CompressionInputStream;
+import org.apache.hop.core.compress.CompressionProvider;
+import org.apache.hop.core.compress.CompressionProviderFactory;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.gui.TextFileInputFieldInterface;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPreviewFactory;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.common.CsvInputAwareMeta;
+import org.apache.hop.trans.steps.file.BaseFileField;
+import org.apache.hop.trans.steps.fileinput.text.EncodingType;
+import org.apache.hop.trans.steps.fileinput.text.TextFileFilter;
+import org.apache.hop.trans.steps.fileinput.text.TextFileInputMeta;
+import org.apache.hop.trans.steps.fileinput.text.TextFileInputUtils;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.common.CsvInputAwareImportProgressDialog;
+import org.apache.hop.ui.trans.step.common.CsvInputAwareStepDialog;
+import org.apache.hop.ui.trans.step.common.GetFieldsCapableStepDialog;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
@@ -68,58 +100,26 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.compress.CompressionInputStream;
-import org.apache.hop.core.compress.CompressionProvider;
-import org.apache.hop.core.compress.CompressionProviderFactory;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.gui.TextFileInputFieldInterface;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPreviewFactory;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.file.BaseFileField;
-import org.apache.hop.trans.steps.fileinput.text.EncodingType;
-import org.apache.hop.trans.steps.fileinput.text.TextFileFilter;
-import org.apache.hop.trans.steps.fileinput.text.TextFileInputMeta;
-import org.apache.hop.trans.steps.fileinput.text.TextFileInputUtils;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopui.HopUi;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.trans.steps.common.CsvInputAwareMeta;
-import org.apache.hop.ui.trans.step.common.CsvInputAwareImportProgressDialog;
-import org.apache.hop.ui.trans.step.common.CsvInputAwareStepDialog;
-import org.apache.hop.ui.trans.step.common.GetFieldsCapableStepDialog;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.Vector;
+import java.util.stream.Collectors;
 
 public class TextFileInputDialog extends BaseStepDialog implements StepDialogInterface,
   GetFieldsCapableStepDialog<TextFileInputMeta>, CsvInputAwareStepDialog {
   private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator2!!
 
   private static final String[] YES_NO_COMBO =
-      new String[] { BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG,
-          "System.Combo.Yes" ) };
+    new String[] { BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG,
+      "System.Combo.Yes" ) };
 
   private CTabFolder wTabFolder;
   private FormData fdTabFolder;
@@ -598,7 +598,7 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
     SelectionAdapter selA = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
         wFilenameList.add( wFilename.getText(), wFilemask.getText(), wExcludeFilemask.getText(),
-            TextFileInputMeta.RequiredFilesCode[0], TextFileInputMeta.RequiredFilesCode[0] );
+          TextFileInputMeta.RequiredFilesCode[ 0 ], TextFileInputMeta.RequiredFilesCode[ 0 ] );
         wFilename.setText( "" );
         wFilemask.setText( "" );
         wExcludeFilemask.setText( "" );
@@ -626,9 +626,9 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
         int idx = wFilenameList.getSelectionIndex();
         if ( idx >= 0 ) {
           String[] string = wFilenameList.getItem( idx );
-          wFilename.setText( string[0] );
-          wFilemask.setText( string[1] );
-          wExcludeFilemask.setText( string[2] );
+          wFilename.setText( string[ 0 ] );
+          wFilemask.setText( string[ 1 ] );
+          wExcludeFilemask.setText( string[ 2 ] );
           wFilenameList.remove( idx );
         }
         wFilenameList.removeEmptyRows();
@@ -675,19 +675,19 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
         if ( wFilename.getText() != null ) {
           try {
             fileChooserDialog.initialFile =
-                HopVFS.getFileObject( transMeta.environmentSubstitute( wFilename.getText() ) );
+              HopVFS.getFileObject( transMeta.environmentSubstitute( wFilename.getText() ) );
           } catch ( HopException ex ) {
             fileChooserDialog.initialFile = null;
           }
         }
         FileObject
-            selectedFile =
-            fileChooserDialog
-                .open( shell, null, "file", new String[] { "*.txt", "*.csv", "*" },
-                    new String[] { BaseMessages.getString( PKG, "System.FileType.TextFiles" ),
-                        BaseMessages.getString( PKG, "System.FileType.CSVFiles" ),
-                        BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
-                    VfsFileChooserDialog.VFS_DIALOG_OPEN_FILE_OR_DIRECTORY );
+          selectedFile =
+          fileChooserDialog
+            .open( shell, null, "file", new String[] { "*.txt", "*.csv", "*" },
+              new String[] { BaseMessages.getString( PKG, "System.FileType.TextFiles" ),
+                BaseMessages.getString( PKG, "System.FileType.CSVFiles" ),
+                BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
+              VfsFileChooserDialog.VFS_DIALOG_OPEN_FILE_OR_DIRECTORY );
         if ( selectedFile != null ) {
           String file = selectedFile.getName().getURI();
           if ( !StringUtils.isBlank( file ) ) {
@@ -730,8 +730,8 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
     TextFileInputMeta tfii = new TextFileInputMeta();
     getInfo( tfii, true );
     String[] files =
-        FileInputList.createFilePathList( transMeta, tfii.inputFiles.fileName, tfii.inputFiles.fileMask,
-            tfii.inputFiles.excludeFileMask, tfii.inputFiles.fileRequired, tfii.inputFiles.includeSubFolderBoolean() );
+      FileInputList.createFilePathList( transMeta, tfii.inputFiles.fileName, tfii.inputFiles.fileMask,
+        tfii.inputFiles.excludeFileMask, tfii.inputFiles.fileRequired, tfii.inputFiles.includeSubFolderBoolean() );
 
     if ( files != null && files.length > 0 ) {
       EnterSelectionDialog esd = new EnterSelectionDialog( shell, files, "Files read", "Files read:" );
@@ -989,28 +989,28 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
     gAccepting.setLayoutData( fdAccepting );
 
     ColumnInfo[] colinfo =
-        new ColumnInfo[] { new ColumnInfo( BaseMessages.getString( PKG, "TextFileInputDialog.FileDirColumn.Column" ),
-            ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo( BaseMessages.getString( PKG,
-                "TextFileInputDialog.WildcardColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo(
-                    BaseMessages.getString( PKG, "TextFileInputDialog.Files.ExcludeWildcard.Column" ),
-                    ColumnInfo.COLUMN_TYPE_TEXT, false ),
-          new ColumnInfo( BaseMessages.getString( PKG, "TextFileInputDialog.RequiredColumn.Column" ),
-            ColumnInfo.COLUMN_TYPE_CCOMBO, YES_NO_COMBO ), new ColumnInfo( BaseMessages.getString( PKG,
-                "TextFileInputDialog.IncludeSubDirs.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO, YES_NO_COMBO ) };
+      new ColumnInfo[] { new ColumnInfo( BaseMessages.getString( PKG, "TextFileInputDialog.FileDirColumn.Column" ),
+        ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo( BaseMessages.getString( PKG,
+        "TextFileInputDialog.WildcardColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo(
+        BaseMessages.getString( PKG, "TextFileInputDialog.Files.ExcludeWildcard.Column" ),
+        ColumnInfo.COLUMN_TYPE_TEXT, false ),
+        new ColumnInfo( BaseMessages.getString( PKG, "TextFileInputDialog.RequiredColumn.Column" ),
+          ColumnInfo.COLUMN_TYPE_CCOMBO, YES_NO_COMBO ), new ColumnInfo( BaseMessages.getString( PKG,
+        "TextFileInputDialog.IncludeSubDirs.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO, YES_NO_COMBO ) };
 
-    colinfo[0].setUsingVariables( true );
-    colinfo[1].setToolTip( BaseMessages.getString( PKG, "TextFileInputDialog.RegExpColumn.Column" ) );
+    colinfo[ 0 ].setUsingVariables( true );
+    colinfo[ 1 ].setToolTip( BaseMessages.getString( PKG, "TextFileInputDialog.RegExpColumn.Column" ) );
 
     // PDI-8664
-    colinfo[1].setUsingVariables( true );
+    colinfo[ 1 ].setUsingVariables( true );
 
-    colinfo[2].setUsingVariables( true );
-    colinfo[2].setToolTip( BaseMessages.getString( PKG, "TextFileInputDialog.Files.ExcludeWildcard.Tooltip" ) );
-    colinfo[3].setToolTip( BaseMessages.getString( PKG, "TextFileInputDialog.RequiredColumn.Tooltip" ) );
-    colinfo[4].setToolTip( BaseMessages.getString( PKG, "TextFileInputDialog.IncludeSubDirs.Tooltip" ) );
+    colinfo[ 2 ].setUsingVariables( true );
+    colinfo[ 2 ].setToolTip( BaseMessages.getString( PKG, "TextFileInputDialog.Files.ExcludeWildcard.Tooltip" ) );
+    colinfo[ 3 ].setToolTip( BaseMessages.getString( PKG, "TextFileInputDialog.RequiredColumn.Tooltip" ) );
+    colinfo[ 4 ].setToolTip( BaseMessages.getString( PKG, "TextFileInputDialog.IncludeSubDirs.Tooltip" ) );
 
     wFilenameList =
-        new TableView( transMeta, wFileComp, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, 4, lsMod, props );
+      new TableView( transMeta, wFileComp, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, 4, lsMod, props );
     props.setLook( wFilenameList );
     fdFilenameList = new FormData();
     fdFilenameList.left = new FormAttachment( middle, 0 );
@@ -1639,9 +1639,9 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
 
   protected void setLocales() {
     Locale[] locale = Locale.getAvailableLocales();
-    dateLocale = new String[locale.length];
+    dateLocale = new String[ locale.length ];
     for ( int i = 0; i < locale.length; i++ ) {
-      dateLocale[i] = locale[i].toString();
+      dateLocale[ i ] = locale[ i ].toString();
     }
     if ( dateLocale != null ) {
       wDateLocale.setItems( dateLocale );
@@ -1855,7 +1855,7 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
 
     // Listen to the Browse... button
     wbbWarnDestDir.addSelectionListener( DirectoryDialogButtonListenerFactory.getSelectionAdapter( shell, wWarnDestDir
-        .getTextWidget() ) );
+      .getTextWidget() ) );
 
     // Whenever something changes, set the tooltip to the expanded version of the directory:
     wWarnDestDir.addModifyListener( getModifyListenerTooltipText( wWarnDestDir.getTextWidget() ) );
@@ -1910,7 +1910,7 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
 
     // Listen to the Browse... button
     wbbErrorDestDir.addSelectionListener( DirectoryDialogButtonListenerFactory.getSelectionAdapter( shell, wErrorDestDir
-        .getTextWidget() ) );
+      .getTextWidget() ) );
 
     // Whenever something changes, set the tooltip to the expanded version of the directory:
     wErrorDestDir.addModifyListener( getModifyListenerTooltipText( wErrorDestDir.getTextWidget() ) );
@@ -1965,7 +1965,7 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
 
     // Listen to the Browse... button
     wbbLineNrDestDir.addSelectionListener( DirectoryDialogButtonListenerFactory.getSelectionAdapter( shell,
-        wLineNrDestDir.getTextWidget() ) );
+      wLineNrDestDir.getTextWidget() ) );
 
     // Whenever something changes, set the tooltip to the expanded version of the directory:
     wLineNrDestDir.addModifyListener( getModifyListenerTooltipText( wLineNrDestDir.getTextWidget() ) );
@@ -2012,16 +2012,16 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
     final int FilterRows = input.getFilter().length;
 
     ColumnInfo[] colinf =
-        new ColumnInfo[] { new ColumnInfo( BaseMessages.getString( PKG,
-            "TextFileInputDialog.FilterStringColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo(
-                BaseMessages.getString( PKG, "TextFileInputDialog.FilterPositionColumn.Column" ),
-                ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo( BaseMessages.getString( PKG,
-                    "TextFileInputDialog.StopOnFilterColumn.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO, YES_NO_COMBO ),
-          new ColumnInfo( BaseMessages.getString( PKG, "TextFileInputDialog.FilterPositiveColumn.Column" ),
-              ColumnInfo.COLUMN_TYPE_CCOMBO, YES_NO_COMBO ) };
+      new ColumnInfo[] { new ColumnInfo( BaseMessages.getString( PKG,
+        "TextFileInputDialog.FilterStringColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo(
+        BaseMessages.getString( PKG, "TextFileInputDialog.FilterPositionColumn.Column" ),
+        ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo( BaseMessages.getString( PKG,
+        "TextFileInputDialog.StopOnFilterColumn.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO, YES_NO_COMBO ),
+        new ColumnInfo( BaseMessages.getString( PKG, "TextFileInputDialog.FilterPositiveColumn.Column" ),
+          ColumnInfo.COLUMN_TYPE_CCOMBO, YES_NO_COMBO ) };
 
-    colinf[2].setToolTip( BaseMessages.getString( PKG, "TextFileInputDialog.StopOnFilterColumn.Tooltip" ) );
-    colinf[3].setToolTip( BaseMessages.getString( PKG, "TextFileInputDialog.FilterPositiveColumn.Tooltip" ) );
+    colinf[ 2 ].setToolTip( BaseMessages.getString( PKG, "TextFileInputDialog.StopOnFilterColumn.Tooltip" ) );
+    colinf[ 3 ].setToolTip( BaseMessages.getString( PKG, "TextFileInputDialog.FilterPositiveColumn.Tooltip" ) );
 
     wFilter = new TableView( transMeta, wFilterComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FilterRows, lsMod, props );
 
@@ -2077,29 +2077,29 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
     final int FieldsRows = input.inputFields.length;
 
     ColumnInfo[] colinf =
-        new ColumnInfo[] { new ColumnInfo( BaseMessages.getString( PKG, "TextFileInputDialog.NameColumn.Column" ),
-            ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo( BaseMessages.getString( PKG,
-                "TextFileInputDialog.TypeColumn.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaFactory.getValueMetaNames(), true ),
-          new ColumnInfo( BaseMessages.getString( PKG, "TextFileInputDialog.FormatColumn.Column" ),
-              ColumnInfo.COLUMN_TYPE_FORMAT, 2 ), new ColumnInfo( BaseMessages.getString( PKG,
-                  "TextFileInputDialog.PositionColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo(
-                      BaseMessages.getString( PKG, "TextFileInputDialog.LengthColumn.Column" ),
-                      ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo( BaseMessages.getString( PKG,
-                          "TextFileInputDialog.PrecisionColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
-          new ColumnInfo( BaseMessages.getString( PKG, "TextFileInputDialog.CurrencyColumn.Column" ),
-              ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo( BaseMessages.getString( PKG,
-                  "TextFileInputDialog.DecimalColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo(
-                      BaseMessages.getString( PKG, "TextFileInputDialog.GroupColumn.Column" ),
-                      ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo( BaseMessages.getString( PKG,
-                          "TextFileInputDialog.NullIfColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
-          new ColumnInfo( BaseMessages.getString( PKG, "TextFileInputDialog.IfNullColumn.Column" ),
-              ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo( BaseMessages.getString( PKG,
-                  "TextFileInputDialog.TrimTypeColumn.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaString.trimTypeDesc,
-                  true ), new ColumnInfo( BaseMessages.getString( PKG, "TextFileInputDialog.RepeatColumn.Column" ),
-                      ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { BaseMessages.getString( PKG, "System.Combo.Yes" ),
-                        BaseMessages.getString( PKG, "System.Combo.No" ) }, true ) };
+      new ColumnInfo[] { new ColumnInfo( BaseMessages.getString( PKG, "TextFileInputDialog.NameColumn.Column" ),
+        ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo( BaseMessages.getString( PKG,
+        "TextFileInputDialog.TypeColumn.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaFactory.getValueMetaNames(), true ),
+        new ColumnInfo( BaseMessages.getString( PKG, "TextFileInputDialog.FormatColumn.Column" ),
+          ColumnInfo.COLUMN_TYPE_FORMAT, 2 ), new ColumnInfo( BaseMessages.getString( PKG,
+        "TextFileInputDialog.PositionColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo(
+        BaseMessages.getString( PKG, "TextFileInputDialog.LengthColumn.Column" ),
+        ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo( BaseMessages.getString( PKG,
+        "TextFileInputDialog.PrecisionColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
+        new ColumnInfo( BaseMessages.getString( PKG, "TextFileInputDialog.CurrencyColumn.Column" ),
+          ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo( BaseMessages.getString( PKG,
+        "TextFileInputDialog.DecimalColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo(
+        BaseMessages.getString( PKG, "TextFileInputDialog.GroupColumn.Column" ),
+        ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo( BaseMessages.getString( PKG,
+        "TextFileInputDialog.NullIfColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
+        new ColumnInfo( BaseMessages.getString( PKG, "TextFileInputDialog.IfNullColumn.Column" ),
+          ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo( BaseMessages.getString( PKG,
+        "TextFileInputDialog.TrimTypeColumn.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaString.trimTypeDesc,
+        true ), new ColumnInfo( BaseMessages.getString( PKG, "TextFileInputDialog.RepeatColumn.Column" ),
+        ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { BaseMessages.getString( PKG, "System.Combo.Yes" ),
+        BaseMessages.getString( PKG, "System.Combo.No" ) }, true ) };
 
-    colinf[12].setToolTip( BaseMessages.getString( PKG, "TextFileInputDialog.RepeatColumn.Tooltip" ) );
+    colinf[ 12 ].setToolTip( BaseMessages.getString( PKG, "TextFileInputDialog.RepeatColumn.Tooltip" ) );
 
     wFields = new TableView( transMeta, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
@@ -2206,8 +2206,7 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
   /**
    * Read the data from the TextFileInputMeta object and show it in this dialog.
    *
-   * @param meta
-   *          The TextFileInputMeta object to obtain the data from.
+   * @param meta The TextFileInputMeta object to obtain the data from.
    */
   public void getData( TextFileInputMeta meta ) {
     getData( meta, true, true, null );
@@ -2233,9 +2232,9 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
       wFilenameList.removeAll();
 
       for ( int i = 0; i < meta.getFileName().length; i++ ) {
-        wFilenameList.add( meta.getFileName()[i], meta.inputFiles.fileMask[i], meta.inputFiles.excludeFileMask[i], meta
-            .getRequiredFilesDesc( meta.inputFiles.fileRequired[i] ), meta.getRequiredFilesDesc(
-                meta.inputFiles.includeSubFolders[i] ) );
+        wFilenameList.add( meta.getFileName()[ i ], meta.inputFiles.fileMask[ i ], meta.inputFiles.excludeFileMask[ i ], meta
+          .getRequiredFilesDesc( meta.inputFiles.fileRequired[ i ] ), meta.getRequiredFilesDesc(
+          meta.inputFiles.includeSubFolders[ i ] ) );
       }
       wFilenameList.removeEmptyRows();
       wFilenameList.setRowNums();
@@ -2341,7 +2340,7 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
     for ( int i = 0; i < meta.getFilter().length; i++ ) {
       TableItem item = wFilter.table.getItem( i );
 
-      TextFileFilter filter = meta.getFilter()[i];
+      TextFileFilter filter = meta.getFilter()[ i ];
       if ( filter.getFilterString() != null ) {
         item.setText( 1, filter.getFilterString() );
       }
@@ -2349,9 +2348,9 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
         item.setText( 2, "" + filter.getFilterPosition() );
       }
       item.setText( 3, filter.isFilterLastLine() ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages
-          .getString( PKG, "System.Combo.No" ) );
+        .getString( PKG, "System.Combo.No" ) );
       item.setText( 4, filter.isFilterPositive() ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages
-          .getString( PKG, "System.Combo.No" ) );
+        .getString( PKG, "System.Combo.No" ) );
     }
 
     // Date locale
@@ -2401,7 +2400,7 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
     final List<String> lowerCaseNewFieldNames = newFieldNames == null ? new ArrayList()
       : newFieldNames.stream().map( String::toLowerCase ).collect( Collectors.toList() );
     for ( int i = 0; i < in.inputFields.length; i++ ) {
-      BaseFileField field = in.inputFields[i];
+      BaseFileField field = in.inputFields[ i ];
 
       TableItem item;
 
@@ -2427,8 +2426,8 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
       String ifNull = field.getIfNullValue();
       String trim = field.getTrimTypeDesc();
       String rep =
-          field.isRepeated() ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString( PKG,
-              "System.Combo.No" );
+        field.isRepeated() ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString( PKG,
+          "System.Combo.No" );
 
       if ( type != null ) {
         item.setText( 2, type );
@@ -2508,11 +2507,9 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
   /**
    * Fill meta object from UI options.
    *
-   * @param meta
-   *          meta object
-   * @param preview
-   *          flag for preview or real options should be used. Currently, only one option is differ for preview - EOL
-   *          chars. It uses as "mixed" for be able to preview any file.
+   * @param meta    meta object
+   * @param preview flag for preview or real options should be used. Currently, only one option is differ for preview - EOL
+   *                chars. It uses as "mixed" for be able to preview any file.
    */
   private void getInfo( TextFileInputMeta meta, boolean preview ) {
     stepname = wStepname.getText(); // return value
@@ -2587,21 +2584,21 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
       field.setRepeated( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 13 ) ) );
 
       // CHECKSTYLE:Indentation:OFF
-      meta.inputFields[i] = field;
+      meta.inputFields[ i ] = field;
     }
 
     for ( int i = 0; i < nrfilters; i++ ) {
       TableItem item = wFilter.getNonEmpty( i );
       TextFileFilter filter = new TextFileFilter();
       // CHECKSTYLE:Indentation:OFF
-      meta.getFilter()[i] = filter;
+      meta.getFilter()[ i ] = filter;
 
       filter.setFilterString( item.getText( 1 ) );
       filter.setFilterPosition( Const.toInt( item.getText( 2 ), -1 ) );
       filter.setFilterLastLine( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText(
-          3 ) ) );
+        3 ) ) );
       filter.setFilterPositive( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText(
-          4 ) ) );
+        4 ) ) );
     }
     // Error handling fields...
     meta.errorHandling.errorIgnored = wErrorIgnored.getSelection();
@@ -2711,17 +2708,17 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
     }
 
     TransMeta previewMeta =
-        TransPreviewFactory.generatePreviewTransformation( transMeta, oneMeta, wStepname.getText() );
+      TransPreviewFactory.generatePreviewTransformation( transMeta, oneMeta, wStepname.getText() );
 
     EnterNumberDialog numberDialog =
-        new EnterNumberDialog( shell, props.getDefaultPreviewSize(), BaseMessages.getString( PKG,
-            "TextFileInputDialog.PreviewSize.DialogTitle" ), BaseMessages.getString( PKG,
-                "TextFileInputDialog.PreviewSize.DialogMessage" ) );
+      new EnterNumberDialog( shell, props.getDefaultPreviewSize(), BaseMessages.getString( PKG,
+        "TextFileInputDialog.PreviewSize.DialogTitle" ), BaseMessages.getString( PKG,
+        "TextFileInputDialog.PreviewSize.DialogMessage" ) );
     int previewSize = numberDialog.open();
     if ( previewSize > 0 ) {
       TransPreviewProgressDialog progressDialog =
-          new TransPreviewProgressDialog( shell, previewMeta, new String[] { wStepname.getText() }, new int[] {
-            previewSize } );
+        new TransPreviewProgressDialog( shell, previewMeta, new String[] { wStepname.getText() }, new int[] {
+          previewSize } );
       progressDialog.open();
 
       Trans trans = progressDialog.getTrans();
@@ -2730,16 +2727,16 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
       if ( !progressDialog.isCancelled() ) {
         if ( trans.getResult() != null && trans.getResult().getNrErrors() > 0 ) {
           EnterTextDialog etd =
-              new EnterTextDialog( shell, BaseMessages.getString( PKG, "System.Dialog.PreviewError.Title" ),
-                  BaseMessages.getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
+            new EnterTextDialog( shell, BaseMessages.getString( PKG, "System.Dialog.PreviewError.Title" ),
+              BaseMessages.getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
           etd.setReadOnly();
           etd.open();
         }
       }
 
       PreviewRowsDialog prd =
-          new PreviewRowsDialog( shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta(
-              wStepname.getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
+        new PreviewRowsDialog( shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta(
+          wStepname.getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
       prd.open();
     }
   }
@@ -2763,11 +2760,11 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
               firstlines += aLinesList + Const.CR;
             }
             EnterTextDialog etd =
-                new EnterTextDialog( shell, BaseMessages.getString( PKG,
-                    "TextFileInputDialog.ContentOfFirstFile.DialogTitle" ), ( nrLines == 0 ? BaseMessages.getString(
-                        PKG, "TextFileInputDialog.ContentOfFirstFile.AllLines.DialogMessage" ) : BaseMessages.getString(
-                            PKG, "TextFileInputDialog.ContentOfFirstFile.NLines.DialogMessage", "" + nrLines ) ),
-                    firstlines, true );
+              new EnterTextDialog( shell, BaseMessages.getString( PKG,
+                "TextFileInputDialog.ContentOfFirstFile.DialogTitle" ), ( nrLines == 0 ? BaseMessages.getString(
+                PKG, "TextFileInputDialog.ContentOfFirstFile.AllLines.DialogMessage" ) : BaseMessages.getString(
+                PKG, "TextFileInputDialog.ContentOfFirstFile.NLines.DialogMessage", "" + nrLines ) ),
+                firstlines, true );
             etd.setReadOnly();
             etd.open();
           } else {
@@ -2785,7 +2782,7 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
       }
     } catch ( HopException e ) {
       new ErrorDialog( shell, BaseMessages.getString( PKG, "System.Dialog.Error.Title" ), BaseMessages.getString( PKG,
-          "TextFileInputDialog.ErrorGettingData.DialogMessage" ), e );
+        "TextFileInputDialog.ErrorGettingData.DialogMessage" ), e );
     }
   }
 
@@ -2808,7 +2805,7 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
         fi = HopVFS.getInputStream( file );
 
         CompressionProvider provider =
-            CompressionProviderFactory.getInstance().createCompressionProviderInstance( meta.content.fileCompression );
+          CompressionProviderFactory.getInstance().createCompressionProviderInstance( meta.content.fileCompression );
         f = provider.createInputStream( fi );
 
         InputStreamReader reader;
@@ -2852,7 +2849,7 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
         }
       } catch ( Exception e ) {
         throw new HopException( BaseMessages.getString( PKG, "TextFileInputDialog.Exception.ErrorGettingFirstLines",
-            "" + nrlines, file.getName().getURI() ), e );
+          "" + nrlines, file.getName().getURI() ), e );
       } finally {
         try {
           if ( f != null ) {
@@ -2903,7 +2900,7 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
               item.setText( 11, "" + field.getIfNullValue() );
               item.setText( 12, "" + field.getTrimTypeDesc() );
               item.setText( 13, field.isRepeated() ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages
-                  .getString( PKG, "System.Combo.No" ) );
+                .getString( PKG, "System.Combo.No" ) );
             }
 
           }
@@ -2932,7 +2929,7 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
       wd.open();
     } catch ( Exception e ) {
       new ErrorDialog( shell, BaseMessages.getString( PKG, "TextFileInputDialog.ErrorShowingFixedWizard.DialogTitle" ),
-          BaseMessages.getString( PKG, "TextFileInputDialog.ErrorShowingFixedWizard.DialogMessage" ), e );
+        BaseMessages.getString( PKG, "TextFileInputDialog.ErrorShowingFixedWizard.DialogMessage" ), e );
     }
   }
 
@@ -2951,7 +2948,7 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
     int dummynr = 1;
 
     for ( int i = 0; i < info.inputFields.length; i++ ) {
-      BaseFileField f = info.inputFields[i];
+      BaseFileField f = info.inputFields[ i ];
 
       // See if positions are skipped, if this is the case, add dummy fields...
       if ( f.getPosition() != prevEnd ) { // gap
@@ -2984,7 +2981,7 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
       fields.add( field );
     } else {
       // Take the last field and see if it reached until the maximum...
-      BaseFileField f = info.inputFields[info.inputFields.length - 1];
+      BaseFileField f = info.inputFields[ info.inputFields.length - 1 ];
 
       int pos = f.getPosition();
       int len = f.getLength();
@@ -3003,7 +3000,6 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
 
   /**
    * Sets the input width to minimal width...
-   *
    */
   public void setMinimalWidth() {
     int nrNonEmptyFields = wFields.nrNonEmpty();
@@ -3033,7 +3029,7 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
     }
 
     for ( int i = 0; i < input.inputFields.length; i++ ) {
-      input.inputFields[i].setTrimType( ValueMetaInterface.TRIM_TYPE_BOTH );
+      input.inputFields[ i ].setTrimType( ValueMetaInterface.TRIM_TYPE_BOTH );
     }
 
     wFields.optWidth( true );
@@ -3041,6 +3037,7 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
 
   /**
    * Overloading setMinimalWidth() in order to test trim functionality
+   *
    * @param wFields mocked TableView to avoid wFields.nrNonEmpty() from throwing NullPointerException
    */
   public void setMinimalWidth( TableView wFields ) {
@@ -3161,7 +3158,7 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
     // LastModificationTimeName line
     wlLastModificationTimeName = new Label( wAdditionalFieldsComp, SWT.RIGHT );
     wlLastModificationTimeName.setText( BaseMessages.getString( PKG,
-        "TextFileInputDialog.LastModificationTimeName.Label" ) );
+      "TextFileInputDialog.LastModificationTimeName.Label" ) );
     props.setLook( wlLastModificationTimeName );
     fdlLastModificationTimeName = new FormData();
     fdlLastModificationTimeName.left = new FormAttachment( 0, 0 );

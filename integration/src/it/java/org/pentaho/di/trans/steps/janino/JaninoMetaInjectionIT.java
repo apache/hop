@@ -23,7 +23,6 @@
 package org.apache.hop.trans.steps.janino;
 
 import junit.framework.TestCase;
-
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.trans.step.StepInjectionMetaEntry;
 import org.apache.hop.trans.step.StepInjectionUtil;
@@ -94,7 +93,7 @@ public class JaninoMetaInjectionIT extends TestCase {
 
     // CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < NR_FIELDS; i++ ) {
-      meta.getFormula()[i] = new JaninoMetaFunction( NEW_FIELDNAME + i, JAVA_EXPRESSION + i,
+      meta.getFormula()[ i ] = new JaninoMetaFunction( NEW_FIELDNAME + i, JAVA_EXPRESSION + i,
         ValueMetaFactory.getIdForValueMeta( VALUE_TYPE ), LENGTH + i, PRECISION + i, REPLACE_VALUE + i );
     }
 

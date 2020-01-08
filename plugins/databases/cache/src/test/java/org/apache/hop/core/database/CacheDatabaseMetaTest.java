@@ -22,13 +22,6 @@
 
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -36,6 +29,13 @@ import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class CacheDatabaseMetaTest {
   private CacheDatabaseMeta cdm, cdmODBC;
@@ -52,7 +52,7 @@ public class CacheDatabaseMetaTest {
   public void testSettings() throws Exception {
 
     assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
-        cdm.getAccessTypeList() );
+      cdm.getAccessTypeList() );
     assertEquals( 1972, cdm.getDefaultDatabasePort() );
     assertEquals( -1, cdmODBC.getDefaultDatabasePort() );
     assertFalse( cdm.supportsSetCharacterStream() );
@@ -69,30 +69,30 @@ public class CacheDatabaseMetaTest {
   @Test
   public void testSQLStatements() {
     assertEquals( "ALTER TABLE FOO ADD COLUMN ( BAR VARCHAR(15) ) ",
-        cdm.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
+      cdm.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO ADD COLUMN ( BAR TIMESTAMP ) ",
-        cdm.getAddColumnStatement( "FOO", new ValueMetaDate( "BAR" ), "", false, "", false ) );
+      cdm.getAddColumnStatement( "FOO", new ValueMetaDate( "BAR" ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO ADD COLUMN ( BAR TIMESTAMP ) ",
-        cdm.getAddColumnStatement( "FOO", new ValueMetaTimestamp( "BAR" ), "", false, "", false ) );
+      cdm.getAddColumnStatement( "FOO", new ValueMetaTimestamp( "BAR" ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO ADD COLUMN ( BAR CHAR(1) ) ",
-        cdm.getAddColumnStatement( "FOO", new ValueMetaBoolean( "BAR" ), "", false, "", false ) );
+      cdm.getAddColumnStatement( "FOO", new ValueMetaBoolean( "BAR" ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO ADD COLUMN ( BAR INT ) ",
-        cdm.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 0, 0 ), "", false, "", false ) );
+      cdm.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 0, 0 ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO ADD COLUMN ( BAR DOUBLE ) ",
-        cdm.getAddColumnStatement( "FOO", new ValueMetaInteger( "BAR" ), "", false, "", false ) ); // I believe this is a bug!
+      cdm.getAddColumnStatement( "FOO", new ValueMetaInteger( "BAR" ), "", false, "", false ) ); // I believe this is a bug!
     assertEquals( "ALTER TABLE FOO ADD COLUMN ( BAR DOUBLE ) ",
-        cdm.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 10, -7 ), "", false, "", false ) );
+      cdm.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 10, -7 ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO ADD COLUMN ( BAR DOUBLE ) ",
-        cdm.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", -10, 7 ), "", false, "", false ) );
+      cdm.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", -10, 7 ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO ADD COLUMN ( BAR DECIMAL(5, 7) ) ",
-        cdm.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 5, 7 ), "", false, "", false ) );
+      cdm.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 5, 7 ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO ADD COLUMN ( BAR  UNKNOWN ) ",
-        cdm.getAddColumnStatement( "FOO", new ValueMetaInternetAddress( "BAR" ), "", false, "", false ) );
+      cdm.getAddColumnStatement( "FOO", new ValueMetaInternetAddress( "BAR" ), "", false, "", false ) );
     String lineSep = System.getProperty( "line.separator" );
     assertEquals( "ALTER TABLE FOO DROP COLUMN BAR" + lineSep,
-        cdm.getDropColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", true ) );
+      cdm.getDropColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", true ) );
     assertEquals( "ALTER TABLE FOO ALTER COLUMN BAR VARCHAR(15)",
-        cdm.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", true ) );
+      cdm.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", true ) );
 
   }
 

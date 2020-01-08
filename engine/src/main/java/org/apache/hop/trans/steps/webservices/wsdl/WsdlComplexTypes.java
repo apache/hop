@@ -22,13 +22,12 @@
 
 package org.apache.hop.trans.steps.webservices.wsdl;
 
-import java.util.HashMap;
-import java.util.List;
+import org.w3c.dom.Element;
 
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.schema.Schema;
-
-import org.w3c.dom.Element;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Represents a map of all named complex types in the WSDL.
@@ -41,8 +40,7 @@ public final class WsdlComplexTypes implements java.io.Serializable {
   /**
    * Create a new instance, parse the WSDL file for named complex types.
    *
-   * @param wsdlTypes
-   *          Name space resolver.
+   * @param wsdlTypes Name space resolver.
    */
   protected WsdlComplexTypes( WsdlTypes wsdlTypes ) {
 
@@ -61,8 +59,7 @@ public final class WsdlComplexTypes implements java.io.Serializable {
   /**
    * Get the complex type specified by complexTypeName.
    *
-   * @param complexTypeName
-   *          Name of complex type.
+   * @param complexTypeName Name of complex type.
    * @return ComplexType instance, null if complex type was not defined in the wsdl file.
    */
   public ComplexType getComplexType( String complexTypeName ) {

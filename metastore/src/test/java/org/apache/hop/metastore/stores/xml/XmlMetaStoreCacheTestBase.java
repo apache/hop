@@ -16,6 +16,13 @@
  */
 package org.apache.hop.metastore.stores.xml;
 
+import org.apache.hop.metastore.api.IMetaStoreElementType;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import java.util.Map;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -24,13 +31,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.apache.hop.metastore.api.IMetaStoreElementType;
 
 @Ignore
 public abstract class XmlMetaStoreCacheTestBase {

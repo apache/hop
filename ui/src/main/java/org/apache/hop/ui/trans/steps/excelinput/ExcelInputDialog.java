@@ -23,11 +23,48 @@
 
 package org.apache.hop.ui.trans.steps.excelinput;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.spreadsheet.KCell;
+import org.apache.hop.core.spreadsheet.KCellType;
+import org.apache.hop.core.spreadsheet.KSheet;
+import org.apache.hop.core.spreadsheet.KWorkbook;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPreviewFactory;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.excelinput.ExcelInputField;
+import org.apache.hop.trans.steps.excelinput.ExcelInputMeta;
+import org.apache.hop.trans.steps.excelinput.SpreadSheetType;
+import org.apache.hop.trans.steps.excelinput.WorkbookFactory;
+import org.apache.hop.ui.core.dialog.EnterListDialog;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.ComponentSelectionListener;
+import org.apache.hop.ui.trans.steps.textfileinput.DirectoryDialogButtonListenerFactory;
+import org.apache.hop.ui.trans.steps.textfileinput.VariableButtonListenerFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -57,47 +94,10 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopStepException;
-import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.spreadsheet.KCell;
-import org.apache.hop.core.spreadsheet.KCellType;
-import org.apache.hop.core.spreadsheet.KSheet;
-import org.apache.hop.core.spreadsheet.KWorkbook;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPreviewFactory;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.excelinput.ExcelInputField;
-import org.apache.hop.trans.steps.excelinput.ExcelInputMeta;
-import org.apache.hop.trans.steps.excelinput.SpreadSheetType;
-import org.apache.hop.trans.steps.excelinput.WorkbookFactory;
-import org.apache.hop.ui.core.dialog.EnterListDialog;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.ComponentSelectionListener;
-import org.apache.hop.ui.trans.steps.textfileinput.DirectoryDialogButtonListenerFactory;
-import org.apache.hop.ui.trans.steps.textfileinput.VariableButtonListenerFactory;
+
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = ExcelInputMeta.class; // for i18n purposes, needed by Translator2!!
@@ -617,30 +617,30 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
     // fdAccepting.bottom = new FormAttachment(wAccStep, margin);
     gAccepting.setLayoutData( fdAccepting );
 
-    ColumnInfo[] colinfo = new ColumnInfo[5];
-    colinfo[0] =
+    ColumnInfo[] colinfo = new ColumnInfo[ 5 ];
+    colinfo[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ExcelInputDialog.FileDir.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinfo[0].setUsingVariables( true );
-    colinfo[1] =
+    colinfo[ 0 ].setUsingVariables( true );
+    colinfo[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ExcelInputDialog.Wildcard.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinfo[1].setToolTip( BaseMessages.getString( PKG, "ExcelInputDialog.Wildcard.Tooltip" ) );
-    colinfo[2] =
+    colinfo[ 1 ].setToolTip( BaseMessages.getString( PKG, "ExcelInputDialog.Wildcard.Tooltip" ) );
+    colinfo[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ExcelInputDialog.Files.ExcludeWildcard.Column" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinfo[2].setUsingVariables( true );
-    colinfo[3] =
+    colinfo[ 2 ].setUsingVariables( true );
+    colinfo[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ExcelInputDialog.Required.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         YES_NO_COMBO );
-    colinfo[3].setToolTip( BaseMessages.getString( PKG, "ExcelInputDialog.Required.Tooltip" ) );
-    colinfo[4] =
+    colinfo[ 3 ].setToolTip( BaseMessages.getString( PKG, "ExcelInputDialog.Required.Tooltip" ) );
+    colinfo[ 4 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ExcelInputDialog.IncludeSubDirs.Column" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, YES_NO_COMBO );
-    colinfo[4].setToolTip( BaseMessages.getString( PKG, "ExcelInputDialog.IncludeSubDirs.Tooltip" ) );
+    colinfo[ 4 ].setToolTip( BaseMessages.getString( PKG, "ExcelInputDialog.IncludeSubDirs.Tooltip" ) );
 
     wFilenameList =
       new TableView( transMeta, wFileComp, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, input
@@ -697,14 +697,14 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
     fdlSheetnameList.right = new FormAttachment( middle, -margin );
     wlSheetnameList.setLayoutData( fdlSheetnameList );
 
-    ColumnInfo[] shinfo = new ColumnInfo[3];
-    shinfo[0] =
+    ColumnInfo[] shinfo = new ColumnInfo[ 3 ];
+    shinfo[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ExcelInputDialog.SheetName.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    shinfo[1] =
+    shinfo[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ExcelInputDialog.StartRow.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    shinfo[2] =
+    shinfo[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ExcelInputDialog.StartColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
@@ -971,7 +971,7 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
         new ColumnInfo(
           BaseMessages.getString( PKG, "ExcelInputDialog.Grouping.Column" ), ColumnInfo.COLUMN_TYPE_TEXT ) };
 
-    colinf[5].setToolTip( BaseMessages.getString( PKG, "ExcelInputDialog.Repeat.Tooltip" ) );
+    colinf[ 5 ].setToolTip( BaseMessages.getString( PKG, "ExcelInputDialog.Repeat.Tooltip" ) );
 
     wFields =
       new TableView( transMeta, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
@@ -1066,7 +1066,7 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
       public void widgetSelected( SelectionEvent arg0 ) {
         wFilenameList.add( new String[] {
           wFilename.getText(), wFilemask.getText(), wExcludeFilemask.getText(),
-          ExcelInputMeta.RequiredFilesCode[0], ExcelInputMeta.RequiredFilesCode[0] } );
+          ExcelInputMeta.RequiredFilesCode[ 0 ], ExcelInputMeta.RequiredFilesCode[ 0 ] } );
         wFilename.setText( "" );
         wFilemask.setText( "" );
         wExcludeFilemask.setText( "" );
@@ -1098,9 +1098,9 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
         int idx = wFilenameList.getSelectionIndex();
         if ( idx >= 0 ) {
           String[] string = wFilenameList.getItem( idx );
-          wFilename.setText( string[0] );
-          wFilemask.setText( string[1] );
-          wExcludeFilemask.setText( string[2] );
+          wFilename.setText( string[ 0 ] );
+          wFilemask.setText( string[ 1 ] );
+          wExcludeFilemask.setText( string[ 2 ] );
           wFilenameList.remove( idx );
         }
         wFilenameList.removeEmptyRows();
@@ -1272,8 +1272,7 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
   /**
    * Read the data from the ExcelInputMeta object and show it in this dialog.
    *
-   * @param meta
-   *          The ExcelInputMeta object to obtain the data from.
+   * @param meta The ExcelInputMeta object to obtain the data from.
    */
   public void getData( ExcelInputMeta meta ) {
     if ( meta.getFileName() != null ) {
@@ -1281,9 +1280,9 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
 
       for ( int i = 0; i < meta.getFileName().length; i++ ) {
         wFilenameList.add( new String[] {
-          meta.getFileName()[i], meta.getFileMask()[i], meta.getExludeFileMask()[i],
-          meta.getRequiredFilesDesc( meta.getFileRequired()[i] ),
-          meta.getRequiredFilesDesc( meta.getIncludeSubFolders()[i] ) } );
+          meta.getFileName()[ i ], meta.getFileMask()[ i ], meta.getExludeFileMask()[ i ],
+          meta.getRequiredFilesDesc( meta.getFileRequired()[ i ] ),
+          meta.getRequiredFilesDesc( meta.getIncludeSubFolders()[ i ] ) } );
       }
       wFilenameList.removeEmptyRows();
       wFilenameList.setRowNums();
@@ -1324,18 +1323,18 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
     }
     for ( int i = 0; i < meta.getField().length; i++ ) {
       TableItem item = wFields.table.getItem( i );
-      String field = meta.getField()[i].getName();
-      String type = meta.getField()[i].getTypeDesc();
-      String length = "" + meta.getField()[i].getLength();
-      String prec = "" + meta.getField()[i].getPrecision();
-      String trim = meta.getField()[i].getTrimTypeDesc();
+      String field = meta.getField()[ i ].getName();
+      String type = meta.getField()[ i ].getTypeDesc();
+      String length = "" + meta.getField()[ i ].getLength();
+      String prec = "" + meta.getField()[ i ].getPrecision();
+      String trim = meta.getField()[ i ].getTrimTypeDesc();
       String rep =
-        meta.getField()[i].isRepeated() ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages
+        meta.getField()[ i ].isRepeated() ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages
           .getString( PKG, "System.Combo.No" );
-      String format = meta.getField()[i].getFormat();
-      String currency = meta.getField()[i].getCurrencySymbol();
-      String decimal = meta.getField()[i].getDecimalSymbol();
-      String grouping = meta.getField()[i].getGroupSymbol();
+      String format = meta.getField()[ i ].getFormat();
+      String currency = meta.getField()[ i ].getCurrencySymbol();
+      String decimal = meta.getField()[ i ].getDecimalSymbol();
+      String grouping = meta.getField()[ i ].getGroupSymbol();
 
       if ( field != null ) {
         item.setText( 1, field );
@@ -1376,9 +1375,9 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
     logDebug( "getting sheets info..." );
     for ( int i = 0; i < meta.getSheetName().length; i++ ) {
       TableItem item = wSheetnameList.table.getItem( i );
-      String sheetname = meta.getSheetName()[i];
-      String startrow = "" + meta.getStartRow()[i];
-      String startcol = "" + meta.getStartColumn()[i];
+      String sheetname = meta.getSheetName()[ i ];
+      String startrow = "" + meta.getStartRow()[ i ];
+      String startcol = "" + meta.getStartColumn()[ i ];
 
       if ( sheetname != null ) {
         item.setText( 1, sheetname );
@@ -1476,7 +1475,7 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
     // copy info to Meta class (input)
     meta.setRowLimit( Const.toLong( wLimit.getText(), 0 ) );
     meta.setEncoding( wEncoding.getText() );
-    meta.setSpreadSheetType( SpreadSheetType.values()[wSpreadSheetType.getSelectionIndex()] );
+    meta.setSpreadSheetType( SpreadSheetType.values()[ wSpreadSheetType.getSelectionIndex() ] );
     meta.setFileField( wInclFilenameField.getText() );
     meta.setSheetField( wInclSheetnameField.getText() );
     meta.setSheetRowNumberField( wInclSheetRownumField.getText() );
@@ -1508,31 +1507,31 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrsheets; i++ ) {
       TableItem item = wSheetnameList.getNonEmpty( i );
-      meta.getSheetName()[i] = item.getText( 1 );
-      meta.getStartRow()[i] = Const.toInt( item.getText( 2 ), 0 );
-      meta.getStartColumn()[i] = Const.toInt( item.getText( 3 ), 0 );
+      meta.getSheetName()[ i ] = item.getText( 1 );
+      meta.getStartRow()[ i ] = Const.toInt( item.getText( 2 ), 0 );
+      meta.getStartColumn()[ i ] = Const.toInt( item.getText( 3 ), 0 );
     }
 
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrfields; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      meta.getField()[i] = new ExcelInputField();
+      meta.getField()[ i ] = new ExcelInputField();
 
-      meta.getField()[i].setName( item.getText( 1 ) );
-      meta.getField()[i].setType( ValueMetaFactory.getIdForValueMeta( item.getText( 2 ) ) );
+      meta.getField()[ i ].setName( item.getText( 1 ) );
+      meta.getField()[ i ].setType( ValueMetaFactory.getIdForValueMeta( item.getText( 2 ) ) );
       String slength = item.getText( 3 );
       String sprec = item.getText( 4 );
-      meta.getField()[i].setTrimType( ExcelInputMeta.getTrimTypeByDesc( item.getText( 5 ) ) );
-      meta.getField()[i].setRepeated( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase(
+      meta.getField()[ i ].setTrimType( ExcelInputMeta.getTrimTypeByDesc( item.getText( 5 ) ) );
+      meta.getField()[ i ].setRepeated( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase(
         item.getText( 6 ) ) );
 
-      meta.getField()[i].setLength( Const.toInt( slength, -1 ) );
-      meta.getField()[i].setPrecision( Const.toInt( sprec, -1 ) );
+      meta.getField()[ i ].setLength( Const.toInt( slength, -1 ) );
+      meta.getField()[ i ].setPrecision( Const.toInt( sprec, -1 ) );
 
-      meta.getField()[i].setFormat( item.getText( 7 ) );
-      meta.getField()[i].setCurrencySymbol( item.getText( 8 ) );
-      meta.getField()[i].setDecimalSymbol( item.getText( 9 ) );
-      meta.getField()[i].setGroupSymbol( item.getText( 10 ) );
+      meta.getField()[ i ].setFormat( item.getText( 7 ) );
+      meta.getField()[ i ].setCurrencySymbol( item.getText( 8 ) );
+      meta.getField()[ i ].setDecimalSymbol( item.getText( 9 ) );
+      meta.getField()[ i ].setGroupSymbol( item.getText( 10 ) );
     }
 
     // Error handling fields...
@@ -1849,7 +1848,6 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
 
   /**
    * Preview the data generated by this step. This generates a transformation using this step & a dummy and previews it.
-   *
    */
   private void preview() {
     // Create the excel reader step...
@@ -1859,11 +1857,11 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
     if ( oneMeta.isAcceptingFilenames() ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
       mb.setMessage( BaseMessages.getString( PKG, "ExcelInputDialog.Dialog.SpecifyASampleFile.Message" ) ); // Nothing
-                                                                                                            // found
-                                                                                                            // that
-                                                                                                            // matches
-                                                                                                            // your
-                                                                                                            // criteria
+      // found
+      // that
+      // matches
+      // your
+      // criteria
       mb.setText( BaseMessages.getString( PKG, "ExcelInputDialog.Dialog.SpecifyASampleFile.Title" ) ); // Sorry!
       mb.open();
       return;
@@ -1891,7 +1889,7 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
           EnterTextDialog etd =
             new EnterTextDialog(
               shell, BaseMessages.getString( PKG, "System.Dialog.PreviewError.Title" ), BaseMessages
-                .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
+              .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
           etd.setReadOnly();
           etd.open();
         }
@@ -1900,14 +1898,13 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
       PreviewRowsDialog prd =
         new PreviewRowsDialog(
           shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta( wStepname
-            .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
+          .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
       prd.open();
     }
   }
 
   /**
    * Get the names of the sheets from the Excel workbooks and let the user select some or all of them.
-   *
    */
   public void getSheets() {
     List<String> sheetnames = new ArrayList<String>();
@@ -1936,19 +1933,19 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
       } catch ( Exception e ) {
         new ErrorDialog(
           shell, BaseMessages.getString( PKG, "System.Dialog.Error.Title" ), BaseMessages.getString(
-            PKG, "ExcelInputDialog.ErrorReadingFile.DialogMessage", HopVFS.getFilename( fileObject ) ), e );
+          PKG, "ExcelInputDialog.ErrorReadingFile.DialogMessage", HopVFS.getFilename( fileObject ) ), e );
       }
     }
 
     // Put it in an array:
-    String[] lst = sheetnames.toArray( new String[sheetnames.size()] );
+    String[] lst = sheetnames.toArray( new String[ sheetnames.size() ] );
 
     // Let the user select the sheet-names...
     EnterListDialog esd = new EnterListDialog( shell, SWT.NONE, lst );
     String[] selection = esd.open();
     if ( selection != null ) {
       for ( int j = 0; j < selection.length; j++ ) {
-        wSheetnameList.add( new String[] { selection[j], "" } );
+        wSheetnameList.add( new String[] { selection[ j ], "" } );
       }
       wSheetnameList.removeEmptyRows();
       wSheetnameList.setRowNums();
@@ -2015,8 +2012,8 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
   /**
    * Processing excel workbook, filling fields
    *
-   * @param fields RowMetaInterface for filling fields
-   * @param info ExcelInputMeta
+   * @param fields   RowMetaInterface for filling fields
+   * @param info     ExcelInputMeta
    * @param workbook excel workbook for processing
    * @throws HopPluginException
    */
@@ -2040,14 +2037,14 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
 
         if ( info.readAllSheets() ) {
           if ( info.getStartColumn().length == 1 ) {
-            startcol = info.getStartColumn()[0];
+            startcol = info.getStartColumn()[ 0 ];
           }
           if ( info.getStartRow().length == 1 ) {
-            rownr = info.getStartRow()[0];
+            rownr = info.getStartRow()[ 0 ];
           }
         } else {
-          rownr = info.getStartRow()[sheetIndex];
-          startcol = info.getStartColumn()[sheetIndex];
+          rownr = info.getStartRow()[ sheetIndex ];
+          startcol = info.getStartColumn()[ sheetIndex ];
         }
 
         boolean stop = false;
@@ -2149,7 +2146,7 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
    * the full kit, this method is invoked whenever data changes in the dialog. It scans the dialog's model looking for
    * missing and/or inconsistent data. Tabs needing attention are visually flagged and attention messages are displayed
    * in the statusMessage line (a la Eclipse).
-   *
+   * <p>
    * Since there's only one statusMessage line, messages are prioritized. As each higher-level item is corrected, the
    * next lower level message is displayed.
    *
@@ -2192,12 +2189,9 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
   /**
    * Hilight (or not) tab to indicate if action is required.
    *
-   * @param hilightMe
-   *          <code>true</code> to highlight, <code>false</code> if not.
-   * @param tabItem
-   *          Tab to highlight
-   * @param tabCaption
-   *          Tab text (normally fetched from resource).
+   * @param hilightMe  <code>true</code> to highlight, <code>false</code> if not.
+   * @param tabItem    Tab to highlight
+   * @param tabCaption Tab text (normally fetched from resource).
    */
   private void tagTab( boolean hilightMe, CTabItem tabItem, String tabCaption ) {
     if ( hilightMe ) {

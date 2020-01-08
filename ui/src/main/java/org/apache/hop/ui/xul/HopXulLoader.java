@@ -22,26 +22,28 @@
 
 package org.apache.hop.ui.xul;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-
 import org.apache.commons.io.IOUtils;
+import org.apache.hop.core.SwtUniversalImage;
+import org.apache.hop.core.SwtUniversalImageSvg;
+import org.apache.hop.core.svg.SvgImage;
+import org.apache.hop.core.svg.SvgSupport;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.widgets.Display;
-import org.apache.hop.core.SwtUniversalImage;
-import org.apache.hop.core.SwtUniversalImageSvg;
-import org.apache.hop.core.svg.SvgImage;
-import org.apache.hop.core.svg.SvgSupport;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.swt.SwtXulLoader;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+
 public class HopXulLoader extends SwtXulLoader {
 
-  /** Icons size for SVG icons rasterization. */
+  /**
+   * Icons size for SVG icons rasterization.
+   */
   private int iconWidth = 16;
   private int iconHeight = 16;
 

@@ -28,7 +28,6 @@ import java.net.ServerSocket;
  * This entry contains a server socket as well as detailed about the process that is using it.
  *
  * @author matt
- *
  */
 public class SocketRepositoryEntry {
   private int port;
@@ -74,8 +73,7 @@ public class SocketRepositoryEntry {
   }
 
   /**
-   * @param port
-   *          the port to set
+   * @param port the port to set
    */
   public void setPort( int port ) {
     this.port = port;
@@ -89,8 +87,7 @@ public class SocketRepositoryEntry {
   }
 
   /**
-   * @param serverSocket
-   *          the serverSocket to set
+   * @param serverSocket the serverSocket to set
    */
   public void setServerSocket( ServerSocket serverSocket ) {
     this.serverSocket = serverSocket;
@@ -104,8 +101,7 @@ public class SocketRepositoryEntry {
   }
 
   /**
-   * @param inUse
-   *          the inUse to set
+   * @param inUse the inUse to set
    */
   public void setInUse( boolean inUse ) {
     this.inUse = inUse;
@@ -119,8 +115,7 @@ public class SocketRepositoryEntry {
   }
 
   /**
-   * @param user
-   *          the user to set
+   * @param user the user to set
    */
   public void setUser( String user ) {
     this.user = user;

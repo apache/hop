@@ -22,10 +22,11 @@
 
 package org.apache.hop.trans.steps.loadsave.validator;
 
+import org.apache.hop.core.database.DatabaseMeta;
+
 import java.util.Random;
 import java.util.UUID;
 
-import org.apache.hop.core.database.DatabaseMeta;
 public class DatabaseMetaLoadSaveValidator implements FieldLoadSaveValidator<DatabaseMeta> {
 
   private static final Random rand = new Random();

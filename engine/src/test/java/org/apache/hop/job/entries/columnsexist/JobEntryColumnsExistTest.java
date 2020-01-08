@@ -22,11 +22,6 @@
 
 package org.apache.hop.job.entries.columnsexist;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.database.Database;
@@ -37,26 +32,30 @@ import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for column exist job entry.
  *
  * @author Tim Ryzhov
  * @since 21-03-2017
- *
  */
 
 public class JobEntryColumnsExistTest {
@@ -64,7 +63,7 @@ public class JobEntryColumnsExistTest {
 
   private static final String TABLENAME = "TABLE";
   private static final String SCHEMANAME = "SCHEMA";
-  private static final String[] COLUMNS = new String[]{"COLUMN1", "COLUMN2"};
+  private static final String[] COLUMNS = new String[] { "COLUMN1", "COLUMN2" };
   private JobEntryColumnsExist jobEntry;
   private Database db;
 

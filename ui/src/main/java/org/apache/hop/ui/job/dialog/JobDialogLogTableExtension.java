@@ -22,11 +22,11 @@
 
 package org.apache.hop.ui.job.dialog;
 
+import org.apache.hop.core.logging.LogTableInterface;
+import org.apache.hop.job.JobMeta;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.logging.LogTableInterface;
-import org.apache.hop.job.JobMeta;
 
 public class JobDialogLogTableExtension {
   public enum Direction {
@@ -42,7 +42,7 @@ public class JobDialogLogTableExtension {
   public JobDialog jobDialog;
 
   public JobDialogLogTableExtension( Direction direction, Shell shell, JobMeta jobMeta,
-    LogTableInterface logTable, Composite wLogOptionsComposite, ModifyListener lsMod, JobDialog jobDialog ) {
+                                     LogTableInterface logTable, Composite wLogOptionsComposite, ModifyListener lsMod, JobDialog jobDialog ) {
     super();
     this.direction = direction;
     this.shell = shell;

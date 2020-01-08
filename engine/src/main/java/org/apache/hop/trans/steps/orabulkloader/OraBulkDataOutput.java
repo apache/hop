@@ -25,11 +25,11 @@ package org.apache.hop.trans.steps.orabulkloader;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 
@@ -123,11 +123,11 @@ public class OraBulkDataOutput {
 
       // Setup up the fields we need to take for each of the rows
       // as this speeds up processing.
-      fieldNumbers = new int[meta.getFieldStream().length];
+      fieldNumbers = new int[ meta.getFieldStream().length ];
       for ( int i = 0; i < fieldNumbers.length; i++ ) {
-        fieldNumbers[i] = mi.indexOfValue( meta.getFieldStream()[i] );
-        if ( fieldNumbers[i] < 0 ) {
-          throw new HopException( "Could not find field " + meta.getFieldStream()[i] + " in stream" );
+        fieldNumbers[ i ] = mi.indexOfValue( meta.getFieldStream()[ i ] );
+        if ( fieldNumbers[ i ] < 0 ) {
+          throw new HopException( "Could not find field " + meta.getFieldStream()[ i ] + " in stream" );
         }
       }
 
@@ -146,8 +146,8 @@ public class OraBulkDataOutput {
         outbuf.append( "," );
       }
       v = mi.getValueMeta( i );
-      number = fieldNumbers[i];
-      if ( row[number] == null ) {
+      number = fieldNumbers[ i ];
+      if ( row[ number ] == null ) {
         // TODO (SB): special check for null in case of Strings.
         outbuf.append( enclosure );
         outbuf.append( enclosure );
@@ -183,7 +183,7 @@ public class OraBulkDataOutput {
           case ValueMetaInterface.TYPE_DATE:
             Date dt = mi.getDate( row, number );
             outbuf.append( enclosure );
-            String mask = meta.getDateMask()[i];
+            String mask = meta.getDateMask()[ i ];
             if ( OraBulkLoaderMeta.DATE_MASK_DATETIME.equals( mask ) ) {
               outbuf.append( sdfDateTime.format( dt ) );
             } else {

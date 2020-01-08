@@ -24,12 +24,12 @@ package org.apache.hop.job.entries.zipfile;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.job.Job;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -68,22 +68,22 @@ public class JobEntryZipFileIT {
       Result result = new Result();
       JobEntryZipFile entry = new JobEntryZipFile();
       assertTrue(
-              entry.processRowFile(new Job(), result, zipPath, null, null, tempFile.getAbsolutePath(), null, false));
+        entry.processRowFile( new Job(), result, zipPath, null, null, tempFile.getAbsolutePath(), null, false ) );
       boolean isTrue = true;
 
-      FileObject zip = HopVFS.getFileObject(zipPath);
-      assertTrue("Zip archive should be created", zip.exists());
+      FileObject zip = HopVFS.getFileObject( zipPath );
+      assertTrue( "Zip archive should be created", zip.exists() );
 
       ByteArrayOutputStream os = new ByteArrayOutputStream();
-      IOUtils.copy(zip.getContent().getInputStream(), os);
+      IOUtils.copy( zip.getContent().getInputStream(), os );
 
-      ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(os.toByteArray()));
+      ZipInputStream zis = new ZipInputStream( new ByteArrayInputStream( os.toByteArray() ) );
       ZipEntry zipEntry = zis.getNextEntry();
-      assertEquals("Input file should be put into the archive", tempFile.getName(), zipEntry.getName());
+      assertEquals( "Input file should be put into the archive", tempFile.getName(), zipEntry.getName() );
 
       os.reset();
-      IOUtils.copy(zis, os);
-      assertEquals("File's content should be equal to original", content, new String(os.toByteArray()));
+      IOUtils.copy( zis, os );
+      assertEquals( "File's content should be equal to original", content, new String( os.toByteArray() ) );
     } finally {
       tempFile.delete();
       File tempZipFile = new File( zipPath );

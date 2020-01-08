@@ -22,12 +22,10 @@
 
 package org.apache.hop.trans.steps.filterrows;
 
-import java.util.List;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -37,6 +35,8 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
+
+import java.util.List;
 
 /**
  * Filters input rows base on conditions.
@@ -51,7 +51,7 @@ public class FilterRows extends BaseStep implements StepInterface {
   private FilterRowsData data;
 
   public FilterRows( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                     Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -149,7 +149,7 @@ public class FilterRows extends BaseStep implements StepInterface {
   }
 
   /**
-   * @see StepInterface#init(org.apache.hop.trans.step.StepMetaInterface , org.apache.hop.trans.step.StepDataInterface)
+   * @see StepInterface#init(org.apache.hop.trans.step.StepMetaInterface, org.apache.hop.trans.step.StepDataInterface)
    */
   public boolean init( StepMetaInterface smi, StepDataInterface sdi ) {
     meta = (FilterRowsMeta) smi;

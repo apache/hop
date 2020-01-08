@@ -22,6 +22,17 @@
 package org.apache.hop.ui.job.entry;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.hop.core.Props;
+import org.apache.hop.i18n.PackageMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.FormDataBuilder;
+import org.apache.hop.ui.core.WidgetUtils;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -39,20 +50,9 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.TypedListener;
-import org.apache.hop.core.Props;
-import org.apache.hop.i18n.PackageMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.FormDataBuilder;
-import org.apache.hop.ui.core.WidgetUtils;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public abstract class JobStepDialog<T extends JobEntryInterface> extends JobEntryDialog implements
-    JobEntryDialogInterface {
+  JobEntryDialogInterface {
 
   protected static final int LARGE_MARGIN = 15;
   protected static final int FIELD_WIDTH = 60;
@@ -94,7 +94,7 @@ public abstract class JobStepDialog<T extends JobEntryInterface> extends JobEntr
 
   @SuppressWarnings( "unchecked" )
   public JobStepDialog( final Shell parent, final JobEntryInterface jobEntryInt,
-      final JobMeta jobMeta, boolean bigIcon ) {
+                        final JobMeta jobMeta, boolean bigIcon ) {
     super( parent, jobEntryInt, jobMeta );
     entry = (T) jobEntryInt;
     this.bigIcon = bigIcon;
@@ -141,7 +141,7 @@ public abstract class JobStepDialog<T extends JobEntryInterface> extends JobEntr
     wOK = new Button( shell, SWT.PUSH );
     wOK.setText( systemMessages.getString( "Button.OK" ) );
     wOK.setLayoutData( new FormDataBuilder().bottom().right( wCancel, -ConstUI.SMALL_MARGIN ).width( BUTTON_WIDTH )
-        .result() );
+      .result() );
 
     doOpen();
 

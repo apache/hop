@@ -26,9 +26,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 
 /**
- *
  * @author Johnny Vanhentenyk
- *
  */
 public interface FileErrorHandler {
 
@@ -44,15 +42,13 @@ public interface FileErrorHandler {
    * This method handles an error when processing the line with corresponding lineNr.
    *
    * @param lineNr
-   * @param filePart
-   *          allows us to split error according to a filePart
+   * @param filePart allows us to split error according to a filePart
    * @throws HopException
    */
   void handleLineError( long lineNr, String filePart ) throws HopException;
 
   /**
    * This method closes the handler;
-   *
    */
   void close() throws HopException;
 

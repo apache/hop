@@ -22,16 +22,15 @@
 
 package org.apache.hop.laf;
 
-import java.util.HashMap;
-
 import org.apache.hop.i18n.MessageHandler;
+
+import java.util.HashMap;
 
 /**
  * the LAFFactory provides a mechanism whereby @see Handler s can be dynamically replaced to enable user driven
  * replacement of dynamic resolvers whether ImageHandlers, MessageHandlers, or other elements of Look and Feel.
  *
  * @author dhushon
- *
  */
 public class LAFFactory {
 
@@ -45,6 +44,7 @@ public class LAFFactory {
   // Map an abstract ClassName (by String) to an implementing Class
   private static HashMap<String, Class<? extends Handler>> handlerRef =
     new HashMap<String, Class<? extends Handler>>();
+
   static {
     // handlers.put(MessageHandler.class.), (Handler)_defMessageHandler.newInstance());
     handlerRef.put( MessageHandler.class.getName(), _defMessageHandler );

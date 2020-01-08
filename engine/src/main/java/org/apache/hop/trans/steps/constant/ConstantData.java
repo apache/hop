@@ -22,16 +22,16 @@
 
 package org.apache.hop.trans.steps.constant;
 
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.trans.step.BaseStepData;
+import org.apache.hop.trans.step.StepDataInterface;
+
 import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.trans.step.BaseStepData;
-import org.apache.hop.trans.step.StepDataInterface;
 
 /**
  * @author Matt

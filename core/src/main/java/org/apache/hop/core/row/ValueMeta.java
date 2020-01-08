@@ -22,10 +22,6 @@
 
 package org.apache.hop.core.row;
 
-import java.io.DataInputStream;
-import java.util.Locale;
-import java.util.TimeZone;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopEOFException;
 import org.apache.hop.core.exception.HopException;
@@ -34,13 +30,14 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Node;
+
+import java.io.DataInputStream;
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Convenience class for backward compatibility.
- *
- *
  */
 @Deprecated
 public class ValueMeta extends ValueMetaBase {

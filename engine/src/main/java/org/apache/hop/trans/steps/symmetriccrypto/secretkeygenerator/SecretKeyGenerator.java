@@ -22,13 +22,11 @@
 
 package org.apache.hop.trans.steps.symmetriccrypto.secretkeygenerator;
 
-import java.util.List;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -40,6 +38,8 @@ import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.symmetriccrypto.symmetricalgorithm.CryptoException;
 import org.apache.hop.trans.steps.symmetriccrypto.symmetricalgorithm.SymmetricCrypto;
 import org.apache.hop.trans.steps.symmetriccrypto.symmetricalgorithm.SymmetricCryptoMeta;
+
+import java.util.List;
 
 /**
  * Generate secret key. for symmetric algorithms
@@ -55,7 +55,7 @@ public class SecretKeyGenerator extends BaseStep implements StepInterface {
   private SecretKeyGeneratorData data;
 
   public SecretKeyGenerator( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,
-    TransMeta transMeta, Trans trans ) {
+                             TransMeta transMeta, Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -100,7 +100,7 @@ public class SecretKeyGenerator extends BaseStep implements StepInterface {
     }
     for ( int i = 0; i < data.nr && !isStopped(); i++ ) {
 
-      for ( int j = 0; j < data.secretKeyCount[i] && !isStopped(); j++ ) {
+      for ( int j = 0; j < data.secretKeyCount[ i ] && !isStopped(); j++ ) {
 
         // Create a new row
         row = buildEmptyRow();
@@ -111,9 +111,9 @@ public class SecretKeyGenerator extends BaseStep implements StepInterface {
         try {
           // Return secret key
           if ( meta.isOutputKeyInBinary() ) {
-            row[index++] = data.cryptoTrans[i].generateKey( data.secretKeyLen[i] );
+            row[ index++ ] = data.cryptoTrans[ i ].generateKey( data.secretKeyLen[ i ] );
           } else {
-            row[index++] = data.cryptoTrans[i].generateKeyAsHex( data.secretKeyLen[i] );
+            row[ index++ ] = data.cryptoTrans[ i ].generateKeyAsHex( data.secretKeyLen[ i ] );
           }
 
         } catch ( CryptoException k ) {
@@ -122,12 +122,12 @@ public class SecretKeyGenerator extends BaseStep implements StepInterface {
 
         if ( data.addAlgorithmOutput ) {
           // add algorithm
-          row[index++] = meta.getAlgorithm()[i];
+          row[ index++ ] = meta.getAlgorithm()[ i ];
         }
 
         if ( data.addSecretKeyLengthOutput ) {
           // add secret key len
-          row[index++] = new Long( data.secretKeyLen[i] );
+          row[ index++ ] = new Long( data.secretKeyLen[ i ] );
         }
 
         if ( data.readsRows ) {
@@ -166,26 +166,26 @@ public class SecretKeyGenerator extends BaseStep implements StepInterface {
       }
 
       data.nr = meta.getAlgorithm().length;
-      data.algorithm = new int[data.nr];
-      data.scheme = new String[data.nr];
-      data.secretKeyLen = new int[data.nr];
-      data.secretKeyCount = new int[data.nr];
+      data.algorithm = new int[ data.nr ];
+      data.scheme = new String[ data.nr ];
+      data.secretKeyLen = new int[ data.nr ];
+      data.secretKeyCount = new int[ data.nr ];
 
       for ( int i = 0; i < data.nr; i++ ) {
-        data.algorithm[i] = SymmetricCryptoMeta.getAlgorithmTypeFromCode( meta.getAlgorithm()[i] );
-        String len = environmentSubstitute( meta.getSecretKeyLength()[i] );
-        data.secretKeyLen[i] = Const.toInt( len, -1 );
-        if ( data.secretKeyLen[i] < 0 ) {
+        data.algorithm[ i ] = SymmetricCryptoMeta.getAlgorithmTypeFromCode( meta.getAlgorithm()[ i ] );
+        String len = environmentSubstitute( meta.getSecretKeyLength()[ i ] );
+        data.secretKeyLen[ i ] = Const.toInt( len, -1 );
+        if ( data.secretKeyLen[ i ] < 0 ) {
           logError( BaseMessages.getString( PKG, "SecretKeyGenerator.Log.WrongLength", len, String.valueOf( i ) ) );
           return false;
         }
-        String size = environmentSubstitute( meta.getSecretKeyCount()[i] );
-        data.secretKeyCount[i] = Const.toInt( size, -1 );
-        if ( data.secretKeyCount[i] < 0 ) {
+        String size = environmentSubstitute( meta.getSecretKeyCount()[ i ] );
+        data.secretKeyCount[ i ] = Const.toInt( size, -1 );
+        if ( data.secretKeyCount[ i ] < 0 ) {
           logError( BaseMessages.getString( PKG, "SecretKeyGenerator.Log.WrongSize", size, String.valueOf( i ) ) );
           return false;
         }
-        data.scheme[i] = environmentSubstitute( meta.getScheme()[i] );
+        data.scheme[ i ] = environmentSubstitute( meta.getScheme()[ i ] );
       }
 
       data.readsRows = getStepMeta().getRemoteInputSteps().size() > 0;
@@ -197,14 +197,14 @@ public class SecretKeyGenerator extends BaseStep implements StepInterface {
       data.addAlgorithmOutput = !Utils.isEmpty( meta.getAlgorithmFieldName() );
       data.addSecretKeyLengthOutput = !Utils.isEmpty( meta.getSecretKeyLengthFieldName() );
 
-      data.cryptoTrans = new SymmetricCrypto[data.nr];
+      data.cryptoTrans = new SymmetricCrypto[ data.nr ];
       for ( int i = 0; i < data.nr; i++ ) {
         try {
           // Define a new cryptotrans meta instance
-          SymmetricCryptoMeta cryptoTransMeta = new SymmetricCryptoMeta( meta.getAlgorithm()[i] );
+          SymmetricCryptoMeta cryptoTransMeta = new SymmetricCryptoMeta( meta.getAlgorithm()[ i ] );
 
           // Initialize a new cryptotrans object
-          data.cryptoTrans[i] = new SymmetricCrypto( cryptoTransMeta, data.scheme[i] );
+          data.cryptoTrans[ i ] = new SymmetricCrypto( cryptoTransMeta, data.scheme[ i ] );
 
         } catch ( Exception e ) {
           logError( BaseMessages.getString( PKG, "SecretKey.Init.Error" ), e );
@@ -222,7 +222,7 @@ public class SecretKeyGenerator extends BaseStep implements StepInterface {
     if ( data.cryptoTrans != null ) {
       int nr = data.cryptoTrans.length;
       for ( int i = 0; i < nr; i++ ) {
-        data.cryptoTrans[i].close();
+        data.cryptoTrans[ i ].close();
       }
     }
   }

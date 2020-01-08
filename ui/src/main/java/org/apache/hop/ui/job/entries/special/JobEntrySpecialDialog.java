@@ -22,6 +22,17 @@
 
 package org.apache.hop.ui.job.entries.special;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.special.JobEntrySpecial;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -44,17 +55,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.special.JobEntrySpecial;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class JobEntrySpecialDialog extends JobEntryDialog implements JobEntryDialogInterface {
   private static Class<?> PKG = JobEntrySpecial.class; // for i18n purposes, needed by Translator2!!
@@ -249,7 +249,6 @@ public class JobEntrySpecialDialog extends JobEntryDialog implements JobEntryDia
 
     wOK.addListener( SWT.Selection, lsOK );
     wCancel.addListener( SWT.Selection, lsCancel );
-
 
 
     // Detect [X] or ALT-F4 or something that kills this window...

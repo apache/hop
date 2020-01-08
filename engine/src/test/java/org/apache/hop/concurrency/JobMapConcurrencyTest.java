@@ -23,12 +23,12 @@
 package org.apache.hop.concurrency;
 
 import org.apache.commons.collections.ListUtils;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobConfiguration;
 import org.apache.hop.www.HopServerObjectEntry;
 import org.apache.hop.www.JobMap;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;

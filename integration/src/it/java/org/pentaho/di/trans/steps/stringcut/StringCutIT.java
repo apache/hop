@@ -22,11 +22,6 @@
 
 package org.apache.hop.trans.steps.stringcut;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -46,6 +41,11 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
 import org.apache.hop.trans.steps.injector.InjectorMeta;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Test class for the StringCut step.
@@ -62,12 +62,12 @@ public class StringCutIT extends TransformationIT {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    { new ValueMetaString( "field1" ), new ValueMetaString( "field2" ),
+      { new ValueMetaString( "field1" ), new ValueMetaString( "field2" ),
 
-    };
+      };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -77,14 +77,14 @@ public class StringCutIT extends TransformationIT {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    {
-      new ValueMetaString( "field1" ), new ValueMetaString( "field2" ),
-      new ValueMetaString( "outf3" ),
+      {
+        new ValueMetaString( "field1" ), new ValueMetaString( "field2" ),
+        new ValueMetaString( "outf3" ),
 
-    };
+      };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -94,14 +94,14 @@ public class StringCutIT extends TransformationIT {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    {
-      new ValueMetaString( "field1" ), new ValueMetaString( "field2" ),
-      new ValueMetaString( "outf3" ), new ValueMetaString( "outf4" ),
+      {
+        new ValueMetaString( "field1" ), new ValueMetaString( "field2" ),
+        new ValueMetaString( "outf3" ), new ValueMetaString( "outf4" ),
 
-    };
+      };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -478,12 +478,12 @@ public class StringCutIT extends TransformationIT {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    { new ValueMetaString( "field1" ), new ValueMetaString( "field2" ), };
+      { new ValueMetaString( "field1" ), new ValueMetaString( "field2" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      valuesMeta[i].setStorageMetadata( createRowMetaInterface().getValueMeta( i ) );
-      valuesMeta[i].setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
-      rm.addValueMeta( valuesMeta[i] );
+      valuesMeta[ i ].setStorageMetadata( createRowMetaInterface().getValueMeta( i ) );
+      valuesMeta[ i ].setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -493,11 +493,11 @@ public class StringCutIT extends TransformationIT {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    { new ValueMetaString( "field1" ), new ValueMetaString( "field2" ),
-      new ValueMetaString( "field1_1" ), };
+      { new ValueMetaString( "field1" ), new ValueMetaString( "field2" ),
+        new ValueMetaString( "field1_1" ), };
 
-    valuesMeta[1].setStorageMetadata( createRowMetaInterface().getValueMeta( 1 ) );
-    valuesMeta[1].setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
+    valuesMeta[ 1 ].setStorageMetadata( createRowMetaInterface().getValueMeta( 1 ) );
+    valuesMeta[ 1 ].setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
     for ( ValueMetaInterface aValuesMeta : valuesMeta ) {
       rm.addValueMeta( aValuesMeta );
     }

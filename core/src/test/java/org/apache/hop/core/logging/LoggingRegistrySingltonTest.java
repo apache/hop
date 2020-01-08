@@ -22,6 +22,11 @@
 
 package org.apache.hop.core.logging;
 
+import junit.framework.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.modules.junit4.PowerMockRunner;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -34,17 +39,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 /**
- * Note, this test must be run on separate JAVA instance, to be sure 
+ * Note, this test must be run on separate JAVA instance, to be sure
  * LoggingRegistry was not already initialized when using differed initialization
  * or do initialize immediate in static way.
- *
  */
 @RunWith( PowerMockRunner.class )
 public class LoggingRegistrySingltonTest {
@@ -52,10 +50,9 @@ public class LoggingRegistrySingltonTest {
   /**
    * Test that LoggingRegistry is concurrent-sage initialized over multiple calls. Creating more than 1000 threads can
    * cause significant performance impact.
-   * 
+   *
    * @throws InterruptedException
    * @throws ExecutionException
-   * 
    */
   @Test( timeout = 30000 )
   public void testLoggingRegistryConcurrentInitialization() throws InterruptedException, ExecutionException {

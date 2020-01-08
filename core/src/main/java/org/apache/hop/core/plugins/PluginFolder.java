@@ -41,7 +41,6 @@ import java.util.List;
  * A folder to search plugins in.
  *
  * @author matt
- *
  */
 public class PluginFolder implements PluginFolderInterface {
 
@@ -51,29 +50,22 @@ public class PluginFolder implements PluginFolderInterface {
   private boolean searchLibDir;
 
   /**
-   * @param folder
-   *          The folder location
-   * @param pluginXmlFolder
-   *          set to true if the folder needs to be searched for plugin.xml appearances
-   * @param pluginAnnotationsFolder
-   *          set to true if the folder needs to be searched for jar files with plugin annotations
+   * @param folder                  The folder location
+   * @param pluginXmlFolder         set to true if the folder needs to be searched for plugin.xml appearances
+   * @param pluginAnnotationsFolder set to true if the folder needs to be searched for jar files with plugin annotations
    */
   public PluginFolder( String folder, boolean pluginXmlFolder, boolean pluginAnnotationsFolder ) {
     this( folder, pluginXmlFolder, pluginAnnotationsFolder, false );
   }
 
   /**
-   * @param folder
-   *          The folder location
-   * @param pluginXmlFolder
-   *          set to true if the folder needs to be searched for plugin.xml appearances
-   * @param pluginAnnotationsFolder
-   *          set to true if the folder needs to be searched for jar files with plugin annotations
-   * @param searchLibDir
-   *          look inside the plugins lib dir for additional plugins
+   * @param folder                  The folder location
+   * @param pluginXmlFolder         set to true if the folder needs to be searched for plugin.xml appearances
+   * @param pluginAnnotationsFolder set to true if the folder needs to be searched for jar files with plugin annotations
+   * @param searchLibDir            look inside the plugins lib dir for additional plugins
    */
   public PluginFolder( String folder, boolean pluginXmlFolder, boolean pluginAnnotationsFolder,
-    boolean searchLibDir ) {
+                       boolean searchLibDir ) {
     this.folder = folder;
     this.pluginXmlFolder = pluginXmlFolder;
     this.pluginAnnotationsFolder = pluginAnnotationsFolder;
@@ -88,8 +80,7 @@ public class PluginFolder implements PluginFolderInterface {
   /**
    * Create a list of plugin folders based on the specified xml sub folder
    *
-   * @param xmlSubfolder
-   *          the sub-folder to consider for XML plugin files or null if it's not applicable.
+   * @param xmlSubfolder the sub-folder to consider for XML plugin files or null if it's not applicable.
    * @return The list of plugin folders found
    */
   public static List<PluginFolderInterface> populateFolders( String xmlSubfolder ) {
@@ -153,8 +144,7 @@ public class PluginFolder implements PluginFolderInterface {
   }
 
   /**
-   * @param folder
-   *          the folder to set
+   * @param folder the folder to set
    */
   public void setFolder( String folder ) {
     this.folder = folder;
@@ -169,8 +159,7 @@ public class PluginFolder implements PluginFolderInterface {
   }
 
   /**
-   * @param pluginXmlFolder
-   *          the pluginXmlFolder to set
+   * @param pluginXmlFolder the pluginXmlFolder to set
    */
   public void setPluginXmlFolder( boolean pluginXmlFolder ) {
     this.pluginXmlFolder = pluginXmlFolder;
@@ -185,8 +174,7 @@ public class PluginFolder implements PluginFolderInterface {
   }
 
   /**
-   * @param pluginAnnotationsFolder
-   *          the pluginAnnotationsFolder to set
+   * @param pluginAnnotationsFolder the pluginAnnotationsFolder to set
    */
   public void setPluginAnnotationsFolder( boolean pluginAnnotationsFolder ) {
     this.pluginAnnotationsFolder = pluginAnnotationsFolder;

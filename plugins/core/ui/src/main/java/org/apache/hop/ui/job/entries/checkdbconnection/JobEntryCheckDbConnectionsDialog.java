@@ -22,6 +22,21 @@
 
 package org.apache.hop.ui.job.entries.checkdbconnection;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.checkdbconnection.JobEntryCheckDbConnections;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -41,21 +56,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.PluginDialog;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.checkdbconnection.JobEntryCheckDbConnections;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 import java.util.List;
 
@@ -200,9 +200,9 @@ public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements 
           BaseMessages.getString( PKG, "JobCheckDbConnections.Fields.WaitForTime.Label" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, JobEntryCheckDbConnections.unitTimeDesc, false ), };
 
-    colinf[0].setToolTip( BaseMessages.getString( PKG, "JobCheckDbConnections.Fields.Column" ) );
-    colinf[1].setUsingVariables( true );
-    colinf[1].setToolTip( BaseMessages.getString( PKG, "JobCheckDbConnections.WaitFor.ToolTip" ) );
+    colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "JobCheckDbConnections.Fields.Column" ) );
+    colinf[ 1 ].setUsingVariables( true );
+    colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "JobCheckDbConnections.WaitFor.ToolTip" ) );
 
     wFields =
       new TableView(
@@ -303,7 +303,7 @@ public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements 
     for ( int i = 0; i < databases.size(); i++ ) {
       DatabaseMeta ci = databases.get( i );
       if ( ci != null ) {
-        wFields.add( new String[] { ci.getName(), "0", JobEntryCheckDbConnections.unitTimeDesc[0] } );
+        wFields.add( new String[] { ci.getName(), "0", JobEntryCheckDbConnections.unitTimeDesc[ 0 ] } );
       }
     }
     wFields.removeEmptyRows();
@@ -328,10 +328,10 @@ public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements 
     if ( jobEntry.getConnections() != null ) {
       for ( int i = 0; i < jobEntry.getConnections().length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.getConnections()[i] != null ) {
-          ti.setText( 1, jobEntry.getConnections()[i].getName() );
-          ti.setText( 2, "" + Const.toInt( jobEntry.getWaitfors()[i], 0 ) );
-          ti.setText( 3, JobEntryCheckDbConnections.getWaitTimeDesc( jobEntry.getWaittimes()[i] ) );
+        if ( jobEntry.getConnections()[ i ] != null ) {
+          ti.setText( 1, jobEntry.getConnections()[ i ].getName() );
+          ti.setText( 2, "" + Const.toInt( jobEntry.getWaitfors()[ i ], 0 ) );
+          ti.setText( 3, JobEntryCheckDbConnections.getWaitTimeDesc( jobEntry.getWaittimes()[ i ] ) );
         }
       }
       wFields.setRowNums();
@@ -360,17 +360,17 @@ public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements 
 
     int nritems = wFields.nrNonEmpty();
 
-    DatabaseMeta[] connections = new DatabaseMeta[nritems];
-    String[] waitfors = new String[nritems];
-    int[] waittimes = new int[nritems];
+    DatabaseMeta[] connections = new DatabaseMeta[ nritems ];
+    String[] waitfors = new String[ nritems ];
+    int[] waittimes = new int[ nritems ];
 
     for ( int i = 0; i < nritems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       DatabaseMeta dbMeta = jobMeta.findDatabase( arg );
       if ( dbMeta != null ) {
-        connections[i] = dbMeta;
-        waitfors[i] = "" + Const.toInt( wFields.getNonEmpty( i ).getText( 2 ), 0 );
-        waittimes[i] =
+        connections[ i ] = dbMeta;
+        waitfors[ i ] = "" + Const.toInt( wFields.getNonEmpty( i ).getText( 2 ), 0 );
+        waittimes[ i ] =
           JobEntryCheckDbConnections.getWaitTimeByDesc( wFields.getNonEmpty( i ).getText( 3 ) );
       }
     }

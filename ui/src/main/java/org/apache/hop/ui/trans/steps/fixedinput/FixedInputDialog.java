@@ -22,12 +22,33 @@
 
 package org.apache.hop.ui.trans.steps.fixedinput;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPreviewFactory;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.fixedinput.FixedFileInputField;
+import org.apache.hop.trans.steps.fixedinput.FixedInputMeta;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboValuesSelectionListener;
+import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
@@ -53,33 +74,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPreviewFactory;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.fixedinput.FixedFileInputField;
-import org.apache.hop.trans.steps.fixedinput.FixedInputMeta;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ComboValuesSelectionListener;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class FixedInputDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = FixedInputMeta.class; // for i18n purposes, needed by Translator2!!
@@ -438,7 +438,7 @@ public class FixedInputDialog extends BaseStepDialog implements StepDialogInterf
           BaseMessages.getString( PKG, "FixedInputDialog.TrimColumn.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaString.trimTypeDesc ), };
 
-    colinf[2].setComboValuesSelectionListener( new ComboValuesSelectionListener() {
+    colinf[ 2 ].setComboValuesSelectionListener( new ComboValuesSelectionListener() {
 
       public String[] getComboValues( TableItem tableItem, int rowNr, int colNr ) {
         String[] comboValues = new String[] {};
@@ -598,7 +598,7 @@ public class FixedInputDialog extends BaseStepDialog implements StepDialogInterf
     for ( int i = 0; i < inputMeta.getFieldDefinition().length; i++ ) {
       TableItem item = new TableItem( wFields.table, SWT.NONE );
       int colnr = 1;
-      FixedFileInputField field = inputMeta.getFieldDefinition()[i];
+      FixedFileInputField field = inputMeta.getFieldDefinition()[ i ];
 
       item.setText( colnr++, Const.NVL( field.getName(), "" ) );
       item.setText( colnr++, ValueMetaFactory.getValueMetaName( field.getType() ) );
@@ -673,7 +673,7 @@ public class FixedInputDialog extends BaseStepDialog implements StepDialogInterf
       field.setTrimType( ValueMetaString.getTrimTypeByDesc( item.getText( colnr++ ) ) );
 
       //CHECKSTYLE:Indentation:OFF
-      fixedInputMeta.getFieldDefinition()[i] = field;
+      fixedInputMeta.getFieldDefinition()[ i ] = field;
     }
     wFields.removeEmptyRows();
     wFields.setRowNums();
@@ -712,7 +712,7 @@ public class FixedInputDialog extends BaseStepDialog implements StepDialogInterf
           EnterTextDialog etd =
             new EnterTextDialog(
               shell, BaseMessages.getString( PKG, "System.Dialog.PreviewError.Title" ), BaseMessages
-                .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
+              .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
           etd.setReadOnly();
           etd.open();
         }
@@ -721,7 +721,7 @@ public class FixedInputDialog extends BaseStepDialog implements StepDialogInterf
       PreviewRowsDialog prd =
         new PreviewRowsDialog(
           shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta( wStepname
-            .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
+          .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
       prd.open();
     }
   }
@@ -740,7 +740,7 @@ public class FixedInputDialog extends BaseStepDialog implements StepDialogInterf
       if ( fields.isEmpty() ) {
         FixedFileInputField field = new FixedFileInputField();
         field.setName( "Field" + 1 ); // TODO: i18n, see also FixedTableDraw class for other references of this String
-                                      // --> getNewFieldname() method
+        // --> getNewFieldname() method
         field.setType( ValueMetaInterface.TYPE_STRING );
         field.setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
         field.setWidth( Const.toInt( info.getLineWidth(), 80 ) );
@@ -859,7 +859,7 @@ public class FixedInputDialog extends BaseStepDialog implements StepDialogInterf
     field.setType( ValueMetaInterface.TYPE_STRING );
     field.setWidth( lineWidth );
     //CHECKSTYLE:Indentation:OFF
-    oneMeta.getFieldDefinition()[0] = field;
+    oneMeta.getFieldDefinition()[ 0 ] = field;
 
     TransMeta previewMeta =
       TransPreviewFactory.generatePreviewTransformation( transMeta, oneMeta, wStepname.getText() );
@@ -877,7 +877,7 @@ public class FixedInputDialog extends BaseStepDialog implements StepDialogInterf
         EnterTextDialog etd =
           new EnterTextDialog(
             shell, BaseMessages.getString( PKG, "System.Dialog.PreviewError.Title" ), BaseMessages.getString(
-              PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
+            PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
         etd.setReadOnly();
         etd.open();
       }

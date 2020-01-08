@@ -31,9 +31,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-public class InfobrightDatabaseMetaTest{
+public class InfobrightDatabaseMetaTest {
 
   @Test
   public void mysqlTestOverrides() throws Exception {
@@ -59,7 +61,7 @@ public class InfobrightDatabaseMetaTest{
   public void testAttributesVariable() throws HopDatabaseException {
     DatabaseMeta dbmeta = new DatabaseMeta( "", "Infobright", "JDBC", null, "stub:stub", null, null, null );
     dbmeta.setVariable( "someVar", "someValue" );
-    dbmeta.setAttributes( new Properties(  ) );
+    dbmeta.setAttributes( new Properties() );
     Properties props = dbmeta.getAttributes();
     props.setProperty( "EXTRA_OPTION_Infobright.additional_param", "${someVar}" );
     dbmeta.getURL();

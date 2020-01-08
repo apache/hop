@@ -25,11 +25,6 @@ package org.apache.hop.trans.steps.fileinput.text;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopFileException;
@@ -55,6 +50,11 @@ import org.apache.hop.trans.steps.file.BaseFileField;
 import org.apache.hop.trans.steps.file.IBaseFileInputReader;
 import org.apache.hop.trans.steps.file.IBaseFileInputStepControl;
 import org.apache.hop.utils.TestUtils;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -66,9 +66,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 public class TextFileInputTest {
@@ -88,8 +86,8 @@ public class TextFileInputTest {
     String input = "col1\tcol2\tcol3\r\ndata1\tdata2\tdata3\r\n";
     String expected = "col1\tcol2\tcol3";
     String output =
-        TextFileInputUtils.getLine( null, getInputStreamReader( input ), TextFileInputMeta.FILE_FORMAT_DOS,
-            new StringBuilder( 1000 ) );
+      TextFileInputUtils.getLine( null, getInputStreamReader( input ), TextFileInputMeta.FILE_FORMAT_DOS,
+        new StringBuilder( 1000 ) );
     assertEquals( expected, output );
   }
 
@@ -98,8 +96,8 @@ public class TextFileInputTest {
     String input = "col1\tcol2\tcol3\ndata1\tdata2\tdata3\n";
     String expected = "col1\tcol2\tcol3";
     String output =
-        TextFileInputUtils.getLine( null, getInputStreamReader( input ), TextFileInputMeta.FILE_FORMAT_UNIX,
-            new StringBuilder( 1000 ) );
+      TextFileInputUtils.getLine( null, getInputStreamReader( input ), TextFileInputMeta.FILE_FORMAT_UNIX,
+        new StringBuilder( 1000 ) );
     assertEquals( expected, output );
   }
 
@@ -108,8 +106,8 @@ public class TextFileInputTest {
     String input = "col1\tcol2\tcol3\rdata1\tdata2\tdata3\r";
     String expected = "col1\tcol2\tcol3";
     String output =
-        TextFileInputUtils.getLine( null, getInputStreamReader( input ), TextFileInputMeta.FILE_FORMAT_UNIX,
-            new StringBuilder( 1000 ) );
+      TextFileInputUtils.getLine( null, getInputStreamReader( input ), TextFileInputMeta.FILE_FORMAT_UNIX,
+        new StringBuilder( 1000 ) );
     assertEquals( expected, output );
   }
 
@@ -118,8 +116,8 @@ public class TextFileInputTest {
     String input = "col1\tcol2\tcol3\r\ndata1\tdata2\tdata3\r";
     String expected = "col1\tcol2\tcol3";
     String output =
-        TextFileInputUtils.getLine( null, getInputStreamReader( input ), TextFileInputMeta.FILE_FORMAT_MIXED,
-            new StringBuilder( 1000 ) );
+      TextFileInputUtils.getLine( null, getInputStreamReader( input ), TextFileInputMeta.FILE_FORMAT_MIXED,
+        new StringBuilder( 1000 ) );
     assertEquals( expected, output );
   }
 
@@ -131,11 +129,11 @@ public class TextFileInputTest {
     String expected = "col1\tcol2\tcol3";
 
     assertEquals( expected, TextFileInputUtils.getLine( null, getInputStreamReader( inputDOS ),
-        TextFileInputMeta.FILE_FORMAT_UNIX, new StringBuilder( 1000 ) ) );
+      TextFileInputMeta.FILE_FORMAT_UNIX, new StringBuilder( 1000 ) ) );
     assertEquals( expected, TextFileInputUtils.getLine( null, getInputStreamReader( inputUnix ),
-        TextFileInputMeta.FILE_FORMAT_UNIX, new StringBuilder( 1000 ) ) );
+      TextFileInputMeta.FILE_FORMAT_UNIX, new StringBuilder( 1000 ) ) );
     assertEquals( expected, TextFileInputUtils.getLine( null, getInputStreamReader( inputOSX ),
-        TextFileInputMeta.FILE_FORMAT_UNIX, new StringBuilder( 1000 ) ) );
+      TextFileInputMeta.FILE_FORMAT_UNIX, new StringBuilder( 1000 ) ) );
   }
 
   @Test
@@ -211,6 +209,7 @@ public class TextFileInputTest {
 
     deleteVfsFile( virtualFile );
   }
+
   @Test
   @Ignore // TODO: see what the issue is here, new VFS2 API?
   public void testErrorHandlerLineNumber() throws Exception {
@@ -223,7 +222,7 @@ public class TextFileInputTest {
 
     TextFileInputMeta meta = createMetaObject( field( "col1" ) );
 
-    meta.inputFields[0].setType( 1 );
+    meta.inputFields[ 0 ].setType( 1 );
     meta.content.lineWrapped = false;
     meta.content.nrWraps = 1;
     meta.errorHandling.errorIgnored = true;
@@ -281,8 +280,8 @@ public class TextFileInputTest {
 
     RowSet rowset = Mockito.mock( RowSet.class );
     RowMetaInterface rwi = Mockito.mock( RowMetaInterface.class );
-    Object[] obj1 = new Object[2];
-    Object[] obj2 = new Object[2];
+    Object[] obj1 = new Object[ 2 ];
+    Object[] obj2 = new Object[ 2 ];
     Mockito.doReturn( rowset ).when( input ).findInputRowSet( null );
     Mockito.doReturn( null ).when( input ).getRowFrom( rowset );
     Mockito.when( input.getRowFrom( rowset ) ).thenReturn( obj1, obj2, null );
@@ -369,6 +368,7 @@ public class TextFileInputTest {
     data.filePlayList = new FilePlayListAll();
     return data;
   }
+
   private static String createVirtualFile( String filename, String... rows ) throws Exception {
     String virtualFile = TestUtils.createRamFile( filename );
 

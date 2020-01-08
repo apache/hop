@@ -23,6 +23,8 @@
 package org.apache.hop.ui.core.widget;
 
 import com.google.common.collect.Lists;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.ui.core.PropsUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -35,8 +37,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.ui.core.PropsUI;
 
 import java.util.List;
 import java.util.Map;

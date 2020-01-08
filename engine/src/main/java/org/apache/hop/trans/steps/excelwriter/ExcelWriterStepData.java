@@ -23,12 +23,12 @@
 package org.apache.hop.trans.steps.excelwriter;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 
 public class ExcelWriterStepData extends BaseStepData implements StepDataInterface {
 
@@ -65,24 +65,24 @@ public class ExcelWriterStepData extends BaseStepData implements StepDataInterfa
   }
 
   public void clearStyleCache( int nrFields ) {
-    cellStyleCache = new CellStyle[nrFields];
-    cellLinkStyleCache = new CellStyle[nrFields];
+    cellStyleCache = new CellStyle[ nrFields ];
+    cellLinkStyleCache = new CellStyle[ nrFields ];
   }
 
   public void cacheStyle( int fieldNr, CellStyle style ) {
-    cellStyleCache[fieldNr] = style;
+    cellStyleCache[ fieldNr ] = style;
   }
 
   public void cacheLinkStyle( int fieldNr, CellStyle style ) {
-    cellLinkStyleCache[fieldNr] = style;
+    cellLinkStyleCache[ fieldNr ] = style;
   }
 
   public CellStyle getCachedStyle( int fieldNr ) {
-    return cellStyleCache[fieldNr];
+    return cellStyleCache[ fieldNr ];
   }
 
   public CellStyle getCachedLinkStyle( int fieldNr ) {
-    return cellLinkStyleCache[fieldNr];
+    return cellLinkStyleCache[ fieldNr ];
   }
 
 }

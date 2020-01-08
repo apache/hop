@@ -23,18 +23,17 @@
 package org.apache.hop.core.logging;
 
 
+import org.apache.hop.core.metrics.MetricsSnapshotInterface;
+
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.hop.core.metrics.MetricsSnapshotInterface;
-
 /**
  * This singleton will capture all the metrics coming from the various log channels based on the log channel ID.
  *
  * @author matt
- *
  */
 public class MetricsRegistry {
   private static MetricsRegistry registry = new MetricsRegistry();
@@ -85,8 +84,7 @@ public class MetricsRegistry {
   /**
    * Get the snapshot list for the given log channel ID. If no list is available, one is created (and stored).
    *
-   * @param logChannelId
-   *          The log channel to use.
+   * @param logChannelId The log channel to use.
    * @return an existing or a new metrics snapshot list.
    */
   public Queue<MetricsSnapshotInterface> getSnapshotList( String logChannelId ) {
@@ -102,8 +100,7 @@ public class MetricsRegistry {
   /**
    * Get the snapshot map for the given log channel ID. If no map is available, one is created (and stored).
    *
-   * @param logChannelId
-   *          The log channel to use.
+   * @param logChannelId The log channel to use.
    * @return an existing or a new metrics snapshot map.
    */
   public Map<String, MetricsSnapshotInterface> getSnapshotMap( String logChannelId ) {

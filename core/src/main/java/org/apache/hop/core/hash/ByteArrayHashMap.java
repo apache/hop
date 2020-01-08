@@ -22,15 +22,15 @@
 
 package org.apache.hop.core.hash;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.collections.map.AbstractHashedMap;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 public class ByteArrayHashMap extends AbstractHashedMap {
   private RowMetaInterface keyMeta;
@@ -38,12 +38,9 @@ public class ByteArrayHashMap extends AbstractHashedMap {
   /**
    * Constructs an empty <tt>ByteArrayHashMap</tt> with the specified initial capacity and load factor.
    *
-   * @param initialCapacity
-   *          the initial capacity
-   * @param loadFactor
-   *          the load factor
-   * @throws IllegalArgumentException
-   *           if the initial capacity is negative or the load factor is nonpositive
+   * @param initialCapacity the initial capacity
+   * @param loadFactor      the load factor
+   * @throws IllegalArgumentException if the initial capacity is negative or the load factor is nonpositive
    */
   public ByteArrayHashMap( int initialCapacity, float loadFactor, RowMetaInterface keyMeta ) {
     super( initialCapacity, loadFactor );
@@ -63,7 +60,7 @@ public class ByteArrayHashMap extends AbstractHashedMap {
   public final boolean equalsByteArray( byte[] value, byte[] cmpValue ) {
     if ( value.length == cmpValue.length ) {
       for ( int i = 0; i < value.length; i++ ) {
-        if ( value[i] != cmpValue[i] ) {
+        if ( value[ i ] != cmpValue[ i ] ) {
           return false;
         }
       }
@@ -76,10 +73,8 @@ public class ByteArrayHashMap extends AbstractHashedMap {
    * Constructs an empty <tt>ByteArrayHashMap</tt> with the specified initial capacity and the default load factor
    * (0.75).
    *
-   * @param initialCapacity
-   *          the initial capacity.
-   * @throws IllegalArgumentException
-   *           if the initial capacity is negative.
+   * @param initialCapacity the initial capacity.
+   * @throws IllegalArgumentException if the initial capacity is negative.
    */
   public ByteArrayHashMap( int initialCapacity, RowMetaInterface keyMeta ) {
     this( initialCapacity, DEFAULT_LOAD_FACTOR, keyMeta );
@@ -100,11 +95,8 @@ public class ByteArrayHashMap extends AbstractHashedMap {
    * More formally, if this index contains an entry {@code e} such that {@code key.equals(e))}, then this method returns
    * {@code e}; otherwise it returns {@code null}. (There can be at most one such entry.)
    *
-   * @param key
-   *          The key to look up.
-   * @throws HopValueException
-   *           in case of a value conversion error
-   *
+   * @param key The key to look up.
+   * @throws HopValueException in case of a value conversion error
    * @see #put(Object)
    * @see #insert(Object)
    */

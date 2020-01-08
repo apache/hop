@@ -30,7 +30,6 @@ import ognl.OgnlException;
  * Utility class to encapsulate OGNL expressions.
  *
  * @author Alex Silva
- *
  */
 public class OgnlExpression {
   private Object expression;

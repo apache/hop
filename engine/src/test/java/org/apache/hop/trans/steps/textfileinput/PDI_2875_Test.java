@@ -22,15 +22,15 @@
 
 package org.apache.hop.trans.steps.textfileinput;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.util.Date;
 
@@ -71,9 +71,9 @@ public class PDI_2875_Test {
   private TextFileInputMeta getMeta() {
     TextFileInputMeta meta = new TextFileInputMeta();
     meta.allocateFiles( 2 );
-    meta.setFileName( new String[]{ "file1.txt",  "file2.txt" } );
-    meta.setIncludeSubFolders( new String[] {"n", "n"} );
-    meta.setFilter( new TextFileFilter[0] );
+    meta.setFileName( new String[] { "file1.txt", "file2.txt" } );
+    meta.setIncludeSubFolders( new String[] { "n", "n" } );
+    meta.setFilter( new TextFileFilter[ 0 ] );
     meta.setFileFormat( "unix" );
     meta.setFileType( "CSV" );
     meta.setLineNumberFilesDestinationDirectory( EXPRESSION );

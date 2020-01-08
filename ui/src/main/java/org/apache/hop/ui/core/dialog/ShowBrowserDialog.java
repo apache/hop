@@ -22,6 +22,12 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.events.ShellAdapter;
@@ -35,12 +41,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.Const;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * Displays an HTML page.

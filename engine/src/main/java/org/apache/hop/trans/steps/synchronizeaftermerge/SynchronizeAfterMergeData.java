@@ -22,6 +22,12 @@
 
 package org.apache.hop.trans.steps.synchronizeaftermerge;
 
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.trans.step.BaseStepData;
+import org.apache.hop.trans.step.StepDataInterface;
+
 import java.sql.PreparedStatement;
 import java.sql.Savepoint;
 import java.util.ArrayList;
@@ -29,12 +35,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.trans.step.BaseStepData;
-import org.apache.hop.trans.step.StepDataInterface;
 
 /**
  * Performs an insert/update/delete depending on the value of a field.
@@ -62,7 +62,9 @@ public class SynchronizeAfterMergeData extends BaseStepData implements StepDataI
   public String realSchemaName;
   public String realSchemaTable;
 
-  /** Use batch mode or not? */
+  /**
+   * Use batch mode or not?
+   */
   public boolean batchMode;
 
   PreparedStatement insertStatement;

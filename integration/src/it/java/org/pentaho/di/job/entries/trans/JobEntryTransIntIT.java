@@ -22,16 +22,7 @@
 
 package org.apache.hop.job.entries.trans;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-
 import org.apache.commons.vfs2.FileObject;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.TestUtilities;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.ObjectLocationSpecificationMethod;
@@ -47,6 +38,15 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransTestFactory;
 import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
 import org.apache.hop.utils.TestUtils;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class JobEntryTransIntIT {
 
@@ -65,7 +65,7 @@ public class JobEntryTransIntIT {
     rowGenMeta.allocate( 0 );
 
     TransMeta tMeta = TransTestFactory.generateTestTransformation( new Variables(), rowGenMeta, rowGenStepName );
-    
+
     // Remove the Injector step, as it's not needed for this transformation
     TransHopMeta hopToRemove = tMeta.findTransHop( tMeta.findStep( TransTestFactory.INJECTOR_STEPNAME ), tMeta.findStep( rowGenStepName ) );
     tMeta.removeTransHop( tMeta.indexOfTransHop( hopToRemove ) );
@@ -86,7 +86,7 @@ public class JobEntryTransIntIT {
    * Tests whether the job can force a transformation to stop, when the job is asked to stop.
    * A timeout parameter is required, to avoid a failed unit test from running forever.
    */
-  @Test(timeout=30000)
+  @Test( timeout = 30000 )
   public void testPDI14676() throws HopException, IOException, InterruptedException {
 
     String transFilename = createPDI14676Transformation();
@@ -133,7 +133,7 @@ public class JobEntryTransIntIT {
 
     // Allow the job's thread to stop and be cleaned up
     while ( !jobInstance.isFinished() || jobInstance.isActive() ) {
-      Thread.sleep( 10 );      
+      Thread.sleep( 10 );
     }
 
     // Ensure that the job and the thread have both stopped

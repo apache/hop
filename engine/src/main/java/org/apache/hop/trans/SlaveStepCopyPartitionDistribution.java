@@ -22,17 +22,17 @@
 
 package org.apache.hop.trans;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.partition.PartitionSchema;
+import org.w3c.dom.Node;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import org.apache.hop.core.Const;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.partition.PartitionSchema;
-import org.w3c.dom.Node;
 
 /**
  * This class keeps track of which step copy in which transformation is responsible for handling a certain partition nr.
@@ -41,7 +41,6 @@ import org.w3c.dom.Node;
  * same way accross the complete cluster.
  *
  * @author matt
- *
  */
 public class SlaveStepCopyPartitionDistribution {
 
@@ -101,8 +100,7 @@ public class SlaveStepCopyPartitionDistribution {
     }
 
     /**
-     * @param slaveServerName
-     *          the slaveServerName to set
+     * @param slaveServerName the slaveServerName to set
      */
     public void setSlaveServerName( String slaveServerName ) {
       this.slaveServerName = slaveServerName;
@@ -116,8 +114,7 @@ public class SlaveStepCopyPartitionDistribution {
     }
 
     /**
-     * @param partitionSchemaName
-     *          the partition schema name to set
+     * @param partitionSchemaName the partition schema name to set
      */
     public void setStepName( String partitionSchemaName ) {
       this.partitionSchemaName = partitionSchemaName;
@@ -131,8 +128,7 @@ public class SlaveStepCopyPartitionDistribution {
     }
 
     /**
-     * @param stepCopyNr
-     *          the stepCopyNr to set
+     * @param stepCopyNr the stepCopyNr to set
      */
     public void setStepCopyNr( int stepCopyNr ) {
       this.stepCopyNr = stepCopyNr;
@@ -212,7 +208,7 @@ public class SlaveStepCopyPartitionDistribution {
       xml.append( "      " ).append( XMLHandler.addTagValue( "slavename", copy.slaveServerName ) );
       xml
         .append( "      " ).append(
-          XMLHandler.addTagValue( "partition_schema_name", copy.partitionSchemaName ) );
+        XMLHandler.addTagValue( "partition_schema_name", copy.partitionSchemaName ) );
       xml.append( "      " ).append( XMLHandler.addTagValue( "stepcopy", copy.stepCopyNr ) );
       xml.append( "      " ).append( XMLHandler.addTagValue( "partition", partition ) );
 
@@ -270,8 +266,7 @@ public class SlaveStepCopyPartitionDistribution {
   }
 
   /**
-   * @param originalPartitionSchemas
-   *          the originalPartitionSchemas to set
+   * @param originalPartitionSchemas the originalPartitionSchemas to set
    */
   public void setOriginalPartitionSchemas( List<PartitionSchema> originalPartitionSchemas ) {
     this.originalPartitionSchemas = originalPartitionSchemas;

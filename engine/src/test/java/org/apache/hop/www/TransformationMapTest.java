@@ -22,14 +22,14 @@
 
 package org.apache.hop.www;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class TransformationMapTest {
 
@@ -61,8 +61,8 @@ public class TransformationMapTest {
   @Test
   public void getHostServerSocketPorts() {
     transformationMap.allocateServerSocketPort( 1, TEST_HOST, CLUSTERED_RUN_ID, TEST_TRANSFORMATION_NAME,
-        TEST_SOURCE_SLAVE_NAME, TEST_SOURCE_STEP_NAME, TEST_SOURCE_STEP_COPY, TEST_TARGET_SLAVE_NAME,
-        TEST_TARGET_STEP_NAME, TEST_TARGET_STEP_COPY );
+      TEST_SOURCE_SLAVE_NAME, TEST_SOURCE_STEP_NAME, TEST_SOURCE_STEP_COPY, TEST_TARGET_SLAVE_NAME,
+      TEST_TARGET_STEP_NAME, TEST_TARGET_STEP_COPY );
     List<SocketPortAllocation> actualResult = transformationMap.getHostServerSocketPorts( TEST_HOST );
 
     assertNotNull( actualResult );

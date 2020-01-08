@@ -21,51 +21,27 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.joinrows;
 
-import static org.mockito.Mockito.*;
-import static junit.framework.Assert.*;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
+import org.apache.hop.trans.steps.loadsave.validator.ConditionLoadSaveValidator;
+import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.Counter;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.SQLStatement;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopStepException;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-
-import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceNamingInterface;
-import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.trans.DatabaseImpact;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepIOMetaInterface;
-import org.apache.hop.trans.step.StepInjectionMetaEntry;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInjectionInterface;
-import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.trans.step.errorhandling.StreamInterface;
-import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
-import org.apache.hop.trans.steps.loadsave.validator.ConditionLoadSaveValidator;
-import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.w3c.dom.Node;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
+import static org.mockito.Mockito.mock;
 
 public class JoinRowsMetaTest {
   LoadSaveTester loadSaveTester;
@@ -77,7 +53,7 @@ public class JoinRowsMetaTest {
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "directory", "prefix", "cacheSize", "mainStepname", "condition" );
+      Arrays.asList( "directory", "prefix", "cacheSize", "mainStepname", "condition" );
 
     Map<String, String> getterMap = new HashMap<String, String>();
     Map<String, String> setterMap = new HashMap<String, String>();
@@ -88,7 +64,7 @@ public class JoinRowsMetaTest {
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
+      new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
   }
 
   @Test

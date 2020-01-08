@@ -22,29 +22,14 @@
 
 package org.apache.hop.job.entries.copymoveresultfilenames;
 
-import org.apache.hop.job.entry.validator.AbstractFileValidator;
-import org.apache.hop.job.entry.validator.AndValidator;
-import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileUtil;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
@@ -53,10 +38,19 @@ import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.validator.AbstractFileValidator;
+import org.apache.hop.job.entry.validator.AndValidator;
+import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This defines a 'copymoveresultfilenames' job entry. Its main use would be to copy or move files in the result
@@ -64,7 +58,6 @@ import org.w3c.dom.Node;
  *
  * @author Samatar
  * @since 25-02-2008
- *
  */
 public class JobEntryCopyMoveResultFilenames extends JobEntryBase implements Cloneable, JobEntryInterface {
   private static Class<?> PKG = JobEntryCopyMoveResultFilenames.class; // for i18n purposes, needed by Translator2!!
@@ -159,10 +152,10 @@ public class JobEntryCopyMoveResultFilenames extends JobEntryBase implements Clo
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       foldername = XMLHandler.getTagValue( entrynode, "foldername" );
       specifywildcard = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "specify_wildcard" ) );
       wildcard = XMLHandler.getTagValue( entrynode, "wildcard" );
@@ -385,8 +378,8 @@ public class JobEntryCopyMoveResultFilenames extends JobEntryBase implements Clo
             if ( file != null && file.exists() ) {
               if ( !specifywildcard
                 || ( CheckFileWildcard( file.getName().getBaseName(), wildcardPattern, true )
-                  && !CheckFileWildcard( file.getName().getBaseName(), wildcardExcludePattern, false )
-                  && specifywildcard ) ) {
+                && !CheckFileWildcard( file.getName().getBaseName(), wildcardExcludePattern, false )
+                && specifywildcard ) ) {
                 // Copy or Move file
                 if ( !processFile( file, realdestinationFolder, result, parentJob, deleteFile ) ) {
                   // Update Errors
@@ -492,7 +485,7 @@ public class JobEntryCopyMoveResultFilenames extends JobEntryBase implements Clo
   }
 
   private boolean processFile( FileObject sourcefile, String destinationFolder, Result result, Job parentJob,
-    boolean deleteFile ) {
+                               boolean deleteFile ) {
     boolean retval = false;
 
     try {
@@ -628,7 +621,7 @@ public class JobEntryCopyMoveResultFilenames extends JobEntryBase implements Clo
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, JobEntryValidatorUtils.notNullValidator(), JobEntryValidatorUtils.fileDoesNotExistValidator() );

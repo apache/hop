@@ -23,18 +23,16 @@
 package org.apache.hop.ui.core;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.hop.core.util.Assert;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.util.Assert;
-import org.apache.hop.ui.core.widget.TextVar;
 
 /**
- *
  * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- *
  */
 public class SimpleFileSelection extends SelectionAdapter {
 
@@ -59,19 +57,14 @@ public class SimpleFileSelection extends SelectionAdapter {
   /**
    * Constructor.
    *
-   * @param shell
-   *          shell to set.
-   * @param textVar
-   *          text variable to edit.
-   * @param filterExtensions
-   *          filter extensions to set.
-   * @param filterNames
-   *          filter names to set.
-   * @throws IllegalArgumentException
-   *           if shell or text variable is null.
+   * @param shell            shell to set.
+   * @param textVar          text variable to edit.
+   * @param filterExtensions filter extensions to set.
+   * @param filterNames      filter names to set.
+   * @throws IllegalArgumentException if shell or text variable is null.
    */
   public SimpleFileSelection( final Shell shell, final TextVar textVar, final String[] filterExtensions,
-    final String[] filterNames ) throws IllegalArgumentException {
+                              final String[] filterNames ) throws IllegalArgumentException {
     super();
     Assert.assertNotNull( shell, "Shell cannot be null" );
     Assert.assertNotNull( textVar, "Text var cannot be null" );
@@ -79,21 +72,18 @@ public class SimpleFileSelection extends SelectionAdapter {
     Assert.assertNotNull( filterExtensions, "Filter extensions cannot be null" );
     this.shell = shell;
     this.textVar = textVar;
-    this.filterExtensions = new String[filterExtensions.length];
+    this.filterExtensions = new String[ filterExtensions.length ];
     System.arraycopy( filterExtensions, 0, this.filterExtensions, 0, filterExtensions.length );
-    this.filterNames = new String[filterNames.length];
+    this.filterNames = new String[ filterNames.length ];
     System.arraycopy( filterNames, 0, this.filterNames, 0, filterNames.length );
   }
 
   /**
    * Constructor.
    *
-   * @param shell
-   *          the shell to set.
-   * @param textVar
-   *          the text variable to edit.
-   * @throws IllegalArgumentException
-   *           if shell or text variable is null.
+   * @param shell   the shell to set.
+   * @param textVar the text variable to edit.
+   * @throws IllegalArgumentException if shell or text variable is null.
    */
   public SimpleFileSelection( final Shell shell, final TextVar textVar ) throws IllegalArgumentException {
     this( shell, textVar, new String[] { DEFAULT_FILTER_EXTENSION }, new String[] { DEFAULT_FILTER_NAME } );
@@ -102,14 +92,10 @@ public class SimpleFileSelection extends SelectionAdapter {
   /**
    * Constructor.
    *
-   * @param shell
-   *          the shell to set.
-   * @param textVar
-   *          the text variable to edit.
-   * @param filterNames
-   *          the filter names to use.
-   * @throws IllegalArgumentException
-   *           if shell or text variable is null.
+   * @param shell       the shell to set.
+   * @param textVar     the text variable to edit.
+   * @param filterNames the filter names to use.
+   * @throws IllegalArgumentException if shell or text variable is null.
    */
   public SimpleFileSelection( final Shell shell, final TextVar textVar, final String... filterNames ) throws IllegalArgumentException {
     this( shell, textVar, new String[] { DEFAULT_FILTER_EXTENSION }, filterNames );

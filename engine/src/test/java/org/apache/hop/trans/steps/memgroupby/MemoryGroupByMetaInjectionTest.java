@@ -26,14 +26,15 @@ ing, software
 ******************************************************************************/
 package org.apache.hop.trans.steps.memgroupby;
 
+import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 public class MemoryGroupByMetaInjectionTest extends BaseMetadataInjectionTest<MemoryGroupByMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Before
   public void setup() throws Exception {
     setup( new MemoryGroupByMeta() );
@@ -44,38 +45,38 @@ public class MemoryGroupByMetaInjectionTest extends BaseMetadataInjectionTest<Me
     check( "GROUPFIELD", new StringGetter() {
       @Override
       public String get() {
-        return meta.getGroupField()[0];
+        return meta.getGroupField()[ 0 ];
       }
     } );
     check( "AGGREGATEFIELD", new StringGetter() {
       @Override
       public String get() {
-        return meta.getAggregateField()[0];
+        return meta.getAggregateField()[ 0 ];
       }
     } );
     check( "SUBJECTFIELD", new StringGetter() {
       @Override
       public String get() {
-        return meta.getSubjectField()[0];
+        return meta.getSubjectField()[ 0 ];
       }
     } );
     check( "AGGREGATETYPE", new IntGetter() {
       @Override
       public int get() {
-        return meta.getAggregateType()[0];
+        return meta.getAggregateType()[ 0 ];
       }
     } );
     check( "VALUEFIELD", new StringGetter() {
       @Override
       public String get() {
-        return meta.getValueField()[0];
+        return meta.getValueField()[ 0 ];
       }
     } );
     check( "ALWAYSGIVINGBACKONEROW", new BooleanGetter() {
-        @Override
-        public boolean get() {
-          return meta.isAlwaysGivingBackOneRow();
-        }
-      } );
+      @Override
+      public boolean get() {
+        return meta.isAlwaysGivingBackOneRow();
+      }
+    } );
   }
 }

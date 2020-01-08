@@ -22,8 +22,8 @@
 
 package org.apache.hop.trans.steps.webservices.wsdl;
 
-import java.util.List;
-import java.util.Map;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopStepException;
 
 import javax.wsdl.Binding;
 import javax.wsdl.Fault;
@@ -33,9 +33,8 @@ import javax.wsdl.Operation;
 import javax.wsdl.Output;
 import javax.wsdl.Part;
 import javax.xml.namespace.QName;
-
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopStepException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * WSDL operation abstraction.
@@ -79,12 +78,9 @@ public final class WsdlOperation implements java.io.Serializable {
   /**
    * Create a new wsdl operation instance for the specified binding and operation.
    *
-   * @param binding
-   *          Binding for the operation.
-   * @param op
-   *          The operation.
-   * @param wsdlTypes
-   *          WSDL type information.
+   * @param binding   Binding for the operation.
+   * @param op        The operation.
+   * @param wsdlTypes WSDL type information.
    */
   protected WsdlOperation( Binding binding, Operation op, WsdlTypes wsdlTypes ) throws HopException {
 
@@ -201,8 +197,7 @@ public final class WsdlOperation implements java.io.Serializable {
   /**
    * Create the fault list for this operation.
    *
-   * @param op
-   *          Operation
+   * @param op Operation
    */
   @SuppressWarnings( "unchecked" )
   private void loadFaults( Operation op ) throws HopStepException {
@@ -215,8 +210,7 @@ public final class WsdlOperation implements java.io.Serializable {
   /**
    * Create the parameter list for this operations parameter set.
    *
-   * @param op
-   *          Operation.
+   * @param op Operation.
    * @throws HopStepException
    */
   @SuppressWarnings( "unchecked" )

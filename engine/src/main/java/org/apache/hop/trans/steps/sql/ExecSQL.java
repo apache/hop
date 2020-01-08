@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.sql;
 
-import java.util.ArrayList;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
@@ -43,6 +41,8 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.util.ArrayList;
+
 /**
  * Execute one or more SQL statements in a script, one time or parameterised (for every row)
  *
@@ -57,7 +57,7 @@ public class ExecSQL extends BaseStep implements StepInterface {
   private ExecSQLData data;
 
   public ExecSQL( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                  Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -120,20 +120,20 @@ public class ExecSQL extends BaseStep implements StepInterface {
       meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
       // Find the indexes of the arguments
-      data.argumentIndexes = new int[meta.getArguments().length];
+      data.argumentIndexes = new int[ meta.getArguments().length ];
       for ( int i = 0; i < meta.getArguments().length; i++ ) {
-        data.argumentIndexes[i] = this.getInputRowMeta().indexOfValue( meta.getArguments()[i] );
-        if ( data.argumentIndexes[i] < 0 ) {
-          logError( BaseMessages.getString( PKG, "ExecSQL.Log.ErrorFindingField" ) + meta.getArguments()[i] + "]" );
+        data.argumentIndexes[ i ] = this.getInputRowMeta().indexOfValue( meta.getArguments()[ i ] );
+        if ( data.argumentIndexes[ i ] < 0 ) {
+          logError( BaseMessages.getString( PKG, "ExecSQL.Log.ErrorFindingField" ) + meta.getArguments()[ i ] + "]" );
           throw new HopStepException( BaseMessages.getString( PKG, "ExecSQL.Exception.CouldNotFindField", meta
-            .getArguments()[i] ) );
+            .getArguments()[ i ] ) );
         }
         if ( meta.isParams() ) {
           if ( i == 0 ) {
             // Define parameters meta
             data.paramsMeta = new RowMeta();
           }
-          data.paramsMeta.addValueMeta( getInputRowMeta().getValueMeta( data.argumentIndexes[i] ) );
+          data.paramsMeta.addValueMeta( getInputRowMeta().getValueMeta( data.argumentIndexes[ i ] ) );
         }
       }
 
@@ -161,10 +161,10 @@ public class ExecSQL extends BaseStep implements StepInterface {
     Object[] paramsData = null;
     if ( meta.isParams() ) {
       // Get parameters data
-      paramsData = new Object[data.argumentIndexes.length];
+      paramsData = new Object[ data.argumentIndexes.length ];
       sql = this.data.sql;
       for ( int i = 0; i < this.data.argumentIndexes.length; i++ ) {
-        paramsData[i] = row[data.argumentIndexes[i]];
+        paramsData[ i ] = row[ data.argumentIndexes[ i ] ];
       }
     } else {
       int numMarkers = data.markerPositions.size();
@@ -176,9 +176,9 @@ public class ExecSQL extends BaseStep implements StepInterface {
         for ( int i = 0; i < numMarkers; i++ ) {
           // Get the appropriate value from the input row...
           //
-          int index = data.argumentIndexes[data.markerPositions.size() - i - 1];
+          int index = data.argumentIndexes[ data.markerPositions.size() - i - 1 ];
           ValueMetaInterface valueMeta = getInputRowMeta().getValueMeta( index );
-          Object valueData = row[index];
+          Object valueData = row[ index ];
 
           // replace the '?' with the String in the row.
           //
@@ -260,7 +260,9 @@ public class ExecSQL extends BaseStep implements StepInterface {
     super.dispose( smi, sdi );
   }
 
-  /** Stop the running query */
+  /**
+   * Stop the running query
+   */
   @Override
   public void stopRunning( StepMetaInterface smi, StepDataInterface sdi ) throws HopException {
     meta = (ExecSQLMeta) smi;

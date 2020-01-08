@@ -22,14 +22,14 @@
 
 package org.apache.hop.trans.steps.exceloutput;
 
-import java.awt.Dimension;
-
 import jxl.format.Colour;
 import jxl.format.UnderlineStyle;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableFont;
 import jxl.write.WritableFont.FontName;
 import jxl.write.WriteException;
+
+import java.awt.*;
 
 public class ExcelFontMap {
 

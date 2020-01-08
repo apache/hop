@@ -33,7 +33,6 @@ import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.job.Job;
-import org.apache.hop.job.JobAdapter;
 import org.apache.hop.job.JobConfiguration;
 import org.apache.hop.job.JobExecutionConfiguration;
 import org.apache.hop.job.JobMeta;
@@ -61,7 +60,7 @@ public abstract class BaseJobServlet extends BodyHttpServlet {
     String carteObjectId = UUID.randomUUID().toString();
 
     SimpleLoggingObject servletLoggingObject =
-        getServletLogging( carteObjectId, jobExecutionConfiguration.getLogLevel() );
+      getServletLogging( carteObjectId, jobExecutionConfiguration.getLogLevel() );
 
     // Create the transformation and store in the list...
     final Job job = new Job( jobMeta, servletLoggingObject );
@@ -110,7 +109,7 @@ public abstract class BaseJobServlet extends BodyHttpServlet {
 
     String carteObjectId = UUID.randomUUID().toString();
     SimpleLoggingObject servletLoggingObject =
-        getServletLogging( carteObjectId, transExecutionConfiguration.getLogLevel() );
+      getServletLogging( carteObjectId, transExecutionConfiguration.getLogLevel() );
 
     // Create the transformation and store in the list...
     final Trans trans = new Trans( transMeta, servletLoggingObject );
@@ -120,10 +119,10 @@ public abstract class BaseJobServlet extends BodyHttpServlet {
       String realLogFilename = transExecutionConfiguration.getLogFileName();
       try {
         FileUtil.createParentFolder( AddTransServlet.class, realLogFilename, transExecutionConfiguration
-            .isCreateParentFolder(), trans.getLogChannel(), trans );
+          .isCreateParentFolder(), trans.getLogChannel(), trans );
         final LogChannelFileWriter logChannelFileWriter =
-            new LogChannelFileWriter( servletLoggingObject.getLogChannelId(),
-                HopVFS.getFileObject( realLogFilename ), transExecutionConfiguration.isSetAppendLogfile() );
+          new LogChannelFileWriter( servletLoggingObject.getLogChannelId(),
+            HopVFS.getFileObject( realLogFilename ), transExecutionConfiguration.isSetAppendLogfile() );
         logChannelFileWriter.startLogging();
 
         trans.addTransListener( new TransAdapter() {
@@ -153,7 +152,7 @@ public abstract class BaseJobServlet extends BodyHttpServlet {
     return trans;
   }
 
-  private void copyParameters( final AbstractMeta meta, final Map<String, String> params  ) throws UnknownParamException {
+  private void copyParameters( final AbstractMeta meta, final Map<String, String> params ) throws UnknownParamException {
     for ( String parameterName : params.keySet() ) {
       String thisValue = params.get( parameterName );
       if ( !StringUtils.isBlank( thisValue ) ) {
@@ -181,7 +180,7 @@ public abstract class BaseJobServlet extends BodyHttpServlet {
 
   private SimpleLoggingObject getServletLogging( final String carteObjectId, final LogLevel level ) {
     SimpleLoggingObject servletLoggingObject =
-        new SimpleLoggingObject( getContextPath(), LoggingObjectType.CARTE, null );
+      new SimpleLoggingObject( getContextPath(), LoggingObjectType.CARTE, null );
     servletLoggingObject.setContainerObjectId( carteObjectId );
     servletLoggingObject.setLogLevel( level );
     return servletLoggingObject;

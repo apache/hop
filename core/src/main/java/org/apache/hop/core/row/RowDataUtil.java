@@ -32,7 +32,7 @@ package org.apache.hop.core.row;
  * <pre>
  * <a href="">public static Object[] resizeArray(Object[] objects, int newSize)</a></i>
  * </pre>
- *
+ * <p>
  * which will either physically resize the array or return the original row, in case it was over-allocated and has
  * enough slots. If a step needs to create new rows from scratch, it should use allocateRowData() which will return a
  * somewhat over-allocated object array to fit the desired number of fields.
@@ -45,12 +45,11 @@ public class RowDataUtil {
   /**
    * Allocate a new Object array. However, over allocate by a constant factor to make adding values faster.
    *
-   * @param size
-   *          the minimum size to allocate.
+   * @param size the minimum size to allocate.
    * @return the newly allocated object array
    */
   public static Object[] allocateRowData( int size ) {
-    return new Object[size + OVER_ALLOCATE_SIZE];
+    return new Object[ size + OVER_ALLOCATE_SIZE ];
   }
 
   /**
@@ -66,7 +65,7 @@ public class RowDataUtil {
       return objects;
     }
 
-    Object[] newObjects = new Object[newSize + OVER_ALLOCATE_SIZE];
+    Object[] newObjects = new Object[ newSize + OVER_ALLOCATE_SIZE ];
     if ( objects != null ) {
       System.arraycopy( objects, 0, newObjects, 0, objects.length );
     }
@@ -77,19 +76,17 @@ public class RowDataUtil {
    * Resize an object array making it bigger, over allocate, always create a copy of the original array, even if there's
    * enough room in the old one.
    *
-   * @param objects
-   *          the original row
-   * @param newSize
-   *          the new size
+   * @param objects the original row
+   * @param newSize the new size
    * @return A new object array, resized.
    */
   public static Object[] createResizedCopy( Object[] objects, int newSize ) {
 
     Object[] newObjects;
     if ( objects.length < newSize ) {
-      newObjects = new Object[newSize + OVER_ALLOCATE_SIZE];
+      newObjects = new Object[ newSize + OVER_ALLOCATE_SIZE ];
     } else {
-      newObjects = new Object[objects.length];
+      newObjects = new Object[ objects.length ];
     }
 
     if ( objects != null ) {
@@ -109,7 +106,7 @@ public class RowDataUtil {
     int size = 0;
     if ( objects != null ) {
       for ( int i = 0; i < objects.length; i++ ) {
-        size += lengths[i];
+        size += lengths[ i ];
       }
     }
     Object[] newObjects = allocateRowData( size );
@@ -117,8 +114,8 @@ public class RowDataUtil {
     if ( objects != null ) {
       size = 0;
       for ( int i = 0; i < lengths.length; i++ ) {
-        System.arraycopy( objects[i], 0, newObjects, size, lengths[i] );
-        size += lengths[i];
+        System.arraycopy( objects[ i ], 0, newObjects, size, lengths[ i ] );
+        size += lengths[ i ];
       }
     }
 
@@ -134,7 +131,7 @@ public class RowDataUtil {
    * @return
    */
   public static Object[] removeItem( Object[] objects, int index ) {
-    Object[] newObjects = new Object[objects.length - 1];
+    Object[] newObjects = new Object[ objects.length - 1 ];
     System.arraycopy( objects, 0, newObjects, 0, index );
     System.arraycopy( objects, index + 1, newObjects, index, objects.length - index - 1 );
     return newObjects;
@@ -143,12 +140,9 @@ public class RowDataUtil {
   /**
    * Add two arrays and make one new one.
    *
-   * @param one
-   *          The first array
-   * @param the
-   *          length of the row data or of it's longer, the location of the new extra value in the returned data row
-   * @param two
-   *          The second array
+   * @param one The first array
+   * @param the length of the row data or of it's longer, the location of the new extra value in the returned data row
+   * @param two The second array
    * @return a new Array containing all elements from one and two after one another
    */
   public static Object[] addRowData( Object[] one, int sourceLength, Object[] two ) {
@@ -162,40 +156,35 @@ public class RowDataUtil {
   /**
    * Add a single value to a row of data
    *
-   * @param rowData
-   *          The original row of data
-   * @param the
-   *          length of the row data or of it's longer, the location of the new extra value in the returned data row
-   * @param extra
-   *          The extra value to add
+   * @param rowData The original row of data
+   * @param the     length of the row data or of it's longer, the location of the new extra value in the returned data row
+   * @param extra   The extra value to add
    * @return a new Array containing all elements, including the extra one
    */
   public static Object[] addValueData( Object[] rowData, int length, Object extra ) {
 
     Object[] result = resizeArray( rowData, length + 1 );
-    result[length] = extra;
+    result[ length ] = extra;
     return result;
   }
 
   /**
    * Remove a number of items in a row of data.
    *
-   * @param rowData
-   *          the row of data to remove from
-   * @param index
-   *          the index of all the items in the source table to remove. We don't check if the same index gets deleted
-   *          twice!
+   * @param rowData the row of data to remove from
+   * @param index   the index of all the items in the source table to remove. We don't check if the same index gets deleted
+   *                twice!
    */
   public static Object[] removeItems( Object[] rowData, int[] index ) {
-    Object[] data = new Object[rowData.length - index.length];
+    Object[] data = new Object[ rowData.length - index.length ];
 
     int count = data.length - 1;
     int removenr = index.length - 1;
     for ( int i = rowData.length - 1; i >= 0; i-- ) {
-      if ( removenr >= 0 && i == index[removenr] ) {
+      if ( removenr >= 0 && i == index[ removenr ] ) {
         removenr--;
       } else {
-        data[count] = rowData[i];
+        data[ count ] = rowData[ i ];
         count--;
       }
     }

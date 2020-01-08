@@ -22,6 +22,11 @@
 
 package org.apache.hop.ui.core.widget.tree;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -34,11 +39,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
 
 /**
  * Created by bmorrise on 6/27/18.

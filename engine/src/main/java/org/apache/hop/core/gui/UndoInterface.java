@@ -28,23 +28,16 @@ public interface UndoInterface {
   /**
    * Add an undo operation to the undo list
    *
-   * @param from
-   *          array of objects representing the old state
-   * @param to
-   *          array of objectes representing the new state
-   * @param pos
-   *          An array of object locations
-   * @param prev
-   *          An array of points representing the old positions
-   * @param curr
-   *          An array of points representing the new positions
-   * @param type_of_change
-   *          The type of change that's being done to the transformation.
-   * @param nextAlso
-   *          indicates that the next undo operation needs to follow this one.
+   * @param from           array of objects representing the old state
+   * @param to             array of objectes representing the new state
+   * @param pos            An array of object locations
+   * @param prev           An array of points representing the old positions
+   * @param curr           An array of points representing the new positions
+   * @param type_of_change The type of change that's being done to the transformation.
+   * @param nextAlso       indicates that the next undo operation needs to follow this one.
    */
   public void addUndo( Object[] from, Object[] to, int[] pos, Point[] prev, Point[] curr, int type_of_change,
-    boolean nextAlso );
+                       boolean nextAlso );
 
   /**
    * Get the maximum number of undo operations possible
@@ -56,8 +49,7 @@ public interface UndoInterface {
   /**
    * Sets the maximum number of undo operations that are allowed.
    *
-   * @param mu
-   *          The maximum number of undo operations that are allowed.
+   * @param mu The maximum number of undo operations that are allowed.
    */
   public void setMaxUndo( int mu );
 

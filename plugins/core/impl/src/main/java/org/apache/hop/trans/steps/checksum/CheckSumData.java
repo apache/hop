@@ -22,11 +22,11 @@
 
 package org.apache.hop.trans.steps.checksum;
 
-import java.security.MessageDigest;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import java.security.MessageDigest;
 
 /**
  * Data class for the Cheksum class

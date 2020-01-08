@@ -22,17 +22,12 @@
 
 package org.apache.hop.trans.steps.memgroupby;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.injection.AfterInjection;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.RowMeta;
@@ -41,10 +36,11 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaNone;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -52,12 +48,12 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * Created on 02-jun-2003
- *
  */
 
 @InjectionSupported( localizationPrefix = "MemoryGroupBy.Injection.", groups = { "FIELDS", "AGGREGATES" } )
@@ -99,9 +95,9 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
   public static final int TYPE_GROUP_COUNT_ANY = 16;
 
   public static final String[] typeGroupCode = /* WARNING: DO NOT TRANSLATE THIS. WE ARE SERIOUS, DON'T TRANSLATE! */
-  {
-    "-", "SUM", "AVERAGE", "MEDIAN", "PERCENTILE", "MIN", "MAX", "COUNT_ALL", "CONCAT_COMMA", "FIRST", "LAST",
-    "FIRST_INCL_NULL", "LAST_INCL_NULL", "STD_DEV", "CONCAT_STRING", "COUNT_DISTINCT", "COUNT_ANY", };
+    {
+      "-", "SUM", "AVERAGE", "MEDIAN", "PERCENTILE", "MIN", "MAX", "COUNT_ALL", "CONCAT_COMMA", "FIRST", "LAST",
+      "FIRST_INCL_NULL", "LAST_INCL_NULL", "STD_DEV", "CONCAT_STRING", "COUNT_DISTINCT", "COUNT_ANY", };
 
   public static final String[] typeGroupLongDesc = {
     "-", BaseMessages.getString( PKG, "MemoryGroupByMeta.TypeGroupLongDesc.SUM" ),
@@ -157,8 +153,7 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param aggregateField
-   *          The aggregateField to set.
+   * @param aggregateField The aggregateField to set.
    */
   public void setAggregateField( String[] aggregateField ) {
     this.aggregateField = aggregateField;
@@ -172,8 +167,7 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param aggregateType
-   *          The aggregateType to set.
+   * @param aggregateType The aggregateType to set.
    */
   public void setAggregateType( int[] aggregateType ) {
     this.aggregateType = aggregateType;
@@ -187,8 +181,7 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param groupField
-   *          The groupField to set.
+   * @param groupField The groupField to set.
    */
   public void setGroupField( String[] groupField ) {
     this.groupField = groupField;
@@ -202,8 +195,7 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param subjectField
-   *          The subjectField to set.
+   * @param subjectField The subjectField to set.
    */
   public void setSubjectField( String[] subjectField ) {
     this.subjectField = subjectField;
@@ -217,8 +209,7 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param valueField
-   *          The valueField to set.
+   * @param valueField The valueField to set.
    */
   public void setValueField( String[] valueField ) {
     this.valueField = valueField;
@@ -230,11 +221,11 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void allocate( int sizegroup, int nrfields ) {
-    groupField = new String[sizegroup];
-    aggregateField = new String[nrfields];
-    subjectField = new String[nrfields];
-    aggregateType = new int[nrfields];
-    valueField = new String[nrfields];
+    groupField = new String[ sizegroup ];
+    aggregateField = new String[ nrfields ];
+    subjectField = new String[ nrfields ];
+    aggregateType = new int[ nrfields ];
+    valueField = new String[ nrfields ];
   }
 
   @Override
@@ -264,22 +255,22 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
 
       for ( int i = 0; i < sizegroup; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( groupn, "field", i );
-        groupField[i] = XMLHandler.getTagValue( fnode, "name" );
+        groupField[ i ] = XMLHandler.getTagValue( fnode, "name" );
       }
 
       boolean hasNumberOfValues = false;
       for ( int i = 0; i < nrfields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        aggregateField[i] = XMLHandler.getTagValue( fnode, "aggregate" );
-        subjectField[i] = XMLHandler.getTagValue( fnode, "subject" );
-        aggregateType[i] = getType( XMLHandler.getTagValue( fnode, "type" ) );
+        aggregateField[ i ] = XMLHandler.getTagValue( fnode, "aggregate" );
+        subjectField[ i ] = XMLHandler.getTagValue( fnode, "subject" );
+        aggregateType[ i ] = getType( XMLHandler.getTagValue( fnode, "type" ) );
 
-        if ( aggregateType[i] == TYPE_GROUP_COUNT_ALL
-          || aggregateType[i] == TYPE_GROUP_COUNT_DISTINCT || aggregateType[i] == TYPE_GROUP_COUNT_ANY ) {
+        if ( aggregateType[ i ] == TYPE_GROUP_COUNT_ALL
+          || aggregateType[ i ] == TYPE_GROUP_COUNT_DISTINCT || aggregateType[ i ] == TYPE_GROUP_COUNT_ANY ) {
           hasNumberOfValues = true;
         }
 
-        valueField[i] = XMLHandler.getTagValue( fnode, "valuefield" );
+        valueField[ i ] = XMLHandler.getTagValue( fnode, "valuefield" );
       }
 
       String giveBackRow = XMLHandler.getTagValue( stepnode, "give_back_row" );
@@ -296,12 +287,12 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
 
   public static final int getType( String desc ) {
     for ( int i = 0; i < typeGroupCode.length; i++ ) {
-      if ( typeGroupCode[i].equalsIgnoreCase( desc ) ) {
+      if ( typeGroupCode[ i ].equalsIgnoreCase( desc ) ) {
         return i;
       }
     }
     for ( int i = 0; i < typeGroupLongDesc.length; i++ ) {
-      if ( typeGroupLongDesc[i].equalsIgnoreCase( desc ) ) {
+      if ( typeGroupLongDesc[ i ].equalsIgnoreCase( desc ) ) {
         return i;
       }
     }
@@ -312,14 +303,14 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
     if ( i < 0 || i >= typeGroupCode.length ) {
       return null;
     }
-    return typeGroupCode[i];
+    return typeGroupCode[ i ];
   }
 
   public static final String getTypeDescLong( int i ) {
     if ( i < 0 || i >= typeGroupLongDesc.length ) {
       return null;
     }
-    return typeGroupLongDesc[i];
+    return typeGroupLongDesc[ i ];
   }
 
   @Override
@@ -332,7 +323,7 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
 
   @Override
   public void getFields( RowMetaInterface r, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) {
+                         VariableSpace space, IMetaStore metaStore ) {
     // Check compatibility mode
     boolean compatibilityMode = ValueMetaBase.convertStringToBoolean(
       space.getVariable( Const.HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE, "N" ) );
@@ -344,7 +335,7 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
     // Add the grouping fields in the correct order...
     //
     for ( int i = 0; i < groupField.length; i++ ) {
-      ValueMetaInterface valueMeta = r.searchValueMeta( groupField[i] );
+      ValueMetaInterface valueMeta = r.searchValueMeta( groupField[ i ] );
       if ( valueMeta != null ) {
         valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
         fields.addValueMeta( valueMeta );
@@ -354,14 +345,14 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
     // Re-add aggregates
     //
     for ( int i = 0; i < subjectField.length; i++ ) {
-      ValueMetaInterface subj = r.searchValueMeta( subjectField[i] );
-      if ( subj != null || aggregateType[i] == TYPE_GROUP_COUNT_ANY ) {
-        String value_name = aggregateField[i];
+      ValueMetaInterface subj = r.searchValueMeta( subjectField[ i ] );
+      if ( subj != null || aggregateType[ i ] == TYPE_GROUP_COUNT_ANY ) {
+        String value_name = aggregateField[ i ];
         int value_type = ValueMetaInterface.TYPE_NONE;
         int length = -1;
         int precision = -1;
 
-        switch ( aggregateType[i] ) {
+        switch ( aggregateType[ i ] ) {
           case TYPE_GROUP_FIRST:
           case TYPE_GROUP_LAST:
           case TYPE_GROUP_FIRST_INCL_NULL:
@@ -398,11 +389,11 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
             break;
         }
 
-        if ( aggregateType[i] == TYPE_GROUP_COUNT_ALL
-          || aggregateType[i] == TYPE_GROUP_COUNT_DISTINCT || aggregateType[i] == TYPE_GROUP_COUNT_ANY ) {
+        if ( aggregateType[ i ] == TYPE_GROUP_COUNT_ALL
+          || aggregateType[ i ] == TYPE_GROUP_COUNT_DISTINCT || aggregateType[ i ] == TYPE_GROUP_COUNT_ANY ) {
           length = ValueMetaInterface.DEFAULT_INTEGER_LENGTH;
           precision = 0;
-        } else if ( aggregateType[i] == TYPE_GROUP_SUM
+        } else if ( aggregateType[ i ] == TYPE_GROUP_SUM
           && value_type != ValueMetaInterface.TYPE_INTEGER && value_type != ValueMetaInterface.TYPE_NUMBER
           && value_type != ValueMetaInterface.TYPE_BIGNUMBER ) {
           // If it ain't numeric, we change it to Number
@@ -448,7 +439,7 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
     retval.append( "      <group>" ).append( Const.CR );
     for ( int i = 0; i < groupField.length; i++ ) {
       retval.append( "        <field>" ).append( Const.CR );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "name", groupField[i] ) );
+      retval.append( "          " ).append( XMLHandler.addTagValue( "name", groupField[ i ] ) );
       retval.append( "        </field>" ).append( Const.CR );
     }
     retval.append( "      </group>" ).append( Const.CR );
@@ -456,10 +447,10 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
     retval.append( "      <fields>" ).append( Const.CR );
     for ( int i = 0; i < subjectField.length; i++ ) {
       retval.append( "        <field>" ).append( Const.CR );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "aggregate", aggregateField[i] ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "subject", subjectField[i] ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "type", getTypeDesc( aggregateType[i] ) ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "valuefield", valueField[i] ) );
+      retval.append( "          " ).append( XMLHandler.addTagValue( "aggregate", aggregateField[ i ] ) );
+      retval.append( "          " ).append( XMLHandler.addTagValue( "subject", subjectField[ i ] ) );
+      retval.append( "          " ).append( XMLHandler.addTagValue( "type", getTypeDesc( aggregateType[ i ] ) ) );
+      retval.append( "          " ).append( XMLHandler.addTagValue( "valuefield", valueField[ i ] ) );
       retval.append( "        </field>" ).append( Const.CR );
     }
     retval.append( "      </fields>" ).append( Const.CR );
@@ -469,8 +460,8 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( input.length > 0 ) {
@@ -488,7 +479,7 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new MemoryGroupBy( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -505,8 +496,7 @@ public class MemoryGroupByMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param alwaysGivingBackOneRow
-   *          the alwaysGivingBackOneRow to set
+   * @param alwaysGivingBackOneRow the alwaysGivingBackOneRow to set
    */
   public void setAlwaysGivingBackOneRow( boolean alwaysGivingBackOneRow ) {
     this.alwaysGivingBackOneRow = alwaysGivingBackOneRow;

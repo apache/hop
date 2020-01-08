@@ -22,11 +22,6 @@
 
 package org.apache.hop.ui.xul.common.preview;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.ResourceBundle;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -50,6 +45,11 @@ import org.pentaho.ui.xul.components.XulProgressmeter;
 import org.pentaho.ui.xul.containers.XulDialog;
 import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 import org.pentaho.ui.xul.impl.XulEventHandler;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.ResourceBundle;
 
 /**
  * User: gmoran Date: Jan 28, 2013
@@ -142,7 +142,7 @@ public abstract class AbstractPreviewRowsXulDialog extends AbstractXulEventHandl
 
       transDebugMeta.addBreakPointListers( new BreakPointListener() {
         public void breakPointHit( TransDebugMeta transDebugMeta, StepDebugMeta stepDebugMeta,
-          RowMetaInterface rowBufferMeta, List<Object[]> rowBuffer ) {
+                                   RowMetaInterface rowBufferMeta, List<Object[]> rowBuffer ) {
           System.out.println( "break point hit...".concat( String.valueOf( stepDebugMeta.getRowCount() ) ) );
           trans.stopAll();
         }

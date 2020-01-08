@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.addsequence;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
@@ -39,7 +37,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -47,12 +45,13 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * Meta data for the Add Sequence step.
- *
+ * <p>
  * Created on 13-may-2003
  */
 public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
@@ -79,8 +78,7 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param connection
-   *          The connection to set.
+   * @param connection The connection to set.
    */
   public void setDatabaseMeta( DatabaseMeta connection ) {
     this.databaseMeta = connection;
@@ -94,8 +92,7 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param incrementBy
-   *          The incrementBy to set.
+   * @param incrementBy The incrementBy to set.
    */
   public void setIncrementBy( String incrementBy ) {
     this.incrementBy = incrementBy;
@@ -109,8 +106,7 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param maxValue
-   *          The maxValue to set.
+   * @param maxValue The maxValue to set.
    */
   public void setMaxValue( String maxValue ) {
     this.maxValue = maxValue;
@@ -124,32 +120,28 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param sequenceName
-   *          The sequenceName to set.
+   * @param sequenceName The sequenceName to set.
    */
   public void setSequenceName( String sequenceName ) {
     this.sequenceName = sequenceName;
   }
 
   /**
-   * @param maxValue
-   *          The maxValue to set.
+   * @param maxValue The maxValue to set.
    */
   public void setMaxValue( long maxValue ) {
     this.maxValue = Long.toString( maxValue );
   }
 
   /**
-   * @param startAt
-   *          The starting point of the sequence to set.
+   * @param startAt The starting point of the sequence to set.
    */
   public void setStartAt( long startAt ) {
     this.startAt = Long.toString( startAt );
   }
 
   /**
-   * @param incrementBy
-   *          The incrementBy to set.
+   * @param incrementBy The incrementBy to set.
    */
   public void setIncrementBy( long incrementBy ) {
     this.incrementBy = Long.toString( incrementBy );
@@ -163,8 +155,7 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param startAt
-   *          The starting point of the sequence to set.
+   * @param startAt The starting point of the sequence to set.
    */
   public void setStartAt( String startAt ) {
     this.startAt = startAt;
@@ -178,8 +169,7 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param useCounter
-   *          The useCounter to set.
+   * @param useCounter The useCounter to set.
    */
   public void setUseCounter( boolean useCounter ) {
     this.useCounter = useCounter;
@@ -193,8 +183,7 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param useDatabase
-   *          The useDatabase to set.
+   * @param useDatabase The useDatabase to set.
    */
   public void setUseDatabase( boolean useDatabase ) {
     this.useDatabase = useDatabase;
@@ -208,8 +197,7 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param valuename
-   *          The valuename to set.
+   * @param valuename The valuename to set.
    */
   public void setValuename( String valuename ) {
     this.valuename = valuename;
@@ -265,7 +253,7 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     ValueMetaInterface v = new ValueMetaInteger( valuename );
     // v.setLength(ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0); Removed for 2.5.x compatibility reasons.
     v.setOrigin( name );
@@ -294,8 +282,8 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     if ( useDatabase ) {
       Database db = new Database( loggingObject, databaseMeta );
@@ -338,7 +326,7 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public SQLStatement getSQLStatements( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-    IMetaStore metaStore ) {
+                                        IMetaStore metaStore ) {
     SQLStatement retval = new SQLStatement( stepMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( useDatabase ) {
@@ -370,7 +358,7 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new AddSequence( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -396,8 +384,7 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param counterName
-   *          the counterName to set
+   * @param counterName the counterName to set
    */
   public void setCounterName( String counterName ) {
     this.counterName = counterName;
@@ -411,8 +398,7 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param schemaName
-   *          the schemaName to set
+   * @param schemaName the schemaName to set
    */
   public void setSchemaName( String schemaName ) {
     this.schemaName = schemaName;

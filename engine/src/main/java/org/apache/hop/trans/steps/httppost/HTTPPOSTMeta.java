@@ -22,26 +22,21 @@
 
 package org.apache.hop.trans.steps.httppost;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -49,8 +44,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*
  * Created on 15-jan-2009
@@ -77,22 +73,32 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
 
   private static final String YES = "Y";
 
-  /** URL / service to be called */
+  /**
+   * URL / service to be called
+   */
   private String url;
 
-  /** function arguments : fieldname */
+  /**
+   * function arguments : fieldname
+   */
   private String[] argumentField;
 
-  /** function query field : queryField */
+  /**
+   * function query field : queryField
+   */
   private String[] queryField;
 
-  /** IN / OUT / INOUT */
+  /**
+   * IN / OUT / INOUT
+   */
   private String[] argumentParameter;
   private boolean[] argumentHeader;
 
   private String[] queryParameter;
 
-  /** function result: new value name */
+  /**
+   * function result: new value name
+   */
   private String fieldName;
   private String resultCodeFieldName;
   private String responseHeaderFieldName;
@@ -136,8 +142,7 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param argument
-   *          The argument to set.
+   * @param argument The argument to set.
    */
   public void setArgumentField( String[] argument ) {
     this.argumentField = argument;
@@ -151,8 +156,7 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param queryfield
-   *          The queryfield to set.
+   * @param queryfield The queryfield to set.
    */
   public void setQueryField( String[] queryfield ) {
     this.queryField = queryfield;
@@ -166,8 +170,7 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param connectionTimeout
-   *          The connectionTimeout to set.
+   * @param connectionTimeout The connectionTimeout to set.
    */
   public void setConnectionTimeout( String connectionTimeout ) {
     this.connectionTimeout = connectionTimeout;
@@ -181,8 +184,7 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param closeIdleConnectionsTime
-   *          The connectionTimeout to set.
+   * @param closeIdleConnectionsTime The connectionTimeout to set.
    */
   public void setCloseIdleConnectionsTime( String closeIdleConnectionsTime ) {
     this.closeIdleConnectionsTime = closeIdleConnectionsTime;
@@ -196,8 +198,7 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param socketTimeout
-   *          The socketTimeout to set.
+   * @param socketTimeout The socketTimeout to set.
    */
   public void setSocketTimeout( String socketTimeout ) {
     this.socketTimeout = socketTimeout;
@@ -211,8 +212,7 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param argumentDirection
-   *          The argumentDirection to set.
+   * @param argumentDirection The argumentDirection to set.
    */
   public void setArgumentParameter( String[] argumentDirection ) {
     this.argumentParameter = argumentDirection;
@@ -226,8 +226,7 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param queryParameter
-   *          The queryParameter to set.
+   * @param queryParameter The queryParameter to set.
    */
   public void setQueryParameter( String[] queryParameter ) {
     this.queryParameter = queryParameter;
@@ -241,8 +240,7 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param procedure
-   *          The procedure to set.
+   * @param procedure The procedure to set.
    */
   public void setUrl( String procedure ) {
     this.url = procedure;
@@ -264,8 +262,7 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param urlInField
-   *          Is the url coded in a field?
+   * @param urlInField Is the url coded in a field?
    */
   public void setUrlInField( boolean urlInField ) {
     this.urlInField = urlInField;
@@ -279,16 +276,14 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param urlField
-   *          name of the field that contains the url
+   * @param urlField name of the field that contains the url
    */
   public void setUrlField( String urlField ) {
     this.urlField = urlField;
   }
 
   /**
-   * @param requestEntity
-   *          the requestEntity to set
+   * @param requestEntity the requestEntity to set
    */
   public void setRequestEntity( String requestEntity ) {
     this.requestEntity = requestEntity;
@@ -309,8 +304,7 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param resultName
-   *          The resultName to set.
+   * @param resultName The resultName to set.
    */
   public void setFieldName( String resultName ) {
     this.fieldName = resultName;
@@ -321,14 +315,14 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrargs ) {
-    argumentField = new String[nrargs];
-    argumentParameter = new String[nrargs];
-    argumentHeader = new boolean[nrargs];
+    argumentField = new String[ nrargs ];
+    argumentParameter = new String[ nrargs ];
+    argumentHeader = new boolean[ nrargs ];
   }
 
   public void allocateQuery( int nrqueryparams ) {
-    queryField = new String[nrqueryparams];
-    queryParameter = new String[nrqueryparams];
+    queryField = new String[ nrqueryparams ];
+    queryParameter = new String[ nrqueryparams ];
   }
 
   public Object clone() {
@@ -355,17 +349,17 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
     nrargs = 0;
     allocate( nrargs );
     for ( i = 0; i < nrargs; i++ ) {
-      argumentField[i] = "arg" + i;
-      argumentParameter[i] = "arg";
-      argumentHeader[i] = false;
+      argumentField[ i ] = "arg" + i;
+      argumentParameter[ i ] = "arg";
+      argumentHeader[ i ] = false;
     }
 
     int nrquery;
     nrquery = 0;
     allocateQuery( nrquery );
     for ( i = 0; i < nrquery; i++ ) {
-      queryField[i] = "query" + i;
-      queryParameter[i] = "query";
+      queryField[ i ] = "query" + i;
+      queryParameter[ i ] = "query";
     }
 
     fieldName = "result";
@@ -381,7 +375,7 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     if ( !Utils.isEmpty( fieldName ) ) {
       ValueMetaInterface v = new ValueMetaString( space.environmentSubstitute( fieldName ) );
       inputRowMeta.addValueMeta( v );
@@ -428,15 +422,15 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
 
     for ( int i = 0; i < argumentField.length; i++ ) {
       retval.append( "      <arg>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", argumentField[i] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "parameter", argumentParameter[i] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "header", argumentHeader[i], false ) );
+      retval.append( "        " + XMLHandler.addTagValue( "name", argumentField[ i ] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "parameter", argumentParameter[ i ] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "header", argumentHeader[ i ], false ) );
       retval.append( "        </arg>" + Const.CR );
     }
     for ( int i = 0; i < queryField.length; i++ ) {
       retval.append( "      <query>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", queryField[i] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "parameter", queryParameter[i] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "name", queryField[ i ] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "parameter", queryParameter[ i ] ) );
       retval.append( "        </query>" + Const.CR );
     }
 
@@ -475,9 +469,9 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
       allocate( nrargs );
       for ( int i = 0; i < nrargs; i++ ) {
         Node anode = XMLHandler.getSubNodeByNr( lookup, "arg", i );
-        argumentField[i] = XMLHandler.getTagValue( anode, "name" );
-        argumentParameter[i] = XMLHandler.getTagValue( anode, "parameter" );
-        argumentHeader[i] = YES.equalsIgnoreCase( XMLHandler.getTagValue( anode, "header" ) );
+        argumentField[ i ] = XMLHandler.getTagValue( anode, "name" );
+        argumentParameter[ i ] = XMLHandler.getTagValue( anode, "parameter" );
+        argumentHeader[ i ] = YES.equalsIgnoreCase( XMLHandler.getTagValue( anode, "header" ) );
       }
 
       int nrquery = XMLHandler.countNodes( lookup, "query" );
@@ -485,8 +479,8 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
 
       for ( int i = 0; i < nrquery; i++ ) {
         Node anode = XMLHandler.getSubNodeByNr( lookup, "query", i );
-        queryField[i] = XMLHandler.getTagValue( anode, "name" );
-        queryParameter[i] = XMLHandler.getTagValue( anode, "parameter" );
+        queryField[ i ] = XMLHandler.getTagValue( anode, "name" );
+        queryParameter[ i ] = XMLHandler.getTagValue( anode, "parameter" );
       }
 
       fieldName = XMLHandler.getTagValue( stepnode, "result", "name" ); // Optional, can be null
@@ -501,8 +495,8 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     // See if we have input streams leading to this step!
@@ -546,7 +540,7 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new HTTPPOST( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -566,8 +560,7 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param argumentHeader
-   *          the argumentHeader to set
+   * @param argumentHeader the argumentHeader to set
    */
   public void setArgumentHeader( boolean[] argumentHeader ) {
     this.argumentHeader = argumentHeader;
@@ -581,8 +574,7 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param resultCodeFieldName
-   *          the resultCodeFieldName to set
+   * @param resultCodeFieldName the resultCodeFieldName to set
    */
   public void setResultCodeFieldName( String resultCodeFieldName ) {
     this.resultCodeFieldName = resultCodeFieldName;
@@ -652,7 +644,6 @@ public class HTTPPOSTMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   *
    * @return
    */
   public String getHttpPassword() {

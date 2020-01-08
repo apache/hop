@@ -22,9 +22,9 @@
 
 package org.apache.hop.core.auth.core.impl;
 
-import org.junit.Test;
 import org.apache.hop.core.auth.DelegatingKerberosConsumer;
 import org.apache.hop.core.auth.core.AuthenticationFactoryException;
+import org.junit.Test;
 
 public class DefaultAuthenticationConsumerFactoryTest {
   @Test( expected = AuthenticationFactoryException.class )

@@ -22,13 +22,7 @@
 
 package org.apache.hop.trans.steps.scriptvalues_mod;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
+import junit.framework.TestCase;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
@@ -54,7 +48,12 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
 import org.apache.hop.trans.steps.injector.InjectorMeta;
 
-import junit.framework.TestCase;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Test class for the Modified Javascript step for the special functions. Things tested: LuhnCheck().

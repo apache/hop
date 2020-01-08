@@ -22,20 +22,6 @@
 
 package org.apache.hop.trans.steps.synchronizeaftermerge;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import java.lang.reflect.Field;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -49,12 +35,26 @@ import org.apache.hop.trans.RowProducer;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransHopMeta;
 import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepData.StepExecutionStatus;
 import org.apache.hop.trans.step.StepErrorMeta;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.BaseStepData.StepExecutionStatus;
 import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
 import org.apache.hop.trans.steps.injector.InjectorMeta;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class SynchronizeAfterMergeIT {
 
@@ -62,7 +62,7 @@ public class SynchronizeAfterMergeIT {
 
   /**
    * is used for check PDI-14413
-   * 
+   * <p>
    * set the commit size more than row size and then pass data betwen {@link #ROW_SIZE} and {@link #COMMIT_SIZE}
    */
   private static final int ROW_SIZE = 5;
@@ -219,9 +219,10 @@ public class SynchronizeAfterMergeIT {
     switch ( control ) {
       case ITTERUPT:
         trans.stopAll();
-        while (  !si.getStatus().equals( StepExecutionStatus.STATUS_STOPPED ) ) {
+        while ( !si.getStatus().equals( StepExecutionStatus.STATUS_STOPPED ) ) {
           //wait until transformation does not stopped
-        };
+        }
+        ;
         break;
       case WAIT:
       default:
@@ -229,11 +230,11 @@ public class SynchronizeAfterMergeIT {
         assertEquals( "Step still started", StepExecutionStatus.STATUS_FINISHED, si.getStatus() );
         break;
     }
-    assertEquals( "Unexpected error occurred",  0, si.getErrors() );
+    assertEquals( "Unexpected error occurred", 0, si.getErrors() );
 
     Field field = SynchronizeAfterMerge.class.getDeclaredField( "data" );
     field.setAccessible( true );
-    SynchronizeAfterMergeData  data = (SynchronizeAfterMergeData) field.get( si );
+    SynchronizeAfterMergeData data = (SynchronizeAfterMergeData) field.get( si );
     //should be closed and set null after finish transformation
     assertNull( data.db.getConnection() );
   }

@@ -23,11 +23,11 @@
 package org.apache.hop.trans.steps.stringoperations;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -51,12 +51,12 @@ public class StringOperations extends BaseStep implements StepInterface {
   private StringOperationsData data;
 
   public StringOperations( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
+                           Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
   private String processString( String string, int trimType, int lowerUpper, int padType, String padChar, int padLen,
-      int iniCap, int maskHTML, int digits, int removeSpecialCharacters ) {
+                                int iniCap, int maskHTML, int digits, int removeSpecialCharacters ) {
     String rcode = string;
 
     // Trim ?
@@ -187,26 +187,26 @@ public class StringOperations extends BaseStep implements StepInterface {
 
   private Object[] processRow( RowMetaInterface rowMeta, Object[] row ) throws HopException {
 
-    Object[] RowData = new Object[data.outputRowMeta.size()];
+    Object[] RowData = new Object[ data.outputRowMeta.size() ];
     // Copy the input fields.
     System.arraycopy( row, 0, RowData, 0, rowMeta.size() );
     int j = 0; // Index into "new fields" area, past the first {data.inputFieldsNr} records
     for ( int i = 0; i < data.nrFieldsInStream; i++ ) {
-      if ( data.inStreamNrs[i] >= 0 ) {
+      if ( data.inStreamNrs[ i ] >= 0 ) {
         // Get source value
-        String value = getInputRowMeta().getString( row, data.inStreamNrs[i] );
+        String value = getInputRowMeta().getString( row, data.inStreamNrs[ i ] );
         // Apply String operations and return result value
         value =
-            processString( value, data.trimOperators[i], data.lowerUpperOperators[i], data.padType[i], data.padChar[i],
-                data.padLen[i], data.initCap[i], data.maskHTML[i], data.digits[i], data.removeSpecialCharacters[i] );
-        if ( Utils.isEmpty( data.outStreamNrs[i] ) ) {
+          processString( value, data.trimOperators[ i ], data.lowerUpperOperators[ i ], data.padType[ i ], data.padChar[ i ],
+            data.padLen[ i ], data.initCap[ i ], data.maskHTML[ i ], data.digits[ i ], data.removeSpecialCharacters[ i ] );
+        if ( Utils.isEmpty( data.outStreamNrs[ i ] ) ) {
           // Update field
-          RowData[data.inStreamNrs[i]] = value;
-          data.outputRowMeta.getValueMeta( data.inStreamNrs[i] )
-              .setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
+          RowData[ data.inStreamNrs[ i ] ] = value;
+          data.outputRowMeta.getValueMeta( data.inStreamNrs[ i ] )
+            .setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
         } else {
           // create a new Field
-          RowData[data.inputFieldsNr + j] = value;
+          RowData[ data.inputFieldsNr + j ] = value;
           j++;
         }
       }
@@ -233,74 +233,74 @@ public class StringOperations extends BaseStep implements StepInterface {
       data.inputFieldsNr = data.outputRowMeta.size();
       meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
       data.nrFieldsInStream = meta.getFieldInStream().length;
-      data.inStreamNrs = new int[data.nrFieldsInStream];
+      data.inStreamNrs = new int[ data.nrFieldsInStream ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        data.inStreamNrs[i] = getInputRowMeta().indexOfValue( meta.getFieldInStream()[i] );
-        if ( data.inStreamNrs[i] < 0 ) { // couldn't find field!
+        data.inStreamNrs[ i ] = getInputRowMeta().indexOfValue( meta.getFieldInStream()[ i ] );
+        if ( data.inStreamNrs[ i ] < 0 ) { // couldn't find field!
 
           throw new HopStepException( BaseMessages.getString( PKG, "StringOperations.Exception.FieldRequired", meta
-              .getFieldInStream()[i] ) );
+            .getFieldInStream()[ i ] ) );
         }
         // check field type
-        if ( !getInputRowMeta().getValueMeta( data.inStreamNrs[i] ).isString() ) {
+        if ( !getInputRowMeta().getValueMeta( data.inStreamNrs[ i ] ).isString() ) {
           throw new HopStepException( BaseMessages.getString( PKG, "StringOperations.Exception.FieldTypeNotString",
-              meta.getFieldInStream()[i] ) );
+            meta.getFieldInStream()[ i ] ) );
         }
       }
 
-      data.outStreamNrs = new String[data.nrFieldsInStream];
+      data.outStreamNrs = new String[ data.nrFieldsInStream ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        data.outStreamNrs[i] = meta.getFieldOutStream()[i];
+        data.outStreamNrs[ i ] = meta.getFieldOutStream()[ i ];
       }
 
       // Keep track of the trim operators locally for a very small
       // optimization.
-      data.trimOperators = new int[data.nrFieldsInStream];
+      data.trimOperators = new int[ data.nrFieldsInStream ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        data.trimOperators[i] = meta.getTrimType()[i];
+        data.trimOperators[ i ] = meta.getTrimType()[ i ];
       }
       // lower Upper
-      data.lowerUpperOperators = new int[data.nrFieldsInStream];
+      data.lowerUpperOperators = new int[ data.nrFieldsInStream ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        data.lowerUpperOperators[i] = meta.getLowerUpper()[i];
+        data.lowerUpperOperators[ i ] = meta.getLowerUpper()[ i ];
       }
 
       // padding type?
-      data.padType = new int[data.nrFieldsInStream];
+      data.padType = new int[ data.nrFieldsInStream ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        data.padType[i] = meta.getPaddingType()[i];
+        data.padType[ i ] = meta.getPaddingType()[ i ];
       }
 
       // padding char
-      data.padChar = new String[data.nrFieldsInStream];
+      data.padChar = new String[ data.nrFieldsInStream ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        data.padChar[i] = environmentSubstitute( meta.getPadChar()[i] );
+        data.padChar[ i ] = environmentSubstitute( meta.getPadChar()[ i ] );
       }
 
       // padding len
-      data.padLen = new int[data.nrFieldsInStream];
+      data.padLen = new int[ data.nrFieldsInStream ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        data.padLen[i] = Const.toInt( environmentSubstitute( meta.getPadLen()[i] ), 0 );
+        data.padLen[ i ] = Const.toInt( environmentSubstitute( meta.getPadLen()[ i ] ), 0 );
       }
       // InitCap?
-      data.initCap = new int[data.nrFieldsInStream];
+      data.initCap = new int[ data.nrFieldsInStream ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        data.initCap[i] = meta.getInitCap()[i];
+        data.initCap[ i ] = meta.getInitCap()[ i ];
       }
       // MaskXML?
-      data.maskHTML = new int[data.nrFieldsInStream];
+      data.maskHTML = new int[ data.nrFieldsInStream ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        data.maskHTML[i] = meta.getMaskXML()[i];
+        data.maskHTML[ i ] = meta.getMaskXML()[ i ];
       }
       // digits?
-      data.digits = new int[data.nrFieldsInStream];
+      data.digits = new int[ data.nrFieldsInStream ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        data.digits[i] = meta.getDigits()[i];
+        data.digits[ i ] = meta.getDigits()[ i ];
       }
       // remove special characters?
-      data.removeSpecialCharacters = new int[data.nrFieldsInStream];
+      data.removeSpecialCharacters = new int[ data.nrFieldsInStream ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        data.removeSpecialCharacters[i] = meta.getRemoveSpecialCharacters()[i];
+        data.removeSpecialCharacters[ i ] = meta.getRemoveSpecialCharacters()[ i ];
       }
 
     } // end if first

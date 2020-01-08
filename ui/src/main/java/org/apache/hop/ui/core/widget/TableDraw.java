@@ -22,9 +22,9 @@
 
 package org.apache.hop.ui.core.widget;
 
-import java.util.List;
-import java.util.Vector;
-
+import org.apache.hop.core.gui.TextFileInputFieldInterface;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -45,9 +45,9 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ScrollBar;
-import org.apache.hop.core.gui.TextFileInputFieldInterface;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+
+import java.util.List;
+import java.util.Vector;
 
 /**
  * Widget to draw the character of a fixed length text-file in a graphical way.

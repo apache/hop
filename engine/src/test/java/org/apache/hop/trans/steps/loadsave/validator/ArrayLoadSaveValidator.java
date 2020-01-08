@@ -48,7 +48,7 @@ public class ArrayLoadSaveValidator<ObjectType> implements FieldLoadSaveValidato
       if ( result == null ) {
         result = (ObjectType[]) Array.newInstance( element.getClass(), max );
       }
-      result[i] = element;
+      result[ i ] = element;
     }
     return result;
   }
@@ -69,7 +69,7 @@ public class ArrayLoadSaveValidator<ObjectType> implements FieldLoadSaveValidato
         return false;
       }
       for ( int i = 0; i < original.length; i++ ) {
-        if ( !this.validator.validateTestObject( original[i], otherList[i] ) ) {
+        if ( !this.validator.validateTestObject( original[ i ], otherList[ i ] ) ) {
           return false;
         }
       }

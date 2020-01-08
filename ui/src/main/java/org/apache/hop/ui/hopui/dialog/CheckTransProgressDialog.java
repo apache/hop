@@ -22,21 +22,21 @@
 
 package org.apache.hop.ui.hopui.dialog;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopui.HopUi;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.swt.widgets.Shell;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 /**
  * Takes care of displaying a dialog that will handle the wait while checking a transformation...
@@ -60,7 +60,7 @@ public class CheckTransProgressDialog {
    * Creates a new dialog that will handle the wait while checking a transformation...
    */
   public CheckTransProgressDialog( Shell shell, TransMeta transMeta, List<CheckResultInterface> remarks,
-    boolean onlySelected ) {
+                                   boolean onlySelected ) {
     this( shell, transMeta, remarks, onlySelected, transMeta, HopUi.getInstance().getMetaStore() );
   }
 
@@ -68,7 +68,7 @@ public class CheckTransProgressDialog {
    * Creates a new dialog that will handle the wait while checking a transformation...
    */
   public CheckTransProgressDialog( Shell shell, TransMeta transMeta, List<CheckResultInterface> remarks,
-    boolean onlySelected, VariableSpace space, IMetaStore metaStore ) {
+                                   boolean onlySelected, VariableSpace space, IMetaStore metaStore ) {
     this.shell = shell;
     this.transMeta = transMeta;
     this.onlySelected = onlySelected;

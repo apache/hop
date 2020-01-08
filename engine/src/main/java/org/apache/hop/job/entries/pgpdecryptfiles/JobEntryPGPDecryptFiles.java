@@ -22,33 +22,19 @@
 
 package org.apache.hop.job.entries.pgpdecryptfiles;
 
-import org.apache.hop.job.entry.validator.AbstractFileValidator;
-import org.apache.hop.job.entry.validator.AndValidator;
-import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
@@ -58,10 +44,19 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.pgpencryptfiles.GPG;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.validator.AbstractFileValidator;
+import org.apache.hop.job.entry.validator.AndValidator;
+import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This defines a 'PGP decrypt files' job entry.
@@ -150,10 +145,10 @@ public class JobEntryPGPDecryptFiles extends JobEntryBase implements Cloneable, 
   }
 
   public void allocate( int nrFields ) {
-    source_filefolder = new String[nrFields];
-    passphrase = new String[nrFields];
-    destination_filefolder = new String[nrFields];
-    wildcard = new String[nrFields];
+    source_filefolder = new String[ nrFields ];
+    passphrase = new String[ nrFields ];
+    destination_filefolder = new String[ nrFields ];
+    wildcard = new String[ nrFields ];
   }
 
   public Object clone() {
@@ -204,12 +199,12 @@ public class JobEntryPGPDecryptFiles extends JobEntryBase implements Cloneable, 
     if ( source_filefolder != null ) {
       for ( int i = 0; i < source_filefolder.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "source_filefolder", source_filefolder[i] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "source_filefolder", source_filefolder[ i ] ) );
         retval.append( "          " ).append(
-          XMLHandler.addTagValue( "passphrase", Encr.encryptPasswordIfNotUsingVariables( passphrase[i] ) ) );
+          XMLHandler.addTagValue( "passphrase", Encr.encryptPasswordIfNotUsingVariables( passphrase[ i ] ) ) );
         retval.append( "          " ).append(
-          XMLHandler.addTagValue( "destination_filefolder", destination_filefolder[i] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "wildcard", wildcard[i] ) );
+          XMLHandler.addTagValue( "destination_filefolder", destination_filefolder[ i ] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "wildcard", wildcard[ i ] ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
@@ -218,10 +213,10 @@ public class JobEntryPGPDecryptFiles extends JobEntryBase implements Cloneable, 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       gpglocation = XMLHandler.getTagValue( entrynode, "gpglocation" );
       arg_from_previous = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
       include_subfolders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "include_subfolders" ) );
@@ -260,10 +255,10 @@ public class JobEntryPGPDecryptFiles extends JobEntryBase implements Cloneable, 
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        source_filefolder[i] = XMLHandler.getTagValue( fnode, "source_filefolder" );
-        passphrase[i] = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( fnode, "passphrase" ) );
-        destination_filefolder[i] = XMLHandler.getTagValue( fnode, "destination_filefolder" );
-        wildcard[i] = XMLHandler.getTagValue( fnode, "wildcard" );
+        source_filefolder[ i ] = XMLHandler.getTagValue( fnode, "source_filefolder" );
+        passphrase[ i ] = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( fnode, "passphrase" ) );
+        destination_filefolder[ i ] = XMLHandler.getTagValue( fnode, "destination_filefolder" );
+        wildcard[ i ] = XMLHandler.getTagValue( fnode, "wildcard" );
       }
     } catch ( HopXMLException xe ) {
 
@@ -386,8 +381,8 @@ public class JobEntryPGPDecryptFiles extends JobEntryBase implements Cloneable, 
           } else {
             if ( isDetailed() ) {
               logDetailed( BaseMessages.getString(
-                PKG, "JobPGPDecryptFiles.Log.IgnoringRow", vsourcefilefolder[iteration],
-                vdestinationfilefolder[iteration], vwildcard[iteration] ) );
+                PKG, "JobPGPDecryptFiles.Log.IgnoringRow", vsourcefilefolder[ iteration ],
+                vdestinationfilefolder[ iteration ], vwildcard[ iteration ] ) );
             }
           }
         }
@@ -405,26 +400,26 @@ public class JobEntryPGPDecryptFiles extends JobEntryBase implements Cloneable, 
             return result;
           }
 
-          if ( !Utils.isEmpty( vsourcefilefolder[i] ) && !Utils.isEmpty( vdestinationfilefolder[i] ) ) {
+          if ( !Utils.isEmpty( vsourcefilefolder[ i ] ) && !Utils.isEmpty( vdestinationfilefolder[ i ] ) ) {
             // ok we can process this file/folder
             if ( isDetailed() ) {
               logDetailed( BaseMessages.getString(
-                PKG, "JobPGPDecryptFiles.Log.ProcessingRow", vsourcefilefolder[i], vdestinationfilefolder[i],
-                vwildcard[i] ) );
+                PKG, "JobPGPDecryptFiles.Log.ProcessingRow", vsourcefilefolder[ i ], vdestinationfilefolder[ i ],
+                vwildcard[ i ] ) );
             }
 
             if ( !ProcessFileFolder(
-              vsourcefilefolder[i], Encr
-                .decryptPasswordOptionallyEncrypted( environmentSubstitute( vpassphrase[i] ) ),
-              vdestinationfilefolder[i], vwildcard[i], parentJob, result, MoveToFolder ) ) {
+              vsourcefilefolder[ i ], Encr
+                .decryptPasswordOptionallyEncrypted( environmentSubstitute( vpassphrase[ i ] ) ),
+              vdestinationfilefolder[ i ], vwildcard[ i ], parentJob, result, MoveToFolder ) ) {
               // Update Errors
               updateErrors();
             }
           } else {
             if ( isDetailed() ) {
               logDetailed( BaseMessages.getString(
-                PKG, "JobPGPDecryptFiles.Log.IgnoringRow", vsourcefilefolder[i], vdestinationfilefolder[i],
-                vwildcard[i] ) );
+                PKG, "JobPGPDecryptFiles.Log.IgnoringRow", vsourcefilefolder[ i ], vdestinationfilefolder[ i ],
+                vwildcard[ i ] ) );
             }
           }
         }
@@ -472,7 +467,7 @@ public class JobEntryPGPDecryptFiles extends JobEntryBase implements Cloneable, 
   }
 
   private boolean ProcessFileFolder( String sourcefilefoldername, String passPhrase,
-    String destinationfilefoldername, String wildcard, Job parentJob, Result result, String MoveToFolder ) {
+                                     String destinationfilefoldername, String wildcard, Job parentJob, Result result, String MoveToFolder ) {
     boolean entrystatus = false;
     FileObject sourcefilefolder = null;
     FileObject destinationfilefolder = null;
@@ -608,7 +603,7 @@ public class JobEntryPGPDecryptFiles extends JobEntryBase implements Cloneable, 
                     return false;
                   }
                   // Fetch files in list one after one ...
-                  Currentfile = fileObjects[j];
+                  Currentfile = fileObjects[ j ];
 
                   if ( !DecryptOneFile(
                     Currentfile, sourcefilefolder, passPhrase, realDestinationFilefoldername, realWildcard,
@@ -667,7 +662,7 @@ public class JobEntryPGPDecryptFiles extends JobEntryBase implements Cloneable, 
   }
 
   private boolean DecryptFile( String shortfilename, FileObject sourcefilename, String passPharse,
-    FileObject destinationfilename, FileObject movetofolderfolder, Job parentJob, Result result ) {
+                               FileObject destinationfilename, FileObject movetofolderfolder, Job parentJob, Result result ) {
 
     FileObject destinationfile = null;
     boolean retval = false;
@@ -830,8 +825,8 @@ public class JobEntryPGPDecryptFiles extends JobEntryBase implements Cloneable, 
   }
 
   private boolean DecryptOneFile( FileObject Currentfile, FileObject sourcefilefolder, String passPhrase,
-    String realDestinationFilefoldername, String realWildcard, Job parentJob, Result result,
-    FileObject movetofolderfolder ) {
+                                  String realDestinationFilefoldername, String realWildcard, Job parentJob, Result result,
+                                  FileObject movetofolderfolder ) {
     boolean entrystatus = false;
     FileObject file_name = null;
 
@@ -1209,8 +1204,8 @@ public class JobEntryPGPDecryptFiles extends JobEntryBase implements Cloneable, 
   }
 
   /**
-   * @deprecated use {@link #setGPGLocation(String)} instead
    * @param gpglocation
+   * @deprecated use {@link #setGPGLocation(String)} instead
    */
   @Deprecated
   public void setGPGPLocation( String gpglocation ) {
@@ -1274,7 +1269,7 @@ public class JobEntryPGPDecryptFiles extends JobEntryBase implements Cloneable, 
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     boolean res = JobEntryValidatorUtils.andValidator().validate( this, "arguments", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
 
     if ( res == false ) {

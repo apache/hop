@@ -22,6 +22,27 @@
 
 package org.apache.hop.job.entries.dostounix;
 
+import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.vfs2.AllFileSelector;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSelectInfo;
+import org.apache.commons.vfs2.FileType;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.Job;
+import org.apache.hop.job.entry.JobEntryBase;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.w3c.dom.Node;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -32,32 +53,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.google.common.annotations.VisibleForTesting;
-
-import org.apache.commons.vfs2.AllFileSelector;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSelectInfo;
-import org.apache.commons.vfs2.FileType;
-import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.Job;
-import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
-
-import org.apache.hop.metastore.api.IMetaStore;
-import org.w3c.dom.Node;
 
 /**
  * This defines a 'Dos to Unix' job entry.
@@ -134,9 +129,9 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
   }
 
   public void allocate( int nrFields ) {
-    source_filefolder = new String[nrFields];
-    wildcard = new String[nrFields];
-    conversionTypes = new int[nrFields];
+    source_filefolder = new String[ nrFields ];
+    wildcard = new String[ nrFields ];
+    conversionTypes = new int[ nrFields ];
   }
 
   public Object clone() {
@@ -164,10 +159,10 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
     if ( source_filefolder != null ) {
       for ( int i = 0; i < source_filefolder.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "source_filefolder", source_filefolder[i] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "wildcard", wildcard[i] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "source_filefolder", source_filefolder[ i ] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "wildcard", wildcard[ i ] ) );
         retval.append( "          " ).append(
-          XMLHandler.addTagValue( "ConversionType", getConversionTypeCode( conversionTypes[i] ) ) );
+          XMLHandler.addTagValue( "ConversionType", getConversionTypeCode( conversionTypes[ i ] ) ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
@@ -178,16 +173,16 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
 
   private static String getConversionTypeCode( int i ) {
     if ( i < 0 || i >= ConversionTypeCode.length ) {
-      return ConversionTypeCode[0];
+      return ConversionTypeCode[ 0 ];
     }
-    return ConversionTypeCode[i];
+    return ConversionTypeCode[ i ];
   }
 
   public static String getConversionTypeDesc( int i ) {
     if ( i < 0 || i >= ConversionTypeDesc.length ) {
-      return ConversionTypeDesc[0];
+      return ConversionTypeDesc[ 0 ];
     }
-    return ConversionTypeDesc[i];
+    return ConversionTypeDesc[ i ];
   }
 
   public static int getConversionTypeByDesc( String tt ) {
@@ -196,7 +191,7 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
     }
 
     for ( int i = 0; i < ConversionTypeDesc.length; i++ ) {
-      if ( ConversionTypeDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( ConversionTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -211,17 +206,17 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
     }
 
     for ( int i = 0; i < ConversionTypeCode.length; i++ ) {
-      if ( ConversionTypeCode[i].equalsIgnoreCase( tt ) ) {
+      if ( ConversionTypeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
     return 0;
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
 
       arg_from_previous = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
       include_subfolders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "include_subfolders" ) );
@@ -240,9 +235,9 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        source_filefolder[i] = XMLHandler.getTagValue( fnode, "source_filefolder" );
-        wildcard[i] = XMLHandler.getTagValue( fnode, "wildcard" );
-        conversionTypes[i] =
+        source_filefolder[ i ] = XMLHandler.getTagValue( fnode, "source_filefolder" );
+        wildcard[ i ] = XMLHandler.getTagValue( fnode, "wildcard" );
+        conversionTypes[ i ] =
           getConversionTypeByCode( Const.NVL( XMLHandler.getTagValue( fnode, "ConversionType" ), "" ) );
       }
     } catch ( HopXMLException xe ) {
@@ -323,10 +318,10 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
 
         if ( isDetailed() ) {
           logDetailed( BaseMessages.getString(
-            PKG, "JobDosToUnix.Log.ProcessingRow", vsourcefilefolder[i], vwildcard[i] ) );
+            PKG, "JobDosToUnix.Log.ProcessingRow", vsourcefilefolder[ i ], vwildcard[ i ] ) );
         }
 
-        processFileFolder( vsourcefilefolder[i], vwildcard[i], conversionTypes[i], parentJob, result );
+        processFileFolder( vsourcefilefolder[ i ], vwildcard[ i ], conversionTypes[ i ], parentJob, result );
 
       }
     }
@@ -369,7 +364,7 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
 
     if ( ( nrAllErrors == 0 && getSuccessCondition().equals( SUCCESS_IF_NO_ERRORS ) )
       || ( nrProcessedFiles >= limitFiles && getSuccessCondition()
-        .equals( SUCCESS_IF_AT_LEAST_X_FILES_PROCESSED ) )
+      .equals( SUCCESS_IF_AT_LEAST_X_FILES_PROCESSED ) )
       || ( nrErrorFiles < limitFiles && getSuccessCondition().equals( SUCCESS_IF_ERROR_FILES_LESS ) ) ) {
       retval = true;
     }
@@ -477,7 +472,7 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
   }
 
   private boolean processFileFolder( String sourcefilefoldername, String wildcard, int convertion, Job parentJob,
-    Result result ) {
+                                     Result result ) {
     boolean entrystatus = false;
     FileObject sourcefilefolder = null;
     FileObject CurrentFile = null;
@@ -546,7 +541,7 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
                 return false;
               }
               // Fetch files in list one after one ...
-              CurrentFile = fileObjects[j];
+              CurrentFile = fileObjects[ j ];
 
               if ( !CurrentFile.getParent().toString().equals( sourcefilefolder.toString() ) ) {
                 // Not in the Base Folder..Only if include sub folders

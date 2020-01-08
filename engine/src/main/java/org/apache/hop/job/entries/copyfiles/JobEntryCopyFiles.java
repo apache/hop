@@ -22,39 +22,21 @@
 
 package org.apache.hop.job.entries.copyfiles;
 
-import org.apache.commons.vfs2.NameScope;
-import org.apache.hop.job.entry.validator.AbstractFileValidator;
-import org.apache.hop.job.entry.validator.AndValidator;
-import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import java.io.IOException;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.cluster.SlaveServer;
+import org.apache.commons.vfs2.NameScope;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
@@ -63,10 +45,22 @@ import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.validator.AbstractFileValidator;
+import org.apache.hop.job.entry.validator.AndValidator;
+import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This defines a 'copy files' job entry.
@@ -129,9 +123,9 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
   }
 
   public void allocate( int nrFields ) {
-    source_filefolder = new String[nrFields];
-    destination_filefolder = new String[nrFields];
-    wildcard = new String[nrFields];
+    source_filefolder = new String[ nrFields ];
+    destination_filefolder = new String[ nrFields ];
+    wildcard = new String[ nrFields ];
   }
 
   public Object clone() {
@@ -168,9 +162,9 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
     if ( source_filefolder != null ) {
       for ( int i = 0; i < source_filefolder.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        saveSource( retval, source_filefolder[i] );
-        saveDestination( retval, destination_filefolder[i] );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "wildcard", wildcard[i] ) );
+        saveSource( retval, source_filefolder[ i ] );
+        saveDestination( retval, destination_filefolder[ i ] );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "wildcard", wildcard[ i ] ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
@@ -179,10 +173,10 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       copy_empty_folders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "copy_empty_folders" ) );
       arg_from_previous = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
       overwrite_files = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "overwrite_files" ) );
@@ -202,9 +196,9 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
       // Read them all...
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        source_filefolder[i] = loadSource( fnode );
-        destination_filefolder[i] = loadDestination( fnode );
-        wildcard[i] = XMLHandler.getTagValue( fnode, "wildcard" );
+        source_filefolder[ i ] = loadSource( fnode );
+        destination_filefolder[ i ] = loadDestination( fnode );
+        wildcard[ i ] = XMLHandler.getTagValue( fnode, "wildcard" );
       }
     } catch ( HopXMLException xe ) {
 
@@ -274,8 +268,8 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
       if ( arg_from_previous ) {
         if ( isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "JobCopyFiles.Log.ArgFromPrevious.Found", ( rows != null ? rows
-              .size() : 0 )
-              + "" ) );
+            .size() : 0 )
+            + "" ) );
         }
       }
 
@@ -297,7 +291,7 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
             }
 
             if ( !processFileFolder( vsourcefilefolder_previous, vdestinationfilefolder_previous, vwildcard_previous,
-                parentJob, result ) ) {
+              parentJob, result ) ) {
               // The copy process fail
               NbrFail++;
             }
@@ -312,7 +306,7 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
         }
       } else if ( vsourcefilefolder != null && vdestinationfilefolder != null ) {
         for ( int i = 0; i < vsourcefilefolder.length && !parentJob.isStopped(); i++ ) {
-          if ( !Utils.isEmpty( vsourcefilefolder[i] ) && !Utils.isEmpty( vdestinationfilefolder[i] ) ) {
+          if ( !Utils.isEmpty( vsourcefilefolder[ i ] ) && !Utils.isEmpty( vdestinationfilefolder[ i ] ) ) {
 
             // ok we can process this file/folder
 
@@ -323,7 +317,7 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
                 environmentSubstitute( vwildcard[ i ] ) ) );
             }
 
-            if ( !processFileFolder( vsourcefilefolder[i], vdestinationfilefolder[i], vwildcard[i], parentJob, result ) ) {
+            if ( !processFileFolder( vsourcefilefolder[ i ], vdestinationfilefolder[ i ], vwildcard[ i ], parentJob, result ) ) {
               // The copy process fail
               NbrFail++;
             }
@@ -353,7 +347,7 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
   }
 
   boolean processFileFolder( String sourcefilefoldername, String destinationfilefoldername, String wildcard,
-      Job parentJob, Result result ) {
+                             Job parentJob, Result result ) {
     boolean entrystatus = false;
     FileObject sourcefilefolder = null;
     FileObject destinationfilefolder = null;
@@ -386,7 +380,7 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
 
             logError( BaseMessages.getString(
               PKG, "JobCopyFiles.Log.CanNotCopyFolderToFile", HopVFS.getFriendlyURI( realSourceFilefoldername ),
-                    HopVFS.getFriendlyURI( realDestinationFilefoldername ) ) );
+              HopVFS.getFriendlyURI( realDestinationFilefoldername ) ) );
 
             NbrFail++;
 
@@ -402,7 +396,7 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
                 destinationfilefolder.toString() ) );
               if ( isDetailed() ) {
                 logDetailed( BaseMessages.getString( PKG, "JobCopyFiles.Log.FileCopied", HopVFS.getFriendlyURI( sourcefilefolder ),
-                        HopVFS.getFriendlyURI( destinationfilefolder ) ) );
+                  HopVFS.getFriendlyURI( destinationfilefolder ) ) );
               }
 
             } else if ( sourcefilefolder.getType().equals( FileType.FILE ) && destination_is_a_file ) {
@@ -455,7 +449,7 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
                   if ( !deletefile ) {
                     logError( "      "
                       + BaseMessages.getString(
-                        PKG, "JobCopyFiles.Error.Exception.CanRemoveFileFolder", HopVFS.getFriendlyURI( fileremoventry ) ) );
+                      PKG, "JobCopyFiles.Error.Exception.CanRemoveFileFolder", HopVFS.getFriendlyURI( fileremoventry ) ) );
                   } else {
                     if ( isDetailed() ) {
                       logDetailed( "      "
@@ -497,7 +491,7 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
                     logDetailed( " ------ " );
                     logDetailed( "      "
                       + BaseMessages
-                        .getString( PKG, "JobCopyFiles.Log.FileAddedToResultFilesName", HopVFS.getFriendlyURI( fileaddentry ) ) );
+                      .getString( PKG, "JobCopyFiles.Log.FileAddedToResultFilesName", HopVFS.getFriendlyURI( fileaddentry ) ) );
                   }
                 }
               }
@@ -524,7 +518,7 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
     } catch ( Exception e ) {
       logError( BaseMessages.getString(
         PKG, "JobCopyFiles.Error.Exception.CopyProcess", HopVFS.getFriendlyURI( realSourceFilefoldername ),
-              HopVFS.getFriendlyURI( realDestinationFilefoldername ), e.getMessage() ), e );
+        HopVFS.getFriendlyURI( realDestinationFilefoldername ), e.getMessage() ), e );
     } finally {
       if ( sourcefilefolder != null ) {
         try {
@@ -678,7 +672,7 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
     }
 
     public TextFileSelector( FileObject sourcefolderin, FileObject destinationfolderin, String filewildcard,
-      Job parentJob ) {
+                             Job parentJob ) {
 
       if ( sourcefolderin != null ) {
         sourceFolder = sourcefolderin.toString();
@@ -727,7 +721,7 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
                       logDetailed( " ------ " );
                       logDetailed( "      "
                         + BaseMessages.getString( PKG, "JobCopyFiles.Log.FolderCopied", HopVFS.getFriendlyURI( info
-                          .getFile() ), file_name != null ? HopVFS.getFriendlyURI( file_name ) : "" ) );
+                        .getFile() ), file_name != null ? HopVFS.getFriendlyURI( file_name ) : "" ) );
                     }
                     returncode = true;
                   } else {
@@ -740,7 +734,7 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
                       if ( isDetailed() ) {
                         logDetailed( "      "
                           + BaseMessages.getString( PKG, "JobCopyFiles.Log.FolderOverwrite", HopVFS.getFriendlyURI( info
-                            .getFile() ), HopVFS.getFriendlyURI( file_name ) ) );
+                          .getFile() ), HopVFS.getFriendlyURI( file_name ) ) );
                       }
                       returncode = true;
                     }
@@ -755,8 +749,8 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
                       logDetailed( " ------ " );
                       logDetailed( "      "
                         + BaseMessages.getString(
-                          PKG, "JobCopyFiles.Log.FileCopied", HopVFS.getFriendlyURI( info.getFile() ), file_name != null
-                            ? HopVFS.getFriendlyURI( file_name ) : "" ) );
+                        PKG, "JobCopyFiles.Log.FileCopied", HopVFS.getFriendlyURI( info.getFile() ), file_name != null
+                          ? HopVFS.getFriendlyURI( file_name ) : "" ) );
                     }
                     returncode = true;
                   } else {
@@ -769,7 +763,7 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
                       if ( isDetailed() ) {
                         logDetailed( "       "
                           + BaseMessages.getString( PKG, "JobCopyFiles.Log.FileExists", HopVFS.getFriendlyURI( info
-                            .getFile() ), HopVFS.getFriendlyURI( file_name ) ) );
+                          .getFile() ), HopVFS.getFriendlyURI( file_name ) ) );
                       }
 
                       returncode = true;
@@ -788,8 +782,8 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
                     logDetailed( "", " ------ " );
                     logDetailed( "      "
                       + BaseMessages.getString(
-                        PKG, "JobCopyFiles.Log.FolderCopied", HopVFS.getFriendlyURI( info.getFile() ), file_name != null
-                          ? HopVFS.getFriendlyURI( file_name ) : "" ) );
+                      PKG, "JobCopyFiles.Log.FolderCopied", HopVFS.getFriendlyURI( info.getFile() ), file_name != null
+                        ? HopVFS.getFriendlyURI( file_name ) : "" ) );
                   }
 
                   returncode = true;
@@ -803,7 +797,7 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
                     if ( isDetailed() ) {
                       logDetailed( "      "
                         + BaseMessages.getString( PKG, "JobCopyFiles.Log.FolderOverwrite", HopVFS.getFriendlyURI( info
-                          .getFile() ), HopVFS.getFriendlyURI( file_name ) ) );
+                        .getFile() ), HopVFS.getFriendlyURI( file_name ) ) );
                     }
 
                     returncode = true;
@@ -820,8 +814,8 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
                     logDetailed( " ------ " );
                     logDetailed( "      "
                       + BaseMessages.getString(
-                        PKG, "JobCopyFiles.Log.FileCopied", HopVFS.getFriendlyURI( info.getFile() ), file_name != null
-                          ? HopVFS.getFriendlyURI( file_name ) : "" ) );
+                      PKG, "JobCopyFiles.Log.FileCopied", HopVFS.getFriendlyURI( info.getFile() ), file_name != null
+                        ? HopVFS.getFriendlyURI( file_name ) : "" ) );
                   }
                   returncode = true;
 
@@ -934,7 +928,7 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
                 if ( isDetailed() ) {
                   logDetailed( "      "
                     + BaseMessages.getString(
-                      PKG, "JobCopyFiles.Log.FileOverwrite", HopVFS.getFriendlyURI( info.getFile() ), HopVFS.getFriendlyURI( fil_name ) ) );
+                    PKG, "JobCopyFiles.Log.FileOverwrite", HopVFS.getFriendlyURI( info.getFile() ), HopVFS.getFriendlyURI( fil_name ) ) );
                 }
 
                 resultat = true;
@@ -943,7 +937,7 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
               if ( isDetailed() ) {
                 logDetailed( "      "
                   + BaseMessages.getString(
-                    PKG, "JobCopyFiles.Log.FileCopied", HopVFS.getFriendlyURI( info.getFile() ), HopVFS.getFriendlyURI( fil_name ) ) );
+                  PKG, "JobCopyFiles.Log.FileCopied", HopVFS.getFriendlyURI( info.getFile() ), HopVFS.getFriendlyURI( fil_name ) ) );
               }
 
               resultat = true;
@@ -1042,7 +1036,7 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     boolean res = JobEntryValidatorUtils.andValidator().validate( this, "arguments", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
 
     if ( !res ) {

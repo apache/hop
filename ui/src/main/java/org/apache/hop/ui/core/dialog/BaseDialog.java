@@ -22,6 +22,11 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.ui.core.FormDataBuilder;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
@@ -32,11 +37,6 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.Const;
-import org.apache.hop.ui.core.FormDataBuilder;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -187,7 +187,7 @@ public abstract class BaseDialog extends Dialog {
     shell.dispose();
   }
 
-  public void setButtons( final  Map<String, Listener> buttons ) {
+  public void setButtons( final Map<String, Listener> buttons ) {
     this.buttons = buttons;
   }
 }

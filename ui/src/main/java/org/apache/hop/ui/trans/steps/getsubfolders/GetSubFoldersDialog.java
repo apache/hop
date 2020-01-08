@@ -22,6 +22,25 @@
 
 package org.apache.hop.ui.trans.steps.getsubfolders;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPreviewFactory;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.getsubfolders.GetSubFoldersMeta;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -46,25 +65,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPreviewFactory;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.getsubfolders.GetSubFoldersMeta;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class GetSubFoldersDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = GetSubFoldersMeta.class; // for i18n purposes, needed by Translator2!!
@@ -343,17 +343,17 @@ public class GetSubFoldersDialog extends BaseStepDialog implements StepDialogInt
     fdbeFoldername.top = new FormAttachment( wbdFoldername, margin );
     wbeFoldername.setLayoutData( fdbeFoldername );
 
-    ColumnInfo[] colinfo = new ColumnInfo[2];
-    colinfo[0] =
+    ColumnInfo[] colinfo = new ColumnInfo[ 2 ];
+    colinfo[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "GetSubFoldersDialog.FileDirColumn.Column" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinfo[0].setUsingVariables( true );
-    colinfo[1] =
+    colinfo[ 0 ].setUsingVariables( true );
+    colinfo[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "GetSubFoldersDialog.Required.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         GetSubFoldersMeta.RequiredFoldersDesc );
-    colinfo[1].setToolTip( BaseMessages.getString( PKG, "GetSubFoldersDialog.Required.Tooltip" ) );
+    colinfo[ 1 ].setToolTip( BaseMessages.getString( PKG, "GetSubFoldersDialog.Required.Tooltip" ) );
 
     wFoldernameList =
       new TableView(
@@ -564,7 +564,7 @@ public class GetSubFoldersDialog extends BaseStepDialog implements StepDialogInt
         int idx = wFoldernameList.getSelectionIndex();
         if ( idx >= 0 ) {
           String[] string = wFoldernameList.getItem( idx );
-          wFoldername.setText( string[0] );
+          wFoldername.setText( string[ 0 ] );
           wFoldernameList.remove( idx );
         }
         wFoldernameList.removeEmptyRows();
@@ -644,8 +644,7 @@ public class GetSubFoldersDialog extends BaseStepDialog implements StepDialogInt
   /**
    * Read the data from the TextFileInputMeta object and show it in this dialog.
    *
-   * @param meta
-   *          The TextFileInputMeta object to obtain the data from.
+   * @param meta The TextFileInputMeta object to obtain the data from.
    */
   public void getData( GetSubFoldersMeta meta ) {
     final GetSubFoldersMeta in = meta;
@@ -654,7 +653,7 @@ public class GetSubFoldersDialog extends BaseStepDialog implements StepDialogInt
       wFoldernameList.removeAll();
       for ( int i = 0; i < in.getFolderName().length; i++ ) {
         wFoldernameList.add( new String[] {
-          in.getFolderName()[i], in.getRequiredFilesDesc( in.getFolderRequired()[i] ) } );
+          in.getFolderName()[ i ], in.getRequiredFilesDesc( in.getFolderRequired()[ i ] ) } );
 
       }
       wFoldernameList.removeEmptyRows();
@@ -742,7 +741,7 @@ public class GetSubFoldersDialog extends BaseStepDialog implements StepDialogInt
         PreviewRowsDialog prd =
           new PreviewRowsDialog(
             shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta( wStepname
-              .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
+            .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
         prd.open();
       }
     }

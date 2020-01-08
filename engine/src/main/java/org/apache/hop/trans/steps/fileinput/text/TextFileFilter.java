@@ -25,33 +25,36 @@ package org.apache.hop.trans.steps.fileinput.text;
 import org.apache.hop.core.injection.Injection;
 
 public class TextFileFilter implements Cloneable {
-  /** The position of the occurrence of the filter string to check at */
+  /**
+   * The position of the occurrence of the filter string to check at
+   */
   @Injection( name = "FILTER_POSITION", group = "FILTERS" )
   private int filterPosition;
 
-  /** The string to filter on */
+  /**
+   * The string to filter on
+   */
   @Injection( name = "FILTER_STRING", group = "FILTERS" )
   private String filterString;
 
-  /** True if we want to stop when we reach a filter line */
+  /**
+   * True if we want to stop when we reach a filter line
+   */
   @Injection( name = "FILTER_LAST_LINE", group = "FILTERS" )
   private boolean filterLastLine;
 
-  /** True if we want to match only this lines */
+  /**
+   * True if we want to match only this lines
+   */
   @Injection( name = "FILTER_POSITIVE", group = "FILTERS" )
   private boolean filterPositive;
 
   /**
-   * @param filterPosition
-   *          The position of the occurrence of the filter string to check at
-   * @param filterString
-   *          The string to filter on
-   * @param filterLastLine
-   *          True if we want to stop when we reach a filter string on the specified position False if you just want to
-   *          skip the line.
-   * @param filterPositive
-   *          True if we want to get only lines that match this string
-   *
+   * @param filterPosition The position of the occurrence of the filter string to check at
+   * @param filterString   The string to filter on
+   * @param filterLastLine True if we want to stop when we reach a filter string on the specified position False if you just want to
+   *                       skip the line.
+   * @param filterPositive True if we want to get only lines that match this string
    */
   public TextFileFilter( int filterPosition, String filterString, boolean filterLastLine, boolean filterPositive ) {
     this.filterPosition = filterPosition;
@@ -80,8 +83,7 @@ public class TextFileFilter implements Cloneable {
   }
 
   /**
-   * @param filterLastLine
-   *          The filterLastLine to set.
+   * @param filterLastLine The filterLastLine to set.
    */
   public void setFilterLastLine( boolean filterLastLine ) {
     this.filterLastLine = filterLastLine;
@@ -95,8 +97,7 @@ public class TextFileFilter implements Cloneable {
   }
 
   /**
-   * @param filterPositive
-   *          The filterPositive to set.
+   * @param filterPositive The filterPositive to set.
    */
   public void setFilterPositive( boolean filterPositive ) {
     this.filterPositive = filterPositive;
@@ -110,8 +111,7 @@ public class TextFileFilter implements Cloneable {
   }
 
   /**
-   * @param filterPosition
-   *          The filterPosition to set.
+   * @param filterPosition The filterPosition to set.
    */
   public void setFilterPosition( int filterPosition ) {
     this.filterPosition = filterPosition;
@@ -125,8 +125,7 @@ public class TextFileFilter implements Cloneable {
   }
 
   /**
-   * @param filterString
-   *          The filterString to set.
+   * @param filterString The filterString to set.
    */
   public void setFilterString( String filterString ) {
     this.filterString = filterString;

@@ -40,7 +40,7 @@ public class NamedFieldsMapping implements FieldsMapping {
     if ( index >= size() || index < 0 ) {
       return FIELD_DOES_NOT_EXIST;
     }
-    return actualToMetaFieldMapping[index];
+    return actualToMetaFieldMapping[ index ];
   }
 
   @Override
@@ -51,12 +51,12 @@ public class NamedFieldsMapping implements FieldsMapping {
   public static NamedFieldsMapping mapping( String[] actualFieldNames, String[] metaFieldNames ) {
     LinkedHashMap<String, List<Integer>> metaNameToIndex = new LinkedHashMap<>();
     List<Integer> unmatchedMetaFields = new ArrayList<>();
-    int[] actualToMetaFieldMapping = new int[ actualFieldNames == null ? 0 : actualFieldNames.length];
+    int[] actualToMetaFieldMapping = new int[ actualFieldNames == null ? 0 : actualFieldNames.length ];
 
     for ( int i = 0; i < metaFieldNames.length; i++ ) {
-      List<Integer> coll = metaNameToIndex.getOrDefault( metaFieldNames[i], new ArrayList<>() );
+      List<Integer> coll = metaNameToIndex.getOrDefault( metaFieldNames[ i ], new ArrayList<>() );
       coll.add( i );
-      metaNameToIndex.put( metaFieldNames[i], coll );
+      metaNameToIndex.put( metaFieldNames[ i ], coll );
     }
 
     if ( actualFieldNames != null ) {

@@ -17,13 +17,6 @@
 
 package org.apache.hop.metastore.stores.delegate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.IMetaStoreAttribute;
 import org.apache.hop.metastore.api.IMetaStoreElement;
@@ -38,30 +31,43 @@ import org.apache.hop.metastore.api.security.IMetaStoreElementOwner;
 import org.apache.hop.metastore.api.security.ITwoWayPasswordEncoder;
 import org.apache.hop.metastore.api.security.MetaStoreElementOwnerType;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 /**
  * This class can be used as a wrapper around one or more meta stores. For example, if you have a local XML metastore, a
  * workgroup database metastore and an enterprise EE metastore, you can put them in reverse order in the meta stores
  * list.
- * 
+ * <p>
  * There are 2 ways to work with the delegating meta store. The first is if you set an active meta store. That way, it
  * works as if you're working with the specified meta store.
- * 
+ * <p>
  * If you didn't specify an active store, all namespaces and elements in all listed meta stores are considered. This
  * operating mode will prevent write operations.
- * 
+ * <p>
  * That way, if you ask for the list of elements, you will get a unique list (by element ID) based on all stores.
- * 
+ *
  * @author matt
  */
 public class DelegatingMetaStore implements IMetaStore {
 
-  /** Maps the name of the metastore to the physical implementation */
+  /**
+   * Maps the name of the metastore to the physical implementation
+   */
   protected List<IMetaStore> metaStoreList;
 
-  /** The active metastore */
+  /**
+   * The active metastore
+   */
   protected String activeMetaStoreName;
 
-  /** The two way password encoder to use */
+  /**
+   * The two way password encoder to use
+   */
   protected ITwoWayPasswordEncoder passwordEncoder;
 
   public DelegatingMetaStore() {
@@ -328,7 +334,7 @@ public class DelegatingMetaStore implements IMetaStore {
 
   @Override
   public void updateElement( String namespace, IMetaStoreElementType elementType, String elementId,
-      IMetaStoreElement element ) throws MetaStoreException {
+                             IMetaStoreElement element ) throws MetaStoreException {
     getWriteMetaStore().updateElement( namespace, elementType, elementId, element );
   }
 

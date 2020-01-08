@@ -26,10 +26,14 @@ import org.apache.hop.metastore.api.security.ITwoWayPasswordEncoder;
  */
 public abstract class BaseMetaStore implements IMetaStore {
 
-  /** The name of this metastore. */
+  /**
+   * The name of this metastore.
+   */
   protected String name;
 
-  /** The description of this metastore. */
+  /**
+   * The description of this metastore.
+   */
   protected String description;
 
   protected ITwoWayPasswordEncoder passwordEncoder;
@@ -43,7 +47,7 @@ public abstract class BaseMetaStore implements IMetaStore {
 
   /**
    * Gets the name of this metastore.
-   * 
+   *
    * @return the name
    */
   public String getName() throws MetaStoreException {
@@ -52,9 +56,8 @@ public abstract class BaseMetaStore implements IMetaStore {
 
   /**
    * Sets the name of this metastore.
-   * 
-   * @param name
-   *          the name to set
+   *
+   * @param name the name to set
    */
   public void setName( String name ) {
     this.name = name;
@@ -62,7 +65,7 @@ public abstract class BaseMetaStore implements IMetaStore {
 
   /**
    * Gets the description of this metastore.
-   * 
+   *
    * @return the description of this metastore
    */
   public String getDescription() throws MetaStoreException {
@@ -71,9 +74,8 @@ public abstract class BaseMetaStore implements IMetaStore {
 
   /**
    * Sets the description for this metastore.
-   * 
-   * @param description
-   *          the description to set
+   *
+   * @param description the description to set
    */
   public void setDescription( String description ) {
     this.description = description;

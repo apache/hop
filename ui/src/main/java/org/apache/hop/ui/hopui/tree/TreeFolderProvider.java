@@ -22,11 +22,11 @@
 
 package org.apache.hop.ui.hopui.tree;
 
-import org.eclipse.swt.graphics.Image;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.widget.tree.TreeNode;
+import org.eclipse.swt.graphics.Image;
 
 /**
  * Created by bmorrise on 6/26/18.

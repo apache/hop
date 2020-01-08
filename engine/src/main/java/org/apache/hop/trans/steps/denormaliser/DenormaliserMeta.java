@@ -22,13 +22,9 @@
 
 package org.apache.hop.trans.steps.denormaliser;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -37,7 +33,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -46,26 +42,33 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInjectionInterface;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * The Denormaliser transformation step meta-data
  *
- * @since 17-jan-2006
  * @author Matt
+ * @since 17-jan-2006
  */
 
 public class DenormaliserMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = DenormaliserMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** Fields to group over */
+  /**
+   * Fields to group over
+   */
   private String[] groupField;
 
-  /** The key field */
+  /**
+   * The key field
+   */
   private String keyField;
 
-  /** The fields to unpivot */
+  /**
+   * The fields to unpivot
+   */
   private DenormaliserTargetField[] denormaliserTargetField;
 
   public DenormaliserMeta() {
@@ -80,8 +83,7 @@ public class DenormaliserMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param keyField
-   *          The keyField to set.
+   * @param keyField The keyField to set.
    */
   public void setKeyField( String keyField ) {
     this.keyField = keyField;
@@ -95,17 +97,16 @@ public class DenormaliserMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param groupField
-   *          The groupField to set.
+   * @param groupField The groupField to set.
    */
   public void setGroupField( String[] groupField ) {
     this.groupField = groupField;
   }
 
   public String[] getDenormaliserTargetFields() {
-    String[] fields = new String[denormaliserTargetField.length];
+    String[] fields = new String[ denormaliserTargetField.length ];
     for ( int i = 0; i < fields.length; i++ ) {
-      fields[i] = denormaliserTargetField[i].getTargetName();
+      fields[ i ] = denormaliserTargetField[ i ].getTargetName();
     }
 
     return fields;
@@ -113,7 +114,7 @@ public class DenormaliserMeta extends BaseStepMeta implements StepMetaInterface 
 
   public DenormaliserTargetField searchTargetField( String targetName ) {
     for ( int i = 0; i < denormaliserTargetField.length; i++ ) {
-      DenormaliserTargetField field = denormaliserTargetField[i];
+      DenormaliserTargetField field = denormaliserTargetField[ i ];
       if ( field.getTargetName().equalsIgnoreCase( targetName ) ) {
         return field;
       }
@@ -129,8 +130,7 @@ public class DenormaliserMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param pivotField
-   *          The pivotField to set.
+   * @param pivotField The pivotField to set.
    */
   public void setDenormaliserTargetField( DenormaliserTargetField[] pivotField ) {
     this.denormaliserTargetField = pivotField;
@@ -141,8 +141,8 @@ public class DenormaliserMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   public void allocate( int sizegroup, int nrfields ) {
-    groupField = new String[sizegroup];
-    denormaliserTargetField = new DenormaliserTargetField[nrfields];
+    groupField = new String[ sizegroup ];
+    denormaliserTargetField = new DenormaliserTargetField[ nrfields ];
   }
 
   public Object clone() {
@@ -159,7 +159,7 @@ public class DenormaliserMeta extends BaseStepMeta implements StepMetaInterface 
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     // Remove the key value (there will be different entries for each output row)
     //
@@ -177,7 +177,7 @@ public class DenormaliserMeta extends BaseStepMeta implements StepMetaInterface 
     // Remove all field value(s) (there will be different entries for each output row)
     //
     for ( int i = 0; i < denormaliserTargetField.length; i++ ) {
-      String fieldname = denormaliserTargetField[i].getFieldName();
+      String fieldname = denormaliserTargetField[ i ].getFieldName();
       if ( fieldname != null && fieldname.length() > 0 ) {
         int idx = row.indexOfValue( fieldname );
         if ( idx >= 0 ) {
@@ -191,7 +191,7 @@ public class DenormaliserMeta extends BaseStepMeta implements StepMetaInterface 
 
     // Re-add the target fields
     for ( int i = 0; i < denormaliserTargetField.length; i++ ) {
-      DenormaliserTargetField field = denormaliserTargetField[i];
+      DenormaliserTargetField field = denormaliserTargetField[ i ];
       try {
         ValueMetaInterface target =
           ValueMetaFactory.createValueMeta( field.getTargetName(), field.getTargetType() );
@@ -218,29 +218,29 @@ public class DenormaliserMeta extends BaseStepMeta implements StepMetaInterface 
 
       for ( int i = 0; i < sizegroup; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( groupn, "field", i );
-        groupField[i] = XMLHandler.getTagValue( fnode, "name" );
+        groupField[ i ] = XMLHandler.getTagValue( fnode, "name" );
       }
 
       for ( int i = 0; i < nrfields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        denormaliserTargetField[i] = new DenormaliserTargetField();
-        denormaliserTargetField[i].setFieldName( XMLHandler.getTagValue( fnode, "field_name" ) );
-        denormaliserTargetField[i].setKeyValue( XMLHandler.getTagValue( fnode, "key_value" ) );
-        denormaliserTargetField[i].setTargetName( XMLHandler.getTagValue( fnode, "target_name" ) );
-        denormaliserTargetField[i].setTargetType( XMLHandler.getTagValue( fnode, "target_type" ) );
-        denormaliserTargetField[i].setTargetFormat( XMLHandler.getTagValue( fnode, "target_format" ) );
-        denormaliserTargetField[i].setTargetLength( Const.toInt(
+        denormaliserTargetField[ i ] = new DenormaliserTargetField();
+        denormaliserTargetField[ i ].setFieldName( XMLHandler.getTagValue( fnode, "field_name" ) );
+        denormaliserTargetField[ i ].setKeyValue( XMLHandler.getTagValue( fnode, "key_value" ) );
+        denormaliserTargetField[ i ].setTargetName( XMLHandler.getTagValue( fnode, "target_name" ) );
+        denormaliserTargetField[ i ].setTargetType( XMLHandler.getTagValue( fnode, "target_type" ) );
+        denormaliserTargetField[ i ].setTargetFormat( XMLHandler.getTagValue( fnode, "target_format" ) );
+        denormaliserTargetField[ i ].setTargetLength( Const.toInt(
           XMLHandler.getTagValue( fnode, "target_length" ), -1 ) );
-        denormaliserTargetField[i].setTargetPrecision( Const.toInt( XMLHandler.getTagValue(
+        denormaliserTargetField[ i ].setTargetPrecision( Const.toInt( XMLHandler.getTagValue(
           fnode, "target_precision" ), -1 ) );
-        denormaliserTargetField[i]
+        denormaliserTargetField[ i ]
           .setTargetDecimalSymbol( XMLHandler.getTagValue( fnode, "target_decimal_symbol" ) );
-        denormaliserTargetField[i].setTargetGroupingSymbol( XMLHandler.getTagValue(
+        denormaliserTargetField[ i ].setTargetGroupingSymbol( XMLHandler.getTagValue(
           fnode, "target_grouping_symbol" ) );
-        denormaliserTargetField[i].setTargetCurrencySymbol( XMLHandler.getTagValue(
+        denormaliserTargetField[ i ].setTargetCurrencySymbol( XMLHandler.getTagValue(
           fnode, "target_currency_symbol" ) );
-        denormaliserTargetField[i].setTargetNullString( XMLHandler.getTagValue( fnode, "target_null_string" ) );
-        denormaliserTargetField[i].setTargetAggregationType( XMLHandler.getTagValue(
+        denormaliserTargetField[ i ].setTargetNullString( XMLHandler.getTagValue( fnode, "target_null_string" ) );
+        denormaliserTargetField[ i ].setTargetAggregationType( XMLHandler.getTagValue(
           fnode, "target_aggregation_type" ) );
       }
     } catch ( Exception e ) {
@@ -257,14 +257,14 @@ public class DenormaliserMeta extends BaseStepMeta implements StepMetaInterface 
     retval.append( "      <group>" + Const.CR );
     for ( int i = 0; i < groupField.length; i++ ) {
       retval.append( "        <field>" + Const.CR );
-      retval.append( "          " + XMLHandler.addTagValue( "name", groupField[i] ) );
+      retval.append( "          " + XMLHandler.addTagValue( "name", groupField[ i ] ) );
       retval.append( "          </field>" + Const.CR );
     }
     retval.append( "        </group>" + Const.CR );
 
     retval.append( "      <fields>" + Const.CR );
     for ( int i = 0; i < denormaliserTargetField.length; i++ ) {
-      DenormaliserTargetField field = denormaliserTargetField[i];
+      DenormaliserTargetField field = denormaliserTargetField[ i ];
 
       retval.append( "        <field>" + Const.CR );
       retval.append( "          " + XMLHandler.addTagValue( "field_name", field.getFieldName() ) );
@@ -291,8 +291,8 @@ public class DenormaliserMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( input.length > 0 ) {
@@ -309,7 +309,7 @@ public class DenormaliserMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new Denormaliser( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

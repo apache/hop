@@ -22,7 +22,13 @@
 
 package org.apache.hop.trans.steps.excelinput;
 
-import static org.junit.Assert.*;
+import org.apache.commons.io.FileUtils;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.spreadsheet.KCell;
+import org.apache.hop.core.spreadsheet.KCellType;
+import org.apache.hop.core.spreadsheet.KSheet;
+import org.apache.hop.core.spreadsheet.KWorkbook;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,13 +37,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.Date;
 
-import org.junit.Test;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.spreadsheet.KCell;
-import org.apache.hop.core.spreadsheet.KCellType;
-import org.apache.hop.core.spreadsheet.KSheet;
-import org.apache.hop.core.spreadsheet.KWorkbook;
-import org.apache.commons.io.FileUtils;
+import static org.junit.Assert.*;
 
 public class PoiWorkBookIT {
 
@@ -51,7 +51,7 @@ public class PoiWorkBookIT {
     File fileBeforeRead = new File( "src/it/resources/sample-file.xlsx" );
     readData();
     File fileAfterRead = new File( "src/it/resources/sample-file.xlsx" );
-    assertTrue( FileUtils.contentEquals(fileBeforeRead, fileAfterRead ) );
+    assertTrue( FileUtils.contentEquals( fileBeforeRead, fileAfterRead ) );
   }
 
   @Test
@@ -88,40 +88,40 @@ public class PoiWorkBookIT {
     assertEquals( 5, sheet1.getRows() );
 
     KCell[] row = sheet1.getRow( 2 );
-    assertEquals( KCellType.LABEL, row[1].getType() );
-    assertEquals( "One", row[1].getValue() );
-    assertEquals( KCellType.DATE, row[2].getType() );
-    assertEquals( new Date( 1283817600000L ), row[2].getValue() );
-    assertEquals( KCellType.NUMBER, row[3].getType() );
-    assertEquals( Double.valueOf( "75" ), row[3].getValue() );
-    assertEquals( KCellType.BOOLEAN, row[4].getType() );
-    assertEquals( Boolean.valueOf( true ), row[4].getValue() );
-    assertEquals( KCellType.NUMBER_FORMULA, row[5].getType() );
-    assertEquals( Double.valueOf( "75" ), row[5].getValue() );
+    assertEquals( KCellType.LABEL, row[ 1 ].getType() );
+    assertEquals( "One", row[ 1 ].getValue() );
+    assertEquals( KCellType.DATE, row[ 2 ].getType() );
+    assertEquals( new Date( 1283817600000L ), row[ 2 ].getValue() );
+    assertEquals( KCellType.NUMBER, row[ 3 ].getType() );
+    assertEquals( Double.valueOf( "75" ), row[ 3 ].getValue() );
+    assertEquals( KCellType.BOOLEAN, row[ 4 ].getType() );
+    assertEquals( Boolean.valueOf( true ), row[ 4 ].getValue() );
+    assertEquals( KCellType.NUMBER_FORMULA, row[ 5 ].getType() );
+    assertEquals( Double.valueOf( "75" ), row[ 5 ].getValue() );
 
     row = sheet1.getRow( 3 );
-    assertEquals( KCellType.LABEL, row[1].getType() );
-    assertEquals( "Two", row[1].getValue() );
-    assertEquals( KCellType.DATE, row[2].getType() );
-    assertEquals( new Date( 1283904000000L ), row[2].getValue() );
-    assertEquals( KCellType.NUMBER, row[3].getType() );
-    assertEquals( Double.valueOf( "42" ), row[3].getValue() );
-    assertEquals( KCellType.BOOLEAN, row[4].getType() );
-    assertEquals( Boolean.valueOf( false ), row[4].getValue() );
-    assertEquals( KCellType.NUMBER_FORMULA, row[5].getType() );
-    assertEquals( Double.valueOf( "117" ), row[5].getValue() );
+    assertEquals( KCellType.LABEL, row[ 1 ].getType() );
+    assertEquals( "Two", row[ 1 ].getValue() );
+    assertEquals( KCellType.DATE, row[ 2 ].getType() );
+    assertEquals( new Date( 1283904000000L ), row[ 2 ].getValue() );
+    assertEquals( KCellType.NUMBER, row[ 3 ].getType() );
+    assertEquals( Double.valueOf( "42" ), row[ 3 ].getValue() );
+    assertEquals( KCellType.BOOLEAN, row[ 4 ].getType() );
+    assertEquals( Boolean.valueOf( false ), row[ 4 ].getValue() );
+    assertEquals( KCellType.NUMBER_FORMULA, row[ 5 ].getType() );
+    assertEquals( Double.valueOf( "117" ), row[ 5 ].getValue() );
 
     row = sheet1.getRow( 4 );
-    assertEquals( KCellType.LABEL, row[1].getType() );
-    assertEquals( "Three", row[1].getValue() );
-    assertEquals( KCellType.DATE, row[2].getType() );
-    assertEquals( new Date( 1283990400000L ), row[2].getValue() );
-    assertEquals( KCellType.NUMBER, row[3].getType() );
-    assertEquals( Double.valueOf( "93" ), row[3].getValue() );
-    assertEquals( KCellType.BOOLEAN, row[4].getType() );
-    assertEquals( Boolean.valueOf( true ), row[4].getValue() );
-    assertEquals( KCellType.NUMBER_FORMULA, row[5].getType() );
-    assertEquals( Double.valueOf( "210" ), row[5].getValue() );
+    assertEquals( KCellType.LABEL, row[ 1 ].getType() );
+    assertEquals( "Three", row[ 1 ].getValue() );
+    assertEquals( KCellType.DATE, row[ 2 ].getType() );
+    assertEquals( new Date( 1283990400000L ), row[ 2 ].getValue() );
+    assertEquals( KCellType.NUMBER, row[ 3 ].getType() );
+    assertEquals( Double.valueOf( "93" ), row[ 3 ].getValue() );
+    assertEquals( KCellType.BOOLEAN, row[ 4 ].getType() );
+    assertEquals( Boolean.valueOf( true ), row[ 4 ].getValue() );
+    assertEquals( KCellType.NUMBER_FORMULA, row[ 5 ].getType() );
+    assertEquals( Double.valueOf( "210" ), row[ 5 ].getValue() );
 
     try {
       sheet1.getRow( 5 );

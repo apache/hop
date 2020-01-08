@@ -22,22 +22,21 @@
 
 package org.apache.hop.core;
 
+import org.apache.hop.core.row.RowMetaInterface;
+
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.hop.core.row.RowMetaInterface;
-
 /**
  * Contains a buffer of rows. Getting rows from the buffer or putting rows in the buffer is synchronized to allow
  * concurrent use of multiple Threads.
- *
+ * <p>
  * This class also monitors the idle state of a RowSet
  *
  * @author Matt
  * @since 23-12-2010
- *
  */
 public class BlockingListeningRowSet extends BaseRowSet implements Comparable<RowSet>, RowSet {
   private BlockingQueue<Object[]> queArray;

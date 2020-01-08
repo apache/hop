@@ -46,12 +46,10 @@ import java.nio.charset.StandardCharsets;
  *
  * @author Yury_Bakhmutski
  * @since 06-27-2017
- *
  */
 public class HttpClientUtil {
 
   /**
-   *
    * @param response the httpresponse for processing
    * @return HttpEntity in String representation using "UTF-8" encoding
    * @throws IOException
@@ -61,9 +59,8 @@ public class HttpClientUtil {
   }
 
   /**
-   *
    * @param response the httpresponse for processing
-   * @param charset the charset used for getting HttpEntity
+   * @param charset  the charset used for getting HttpEntity
    * @return HttpEntity in decoded String representation using provided charset
    * @throws IOException
    */
@@ -72,10 +69,9 @@ public class HttpClientUtil {
   }
 
   /**
-   *
    * @param response the httpresponse for processing
-   * @param charset the charset used for getting HttpEntity
-   * @param decode determines if the result should be decoded or not
+   * @param charset  the charset used for getting HttpEntity
+   * @param decode   determines if the result should be decoded or not
    * @return HttpEntity in String representation using provided charset
    * @throws IOException
    */

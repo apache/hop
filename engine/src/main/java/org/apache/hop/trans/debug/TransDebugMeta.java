@@ -22,9 +22,6 @@
 
 package org.apache.hop.trans.debug;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -34,13 +31,15 @@ import org.apache.hop.trans.step.RowAdapter;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * For a certain transformation, we want to be able to insert break-points into a transformation. These breakpoints can
  * be applied to steps. When a certain condition is met, the transformation will be paused and the caller will be
  * informed of this fact through a listener system.
  *
  * @author Matt
- *
  */
 public class TransDebugMeta {
 
@@ -64,8 +63,7 @@ public class TransDebugMeta {
   }
 
   /**
-   * @param transMeta
-   *          the transformation metadata to reference
+   * @param transMeta the transformation metadata to reference
    */
   public void setTransMeta( TransMeta transMeta ) {
     this.transMeta = transMeta;
@@ -79,8 +77,7 @@ public class TransDebugMeta {
   }
 
   /**
-   * @param stepDebugMeta
-   *          the map that contains the debugging information per step
+   * @param stepDebugMeta the map that contains the debugging information per step
    */
   public void setStepDebugMetaMap( Map<StepMeta, StepDebugMeta> stepDebugMeta ) {
     this.stepDebugMetaMap = stepDebugMeta;
@@ -180,8 +177,7 @@ public class TransDebugMeta {
   /**
    * Add a break point listener to all defined step debug meta data
    *
-   * @param breakPointListener
-   *          the break point listener to add
+   * @param breakPointListener the break point listener to add
    */
   public void addBreakPointListers( BreakPointListener breakPointListener ) {
     for ( StepDebugMeta stepDebugMeta : stepDebugMetaMap.values() ) {

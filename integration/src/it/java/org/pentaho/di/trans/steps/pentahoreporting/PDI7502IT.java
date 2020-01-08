@@ -22,17 +22,6 @@
 
 package org.apache.hop.trans.steps.pentahoreporting;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -43,7 +32,18 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransTestFactory;
 import org.apache.hop.trans.steps.pentahoreporting.PentahoReportingOutputMeta.ProcessorType;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.pentaho.reporting.engine.classic.core.ClassicEngineBoot;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class PDI7502IT {
 

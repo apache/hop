@@ -22,14 +22,10 @@
 
 package org.apache.hop.trans.steps.orabulkloader;
 
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.injection.AfterInjection;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.ProvidesDatabaseConnectionInformation;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.database.Database;
@@ -37,16 +33,17 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -55,8 +52,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * Created on 20-feb-2007
@@ -73,111 +71,165 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
   private static int DEFAULT_READ_SIZE = 0;
   private static int DEFAULT_MAX_ERRORS = 50;
 
-  /** database connection */
+  /**
+   * database connection
+   */
   private DatabaseMeta databaseMeta;
   private IMetaStore metaStore;
 
-  /** what's the schema for the target? */
+  /**
+   * what's the schema for the target?
+   */
   @Injection( name = "SCHEMA_NAME", group = "FIELDS" )
   private String schemaName;
 
-  /** what's the table for the target? */
+  /**
+   * what's the table for the target?
+   */
   @Injection( name = "TABLE_NAME", group = "FIELDS" )
   private String tableName;
 
-  /** Path to the sqlldr utility */
+  /**
+   * Path to the sqlldr utility
+   */
   @Injection( name = "SQLLDR_PATH", group = "FIELDS" )
   private String sqlldr;
 
-  /** Path to the control file */
+  /**
+   * Path to the control file
+   */
   @Injection( name = "CONTROL_FILE", group = "FIELDS" )
   private String controlFile;
 
-  /** Path to the data file */
+  /**
+   * Path to the data file
+   */
   @Injection( name = "DATA_FILE", group = "FIELDS" )
   private String dataFile;
 
-  /** Path to the log file */
+  /**
+   * Path to the log file
+   */
   @Injection( name = "LOG_FILE", group = "FIELDS" )
   private String logFile;
 
-  /** Path to the bad file */
+  /**
+   * Path to the bad file
+   */
   @Injection( name = "BAD_FILE", group = "FIELDS" )
   private String badFile;
 
-  /** Path to the discard file */
+  /**
+   * Path to the discard file
+   */
   @Injection( name = "DISCARD_FILE", group = "FIELDS" )
   private String discardFile;
 
-  /** Field value to dateMask after lookup */
+  /**
+   * Field value to dateMask after lookup
+   */
   @Injection( name = "FIELD_TABLE", group = "DATABASE_FIELDS" )
   private String[] fieldTable;
 
-  /** Field name in the stream */
+  /**
+   * Field name in the stream
+   */
   @Injection( name = "FIELD_STREAM", group = "DATABASE_FIELDS" )
   private String[] fieldStream;
 
-  /** boolean indicating if field needs to be updated */
+  /**
+   * boolean indicating if field needs to be updated
+   */
   @Injection( name = "FIELD_DATEMASK", group = "DATABASE_FIELDS" )
   private String[] dateMask;
 
-  /** Commit size (ROWS) */
+  /**
+   * Commit size (ROWS)
+   */
   @Injection( name = "COMMIT_SIZE", group = "FIELDS" )
   private String commitSize;
 
-  /** bindsize */
+  /**
+   * bindsize
+   */
   @Injection( name = "BIND_SIZE", group = "FIELDS" )
   private String bindSize;
 
-  /** readsize */
+  /**
+   * readsize
+   */
   @Injection( name = "READ_SIZE", group = "FIELDS" )
   private String readSize;
 
-  /** maximum errors */
+  /**
+   * maximum errors
+   */
   @Injection( name = "MAX_ERRORS", group = "FIELDS" )
   private String maxErrors;
 
-  /** Load method */
+  /**
+   * Load method
+   */
   @Injection( name = "LOAD_METHOD", group = "FIELDS" )
   private String loadMethod;
 
-  /** Load action */
+  /**
+   * Load action
+   */
   @Injection( name = "LOAD_ACTION", group = "FIELDS" )
   private String loadAction;
 
-  /** Encoding to use */
+  /**
+   * Encoding to use
+   */
   @Injection( name = "ENCODING", group = "FIELDS" )
   private String encoding;
 
-  /** Character set name used for Oracle */
+  /**
+   * Character set name used for Oracle
+   */
   @Injection( name = "ORACLE_CHARSET_NAME", group = "FIELDS" )
   private String characterSetName;
 
-  /** Direct Path? */
+  /**
+   * Direct Path?
+   */
   @Injection( name = "DIRECT_PATH", group = "FIELDS" )
   private boolean directPath;
 
-  /** Erase files after use */
+  /**
+   * Erase files after use
+   */
   @Injection( name = "ERASE_FILES", group = "FIELDS" )
   private boolean eraseFiles;
 
-  /** Database name override */
+  /**
+   * Database name override
+   */
   @Injection( name = "DB_NAME_OVERRIDE", group = "FIELDS" )
   private String dbNameOverride;
 
-  /** Fails when sqlldr returns a warning **/
+  /**
+   * Fails when sqlldr returns a warning
+   **/
   @Injection( name = "FAIL_ON_WARNING", group = "FIELDS" )
   private boolean failOnWarning;
 
-  /** Fails when sqlldr returns anything else than a warning or OK **/
+  /**
+   * Fails when sqlldr returns anything else than a warning or OK
+   **/
   @Injection( name = "FAIL_ON_ERROR", group = "FIELDS" )
   private boolean failOnError;
 
-  /** allow Oracle to load data in parallel **/
+  /**
+   * allow Oracle to load data in parallel
+   **/
   @Injection( name = "PARALLEL", group = "FIELDS" )
   private boolean parallel;
 
-  /** If not empty, use this record terminator instead of default one **/
+  /**
+   * If not empty, use this record terminator instead of default one
+   **/
   @Injection( name = "RECORD_TERMINATOR", group = "FIELDS" )
   private String altRecordTerm;
 
@@ -186,7 +238,7 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
     try {
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, connectionName );
     } catch ( HopXMLException e ) {
-      throw new RuntimeException( "Unable to load connection '"+connectionName+"'", e);
+      throw new RuntimeException( "Unable to load connection '" + connectionName + "'", e );
     }
   }
 
@@ -231,8 +283,7 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param commitSize
-   *          The commitSize to set.
+   * @param commitSize The commitSize to set.
    */
   public void setCommitSize( String commitSize ) {
     this.commitSize = commitSize;
@@ -246,8 +297,7 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param database
-   *          The database to set.
+   * @param database The database to set.
    */
   public void setDatabaseMeta( DatabaseMeta database ) {
     this.databaseMeta = database;
@@ -261,8 +311,7 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param tableName
-   *          The tableName to set.
+   * @param tableName The tableName to set.
    */
   public void setTableName( String tableName ) {
     this.tableName = tableName;
@@ -284,8 +333,7 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param fieldTable
-   *          The fieldTable to set.
+   * @param fieldTable The fieldTable to set.
    */
   public void setFieldTable( String[] fieldTable ) {
     this.fieldTable = fieldTable;
@@ -299,8 +347,7 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param fieldStream
-   *          The fieldStream to set.
+   * @param fieldStream The fieldStream to set.
    */
   public void setFieldStream( String[] fieldStream ) {
     this.fieldStream = fieldStream;
@@ -351,9 +398,9 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void allocate( int nrvalues ) {
-    fieldTable = new String[nrvalues];
-    fieldStream = new String[nrvalues];
-    dateMask = new String[nrvalues];
+    fieldTable = new String[ nrvalues ];
+    fieldStream = new String[ nrvalues ];
+    dateMask = new String[ nrvalues ];
   }
 
   public Object clone() {
@@ -423,20 +470,20 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
       for ( int i = 0; i < nrvalues; i++ ) {
         Node vnode = XMLHandler.getSubNodeByNr( stepnode, "mapping", i );
 
-        fieldTable[i] = XMLHandler.getTagValue( vnode, "stream_name" );
-        fieldStream[i] = XMLHandler.getTagValue( vnode, "field_name" );
-        if ( fieldStream[i] == null ) {
-          fieldStream[i] = fieldTable[i]; // default: the same name!
+        fieldTable[ i ] = XMLHandler.getTagValue( vnode, "stream_name" );
+        fieldStream[ i ] = XMLHandler.getTagValue( vnode, "field_name" );
+        if ( fieldStream[ i ] == null ) {
+          fieldStream[ i ] = fieldTable[ i ]; // default: the same name!
         }
         String locDateMask = XMLHandler.getTagValue( vnode, "date_mask" );
         if ( locDateMask == null ) {
-          dateMask[i] = "";
+          dateMask[ i ] = "";
         } else {
           if ( OraBulkLoaderMeta.DATE_MASK_DATE.equals( locDateMask )
             || OraBulkLoaderMeta.DATE_MASK_DATETIME.equals( locDateMask ) ) {
-            dateMask[i] = locDateMask;
+            dateMask[ i ] = locDateMask;
           } else {
-            dateMask[i] = "";
+            dateMask[ i ] = "";
           }
         }
       }
@@ -484,7 +531,7 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
 
     retval
       .append( "    " ).append(
-        XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+      XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "commit", commitSize ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "bind_size", bindSize ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "read_size", readSize ) );
@@ -513,9 +560,9 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
 
     for ( int i = 0; i < fieldTable.length; i++ ) {
       retval.append( "      <mapping>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "stream_name", fieldTable[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field_name", fieldStream[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "date_mask", dateMask[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "stream_name", fieldTable[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "field_name", fieldStream[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "date_mask", dateMask[ i ] ) );
       retval.append( "      </mapping>" ).append( Const.CR );
     }
 
@@ -523,13 +570,13 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Default: nothing changes to rowMeta
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -566,7 +613,7 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
             error_message = "";
 
             for ( int i = 0; i < fieldTable.length; i++ ) {
-              String field = fieldTable[i];
+              String field = fieldTable[ i ];
 
               ValueMetaInterface v = r.searchValueMeta( field );
               if ( v == null ) {
@@ -608,7 +655,7 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
           boolean error_found = false;
 
           for ( int i = 0; i < fieldStream.length; i++ ) {
-            ValueMetaInterface v = prev.searchValueMeta( fieldStream[i] );
+            ValueMetaInterface v = prev.searchValueMeta( fieldStream[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
@@ -616,7 +663,7 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
                   BaseMessages.getString( PKG, "OraBulkLoaderMeta.CheckResult.MissingFieldsInInput" ) + Const.CR;
               }
               error_found = true;
-              error_message += "\t\t" + fieldStream[i] + Const.CR;
+              error_message += "\t\t" + fieldStream[ i ] + Const.CR;
             }
           }
           if ( error_found ) {
@@ -662,7 +709,7 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public SQLStatement getSQLStatements( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-    IMetaStore metaStore ) throws HopStepException {
+                                        IMetaStore metaStore ) throws HopStepException {
     SQLStatement retval = new SQLStatement( stepMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
@@ -672,13 +719,13 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
 
         // Now change the field names
         for ( int i = 0; i < fieldTable.length; i++ ) {
-          ValueMetaInterface v = prev.searchValueMeta( fieldStream[i] );
+          ValueMetaInterface v = prev.searchValueMeta( fieldStream[ i ] );
           if ( v != null ) {
             ValueMetaInterface tableField = v.clone();
-            tableField.setName( fieldTable[i] );
+            tableField.setName( fieldTable[ i ] );
             tableFields.addValueMeta( tableField );
           } else {
-            throw new HopStepException( "Unable to find field [" + fieldStream[i] + "] in the input rows" );
+            throw new HopStepException( "Unable to find field [" + fieldStream[ i ] + "] in the input rows" );
           }
         }
 
@@ -716,26 +763,26 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
-    IMetaStore metaStore ) throws HopStepException {
+                             RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
+                             IMetaStore metaStore ) throws HopStepException {
     if ( prev != null ) {
       /* DEBUG CHECK THIS */
       // Insert dateMask fields : read/write
       for ( int i = 0; i < fieldTable.length; i++ ) {
-        ValueMetaInterface v = prev.searchValueMeta( fieldStream[i] );
+        ValueMetaInterface v = prev.searchValueMeta( fieldStream[ i ] );
 
         DatabaseImpact ii =
           new DatabaseImpact(
             DatabaseImpact.TYPE_IMPACT_READ_WRITE, transMeta.getName(), stepMeta.getName(), databaseMeta
-              .getDatabaseName(), transMeta.environmentSubstitute( tableName ), fieldTable[i],
-            fieldStream[i], v != null ? v.getOrigin() : "?", "", "Type = " + v.toStringMeta() );
+            .getDatabaseName(), transMeta.environmentSubstitute( tableName ), fieldTable[ i ],
+            fieldStream[ i ], v != null ? v.getOrigin() : "?", "", "Type = " + v.toStringMeta() );
         impact.add( ii );
       }
     }
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new OraBulkLoader( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -759,8 +806,7 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param directPath
-   *          do we want direct path
+   * @param directPath do we want direct path
    */
   public void setDirectPath( boolean directPath ) {
     this.directPath = directPath;
@@ -807,8 +853,7 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param schemaName
-   *          the schemaName to set
+   * @param schemaName the schemaName to set
    */
   public void setSchemaName( String schemaName ) {
     this.schemaName = schemaName;
@@ -958,8 +1003,7 @@ public class OraBulkLoaderMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param parallel
-   *          the parallel to set
+   * @param parallel the parallel to set
    */
   public void setParallel( boolean parallel ) {
     this.parallel = parallel;

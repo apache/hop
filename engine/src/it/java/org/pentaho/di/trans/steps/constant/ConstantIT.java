@@ -21,12 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.constant;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Props;
@@ -42,6 +36,12 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.trans.RowStepCollector;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 
@@ -89,12 +89,12 @@ public class ConstantIT {
     Object[] data = rowsWritten.get( 0 ).getData();
     RowMetaInterface rowMeta = rowsWritten.get( 0 ).getRowMeta();
     assertEquals( 7, rowMeta.size() );
-    assertEquals( "a", data[0] );
-    assertEquals( "88.00", rowMeta.getValueMeta( 1 ).getString( data[1] ) );
-    assertEquals( "b", data[2] );
-    assertEquals( "c", data[3] );
-    assertEquals( "d", data[4] );
-    assertEquals( "e", data[5] );
-    assertEquals( "1,234.568", rowMeta.getValueMeta( 6 ).getString( data[6] ) );
+    assertEquals( "a", data[ 0 ] );
+    assertEquals( "88.00", rowMeta.getValueMeta( 1 ).getString( data[ 1 ] ) );
+    assertEquals( "b", data[ 2 ] );
+    assertEquals( "c", data[ 3 ] );
+    assertEquals( "d", data[ 4 ] );
+    assertEquals( "e", data[ 5 ] );
+    assertEquals( "1,234.568", rowMeta.getValueMeta( 6 ).getString( data[ 6 ] ) );
   }
 }

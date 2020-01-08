@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.delete;
 
-import java.sql.SQLException;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -41,6 +39,8 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.sql.SQLException;
+
 /**
  * Delete data in a database table.
  *
@@ -54,23 +54,23 @@ public class Delete extends BaseStep implements StepInterface {
   private DeleteData data;
 
   public Delete( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                 Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
   private synchronized void deleteValues( RowMetaInterface rowMeta, Object[] row ) throws HopException {
     // OK, now do the lookup.
     // We need the lookupvalues for that.
-    Object[] deleteRow = new Object[data.deleteParameterRowMeta.size()];
+    Object[] deleteRow = new Object[ data.deleteParameterRowMeta.size() ];
     int deleteIndex = 0;
 
     for ( int i = 0; i < meta.getKeyStream().length; i++ ) {
-      if ( data.keynrs[i] >= 0 ) {
-        deleteRow[deleteIndex] = row[data.keynrs[i]];
+      if ( data.keynrs[ i ] >= 0 ) {
+        deleteRow[ deleteIndex ] = row[ data.keynrs[ i ] ];
         deleteIndex++;
       }
-      if ( data.keynrs2[i] >= 0 ) {
-        deleteRow[deleteIndex] = row[data.keynrs2[i]];
+      if ( data.keynrs2[ i ] >= 0 ) {
+        deleteRow[ deleteIndex ] = row[ data.keynrs2[ i ] ];
         deleteIndex++;
       }
     }
@@ -116,27 +116,27 @@ public class Delete extends BaseStep implements StepInterface {
         logDetailed( BaseMessages.getString( PKG, "Delete.Log.CheckingRow" ) + getInputRowMeta().getString( r ) );
       }
 
-      data.keynrs = new int[meta.getKeyStream().length];
-      data.keynrs2 = new int[meta.getKeyStream().length];
+      data.keynrs = new int[ meta.getKeyStream().length ];
+      data.keynrs2 = new int[ meta.getKeyStream().length ];
       for ( int i = 0; i < meta.getKeyStream().length; i++ ) {
-        data.keynrs[i] = getInputRowMeta().indexOfValue( meta.getKeyStream()[i] );
-        if ( data.keynrs[i] < 0 && // couldn't find field!
-          !"IS NULL".equalsIgnoreCase( meta.getKeyCondition()[i] ) && // No field needed!
-          !"IS NOT NULL".equalsIgnoreCase( meta.getKeyCondition()[i] ) // No field needed!
+        data.keynrs[ i ] = getInputRowMeta().indexOfValue( meta.getKeyStream()[ i ] );
+        if ( data.keynrs[ i ] < 0 && // couldn't find field!
+          !"IS NULL".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) && // No field needed!
+          !"IS NOT NULL".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) // No field needed!
         ) {
           throw new HopStepException( BaseMessages.getString( PKG, "Delete.Exception.FieldRequired", meta
-            .getKeyStream()[i] ) );
+            .getKeyStream()[ i ] ) );
         }
-        data.keynrs2[i] = getInputRowMeta().indexOfValue( meta.getKeyStream2()[i] );
-        if ( data.keynrs2[i] < 0 && // couldn't find field!
-          "BETWEEN".equalsIgnoreCase( meta.getKeyCondition()[i] ) // 2 fields needed!
+        data.keynrs2[ i ] = getInputRowMeta().indexOfValue( meta.getKeyStream2()[ i ] );
+        if ( data.keynrs2[ i ] < 0 && // couldn't find field!
+          "BETWEEN".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) // 2 fields needed!
         ) {
           throw new HopStepException( BaseMessages.getString( PKG, "Delete.Exception.FieldRequired", meta
-            .getKeyStream2()[i] ) );
+            .getKeyStream2()[ i ] ) );
         }
 
         if ( log.isDebug() ) {
-          logDebug( BaseMessages.getString( PKG, "Delete.Log.FieldInfo", meta.getKeyStream()[i] ) + data.keynrs[i] );
+          logDebug( BaseMessages.getString( PKG, "Delete.Log.FieldInfo", meta.getKeyStream()[ i ] ) + data.keynrs[ i ] );
         }
       }
 
@@ -188,17 +188,17 @@ public class Delete extends BaseStep implements StepInterface {
       if ( i != 0 ) {
         sql += "AND   ";
       }
-      sql += databaseMeta.quoteField( meta.getKeyLookup()[i] );
-      if ( "BETWEEN".equalsIgnoreCase( meta.getKeyCondition()[i] ) ) {
+      sql += databaseMeta.quoteField( meta.getKeyLookup()[ i ] );
+      if ( "BETWEEN".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) ) {
         sql += " BETWEEN ? AND ? ";
-        data.deleteParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[i] ) );
-        data.deleteParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream2()[i] ) );
-      } else if ( "IS NULL".equalsIgnoreCase( meta.getKeyCondition()[i] )
-        || "IS NOT NULL".equalsIgnoreCase( meta.getKeyCondition()[i] ) ) {
-        sql += " " + meta.getKeyCondition()[i] + " ";
+        data.deleteParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[ i ] ) );
+        data.deleteParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream2()[ i ] ) );
+      } else if ( "IS NULL".equalsIgnoreCase( meta.getKeyCondition()[ i ] )
+        || "IS NOT NULL".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) ) {
+        sql += " " + meta.getKeyCondition()[ i ] + " ";
       } else {
-        sql += " " + meta.getKeyCondition()[i] + " ? ";
-        data.deleteParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[i] ) );
+        sql += " " + meta.getKeyCondition()[ i ] + " ? ";
+        data.deleteParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[ i ] ) );
       }
     }
 

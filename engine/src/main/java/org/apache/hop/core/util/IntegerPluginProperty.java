@@ -22,17 +22,13 @@
 
 package org.apache.hop.core.util;
 
-import java.util.prefs.Preferences;
-
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
-
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.prefs.Preferences;
 
 /**
  * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- *
  */
 public class IntegerPluginProperty extends KeyValue<Integer> implements PluginProperty {
 
@@ -44,16 +40,15 @@ public class IntegerPluginProperty extends KeyValue<Integer> implements PluginPr
   /**
    * Constructor. Value is null.
    *
-   * @param key
-   *          key to set.
-   * @throws IllegalArgumentException
-   *           if key is invalid.
+   * @param key key to set.
+   * @throws IllegalArgumentException if key is invalid.
    */
   public IntegerPluginProperty( final String key ) throws IllegalArgumentException {
     super( key, DEFAULT_INTEGER_VALUE );
   }
 
   /**
+   *
    */
   public boolean evaluate() {
     final Integer value = this.getValue();
@@ -61,12 +56,14 @@ public class IntegerPluginProperty extends KeyValue<Integer> implements PluginPr
   }
 
   /**
+   *
    */
   public void appendXml( final StringBuilder builder ) {
     builder.append( XMLHandler.addTagValue( this.getKey(), this.getValue() ) );
   }
 
   /**
+   *
    */
   public void loadXml( final Node node ) {
     final Integer value = Integer.parseInt( XMLHandler.getTagValue( node, this.getKey() ) );
@@ -74,12 +71,14 @@ public class IntegerPluginProperty extends KeyValue<Integer> implements PluginPr
   }
 
   /**
+   *
    */
   public void saveToPreferences( final Preferences node ) {
     node.putInt( this.getKey(), this.getValue() );
   }
 
   /**
+   *
    */
   public void readFromPreferences( final Preferences node ) {
     this.setValue( node.getInt( this.getKey(), this.getValue() ) );

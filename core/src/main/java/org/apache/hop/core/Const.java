@@ -34,8 +34,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.version.BuildVersion;
 
-import java.awt.Font;
-import java.awt.GraphicsEnvironment;
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -71,7 +70,6 @@ import java.util.regex.Pattern;
  *
  * @author Matt
  * @since 07-05-2003
- *
  */
 public class Const {
   private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator2!!
@@ -113,6 +111,7 @@ public class Const {
         return BaseMessages.getString( PKG, "Const.GA.HelpAboutText" );
       }
     };
+
     public abstract String getMessage();
   }
 
@@ -268,7 +267,7 @@ public class Const {
    * Max nr. of files to remember
    */
   public static final int MAX_FILE_HIST = 9; // Having more than 9 files in the file history is not compatible with pre
-                                             // 5.0 versions
+  // 5.0 versions
 
   /**
    * The default locale for the kettle environment (system defined)
@@ -385,73 +384,117 @@ public class Const {
    */
   public static final String XML_ENCODING = "UTF-8";
 
-  /** The possible extensions a transformation XML file can have. */
+  /**
+   * The possible extensions a transformation XML file can have.
+   */
   public static final String[] STRING_TRANS_AND_JOB_FILTER_EXT = new String[] {
     "*.ktr;*.kjb;*.xml", "*.ktr;*.xml", "*.kjb;*.xml", "*.xml", "*.*" };
 
-  /** The descriptions of the possible extensions a transformation XML file can have. */
+  /**
+   * The descriptions of the possible extensions a transformation XML file can have.
+   */
   private static String[] STRING_TRANS_AND_JOB_FILTER_NAMES;
 
-  /** The extension of a Hop transformation XML file */
+  /**
+   * The extension of a Hop transformation XML file
+   */
   public static final String STRING_TRANS_DEFAULT_EXT = "ktr";
 
-  /** The possible extensions a transformation XML file can have. */
+  /**
+   * The possible extensions a transformation XML file can have.
+   */
   public static final String[] STRING_TRANS_FILTER_EXT = new String[] { "*.ktr;*.xml", "*.xml", "*.*" };
 
-  /** The descriptions of the possible extensions a transformation XML file can have. */
+  /**
+   * The descriptions of the possible extensions a transformation XML file can have.
+   */
   private static String[] STRING_TRANS_FILTER_NAMES;
 
-  /** The extension of a Hop job XML file */
+  /**
+   * The extension of a Hop job XML file
+   */
   public static final String STRING_JOB_DEFAULT_EXT = "kjb";
 
-  /** The possible extensions a job XML file can have. */
+  /**
+   * The possible extensions a job XML file can have.
+   */
   public static final String[] STRING_JOB_FILTER_EXT = new String[] { "*.kjb;*.xml", "*.xml", "*.*" };
 
-  /** The descriptions of the possible extensions a job XML file can have. */
+  /**
+   * The descriptions of the possible extensions a job XML file can have.
+   */
   private static String[] STRING_JOB_FILTER_NAMES;
 
-  /** Name of the kettle parameters file */
+  /**
+   * Name of the kettle parameters file
+   */
   public static final String HOP_PROPERTIES = "kettle.properties";
 
-  /** Name of the kettle shared data file */
+  /**
+   * Name of the kettle shared data file
+   */
   public static final String SHARED_DATA_FILE = "shared.xml";
 
-  /** The prefix that all internal kettle variables should have */
+  /**
+   * The prefix that all internal kettle variables should have
+   */
   public static final String INTERNAL_VARIABLE_PREFIX = "Internal";
 
-  /** The version number as an internal variable */
+  /**
+   * The version number as an internal variable
+   */
   public static final String INTERNAL_VARIABLE_HOP_VERSION = INTERNAL_VARIABLE_PREFIX + ".Hop.Version";
 
-  /** The build version as an internal variable */
+  /**
+   * The build version as an internal variable
+   */
   public static final String INTERNAL_VARIABLE_HOP_BUILD_VERSION = INTERNAL_VARIABLE_PREFIX
     + ".Hop.Build.Version";
 
-  /** The build date as an internal variable */
+  /**
+   * The build date as an internal variable
+   */
   public static final String INTERNAL_VARIABLE_HOP_BUILD_DATE = INTERNAL_VARIABLE_PREFIX + ".Hop.Build.Date";
 
-  /** The job filename directory */
+  /**
+   * The job filename directory
+   */
   public static final String INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY = INTERNAL_VARIABLE_PREFIX
     + ".Job.Filename.Directory";
 
-  /** The job filename name */
+  /**
+   * The job filename name
+   */
   public static final String INTERNAL_VARIABLE_JOB_FILENAME_NAME = INTERNAL_VARIABLE_PREFIX + ".Job.Filename.Name";
 
-  /** The job name */
+  /**
+   * The job name
+   */
   public static final String INTERNAL_VARIABLE_JOB_NAME = INTERNAL_VARIABLE_PREFIX + ".Job.Name";
 
-  /** The job run ID */
+  /**
+   * The job run ID
+   */
   public static final String INTERNAL_VARIABLE_JOB_RUN_ID = INTERNAL_VARIABLE_PREFIX + ".Job.Run.ID";
 
-  /** The job run attempt nr */
+  /**
+   * The job run attempt nr
+   */
   public static final String INTERNAL_VARIABLE_JOB_RUN_ATTEMPTNR = INTERNAL_VARIABLE_PREFIX + ".Job.Run.AttemptNr";
 
-  /** job/trans heartbeat scheduled executor periodic interval ( in seconds ) */
+  /**
+   * job/trans heartbeat scheduled executor periodic interval ( in seconds )
+   */
   public static final String VARIABLE_HEARTBEAT_PERIODIC_INTERVAL_SECS = "heartbeat.periodic.interval.seconds";
 
-  /** comma-separated list of extension point plugins for which snmp traps should be sent */
+  /**
+   * comma-separated list of extension point plugins for which snmp traps should be sent
+   */
   public static final String VARIABLE_MONITORING_SNMP_TRAPS_ENABLED = "monitoring.snmp.traps.enabled";
 
-  /** The current transformation directory */
+  /**
+   * The current transformation directory
+   */
   public static final String INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY = INTERNAL_VARIABLE_PREFIX
     + ".Entry.Current.Directory";
 
@@ -483,40 +526,60 @@ public class Const {
     Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_NAME, Const.INTERNAL_VARIABLE_TRANSFORMATION_NAME,
   };
 
-  /** The transformation filename directory */
+  /**
+   * The transformation filename directory
+   */
   public static final String INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY = INTERNAL_VARIABLE_PREFIX
     + ".Transformation.Filename.Directory";
 
-  /** The transformation filename name */
+  /**
+   * The transformation filename name
+   */
   public static final String INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_NAME = INTERNAL_VARIABLE_PREFIX
     + ".Transformation.Filename.Name";
 
-  /** The transformation name */
+  /**
+   * The transformation name
+   */
   public static final String INTERNAL_VARIABLE_TRANSFORMATION_NAME = INTERNAL_VARIABLE_PREFIX
     + ".Transformation.Name";
 
-  /** The step partition ID */
+  /**
+   * The step partition ID
+   */
   public static final String INTERNAL_VARIABLE_STEP_PARTITION_ID = INTERNAL_VARIABLE_PREFIX + ".Step.Partition.ID";
 
-  /** The step partition number */
+  /**
+   * The step partition number
+   */
   public static final String INTERNAL_VARIABLE_STEP_PARTITION_NR = INTERNAL_VARIABLE_PREFIX
     + ".Step.Partition.Number";
 
-  /** The slave transformation number */
+  /**
+   * The slave transformation number
+   */
   public static final String INTERNAL_VARIABLE_SLAVE_SERVER_NUMBER = INTERNAL_VARIABLE_PREFIX
     + ".Slave.Transformation.Number";
 
-  /** The slave transformation name */
+  /**
+   * The slave transformation name
+   */
   public static final String INTERNAL_VARIABLE_SLAVE_SERVER_NAME = INTERNAL_VARIABLE_PREFIX + ".Slave.Server.Name";
 
-  /** The size of the cluster : number of slaves */
+  /**
+   * The size of the cluster : number of slaves
+   */
   public static final String INTERNAL_VARIABLE_CLUSTER_SIZE = INTERNAL_VARIABLE_PREFIX + ".Cluster.Size";
 
-  /** The slave transformation number */
+  /**
+   * The slave transformation number
+   */
   public static final String INTERNAL_VARIABLE_STEP_UNIQUE_NUMBER = INTERNAL_VARIABLE_PREFIX
     + ".Step.Unique.Number";
 
-  /** Is this transformation running clustered, on the master? */
+  /**
+   * Is this transformation running clustered, on the master?
+   */
   public static final String INTERNAL_VARIABLE_CLUSTER_MASTER = INTERNAL_VARIABLE_PREFIX + ".Cluster.Master";
 
   /**
@@ -524,34 +587,54 @@ public class Const {
    */
   public static final String INTERNAL_VARIABLE_CLUSTER_RUN_ID = INTERNAL_VARIABLE_PREFIX + ".Cluster.Run.ID";
 
-  /** The size of the cluster : number of slaves */
+  /**
+   * The size of the cluster : number of slaves
+   */
   public static final String INTERNAL_VARIABLE_STEP_UNIQUE_COUNT = INTERNAL_VARIABLE_PREFIX + ".Step.Unique.Count";
 
-  /** The step name */
+  /**
+   * The step name
+   */
   public static final String INTERNAL_VARIABLE_STEP_NAME = INTERNAL_VARIABLE_PREFIX + ".Step.Name";
 
-  /** The step copy nr */
+  /**
+   * The step copy nr
+   */
   public static final String INTERNAL_VARIABLE_STEP_COPYNR = INTERNAL_VARIABLE_PREFIX + ".Step.CopyNr";
 
-  /** The default maximum for the nr of lines in the GUI logs */
+  /**
+   * The default maximum for the nr of lines in the GUI logs
+   */
   public static final int MAX_NR_LOG_LINES = 5000;
 
-  /** The default maximum for the nr of lines in the history views */
+  /**
+   * The default maximum for the nr of lines in the history views
+   */
   public static final int MAX_NR_HISTORY_LINES = 50;
 
-  /** The default fetch size for lines of history. */
+  /**
+   * The default fetch size for lines of history.
+   */
   public static final int HISTORY_LINES_FETCH_SIZE = 10;
 
-  /** The default log line timeout in minutes : 12 hours */
+  /**
+   * The default log line timeout in minutes : 12 hours
+   */
   public static final int MAX_LOG_LINE_TIMEOUT_MINUTES = 12 * 60;
 
-  /** UI-agnostic flag for warnings */
+  /**
+   * UI-agnostic flag for warnings
+   */
   public static final int WARNING = 1;
 
-  /** UI-agnostic flag for warnings */
+  /**
+   * UI-agnostic flag for warnings
+   */
   public static final int ERROR = 2;
 
-  /** UI-agnostic flag for warnings */
+  /**
+   * UI-agnostic flag for warnings
+   */
   public static final int INFO = 3;
 
   public static final int SHOW_MESSAGE_DIALOG_DB_TEST_DEFAULT = 0;
@@ -1090,7 +1173,7 @@ public class Const {
 
   /**
    * Compatibility settings for {@link org.apache.hop.core.row.ValueDataUtil#hourOfDay(ValueMetaInterface, Object)}.
-   *
+   * <p>
    * Switches off the fix for calculation of timezone decomposition.
    */
   public static final String HOP_COMPATIBILITY_CALCULATION_TIMEZONE_DECOMPOSITION =
@@ -1135,7 +1218,6 @@ public class Const {
 
   /**
    * The name of the local client MetaStore
-   *
    */
   public static final String HOP_METASTORE_NAME = "Hop Local Client Metastore";
 
@@ -1279,10 +1361,8 @@ public class Const {
    * rounds double f to any number of places after decimal point Does arithmetic using BigDecimal class to avoid integer
    * overflow while rounding
    *
-   * @param f
-   *          The value to round
-   * @param places
-   *          The number of decimal places
+   * @param f      The value to round
+   * @param places The number of decimal places
    * @return The rounded floating point value
    */
 
@@ -1294,12 +1374,9 @@ public class Const {
    * rounds double f to any number of places after decimal point Does arithmetic using BigDecimal class to avoid integer
    * overflow while rounding
    *
-   * @param f
-   *          The value to round
-   * @param places
-   *          The number of decimal places
-   * @param roundingMode
-   *          The mode for rounding, e.g. java.math.BigDecimal.ROUND_HALF_EVEN
+   * @param f            The value to round
+   * @param places       The number of decimal places
+   * @param roundingMode The mode for rounding, e.g. java.math.BigDecimal.ROUND_HALF_EVEN
    * @return The rounded floating point value
    */
   public static double round( double f, int places, int roundingMode ) {
@@ -1319,12 +1396,9 @@ public class Const {
    * rounds BigDecimal f to any number of places after decimal point Does arithmetic using BigDecimal class to avoid
    * integer overflow while rounding
    *
-   * @param f
-   *          The value to round
-   * @param places
-   *          The number of decimal places
-   * @param roundingMode
-   *          The mode for rounding, e.g. java.math.BigDecimal.ROUND_HALF_EVEN
+   * @param f            The value to round
+   * @param places       The number of decimal places
+   * @param roundingMode The mode for rounding, e.g. java.math.BigDecimal.ROUND_HALF_EVEN
    * @return The rounded floating point value
    */
   public static BigDecimal round( BigDecimal f, int places, int roundingMode ) {
@@ -1343,12 +1417,9 @@ public class Const {
    * rounds long f to any number of places after decimal point Does arithmetic using BigDecimal class to avoid integer
    * overflow while rounding
    *
-   * @param f
-   *          The value to round
-   * @param places
-   *          The number of decimal places
-   * @param roundingMode
-   *          The mode for rounding, e.g. java.math.BigDecimal.ROUND_HALF_EVEN
+   * @param f            The value to round
+   * @param places       The number of decimal places
+   * @param roundingMode The mode for rounding, e.g. java.math.BigDecimal.ROUND_HALF_EVEN
    * @return The rounded floating point value
    */
   public static long round( long f, int places, int roundingMode ) {
@@ -1376,10 +1447,8 @@ public class Const {
   /**
    * Convert a String into an integer. If the conversion fails, assign a default value.
    *
-   * @param str
-   *          The String to convert to an integer
-   * @param def
-   *          The default value
+   * @param str The String to convert to an integer
+   * @param def The default value
    * @return The converted value or the default.
    */
   public static int toInt( String str, int def ) {
@@ -1395,10 +1464,8 @@ public class Const {
   /**
    * Convert a String into a long integer. If the conversion fails, assign a default value.
    *
-   * @param str
-   *          The String to convert to a long integer
-   * @param def
-   *          The default value
+   * @param str The String to convert to a long integer
+   * @param def The default value
    * @return The converted value or the default.
    */
   public static long toLong( String str, long def ) {
@@ -1414,10 +1481,8 @@ public class Const {
   /**
    * Convert a String into a double. If the conversion fails, assign a default value.
    *
-   * @param str
-   *          The String to convert to a double
-   * @param def
-   *          The default value
+   * @param str The String to convert to a double
+   * @param def The default value
    * @return The converted value or the default.
    */
   public static double toDouble( String str, double def ) {
@@ -1434,10 +1499,8 @@ public class Const {
    * Convert a String into a date. The date format is <code>yyyy/MM/dd HH:mm:ss.SSS</code>. If the conversion fails,
    * assign a default value.
    *
-   * @param str
-   *          The String to convert into a Date
-   * @param def
-   *          The default value
+   * @param str The String to convert into a Date
+   * @param def The default value
    * @return The converted value or the default.
    */
   public static Date toDate( String str, Date def ) {
@@ -1453,8 +1516,7 @@ public class Const {
    * Determines whether or not a character is considered a space. A character is considered a space in Hop if it is a
    * space, a tab, a newline or a cariage return.
    *
-   * @param c
-   *          The character to verify if it is a space.
+   * @param c The character to verify if it is a space.
    * @return true if the character is a space. false otherwise.
    */
   public static boolean isSpace( char c ) {
@@ -1464,8 +1526,7 @@ public class Const {
   /**
    * Left trim: remove spaces to the left of a String.
    *
-   * @param source
-   *          The String to left trim
+   * @param source The String to left trim
    * @return The left trimmed String
    */
   public static String ltrim( String source ) {
@@ -1483,8 +1544,7 @@ public class Const {
   /**
    * Right trim: remove spaces to the right of a string
    *
-   * @param source
-   *          The string to right trim
+   * @param source The string to right trim
    * @return The trimmed string.
    */
   public static String rtrim( String source ) {
@@ -1503,8 +1563,7 @@ public class Const {
   /**
    * Trims a string: removes the leading and trailing spaces of a String.
    *
-   * @param str
-   *          The string to trim
+   * @param str The string to trim
    * @return The trimmed string.
    */
   public static String trim( String str ) {
@@ -1533,10 +1592,8 @@ public class Const {
    * Right pad a string: adds spaces to a string until a certain length. If the length is smaller then the limit
    * specified, the String is truncated.
    *
-   * @param ret
-   *          The string to pad
-   * @param limit
-   *          The desired length of the padded string.
+   * @param ret   The string to pad
+   * @param limit The desired length of the padded string.
    * @return The padded String.
    */
   public static String rightPad( String ret, int limit ) {
@@ -1550,13 +1607,11 @@ public class Const {
   /**
    * Right pad a StringBuffer: adds spaces to a string until a certain length. If the length is smaller then the limit
    * specified, the String is truncated.
-   *
+   * <p>
    * MB - New version is nearly 25% faster
    *
-   * @param ret
-   *          The StringBuffer to pad
-   * @param limit
-   *          The desired length of the padded string.
+   * @param ret   The StringBuffer to pad
+   * @param limit The desired length of the padded string.
    * @return The padded String.
    */
   public static String rightPad( StringBuffer ret, int limit ) {
@@ -1574,13 +1629,11 @@ public class Const {
   /**
    * Right pad a StringBuilder: adds spaces to a string until a certain length. If the length is smaller then the limit
    * specified, the String is truncated.
-   *
+   * <p>
    * MB - New version is nearly 25% faster
    *
-   * @param ret
-   *          The StringBuilder to pad
-   * @param limit
-   *          The desired length of the padded string.
+   * @param ret   The StringBuilder to pad
+   * @param limit The desired length of the padded string.
    * @return The padded String.
    */
   public static String rightPad( StringBuilder ret, int limit ) {
@@ -1597,15 +1650,12 @@ public class Const {
 
   /**
    * Replace values in a String with another.
-   *
+   * <p>
    * 33% Faster using replaceAll this way than original method
    *
-   * @param string
-   *          The original String.
-   * @param repl
-   *          The text to replace
-   * @param with
-   *          The new text bit
+   * @param string The original String.
+   * @param repl   The text to replace
+   * @param with   The new text bit
    * @return The resulting string with the text pieces replaced.
    */
   public static String replace( String string, String repl, String with ) {
@@ -1618,15 +1668,12 @@ public class Const {
 
   /**
    * Alternate faster version of string replace using a stringbuffer as input.
-   *
+   * <p>
    * 33% Faster using replaceAll this way than original method
    *
-   * @param str
-   *          The string where we want to replace in
-   * @param code
-   *          The code to search for
-   * @param repl
-   *          The replacement string for code
+   * @param str  The string where we want to replace in
+   * @param code The code to search for
+   * @param repl The replacement string for code
    */
   public static void repl( StringBuffer str, String code, String repl ) {
     if ( ( code == null ) || ( repl == null ) || ( code.length() == 0 ) || ( repl.length() == 0 ) || ( str == null ) || ( str.length() == 0 ) ) {
@@ -1639,15 +1686,12 @@ public class Const {
 
   /**
    * Alternate faster version of string replace using a stringbuilder as input (non-synchronized).
-   *
+   * <p>
    * 33% Faster using replaceAll this way than original method
    *
-   * @param str
-   *          The string where we want to replace in
-   * @param code
-   *          The code to search for
-   * @param repl
-   *          The replacement string for code
+   * @param str  The string where we want to replace in
+   * @param code The code to search for
+   * @param repl The replacement string for code
    */
   public static void repl( StringBuilder str, String code, String repl ) {
     if ( ( code == null ) || ( repl == null ) || ( str == null ) ) {
@@ -1661,8 +1705,7 @@ public class Const {
   /**
    * Count the number of spaces to the left of a text. (leading)
    *
-   * @param field
-   *          The text to examine
+   * @param field The text to examine
    * @return The number of leading spaces found.
    */
   public static int nrSpacesBefore( String field ) {
@@ -1677,8 +1720,7 @@ public class Const {
   /**
    * Count the number of spaces to the right of a text. (trailing)
    *
-   * @param field
-   *          The text to examine
+   * @param field The text to examine
    * @return The number of trailing spaces found.
    */
   public static int nrSpacesAfter( String field ) {
@@ -1693,8 +1735,7 @@ public class Const {
   /**
    * Checks whether or not a String consists only of spaces.
    *
-   * @param str
-   *          The string to check
+   * @param str The string to check
    * @return true if the string has nothing but spaces.
    */
   public static boolean onlySpaces( String str ) {
@@ -1896,12 +1937,9 @@ public class Const {
   /**
    * Get the primary IP address tied to a network interface (excluding loop-back etc)
    *
-   * @param networkInterfaceName
-   *          the name of the network interface to interrogate
+   * @param networkInterfaceName the name of the network interface to interrogate
    * @return null if the network interface or address wasn't found.
-   *
-   * @throws SocketException
-   *           in case of a security or network error
+   * @throws SocketException in case of a security or network error
    */
   public static String getIPAddress( String networkInterfaceName ) throws SocketException {
     NetworkInterface networkInterface = NetworkInterface.getByName( networkInterfaceName );
@@ -2037,7 +2075,7 @@ public class Const {
    */
   public static String getUserHomeDirectory() {
     return NVL( System.getenv( "HOP_HOME" ), NVL( System.getProperty( "HOP_HOME" ),
-        System.getProperty( "user.home" ) ) );
+      System.getProperty( "user.home" ) ) );
   }
 
   /**
@@ -2117,10 +2155,8 @@ public class Const {
   /**
    * Provides the documentation url with the configured base + the given URI.
    *
-   * @param uri
-   *          the resource identifier for the documentation
-   *          (eg. Products/Data_Integration/Data_Integration_Perspective/050/000)
-   *
+   * @param uri the resource identifier for the documentation
+   *            (eg. Products/Data_Integration/Data_Integration_Perspective/050/000)
    * @return the fully qualified documentation URL for the given URI
    */
   public static String getDocUrl( final String uri ) {
@@ -2142,10 +2178,8 @@ public class Const {
   /**
    * Retrieves the content of an environment variable
    *
-   * @param variable
-   *          The name of the environment variable
-   * @param deflt
-   *          The default value in case no value was found
+   * @param variable The name of the environment variable
+   * @param deflt    The default value in case no value was found
    * @return The value of the environment variable or the value of deflt in case no variable was defined.
    */
   public static String getEnvironmentVariable( String variable, String deflt ) {
@@ -2158,9 +2192,7 @@ public class Const {
    * them including the name of the environment variable with the actual value. In case the variable was not set,
    * nothing is replaced!
    *
-   * @param string
-   *          The source string where text is going to be replaced.
-   *
+   * @param string The source string where text is going to be replaced.
    * @return The expanded string.
    * @deprecated use StringUtil.environmentSubstitute(): handles both Windows and unix conventions
    */
@@ -2210,16 +2242,15 @@ public class Const {
    * <p>
    * See also: replEnv(String string)
    *
-   * @param string
-   *          The array of strings that wants its variables to be replaced.
+   * @param string The array of strings that wants its variables to be replaced.
    * @return the array with the environment variables replaced.
    * @deprecated please use StringUtil.environmentSubstitute now.
    */
   @Deprecated
   public static String[] replEnv( String[] string ) {
-    String[] retval = new String[string.length];
+    String[] retval = new String[ string.length ];
     for ( int i = 0; i < string.length; i++ ) {
-      retval[i] = Const.replEnv( string[i] );
+      retval[ i ] = Const.replEnv( string[ i ] );
     }
     return retval;
   }
@@ -2227,10 +2258,8 @@ public class Const {
   /**
    * Implements Oracle style NVL function
    *
-   * @param source
-   *          The source argument
-   * @param def
-   *          The default value in case source is null or the length of the string is 0
+   * @param source The source argument
+   * @param def    The default value in case source is null or the length of the string is 0
    * @return source if source is not null, otherwise return def
    */
   public static String NVL( String source, String def ) {
@@ -2243,8 +2272,7 @@ public class Const {
   /**
    * Return empty string "" in case the given parameter is null, otherwise return the same value.
    *
-   * @param source
-   *          The source value to check for null.
+   * @param source The source value to check for null.
    * @return empty string if source is null, otherwise simply return the source value.
    */
   public static String nullToEmpty( String source ) {
@@ -2257,10 +2285,8 @@ public class Const {
   /**
    * Search for a string in an array of strings and return the index.
    *
-   * @param lookup
-   *          The string to search for
-   * @param array
-   *          The array of strings to look in
+   * @param lookup The string to search for
+   * @param array  The array of strings to look in
    * @return The index of a search string in an array of strings. -1 if not found.
    */
   public static int indexOfString( String lookup, String[] array ) {
@@ -2272,7 +2298,7 @@ public class Const {
     }
 
     for ( int i = 0; i < array.length; i++ ) {
-      if ( lookup.equalsIgnoreCase( array[i] ) ) {
+      if ( lookup.equalsIgnoreCase( array[ i ] ) ) {
         return i;
       }
     }
@@ -2282,16 +2308,14 @@ public class Const {
   /**
    * Search for strings in an array of strings and return the indexes.
    *
-   * @param lookup
-   *          The strings to search for
-   * @param array
-   *          The array of strings to look in
+   * @param lookup The strings to search for
+   * @param array  The array of strings to look in
    * @return The indexes of strings in an array of strings. -1 if not found.
    */
   public static int[] indexsOfStrings( String[] lookup, String[] array ) {
-    int[] indexes = new int[lookup.length];
+    int[] indexes = new int[ lookup.length ];
     for ( int i = 0; i < indexes.length; i++ ) {
-      indexes[i] = indexOfString( lookup[i], array );
+      indexes[ i ] = indexOfString( lookup[ i ], array );
     }
     return indexes;
   }
@@ -2300,34 +2324,53 @@ public class Const {
    * Search for strings in an array of strings and return the indexes. If a string is not found, the index is not
    * returned.
    *
-   * @param lookup
-   *          The strings to search for
-   * @param array
-   *          The array of strings to look in
+   * @param lookup The strings to search for
+   * @param array  The array of strings to look in
    * @return The indexes of strings in an array of strings. Only existing indexes are returned (no -1)
    */
-  public static int[] indexsOfFoundStrings( String[] lookup, String[] array ) {
+  public static int[] indexesOfFoundStrings( String[] lookup, String[] array ) {
     List<Integer> indexesList = new ArrayList<>();
     for ( int i = 0; i < lookup.length; i++ ) {
-      int idx = indexOfString( lookup[i], array );
+      int idx = indexOfString( lookup[ i ], array );
       if ( idx >= 0 ) {
         indexesList.add( Integer.valueOf( idx ) );
       }
     }
-    int[] indexes = new int[indexesList.size()];
+    int[] indexes = new int[ indexesList.size() ];
     for ( int i = 0; i < indexesList.size(); i++ ) {
-      indexes[i] = ( indexesList.get( i ) ).intValue();
+      indexes[ i ] = ( indexesList.get( i ) ).intValue();
     }
     return indexes;
   }
 
   /**
+   * Search for strings in a list of strings and return the indexes. If a string is not found, the index is not
+   * returned.
+   *
+   * @param lookup The strings to search for
+   * @param list   The array of strings to look in
+   * @return The indexes of strings in a list of strings. Only existing indexes are returned (no -1)
+   */
+  public static List<Integer> indexesOfFoundStrings( List<String> lookup, List<String> list ) {
+    List<Integer> indexesList = new ArrayList<>();
+    for ( int i = 0; i < lookup.size(); i++ ) {
+      int idx = indexOfString( lookup.get( i ), list );
+      if ( idx >= 0 ) {
+        indexesList.add( Integer.valueOf( idx ) );
+      }
+    }
+    int[] indexes = new int[ indexesList.size() ];
+    for ( int i = 0; i < indexesList.size(); i++ ) {
+      indexes[ i ] = ( indexesList.get( i ) ).intValue();
+    }
+    return indexesList;
+  }
+
+  /**
    * Search for a string in a list of strings and return the index.
    *
-   * @param lookup
-   *          The string to search for
-   * @param list
-   *          The ArrayList of strings to look in
+   * @param lookup The string to search for
+   * @param list   The ArrayList of strings to look in
    * @return The index of a search string in an array of strings. -1 if not found.
    */
   public static int indexOfString( String lookup, List<String> list ) {
@@ -2347,8 +2390,7 @@ public class Const {
   /**
    * Sort the strings of an array in alphabetical order.
    *
-   * @param input
-   *          The array of strings to sort.
+   * @param input The array of strings to sort.
    * @return The sorted array of strings.
    */
   public static String[] sortStrings( String[] input ) {
@@ -2360,17 +2402,15 @@ public class Const {
    * Convert strings separated by a string into an array of strings.
    * <p>
    * <code>
-  Example: a;b;c;d    ==>    new String[] { a, b, c, d }
+   * Example: a;b;c;d    ==>    new String[] { a, b, c, d }
    * </code>
    *
    * <p>
    * <b>NOTE: this differs from String.split() in a way that the built-in method uses regular expressions and this one
    * does not.</b>
    *
-   * @param string
-   *          The string to split
-   * @param separator
-   *          The separator used.
+   * @param string    The string to split
+   * @param separator The separator used.
    * @return the string split into an array of strings
    */
   public static String[] splitString( String string, String separator ) {
@@ -2403,20 +2443,18 @@ public class Const {
       list.add( nullToEmpty( string.substring( from, string.length() ) ) );
     }
 
-    return list.toArray( new String[list.size()] );
+    return list.toArray( new String[ list.size() ] );
   }
 
   /**
    * Convert strings separated by a character into an array of strings.
    * <p>
    * <code>
-   Example: a;b;c;d    ==  new String[] { a, b, c, d }
+   * Example: a;b;c;d    ==  new String[] { a, b, c, d }
    * </code>
    *
-   * @param string
-   *          The string to split
-   * @param separator
-   *          The separator used.
+   * @param string    The string to split
+   * @param separator The separator used.
    * @return the string split into an array of strings
    */
   public static String[] splitString( String string, char separator ) {
@@ -2427,15 +2465,12 @@ public class Const {
    * Convert strings separated by a character into an array of strings.
    * <p>
    * <code>
-    Example: a;b;c;d    ==  new String[] { a, b, c, d }
+   * Example: a;b;c;d    ==  new String[] { a, b, c, d }
    * </code>
    *
-   * @param string
-   *          The string to split
-   * @param separator
-   *          The separator used.
-   * @param escape
-   *          in case the separator can be escaped (\;) The escape characters are NOT removed!
+   * @param string    The string to split
+   * @param separator The separator used.
+   * @param escape    in case the separator can be escaped (\;) The escape characters are NOT removed!
    * @return the string split into an array of strings
    */
   public static String[] splitString( String string, char separator, boolean escape ) {
@@ -2471,20 +2506,18 @@ public class Const {
       list.add( nullToEmpty( string.substring( from, string.length() ) ) );
     }
 
-    return list.toArray( new String[list.size()] );
+    return list.toArray( new String[ list.size() ] );
   }
 
   /**
    * Convert strings separated by a string into an array of strings.
    * <p>
    * <code>
-   *   Example /a/b/c --> new String[] { a, b, c }
+   * Example /a/b/c --> new String[] { a, b, c }
    * </code>
    *
-   * @param path
-   *          The string to split
-   * @param separator
-   *          The separator used.
+   * @param path      The string to split
+   * @param separator The separator used.
    * @return the string split into an array of strings
    */
   public static String[] splitPath( String path, String separator ) {
@@ -2518,18 +2551,18 @@ public class Const {
       }
     }
 
-    String[] spath = new String[nr_separators];
+    String[] spath = new String[ nr_separators ];
     int nr = 0;
     for ( int i = from; i < path.length(); i += sepLen ) {
       if ( path.substring( i, i + sepLen ).equalsIgnoreCase( separator ) ) {
-        spath[nr] = path.substring( from, i );
+        spath[ nr ] = path.substring( from, i );
         nr++;
 
         from = i + sepLen;
       }
     }
     if ( nr < spath.length ) {
-      spath[nr] = path.substring( from );
+      spath[ nr ] = path.substring( from );
     }
 
     //
@@ -2544,21 +2577,18 @@ public class Const {
 
   /**
    * Split the given string using the given delimiter and enclosure strings.
-   *
+   * <p>
    * The delimiter and enclosures are not regular expressions (regexes); rather they are literal strings that will be
    * quoted so as not to be treated like regexes.
-   *
+   * <p>
    * This method expects that the data contains an even number of enclosure strings in the input; otherwise the results
    * are undefined
    *
-   * @param stringToSplit
-   *          the String to split
-   * @param delimiter
-   *          the delimiter string
-   * @param enclosure
-   *          the enclosure string
+   * @param stringToSplit the String to split
+   * @param delimiter     the delimiter string
+   * @param enclosure     the enclosure string
    * @return an array of strings split on the delimiter (ignoring those in enclosures), or null if the string to split
-   *         is null.
+   * is null.
    */
   public static String[] splitString( String stringToSplit, String delimiter, String enclosure ) {
     return splitString( stringToSplit, delimiter, enclosure, false );
@@ -2566,23 +2596,19 @@ public class Const {
 
   /**
    * Split the given string using the given delimiter and enclosure strings.
-   *
+   * <p>
    * The delimiter and enclosures are not regular expressions (regexes); rather they are literal strings that will be
    * quoted so as not to be treated like regexes.
-   *
+   * <p>
    * This method expects that the data contains an even number of enclosure strings in the input; otherwise the results
    * are undefined
    *
-   * @param stringToSplit
-   *          the String to split
-   * @param delimiter
-   *          the delimiter string
-   * @param enclosure
-   *          the enclosure string
-   * @param removeEnclosure
-   *          removes enclosure from split result
+   * @param stringToSplit   the String to split
+   * @param delimiter       the delimiter string
+   * @param enclosure       the enclosure string
+   * @param removeEnclosure removes enclosure from split result
    * @return an array of strings split on the delimiter (ignoring those in enclosures), or null if the string to split
-   *         is null.
+   * is null.
    */
   public static String[] splitString( String stringToSplit, String delimiter, String enclosure, boolean removeEnclosure ) {
 
@@ -2665,7 +2691,7 @@ public class Const {
     }
 
     // Return list as array
-    return splitList.toArray( new String[splitList.size()] );
+    return splitList.toArray( new String[ splitList.size() ] );
   }
 
   private static String removeEnclosure( String stringToSplit, String enclosure ) {
@@ -2685,8 +2711,7 @@ public class Const {
   /**
    * Sorts the array of Strings, determines the uniquely occurring strings.
    *
-   * @param strings
-   *          the array that you want to do a distinct on
+   * @param strings the array that you want to do a distinct on
    * @return a sorted array of uniquely occurring strings
    */
   public static String[] getDistinctStrings( String[] strings ) {
@@ -2701,13 +2726,13 @@ public class Const {
     List<String> result = new ArrayList<>();
     String previous = "";
     for ( int i = 0; i < sorted.length; i++ ) {
-      if ( !sorted[i].equalsIgnoreCase( previous ) ) {
-        result.add( sorted[i] );
+      if ( !sorted[ i ].equalsIgnoreCase( previous ) ) {
+        result.add( sorted[ i ] );
       }
-      previous = sorted[i];
+      previous = sorted[ i ];
     }
 
-    return result.toArray( new String[result.size()] );
+    return result.toArray( new String[ result.size() ] );
   }
 
   /**
@@ -2750,11 +2775,10 @@ public class Const {
   /**
    * Check if the string supplied is empty. A String is empty when it is null or when the length is 0
    *
-   * @param val
-   *          The value to check
+   * @param val The value to check
    * @return true if the string supplied is empty
-   * @deprecated
    * @see org.apache.hop.core.util.Utils#isEmpty(CharSequence)
+   * @deprecated
    */
   @Deprecated
   public static boolean isEmpty( String val ) {
@@ -2764,11 +2788,10 @@ public class Const {
   /**
    * Check if the stringBuffer supplied is empty. A StringBuffer is empty when it is null or when the length is 0
    *
-   * @param val
-   *          The stringBuffer to check
+   * @param val The stringBuffer to check
    * @return true if the stringBuffer supplied is empty
-   * @deprecated
    * @see org.apache.hop.core.util.Utils#isEmpty(CharSequence)
+   * @deprecated
    */
   @Deprecated
   public static boolean isEmpty( StringBuffer val ) {
@@ -2779,11 +2802,10 @@ public class Const {
    * Check if the string array supplied is empty. A String array is empty when it is null or when the number of elements
    * is 0
    *
-   * @param vals
-   *          The string array to check
+   * @param vals The string array to check
    * @return true if the string array supplied is empty
-   * @deprecated
    * @see org.apache.hop.core.util.Utils#isEmpty(CharSequence[])
+   * @deprecated
    */
   @Deprecated
   public static boolean isEmpty( String[] vals ) {
@@ -2793,11 +2815,10 @@ public class Const {
   /**
    * Check if the CharSequence supplied is empty. A CharSequence is empty when it is null or when the length is 0
    *
-   * @param val
-   *          The stringBuffer to check
+   * @param val The stringBuffer to check
    * @return true if the stringBuffer supplied is empty
-   * @deprecated
    * @see org.apache.hop.core.util.Utils#isEmpty(CharSequence)
+   * @deprecated
    */
   @Deprecated
   public static boolean isEmpty( CharSequence val ) {
@@ -2808,11 +2829,10 @@ public class Const {
    * Check if the CharSequence array supplied is empty. A CharSequence array is empty when it is null or when the number of elements
    * is 0
    *
-   * @param vals
-   *          The string array to check
+   * @param vals The string array to check
    * @return true if the string array supplied is empty
-   * @deprecated
    * @see org.apache.hop.core.util.Utils#isEmpty(CharSequence[])
+   * @deprecated
    */
   @Deprecated
   public static boolean isEmpty( CharSequence[] vals ) {
@@ -2822,11 +2842,10 @@ public class Const {
   /**
    * Check if the array supplied is empty. An array is empty when it is null or when the length is 0
    *
-   * @param array
-   *          The array to check
+   * @param array The array to check
    * @return true if the array supplied is empty
-   * @deprecated
    * @see org.apache.hop.core.util.Utils#isEmpty(Object[])
+   * @deprecated
    */
   @Deprecated
   public static boolean isEmpty( Object[] array ) {
@@ -2836,11 +2855,10 @@ public class Const {
   /**
    * Check if the list supplied is empty. An array is empty when it is null or when the length is 0
    *
-   * @param list
-   *          the list to check
+   * @param list the list to check
    * @return true if the supplied list is empty
-   * @deprecated
    * @see org.apache.hop.core.util.Utils#isEmpty(List)
+   * @deprecated
    */
   @Deprecated
   public static boolean isEmpty( List<?> list ) {
@@ -2868,14 +2886,13 @@ public class Const {
    * @return a new java byte array
    */
   public static byte[] createByteArray( int size ) {
-    return new byte[size];
+    return new byte[ size ];
   }
 
   /**
    * Sets the first character of each word in upper-case.
    *
-   * @param string
-   *          The strings to convert to initcap
+   * @param string The strings to convert to initcap
    * @return the input string but with the first character of each word converted to upper-case.
    */
   public static String initCap( String string ) {
@@ -2910,8 +2927,7 @@ public class Const {
   /**
    * Create a valid filename using a name We remove all special characters, spaces, etc.
    *
-   * @param name
-   *          The name to use as a base for the filename
+   * @param name The name to use as a base for the filename
    * @return a valid filename
    */
   public static String createFilename( String name ) {
@@ -3002,9 +3018,9 @@ public class Const {
   public static String[] getDateFormats() {
     if ( dateFormats == null ) {
       int dateFormatsCount = toInt( BaseMessages.getString( PKG, "Const.DateFormat.Count" ), 0 );
-      dateFormats = new String[dateFormatsCount];
+      dateFormats = new String[ dateFormatsCount ];
       for ( int i = 1; i <= dateFormatsCount; i++ ) {
-        dateFormats[i - 1] = BaseMessages.getString( PKG, "Const.DateFormat" + Integer.toString( i ) );
+        dateFormats[ i - 1 ] = BaseMessages.getString( PKG, "Const.DateFormat" + Integer.toString( i ) );
       }
     }
     return dateFormats;
@@ -3018,10 +3034,10 @@ public class Const {
   public static String[] getNumberFormats() {
     if ( numberFormats == null ) {
       int numberFormatsCount = toInt( BaseMessages.getString( PKG, "Const.NumberFormat.Count" ), 0 );
-      numberFormats = new String[numberFormatsCount + 1];
-      numberFormats[0] = DEFAULT_NUMBER_FORMAT;
+      numberFormats = new String[ numberFormatsCount + 1 ];
+      numberFormats[ 0 ] = DEFAULT_NUMBER_FORMAT;
       for ( int i = 1; i <= numberFormatsCount; i++ ) {
-        numberFormats[i] = BaseMessages.getString( PKG, "Const.NumberFormat" + Integer.toString( i ) );
+        numberFormats[ i ] = BaseMessages.getString( PKG, "Const.NumberFormat" + Integer.toString( i ) );
       }
     }
     return numberFormats;
@@ -3034,12 +3050,12 @@ public class Const {
     String[] dats = Const.getDateFormats();
     String[] nums = Const.getNumberFormats();
     int totsize = dats.length + nums.length;
-    String[] formats = new String[totsize];
+    String[] formats = new String[ totsize ];
     for ( int x = 0; x < dats.length; x++ ) {
-      formats[x] = dats[x];
+      formats[ x ] = dats[ x ];
     }
     for ( int x = 0; x < nums.length; x++ ) {
-      formats[dats.length + x] = nums[x];
+      formats[ dats.length + x ] = nums[ x ];
     }
 
     return formats;
@@ -3092,11 +3108,8 @@ public class Const {
   /**
    * Return the input string trimmed as specified.
    *
-   * @param string
-   *          String to be trimmed
-   * @param trimType
-   *          Type of trimming
-   *
+   * @param string   String to be trimmed
+   * @param trimType Type of trimming
    * @return Trimmed string.
    */
   public static String trimToType( String string, int trimType ) {
@@ -3141,9 +3154,9 @@ public class Const {
    */
   public static String[] getEmptyPaddedStrings() {
     if ( emptyPaddedSpacesStrings == null ) {
-      emptyPaddedSpacesStrings = new String[250];
+      emptyPaddedSpacesStrings = new String[ 250 ];
       for ( int i = 0; i < emptyPaddedSpacesStrings.length; i++ ) {
-        emptyPaddedSpacesStrings[i] = rightPad( "", i );
+        emptyPaddedSpacesStrings[ i ] = rightPad( "", i );
       }
     }
     return emptyPaddedSpacesStrings;
@@ -3236,8 +3249,7 @@ public class Const {
   /**
    * Escape XML content. i.e. replace characters with &values;
    *
-   * @param content
-   *          content
+   * @param content content
    * @return escaped content
    */
   public static String escapeXML( String content ) {
@@ -3250,8 +3262,7 @@ public class Const {
   /**
    * Escape HTML content. i.e. replace characters with &values;
    *
-   * @param content
-   *          content
+   * @param content content
    * @return escaped content
    */
   public static String escapeHtml( String content ) {
@@ -3264,8 +3275,7 @@ public class Const {
   /**
    * UnEscape HTML content. i.e. replace characters with &values;
    *
-   * @param content
-   *          content
+   * @param content content
    * @return unescaped content
    */
   public static String unEscapeHtml( String content ) {
@@ -3278,8 +3288,7 @@ public class Const {
   /**
    * UnEscape XML content. i.e. replace characters with &values;
    *
-   * @param content
-   *          content
+   * @param content content
    * @return unescaped content
    */
   public static String unEscapeXml( String content ) {
@@ -3292,8 +3301,7 @@ public class Const {
   /**
    * Escape SQL content. i.e. replace characters with &values;
    *
-   * @param content
-   *          content
+   * @param content content
    * @return escaped content
    */
   public static String escapeSQL( String content ) {
@@ -3305,13 +3313,12 @@ public class Const {
 
   /**
    * Remove CR / LF from String - Better performance version
-   *   - Doesn't NPE
-   *   - 40 times faster on an empty string
-   *   - 2 times faster on a mixed string
-   *   - 25% faster on 2 char string with only CRLF in it
+   * - Doesn't NPE
+   * - 40 times faster on an empty string
+   * - 2 times faster on a mixed string
+   * - 25% faster on 2 char string with only CRLF in it
    *
-   * @param in
-   *          input
+   * @param in input
    * @return cleaned string
    */
   public static String removeCRLF( String in ) {
@@ -3322,7 +3329,7 @@ public class Const {
       for ( int i = 0; i < inLen; i++ ) {
         ch = in.charAt( i );
         if ( ( ch != '\n' && ch != '\r' ) ) {
-          tmp[posn] = ch;
+          tmp[ posn ] = ch;
           posn++;
         }
       }
@@ -3334,13 +3341,12 @@ public class Const {
 
   /**
    * Remove Character from String - Better performance version
-   *   - Doesn't NPE
-   *   - 40 times faster on an empty string
-   *   - 2 times faster on a mixed string
-   *   - 25% faster on 2 char string with only CR/LF/TAB in it
+   * - Doesn't NPE
+   * - 40 times faster on an empty string
+   * - 2 times faster on a mixed string
+   * - 25% faster on 2 char string with only CR/LF/TAB in it
    *
-   * @param in
-   *          input
+   * @param in input
    * @return cleaned string
    */
   public static String removeChar( String in, char badChar ) {
@@ -3351,7 +3357,7 @@ public class Const {
       for ( int i = 0; i < inLen; i++ ) {
         ch = in.charAt( i );
         if ( ch != badChar ) {
-          tmp[posn] = ch;
+          tmp[ posn ] = ch;
           posn++;
         }
       }
@@ -3364,8 +3370,7 @@ public class Const {
   /**
    * Remove CR / LF from String
    *
-   * @param in
-   *          input
+   * @param in input
    * @return cleaned string
    */
   public static String removeCR( String in ) {
@@ -3375,8 +3380,7 @@ public class Const {
   /**
    * Remove CR / LF from String
    *
-   * @param in
-   *          input
+   * @param in input
    * @return cleaned string
    */
   public static String removeLF( String in ) {
@@ -3386,8 +3390,7 @@ public class Const {
   /**
    * Remove horizontal tab from string
    *
-   * @param in
-   *          input
+   * @param in input
    * @return cleaned string
    */
   public static String removeTAB( String in ) {
@@ -3397,12 +3400,9 @@ public class Const {
   /**
    * Add time to an input date
    *
-   * @param input
-   *          the date
-   * @param time
-   *          the time to add (in string)
-   * @param dateFormat
-   *          the time format
+   * @param input      the date
+   * @param time       the time to add (in string)
+   * @param dateFormat the time format
    * @return date = input + time
    */
   public static Date addTimeToDate( Date input, String time, String dateFormat ) throws Exception {
@@ -3434,10 +3434,8 @@ public class Const {
   /**
    * Get the number of occurrences of searchFor in string.
    *
-   * @param string
-   *          String to be searched
-   * @param searchFor
-   *          to be counted string
+   * @param string    String to be searched
+   * @param searchFor to be counted string
    * @return number of occurrences
    */
   public static int getOccurenceString( String string, String searchFor ) {
@@ -3459,9 +3457,9 @@ public class Const {
   public static String[] GetAvailableFontNames() {
     GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
     Font[] fonts = ge.getAllFonts();
-    String[] FontName = new String[fonts.length];
+    String[] FontName = new String[ fonts.length ];
     for ( int i = 0; i < fonts.length; i++ ) {
-      FontName[i] = fonts[i].getFontName();
+      FontName[ i ] = fonts[ i ].getFontName();
     }
     return FontName;
   }
@@ -3488,8 +3486,7 @@ public class Const {
   /**
    * Mask XML content. i.e. protect with CDATA;
    *
-   * @param content
-   *          content
+   * @param content content
    * @return protected content
    */
   public static String protectXMLCDATA( String content ) {
@@ -3502,10 +3499,8 @@ public class Const {
   /**
    * Get the number of occurrences of searchFor in string.
    *
-   * @param string
-   *          String to be searched
-   * @param searchFor
-   *          to be counted string
+   * @param string    String to be searched
+   * @param searchFor to be counted string
    * @return number of occurrences
    */
   public static int getOcuranceString( String string, String searchFor ) {
@@ -3524,8 +3519,7 @@ public class Const {
   /**
    * Mask XML content. i.e. replace characters with &values;
    *
-   * @param content
-   *          content
+   * @param content content
    * @return masked content
    */
   public static String escapeXml( String content ) {
@@ -3541,24 +3535,20 @@ public class Const {
    * For larger amounts to pad, (e.g. pad a 4 character string out to 20 places)
    * this is orders of magnitude faster.
    *
-   * @param valueToPad
-   *    the string to pad
-   * @param filler
-   *    the pad string to fill with
-   * @param size
-   *    the size to pad to
-   * @return
-   *    the new string, padded to the left
-   *
+   * @param valueToPad the string to pad
+   * @param filler     the pad string to fill with
+   * @param size       the size to pad to
+   * @return the new string, padded to the left
+   * <p>
    * Note - The original method was flawed in a few cases:
-   *
-   *   1- The filler could be a string of any length - and the returned
-   *   string was not necessarily limited to size. So a 3 character pad
-   *   of an 11 character string could end up being 17 characters long.
-   *   2- For a pad of zero characters ("") the former method would enter
-   *   an infinite loop.
-   *   3- For a null pad, it would throw an NPE
-   *   4- For a null valueToPad, it would throw an NPE
+   * <p>
+   * 1- The filler could be a string of any length - and the returned
+   * string was not necessarily limited to size. So a 3 character pad
+   * of an 11 character string could end up being 17 characters long.
+   * 2- For a pad of zero characters ("") the former method would enter
+   * an infinite loop.
+   * 3- For a null pad, it would throw an NPE
+   * 4- For a null valueToPad, it would throw an NPE
    */
   public static String Lpad( String valueToPad, String filler, int size ) {
     if ( ( size == 0 ) || ( valueToPad == null ) || ( filler == null ) ) {
@@ -3568,7 +3558,7 @@ public class Const {
     int fSize = filler.length();
     // This next if ensures previous behavior, but prevents infinite loop
     // if "" is passed in as a filler.
-    if ( ( vSize >= size ) || ( fSize == 0 )  ) {
+    if ( ( vSize >= size ) || ( fSize == 0 ) ) {
       return valueToPad;
     }
     int tgt = ( size - vSize );
@@ -3589,23 +3579,19 @@ public class Const {
    * For larger amounts to pad, (e.g. pad a 4 character string out to 20 places)
    * this is orders of magnitude faster.
    *
-   * @param valueToPad
-   *    the string to pad
-   * @param filler
-   *    the pad string to fill with
-   * @param size
-   *    the size to pad to
-   * @return
-   *   The string, padded to the right
-   *
-   *   1- The filler can still be a string of any length - and the returned
-   *   string was not necessarily limited to size. So a 3 character pad
-   *   of an 11 character string with a size of 15 could end up being 17
-   *   characters long (instead of the "asked for 15").
-   *   2- For a pad of zero characters ("") the former method would enter
-   *   an infinite loop.
-   *   3- For a null pad, it would throw an NPE
-   *   4- For a null valueToPad, it would throw an NPE
+   * @param valueToPad the string to pad
+   * @param filler     the pad string to fill with
+   * @param size       the size to pad to
+   * @return The string, padded to the right
+   * <p>
+   * 1- The filler can still be a string of any length - and the returned
+   * string was not necessarily limited to size. So a 3 character pad
+   * of an 11 character string with a size of 15 could end up being 17
+   * characters long (instead of the "asked for 15").
+   * 2- For a pad of zero characters ("") the former method would enter
+   * an infinite loop.
+   * 3- For a null pad, it would throw an NPE
+   * 4- For a null valueToPad, it would throw an NPE
    */
   public static String Rpad( String valueToPad, String filler, int size ) {
     if ( ( size == 0 ) || ( valueToPad == null ) || ( filler == null ) ) {
@@ -3615,7 +3601,7 @@ public class Const {
     int fSize = filler.length();
     // This next if ensures previous behavior, but prevents infinite loop
     // if "" is passed in as a filler.
-    if ( ( vSize >= size ) || ( fSize == 0 )  ) {
+    if ( ( vSize >= size ) || ( fSize == 0 ) ) {
       return valueToPad;
     }
     int tgt = ( size - vSize );

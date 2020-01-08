@@ -22,20 +22,20 @@
 
 package org.apache.hop.core.logging;
 
+import org.apache.hop.core.gui.GCInterface;
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.metrics.MetricsDuration;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.apache.hop.core.gui.GCInterface;
-import org.apache.hop.core.metrics.MetricsDuration;
-import org.apache.hop.core.gui.Point;
 
 public class MetricsPainterTest {
   MetricsPainter metricsPainter;

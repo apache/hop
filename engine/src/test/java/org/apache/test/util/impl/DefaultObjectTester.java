@@ -22,11 +22,11 @@
 
 package org.apache.test.util.impl;
 
-import java.util.Collection;
-
 import org.apache.test.util.ObjectProvider;
 import org.apache.test.util.ObjectTester;
 import org.apache.test.util.ObjectValidator;
+
+import java.util.Collection;
 
 public class DefaultObjectTester<T> implements ObjectTester<T> {
   private final ObjectProvider<T> provider;

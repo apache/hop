@@ -22,13 +22,13 @@
 
 package org.apache.hop.core.date;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.Calendar;
-
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
+
+import java.util.Calendar;
+
+import static org.junit.Assert.assertEquals;
 
 public class DateCacheTest {
 

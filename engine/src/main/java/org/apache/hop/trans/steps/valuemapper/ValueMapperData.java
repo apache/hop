@@ -22,13 +22,13 @@
 
 package org.apache.hop.trans.steps.valuemapper;
 
-import java.util.Hashtable;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import java.util.Hashtable;
 
 /**
  * @author Matt

@@ -22,12 +22,6 @@
 
 package org.apache.hop.trans.steps.javafilter;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.codehaus.janino.ExpressionEvaluator;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -41,6 +35,12 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
+import org.codehaus.janino.ExpressionEvaluator;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Calculate new field values using pre-defined functions.
@@ -55,7 +55,7 @@ public class JavaFilter extends BaseStep implements StepInterface {
   private JavaFilterData data;
 
   public JavaFilter( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                     Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -185,15 +185,15 @@ public class JavaFilter extends BaseStep implements StepInterface {
         //
         data.expressionEvaluator = new ExpressionEvaluator();
         data.expressionEvaluator.setParameters(
-          parameterNames.toArray( new String[parameterNames.size()] ), parameterTypes
-            .toArray( new Class<?>[parameterTypes.size()] ) );
+          parameterNames.toArray( new String[ parameterNames.size() ] ), parameterTypes
+            .toArray( new Class<?>[ parameterTypes.size() ] ) );
         data.expressionEvaluator.setReturnType( Object.class );
         data.expressionEvaluator.setThrownExceptions( new Class<?>[] { Exception.class } );
         data.expressionEvaluator.cook( realCondition );
 
         // Also create the argument data structure once...
         //
-        data.argumentData = new Object[data.argumentIndexes.size()];
+        data.argumentData = new Object[ data.argumentIndexes.size() ];
       }
 
       // This method can only accept the specified number of values...
@@ -201,7 +201,7 @@ public class JavaFilter extends BaseStep implements StepInterface {
       for ( int x = 0; x < data.argumentIndexes.size(); x++ ) {
         int index = data.argumentIndexes.get( x );
         ValueMetaInterface outputValueMeta = data.outputRowMeta.getValueMeta( index );
-        data.argumentData[x] = outputValueMeta.convertToNormalStorageType( r[index] );
+        data.argumentData[ x ] = outputValueMeta.convertToNormalStorageType( r[ index ] );
       }
 
       Object formulaResult = data.expressionEvaluator.evaluate( data.argumentData );

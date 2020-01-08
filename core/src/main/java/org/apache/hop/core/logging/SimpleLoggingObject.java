@@ -60,8 +60,7 @@ public class SimpleLoggingObject implements LoggingObjectInterface {
   }
 
   /**
-   * @param name
-   *          the name to set
+   * @param name the name to set
    */
   public void setObjectName( String name ) {
     this.objectName = name;
@@ -76,8 +75,7 @@ public class SimpleLoggingObject implements LoggingObjectInterface {
   }
 
   /**
-   * @param objectType
-   *          the objectType to set
+   * @param objectType the objectType to set
    */
   public void setObjectType( LoggingObjectType objectType ) {
     this.objectType = objectType;
@@ -92,8 +90,7 @@ public class SimpleLoggingObject implements LoggingObjectInterface {
   }
 
   /**
-   * @param parent
-   *          the parent to set
+   * @param parent the parent to set
    */
   public void setParent( LoggingObjectInterface parent ) {
     this.parent = parent;
@@ -141,8 +138,7 @@ public class SimpleLoggingObject implements LoggingObjectInterface {
   }
 
   /**
-   * @param registrationDate
-   *          the registrationDate to set
+   * @param registrationDate the registrationDate to set
    */
   public void setRegistrationDate( Date registrationDate ) {
     this.registrationDate = registrationDate;
@@ -157,8 +153,7 @@ public class SimpleLoggingObject implements LoggingObjectInterface {
   }
 
   /**
-   * @param gatheringMetrics
-   *          the gatheringMetrics to set
+   * @param gatheringMetrics the gatheringMetrics to set
    */
   @Override
   public void setGatheringMetrics( boolean gatheringMetrics ) {
@@ -174,8 +169,7 @@ public class SimpleLoggingObject implements LoggingObjectInterface {
   }
 
   /**
-   * @param forcingSeparateLogging
-   *          the forcingSeparateLogging to set
+   * @param forcingSeparateLogging the forcingSeparateLogging to set
    */
   @Override
   public void setForcingSeparateLogging( boolean forcingSeparateLogging ) {

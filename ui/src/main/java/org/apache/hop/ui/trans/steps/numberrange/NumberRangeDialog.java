@@ -22,6 +22,20 @@
 
 package org.apache.hop.ui.trans.steps.numberrange;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.numberrange.NumberRangeMeta;
+import org.apache.hop.trans.steps.numberrange.NumberRangeRule;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusListener;
@@ -44,26 +58,11 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.numberrange.NumberRangeMeta;
-import org.apache.hop.trans.steps.numberrange.NumberRangeRule;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * Configuration dialog for the NumberRange
  *
  * @author ronny.roeller@fredhopper.com
- *
  */
 public class NumberRangeDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = NumberRangeMeta.class; // for i18n purposes, needed by Translator2!!
@@ -197,14 +196,14 @@ public class NumberRangeDialog extends BaseStepDialog implements StepDialogInter
 
     final int FieldsRows = input.getRules().size();
 
-    ColumnInfo[] colinf = new ColumnInfo[3];
-    colinf[0] =
+    ColumnInfo[] colinf = new ColumnInfo[ 3 ];
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "NumberRange.LowerBound" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinf[1] =
+    colinf[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "NumberRange.UpperBound" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinf[2] =
+    colinf[ 2 ] =
       new ColumnInfo( BaseMessages.getString( PKG, "NumberRange.Value" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
 
     rulesControl =

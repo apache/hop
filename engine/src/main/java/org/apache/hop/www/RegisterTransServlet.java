@@ -26,10 +26,9 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransConfiguration;
 
-import java.io.IOException;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 public class RegisterTransServlet extends BaseJobServlet {
 
@@ -42,7 +41,7 @@ public class RegisterTransServlet extends BaseJobServlet {
   }
 
   @Override
-  WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXML ) throws IOException, HopException  {
+  WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXML ) throws IOException, HopException {
 
     final String xml = IOUtils.toString( request.getInputStream() );
 

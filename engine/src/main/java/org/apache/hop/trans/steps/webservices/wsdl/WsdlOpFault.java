@@ -37,12 +37,9 @@ public final class WsdlOpFault extends WsdlOpReturnType implements java.io.Seria
   /**
    * Create a new WsdlOpFault instance.
    *
-   * @param name
-   *          QName of the parameter.
-   * @param xmlType
-   *          XML type of the parameter.
-   * @param wsdlTypes
-   *          Wsdl type information.
+   * @param name      QName of the parameter.
+   * @param xmlType   XML type of the parameter.
+   * @param wsdlTypes Wsdl type information.
    */
   protected WsdlOpFault( String name, QName xmlType, boolean isComplex, WsdlTypes wsdlTypes ) {
 

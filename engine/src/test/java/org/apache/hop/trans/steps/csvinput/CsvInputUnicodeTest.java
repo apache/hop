@@ -22,16 +22,6 @@
 
 package org.apache.hop.trans.steps.csvinput;
 
-import java.nio.charset.StandardCharsets;
-
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
@@ -42,6 +32,15 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.steps.StepMockUtil;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
 import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * Tests for unicode support in CsvInput step
@@ -74,11 +73,11 @@ public class CsvInputUnicodeTest extends CsvInputUnitTestBase {
 
   private static final byte[] UTF16LE_BOM = { (byte) 0xFF, (byte) 0xFE };
   private static final String TEST_DATA_UTF16LE_BOM =
-      String.format( new String( UTF16LE_BOM, StandardCharsets.UTF_16LE ) + TEST_DATA2, ONE_CHAR_DELIM );
+    String.format( new String( UTF16LE_BOM, StandardCharsets.UTF_16LE ) + TEST_DATA2, ONE_CHAR_DELIM );
 
   private static final byte[] UTF16BE_BOM = { (byte) 0xFE, (byte) 0xFF };
   private static final String TEST_DATA_UTF16BE_BOM =
-      String.format( new String( UTF16BE_BOM, StandardCharsets.UTF_16BE ) + TEST_DATA2, ONE_CHAR_DELIM );
+    String.format( new String( UTF16BE_BOM, StandardCharsets.UTF_16BE ) + TEST_DATA2, ONE_CHAR_DELIM );
 
   private static StepMockHelper<CsvInputMeta, StepDataInterface> stepMockHelper;
 
@@ -178,7 +177,7 @@ public class CsvInputUnicodeTest extends CsvInputUnitTestBase {
   }
 
   private void doTest( final String fileEncoding, final String stepEncoding, final String testData,
-    final String delimiter, final boolean useHeader ) throws Exception {
+                       final String delimiter, final boolean useHeader ) throws Exception {
     String testFilePath = createTestFile( fileEncoding, testData ).getAbsolutePath();
 
     CsvInputMeta meta = createStepMeta( testFilePath, stepEncoding, delimiter, useHeader );

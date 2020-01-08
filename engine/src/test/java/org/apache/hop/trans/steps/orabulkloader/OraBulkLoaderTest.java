@@ -21,12 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.orabulkloader;
 
-import org.apache.poi.util.TempFile;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -39,6 +33,12 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.apache.poi.util.TempFile;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -78,7 +78,7 @@ public class OraBulkLoaderTest {
   }
 
   @Before
-  public void setUp() throws Exception{
+  public void setUp() throws Exception {
     stepMockHelper = new StepMockHelper<OraBulkLoaderMeta, OraBulkLoaderData>( "TEST_CREATE_COMMANDLINE",
       OraBulkLoaderMeta.class, OraBulkLoaderData.class );
     when( stepMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
@@ -110,7 +110,7 @@ public class OraBulkLoaderTest {
     DatabaseMeta databaseMeta = mock( DatabaseMeta.class );
     Object[] rowData = { 1, "rowdata", new Date() };
     RowMetaInterface rowMetaInterface = mock( RowMetaInterface.class );
-    TransMeta transMeta = spy( new TransMeta( ) );
+    TransMeta transMeta = spy( new TransMeta() );
     ValueMetaInterface idVmi = new ValueMetaNumber( "id" );
     ValueMetaInterface nameVmi = new ValueMetaString( "name", 20, -1 );
 
@@ -145,7 +145,7 @@ public class OraBulkLoaderTest {
 
     doReturn( rowMetaInterface ).when( oraBulkLoader ).getInputRowMeta();
     doReturn( expectedControlContents ).when( oraBulkLoader ).getControlFileContents( oraBulkLoaderMeta, rowMetaInterface, objectRow );
-    oraBulkLoader.createControlFile( tempTrueControlFilepath,  objectRow, oraBulkLoaderMeta );
+    oraBulkLoader.createControlFile( tempTrueControlFilepath, objectRow, oraBulkLoaderMeta );
 
     assertTrue( Files.exists( Paths.get( tempTrueControlFilepath ) ) );
 
@@ -173,7 +173,7 @@ public class OraBulkLoaderTest {
 
   @Test
   public void testDispose() throws Exception {
-    TransMeta transMeta = spy( new TransMeta( ) );
+    TransMeta transMeta = spy( new TransMeta() );
     OraBulkLoaderData oraBulkLoaderData = new OraBulkLoaderData();
     OraBulkLoaderMeta oraBulkLoaderMeta = new OraBulkLoaderMeta();
     oraBulkLoaderMeta.setDataFile( tempDataVfsFilepath );

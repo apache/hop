@@ -22,11 +22,11 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.core.variables.VariableSpace;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.apache.hop.core.variables.VariableSpace;
 
-public   class InputTextVar extends Input<TextVar> {
+public class InputTextVar extends Input<TextVar> {
   public InputTextVar( VariableSpace space, Composite composite, int width1, int width2 ) {
     super( space, composite, width1, width2 );
   }

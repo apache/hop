@@ -35,7 +35,6 @@ import org.w3c.dom.Node;
  *
  * @author Matt
  * @since 19-06-2003
- *
  */
 public class JobHopMeta extends BaseHopMeta<JobEntryCopy> {
   private static Class<?> PKG = JobHopMeta.class; // for i18n purposes, needed by Translator2!!
@@ -194,8 +193,7 @@ public class JobHopMeta extends BaseHopMeta<JobEntryCopy> {
   }
 
   /**
-   * @param unconditional
-   *          the unconditional to set
+   * @param unconditional the unconditional to set
    */
   public void setUnconditional( boolean unconditional ) {
     if ( this.unconditional != unconditional ) {

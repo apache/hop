@@ -22,6 +22,17 @@
 
 package org.apache.hop.ui.trans.steps.abort;
 
+import org.apache.hop.core.annotations.PluginDialog;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.abort.AbortMeta;
+import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -42,17 +53,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.annotations.PluginDialog;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.abort.AbortMeta;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.util.SwtSvgImageUtil;
 
 @PluginDialog( id = "Abort", image = "ABR.svg", pluginType = PluginDialog.PluginType.STEP,
   documentationUrl = "Products/Data_Integration/Transformation_Step_Reference/Abort" )

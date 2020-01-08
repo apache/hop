@@ -26,8 +26,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
@@ -36,7 +34,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -48,7 +46,6 @@ import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.step.errorhandling.Stream;
 import org.apache.hop.trans.step.errorhandling.StreamIcon;
 import org.apache.hop.trans.step.errorhandling.StreamInterface.StreamType;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -91,8 +88,7 @@ public class MultiMergeJoinMeta extends BaseStepMeta implements StepMetaInterfac
   /**
    * Sets the type of join
    *
-   * @param joinType
-   *          The type of join, e.g. INNER/FULL OUTER
+   * @param joinType The type of join, e.g. INNER/FULL OUTER
    */
   public void setJoinType( String joinType ) {
     this.joinType = joinType;
@@ -106,8 +102,7 @@ public class MultiMergeJoinMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param keyFields1
-   *          The keyFields1 to set.
+   * @param keyFields1 The keyFields1 to set.
    */
   public void setKeyFields( String[] keyFields ) {
     this.keyFields = keyFields;
@@ -128,7 +123,7 @@ public class MultiMergeJoinMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   public void allocateKeys( int nrKeys ) {
-    keyFields = new String[nrKeys];
+    keyFields = new String[ nrKeys ];
   }
 
   @Override
@@ -147,7 +142,7 @@ public class MultiMergeJoinMeta extends BaseStepMeta implements StepMetaInterfac
   public String getXML() {
     StringBuilder retval = new StringBuilder();
 
-    String[] inputStepsNames  = inputSteps != null ? inputSteps : ArrayUtils.EMPTY_STRING_ARRAY;
+    String[] inputStepsNames = inputSteps != null ? inputSteps : ArrayUtils.EMPTY_STRING_ARRAY;
     retval.append( "    " ).append( XMLHandler.addTagValue( "join_type", getJoinType() ) );
     for ( int i = 0; i < inputStepsNames.length; i++ ) {
       retval.append( "    " ).append( XMLHandler.addTagValue( "step" + i, inputStepsNames[ i ] ) );
@@ -156,7 +151,7 @@ public class MultiMergeJoinMeta extends BaseStepMeta implements StepMetaInterfac
     retval.append( "    " ).append( XMLHandler.addTagValue( "number_input", inputStepsNames.length ) );
     retval.append( "    " ).append( XMLHandler.openTag( "keys" ) ).append( Const.CR );
     for ( int i = 0; i < keyFields.length; i++ ) {
-      retval.append( "      " ).append( XMLHandler.addTagValue( "key", keyFields[i] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "key", keyFields[ i ] ) );
     }
     retval.append( "    " ).append( XMLHandler.closeTag( "keys" ) ).append( Const.CR );
 
@@ -174,7 +169,7 @@ public class MultiMergeJoinMeta extends BaseStepMeta implements StepMetaInterfac
 
       for ( int i = 0; i < nrKeys; i++ ) {
         Node keynode = XMLHandler.getSubNodeByNr( keysNode, "key", i );
-        keyFields[i] = XMLHandler.getNodeValue( keynode );
+        keyFields[ i ] = XMLHandler.getNodeValue( keynode );
       }
 
       int nInputStreams = Integer.parseInt( XMLHandler.getTagValue( stepnode, "number_input" ) );
@@ -182,19 +177,19 @@ public class MultiMergeJoinMeta extends BaseStepMeta implements StepMetaInterfac
       allocateInputSteps( nInputStreams );
 
       for ( int i = 0; i < nInputStreams; i++ ) {
-        inputSteps[i] = XMLHandler.getTagValue( stepnode, "step" + i );
+        inputSteps[ i ] = XMLHandler.getTagValue( stepnode, "step" + i );
       }
 
       joinType = XMLHandler.getTagValue( stepnode, "join_type" );
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "MultiMergeJoinMeta.Exception.UnableToLoadStepInfo" ),
-          e );
+        e );
     }
   }
 
   @Override
   public void setDefault() {
-    joinType = join_types[0];
+    joinType = join_types[ 0 ];
     allocateKeys( 0 );
     allocateInputSteps( 0 );
   }
@@ -204,39 +199,39 @@ public class MultiMergeJoinMeta extends BaseStepMeta implements StepMetaInterfac
     StepIOMetaInterface ioMeta = getStepIOMeta();
     ioMeta.getInfoStreams().clear();
     for ( int i = 0; i < inputSteps.length; i++ ) {
-      String inputStepName = inputSteps[i];
+      String inputStepName = inputSteps[ i ];
       if ( i >= ioMeta.getInfoStreams().size() ) {
         ioMeta.addStream(
           new Stream( StreamType.INFO, StepMeta.findStep( steps, inputStepName ),
-              BaseMessages.getString( PKG, "MultiMergeJoin.InfoStream.Description" ), StreamIcon.INFO, inputStepName ) );
+            BaseMessages.getString( PKG, "MultiMergeJoin.InfoStream.Description" ), StreamIcon.INFO, inputStepName ) );
       }
     }
   }
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-      IMetaStore metaStore ) {
+                     String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     /*
      * @todo Need to check for the following: 1) Join type must be one of INNER / LEFT OUTER / RIGHT OUTER / FULL OUTER
      * 2) Number of input streams must be two (for now at least) 3) The field names of input streams must be unique
      */
     CheckResult cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, BaseMessages.getString( PKG,
-            "MultiMergeJoinMeta.CheckResult.StepNotVerified" ), stepMeta );
+      new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, BaseMessages.getString( PKG,
+        "MultiMergeJoinMeta.CheckResult.StepNotVerified" ), stepMeta );
     remarks.add( cr );
   }
 
   @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // We don't have any input fields here in "r" as they are all info fields.
     // So we just merge in the info fields.
     //
     if ( info != null ) {
       for ( int i = 0; i < info.length; i++ ) {
-        if ( info[i] != null ) {
-          r.mergeRowMeta( info[i] );
+        if ( info[ i ] != null ) {
+          r.mergeRowMeta( info[ i ] );
         }
       }
     }
@@ -249,7 +244,7 @@ public class MultiMergeJoinMeta extends BaseStepMeta implements StepMetaInterfac
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-      Trans trans ) {
+                                Trans trans ) {
     return new MultiMergeJoin( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -272,7 +267,7 @@ public class MultiMergeJoinMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   public void allocateInputSteps( int count ) {
-    inputSteps = new String[count];
+    inputSteps = new String[ count ];
 
   }
 }

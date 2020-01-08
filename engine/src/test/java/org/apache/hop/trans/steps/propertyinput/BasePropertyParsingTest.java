@@ -22,13 +22,13 @@
 
 package org.apache.hop.trans.steps.propertyinput;
 
-import org.junit.Before;
-import org.junit.Ignore;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.trans.steps.file.BaseFileField;
 import org.apache.hop.trans.steps.fileinput.BaseParsingTest;
+import org.junit.Before;
+import org.junit.Ignore;
 
 /**
  * Base class for all CSV input step tests.
@@ -52,8 +52,8 @@ public class BasePropertyParsingTest extends BaseParsingTest<PropertyInputMeta, 
    */
   protected void init( String file ) throws Exception {
     meta.setFileName( new String[] { getFile( file ).getURL().getFile() } );
-    meta.setFileMask( new String[1] );
-    meta.setExcludeFileMask( new String[1] );
+    meta.setFileMask( new String[ 1 ] );
+    meta.setExcludeFileMask( new String[ 1 ] );
 
     step = new PropertyInput( stepMeta, null, 1, transMeta, trans );
     step.init( meta, data );

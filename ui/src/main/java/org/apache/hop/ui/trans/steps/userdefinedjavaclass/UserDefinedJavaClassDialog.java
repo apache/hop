@@ -22,18 +22,45 @@
 
 package org.apache.hop.ui.trans.steps.userdefinedjavaclass;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
+import org.apache.hop.trans.steps.userdefinedjavaclass.FieldHelper;
+import org.apache.hop.trans.steps.userdefinedjavaclass.InfoStepDefinition;
+import org.apache.hop.trans.steps.userdefinedjavaclass.TargetStepDefinition;
+import org.apache.hop.trans.steps.userdefinedjavaclass.UsageParameter;
+import org.apache.hop.trans.steps.userdefinedjavaclass.UserDefinedJavaClassDef;
+import org.apache.hop.trans.steps.userdefinedjavaclass.UserDefinedJavaClassDef.ClassType;
+import org.apache.hop.trans.steps.userdefinedjavaclass.UserDefinedJavaClassMeta;
+import org.apache.hop.trans.steps.userdefinedjavaclass.UserDefinedJavaClassMeta.FieldInfo;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.dialog.ShowMessageDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.steps.userdefinedjavaclass.UserDefinedJavaClassCodeSnippits.Category;
+import org.apache.hop.ui.trans.steps.userdefinedjavaclass.UserDefinedJavaClassCodeSnippits.Snippit;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
@@ -80,45 +107,18 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.StepPluginType;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransHopMeta;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
-import org.apache.hop.trans.steps.userdefinedjavaclass.FieldHelper;
-import org.apache.hop.trans.steps.userdefinedjavaclass.InfoStepDefinition;
-import org.apache.hop.trans.steps.userdefinedjavaclass.TargetStepDefinition;
-import org.apache.hop.trans.steps.userdefinedjavaclass.UserDefinedJavaClassDef;
-import org.apache.hop.trans.steps.userdefinedjavaclass.UsageParameter;
-import org.apache.hop.trans.steps.userdefinedjavaclass.UserDefinedJavaClassDef.ClassType;
-import org.apache.hop.trans.steps.userdefinedjavaclass.UserDefinedJavaClassMeta;
-import org.apache.hop.trans.steps.userdefinedjavaclass.UserDefinedJavaClassMeta.FieldInfo;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.dialog.ShowMessageDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.StyledTextComp;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.hopui.HopUi;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.steps.userdefinedjavaclass.UserDefinedJavaClassCodeSnippits.Category;
-import org.apache.hop.ui.trans.steps.userdefinedjavaclass.UserDefinedJavaClassCodeSnippits.Snippit;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 
 public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = UserDefinedJavaClassMeta.class;
@@ -398,7 +398,7 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel, wTest /* , wCreatePlugin */}, margin, null );
+    setButtonPositions( new Button[] { wOK, wCancel, wTest /* , wCreatePlugin */ }, margin, null );
 
     lsCancel = new Listener() {
       public void handleEvent( Event e ) {
@@ -549,7 +549,7 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
 
       public void dragStart( DragSourceEvent event ) {
         boolean doit = false;
-        TreeItem item = wTree.getSelection()[0];
+        TreeItem item = wTree.getSelection()[ 0 ];
 
         // Allow dragging snippits and field helpers
         if ( item != null && item.getParentItem() != null ) {
@@ -568,7 +568,7 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
 
       public void dragSetData( DragSourceEvent event ) {
         // Set the data to be the first selected item's data
-        event.data = wTree.getSelection()[0].getData();
+        event.data = wTree.getSelection()[ 0 ].getData();
       }
     } );
 
@@ -615,7 +615,7 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
       e.printStackTrace();
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "UserDefinedJavaClassDialog.Plugin.CreateErrorTitle" ), BaseMessages
-          .getString( PKG, "UserDefinedJavaClassDialog.Plugin.CreateErrorMessage", stepname ), e );
+        .getString( PKG, "UserDefinedJavaClassDialog.Plugin.CreateErrorMessage", stepname ), e );
     }
 
     return true;
@@ -828,7 +828,7 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
         new ColumnInfo(
           BaseMessages.getString( PKG, "UserDefinedJavaClassDialog.ColumnInfo.ParameterDescription" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false ), };
-    colinf[1].setUsingVariables( true );
+    colinf[ 1 ].setUsingVariables( true );
 
     wParameters =
       new TableView(
@@ -952,8 +952,8 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
   private TreeItem getTreeItemByName( String strTabName ) {
     TreeItem[] tItems = wTreeClassesItem.getItems();
     for ( int i = 0; i < tItems.length; i++ ) {
-      if ( tItems[i].getText().equals( strTabName ) ) {
-        return tItems[i];
+      if ( tItems[ i ].getText().equals( strTabName ) ) {
+        return tItems[ i ];
       }
     }
     return null;
@@ -962,7 +962,7 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
   private int getCTabPosition( String strTabName ) {
     CTabItem[] cItems = folder.getItems();
     for ( int i = 0; i < cItems.length; i++ ) {
-      if ( cItems[i].getText().equals( strTabName ) ) {
+      if ( cItems[ i ].getText().equals( strTabName ) ) {
         return i;
       }
     }
@@ -972,8 +972,8 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
   private CTabItem getCTabItemByName( String strTabName ) {
     CTabItem[] cItems = folder.getItems();
     for ( int i = 0; i < cItems.length; i++ ) {
-      if ( cItems[i].getText().equals( strTabName ) ) {
-        return cItems[i];
+      if ( cItems[ i ].getText().equals( strTabName ) ) {
+        return cItems[ i ];
       }
     }
     return null;
@@ -1090,7 +1090,7 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
         // Note the tab name isn't i18n because it is a Java Class name and i18n characters might make it choke.
         definitions.add( new UserDefinedJavaClassDef(
           UserDefinedJavaClassDef.ClassType.TRANSFORM_CLASS, "Processor", UserDefinedJavaClassCodeSnippits
-            .getSnippitsHelper().getDefaultCode() ) );
+          .getSnippitsHelper().getDefaultCode() ) );
         input.replaceDefinitions( definitions );
       } catch ( HopXMLException e ) {
         e.printStackTrace();
@@ -1195,9 +1195,9 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
       List<UserDefinedJavaClassDef> definitions = new ArrayList<UserDefinedJavaClassDef>( cTabs.length );
       for ( int i = 0; i < cTabs.length; i++ ) {
         UserDefinedJavaClassDef def =
-          new UserDefinedJavaClassDef( ClassType.NORMAL_CLASS, cTabs[i].getText(), getStyledTextComp( cTabs[i] )
+          new UserDefinedJavaClassDef( ClassType.NORMAL_CLASS, cTabs[ i ].getText(), getStyledTextComp( cTabs[ i ] )
             .getText() );
-        if ( cTabs[i].getImage().equals( imageActiveScript ) ) {
+        if ( cTabs[ i ].getImage().equals( imageActiveScript ) ) {
           def.setClassType( ClassType.TRANSFORM_CLASS );
         }
         definitions.add( def );
@@ -1328,37 +1328,37 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
             if ( valueMeta.isStorageBinaryString() ) {
               valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
             }
-            genMeta.getFieldName()[i] = valueMeta.getName();
-            genMeta.getFieldType()[i] = valueMeta.getTypeDesc();
-            genMeta.getFieldLength()[i] = valueMeta.getLength();
-            genMeta.getFieldPrecision()[i] = valueMeta.getPrecision();
-            genMeta.getCurrency()[i] = valueMeta.getCurrencySymbol();
-            genMeta.getDecimal()[i] = valueMeta.getDecimalSymbol();
-            genMeta.getGroup()[i] = valueMeta.getGroupingSymbol();
+            genMeta.getFieldName()[ i ] = valueMeta.getName();
+            genMeta.getFieldType()[ i ] = valueMeta.getTypeDesc();
+            genMeta.getFieldLength()[ i ] = valueMeta.getLength();
+            genMeta.getFieldPrecision()[ i ] = valueMeta.getPrecision();
+            genMeta.getCurrency()[ i ] = valueMeta.getCurrencySymbol();
+            genMeta.getDecimal()[ i ] = valueMeta.getDecimalSymbol();
+            genMeta.getGroup()[ i ] = valueMeta.getGroupingSymbol();
 
             String string = null;
             switch ( valueMeta.getType() ) {
               case ValueMetaInterface.TYPE_DATE:
-                genMeta.getFieldFormat()[i] = "yyyy/MM/dd HH:mm:ss";
-                valueMeta.setConversionMask( genMeta.getFieldFormat()[i] );
+                genMeta.getFieldFormat()[ i ] = "yyyy/MM/dd HH:mm:ss";
+                valueMeta.setConversionMask( genMeta.getFieldFormat()[ i ] );
                 string = valueMeta.getString( new Date() );
                 break;
               case ValueMetaInterface.TYPE_STRING:
                 string = "test value test value";
                 break;
               case ValueMetaInterface.TYPE_INTEGER:
-                genMeta.getFieldFormat()[i] = "#";
-                valueMeta.setConversionMask( genMeta.getFieldFormat()[i] );
+                genMeta.getFieldFormat()[ i ] = "#";
+                valueMeta.setConversionMask( genMeta.getFieldFormat()[ i ] );
                 string = valueMeta.getString( Long.valueOf( 0L ) );
                 break;
               case ValueMetaInterface.TYPE_NUMBER:
-                genMeta.getFieldFormat()[i] = "#.#";
-                valueMeta.setConversionMask( genMeta.getFieldFormat()[i] );
+                genMeta.getFieldFormat()[ i ] = "#.#";
+                valueMeta.setConversionMask( genMeta.getFieldFormat()[ i ] );
                 string = valueMeta.getString( Double.valueOf( 0.0D ) );
                 break;
               case ValueMetaInterface.TYPE_BIGNUMBER:
-                genMeta.getFieldFormat()[i] = "#.#";
-                valueMeta.setConversionMask( genMeta.getFieldFormat()[i] );
+                genMeta.getFieldFormat()[ i ] = "#.#";
+                valueMeta.setConversionMask( genMeta.getFieldFormat()[ i ] );
                 string = valueMeta.getString( BigDecimal.ZERO );
                 break;
               case ValueMetaInterface.TYPE_BOOLEAN:
@@ -1371,7 +1371,7 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
                 break;
             }
 
-            genMeta.getValue()[i] = string;
+            genMeta.getValue()[ i ] = string;
           }
         }
         StepMeta genStep =
@@ -1404,7 +1404,7 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
           TransPreviewProgressDialog progressDialog =
             new TransPreviewProgressDialog(
               shell, transMeta, new String[] { scriptStepName, }, new int[] { Const.toInt( genMeta
-                .getRowLimit(), 10 ), } );
+              .getRowLimit(), 10 ), } );
           progressDialog.open();
 
           Trans trans = progressDialog.getTrans();
@@ -1415,7 +1415,7 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
               EnterTextDialog etd =
                 new EnterTextDialog(
                   shell, BaseMessages.getString( "System.Dialog.PreviewError.Title" ), BaseMessages
-                    .getString( "System.Dialog.PreviewError.Message" ), loggingText, true );
+                  .getString( "System.Dialog.PreviewError.Message" ), loggingText, true );
               etd.setReadOnly();
               etd.open();
             }
@@ -1440,7 +1440,7 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
     } catch ( Exception e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "UserDefinedJavaClassDialog.TestFailed.DialogTitle" ), BaseMessages
-          .getString( PKG, "UserDefinedJavaClassDialog.TestFailed.DialogMessage" ), e );
+        .getString( PKG, "UserDefinedJavaClassDialog.TestFailed.DialogMessage" ), e );
       return false;
     }
 
@@ -1476,7 +1476,7 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
     if ( itemToCheck.getItemCount() > 0 ) {
       TreeItem[] items = itemToCheck.getItems();
       for ( int i = 0; i < items.length; i++ ) {
-        if ( items[i].getText().equals( strItemName ) ) {
+        if ( items[ i ].getText().equals( strItemName ) ) {
           return true;
         }
       }
@@ -1641,7 +1641,7 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
           return;
         }
 
-        TreeItem tItem = wTree.getSelection()[0];
+        TreeItem tItem = wTree.getSelection()[ 0 ];
         if ( tItem != null ) {
           MessageBox messageBox = new MessageBox( shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES );
           messageBox.setText( BaseMessages.getString( PKG, "UserDefinedJavaClassDialog.DeleteItem.Label" ) );
@@ -1664,7 +1664,7 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
     renItem.setText( BaseMessages.getString( PKG, "UserDefinedJavaClassDialog.Rename.Label" ) );
     renItem.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
-        renameFunction( wTree.getSelection()[0] );
+        renameFunction( wTree.getSelection()[ 0 ] );
       }
     } );
 
@@ -1673,7 +1673,7 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
     helpItem.setText( BaseMessages.getString( PKG, "UserDefinedJavaClassDialog.Sample.Label" ) );
     helpItem.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
-        String snippitFullName = wTree.getSelection()[0].getText();
+        String snippitFullName = wTree.getSelection()[ 0 ].getText();
         String sampleTabName = snippitFullName.replace( "Implement ", "" ).replace( ' ', '_' ) + "_Sample";
 
         if ( getCTabPosition( sampleTabName ) == -1 ) {
@@ -1692,7 +1692,7 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
           return;
         }
 
-        TreeItem tItem = wTree.getSelection()[0];
+        TreeItem tItem = wTree.getSelection()[ 0 ];
         if ( tItem != null ) {
           TreeItem pItem = tItem.getParentItem();
 
@@ -1724,7 +1724,7 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
   }
 
   private void addRenameToTreeScriptItems() {
-    lastItem = new TreeItem[1];
+    lastItem = new TreeItem[ 1 ];
     editor = new TreeEditor( wTree );
     wTree.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event event ) {
@@ -1738,7 +1738,7 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
   private void renameFunction( TreeItem tItem ) {
     final TreeItem item = tItem;
     if ( item.getParentItem() != null && item.getParentItem().equals( wTreeClassesItem ) ) {
-      if ( item != null && item == lastItem[0] ) {
+      if ( item != null && item == lastItem[ 0 ] ) {
         boolean isCarbon = SWT.getPlatform().equals( "carbon" );
         final Composite composite = new Composite( wTree, SWT.NONE );
         if ( !isCarbon ) {
@@ -1776,10 +1776,10 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
                 size = text.computeSize( size.x, SWT.DEFAULT );
                 editor.horizontalAlignment = SWT.LEFT;
                 Rectangle itemRect = item.getBounds(),
-                rect = wTree.getClientArea();
+                  rect = wTree.getClientArea();
                 editor.minimumWidth = Math.max( size.x, itemRect.width ) + inset * 2;
                 int left = itemRect.x,
-                right = rect.x + rect.width;
+                  right = rect.x + rect.width;
                 editor.minimumWidth = Math.min( editor.minimumWidth, right - left );
                 editor.minimumHeight = size.y + inset * 2;
                 editor.layout();
@@ -1817,7 +1817,7 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
 
       }
     }
-    lastItem[0] = item;
+    lastItem[ 0 ] = item;
   }
 
   private String cleanClassName( String unsafeName ) {

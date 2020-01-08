@@ -43,7 +43,7 @@ public class EnumLoadSaveValidator<E extends Enum<E>> implements FieldLoadSaveVa
   @SuppressWarnings( "unchecked" )
   @Override
   public E getTestObject() {
-    return (E) values[new Random().nextInt( values.length )];
+    return (E) values[ new Random().nextInt( values.length ) ];
   }
 
   @Override

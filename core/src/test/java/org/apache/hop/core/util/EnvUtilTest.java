@@ -22,11 +22,11 @@
 
 package org.apache.hop.core.util;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.variables.Variables;
 
 import java.util.Locale;
 
@@ -77,7 +77,7 @@ public class EnvUtilTest {
 
   @Test
   public void testClearProperty() {
-    String dummyPropertyTest = "HOP_CORE_JUNIT_DUMMY_PROPERTY_TEST_"+Math.random();
+    String dummyPropertyTest = "HOP_CORE_JUNIT_DUMMY_PROPERTY_TEST_" + Math.random();
     try {
       assertNull( EnvUtil.getSystemProperty( dummyPropertyTest ) );
       System.setProperty( dummyPropertyTest, "dummyValue" );

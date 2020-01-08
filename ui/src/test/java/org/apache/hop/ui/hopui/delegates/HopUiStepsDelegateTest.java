@@ -22,10 +22,6 @@
 
 package org.apache.hop.ui.hopui.delegates;
 
-import org.apache.hop.ui.hopui.HopUi;
-import org.eclipse.swt.widgets.Shell;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointInterface;
 import org.apache.hop.core.extension.ExtensionPointPluginType;
@@ -34,21 +30,18 @@ import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.plugins.ClassLoadingPluginInterface;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.StepPluginType;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
 import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
-
-import java.util.HashMap;
+import org.apache.hop.ui.hopui.HopUi;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -69,7 +62,7 @@ public class HopUiStepsDelegateTest {
     ExtensionPointInterface extensionPoint = mock( ExtensionPointInterface.class );
     when( pluginInterface.loadClass( ExtensionPointInterface.class ) ).thenReturn( extensionPoint );
     doThrow( HopException.class ).when( extensionPoint )
-        .callExtensionPoint( any( LogChannelInterface.class ), any( StepMeta[].class ) );
+      .callExtensionPoint( any( LogChannelInterface.class ), any( StepMeta[].class ) );
 
     PluginRegistry.addPluginType( ExtensionPointPluginType.getInstance() );
     PluginRegistry.getInstance().registerPlugin( ExtensionPointPluginType.class, pluginInterface );

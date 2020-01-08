@@ -22,18 +22,18 @@
 
 package org.apache.hop.ui.hopui;
 
-import java.util.List;
-
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.gui.GUIPositionInterface;
+import org.apache.hop.core.gui.Point;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ScrollBar;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.gui.GUIPositionInterface;
-import org.apache.hop.core.gui.Point;
 import org.pentaho.ui.xul.XulComponent;
 import org.pentaho.ui.xul.XulDomContainer;
+
+import java.util.List;
 
 /**
  * The beginnings of a common graph object, used by JobGraph and TransGraph to share common behaviors.

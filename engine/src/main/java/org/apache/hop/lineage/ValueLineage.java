@@ -22,19 +22,18 @@
 
 package org.apache.hop.lineage;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class contains value lineage information.<br>
  * That means that we will have information on where and how a certain value is originating, being manipulated etc.<br>
  *
  * @author matt
- *
  */
 public class ValueLineage {
   private TransMeta transMeta;
@@ -61,8 +60,7 @@ public class ValueLineage {
   }
 
   /**
-   * @param transMeta
-   *          the transMeta to set
+   * @param transMeta the transMeta to set
    */
   public void setTransMeta( TransMeta transMeta ) {
     this.transMeta = transMeta;
@@ -76,8 +74,7 @@ public class ValueLineage {
   }
 
   /**
-   * @param valueMeta
-   *          the valueMeta to set
+   * @param valueMeta the valueMeta to set
    */
   public void setValueMeta( ValueMetaInterface valueMeta ) {
     this.valueMeta = valueMeta;
@@ -91,8 +88,7 @@ public class ValueLineage {
   }
 
   /**
-   * @param sourceSteps
-   *          the sourceSteps to set
+   * @param sourceSteps the sourceSteps to set
    */
   public void setSourceSteps( List<StepMeta> sourceSteps ) {
     this.sourceSteps = sourceSteps;

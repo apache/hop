@@ -22,16 +22,6 @@
 package org.apache.hop.trans.steps.writetolog;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -42,6 +32,16 @@ import org.apache.hop.trans.steps.loadsave.initializer.InitializerInterface;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 public class WriteToLogMetaTest implements InitializerInterface<StepMetaInterface> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -53,7 +53,7 @@ public class WriteToLogMetaTest implements InitializerInterface<StepMetaInterfac
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "displayHeader", "limitRows", "limitRowsNumber", "logmessage", "loglevel", "fieldName" );
+      Arrays.asList( "displayHeader", "limitRows", "limitRowsNumber", "logmessage", "loglevel", "fieldName" );
 
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
@@ -76,7 +76,7 @@ public class WriteToLogMetaTest implements InitializerInterface<StepMetaInterfac
       }
     };
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "fieldName", stringArrayLoadSaveValidator );
@@ -85,8 +85,8 @@ public class WriteToLogMetaTest implements InitializerInterface<StepMetaInterfac
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
-            getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class
@@ -108,7 +108,7 @@ public class WriteToLogMetaTest implements InitializerInterface<StepMetaInterfac
     @Override
     public String getTestObject() {
       int idx = rand.nextInt( ( WriteToLogMeta.logLevelCodes.length ) );
-      return WriteToLogMeta.logLevelCodes[idx];
+      return WriteToLogMeta.logLevelCodes[ idx ];
     }
 
     @Override

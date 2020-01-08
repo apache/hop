@@ -23,15 +23,15 @@
 package org.apache.hop.ui.trans.step.common;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.SimpleMessageDialog;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.SimpleMessageDialog;
 
 /**
  * A dialog that allows the user to select the number of  data rows to sample, when fetching fields.

@@ -22,18 +22,18 @@
 
 package org.apache.hop.job.entries.ftp;
 
+import com.enterprisedt.net.ftp.DirectoryListCallback;
+import com.enterprisedt.net.ftp.FTPClient;
+import com.enterprisedt.net.ftp.FTPException;
+import com.enterprisedt.net.ftp.FTPFile;
+import com.enterprisedt.net.ftp.FTPTransferType;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Random;
-
-import com.enterprisedt.net.ftp.DirectoryListCallback;
-import com.enterprisedt.net.ftp.FTPClient;
-import com.enterprisedt.net.ftp.FTPException;
-import com.enterprisedt.net.ftp.FTPFile;
-import com.enterprisedt.net.ftp.FTPTransferType;
 
 public class MockedFTPClient extends FTPClient {
 
@@ -115,12 +115,12 @@ public class MockedFTPClient extends FTPClient {
 
   @Override
   public FTPFile[] dirDetails( String arg0 ) throws IOException, FTPException, ParseException {
-    FTPFile[] files = new FTPFile[10];
+    FTPFile[] files = new FTPFile[ 10 ];
     for ( int i = 0; i < files.length - 1; i++ ) {
-      files[i] = new FTPFile( "file_" + i, "file_" + i, 100, false, new Date() );
+      files[ i ] = new FTPFile( "file_" + i, "file_" + i, 100, false, new Date() );
 
     }
-    files[files.length - 1] = new FTPFile( "robots.txt", "robots.txt", 100, false, new Date() );
+    files[ files.length - 1 ] = new FTPFile( "robots.txt", "robots.txt", 100, false, new Date() );
     return files;
   }
 

@@ -27,7 +27,6 @@ package org.apache.hop.laf;
  * consistently.
  *
  * @author dhushon
- *
  */
 public interface Handler {
   // public <E extends Handler>LAFDelegate<E> getLAFDelegate();

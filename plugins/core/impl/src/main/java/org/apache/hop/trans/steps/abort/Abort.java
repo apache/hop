@@ -47,7 +47,7 @@ public class Abort extends BaseStep implements StepInterface {
   private int nrThresholdRows;
 
   public Abort( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 

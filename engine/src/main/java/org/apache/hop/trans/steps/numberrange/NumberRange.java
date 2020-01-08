@@ -37,7 +37,6 @@ import org.apache.hop.trans.step.StepMetaInterface;
  * Business logic for the NumberRange
  *
  * @author ronny.roeller@fredhopper.com
- *
  */
 public class NumberRange extends BaseStep implements StepInterface {
   private static Class<?> PKG = NumberRangeMeta.class; // for i18n purposes, needed by Translator2!!

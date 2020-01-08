@@ -22,18 +22,18 @@
 
 package org.apache.hop.version;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BuildVersionUnitTest {
   private EnvironmentVariableGetter mockEnvironmentVariableGetter;
@@ -103,7 +103,7 @@ public class BuildVersionUnitTest {
 
     initManifestGetter( null, null, null, null ); // it's possible to have a manifest w/ no version, which causes an NPE
     initEnvironmentVariableGetter( null, null, null, null ); // it's possible to have a manifest w/ no version, which
-                                                             // causes an NPE
+    // causes an NPE
     BuildVersion.refreshInstance();
     version = BuildVersion.getInstance();
     if ( version == null || version.getVersion() == null || version.getVersion().isEmpty() ) {
@@ -111,7 +111,7 @@ public class BuildVersionUnitTest {
     }
 
     initEnvironmentVariableGetter( "version", null, null, null ); // it's possible to have a manifest w/ no version,
-                                                                  // which causes an NPE
+    // which causes an NPE
     BuildVersion.refreshInstance();
     version = BuildVersion.getInstance();
     if ( version == null || version.getVersion().isEmpty() ) {

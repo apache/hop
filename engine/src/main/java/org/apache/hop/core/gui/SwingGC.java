@@ -22,29 +22,7 @@
 
 package org.apache.hop.core.gui;
 
-import java.awt.AlphaComposite;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.Polygon;
-import java.awt.RenderingHints;
-import java.awt.Stroke;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.ImageObserver;
-import java.awt.image.Raster;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.Map;
-
-import javax.imageio.ImageIO;
-
 import org.apache.commons.io.IOUtils;
-import org.jfree.text.TextUtilities;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SwingUniversalImage;
 import org.apache.hop.core.SwingUniversalImageBitmap;
@@ -56,6 +34,20 @@ import org.apache.hop.core.util.SwingSvgImageUtil;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.trans.step.StepMeta;
+import org.jfree.text.TextUtilities;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.ImageObserver;
+import java.awt.image.Raster;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.Map;
 
 
 public class SwingGC implements GCInterface {
@@ -161,7 +153,7 @@ public class SwingGC implements GCInterface {
   private AffineTransform originalTransform;
 
   private SwingGC( BufferedImage image, Graphics2D gc, ImageObserver observer,
-      Point area, int iconsize, int xOffset, int yOffset ) throws HopException {
+                   Point area, int iconsize, int xOffset, int yOffset ) throws HopException {
     this.image = image;
     this.gc = gc;
     if ( gc == null && image != null ) {
@@ -181,12 +173,12 @@ public class SwingGC implements GCInterface {
 
   public SwingGC( ImageObserver observer, Point area, int iconsize, int xOffset, int yOffset ) throws HopException {
     this( new BufferedImage( area.x, area.y, BufferedImage.TYPE_INT_ARGB ), null, observer,
-        area, iconsize, xOffset, yOffset );
+      area, iconsize, xOffset, yOffset );
   }
 
   public SwingGC( Graphics2D gc, Rectangle2D rect, int iconsize, int xOffset, int yOffset ) throws HopException {
     this( null, gc, null,
-        new Point( (int) rect.getWidth(), (int) rect.getHeight() ), iconsize, xOffset, yOffset );
+      new Point( (int) rect.getWidth(), (int) rect.getHeight() ), iconsize, xOffset, yOffset );
   }
 
   private void init() throws HopException {
@@ -379,10 +371,10 @@ public class SwingGC implements GCInterface {
           gc.setColor( new Color( cm.getRed( pix ), cm.getGreen( pix ), cm.getBlue( pix ), cm.getAlpha( pix ) ) );
           gc.setStroke( new BasicStroke( 1.0f ) );
           gc.drawLine(
-              locationX + xOffset + x,
-              locationY + yOffset + y,
-              locationX + xOffset + x + 1,
-              locationY + yOffset + y + 1 );
+            locationX + xOffset + x,
+            locationY + yOffset + y,
+            locationX + xOffset + x + 1,
+            locationY + yOffset + y + 1 );
         }
       }
     } else {
@@ -392,7 +384,7 @@ public class SwingGC implements GCInterface {
 
   private void drawImage( SwingUniversalImage image, int centerX, int centerY, double angle, int imageSize ) {
     if ( isDrawingPixelatedImages() && image.isBitmap() ) {
-      BufferedImage img =  image.getAsBitmapForSize( imageSize, imageSize, angle );
+      BufferedImage img = image.getAsBitmapForSize( imageSize, imageSize, angle );
       ColorModel cm = img.getColorModel();
       Raster raster = img.getRaster();
 
@@ -404,10 +396,10 @@ public class SwingGC implements GCInterface {
           gc.setColor( new Color( cm.getRed( pix ), cm.getGreen( pix ), cm.getBlue( pix ), cm.getAlpha( pix ) ) );
           gc.setStroke( new BasicStroke( 1.0f ) );
           gc.drawLine(
-              offx + x,
-              offy + y,
-              offx + x + 1,
-              offy + y + 1 );
+            offx + x,
+            offy + y,
+            offx + x + 1,
+            offy + y + 1 );
         }
       }
     } else {
@@ -486,11 +478,11 @@ public class SwingGC implements GCInterface {
 
   private Polygon getSwingPolygon( int[] polygon ) {
     int nPoints = polygon.length / 2;
-    int[] xPoints = new int[polygon.length / 2];
-    int[] yPoints = new int[polygon.length / 2];
+    int[] xPoints = new int[ polygon.length / 2 ];
+    int[] yPoints = new int[ polygon.length / 2 ];
     for ( int i = 0; i < nPoints; i++ ) {
-      xPoints[i] = polygon[2 * i + 0] + xOffset;
-      yPoints[i] = polygon[2 * i + 1] + yOffset;
+      xPoints[ i ] = polygon[ 2 * i + 0 ] + xOffset;
+      yPoints[ i ] = polygon[ 2 * i + 1 ] + yOffset;
     }
 
     return new Polygon( xPoints, yPoints, nPoints );
@@ -498,11 +490,11 @@ public class SwingGC implements GCInterface {
 
   public void drawPolyline( int[] polyline ) {
     int nPoints = polyline.length / 2;
-    int[] xPoints = new int[polyline.length / 2];
-    int[] yPoints = new int[polyline.length / 2];
+    int[] xPoints = new int[ polyline.length / 2 ];
+    int[] yPoints = new int[ polyline.length / 2 ];
     for ( int i = 0; i < nPoints; i++ ) {
-      xPoints[i] = polyline[2 * i + 0] + xOffset;
-      yPoints[i] = polyline[2 * i + 1] + yOffset;
+      xPoints[ i ] = polyline[ 2 * i + 0 ] + xOffset;
+      yPoints[ i ] = polyline[ 2 * i + 1 ] + yOffset;
     }
     gc.drawPolyline( xPoints, yPoints, nPoints );
   }
@@ -801,8 +793,7 @@ public class SwingGC implements GCInterface {
   }
 
   /**
-   * @param drawingPixelatedImages
-   *          the drawingPixelatedImages to set
+   * @param drawingPixelatedImages the drawingPixelatedImages to set
    */
   public void setDrawingPixelatedImages( boolean drawingPixelatedImages ) {
     this.drawingPixelatedImages = drawingPixelatedImages;

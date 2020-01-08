@@ -22,9 +22,6 @@
 
 package org.apache.hop.trans;
 
-import java.util.List;
-import java.util.Objects;
-
 import org.apache.hop.base.BaseHopMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXMLException;
@@ -32,6 +29,9 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.step.StepMeta;
 import org.w3c.dom.Node;
+
+import java.util.List;
+import java.util.Objects;
 
 /*
  * Created on 19-jun-2003

@@ -25,7 +25,7 @@ package org.apache.hop.trans.steps.csvinput;
 public class SingleBytePatternMatcher implements PatternMatcherInterface {
 
   public boolean matchesPattern( byte[] source, int location, byte[] pattern ) {
-    return source[location] == pattern[0];
+    return source[ location ] == pattern[ 0 ];
   }
 
 }

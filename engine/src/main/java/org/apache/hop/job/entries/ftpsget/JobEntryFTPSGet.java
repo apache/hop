@@ -22,8 +22,31 @@
 
 package org.apache.hop.job.entries.ftpsget;
 
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.JobEntryBase;
+import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.resource.ResourceEntry;
+import org.apache.hop.resource.ResourceEntry.ResourceType;
+import org.apache.hop.resource.ResourceReference;
+import org.ftp4che.util.ftpfile.FTPFile;
+import org.w3c.dom.Node;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -32,40 +55,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.vfs2.FileObject;
-import org.ftp4che.util.ftpfile.FTPFile;
-import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.util.StringUtil;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
-
-import org.apache.hop.resource.ResourceEntry;
-import org.apache.hop.resource.ResourceEntry.ResourceType;
-import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.w3c.dom.Node;
-
 /**
  * This defines an FTPS job entry.
  *
  * @author Samatar
  * @since 08-03-2010
- *
  */
 
 public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntryInterface {
@@ -200,10 +194,10 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       port = XMLHandler.getTagValue( entrynode, "port" );
       serverName = XMLHandler.getTagValue( entrynode, "servername" );
       userName = XMLHandler.getTagValue( entrynode, "username" );
@@ -335,8 +329,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param movefilesin
-   *          The movefiles to set.
+   * @param movefilesin The movefiles to set.
    */
   public void setMoveFiles( boolean movefilesin ) {
     this.movefiles = movefilesin;
@@ -350,8 +343,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param movetoin
-   *          The movetodirectory to set.
+   * @param movetoin The movetodirectory to set.
    */
   public void setMoveToDirectory( String movetoin ) {
     this.movetodirectory = movetoin;
@@ -365,8 +357,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param binaryMode
-   *          The binaryMode to set.
+   * @param binaryMode The binaryMode to set.
    */
   public void setBinaryMode( boolean binaryMode ) {
     this.binaryMode = binaryMode;
@@ -380,8 +371,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param directory
-   *          The directory to set.
+   * @param directory The directory to set.
    */
   public void setFTPSDirectory( String directory ) {
     this.FTPSDirectory = directory;
@@ -395,8 +385,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param password
-   *          The password to set.
+   * @param password The password to set.
    */
   public void setPassword( String password ) {
     this.password = password;
@@ -410,8 +399,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param serverName
-   *          The serverName to set.
+   * @param serverName The serverName to set.
    */
   public void setServerName( String serverName ) {
     this.serverName = serverName;
@@ -425,8 +413,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param port
-   *          The port to set.
+   * @param port The port to set.
    */
   public void setPort( String port ) {
     this.port = port;
@@ -440,8 +427,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param userName
-   *          The userName to set.
+   * @param userName The userName to set.
    */
   public void setUserName( String userName ) {
     this.userName = userName;
@@ -455,8 +441,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param wildcard
-   *          The wildcard to set.
+   * @param wildcard The wildcard to set.
    */
   public void setWildcard( String wildcard ) {
     this.wildcard = wildcard;
@@ -470,16 +455,14 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param targetDirectory
-   *          The targetDirectory to set.
+   * @param targetDirectory The targetDirectory to set.
    */
   public void setTargetDirectory( String targetDirectory ) {
     this.targetDirectory = targetDirectory;
   }
 
   /**
-   * @param timeout
-   *          The timeout to set.
+   * @param timeout The timeout to set.
    */
   public void setTimeout( int timeout ) {
     this.timeout = timeout;
@@ -493,8 +476,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param remove
-   *          The remove to set.
+   * @param remove The remove to set.
    */
   public void setRemove( boolean remove ) {
     this.remove = remove;
@@ -515,8 +497,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param onlyGettingNewFilesin
-   *          The onlyGettingNewFiles to set.
+   * @param onlyGettingNewFilesin The onlyGettingNewFiles to set.
    */
   public void setOnlyGettingNewFiles( boolean onlyGettingNewFilesin ) {
     this.onlyGettingNewFiles = onlyGettingNewFilesin;
@@ -530,8 +511,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param proxyHost
-   *          The hostname of the proxy.
+   * @param proxyHost The hostname of the proxy.
    */
   public void setProxyHost( String proxyHost ) {
     this.proxyHost = proxyHost;
@@ -545,8 +525,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param proxyPassword
-   *          The password which is used to authenticate at the proxy.
+   * @param proxyPassword The password which is used to authenticate at the proxy.
    */
   public void setProxyPassword( String proxyPassword ) {
     this.proxyPassword = proxyPassword;
@@ -560,8 +539,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param proxyPort
-   *          The port of the FTPS-proxy.
+   * @param proxyPort The port of the FTPS-proxy.
    */
   public void setProxyPort( String proxyPort ) {
     this.proxyPort = proxyPort;
@@ -575,8 +553,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param proxyUsername
-   *          The username which is used to authenticate at the proxy.
+   * @param proxyUsername The username which is used to authenticate at the proxy.
    */
   public void setProxyUsername( String proxyUsername ) {
     this.proxyUsername = proxyUsername;
@@ -592,9 +569,9 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
 
   public static String getFileExistsAction( int actionId ) {
     if ( actionId < 0 || actionId >= FILE_EXISTS_ACTIONS.length ) {
-      return FILE_EXISTS_ACTIONS[0];
+      return FILE_EXISTS_ACTIONS[ 0 ];
     }
-    return FILE_EXISTS_ACTIONS[actionId];
+    return FILE_EXISTS_ACTIONS[ actionId ];
   }
 
   public static int getFileExistsIndex( String desc ) {
@@ -603,13 +580,14 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
       return result;
     }
     for ( int i = 0; i < FILE_EXISTS_ACTIONS.length; i++ ) {
-      if ( desc.equalsIgnoreCase( FILE_EXISTS_ACTIONS[i] ) ) {
+      if ( desc.equalsIgnoreCase( FILE_EXISTS_ACTIONS[ i ] ) ) {
         result = i;
         break;
       }
     }
     return result;
   }
+
   public Result execute( Result previousResult, int nr ) throws HopException {
     // LogWriter log = LogWriter.getInstance();
     logBasic( BaseMessages.getString( PKG, "JobEntryFTPS.Started", serverName ) );
@@ -868,7 +846,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
 
     if ( ( NrErrors == 0 && getSuccessCondition().equals( SUCCESS_IF_NO_ERRORS ) )
       || ( NrfilesRetrieved >= limitFiles && getSuccessCondition().equals(
-        SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED ) )
+      SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED ) )
       || ( NrErrors <= limitFiles && getSuccessCondition().equals( SUCCESS_IF_ERRORS_LESS ) ) ) {
       retval = true;
     }
@@ -898,9 +876,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param filename
-   *          the filename from the FTPS server
-   *
+   * @param filename the filename from the FTPS server
    * @return the calculated target filename
    */
   private String returnTargetFilename( String filename ) {
@@ -959,8 +935,7 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
    * See if the filename on the FTPS server needs downloading. The default is to check the presence of the file in the
    * target directory. If you need other functionality, extend this class and build it into a plugin.
    *
-   * @param filename
-   *          The local filename to check
+   * @param filename The local filename to check
    * @return true if the file needs downloading
    */
   protected boolean needsDownload( String filename ) {
@@ -1021,16 +996,14 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param type
-   *          the connectionType to set
+   * @param type the connectionType to set
    */
   public void setConnectionType( int type ) {
     connectionType = type;
   }
 
   /**
-   * @param activeConnection
-   *          the activeConnection to set
+   * @param activeConnection the activeConnection to set
    */
   public void setActiveConnection( boolean activeConnection ) {
     this.activeConnection = activeConnection;
@@ -1049,18 +1022,18 @@ public class JobEntryFTPSGet extends JobEntryBase implements Cloneable, JobEntry
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "serverName", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate(
       this, "localDirectory", remarks, AndValidator.putValidators(
-          JobEntryValidatorUtils.notBlankValidator(), JobEntryValidatorUtils.fileExistsValidator() ) );
+        JobEntryValidatorUtils.notBlankValidator(), JobEntryValidatorUtils.fileExistsValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "userName", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "password", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "serverPort", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.integerValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.integerValidator() ) );
   }
 
   void buildFTPSConnection( FTPSConnection connection ) throws Exception {

@@ -22,8 +22,32 @@
 
 package org.apache.hop.job.entries.talendjobexec;
 
+import org.apache.commons.vfs2.AllFileSelector;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.plugins.HopURLClassLoader;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.JobEntryBase;
+import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.resource.ResourceDefinition;
+import org.apache.hop.resource.ResourceEntry;
+import org.apache.hop.resource.ResourceEntry.ResourceType;
+import org.apache.hop.resource.ResourceNamingInterface;
+import org.apache.hop.resource.ResourceReference;
+import org.w3c.dom.Node;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -33,41 +57,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.vfs2.AllFileSelector;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.plugins.HopURLClassLoader;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
-
-import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceEntry;
-import org.apache.hop.resource.ResourceEntry.ResourceType;
-import org.apache.hop.resource.ResourceNamingInterface;
-import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.w3c.dom.Node;
-
 /**
  * This executes an exported Talend Job.
  *
  * @author Matt
  * @since 1-04-2011
- *
  */
 public class JobEntryTalendJobExec extends JobEntryBase implements Cloneable, JobEntryInterface {
   private static Class<?> PKG = JobEntryTalendJobExec.class; // for i18n
@@ -101,10 +95,10 @@ public class JobEntryTalendJobExec extends JobEntryBase implements Cloneable, Jo
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       filename = XMLHandler.getTagValue( entrynode, "filename" );
       className = XMLHandler.getTagValue( entrynode, "class_name" );
     } catch ( HopXMLException xe ) {
@@ -224,7 +218,7 @@ public class JobEntryTalendJobExec extends JobEntryBase implements Cloneable, Jo
       files.add( jarfilecopy.getURL() );
     }
 
-    return files.toArray( new URL[files.size()] );
+    return files.toArray( new URL[ files.size() ] );
   }
 
   private void cleanupJarFiles( URL[] jarFiles ) throws Exception {
@@ -255,9 +249,9 @@ public class JobEntryTalendJobExec extends JobEntryBase implements Cloneable, Jo
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "filename", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
   }
 
   /**
@@ -265,26 +259,20 @@ public class JobEntryTalendJobExec extends JobEntryBase implements Cloneable, Jo
    * does is turn the name of files into absolute paths OR it simply includes the resource in the ZIP file. For now,
    * we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like that.
    * TODO: create options to configure this behavior
-   *
+   * <p>
    * Exports the object to a flat-file system, adding content with filename keys to a set of definitions. The supplied
    * resource naming interface allows the object to name appropriately without worrying about those parts of the
    * implementation specific details.
    *
-   * @param space
-   *          The variable space to resolve (environment) variables with.
-   * @param definitions
-   *          The map containing the filenames and content
-   * @param namingInterface
-   *          The resource naming interface allows the object to be named appropriately
-   * @param metaStore
-   *          the metaStore to load external metadata from
-   *
+   * @param space           The variable space to resolve (environment) variables with.
+   * @param definitions     The map containing the filenames and content
+   * @param namingInterface The resource naming interface allows the object to be named appropriately
+   * @param metaStore       the metaStore to load external metadata from
    * @return The filename for this object. (also contained in the definitions map)
-   * @throws HopException
-   *           in case something goes wrong during the export
+   * @throws HopException in case something goes wrong during the export
    */
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException {
+                                 ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the
@@ -322,8 +310,7 @@ public class JobEntryTalendJobExec extends JobEntryBase implements Cloneable, Jo
   }
 
   /**
-   * @param className
-   *          the className to set
+   * @param className the className to set
    */
   public void setClassName( String className ) {
     this.className = className;

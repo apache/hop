@@ -30,16 +30,14 @@ import java.util.Locale;
  * ways.
  *
  * @author dhushon
- *
  */
 public abstract class AbstractMessageHandler implements MessageHandler {
 
   /**
    * forced override to allow singleton instantiation through dynamic class loader
    *
-   * @see org.apache.hop.i18n.GlobalMessages for sample
-   *
    * @return MessageHandler
+   * @see org.apache.hop.i18n.GlobalMessages for sample
    */
   public static synchronized MessageHandler getInstance() {
     return null;

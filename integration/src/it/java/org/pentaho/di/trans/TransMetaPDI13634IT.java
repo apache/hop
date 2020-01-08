@@ -22,11 +22,11 @@
 
 package org.apache.hop.trans;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.StepMeta;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 

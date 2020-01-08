@@ -23,14 +23,14 @@
 package org.apache.hop.trans.steps.csvinput;
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.trans.steps.file.BaseFileField;
 import org.apache.hop.trans.steps.fileinput.BaseParsingTest;
 import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
+import org.junit.Before;
+import org.junit.Ignore;
 
 /**
  * Base class for all CSV input step tests.
@@ -93,7 +93,7 @@ public abstract class BaseCsvParsingTest extends BaseParsingTest<CsvInputMeta, C
   protected void check( Object[][] expected ) throws Exception {
 
     for ( int r = 0; r < expected.length; r++ ) {
-      if ( expected[r].length != 0 ) {
+      if ( expected[ r ].length != 0 ) {
         for ( int c = 0; c < expected[ r ].length; c++ ) {
           if ( expected[ r ][ c ] == "" ) {
             expected[ r ][ c ] = StringUtils.EMPTY.getBytes( "UTF-8" );
@@ -104,8 +104,8 @@ public abstract class BaseCsvParsingTest extends BaseParsingTest<CsvInputMeta, C
           }
         }
       } else {
-        expected[r] = new Object[ meta.getInputFields().length ];
-        expected[r][0] = StringUtils.EMPTY.getBytes( "UTF-8" );
+        expected[ r ] = new Object[ meta.getInputFields().length ];
+        expected[ r ][ 0 ] = StringUtils.EMPTY.getBytes( "UTF-8" );
       }
     }
     super.check( expected );

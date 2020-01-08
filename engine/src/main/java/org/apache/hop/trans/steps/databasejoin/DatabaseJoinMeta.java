@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.databasejoin;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
@@ -42,7 +40,7 @@ import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -51,19 +49,26 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = DatabaseJoinMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** database connection */
+  /**
+   * database connection
+   */
   private DatabaseMeta databaseMeta;
 
-  /** SQL Statement */
+  /**
+   * SQL Statement
+   */
   private String sql;
 
-  /** Number of rows to return (0=ALL) */
+  /**
+   * Number of rows to return (0=ALL)
+   */
   private int rowLimit;
 
   /**
@@ -71,10 +76,14 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
    */
   private boolean outerJoin;
 
-  /** Fields to use as parameters (fill in the ? markers) */
+  /**
+   * Fields to use as parameters (fill in the ? markers)
+   */
   private String[] parameterField;
 
-  /** Type of the paramenters */
+  /**
+   * Type of the paramenters
+   */
   private int[] parameterType;
 
   /**
@@ -94,8 +103,7 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param database
-   *          The database to set.
+   * @param database The database to set.
    */
   public void setDatabaseMeta( DatabaseMeta database ) {
     this.databaseMeta = database;
@@ -109,8 +117,7 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param outerJoin
-   *          The outerJoin to set.
+   * @param outerJoin The outerJoin to set.
    */
   public void setOuterJoin( boolean outerJoin ) {
     this.outerJoin = outerJoin;
@@ -124,8 +131,7 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param replacevars
-   *          The replacevars to set.
+   * @param replacevars The replacevars to set.
    */
   public void setVariableReplace( boolean replacevars ) {
     this.replacevars = replacevars;
@@ -139,8 +145,7 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param parameterField
-   *          The parameterField to set.
+   * @param parameterField The parameterField to set.
    */
   public void setParameterField( String[] parameterField ) {
     this.parameterField = parameterField;
@@ -154,8 +159,7 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param parameterType
-   *          The parameterType to set.
+   * @param parameterType The parameterType to set.
    */
   public void setParameterType( int[] parameterType ) {
     this.parameterType = parameterType;
@@ -169,8 +173,7 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param rowLimit
-   *          The rowLimit to set.
+   * @param rowLimit The rowLimit to set.
    */
   public void setRowLimit( int rowLimit ) {
     this.rowLimit = rowLimit;
@@ -184,8 +187,7 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param sql
-   *          The sql to set.
+   * @param sql The sql to set.
    */
   public void setSql( String sql ) {
     this.sql = sql;
@@ -201,8 +203,8 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   public void allocate( int nrparam ) {
-    parameterField = new String[nrparam];
-    parameterType = new int[nrparam];
+    parameterField = new String[ nrparam ];
+    parameterType = new int[ nrparam ];
   }
 
   @Override
@@ -235,9 +237,9 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
 
       for ( int i = 0; i < nrparam; i++ ) {
         Node pnode = XMLHandler.getSubNodeByNr( param, "field", i );
-        parameterField[i] = XMLHandler.getTagValue( pnode, "name" );
+        parameterField[ i ] = XMLHandler.getTagValue( pnode, "name" );
         String ptype = XMLHandler.getTagValue( pnode, "type" );
-        parameterType[i] = ValueMetaFactory.getIdForValueMeta( ptype );
+        parameterType[ i ] = ValueMetaFactory.getIdForValueMeta( ptype );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages
@@ -261,8 +263,8 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
     allocate( nrparam );
 
     for ( int i = 0; i < nrparam; i++ ) {
-      parameterField[i] = "param" + i;
-      parameterType[i] = ValueMetaInterface.TYPE_NUMBER;
+      parameterField[ i ] = "param" + i;
+      parameterType[ i ] = ValueMetaInterface.TYPE_NUMBER;
     }
   }
 
@@ -271,7 +273,7 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
 
     if ( fields != null ) {
       for ( int i = 0; i < parameterField.length; i++ ) {
-        ValueMetaInterface v = fields.searchValueMeta( parameterField[i] );
+        ValueMetaInterface v = fields.searchValueMeta( parameterField[ i ] );
         if ( v != null ) {
           param.addValueMeta( v );
         }
@@ -282,7 +284,7 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     if ( databaseMeta == null ) {
       return;
@@ -301,7 +303,7 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
     //
     RowMetaInterface add = null;
     try {
-      add = db.getQueryFields( space.environmentSubstitute( sql ), true, param, new Object[param.size()] );
+      add = db.getQueryFields( space.environmentSubstitute( sql ), true, param, new Object[ param.size() ] );
     } catch ( HopDatabaseException dbe ) {
       throw new HopStepException( BaseMessages.getString(
         PKG, "DatabaseJoinMeta.Exception.UnableToDetermineQueryFields" )
@@ -319,7 +321,7 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
       //
       try {
         db.connect();
-        add = db.getQueryFields( space.environmentSubstitute( sql ), true, param, new Object[param.size()] );
+        add = db.getQueryFields( space.environmentSubstitute( sql ), true, param, new Object[ param.size() ] );
         for ( int i = 0; i < add.size(); i++ ) {
           ValueMetaInterface v = add.getValueMeta( i );
           v.setOrigin( name );
@@ -339,7 +341,7 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
 
     retval
       .append( "    " ).append(
-        XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+      XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "rowlimit", rowLimit ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "sql", sql ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "outer_join", outerJoin ) );
@@ -347,9 +349,9 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
     retval.append( "    <parameter>" ).append( Const.CR );
     for ( int i = 0; i < parameterField.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", parameterField[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "name", parameterField[ i ] ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( parameterType[i] ) ) );
+        XMLHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( parameterType[ i ] ) ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
     retval.append( "    </parameter>" ).append( Const.CR );
@@ -359,8 +361,8 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
 
     CheckResult cr;
     String error_message = "";
@@ -377,7 +379,7 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
           error_message = "";
 
           RowMetaInterface r =
-            db.getQueryFields( transMeta.environmentSubstitute( sql ), true, param, new Object[param.size()] );
+            db.getQueryFields( transMeta.environmentSubstitute( sql ), true, param, new Object[ param.size() ] );
           if ( r != null ) {
             cr =
               new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -419,7 +421,7 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
           boolean error_found = false;
 
           for ( int i = 0; i < parameterField.length; i++ ) {
-            ValueMetaInterface v = prev.searchValueMeta( parameterField[i] );
+            ValueMetaInterface v = prev.searchValueMeta( parameterField[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
@@ -427,7 +429,7 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
                   BaseMessages.getString( PKG, "DatabaseJoinMeta.CheckResult.MissingFields" ) + Const.CR;
               }
               error_found = true;
-              error_message += "\t\t" + parameterField[i] + Const.CR;
+              error_message += "\t\t" + parameterField[ i ] + Const.CR;
             }
           }
           if ( error_found ) {
@@ -481,9 +483,9 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
     for ( int i = 0; i < parameterField.length; i++ ) {
       ValueMetaInterface v;
       try {
-        v = ValueMetaFactory.createValueMeta( parameterField[i], parameterType[i] );
+        v = ValueMetaFactory.createValueMeta( parameterField[ i ], parameterType[ i ] );
       } catch ( HopPluginException e ) {
-        v = new ValueMetaNone( parameterField[i] );
+        v = new ValueMetaNone( parameterField[ i ] );
       }
       param.addValueMeta( v );
     }
@@ -496,7 +498,7 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
       try {
         db.connect();
         fields =
-          db.getQueryFields( databaseMeta.environmentSubstitute( sql ), true, param, new Object[param.size()] );
+          db.getQueryFields( databaseMeta.environmentSubstitute( sql ), true, param, new Object[ param.size() ] );
       } catch ( HopDatabaseException dbe ) {
         logError( BaseMessages.getString( PKG, "DatabaseJoinMeta.Log.DatabaseErrorOccurred" ) + dbe.getMessage() );
       } finally {
@@ -508,7 +510,7 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new DatabaseJoin( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -519,8 +521,8 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
 
   @Override
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
-    IMetaStore metaStore ) throws HopStepException {
+                             RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
+                             IMetaStore metaStore ) throws HopStepException {
 
     // Find the lookupfields...
     //

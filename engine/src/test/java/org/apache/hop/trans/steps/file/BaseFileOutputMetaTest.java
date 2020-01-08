@@ -22,11 +22,11 @@
 
 package org.apache.hop.trans.steps.file;
 
+import org.apache.hop.trans.steps.textfileoutput.TextFileOutputMeta;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.apache.hop.trans.steps.textfileoutput.TextFileOutputMeta;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

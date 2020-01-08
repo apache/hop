@@ -22,8 +22,6 @@
 
 package org.apache.hop.ui.hopui.partition;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.partition.PartitionSchema;
@@ -31,6 +29,8 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepPartitioningMeta;
 import org.apache.hop.ui.hopui.PartitionSchemasProvider;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,7 +39,10 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Evgeniy_Lyakhov@epam.com
@@ -114,7 +117,7 @@ public class PartitionSettingsTest {
 
   @Test
   public void defaultSelectedSchemaIndexWhenSchemaNameIsNotDefined() throws Exception {
-    PartitionSchema schema = new PartitionSchema( );
+    PartitionSchema schema = new PartitionSchema();
     StepPartitioningMeta meta = mock( StepPartitioningMeta.class );
     when( meta.getPartitionSchema() ).thenReturn( schema );
     when( stepMeta.getStepPartitioningMeta() ).thenReturn( meta );

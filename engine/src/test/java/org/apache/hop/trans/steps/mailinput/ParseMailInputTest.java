@@ -22,31 +22,7 @@
 
 package org.apache.hop.trans.steps.mailinput;
 
-import org.mockito.AdditionalMatchers;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.regex.Pattern;
-
-import javax.mail.Address;
-import javax.mail.Header;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-
 import org.apache.commons.lang.StringUtils;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowDataUtil;
@@ -54,6 +30,29 @@ import org.apache.hop.job.entries.getpop.MailConnection;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.steps.mailinput.MailInput.MessageParser;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.AdditionalMatchers;
+import org.mockito.Mockito;
+
+import javax.mail.Address;
+import javax.mail.Header;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.regex.Pattern;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ParseMailInputTest {
 
@@ -176,7 +175,7 @@ public class ParseMailInputTest {
     int[] fields = { MailInputField.COLUMN_HEADER };
     MailInputField[] farr = this.getDefaultInputFields( fields );
     // points to existed header
-    farr[0].setName( HDR_EX1 );
+    farr[ 0 ].setName( HDR_EX1 );
 
     this.mockMailInputMeta( farr );
 
@@ -189,20 +188,19 @@ public class ParseMailInputTest {
     Object[] r = RowDataUtil.allocateRowData( data.nrFields );
     underTest.parseToArray( r, message );
 
-    Assert.assertEquals( "Header is correct", HDR_EX1V, String.class.cast( r[0] ) );
+    Assert.assertEquals( "Header is correct", HDR_EX1V, String.class.cast( r[ 0 ] ) );
   }
 
   /**
    * [PDI-6532] When mail header is not found returns empty String
    *
    * @throws Exception
-   *
    */
   @Test
   public void testHeadersParsedNegative() throws Exception {
     int[] fields = { MailInputField.COLUMN_HEADER };
     MailInputField[] farr = this.getDefaultInputFields( fields );
-    farr[0].setName( HDR_EX1 + "salt" );
+    farr[ 0 ].setName( HDR_EX1 + "salt" );
 
     this.mockMailInputMeta( farr );
 
@@ -215,7 +213,7 @@ public class ParseMailInputTest {
     Object[] r = RowDataUtil.allocateRowData( data.nrFields );
     underTest.parseToArray( r, message );
 
-    Assert.assertEquals( "Header is correct", "", String.class.cast( r[0] ) );
+    Assert.assertEquals( "Header is correct", "", String.class.cast( r[ 0 ] ) );
   }
 
   /**
@@ -236,7 +234,7 @@ public class ParseMailInputTest {
     MessageParser underTest = mailInput.new MessageParser();
     Object[] r = RowDataUtil.allocateRowData( data.nrFields );
     underTest.parseToArray( r, message );
-    Assert.assertEquals( "Message number is correct", new Long( MSG_NUMB ), Long.class.cast( r[0] ) );
+    Assert.assertEquals( "Message number is correct", new Long( MSG_NUMB ), Long.class.cast( r[ 0 ] ) );
   }
 
   /**
@@ -257,7 +255,7 @@ public class ParseMailInputTest {
     MessageParser underTest = mailInput.new MessageParser();
     Object[] r = RowDataUtil.allocateRowData( data.nrFields );
     underTest.parseToArray( r, message );
-    Assert.assertEquals( "Message subject is correct", SUBJ, String.class.cast( r[0] ) );
+    Assert.assertEquals( "Message subject is correct", SUBJ, String.class.cast( r[ 0 ] ) );
   }
 
   /**
@@ -281,7 +279,7 @@ public class ParseMailInputTest {
 
     // expect, that from is concatenated with ';'
     String expected = StringUtils.join( new String[] { FROM1, FROM2 }, ";" );
-    Assert.assertEquals( "Message From is correct", expected, String.class.cast( r[0] ) );
+    Assert.assertEquals( "Message From is correct", expected, String.class.cast( r[ 0 ] ) );
   }
 
   /**
@@ -305,7 +303,7 @@ public class ParseMailInputTest {
 
     // is concatenated with ';'
     String expected = StringUtils.join( new String[] { REP1, REP2 }, ";" );
-    Assert.assertEquals( "Message ReplayTo is correct", expected, String.class.cast( r[0] ) );
+    Assert.assertEquals( "Message ReplayTo is correct", expected, String.class.cast( r[ 0 ] ) );
   }
 
   /**
@@ -329,7 +327,7 @@ public class ParseMailInputTest {
 
     // is concatenated with ';'
     String expected = StringUtils.join( new String[] { REC1, REC2 }, ";" );
-    Assert.assertEquals( "Message Recipients is correct", expected, String.class.cast( r[0] ) );
+    Assert.assertEquals( "Message Recipients is correct", expected, String.class.cast( r[ 0 ] ) );
   }
 
   /**
@@ -351,7 +349,7 @@ public class ParseMailInputTest {
     Object[] r = RowDataUtil.allocateRowData( data.nrFields );
     underTest.parseToArray( r, message );
 
-    Assert.assertEquals( "Message Description is correct", DESC, String.class.cast( r[0] ) );
+    Assert.assertEquals( "Message Description is correct", DESC, String.class.cast( r[ 0 ] ) );
   }
 
   /**
@@ -373,7 +371,7 @@ public class ParseMailInputTest {
     Object[] r = RowDataUtil.allocateRowData( data.nrFields );
     underTest.parseToArray( r, message );
 
-    Assert.assertEquals( "Message Recived date is correct", DATE1, Date.class.cast( r[0] ) );
+    Assert.assertEquals( "Message Recived date is correct", DATE1, Date.class.cast( r[ 0 ] ) );
   }
 
   /**
@@ -395,7 +393,7 @@ public class ParseMailInputTest {
     Object[] r = RowDataUtil.allocateRowData( data.nrFields );
     underTest.parseToArray( r, message );
 
-    Assert.assertEquals( "Message Sent date is correct", DATE2, Date.class.cast( r[0] ) );
+    Assert.assertEquals( "Message Sent date is correct", DATE2, Date.class.cast( r[ 0 ] ) );
   }
 
   /**
@@ -417,7 +415,7 @@ public class ParseMailInputTest {
     Object[] r = RowDataUtil.allocateRowData( data.nrFields );
     underTest.parseToArray( r, message );
 
-    Assert.assertEquals( "Message Content type is correct", CNTNT_TYPE_EMAIL, String.class.cast( r[0] ) );
+    Assert.assertEquals( "Message Content type is correct", CNTNT_TYPE_EMAIL, String.class.cast( r[ 0 ] ) );
   }
 
   /**
@@ -439,7 +437,7 @@ public class ParseMailInputTest {
     Object[] r = RowDataUtil.allocateRowData( data.nrFields );
     underTest.parseToArray( r, message );
 
-    Assert.assertEquals( "Message Size is correct", new Long( CNTNT_SIZE ), Long.class.cast( r[0] ) );
+    Assert.assertEquals( "Message Size is correct", new Long( CNTNT_SIZE ), Long.class.cast( r[ 0 ] ) );
   }
 
   /**
@@ -461,7 +459,7 @@ public class ParseMailInputTest {
     Object[] r = RowDataUtil.allocateRowData( data.nrFields );
     underTest.parseToArray( r, message );
 
-    Assert.assertEquals( "Message Body is correct", MSG_BODY, String.class.cast( r[0] ) );
+    Assert.assertEquals( "Message Body is correct", MSG_BODY, String.class.cast( r[ 0 ] ) );
   }
 
   /**
@@ -483,7 +481,7 @@ public class ParseMailInputTest {
     Object[] r = RowDataUtil.allocateRowData( data.nrFields );
     underTest.parseToArray( r, message );
 
-    Assert.assertEquals( "Message Folder Name is correct", FLD_NAME, String.class.cast( r[0] ) );
+    Assert.assertEquals( "Message Folder Name is correct", FLD_NAME, String.class.cast( r[ 0 ] ) );
   }
 
   /**
@@ -506,7 +504,7 @@ public class ParseMailInputTest {
     underTest.parseToArray( r, message );
 
     Assert.assertEquals( "Message Attached files count is correct", new Long( ATTCH_COUNT ), Long.class
-      .cast( r[0] ) );
+      .cast( r[ 0 ] ) );
   }
 
   /**
@@ -528,7 +526,7 @@ public class ParseMailInputTest {
     Object[] r = RowDataUtil.allocateRowData( data.nrFields );
     underTest.parseToArray( r, message );
 
-    Assert.assertEquals( "Message body content type is correct", CNTNT_TYPE, String.class.cast( r[0] ) );
+    Assert.assertEquals( "Message body content type is correct", CNTNT_TYPE, String.class.cast( r[ 0 ] ) );
   }
 
   private void mockMailInputMeta( MailInputField[] arr ) {
@@ -538,11 +536,11 @@ public class ParseMailInputTest {
   }
 
   private MailInputField[] getDefaultInputFields( int[] arr ) {
-    MailInputField[] fields = new MailInputField[arr.length];
+    MailInputField[] fields = new MailInputField[ arr.length ];
     for ( int i = 0; i < arr.length; i++ ) {
-      fields[i] = new MailInputField();
-      fields[i].setColumn( arr[i] );
-      fields[i].setName( MailInputField.getColumnDesc( arr[i] ) );
+      fields[ i ] = new MailInputField();
+      fields[ i ].setColumn( arr[ i ] );
+      fields[ i ].setName( MailInputField.getColumnDesc( arr[ i ] ) );
     }
     return fields;
   }

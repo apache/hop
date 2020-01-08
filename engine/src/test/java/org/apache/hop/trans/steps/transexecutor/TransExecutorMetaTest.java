@@ -22,11 +22,6 @@
 
 package org.apache.hop.trans.steps.transexecutor;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -42,6 +37,11 @@ import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -50,8 +50,8 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyString;
@@ -238,10 +238,10 @@ public class TransExecutorMetaTest {
   @Test
   public void testPrepareResultsRowsFields() throws Exception {
     TransExecutorMeta meta = new TransExecutorMeta();
-    String[] outputFieldNames = new String[]{ "one", "two" };
-    int[] outputFieldTypes = new int[]{ 0, 1 };
-    int[] outputFieldLength = new int[]{ 4, 8 };
-    int[] outputFieldPrecision = new int[]{ 2, 4 };
+    String[] outputFieldNames = new String[] { "one", "two" };
+    int[] outputFieldTypes = new int[] { 0, 1 };
+    int[] outputFieldLength = new int[] { 4, 8 };
+    int[] outputFieldPrecision = new int[] { 2, 4 };
 
     meta.setOutputRowsField( outputFieldNames );
     meta.setOutputRowsType( outputFieldTypes );

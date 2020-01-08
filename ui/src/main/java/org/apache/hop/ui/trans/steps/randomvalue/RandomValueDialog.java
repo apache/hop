@@ -22,6 +22,17 @@
 
 package org.apache.hop.ui.trans.steps.randomvalue;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.randomvalue.RandomValueMeta;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -40,17 +51,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.randomvalue.RandomValueMeta;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class RandomValueDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = RandomValueMeta.class; // for i18n purposes, needed by Translator2!!
@@ -125,21 +125,21 @@ public class RandomValueDialog extends BaseStepDialog implements StepDialogInter
     final int FieldsCols = 2;
     final int FieldsRows = input.getFieldName().length;
 
-    final String[] functionDesc = new String[RandomValueMeta.functions.length - 1];
+    final String[] functionDesc = new String[ RandomValueMeta.functions.length - 1 ];
     for ( int i = 1; i < RandomValueMeta.functions.length; i++ ) {
-      functionDesc[i - 1] = RandomValueMeta.functions[i].getDescription();
+      functionDesc[ i - 1 ] = RandomValueMeta.functions[ i ].getDescription();
     }
 
-    ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
+    ColumnInfo[] colinf = new ColumnInfo[ FieldsCols ];
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "RandomValueDialog.NameColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    colinf[1] =
+    colinf[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "RandomValueDialog.TypeColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    colinf[1].setSelectionAdapter( new SelectionAdapter() {
+    colinf[ 1 ].setSelectionAdapter( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         EnterSelectionDialog esd = new EnterSelectionDialog( shell, functionDesc,
           BaseMessages.getString( PKG, "RandomValueDialog.SelectInfoType.DialogTitle" ),
@@ -225,8 +225,8 @@ public class RandomValueDialog extends BaseStepDialog implements StepDialogInter
 
     for ( int i = 0; i < input.getFieldName().length; i++ ) {
       TableItem item = wFields.table.getItem( i );
-      String name = input.getFieldName()[i];
-      String type = RandomValueMeta.getTypeDesc( input.getFieldType()[i] );
+      String name = input.getFieldName()[ i ];
+      String type = RandomValueMeta.getTypeDesc( input.getFieldType()[ i ] );
 
       if ( name != null ) {
         item.setText( 1, name );
@@ -262,8 +262,8 @@ public class RandomValueDialog extends BaseStepDialog implements StepDialogInter
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < count; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      input.getFieldName()[i] = item.getText( 1 );
-      input.getFieldType()[i] = RandomValueMeta.getType( item.getText( 2 ) );
+      input.getFieldName()[ i ] = item.getText( 1 );
+      input.getFieldType()[ i ] = RandomValueMeta.getType( item.getText( 2 ) );
     }
     dispose();
   }

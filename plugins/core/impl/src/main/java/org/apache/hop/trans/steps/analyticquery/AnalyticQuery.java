@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.analyticquery;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopValueException;
@@ -36,6 +34,8 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Performs analytic queries (LEAD/LAG, etc) based on a group
@@ -50,7 +50,7 @@ public class AnalyticQuery extends BaseStep implements StepInterface {
   private AnalyticQueryData data;
 
   public AnalyticQuery( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                        Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
 
     meta = (AnalyticQueryMeta) getStepMeta().getStepMetaInterface();
@@ -81,12 +81,12 @@ public class AnalyticQuery extends BaseStep implements StepInterface {
       data.outputRowMeta = data.inputRowMeta.clone();
       meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
-      data.groupnrs = new int[meta.getGroupField().length];
+      data.groupnrs = new int[ meta.getGroupField().length ];
       for ( int i = 0; i < meta.getGroupField().length; i++ ) {
-        data.groupnrs[i] = data.inputRowMeta.indexOfValue( meta.getGroupField()[i] );
-        if ( data.groupnrs[i] < 0 ) {
+        data.groupnrs[ i ] = data.inputRowMeta.indexOfValue( meta.getGroupField()[ i ] );
+        if ( data.groupnrs[ i ] < 0 ) {
           logError( BaseMessages.getString(
-            PKG, "AnalyticQuery.Log.GroupFieldCouldNotFound", meta.getGroupField()[i] ) );
+            PKG, "AnalyticQuery.Log.GroupFieldCouldNotFound", meta.getGroupField()[ i ] ) );
           setErrors( 1 );
           stopAll();
           return false;
@@ -96,8 +96,8 @@ public class AnalyticQuery extends BaseStep implements StepInterface {
       // Setup of "window size" and "queue_size"
       int max_offset = 0;
       for ( int i = 0; i < meta.getNumberOfFields(); i++ ) {
-        if ( meta.getValueField()[i] > max_offset ) {
-          max_offset = meta.getValueField()[i];
+        if ( meta.getValueField()[ i ] > max_offset ) {
+          max_offset = meta.getValueField()[ i ];
         }
       }
       data.window_size = max_offset;
@@ -172,38 +172,38 @@ public class AnalyticQuery extends BaseStep implements StepInterface {
     int index = i - 1;
     Object[] rows = data.data.toArray();
 
-    Object[] fields = new Object[meta.getNumberOfFields()];
+    Object[] fields = new Object[ meta.getNumberOfFields() ];
     for ( int j = 0; j < meta.getNumberOfFields(); j++ ) {
       // field_index is the location inside a row of the subject of this
       // ie, ORDERTOTAL might be the subject ofthis field lag or lead
       // so we determine that ORDERTOTAL's index in the row
-      int field_index = data.inputRowMeta.indexOfValue( meta.getSubjectField()[j] );
+      int field_index = data.inputRowMeta.indexOfValue( meta.getSubjectField()[ j ] );
       int row_index = 0;
-      switch ( meta.getAggregateType()[j] ) {
+      switch ( meta.getAggregateType()[ j ] ) {
         case AnalyticQueryMeta.TYPE_FUNCT_LAG:
-          row_index = index - meta.getValueField()[j];
+          row_index = index - meta.getValueField()[ j ];
           break;
         case AnalyticQueryMeta.TYPE_FUNCT_LEAD:
-          row_index = index + meta.getValueField()[j];
+          row_index = index + meta.getValueField()[ j ];
           break;
         default:
           break;
       }
       if ( row_index < rows.length && row_index >= 0 ) {
-        Object[] singleRow = (Object[]) rows[row_index];
-        if ( singleRow != null && singleRow[field_index] != null ) {
-          fields[j] = ( (Object[]) rows[row_index] )[field_index];
+        Object[] singleRow = (Object[]) rows[ row_index ];
+        if ( singleRow != null && singleRow[ field_index ] != null ) {
+          fields[ j ] = ( (Object[]) rows[ row_index ] )[ field_index ];
         } else {
           // set default
-          fields[j] = null;
+          fields[ j ] = null;
         }
       } else {
         // set default
-        fields[j] = null;
+        fields[ j ] = null;
       }
     }
 
-    Object[] newRow = RowDataUtil.addRowData( (Object[]) rows[index], data.inputRowMeta.size(), fields );
+    Object[] newRow = RowDataUtil.addRowData( (Object[]) rows[ index ], data.inputRowMeta.size(), fields );
 
     putRow( data.outputRowMeta, newRow );
 

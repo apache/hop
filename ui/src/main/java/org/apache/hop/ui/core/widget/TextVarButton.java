@@ -22,6 +22,10 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
@@ -32,10 +36,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
 
 public class TextVarButton extends TextVar {
 
@@ -48,24 +48,24 @@ public class TextVarButton extends TextVar {
   }
 
   public TextVarButton( VariableSpace space, Composite composite, int flags,
-      GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface ) {
+                        GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface ) {
     super( space, composite, flags, getCaretPositionInterface, insertTextInterface );
   }
 
   public TextVarButton( VariableSpace space, Composite composite, int flags,
-      GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface,
-      SelectionListener selectionListener ) {
+                        GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface,
+                        SelectionListener selectionListener ) {
     super( composite, space, flags, getCaretPositionInterface, insertTextInterface, selectionListener );
   }
 
   public TextVarButton( VariableSpace space, Composite composite, int flags, String toolTipText,
-      GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface ) {
+                        GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface ) {
     super( space, composite, flags, toolTipText, getCaretPositionInterface, insertTextInterface );
   }
 
   protected void initialize( VariableSpace space, Composite composite, int flags, String toolTipText,
-      GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface,
-      SelectionListener selectionListener ) {
+                             GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface,
+                             SelectionListener selectionListener ) {
     this.toolTipText = toolTipText;
     this.getCaretPositionInterface = getCaretPositionInterface;
     this.insertTextInterface = insertTextInterface;
@@ -104,7 +104,7 @@ public class TextVarButton extends TextVar {
     wText.addModifyListener( modifyListenerTooltipText );
 
     controlSpaceKeyAdapter =
-        new ControlSpaceKeyAdapter( variables, wText, getCaretPositionInterface, insertTextInterface );
+      new ControlSpaceKeyAdapter( variables, wText, getCaretPositionInterface, insertTextInterface );
     wText.addKeyListener( controlSpaceKeyAdapter );
 
     FormData fdText = new FormData();

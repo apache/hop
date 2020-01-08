@@ -22,27 +22,12 @@
 
 package org.apache.hop.job.entries.folderscompare;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.util.Utils;
@@ -57,9 +42,19 @@ import org.apache.hop.job.entry.validator.AbstractFileValidator;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This defines a 'folder compare' job entry. It will compare 2 folders, and will either follow the true flow upon the
@@ -67,7 +62,6 @@ import org.w3c.dom.Node;
  *
  * @author Samatar Hassan
  * @since 25-11-2007
- *
  */
 public class JobEntryFoldersCompare extends JobEntryBase implements Cloneable, JobEntryInterface {
   private static Class<?> PKG = JobEntryFoldersCompare.class; // for i18n purposes, needed by Translator2!!
@@ -125,10 +119,10 @@ public class JobEntryFoldersCompare extends JobEntryBase implements Cloneable, J
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       includesubfolders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "include_subfolders" ) );
       comparefilecontent = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "compare_filecontent" ) );
       comparefilesize = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "compare_filesize" ) );
@@ -182,14 +176,10 @@ public class JobEntryFoldersCompare extends JobEntryBase implements Cloneable, J
   /**
    * Check whether 2 files have the same contents.
    *
-   * @param file1
-   *          first file to compare
-   * @param file2
-   *          second file to compare
+   * @param file1 first file to compare
+   * @param file2 second file to compare
    * @return true if files are equal, false if they are not
-   *
-   * @throws IOException
-   *           upon IO problems
+   * @throws IOException upon IO problems
    */
   protected boolean equalFileContents( FileObject file1, FileObject file2 ) throws HopFileException {
     // Really read the contents and do comparisons
@@ -308,12 +298,12 @@ public class JobEntryFoldersCompare extends JobEntryBase implements Cloneable, J
 
                 for ( int i = 0; i < list1.length; i++ ) {
                   // Put files list1 in TreeMap collection1
-                  collection1.put( list1[i].getName().getBaseName(), list1[i].toString() );
+                  collection1.put( list1[ i ].getName().getBaseName(), list1[ i ].toString() );
                 }
 
                 for ( int i = 0; i < list2.length; i++ ) {
                   // Put files list2 in TreeMap collection2
-                  collection2.put( list2[i].getName().getBaseName(), list2[i].toString() );
+                  collection2.put( list2[ i ].getName().getBaseName(), list2[ i ].toString() );
                 }
 
                 // Let's now fetch Folder1
@@ -575,7 +565,7 @@ public class JobEntryFoldersCompare extends JobEntryBase implements Cloneable, J
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, JobEntryValidatorUtils.notNullValidator(), JobEntryValidatorUtils.fileExistsValidator() );

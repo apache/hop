@@ -22,12 +22,12 @@
 
 package org.apache.hop.ui.trans.step.common;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 public class CsvInputAwareImportProgressDialogTest {
 

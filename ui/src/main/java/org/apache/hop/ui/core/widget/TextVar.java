@@ -22,6 +22,12 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusListener;
@@ -37,12 +43,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
 
 /**
  * A Widget that combines a Text widget with a Variable button that will insert an Environment variable. The tool tip of
@@ -81,32 +81,32 @@ public class TextVar extends Composite {
   }
 
   public TextVar( VariableSpace space, Composite composite, int flags,
-      GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface ) {
+                  GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface ) {
     this( space, composite, flags, null, getCaretPositionInterface, insertTextInterface );
   }
 
   public TextVar( VariableSpace space, Composite composite, int flags, String toolTipText,
-      GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface ) {
+                  GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface ) {
     super( composite, SWT.NONE );
     initialize( space, composite, flags, toolTipText, getCaretPositionInterface, insertTextInterface, null );
   }
 
   public TextVar( Composite composite, VariableSpace space, int flags,
-      GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface,
-      SelectionListener selectionListener ) {
+                  GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface,
+                  SelectionListener selectionListener ) {
     this( space, composite, flags, null, getCaretPositionInterface, insertTextInterface, selectionListener );
   }
 
   public TextVar( VariableSpace space, Composite composite, int flags, String toolTipText,
-      GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface,
-      SelectionListener selectionListener ) {
+                  GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface,
+                  SelectionListener selectionListener ) {
     super( composite, SWT.NONE );
     initialize( space, composite, flags, toolTipText, getCaretPositionInterface, insertTextInterface, selectionListener );
   }
 
   protected void initialize( VariableSpace space, Composite composite, int flags, String toolTipText,
-      GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface,
-      SelectionListener selectionListener ) {
+                             GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface,
+                             SelectionListener selectionListener ) {
 
     this.toolTipText = toolTipText;
     this.getCaretPositionInterface = getCaretPositionInterface;
@@ -154,8 +154,7 @@ public class TextVar extends Composite {
   }
 
   /**
-   * @param getCaretPositionInterface
-   *          the getCaretPositionInterface to set
+   * @param getCaretPositionInterface the getCaretPositionInterface to set
    */
   public void setGetCaretPositionInterface( GetCaretPositionInterface getCaretPositionInterface ) {
     this.getCaretPositionInterface = getCaretPositionInterface;
@@ -169,8 +168,7 @@ public class TextVar extends Composite {
   }
 
   /**
-   * @param insertTextInterface
-   *          the insertTextInterface to set
+   * @param insertTextInterface the insertTextInterface to set
    */
   public void setInsertTextInterface( InsertTextInterface insertTextInterface ) {
     this.insertTextInterface = insertTextInterface;
@@ -203,8 +201,7 @@ public class TextVar extends Composite {
   }
 
   /**
-   * @param text
-   *          the text in the Text widget to set.
+   * @param text the text in the Text widget to set.
    */
   public void setText( String text ) {
     wText.setText( text );

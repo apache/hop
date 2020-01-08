@@ -22,6 +22,13 @@
 
 package org.apache.hop.core;
 
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.SortedFileOutputStream;
+import org.apache.hop.i18n.BaseMessages;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,20 +38,12 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.util.SortedFileOutputStream;
-import org.apache.hop.i18n.BaseMessages;
-
 /**
  * We use Props to store all kinds of user interactive information such as the selected colors, fonts, positions of
  * windows, etc.
  *
  * @author Matt
  * @since 15-12-2003
- *
  */
 public class Props implements Cloneable {
   private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator2!!
@@ -175,10 +174,8 @@ public class Props implements Cloneable {
   /**
    * Initialize the properties: load from disk.
    *
-   * @param display
-   *          The Display
-   * @param t
-   *          The type of properties file.
+   * @param display The Display
+   * @param t       The type of properties file.
    */
   public static final void init( int t ) {
     if ( props == null ) {
@@ -192,10 +189,8 @@ public class Props implements Cloneable {
   /**
    * Initialize the properties: load from disk.
    *
-   * @param display
-   *          The Display
-   * @param filename
-   *          the filename to use
+   * @param display  The Display
+   * @param filename the filename to use
    */
   public static final void init( String filename ) {
     if ( props == null ) {
@@ -441,10 +436,8 @@ public class Props implements Cloneable {
   }
 
   /**
-   * @param parameterName
-   *          The parameter name
-   * @param defaultValue
-   *          The default value in case the parameter doesn't exist yet.
+   * @param parameterName The parameter name
+   * @param defaultValue  The default value in case the parameter doesn't exist yet.
    * @return The custom parameter
    */
   public String getCustomParameter( String parameterName, String defaultValue ) {
@@ -454,10 +447,8 @@ public class Props implements Cloneable {
   /**
    * Set the custom parameter
    *
-   * @param parameterName
-   *          The name of the parameter
-   * @param value
-   *          The value to be stored in the properties file.
+   * @param parameterName The name of the parameter
+   * @param value         The value to be stored in the properties file.
    */
   public void setCustomParameter( String parameterName, String value ) {
     properties.setProperty( STRING_CUSTOM_PARAMETER + parameterName, value );
@@ -477,8 +468,7 @@ public class Props implements Cloneable {
   /**
    * Convert "argument 1" to 1
    *
-   * @param value
-   *          The value to determine the argument number for
+   * @param value The value to determine the argument number for
    * @return The argument number
    */
   public static final int getArgumentNumber( ValueMetaInterface value ) {
@@ -489,15 +479,15 @@ public class Props implements Cloneable {
   }
 
   public static final String[] convertArguments( RowMetaAndData row ) {
-    String[] args = new String[10];
+    String[] args = new String[ 10 ];
     for ( int i = 0; i < row.size(); i++ ) {
       ValueMetaInterface valueMeta = row.getValueMeta( i );
       int argNr = getArgumentNumber( valueMeta );
       if ( argNr >= 0 && argNr < 10 ) {
         try {
-          args[argNr] = row.getString( i, "" );
+          args[ argNr ] = row.getString( i, "" );
         } catch ( HopValueException e ) {
-          args[argNr] = ""; // Should never happen
+          args[ argNr ] = ""; // Should never happen
         }
       }
     }
@@ -507,13 +497,12 @@ public class Props implements Cloneable {
   /**
    * Set the last arguments so that we can recall it the next time...
    *
-   * @param args
-   *          the arguments to save
+   * @param args the arguments to save
    */
   public void setLastArguments( String[] args ) {
     for ( int i = 0; i < args.length; i++ ) {
-      if ( args[i] != null ) {
-        properties.setProperty( STRING_LAST_ARGUMENT + "_" + i, args[i] );
+      if ( args[ i ] != null ) {
+        properties.setProperty( STRING_LAST_ARGUMENT + "_" + i, args[ i ] );
       }
     }
   }
@@ -524,9 +513,9 @@ public class Props implements Cloneable {
    * @return the last entered arguments...
    */
   public String[] getLastArguments() {
-    String[] args = new String[10];
+    String[] args = new String[ 10 ];
     for ( int i = 0; i < args.length; i++ ) {
-      args[i] = properties.getProperty( STRING_LAST_ARGUMENT + "_" + i );
+      args[ i ] = properties.getProperty( STRING_LAST_ARGUMENT + "_" + i );
     }
     return args;
   }
@@ -569,7 +558,6 @@ public class Props implements Cloneable {
 
   /**
    * Load the plugin history from the properties file
-   *
    */
   protected void loadPluginHistory() {
     pluginHistory = new ArrayList<ObjectUsageCount>();

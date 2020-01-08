@@ -21,25 +21,25 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.mapping;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Ignore;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.mappingoutput.MappingOutputMeta;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 public class MappingOutputMetaIT {
 
@@ -73,7 +73,7 @@ public class MappingOutputMetaIT {
     //the second value meta must be other than we want to rename since we already have value meta with such name
     assertFalse( "valueMeta1".equals( rowMeta.getValueMeta( 1 ).getName() ) );
 
-   //the second value meta must be other than we want to rename since we already have value meta with such name. 
+    //the second value meta must be other than we want to rename since we already have value meta with such name.
     //It must be renamed according the rules from the #RowMeta
     assertTrue( "valueMeta1_1".equals( rowMeta.getValueMeta( 1 ).getName() ) );
   }

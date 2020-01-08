@@ -22,19 +22,7 @@
 
 package org.apache.hop.trans.steps.update;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.sql.PreparedStatement;
-import java.sql.Timestamp;
-
 import junit.framework.Assert;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
@@ -43,6 +31,17 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.sql.PreparedStatement;
+import java.sql.Timestamp;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Regression test for PDI-11152
@@ -56,7 +55,7 @@ public class PDI_11152_Test {
   public void setUp() {
     smh = new StepMockHelper<UpdateMeta, UpdateData>( "Update", UpdateMeta.class, UpdateData.class );
     when( smh.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        smh.logChannelInterface );
+      smh.logChannelInterface );
     when( smh.trans.isRunning() ).thenReturn( true );
   }
 
@@ -70,7 +69,7 @@ public class PDI_11152_Test {
     Database db = mock( Database.class );
     RowMeta returnRowMeta = new RowMeta();
     doReturn( new Object[] { new Timestamp( System.currentTimeMillis() ) } ).when( db ).getLookup(
-        any( PreparedStatement.class ) );
+      any( PreparedStatement.class ) );
     returnRowMeta.addValueMeta( new ValueMetaDate( "TimeStamp" ) );
     doReturn( returnRowMeta ).when( db ).getReturnRowMeta();
 

@@ -22,23 +22,21 @@
 
 package org.apache.hop.core.row.value;
 
-import java.math.BigDecimal;
-import java.net.Inet6Address;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.junit.Test;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import org.junit.Test;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueMetaInterface;
-
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ValueMetaInternetAddressTest {
 

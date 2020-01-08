@@ -22,21 +22,18 @@
 
 package org.apache.hop.trans.steps.mail;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -44,8 +41,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * Send mail step. based on Mail job entry
@@ -65,10 +63,14 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
 
   private String destinationBCc;
 
-  /** Caution : this is not the reply to addresses but the mail sender name */
+  /**
+   * Caution : this is not the reply to addresses but the mail sender name
+   */
   private String replyAddress;
 
-  /** Caution : this is not the reply to addresses but the mail sender */
+  /**
+   * Caution : this is not the reply to addresses but the mail sender
+   */
   private String replyName;
 
   private String subject;
@@ -129,23 +131,33 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
 
   private String secureConnectionType;
 
-  /** The encoding to use for reading: null or empty string means system default encoding */
+  /**
+   * The encoding to use for reading: null or empty string means system default encoding
+   */
   private String encoding;
 
-  /** The reply to addresses */
+  /**
+   * The reply to addresses
+   */
   private String replyToAddresses;
 
   private String[] embeddedimages;
 
   private String[] contentids;
 
-  /** Flag : attach file from content defined in a field **/
+  /**
+   * Flag : attach file from content defined in a field
+   **/
   private boolean attachContentFromField;
 
-  /** file content field name **/
+  /**
+   * file content field name
+   **/
   private String attachContentField;
 
-  /** filename content field **/
+  /**
+   * filename content field
+   **/
   private String attachContentFileNameField;
 
   public MailMeta() {
@@ -164,8 +176,8 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int value ) {
-    this.embeddedimages = new String[value];
-    this.contentids = new String[value];
+    this.embeddedimages = new String[ value ];
+    this.contentids = new String[ value ];
   }
 
   private void readData( Node stepnode ) {
@@ -222,13 +234,13 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
     for ( int i = 0; i < nrImages; i++ ) {
       Node fnode = XMLHandler.getSubNodeByNr( images, "embeddedimage", i );
 
-      embeddedimages[i] = XMLHandler.getTagValue( fnode, "image_name" );
-      contentids[i] = XMLHandler.getTagValue( fnode, "content_id" );
+      embeddedimages[ i ] = XMLHandler.getTagValue( fnode, "image_name" );
+      contentids[ i ] = XMLHandler.getTagValue( fnode, "content_id" );
     }
   }
 
   public void setEmbeddedImage( int i, String value ) {
-    embeddedimages[i] = value;
+    embeddedimages[ i ] = value;
   }
 
   public void setEmbeddedImages( String[] value ) {
@@ -236,7 +248,7 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void setContentIds( int i, String value ) {
-    contentids[i] = value;
+    contentids[ i ] = value;
   }
 
   public void setContentIds( String[] value ) {
@@ -303,8 +315,8 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
     if ( embeddedimages != null ) {
       for ( int i = 0; i < embeddedimages.length; i++ ) {
         retval.append( "        <embeddedimage>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "image_name", embeddedimages[i] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "content_id", contentids[i] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "image_name", embeddedimages[ i ] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "content_id", contentids[ i ] ) );
         retval.append( "        </embeddedimage>" ).append( Const.CR );
       }
     }
@@ -521,16 +533,14 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param ziplimitsize
-   *          The ziplimitsize to set.
+   * @param ziplimitsize The ziplimitsize to set.
    */
   public void setZipLimitSize( String ziplimitsize ) {
     this.ziplimitsize = ziplimitsize;
   }
 
   /**
-   * @param zipFilename
-   *          The zipFilename to set.
+   * @param zipFilename The zipFilename to set.
    */
   public void setZipFilename( String zipFilename ) {
     this.zipFilename = zipFilename;
@@ -544,8 +554,7 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param zipFiles
-   *          The zipFiles to set.
+   * @param zipFiles The zipFiles to set.
    */
   public void setZipFiles( boolean zipFiles ) {
     this.zipFiles = zipFiles;
@@ -559,8 +568,7 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param authenticationPassword
-   *          The authenticationPassword to set.
+   * @param authenticationPassword The authenticationPassword to set.
    */
   public void setAuthenticationPassword( String authenticationPassword ) {
     this.authenticationPassword = authenticationPassword;
@@ -574,8 +582,7 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param authenticationUser
-   *          The authenticationUser to set.
+   * @param authenticationUser The authenticationUser to set.
    */
   public void setAuthenticationUser( String authenticationUser ) {
     this.authenticationUser = authenticationUser;
@@ -589,8 +596,7 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param usingAuthentication
-   *          The usingAuthentication to set.
+   * @param usingAuthentication The usingAuthentication to set.
    */
   public void setUsingAuthentication( boolean usingAuthentication ) {
     this.usingAuthentication = usingAuthentication;
@@ -604,8 +610,7 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param onlySendComment
-   *          the onlySendComment flag to set
+   * @param onlySendComment the onlySendComment flag to set
    */
   public void setOnlySendComment( boolean onlySendComment ) {
     this.onlySendComment = onlySendComment;
@@ -619,8 +624,7 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param useHTML
-   *          the useHTML to set
+   * @param useHTML the useHTML to set
    */
   public void setUseHTML( boolean useHTML ) {
     this.useHTML = useHTML;
@@ -641,16 +645,14 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param secureConnectionType
-   *          the secureconnectiontype to set
+   * @param secureConnectionType the secureconnectiontype to set
    */
   public void setSecureConnectionType( String secureConnectionType ) {
     this.secureConnectionType = secureConnectionType;
   }
 
   /**
-   * @param replyToAddresses
-   *          the replyToAddresses to set
+   * @param replyToAddresses the replyToAddresses to set
    */
   public void setReplyToAddresses( String replyToAddresses ) {
     this.replyToAddresses = replyToAddresses;
@@ -664,8 +666,7 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param encoding
-   *          the encoding to set
+   * @param encoding the encoding to set
    */
   public void setEncoding( String encoding ) {
     this.encoding = encoding;
@@ -679,8 +680,7 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param usingSecureAuthentication
-   *          the usingSecureAuthentication to set
+   * @param usingSecureAuthentication the usingSecureAuthentication to set
    */
   public void setUsingSecureAuthentication( boolean usingSecureAuthentication ) {
     this.usingSecureAuthentication = usingSecureAuthentication;
@@ -694,16 +694,14 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param port
-   *          the port to set
+   * @param port the port to set
    */
   public void setPort( String port ) {
     this.port = port;
   }
 
   /**
-   * @param usePriority
-   *          the usePriority to set
+   * @param usePriority the usePriority to set
    */
   public void setUsePriority( boolean usePriority ) {
     this.usePriority = usePriority;
@@ -724,8 +722,7 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param importance
-   *          the importance to set
+   * @param importance the importance to set
    */
   public void setImportance( String importancein ) {
     this.importance = importancein;
@@ -747,8 +744,7 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param priority
-   *          the priority to set
+   * @param priority the priority to set
    */
   public void setPriority( String priority ) {
     this.priority = priority;
@@ -756,8 +752,8 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -921,7 +917,7 @@ public class MailMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new Mail( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 

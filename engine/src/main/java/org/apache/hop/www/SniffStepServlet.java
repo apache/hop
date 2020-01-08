@@ -22,27 +22,26 @@
 
 package org.apache.hop.www;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.owasp.encoder.Encode;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.step.RowListener;
 import org.apache.hop.trans.step.StepInterface;
+import org.owasp.encoder.Encode;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class SniffStepServlet extends BaseHttpServlet implements HopServerPluginInterface {
@@ -69,154 +68,154 @@ public class SniffStepServlet extends BaseHttpServlet implements HopServerPlugin
   }
 
   /**
-<div id="mindtouch">
-    <h1>/hop/sniffStep</h1>
-    <a name="GET"></a>
-    <h2>GET</h2>
-    <p>Sniff metadata and data from the specified step of the specified transformation.</p>
-
-    <p><b>Example Request:</b><br />
-    <pre function="syntax.xml">
-    GET /hop/sniffStep?trans=dummy-trans&step=tf&xml=Y&lines=10
-    </pre>
-
-    </p>
-    <h3>Parameters</h3>
-    <table class="pentaho-table">
-    <tbody>
-    <tr>
-      <th>name</th>
-      <th>description</th>
-      <th>type</th>
-    </tr>
-    <tr>
-    <td>trans</td>
-    <td>Name of the transformation containing required step.</td>
-    <td>query</td>
-    </tr>
-    <tr>
-    <td>stepName</td>
-    <td>Name of the transformation step to collect data for.</td>
-    <td>query</td>
-    </tr>
-    <tr>
-    <td>copynr</td>
-    <td>Copy number of the step to be used for collecting data. If not provided 0 is used.</td>
-    <td>integer, optional</td>
-    </tr>
-    <tr>
-    <td>type</td>
-    <td>Type of the data to be collected (<code>input</code> or <code>output</code>).
-    If not provided output data is collected.</td>
-    <td>query, optional</td>
-    </tr>
-    <tr>
-    <td>xml</td>
-    <td>Boolean flag which defines output format <code>Y</code> forces XML output to be generated.
-  HTML is returned otherwise.</td>
-    <td>boolean, optional</td>
-    </tr>
-    <tr>
-    <td>id</td>
-    <td>HopServer id of the transformation to be used for step lookup.</td>
-    <td>query, optional</td>
-    </tr>
-    <tr>
-    <td>lines</td>
-    <td>Number of lines to collect and include into response. If not provided 0 lines will be collected.</td>
-    <td>integer, optional</td>
-    </tr>
-    </tbody>
-    </table>
-
-  <h3>Response Body</h3>
-
-  <table class="pentaho-table">
-    <tbody>
-      <tr>
-        <td align="right">element:</td>
-        <td>(custom)</td>
-      </tr>
-      <tr>
-        <td align="right">media types:</td>
-        <td>text/xml, text/html</td>
-      </tr>
-    </tbody>
-  </table>
-    <p>Response XML or HTML response containing data and metadata of the step.
-  If an error occurs during method invocation <code>result</code> field of the response
-  will contain <code>ERROR</code> status.</p>
-
-    <p><b>Example Response:</b></p>
-    <pre function="syntax.xml">
-    <?xml version="1.0" encoding="UTF-8"?>
-    <step-sniff>
-      <row-meta>
-        <value-meta><type>String</type>
-          <storagetype>normal</storagetype>
-          <name>Field1</name>
-          <length>0</length>
-          <precision>-1</precision>
-          <origin>tf</origin>
-          <comments/>
-          <conversion_Mask/>
-          <decimal_symbol>.</decimal_symbol>
-          <grouping_symbol>,</grouping_symbol>
-          <currency_symbol>&#x24;</currency_symbol>
-          <trim_type>none</trim_type>
-          <case_insensitive>N</case_insensitive>
-          <sort_descending>N</sort_descending>
-          <output_padding>N</output_padding>
-          <date_format_lenient>Y</date_format_lenient>
-          <date_format_locale>en_US</date_format_locale>
-          <date_format_timezone>America&#x2f;Bahia</date_format_timezone>
-          <lenient_string_to_number>N</lenient_string_to_number>
-        </value-meta>
-      </row-meta>
-      <nr_rows>10</nr_rows>
-
-      <row-data><value-data>my-data</value-data>
-      </row-data>
-      <row-data><value-data>my-data </value-data>
-      </row-data>
-      <row-data><value-data>my-data</value-data>
-      </row-data>
-      <row-data><value-data>my-data</value-data>
-      </row-data>
-      <row-data><value-data>my-data</value-data>
-      </row-data>
-      <row-data><value-data>my-data</value-data>
-      </row-data>
-      <row-data><value-data>my-data</value-data>
-      </row-data>
-      <row-data><value-data>my-data</value-data>
-      </row-data>
-      <row-data><value-data>my-data</value-data>
-      </row-data>
-      <row-data><value-data>my-data</value-data>
-      </row-data>
-    </step-sniff>
-    </pre>
-
-    <h3>Status Codes</h3>
-    <table class="pentaho-table">
-  <tbody>
-    <tr>
-      <th>code</th>
-      <th>description</th>
-    </tr>
-    <tr>
-      <td>200</td>
-      <td>Request was processed.</td>
-    </tr>
-    <tr>
-      <td>500</td>
-      <td>Internal server error occurs during request processing.</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-  */
+   * <div id="mindtouch">
+   * <h1>/hop/sniffStep</h1>
+   * <a name="GET"></a>
+   * <h2>GET</h2>
+   * <p>Sniff metadata and data from the specified step of the specified transformation.</p>
+   *
+   * <p><b>Example Request:</b><br />
+   * <pre function="syntax.xml">
+   * GET /hop/sniffStep?trans=dummy-trans&step=tf&xml=Y&lines=10
+   * </pre>
+   *
+   * </p>
+   * <h3>Parameters</h3>
+   * <table class="pentaho-table">
+   * <tbody>
+   * <tr>
+   * <th>name</th>
+   * <th>description</th>
+   * <th>type</th>
+   * </tr>
+   * <tr>
+   * <td>trans</td>
+   * <td>Name of the transformation containing required step.</td>
+   * <td>query</td>
+   * </tr>
+   * <tr>
+   * <td>stepName</td>
+   * <td>Name of the transformation step to collect data for.</td>
+   * <td>query</td>
+   * </tr>
+   * <tr>
+   * <td>copynr</td>
+   * <td>Copy number of the step to be used for collecting data. If not provided 0 is used.</td>
+   * <td>integer, optional</td>
+   * </tr>
+   * <tr>
+   * <td>type</td>
+   * <td>Type of the data to be collected (<code>input</code> or <code>output</code>).
+   * If not provided output data is collected.</td>
+   * <td>query, optional</td>
+   * </tr>
+   * <tr>
+   * <td>xml</td>
+   * <td>Boolean flag which defines output format <code>Y</code> forces XML output to be generated.
+   * HTML is returned otherwise.</td>
+   * <td>boolean, optional</td>
+   * </tr>
+   * <tr>
+   * <td>id</td>
+   * <td>HopServer id of the transformation to be used for step lookup.</td>
+   * <td>query, optional</td>
+   * </tr>
+   * <tr>
+   * <td>lines</td>
+   * <td>Number of lines to collect and include into response. If not provided 0 lines will be collected.</td>
+   * <td>integer, optional</td>
+   * </tr>
+   * </tbody>
+   * </table>
+   *
+   * <h3>Response Body</h3>
+   *
+   * <table class="pentaho-table">
+   * <tbody>
+   * <tr>
+   * <td align="right">element:</td>
+   * <td>(custom)</td>
+   * </tr>
+   * <tr>
+   * <td align="right">media types:</td>
+   * <td>text/xml, text/html</td>
+   * </tr>
+   * </tbody>
+   * </table>
+   * <p>Response XML or HTML response containing data and metadata of the step.
+   * If an error occurs during method invocation <code>result</code> field of the response
+   * will contain <code>ERROR</code> status.</p>
+   *
+   * <p><b>Example Response:</b></p>
+   * <pre function="syntax.xml">
+   * <?xml version="1.0" encoding="UTF-8"?>
+   * <step-sniff>
+   * <row-meta>
+   * <value-meta><type>String</type>
+   * <storagetype>normal</storagetype>
+   * <name>Field1</name>
+   * <length>0</length>
+   * <precision>-1</precision>
+   * <origin>tf</origin>
+   * <comments/>
+   * <conversion_Mask/>
+   * <decimal_symbol>.</decimal_symbol>
+   * <grouping_symbol>,</grouping_symbol>
+   * <currency_symbol>&#x24;</currency_symbol>
+   * <trim_type>none</trim_type>
+   * <case_insensitive>N</case_insensitive>
+   * <sort_descending>N</sort_descending>
+   * <output_padding>N</output_padding>
+   * <date_format_lenient>Y</date_format_lenient>
+   * <date_format_locale>en_US</date_format_locale>
+   * <date_format_timezone>America&#x2f;Bahia</date_format_timezone>
+   * <lenient_string_to_number>N</lenient_string_to_number>
+   * </value-meta>
+   * </row-meta>
+   * <nr_rows>10</nr_rows>
+   *
+   * <row-data><value-data>my-data</value-data>
+   * </row-data>
+   * <row-data><value-data>my-data </value-data>
+   * </row-data>
+   * <row-data><value-data>my-data</value-data>
+   * </row-data>
+   * <row-data><value-data>my-data</value-data>
+   * </row-data>
+   * <row-data><value-data>my-data</value-data>
+   * </row-data>
+   * <row-data><value-data>my-data</value-data>
+   * </row-data>
+   * <row-data><value-data>my-data</value-data>
+   * </row-data>
+   * <row-data><value-data>my-data</value-data>
+   * </row-data>
+   * <row-data><value-data>my-data</value-data>
+   * </row-data>
+   * <row-data><value-data>my-data</value-data>
+   * </row-data>
+   * </step-sniff>
+   * </pre>
+   *
+   * <h3>Status Codes</h3>
+   * <table class="pentaho-table">
+   * <tbody>
+   * <tr>
+   * <th>code</th>
+   * <th>description</th>
+   * </tr>
+   * <tr>
+   * <td>200</td>
+   * <td>Request was processed.</td>
+   * </tr>
+   * <tr>
+   * <td>500</td>
+   * <td>Internal server error occurs during request processing.</td>
+   * </tr>
+   * </tbody>
+   * </table>
+   * </div>
+   */
   public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
     IOException {
     if ( isJettyMode() && !request.getContextPath().startsWith( CONTEXT_PATH ) ) {
@@ -375,7 +374,7 @@ public class SniffStepServlet extends BaseHttpServlet implements HopServerPlugin
           out.println( "<BODY>" );
           out.println( "<H1>"
             + Encode.forHtml( BaseMessages.getString(
-              PKG, "SniffStepServlet.SniffResultsForStep", stepName ) ) + "</H1>" );
+            PKG, "SniffStepServlet.SniffResultsForStep", stepName ) ) + "</H1>" );
 
           try {
             out.println( "<table border=\"1\">" );
@@ -397,7 +396,7 @@ public class SniffStepServlet extends BaseHttpServlet implements HopServerPlugin
                 out.println( "<td>" + ( r + 1 ) + "</td>" );
                 for ( int v = 0; v < metaData.bufferRowMeta.size(); v++ ) {
                   ValueMetaInterface valueMeta = metaData.bufferRowMeta.getValueMeta( v );
-                  Object valueData = rowData[v];
+                  Object valueData = rowData[ v ];
                   out.println( "<td>" + valueMeta.getString( valueData ) + "</td>" );
                 }
                 out.println( "</tr>" );
@@ -426,7 +425,7 @@ public class SniffStepServlet extends BaseHttpServlet implements HopServerPlugin
         } else {
           out.println( "<H1>"
             + Encode.forHtml( BaseMessages.getString(
-              PKG, "SniffStepServlet.Log.CoundNotFindSpecStep", stepName ) ) + "</H1>" );
+            PKG, "SniffStepServlet.Log.CoundNotFindSpecStep", stepName ) ) + "</H1>" );
           out.println( "<a href=\""
             + convertContextPath( GetStatusServlet.CONTEXT_PATH ) + "\">"
             + BaseMessages.getString( PKG, "TransStatusServlet.BackToStatusPage" ) + "</a><p>" );
@@ -439,7 +438,7 @@ public class SniffStepServlet extends BaseHttpServlet implements HopServerPlugin
       } else {
         out.println( "<H1>"
           + Encode.forHtml( BaseMessages.getString(
-            PKG, "SniffStepServlet.Log.CoundNotFindTrans", transName ) ) + "</H1>" );
+          PKG, "SniffStepServlet.Log.CoundNotFindTrans", transName ) ) + "</H1>" );
         out.println( "<a href=\""
           + convertContextPath( GetStatusServlet.CONTEXT_PATH ) + "\">"
           + BaseMessages.getString( PKG, "TransStatusServlet.BackToStatusPage" ) + "</a><p>" );

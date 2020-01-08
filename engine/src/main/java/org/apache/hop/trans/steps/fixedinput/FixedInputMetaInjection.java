@@ -22,9 +22,6 @@
 
 package org.apache.hop.trans.steps.fixedinput;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -32,6 +29,9 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.step.StepInjectionMetaEntry;
 import org.apache.hop.trans.step.StepMetaInjectionInterface;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Metadata injection interface for the Fixed File Input step.
@@ -181,7 +181,7 @@ public class FixedInputMetaInjection implements StepMetaInjectionInterface {
 
     // Pass the grid to the step metadata
     //
-    meta.setFieldDefinition( fixedInputFields.toArray( new FixedFileInputField[fixedInputFields.size()] ) );
+    meta.setFieldDefinition( fixedInputFields.toArray( new FixedFileInputField[ fixedInputFields.size() ] ) );
   }
 
   @Override
@@ -198,26 +198,26 @@ public class FixedInputMetaInjection implements StepMetaInjectionInterface {
     FIELDS( ValueMetaInterface.TYPE_NONE, "All the data fields in the fixed width file" ), FIELD(
       ValueMetaInterface.TYPE_NONE, "One data field" ),
 
-      NAME( FIELD, ValueMetaInterface.TYPE_STRING, "Field name" ), TYPE(
-        FIELD, ValueMetaInterface.TYPE_STRING, "Field data type" ), WIDTH(
-        FIELD, ValueMetaInterface.TYPE_STRING, "Field width" ), LENGTH(
-        FIELD, ValueMetaInterface.TYPE_STRING, "Field length" ), PRECISION(
-        FIELD, ValueMetaInterface.TYPE_STRING, "Field precision" ), FORMAT(
-        FIELD, ValueMetaInterface.TYPE_STRING, "Field conversion format" ), TRIM_TYPE(
-        FIELD, ValueMetaInterface.TYPE_STRING, "Field trim type (none, left, right, both)" ), CURRENCY(
-        FIELD, ValueMetaInterface.TYPE_STRING, "Field currency symbol" ), DECIMAL(
-        FIELD, ValueMetaInterface.TYPE_STRING, "Field decimal symbol" ), GROUP(
-        FIELD, ValueMetaInterface.TYPE_STRING, "Field group symbol" ),
+    NAME( FIELD, ValueMetaInterface.TYPE_STRING, "Field name" ), TYPE(
+      FIELD, ValueMetaInterface.TYPE_STRING, "Field data type" ), WIDTH(
+      FIELD, ValueMetaInterface.TYPE_STRING, "Field width" ), LENGTH(
+      FIELD, ValueMetaInterface.TYPE_STRING, "Field length" ), PRECISION(
+      FIELD, ValueMetaInterface.TYPE_STRING, "Field precision" ), FORMAT(
+      FIELD, ValueMetaInterface.TYPE_STRING, "Field conversion format" ), TRIM_TYPE(
+      FIELD, ValueMetaInterface.TYPE_STRING, "Field trim type (none, left, right, both)" ), CURRENCY(
+      FIELD, ValueMetaInterface.TYPE_STRING, "Field currency symbol" ), DECIMAL(
+      FIELD, ValueMetaInterface.TYPE_STRING, "Field decimal symbol" ), GROUP(
+      FIELD, ValueMetaInterface.TYPE_STRING, "Field group symbol" ),
 
-      FILENAME( ValueMetaInterface.TYPE_STRING, "Filename" ), HEADER_PRESENT(
-        ValueMetaInterface.TYPE_STRING, "Header present? (Y/N)" ), LINE_WIDTH(
-        ValueMetaInterface.TYPE_STRING, "The line width" ), BUFFER_SIZE(
-        ValueMetaInterface.TYPE_STRING, "The buffer size" ), LAZY_CONVERSION_ACTIVE(
-        ValueMetaInterface.TYPE_STRING, "Lazy conversion active? (Y/N)" ), LINE_FEED_PRESENT(
-        ValueMetaInterface.TYPE_STRING, "Line feed present? (Y/N)" ), RUNNING_IN_PARALLEL(
-        ValueMetaInterface.TYPE_STRING, "Running in parallel? (Y/N)" ), FILE_TYPE_CODE(
-        ValueMetaInterface.TYPE_STRING, "File type code (NONE, UNIX, DOS)" ), ADD_TO_RESULT(
-        ValueMetaInterface.TYPE_STRING, "Add filename to result? (Y/N)" );
+    FILENAME( ValueMetaInterface.TYPE_STRING, "Filename" ), HEADER_PRESENT(
+      ValueMetaInterface.TYPE_STRING, "Header present? (Y/N)" ), LINE_WIDTH(
+      ValueMetaInterface.TYPE_STRING, "The line width" ), BUFFER_SIZE(
+      ValueMetaInterface.TYPE_STRING, "The buffer size" ), LAZY_CONVERSION_ACTIVE(
+      ValueMetaInterface.TYPE_STRING, "Lazy conversion active? (Y/N)" ), LINE_FEED_PRESENT(
+      ValueMetaInterface.TYPE_STRING, "Line feed present? (Y/N)" ), RUNNING_IN_PARALLEL(
+      ValueMetaInterface.TYPE_STRING, "Running in parallel? (Y/N)" ), FILE_TYPE_CODE(
+      ValueMetaInterface.TYPE_STRING, "File type code (NONE, UNIX, DOS)" ), ADD_TO_RESULT(
+      ValueMetaInterface.TYPE_STRING, "Add filename to result? (Y/N)" );
 
     private int valueType;
     private String description;

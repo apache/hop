@@ -22,21 +22,6 @@
 
 package org.apache.hop.trans.steps.fuzzymatch;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
@@ -51,6 +36,21 @@ import org.apache.hop.trans.step.StepIOMetaInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InjectMocks;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * User: Dzmitry Stsiapanau Date: 10/16/13 Time: 6:23 PM
@@ -70,6 +70,7 @@ public class FuzzyMatchTest {
   private List<Object[]> binaryRows = new ArrayList<Object[]>();
   private List<Object[]> lookupRows = new ArrayList<Object[]>();
   private List<Object[]> binaryLookupRows = new ArrayList<Object[]>();
+
   {
     rows.add( row );
     binaryRows.add( rowB );
@@ -84,7 +85,7 @@ public class FuzzyMatchTest {
     private RowSet rowset = null;
 
     public FuzzyMatchHandler( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-        Trans trans ) {
+                              Trans trans ) {
       super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
     }
 
@@ -96,11 +97,9 @@ public class FuzzyMatchTest {
     /**
      * Find input row set.
      *
-     * @param sourceStep
-     *          the source step
+     * @param sourceStep the source step
      * @return the row set
-     * @throws org.apache.hop.core.exception.HopStepException
-     *           the kettle step exception
+     * @throws org.apache.hop.core.exception.HopStepException the kettle step exception
      */
     @Override
     public RowSet findInputRowSet( String sourceStep ) throws HopStepException {
@@ -111,9 +110,9 @@ public class FuzzyMatchTest {
   @Before
   public void setUp() throws Exception {
     mockHelper =
-        new StepMockHelper<FuzzyMatchMeta, FuzzyMatchData>( "Fuzzy Match", FuzzyMatchMeta.class, FuzzyMatchData.class );
+      new StepMockHelper<FuzzyMatchMeta, FuzzyMatchData>( "Fuzzy Match", FuzzyMatchMeta.class, FuzzyMatchData.class );
     when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        mockHelper.logChannelInterface );
+      mockHelper.logChannelInterface );
     when( mockHelper.trans.isRunning() ).thenReturn( true );
   }
 
@@ -126,8 +125,8 @@ public class FuzzyMatchTest {
   @Test
   public void testProcessRow() throws Exception {
     fuzzyMatch =
-        new FuzzyMatchHandler( mockHelper.stepMeta, mockHelper.stepDataInterface, 0, mockHelper.transMeta,
-            mockHelper.trans );
+      new FuzzyMatchHandler( mockHelper.stepMeta, mockHelper.stepDataInterface, 0, mockHelper.transMeta,
+        mockHelper.trans );
     fuzzyMatch.init( mockHelper.initStepMetaInterface, mockHelper.initStepDataInterface );
     fuzzyMatch.addRowSetToInputRowSets( mockHelper.getMockInputRowSet( rows ) );
     fuzzyMatch.addRowSetToInputRowSets( mockHelper.getMockInputRowSet( lookupRows ) );
@@ -137,21 +136,21 @@ public class FuzzyMatchTest {
     when( mockHelper.processRowsStepDataInterface.look.iterator() ).thenReturn( lookupRows.iterator() );
 
     fuzzyMatch.processRow( mockHelper.processRowsStepMetaInterface, mockHelper.processRowsStepDataInterface );
-    Assert.assertEquals( fuzzyMatch.resultRow[0], row3[0] );
+    Assert.assertEquals( fuzzyMatch.resultRow[ 0 ], row3[ 0 ] );
   }
 
   @Test
   public void testReadLookupValues() throws Exception {
     FuzzyMatchData data = spy( new FuzzyMatchData() );
-    data.indexOfCachedFields = new int[2];
+    data.indexOfCachedFields = new int[ 2 ];
     data.minimalDistance = 0;
     data.maximalDistance = 5;
     FuzzyMatchMeta meta = spy( new FuzzyMatchMeta() );
     meta.setOutputMatchField( "I don't want NPE here!" );
     data.readLookupValues = true;
     fuzzyMatch =
-        new FuzzyMatchHandler( mockHelper.stepMeta, mockHelper.stepDataInterface, 0, mockHelper.transMeta,
-            mockHelper.trans );
+      new FuzzyMatchHandler( mockHelper.stepMeta, mockHelper.stepDataInterface, 0, mockHelper.transMeta,
+        mockHelper.trans );
 
     fuzzyMatch.init( meta, data );
     RowSet lookupRowSet = mockHelper.getMockInputRowSet( binaryLookupRows );
@@ -181,7 +180,7 @@ public class FuzzyMatchTest {
 
     fuzzyMatch.processRow( meta, data );
     Assert.assertEquals( rowMetaInterface.getString( row3B, 0 ),
-        data.outputRowMeta.getString( fuzzyMatch.resultRow, 1 ) );
+      data.outputRowMeta.getString( fuzzyMatch.resultRow, 1 ) );
   }
 
   @Test
@@ -190,13 +189,13 @@ public class FuzzyMatchTest {
     FuzzyMatchMeta meta = spy( new FuzzyMatchMeta() );
     data.readLookupValues = false;
     fuzzyMatch =
-            new FuzzyMatchHandler( mockHelper.stepMeta, mockHelper.stepDataInterface, 0, mockHelper.transMeta,
-                    mockHelper.trans );
+      new FuzzyMatchHandler( mockHelper.stepMeta, mockHelper.stepDataInterface, 0, mockHelper.transMeta,
+        mockHelper.trans );
     fuzzyMatch.init( meta, data );
     fuzzyMatch.first = false;
     data.indexOfMainField = 1;
     Object[] inputRow = { "test input", null };
-    RowSet lookupRowSet = mockHelper.getMockInputRowSet( new Object[]{ "test lookup" } );
+    RowSet lookupRowSet = mockHelper.getMockInputRowSet( new Object[] { "test lookup" } );
     fuzzyMatch.addRowSetToInputRowSets( mockHelper.getMockInputRowSet( inputRow ) );
     fuzzyMatch.addRowSetToInputRowSets( lookupRowSet );
     fuzzyMatch.rowset = lookupRowSet;
@@ -211,8 +210,8 @@ public class FuzzyMatchTest {
     data.outputRowMeta = rowMetaInterface.clone();
 
     fuzzyMatch.processRow( meta, data );
-    Assert.assertEquals( inputRow[0], fuzzyMatch.resultRow[0] );
-    Assert.assertNull( fuzzyMatch.resultRow[1] );
-    Assert.assertTrue( Arrays.stream( fuzzyMatch.resultRow, 3, fuzzyMatch.resultRow.length ).allMatch( val ->  val == null ) );
+    Assert.assertEquals( inputRow[ 0 ], fuzzyMatch.resultRow[ 0 ] );
+    Assert.assertNull( fuzzyMatch.resultRow[ 1 ] );
+    Assert.assertTrue( Arrays.stream( fuzzyMatch.resultRow, 3, fuzzyMatch.resultRow.length ).allMatch( val -> val == null ) );
   }
 }

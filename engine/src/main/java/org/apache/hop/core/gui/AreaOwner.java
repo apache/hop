@@ -30,32 +30,31 @@ import java.util.Set;
  * it. That should make it a lot easier to track what was drawn, setting tooltips, etc.
  *
  * @author Matt
- *
  */
 public class AreaOwner {
 
   public enum AreaType {
     NOTE, REMOTE_INPUT_STEP, REMOTE_OUTPUT_STEP, STEP_PARTITIONING, STEP_ICON, STEP_ERROR_ICON, STEP_ERROR_RED_ICON,
-      STEP_INPUT_HOP_ICON, STEP_OUTPUT_HOP_ICON, STEP_INFO_HOP_ICON, STEP_ERROR_HOP_ICON, STEP_TARGET_HOP_ICON,
-      HOP_COPY_ICON, ROW_DISTRIBUTION_ICON, HOP_ERROR_ICON, HOP_INFO_ICON, HOP_INFO_STEP_COPIES_ERROR,
+    STEP_INPUT_HOP_ICON, STEP_OUTPUT_HOP_ICON, STEP_INFO_HOP_ICON, STEP_ERROR_HOP_ICON, STEP_TARGET_HOP_ICON,
+    HOP_COPY_ICON, ROW_DISTRIBUTION_ICON, HOP_ERROR_ICON, HOP_INFO_ICON, HOP_INFO_STEP_COPIES_ERROR,
 
-      MINI_ICONS_BALLOON,
+    MINI_ICONS_BALLOON,
 
-      STEP_TARGET_HOP_ICON_OPTION, STEP_EDIT_ICON, STEP_MENU_ICON, STEP_COPIES_TEXT, STEP_DATA_SERVICE,
+    STEP_TARGET_HOP_ICON_OPTION, STEP_EDIT_ICON, STEP_MENU_ICON, STEP_COPIES_TEXT, STEP_DATA_SERVICE,
 
-      JOB_ENTRY_ICON, JOB_HOP_ICON, JOB_HOP_PARALLEL_ICON, JOB_ENTRY_MINI_ICON_INPUT, JOB_ENTRY_MINI_ICON_OUTPUT,
-      JOB_ENTRY_MINI_ICON_CONTEXT, JOB_ENTRY_MINI_ICON_EDIT,
+    JOB_ENTRY_ICON, JOB_HOP_ICON, JOB_HOP_PARALLEL_ICON, JOB_ENTRY_MINI_ICON_INPUT, JOB_ENTRY_MINI_ICON_OUTPUT,
+    JOB_ENTRY_MINI_ICON_CONTEXT, JOB_ENTRY_MINI_ICON_EDIT,
 
-      JOB_ENTRY_BUSY, JOB_ENTRY_RESULT_SUCCESS, JOB_ENTRY_RESULT_FAILURE, JOB_ENTRY_RESULT_CHECKPOINT,
-      STEP_INJECT_ICON,
+    JOB_ENTRY_BUSY, JOB_ENTRY_RESULT_SUCCESS, JOB_ENTRY_RESULT_FAILURE, JOB_ENTRY_RESULT_CHECKPOINT,
+    STEP_INJECT_ICON,
 
-      CUSTOM;
+    CUSTOM;
 
     private static final Set<AreaType> jobContextMenuArea = EnumSet.of( MINI_ICONS_BALLOON, JOB_ENTRY_MINI_ICON_INPUT,
-        JOB_ENTRY_MINI_ICON_EDIT, JOB_ENTRY_MINI_ICON_CONTEXT, JOB_ENTRY_MINI_ICON_OUTPUT );
+      JOB_ENTRY_MINI_ICON_EDIT, JOB_ENTRY_MINI_ICON_CONTEXT, JOB_ENTRY_MINI_ICON_OUTPUT );
 
     private static final Set<AreaType> stepContextMenuArea = EnumSet.of( MINI_ICONS_BALLOON, STEP_INPUT_HOP_ICON,
-        STEP_EDIT_ICON, STEP_MENU_ICON, STEP_OUTPUT_HOP_ICON, STEP_INJECT_ICON );
+      STEP_EDIT_ICON, STEP_MENU_ICON, STEP_OUTPUT_HOP_ICON, STEP_INJECT_ICON );
 
     public boolean belongsToJobContextMenu() {
       return jobContextMenuArea.contains( this );
@@ -81,7 +80,7 @@ public class AreaOwner {
    * @param owner
    */
   public AreaOwner( AreaType areaType, int x, int y, int width, int heigth, Point offset, Object parent,
-    Object owner ) {
+                    Object owner ) {
     super();
     this.areaType = areaType;
     this.area = new Rectangle( x - offset.x, y - offset.y, width, heigth );
@@ -90,7 +89,7 @@ public class AreaOwner {
   }
 
   public AreaOwner( Object extensionAreaType, int x, int y, int width, int heigth, Point offset, Object parent,
-      Object owner ) {
+                    Object owner ) {
     super();
     this.extensionAreaType = extensionAreaType;
     this.area = new Rectangle( x - offset.x, y - offset.y, width, heigth );
@@ -101,10 +100,8 @@ public class AreaOwner {
   /**
    * Validate if a certain coordinate is contained in the area
    *
-   * @param x
-   *          x-coordinate
-   * @param y
-   *          y-coordinate
+   * @param x x-coordinate
+   * @param y y-coordinate
    * @return true if the specified coordinate is contained in the area
    */
   public boolean contains( int x, int y ) {
@@ -119,8 +116,7 @@ public class AreaOwner {
   }
 
   /**
-   * @param area
-   *          the area to set
+   * @param area the area to set
    */
   public void setArea( Rectangle area ) {
     this.area = area;
@@ -134,8 +130,7 @@ public class AreaOwner {
   }
 
   /**
-   * @param owner
-   *          the owner to set
+   * @param owner the owner to set
    */
   public void setOwner( Object owner ) {
     this.owner = owner;
@@ -149,8 +144,7 @@ public class AreaOwner {
   }
 
   /**
-   * @param parent
-   *          the parent to set
+   * @param parent the parent to set
    */
   public void setParent( Object parent ) {
     this.parent = parent;
@@ -164,8 +158,7 @@ public class AreaOwner {
   }
 
   /**
-   * @param areaType
-   *          the areaType to set
+   * @param areaType the areaType to set
    */
   public void setAreaType( AreaType areaType ) {
     this.areaType = areaType;

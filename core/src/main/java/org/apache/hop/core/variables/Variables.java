@@ -23,11 +23,11 @@
 package org.apache.hop.core.variables;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.version.BuildVersion;
 
 import java.util.Hashtable;
@@ -80,7 +80,7 @@ public class Variables implements VariableSpace {
       // the same object as the argument.
       String[] variableNames = space.listVariables();
       for ( int idx = 0; idx < variableNames.length; idx++ ) {
-        properties.put( variableNames[idx], space.getVariable( variableNames[idx] ) );
+        properties.put( variableNames[ idx ], space.getVariable( variableNames[ idx ] ) );
       }
     }
   }
@@ -144,7 +144,7 @@ public class Variables implements VariableSpace {
   @Override
   public String[] listVariables() {
     Set<String> keySet = properties.keySet();
-    return keySet.toArray( new String[0] );
+    return keySet.toArray( new String[ 0 ] );
   }
 
   @Override
@@ -170,16 +170,11 @@ public class Variables implements VariableSpace {
    * retrieved from the specified row. Please note that the getString() method is used to convert to a String, for all
    * values in the row.
    *
-   * @param aString
-   *          the string on which to apply the substitution.
-   * @param rowMeta
-   *          The row metadata to use.
-   * @param rowData
-   *          The row data to use
-   *
+   * @param aString the string on which to apply the substitution.
+   * @param rowMeta The row metadata to use.
+   * @param rowData The row data to use
    * @return the string with the substitution applied.
-   * @throws HopValueException
-   *           In case there is a String conversion error
+   * @throws HopValueException In case there is a String conversion error
    */
   @Override
   public String fieldSubstitute( String aString, RowMetaInterface rowMeta, Object[] rowData )
@@ -193,9 +188,9 @@ public class Variables implements VariableSpace {
 
   @Override
   public String[] environmentSubstitute( String[] string ) {
-    String[] retval = new String[string.length];
+    String[] retval = new String[ string.length ];
     for ( int i = 0; i < string.length; i++ ) {
-      retval[i] = environmentSubstitute( string[i] );
+      retval[ i ] = environmentSubstitute( string[ i ] );
     }
     return retval;
   }

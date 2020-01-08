@@ -22,10 +22,6 @@
 
 package org.apache.hop.www;
 
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
@@ -33,6 +29,10 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.WriteListener;
@@ -82,7 +82,7 @@ public class GetPropertiesServletTest {
       }
 
       @Override
-      public void setWriteListener(WriteListener writeListener) {
+      public void setWriteListener( WriteListener writeListener ) {
 
       }
 

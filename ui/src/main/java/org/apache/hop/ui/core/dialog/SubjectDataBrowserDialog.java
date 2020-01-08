@@ -22,11 +22,20 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -42,20 +51,11 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Displays a TableView with the possibility to see different data sets per subject.
@@ -92,7 +92,7 @@ public class SubjectDataBrowserDialog {
   private String[] subjects;
 
   public SubjectDataBrowserDialog( Shell parent, Map<String, RowMetaInterface> metaMap,
-    Map<String, List<Object[]>> dataMap, String dialogTitle, String subjectMessage ) {
+                                   Map<String, List<Object[]>> dataMap, String dialogTitle, String subjectMessage ) {
     this.parentShell = parent;
     this.metaMap = metaMap;
     this.dataMap = dataMap;
@@ -101,12 +101,12 @@ public class SubjectDataBrowserDialog {
 
     props = PropsUI.getInstance();
 
-    subjects = metaMap.keySet().toArray( new String[metaMap.size()] );
+    subjects = metaMap.keySet().toArray( new String[ metaMap.size() ] );
     Arrays.sort( subjects );
 
     selectedSubject = "";
     if ( !metaMap.isEmpty() ) {
-      selectedSubject = subjects[0];
+      selectedSubject = subjects[ 0 ];
     }
 
     this.log = new LogChannel( "Subject Data Browser Dialog" );
@@ -203,12 +203,12 @@ public class SubjectDataBrowserDialog {
     }
 
     // ColumnInfo[] colinf = new ColumnInfo[rowMeta==null ? 0 : rowMeta.size()];
-    ColumnInfo[] colinf = new ColumnInfo[rowMeta.size()];
+    ColumnInfo[] colinf = new ColumnInfo[ rowMeta.size() ];
     for ( int i = 0; i < rowMeta.size(); i++ ) {
       ValueMetaInterface v = rowMeta.getValueMeta( i );
-      colinf[i] = new ColumnInfo( v.getName(), ColumnInfo.COLUMN_TYPE_TEXT, v.isNumeric() );
-      colinf[i].setToolTip( v.toStringMeta() );
-      colinf[i].setValueMeta( v );
+      colinf[ i ] = new ColumnInfo( v.getName(), ColumnInfo.COLUMN_TYPE_TEXT, v.isNumeric() );
+      colinf[ i ].setToolTip( v.toStringMeta() );
+      colinf[ i ].setValueMeta( v );
     }
 
     wFields =
@@ -267,7 +267,7 @@ public class SubjectDataBrowserDialog {
       ValueMetaInterface v = rowMeta.getValueMeta( c );
       String show;
       try {
-        show = v.getString( row[c] );
+        show = v.getString( row[ c ] );
         if ( v.isBinary() && show != null && show.length() > MAX_BINARY_STRING_PREVIEW_SIZE ) {
           // We want to limit the size of the strings during preview to keep all SWT widgets happy.
           //

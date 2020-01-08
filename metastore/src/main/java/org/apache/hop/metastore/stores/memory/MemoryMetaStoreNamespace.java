@@ -17,6 +17,13 @@
 
 package org.apache.hop.metastore.stores.memory;
 
+import org.apache.hop.metastore.api.IMetaStoreElement;
+import org.apache.hop.metastore.api.IMetaStoreElementType;
+import org.apache.hop.metastore.api.exceptions.MetaStoreDependenciesExistsException;
+import org.apache.hop.metastore.api.exceptions.MetaStoreElementTypeExistsException;
+import org.apache.hop.metastore.api.exceptions.MetaStoreException;
+import org.apache.hop.metastore.util.MetaStoreUtil;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,13 +33,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
-
-import org.apache.hop.metastore.api.IMetaStoreElement;
-import org.apache.hop.metastore.api.IMetaStoreElementType;
-import org.apache.hop.metastore.api.exceptions.MetaStoreDependenciesExistsException;
-import org.apache.hop.metastore.api.exceptions.MetaStoreElementTypeExistsException;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.util.MetaStoreUtil;
 
 public class MemoryMetaStoreNamespace {
 
@@ -58,13 +58,13 @@ public class MemoryMetaStoreNamespace {
 
   public Map<String, MemoryMetaStoreElementType> getTypeMap() {
     return MetaStoreUtil.executeLockedOperationQuietly( readLock,
-        new Callable<Map<String, MemoryMetaStoreElementType>>() {
+      new Callable<Map<String, MemoryMetaStoreElementType>>() {
 
-          @Override
-          public Map<String, MemoryMetaStoreElementType> call() throws Exception {
-            return new HashMap<String, MemoryMetaStoreElementType>( typeMap );
-          }
-        } );
+        @Override
+        public Map<String, MemoryMetaStoreElementType> call() throws Exception {
+          return new HashMap<String, MemoryMetaStoreElementType>( typeMap );
+        }
+      } );
   }
 
   private MemoryMetaStoreElementType getElementTypeByNameInternal( String elementTypeName ) {
@@ -114,7 +114,7 @@ public class MemoryMetaStoreNamespace {
           MemoryMetaStoreElementType verifyType = typeMap.get( elementType.getId() );
           if ( verifyType != null ) {
             throw new MetaStoreElementTypeExistsException( new ArrayList<IMetaStoreElementType>( typeMap.values() ),
-                "Element type with ID '" + elementType.getId() + "' already exists" );
+              "Element type with ID '" + elementType.getId() + "' already exists" );
           } else {
             MemoryMetaStoreElementType copiedType = new MemoryMetaStoreElementType( elementType );
             typeMap.put( elementType.getId(), copiedType );
@@ -143,7 +143,7 @@ public class MemoryMetaStoreNamespace {
           MemoryMetaStoreElementType verifyType = typeMap.get( elementType.getId() );
           if ( verifyType == null ) {
             throw new MetaStoreElementTypeExistsException( new ArrayList<IMetaStoreElementType>( typeMap.values() ),
-                "Element type to update, with ID '" + elementType.getId() + "', does not exist" );
+              "Element type to update, with ID '" + elementType.getId() + "', does not exist" );
           } else {
             MemoryMetaStoreElementType copiedType = new MemoryMetaStoreElementType( elementType );
             typeMap.put( elementType.getId(), copiedType );
@@ -172,7 +172,7 @@ public class MemoryMetaStoreNamespace {
           final MemoryMetaStoreElementType verifyType = typeMap.get( elementType.getId() );
           if ( verifyType == null ) {
             throw new MetaStoreElementTypeExistsException( new ArrayList<IMetaStoreElementType>( typeMap.values() ),
-                "Element type to delete, with ID '" + elementType.getId() + "', does not exist" );
+              "Element type to delete, with ID '" + elementType.getId() + "', does not exist" );
           } else {
             // See if there are elements in there...
             //
@@ -184,8 +184,8 @@ public class MemoryMetaStoreNamespace {
                 if ( !verifyType.isElementMapEmpty() ) {
                   MemoryMetaStoreElementType foundElementType = getElementTypeByNameInternal( elementType.getName() );
                   throw new MetaStoreDependenciesExistsException( foundElementType.getElementIds(),
-                      "Element type with ID '" + elementType.getId()
-                          + "' could not be deleted as it still contains elements." );
+                    "Element type with ID '" + elementType.getId()
+                      + "' could not be deleted as it still contains elements." );
                 }
                 typeMap.remove( elementType.getId() );
                 return null;
@@ -305,7 +305,7 @@ public class MemoryMetaStoreNamespace {
   }
 
   public void updateElement( final IMetaStoreElementType elementType, final String elementId,
-      final IMetaStoreElement element ) throws MetaStoreException {
+                             final IMetaStoreElement element ) throws MetaStoreException {
     MetaStoreUtil.executeLockedOperation( readLock, new Callable<Void>() {
 
       @Override

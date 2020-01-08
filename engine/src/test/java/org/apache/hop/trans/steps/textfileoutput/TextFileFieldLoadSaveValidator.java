@@ -21,11 +21,11 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.textfileoutput;
 
-import java.util.Random;
-import java.util.UUID;
-
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
+
+import java.util.Random;
+import java.util.UUID;
 
 public class TextFileFieldLoadSaveValidator implements FieldLoadSaveValidator<TextFileField> {
   Random rand = new Random();
@@ -34,8 +34,8 @@ public class TextFileFieldLoadSaveValidator implements FieldLoadSaveValidator<Te
   public TextFileField getTestObject() {
     String name = UUID.randomUUID().toString();
     int type =
-        ValueMetaFactory.getIdForValueMeta( ValueMetaFactory.getValueMetaNames()[rand.nextInt( ValueMetaFactory
-            .getValueMetaNames().length )] );
+      ValueMetaFactory.getIdForValueMeta( ValueMetaFactory.getValueMetaNames()[ rand.nextInt( ValueMetaFactory
+        .getValueMetaNames().length ) ] );
     String format = UUID.randomUUID().toString();
     int length = Math.abs( rand.nextInt() );
     int precision = Math.abs( rand.nextInt() );
@@ -45,7 +45,7 @@ public class TextFileFieldLoadSaveValidator implements FieldLoadSaveValidator<Te
     String nullString = UUID.randomUUID().toString();
 
     return new TextFileField( name, type, format, length, precision, currencySymbol, decimalSymbol, groupSymbol,
-        nullString );
+      nullString );
   }
 
   @Override
@@ -55,14 +55,14 @@ public class TextFileFieldLoadSaveValidator implements FieldLoadSaveValidator<Te
     }
     TextFileField act = (TextFileField) actual;
     if ( testObject.getName().equals( act.getName() )
-        && testObject.getType() == act.getType()
-        && testObject.getFormat().equals( act.getFormat() )
-        && testObject.getLength() == act.getLength()
-        && testObject.getPrecision() == act.getPrecision()
-        && testObject.getCurrencySymbol().equals( act.getCurrencySymbol() )
-        && testObject.getDecimalSymbol().equals( act.getDecimalSymbol() )
-        && testObject.getGroupingSymbol().equals( act.getGroupingSymbol() )
-        && testObject.getNullString().equals( act.getNullString() ) ) {
+      && testObject.getType() == act.getType()
+      && testObject.getFormat().equals( act.getFormat() )
+      && testObject.getLength() == act.getLength()
+      && testObject.getPrecision() == act.getPrecision()
+      && testObject.getCurrencySymbol().equals( act.getCurrencySymbol() )
+      && testObject.getDecimalSymbol().equals( act.getDecimalSymbol() )
+      && testObject.getGroupingSymbol().equals( act.getGroupingSymbol() )
+      && testObject.getNullString().equals( act.getNullString() ) ) {
       return true;
     } else {
       return false;

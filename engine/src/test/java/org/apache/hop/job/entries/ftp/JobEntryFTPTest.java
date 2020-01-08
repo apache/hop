@@ -22,23 +22,6 @@
 
 package org.apache.hop.job.entries.ftp;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.regex.Pattern;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
@@ -47,6 +30,23 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.utils.TestUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.regex.Pattern;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class JobEntryFTPTest {
   private Job job;
@@ -92,7 +92,7 @@ public class JobEntryFTPTest {
     if ( fls == null || fls.length == 0 ) {
       return;
     }
-    fls[0].delete();
+    fls[ 0 ].delete();
     fl.delete();
   }
 
@@ -205,7 +205,7 @@ public class JobEntryFTPTest {
 
     Pattern expectedFormat = Pattern.compile(
       Pattern.quote( destFolderName + Const.FILE_SEPARATOR + "testFile_" + yyyyMMdd.format( new Date() ) + "_" )
-      + "([\\d]{9})\\.txt" );
+        + "([\\d]{9})\\.txt" );
     assertTrue( "Output file matches expected format", expectedFormat.matcher( actualValue ).matches() );
     assertTrue( "The actual time is not too early for test run", actualValue.compareTo( beforeString ) >= 0 );
     assertTrue( "The actual time is not too late for test run", actualValue.compareTo( afterString ) <= 0 );

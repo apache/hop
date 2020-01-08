@@ -25,8 +25,8 @@ package org.apache.hop.core.database;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 
 /**
  * Contains Computer Associates Ingres specific information through static final members
@@ -35,10 +35,10 @@ import org.apache.hop.core.row.ValueMetaInterface;
  * @since 11-mrt-2005
  */
 @DatabaseMetaPlugin(
-        type = "INGRES",
-        typeDescription = "Ingres"
+  type = "INGRES",
+  typeDescription = "Ingres"
 )
-@GuiPlugin( id="GUI-IngresDatabaseMeta" )
+@GuiPlugin( id = "GUI-IngresDatabaseMeta" )
 public class IngresDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
@@ -91,46 +91,34 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   /**
    * Generates the SQL statement to add a column to the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
   public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                       String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " ADD COLUMN " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
   public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                          String pk, boolean semicolon ) {
     return "ALTER TABLE "
       + tablename + " ALTER COLUMN " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
   }
@@ -138,29 +126,23 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   /**
    * Generates the SQL statement to drop a column from the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to drop a column from the specified table
    */
   @Override
   public String getDropColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                        String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " DROP COLUMN " + v.getName() + Const.CR;
   }
 
   @Override
   public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-    boolean add_fieldname, boolean add_cr ) {
+                                    boolean add_fieldname, boolean add_cr ) {
     String retval = "";
 
     String fieldname = v.getName();
@@ -234,8 +216,7 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   }
 
   /**
-   * @param tableName
-   *          The table to be truncated.
+   * @param tableName The table to be truncated.
    * @return The SQL statement to truncate a table: remove all rows from it without a transaction
    */
   @Override

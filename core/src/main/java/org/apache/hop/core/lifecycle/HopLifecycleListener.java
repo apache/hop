@@ -29,9 +29,8 @@ public interface HopLifecycleListener {
   /**
    * Called during HopEnvironment initialization.
    *
-   * @throws LifecycleException
-   *           to indicate the listener did not complete successfully. Severe {@link LifecycleException}s will stop the
-   *           initialization of the HopEnvironment.
+   * @throws LifecycleException to indicate the listener did not complete successfully. Severe {@link LifecycleException}s will stop the
+   *                            initialization of the HopEnvironment.
    */
   void onEnvironmentInit() throws org.apache.hop.core.lifecycle.LifecycleException;
 

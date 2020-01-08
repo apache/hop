@@ -23,8 +23,8 @@ import org.apache.hop.metastore.persist.MetaStoreElementType;
  * @author Rowell Belen
  */
 @MetaStoreElementType(
-    name = "Level3Element",
-    description = "My Level 3 Element" )
+  name = "Level3Element",
+  description = "My Level 3 Element" )
 public class Level3Element {
 
   @MetaStoreAttribute

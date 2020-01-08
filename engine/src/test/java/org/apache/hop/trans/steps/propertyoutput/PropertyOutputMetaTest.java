@@ -22,17 +22,18 @@
 
 package org.apache.hop.trans.steps.propertyoutput;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class PropertyOutputMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Test
   public void testSerialization() throws HopException {
     List<String> attributes = Arrays.asList( "KeyField", "ValueField", "Comment", "FileNameInField",
@@ -45,7 +46,7 @@ public class PropertyOutputMetaTest {
       "DateInFilename", "TimeInFilename", "CreateParentFolder", "AddToResult", "Append" );
 
     LoadSaveTester<PropertyOutputMeta> tester = new LoadSaveTester<PropertyOutputMeta>(
-        PropertyOutputMeta.class, attributes );
+      PropertyOutputMeta.class, attributes );
 
     tester.testSerialization();
   }

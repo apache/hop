@@ -22,23 +22,19 @@
 
 package org.apache.hop.trans.steps.stringoperations;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -46,8 +42,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * This class takes care of the meta data for the StringOperations step.
@@ -59,19 +56,29 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
 
   private static Class<?> PKG = StringOperationsMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** which field in input stream to compare with? */
+  /**
+   * which field in input stream to compare with?
+   */
   private String[] fieldInStream;
 
-  /** output field */
+  /**
+   * output field
+   */
   private String[] fieldOutStream;
 
-  /** Trim type */
+  /**
+   * Trim type
+   */
   private int[] trimType;
 
-  /** Lower/Upper type */
+  /**
+   * Lower/Upper type
+   */
   private int[] lowerUpper;
 
-  /** InitCap */
+  /**
+   * InitCap
+   */
   private int[] initCap;
 
   private int[] maskXML;
@@ -80,10 +87,14 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
 
   private int[] remove_special_characters;
 
-  /** padding type */
+  /**
+   * padding type
+   */
   private int[] padding_type;
 
-  /** Pad length */
+  /**
+   * Pad length
+   */
   private String[] padLen;
 
   private String[] padChar;
@@ -225,8 +236,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   /**
-   * @param keyStream
-   *          The fieldInStream to set.
+   * @param keyStream The fieldInStream to set.
    */
   public void setFieldInStream( String[] keyStream ) {
     this.fieldInStream = keyStream;
@@ -240,8 +250,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   /**
-   * @param keyStream
-   *          The fieldOutStream to set.
+   * @param keyStream The fieldOutStream to set.
    */
   public void setFieldOutStream( String[] keyStream ) {
     this.fieldOutStream = keyStream;
@@ -325,17 +334,17 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   public void allocate( int nrkeys ) {
-    fieldInStream = new String[nrkeys];
-    fieldOutStream = new String[nrkeys];
-    trimType = new int[nrkeys];
-    lowerUpper = new int[nrkeys];
-    padding_type = new int[nrkeys];
-    padChar = new String[nrkeys];
-    padLen = new String[nrkeys];
-    initCap = new int[nrkeys];
-    maskXML = new int[nrkeys];
-    digits = new int[nrkeys];
-    remove_special_characters = new int[nrkeys];
+    fieldInStream = new String[ nrkeys ];
+    fieldOutStream = new String[ nrkeys ];
+    trimType = new int[ nrkeys ];
+    lowerUpper = new int[ nrkeys ];
+    padding_type = new int[ nrkeys ];
+    padChar = new String[ nrkeys ];
+    padLen = new String[ nrkeys ];
+    initCap = new int[ nrkeys ];
+    maskXML = new int[ nrkeys ];
+    digits = new int[ nrkeys ];
+    remove_special_characters = new int[ nrkeys ];
   }
 
   @Override
@@ -371,18 +380,18 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
       for ( int i = 0; i < nrkeys; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( lookup, "field", i );
 
-        fieldInStream[i] = Const.NVL( XMLHandler.getTagValue( fnode, "in_stream_name" ), "" );
-        fieldOutStream[i] = Const.NVL( XMLHandler.getTagValue( fnode, "out_stream_name" ), "" );
+        fieldInStream[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "in_stream_name" ), "" );
+        fieldOutStream[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "out_stream_name" ), "" );
 
-        trimType[i] = getTrimTypeByCode( Const.NVL( XMLHandler.getTagValue( fnode, "trim_type" ), "" ) );
-        lowerUpper[i] = getLowerUpperByCode( Const.NVL( XMLHandler.getTagValue( fnode, "lower_upper" ), "" ) );
-        padding_type[i] = getPaddingByCode( Const.NVL( XMLHandler.getTagValue( fnode, "padding_type" ), "" ) );
-        padChar[i] = Const.NVL( XMLHandler.getTagValue( fnode, "pad_char" ), "" );
-        padLen[i] = Const.NVL( XMLHandler.getTagValue( fnode, "pad_len" ), "" );
-        initCap[i] = getInitCapByCode( Const.NVL( XMLHandler.getTagValue( fnode, "init_cap" ), "" ) );
-        maskXML[i] = getMaskXMLByCode( Const.NVL( XMLHandler.getTagValue( fnode, "mask_xml" ), "" ) );
-        digits[i] = getDigitsByCode( Const.NVL( XMLHandler.getTagValue( fnode, "digits" ), "" ) );
-        remove_special_characters[i] =
+        trimType[ i ] = getTrimTypeByCode( Const.NVL( XMLHandler.getTagValue( fnode, "trim_type" ), "" ) );
+        lowerUpper[ i ] = getLowerUpperByCode( Const.NVL( XMLHandler.getTagValue( fnode, "lower_upper" ), "" ) );
+        padding_type[ i ] = getPaddingByCode( Const.NVL( XMLHandler.getTagValue( fnode, "padding_type" ), "" ) );
+        padChar[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "pad_char" ), "" );
+        padLen[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "pad_len" ), "" );
+        initCap[ i ] = getInitCapByCode( Const.NVL( XMLHandler.getTagValue( fnode, "init_cap" ), "" ) );
+        maskXML[ i ] = getMaskXMLByCode( Const.NVL( XMLHandler.getTagValue( fnode, "mask_xml" ), "" ) );
+        digits[ i ] = getDigitsByCode( Const.NVL( XMLHandler.getTagValue( fnode, "digits" ), "" ) );
+        remove_special_characters[ i ] =
           getRemoveSpecialCharactersByCode( Const.NVL( XMLHandler.getTagValue(
             fnode, "remove_special_characters" ), "" ) );
 
@@ -411,22 +420,22 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
 
     for ( int i = 0; i < fieldInStream.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "in_stream_name", fieldInStream[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "out_stream_name", fieldOutStream[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "in_stream_name", fieldInStream[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "out_stream_name", fieldOutStream[ i ] ) );
 
-      retval.append( "        " ).append( XMLHandler.addTagValue( "trim_type", getTrimTypeCode( trimType[i] ) ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "trim_type", getTrimTypeCode( trimType[ i ] ) ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( "lower_upper", getLowerUpperCode( lowerUpper[i] ) ) );
+        XMLHandler.addTagValue( "lower_upper", getLowerUpperCode( lowerUpper[ i ] ) ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( "padding_type", getPaddingCode( padding_type[i] ) ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "pad_char", padChar[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "pad_len", padLen[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "init_cap", getInitCapCode( initCap[i] ) ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "mask_xml", getMaskXMLCode( maskXML[i] ) ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "digits", getDigitsCode( digits[i] ) ) );
+        XMLHandler.addTagValue( "padding_type", getPaddingCode( padding_type[ i ] ) ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "pad_char", padChar[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "pad_len", padLen[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "init_cap", getInitCapCode( initCap[ i ] ) ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "mask_xml", getMaskXMLCode( maskXML[ i ] ) ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "digits", getDigitsCode( digits[ i ] ) ) );
       retval.append( "        " ).append(
         XMLHandler.addTagValue(
-          "remove_special_characters", getRemoveSpecialCharactersCode( remove_special_characters[i] ) ) );
+          "remove_special_characters", getRemoveSpecialCharactersCode( remove_special_characters[ i ] ) ) );
 
       retval.append( "      </field>" ).append( Const.CR );
     }
@@ -438,11 +447,11 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
 
   @Override
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Add new field?
     for ( int i = 0; i < fieldOutStream.length; i++ ) {
       ValueMetaInterface v;
-      String outputField = space.environmentSubstitute( fieldOutStream[i] );
+      String outputField = space.environmentSubstitute( fieldOutStream[ i ] );
       if ( !Utils.isEmpty( outputField ) ) {
         // Add a new field
         v = new ValueMetaString( outputField );
@@ -450,14 +459,14 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
         v.setOrigin( name );
         inputRowMeta.addValueMeta( v );
       } else {
-        v = inputRowMeta.searchValueMeta( fieldInStream[i] );
+        v = inputRowMeta.searchValueMeta( fieldInStream[ i ] );
         if ( v == null ) {
           continue;
         }
         v.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
-        int paddingType = getPaddingType()[i];
+        int paddingType = getPaddingType()[ i ];
         if ( paddingType == PADDING_LEFT || paddingType == PADDING_RIGHT ) {
-          int padLen = Const.toInt( space.environmentSubstitute( getPadLen()[i] ), 0 );
+          int padLen = Const.toInt( space.environmentSubstitute( getPadLen()[ i ] ), 0 );
           if ( padLen > v.getLength() ) {
             // alter meta data
             v.setLength( padLen );
@@ -469,8 +478,8 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepinfo,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
 
     CheckResult cr;
     String error_message = "";
@@ -486,7 +495,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
     } else {
 
       for ( int i = 0; i < fieldInStream.length; i++ ) {
-        String field = fieldInStream[i];
+        String field = fieldInStream[ i ];
 
         ValueMetaInterface v = prev.searchValueMeta( field );
         if ( v == null ) {
@@ -512,7 +521,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
       first = true;
       error_found = false;
       for ( int i = 0; i < fieldInStream.length; i++ ) {
-        String field = fieldInStream[i];
+        String field = fieldInStream[ i ];
 
         ValueMetaInterface v = prev.searchValueMeta( field );
         if ( v != null ) {
@@ -539,7 +548,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
 
       if ( fieldInStream.length > 0 ) {
         for ( int idx = 0; idx < fieldInStream.length; idx++ ) {
-          if ( Utils.isEmpty( fieldInStream[idx] ) ) {
+          if ( Utils.isEmpty( fieldInStream[ idx ] ) ) {
             cr =
               new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
                 PKG, "StringOperationsMeta.CheckResult.InStreamFieldMissing", new Integer( idx + 1 )
@@ -553,10 +562,10 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
       // Check if all input fields are distinct.
       for ( int idx = 0; idx < fieldInStream.length; idx++ ) {
         for ( int jdx = 0; jdx < fieldInStream.length; jdx++ ) {
-          if ( fieldInStream[idx].equals( fieldInStream[jdx] ) && idx != jdx && idx < jdx ) {
+          if ( fieldInStream[ idx ].equals( fieldInStream[ jdx ] ) && idx != jdx && idx < jdx ) {
             error_message =
               BaseMessages.getString(
-                PKG, "StringOperationsMeta.CheckResult.FieldInputError", fieldInStream[idx] );
+                PKG, "StringOperationsMeta.CheckResult.FieldInputError", fieldInStream[ idx ] );
             cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, stepinfo );
             remarks.add( cr );
           }
@@ -568,7 +577,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new StringOperations( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -584,100 +593,100 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
 
   private static String getTrimTypeCode( int i ) {
     if ( i < 0 || i >= trimTypeCode.length ) {
-      return trimTypeCode[0];
+      return trimTypeCode[ 0 ];
     }
-    return trimTypeCode[i];
+    return trimTypeCode[ i ];
   }
 
   private static String getLowerUpperCode( int i ) {
     if ( i < 0 || i >= lowerUpperCode.length ) {
-      return lowerUpperCode[0];
+      return lowerUpperCode[ 0 ];
     }
-    return lowerUpperCode[i];
+    return lowerUpperCode[ i ];
   }
 
   private static String getInitCapCode( int i ) {
     if ( i < 0 || i >= initCapCode.length ) {
-      return initCapCode[0];
+      return initCapCode[ 0 ];
     }
-    return initCapCode[i];
+    return initCapCode[ i ];
   }
 
   private static String getMaskXMLCode( int i ) {
     if ( i < 0 || i >= maskXMLCode.length ) {
-      return maskXMLCode[0];
+      return maskXMLCode[ 0 ];
     }
-    return maskXMLCode[i];
+    return maskXMLCode[ i ];
   }
 
   private static String getDigitsCode( int i ) {
     if ( i < 0 || i >= digitsCode.length ) {
-      return digitsCode[0];
+      return digitsCode[ 0 ];
     }
-    return digitsCode[i];
+    return digitsCode[ i ];
   }
 
   private static String getRemoveSpecialCharactersCode( int i ) {
     if ( i < 0 || i >= removeSpecialCharactersCode.length ) {
-      return removeSpecialCharactersCode[0];
+      return removeSpecialCharactersCode[ 0 ];
     }
-    return removeSpecialCharactersCode[i];
+    return removeSpecialCharactersCode[ i ];
   }
 
   private static String getPaddingCode( int i ) {
     if ( i < 0 || i >= paddingCode.length ) {
-      return paddingCode[0];
+      return paddingCode[ 0 ];
     }
-    return paddingCode[i];
+    return paddingCode[ i ];
   }
 
   public static String getTrimTypeDesc( int i ) {
     if ( i < 0 || i >= trimTypeDesc.length ) {
-      return trimTypeDesc[0];
+      return trimTypeDesc[ 0 ];
     }
-    return trimTypeDesc[i];
+    return trimTypeDesc[ i ];
   }
 
   public static String getLowerUpperDesc( int i ) {
     if ( i < 0 || i >= lowerUpperDesc.length ) {
-      return lowerUpperDesc[0];
+      return lowerUpperDesc[ 0 ];
     }
-    return lowerUpperDesc[i];
+    return lowerUpperDesc[ i ];
   }
 
   public static String getInitCapDesc( int i ) {
     if ( i < 0 || i >= initCapDesc.length ) {
-      return initCapDesc[0];
+      return initCapDesc[ 0 ];
     }
-    return initCapDesc[i];
+    return initCapDesc[ i ];
   }
 
   public static String getMaskXMLDesc( int i ) {
     if ( i < 0 || i >= maskXMLDesc.length ) {
-      return maskXMLDesc[0];
+      return maskXMLDesc[ 0 ];
     }
-    return maskXMLDesc[i];
+    return maskXMLDesc[ i ];
   }
 
   public static String getDigitsDesc( int i ) {
     if ( i < 0 || i >= digitsDesc.length ) {
-      return digitsDesc[0];
+      return digitsDesc[ 0 ];
     }
-    return digitsDesc[i];
+    return digitsDesc[ i ];
   }
 
   public static String getRemoveSpecialCharactersDesc( int i ) {
     if ( i < 0 || i >= removeSpecialCharactersDesc.length ) {
-      return removeSpecialCharactersDesc[0];
+      return removeSpecialCharactersDesc[ 0 ];
     }
-    return removeSpecialCharactersDesc[i];
+    return removeSpecialCharactersDesc[ i ];
   }
 
   public static String getPaddingDesc( int i ) {
     if ( i < 0 || i >= paddingDesc.length ) {
-      return paddingDesc[0];
+      return paddingDesc[ 0 ];
     }
-    return paddingDesc[i];
+    return paddingDesc[ i ];
   }
 
   private static int getTrimTypeByCode( String tt ) {
@@ -686,7 +695,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
     }
 
     for ( int i = 0; i < trimTypeCode.length; i++ ) {
-      if ( trimTypeCode[i].equalsIgnoreCase( tt ) ) {
+      if ( trimTypeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -699,7 +708,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
     }
 
     for ( int i = 0; i < lowerUpperCode.length; i++ ) {
-      if ( lowerUpperCode[i].equalsIgnoreCase( tt ) ) {
+      if ( lowerUpperCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -712,7 +721,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
     }
 
     for ( int i = 0; i < initCapCode.length; i++ ) {
-      if ( initCapCode[i].equalsIgnoreCase( tt ) ) {
+      if ( initCapCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -725,7 +734,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
     }
 
     for ( int i = 0; i < maskXMLCode.length; i++ ) {
-      if ( maskXMLCode[i].equalsIgnoreCase( tt ) ) {
+      if ( maskXMLCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -738,7 +747,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
     }
 
     for ( int i = 0; i < digitsCode.length; i++ ) {
-      if ( digitsCode[i].equalsIgnoreCase( tt ) ) {
+      if ( digitsCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -751,7 +760,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
     }
 
     for ( int i = 0; i < removeSpecialCharactersCode.length; i++ ) {
-      if ( removeSpecialCharactersCode[i].equalsIgnoreCase( tt ) ) {
+      if ( removeSpecialCharactersCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -764,7 +773,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
     }
 
     for ( int i = 0; i < paddingCode.length; i++ ) {
-      if ( paddingCode[i].equalsIgnoreCase( tt ) ) {
+      if ( paddingCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -777,7 +786,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
     }
 
     for ( int i = 0; i < trimTypeDesc.length; i++ ) {
-      if ( trimTypeDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( trimTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -792,7 +801,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
     }
 
     for ( int i = 0; i < lowerUpperDesc.length; i++ ) {
-      if ( lowerUpperDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( lowerUpperDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -807,7 +816,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
     }
 
     for ( int i = 0; i < initCapDesc.length; i++ ) {
-      if ( initCapDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( initCapDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -822,7 +831,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
     }
 
     for ( int i = 0; i < maskXMLDesc.length; i++ ) {
-      if ( maskXMLDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( maskXMLDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -837,7 +846,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
     }
 
     for ( int i = 0; i < digitsDesc.length; i++ ) {
-      if ( digitsDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( digitsDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -852,7 +861,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
     }
 
     for ( int i = 0; i < removeSpecialCharactersDesc.length; i++ ) {
-      if ( removeSpecialCharactersDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( removeSpecialCharactersDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -867,7 +876,7 @@ public class StringOperationsMeta extends BaseStepMeta implements StepMetaInterf
     }
 
     for ( int i = 0; i < paddingDesc.length; i++ ) {
-      if ( paddingDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( paddingDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }

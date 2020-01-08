@@ -23,10 +23,7 @@
 package org.apache.hop.trans.steps.transexecutor;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
-
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 /**
@@ -36,7 +33,6 @@ import org.w3c.dom.Node;
  * @author matt
  * @version 4.3
  * @since 2011-AUG-29
- *
  */
 public class TransExecutorParameters implements Cloneable {
 
@@ -44,15 +40,21 @@ public class TransExecutorParameters implements Cloneable {
 
   private static final String XML_VARIABLES_TAG = "variablemapping";
 
-  /** The name of the variable to set in the job */
+  /**
+   * The name of the variable to set in the job
+   */
   private String[] variable;
 
   private String[] field;
 
-  /** This is a simple String with optionally variables in them **/
+  /**
+   * This is a simple String with optionally variables in them
+   **/
   private String[] input;
 
-  /** This flag causes the job to inherit all variables from the parent transformation */
+  /**
+   * This flag causes the job to inherit all variables from the parent transformation
+   */
   private boolean inheritingAllVariables;
 
   public TransExecutorParameters() {
@@ -66,9 +68,9 @@ public class TransExecutorParameters implements Cloneable {
   }
 
   public void allocate( int nrVariables ) {
-    variable = new String[nrVariables];
-    field = new String[nrVariables];
-    input = new String[nrVariables];
+    variable = new String[ nrVariables ];
+    field = new String[ nrVariables ];
+    input = new String[ nrVariables ];
   }
 
   @Override
@@ -94,9 +96,9 @@ public class TransExecutorParameters implements Cloneable {
     for ( int i = 0; i < variable.length; i++ ) {
       Node variableMappingNode = XMLHandler.getSubNodeByNr( paramNode, XML_VARIABLES_TAG, i );
 
-      variable[i] = XMLHandler.getTagValue( variableMappingNode, "variable" );
-      field[i] = XMLHandler.getTagValue( variableMappingNode, "field" );
-      input[i] = XMLHandler.getTagValue( variableMappingNode, "input" );
+      variable[ i ] = XMLHandler.getTagValue( variableMappingNode, "variable" );
+      field[ i ] = XMLHandler.getTagValue( variableMappingNode, "field" );
+      input[ i ] = XMLHandler.getTagValue( variableMappingNode, "input" );
     }
 
     inheritingAllVariables = "Y".equalsIgnoreCase( XMLHandler.getTagValue( paramNode, "inherit_all_vars" ) );
@@ -109,9 +111,9 @@ public class TransExecutorParameters implements Cloneable {
 
     for ( int i = 0; i < variable.length; i++ ) {
       xml.append( "       " ).append( XMLHandler.openTag( XML_VARIABLES_TAG ) );
-      xml.append( XMLHandler.addTagValue( "variable", variable[i], false ) );
-      xml.append( XMLHandler.addTagValue( "field", field[i], false ) );
-      xml.append( XMLHandler.addTagValue( "input", input[i], false ) );
+      xml.append( XMLHandler.addTagValue( "variable", variable[ i ], false ) );
+      xml.append( XMLHandler.addTagValue( "field", field[ i ], false ) );
+      xml.append( XMLHandler.addTagValue( "input", input[ i ], false ) );
       xml.append( XMLHandler.closeTag( XML_VARIABLES_TAG ) ).append( Const.CR );
     }
     xml.append( "    " ).append( XMLHandler.addTagValue( "inherit_all_vars", inheritingAllVariables ) );
@@ -128,8 +130,7 @@ public class TransExecutorParameters implements Cloneable {
   }
 
   /**
-   * @param field
-   *          the input field name to set
+   * @param field the input field name to set
    */
   public void setField( String[] field ) {
     this.field = field;
@@ -143,8 +144,7 @@ public class TransExecutorParameters implements Cloneable {
   }
 
   /**
-   * @param variable
-   *          the variable to set
+   * @param variable the variable to set
    */
   public void setVariable( String[] variable ) {
     this.variable = variable;
@@ -158,8 +158,7 @@ public class TransExecutorParameters implements Cloneable {
   }
 
   /**
-   * @param inheritingAllVariables
-   *          the inheritingAllVariables to set
+   * @param inheritingAllVariables the inheritingAllVariables to set
    */
   public void setInheritingAllVariables( boolean inheritingAllVariables ) {
     this.inheritingAllVariables = inheritingAllVariables;
@@ -173,8 +172,7 @@ public class TransExecutorParameters implements Cloneable {
   }
 
   /**
-   * @param input
-   *          the input to set
+   * @param input the input to set
    */
   public void setInput( String[] input ) {
     this.input = input;

@@ -22,12 +22,36 @@
 
 package org.apache.hop.ui.trans.steps.mailinput;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
-import javax.mail.Folder;
-
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.entries.getpop.MailConnection;
+import org.apache.hop.job.entries.getpop.MailConnectionMeta;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPreviewFactory;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.mailinput.MailInputField;
+import org.apache.hop.trans.steps.mailinput.MailInputMeta;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.entries.getpop.SelectFolderDialog;
+import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -58,35 +82,10 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.entries.getpop.MailConnection;
-import org.apache.hop.job.entries.getpop.MailConnectionMeta;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPreviewFactory;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.mailinput.MailInputField;
-import org.apache.hop.trans.steps.mailinput.MailInputMeta;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.PasswordTextVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.entries.getpop.SelectFolderDialog;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import javax.mail.Folder;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class MailInputDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = MailInputMeta.class; // for i18n purposes, needed by Translator2!!
@@ -1186,9 +1185,9 @@ public class MailInputDialog extends BaseStepDialog implements StepDialogInterfa
           BaseMessages.getString( PKG, "MailInputdialog.FieldsTable.Column.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, MailInputField.ColumnDesc, true ), };
 
-    colinf[0].setUsingVariables( true );
-    colinf[0].setToolTip( BaseMessages.getString( PKG, "MailInputdialog.FieldsTable.Name.Column.Tooltip" ) );
-    colinf[1].setToolTip( BaseMessages.getString( PKG, "MailInputdialog.FieldsTable.Column.Column.Tooltip" ) );
+    colinf[ 0 ].setUsingVariables( true );
+    colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "MailInputdialog.FieldsTable.Name.Column.Tooltip" ) );
+    colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "MailInputdialog.FieldsTable.Column.Column.Tooltip" ) );
 
     wFields =
       new TableView( transMeta, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
@@ -1407,7 +1406,7 @@ public class MailInputDialog extends BaseStepDialog implements StepDialogInterfa
     }
     wLimit.setText( Const.NVL( input.getRowLimit(), "0" ) );
     for ( int i = 0; i < input.getInputFields().length; i++ ) {
-      MailInputField field = input.getInputFields()[i];
+      MailInputField field = input.getInputFields()[ i ];
 
       if ( field != null ) {
         TableItem item = wFields.table.getItem( i );
@@ -1456,7 +1455,7 @@ public class MailInputDialog extends BaseStepDialog implements StepDialogInterfa
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "MailInputDialog.ErrorParsingData.DialogTitle" ), BaseMessages
-          .getString( PKG, "MailInputDialog.ErrorParsingData.DialogMessage" ), e );
+        .getString( PKG, "MailInputDialog.ErrorParsingData.DialogMessage" ), e );
     }
     dispose();
   }
@@ -1510,7 +1509,7 @@ public class MailInputDialog extends BaseStepDialog implements StepDialogInterfa
       field.setName( item.getText( 1 ) );
       field.setColumn( MailInputField.getColumnByDesc( item.getText( 2 ) ) );
       //CHECKSTYLE:Indentation:OFF
-      in.getInputFields()[i] = field;
+      in.getInputFields()[ i ] = field;
     }
 
     in.setUseBatch( wUseBatch.getSelection() );
@@ -1537,7 +1536,7 @@ public class MailInputDialog extends BaseStepDialog implements StepDialogInterfa
       } catch ( HopException ke ) {
         new ErrorDialog(
           shell, BaseMessages.getString( PKG, "MailInput.FailedToGetFields.DialogTitle" ), BaseMessages
-            .getString( PKG, "MailInput.FailedToGetFields.DialogMessage" ), ke );
+          .getString( PKG, "MailInput.FailedToGetFields.DialogMessage" ), ke );
       }
       gotPreviousfields = true;
     }
@@ -1556,10 +1555,10 @@ public class MailInputDialog extends BaseStepDialog implements StepDialogInterfa
   private void conditionReceivedDate() {
     boolean activeReceivedDate =
       !( MailConnectionMeta.getConditionDateByDesc( wConditionOnReceivedDate.getText() )
-      == MailConnectionMeta.CONDITION_DATE_IGNORE );
+        == MailConnectionMeta.CONDITION_DATE_IGNORE );
     boolean useBetween =
       ( MailConnectionMeta.getConditionDateByDesc( wConditionOnReceivedDate.getText() )
-      == MailConnectionMeta.CONDITION_DATE_BETWEEN );
+        == MailConnectionMeta.CONDITION_DATE_BETWEEN );
     wlReadFrom.setVisible( activeReceivedDate );
     wReadFrom.setVisible( activeReceivedDate );
     open.setVisible( activeReceivedDate );
@@ -1706,7 +1705,7 @@ public class MailInputDialog extends BaseStepDialog implements StepDialogInterfa
         mailConn =
           new MailConnection(
             LogChannel.UI, MailConnectionMeta.getProtocolFromString(
-              wProtocol.getText(), MailConnectionMeta.PROTOCOL_IMAP ), realserver, realport, realuser,
+            wProtocol.getText(), MailConnectionMeta.PROTOCOL_IMAP ), realserver, realport, realuser,
             realpass, wUseSSL.getSelection(), wUseProxy.getSelection(), realProxyUsername );
         mailConn.connect();
 
@@ -1791,7 +1790,7 @@ public class MailInputDialog extends BaseStepDialog implements StepDialogInterfa
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
               shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta( wStepname
-                .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
+              .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
           prd.open();
 
         }
@@ -1799,7 +1798,7 @@ public class MailInputDialog extends BaseStepDialog implements StepDialogInterfa
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "MailInputDialog.ErrorPreviewingData.DialogTitle" ), BaseMessages
-          .getString( PKG, "MailInputDialog.ErrorPreviewingData.DialogMessage" ), e );
+        .getString( PKG, "MailInputDialog.ErrorPreviewingData.DialogMessage" ), e );
     }
   }
 
@@ -1813,7 +1812,7 @@ public class MailInputDialog extends BaseStepDialog implements StepDialogInterfa
     // Clear Fields Grid
     wFields.removeAll();
     for ( int i = 0; i < MailInputField.ColumnDesc.length; i++ ) {
-      wFields.add( new String[] { MailInputField.ColumnDesc[i], MailInputField.ColumnDesc[i] } );
+      wFields.add( new String[] { MailInputField.ColumnDesc[ i ], MailInputField.ColumnDesc[ i ] } );
     }
 
     wFields.removeEmptyRows();

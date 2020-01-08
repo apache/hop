@@ -22,11 +22,6 @@
 
 package org.apache.hop.core.auth;
 
-import java.lang.annotation.Annotation;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Map;
-
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
@@ -34,9 +29,13 @@ import org.apache.hop.core.plugins.PluginMainClassType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.PluginTypeInterface;
 
+import java.lang.annotation.Annotation;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Map;
+
 /**
  * This class represents the authentication plugin type.
- *
  */
 @PluginMainClassType( AuthenticationConsumerType.class )
 @PluginAnnotationType( AuthenticationConsumerPlugin.class )
@@ -62,7 +61,7 @@ public class AuthenticationConsumerPluginType extends BasePluginType implements 
   }
 
   public String[] getNaturalCategoriesOrder() {
-    return new String[0];
+    return new String[ 0 ];
   }
 
   @Override

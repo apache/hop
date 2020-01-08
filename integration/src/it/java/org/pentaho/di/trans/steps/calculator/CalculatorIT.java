@@ -22,15 +22,7 @@
 
 package org.apache.hop.trans.steps.calculator;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
 import junit.framework.TestCase;
-
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
@@ -48,6 +40,13 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
 public class CalculatorIT extends TestCase {
 
   public RowMetaInterface createResultRowMetaInterface() {
@@ -59,7 +58,7 @@ public class CalculatorIT extends TestCase {
         ValueMetaFactory.createValueMeta( "timestamp plus 1 day", ValueMetaInterface.TYPE_DATE )
       };
       for ( int i = 0; i < valuesMeta.length; i++ ) {
-        rm.addValueMeta( valuesMeta[i] );
+        rm.addValueMeta( valuesMeta[ i ] );
       }
     } catch ( Exception ex ) {
       return null;
@@ -90,8 +89,8 @@ public class CalculatorIT extends TestCase {
   }
 
   /**
-   *  Check the 2 lists comparing the rows in order.
-   *  If they are not the same fail the test. 
+   * Check the 2 lists comparing the rows in order.
+   * If they are not the same fail the test.
    */
   public void checkRows( List<RowMetaAndData> rows1, List<RowMetaAndData> rows2 ) {
     int idx = 1;
@@ -111,9 +110,9 @@ public class CalculatorIT extends TestCase {
       if ( rm1.size() != rm2.size() ) {
         fail( "row size of row at " + idx + " is not equal (" + rm1.size() + "," + rm2.size() + ")" );
       }
-      int[] fields = new int[1];
+      int[] fields = new int[ 1 ];
       for ( int ydx = 0; ydx < rm1.size(); ydx++ ) {
-        fields[0] = ydx;
+        fields[ 0 ] = ydx;
         try {
           if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {
             fail( "row nr " + idx + " is not equal at field nr "

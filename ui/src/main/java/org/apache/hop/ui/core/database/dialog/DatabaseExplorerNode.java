@@ -22,9 +22,9 @@
 
 package org.apache.hop.ui.core.database.dialog;
 
-import java.util.ArrayList;
-
 import org.pentaho.ui.xul.util.AbstractModelNode;
+
+import java.util.ArrayList;
 
 public class DatabaseExplorerNode extends AbstractModelNode<DatabaseExplorerNode> {
 

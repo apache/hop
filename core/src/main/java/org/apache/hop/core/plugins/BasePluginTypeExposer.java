@@ -28,11 +28,11 @@ import java.lang.annotation.Annotation;
  * This Class serves only one purpose, defeat the package protection modifiers on the BasePluginType. We normally would
  * simply move classes needing access to the same package, split between jars. However, in OSGI, split packages are
  * not encouraged and not possible unless the packages are being supplied by bundles with special notation denoting the
- * package split. Hop is currently imported into OSGI as part of the System Bundle [0], which we cannot modify in 
+ * package split. Hop is currently imported into OSGI as part of the System Bundle [0], which we cannot modify in
  * such a way.
- *
+ * <p>
  * Unless you're running within OSGI, you should never use this class.
- *
+ * <p>
  * Created by nbaker on 2/11/15.
  */
 public class BasePluginTypeExposer {

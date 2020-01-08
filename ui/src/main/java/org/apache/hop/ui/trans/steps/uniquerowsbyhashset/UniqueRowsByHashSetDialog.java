@@ -22,12 +22,21 @@
 
 package org.apache.hop.ui.trans.steps.uniquerowsbyhashset;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.uniquerowsbyhashset.UniqueRowsByHashSetMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -47,21 +56,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.uniquerowsbyhashset.UniqueRowsByHashSetMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class UniqueRowsByHashSetDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = UniqueRowsByHashSetMeta.class; // for i18n purposes, needed by Translator2!!
@@ -356,10 +356,10 @@ public class UniqueRowsByHashSetDialog extends BaseStepDialog implements StepDia
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    colinf[0].setComboValues( fieldNames );
+    colinf[ 0 ].setComboValues( fieldNames );
   }
 
   /**
@@ -373,8 +373,8 @@ public class UniqueRowsByHashSetDialog extends BaseStepDialog implements StepDia
     }
     for ( int i = 0; i < input.getCompareFields().length; i++ ) {
       TableItem item = wFields.table.getItem( i );
-      if ( input.getCompareFields()[i] != null ) {
-        item.setText( 1, input.getCompareFields()[i] );
+      if ( input.getCompareFields()[ i ] != null ) {
+        item.setText( 1, input.getCompareFields()[ i ] );
       }
     }
     wFields.setRowNums();
@@ -401,7 +401,7 @@ public class UniqueRowsByHashSetDialog extends BaseStepDialog implements StepDia
     for ( int i = 0; i < nrfields; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
       //CHECKSTYLE:Indentation:OFF
-      input.getCompareFields()[i] = item.getText( 1 );
+      input.getCompareFields()[ i ] = item.getText( 1 );
     }
 
     stepname = wStepname.getText(); // return value

@@ -22,14 +22,14 @@
 
 package org.apache.hop.cluster;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.www.Carte;
 import org.apache.hop.www.WebServer;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class ClusterGenerator {
 
@@ -104,8 +104,7 @@ public class ClusterGenerator {
   }
 
   /**
-   * @param clusterSchema
-   *          the clusterSchema to set
+   * @param clusterSchema the clusterSchema to set
    */
   public void setClusterSchema( ClusterSchema clusterSchema ) {
     this.clusterSchema = clusterSchema;

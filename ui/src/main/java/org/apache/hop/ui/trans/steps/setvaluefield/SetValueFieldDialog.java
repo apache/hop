@@ -22,12 +22,20 @@
 
 package org.apache.hop.ui.trans.steps.setvaluefield;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.setvaluefield.SetValueFieldMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -46,20 +54,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.setvaluefield.SetValueFieldMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class SetValueFieldDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = SetValueFieldMeta.class; // for i18n purposes, needed by Translator2!!
@@ -139,12 +139,12 @@ public class SetValueFieldDialog extends BaseStepDialog implements StepDialogInt
     final int FieldsCols = 2;
     final int FieldsRows = input.getFieldName().length;
 
-    colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
+    colinf = new ColumnInfo[ FieldsCols ];
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SetValueFieldDialog.ColumnInfo.Name" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] { "" }, false );
-    colinf[1] =
+    colinf[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SetValueFieldDialog.ColumnInfo.ValueFromField" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
@@ -255,11 +255,11 @@ public class SetValueFieldDialog extends BaseStepDialog implements StepDialogInt
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    colinf[0].setComboValues( fieldNames );
-    colinf[1].setComboValues( fieldNames );
+    colinf[ 0 ].setComboValues( fieldNames );
+    colinf[ 1 ].setComboValues( fieldNames );
   }
 
   /**
@@ -270,8 +270,8 @@ public class SetValueFieldDialog extends BaseStepDialog implements StepDialogInt
 
     for ( int i = 0; i < input.getFieldName().length; i++ ) {
       TableItem item = wFields.table.getItem( i );
-      String name = input.getFieldName()[i];
-      String type = input.getReplaceByFieldValue()[i];
+      String name = input.getFieldName()[ i ];
+      String type = input.getReplaceByFieldValue()[ i ];
 
       if ( name != null ) {
         item.setText( 1, name );
@@ -307,8 +307,8 @@ public class SetValueFieldDialog extends BaseStepDialog implements StepDialogInt
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < count; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      input.getFieldName()[i] = item.getText( 1 );
-      input.getReplaceByFieldValue()[i] = item.getText( 2 );
+      input.getFieldName()[ i ] = item.getText( 1 );
+      input.getReplaceByFieldValue()[ i ] = item.getText( 2 );
     }
     dispose();
   }

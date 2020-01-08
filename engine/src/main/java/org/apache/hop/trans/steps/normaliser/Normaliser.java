@@ -22,11 +22,6 @@
 
 package org.apache.hop.trans.steps.normaliser;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.i18n.BaseMessages;
@@ -37,6 +32,11 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Normalise de-normalised input data.
@@ -51,7 +51,7 @@ public class Normaliser extends BaseStep implements StepInterface {
   private NormaliserData data;
 
   public Normaliser( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                     Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -87,7 +87,7 @@ public class Normaliser extends BaseStep implements StepInterface {
       data.maxlen = 0;
 
       for ( i = 0; i < normFieldsLength; i++ ) {
-        typeValue = meta.getNormaliserFields()[i].getValue();
+        typeValue = meta.getNormaliserFields()[ i ].getValue();
         if ( !data.type_occ.contains( typeValue ) ) {
           data.type_occ.add( typeValue );
         }
@@ -100,9 +100,9 @@ public class Normaliser extends BaseStep implements StepInterface {
         // This eliminates the inner loop that iterated over all the fields finding the fields associated with the Type.
         // On a test data set with 2500 fields and about 36000 input rows (outputting over 22m rows), the time went from
         // 12min to about 1min 35sec.
-        dataFieldNr = data.inputRowMeta.indexOfValue( meta.getNormaliserFields()[i].getName() );
+        dataFieldNr = data.inputRowMeta.indexOfValue( meta.getNormaliserFields()[ i ].getName() );
         if ( dataFieldNr < 0 ) {
-          logError( BaseMessages.getString( PKG, "Normaliser.Log.CouldNotFindFieldInRow", meta.getNormaliserFields()[i].getName() ) );
+          logError( BaseMessages.getString( PKG, "Normaliser.Log.CouldNotFindFieldInRow", meta.getNormaliserFields()[ i ].getName() ) );
           setErrors( 1 );
           stopAll();
           return false;
@@ -152,27 +152,27 @@ public class Normaliser extends BaseStep implements StepInterface {
 
       // Create an output row per type
       //
-      outputRowData = new Object[rowMetaSz];
+      outputRowData = new Object[ rowMetaSz ];
       outputIndex = 0;
 
       // Copy the input row data, excluding the fields that are normalized...
       //
       for ( i = 0; i < copyFldNrsSz; i++ ) {
         nr = data.copy_fieldnrs.get( i );
-        outputRowData[outputIndex++] = r[nr];
+        outputRowData[ outputIndex++ ] = r[ nr ];
       }
 
       // Add the typefield_value
       //
-      outputRowData[outputIndex++] = typeValue;
+      outputRowData[ outputIndex++ ] = typeValue;
 
       // Then add the normalized fields...
       //
       normFieldList = data.typeToFieldIndex.get( typeValue );
       normFieldListSz = normFieldList.size();
       for ( i = 0; i < normFieldListSz; i++ ) {
-        value = r[normFieldList.get( i )];
-        outputRowData[outputIndex++] = value;
+        value = r[ normFieldList.get( i ) ];
+        outputRowData[ outputIndex++ ] = value;
       }
 
       // The row is constructed, now give it to the next step(s)...

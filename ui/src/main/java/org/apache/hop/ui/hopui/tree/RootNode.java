@@ -22,10 +22,10 @@
 
 package org.apache.hop.ui.hopui.tree;
 
-import org.eclipse.swt.graphics.Image;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.ui.core.widget.tree.TreeNode;
+import org.eclipse.swt.graphics.Image;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,7 +68,7 @@ public class RootNode extends TreeNode {
   public void checkUpdate( AbstractMeta abstractMeta, String filter ) {
     TreeNode treeNode = abstractMetas.get( abstractMeta );
     if ( treeNode != null ) {
-      for ( int i = 0; i < treeFolderProviders.size() && i<treeNode.getChildren().size(); i++ ) {
+      for ( int i = 0; i < treeFolderProviders.size() && i < treeNode.getChildren().size(); i++ ) {
         TreeNode childTreeNode = treeNode.getChildren().get( i );
         treeFolderProviders.get( i ).checkUpdate( abstractMeta, childTreeNode, filter );
         if ( !Utils.isEmpty( filter ) ) {
@@ -80,9 +80,9 @@ public class RootNode extends TreeNode {
 
   public String getNameByType( Class clazz ) {
     TreeFolderProvider treeFolderProvider = treeFolderProviders.stream()
-            .filter( treeFolderProvider1 -> treeFolderProvider1.getType().equals( clazz ) )
-            .findFirst()
-            .orElse( null );
+      .filter( treeFolderProvider1 -> treeFolderProvider1.getType().equals( clazz ) )
+      .findFirst()
+      .orElse( null );
     if ( treeFolderProvider != null ) {
       return treeFolderProvider.getTitle();
     }

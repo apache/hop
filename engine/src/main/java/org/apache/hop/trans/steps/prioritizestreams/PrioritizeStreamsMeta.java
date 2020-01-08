@@ -22,21 +22,16 @@
 
 package org.apache.hop.trans.steps.prioritizestreams;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -44,8 +39,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*
  * Created on 30-06-2008
@@ -55,7 +51,9 @@ import org.w3c.dom.Node;
 public class PrioritizeStreamsMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = PrioritizeStreamsMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** by which steps to display? */
+  /**
+   * by which steps to display?
+   */
   private String[] stepName;
 
   public PrioritizeStreamsMeta() {
@@ -77,7 +75,7 @@ public class PrioritizeStreamsMeta extends BaseStepMeta implements StepMetaInter
   }
 
   public void allocate( int nrfields ) {
-    stepName = new String[nrfields];
+    stepName = new String[ nrfields ];
   }
 
   /**
@@ -88,15 +86,14 @@ public class PrioritizeStreamsMeta extends BaseStepMeta implements StepMetaInter
   }
 
   /**
-   * @param stepName
-   *          The stepName to set.
+   * @param stepName The stepName to set.
    */
   public void setStepName( String[] stepName ) {
     this.stepName = stepName;
   }
 
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Default: nothing changes to rowMeta
   }
 
@@ -109,7 +106,7 @@ public class PrioritizeStreamsMeta extends BaseStepMeta implements StepMetaInter
 
       for ( int i = 0; i < nrsteps; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( steps, "step", i );
-        stepName[i] = XMLHandler.getTagValue( fnode, "name" );
+        stepName[ i ] = XMLHandler.getTagValue( fnode, "name" );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( "Unable to load step info from XML", e );
@@ -122,7 +119,7 @@ public class PrioritizeStreamsMeta extends BaseStepMeta implements StepMetaInter
     retval.append( "    <steps>" + Const.CR );
     for ( int i = 0; i < stepName.length; i++ ) {
       retval.append( "      <step>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", stepName[i] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "name", stepName[ i ] ) );
       retval.append( "        </step>" + Const.CR );
     }
     retval.append( "      </steps>" + Const.CR );
@@ -136,13 +133,13 @@ public class PrioritizeStreamsMeta extends BaseStepMeta implements StepMetaInter
     allocate( nrsteps );
 
     for ( int i = 0; i < nrsteps; i++ ) {
-      stepName[i] = "step" + i;
+      stepName[ i ] = "step" + i;
     }
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( prev == null || prev.size() == 0 ) {
@@ -180,7 +177,7 @@ public class PrioritizeStreamsMeta extends BaseStepMeta implements StepMetaInter
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new PrioritizeStreams( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 

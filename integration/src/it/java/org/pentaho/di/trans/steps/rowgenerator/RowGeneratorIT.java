@@ -22,11 +22,7 @@
 
 package org.apache.hop.trans.steps.rowgenerator;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
+import junit.framework.TestCase;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
@@ -47,11 +43,14 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
 
-import junit.framework.TestCase;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Test class for the RowGenerator step.
- *
+ * <p>
  * TODO For the moment only the basic stuff is verified. Formats, lengths, precision should best also be tested.
  *
  * @author Sven Boden
@@ -61,13 +60,13 @@ public class RowGeneratorIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    {
-      new ValueMetaString( "string" ), new ValueMetaBoolean( "boolean" ),
-      new ValueMetaInteger( "integer" ),
-      new ValueMetaTimestamp( "timestamp" ) };
+      {
+        new ValueMetaString( "string" ), new ValueMetaBoolean( "boolean" ),
+        new ValueMetaInteger( "integer" ),
+        new ValueMetaTimestamp( "timestamp" ) };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -110,9 +109,9 @@ public class RowGeneratorIT extends TestCase {
       if ( rm1.size() != rm2.size() ) {
         fail( "row nr " + idx + " is not equal" );
       }
-      int[] fields = new int[rm1.size()];
+      int[] fields = new int[ rm1.size() ];
       for ( int ydx = 0; ydx < rm1.size(); ydx++ ) {
-        fields[ydx] = ydx;
+        fields[ ydx ] = ydx;
       }
       try {
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {

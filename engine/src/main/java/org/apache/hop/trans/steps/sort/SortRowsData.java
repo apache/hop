@@ -22,17 +22,17 @@
 
 package org.apache.hop.trans.steps.sort;
 
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.trans.step.BaseStepData;
+import org.apache.hop.trans.step.StepDataInterface;
+
 import java.io.DataInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
-
-import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.trans.step.BaseStepData;
-import org.apache.hop.trans.step.StepDataInterface;
 
 /**
  * @author Matt

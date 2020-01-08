@@ -22,14 +22,9 @@
 
 package org.apache.hop.trans.steps.rowgenerator;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -41,6 +36,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -49,6 +45,10 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Generates a number of (empty or the same) rows
@@ -64,7 +64,7 @@ public class RowGenerator extends BaseStep implements StepInterface {
   private RowGeneratorData data;
 
   public RowGenerator( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                       Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
 
     meta = (RowGeneratorMeta) getStepMeta().getStepMetaInterface();
@@ -72,7 +72,7 @@ public class RowGenerator extends BaseStep implements StepInterface {
   }
 
   public static final RowMetaAndData buildRow( RowGeneratorMeta meta, List<CheckResultInterface> remarks,
-    String origin ) throws HopPluginException {
+                                               String origin ) throws HopPluginException {
     RowMetaInterface rowMeta = new RowMeta();
     Object[] rowData = RowDataUtil.allocateRowData( meta.getFieldName().length + 2 );
     int index = 0;
@@ -80,40 +80,40 @@ public class RowGenerator extends BaseStep implements StepInterface {
     if ( meta.isNeverEnding() ) {
       if ( !Utils.isEmpty( meta.getRowTimeField() ) ) {
         rowMeta.addValueMeta( new ValueMetaDate( meta.getRowTimeField() ) );
-        rowData[index++] = null;
+        rowData[ index++ ] = null;
       }
 
       if ( !Utils.isEmpty( meta.getLastTimeField() ) ) {
         rowMeta.addValueMeta( new ValueMetaDate( meta.getLastTimeField() ) );
-        rowData[index++] = null;
+        rowData[ index++ ] = null;
       }
     }
 
     for ( int i = 0; i < meta.getFieldName().length; i++ ) {
-      int valtype = ValueMetaFactory.getIdForValueMeta( meta.getFieldType()[i] );
-      if ( meta.getFieldName()[i] != null ) {
-        ValueMetaInterface valueMeta = ValueMetaFactory.createValueMeta( meta.getFieldName()[i], valtype ); // build a
-                                                                                                            // value!
-        valueMeta.setLength( meta.getFieldLength()[i] );
-        valueMeta.setPrecision( meta.getFieldPrecision()[i] );
-        valueMeta.setConversionMask( meta.getFieldFormat()[i] );
-        valueMeta.setCurrencySymbol( meta.getCurrency()[i] );
-        valueMeta.setGroupingSymbol( meta.getGroup()[i] );
-        valueMeta.setDecimalSymbol( meta.getDecimal()[i] );
+      int valtype = ValueMetaFactory.getIdForValueMeta( meta.getFieldType()[ i ] );
+      if ( meta.getFieldName()[ i ] != null ) {
+        ValueMetaInterface valueMeta = ValueMetaFactory.createValueMeta( meta.getFieldName()[ i ], valtype ); // build a
+        // value!
+        valueMeta.setLength( meta.getFieldLength()[ i ] );
+        valueMeta.setPrecision( meta.getFieldPrecision()[ i ] );
+        valueMeta.setConversionMask( meta.getFieldFormat()[ i ] );
+        valueMeta.setCurrencySymbol( meta.getCurrency()[ i ] );
+        valueMeta.setGroupingSymbol( meta.getGroup()[ i ] );
+        valueMeta.setDecimalSymbol( meta.getDecimal()[ i ] );
         valueMeta.setOrigin( origin );
 
         ValueMetaInterface stringMeta =
           ValueMetaFactory.cloneValueMeta( valueMeta, ValueMetaInterface.TYPE_STRING );
 
-        if ( meta.isSetEmptyString() != null && meta.isSetEmptyString()[i] ) {
+        if ( meta.isSetEmptyString() != null && meta.isSetEmptyString()[ i ] ) {
           // Set empty string
-          rowData[index] = StringUtil.EMPTY_STRING;
+          rowData[ index ] = StringUtil.EMPTY_STRING;
         } else {
-          String stringValue = meta.getValue()[i];
+          String stringValue = meta.getValue()[ i ];
 
           // If the value is empty: consider it to be NULL.
           if ( Utils.isEmpty( stringValue ) ) {
-            rowData[index] = null;
+            rowData[ index ] = null;
 
             if ( valueMeta.getType() == ValueMetaInterface.TYPE_NONE ) {
               String message =
@@ -125,7 +125,7 @@ public class RowGenerator extends BaseStep implements StepInterface {
             // Convert the data from String to the specified type ...
             //
             try {
-              rowData[index] = valueMeta.convertData( stringMeta, stringValue );
+              rowData[ index ] = valueMeta.convertData( stringMeta, stringValue );
             } catch ( HopValueException e ) {
               switch ( valueMeta.getType() ) {
                 case ValueMetaInterface.TYPE_NUMBER:
@@ -221,10 +221,10 @@ public class RowGenerator extends BaseStep implements StepInterface {
 
       int index = 0;
       if ( !Utils.isEmpty( meta.getRowTimeField() ) ) {
-        r[index++] = data.rowDate;
+        r[ index++ ] = data.rowDate;
       }
       if ( !Utils.isEmpty( meta.getLastTimeField() ) ) {
-        r[index++] = data.prevDate;
+        r[ index++ ] = data.prevDate;
       }
     }
 

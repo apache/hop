@@ -34,7 +34,6 @@ import org.apache.hop.trans.steps.symmetriccrypto.symmetricalgorithm.SymmetricCr
  *
  * @author Samatar
  * @since 5-apr-2003
- *
  */
 public class SymmetricCryptoTransData extends BaseStepData implements StepDataInterface {
   public RowMetaInterface outputRowMeta;

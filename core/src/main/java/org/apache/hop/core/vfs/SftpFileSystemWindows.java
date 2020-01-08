@@ -93,7 +93,8 @@ class SftpFileSystemWindows extends SftpFileSystem {
 
   /**
    * get user group on remote windows host
-   * @return  list of groups + user person
+   *
+   * @return list of groups + user person
    * @throws JSchException
    * @throws IOException
    */
@@ -154,9 +155,7 @@ class SftpFileSystemWindows extends SftpFileSystem {
   }
 
   /**
-   *
    * @param path path to file or directory
-   *
    * @return Map Windows Group - permissions
    * @throws JSchException
    * @throws IOException
@@ -213,7 +212,6 @@ class SftpFileSystemWindows extends SftpFileSystem {
 
   /**
    * {@link  org.apache.commons.vfs2.provider.sftp.SftpFileSystem#getChannel() }
-   *
    */
   private void ensureSession() throws FileSystemException {
     if ( this.session == null || !this.session.isConnected() ) {
@@ -225,8 +223,8 @@ class SftpFileSystemWindows extends SftpFileSystem {
         GenericFileName e = (GenericFileName) this.getRootName();
         authData = UserAuthenticatorUtils.authenticate( this.getFileSystemOptions(), SftpFileProvider.AUTHENTICATOR_TYPES );
         session = SftpClientFactory.createConnection( e.getHostName(), e.getPort(), UserAuthenticatorUtils.getData( authData, UserAuthenticationData.USERNAME,
-                UserAuthenticatorUtils.toChar( e.getUserName() ) ), UserAuthenticatorUtils.getData( authData, UserAuthenticationData.PASSWORD,
-                UserAuthenticatorUtils.toChar( e.getPassword() ) ), this.getFileSystemOptions() );
+          UserAuthenticatorUtils.toChar( e.getUserName() ) ), UserAuthenticatorUtils.getData( authData, UserAuthenticationData.PASSWORD,
+          UserAuthenticatorUtils.toChar( e.getPassword() ) ), this.getFileSystemOptions() );
       } catch ( Exception var7 ) {
         throw new FileSystemException( "vfs.provider.sftp/connect.error", this.getRootName(), var7 );
       } finally {
@@ -239,7 +237,6 @@ class SftpFileSystemWindows extends SftpFileSystem {
   }
 
   /**
-   *
    * {@link  org.apache.commons.vfs2.provider.sftp.SftpFileSystem#executeCommand(java.lang.String, java.lang.StringBuilder) }
    */
   private int executeCommand( String command, StringBuilder output ) throws JSchException, IOException {
@@ -250,7 +247,7 @@ class SftpFileSystemWindows extends SftpFileSystem {
     InputStreamReader stream = new InputStreamReader( channel.getInputStream() );
     channel.setErrStream( System.err, true );
     channel.connect();
-    char[] buffer = new char[128];
+    char[] buffer = new char[ 128 ];
 
     int read;
     while ( ( read = stream.read( buffer, 0, buffer.length ) ) >= 0 ) {

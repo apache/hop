@@ -22,27 +22,17 @@
 
 package org.apache.hop.job.entries.deletefolders;
 
-import org.apache.hop.job.entry.validator.AbstractFileValidator;
-import org.apache.hop.job.entry.validator.AndValidator;
-import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import java.io.IOException;
-import java.util.List;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
@@ -50,13 +40,18 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.validator.AbstractFileValidator;
+import org.apache.hop.job.entry.validator.AndValidator;
+import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * This defines a 'delete folders' job entry.
@@ -98,7 +93,7 @@ public class JobEntryDeleteFolders extends JobEntryBase implements Cloneable, Jo
   }
 
   public void allocate( int nrFields ) {
-    arguments = new String[nrFields];
+    arguments = new String[ nrFields ];
   }
 
   public Object clone() {
@@ -123,7 +118,7 @@ public class JobEntryDeleteFolders extends JobEntryBase implements Cloneable, Jo
     if ( arguments != null ) {
       for ( int i = 0; i < arguments.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "name", arguments[i] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "name", arguments[ i ] ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
@@ -132,10 +127,10 @@ public class JobEntryDeleteFolders extends JobEntryBase implements Cloneable, Jo
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       argFromPrevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
       success_condition = XMLHandler.getTagValue( entrynode, "success_condition" );
       limit_folders = XMLHandler.getTagValue( entrynode, "limit_folders" );
@@ -150,7 +145,7 @@ public class JobEntryDeleteFolders extends JobEntryBase implements Cloneable, Jo
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        arguments[i] = XMLHandler.getTagValue( fnode, "name" );
+        arguments[ i ] = XMLHandler.getTagValue( fnode, "name" );
       }
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "JobEntryDeleteFolders.UnableToLoadFromXml" ), xe );
@@ -207,7 +202,7 @@ public class JobEntryDeleteFolders extends JobEntryBase implements Cloneable, Jo
           result.setNrLinesDeleted( NrSuccess );
           return result;
         }
-        String realfilename = environmentSubstitute( arguments[i] );
+        String realfilename = environmentSubstitute( arguments[ i ] );
         if ( !Utils.isEmpty( realfilename ) ) {
           if ( deleteFolder( realfilename ) ) {
             updateSuccess();
@@ -338,7 +333,7 @@ public class JobEntryDeleteFolders extends JobEntryBase implements Cloneable, Jo
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     boolean res = JobEntryValidatorUtils.andValidator().validate( this, "arguments", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
 
     if ( !res ) {
@@ -359,7 +354,7 @@ public class JobEntryDeleteFolders extends JobEntryBase implements Cloneable, Jo
     if ( arguments != null ) {
       ResourceReference reference = null;
       for ( int i = 0; i < arguments.length; i++ ) {
-        String filename = jobMeta.environmentSubstitute( arguments[i] );
+        String filename = jobMeta.environmentSubstitute( arguments[ i ] );
         if ( reference == null ) {
           reference = new ResourceReference( this );
           references.add( reference );

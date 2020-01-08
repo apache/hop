@@ -22,9 +22,6 @@
 
 package org.apache.hop.trans.steps.simplemapping;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
@@ -46,6 +43,9 @@ import org.apache.hop.trans.steps.mapping.MappingValueRename;
 import org.apache.hop.trans.steps.mappinginput.MappingInput;
 import org.apache.hop.trans.steps.mappingoutput.MappingOutput;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Execute a mapping: a re-usuable transformation
  *
@@ -59,7 +59,7 @@ public class SimpleMapping extends BaseStep implements StepInterface {
   private SimpleMappingData data;
 
   public SimpleMapping( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
+                        Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -88,13 +88,13 @@ public class SimpleMapping extends BaseStep implements StepInterface {
         String mappingOutputStepname = simpleMappingData.mappingOutput.getStepname();
         StepInterface outputStepInterface = simpleMappingData.mappingTrans.findStepInterface( mappingOutputStepname, 0 );
         RowOutputDataMapper outputDataMapper =
-            new RowOutputDataMapper( meta.getInputMapping(), meta.getOutputMapping(), new PutRowInterface() {
+          new RowOutputDataMapper( meta.getInputMapping(), meta.getOutputMapping(), new PutRowInterface() {
 
-              @Override
-              public void putRow( RowMetaInterface rowMeta, Object[] rowData ) throws HopStepException {
-                SimpleMapping.this.putRow( rowMeta, rowData );
-              }
-            } );
+            @Override
+            public void putRow( RowMetaInterface rowMeta, Object[] rowData ) throws HopStepException {
+              SimpleMapping.this.putRow( rowMeta, rowData );
+            }
+          } );
         outputStepInterface.addRowListener( outputDataMapper );
 
         // Start the mapping/sub-transformation threads
@@ -177,7 +177,7 @@ public class SimpleMapping extends BaseStep implements StepInterface {
       simpleMappingData.mappingTrans.prepareExecution( getTrans().getArguments() );
     } catch ( HopException e ) {
       throw new HopException( BaseMessages.getString( PKG,
-          "SimpleMapping.Exception.UnableToPrepareExecutionOfMapping" ), e );
+        "SimpleMapping.Exception.UnableToPrepareExecutionOfMapping" ), e );
     }
 
     // If there is no read/write logging step set, we can insert the data from
@@ -192,8 +192,8 @@ public class SimpleMapping extends BaseStep implements StepInterface {
       throw new HopException(
         "The simple mapping step does not support multiple Mapping Input steps to write to in the sub-transformation" );
     }
-    simpleMappingData.mappingInput = mappingInputs[0];
-    simpleMappingData.mappingInput.setConnectorSteps( new StepInterface[0], new ArrayList<MappingValueRename>(), null );
+    simpleMappingData.mappingInput = mappingInputs[ 0 ];
+    simpleMappingData.mappingInput.setConnectorSteps( new StepInterface[ 0 ], new ArrayList<MappingValueRename>(), null );
 
     // LogTableField readField = data.mappingTransMeta.getTransLogTable().findField(TransLogTable.ID.LINES_READ);
     // if (readField.getSubject() == null) {
@@ -203,13 +203,13 @@ public class SimpleMapping extends BaseStep implements StepInterface {
     MappingOutput[] mappingOutputs = simpleMappingData.mappingTrans.findMappingOutput();
     if ( mappingOutputs.length == 0 ) {
       throw new HopException(
-          "The simple mapping step needs one Mapping Output step to read from in the sub-transformation" );
+        "The simple mapping step needs one Mapping Output step to read from in the sub-transformation" );
     }
     if ( mappingOutputs.length > 1 ) {
       throw new HopException( "The simple mapping step does not support "
-          + "multiple Mapping Output steps to read from in the sub-transformation" );
+        + "multiple Mapping Output steps to read from in the sub-transformation" );
     }
-    simpleMappingData.mappingOutput = mappingOutputs[0];
+    simpleMappingData.mappingOutput = mappingOutputs[ 0 ];
 
     // LogTableField writeField = data.mappingTransMeta.getTransLogTable().findField(TransLogTable.ID.LINES_WRITTEN);
     // if (writeField.getSubject() == null && data.mappingOutputs != null && data.mappingOutputs.length >= 1) {
@@ -244,7 +244,7 @@ public class SimpleMapping extends BaseStep implements StepInterface {
         // Pass the repository down to the metadata object...
         //
         simpleMappingData.mappingTransMeta =
-            SimpleMappingMeta.loadMappingMeta( meta, meta.getMetaStore(), this, meta.getMappingParameters().isInheritingAllVariables() );
+          SimpleMappingMeta.loadMappingMeta( meta, meta.getMetaStore(), this, meta.getMappingParameters().isInheritingAllVariables() );
         if ( simpleMappingData.mappingTransMeta != null ) { // Do we have a mapping at all?
 
           // OK, now prepare the execution of the mapping.

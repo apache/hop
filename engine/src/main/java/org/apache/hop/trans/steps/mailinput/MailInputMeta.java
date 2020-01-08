@@ -22,16 +22,10 @@
 
 package org.apache.hop.trans.steps.mailinput;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -44,7 +38,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entries.getpop.MailConnectionMeta;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -52,8 +46,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 public class MailInputMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = MailInputMeta.class; // for i18n purposes, needed by Translator2!!
@@ -93,7 +88,9 @@ public class MailInputMeta extends BaseStepMeta implements StepMetaInterface {
   private boolean usedynamicfolder;
   private String rowlimit;
 
-  /** The fields ... */
+  /**
+   * The fields ...
+   */
   private MailInputField[] inputFields;
 
   private boolean useBatch;
@@ -114,7 +111,7 @@ public class MailInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrfields ) {
-    inputFields = new MailInputField[nrfields];
+    inputFields = new MailInputField[ nrfields ];
   }
 
   @Override
@@ -123,8 +120,8 @@ public class MailInputMeta extends BaseStepMeta implements StepMetaInterface {
     int nrFields = inputFields.length;
     retval.allocate( nrFields );
     for ( int i = 0; i < nrFields; i++ ) {
-      if ( inputFields[i] != null ) {
-        retval.inputFields[i] = (MailInputField) inputFields[i].clone();
+      if ( inputFields[ i ] != null ) {
+        retval.inputFields[ i ] = (MailInputField) inputFields[ i ].clone();
       }
     }
 
@@ -183,9 +180,9 @@ public class MailInputMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( nrFields );
     for ( int i = 0; i < nrFields; i++ ) {
       Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-      inputFields[i] = new MailInputField();
-      inputFields[i].setName( XMLHandler.getTagValue( fnode, "name" ) );
-      inputFields[i].setColumn( MailInputField.getColumnByCode( XMLHandler.getTagValue( fnode, "column" ) ) );
+      inputFields[ i ] = new MailInputField();
+      inputFields[ i ].setName( XMLHandler.getTagValue( fnode, "name" ) );
+      inputFields[ i ].setColumn( MailInputField.getColumnByCode( XMLHandler.getTagValue( fnode, "column" ) ) );
     }
   }
 
@@ -230,7 +227,7 @@ public class MailInputMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( nrFields );
 
     for ( int i = 0; i < nrFields; i++ ) {
-      inputFields[i] = new MailInputField( "field" + ( i + 1 ) );
+      inputFields[ i ] = new MailInputField( "field" + ( i + 1 ) );
     }
 
   }
@@ -294,8 +291,8 @@ public class MailInputMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < inputFields.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", inputFields[i].getName() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "column", inputFields[i].getColumnCode() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "name", inputFields[ i ].getName() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "column", inputFields[ i ].getColumnCode() ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
     retval.append( "    </fields>" ).append( Const.CR );
@@ -304,8 +301,8 @@ public class MailInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     // See if we get input...
     if ( input.length > 0 ) {
@@ -525,8 +522,7 @@ public class MailInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param inputFields
-   *          The input fields to set.
+   * @param inputFields The input fields to set.
    */
   public void setInputFields( MailInputField[] inputFields ) {
     this.inputFields = inputFields;
@@ -540,8 +536,7 @@ public class MailInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param delete
-   *          The delete to set.
+   * @param delete The delete to set.
    */
   public void setDelete( boolean delete ) {
     this.delete = delete;
@@ -571,8 +566,7 @@ public class MailInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param usessl
-   *          The usessl to set.
+   * @param usessl The usessl to set.
    */
   public void setUseSSL( boolean usessl ) {
     this.usessl = usessl;
@@ -586,8 +580,7 @@ public class MailInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param password
-   *          The password to set.
+   * @param password The password to set.
    */
   public void setPassword( String password ) {
     this.password = password;
@@ -595,7 +588,7 @@ public class MailInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new MailInput( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -606,10 +599,10 @@ public class MailInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     int i;
     for ( i = 0; i < inputFields.length; i++ ) {
-      MailInputField field = inputFields[i];
+      MailInputField field = inputFields[ i ];
       ValueMetaInterface v = new ValueMetaString( space.environmentSubstitute( field.getName() ) );
       switch ( field.getColumn() ) {
         case MailInputField.COLUMN_MESSAGE_NR:

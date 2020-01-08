@@ -22,12 +22,24 @@
 
 package org.apache.hop.ui.trans.steps.fuzzymatch;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.errorhandling.StreamInterface;
+import org.apache.hop.trans.steps.fuzzymatch.FuzzyMatchMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -54,24 +66,12 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.errorhandling.StreamInterface;
-import org.apache.hop.trans.steps.fuzzymatch.FuzzyMatchMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class FuzzyMatchDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = FuzzyMatchMeta.class; // for i18n purposes, needed by Translator2!!
@@ -623,12 +623,12 @@ public class FuzzyMatchDialog extends BaseStepDialog implements StepDialogInterf
     int UpInsCols = 2;
     int UpInsRows = ( input.getValue() != null ? input.getValue().length : 1 );
 
-    ciReturn = new ColumnInfo[UpInsCols];
-    ciReturn[0] =
+    ciReturn = new ColumnInfo[ UpInsCols ];
+    ciReturn[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "FuzzyMatchDialog.ColumnInfo.FieldReturn" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    ciReturn[1] =
+    ciReturn[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "FuzzyMatchDialog.ColumnInfo.NewName" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
@@ -756,11 +756,11 @@ public class FuzzyMatchDialog extends BaseStepDialog implements StepDialogInterf
     if ( input.getValue() != null ) {
       for ( int i = 0; i < input.getValue().length; i++ ) {
         TableItem item = wReturn.table.getItem( i );
-        if ( input.getValue()[i] != null ) {
-          item.setText( 1, input.getValue()[i] );
+        if ( input.getValue()[ i ] != null ) {
+          item.setText( 1, input.getValue()[ i ] );
         }
-        if ( input.getValueName()[i] != null && !input.getValueName()[i].equals( input.getValue()[i] ) ) {
-          item.setText( 2, input.getValueName()[i] );
+        if ( input.getValueName()[ i ] != null && !input.getValueName()[ i ].equals( input.getValue()[ i ] ) ) {
+          item.setText( 2, input.getValueName()[ i ] );
         }
       }
     }
@@ -807,10 +807,10 @@ public class FuzzyMatchDialog extends BaseStepDialog implements StepDialogInterf
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrvalues; i++ ) {
       TableItem item = wReturn.getNonEmpty( i );
-      input.getValue()[i] = item.getText( 1 );
-      input.getValueName()[i] = item.getText( 2 );
-      if ( input.getValueName()[i] == null || input.getValueName()[i].length() == 0 ) {
-        input.getValueName()[i] = input.getValue()[i];
+      input.getValue()[ i ] = item.getText( 1 );
+      input.getValueName()[ i ] = item.getText( 2 );
+      if ( input.getValueName()[ i ] == null || input.getValueName()[ i ].length() == 0 ) {
+        input.getValueName()[ i ] = input.getValue()[ i ];
       }
     }
 
@@ -848,7 +848,7 @@ public class FuzzyMatchDialog extends BaseStepDialog implements StepDialogInterf
       } catch ( HopException ke ) {
         new ErrorDialog(
           shell, BaseMessages.getString( PKG, "FuzzyMatchDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-            .getString( PKG, "FuzzyMatchDialog.FailedToGetFields.DialogMessage" ), ke );
+          .getString( PKG, "FuzzyMatchDialog.FailedToGetFields.DialogMessage" ), ke );
       }
       if ( field != null ) {
         wMainStreamField.setText( field );
@@ -882,15 +882,15 @@ public class FuzzyMatchDialog extends BaseStepDialog implements StepDialogInterf
   private void activegetCloserValue() {
     boolean enableRange =
       ( FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
-          == FuzzyMatchMeta.OPERATION_TYPE_LEVENSHTEIN
+        == FuzzyMatchMeta.OPERATION_TYPE_LEVENSHTEIN
         || FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
-          == FuzzyMatchMeta.OPERATION_TYPE_NEEDLEMAN_WUNSH
+        == FuzzyMatchMeta.OPERATION_TYPE_NEEDLEMAN_WUNSH
         || FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
-          == FuzzyMatchMeta.OPERATION_TYPE_DAMERAU_LEVENSHTEIN
+        == FuzzyMatchMeta.OPERATION_TYPE_DAMERAU_LEVENSHTEIN
         || FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
-          == FuzzyMatchMeta.OPERATION_TYPE_JARO
+        == FuzzyMatchMeta.OPERATION_TYPE_JARO
         || FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
-          == FuzzyMatchMeta.OPERATION_TYPE_JARO_WINKLER || FuzzyMatchMeta
+        == FuzzyMatchMeta.OPERATION_TYPE_JARO_WINKLER || FuzzyMatchMeta
         .getAlgorithmTypeByDesc( wAlgorithm.getText() ) == FuzzyMatchMeta.OPERATION_TYPE_PAIR_SIMILARITY )
         && !wgetCloserValue.getSelection();
 
@@ -906,13 +906,13 @@ public class FuzzyMatchDialog extends BaseStepDialog implements StepDialogInterf
     boolean activate =
       wgetCloserValue.getSelection()
         || ( FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
-          == FuzzyMatchMeta.OPERATION_TYPE_DOUBLE_METAPHONE )
+        == FuzzyMatchMeta.OPERATION_TYPE_DOUBLE_METAPHONE )
         || ( FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
-          == FuzzyMatchMeta.OPERATION_TYPE_SOUNDEX )
+        == FuzzyMatchMeta.OPERATION_TYPE_SOUNDEX )
         || ( FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
-          == FuzzyMatchMeta.OPERATION_TYPE_REFINED_SOUNDEX )
+        == FuzzyMatchMeta.OPERATION_TYPE_REFINED_SOUNDEX )
         || ( FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
-          == FuzzyMatchMeta.OPERATION_TYPE_METAPHONE );
+        == FuzzyMatchMeta.OPERATION_TYPE_METAPHONE );
 
     wlReturn.setEnabled( activate );
     wReturn.setEnabled( activate );
@@ -922,15 +922,15 @@ public class FuzzyMatchDialog extends BaseStepDialog implements StepDialogInterf
   private void activeAlgorithm() {
     boolean enable =
       ( FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
-          == FuzzyMatchMeta.OPERATION_TYPE_LEVENSHTEIN
+        == FuzzyMatchMeta.OPERATION_TYPE_LEVENSHTEIN
         || FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
-          == FuzzyMatchMeta.OPERATION_TYPE_NEEDLEMAN_WUNSH
+        == FuzzyMatchMeta.OPERATION_TYPE_NEEDLEMAN_WUNSH
         || FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
-          == FuzzyMatchMeta.OPERATION_TYPE_DAMERAU_LEVENSHTEIN
+        == FuzzyMatchMeta.OPERATION_TYPE_DAMERAU_LEVENSHTEIN
         || FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
-          == FuzzyMatchMeta.OPERATION_TYPE_JARO
+        == FuzzyMatchMeta.OPERATION_TYPE_JARO
         || FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
-          == FuzzyMatchMeta.OPERATION_TYPE_JARO_WINKLER || FuzzyMatchMeta
+        == FuzzyMatchMeta.OPERATION_TYPE_JARO_WINKLER || FuzzyMatchMeta
         .getAlgorithmTypeByDesc( wAlgorithm.getText() ) == FuzzyMatchMeta.OPERATION_TYPE_PAIR_SIMILARITY );
 
     wlgetCloserValue.setEnabled( enable );
@@ -941,11 +941,11 @@ public class FuzzyMatchDialog extends BaseStepDialog implements StepDialogInterf
     wmaxValue.setEnabled( enable );
 
     if ( FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
-        == FuzzyMatchMeta.OPERATION_TYPE_JARO
+      == FuzzyMatchMeta.OPERATION_TYPE_JARO
       || FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
-        == FuzzyMatchMeta.OPERATION_TYPE_JARO_WINKLER
+      == FuzzyMatchMeta.OPERATION_TYPE_JARO_WINKLER
       || FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
-        == FuzzyMatchMeta.OPERATION_TYPE_PAIR_SIMILARITY ) {
+      == FuzzyMatchMeta.OPERATION_TYPE_PAIR_SIMILARITY ) {
       if ( Const.toDouble( transMeta.environmentSubstitute( wminValue.getText() ), 0 ) > 1 ) {
         wminValue.setText( String.valueOf( 1 ) );
       }
@@ -956,7 +956,7 @@ public class FuzzyMatchDialog extends BaseStepDialog implements StepDialogInterf
 
     boolean enableCaseSensitive =
       ( FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
-      == FuzzyMatchMeta.OPERATION_TYPE_LEVENSHTEIN || FuzzyMatchMeta
+        == FuzzyMatchMeta.OPERATION_TYPE_LEVENSHTEIN || FuzzyMatchMeta
         .getAlgorithmTypeByDesc( wAlgorithm.getText() ) == FuzzyMatchMeta.OPERATION_TYPE_DAMERAU_LEVENSHTEIN );
     wlcaseSensitive.setEnabled( enableCaseSensitive );
     wcaseSensitive.setEnabled( enableCaseSensitive );
@@ -985,7 +985,7 @@ public class FuzzyMatchDialog extends BaseStepDialog implements StepDialogInterf
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "FuzzyMatchDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "FuzzyMatchDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "FuzzyMatchDialog.FailedToGetFields.DialogMessage" ), ke );
     }
 
   }
@@ -1013,10 +1013,10 @@ public class FuzzyMatchDialog extends BaseStepDialog implements StepDialogInterf
             Set<String> keySet = fields.keySet();
             List<String> entries = new ArrayList<String>( keySet );
 
-            String[] fieldNames = entries.toArray( new String[entries.size()] );
+            String[] fieldNames = entries.toArray( new String[ entries.size() ] );
             Const.sortStrings( fieldNames );
             // return fields
-            ciReturn[0].setComboValues( fieldNames );
+            ciReturn[ 0 ].setComboValues( fieldNames );
           } catch ( HopException e ) {
             logError( "It was not possible to retrieve the list of fields for step [" + wStep.getText() + "]!" );
           }

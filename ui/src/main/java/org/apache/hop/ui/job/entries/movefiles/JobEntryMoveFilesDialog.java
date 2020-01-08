@@ -22,6 +22,21 @@
 
 package org.apache.hop.ui.job.entries.movefiles;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.movefiles.JobEntryMoveFiles;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -48,21 +63,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.movefiles.JobEntryMoveFiles;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * This dialog allows you to edit the Move Files job entry settings.
@@ -651,12 +651,12 @@ public class JobEntryMoveFilesDialog extends JobEntryDialog implements JobEntryD
           BaseMessages.getString( PKG, "JobMoveFiles.Fields.Wildcard.Label" ), ColumnInfo.COLUMN_TYPE_TEXT,
           false ), };
 
-    colinf[0].setUsingVariables( true );
-    colinf[0].setToolTip( BaseMessages.getString( PKG, "JobMoveFiles.Fields.SourceFileFolder.Tooltip" ) );
-    colinf[1].setUsingVariables( true );
-    colinf[1].setToolTip( BaseMessages.getString( PKG, "JobMoveFiles.Fields.DestinationFileFolder.Tooltip" ) );
-    colinf[2].setUsingVariables( true );
-    colinf[2].setToolTip( BaseMessages.getString( PKG, "JobMoveFiles.Fields.Wildcard.Tooltip" ) );
+    colinf[ 0 ].setUsingVariables( true );
+    colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "JobMoveFiles.Fields.SourceFileFolder.Tooltip" ) );
+    colinf[ 1 ].setUsingVariables( true );
+    colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "JobMoveFiles.Fields.DestinationFileFolder.Tooltip" ) );
+    colinf[ 2 ].setUsingVariables( true );
+    colinf[ 2 ].setToolTip( BaseMessages.getString( PKG, "JobMoveFiles.Fields.Wildcard.Tooltip" ) );
 
     wFields =
       new TableView(
@@ -703,9 +703,9 @@ public class JobEntryMoveFilesDialog extends JobEntryDialog implements JobEntryD
         int idx = wFields.getSelectionIndex();
         if ( idx >= 0 ) {
           String[] string = wFields.getItem( idx );
-          wSourceFileFolder.setText( string[0] );
-          wDestinationFileFolder.setText( string[1] );
-          wWildcard.setText( string[2] );
+          wSourceFileFolder.setText( string[ 0 ] );
+          wDestinationFileFolder.setText( string[ 1 ] );
+          wWildcard.setText( string[ 2 ] );
           wFields.remove( idx );
         }
         wFields.removeEmptyRows();
@@ -924,7 +924,7 @@ public class JobEntryMoveFilesDialog extends JobEntryDialog implements JobEntryD
     // Prepare a list of possible DateTimeFormats...
     String[] dats = Const.getDateFormats();
     for ( int x = 0; x < dats.length; x++ ) {
-      wDateTimeFormat.add( dats[x] );
+      wDateTimeFormat.add( dats[ x ] );
     }
 
     // Add Date before extension?
@@ -1180,7 +1180,7 @@ public class JobEntryMoveFilesDialog extends JobEntryDialog implements JobEntryD
     wMovedDateTimeFormat.setLayoutData( fdMovedDateTimeFormat );
 
     for ( int x = 0; x < dats.length; x++ ) {
-      wMovedDateTimeFormat.add( dats[x] );
+      wMovedDateTimeFormat.add( dats[ x ] );
     }
 
     // Add Date before extension?
@@ -1600,14 +1600,14 @@ public class JobEntryMoveFilesDialog extends JobEntryDialog implements JobEntryD
     if ( jobEntry.source_filefolder != null ) {
       for ( int i = 0; i < jobEntry.source_filefolder.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.source_filefolder[i] != null ) {
-          ti.setText( 1, jobEntry.source_filefolder[i] );
+        if ( jobEntry.source_filefolder[ i ] != null ) {
+          ti.setText( 1, jobEntry.source_filefolder[ i ] );
         }
-        if ( jobEntry.destination_filefolder[i] != null ) {
-          ti.setText( 2, jobEntry.destination_filefolder[i] );
+        if ( jobEntry.destination_filefolder[ i ] != null ) {
+          ti.setText( 2, jobEntry.destination_filefolder[ i ] );
         }
-        if ( jobEntry.wildcard[i] != null ) {
-          ti.setText( 3, jobEntry.wildcard[i] );
+        if ( jobEntry.wildcard[ i ] != null ) {
+          ti.setText( 3, jobEntry.wildcard[ i ] );
         }
       }
       wFields.setRowNums();
@@ -1782,18 +1782,18 @@ public class JobEntryMoveFilesDialog extends JobEntryDialog implements JobEntryD
         nr++;
       }
     }
-    jobEntry.source_filefolder = new String[nr];
-    jobEntry.destination_filefolder = new String[nr];
-    jobEntry.wildcard = new String[nr];
+    jobEntry.source_filefolder = new String[ nr ];
+    jobEntry.destination_filefolder = new String[ nr ];
+    jobEntry.wildcard = new String[ nr ];
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
       String source = wFields.getNonEmpty( i ).getText( 1 );
       String dest = wFields.getNonEmpty( i ).getText( 2 );
       String wild = wFields.getNonEmpty( i ).getText( 3 );
       if ( source != null && source.length() != 0 ) {
-        jobEntry.source_filefolder[nr] = source;
-        jobEntry.destination_filefolder[nr] = dest;
-        jobEntry.wildcard[nr] = wild;
+        jobEntry.source_filefolder[ nr ] = source;
+        jobEntry.destination_filefolder[ nr ] = dest;
+        jobEntry.wildcard[ nr ] = wild;
         nr++;
       }
     }

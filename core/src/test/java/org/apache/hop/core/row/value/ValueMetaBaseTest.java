@@ -24,15 +24,12 @@ package org.apache.hop.core.row.value;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
-import org.apache.hop.core.database.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.Spy;
-import org.owasp.encoder.Encode;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.database.BaseDatabaseMeta;
+import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.MySQLDatabaseMeta;
+import org.apache.hop.core.database.OracleDatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
@@ -48,6 +45,13 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.Spy;
+import org.owasp.encoder.Encode;
 import org.w3c.dom.Node;
 
 import java.io.ByteArrayInputStream;
@@ -75,12 +79,12 @@ import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -122,7 +126,7 @@ public class ValueMetaBaseTest {
     listener = new StoreLoggingEventListener();
     HopLogStore.getAppender().addLoggingEventListener( listener );
 
-    valueMetaBase = new ValueMetaBase( );
+    valueMetaBase = new ValueMetaBase();
     dbMeta = spy( new DatabaseMeta() );
     resultSet = mock( ResultSet.class );
   }
@@ -603,7 +607,7 @@ public class ValueMetaBaseTest {
 
   @Test
   public void testSetPreparedStatementStringValueDontLogTruncated() throws HopDatabaseException {
-    ValueMetaBase valueMetaString = new ValueMetaBase( "LOG_FIELD", ValueMetaInterface.TYPE_STRING,  LOG_FIELD.length(), 0 );
+    ValueMetaBase valueMetaString = new ValueMetaBase( "LOG_FIELD", ValueMetaInterface.TYPE_STRING, LOG_FIELD.length(), 0 );
 
     DatabaseMeta databaseMeta = mock( DatabaseMeta.class );
     PreparedStatement preparedStatement = mock( PreparedStatement.class );
@@ -854,63 +858,63 @@ public class ValueMetaBaseTest {
     base.setConversionMetadata( valueMetaString );
 
     String convertedNumber = base.convertNumberToString( (Double) numberToTest );
-    assertEquals( expectedStringRepresentation,  convertedNumber );
+    assertEquals( expectedStringRepresentation, convertedNumber );
   }
 
   @Test
   public void testNullHashCodes() throws Exception {
-    ValueMetaBase valueMetaString = new ValueMetaBase( );
+    ValueMetaBase valueMetaString = new ValueMetaBase();
 
     valueMetaString.type = ValueMetaInterface.TYPE_BOOLEAN;
-    assertEquals( valueMetaString.hashCode( null ),  0 ^ 1 );
+    assertEquals( valueMetaString.hashCode( null ), 0 ^ 1 );
 
     valueMetaString.type = ValueMetaInterface.TYPE_DATE;
-    assertEquals( valueMetaString.hashCode( null ),  0 ^ 2 );
+    assertEquals( valueMetaString.hashCode( null ), 0 ^ 2 );
 
     valueMetaString.type = ValueMetaInterface.TYPE_NUMBER;
-    assertEquals( valueMetaString.hashCode( null ),  0 ^ 4 );
+    assertEquals( valueMetaString.hashCode( null ), 0 ^ 4 );
 
     valueMetaString.type = ValueMetaInterface.TYPE_STRING;
-    assertEquals( valueMetaString.hashCode( null ),  0 ^ 8 );
+    assertEquals( valueMetaString.hashCode( null ), 0 ^ 8 );
 
     valueMetaString.type = ValueMetaInterface.TYPE_INTEGER;
-    assertEquals( valueMetaString.hashCode( null ),  0 ^ 16 );
+    assertEquals( valueMetaString.hashCode( null ), 0 ^ 16 );
 
     valueMetaString.type = ValueMetaInterface.TYPE_BIGNUMBER;
-    assertEquals( valueMetaString.hashCode( null ),  0 ^ 32 );
+    assertEquals( valueMetaString.hashCode( null ), 0 ^ 32 );
 
     valueMetaString.type = ValueMetaInterface.TYPE_BINARY;
-    assertEquals( valueMetaString.hashCode( null ),  0 ^ 64 );
+    assertEquals( valueMetaString.hashCode( null ), 0 ^ 64 );
 
     valueMetaString.type = ValueMetaInterface.TYPE_TIMESTAMP;
-    assertEquals( valueMetaString.hashCode( null ),  0 ^ 128 );
+    assertEquals( valueMetaString.hashCode( null ), 0 ^ 128 );
 
     valueMetaString.type = ValueMetaInterface.TYPE_INET;
-    assertEquals( valueMetaString.hashCode( null ),  0 ^ 256 );
+    assertEquals( valueMetaString.hashCode( null ), 0 ^ 256 );
 
     valueMetaString.type = ValueMetaInterface.TYPE_NONE;
-    assertEquals( valueMetaString.hashCode( null ),  0 );
+    assertEquals( valueMetaString.hashCode( null ), 0 );
   }
 
   @Test
   public void testHashCodes() throws Exception {
-    ValueMetaBase valueMetaString = new ValueMetaBase( );
+    ValueMetaBase valueMetaString = new ValueMetaBase();
 
     valueMetaString.type = ValueMetaInterface.TYPE_BOOLEAN;
-    assertEquals( valueMetaString.hashCode( true ),  1231 );
+    assertEquals( valueMetaString.hashCode( true ), 1231 );
 
     SimpleDateFormat sdf = new SimpleDateFormat( "dd/M/yyyy" );
     String dateInString = "1/1/2018";
     Date dateObj = sdf.parse( dateInString );
     valueMetaString.type = ValueMetaInterface.TYPE_DATE;
-    assertEquals( valueMetaString.hashCode( dateObj ),  -1358655136 );
+    assertEquals( valueMetaString.hashCode( dateObj ), -1358655136 );
 
     Double numberObj = Double.valueOf( 5.1 );
     valueMetaString.type = ValueMetaInterface.TYPE_NUMBER;
-    assertEquals( valueMetaString.hashCode( numberObj ),  645005312 );
+    assertEquals( valueMetaString.hashCode( numberObj ), 645005312 );
 
     valueMetaString.type = ValueMetaInterface.TYPE_STRING;
-    assertEquals( valueMetaString.hashCode( "test" ),  3556498 );
+    assertEquals( valueMetaString.hashCode( "test" ), 3556498 );
 
     Long longObj = 123L;
     valueMetaString.type = ValueMetaInterface.TYPE_INTEGER;
@@ -918,25 +922,25 @@ public class ValueMetaBaseTest {
 
     BigDecimal bDecimalObj = new BigDecimal( 123.1 );
     valueMetaString.type = ValueMetaInterface.TYPE_BIGNUMBER;
-    assertEquals( valueMetaString.hashCode( bDecimalObj ),  465045870 );
+    assertEquals( valueMetaString.hashCode( bDecimalObj ), 465045870 );
 
-    byte[] bBinary = new byte[2];
-    bBinary[0] = 1;
-    bBinary[1] = 0;
+    byte[] bBinary = new byte[ 2 ];
+    bBinary[ 0 ] = 1;
+    bBinary[ 1 ] = 0;
     valueMetaString.type = ValueMetaInterface.TYPE_BINARY;
-    assertEquals( valueMetaString.hashCode( bBinary ),  992 );
+    assertEquals( valueMetaString.hashCode( bBinary ), 992 );
 
     Timestamp timestampObj = Timestamp.valueOf( "2018-01-01 10:10:10.000000000" );
     valueMetaString.type = ValueMetaInterface.TYPE_TIMESTAMP;
-    assertEquals( valueMetaString.hashCode( timestampObj ),  -1322045776 );
+    assertEquals( valueMetaString.hashCode( timestampObj ), -1322045776 );
 
-    byte[] ipAddr = new byte[]{127, 0, 0, 1};
+    byte[] ipAddr = new byte[] { 127, 0, 0, 1 };
     InetAddress addrObj = InetAddress.getByAddress( ipAddr );
     valueMetaString.type = ValueMetaInterface.TYPE_INET;
-    assertEquals( valueMetaString.hashCode( addrObj ),  2130706433 );
+    assertEquals( valueMetaString.hashCode( addrObj ), 2130706433 );
 
     valueMetaString.type = ValueMetaInterface.TYPE_NONE;
-    assertEquals( valueMetaString.hashCode( "any" ),  0 );
+    assertEquals( valueMetaString.hashCode( "any" ), 0 );
   }
 
   @Test
@@ -1229,7 +1233,7 @@ public class ValueMetaBaseTest {
     when( metaData.getColumnType( binaryColumnIndex ) ).thenReturn( Types.LONGVARBINARY );
 
     ValueMetaInterface binaryValueMeta =
-            valueMetaBase.getValueFromSQLType( dbMeta, TEST_NAME, metaData, binaryColumnIndex, false, false );
+      valueMetaBase.getValueFromSQLType( dbMeta, TEST_NAME, metaData, binaryColumnIndex, false, false );
     assertEquals( ValueMetaInterface.TYPE_BINARY, binaryValueMeta.getType() );
     assertTrue( binaryValueMeta.isBinary() );
   }
@@ -1241,6 +1245,7 @@ public class ValueMetaBaseTest {
 
     verify( preparedStatementMock, times( 1 ) ).setString( 0, data );
   }
+
   private void initValueMeta( BaseDatabaseMeta dbMeta, int length, Object data ) throws HopDatabaseException {
     ValueMetaBase valueMetaString = new ValueMetaBase( LOG_FIELD, ValueMetaInterface.TYPE_STRING, length, 0 );
     databaseMetaSpy.setDatabaseInterface( dbMeta );
@@ -1255,7 +1260,7 @@ public class ValueMetaBaseTest {
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 5 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
     doReturn( mock( MySQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    doReturn( true ).when( dbMeta ).isMySQLVariant( );
+    doReturn( true ).when( dbMeta ).isMySQLVariant();
     ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isNumber() );
     assertEquals( -1, valueMeta.getPrecision() );
@@ -1266,7 +1271,7 @@ public class ValueMetaBaseTest {
   public void testMetdataPreviewSqlTimeToPentahoIntegerUsingMySQLVariant() throws SQLException, HopDatabaseException {
     doReturn( Types.TIME ).when( resultSet ).getInt( "DATA_TYPE" );
     doReturn( mock( MySQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    doReturn( true ).when( dbMeta ).isMySQLVariant( );
+    doReturn( true ).when( dbMeta ).isMySQLVariant();
     doReturn( mock( Properties.class ) ).when( dbMeta ).getConnectionProperties();
     when( dbMeta.getConnectionProperties().getProperty( "yearIsDateType" ) ).thenReturn( "false" );
     doReturn( "YEAR" ).when( resultSet ).getString( "TYPE_NAME" );

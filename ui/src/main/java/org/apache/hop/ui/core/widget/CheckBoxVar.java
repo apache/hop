@@ -22,6 +22,12 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusListener;
@@ -35,12 +41,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
 
 /**
  * A Widget that combines a Check Box widget with a Variable button that will insert an Environment variable.
@@ -81,7 +81,7 @@ public class CheckBoxVar extends Composite {
     props.setLook( wBox );
     wText = new TextVar( space, this, flags | SWT.NO_BACKGROUND );
     wText.getTextWidget().setForeground( GUIResource.getInstance().getColorRed() ); // Put it in a red color to make it
-                                                                                    // shine...
+    // shine...
     wText.getTextWidget().setBackground( composite.getBackground() ); // make it blend in with the rest...
 
     setVariableOnCheckBox( variable );
@@ -129,8 +129,7 @@ public class CheckBoxVar extends Composite {
   }
 
   /**
-   * @param text
-   *          the text in the Text widget to set.
+   * @param text the text in the Text widget to set.
    */
   public void setText( String text ) {
     wBox.setText( text );

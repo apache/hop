@@ -27,10 +27,8 @@ import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 
 /**
- * 
- * 
  * @author Matt
- * @since  24-mrt-2005
+ * @since 24-mrt-2005
  */
 public class DummyPluginData extends BaseStepData implements StepDataInterface {
   public RowMetaInterface outputRowMeta;

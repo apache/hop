@@ -50,7 +50,7 @@ public class SetVariable extends BaseStep implements StepInterface {
   private SetVariableData data;
 
   public SetVariable( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                      Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -67,7 +67,7 @@ public class SetVariable extends BaseStep implements StepInterface {
         // We do not received any row !!
         logBasic( BaseMessages.getString( PKG, "SetVariable.Log.NoInputRowSetDefault" ) );
         for ( int i = 0; i < meta.getFieldName().length; i++ ) {
-          if ( !Utils.isEmpty( meta.getDefaultValue()[i] ) ) {
+          if ( !Utils.isEmpty( meta.getDefaultValue()[ i ] ) ) {
             setValue( rowData, i, true );
           }
         }
@@ -102,14 +102,14 @@ public class SetVariable extends BaseStep implements StepInterface {
     //
     String value = null;
     if ( usedefault ) {
-      value = environmentSubstitute( meta.getDefaultValue()[i] );
+      value = environmentSubstitute( meta.getDefaultValue()[ i ] );
     } else {
-      int index = data.outputMeta.indexOfValue( meta.getFieldName()[i] );
+      int index = data.outputMeta.indexOfValue( meta.getFieldName()[ i ] );
       if ( index < 0 ) {
-        throw new HopException( "Unable to find field [" + meta.getFieldName()[i] + "] in input row" );
+        throw new HopException( "Unable to find field [" + meta.getFieldName()[ i ] + "] in input row" );
       }
       ValueMetaInterface valueMeta = data.outputMeta.getValueMeta( index );
-      Object valueData = rowData[index];
+      Object valueData = rowData[ index ];
 
       // Get variable value
       //
@@ -126,7 +126,7 @@ public class SetVariable extends BaseStep implements StepInterface {
     }
 
     // Get variable name
-    String varname = meta.getVariableName()[i];
+    String varname = meta.getVariableName()[ i ];
 
     if ( Utils.isEmpty( varname ) ) {
       if ( Utils.isEmpty( value ) ) {
@@ -158,7 +158,7 @@ public class SetVariable extends BaseStep implements StepInterface {
     // It has one or more parent jobs.
     // Below we see where we need to this value as well...
     //
-    switch ( meta.getVariableType()[i] ) {
+    switch ( meta.getVariableType()[ i ] ) {
       case SetVariableMeta.VARIABLE_TYPE_JVM:
 
         System.setProperty( varname, value );
@@ -219,7 +219,7 @@ public class SetVariable extends BaseStep implements StepInterface {
         break;
     }
 
-    logBasic( BaseMessages.getString( PKG, "SetVariable.Log.SetVariableToValue", meta.getVariableName()[i], value ) );
+    logBasic( BaseMessages.getString( PKG, "SetVariable.Log.SetVariableToValue", meta.getVariableName()[ i ], value ) );
   }
 
   public void dispose( StepMetaInterface smi, StepDataInterface sdi ) {

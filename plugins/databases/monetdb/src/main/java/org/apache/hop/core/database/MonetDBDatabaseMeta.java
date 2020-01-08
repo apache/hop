@@ -25,8 +25,8 @@ package org.apache.hop.core.database;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 
 /**
  * Contains Generic Database Connection information through static final members
@@ -35,10 +35,10 @@ import org.apache.hop.core.row.ValueMetaInterface;
  * @since 11-mrt-2005
  */
 @DatabaseMetaPlugin(
-        type = "MONETDB",
-        typeDescription = "MonetDB"
+  type = "MONETDB",
+  typeDescription = "MonetDB"
 )
-@GuiPlugin( id="GUI-MonetDBDatabaseMeta" )
+@GuiPlugin( id = "GUI-MonetDBDatabaseMeta" )
 public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
 
   public static ThreadLocal<Boolean> safeModeLocal = new ThreadLocal<Boolean>();
@@ -65,7 +65,9 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
     } else {
       return -1;
     }
-  };
+  }
+
+  ;
 
   /**
    * @see DatabaseInterface#getNotFoundTK(boolean)
@@ -130,8 +132,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   /**
-   * @param tableName
-   *          The table to be truncated.
+   * @param tableName The table to be truncated.
    * @return The SQL statement to truncate a table: remove all rows from it without a transaction
    */
   @Override
@@ -143,46 +144,34 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
    * Generates the SQL statement to add a column to the specified table For this generic type, i set it to the most
    * common possibility.
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
   public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                       String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " ADD " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
   public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                          String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " MODIFY " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
   }
 
@@ -201,7 +190,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
 
   @Override
   public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-    boolean add_fieldname, boolean add_cr ) {
+                                    boolean add_fieldname, boolean add_cr ) {
     StringBuilder retval = new StringBuilder();
 
     String fieldname = v.getName();
@@ -306,8 +295,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   /**
    * Returns the minimal SQL to launch in order to determine the layout of the resultset for a given database table
    *
-   * @param tableName
-   *          The name of the table to determine the layout for
+   * @param tableName The name of the table to determine the layout for
    * @return The SQL to launch.
    */
   @Override

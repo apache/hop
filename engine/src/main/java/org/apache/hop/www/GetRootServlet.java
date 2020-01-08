@@ -22,14 +22,13 @@
 
 package org.apache.hop.www;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import org.apache.hop.i18n.BaseMessages;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.hop.i18n.BaseMessages;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class GetRootServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static Class<?> PKG = GetRootServlet.class; // for i18n purposes, needed by Translator2!!
@@ -39,71 +38,72 @@ public class GetRootServlet extends BaseHttpServlet implements HopServerPluginIn
 
   public GetRootServlet() {
   }
+
   /**
-<div id="mindtouch">
-    <h1>/</h1>
-    <a name="GET"></a>
-    <h2>GET</h2>
-    <p>Display initial HopServer page.</p>
-    
-    <p><b>Example Request:</b><br />
-    <pre function="syntax.xml">
-    GET /
-    </pre>
-    
-    </p>
-
-  <h3>Response Body</h3>
-
-  <table class="pentaho-table">
-    <tbody>
-      <tr>
-        <td align="right">element:</td>
-        <td>(custom)</td>
-      </tr>
-      <tr>
-        <td align="right">media types:</td>
-        <td>text/html</td>
-      </tr>
-    </tbody>
-  </table>
-    <p>HTML response containing content of initial page is returned.</p>
-
-    <p><b>Example Response:</b></p>
-    <pre function="syntax.xml">
-    <HTML>
-      <HEAD><TITLE>Hop slave server</TITLE>
-        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
-      </HEAD>
-      <BODY>
-        <H2>Slave server menu</H2>
-        <p>
-          <a href="/hop/status">Show status</a><br>
-        <p>
-      </BODY>
-    </HTML>
-
-    </pre>
-    
-    <h3>Status Codes</h3>
-    <table class="pentaho-table">
-  <tbody>
-    <tr>
-      <th>code</th>
-      <th>description</th>
-    </tr>
-    <tr>
-      <td>200</td>
-      <td>Request was processed.</td>
-    </tr>
-    <tr>
-      <td>500</td>
-      <td>Internal server error occurs during request processing.</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-  */
+   * <div id="mindtouch">
+   * <h1>/</h1>
+   * <a name="GET"></a>
+   * <h2>GET</h2>
+   * <p>Display initial HopServer page.</p>
+   *
+   * <p><b>Example Request:</b><br />
+   * <pre function="syntax.xml">
+   * GET /
+   * </pre>
+   *
+   * </p>
+   *
+   * <h3>Response Body</h3>
+   *
+   * <table class="pentaho-table">
+   * <tbody>
+   * <tr>
+   * <td align="right">element:</td>
+   * <td>(custom)</td>
+   * </tr>
+   * <tr>
+   * <td align="right">media types:</td>
+   * <td>text/html</td>
+   * </tr>
+   * </tbody>
+   * </table>
+   * <p>HTML response containing content of initial page is returned.</p>
+   *
+   * <p><b>Example Response:</b></p>
+   * <pre function="syntax.xml">
+   * <HTML>
+   * <HEAD><TITLE>Hop slave server</TITLE>
+   * <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   * </HEAD>
+   * <BODY>
+   * <H2>Slave server menu</H2>
+   * <p>
+   * <a href="/hop/status">Show status</a><br>
+   * <p>
+   * </BODY>
+   * </HTML>
+   *
+   * </pre>
+   *
+   * <h3>Status Codes</h3>
+   * <table class="pentaho-table">
+   * <tbody>
+   * <tr>
+   * <th>code</th>
+   * <th>description</th>
+   * </tr>
+   * <tr>
+   * <td>200</td>
+   * <td>Request was processed.</td>
+   * </tr>
+   * <tr>
+   * <td>500</td>
+   * <td>Internal server error occurs during request processing.</td>
+   * </tr>
+   * </tbody>
+   * </table>
+   * </div>
+   */
   public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
     IOException {
     if ( isJettyMode() && !request.getRequestURI().equals( CONTEXT_PATH ) ) {

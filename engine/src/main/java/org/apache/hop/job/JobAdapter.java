@@ -28,7 +28,6 @@ import org.apache.hop.core.exception.HopException;
  * Utility class to allow only certain methods of JobListener to be overridden.
  *
  * @author Marc
- *
  */
 
 public class JobAdapter implements JobListener {

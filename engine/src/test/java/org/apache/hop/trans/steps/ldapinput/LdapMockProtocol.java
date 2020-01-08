@@ -22,14 +22,13 @@
 
 package org.apache.hop.trans.steps.ldapinput;
 
-import java.util.Collection;
-
-import javax.naming.ldap.InitialLdapContext;
-
-import org.mockito.Mockito;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.variables.VariableSpace;
+import org.mockito.Mockito;
+
+import javax.naming.ldap.InitialLdapContext;
+import java.util.Collection;
 
 /**
  * Mock LDAP connection protocol, for testing
@@ -40,7 +39,7 @@ public class LdapMockProtocol extends LdapProtocol {
   public static InitialLdapContext mockContext;
 
   public LdapMockProtocol( LogChannelInterface log, VariableSpace variableSpace, LdapMeta meta,
-    Collection<String> binaryAttributes ) {
+                           Collection<String> binaryAttributes ) {
     super( log, variableSpace, meta, binaryAttributes );
   }
 

@@ -22,9 +22,9 @@
 
 package org.apache.hop.trans.steps.webservices.wsdl;
 
-import javax.xml.namespace.QName;
-
 import org.apache.hop.trans.steps.webservices.WebServiceMeta;
+
+import javax.xml.namespace.QName;
 
 public class WsdlOpParameterContainer implements WsdlParamContainer {
   private WsdlOpParameter parameter;
@@ -41,7 +41,7 @@ public class WsdlOpParameterContainer implements WsdlParamContainer {
     if ( parameter.isArray() ) {
       if ( parameter.getItemComplexType() != null ) {
         return parameter.getItemComplexType().getElementNames().toArray(
-          new String[parameter.getItemComplexType().getElementNames().size()] );
+          new String[ parameter.getItemComplexType().getElementNames().size() ] );
       } else {
         if ( parameter.getItemXmlType() != null ) {
           return new String[] { parameter.getItemXmlType().getLocalPart() };

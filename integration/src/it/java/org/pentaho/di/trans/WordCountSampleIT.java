@@ -22,14 +22,6 @@
 
 package org.apache.hop.trans;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
@@ -43,6 +35,14 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.TransMeta.TransformationType;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMetaDataCombi;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class WordCountSampleIT {
 

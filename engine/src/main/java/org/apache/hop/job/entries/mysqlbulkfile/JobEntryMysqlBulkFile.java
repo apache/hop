@@ -22,15 +22,6 @@
 
 package org.apache.hop.job.entries.mysqlbulkfile;
 
-import org.apache.hop.job.entry.validator.AndValidator;
-import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import java.io.File;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.List;
-
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
@@ -49,19 +40,24 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-
+import org.apache.hop.job.entry.validator.AndValidator;
+import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.io.File;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * This defines an MYSQL Bulk file job entry.
  *
  * @author Samatar
  * @since 05-03-2006
- *
  */
 public class JobEntryMysqlBulkFile extends JobEntryBase implements Cloneable, JobEntryInterface {
   private static Class<?> PKG = JobEntryMysqlBulkFile.class; // for i18n purposes, needed by Translator2!!
@@ -131,10 +127,10 @@ public class JobEntryMysqlBulkFile extends JobEntryBase implements Cloneable, Jo
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       schemaname = XMLHandler.getTagValue( entrynode, "schemaname" );
       tablename = XMLHandler.getTagValue( entrynode, "tablename" );
       filename = XMLHandler.getTagValue( entrynode, "filename" );
@@ -340,7 +336,7 @@ public class JobEntryMysqlBulkFile extends JobEntryBase implements Cloneable, Jo
                   ResultFile resultFile =
                     new ResultFile(
                       ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( realFilename, this ), parentJob
-                        .getJobname(), toString() );
+                      .getJobname(), toString() );
                   result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
                 }
 
@@ -499,9 +495,9 @@ public class JobEntryMysqlBulkFile extends JobEntryBase implements Cloneable, Jo
 
     for ( int i = 0; i < split.length; i++ ) {
       if ( ReturnString.equals( "" ) ) {
-        ReturnString = "`" + Const.trim( split[i] ) + "`";
+        ReturnString = "`" + Const.trim( split[ i ] ) + "`";
       } else {
-        ReturnString = ReturnString + ", `" + Const.trim( split[i] ) + "`";
+        ReturnString = ReturnString + ", `" + Const.trim( split[ i ] ) + "`";
       }
 
     }
@@ -523,11 +519,11 @@ public class JobEntryMysqlBulkFile extends JobEntryBase implements Cloneable, Jo
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "filename", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "tablename", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
   }
 
 }

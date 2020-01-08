@@ -30,7 +30,9 @@ import org.apache.hop.core.injection.Injection;
  */
 public class BaseFileInputAdditionalField implements Cloneable {
 
-  /** Additional fields **/
+  /**
+   * Additional fields
+   **/
   @Injection( name = "FILE_SHORT_FILE_FIELDNAME" )
   public String shortFilenameField;
   @Injection( name = "FILE_EXTENSION_FIELDNAME" )

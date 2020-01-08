@@ -22,22 +22,22 @@
 
 package org.apache.hop.trans.steps.excelwriter;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 public class ExcelWriterStepMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -154,11 +154,11 @@ public class ExcelWriterStepMetaTest {
         && testObject.getFormat().equals( obj2.getFormat() )
         && testObject.getTitle().equals( obj2.getTitle() )
         && testObject.getTitleStyleCell().equals( obj2.getTitleStyleCell() )
-        && testObject.getStyleCell().equals(  obj2.getStyleCell() )
-        && testObject.getCommentField().equals(  obj2.getCommentField() )
+        && testObject.getStyleCell().equals( obj2.getStyleCell() )
+        && testObject.getCommentField().equals( obj2.getCommentField() )
         && testObject.getCommentAuthorField().equals( obj2.getCommentAuthorField() )
         && testObject.isFormula() == obj2.isFormula()
-        && testObject.getHyperlinkField().equals(  obj2.getHyperlinkField() );
+        && testObject.getHyperlinkField().equals( obj2.getHyperlinkField() );
     }
 
     @Override

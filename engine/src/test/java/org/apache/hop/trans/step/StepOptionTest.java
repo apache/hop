@@ -22,24 +22,24 @@
 
 package org.apache.hop.trans.step;
 
+import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.VariableSpace;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.variables.VariableSpace;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.apache.hop.i18n.BaseMessages.getString;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
-import static org.apache.hop.i18n.BaseMessages.getString;
 
 @RunWith( MockitoJUnitRunner.class )
 public class StepOptionTest {

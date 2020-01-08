@@ -22,9 +22,6 @@
 
 package org.apache.hop.trans.steps.concatfields;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
@@ -35,6 +32,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
 import org.apache.hop.trans.steps.textfileoutput.TextFileField;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;

@@ -22,16 +22,15 @@
 
 package org.apache.hop.trans.steps.webservices.wsdl;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import org.apache.hop.core.exception.HopStepException;
+import org.w3c.dom.Element;
 
 import javax.wsdl.Binding;
 import javax.wsdl.Operation;
 import javax.wsdl.Part;
-
-import org.apache.hop.core.exception.HopStepException;
-import org.w3c.dom.Element;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * WsdlOpParameterList represents the list of parameters for an operation.
@@ -50,12 +49,9 @@ public final class WsdlOpParameterList extends ArrayList<WsdlOpParameter> {
   /**
    * Constructor.
    *
-   * @param op
-   *          Operation this arg list is for.
-   * @param binding
-   *          Binding for the operation.
-   * @param wsdlTypes
-   *          Wsdl types.
+   * @param op        Operation this arg list is for.
+   * @param binding   Binding for the operation.
+   * @param wsdlTypes Wsdl types.
    */
   protected WsdlOpParameterList( Operation op, Binding binding, WsdlTypes wsdlTypes ) {
 
@@ -94,10 +90,8 @@ public final class WsdlOpParameterList extends ArrayList<WsdlOpParameter> {
   /**
    * Add a parameter to this list.
    *
-   * @param p
-   *          Message part defining the parameter.
-   * @param requestPart
-   *          tue if this parameter is part of an reqest message.
+   * @param p           Message part defining the parameter.
+   * @param requestPart tue if this parameter is part of an reqest message.
    * @return true if this collection was modified as a result of this call.
    */
   protected boolean add( Part p, boolean requestPart ) throws HopStepException {
@@ -123,10 +117,8 @@ public final class WsdlOpParameterList extends ArrayList<WsdlOpParameter> {
   /**
    * Generate a WsdlOpParameter from the message part.
    *
-   * @param part
-   *          A list of message part.
-   * @param requesPart
-   *          true if part from request message.
+   * @param part       A list of message part.
+   * @param requesPart true if part from request message.
    */
   private List<WsdlOpParameter> getParameter( Part part, boolean requesPart ) throws HopStepException {
 
@@ -164,8 +156,7 @@ public final class WsdlOpParameterList extends ArrayList<WsdlOpParameter> {
    * </ol>
    * </ol>
    *
-   * @param responseParam
-   *          Parameter to process.
+   * @param responseParam Parameter to process.
    */
   @SuppressWarnings( "unchecked" )
   private void addOutputParameter( WsdlOpParameter responseParam ) {
@@ -207,10 +198,9 @@ public final class WsdlOpParameterList extends ArrayList<WsdlOpParameter> {
   /**
    * Resolve a Part's element attribute value to a concrete XML type.
    *
-   * @param p
-   *          A message part.
+   * @param p A message part.
    * @return A list of parameters resulting from the schema type -- typically the list will only contains a single
-   *         parameter.
+   * parameter.
    */
   private List<WsdlOpParameter> resolvePartElement( Part p ) throws HopStepException {
 

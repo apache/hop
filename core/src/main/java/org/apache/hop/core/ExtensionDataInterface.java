@@ -30,7 +30,6 @@ import java.util.Map;
  * at runtime.
  *
  * @author matt
- *
  */
 public interface ExtensionDataInterface {
   public Map<String, Object> getExtensionDataMap();

@@ -23,10 +23,10 @@
 package org.apache.hop.trans.steps.userdefinedjavaclass;
 
 
+import org.apache.hop.trans.step.StepMeta;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.apache.hop.trans.step.StepMeta;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,7 +50,7 @@ public class UserDefinedJavaClassMetaTest {
     UserDefinedJavaClassDef userDefinedJavaClassDef = Mockito.mock( UserDefinedJavaClassDef.class );
     Mockito.when( userDefinedJavaClassDef.isTransformClass() ).thenReturn( false );
     Mockito.when( userDefinedJavaClassDef.getSource() ).thenReturn( wrongCode );
-    Mockito.when( userDefinedJavaClassDef.getClassName() ).thenReturn(  "MainClass" );
+    Mockito.when( userDefinedJavaClassDef.getClassName() ).thenReturn( "MainClass" );
     Mockito.when( userDefinedJavaClassDef.isActive() ).thenReturn( true );
 
     StepMeta stepMeta = Mockito.mock( StepMeta.class );
@@ -58,7 +58,7 @@ public class UserDefinedJavaClassMetaTest {
     userDefinedJavaClassMeta.setParentStepMeta( stepMeta );
 
     UserDefinedJavaClassMeta userDefinedJavaClassMetaSpy = Mockito.spy( userDefinedJavaClassMeta );
-    Mockito.when( userDefinedJavaClassMetaSpy.getDefinitions( ) ).thenReturn( Collections.singletonList( userDefinedJavaClassDef ) );
+    Mockito.when( userDefinedJavaClassMetaSpy.getDefinitions() ).thenReturn( Collections.singletonList( userDefinedJavaClassDef ) );
 
     userDefinedJavaClassMetaSpy.cookClasses();
     Assert.assertEquals( 1, userDefinedJavaClassMeta.cookErrors.size() );
@@ -67,12 +67,12 @@ public class UserDefinedJavaClassMetaTest {
   @Test
   public void cookClassesCachingTest() throws Exception {
     String codeBlock1 = "public boolean processRow() {\n"
-        + "    return true;\n"
-        + "}\n\n";
+      + "    return true;\n"
+      + "}\n\n";
     String codeBlock2 = "public boolean processRow() {\n"
-        + "    // Random comment\n"
-        + "    return true;\n"
-        + "}\n\n";
+      + "    // Random comment\n"
+      + "    return true;\n"
+      + "}\n\n";
     UserDefinedJavaClassMeta userDefinedJavaClassMeta1 = new UserDefinedJavaClassMeta();
 
     UserDefinedJavaClassDef userDefinedJavaClassDef1 = new UserDefinedJavaClassDef( UserDefinedJavaClassDef.ClassType.NORMAL_CLASS, "MainClass", codeBlock1 );
@@ -121,12 +121,12 @@ public class UserDefinedJavaClassMetaTest {
     UserDefinedJavaClassDef normalClassBDef = new UserDefinedJavaClassDef( UserDefinedJavaClassDef.ClassType.NORMAL_CLASS, "B", codeBlock1 );
     UserDefinedJavaClassDef normalClassCDef = new UserDefinedJavaClassDef( UserDefinedJavaClassDef.ClassType.NORMAL_CLASS, "C", codeBlock1 );
 
-    ArrayList<UserDefinedJavaClassDef> defs = new ArrayList<>(5);
-    defs.add(processClassDefA);
-    defs.add(processClassDef);
-    defs.add(normalClassCDef);
-    defs.add(normalClassBDef);
-    defs.add(normalClassADef);
+    ArrayList<UserDefinedJavaClassDef> defs = new ArrayList<>( 5 );
+    defs.add( processClassDefA );
+    defs.add( processClassDef );
+    defs.add( normalClassCDef );
+    defs.add( normalClassBDef );
+    defs.add( normalClassADef );
 
     StepMeta stepMeta = Mockito.mock( StepMeta.class );
     Mockito.when( stepMeta.getName() ).thenReturn( "User Defined Java Class" );
@@ -134,26 +134,26 @@ public class UserDefinedJavaClassMetaTest {
 
     // Test reording the reverse order test
     List<UserDefinedJavaClassDef> orderDefs = userDefinedJavaClassMeta.orderDefinitions( defs );
-    Assert.assertTrue( orderDefs.get(0).getClassName().equals( "A" ) );
-    Assert.assertTrue( orderDefs.get(1).getClassName().equals( "B" ) );
-    Assert.assertTrue( orderDefs.get(2).getClassName().equals( "C" ) );
-    Assert.assertTrue( orderDefs.get(3).getClassName().equals( "Process" ) );
-    Assert.assertTrue( orderDefs.get(4).getClassName().equals( "ProcessA" ) );
+    Assert.assertTrue( orderDefs.get( 0 ).getClassName().equals( "A" ) );
+    Assert.assertTrue( orderDefs.get( 1 ).getClassName().equals( "B" ) );
+    Assert.assertTrue( orderDefs.get( 2 ).getClassName().equals( "C" ) );
+    Assert.assertTrue( orderDefs.get( 3 ).getClassName().equals( "Process" ) );
+    Assert.assertTrue( orderDefs.get( 4 ).getClassName().equals( "ProcessA" ) );
 
 
     // Random order test
     defs.clear();
-    defs.add(normalClassADef);
-    defs.add(normalClassCDef);
-    defs.add(processClassDefA);
-    defs.add(normalClassBDef);
-    defs.add(processClassDef);
+    defs.add( normalClassADef );
+    defs.add( normalClassCDef );
+    defs.add( processClassDefA );
+    defs.add( normalClassBDef );
+    defs.add( processClassDef );
     orderDefs = userDefinedJavaClassMeta.orderDefinitions( defs );
-    Assert.assertTrue( orderDefs.get(0).getClassName().equals( "A" ) );
-    Assert.assertTrue( orderDefs.get(1).getClassName().equals( "B" ) );
-    Assert.assertTrue( orderDefs.get(2).getClassName().equals( "C" ) );
-    Assert.assertTrue( orderDefs.get(3).getClassName().equals( "Process" ) );
-    Assert.assertTrue( orderDefs.get(4).getClassName().equals( "ProcessA" ) );
+    Assert.assertTrue( orderDefs.get( 0 ).getClassName().equals( "A" ) );
+    Assert.assertTrue( orderDefs.get( 1 ).getClassName().equals( "B" ) );
+    Assert.assertTrue( orderDefs.get( 2 ).getClassName().equals( "C" ) );
+    Assert.assertTrue( orderDefs.get( 3 ).getClassName().equals( "Process" ) );
+    Assert.assertTrue( orderDefs.get( 4 ).getClassName().equals( "ProcessA" ) );
   }
 
 

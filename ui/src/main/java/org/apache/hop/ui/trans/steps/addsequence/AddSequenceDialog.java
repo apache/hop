@@ -22,8 +22,20 @@
 
 package org.apache.hop.ui.trans.steps.addsequence;
 
-import org.apache.hop.core.annotations.PluginDialog;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.addsequence.AddSequenceMeta;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -43,19 +55,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.addsequence.AddSequenceMeta;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class AddSequenceDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = AddSequenceMeta.class; // for i18n purposes, needed by Translator2!!
@@ -205,7 +204,7 @@ public class AddSequenceDialog extends BaseStepDialog implements StepDialogInter
     } );
     // Connection line
     wConnection = addConnectionLine( gDatabase, wUseDatabase, input.getDatabaseMeta(), lsMod );
-    wConnection.addModifyListener( e-> activeSequence() );
+    wConnection.addModifyListener( e -> activeSequence() );
 
     // Schema line...
     wlSchema = new Label( gDatabase, SWT.RIGHT );

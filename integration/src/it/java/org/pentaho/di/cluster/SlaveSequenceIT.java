@@ -22,11 +22,7 @@
 
 package org.apache.hop.cluster;
 
-import java.io.File;
-import java.util.UUID;
-
 import junit.framework.TestCase;
-
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -36,6 +32,9 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.www.SlaveSequence;
 import org.apache.hop.www.SlaveServerConfig;
+
+import java.io.File;
+import java.util.UUID;
 
 public class SlaveSequenceIT extends TestCase {
 

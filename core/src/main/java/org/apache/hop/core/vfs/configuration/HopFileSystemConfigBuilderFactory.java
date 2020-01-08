@@ -22,12 +22,12 @@
 
 package org.apache.hop.core.vfs.configuration;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
 
 /**
  * This class supports overriding of config builders by supplying a VariableSpace containing a variable in the format of
@@ -43,14 +43,11 @@ public class HopFileSystemConfigBuilderFactory {
    * This factory returns a FileSystemConfigBuilder. Custom FileSystemConfigBuilders can be created by implementing the
    * {@link IHopFileSystemConfigBuilder} or overriding the {@link HopGenericFileSystemConfigBuilder}
    *
-   * @see org.apache.commons.vfs.FileSystemConfigBuilder
-   *
-   * @param varSpace
-   *          A Hop variable space for resolving VFS config parameters
-   * @param scheme
-   *          The VFS scheme (FILE, HTTP, SFTP, etc...)
+   * @param varSpace A Hop variable space for resolving VFS config parameters
+   * @param scheme   The VFS scheme (FILE, HTTP, SFTP, etc...)
    * @return A FileSystemConfigBuilder that can translate Hop variables into VFS config parameters
    * @throws IOException
+   * @see org.apache.commons.vfs.FileSystemConfigBuilder
    */
   public static IHopFileSystemConfigBuilder getConfigBuilder( VariableSpace varSpace, String scheme ) throws IOException {
     IHopFileSystemConfigBuilder result = null;

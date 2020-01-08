@@ -22,17 +22,6 @@
 
 package org.apache.hop.trans.steps.formula;
 
-import static org.apache.hop.core.row.ValueMetaInterface.TRIM_TYPE_BOTH;
-import static org.apache.hop.core.row.ValueMetaInterface.TRIM_TYPE_LEFT;
-import static org.apache.hop.core.row.ValueMetaInterface.TRIM_TYPE_NONE;
-import static org.apache.hop.core.row.ValueMetaInterface.TRIM_TYPE_RIGHT;
-
-import java.util.List;
-
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -43,7 +32,18 @@ import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransTestFactory;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.pentaho.test.util.FieldAccessorUtl;
+
+import java.util.List;
+
+import static org.apache.hop.core.row.ValueMetaInterface.TRIM_TYPE_BOTH;
+import static org.apache.hop.core.row.ValueMetaInterface.TRIM_TYPE_LEFT;
+import static org.apache.hop.core.row.ValueMetaInterface.TRIM_TYPE_NONE;
+import static org.apache.hop.core.row.ValueMetaInterface.TRIM_TYPE_RIGHT;
 
 public class Formula2IT {
 
@@ -183,56 +183,56 @@ public class Formula2IT {
     final String fConcat = "[" + KEY_ARG + "] & [" + KEY_ARG2 + "]";
 
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { "a", "2" }, "a2" );
+      new Object[] { "a", "2" }, "a2" );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { "a", " " }, "a " );
+      new Object[] { "a", " " }, "a " );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { "a", "" }, "a" );
+      new Object[] { "a", "" }, "a" );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { "a", null }, null );
+      new Object[] { "a", null }, null );
 
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { " ", "2" }, " 2" );
+      new Object[] { " ", "2" }, " 2" );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { " ", " " }, "  " );
+      new Object[] { " ", " " }, "  " );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { " ", "" }, " " );
+      new Object[] { " ", "" }, " " );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { " ", null }, null );
+      new Object[] { " ", null }, null );
 
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { "", "2" }, "2" );
+      new Object[] { "", "2" }, "2" );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { "", " " }, " " );
+      new Object[] { "", " " }, " " );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { "", "" }, "" );
+      new Object[] { "", "" }, "" );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { "", null }, null );
+      new Object[] { "", null }, null );
 
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { null, "2" }, null );
+      new Object[] { null, "2" }, null );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { null, " " }, null );
+      new Object[] { null, " " }, null );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { null, "" }, null );
+      new Object[] { null, "" }, null );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { null, null }, null );
+      new Object[] { null, null }, null );
 
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ),
-        buildVMString( KEY_ARG2, TRIM_TYPE_NONE ) ), new Object[] { " a  ", "    2        " }, " a      2        " );
+      buildVMString( KEY_ARG2, TRIM_TYPE_NONE ) ), new Object[] { " a  ", "    2        " }, " a      2        " );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ),
-        buildVMString( KEY_ARG2, TRIM_TYPE_LEFT ) ), new Object[] { " a  ", "    2        " }, " a  2        " );
+      buildVMString( KEY_ARG2, TRIM_TYPE_LEFT ) ), new Object[] { " a  ", "    2        " }, " a  2        " );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), buildVMString( KEY_ARG2,
-        TRIM_TYPE_RIGHT ) ), new Object[] { " a  ", "    2        " }, " a      2" );
+      TRIM_TYPE_RIGHT ) ), new Object[] { " a  ", "    2        " }, " a      2" );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ),
-        buildVMString( KEY_ARG2, TRIM_TYPE_BOTH ) ), new Object[] { " a  ", "    2        " }, " a  2" );
+      buildVMString( KEY_ARG2, TRIM_TYPE_BOTH ) ), new Object[] { " a  ", "    2        " }, " a  2" );
 
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ),
-        buildVMString( KEY_ARG2, TRIM_TYPE_BOTH ) ), new Object[] { " a  ", " " }, " a  " );
+      buildVMString( KEY_ARG2, TRIM_TYPE_BOTH ) ), new Object[] { " a  ", " " }, " a  " );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ),
-        buildVMString( KEY_ARG2, TRIM_TYPE_BOTH ) ), new Object[] { " a  ", "" }, " a  " );
+      buildVMString( KEY_ARG2, TRIM_TYPE_BOTH ) ), new Object[] { " a  ", "" }, " a  " );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ),
-        buildVMString( KEY_ARG2, TRIM_TYPE_BOTH ) ), new Object[] { " a  ", null }, null );
+      buildVMString( KEY_ARG2, TRIM_TYPE_BOTH ) ), new Object[] { " a  ", null }, null );
 
   }
 
@@ -245,56 +245,56 @@ public class Formula2IT {
     final String fConcat = "[" + KEY_ARG + "] & [" + KEY_ARG2 + "]";
 
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { "a", "2" }, "a2" );
+      new Object[] { "a", "2" }, "a2" );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { "a", " " }, "a " );
+      new Object[] { "a", " " }, "a " );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { "a", "" }, "a" );
+      new Object[] { "a", "" }, "a" );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { "a", null }, null );
+      new Object[] { "a", null }, null );
 
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { " ", "2" }, " 2" );
+      new Object[] { " ", "2" }, " 2" );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { " ", " " }, "  " );
+      new Object[] { " ", " " }, "  " );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { " ", "" }, " " );
+      new Object[] { " ", "" }, " " );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { " ", null }, null );
+      new Object[] { " ", null }, null );
 
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { "", "2" }, "2" );
+      new Object[] { "", "2" }, "2" );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { "", " " }, " " );
+      new Object[] { "", " " }, " " );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { "", "" }, "" );
+      new Object[] { "", "" }, "" );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { "", null }, null );
+      new Object[] { "", null }, null );
 
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { null, "2" }, null );
+      new Object[] { null, "2" }, null );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { null, " " }, null );
+      new Object[] { null, " " }, null );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { null, "" }, null );
+      new Object[] { null, "" }, null );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { null, null }, null );
+      new Object[] { null, null }, null );
 
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ),
-        buildVMString( KEY_ARG2, TRIM_TYPE_NONE ) ), new Object[] { " a  ", "    2        " }, " a      2        " );
+      buildVMString( KEY_ARG2, TRIM_TYPE_NONE ) ), new Object[] { " a  ", "    2        " }, " a      2        " );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ),
-        buildVMString( KEY_ARG2, TRIM_TYPE_LEFT ) ), new Object[] { " a  ", "    2        " }, " a  2        " );
+      buildVMString( KEY_ARG2, TRIM_TYPE_LEFT ) ), new Object[] { " a  ", "    2        " }, " a  2        " );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ), buildVMString( KEY_ARG2,
-        TRIM_TYPE_RIGHT ) ), new Object[] { " a  ", "    2        " }, " a      2" );
+      TRIM_TYPE_RIGHT ) ), new Object[] { " a  ", "    2        " }, " a      2" );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ),
-        buildVMString( KEY_ARG2, TRIM_TYPE_BOTH ) ), new Object[] { " a  ", "    2        " }, " a  2" );
+      buildVMString( KEY_ARG2, TRIM_TYPE_BOTH ) ), new Object[] { " a  ", "    2        " }, " a  2" );
 
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ),
-        buildVMString( KEY_ARG2, TRIM_TYPE_BOTH ) ), new Object[] { " a  ", " " }, " a  " );
+      buildVMString( KEY_ARG2, TRIM_TYPE_BOTH ) ), new Object[] { " a  ", " " }, " a  " );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ),
-        buildVMString( KEY_ARG2, TRIM_TYPE_BOTH ) ), new Object[] { " a  ", "" }, " a  " );
+      buildVMString( KEY_ARG2, TRIM_TYPE_BOTH ) ), new Object[] { " a  ", "" }, " a  " );
     assertStringFormula( fConcat, buildRowMeta( new ValueMetaString( KEY_ARG ),
-        buildVMString( KEY_ARG2, TRIM_TYPE_BOTH ) ), new Object[] { " a  ", null }, null );
+      buildVMString( KEY_ARG2, TRIM_TYPE_BOTH ) ), new Object[] { " a  ", null }, null );
 
   }
 
@@ -333,10 +333,10 @@ public class Formula2IT {
     assertBooleanOperator( null, "=", null, null );
 
     final String fEq = "[" + KEY_ARG + "] = [" + KEY_ARG2 + "]";
-    assertBooleanFormula( fEq , buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
-        TRIM_TYPE_RIGHT ) ), new Object[] { "  a", "a        " }, true );
-    assertBooleanFormula( fEq , buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
-        TRIM_TYPE_NONE ) ), new Object[] { "  ", "" }, true );
+    assertBooleanFormula( fEq, buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
+      TRIM_TYPE_RIGHT ) ), new Object[] { "  a", "a        " }, true );
+    assertBooleanFormula( fEq, buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
+      TRIM_TYPE_NONE ) ), new Object[] { "  ", "" }, true );
 
     assertBooleanOperator( "a", "<>", "a", false );
     assertBooleanOperator( "a", "<>", "2", true );
@@ -369,10 +369,10 @@ public class Formula2IT {
     assertBooleanOperator( null, "<>", null, null );
 
     final String fNeq = "[" + KEY_ARG + "] <> [" + KEY_ARG2 + "]";
-    assertBooleanFormula( fNeq , buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
-        TRIM_TYPE_RIGHT ) ), new Object[] { "  a", "a        " }, false );
-    assertBooleanFormula( fNeq , buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
-        TRIM_TYPE_NONE ) ), new Object[] { "  ", "" }, false );
+    assertBooleanFormula( fNeq, buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
+      TRIM_TYPE_RIGHT ) ), new Object[] { "  a", "a        " }, false );
+    assertBooleanFormula( fNeq, buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
+      TRIM_TYPE_NONE ) ), new Object[] { "  ", "" }, false );
 
     assertBooleanOperator( "a", "<", "a", false );
     assertBooleanOperator( "a", "<", "2", false );
@@ -405,12 +405,12 @@ public class Formula2IT {
     assertBooleanOperator( null, "<", null, null );
 
     final String fLt = "[" + KEY_ARG + "] <> [" + KEY_ARG2 + "]";
-    assertBooleanFormula( fLt , buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
-        TRIM_TYPE_RIGHT ) ), new Object[] { "  a", "a        " }, false );
-    assertBooleanFormula( fLt , buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
-        TRIM_TYPE_NONE ) ), new Object[] { "  ", "" }, false );
-    assertBooleanFormula( fLt , buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
-        TRIM_TYPE_NONE ) ), new Object[] { "  ", "  " }, true );
+    assertBooleanFormula( fLt, buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
+      TRIM_TYPE_RIGHT ) ), new Object[] { "  a", "a        " }, false );
+    assertBooleanFormula( fLt, buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
+      TRIM_TYPE_NONE ) ), new Object[] { "  ", "" }, false );
+    assertBooleanFormula( fLt, buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
+      TRIM_TYPE_NONE ) ), new Object[] { "  ", "  " }, true );
   }
 
   @Test
@@ -450,10 +450,10 @@ public class Formula2IT {
     assertBooleanOperator( null, "=", null, null );
 
     final String fEq = "[" + KEY_ARG + "] = [" + KEY_ARG2 + "]";
-    assertBooleanFormula( fEq , buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
-        TRIM_TYPE_RIGHT ) ), new Object[] { "  a", "a        " }, true );
-    assertBooleanFormula( fEq , buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
-        TRIM_TYPE_NONE ) ), new Object[] { "  ", "" }, true );
+    assertBooleanFormula( fEq, buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
+      TRIM_TYPE_RIGHT ) ), new Object[] { "  a", "a        " }, true );
+    assertBooleanFormula( fEq, buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
+      TRIM_TYPE_NONE ) ), new Object[] { "  ", "" }, true );
 
     assertBooleanOperator( "a", "<>", "a", false );
     assertBooleanOperator( "a", "<>", "2", true );
@@ -486,10 +486,10 @@ public class Formula2IT {
     assertBooleanOperator( null, "<>", null, null );
 
     final String fNeq = "[" + KEY_ARG + "] <> [" + KEY_ARG2 + "]";
-    assertBooleanFormula( fNeq , buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
-        TRIM_TYPE_RIGHT ) ), new Object[] { "  a", "a        " }, false );
-    assertBooleanFormula( fNeq , buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
-        TRIM_TYPE_NONE ) ), new Object[] { "  ", "" }, false );
+    assertBooleanFormula( fNeq, buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
+      TRIM_TYPE_RIGHT ) ), new Object[] { "  a", "a        " }, false );
+    assertBooleanFormula( fNeq, buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
+      TRIM_TYPE_NONE ) ), new Object[] { "  ", "" }, false );
 
     assertBooleanOperator( "a", "<", "a", false );
     assertBooleanOperator( "a", "<", "2", false );
@@ -522,17 +522,16 @@ public class Formula2IT {
     assertBooleanOperator( null, "<", null, null );
 
     final String fLt = "[" + KEY_ARG + "] <> [" + KEY_ARG2 + "]";
-    assertBooleanFormula( fLt , buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
-        TRIM_TYPE_RIGHT ) ), new Object[] { "  a", "a        " }, false );
-    assertBooleanFormula( fLt , buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
-        TRIM_TYPE_NONE ) ), new Object[] { "  ", "" }, false );
-    assertBooleanFormula( fLt , buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
-        TRIM_TYPE_NONE ) ), new Object[] { "  ", "  " }, true );
+    assertBooleanFormula( fLt, buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
+      TRIM_TYPE_RIGHT ) ), new Object[] { "  a", "a        " }, false );
+    assertBooleanFormula( fLt, buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
+      TRIM_TYPE_NONE ) ), new Object[] { "  ", "" }, false );
+    assertBooleanFormula( fLt, buildRowMeta( buildVMString( KEY_ARG, TRIM_TYPE_LEFT ), buildVMString( KEY_ARG2,
+      TRIM_TYPE_NONE ) ), new Object[] { "  ", "  " }, true );
 
-}
+  }
 
   /**
-   * 
    * @param strValue1
    * @param operatorTxt
    * @param strValue2
@@ -543,11 +542,10 @@ public class Formula2IT {
     throws HopException {
     final String formula = "[" + KEY_ARG + "] " + operatorTxt + " [" + KEY_ARG2 + "]";
     assertBooleanFormula( formula, buildRowMeta( new ValueMetaString( KEY_ARG ), new ValueMetaString( KEY_ARG2 ) ),
-        new Object[] { strValue1, strValue2 }, expectedResult );
+      new Object[] { strValue1, strValue2 }, expectedResult );
   }
 
   /**
-   * 
    * @param argName
    * @param trimType
    * @return
@@ -559,14 +557,13 @@ public class Formula2IT {
   }
 
   /**
-   * 
    * @param valueMetaInterfaces
    * @return
    */
   private static RowMetaInterface buildRowMeta( ValueMetaInterface... valueMetaInterfaces ) {
     RowMetaInterface rm = new RowMeta();
     for ( int i = 0; i < valueMetaInterfaces.length; i++ ) {
-      rm.addValueMeta( valueMetaInterfaces[i] );
+      rm.addValueMeta( valueMetaInterfaces[ i ] );
     }
     return rm;
   }
@@ -581,14 +578,13 @@ public class Formula2IT {
       if ( i > 0 ) {
         sb.append( ", " );
       }
-      sb.append( String.valueOf( inputRowData[i] ) );
+      sb.append( String.valueOf( inputRowData[ i ] ) );
     }
     sb.append( ">" );
     return sb.toString();
   }
 
   /**
-   * 
    * @param formula
    * @param inputRowMeta
    * @param inputRowData
@@ -596,14 +592,13 @@ public class Formula2IT {
    * @throws HopException
    */
   private void assertBooleanFormula( //
-      final String formula, final RowMetaInterface inputRowMeta, final Object[] inputRowData, //
-      final Boolean expectedResult //
-    ) throws HopException {
+                                     final String formula, final RowMetaInterface inputRowMeta, final Object[] inputRowData, //
+                                     final Boolean expectedResult //
+  ) throws HopException {
     assertBooleanFormula( getMsg( inputRowData ), formula, inputRowMeta, inputRowData, expectedResult );
   }
 
   /**
-   * 
    * @param msg
    * @param formula
    * @param inputRowMeta
@@ -612,9 +607,9 @@ public class Formula2IT {
    * @throws HopException
    */
   private void assertBooleanFormula( final String msg, //
-      final String formula, final RowMetaInterface inputRowMeta, final Object[] inputRowData, //
-      final Boolean expectedResult //
-    ) throws HopException {
+                                     final String formula, final RowMetaInterface inputRowMeta, final Object[] inputRowData, //
+                                     final Boolean expectedResult //
+  ) throws HopException {
     final int formulaType = ValueMetaInterface.TYPE_BOOLEAN;
 
     final FormulaMetaFunction function = new FormulaMetaFunction( KEY_RESULT, formula, formulaType, -1, -1, null );
@@ -626,10 +621,10 @@ public class Formula2IT {
     meta.setFormula( new FormulaMetaFunction[] { function } );
     final TransMeta transMeta = TransTestFactory.generateTestTransformation( null, meta, stepName );
     final List<RowMetaAndData> inputList =
-        java.util.Collections.singletonList( new RowMetaAndData( inputRowMeta, inputRowData ) );
+      java.util.Collections.singletonList( new RowMetaAndData( inputRowMeta, inputRowData ) );
     List<RowMetaAndData> ret =
-        TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, stepName,
-            TransTestFactory.DUMMY_STEPNAME, inputList );
+      TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, stepName,
+        TransTestFactory.DUMMY_STEPNAME, inputList );
 
     Assert.assertNotNull( msg + ". So we have some results", ret );
     Assert.assertEquals( msg + ". We have one result row", 1, ret.size() );
@@ -659,7 +654,6 @@ public class Formula2IT {
   }
 
   /**
-   * 
    * @param formula
    * @param inputRowMeta
    * @param inputRowData
@@ -667,14 +661,13 @@ public class Formula2IT {
    * @throws HopException
    */
   private void assertStringFormula( //
-      final String formula, final RowMetaInterface inputRowMeta, final Object[] inputRowData, //
-      final String expectedResult //
-    ) throws HopException {
+                                    final String formula, final RowMetaInterface inputRowMeta, final Object[] inputRowData, //
+                                    final String expectedResult //
+  ) throws HopException {
     assertStringFormula( getMsg( inputRowData ), formula, inputRowMeta, inputRowData, expectedResult );
   }
 
   /**
-   * 
    * @param msg
    * @param formula
    * @param inputRowMeta
@@ -683,9 +676,9 @@ public class Formula2IT {
    * @throws HopException
    */
   private void assertStringFormula( final String msg, //
-      final String formula, final RowMetaInterface inputRowMeta, final Object[] inputRowData, //
-      final String expectedResult //
-    ) throws HopException {
+                                    final String formula, final RowMetaInterface inputRowMeta, final Object[] inputRowData, //
+                                    final String expectedResult //
+  ) throws HopException {
     final int formulaType = ValueMetaInterface.TYPE_STRING;
 
     final FormulaMetaFunction function = new FormulaMetaFunction( KEY_RESULT, formula, formulaType, -1, -1, null );
@@ -697,10 +690,10 @@ public class Formula2IT {
     meta.setFormula( new FormulaMetaFunction[] { function } );
     final TransMeta transMeta = TransTestFactory.generateTestTransformation( null, meta, stepName );
     final List<RowMetaAndData> inputList =
-        java.util.Collections.singletonList( new RowMetaAndData( inputRowMeta, inputRowData ) );
+      java.util.Collections.singletonList( new RowMetaAndData( inputRowMeta, inputRowData ) );
     List<RowMetaAndData> ret =
-        TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, stepName,
-            TransTestFactory.DUMMY_STEPNAME, inputList );
+      TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, stepName,
+        TransTestFactory.DUMMY_STEPNAME, inputList );
 
     Assert.assertNotNull( msg + ". So we have some results", ret );
     Assert.assertEquals( msg + ". We have one result row", 1, ret.size() );

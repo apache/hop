@@ -76,7 +76,7 @@ public class BeanInjector {
     return getPropVal( root, propName, beanInfos );
   }
 
-  @SuppressWarnings ( "unchecked" )
+  @SuppressWarnings( "unchecked" )
   private Object getPropVal( Object obj, String propName, Queue<BeanLevelInfo> beanInfos ) {
     BeanLevelInfo info = beanInfos.remove();
     if ( beanInfos.isEmpty() ) {
@@ -188,7 +188,7 @@ public class BeanInjector {
             setProperty( root, prop, i, data.get( i ), dataName, dataValue );
           }
         } else {
-          for ( int i = 0;; i++ ) {
+          for ( int i = 0; ; i++ ) {
             boolean found = setProperty( root, prop, i, null, null, dataValue );
             if ( !found ) {
               break;
@@ -201,7 +201,7 @@ public class BeanInjector {
     } else {
       if ( prop.pathArraysCount > 1 ) {
         throw new HopException( "Property '" + propName + "' has more than one array in path for injection to "
-            + root.getClass() );
+          + root.getClass() );
       }
     }
   }
@@ -210,7 +210,7 @@ public class BeanInjector {
    * Sets data from RowMetaAndData, or constant value from dataValue depends on 'data != null'.
    */
   private boolean setProperty( Object root, BeanInjectionInfo.Property prop, int index, RowMetaAndData data,
-      String dataName, String dataValue ) throws Exception {
+                               String dataName, String dataValue ) throws Exception {
     Object obj = root;
     for ( int i = 1; i < prop.path.size(); i++ ) {
       BeanLevelInfo s = prop.path.get( i );
@@ -334,7 +334,7 @@ public class BeanInjector {
       for ( Constructor<?> c : clazz.getConstructors() ) {
         if ( c.getParameterTypes().length == 0 ) {
           return clazz.newInstance();
-        } else if ( c.getParameterTypes().length == 1 && c.getParameterTypes()[0].isAssignableFrom( info.clazz ) ) {
+        } else if ( c.getParameterTypes().length == 1 && c.getParameterTypes()[ 0 ].isAssignableFrom( info.clazz ) ) {
           return c.newInstance( root );
         }
       }

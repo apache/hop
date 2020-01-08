@@ -22,12 +22,24 @@
 
 package org.apache.hop.ui.trans.steps.rest;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.rest.RestMeta;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -54,24 +66,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.rest.RestMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.PasswordTextVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class RestDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = RestMeta.class; // for i18n purposes, needed by Translator2!!
@@ -555,7 +555,7 @@ public class RestDialog extends BaseStepDialog implements StepDialogInterface {
     fdResponseTime.top = new FormAttachment( wResultCode, margin );
     fdResponseTime.right = new FormAttachment( 100, 0 );
     wResponseTime.setLayoutData( fdResponseTime );
- // Response header line...
+    // Response header line...
     wlResponseHeader = new Label( gOutputFields, SWT.RIGHT );
     wlResponseHeader.setText( BaseMessages.getString( PKG, "RestDialog.ResponseHeader.Label" ) );
     props.setLook( wlResponseHeader );
@@ -901,7 +901,7 @@ public class RestDialog extends BaseStepDialog implements StepDialogInterface {
         new ColumnInfo(
           BaseMessages.getString( PKG, "RestDialog.ColumnInfo.Name" ), ColumnInfo.COLUMN_TYPE_TEXT, false ) };
 
-    colinf[1].setUsingVariables( true );
+    colinf[ 1 ].setUsingVariables( true );
     wFields =
       new TableView(
         transMeta, wAdditionalComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
@@ -1195,11 +1195,11 @@ public class RestDialog extends BaseStepDialog implements StepDialogInterface {
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    fieldNames = entries.toArray( new String[entries.size()] );
+    fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    colinfoparams[0].setComboValues( fieldNames );
-    colinf[0].setComboValues( fieldNames );
+    colinfoparams[ 0 ].setComboValues( fieldNames );
+    colinf[ 0 ].setComboValues( fieldNames );
   }
 
   private void setStreamFields() {
@@ -1251,11 +1251,11 @@ public class RestDialog extends BaseStepDialog implements StepDialogInterface {
     if ( input.getHeaderName() != null ) {
       for ( int i = 0; i < input.getHeaderName().length; i++ ) {
         TableItem item = wFields.table.getItem( i );
-        if ( input.getHeaderField()[i] != null ) {
-          item.setText( 1, input.getHeaderField()[i] );
+        if ( input.getHeaderField()[ i ] != null ) {
+          item.setText( 1, input.getHeaderField()[ i ] );
         }
-        if ( input.getHeaderName()[i] != null ) {
-          item.setText( 2, input.getHeaderName()[i] );
+        if ( input.getHeaderName()[ i ] != null ) {
+          item.setText( 2, input.getHeaderName()[ i ] );
         }
       }
     }
@@ -1263,11 +1263,11 @@ public class RestDialog extends BaseStepDialog implements StepDialogInterface {
     if ( input.getParameterField() != null ) {
       for ( int i = 0; i < input.getParameterField().length; i++ ) {
         TableItem item = wParameters.table.getItem( i );
-        if ( input.getParameterField()[i] != null ) {
-          item.setText( 1, input.getParameterField()[i] );
+        if ( input.getParameterField()[ i ] != null ) {
+          item.setText( 1, input.getParameterField()[ i ] );
         }
-        if ( input.getParameterName()[i] != null ) {
-          item.setText( 2, input.getParameterName()[i] );
+        if ( input.getParameterName()[ i ] != null ) {
+          item.setText( 2, input.getParameterName()[ i ] );
         }
       }
     }
@@ -1275,11 +1275,11 @@ public class RestDialog extends BaseStepDialog implements StepDialogInterface {
     if ( input.getMatrixParameterField() != null ) {
       for ( int i = 0; i < input.getMatrixParameterField().length; i++ ) {
         TableItem item = wMatrixParameters.table.getItem( i );
-        if ( input.getMatrixParameterField()[i] != null ) {
-          item.setText( 1, input.getMatrixParameterField()[i] );
+        if ( input.getMatrixParameterField()[ i ] != null ) {
+          item.setText( 1, input.getMatrixParameterField()[ i ] );
         }
-        if ( input.getMatrixParameterField()[i] != null ) {
-          item.setText( 2, input.getMatrixParameterField()[i] );
+        if ( input.getMatrixParameterField()[ i ] != null ) {
+          item.setText( 2, input.getMatrixParameterField()[ i ] );
         }
       }
     }
@@ -1363,19 +1363,19 @@ public class RestDialog extends BaseStepDialog implements StepDialogInterface {
     }
     for ( int i = 0; i < nrheaders; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      input.getHeaderField()[i] = item.getText( 1 );
-      input.getHeaderName()[i] = item.getText( 2 );
+      input.getHeaderField()[ i ] = item.getText( 1 );
+      input.getHeaderName()[ i ] = item.getText( 2 );
     }
     for ( int i = 0; i < nrparams; i++ ) {
       TableItem item = wParameters.getNonEmpty( i );
-      input.getParameterField()[i] = item.getText( 1 );
-      input.getParameterName()[i] = item.getText( 2 );
+      input.getParameterField()[ i ] = item.getText( 1 );
+      input.getParameterName()[ i ] = item.getText( 2 );
     }
 
     for ( int i = 0; i < nrmatrixparams; i++ ) {
       TableItem item = wMatrixParameters.getNonEmpty( i );
-      input.getMatrixParameterField()[i] = item.getText( 1 );
-      input.getMatrixParameterName()[i] = item.getText( 2 );
+      input.getMatrixParameterField()[ i ] = item.getText( 1 );
+      input.getMatrixParameterName()[ i ] = item.getText( 2 );
     }
 
     input.setDynamicMethod( wMethodInField.getSelection() );
@@ -1414,7 +1414,7 @@ public class RestDialog extends BaseStepDialog implements StepDialogInterface {
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "RestDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "RestDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "RestDialog.FailedToGetFields.DialogMessage" ), ke );
     }
 
   }
@@ -1428,7 +1428,7 @@ public class RestDialog extends BaseStepDialog implements StepDialogInterface {
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "RestDialog.FailedToGetHeaders.DialogTitle" ), BaseMessages
-          .getString( PKG, "RestDialog.FailedToGetHeaders.DialogMessage" ), ke );
+        .getString( PKG, "RestDialog.FailedToGetHeaders.DialogMessage" ), ke );
     }
 
   }

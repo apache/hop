@@ -22,11 +22,7 @@
 
 package org.apache.hop.trans.steps.tableoutput;
 
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
+import junit.framework.TestCase;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
@@ -50,7 +46,10 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.injector.InjectorMeta;
 
-import junit.framework.TestCase;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Test class for tableinput. H2 is used as database in memory to get an easy playground for database tests. H2 does not
@@ -98,12 +97,12 @@ public class TableOutputIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    {
-      new ValueMetaInteger( "ID", 8, 0 ),
-      new ValueMetaInteger( "CODE", 8, 0 ), };
+      {
+        new ValueMetaInteger( "ID", 8, 0 ),
+        new ValueMetaInteger( "CODE", 8, 0 ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -140,13 +139,13 @@ public class TableOutputIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    {
-      new ValueMetaInteger( "ID", 8, 0 ),
-      new ValueMetaString( "TABLE", 30, 0 ),
-      new ValueMetaInteger( "CODE", 8, 0 ), };
+      {
+        new ValueMetaInteger( "ID", 8, 0 ),
+        new ValueMetaString( "TABLE", 30, 0 ),
+        new ValueMetaInteger( "CODE", 8, 0 ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -227,9 +226,9 @@ public class TableOutputIT extends TestCase {
       if ( rm1.size() != rm2.size() ) {
         fail( "row nr " + idx + " is not equal" );
       }
-      int[] fields = new int[r1.length];
+      int[] fields = new int[ r1.length ];
       for ( int ydx = 0; ydx < r1.length; ydx++ ) {
-        fields[ydx] = ydx;
+        fields[ ydx ] = ydx;
       }
       try {
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {
@@ -246,14 +245,13 @@ public class TableOutputIT extends TestCase {
   /**
    * Check the results in the target dimension table.
    *
-   * @param db
-   *          database to use.
+   * @param db database to use.
    */
   public void checkResultsNormal( Database db ) throws Exception {
     String query = "SELECT ID, CODE FROM " + target_table + " ORDER BY ID";
 
     String[] correctResults =
-    { "100|1000", "101|1001", "102|1002", "103|1003", "104|1004", "105|1005", "106|1006", };
+      { "100|1000", "101|1001", "102|1002", "103|1003", "104|1004", "105|1005", "106|1006", };
 
     ResultSet rs = db.openQuery( query );
     int idx = 0;
@@ -265,7 +263,7 @@ public class TableOutputIT extends TestCase {
       if ( idx > correctResults.length ) {
         fail( "more rows returned than expected" );
       }
-      if ( !result.equals( correctResults[idx] ) ) {
+      if ( !result.equals( correctResults[ idx ] ) ) {
         fail( "row " + ( idx + 1 ) + " is different than expected" );
       }
       idx++;
@@ -278,8 +276,7 @@ public class TableOutputIT extends TestCase {
   /**
    * Check the results in the target dimension table.
    *
-   * @param db
-   *          database to use.
+   * @param db database to use.
    */
   public void checkResultsJIRA897( Database db ) throws Exception {
     // Table 1
@@ -297,7 +294,7 @@ public class TableOutputIT extends TestCase {
       if ( idx > correctResults.length ) {
         fail( "more rows returned than expected" );
       }
-      if ( !result.equals( correctResults[idx] ) ) {
+      if ( !result.equals( correctResults[ idx ] ) ) {
         fail( "row " + ( idx + 1 ) + " is different than expected" );
       }
       idx++;
@@ -321,7 +318,7 @@ public class TableOutputIT extends TestCase {
       if ( idx > correctResults1.length ) {
         fail( "more rows returned than expected" );
       }
-      if ( !result.equals( correctResults1[idx] ) ) {
+      if ( !result.equals( correctResults1[ idx ] ) ) {
         fail( "row " + ( idx + 1 ) + " is different than expected" );
       }
       idx++;
@@ -346,7 +343,7 @@ public class TableOutputIT extends TestCase {
 
     // Add the database connections
     for ( int i = 0; i < databasesXML.length; i++ ) {
-      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[i] );
+      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[ i ] );
       transMeta.addDatabase( databaseMeta );
     }
 
@@ -428,7 +425,7 @@ public class TableOutputIT extends TestCase {
 
     // Add the database connections
     for ( int i = 0; i < databasesXML.length; i++ ) {
-      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[i] );
+      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[ i ] );
       transMeta.addDatabase( databaseMeta );
     }
 
@@ -515,7 +512,7 @@ public class TableOutputIT extends TestCase {
 
     // Add the database connections
     for ( int i = 0; i < databasesXML.length; i++ ) {
-      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[i] );
+      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[ i ] );
       transMeta.addDatabase( databaseMeta );
     }
 
@@ -593,7 +590,7 @@ public class TableOutputIT extends TestCase {
       //
       TableOutputData data = (TableOutputData) trans.findDataInterface( outputname );
 
-      int exp = goldRowCounts[commitSize];
+      int exp = goldRowCounts[ commitSize ];
 
       // remove 1 commit too many in the dispose method.
       //

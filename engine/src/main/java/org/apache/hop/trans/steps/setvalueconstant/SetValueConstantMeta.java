@@ -25,8 +25,6 @@ package org.apache.hop.trans.steps.setvalueconstant;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
@@ -36,8 +34,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -45,7 +42,6 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -133,8 +129,8 @@ public class SetValueConstantMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -193,7 +189,7 @@ public class SetValueConstantMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new SetValueConstant( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -253,10 +249,10 @@ public class SetValueConstantMeta extends BaseStepMeta implements StepMetaInterf
 
     @Override
     public boolean equals( Object obj ) {
-      return fieldName.equals( ((Field) obj).getFieldName() )
-              && replaceValue.equals( ((Field) obj).getReplaceValue() )
-              && replaceMask.equals( ((Field) obj).getReplaceMask() )
-              && setEmptyString == ((Field) obj).isEmptyString();
+      return fieldName.equals( ( (Field) obj ).getFieldName() )
+        && replaceValue.equals( ( (Field) obj ).getReplaceValue() )
+        && replaceMask.equals( ( (Field) obj ).getReplaceMask() )
+        && setEmptyString == ( (Field) obj ).isEmptyString();
     }
   }
 }

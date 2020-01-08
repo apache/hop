@@ -22,18 +22,19 @@
 
 package org.apache.hop.trans.steps.fileinput.text;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class TextFileInputMetaNewInjectionTest extends BaseMetadataInjectionTest<TextFileInputMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Before
   public void setup() throws Exception {
     setup( new TextFileInputMeta() );
@@ -206,56 +207,56 @@ public class TextFileInputMetaNewInjectionTest extends BaseMetadataInjectionTest
     ///////////////////////////////
     check( "FILTER_POSITION", new IntGetter() {
       public int get() {
-        return meta.getFilter()[0].getFilterPosition();
+        return meta.getFilter()[ 0 ].getFilterPosition();
       }
     } );
 
     check( "FILTER_STRING", new StringGetter() {
       public String get() {
-        return meta.getFilter()[0].getFilterString();
+        return meta.getFilter()[ 0 ].getFilterString();
       }
     } );
 
     check( "FILTER_LAST_LINE", new BooleanGetter() {
       public boolean get() {
-        return meta.getFilter()[0].isFilterLastLine();
+        return meta.getFilter()[ 0 ].isFilterLastLine();
       }
     } );
 
     check( "FILTER_POSITIVE", new BooleanGetter() {
       public boolean get() {
-        return meta.getFilter()[0].isFilterPositive();
+        return meta.getFilter()[ 0 ].isFilterPositive();
       }
     } );
 
     ///////////////////////////////
     check( "FILENAME", new StringGetter() {
       public String get() {
-        return meta.inputFiles.fileName[0];
+        return meta.inputFiles.fileName[ 0 ];
       }
     } );
 
     check( "FILEMASK", new StringGetter() {
       public String get() {
-        return meta.inputFiles.fileMask[0];
+        return meta.inputFiles.fileMask[ 0 ];
       }
     } );
 
     check( "EXCLUDE_FILEMASK", new StringGetter() {
       public String get() {
-        return meta.inputFiles.excludeFileMask[0];
+        return meta.inputFiles.excludeFileMask[ 0 ];
       }
     } );
 
     check( "FILE_REQUIRED", new StringGetter() {
       public String get() {
-        return meta.inputFiles.fileRequired[0];
+        return meta.inputFiles.fileRequired[ 0 ];
       }
     } );
 
     check( "INCLUDE_SUBFOLDERS", new StringGetter() {
       public String get() {
-        return meta.inputFiles.includeSubFolders[0];
+        return meta.inputFiles.includeSubFolders[ 0 ];
       }
     } );
 
@@ -292,19 +293,19 @@ public class TextFileInputMetaNewInjectionTest extends BaseMetadataInjectionTest
     /////////////////////////////
     check( "FIELD_NAME", new StringGetter() {
       public String get() {
-        return meta.inputFields[0].getName();
+        return meta.inputFields[ 0 ].getName();
       }
     } );
 
     check( "FIELD_POSITION", new IntGetter() {
       public int get() {
-        return meta.inputFields[0].getPosition();
+        return meta.inputFields[ 0 ].getPosition();
       }
     } );
 
     check( "FIELD_LENGTH", new IntGetter() {
       public int get() {
-        return meta.inputFields[0].getLength();
+        return meta.inputFields[ 0 ].getLength();
       }
     } );
 
@@ -317,62 +318,62 @@ public class TextFileInputMetaNewInjectionTest extends BaseMetadataInjectionTest
 
     check( "FIELD_IGNORE", new BooleanGetter() {
       public boolean get() {
-        return meta.inputFields[0].isIgnored();
+        return meta.inputFields[ 0 ].isIgnored();
       }
     } );
 
     check( "FIELD_FORMAT", new StringGetter() {
       public String get() {
-        return meta.inputFields[0].getFormat();
+        return meta.inputFields[ 0 ].getFormat();
       }
     } );
 
     ValueMetaInterface mftt = new ValueMetaString( "f" );
     injector.setProperty( meta, "FIELD_TRIM_TYPE", setValue( mftt, "left" ), "f" );
-    assertEquals( 1, meta.inputFields[0].getTrimType() );
+    assertEquals( 1, meta.inputFields[ 0 ].getTrimType() );
     injector.setProperty( meta, "FIELD_TRIM_TYPE", setValue( mftt, "right" ), "f" );
-    assertEquals( 2, meta.inputFields[0].getTrimType() );
+    assertEquals( 2, meta.inputFields[ 0 ].getTrimType() );
     skipPropertyTest( "FIELD_TRIM_TYPE" );
 
     check( "FIELD_PRECISION", new IntGetter() {
       public int get() {
-        return meta.inputFields[0].getPrecision();
+        return meta.inputFields[ 0 ].getPrecision();
       }
     } );
 
     check( "FIELD_CURRENCY", new StringGetter() {
       public String get() {
-        return meta.inputFields[0].getCurrencySymbol();
+        return meta.inputFields[ 0 ].getCurrencySymbol();
       }
     } );
 
     check( "FIELD_DECIMAL", new StringGetter() {
       public String get() {
-        return meta.inputFields[0].getDecimalSymbol();
+        return meta.inputFields[ 0 ].getDecimalSymbol();
       }
     } );
 
     check( "FIELD_GROUP", new StringGetter() {
       public String get() {
-        return meta.inputFields[0].getGroupSymbol();
+        return meta.inputFields[ 0 ].getGroupSymbol();
       }
     } );
 
     check( "FIELD_REPEAT", new BooleanGetter() {
       public boolean get() {
-        return meta.inputFields[0].isRepeated();
+        return meta.inputFields[ 0 ].isRepeated();
       }
     } );
 
     check( "FIELD_NULL_STRING", new StringGetter() {
       public String get() {
-        return meta.inputFields[0].getNullString();
+        return meta.inputFields[ 0 ].getNullString();
       }
     } );
 
     check( "FIELD_IF_NULL", new StringGetter() {
       public String get() {
-        return meta.inputFields[0].getIfNullValue();
+        return meta.inputFields[ 0 ].getIfNullValue();
       }
     } );
 

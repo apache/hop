@@ -24,31 +24,18 @@ package org.apache.hop.job.entries.deletefiles;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.job.entry.validator.AbstractFileValidator;
-import org.apache.hop.job.entry.validator.AndValidator;
-import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
@@ -57,13 +44,21 @@ import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.validator.AbstractFileValidator;
+import org.apache.hop.job.entry.validator.AndValidator;
+import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This defines a 'delete files' job entry.
@@ -122,8 +117,8 @@ public class JobEntryDeleteFiles extends JobEntryBase implements Cloneable, JobE
     if ( arguments != null ) {
       for ( int i = 0; i < arguments.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "name", arguments[i] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "filemask", filemasks[i] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "name", arguments[ i ] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "filemask", filemasks[ i ] ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
@@ -132,10 +127,10 @@ public class JobEntryDeleteFiles extends JobEntryBase implements Cloneable, JobE
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       argFromPrevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
       includeSubfolders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "include_subfolders" ) );
 
@@ -147,8 +142,8 @@ public class JobEntryDeleteFiles extends JobEntryBase implements Cloneable, JobE
       for ( int i = 0; i < numberOfFields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        arguments[i] = XMLHandler.getTagValue( fnode, "name" );
-        filemasks[i] = XMLHandler.getTagValue( fnode, "filemask" );
+        arguments[ i ] = XMLHandler.getTagValue( fnode, "name" );
+        filemasks[ i ] = XMLHandler.getTagValue( fnode, "filemask" );
       }
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "JobEntryDeleteFiles.UnableToLoadFromXml" ), xe );
@@ -206,10 +201,10 @@ public class JobEntryDeleteFiles extends JobEntryBase implements Cloneable, JobE
    * These values can be obtained in two ways:
    * 1. As an argument of a current job entry
    * 2. As a table, that comes as a result of execution previous job/transformation.
-   *
+   * <p>
    * As the logic of processing this data is the same for both of this cases, we first
    * populate this data (in this method) and then process it.
-   *
+   * <p>
    * We are using guava multimap here, because if allows key duplication and there could be a
    * situation where two paths to one folder with different wildcards are provided.
    */
@@ -398,9 +393,9 @@ public class JobEntryDeleteFiles extends JobEntryBase implements Cloneable, JobE
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     boolean isValid = JobEntryValidatorUtils.andValidator().validate( this, "arguments", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
 
     if ( !isValid ) {
       return;
@@ -409,7 +404,7 @@ public class JobEntryDeleteFiles extends JobEntryBase implements Cloneable, JobE
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, JobEntryValidatorUtils.notNullValidator(),
-        JobEntryValidatorUtils.fileExistsValidator() );
+      JobEntryValidatorUtils.fileExistsValidator() );
 
     for ( int i = 0; i < arguments.length; i++ ) {
       JobEntryValidatorUtils.andValidator().validate( this, "arguments[" + i + "]", remarks, ctx );
@@ -421,7 +416,7 @@ public class JobEntryDeleteFiles extends JobEntryBase implements Cloneable, JobE
     if ( arguments != null ) {
       ResourceReference reference = null;
       for ( int i = 0; i < arguments.length; i++ ) {
-        String filename = jobMeta.environmentSubstitute( arguments[i] );
+        String filename = jobMeta.environmentSubstitute( arguments[ i ] );
         if ( reference == null ) {
           reference = new ResourceReference( this );
           references.add( reference );

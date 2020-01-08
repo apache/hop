@@ -24,7 +24,6 @@ package org.apache.hop.core.util;
 
 /**
  * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- *
  */
 public class PluginPropertyFactory {
 
@@ -33,10 +32,8 @@ public class PluginPropertyFactory {
   /**
    * Constructor.
    *
-   * @param properties
-   *          properties to set.
-   * @throws IllegalArgumentException
-   *           if properties is null.
+   * @param properties properties to set.
+   * @throws IllegalArgumentException if properties is null.
    */
   public PluginPropertyFactory( final KeyValueSet properties ) throws IllegalArgumentException {
     Assert.assertNotNull( properties, "Properties cannot be null" );
@@ -51,11 +48,9 @@ public class PluginPropertyFactory {
   }
 
   /**
-   * @param key
-   *          key to set.
+   * @param key key to set.
    * @return new string property.
-   * @throws IllegalArgumentException
-   *           if key is invalid.
+   * @throws IllegalArgumentException if key is invalid.
    */
   public StringPluginProperty createString( final String key ) throws IllegalArgumentException {
     final StringPluginProperty property = new StringPluginProperty( key );
@@ -64,11 +59,9 @@ public class PluginPropertyFactory {
   }
 
   /**
-   * @param key
-   *          key to set.
+   * @param key key to set.
    * @return new integer property.
-   * @throws IllegalArgumentException
-   *           if key is invalid.
+   * @throws IllegalArgumentException if key is invalid.
    */
   public IntegerPluginProperty createInteger( final String key ) throws IllegalArgumentException {
     final IntegerPluginProperty property = new IntegerPluginProperty( key );
@@ -77,11 +70,9 @@ public class PluginPropertyFactory {
   }
 
   /**
-   * @param key
-   *          key to set.
+   * @param key key to set.
    * @return new boolean property.
-   * @throws IllegalArgumentException
-   *           if key is invalid.
+   * @throws IllegalArgumentException if key is invalid.
    */
   public BooleanPluginProperty createBoolean( final String key ) throws IllegalArgumentException {
     final BooleanPluginProperty property = new BooleanPluginProperty( key );
@@ -90,11 +81,9 @@ public class PluginPropertyFactory {
   }
 
   /**
-   * @param key
-   *          key.
+   * @param key key.
    * @return new string list.
-   * @throws IllegalArgumentException
-   *           if key is invalid.
+   * @throws IllegalArgumentException if key is invalid.
    */
   public StringListPluginProperty createStringList( final String key ) throws IllegalArgumentException {
     final StringListPluginProperty property = new StringListPluginProperty( key );

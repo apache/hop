@@ -22,17 +22,6 @@
 
 package org.apache.hop.trans.steps.insertupdate;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.sql.PreparedStatement;
-import java.sql.Timestamp;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
@@ -41,6 +30,17 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.sql.PreparedStatement;
+import java.sql.Timestamp;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test for PDI-3499
@@ -54,10 +54,10 @@ public class PDI3499Test {
   @Before
   public void setUp() {
     smh =
-        new StepMockHelper<InsertUpdateMeta, InsertUpdateData>( "insertUpdate", InsertUpdateMeta.class,
-            InsertUpdateData.class );
+      new StepMockHelper<InsertUpdateMeta, InsertUpdateData>( "insertUpdate", InsertUpdateMeta.class,
+        InsertUpdateData.class );
     when( smh.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        smh.logChannelInterface );
+      smh.logChannelInterface );
     when( smh.trans.isRunning() ).thenReturn( true );
   }
 
@@ -71,7 +71,7 @@ public class PDI3499Test {
     Database db = mock( Database.class );
     RowMeta returnRowMeta = new RowMeta();
     doReturn( new Object[] { new Timestamp( System.currentTimeMillis() ) } ).when( db ).getLookup(
-        any( PreparedStatement.class ) );
+      any( PreparedStatement.class ) );
     returnRowMeta.addValueMeta( new ValueMetaDate( "TimeStamp" ) );
     doReturn( returnRowMeta ).when( db ).getReturnRowMeta();
 

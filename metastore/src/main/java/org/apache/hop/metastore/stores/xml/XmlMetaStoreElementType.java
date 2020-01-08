@@ -56,11 +56,9 @@ public class XmlMetaStoreElementType extends BaseElementType {
 
   /**
    * Load an XML meta data store data type from file.
-   * 
-   * @param namespace
-   *          the namespace
-   * @param filename
-   *          the file to load from
+   *
+   * @param namespace the namespace
+   * @param filename  the file to load from
    */
   public XmlMetaStoreElementType( String namespace, String filename ) throws MetaStoreException {
     super( namespace );
@@ -107,7 +105,7 @@ public class XmlMetaStoreElementType extends BaseElementType {
           fos.close();
         } catch ( Exception e ) {
           throw new MetaStoreException( "Unable to save XML meta store data type with file '" + filename
-              + "' (close failed)", e );
+            + "' (close failed)", e );
         }
       }
     }
@@ -171,8 +169,7 @@ public class XmlMetaStoreElementType extends BaseElementType {
   }
 
   /**
-   * @param filename
-   *          the filename to set
+   * @param filename the filename to set
    */
   public void setFilename( String filename ) {
     this.filename = filename;

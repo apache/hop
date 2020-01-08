@@ -22,10 +22,25 @@
 
 package org.apache.hop.ui.trans.steps.sftpput;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopJobException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.entries.sftp.SFTPClient;
+import org.apache.hop.job.entries.sftpput.JobEntrySFTPPUT;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.sftpput.SFTPPutMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.LabelTextVar;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -52,24 +67,9 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopJobException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.entries.sftp.SFTPClient;
-import org.apache.hop.job.entries.sftpput.JobEntrySFTPPUT;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.sftpput.SFTPPutMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.LabelTextVar;
-import org.apache.hop.ui.core.widget.PasswordTextVar;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * Send file to SFTP host.
@@ -431,7 +431,7 @@ public class SFTPPutDialog extends BaseStepDialog implements StepDialogInterface
     wkeyfilePass =
       new LabelTextVar(
         transMeta, wServerSettings, BaseMessages.getString( PKG, "SFTPPUT.keyfilePass.Label" ), BaseMessages
-          .getString( PKG, "SFTPPUT.keyfilePass.Tooltip" ), true );
+        .getString( PKG, "SFTPPUT.keyfilePass.Tooltip" ), true );
     props.setLook( wkeyfilePass );
     wkeyfilePass.addModifyListener( lsMod );
     fdkeyfilePass = new FormData();
@@ -469,7 +469,7 @@ public class SFTPPutDialog extends BaseStepDialog implements StepDialogInterface
     wProxyHost =
       new LabelTextVar(
         transMeta, wServerSettings, BaseMessages.getString( PKG, "SFTPPUT.ProxyHost.Label" ), BaseMessages
-          .getString( PKG, "SFTPPUT.ProxyHost.Tooltip" ) );
+        .getString( PKG, "SFTPPUT.ProxyHost.Tooltip" ) );
     props.setLook( wProxyHost );
     wProxyHost.addModifyListener( lsMod );
     fdProxyHost = new FormData();
@@ -482,7 +482,7 @@ public class SFTPPutDialog extends BaseStepDialog implements StepDialogInterface
     wProxyPort =
       new LabelTextVar(
         transMeta, wServerSettings, BaseMessages.getString( PKG, "SFTPPUT.ProxyPort.Label" ), BaseMessages
-          .getString( PKG, "SFTPPUT.ProxyPort.Tooltip" ) );
+        .getString( PKG, "SFTPPUT.ProxyPort.Tooltip" ) );
     props.setLook( wProxyPort );
     wProxyPort.addModifyListener( lsMod );
     fdProxyPort = new FormData();
@@ -495,7 +495,7 @@ public class SFTPPutDialog extends BaseStepDialog implements StepDialogInterface
     wProxyUsername =
       new LabelTextVar(
         transMeta, wServerSettings, BaseMessages.getString( PKG, "SFTPPUT.ProxyUsername.Label" ), BaseMessages
-          .getString( PKG, "SFTPPUT.ProxyUsername.Tooltip" ) );
+        .getString( PKG, "SFTPPUT.ProxyUsername.Tooltip" ) );
     props.setLook( wProxyUsername );
     wProxyUsername.addModifyListener( lsMod );
     fdProxyUsername = new FormData();
@@ -508,7 +508,7 @@ public class SFTPPutDialog extends BaseStepDialog implements StepDialogInterface
     wProxyPassword =
       new LabelTextVar(
         transMeta, wServerSettings, BaseMessages.getString( PKG, "SFTPPUT.ProxyPassword.Label" ), BaseMessages
-          .getString( PKG, "SFTPPUT.ProxyPassword.Tooltip" ), true );
+        .getString( PKG, "SFTPPUT.ProxyPassword.Tooltip" ), true );
     props.setLook( wProxyPassword );
     wProxyPassword.addModifyListener( lsMod );
     fdProxyPasswd = new FormData();
@@ -1061,13 +1061,13 @@ public class SFTPPutDialog extends BaseStepDialog implements StepDialogInterface
     if ( wProxyType.getText().equals( SFTPClient.PROXY_TYPE_HTTP ) ) {
       if ( Utils.isEmpty( wProxyPort.getText() )
         || ( !Utils.isEmpty( wProxyPort.getText() ) && wProxyPort.getText().equals(
-          SFTPClient.SOCKS5_DEFAULT_PORT ) ) ) {
+        SFTPClient.SOCKS5_DEFAULT_PORT ) ) ) {
         wProxyPort.setText( SFTPClient.HTTP_DEFAULT_PORT );
       }
     } else {
       if ( Utils.isEmpty( wProxyPort.getText() )
         || ( !Utils.isEmpty( wProxyPort.getText() ) && wProxyPort
-          .getText().equals( SFTPClient.HTTP_DEFAULT_PORT ) ) ) {
+        .getText().equals( SFTPClient.HTTP_DEFAULT_PORT ) ) ) {
         wProxyPort.setText( SFTPClient.SOCKS5_DEFAULT_PORT );
       }
     }
@@ -1153,7 +1153,7 @@ public class SFTPPutDialog extends BaseStepDialog implements StepDialogInterface
         realProxyHost,
         transMeta.environmentSubstitute( wProxyPort.getText() ),
         transMeta.environmentSubstitute( wProxyUsername.getText() ),
-        Utils.resolvePassword( transMeta,  wProxyPassword.getText() ),
+        Utils.resolvePassword( transMeta, wProxyPassword.getText() ),
         wProxyType.getText() );
     }
     // login to ftp host ...
@@ -1199,7 +1199,7 @@ public class SFTPPutDialog extends BaseStepDialog implements StepDialogInterface
       } catch ( HopException ke ) {
         new ErrorDialog(
           shell, BaseMessages.getString( PKG, "SFTPPUTDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-            .getString( PKG, "SFTPPUTDialog.FailedToGetFields.DialogMessage" ), ke );
+          .getString( PKG, "SFTPPUTDialog.FailedToGetFields.DialogMessage" ), ke );
       }
     }
   }

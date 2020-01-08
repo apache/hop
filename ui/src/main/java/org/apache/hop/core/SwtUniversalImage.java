@@ -22,15 +22,15 @@
 
 package org.apache.hop.core;
 
-import java.awt.image.BufferedImage;
-import java.util.Map;
-import java.util.TreeMap;
-
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.RGB;
+
+import java.awt.image.BufferedImage;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Universal image storage for SWT processing. It contains SVG or bitmap image depends on file and settings.

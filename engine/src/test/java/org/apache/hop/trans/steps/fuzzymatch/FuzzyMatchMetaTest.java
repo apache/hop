@@ -21,21 +21,21 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.fuzzymatch;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 public class FuzzyMatchMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -45,9 +45,9 @@ public class FuzzyMatchMetaTest {
   @Before
   public void setUp() throws Exception {
     List<String> attributes =
-        Arrays.asList( "value", "valueName", "algorithm", "lookupfield", "mainstreamfield",
-            "outputmatchfield", "outputvaluefield", "caseSensitive", "minimalValue",
-            "maximalValue", "separator", "closervalue" );
+      Arrays.asList( "value", "valueName", "algorithm", "lookupfield", "mainstreamfield",
+        "outputmatchfield", "outputvaluefield", "caseSensitive", "minimalValue",
+        "maximalValue", "separator", "closervalue" );
 
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
@@ -83,7 +83,7 @@ public class FuzzyMatchMetaTest {
       }
     };
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 3 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 3 );
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "value", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "valueName", stringArrayLoadSaveValidator );
@@ -104,10 +104,12 @@ public class FuzzyMatchMetaTest {
 
   public class AlgorithmLoadSaveValidator implements FieldLoadSaveValidator<Integer> {
     final Random rand = new Random();
+
     @Override
     public Integer getTestObject() {
       return rand.nextInt( 10 );
     }
+
     @Override
     public boolean validateTestObject( Integer testObject, Object actual ) {
       if ( !( actual instanceof Integer ) ) {

@@ -22,14 +22,7 @@
 
 package org.apache.hop.trans.steps.prioritizestreams;
 
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 import junit.framework.Assert;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.SingleRowRowSet;
@@ -40,6 +33,13 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 public class PrioritizeStreamsTest {
 
@@ -48,10 +48,10 @@ public class PrioritizeStreamsTest {
   @BeforeClass
   public static void setup() {
     stepMockHelper =
-        new StepMockHelper<PrioritizeStreamsMeta, StepDataInterface>( "Priority Streams Test",
-            PrioritizeStreamsMeta.class, StepDataInterface.class );
+      new StepMockHelper<PrioritizeStreamsMeta, StepDataInterface>( "Priority Streams Test",
+        PrioritizeStreamsMeta.class, StepDataInterface.class );
     when( stepMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        stepMockHelper.logChannelInterface );
+      stepMockHelper.logChannelInterface );
     when( stepMockHelper.trans.isRunning() ).thenReturn( true );
   }
 
@@ -61,7 +61,8 @@ public class PrioritizeStreamsTest {
   }
 
   /**
-   * [PDI-9088] Prioritize streams step causing null pointer exception downstream 
+   * [PDI-9088] Prioritize streams step causing null pointer exception downstream
+   *
    * @throws HopException
    */
   @Test
@@ -75,18 +76,18 @@ public class PrioritizeStreamsTest {
       step.processRow( meta, data );
     } catch ( NullPointerException e ) {
       fail( "NullPointerException detecded, seems that RowMetaInterface was not set for RowSet you are attempting"
-          + "to read from." );
+        + "to read from." );
     }
 
     Assert.assertTrue( "First waiting for row set is 'high'", data.currentRowSet.getClass().equals(
-        SingleRowRowSet.class ) );
+      SingleRowRowSet.class ) );
   }
 
   private class PrioritizeStreamsInner extends PrioritizeStreams {
 
     public PrioritizeStreamsInner( StepMockHelper<PrioritizeStreamsMeta, StepDataInterface> stepMockHelper ) {
       super( stepMockHelper.stepMeta, stepMockHelper.stepDataInterface, 0, stepMockHelper.transMeta,
-          stepMockHelper.trans );
+        stepMockHelper.trans );
     }
 
     @Override

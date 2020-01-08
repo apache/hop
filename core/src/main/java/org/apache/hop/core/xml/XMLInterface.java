@@ -36,8 +36,7 @@ public interface XMLInterface {
    * Describes the Object implementing this interface as XML
    *
    * @return the XML string for this object
-   * @throws HopException
-   *           in case there is an encoding problem.
+   * @throws HopException in case there is an encoding problem.
    */
   public String getXML() throws HopException;
 

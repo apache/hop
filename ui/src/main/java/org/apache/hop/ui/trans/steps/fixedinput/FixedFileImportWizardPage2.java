@@ -22,6 +22,13 @@
 
 package org.apache.hop.ui.trans.steps.fixedinput;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.steps.fixedinput.FixedFileInputField;
+import org.apache.hop.trans.steps.fixedinput.FixedInputMeta;
+import org.apache.hop.ui.core.PropsUI;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -39,13 +46,6 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.steps.fixedinput.FixedFileInputField;
-import org.apache.hop.trans.steps.fixedinput.FixedInputMeta;
-import org.apache.hop.ui.core.PropsUI;
 
 public class FixedFileImportWizardPage2 extends WizardPage {
   private static Class<?> PKG = FixedInputMeta.class; // for i18n purposes, needed by Translator2!!
@@ -117,7 +117,7 @@ public class FixedFileImportWizardPage2 extends WizardPage {
   private Shell shell;
 
   public FixedFileImportWizardPage2( String arg, PropsUI props, java.util.List<String> rows,
-    java.util.List<FixedFileInputField> fields ) {
+                                     java.util.List<FixedFileInputField> fields ) {
     super( arg );
     this.props = props;
     this.rows = rows;
@@ -218,7 +218,7 @@ public class FixedFileImportWizardPage2 extends WizardPage {
     wFieldtype = new CCombo( composite, SWT.BORDER | SWT.READ_ONLY );
     props.setLook( wFieldtype );
     for ( int i = 0; i < ValueMetaFactory.getValueMetaNames().length; i++ ) {
-      wFieldtype.add( ValueMetaFactory.getValueMetaNames()[i] );
+      wFieldtype.add( ValueMetaFactory.getValueMetaNames()[ i ] );
     }
     fdFieldtype = new FormData();
     fdFieldtype.left = new FormAttachment( middle, margin );
@@ -571,26 +571,26 @@ public class FixedFileImportWizardPage2 extends WizardPage {
 
   private String[] getRowSamples( int position, int length ) {
     if ( position < 0 || position + length < 0 ) {
-      return new String[0];
+      return new String[ 0 ];
     }
 
-    String[] retval = new String[rows.size()];
+    String[] retval = new String[ rows.size() ];
 
     for ( int i = 0; i < rows.size(); i++ ) {
       String line = rows.get( i );
 
       if ( position < line.length() ) {
         if ( position + length >= line.length() ) {
-          retval[i] = line.substring( position );
+          retval[ i ] = line.substring( position );
         } else {
           try {
-            retval[i] = line.substring( position, position + length );
+            retval[ i ] = line.substring( position, position + length );
           } catch ( StringIndexOutOfBoundsException e ) {
             System.out.println( "SIOOB: " + e.toString() );
           }
         }
       } else {
-        retval[i] = "";
+        retval[ i ] = "";
       }
     }
 
@@ -642,7 +642,7 @@ public class FixedFileImportWizardPage2 extends WizardPage {
       wSamples.removeAll();
       String[] samples = getRowSamples( position, width );
       for ( int i = 0; i < samples.length; i++ ) {
-        wSamples.add( samples[i] );
+        wSamples.add( samples[ i ] );
       }
     }
   }

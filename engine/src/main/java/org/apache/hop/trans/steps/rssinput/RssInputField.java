@@ -144,7 +144,7 @@ public class RssInputField implements Cloneable {
     }
 
     for ( int i = 0; i < trimTypeCode.length; i++ ) {
-      if ( trimTypeCode[i].equalsIgnoreCase( tt ) ) {
+      if ( trimTypeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -157,7 +157,7 @@ public class RssInputField implements Cloneable {
     }
 
     for ( int i = 0; i < ColumnCode.length; i++ ) {
-      if ( ColumnCode[i].equalsIgnoreCase( tt ) ) {
+      if ( ColumnCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -170,7 +170,7 @@ public class RssInputField implements Cloneable {
     }
 
     for ( int i = 0; i < trimTypeDesc.length; i++ ) {
-      if ( trimTypeDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( trimTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -183,7 +183,7 @@ public class RssInputField implements Cloneable {
     }
 
     for ( int i = 0; i < ColumnDesc.length; i++ ) {
-      if ( ColumnDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( ColumnDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -192,30 +192,30 @@ public class RssInputField implements Cloneable {
 
   public static final String getColumnDesc( int i ) {
     if ( i < 0 || i >= ColumnDesc.length ) {
-      return ColumnDesc[0];
+      return ColumnDesc[ 0 ];
     }
-    return ColumnDesc[i];
+    return ColumnDesc[ i ];
   }
 
   public static final String getTrimTypeCode( int i ) {
     if ( i < 0 || i >= trimTypeCode.length ) {
-      return trimTypeCode[0];
+      return trimTypeCode[ 0 ];
     }
-    return trimTypeCode[i];
+    return trimTypeCode[ i ];
   }
 
   public static final String getColumnCode( int i ) {
     if ( i < 0 || i >= ColumnCode.length ) {
-      return ColumnCode[0];
+      return ColumnCode[ 0 ];
     }
-    return ColumnCode[i];
+    return ColumnCode[ i ];
   }
 
   public static final String getTrimTypeDesc( int i ) {
     if ( i < 0 || i >= trimTypeDesc.length ) {
-      return trimTypeDesc[0];
+      return trimTypeDesc[ 0 ];
     }
-    return trimTypeDesc[i];
+    return trimTypeDesc[ i ];
   }
 
   @Override

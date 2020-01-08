@@ -23,20 +23,11 @@ package org.apache.hop.ui.hopui;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.jobexecutor.JobExecutorMeta;
-import org.apache.hop.trans.steps.transexecutor.TransExecutorMeta;
-
-import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 
 public class TransFileListenerTest {
@@ -69,8 +60,8 @@ public class TransFileListenerTest {
     String[] names = transFileListener.getFileTypeDisplayNames( null );
     assertNotNull( names );
     assertEquals( 2, names.length );
-    assertEquals( "Transformations", names[0] );
-    assertEquals( "XML", names[1] );
+    assertEquals( "Transformations", names[ 0 ] );
+    assertEquals( "XML", names[ 1 ] );
   }
 
   @Test
@@ -83,8 +74,8 @@ public class TransFileListenerTest {
     String[] extensions = transFileListener.getSupportedExtensions();
     assertNotNull( extensions );
     assertEquals( 2, extensions.length );
-    assertEquals( "ktr", extensions[0] );
-    assertEquals( "xml", extensions[1] );
+    assertEquals( "ktr", extensions[ 0 ] );
+    assertEquals( "xml", extensions[ 1 ] );
   }
 
 

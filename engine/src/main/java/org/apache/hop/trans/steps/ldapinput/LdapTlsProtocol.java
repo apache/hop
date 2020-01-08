@@ -22,24 +22,23 @@
 
 package org.apache.hop.trans.steps.ldapinput;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Map;
-
-import javax.naming.NamingException;
-import javax.naming.ldap.StartTlsRequest;
-import javax.naming.ldap.StartTlsResponse;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.trans.steps.ldapinput.store.CustomSocketFactory;
 
+import javax.naming.NamingException;
+import javax.naming.ldap.StartTlsRequest;
+import javax.naming.ldap.StartTlsResponse;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Map;
+
 public class LdapTlsProtocol extends LdapSslProtocol {
   private StartTlsResponse startTlsResponse;
 
   public LdapTlsProtocol( LogChannelInterface log, VariableSpace variableSpace, LdapMeta meta,
-    Collection<String> binaryAttributes ) {
+                          Collection<String> binaryAttributes ) {
     super( log, variableSpace, meta, binaryAttributes );
   }
 

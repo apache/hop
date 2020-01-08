@@ -20,8 +20,8 @@ import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
 
 @MetaStoreElementType(
-    name = "My migration element type",
-    description = "This is my migration element type" )
+  name = "My migration element type",
+  description = "This is my migration element type" )
 public class MyMigrationElement {
 
   public static final String MY_MIGRATION_STEP_NAME = "step_name";

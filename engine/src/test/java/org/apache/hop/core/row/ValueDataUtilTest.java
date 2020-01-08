@@ -22,6 +22,32 @@
 
 package org.apache.hop.core.row;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileNotFoundException;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.value.ValueMetaBigNumber;
+import org.apache.hop.core.row.value.ValueMetaBinary;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.trans.steps.calculator.CalculatorMetaFunction;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -30,32 +56,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-
-import org.apache.commons.lang.StringUtils;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.apache.hop.core.exception.HopFileNotFoundException;
-import org.apache.hop.core.row.value.ValueMetaBigNumber;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.value.ValueMetaBinary;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.steps.calculator.CalculatorMetaFunction;
 
 public class ValueDataUtilTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -69,8 +69,8 @@ public class ValueDataUtilTest {
   // private enum DateCalc {WORKING_DAYS, DATE_DIFF};
 
   /**
-   * @deprecated Use {@link Const#ltrim(String)} instead
    * @throws HopValueException
+   * @deprecated Use {@link Const#ltrim(String)} instead
    */
   @Deprecated
   @Test
@@ -93,8 +93,8 @@ public class ValueDataUtilTest {
   }
 
   /**
-   * @deprecated Use {@link Const#rtrim(String)} instead
    * @throws HopValueException
+   * @deprecated Use {@link Const#rtrim(String)} instead
    */
   @Deprecated
   @Test
@@ -117,8 +117,8 @@ public class ValueDataUtilTest {
   }
 
   /**
-   * @deprecated Use {@link Const#isSpace(char)} instead
    * @throws HopValueException
+   * @deprecated Use {@link Const#isSpace(char)} instead
    */
   @Deprecated
   @Test
@@ -133,8 +133,8 @@ public class ValueDataUtilTest {
   }
 
   /**
-   * @deprecated Use {@link Const#trim(String)} instead
    * @throws HopValueException
+   * @deprecated Use {@link Const#trim(String)} instead
    */
   @Deprecated
   @Test
@@ -164,30 +164,30 @@ public class ValueDataUtilTest {
   @Test
   public void testDateDiff_A_GT_B() {
     Object daysDiff =
-        calculate( "2010-05-12", "2010-01-01", ValueMetaInterface.TYPE_DATE, CalculatorMetaFunction.CALC_DATE_DIFF );
+      calculate( "2010-05-12", "2010-01-01", ValueMetaInterface.TYPE_DATE, CalculatorMetaFunction.CALC_DATE_DIFF );
     assertEquals( new Long( 131 ), daysDiff );
   }
 
   @Test
   public void testDateDiff_A_LT_B() {
     Object daysDiff =
-        calculate( "2010-12-31", "2011-02-10", ValueMetaInterface.TYPE_DATE, CalculatorMetaFunction.CALC_DATE_DIFF );
+      calculate( "2010-12-31", "2011-02-10", ValueMetaInterface.TYPE_DATE, CalculatorMetaFunction.CALC_DATE_DIFF );
     assertEquals( new Long( -41 ), daysDiff );
   }
 
   @Test
   public void testWorkingDaysDays_A_GT_B() {
     Object daysDiff =
-        calculate( "2010-05-12", "2010-01-01", ValueMetaInterface.TYPE_DATE,
-            CalculatorMetaFunction.CALC_DATE_WORKING_DIFF );
+      calculate( "2010-05-12", "2010-01-01", ValueMetaInterface.TYPE_DATE,
+        CalculatorMetaFunction.CALC_DATE_WORKING_DIFF );
     assertEquals( new Long( 94 ), daysDiff );
   }
 
   @Test
   public void testWorkingDaysDays_A_LT_B() {
     Object daysDiff =
-        calculate( "2010-12-31", "2011-02-10", ValueMetaInterface.TYPE_DATE,
-            CalculatorMetaFunction.CALC_DATE_WORKING_DIFF );
+      calculate( "2010-12-31", "2011-02-10", ValueMetaInterface.TYPE_DATE,
+        CalculatorMetaFunction.CALC_DATE_WORKING_DIFF );
     assertEquals( new Long( -30 ), daysDiff );
   }
 
@@ -197,7 +197,7 @@ public class ValueDataUtilTest {
     long longValue = 1;
 
     assertEquals( longValue, ValueDataUtil.plus( new ValueMetaInteger(), longValue, new ValueMetaString(),
-        StringUtils.EMPTY ) );
+      StringUtils.EMPTY ) );
 
   }
 
@@ -530,33 +530,33 @@ public class ValueDataUtilTest {
 
     // Test Hop number types
     assertEquals( Double.valueOf( "3.0" ), calculate( "1", "2", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ADD ) );
+      CalculatorMetaFunction.CALC_ADD ) );
     assertEquals( Double.valueOf( "0.0" ), calculate( "2", "-2", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ADD ) );
+      CalculatorMetaFunction.CALC_ADD ) );
     assertEquals( Double.valueOf( "30.0" ), calculate( "10", "20", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ADD ) );
+      CalculatorMetaFunction.CALC_ADD ) );
     assertEquals( Double.valueOf( "-50.0" ), calculate( "-100", "50", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ADD ) );
+      CalculatorMetaFunction.CALC_ADD ) );
 
     // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "3" ), calculate( "1", "2", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ADD ) );
+      CalculatorMetaFunction.CALC_ADD ) );
     assertEquals( Long.valueOf( "0" ), calculate( "2", "-2", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ADD ) );
+      CalculatorMetaFunction.CALC_ADD ) );
     assertEquals( Long.valueOf( "30" ), calculate( "10", "20", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ADD ) );
+      CalculatorMetaFunction.CALC_ADD ) );
     assertEquals( Long.valueOf( "-50" ), calculate( "-100", "50", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ADD ) );
+      CalculatorMetaFunction.CALC_ADD ) );
 
     // Test Hop big Number types
     assertEquals( 0, new BigDecimal( "2.0" ).compareTo( (BigDecimal) calculate( "1", "1",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ADD ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ADD ) ) );
     assertEquals( 0, new BigDecimal( "0.0" ).compareTo( (BigDecimal) calculate( "2", "-2",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ADD ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ADD ) ) );
     assertEquals( 0, new BigDecimal( "30.0" ).compareTo( (BigDecimal) calculate( "10", "20",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ADD ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ADD ) ) );
     assertEquals( 0, new BigDecimal( "-50.0" ).compareTo( (BigDecimal) calculate( "-100", "50",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ADD ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ADD ) ) );
   }
 
   @Test
@@ -564,33 +564,33 @@ public class ValueDataUtilTest {
 
     // Test Hop number types
     assertEquals( Double.valueOf( "6.0" ), calculate( "1", "2", "3", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ADD3 ) );
+      CalculatorMetaFunction.CALC_ADD3 ) );
     assertEquals( Double.valueOf( "10.0" ), calculate( "2", "-2", "10", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ADD3 ) );
+      CalculatorMetaFunction.CALC_ADD3 ) );
     assertEquals( Double.valueOf( "27.0" ), calculate( "10", "20", "-3", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ADD3 ) );
+      CalculatorMetaFunction.CALC_ADD3 ) );
     assertEquals( Double.valueOf( "-55.0" ), calculate( "-100", "50", "-5", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ADD3 ) );
+      CalculatorMetaFunction.CALC_ADD3 ) );
 
     // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "3" ), calculate( "1", "1", "1", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ADD3 ) );
+      CalculatorMetaFunction.CALC_ADD3 ) );
     assertEquals( Long.valueOf( "10" ), calculate( "2", "-2", "10", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ADD3 ) );
+      CalculatorMetaFunction.CALC_ADD3 ) );
     assertEquals( Long.valueOf( "27" ), calculate( "10", "20", "-3", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ADD3 ) );
+      CalculatorMetaFunction.CALC_ADD3 ) );
     assertEquals( Long.valueOf( "-55" ), calculate( "-100", "50", "-5", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ADD3 ) );
+      CalculatorMetaFunction.CALC_ADD3 ) );
 
     // Test Hop big Number types
     assertEquals( 0, new BigDecimal( "6.0" ).compareTo( (BigDecimal) calculate( "1", "2", "3",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ADD3 ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ADD3 ) ) );
     assertEquals( 0, new BigDecimal( "10.0" ).compareTo( (BigDecimal) calculate( "2", "-2", "10",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ADD3 ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ADD3 ) ) );
     assertEquals( 0, new BigDecimal( "27.0" ).compareTo( (BigDecimal) calculate( "10", "20", "-3",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ADD3 ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ADD3 ) ) );
     assertEquals( 0, new BigDecimal( "-55.0" ).compareTo( (BigDecimal) calculate( "-100", "50", "-5",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ADD3 ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ADD3 ) ) );
   }
 
   @Test
@@ -598,21 +598,21 @@ public class ValueDataUtilTest {
 
     // Test Hop number types
     assertEquals( Double.valueOf( "10.0" ), calculate( "20", "10", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_SUBTRACT ) );
+      CalculatorMetaFunction.CALC_SUBTRACT ) );
     assertEquals( Double.valueOf( "-10.0" ), calculate( "10", "20", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_SUBTRACT ) );
+      CalculatorMetaFunction.CALC_SUBTRACT ) );
 
     // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "10" ), calculate( "20", "10", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_SUBTRACT ) );
+      CalculatorMetaFunction.CALC_SUBTRACT ) );
     assertEquals( Long.valueOf( "-10" ), calculate( "10", "20", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_SUBTRACT ) );
+      CalculatorMetaFunction.CALC_SUBTRACT ) );
 
     // Test Hop big Number types
     assertEquals( 0, new BigDecimal( "10" ).compareTo( (BigDecimal) calculate( "20", "10",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_SUBTRACT ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_SUBTRACT ) ) );
     assertEquals( 0, new BigDecimal( "-10" ).compareTo( (BigDecimal) calculate( "10", "20",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_SUBTRACT ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_SUBTRACT ) ) );
   }
 
   @Test
@@ -620,37 +620,37 @@ public class ValueDataUtilTest {
 
     // Test Hop number types
     assertEquals( Double.valueOf( "2.0" ), calculate( "2", "1", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_DIVIDE ) );
+      CalculatorMetaFunction.CALC_DIVIDE ) );
     assertEquals( Double.valueOf( "2.0" ), calculate( "4", "2", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_DIVIDE ) );
+      CalculatorMetaFunction.CALC_DIVIDE ) );
     assertEquals( Double.valueOf( "0.5" ), calculate( "10", "20", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_DIVIDE ) );
+      CalculatorMetaFunction.CALC_DIVIDE ) );
     assertEquals( Double.valueOf( "2.0" ), calculate( "100", "50", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_DIVIDE ) );
+      CalculatorMetaFunction.CALC_DIVIDE ) );
 
     // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "2" ), calculate( "2", "1", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_DIVIDE ) );
+      CalculatorMetaFunction.CALC_DIVIDE ) );
     assertEquals( Long.valueOf( "2" ), calculate( "4", "2", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_DIVIDE ) );
+      CalculatorMetaFunction.CALC_DIVIDE ) );
     assertEquals( Long.valueOf( "0" ), calculate( "10", "20", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_DIVIDE ) );
+      CalculatorMetaFunction.CALC_DIVIDE ) );
     assertEquals( Long.valueOf( "2" ), calculate( "100", "50", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_DIVIDE ) );
+      CalculatorMetaFunction.CALC_DIVIDE ) );
 
     // Test Hop big Number types
     assertEquals( BigDecimal.valueOf( Long.valueOf( "2" ) ), calculate( "2", "1", ValueMetaInterface.TYPE_BIGNUMBER,
-        CalculatorMetaFunction.CALC_DIVIDE ) );
+      CalculatorMetaFunction.CALC_DIVIDE ) );
     assertEquals( BigDecimal.valueOf( Long.valueOf( "2" ) ), calculate( "4", "2", ValueMetaInterface.TYPE_BIGNUMBER,
-        CalculatorMetaFunction.CALC_DIVIDE ) );
+      CalculatorMetaFunction.CALC_DIVIDE ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "0.5" ) ), calculate( "10", "20",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_DIVIDE ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_DIVIDE ) );
     assertEquals( BigDecimal.valueOf( Long.valueOf( "2" ) ), calculate( "100", "50", ValueMetaInterface.TYPE_BIGNUMBER,
-        CalculatorMetaFunction.CALC_DIVIDE ) );
+      CalculatorMetaFunction.CALC_DIVIDE ) );
   }
 
   @Test
-  public void testMulitplyBigNumbers() throws  Exception {
+  public void testMulitplyBigNumbers() throws Exception {
     BigDecimal field1 = new BigDecimal( "123456789012345678901.1234567890123456789" );
     BigDecimal field2 = new BigDecimal( "1.0" );
     BigDecimal field3 = new BigDecimal( "2.0" );
@@ -669,7 +669,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testDivisionBigNumbers() throws  Exception {
+  public void testDivisionBigNumbers() throws Exception {
     BigDecimal field1 = new BigDecimal( "123456789012345678901.1234567890123456789" );
     BigDecimal field2 = new BigDecimal( "1.0" );
     BigDecimal field3 = new BigDecimal( "2.0" );
@@ -688,7 +688,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testRemainderBigNumbers() throws  Exception {
+  public void testRemainderBigNumbers() throws Exception {
     BigDecimal field1 = new BigDecimal( "123456789012345678901.1234567890123456789" );
     BigDecimal field2 = new BigDecimal( "1.0" );
     BigDecimal field3 = new BigDecimal( "2.0" );
@@ -696,8 +696,8 @@ public class ValueDataUtilTest {
     BigDecimal expResult1 = new BigDecimal( "0.1234567890123456789" );
     BigDecimal expResult2 = new BigDecimal( "1.1234567890123456789" );
 
-    assertEquals( expResult1, ValueDataUtil.remainder( new ValueMetaBigNumber( ), field1, new ValueMetaBigNumber( ), field2 ) );
-    assertEquals( expResult2, ValueDataUtil.remainder( new ValueMetaBigNumber( ), field1, new ValueMetaBigNumber( ), field3 ) );
+    assertEquals( expResult1, ValueDataUtil.remainder( new ValueMetaBigNumber(), field1, new ValueMetaBigNumber(), field2 ) );
+    assertEquals( expResult2, ValueDataUtil.remainder( new ValueMetaBigNumber(), field1, new ValueMetaBigNumber(), field3 ) );
   }
 
   @Test
@@ -705,33 +705,33 @@ public class ValueDataUtilTest {
 
     // Test Hop number types
     assertEquals( Double.valueOf( "10.0" ), calculate( "10", "100", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_PERCENT_1 ) );
+      CalculatorMetaFunction.CALC_PERCENT_1 ) );
     assertEquals( Double.valueOf( "100.0" ), calculate( "2", "2", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_PERCENT_1 ) );
+      CalculatorMetaFunction.CALC_PERCENT_1 ) );
     assertEquals( Double.valueOf( "50.0" ), calculate( "10", "20", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_PERCENT_1 ) );
+      CalculatorMetaFunction.CALC_PERCENT_1 ) );
     assertEquals( Double.valueOf( "200.0" ), calculate( "100", "50", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_PERCENT_1 ) );
+      CalculatorMetaFunction.CALC_PERCENT_1 ) );
 
     // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "10" ), calculate( "10", "100", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_PERCENT_1 ) );
+      CalculatorMetaFunction.CALC_PERCENT_1 ) );
     assertEquals( Long.valueOf( "100" ), calculate( "2", "2", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_PERCENT_1 ) );
+      CalculatorMetaFunction.CALC_PERCENT_1 ) );
     assertEquals( Long.valueOf( "50" ), calculate( "10", "20", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_PERCENT_1 ) );
+      CalculatorMetaFunction.CALC_PERCENT_1 ) );
     assertEquals( Long.valueOf( "200" ), calculate( "100", "50", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_PERCENT_1 ) );
+      CalculatorMetaFunction.CALC_PERCENT_1 ) );
 
     // Test Hop big Number types
     assertEquals( BigDecimal.valueOf( Long.valueOf( "10" ) ), calculate( "10", "100",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_1 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_1 ) );
     assertEquals( BigDecimal.valueOf( Long.valueOf( "100" ) ), calculate( "2", "2", ValueMetaInterface.TYPE_BIGNUMBER,
-        CalculatorMetaFunction.CALC_PERCENT_1 ) );
+      CalculatorMetaFunction.CALC_PERCENT_1 ) );
     assertEquals( BigDecimal.valueOf( Long.valueOf( "50" ) ), calculate( "10", "20", ValueMetaInterface.TYPE_BIGNUMBER,
-        CalculatorMetaFunction.CALC_PERCENT_1 ) );
+      CalculatorMetaFunction.CALC_PERCENT_1 ) );
     assertEquals( BigDecimal.valueOf( Long.valueOf( "200" ) ), calculate( "100", "50",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_1 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_1 ) );
   }
 
   @Test
@@ -739,33 +739,33 @@ public class ValueDataUtilTest {
 
     // Test Hop number types
     assertEquals( Double.valueOf( "0.99" ), calculate( "1", "1", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_PERCENT_2 ) );
+      CalculatorMetaFunction.CALC_PERCENT_2 ) );
     assertEquals( Double.valueOf( "1.96" ), calculate( "2", "2", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_PERCENT_2 ) );
+      CalculatorMetaFunction.CALC_PERCENT_2 ) );
     assertEquals( Double.valueOf( "8.0" ), calculate( "10", "20", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_PERCENT_2 ) );
+      CalculatorMetaFunction.CALC_PERCENT_2 ) );
     assertEquals( Double.valueOf( "50.0" ), calculate( "100", "50", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_PERCENT_2 ) );
+      CalculatorMetaFunction.CALC_PERCENT_2 ) );
 
     // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "1" ), calculate( "1", "1", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_PERCENT_2 ) );
+      CalculatorMetaFunction.CALC_PERCENT_2 ) );
     assertEquals( Long.valueOf( "2" ), calculate( "2", "2", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_PERCENT_2 ) );
+      CalculatorMetaFunction.CALC_PERCENT_2 ) );
     assertEquals( Long.valueOf( "8" ), calculate( "10", "20", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_PERCENT_2 ) );
+      CalculatorMetaFunction.CALC_PERCENT_2 ) );
     assertEquals( Long.valueOf( "50" ), calculate( "100", "50", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_PERCENT_2 ) );
+      CalculatorMetaFunction.CALC_PERCENT_2 ) );
 
     // Test Hop big Number types
     assertEquals( BigDecimal.valueOf( Double.valueOf( "0.99" ) ), calculate( "1", "1",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_2 ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "1.96" ) ), calculate( "2", "2",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_2 ) );
     assertEquals( new BigDecimal( "8.0" ), calculate( "10", "20",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_2 ) );
     assertEquals( new BigDecimal( "50.0" ), calculate( "100", "50",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_2 ) );
   }
 
   @Test
@@ -773,33 +773,33 @@ public class ValueDataUtilTest {
 
     // Test Hop number types
     assertEquals( Double.valueOf( "1.01" ), calculate( "1", "1", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_PERCENT_3 ) );
+      CalculatorMetaFunction.CALC_PERCENT_3 ) );
     assertEquals( Double.valueOf( "2.04" ), calculate( "2", "2", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_PERCENT_3 ) );
+      CalculatorMetaFunction.CALC_PERCENT_3 ) );
     assertEquals( Double.valueOf( "12.0" ), calculate( "10", "20", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_PERCENT_3 ) );
+      CalculatorMetaFunction.CALC_PERCENT_3 ) );
     assertEquals( Double.valueOf( "150.0" ), calculate( "100", "50", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_PERCENT_3 ) );
+      CalculatorMetaFunction.CALC_PERCENT_3 ) );
 
     // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "1" ), calculate( "1", "1", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_PERCENT_3 ) );
+      CalculatorMetaFunction.CALC_PERCENT_3 ) );
     assertEquals( Long.valueOf( "2" ), calculate( "2", "2", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_PERCENT_3 ) );
+      CalculatorMetaFunction.CALC_PERCENT_3 ) );
     assertEquals( Long.valueOf( "12" ), calculate( "10", "20", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_PERCENT_3 ) );
+      CalculatorMetaFunction.CALC_PERCENT_3 ) );
     assertEquals( Long.valueOf( "150" ), calculate( "100", "50", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_PERCENT_3 ) );
+      CalculatorMetaFunction.CALC_PERCENT_3 ) );
 
     // Test Hop big Number types
     assertEquals( 0, new BigDecimal( "1.01" ).compareTo( (BigDecimal) calculate( "1", "1",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_3 ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_3 ) ) );
     assertEquals( 0, new BigDecimal( "2.04" ).compareTo( (BigDecimal) calculate( "2", "2",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_3 ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_3 ) ) );
     assertEquals( 0, new BigDecimal( "12" ).compareTo( (BigDecimal) calculate( "10", "20",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_3 ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_3 ) ) );
     assertEquals( 0, new BigDecimal( "150" ).compareTo( (BigDecimal) calculate( "100", "50",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_3 ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_PERCENT_3 ) ) );
   }
 
   @Test
@@ -807,33 +807,33 @@ public class ValueDataUtilTest {
 
     // Test Hop number types
     assertEquals( Double.valueOf( "2.0" ), calculate( "1", "1", "1", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_COMBINATION_1 ) );
+      CalculatorMetaFunction.CALC_COMBINATION_1 ) );
     assertEquals( Double.valueOf( "22.0" ), calculate( "2", "2", "10", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_COMBINATION_1 ) );
+      CalculatorMetaFunction.CALC_COMBINATION_1 ) );
     assertEquals( Double.valueOf( "70.0" ), calculate( "10", "20", "3", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_COMBINATION_1 ) );
+      CalculatorMetaFunction.CALC_COMBINATION_1 ) );
     assertEquals( Double.valueOf( "350" ), calculate( "100", "50", "5", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_COMBINATION_1 ) );
+      CalculatorMetaFunction.CALC_COMBINATION_1 ) );
 
     // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "2" ), calculate( "1", "1", "1", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_COMBINATION_1 ) );
+      CalculatorMetaFunction.CALC_COMBINATION_1 ) );
     assertEquals( Long.valueOf( "22" ), calculate( "2", "2", "10", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_COMBINATION_1 ) );
+      CalculatorMetaFunction.CALC_COMBINATION_1 ) );
     assertEquals( Long.valueOf( "70" ), calculate( "10", "20", "3", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_COMBINATION_1 ) );
+      CalculatorMetaFunction.CALC_COMBINATION_1 ) );
     assertEquals( Long.valueOf( "350" ), calculate( "100", "50", "5", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_COMBINATION_1 ) );
+      CalculatorMetaFunction.CALC_COMBINATION_1 ) );
 
     // Test Hop big Number types
     assertEquals( 0, new BigDecimal( "2.0" ).compareTo( (BigDecimal) calculate( "1", "1", "1",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_COMBINATION_1 ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_COMBINATION_1 ) ) );
     assertEquals( 0, new BigDecimal( "22.0" ).compareTo( (BigDecimal) calculate( "2", "2", "10",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_COMBINATION_1 ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_COMBINATION_1 ) ) );
     assertEquals( 0, new BigDecimal( "70.0" ).compareTo( (BigDecimal) calculate( "10", "20", "3",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_COMBINATION_1 ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_COMBINATION_1 ) ) );
     assertEquals( 0, new BigDecimal( "350.0" ).compareTo( (BigDecimal) calculate( "100", "50", "5",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_COMBINATION_1 ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_COMBINATION_1 ) ) );
   }
 
   @Test
@@ -841,33 +841,33 @@ public class ValueDataUtilTest {
 
     // Test Hop number types
     assertEquals( Double.valueOf( "1.4142135623730951" ), calculate( "1", "1", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_COMBINATION_2 ) );
+      CalculatorMetaFunction.CALC_COMBINATION_2 ) );
     assertEquals( Double.valueOf( "2.8284271247461903" ), calculate( "2", "2", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_COMBINATION_2 ) );
+      CalculatorMetaFunction.CALC_COMBINATION_2 ) );
     assertEquals( Double.valueOf( "22.360679774997898" ), calculate( "10", "20", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_COMBINATION_2 ) );
+      CalculatorMetaFunction.CALC_COMBINATION_2 ) );
     assertEquals( Double.valueOf( "111.80339887498948" ), calculate( "100", "50", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_COMBINATION_2 ) );
+      CalculatorMetaFunction.CALC_COMBINATION_2 ) );
 
     // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "1" ), calculate( "1", "1", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_COMBINATION_2 ) );
+      CalculatorMetaFunction.CALC_COMBINATION_2 ) );
     assertEquals( Long.valueOf( "2" ), calculate( "2", "2", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_COMBINATION_2 ) );
+      CalculatorMetaFunction.CALC_COMBINATION_2 ) );
     assertEquals( Long.valueOf( "10" ), calculate( "10", "20", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_COMBINATION_2 ) );
+      CalculatorMetaFunction.CALC_COMBINATION_2 ) );
     assertEquals( Long.valueOf( "100" ), calculate( "100", "50", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_COMBINATION_2 ) );
+      CalculatorMetaFunction.CALC_COMBINATION_2 ) );
 
     // Test Hop big Number types
     assertEquals( 0, new BigDecimal( "1.4142135623730951" ).compareTo( (BigDecimal) calculate( "1", "1",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_COMBINATION_2 ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_COMBINATION_2 ) ) );
     assertEquals( 0, new BigDecimal( "2.8284271247461903" ).compareTo( (BigDecimal) calculate( "2", "2",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_COMBINATION_2 ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_COMBINATION_2 ) ) );
     assertEquals( 0, new BigDecimal( "22.360679774997898" ).compareTo( (BigDecimal) calculate( "10", "20",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_COMBINATION_2 ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_COMBINATION_2 ) ) );
     assertEquals( 0, new BigDecimal( "111.80339887498948" ).compareTo( (BigDecimal) calculate( "100", "50",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_COMBINATION_2 ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_COMBINATION_2 ) ) );
   }
 
   @Test
@@ -875,45 +875,45 @@ public class ValueDataUtilTest {
 
     // Test Hop number types
     assertEquals( Double.valueOf( "1.0" ), calculate( "1", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( Double.valueOf( "103.0" ), calculate( "103.01", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( Double.valueOf( "1235.0" ), calculate( "1234.6", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
     // half
     assertEquals( Double.valueOf( "1235.0" ), calculate( "1234.5", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( Double.valueOf( "1236.0" ), calculate( "1235.5", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( Double.valueOf( "-1234.0" ), calculate( "-1234.5", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( Double.valueOf( "-1235.0" ), calculate( "-1235.5", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
 
     // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "1" ), calculate( "1", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( Long.valueOf( "2" ), calculate( "2", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( Long.valueOf( "-103" ), calculate( "-103", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
 
     // Test Hop big Number types
     assertEquals( BigDecimal.ONE, calculate( "1", ValueMetaInterface.TYPE_BIGNUMBER,
-        CalculatorMetaFunction.CALC_ROUND_1 ) );
+      CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( BigDecimal.valueOf( Long.valueOf( "103" ) ), calculate( "103.01",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( BigDecimal.valueOf( Long.valueOf( "1235" ) ), calculate( "1234.6",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
     // half
     assertEquals( BigDecimal.valueOf( Long.valueOf( "1235" ) ), calculate( "1234.5",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( BigDecimal.valueOf( Long.valueOf( "1236" ) ), calculate( "1235.5",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( BigDecimal.valueOf( Long.valueOf( "-1234" ) ), calculate( "-1234.5",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
     assertEquals( BigDecimal.valueOf( Long.valueOf( "-1235" ) ), calculate( "-1235.5",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_1 ) );
   }
 
   @Test
@@ -921,69 +921,69 @@ public class ValueDataUtilTest {
 
     // Test Hop number types
     assertEquals( Double.valueOf( "1.0" ), calculate( "1", "1", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Double.valueOf( "2.1" ), calculate( "2.06", "1", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Double.valueOf( "103.0" ), calculate( "103.01", "1", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Double.valueOf( "12.35" ), calculate( "12.346", "2", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     // scale < 0
     assertEquals( Double.valueOf( "10.0" ), calculate( "12.0", "-1", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     // half
     assertEquals( Double.valueOf( "12.35" ), calculate( "12.345", "2", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Double.valueOf( "12.36" ), calculate( "12.355", "2", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Double.valueOf( "-12.34" ), calculate( "-12.345", "2", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Double.valueOf( "-12.35" ), calculate( "-12.355", "2", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
 
     // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "1" ), calculate( "1", "1", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Long.valueOf( "2" ), calculate( "2", "2", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Long.valueOf( "103" ), calculate( "103", "3", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Long.valueOf( "12" ), calculate( "12", "4", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     // scale < 0
     assertEquals( Long.valueOf( "100" ), calculate( "120", "-2", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     // half
     assertEquals( Long.valueOf( "12350" ), calculate( "12345", "-1", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Long.valueOf( "12360" ), calculate( "12355", "-1", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Long.valueOf( "-12340" ), calculate( "-12345", "-1", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( Long.valueOf( "-12350" ), calculate( "-12355", "-1", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_ROUND_2 ) );
+      CalculatorMetaFunction.CALC_ROUND_2 ) );
 
     // Test Hop big Number types
     assertEquals( BigDecimal.valueOf( Double.valueOf( "1.0" ) ), calculate( "1", "1",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "2.1" ) ), calculate( "2.06", "1",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "103.0" ) ), calculate( "103.01", "1",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "12.35" ) ), calculate( "12.346", "2",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
     // scale < 0
     assertEquals( BigDecimal.valueOf( Double.valueOf( "10.0" ) ).setScale( -1 ), calculate( "12.0", "-1",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
     // half
     assertEquals( BigDecimal.valueOf( Double.valueOf( "12.35" ) ), calculate( "12.345", "2",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "12.36" ) ), calculate( "12.355", "2",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "-12.34" ) ), calculate( "-12.345", "2",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
     assertEquals( BigDecimal.valueOf( Double.valueOf( "-12.35" ) ), calculate( "-12.355", "2",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_ROUND_2 ) );
   }
 
   @Test
@@ -991,11 +991,11 @@ public class ValueDataUtilTest {
 
     // Test Hop number types
     assertEquals( Double.valueOf( "1.0" ), calculate( "1", "", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_NVL ) );
+      CalculatorMetaFunction.CALC_NVL ) );
     assertEquals( Double.valueOf( "2.0" ), calculate( "", "2", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_NVL ) );
+      CalculatorMetaFunction.CALC_NVL ) );
     assertEquals( Double.valueOf( "10.0" ), calculate( "10", "20", ValueMetaInterface.TYPE_NUMBER,
-        CalculatorMetaFunction.CALC_NVL ) );
+      CalculatorMetaFunction.CALC_NVL ) );
     assertEquals( null, calculate( "", "", ValueMetaInterface.TYPE_NUMBER, CalculatorMetaFunction.CALC_NVL ) );
 
     // Test Hop string types
@@ -1006,20 +1006,20 @@ public class ValueDataUtilTest {
 
     // Test Hop Integer (Java Long) types
     assertEquals( Long.valueOf( "1" ), calculate( "1", "", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_NVL ) );
+      CalculatorMetaFunction.CALC_NVL ) );
     assertEquals( Long.valueOf( "2" ), calculate( "", "2", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_NVL ) );
+      CalculatorMetaFunction.CALC_NVL ) );
     assertEquals( Long.valueOf( "10" ), calculate( "10", "20", ValueMetaInterface.TYPE_INTEGER,
-        CalculatorMetaFunction.CALC_NVL ) );
+      CalculatorMetaFunction.CALC_NVL ) );
     assertEquals( null, calculate( "", "", ValueMetaInterface.TYPE_INTEGER, CalculatorMetaFunction.CALC_NVL ) );
 
     // Test Hop big Number types
     assertEquals( 0, new BigDecimal( "1" ).compareTo( (BigDecimal) calculate( "1", "",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_NVL ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_NVL ) ) );
     assertEquals( 0, new BigDecimal( "2" ).compareTo( (BigDecimal) calculate( "", "2",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_NVL ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_NVL ) ) );
     assertEquals( 0, new BigDecimal( "10" ).compareTo( (BigDecimal) calculate( "10", "20",
-        ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_NVL ) ) );
+      ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_NVL ) ) );
     assertEquals( null, calculate( "", "", ValueMetaInterface.TYPE_BIGNUMBER, CalculatorMetaFunction.CALC_NVL ) );
 
     // boolean
@@ -1033,11 +1033,11 @@ public class ValueDataUtilTest {
 
     try {
       assertEquals( simpleDateFormat.parse( "2012-04-11" ), calculate( "2012-04-11", "", ValueMetaInterface.TYPE_DATE,
-          CalculatorMetaFunction.CALC_NVL ) );
+        CalculatorMetaFunction.CALC_NVL ) );
       assertEquals( simpleDateFormat.parse( "2012-11-04" ), calculate( "", "2012-11-04", ValueMetaInterface.TYPE_DATE,
-          CalculatorMetaFunction.CALC_NVL ) );
+        CalculatorMetaFunction.CALC_NVL ) );
       assertEquals( simpleDateFormat.parse( "1965-07-01" ), calculate( "1965-07-01", "1967-04-11",
-          ValueMetaInterface.TYPE_DATE, CalculatorMetaFunction.CALC_NVL ) );
+        ValueMetaInterface.TYPE_DATE, CalculatorMetaFunction.CALC_NVL ) );
       assertNull( calculate( "", "", ValueMetaInterface.TYPE_DATE, CalculatorMetaFunction.CALC_NVL ) );
 
     } catch ( ParseException pe ) {
@@ -1053,7 +1053,7 @@ public class ValueDataUtilTest {
     try {
       byte[] data = stringValueMeta.getBinary( "101" );
       byte[] calculated =
-          (byte[]) calculate( "101", "", ValueMetaInterface.TYPE_BINARY, CalculatorMetaFunction.CALC_NVL );
+        (byte[]) calculate( "101", "", ValueMetaInterface.TYPE_BINARY, CalculatorMetaFunction.CALC_NVL );
       assertTrue( Arrays.equals( data, calculated ) );
 
       data = stringValueMeta.getBinary( "011" );
@@ -1169,7 +1169,7 @@ public class ValueDataUtilTest {
   }
 
   private Object calculate( String string_dataA, String string_dataB, int valueMetaInterfaceType,
-      int calculatorMetaFunction ) {
+                            int calculatorMetaFunction ) {
     return calculate( string_dataA, string_dataB, null, valueMetaInterfaceType, calculatorMetaFunction );
   }
 
@@ -1213,8 +1213,8 @@ public class ValueDataUtilTest {
   }
 
   private Object calculate( String string_dataA, String string_dataB, String string_dataC,
-      int valueMetaInterfaceTypeA, int valueMetaInterfaceTypeB, int valueMetaInterfaceTypeC,
-      int calculatorMetaFunction ) {
+                            int valueMetaInterfaceTypeA, int valueMetaInterfaceTypeB, int valueMetaInterfaceTypeC,
+                            int calculatorMetaFunction ) {
 
     try {
 

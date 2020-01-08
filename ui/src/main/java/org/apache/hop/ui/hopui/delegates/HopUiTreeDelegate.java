@@ -22,17 +22,6 @@
 
 package org.apache.hop.ui.hopui.delegates;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.hop.ui.hopui.HopUi;
-import org.eclipse.swt.dnd.DND;
-import org.eclipse.swt.dnd.DragSource;
-import org.eclipse.swt.dnd.DragSourceEvent;
-import org.eclipse.swt.dnd.DragSourceListener;
-import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeItem;
 import org.apache.hop.cluster.ClusterSchema;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
@@ -53,7 +42,18 @@ import org.apache.hop.trans.TransHopMeta;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.hopui.TreeSelection;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DragSourceListener;
+import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HopUiTreeDelegate extends HopUiDelegate {
   public HopUiTreeDelegate( HopUi hopUi ) {
@@ -69,7 +69,7 @@ public class HopUiTreeDelegate extends HopUiDelegate {
     if ( selectionTree != null && !selectionTree.isDisposed() && tree.equals( selectionTree ) ) {
       TreeItem[] selection = selectionTree.getSelection();
       for ( int s = 0; s < selection.length; s++ ) {
-        TreeItem treeItem = selection[s];
+        TreeItem treeItem = selection[ s ];
         String[] path = ConstUI.getTreeStrings( treeItem );
 
         TreeSelection object = null;
@@ -78,80 +78,80 @@ public class HopUiTreeDelegate extends HopUiDelegate {
           case 0:
             break;
           case 1: // ------complete-----
-            if ( path[0].equals( HopUi.STRING_TRANSFORMATIONS ) ) { // the top level Transformations entry
+            if ( path[ 0 ].equals( HopUi.STRING_TRANSFORMATIONS ) ) { // the top level Transformations entry
 
-              object = new TreeSelection( path[0], TransMeta.class );
+              object = new TreeSelection( path[ 0 ], TransMeta.class );
             }
-            if ( path[0].equals( HopUi.STRING_JOBS ) ) { // the top level Jobs entry
+            if ( path[ 0 ].equals( HopUi.STRING_JOBS ) ) { // the top level Jobs entry
 
-              object = new TreeSelection( path[0], JobMeta.class );
+              object = new TreeSelection( path[ 0 ], JobMeta.class );
             }
             break;
 
           case 2: // ------complete-----
-            if ( path[0].equals( HopUi.STRING_BUILDING_BLOCKS ) ) { // the top level Transformations entry
+            if ( path[ 0 ].equals( HopUi.STRING_BUILDING_BLOCKS ) ) { // the top level Transformations entry
 
-              if ( path[1].equals( HopUi.STRING_TRANS_BASE ) ) {
-                object = new TreeSelection( path[1], PluginInterface.class );
+              if ( path[ 1 ].equals( HopUi.STRING_TRANS_BASE ) ) {
+                object = new TreeSelection( path[ 1 ], PluginInterface.class );
               }
             }
-            if ( path[0].equals( HopUi.STRING_TRANSFORMATIONS ) ) { // Transformation title
+            if ( path[ 0 ].equals( HopUi.STRING_TRANSFORMATIONS ) ) { // Transformation title
 
-              object = new TreeSelection( path[1], hopUi.delegates.trans.getTransformation( path[1] ) );
+              object = new TreeSelection( path[ 1 ], hopUi.delegates.trans.getTransformation( path[ 1 ] ) );
             }
-            if ( path[0].equals( HopUi.STRING_JOBS ) ) { // Jobs title
+            if ( path[ 0 ].equals( HopUi.STRING_JOBS ) ) { // Jobs title
 
-              object = new TreeSelection( path[1], hopUi.delegates.jobs.getJob( path[1] ) );
+              object = new TreeSelection( path[ 1 ], hopUi.delegates.jobs.getJob( path[ 1 ] ) );
             }
             break;
 
           case 3: // ------complete-----
-            if ( path[0].equals( HopUi.STRING_TRANSFORMATIONS ) ) { // Transformations title
+            if ( path[ 0 ].equals( HopUi.STRING_TRANSFORMATIONS ) ) { // Transformations title
 
-              TransMeta transMeta = hopUi.delegates.trans.getTransformation( path[1] );
-              if ( path[2].equals( HopUi.STRING_CONNECTIONS ) ) {
-                object = new TreeSelection( path[2], DatabaseMeta.class, transMeta );
+              TransMeta transMeta = hopUi.delegates.trans.getTransformation( path[ 1 ] );
+              if ( path[ 2 ].equals( HopUi.STRING_CONNECTIONS ) ) {
+                object = new TreeSelection( path[ 2 ], DatabaseMeta.class, transMeta );
               }
-              if ( path[2].equals( HopUi.STRING_STEPS ) ) {
-                object = new TreeSelection( path[2], StepMeta.class, transMeta );
+              if ( path[ 2 ].equals( HopUi.STRING_STEPS ) ) {
+                object = new TreeSelection( path[ 2 ], StepMeta.class, transMeta );
               }
-              if ( path[2].equals( HopUi.STRING_HOPS ) ) {
-                object = new TreeSelection( path[2], TransHopMeta.class, transMeta );
+              if ( path[ 2 ].equals( HopUi.STRING_HOPS ) ) {
+                object = new TreeSelection( path[ 2 ], TransHopMeta.class, transMeta );
               }
-              if ( path[2].equals( HopUi.STRING_PARTITIONS ) ) {
-                object = new TreeSelection( path[2], PartitionSchema.class, transMeta );
+              if ( path[ 2 ].equals( HopUi.STRING_PARTITIONS ) ) {
+                object = new TreeSelection( path[ 2 ], PartitionSchema.class, transMeta );
               }
-              if ( path[2].equals( HopUi.STRING_SLAVES ) ) {
-                object = new TreeSelection( path[2], SlaveServer.class, transMeta );
+              if ( path[ 2 ].equals( HopUi.STRING_SLAVES ) ) {
+                object = new TreeSelection( path[ 2 ], SlaveServer.class, transMeta );
               }
-              if ( path[2].equals( HopUi.STRING_CLUSTERS ) ) {
-                object = new TreeSelection( path[2], ClusterSchema.class, transMeta );
+              if ( path[ 2 ].equals( HopUi.STRING_CLUSTERS ) ) {
+                object = new TreeSelection( path[ 2 ], ClusterSchema.class, transMeta );
               }
               executeExtensionPoint( new HopUiTreeDelegateExtension( transMeta, path, 3, objects ) );
             }
-            if ( path[0].equals( HopUi.STRING_JOBS ) ) { // Jobs title
+            if ( path[ 0 ].equals( HopUi.STRING_JOBS ) ) { // Jobs title
 
-              JobMeta jobMeta = hopUi.delegates.jobs.getJob( path[1] );
-              if ( path[2].equals( HopUi.STRING_CONNECTIONS ) ) {
-                object = new TreeSelection( path[2], DatabaseMeta.class, jobMeta );
+              JobMeta jobMeta = hopUi.delegates.jobs.getJob( path[ 1 ] );
+              if ( path[ 2 ].equals( HopUi.STRING_CONNECTIONS ) ) {
+                object = new TreeSelection( path[ 2 ], DatabaseMeta.class, jobMeta );
               }
-              if ( path[2].equals( HopUi.STRING_JOB_ENTRIES ) ) {
-                object = new TreeSelection( path[2], JobEntryCopy.class, jobMeta );
+              if ( path[ 2 ].equals( HopUi.STRING_JOB_ENTRIES ) ) {
+                object = new TreeSelection( path[ 2 ], JobEntryCopy.class, jobMeta );
               }
-              if ( path[2].equals( HopUi.STRING_SLAVES ) ) {
-                object = new TreeSelection( path[2], SlaveServer.class, jobMeta );
+              if ( path[ 2 ].equals( HopUi.STRING_SLAVES ) ) {
+                object = new TreeSelection( path[ 2 ], SlaveServer.class, jobMeta );
               }
               executeExtensionPoint( new HopUiTreeDelegateExtension( jobMeta, path, 3, objects ) );
             }
             break;
 
           case 4: // ------complete-----
-            if ( path[0].equals( HopUi.STRING_TRANSFORMATIONS ) ) { // The name of a transformation
-              final TransMeta transMeta = hopUi.delegates.trans.getTransformation( path[1] );
+            if ( path[ 0 ].equals( HopUi.STRING_TRANSFORMATIONS ) ) { // The name of a transformation
+              final TransMeta transMeta = hopUi.delegates.trans.getTransformation( path[ 1 ] );
 
               if ( transMeta != null ) {
-                if ( path[2].equals( HopUi.STRING_CONNECTIONS ) ) {
-                  String dbName = path[3];
+                if ( path[ 2 ].equals( HopUi.STRING_CONNECTIONS ) ) {
+                  String dbName = path[ 3 ];
                   DatabaseMeta databaseMeta = transMeta.findDatabase( dbName );
                   if ( databaseMeta != null ) {
                     dbName = databaseMeta.getName();
@@ -159,28 +159,20 @@ public class HopUiTreeDelegate extends HopUiDelegate {
 
                   object = new TreeSelection( dbName, databaseMeta, transMeta );
                 }
-                if ( path[2].equals( HopUi.STRING_STEPS ) ) {
-                  object = new TreeSelection( path[3], transMeta.findStep( path[3] ), transMeta );
+                if ( path[ 2 ].equals( HopUi.STRING_STEPS ) ) {
+                  object = new TreeSelection( path[ 3 ], transMeta.findStep( path[ 3 ] ), transMeta );
                 }
-                if ( path[2].equals( HopUi.STRING_HOPS ) ) {
-                  object = new TreeSelection( path[3], transMeta.findTransHop( path[3] ), transMeta );
+                if ( path[ 2 ].equals( HopUi.STRING_HOPS ) ) {
+                  object = new TreeSelection( path[ 3 ], transMeta.findTransHop( path[ 3 ] ), transMeta );
                 }
-                if ( path[2].equals( HopUi.STRING_PARTITIONS ) ) {
-                  object = new TreeSelection( path[3], transMeta.findPartitionSchema( path[3] ), transMeta );
-                }
-                if ( path[2].equals( HopUi.STRING_SLAVES ) ) {
-                  object = new TreeSelection( path[3], transMeta.findSlaveServer( path[3] ), transMeta );
-                }
-                if ( path[2].equals( HopUi.STRING_CLUSTERS ) ) {
-                  object = new TreeSelection( path[3], transMeta.findClusterSchema( path[3] ), transMeta );
-                }
+
                 executeExtensionPoint( new HopUiTreeDelegateExtension( transMeta, path, 4, objects ) );
               }
             }
-            if ( path[0].equals( HopUi.STRING_JOBS ) ) { // The name of a job
-              JobMeta jobMeta = hopUi.delegates.jobs.getJob( path[1] );
-              if ( jobMeta != null && path[2].equals( HopUi.STRING_CONNECTIONS ) ) {
-                String dbName = path[3];
+            if ( path[ 0 ].equals( HopUi.STRING_JOBS ) ) { // The name of a job
+              JobMeta jobMeta = hopUi.delegates.jobs.getJob( path[ 1 ] );
+              if ( jobMeta != null && path[ 2 ].equals( HopUi.STRING_CONNECTIONS ) ) {
+                String dbName = path[ 3 ];
                 DatabaseMeta databaseMeta = jobMeta.findDatabase( dbName );
                 if ( databaseMeta != null ) {
                   dbName = databaseMeta.getName();
@@ -188,25 +180,21 @@ public class HopUiTreeDelegate extends HopUiDelegate {
 
                 object = new TreeSelection( dbName, databaseMeta, jobMeta );
               }
-              if ( jobMeta != null && path[2].equals( HopUi.STRING_JOB_ENTRIES ) ) {
-                object = new TreeSelection( path[3], jobMeta.findJobEntry( path[3] ), jobMeta );
+              if ( jobMeta != null && path[ 2 ].equals( HopUi.STRING_JOB_ENTRIES ) ) {
+                object = new TreeSelection( path[ 3 ], jobMeta.findJobEntry( path[ 3 ] ), jobMeta );
               }
-              if ( jobMeta != null && path[2].equals( HopUi.STRING_SLAVES ) ) {
-                object = new TreeSelection( path[3], jobMeta.findSlaveServer( path[3] ), jobMeta );
+              if ( jobMeta != null && path[ 2 ].equals( HopUi.STRING_SLAVES ) ) {
+                object = new TreeSelection( path[ 3 ], jobMeta.findSlaveServer( path[ 3 ] ), jobMeta );
               }
               executeExtensionPoint( new HopUiTreeDelegateExtension( jobMeta, path, 4, objects ) );
             }
             break;
 
           case 5:
-            if ( path[0].equals( HopUi.STRING_TRANSFORMATIONS ) ) { // The name of a transformation
+            if ( path[ 0 ].equals( HopUi.STRING_TRANSFORMATIONS ) ) { // The name of a transformation
 
-              TransMeta transMeta = hopUi.delegates.trans.getTransformation( path[1] );
-              if ( transMeta != null && path[2].equals( HopUi.STRING_CLUSTERS ) ) {
-                ClusterSchema clusterSchema = transMeta.findClusterSchema( path[3] );
-                object =
-                  new TreeSelection( path[4], clusterSchema.findSlaveServer( path[4] ), clusterSchema, transMeta );
-              }
+              TransMeta transMeta = hopUi.delegates.trans.getTransformation( path[ 1 ] );
+              // Nothing left at this level?
             }
             break;
           default:
@@ -221,7 +209,7 @@ public class HopUiTreeDelegate extends HopUiDelegate {
     if ( tree != null && coreObjectsTree != null && tree.equals( coreObjectsTree ) ) {
       TreeItem[] selection = coreObjectsTree.getSelection();
       for ( int s = 0; s < selection.length; s++ ) {
-        TreeItem treeItem = selection[s];
+        TreeItem treeItem = selection[ s ];
         String[] path = ConstUI.getTreeStrings( treeItem );
 
         TreeSelection object = null;
@@ -233,25 +221,25 @@ public class HopUiTreeDelegate extends HopUiDelegate {
             if ( hopUi.showJob ) {
               PluginRegistry registry = PluginRegistry.getInstance();
               Class<? extends PluginTypeInterface> pluginType = JobEntryPluginType.class;
-              PluginInterface plugin = registry.findPluginWithName( pluginType, path[1] );
+              PluginInterface plugin = registry.findPluginWithName( pluginType, path[ 1 ] );
 
               // Retry for Start
               //
               if ( plugin == null ) {
-                if ( path[1].equalsIgnoreCase( JobMeta.STRING_SPECIAL_START ) ) {
+                if ( path[ 1 ].equalsIgnoreCase( JobMeta.STRING_SPECIAL_START ) ) {
                   plugin = registry.findPluginWithId( pluginType, JobMeta.STRING_SPECIAL );
                 }
               }
               // Retry for Dummy
               //
               if ( plugin == null ) {
-                if ( path[1].equalsIgnoreCase( JobMeta.STRING_SPECIAL_DUMMY ) ) {
+                if ( path[ 1 ].equalsIgnoreCase( JobMeta.STRING_SPECIAL_DUMMY ) ) {
                   plugin = registry.findPluginWithId( pluginType, JobMeta.STRING_SPECIAL );
                 }
               }
 
               if ( plugin != null ) {
-                object = new TreeSelection( path[1], plugin );
+                object = new TreeSelection( path[ 1 ], plugin );
               }
             }
 
@@ -259,9 +247,9 @@ public class HopUiTreeDelegate extends HopUiDelegate {
               String stepId = (String) treeItem.getData( "StepId" );
 
               if ( stepId != null ) {
-                object = new TreeSelection( path[1], PluginRegistry.getInstance().findPluginWithId( StepPluginType.class, stepId ) );
+                object = new TreeSelection( path[ 1 ], PluginRegistry.getInstance().findPluginWithId( StepPluginType.class, stepId ) );
               } else {
-                object = new TreeSelection( path[1], PluginRegistry.getInstance().findPluginWithName( StepPluginType.class, path[1] ) );
+                object = new TreeSelection( path[ 1 ], PluginRegistry.getInstance().findPluginWithName( StepPluginType.class, path[ 1 ] ) );
               }
             }
             break;
@@ -275,7 +263,7 @@ public class HopUiTreeDelegate extends HopUiDelegate {
       }
     }
 
-    return objects.toArray( new TreeSelection[objects.size()] );
+    return objects.toArray( new TreeSelection[ objects.size() ] );
   }
 
   public void addDragSourceToTree( final Tree tree, final Tree selectionTree, final Tree coreObjectsTree ) {
@@ -294,7 +282,7 @@ public class HopUiTreeDelegate extends HopUiDelegate {
 
         hopUi.hideToolTips();
 
-        TreeSelection treeObject = treeObjects[0];
+        TreeSelection treeObject = treeObjects[ 0 ];
         Object object = treeObject.getSelection();
         TransMeta transMeta = hopUi.getActiveTransformation();
         // JobMeta jobMeta = spoon.getActiveJob();
@@ -319,7 +307,7 @@ public class HopUiTreeDelegate extends HopUiDelegate {
         String id = null;
         String data = null;
 
-        TreeSelection treeObject = treeObjects[0];
+        TreeSelection treeObject = treeObjects[ 0 ];
         Object object = treeObject.getSelection();
 
         if ( object instanceof StepMeta ) {
@@ -371,7 +359,7 @@ public class HopUiTreeDelegate extends HopUiDelegate {
   private void executeExtensionPoint( HopUiTreeDelegateExtension extension ) {
     try {
       ExtensionPointHandler
-          .callExtensionPoint( log, HopExtensionPoint.HopUiTreeDelegateExtension.id, extension );
+        .callExtensionPoint( log, HopExtensionPoint.HopUiTreeDelegateExtension.id, extension );
     } catch ( Exception e ) {
       log.logError( "Error handling HopUiTreeDelegate through extension point", e );
     }

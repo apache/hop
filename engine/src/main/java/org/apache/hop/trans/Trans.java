@@ -23,35 +23,6 @@
 
 package org.apache.hop.trans;
 
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Queue;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
@@ -60,11 +31,9 @@ import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.BlockingBatchingRowSet;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Counter;
 import org.apache.hop.core.ExecutorInterface;
 import org.apache.hop.core.ExtensionDataInterface;
-import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
@@ -110,6 +79,7 @@ import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
@@ -117,8 +87,8 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.DelegationListener;
 import org.apache.hop.job.Job;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.partition.PartitionSchema;
-
 import org.apache.hop.resource.ResourceUtil;
 import org.apache.hop.resource.TopLevelResource;
 import org.apache.hop.trans.cluster.TransSplitter;
@@ -143,16 +113,43 @@ import org.apache.hop.www.SlaveServerTransStatus;
 import org.apache.hop.www.SocketRepository;
 import org.apache.hop.www.StartExecutionTransServlet;
 import org.apache.hop.www.WebResult;
-import org.apache.hop.metastore.api.IMetaStore;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.apache.hop.trans.Trans.BitMaskStatus.BIT_STATUS_SUM;
 import static org.apache.hop.trans.Trans.BitMaskStatus.FINISHED;
-import static org.apache.hop.trans.Trans.BitMaskStatus.RUNNING;
-import static org.apache.hop.trans.Trans.BitMaskStatus.STOPPED;
-import static org.apache.hop.trans.Trans.BitMaskStatus.PREPARING;
 import static org.apache.hop.trans.Trans.BitMaskStatus.INITIALIZING;
 import static org.apache.hop.trans.Trans.BitMaskStatus.PAUSED;
-import static org.apache.hop.trans.Trans.BitMaskStatus.BIT_STATUS_SUM;
+import static org.apache.hop.trans.Trans.BitMaskStatus.PREPARING;
+import static org.apache.hop.trans.Trans.BitMaskStatus.RUNNING;
+import static org.apache.hop.trans.Trans.BitMaskStatus.STOPPED;
 
 
 /**
@@ -1259,7 +1256,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
     setReadyToStart( true );
   }
 
-  @SuppressWarnings ( "deprecation" )
+  @SuppressWarnings( "deprecation" )
   private void checkCompatibility() {
     // If we don't have a previous result and transMeta does have one, someone has been using a deprecated method.
     //
@@ -4374,9 +4371,9 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
 
   protected void setInternalEntryCurrentDirectory( boolean hasFilename ) {
     variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, variables.getVariable(
-        hasFilename
-          ? Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY
-          : Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
+      hasFilename
+        ? Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY
+        : Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
   }
 
 

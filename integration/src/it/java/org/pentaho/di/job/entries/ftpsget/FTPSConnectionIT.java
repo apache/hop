@@ -22,21 +22,21 @@
 
 package org.apache.hop.job.entries.ftpsget;
 
+import org.apache.hop.core.HopEnvironment;
 import org.ftp4che.util.ftpfile.FTPFile;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.apache.hop.core.HopEnvironment;
 
 import java.io.File;
 import java.io.PrintWriter;
 
 import static org.apache.commons.io.FileUtils.contentEquals;
-import static org.junit.Assert.assertTrue;
 import static org.apache.hop.job.entries.ftpsget.FTPSConnection.CONNECTION_TYPE_FTP_IMPLICIT_SSL;
 import static org.apache.hop.job.entries.ftpsget.FtpsServer.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Andrey Khayrutdinov

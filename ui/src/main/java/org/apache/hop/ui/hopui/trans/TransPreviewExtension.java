@@ -32,7 +32,6 @@ public class TransPreviewExtension {
   private Composite preview;
 
   /**
-   * 
    * @param previewTab
    * @param previewToolbar
    */

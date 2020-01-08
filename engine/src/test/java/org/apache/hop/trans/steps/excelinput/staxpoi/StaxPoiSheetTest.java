@@ -22,6 +22,24 @@
 
 package org.apache.hop.trans.steps.excelinput.staxpoi;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.hop.core.spreadsheet.KCell;
+import org.apache.hop.core.spreadsheet.KCellType;
+import org.apache.hop.core.spreadsheet.KSheet;
+import org.apache.poi.xssf.eventusermodel.XSSFReader;
+import org.apache.poi.xssf.model.SharedStringsTable;
+import org.apache.poi.xssf.model.StylesTable;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTRst;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
+
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -31,24 +49,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Map;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.poi.xssf.eventusermodel.XSSFReader;
-import org.apache.poi.xssf.model.SharedStringsTable;
-import org.apache.poi.xssf.model.StylesTable;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTRst;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
-import org.apache.hop.core.spreadsheet.KCell;
-import org.apache.hop.core.spreadsheet.KCellType;
-import org.apache.hop.core.spreadsheet.KSheet;
 
 public class StaxPoiSheetTest {
 

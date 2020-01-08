@@ -22,6 +22,26 @@
 
 package org.apache.hop.core.plugins;
 
+import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSelectInfo;
+import org.apache.commons.vfs2.FileSelector;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.logging.DefaultLogLevel;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.i18n.GlobalMessageUtil;
+import org.scannotation.AnnotationDB;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -40,26 +60,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSelectInfo;
-import org.apache.commons.vfs2.FileSelector;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.logging.DefaultLogLevel;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.i18n.GlobalMessageUtil;
-import org.scannotation.AnnotationDB;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 public abstract class BasePluginType implements PluginTypeInterface {
   protected static Class<?> PKG = BasePluginType.class; // for i18n purposes, needed by Translator2!!
@@ -87,10 +87,8 @@ public abstract class BasePluginType implements PluginTypeInterface {
   }
 
   /**
-   * @param id
-   *          The plugin type ID
-   * @param name
-   *          the name of the plugin
+   * @param id   The plugin type ID
+   * @param name the name of the plugin
    */
   public BasePluginType( Class<? extends java.lang.annotation.Annotation> pluginType, String id, String name ) {
     this( pluginType );
@@ -155,8 +153,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
   /**
    * this is a utility method for subclasses so they can easily register which folders contain plugins
    *
-   * @param xmlSubfolder
-   *          the sub-folder where xml plugin definitions can be found
+   * @param xmlSubfolder the sub-folder where xml plugin definitions can be found
    */
   protected void populateFolders( String xmlSubfolder ) {
     pluginFolders.addAll( PluginFolder.populateFolders( xmlSubfolder ) );
@@ -279,8 +276,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
   }
 
   /**
-   * @param id
-   *          the id to set
+   * @param id the id to set
    */
   public void setId( String id ) {
     this.id = id;
@@ -295,8 +291,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
   }
 
   /**
-   * @param name
-   *          the name to set
+   * @param name the name to set
    */
   public void setName( String name ) {
     this.name = name;
@@ -311,8 +306,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
   }
 
   /**
-   * @param pluginFolders
-   *          the pluginFolders to set
+   * @param pluginFolders the pluginFolders to set
    */
   public void setPluginFolders( List<PluginFolderInterface> pluginFolders ) {
     this.pluginFolders = pluginFolders;
@@ -328,7 +322,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
       if ( parts.length != 3 ) {
         return codedString;
       } else {
-        return BaseMessages.getString( parts[1], parts[2] );
+        return BaseMessages.getString( parts[ 1 ], parts[ 2 ] );
       }
     } else {
       return codedString;
@@ -336,7 +330,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
   }
 
   protected static String getTranslation( String string, String packageName, String altPackageName,
-    Class<?> resourceClass ) {
+                                          Class<?> resourceClass ) {
     if ( string == null ) {
       return null;
     }
@@ -346,7 +340,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
       if ( parts.length != 3 ) {
         return string;
       } else {
-        return BaseMessages.getString( parts[1], parts[2] );
+        return BaseMessages.getString( parts[ 1 ], parts[ 2 ] );
       }
     } else {
       // Try the default package name
@@ -456,18 +450,12 @@ public abstract class BasePluginType implements PluginTypeInterface {
    * This method allows for custom registration of plugins that are on the main classpath. This was originally created
    * so that test environments could register test plugins programmatically.
    *
-   * @param clazz
-   *          the plugin implementation to register
-   * @param cat
-   *          the category of the plugin
-   * @param id
-   *          the id for the plugin
-   * @param name
-   *          the name for the plugin
-   * @param desc
-   *          the description for the plugin
-   * @param image
-   *          the image for the plugin
+   * @param clazz the plugin implementation to register
+   * @param cat   the category of the plugin
+   * @param id    the id for the plugin
+   * @param name  the name for the plugin
+   * @param desc  the description for the plugin
+   * @param image the image for the plugin
    * @throws HopPluginException
    */
   public void registerCustom( Class<?> clazz, String cat, String id, String name, String desc, String image ) throws HopPluginException {
@@ -483,7 +471,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
   }
 
   protected PluginInterface registerPluginFromXmlResource( Node pluginNode, String path,
-    Class<? extends PluginTypeInterface> pluginType, boolean nativePlugin, URL pluginFolder ) throws HopPluginException {
+                                                           Class<? extends PluginTypeInterface> pluginType, boolean nativePlugin, URL pluginFolder ) throws HopPluginException {
     try {
 
       String id = XMLHandler.getTagAttribute( pluginNode, "id" );
@@ -540,8 +528,8 @@ public abstract class BasePluginType implements PluginTypeInterface {
       PluginExtraClassTypes classTypesAnnotation = pluginType.getAnnotation( PluginExtraClassTypes.class );
       if ( classTypesAnnotation != null ) {
         for ( int i = 0; i < classTypesAnnotation.classTypes().length; i++ ) {
-          Class<?> classType = classTypesAnnotation.classTypes()[i];
-          String className = getTagOrAttribute( pluginNode, classTypesAnnotation.xmlNodeNames()[i] );
+          Class<?> classType = classTypesAnnotation.classTypes()[ i ];
+          String className = getTagOrAttribute( pluginNode, classTypesAnnotation.xmlNodeNames()[ i ] );
 
           classMap.put( classType, className );
         }
@@ -577,7 +565,6 @@ public abstract class BasePluginType implements PluginTypeInterface {
   }
 
   /**
-   *
    * @param input
    * @param localizedMap
    * @return
@@ -628,10 +615,8 @@ public abstract class BasePluginType implements PluginTypeInterface {
    * Create a new URL class loader with the jar file specified. Also include all the jar files in the lib folder next to
    * that file.
    *
-   * @param jarFileUrl
-   *          The jar file to include
-   * @param classLoader
-   *          the parent class loader to use
+   * @param jarFileUrl  The jar file to include
+   * @param classLoader the parent class loader to use
    * @return The URL class loader
    */
   protected URLClassLoader createUrlClassLoader( URL jarFileUrl, ClassLoader classLoader ) {
@@ -655,19 +640,19 @@ public abstract class BasePluginType implements PluginTypeInterface {
       // Also get the libraries in the dependency folders of the plugin in question...
       // The file is called dependencies.xml
       //
-      String dependenciesFileName = parentFolderName + Const.FILE_SEPARATOR+"dependencies.xml";
-      File dependenciesFile = new File(dependenciesFileName);
-      if (dependenciesFile.exists()) {
+      String dependenciesFileName = parentFolderName + Const.FILE_SEPARATOR + "dependencies.xml";
+      File dependenciesFile = new File( dependenciesFileName );
+      if ( dependenciesFile.exists() ) {
         // Add the files in the dependencies folders to the classpath...
         //
         Document document = XMLHandler.loadXMLFile( dependenciesFile );
         Node dependenciesNode = XMLHandler.getSubNode( document, "dependencies" );
         List<Node> folderNodes = XMLHandler.getNodes( dependenciesNode, "folder" );
-        for (Node folderNode : folderNodes) {
+        for ( Node folderNode : folderNodes ) {
           String relativeFolderName = XMLHandler.getNodeValue( folderNode );
-          String dependenciesFolderName = parentFolderName+Const.FILE_SEPARATOR+relativeFolderName;
-          File dependenciesFolder = new File(dependenciesFolderName);
-          if (dependenciesFolder.exists()) {
+          String dependenciesFolderName = parentFolderName + Const.FILE_SEPARATOR + relativeFolderName;
+          File dependenciesFolder = new File( dependenciesFolderName );
+          if ( dependenciesFolder.exists() ) {
             // Now get the jar files in this dependency folder
             // This includes the possible lib/ folder dependencies in there
             //
@@ -685,12 +670,9 @@ public abstract class BasePluginType implements PluginTypeInterface {
     }
 
 
-
-
-
     urls.add( jarFileUrl );
 
-    return new HopURLClassLoader( urls.toArray( new URL[urls.size()] ), classLoader );
+    return new HopURLClassLoader( urls.toArray( new URL[ urls.size() ] ), classLoader );
   }
 
   protected abstract String extractID( java.lang.annotation.Annotation annotation );
@@ -737,7 +719,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
 
       try {
         Class<?> clazz = urlClassLoader.loadClass( jarFilePlugin.getClassName() );
-         if ( clazz == null ) {
+        if ( clazz == null ) {
           throw new HopPluginException( "Unable to load class: " + jarFilePlugin.getClassName() );
         }
         List<String> libraries = Arrays.stream( urlClassLoader.getURLs() )
@@ -761,21 +743,16 @@ public abstract class BasePluginType implements PluginTypeInterface {
   /**
    * Handle an annotated plugin
    *
-   * @param clazz
-   *          The class to use
-   * @param annotation
-   *          The annotation to get information from
-   * @param libraries
-   *          The libraries to add
-   * @param nativePluginType
-   *          Is this a native plugin?
-   * @param pluginFolder
-   *          The plugin folder to use
+   * @param clazz            The class to use
+   * @param annotation       The annotation to get information from
+   * @param libraries        The libraries to add
+   * @param nativePluginType Is this a native plugin?
+   * @param pluginFolder     The plugin folder to use
    * @throws HopPluginException
    */
   @Override
   public void handlePluginAnnotation( Class<?> clazz, java.lang.annotation.Annotation annotation,
-    List<String> libraries, boolean nativePluginType, URL pluginFolder ) throws HopPluginException {
+                                      List<String> libraries, boolean nativePluginType, URL pluginFolder ) throws HopPluginException {
 
     String idList = extractID( annotation );
     if ( Utils.isEmpty( idList ) ) {
@@ -821,7 +798,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
 
     if ( libraries != null && libraries.size() > 0 ) {
       LogChannel.GENERAL.logDetailed( "Plugin with id ["
-        + ids[0] + "] has " + libraries.size() + " libaries in its private class path" );
+        + ids[ 0 ] + "] has " + libraries.size() + " libaries in its private class path" );
     }
   }
 
@@ -836,7 +813,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
 
   private String addDeprecation( String category ) {
     String deprecated = BaseMessages.getString( PKG, "PluginRegistry.Category.Deprecated" );
-    if ( deprecated.equals( category )  ) {
+    if ( deprecated.equals( category ) ) {
       return " (" + deprecated.toLowerCase() + ")";
     }
     return "";

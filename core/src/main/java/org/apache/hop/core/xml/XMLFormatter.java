@@ -21,21 +21,20 @@
  ******************************************************************************/
 package org.apache.hop.core.xml;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * XML formatting for better VCS diff.
- * 
+ * <p>
  * It preserve formatting only in cases: 1) inside one tag if there are only characters, 2) in comments, 3) if there are
  * some characters outside tags
  *

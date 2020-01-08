@@ -22,16 +22,15 @@
 
 package org.apache.hop.job.entry;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.special.JobEntrySpecial;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.special.JobEntrySpecial;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 
 public class JobEntryCopyTest {
 
@@ -59,7 +58,7 @@ public class JobEntryCopyTest {
 
     copyJobEntry.replaceMeta( originJobEntry );
     assertNotSame( "Entry of origin and copy JobEntry should be different objects: ", copyJobEntry.getEntry(),
-        originJobEntry.getEntry() );
+      originJobEntry.getEntry() );
   }
 
   @Test
@@ -67,7 +66,7 @@ public class JobEntryCopyTest {
 
     copyJobEntry.replaceMeta( originJobEntry );
     assertEquals( "hasChanged in Entry of origin JobEntry should not be changed. ", false, originJobEntry.getEntry()
-        .hasChanged() );
+      .hasChanged() );
   }
 
   @Test
@@ -75,7 +74,7 @@ public class JobEntryCopyTest {
 
     copyJobEntry.replaceMeta( originJobEntry );
     assertEquals( "hasChanged in Entry of copy JobEntry should be changed. ", true, copyJobEntry.getEntry()
-        .hasChanged() );
+      .hasChanged() );
   }
 
   @Test

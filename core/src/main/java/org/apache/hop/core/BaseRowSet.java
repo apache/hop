@@ -22,21 +22,20 @@
 
 package org.apache.hop.core;
 
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.util.Utils;
-
 /**
  * Contains the base RowSet class to help implement RowSet variants.
  *
  * @author Matt
  * @since 22-01-2010
- *
  */
 abstract class BaseRowSet implements Comparable<RowSet>, RowSet {
   protected RowMetaInterface rowMeta;

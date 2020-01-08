@@ -25,13 +25,13 @@ package org.apache.hop.concurrency;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
 import org.apache.commons.vfs2.provider.AbstractFileProvider;
 import org.apache.commons.vfs2.provider.FileProvider;
-import org.junit.After;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.osgi.api.VfsEmbeddedFileSystemCloser;
 import org.apache.hop.core.vfs.ConcurrentFileSystemManager;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.After;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +46,7 @@ public class ConcurrentFileSystemManagerTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   private DefaultFileSystemManager fileSystemManager =
-          (DefaultFileSystemManager)  HopVFS.getInstance().getFileSystemManager();
+    (DefaultFileSystemManager) HopVFS.getInstance().getFileSystemManager();
 
   @After
   public void tearUp() {

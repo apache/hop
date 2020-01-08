@@ -67,8 +67,7 @@ public class XMLHandlerCache {
   /**
    * Store a cache entry
    *
-   * @param entry
-   *          The cache entry to store
+   * @param entry The cache entry to store
    */
   public void storeCache( XMLHandlerCacheEntry entry, int lastChildNr ) {
     cache.put( entry, lastChildNr );
@@ -77,8 +76,7 @@ public class XMLHandlerCache {
   /**
    * Retrieve the last child were we left off...
    *
-   * @param entry
-   *          The cache entry to look for.
+   * @param entry The cache entry to look for.
    * @return the last child position or -1 if nothing was found.
    */
   public int getLastChildNr( XMLHandlerCacheEntry entry ) {
@@ -100,8 +98,7 @@ public class XMLHandlerCache {
   /**
    * Allows you to (re-)set the number of cache hits
    *
-   * @param cacheHits
-   *          the number of cache hits.
+   * @param cacheHits the number of cache hits.
    */
   public void setCacheHits( int cacheHits ) {
     this.cacheHits = cacheHits;
@@ -109,7 +106,6 @@ public class XMLHandlerCache {
 
   /**
    * Clears the cache
-   *
    */
   public void clear() {
     cache.clear();

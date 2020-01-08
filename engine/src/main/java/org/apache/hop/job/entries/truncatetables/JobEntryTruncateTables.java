@@ -22,43 +22,38 @@
 
 package org.apache.hop.job.entries.truncatetables;
 
-import org.apache.hop.job.entry.validator.AbstractFileValidator;
-import org.apache.hop.job.entry.validator.AndValidator;
-import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import java.util.List;
-
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.validator.AbstractFileValidator;
+import org.apache.hop.job.entry.validator.AndValidator;
+import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * This defines a Truncate Tables job entry.
  *
  * @author Samatar
  * @since 22-07-2008
- *
  */
 public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, JobEntryInterface {
   private static Class<?> PKG = JobEntryTruncateTables.class; // for i18n purposes, needed by Translator2!!
@@ -88,8 +83,8 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
   }
 
   public void allocate( int nrFields ) {
-    this.arguments = new String[nrFields];
-    this.schemaname = new String[nrFields];
+    this.arguments = new String[ nrFields ];
+    this.schemaname = new String[ nrFields ];
   }
 
   public Object clone() {
@@ -114,8 +109,8 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
     if ( arguments != null ) {
       for ( int i = 0; i < this.arguments.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "name", this.arguments[i] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "schemaname", this.schemaname[i] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "name", this.arguments[ i ] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "schemaname", this.schemaname[ i ] ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
@@ -123,10 +118,10 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
 
       String dbname = XMLHandler.getTagValue( entrynode, "connection" );
       this.connection = DatabaseMeta.loadDatabase( metaStore, dbname );
@@ -141,8 +136,8 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
       // Read them all...
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        this.arguments[i] = XMLHandler.getTagValue( fnode, "name" );
-        this.schemaname[i] = XMLHandler.getTagValue( fnode, "schemaname" );
+        this.arguments[ i ] = XMLHandler.getTagValue( fnode, "name" );
+        this.schemaname[ i ] = XMLHandler.getTagValue( fnode, "schemaname" );
       }
     } catch ( HopException e ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "JobEntryTruncateTables.UnableLoadXML" ), e );
@@ -243,12 +238,12 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
 
         } else if ( arguments != null ) {
           for ( int i = 0; i < arguments.length && !parentJob.isStopped() && continueProcess; i++ ) {
-            String realTablename = environmentSubstitute( arguments[i] );
-            String realSchemaname = environmentSubstitute( schemaname[i] );
+            String realTablename = environmentSubstitute( arguments[ i ] );
+            String realSchemaname = environmentSubstitute( schemaname[ i ] );
             if ( !Utils.isEmpty( realTablename ) ) {
               if ( log.isDetailed() ) {
                 logDetailed( BaseMessages.getString(
-                  PKG, "JobEntryTruncateTables.ProcessingArg", arguments[i], schemaname[i] ) );
+                  PKG, "JobEntryTruncateTables.ProcessingArg", arguments[ i ], schemaname[ i ] ) );
               }
 
               // let's truncate table
@@ -259,7 +254,7 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
               }
             } else {
               logError( BaseMessages.getString(
-                PKG, "JobEntryTruncateTables.ArgEmpty", arguments[i], schemaname[i] ) );
+                PKG, "JobEntryTruncateTables.ArgEmpty", arguments[ i ], schemaname[ i ] ) );
             }
           }
         }
@@ -296,9 +291,9 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     boolean res = JobEntryValidatorUtils.andValidator().validate( this, "arguments", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
 
     if ( res == false ) {
       return;
@@ -307,7 +302,7 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, JobEntryValidatorUtils.notNullValidator(),
-        JobEntryValidatorUtils.fileExistsValidator() );
+      JobEntryValidatorUtils.fileExistsValidator() );
 
     for ( int i = 0; i < arguments.length; i++ ) {
       JobEntryValidatorUtils.andValidator().validate( this, "arguments[" + i + "]", remarks, ctx );
@@ -319,7 +314,7 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
     if ( arguments != null ) {
       ResourceReference reference = null;
       for ( int i = 0; i < arguments.length; i++ ) {
-        String filename = jobMeta.environmentSubstitute( arguments[i] );
+        String filename = jobMeta.environmentSubstitute( arguments[ i ] );
         if ( reference == null ) {
           reference = new ResourceReference( this );
           references.add( reference );

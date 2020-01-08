@@ -22,14 +22,13 @@
 
 package org.apache.hop.job.entry.validator;
 
-import org.apache.commons.validator.util.ValidatorUtils;
-
-import java.util.List;
-
 import org.apache.commons.validator.GenericTypeValidator;
 import org.apache.commons.validator.GenericValidator;
+import org.apache.commons.validator.util.ValidatorUtils;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.CheckResultSourceInterface;
+
+import java.util.List;
 
 public class LongValidator implements JobEntryValidator {
 
@@ -42,7 +41,7 @@ public class LongValidator implements JobEntryValidator {
   }
 
   public boolean validate( CheckResultSourceInterface source, String propertyName,
-    List<CheckResultInterface> remarks, ValidatorContext context ) {
+                           List<CheckResultInterface> remarks, ValidatorContext context ) {
     Object result = null;
     String value = null;
 
@@ -56,7 +55,7 @@ public class LongValidator implements JobEntryValidator {
 
     if ( result == null ) {
       JobEntryValidatorUtils.addFailureRemark( source, propertyName, VALIDATOR_NAME, remarks,
-          JobEntryValidatorUtils.getLevelOnFail( context, VALIDATOR_NAME ) );
+        JobEntryValidatorUtils.getLevelOnFail( context, VALIDATOR_NAME ) );
       return false;
     }
     return true;

@@ -22,12 +22,12 @@
 
 package org.apache.hop.core.logging;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.version.BuildVersion;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class HopLogLayout {
   private static final ThreadLocal<SimpleDateFormat> LOCAL_SIMPLE_DATE_PARSER =
@@ -100,7 +100,7 @@ public class HopLogLayout {
           line.append( ") : " );
         }
 
-        line.append( parts[i] );
+        line.append( parts[ i ] );
         if ( i < parts.length - 1 ) {
           line.append( Const.CR ); // put the CR's back in there!
         }

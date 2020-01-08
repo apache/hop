@@ -22,24 +22,20 @@
 
 package org.apache.hop.trans.steps.randomccnumber;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -49,8 +45,9 @@ import org.apache.hop.trans.step.StepIOMetaInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * Generate random credit card number.
@@ -88,8 +85,7 @@ public class RandomCCNumberGeneratorMeta extends BaseStepMeta implements StepMet
   }
 
   /**
-   * @param cardNumberFieldName
-   *          The cardNumberFieldName to set.
+   * @param cardNumberFieldName The cardNumberFieldName to set.
    */
   public void setCardNumberFieldName( String cardNumberFieldName ) {
     this.cardNumberFieldName = cardNumberFieldName;
@@ -103,8 +99,7 @@ public class RandomCCNumberGeneratorMeta extends BaseStepMeta implements StepMet
   }
 
   /**
-   * @param cardLengthFieldName
-   *          The cardLengthFieldName to set.
+   * @param cardLengthFieldName The cardLengthFieldName to set.
    */
   public void setCardLengthFieldName( String cardLengthFieldName ) {
     this.cardLengthFieldName = cardLengthFieldName;
@@ -118,16 +113,14 @@ public class RandomCCNumberGeneratorMeta extends BaseStepMeta implements StepMet
   }
 
   /**
-   * @param cardTypeFieldName
-   *          The cardTypeFieldName to set.
+   * @param cardTypeFieldName The cardTypeFieldName to set.
    */
   public void setCardTypeFieldName( String cardTypeFieldName ) {
     this.cardTypeFieldName = cardTypeFieldName;
   }
 
   /**
-   * @param fieldName
-   *          The fieldCCType to set.
+   * @param fieldName The fieldCCType to set.
    */
   public void setFieldCCType( String[] fieldName ) {
     this.fieldCCType = fieldName;
@@ -168,9 +161,9 @@ public class RandomCCNumberGeneratorMeta extends BaseStepMeta implements StepMet
   }
 
   public void allocate( int count ) {
-    fieldCCType = new String[count];
-    fieldCCLength = new String[count];
-    fieldCCSize = new String[count];
+    fieldCCType = new String[ count ];
+    fieldCCLength = new String[ count ];
+    fieldCCSize = new String[ count ];
   }
 
   public Object clone() {
@@ -196,9 +189,9 @@ public class RandomCCNumberGeneratorMeta extends BaseStepMeta implements StepMet
       for ( int i = 0; i < count; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldCCType[i] = XMLHandler.getTagValue( fnode, "cctype" );
-        fieldCCLength[i] = XMLHandler.getTagValue( fnode, "cclen" );
-        fieldCCSize[i] = XMLHandler.getTagValue( fnode, "ccsize" );
+        fieldCCType[ i ] = XMLHandler.getTagValue( fnode, "cctype" );
+        fieldCCLength[ i ] = XMLHandler.getTagValue( fnode, "cclen" );
+        fieldCCSize[ i ] = XMLHandler.getTagValue( fnode, "ccsize" );
       }
 
       cardNumberFieldName = XMLHandler.getTagValue( stepnode, "cardNumberFieldName" );
@@ -215,9 +208,9 @@ public class RandomCCNumberGeneratorMeta extends BaseStepMeta implements StepMet
     allocate( count );
 
     for ( int i = 0; i < count; i++ ) {
-      fieldCCType[i] = "field" + i;
-      fieldCCLength[i] = "";
-      fieldCCSize[i] = "";
+      fieldCCType[ i ] = "field" + i;
+      fieldCCLength[ i ] = "";
+      fieldCCSize[ i ] = "";
     }
     cardNumberFieldName = BaseMessages.getString( PKG, "RandomCCNumberGeneratorMeta.CardNumberField" );
     cardLengthFieldName = BaseMessages.getString( PKG, "RandomCCNumberGeneratorMeta.CardLengthField" );
@@ -225,7 +218,7 @@ public class RandomCCNumberGeneratorMeta extends BaseStepMeta implements StepMet
   }
 
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     ValueMetaInterface v = new ValueMetaString( cardNumberFieldName );
     v.setOrigin( name );
@@ -253,9 +246,9 @@ public class RandomCCNumberGeneratorMeta extends BaseStepMeta implements StepMet
 
     for ( int i = 0; i < fieldCCType.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "cctype", fieldCCType[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "cclen", fieldCCLength[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "ccsize", fieldCCSize[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "cctype", fieldCCType[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "cclen", fieldCCLength[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "ccsize", fieldCCSize[ i ] ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
     retval.append( "    </fields>" + Const.CR );
@@ -267,19 +260,19 @@ public class RandomCCNumberGeneratorMeta extends BaseStepMeta implements StepMet
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     // See if we have input streams leading to this step!
     int nrRemarks = remarks.size();
     for ( int i = 0; i < fieldCCType.length; i++ ) {
-      int len = Const.toInt( transMeta.environmentSubstitute( getFieldCCLength()[i] ), -1 );
+      int len = Const.toInt( transMeta.environmentSubstitute( getFieldCCLength()[ i ] ), -1 );
       if ( len < 0 ) {
         CheckResult cr =
           new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
             PKG, "RandomCCNumberGeneratorMeta.CheckResult.WrongLen", String.valueOf( i ) ), stepMeta );
         remarks.add( cr );
       }
-      int size = Const.toInt( transMeta.environmentSubstitute( getFieldCCSize()[i] ), -1 );
+      int size = Const.toInt( transMeta.environmentSubstitute( getFieldCCSize()[ i ] ), -1 );
       if ( size < 0 ) {
         CheckResult cr =
           new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
@@ -303,7 +296,7 @@ public class RandomCCNumberGeneratorMeta extends BaseStepMeta implements StepMet
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new RandomCCNumberGenerator( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

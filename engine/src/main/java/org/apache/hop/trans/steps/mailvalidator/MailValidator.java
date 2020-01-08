@@ -23,9 +23,9 @@
 package org.apache.hop.trans.steps.mailvalidator;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -40,7 +40,6 @@ import org.apache.hop.trans.step.StepMetaInterface;
  *
  * @author Samatar
  * @since 03-Juin-2008
- *
  */
 
 public class MailValidator extends BaseStep implements StepInterface {
@@ -50,7 +49,7 @@ public class MailValidator extends BaseStep implements StepInterface {
   private MailValidatorData data;
 
   public MailValidator( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                        Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -145,7 +144,7 @@ public class MailValidator extends BaseStep implements StepInterface {
 
     Object[] outputRow = RowDataUtil.allocateRowData( data.outputRowMeta.size() );
     for ( int i = 0; i < data.NrPrevFields; i++ ) {
-      outputRow[i] = r[i];
+      outputRow[ i ] = r[ i ];
     }
 
     try {
@@ -171,19 +170,19 @@ public class MailValidator extends BaseStep implements StepInterface {
       }
       if ( meta.isResultAsString() ) {
         if ( mailvalid ) {
-          outputRow[data.NrPrevFields] = data.msgValidMail;
+          outputRow[ data.NrPrevFields ] = data.msgValidMail;
         } else {
-          outputRow[data.NrPrevFields] = data.msgNotValidMail;
+          outputRow[ data.NrPrevFields ] = data.msgNotValidMail;
         }
       } else {
         // add boolean result field
-        outputRow[data.NrPrevFields] = mailvalid;
+        outputRow[ data.NrPrevFields ] = mailvalid;
       }
       int rowIndex = data.NrPrevFields;
       rowIndex++;
       // add errors field
       if ( !Utils.isEmpty( data.realResultErrorsFieldName ) ) {
-        outputRow[rowIndex] = mailerror;
+        outputRow[ rowIndex ] = mailerror;
       }
 
       putRow( data.outputRowMeta, outputRow ); // copy row to output rowset(s);

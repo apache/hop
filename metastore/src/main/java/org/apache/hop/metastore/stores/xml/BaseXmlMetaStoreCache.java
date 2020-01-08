@@ -1,12 +1,12 @@
 package org.apache.hop.metastore.stores.xml;
 
+import org.apache.hop.metastore.api.IMetaStoreElementType;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.apache.hop.metastore.api.IMetaStoreElementType;
 
 public abstract class BaseXmlMetaStoreCache implements XmlMetaStoreCache {
 
@@ -60,7 +60,7 @@ public abstract class BaseXmlMetaStoreCache implements XmlMetaStoreCache {
 
   @Override
   public synchronized void registerElementIdForName( String namespace, IMetaStoreElementType elementType, String elementName,
-      String elementId ) {
+                                                     String elementId ) {
     Map<String, ElementType> nameToElementType = elementTypesMap.get( namespace );
     if ( nameToElementType == null ) {
       registerElementTypeIdForName( namespace, elementType.getName(), elementType.getId() );

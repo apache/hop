@@ -21,9 +21,8 @@ import org.apache.hop.metastore.api.IMetaStoreElementType;
 
 /**
  * Convenience class to facilitate creating data type listeners.
- * 
+ *
  * @author matt
- * 
  */
 public class MetaStoreDataTypeAdapter implements MetaStoreElementTypeListener {
 

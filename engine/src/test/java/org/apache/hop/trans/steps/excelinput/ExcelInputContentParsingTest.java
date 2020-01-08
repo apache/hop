@@ -22,13 +22,12 @@
 
 package org.apache.hop.trans.steps.excelinput;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.Const;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class ExcelInputContentParsingTest extends BaseExcelParsingTest {
@@ -109,7 +108,7 @@ public class ExcelInputContentParsingTest extends BaseExcelParsingTest {
     process();
 
     check( new Object[][] { { "AAABBC", "Nissan" }, { "AAABBC", "Nissan" }, { "AAABBC", "Nissan" }, { "AAABBC",
-        "Nissan" } } );
+      "Nissan" } } );
   }
 
   @Test

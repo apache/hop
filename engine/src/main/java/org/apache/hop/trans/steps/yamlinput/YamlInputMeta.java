@@ -22,16 +22,10 @@
 
 package org.apache.hop.trans.steps.yamlinput;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopStepException;
@@ -42,10 +36,11 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
@@ -55,8 +50,11 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Store run-time data on the YamlInput step.
@@ -70,58 +68,94 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
     BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
   public static final String[] RequiredFilesCode = new String[] { "N", "Y" };
 
-  /** Array of filenames */
+  /**
+   * Array of filenames
+   */
   private String[] fileName;
 
-  /** Wildcard or filemask (regular expression) */
+  /**
+   * Wildcard or filemask (regular expression)
+   */
   private String[] fileMask;
 
-  /** Array of boolean values as string, indicating if a file is required. */
+  /**
+   * Array of boolean values as string, indicating if a file is required.
+   */
   private String[] fileRequired;
 
-  /** Flag indicating that we should include the filename in the output */
+  /**
+   * Flag indicating that we should include the filename in the output
+   */
   private boolean includeFilename;
 
-  /** The name of the field in the output containing the filename */
+  /**
+   * The name of the field in the output containing the filename
+   */
   private String filenameField;
 
-  /** Flag indicating that a row number field should be included in the output */
+  /**
+   * Flag indicating that a row number field should be included in the output
+   */
   private boolean includeRowNumber;
 
-  /** The name of the field in the output containing the row number */
+  /**
+   * The name of the field in the output containing the row number
+   */
   private String rowNumberField;
 
-  /** The maximum number or lines to read */
+  /**
+   * The maximum number or lines to read
+   */
   private long rowLimit;
 
-  /** The fields to import... */
+  /**
+   * The fields to import...
+   */
   private YamlInputField[] inputFields;
 
-  /** The encoding to use for reading: null or empty string means system default encoding */
+  /**
+   * The encoding to use for reading: null or empty string means system default encoding
+   */
   private String encoding;
 
-  /** Is In fields */
+  /**
+   * Is In fields
+   */
   private String yamlField;
 
-  /** Is In fields */
+  /**
+   * Is In fields
+   */
   private boolean inFields;
 
-  /** Is a File */
+  /**
+   * Is a File
+   */
   private boolean IsAFile;
 
-  /** Flag: add result filename **/
+  /**
+   * Flag: add result filename
+   **/
   private boolean addResultFile;
 
-  /** Flag: set XML Validating **/
+  /**
+   * Flag: set XML Validating
+   **/
   private boolean validating;
 
-  /** Flag : do we ignore empty files */
+  /**
+   * Flag : do we ignore empty files
+   */
   private boolean IsIgnoreEmptyFile;
 
-  /** Array of boolean values as string, indicating if we need to fetch sub folders. */
+  /**
+   * Array of boolean values as string, indicating if we need to fetch sub folders.
+   */
   private String[] includeSubFolders;
 
-  /** Flag : do not fail if no file */
+  /**
+   * Flag : do not fail if no file
+   */
   private boolean doNotFailIfNoFile;
 
   public YamlInputMeta() {
@@ -143,8 +177,7 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param validating
-   *          the validating flag to set
+   * @param validating the validating flag to set
    */
   public void setValidating( boolean validating ) {
     this.validating = validating;
@@ -162,8 +195,7 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param inputFields
-   *          The input fields to set.
+   * @param inputFields The input fields to set.
    */
   public void setInputFields( YamlInputField[] inputFields ) {
     this.inputFields = inputFields;
@@ -191,8 +223,7 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param inFields
-   *          set the inFields.
+   * @param inFields set the inFields.
    */
   public void setInFields( boolean inFields ) {
     this.inFields = inFields;
@@ -206,8 +237,7 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param fileMask
-   *          The fileMask to set.
+   * @param fileMask The fileMask to set.
    */
   public void setFileMask( String[] fileMask ) {
     this.fileMask = fileMask;
@@ -219,13 +249,13 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   public void setFileRequired( String[] fileRequiredin ) {
     for ( int i = 0; i < fileRequiredin.length; i++ ) {
-      this.fileRequired[i] = getRequiredFilesCode( fileRequiredin[i] );
+      this.fileRequired[ i ] = getRequiredFilesCode( fileRequiredin[ i ] );
     }
   }
 
   public void setIncludeSubFolders( String[] includeSubFoldersin ) {
     for ( int i = 0; i < includeSubFoldersin.length; i++ ) {
-      this.includeSubFolders[i] = getRequiredFilesCode( includeSubFoldersin[i] );
+      this.includeSubFolders[ i ] = getRequiredFilesCode( includeSubFoldersin[ i ] );
     }
   }
 
@@ -237,8 +267,7 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param fileName
-   *          The fileName to set.
+   * @param fileName The fileName to set.
    */
   public void setFileName( String[] fileName ) {
     this.fileName = fileName;
@@ -252,8 +281,7 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param filenameField
-   *          The filenameField to set.
+   * @param filenameField The filenameField to set.
    */
   public void setFilenameField( String filenameField ) {
     this.filenameField = filenameField;
@@ -267,8 +295,7 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param includeFilename
-   *          The includeFilename to set.
+   * @param includeFilename The includeFilename to set.
    */
   public void setIncludeFilename( boolean includeFilename ) {
     this.includeFilename = includeFilename;
@@ -282,8 +309,7 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param includeRowNumber
-   *          The includeRowNumber to set.
+   * @param includeRowNumber The includeRowNumber to set.
    */
   public void setIncludeRowNumber( boolean includeRowNumber ) {
     this.includeRowNumber = includeRowNumber;
@@ -297,8 +323,7 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param rowLimit
-   *          The rowLimit to set.
+   * @param rowLimit The rowLimit to set.
    */
   public void setRowLimit( long rowLimit ) {
     this.rowLimit = rowLimit;
@@ -312,8 +337,7 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param IsIgnoreEmptyFile
-   *          the IsIgnoreEmptyFile to set
+   * @param IsIgnoreEmptyFile the IsIgnoreEmptyFile to set
    */
   public void setIgnoreEmptyFile( boolean IsIgnoreEmptyFile ) {
     this.IsIgnoreEmptyFile = IsIgnoreEmptyFile;
@@ -327,8 +351,7 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param doNotFailIfNoFile
-   *          the doNotFailIfNoFile to set
+   * @param doNotFailIfNoFile the doNotFailIfNoFile to set
    */
   public void setdoNotFailIfNoFile( boolean doNotFailIfNoFile ) {
     this.doNotFailIfNoFile = doNotFailIfNoFile;
@@ -342,8 +365,7 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param rowNumberField
-   *          The rowNumberField to set.
+   * @param rowNumberField The rowNumberField to set.
    */
   public void setRowNumberField( String rowNumberField ) {
     this.rowNumberField = rowNumberField;
@@ -357,8 +379,7 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param encoding
-   *          the encoding to set
+   * @param encoding the encoding to set
    */
   public void setEncoding( String encoding ) {
     this.encoding = encoding;
@@ -396,8 +417,8 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
     System.arraycopy( includeSubFolders, 0, retval.includeSubFolders, 0, nrFiles );
 
     for ( int i = 0; i < nrFields; i++ ) {
-      if ( inputFields[i] != null ) {
-        retval.inputFields[i] = (YamlInputField) inputFields[i].clone();
+      if ( inputFields[ i ] != null ) {
+        retval.inputFields[ i ] = (YamlInputField) inputFields[ i ].clone();
       }
     }
     return retval;
@@ -420,17 +441,17 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
 
     retval.append( "    <file>" ).append( Const.CR );
     for ( int i = 0; i < fileName.length; i++ ) {
-      retval.append( "      " ).append( XMLHandler.addTagValue( "name", fileName[i] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "filemask", fileMask[i] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "file_required", fileRequired[i] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", includeSubFolders[i] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "name", fileName[ i ] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "filemask", fileMask[ i ] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "file_required", fileRequired[ i ] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", includeSubFolders[ i ] ) );
 
     }
     retval.append( "    </file>" ).append( Const.CR );
 
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < inputFields.length; i++ ) {
-      YamlInputField field = inputFields[i];
+      YamlInputField field = inputFields[ i ];
       retval.append( field.getXML() );
     }
     retval.append( "    </fields>" ).append( Const.CR );
@@ -445,23 +466,23 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   public String getRequiredFilesDesc( String tt ) {
     if ( Utils.isEmpty( tt ) ) {
-      return RequiredFilesDesc[0];
+      return RequiredFilesDesc[ 0 ];
     }
-    if ( tt.equalsIgnoreCase( RequiredFilesCode[1] ) ) {
-      return RequiredFilesDesc[1];
+    if ( tt.equalsIgnoreCase( RequiredFilesCode[ 1 ] ) ) {
+      return RequiredFilesDesc[ 1 ];
     } else {
-      return RequiredFilesDesc[0];
+      return RequiredFilesDesc[ 0 ];
     }
   }
 
   public String getRequiredFilesCode( String tt ) {
     if ( tt == null ) {
-      return RequiredFilesCode[0];
+      return RequiredFilesCode[ 0 ];
     }
-    if ( tt.equals( RequiredFilesDesc[1] ) ) {
-      return RequiredFilesCode[1];
+    if ( tt.equals( RequiredFilesDesc[ 1 ] ) ) {
+      return RequiredFilesCode[ 1 ];
     } else {
-      return RequiredFilesCode[0];
+      return RequiredFilesCode[ 0 ];
     }
   }
 
@@ -491,16 +512,16 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
         Node filemasknode = XMLHandler.getSubNodeByNr( filenode, "filemask", i );
         Node fileRequirednode = XMLHandler.getSubNodeByNr( filenode, "file_required", i );
         Node includeSubFoldersnode = XMLHandler.getSubNodeByNr( filenode, "include_subfolders", i );
-        fileName[i] = XMLHandler.getNodeValue( filenamenode );
-        fileMask[i] = XMLHandler.getNodeValue( filemasknode );
-        fileRequired[i] = XMLHandler.getNodeValue( fileRequirednode );
-        includeSubFolders[i] = XMLHandler.getNodeValue( includeSubFoldersnode );
+        fileName[ i ] = XMLHandler.getNodeValue( filenamenode );
+        fileMask[ i ] = XMLHandler.getNodeValue( filemasknode );
+        fileRequired[ i ] = XMLHandler.getNodeValue( fileRequirednode );
+        includeSubFolders[ i ] = XMLHandler.getNodeValue( includeSubFoldersnode );
       }
 
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
         YamlInputField field = new YamlInputField( fnode );
-        inputFields[i] = field;
+        inputFields[ i ] = field;
       }
 
       // Is there a limit on the number of rows we process?
@@ -515,11 +536,11 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrfiles, int nrfields ) {
-    fileName = new String[nrfiles];
-    fileMask = new String[nrfiles];
-    fileRequired = new String[nrfiles];
-    includeSubFolders = new String[nrfiles];
-    inputFields = new YamlInputField[nrfields];
+    fileName = new String[ nrfiles ];
+    fileMask = new String[ nrfiles ];
+    fileRequired = new String[ nrfiles ];
+    includeSubFolders = new String[ nrfiles ];
+    inputFields = new YamlInputField[ nrfields ];
   }
 
   @Override
@@ -540,14 +561,14 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( nrFiles, nrFields );
 
     for ( int i = 0; i < nrFiles; i++ ) {
-      fileName[i] = "filename" + ( i + 1 );
-      fileMask[i] = "";
-      fileRequired[i] = RequiredFilesCode[0];
-      includeSubFolders[i] = RequiredFilesCode[0];
+      fileName[ i ] = "filename" + ( i + 1 );
+      fileMask[ i ] = "";
+      fileRequired[ i ] = RequiredFilesCode[ 0 ];
+      includeSubFolders[ i ] = RequiredFilesCode[ 0 ];
     }
 
     for ( int i = 0; i < nrFields; i++ ) {
-      inputFields[i] = new YamlInputField( "field" + ( i + 1 ) );
+      inputFields[ i ] = new YamlInputField( "field" + ( i + 1 ) );
     }
 
     rowLimit = 0;
@@ -558,10 +579,10 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     int i;
     for ( i = 0; i < inputFields.length; i++ ) {
-      YamlInputField field = inputFields[i];
+      YamlInputField field = inputFields[ i ];
 
       int type = field.getType();
       if ( type == ValueMetaInterface.TYPE_NONE ) {
@@ -606,17 +627,17 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   private boolean[] includeSubFolderBoolean() {
     int len = fileName.length;
-    boolean[] includeSubFolderBoolean = new boolean[len];
+    boolean[] includeSubFolderBoolean = new boolean[ len ];
     for ( int i = 0; i < len; i++ ) {
-      includeSubFolderBoolean[i] = YES.equalsIgnoreCase( includeSubFolders[i] );
+      includeSubFolderBoolean[ i ] = YES.equalsIgnoreCase( includeSubFolders[ i ] );
     }
     return includeSubFolderBoolean;
   }
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     // See if we get input...
@@ -670,7 +691,7 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new YamlInput( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -690,18 +711,15 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param space
-   *          the variable space to use
+   * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
-   *
+   * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
@@ -727,11 +745,11 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
 
           // Still here: set a new list of absolute filenames!
           //
-          fileName = newFilenames.toArray( new String[newFilenames.size()] );
-          fileMask = new String[newFilenames.size()]; // all null since converted to absolute path.
-          fileRequired = new String[newFilenames.size()]; // all null, turn to "Y" :
+          fileName = newFilenames.toArray( new String[ newFilenames.size() ] );
+          fileMask = new String[ newFilenames.size() ]; // all null since converted to absolute path.
+          fileRequired = new String[ newFilenames.size() ]; // all null, turn to "Y" :
           for ( int i = 0; i < newFilenames.size(); i++ ) {
-            fileRequired[i] = "Y";
+            fileRequired[ i ] = "Y";
           }
         }
       }

@@ -22,16 +22,8 @@
 
 package org.apache.hop.trans.steps.propertyinput;
 
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-
 import org.apache.commons.vfs2.FileObject;
-import org.ini4j.Wini;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
@@ -39,6 +31,7 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
@@ -48,6 +41,13 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+import org.ini4j.Wini;
+
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Read all Properties files (& INI files) , convert them to rows and writes these to one or more output streams.
@@ -62,7 +62,7 @@ public class PropertyInput extends BaseStep implements StepInterface {
   private PropertyInputData data;
 
   public PropertyInput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                        Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -78,7 +78,7 @@ public class PropertyInput extends BaseStep implements StepInterface {
       // Create the output row meta-data
       data.outputRowMeta = new RowMeta();
       meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore ); // get the metadata
-                                                                                                    // populated
+      // populated
 
       // Create convert meta-data objects that will contain Date & Number formatters
       //
@@ -202,8 +202,8 @@ public class PropertyInput extends BaseStep implements StepInterface {
         // Get field value
         String value = null;
 
-        if ( meta.getInputFields()[i].getColumnCode().equals(
-          PropertyInputField.ColumnCode[PropertyInputField.COLUMN_KEY] ) ) {
+        if ( meta.getInputFields()[ i ].getColumnCode().equals(
+          PropertyInputField.ColumnCode[ PropertyInputField.COLUMN_KEY ] ) ) {
           value = key;
         } else {
           if ( meta.isResolveValueVariable() ) {
@@ -222,7 +222,7 @@ public class PropertyInput extends BaseStep implements StepInterface {
         }
 
         // DO Trimming!
-        switch ( meta.getInputFields()[i].getTrimType() ) {
+        switch ( meta.getInputFields()[ i ].getTrimType() ) {
           case PropertyInputField.TYPE_TRIM_LEFT:
             value = Const.ltrim( value );
             break;
@@ -245,12 +245,12 @@ public class PropertyInput extends BaseStep implements StepInterface {
         //
         ValueMetaInterface targetValueMeta = data.outputRowMeta.getValueMeta( data.totalpreviousfields + i );
         ValueMetaInterface sourceValueMeta = data.convertRowMeta.getValueMeta( data.totalpreviousfields + i );
-        r[data.totalpreviousfields + i] = targetValueMeta.convertData( sourceValueMeta, value );
+        r[ data.totalpreviousfields + i ] = targetValueMeta.convertData( sourceValueMeta, value );
 
         // Do we need to repeat this field if it is null?
-        if ( meta.getInputFields()[i].isRepeated() ) {
+        if ( meta.getInputFields()[ i ].isRepeated() ) {
           if ( data.previousRow != null && Utils.isEmpty( value ) ) {
-            r[data.totalpreviousfields + i] = data.previousRow[data.totalpreviousfields + i];
+            r[ data.totalpreviousfields + i ] = data.previousRow[ data.totalpreviousfields + i ];
           }
         }
 
@@ -260,49 +260,49 @@ public class PropertyInput extends BaseStep implements StepInterface {
 
       // See if we need to add the filename to the row...
       if ( meta.includeFilename() && !Utils.isEmpty( meta.getFilenameField() ) ) {
-        r[data.totalpreviousfields + rowIndex++] = data.filename;
+        r[ data.totalpreviousfields + rowIndex++ ] = data.filename;
       }
 
       // See if we need to add the row number to the row...
       if ( meta.includeRowNumber() && !Utils.isEmpty( meta.getRowNumberField() ) ) {
-        r[data.totalpreviousfields + rowIndex++] = new Long( data.rownr );
+        r[ data.totalpreviousfields + rowIndex++ ] = new Long( data.rownr );
       }
 
       // See if we need to add the section for INI files ...
       if ( meta.includeIniSection() && !Utils.isEmpty( meta.getINISectionField() ) ) {
-        r[data.totalpreviousfields + rowIndex++] = environmentSubstitute( data.iniSection.getName() );
+        r[ data.totalpreviousfields + rowIndex++ ] = environmentSubstitute( data.iniSection.getName() );
       }
       // Possibly add short filename...
       if ( meta.getShortFileNameField() != null && meta.getShortFileNameField().length() > 0 ) {
-        r[data.totalpreviousfields + rowIndex++] = data.shortFilename;
+        r[ data.totalpreviousfields + rowIndex++ ] = data.shortFilename;
       }
       // Add Extension
       if ( meta.getExtensionField() != null && meta.getExtensionField().length() > 0 ) {
-        r[data.totalpreviousfields + rowIndex++] = data.extension;
+        r[ data.totalpreviousfields + rowIndex++ ] = data.extension;
       }
       // add path
       if ( meta.getPathField() != null && meta.getPathField().length() > 0 ) {
-        r[data.totalpreviousfields + rowIndex++] = data.path;
+        r[ data.totalpreviousfields + rowIndex++ ] = data.path;
       }
       // Add Size
       if ( meta.getSizeField() != null && meta.getSizeField().length() > 0 ) {
-        r[data.totalpreviousfields + rowIndex++] = new Long( data.size );
+        r[ data.totalpreviousfields + rowIndex++ ] = new Long( data.size );
       }
       // add Hidden
       if ( meta.isHiddenField() != null && meta.isHiddenField().length() > 0 ) {
-        r[data.totalpreviousfields + rowIndex++] = new Boolean( data.hidden );
+        r[ data.totalpreviousfields + rowIndex++ ] = new Boolean( data.hidden );
       }
       // Add modification date
       if ( meta.getLastModificationDateField() != null && meta.getLastModificationDateField().length() > 0 ) {
-        r[data.totalpreviousfields + rowIndex++] = data.lastModificationDateTime;
+        r[ data.totalpreviousfields + rowIndex++ ] = data.lastModificationDateTime;
       }
       // Add Uri
       if ( meta.getUriField() != null && meta.getUriField().length() > 0 ) {
-        r[data.totalpreviousfields + rowIndex++] = data.uriName;
+        r[ data.totalpreviousfields + rowIndex++ ] = data.uriName;
       }
       // Add RootUri
       if ( meta.getRootUriField() != null && meta.getRootUriField().length() > 0 ) {
-        r[data.totalpreviousfields + rowIndex++] = data.rootUriName;
+        r[ data.totalpreviousfields + rowIndex++ ] = data.rootUriName;
       }
       RowMetaInterface irow = getInputRowMeta();
 

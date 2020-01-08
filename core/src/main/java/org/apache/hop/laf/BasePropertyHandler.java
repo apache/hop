@@ -28,7 +28,6 @@ package org.apache.hop.laf;
  * at runtime should the LAF be changed.
  *
  * @author dhushon
- *
  */
 public class BasePropertyHandler implements LAFChangeListener<PropertyHandler> {
 
@@ -80,7 +79,7 @@ public class BasePropertyHandler implements LAFChangeListener<PropertyHandler> {
    * @param key
    * @param defValue
    * @return a string representing either the value associated with the passed key or defValue should that key not be
-   *         found
+   * found
    */
   public static String getProperty( String key, String defValue ) {
     return getInstanceHandler().getProperty( key, defValue );

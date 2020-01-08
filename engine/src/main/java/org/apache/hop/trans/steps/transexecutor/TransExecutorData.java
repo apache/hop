@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.transexecutor;
 
-import java.util.List;
-
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -33,10 +31,11 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 
+import java.util.List;
+
 /**
  * @author Matt
  * @since 18-mar-2013
- *
  */
 public class TransExecutorData extends BaseStepData implements StepDataInterface {
   private Trans executorTrans;

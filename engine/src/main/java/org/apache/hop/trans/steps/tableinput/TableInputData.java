@@ -22,14 +22,14 @@
 
 package org.apache.hop.trans.steps.tableinput;
 
-import java.sql.ResultSet;
-
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
+
+import java.sql.ResultSet;
 
 /**
  * @author Matt

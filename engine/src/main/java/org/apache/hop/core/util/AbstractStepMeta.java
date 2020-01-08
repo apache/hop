@@ -22,10 +22,6 @@
 
 package org.apache.hop.core.util;
 
-import java.util.List;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -33,20 +29,22 @@ import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.util.PluginPropertyHandler.LoadXml;
 import org.apache.hop.core.util.PluginPropertyHandler.ReadFromPreferences;
 import org.apache.hop.core.util.PluginPropertyHandler.SaveToPreferences;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.step.BaseStepMeta;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 /**
  * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- *
  */
+
 /**
  * @author <a href="mailto:michael.gugerell@aschauer-edv.at">Michael Gugerell(asc145)</a>
- *
  */
 public abstract class AbstractStepMeta extends BaseStepMeta implements StepMetaInterface {
 
@@ -83,8 +81,7 @@ public abstract class AbstractStepMeta extends BaseStepMeta implements StepMetaI
   /**
    * Saves properties to preferences.
    *
-   * @throws BackingStoreException
-   *           ...
+   * @throws BackingStoreException ...
    */
   public void saveAsPreferences() throws BackingStoreException {
     final Preferences node = Preferences.userNodeForPackage( this.getClass() );
@@ -111,8 +108,7 @@ public abstract class AbstractStepMeta extends BaseStepMeta implements StepMetaI
   }
 
   /**
-   * @param databaseList
-   *          A list of available DatabaseMeta in this transformation.
+   * @param databaseList A list of available DatabaseMeta in this transformation.
    */
   private void initDbMeta( final List<DatabaseMeta> databaseList ) {
     if ( !StringUtils.isEmpty( this.connectionName.getValue() ) ) {
@@ -148,8 +144,7 @@ public abstract class AbstractStepMeta extends BaseStepMeta implements StepMetaI
   }
 
   /**
-   * @param connectionName
-   *          the connectionName to set
+   * @param connectionName the connectionName to set
    */
   public void setConnectionName( final StringPluginProperty connectionName ) {
     this.connectionName = connectionName;
@@ -163,8 +158,7 @@ public abstract class AbstractStepMeta extends BaseStepMeta implements StepMetaI
   }
 
   /**
-   * @param dbMeta
-   *          the dbMeta to set
+   * @param dbMeta the dbMeta to set
    */
   public void setDbMeta( final DatabaseMeta dbMeta ) {
     this.dbMeta = dbMeta;

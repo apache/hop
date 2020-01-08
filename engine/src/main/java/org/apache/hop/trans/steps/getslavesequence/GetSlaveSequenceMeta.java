@@ -22,12 +22,8 @@
 
 package org.apache.hop.trans.steps.getslavesequence;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -36,8 +32,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -45,12 +40,13 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * Meta data for the Add Sequence step.
- *
+ * <p>
  * Created on 13-may-2003
  */
 public class GetSlaveSequenceMeta extends BaseStepMeta implements StepMetaInterface {
@@ -94,7 +90,7 @@ public class GetSlaveSequenceMeta extends BaseStepMeta implements StepMetaInterf
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     ValueMetaInterface v = new ValueMetaInteger( valuename );
     v.setOrigin( name );
     row.addValueMeta( v );
@@ -114,8 +110,8 @@ public class GetSlaveSequenceMeta extends BaseStepMeta implements StepMetaInterf
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( input.length > 0 ) {
@@ -133,7 +129,7 @@ public class GetSlaveSequenceMeta extends BaseStepMeta implements StepMetaInterf
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new GetSlaveSequence( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -150,8 +146,7 @@ public class GetSlaveSequenceMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   /**
-   * @param valuename
-   *          the valuename to set
+   * @param valuename the valuename to set
    */
   public void setValuename( String valuename ) {
     this.valuename = valuename;
@@ -165,8 +160,7 @@ public class GetSlaveSequenceMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   /**
-   * @param slaveServerName
-   *          the slaveServerName to set
+   * @param slaveServerName the slaveServerName to set
    */
   public void setSlaveServerName( String slaveServerName ) {
     this.slaveServerName = slaveServerName;
@@ -180,8 +174,7 @@ public class GetSlaveSequenceMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   /**
-   * @param sequenceName
-   *          the sequenceName to set
+   * @param sequenceName the sequenceName to set
    */
   public void setSequenceName( String sequenceName ) {
     this.sequenceName = sequenceName;
@@ -195,8 +188,7 @@ public class GetSlaveSequenceMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   /**
-   * @param increment
-   *          the increment to set
+   * @param increment the increment to set
    */
   public void setIncrement( String increment ) {
     this.increment = increment;

@@ -22,9 +22,9 @@
 
 package org.apache.hop.core.spreadsheet;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class KCellTypeTest {
 

@@ -45,13 +45,13 @@ public class JaninoMetaInjection implements StepMetaInjectionInterface {
   public enum Entry implements StepMetaInjectionEntryInterface {
 
     EXPRESSION_FIELDS( ValueMetaInterface.TYPE_NONE, "The formula fields" ),
-      EXPRESSION_FIELD( ValueMetaInterface.TYPE_NONE, "One formula field" ),
-      NEW_FIELDNAME( ValueMetaInterface.TYPE_STRING, "New field" ),
-      JAVA_EXPRESSION( ValueMetaInterface.TYPE_STRING, "Java expression" ),
-      VALUE_TYPE( ValueMetaInterface.TYPE_STRING, "Value type (For valid values go to http://wiki.pentaho.com/display/EAI/User+Defined+Java+Expression)" ),
-      LENGTH( ValueMetaInterface.TYPE_STRING, "Length" ),
-      PRECISION( ValueMetaInterface.TYPE_STRING, "Precision" ),
-      REPLACE_VALUE( ValueMetaInterface.TYPE_STRING, "Replace value" );
+    EXPRESSION_FIELD( ValueMetaInterface.TYPE_NONE, "One formula field" ),
+    NEW_FIELDNAME( ValueMetaInterface.TYPE_STRING, "New field" ),
+    JAVA_EXPRESSION( ValueMetaInterface.TYPE_STRING, "Java expression" ),
+    VALUE_TYPE( ValueMetaInterface.TYPE_STRING, "Value type (For valid values go to http://wiki.pentaho.com/display/EAI/User+Defined+Java+Expression)" ),
+    LENGTH( ValueMetaInterface.TYPE_STRING, "Length" ),
+    PRECISION( ValueMetaInterface.TYPE_STRING, "Precision" ),
+    REPLACE_VALUE( ValueMetaInterface.TYPE_STRING, "Replace value" );
 
     private int valueType;
     private String description;
@@ -202,9 +202,9 @@ public class JaninoMetaInjection implements StepMetaInjectionInterface {
       int i = 0;
 
       while ( iFieldNames.hasNext() ) {
-        fields[i] = new JaninoMetaFunction( iFieldNames.next(), iJavaExpressions.next(),
+        fields[ i ] = new JaninoMetaFunction( iFieldNames.next(), iJavaExpressions.next(),
           ValueMetaFactory.getIdForValueMeta( iValueTypes.next() ), Const.toInt( iLengths.next(), -1 ),
-            Const.toInt( iPrecisions.next(), -1 ), iReplaceValues.next() );
+          Const.toInt( iPrecisions.next(), -1 ), iReplaceValues.next() );
 
         i++;
       }
@@ -221,12 +221,12 @@ public class JaninoMetaInjection implements StepMetaInjectionInterface {
     for ( int i = 0; i < meta.getFormula().length; i++ ) {
       StepInjectionMetaEntry fieldEntry = StepInjectionUtil.getEntry( Entry.EXPRESSION_FIELD );
       List<StepInjectionMetaEntry> details = fieldEntry.getDetails();
-      details.add( StepInjectionUtil.getEntry( Entry.NEW_FIELDNAME, meta.getFormula()[i].getFieldName() ) );
-      details.add( StepInjectionUtil.getEntry( Entry.JAVA_EXPRESSION, meta.getFormula()[i].getFormula() ) );
-      details.add( StepInjectionUtil.getEntry( Entry.VALUE_TYPE, ValueMetaFactory.getValueMetaName( meta.getFormula()[i].getValueType() ) ) );
-      details.add( StepInjectionUtil.getEntry( Entry.LENGTH, meta.getFormula()[i].getValueLength() ) );
-      details.add( StepInjectionUtil.getEntry( Entry.PRECISION, meta.getFormula()[i].getValuePrecision() ) );
-      details.add( StepInjectionUtil.getEntry( Entry.REPLACE_VALUE, meta.getFormula()[i].getReplaceField() ) );
+      details.add( StepInjectionUtil.getEntry( Entry.NEW_FIELDNAME, meta.getFormula()[ i ].getFieldName() ) );
+      details.add( StepInjectionUtil.getEntry( Entry.JAVA_EXPRESSION, meta.getFormula()[ i ].getFormula() ) );
+      details.add( StepInjectionUtil.getEntry( Entry.VALUE_TYPE, ValueMetaFactory.getValueMetaName( meta.getFormula()[ i ].getValueType() ) ) );
+      details.add( StepInjectionUtil.getEntry( Entry.LENGTH, meta.getFormula()[ i ].getValueLength() ) );
+      details.add( StepInjectionUtil.getEntry( Entry.PRECISION, meta.getFormula()[ i ].getValuePrecision() ) );
+      details.add( StepInjectionUtil.getEntry( Entry.REPLACE_VALUE, meta.getFormula()[ i ].getReplaceField() ) );
 
 
       fieldsEntry.getDetails().add( fieldEntry );

@@ -22,11 +22,6 @@
 
 package org.apache.hop.trans.step;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
@@ -35,17 +30,21 @@ import org.apache.hop.core.logging.HasLogChannelInterface;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.step.BaseStepData.StepExecutionStatus;
-import org.apache.hop.metastore.api.IMetaStore;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The interface that any transformation step or plugin needs to implement.
- *
+ * <p>
  * Created on 12-AUG-2004
  *
  * @author Matt
- *
  */
 
 public interface StepInterface extends VariableSpace, HasLogChannelInterface {
@@ -58,11 +57,9 @@ public interface StepInterface extends VariableSpace, HasLogChannelInterface {
    * Perform the equivalent of processing one row. Typically this means reading a row from input (getRow()) and passing
    * a row to output (putRow)).
    *
-   * @param smi
-   *          The steps metadata to work with
-   * @param sdi
-   *          The steps temporary working data to work with (database connections, result sets, caches, temporary
-   *          variables, etc.)
+   * @param smi The steps metadata to work with
+   * @param sdi The steps temporary working data to work with (database connections, result sets, caches, temporary
+   *            variables, etc.)
    * @return false if no more rows can be processed or an error occurred.
    * @throws HopException
    */
@@ -74,50 +71,40 @@ public interface StepInterface extends VariableSpace, HasLogChannelInterface {
    * For example, if a step has no input records but needs at least one to function, it will return false.
    *
    * @return true if the step can process a row.
-   *
    */
   public boolean canProcessOneRow();
 
   /**
    * Initialize and do work where other steps need to wait for...
    *
-   * @param stepMetaInterface
-   *          The metadata to work with
-   * @param stepDataInterface
-   *          The data to initialize
+   * @param stepMetaInterface The metadata to work with
+   * @param stepDataInterface The data to initialize
    */
   public boolean init( StepMetaInterface stepMetaInterface, StepDataInterface stepDataInterface );
 
   /**
    * Dispose of this step: close files, empty logs, etc.
    *
-   * @param sii
-   *          The metadata to work with
-   * @param sdi
-   *          The data to dispose of
+   * @param sii The metadata to work with
+   * @param sdi The data to dispose of
    */
   public void dispose( StepMetaInterface sii, StepDataInterface sdi );
 
   /**
    * Mark the start time of the step.
-   *
    */
   public void markStart();
 
   /**
    * Mark the end time of the step.
-   *
    */
   public void markStop();
 
   /**
    * Stop running operations...
    *
-   * @param stepMetaInterface
-   *          The metadata that might be needed by the step to stop running.
-   * @param stepDataInterface
-   *          The interface to the step data containing the connections, resultsets, open files, etc.
-   *
+   * @param stepMetaInterface The metadata that might be needed by the step to stop running.
+   * @param stepDataInterface The interface to the step data containing the connections, resultsets, open files, etc.
    */
   public void stopRunning( StepMetaInterface stepMetaInterface, StepDataInterface stepDataInterface ) throws HopException;
 
@@ -129,8 +116,7 @@ public interface StepInterface extends VariableSpace, HasLogChannelInterface {
   /**
    * Flag the step as running or not
    *
-   * @param running
-   *          the running flag to set
+   * @param running the running flag to set
    */
   public void setRunning( boolean running );
 
@@ -140,14 +126,12 @@ public interface StepInterface extends VariableSpace, HasLogChannelInterface {
   public boolean isStopped();
 
   /**
-   * @param stopped
-   *          true if the step needs to be stopped
+   * @param stopped true if the step needs to be stopped
    */
   public void setStopped( boolean stopped );
 
   /**
-   * @param stopped
-   *          true if the step needs to be safe stopped
+   * @param stopped true if the step needs to be safe stopped
    */
   default void setSafeStopped( boolean stopped ) {
   }
@@ -206,8 +190,7 @@ public interface StepInterface extends VariableSpace, HasLogChannelInterface {
   /**
    * Sets the number of errors
    *
-   * @param errors
-   *          the number of errors to set
+   * @param errors the number of errors to set
    */
   public void setErrors( long errors );
 
@@ -237,8 +220,7 @@ public interface StepInterface extends VariableSpace, HasLogChannelInterface {
   public long getLinesUpdated();
 
   /**
-   * @param linesRejected
-   *          steps the lines rejected by error handling.
+   * @param linesRejected steps the lines rejected by error handling.
    */
   public void setLinesRejected( long linesRejected );
 
@@ -250,8 +232,7 @@ public interface StepInterface extends VariableSpace, HasLogChannelInterface {
   /**
    * Put a row on the destination rowsets.
    *
-   * @param row
-   *          The row to send to the destinations steps
+   * @param row The row to send to the destinations steps
    */
   public void putRow( RowMetaInterface row, Object[] data ) throws HopException;
 
@@ -269,16 +250,14 @@ public interface StepInterface extends VariableSpace, HasLogChannelInterface {
    * Add a rowlistener to the step allowing you to inspect (or manipulate, be careful) the rows coming in or exiting the
    * step.
    *
-   * @param rowListener
-   *          the rowlistener to add
+   * @param rowListener the rowlistener to add
    */
   public void addRowListener( RowListener rowListener );
 
   /**
    * Remove a rowlistener from this step.
    *
-   * @param rowListener
-   *          the rowlistener to remove
+   * @param rowListener the rowlistener to remove
    */
   public void removeRowListener( RowListener rowListener );
 
@@ -303,8 +282,7 @@ public interface StepInterface extends VariableSpace, HasLogChannelInterface {
   public boolean isPartitioned();
 
   /**
-   * @param partitionID
-   *          the partitionID to set
+   * @param partitionID the partitionID to set
    */
   public void setPartitionID( String partitionID );
 
@@ -323,16 +301,14 @@ public interface StepInterface extends VariableSpace, HasLogChannelInterface {
    * <br>
    * <b>!!! A plugin implementing this method should make sure to also call <i>super.initBeforeStart();</i> !!!</b>
    *
-   * @throws HopStepException
-   *           In case there is an error
+   * @throws HopStepException In case there is an error
    */
   public void initBeforeStart() throws HopStepException;
 
   /**
    * Attach a step listener to be notified when a step arrives in a certain state. (finished)
    *
-   * @param stepListener
-   *          The listener to add to the step
+   * @param stepListener The listener to add to the step
    */
   public void addStepListener( StepListener stepListener );
 
@@ -352,8 +328,7 @@ public interface StepInterface extends VariableSpace, HasLogChannelInterface {
   @Override public LogChannelInterface getLogChannel();
 
   /**
-   * @param usingThreadPriorityManagment
-   *          set to true to actively manage priorities of step threads
+   * @param usingThreadPriorityManagment set to true to actively manage priorities of step threads
    */
   public void setUsingThreadPriorityManagment( boolean usingThreadPriorityManagment );
 
@@ -398,14 +373,12 @@ public interface StepInterface extends VariableSpace, HasLogChannelInterface {
   public void identifyErrorOutput();
 
   /**
-   * @param partitioned
-   *          true if this step is partitioned
+   * @param partitioned true if this step is partitioned
    */
   public void setPartitioned( boolean partitioned );
 
   /**
-   * @param partitioningMethod
-   *          The repartitioning method
+   * @param partitioningMethod The repartitioning method
    */
   public void setRepartitioning( int partitioningMethod );
 
@@ -413,16 +386,14 @@ public interface StepInterface extends VariableSpace, HasLogChannelInterface {
    * Calling this method will alert the step that we finished passing a batch of records to the step. Specifically for
    * steps like "Sort Rows" it means that the buffered rows can be sorted and passed on.
    *
-   * @throws HopException
-   *           In case an error occurs during the processing of the batch of rows.
+   * @throws HopException In case an error occurs during the processing of the batch of rows.
    */
   public void batchComplete() throws HopException;
 
   /**
    * Pass along the metastore to use when loading external elements at runtime.
    *
-   * @param metaStore
-   *          The metastore to use
+   * @param metaStore The metastore to use
    */
   public void setMetaStore( IMetaStore metaStore );
 
@@ -437,8 +408,7 @@ public interface StepInterface extends VariableSpace, HasLogChannelInterface {
   public int getCurrentOutputRowSetNr();
 
   /**
-   * @param index
-   *          Sets the index of the active (current) output row set to use.
+   * @param index Sets the index of the active (current) output row set to use.
    */
   public void setCurrentOutputRowSetNr( int index );
 
@@ -448,8 +418,7 @@ public interface StepInterface extends VariableSpace, HasLogChannelInterface {
   public int getCurrentInputRowSetNr();
 
   /**
-   * @param index
-   *          Sets the index of the active (current) input row set to use.
+   * @param index Sets the index of the active (current) input row set to use.
    */
   public void setCurrentInputRowSetNr( int index );
 

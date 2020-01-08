@@ -22,10 +22,7 @@
 
 package org.apache.hop.trans.steps.tableinput;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
+import junit.framework.TestCase;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
@@ -48,7 +45,9 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.injector.InjectorMeta;
 
-import junit.framework.TestCase;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Test class for tableinput. H2 is used as database in memory to get an easy playground for database tests. H2 does not
@@ -101,12 +100,12 @@ public class TableInputIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    {
-      new ValueMetaInteger( "ID", 8, 0 ),
-      new ValueMetaInteger( "CODE", 8, 0 ), };
+      {
+        new ValueMetaInteger( "ID", 8, 0 ),
+        new ValueMetaInteger( "CODE", 8, 0 ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -128,12 +127,11 @@ public class TableInputIT extends TestCase {
   /**
    * Insert data in the source table.
    *
-   * @param db
-   *          database to use.
+   * @param db database to use.
    */
   private void createData( Database db ) throws Exception {
     for ( int idx = 0; idx < insertStatement.length; idx++ ) {
-      db.execStatement( insertStatement[idx] );
+      db.execStatement( insertStatement[ idx ] );
     }
   }
 
@@ -143,7 +141,7 @@ public class TableInputIT extends TestCase {
     ValueMetaInterface[] valuesMeta = { new ValueMetaInteger( "int_field" ) };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -224,9 +222,9 @@ public class TableInputIT extends TestCase {
       if ( rm1.size() != rm2.size() ) {
         fail( "row nr " + idx + " is not equal" );
       }
-      int[] fields = new int[r1.length];
+      int[] fields = new int[ r1.length ];
       for ( int ydx = 0; ydx < r1.length; ydx++ ) {
-        fields[ydx] = ydx;
+        fields[ ydx ] = ydx;
       }
       try {
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {
@@ -242,7 +240,7 @@ public class TableInputIT extends TestCase {
 
   /**
    * Test case for table input which is taking its input from a hop. This is a regression test case for JIRA PDI-588.
-   *
+   * <p>
    * The query in the table input step has one '?' and this parameter is filled by values read from an input hop.
    */
   public void testTableInputWithParam() throws Exception {
@@ -256,7 +254,7 @@ public class TableInputIT extends TestCase {
 
     // Add the database connections
     for ( int i = 0; i < databasesXML.length; i++ ) {
-      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[i] );
+      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[ i ] );
       transMeta.addDatabase( databaseMeta );
     }
 

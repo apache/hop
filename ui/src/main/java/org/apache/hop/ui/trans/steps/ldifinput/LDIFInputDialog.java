@@ -22,16 +22,37 @@
 
 package org.apache.hop.ui.trans.steps.ldifinput;
 
-import java.text.SimpleDateFormat;
-import java.util.Enumeration;
-import java.util.HashSet;
-
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.util.LDIF;
 import netscape.ldap.util.LDIFAttributeContent;
 import netscape.ldap.util.LDIFContent;
 import netscape.ldap.util.LDIFRecord;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPreviewFactory;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.ldifinput.LDIFInputField;
+import org.apache.hop.trans.steps.ldifinput.LDIFInputMeta;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -60,32 +81,10 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPreviewFactory;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.ldifinput.LDIFInputField;
-import org.apache.hop.trans.steps.ldifinput.LDIFInputMeta;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.text.SimpleDateFormat;
+import java.util.Enumeration;
+import java.util.HashSet;
 
 public class LDIFInputDialog extends BaseStepDialog implements StepDialogInterface {
 
@@ -492,35 +491,35 @@ public class LDIFInputDialog extends BaseStepDialog implements StepDialogInterfa
     fdbShowFiles.bottom = new FormAttachment( 100, 0 );
     wbShowFiles.setLayoutData( fdbShowFiles );
 
-    ColumnInfo[] colinfo = new ColumnInfo[5];
-    colinfo[0] =
+    ColumnInfo[] colinfo = new ColumnInfo[ 5 ];
+    colinfo[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "LDIFInputDialog.Files.Filename.Column" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    colinfo[1] =
+    colinfo[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "LDIFInputDialog.Files.Wildcard.Column" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    colinfo[2] =
+    colinfo[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "LDIFInputDialog.Files.ExcludeWildcard.Column" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinfo[3] =
+    colinfo[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "LDIFInputDialog.Required.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         LDIFInputMeta.RequiredFilesDesc );
-    colinfo[4] =
+    colinfo[ 4 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "LDIFInputDialog.IncludeSubDirs.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         LDIFInputMeta.RequiredFilesDesc );
 
-    colinfo[0].setUsingVariables( true );
-    colinfo[1].setUsingVariables( true );
-    colinfo[1].setToolTip( BaseMessages.getString( PKG, "LDIFInputDialog.Files.Wildcard.Tooltip" ) );
-    colinfo[2].setToolTip( BaseMessages.getString( PKG, "LDIFInputDialog.Required.Tooltip" ) );
-    colinfo[2].setUsingVariables( true );
-    colinfo[2].setToolTip( BaseMessages.getString( PKG, "LDIFInputDialog.Files.ExcludeWildcard.Tooltip" ) );
-    colinfo[4].setToolTip( BaseMessages.getString( PKG, "LDIFInputDialog.IncludeSubDirs.Tooltip" ) );
+    colinfo[ 0 ].setUsingVariables( true );
+    colinfo[ 1 ].setUsingVariables( true );
+    colinfo[ 1 ].setToolTip( BaseMessages.getString( PKG, "LDIFInputDialog.Files.Wildcard.Tooltip" ) );
+    colinfo[ 2 ].setToolTip( BaseMessages.getString( PKG, "LDIFInputDialog.Required.Tooltip" ) );
+    colinfo[ 2 ].setUsingVariables( true );
+    colinfo[ 2 ].setToolTip( BaseMessages.getString( PKG, "LDIFInputDialog.Files.ExcludeWildcard.Tooltip" ) );
+    colinfo[ 4 ].setToolTip( BaseMessages.getString( PKG, "LDIFInputDialog.IncludeSubDirs.Tooltip" ) );
 
     wFilenameList =
       new TableView(
@@ -841,15 +840,15 @@ public class LDIFInputDialog extends BaseStepDialog implements StepDialogInterfa
         new ColumnInfo(
           BaseMessages.getString( PKG, "LDIFInputDialog.FieldsTable.Repeat.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-            BaseMessages.getString( PKG, "System.Combo.Yes" ),
-            BaseMessages.getString( PKG, "System.Combo.No" ) }, true ),
+          BaseMessages.getString( PKG, "System.Combo.Yes" ),
+          BaseMessages.getString( PKG, "System.Combo.No" ) }, true ),
 
       };
 
-    colinf[0].setUsingVariables( true );
-    colinf[0].setToolTip( BaseMessages.getString( PKG, "LDIFInputDialog.FieldsTable.Name.Column.Tooltip" ) );
-    colinf[1].setUsingVariables( true );
-    colinf[1].setToolTip( BaseMessages.getString( PKG, "LDIFInputDialog.FieldsTable.Attribut.Column.Tooltip" ) );
+    colinf[ 0 ].setUsingVariables( true );
+    colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "LDIFInputDialog.FieldsTable.Name.Column.Tooltip" ) );
+    colinf[ 1 ].setUsingVariables( true );
+    colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "LDIFInputDialog.FieldsTable.Attribut.Column.Tooltip" ) );
 
     wFields =
       new TableView( transMeta, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
@@ -934,7 +933,7 @@ public class LDIFInputDialog extends BaseStepDialog implements StepDialogInterfa
       public void widgetSelected( SelectionEvent arg0 ) {
         wFilenameList.add( new String[] {
           wFilename.getText(), wFilemask.getText(), wExcludeFilemask.getText(),
-          LDIFInputMeta.RequiredFilesCode[0], LDIFInputMeta.RequiredFilesCode[0] } );
+          LDIFInputMeta.RequiredFilesCode[ 0 ], LDIFInputMeta.RequiredFilesCode[ 0 ] } );
         wFilename.setText( "" );
         wFilemask.setText( "" );
         wExcludeFilemask.setText( "" );
@@ -962,9 +961,9 @@ public class LDIFInputDialog extends BaseStepDialog implements StepDialogInterfa
         int idx = wFilenameList.getSelectionIndex();
         if ( idx >= 0 ) {
           String[] string = wFilenameList.getItem( idx );
-          wFilename.setText( string[0] );
-          wFilemask.setText( string[1] );
-          wExcludeFilemask.setText( string[2] );
+          wFilename.setText( string[ 0 ] );
+          wFilemask.setText( string[ 1 ] );
+          wExcludeFilemask.setText( string[ 2 ] );
           wFilenameList.remove( idx );
         }
         wFilenameList.removeEmptyRows();
@@ -1139,7 +1138,7 @@ public class LDIFInputDialog extends BaseStepDialog implements StepDialogInterfa
           r.getFieldNames();
 
           for ( int i = 0; i < r.getFieldNames().length; i++ ) {
-            wFilenameField.add( r.getFieldNames()[i] );
+            wFilenameField.add( r.getFieldNames()[ i ] );
 
           }
         }
@@ -1150,7 +1149,7 @@ public class LDIFInputDialog extends BaseStepDialog implements StepDialogInterfa
       } catch ( HopException ke ) {
         new ErrorDialog(
           shell, BaseMessages.getString( PKG, "LDIFInputDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-            .getString( PKG, "LDIFInputDialog.FailedToGetFields.DialogMessage" ), ke );
+          .getString( PKG, "LDIFInputDialog.FailedToGetFields.DialogMessage" ), ke );
       }
     }
   }
@@ -1185,7 +1184,7 @@ public class LDIFInputDialog extends BaseStepDialog implements StepDialogInterfa
 
             for ( int j = 0; j < attributes_LDIF.length; j++ ) {
 
-              LDAPAttribute attribute_DIF = attributes_LDIF[j];
+              LDAPAttribute attribute_DIF = attributes_LDIF[ j ];
 
               String attributeName = attribute_DIF.getName();
               if ( !attributeSet.contains( attributeName ) ) {
@@ -1219,11 +1218,11 @@ public class LDIFInputDialog extends BaseStepDialog implements StepDialogInterfa
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "LDIFInputMeta.ErrorRetrieveData.DialogTitle" ), BaseMessages
-          .getString( PKG, "LDIFInputMeta.ErrorRetrieveData.DialogMessage" ), e );
+        .getString( PKG, "LDIFInputMeta.ErrorRetrieveData.DialogMessage" ), e );
     } catch ( Exception e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "LDIFInputMeta.ErrorRetrieveData.DialogTitle" ), BaseMessages
-          .getString( PKG, "LDIFInputMeta.ErrorRetrieveData.DialogMessage" ), e );
+        .getString( PKG, "LDIFInputMeta.ErrorRetrieveData.DialogMessage" ), e );
 
     }
   }
@@ -1262,7 +1261,7 @@ public class LDIFInputDialog extends BaseStepDialog implements StepDialogInterfa
     String Stringvalue = null;
 
     for ( int j = 0; j < attributes_LDIF.length; j++ ) {
-      LDAPAttribute attribute_DIF = attributes_LDIF[j];
+      LDAPAttribute attribute_DIF = attributes_LDIF[ j ];
       if ( attribute_DIF.getName().equalsIgnoreCase( AttributValue ) ) {
         Enumeration<String> valuesLDIF = attribute_DIF.getStringValues();
         // Get the first occurence
@@ -1286,8 +1285,7 @@ public class LDIFInputDialog extends BaseStepDialog implements StepDialogInterfa
   /**
    * Read the data from the TextFileInputMeta object and show it in this dialog.
    *
-   * @param in
-   *          The TextFileInputMeta object to obtain the data from.
+   * @param in The TextFileInputMeta object to obtain the data from.
    */
   public void getData( LDIFInputMeta in ) {
 
@@ -1300,9 +1298,9 @@ public class LDIFInputDialog extends BaseStepDialog implements StepDialogInterfa
       wFilenameList.removeAll();
       for ( int i = 0; i < in.getFileName().length; i++ ) {
         wFilenameList.add( new String[] {
-          in.getFileName()[i], in.getFileMask()[i], in.getExludeFileMask()[i],
-          in.getRequiredFilesDesc( in.getFileRequired()[i] ),
-          in.getRequiredFilesDesc( in.getIncludeSubFolders()[i] ) } );
+          in.getFileName()[ i ], in.getFileMask()[ i ], in.getExludeFileMask()[ i ],
+          in.getRequiredFilesDesc( in.getFileRequired()[ i ] ),
+          in.getRequiredFilesDesc( in.getIncludeSubFolders()[ i ] ) } );
       }
       wFilenameList.removeEmptyRows();
       wFilenameList.setRowNums();
@@ -1334,7 +1332,7 @@ public class LDIFInputDialog extends BaseStepDialog implements StepDialogInterfa
     wAddResult.setSelection( in.AddToResultFilename() );
     logDebug( BaseMessages.getString( PKG, "LDIFInputDialog.Log.GettingFieldsInfo" ) );
     for ( int i = 0; i < in.getInputFields().length; i++ ) {
-      LDIFInputField field = in.getInputFields()[i];
+      LDIFInputField field = in.getInputFields()[ i ];
 
       if ( field != null ) {
         TableItem item = wFields.table.getItem( i );
@@ -1435,7 +1433,7 @@ public class LDIFInputDialog extends BaseStepDialog implements StepDialogInterfa
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "LDIFInputDialog.ErrorParsingData.DialogTitle" ), BaseMessages
-          .getString( PKG, "LDIFInputDialog.ErrorParsingData.DialogMessage" ), e );
+        .getString( PKG, "LDIFInputDialog.ErrorParsingData.DialogMessage" ), e );
     }
     dispose();
   }
@@ -1500,7 +1498,7 @@ public class LDIFInputDialog extends BaseStepDialog implements StepDialogInterfa
       field.setRepeated( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 11 ) ) );
 
       //CHECKSTYLE:Indentation:OFF
-      in.getInputFields()[i] = field;
+      in.getInputFields()[ i ] = field;
     }
     in.setShortFileNameField( wShortFileFieldName.getText() );
     in.setPathField( wPathFieldName.getText() );
@@ -1540,7 +1538,7 @@ public class LDIFInputDialog extends BaseStepDialog implements StepDialogInterfa
             EnterTextDialog etd =
               new EnterTextDialog(
                 shell, BaseMessages.getString( PKG, "System.Dialog.PreviewError.Title" ), BaseMessages
-                  .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
+                .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
             etd.setReadOnly();
             etd.open();
           }
@@ -1548,7 +1546,7 @@ public class LDIFInputDialog extends BaseStepDialog implements StepDialogInterfa
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
               shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta( wStepname
-                .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
+              .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
           prd.open();
 
         }
@@ -1556,7 +1554,7 @@ public class LDIFInputDialog extends BaseStepDialog implements StepDialogInterfa
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "LDIFInputDialog.ErrorPreviewingData.DialogTitle" ), BaseMessages
-          .getString( PKG, "LDIFInputDialog.ErrorPreviewingData.DialogMessage" ), e );
+        .getString( PKG, "LDIFInputDialog.ErrorPreviewingData.DialogMessage" ), e );
     }
   }
 

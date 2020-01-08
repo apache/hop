@@ -22,17 +22,16 @@
 
 package org.apache.hop.trans.steps.sortedmerge;
 
-import java.util.Comparator;
-import java.util.List;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 
+import java.util.Comparator;
+import java.util.List;
+
 /**
  * @author Matt
  * @since 24-jan-2005
- *
  */
 public class SortedMergeData extends BaseStepData implements StepDataInterface {
   public int[] fieldIndices;

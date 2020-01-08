@@ -24,7 +24,6 @@ package org.apache.hop.trans.steps.excelinput.jxl;
 
 import jxl.Cell;
 import jxl.Sheet;
-
 import org.apache.hop.core.spreadsheet.KCell;
 import org.apache.hop.core.spreadsheet.KSheet;
 
@@ -41,10 +40,10 @@ public class XLSSheet implements KSheet {
 
   public KCell[] getRow( int rownr ) {
     Cell[] cells = sheet.getRow( rownr );
-    XLSCell[] xlsCells = new XLSCell[cells.length];
+    XLSCell[] xlsCells = new XLSCell[ cells.length ];
     for ( int i = 0; i < cells.length; i++ ) {
-      if ( cells[i] != null ) {
-        xlsCells[i] = new XLSCell( cells[i] );
+      if ( cells[ i ] != null ) {
+        xlsCells[ i ] = new XLSCell( cells[ i ] );
       }
     }
     return xlsCells;

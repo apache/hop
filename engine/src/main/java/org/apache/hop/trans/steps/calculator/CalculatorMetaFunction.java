@@ -23,14 +23,11 @@
 package org.apache.hop.trans.steps.calculator;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 public class CalculatorMetaFunction implements Cloneable {
@@ -384,7 +381,7 @@ public class CalculatorMetaFunction implements Cloneable {
     calcDefaultResultType[ CalculatorMetaFunction.CALC_SECOND_OF_MINUTE ] = ValueMetaInterface.TYPE_INTEGER;
     calcDefaultResultType[ CalculatorMetaFunction.CALC_ROUND_CUSTOM_1 ] = ValueMetaInterface.TYPE_NUMBER;
     calcDefaultResultType[ CalculatorMetaFunction.CALC_ROUND_CUSTOM_2 ] = ValueMetaInterface.TYPE_NUMBER;
-    calcDefaultResultType[ CalculatorMetaFunction.CALC_ADD_SECONDS] = ValueMetaInterface.TYPE_DATE;
+    calcDefaultResultType[ CalculatorMetaFunction.CALC_ADD_SECONDS ] = ValueMetaInterface.TYPE_DATE;
     calcDefaultResultType[ CalculatorMetaFunction.CALC_REMAINDER ] = ValueMetaInterface.TYPE_NUMBER;
   }
 
@@ -406,16 +403,16 @@ public class CalculatorMetaFunction implements Cloneable {
   private boolean removedFromResult;
 
   /**
-   * @param fieldName out field name
-   * @param calcType calculation type, see CALC_* set of constants defined
-   * @param fieldA name of field "A"
-   * @param fieldB name of field "B"
-   * @param fieldC name of field "C"
-   * @param valueType out value type
-   * @param valueLength out value length
+   * @param fieldName      out field name
+   * @param calcType       calculation type, see CALC_* set of constants defined
+   * @param fieldA         name of field "A"
+   * @param fieldB         name of field "B"
+   * @param fieldC         name of field "C"
+   * @param valueType      out value type
+   * @param valueLength    out value length
    * @param valuePrecision out value precision
    * @param conversionMask out value conversion mask
-   * @param decimalSymbol out value decimal symbol
+   * @param decimalSymbol  out value decimal symbol
    * @param groupingSymbol out value grouping symbol
    * @param currencySymbol out value currency symbol
    */

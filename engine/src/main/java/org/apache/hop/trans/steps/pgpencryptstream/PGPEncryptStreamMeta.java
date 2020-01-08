@@ -22,11 +22,8 @@
 
 package org.apache.hop.trans.steps.pgpencryptstream;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -36,7 +33,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -44,8 +41,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*
  * Created on 03-Juin-2008
@@ -55,22 +53,34 @@ import org.w3c.dom.Node;
 public class PGPEncryptStreamMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = PGPEncryptStreamMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** GPG location */
+  /**
+   * GPG location
+   */
   private String gpglocation;
 
-  /** Key name **/
+  /**
+   * Key name
+   **/
   private String keyname;
 
-  /** dynamic stream filed */
+  /**
+   * dynamic stream filed
+   */
   private String streamfield;
 
-  /** function result: new value name */
+  /**
+   * function result: new value name
+   */
   private String resultFieldName;
 
-  /** Flag: keyname is dynamic **/
+  /**
+   * Flag: keyname is dynamic
+   **/
   private boolean keynameInField;
 
-  /** keyname fieldname **/
+  /**
+   * keyname fieldname
+   **/
   private String keynameFieldName;
 
   public PGPEncryptStreamMeta() {
@@ -101,8 +111,7 @@ public class PGPEncryptStreamMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   /**
-   * @param streamfield
-   *          The streamfield to set.
+   * @param streamfield The streamfield to set.
    */
   public void setStreamField( String streamfield ) {
     this.streamfield = streamfield;
@@ -116,8 +125,7 @@ public class PGPEncryptStreamMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   /**
-   * @param keynameFieldName
-   *          The keynameFieldName to set.
+   * @param keynameFieldName The keynameFieldName to set.
    */
   public void setKeynameFieldName( String keynameFieldName ) {
     this.keynameFieldName = keynameFieldName;
@@ -131,8 +139,7 @@ public class PGPEncryptStreamMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   /**
-   * @param keynameInField
-   *          The keynameInField to set.
+   * @param keynameInField The keynameInField to set.
    */
   public void setKeynameInField( boolean keynameInField ) {
     this.keynameInField = keynameInField;
@@ -146,8 +153,7 @@ public class PGPEncryptStreamMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   /**
-   * @param resultFieldName
-   *          The resultfieldname to set.
+   * @param resultFieldName The resultfieldname to set.
    */
   public void setResultFieldName( String resultFieldName ) {
     this.resultFieldName = resultFieldName;
@@ -161,8 +167,7 @@ public class PGPEncryptStreamMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   /**
-   * @param keyname
-   *          The keyname to set.
+   * @param keyname The keyname to set.
    */
   public void setKeyName( String keyname ) {
     this.keyname = keyname;
@@ -192,7 +197,7 @@ public class PGPEncryptStreamMeta extends BaseStepMeta implements StepMetaInterf
 
   @Override
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Output fields (String)
     if ( !Utils.isEmpty( resultFieldName ) ) {
       ValueMetaInterface v = new ValueMetaString( space.environmentSubstitute( resultFieldName ) );
@@ -231,8 +236,8 @@ public class PGPEncryptStreamMeta extends BaseStepMeta implements StepMetaInterf
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -289,7 +294,7 @@ public class PGPEncryptStreamMeta extends BaseStepMeta implements StepMetaInterf
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new PGPEncryptStream( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

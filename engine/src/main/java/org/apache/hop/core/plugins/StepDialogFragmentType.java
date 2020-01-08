@@ -33,7 +33,6 @@ import java.util.List;
 
 /**
  * This class represents the step dialog fragment type.
- *
  */
 @PluginMainClassType( StepDialogInterface.class )
 @PluginAnnotationType( PluginDialog.class )
@@ -84,7 +83,7 @@ public class StepDialogFragmentType extends BaseFragmentType implements PluginTy
 
   @Override
   public void handlePluginAnnotation( Class<?> clazz, java.lang.annotation.Annotation annotation,
-    List<String> libraries, boolean nativePluginType, URL pluginFolder ) throws HopPluginException {
+                                      List<String> libraries, boolean nativePluginType, URL pluginFolder ) throws HopPluginException {
     if ( ( (PluginDialog) annotation ).pluginType() == PluginDialog.PluginType.STEP ) {
       super.handlePluginAnnotation( clazz, annotation, libraries, nativePluginType, pluginFolder );
     }

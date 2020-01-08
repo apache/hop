@@ -22,14 +22,13 @@
 
 package org.apache.hop.metastore;
 
-import java.io.File;
-
+import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
 import org.apache.hop.core.Const;
 import org.apache.hop.metastore.stores.xml.XmlUtil;
+import org.junit.Test;
 
-import com.google.common.io.Files;
+import java.io.File;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;

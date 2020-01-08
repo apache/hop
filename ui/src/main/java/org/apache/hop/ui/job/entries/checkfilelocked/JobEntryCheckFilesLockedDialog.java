@@ -22,6 +22,20 @@
 
 package org.apache.hop.ui.job.entries.checkfilelocked;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.checkfilelocked.JobEntryCheckFilesLocked;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -44,20 +58,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.checkfilelocked.JobEntryCheckFilesLocked;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * This dialog allows you to edit the Delete Files job entry settings.
@@ -116,7 +116,7 @@ public class JobEntryCheckFilesLockedDialog extends JobEntryDialog implements Jo
   private FormData fdbeFilename, fdbaFilename, fdbdFilename;
 
   public JobEntryCheckFilesLockedDialog( Shell parent, JobEntryInterface jobEntryInt,
-    JobMeta jobMeta ) {
+                                         JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryCheckFilesLocked) jobEntryInt;
 
@@ -384,10 +384,10 @@ public class JobEntryCheckFilesLockedDialog extends JobEntryDialog implements Jo
           BaseMessages.getString( PKG, "JobCheckFilesLocked.Fields.Wildcard.Label" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false ), };
 
-    colinf[0].setUsingVariables( true );
-    colinf[0].setToolTip( BaseMessages.getString( PKG, "JobCheckFilesLocked.Fields.Column" ) );
-    colinf[1].setUsingVariables( true );
-    colinf[1].setToolTip( BaseMessages.getString( PKG, "JobCheckFilesLocked.Wildcard.Column" ) );
+    colinf[ 0 ].setUsingVariables( true );
+    colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "JobCheckFilesLocked.Fields.Column" ) );
+    colinf[ 1 ].setUsingVariables( true );
+    colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "JobCheckFilesLocked.Wildcard.Column" ) );
 
     wFields =
       new TableView(
@@ -433,8 +433,8 @@ public class JobEntryCheckFilesLockedDialog extends JobEntryDialog implements Jo
         int idx = wFields.getSelectionIndex();
         if ( idx >= 0 ) {
           String[] string = wFields.getItem( idx );
-          wFilename.setText( string[0] );
-          wFilemask.setText( string[1] );
+          wFilename.setText( string[ 0 ] );
+          wFilemask.setText( string[ 1 ] );
           wFields.remove( idx );
         }
         wFields.removeEmptyRows();
@@ -529,11 +529,11 @@ public class JobEntryCheckFilesLockedDialog extends JobEntryDialog implements Jo
     if ( jobEntry.arguments != null ) {
       for ( int i = 0; i < jobEntry.arguments.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.arguments[i] != null ) {
-          ti.setText( 1, jobEntry.arguments[i] );
+        if ( jobEntry.arguments[ i ] != null ) {
+          ti.setText( 1, jobEntry.arguments[ i ] );
         }
-        if ( jobEntry.filemasks[i] != null ) {
-          ti.setText( 2, jobEntry.filemasks[i] );
+        if ( jobEntry.filemasks[ i ] != null ) {
+          ti.setText( 2, jobEntry.filemasks[ i ] );
         }
       }
       wFields.setRowNums();
@@ -572,15 +572,15 @@ public class JobEntryCheckFilesLockedDialog extends JobEntryDialog implements Jo
         nr++;
       }
     }
-    jobEntry.arguments = new String[nr];
-    jobEntry.filemasks = new String[nr];
+    jobEntry.arguments = new String[ nr ];
+    jobEntry.filemasks = new String[ nr ];
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       String wild = wFields.getNonEmpty( i ).getText( 2 );
       if ( arg != null && arg.length() != 0 ) {
-        jobEntry.arguments[nr] = arg;
-        jobEntry.filemasks[nr] = wild;
+        jobEntry.arguments[ nr ] = arg;
+        jobEntry.filemasks[ nr ] = wild;
         nr++;
       }
     }

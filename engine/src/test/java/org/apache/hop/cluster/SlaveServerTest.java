@@ -22,6 +22,14 @@
 
 package org.apache.hop.cluster;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.utils.TestUtils;
+import org.apache.hop.www.GetPropertiesServlet;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -43,14 +51,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.utils.TestUtils;
-import org.apache.hop.www.GetPropertiesServlet;
 
 import java.io.File;
 import java.io.IOException;
@@ -86,7 +86,7 @@ public class SlaveServerTest {
     PluginRegistry.addPluginType( TwoWayPasswordEncoderPluginType.getInstance() );
     PluginRegistry.init();
     String passwordEncoderPluginID =
-        Const.NVL( EnvUtil.getSystemProperty( Const.HOP_PASSWORD_ENCODER_PLUGIN ), "Hop" );
+      Const.NVL( EnvUtil.getSystemProperty( Const.HOP_PASSWORD_ENCODER_PLUGIN ), "Hop" );
     Encr.init( passwordEncoderPluginID );
   }
 
@@ -138,7 +138,7 @@ public class SlaveServerTest {
     URI uriMock = new URI( "fake" );
     doReturn( uriMock ).when( httpGetMock ).getURI();
     doReturn( httpGetMock ).when( slaveServer ).buildExecuteServiceMethod( anyString(), anyMapOf( String.class,
-        String.class ) );
+      String.class ) );
     slaveServer.setHostname( "hostNameStub" );
     slaveServer.setUsername( "userNAmeStub" );
     slaveServer.execService( "wrong_app_name" );
@@ -165,7 +165,7 @@ public class SlaveServerTest {
     URI uriMock = new URI( "fake" );
     doReturn( uriMock ).when( httpPostMock ).getURI();
     doReturn( httpPostMock ).when( slaveServer ).buildSendExportMethod( anyString(), anyString(), any(
-        InputStream.class ) );
+      InputStream.class ) );
     File tempFile;
     tempFile = File.createTempFile( "PDI-", "tmp" );
     tempFile.deleteOnExit();
@@ -189,7 +189,7 @@ public class SlaveServerTest {
     when( client.execute( any(), any( HttpContext.class ) ) ).then( new Answer<HttpResponse>() {
       @Override
       public HttpResponse answer( InvocationOnMock invocation ) throws Throwable {
-        HttpClientContext context = (HttpClientContext) invocation.getArguments()[1];
+        HttpClientContext context = (HttpClientContext) invocation.getArguments()[ 1 ];
         Credentials cred = context.getCredentialsProvider().getCredentials( new AuthScope( "hname", 1111 ) );
         assertEquals( "uname", cred.getUserPrincipal().getName() );
         return mockResponse( 200, responseContent );
@@ -200,7 +200,7 @@ public class SlaveServerTest {
     when( slaveServer.getResponseBodyAsString( any() ) ).thenCallRealMethod();
 
     doReturn( httpPostMock ).when( slaveServer ).buildSendExportMethod( anyString(), anyString(), any(
-        InputStream.class ) );
+      InputStream.class ) );
     File tempFile;
     tempFile = File.createTempFile( "PDI-", "tmp" );
     tempFile.deleteOnExit();

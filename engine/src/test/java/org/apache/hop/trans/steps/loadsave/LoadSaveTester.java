@@ -22,16 +22,6 @@
 
 package org.apache.hop.trans.steps.loadsave;
 
-import static org.junit.Assert.assertNotSame;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.apache.hop.base.LoadSaveBase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -43,7 +33,15 @@ import org.apache.hop.trans.steps.loadsave.setter.Setter;
 import org.apache.hop.trans.steps.loadsave.validator.DatabaseMetaLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidatorFactory;
-import org.apache.hop.metastore.api.IMetaStore;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertNotSame;
 
 public class LoadSaveTester<T extends StepMetaInterface> extends LoadSaveBase<T> {
 
@@ -79,8 +77,8 @@ public class LoadSaveTester<T extends StepMetaInterface> extends LoadSaveBase<T>
                          Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
                          Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
                          InitializerInterface<T> metaInitializerIFace ) {
-      this( clazz, commonAttributes, new ArrayList<String>(), new ArrayList<String>(), getterMap, setterMap,
-        fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap, metaInitializerIFace );
+    this( clazz, commonAttributes, new ArrayList<String>(), new ArrayList<String>(), getterMap, setterMap,
+      fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap, metaInitializerIFace );
   }
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes,
@@ -107,7 +105,7 @@ public class LoadSaveTester<T extends StepMetaInterface> extends LoadSaveBase<T>
   @Override
   @SuppressWarnings( "unchecked" )
   protected Map<String, FieldLoadSaveValidator<?>> createValidatorMapAndInvokeSetters( List<String> attributes,
-    T metaToSave ) {
+                                                                                       T metaToSave ) {
     Map<String, FieldLoadSaveValidator<?>> validatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     for ( String attribute : attributes ) {
       Getter<?> getter = manipulator.getGetter( attribute );
@@ -149,10 +147,10 @@ public class LoadSaveTester<T extends StepMetaInterface> extends LoadSaveBase<T>
   }
 
   /**
-   * @deprecated the {@link #testSerialization()} method should be used instead,
-   *             as additional tests may be added in the future to cover other
-   *             topics related to step serialization
    * @throws HopException
+   * @deprecated the {@link #testSerialization()} method should be used instead,
+   * as additional tests may be added in the future to cover other
+   * topics related to step serialization
    */
   @Deprecated
   // TODO Change method visibility to protected

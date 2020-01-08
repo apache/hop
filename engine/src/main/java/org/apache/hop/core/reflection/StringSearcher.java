@@ -49,7 +49,7 @@ public class StringSearcher {
   }
 
   public static final void findMetaData( Object object, int level, List<StringSearchResult> stringList,
-    Object parentObject, Object grandParentObject ) {
+                                         Object parentObject, Object grandParentObject ) {
     // System.out.println(Const.rightPad(" ", level)+"Finding strings in "+object.toString());
 
     if ( ( object == null ) || level > 5 ) {
@@ -68,7 +68,7 @@ public class StringSearcher {
     Class<? extends Object> baseClass = object.getClass();
     Field[] fields = baseClass.getDeclaredFields();
     for ( int i = 0; i < fields.length; i++ ) {
-      Field field = fields[i];
+      Field field = fields[ i ];
 
       boolean processThisOne = true;
 
@@ -89,7 +89,7 @@ public class StringSearcher {
         sanctionedPackage = true;
       }
       for ( int x = 0; x < JAVA_PACKAGES.length && !sanctionedPackage; x++ ) {
-        if ( fieldToString.indexOf( JAVA_PACKAGES[x] ) >= 0 ) {
+        if ( fieldToString.indexOf( JAVA_PACKAGES[ x ] ) >= 0 ) {
           sanctionedPackage = true;
         }
       }
@@ -142,7 +142,7 @@ public class StringSearcher {
   }
 
   private static void stringSearchInObject( Object obj, int level, List<StringSearchResult> stringList,
-    Object parentObject, Object grandParentObject, Field field ) {
+                                            Object parentObject, Object grandParentObject, Field field ) {
     String fieldName = field.getName();
     if ( obj instanceof String ) {
       // OK, let's add the String
@@ -150,8 +150,8 @@ public class StringSearcher {
     } else if ( obj instanceof String[] ) {
       String[] array = (String[]) obj;
       for ( int x = 0; x < array.length; x++ ) {
-        if ( array[x] != null ) {
-          stringList.add( new StringSearchResult( array[x], parentObject, grandParentObject, fieldName
+        if ( array[ x ] != null ) {
+          stringList.add( new StringSearchResult( array[ x ], parentObject, grandParentObject, fieldName
             + " #" + ( x + 1 ) ) );
         }
       }
@@ -160,7 +160,7 @@ public class StringSearcher {
       stringList.add( new StringSearchResult( ( (Boolean) obj ).toString(), parentObject, grandParentObject, fieldName
         + " (Boolean)" ) );
     } else if ( obj instanceof Condition ) {
-      stringList.add( new StringSearchResult( ( (Condition) obj).toString(), parentObject, grandParentObject, fieldName + " (Condition)" ) );
+      stringList.add( new StringSearchResult( ( (Condition) obj ).toString(), parentObject, grandParentObject, fieldName + " (Condition)" ) );
     } else if ( obj instanceof DatabaseInterface ) {
       // Make sure we read the attributes. This is not picked up by default. (getDeclaredFields doesn't pick up
       // inherited fields)
@@ -173,7 +173,7 @@ public class StringSearcher {
       findMapMetaData( (Map<?, ?>) obj, level, stringList, parentObject, grandParentObject, field );
     } else if ( obj instanceof Object[] ) {
       for ( int j = 0; j < ( (Object[]) obj ).length; j++ ) {
-        findMetaData( ( (Object[]) obj )[j], level + 1, stringList, parentObject, grandParentObject );
+        findMetaData( ( (Object[]) obj )[ j ], level + 1, stringList, parentObject, grandParentObject );
       }
     } else {
       findMetaData( obj, level + 1, stringList, parentObject, grandParentObject );
@@ -181,7 +181,7 @@ public class StringSearcher {
   }
 
   private static void findMapMetaData( Map<?, ?> map, int level, List<StringSearchResult> stringList,
-    Object parentObject, Object grandParentObject, Field field ) {
+                                       Object parentObject, Object grandParentObject, Field field ) {
 
     String fieldName = field.getName();
     for ( Object key : map.keySet() ) {
@@ -232,9 +232,9 @@ public class StringSearcher {
     } catch ( Exception e ) {
       // Nope try case insensitive.
       for ( int i = 0; i < methods.length; i++ ) {
-        String methodName = methods[i].getName();
+        String methodName = methods[ i ].getName();
         if ( methodName.equalsIgnoreCase( getter ) ) {
-          return methods[i];
+          return methods[ i ];
         }
       }
 

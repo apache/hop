@@ -22,11 +22,7 @@
 
 package org.apache.hop.trans.steps.detectlastrow;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
+import junit.framework.TestCase;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
@@ -50,7 +46,10 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
 import org.apache.hop.trans.steps.injector.InjectorMeta;
 
-import junit.framework.TestCase;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Test class for the Detect Last Row (also now as "Identify last row in stream) step.
@@ -62,13 +61,13 @@ public class DetectLastRowStepIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    {
-      new ValueMetaString( "field1" ), new ValueMetaInteger( "field2" ),
-      new ValueMetaNumber( "field3" ), new ValueMetaBoolean( "field5" ),
-      new ValueMetaBigNumber( "field6" ), };
+      {
+        new ValueMetaString( "field1" ), new ValueMetaInteger( "field2" ),
+        new ValueMetaNumber( "field3" ), new ValueMetaBoolean( "field5" ),
+        new ValueMetaBigNumber( "field6" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -77,9 +76,7 @@ public class DetectLastRowStepIT extends TestCase {
   /**
    * Create data rows.
    *
-   * @param nrRows
-   *          nr of rows to insert (from 0 to 3 for the moment)
-   *
+   * @param nrRows nr of rows to insert (from 0 to 3 for the moment)
    * @return List of row and meta data
    */
   public List<RowMetaAndData> createData( int nrRows ) {
@@ -107,14 +104,14 @@ public class DetectLastRowStepIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    {
-      new ValueMetaString( "field1" ), new ValueMetaInteger( "field2" ),
-      new ValueMetaNumber( "field3" ), new ValueMetaBoolean( "field5" ),
-      new ValueMetaBigNumber( "field6" ),
-      new ValueMetaBoolean( "result" ), };
+      {
+        new ValueMetaString( "field1" ), new ValueMetaInteger( "field2" ),
+        new ValueMetaNumber( "field3" ), new ValueMetaBoolean( "field5" ),
+        new ValueMetaBigNumber( "field6" ),
+        new ValueMetaBoolean( "result" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -123,9 +120,7 @@ public class DetectLastRowStepIT extends TestCase {
   /**
    * Create result data rows.
    *
-   * @param nrRows
-   *          nr of rows to insert (from 0 to 3 for the moment)
-   *
+   * @param nrRows nr of rows to insert (from 0 to 3 for the moment)
    * @return List of row and meta data
    */
   public List<RowMetaAndData> createResultData( int nrRows ) {
@@ -156,10 +151,8 @@ public class DetectLastRowStepIT extends TestCase {
   /**
    * Check the 2 lists comparing the rows in order. If they are not the same fail the test.
    *
-   * @param rows1
-   *          first row set to compare
-   * @param rows2
-   *          second row set to compare
+   * @param rows1 first row set to compare
+   * @param rows2 second row set to compare
    */
   public void checkRows( List<RowMetaAndData> rows1, List<RowMetaAndData> rows2 ) {
     int idx = 1;
@@ -179,9 +172,9 @@ public class DetectLastRowStepIT extends TestCase {
       if ( rm1.size() != rm2.size() ) {
         fail( "row nr " + idx + " is not equal" );
       }
-      int[] fields = new int[rm1.size()];
+      int[] fields = new int[ rm1.size() ];
       for ( int ydx = 0; ydx < rm1.size(); ydx++ ) {
-        fields[ydx] = ydx;
+        fields[ ydx ] = ydx;
       }
       try {
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {
@@ -198,11 +191,8 @@ public class DetectLastRowStepIT extends TestCase {
   /**
    * Test case Detect Last Row step. Nr of rows to test with as argument.
    *
-   * @param nrRows
-   *          Number of rows to test.
-   *
-   * @throws Exception
-   *           upon any exception
+   * @param nrRows Number of rows to test.
+   * @throws Exception upon any exception
    */
   public void detectLastRowStepTest( int nrRows ) throws Exception {
     HopEnvironment.init();
@@ -305,8 +295,7 @@ public class DetectLastRowStepIT extends TestCase {
   /**
    * Test with 0 rows
    *
-   * @throws Exception
-   *           Upon any error.
+   * @throws Exception Upon any error.
    */
   public void testDetectLastRowStep0() throws Exception {
     detectLastRowStepTest( 0 );
@@ -315,8 +304,7 @@ public class DetectLastRowStepIT extends TestCase {
   /**
    * Test with 1 rows
    *
-   * @throws Exception
-   *           Upon any error.
+   * @throws Exception Upon any error.
    */
   public void testDetectLastRowStep1() throws Exception {
     detectLastRowStepTest( 1 );
@@ -325,8 +313,7 @@ public class DetectLastRowStepIT extends TestCase {
   /**
    * Test with 2 rows
    *
-   * @throws Exception
-   *           Upon any error.
+   * @throws Exception Upon any error.
    */
   public void testDetectLastRowStep2() throws Exception {
     detectLastRowStepTest( 2 );
@@ -335,8 +322,7 @@ public class DetectLastRowStepIT extends TestCase {
   /**
    * Test with 3 rows
    *
-   * @throws Exception
-   *           Upon any error.
+   * @throws Exception Upon any error.
    */
   public void testDetectLastRowStep3() throws Exception {
     detectLastRowStepTest( 3 );

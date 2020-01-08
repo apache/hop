@@ -22,6 +22,14 @@
 
 package org.apache.hop.trans.step.errorhandling;
 
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.step.BaseStep;
+
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -31,14 +39,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.step.BaseStep;
 
 public abstract class AbstractFileErrorHandler implements FileErrorHandler {
   private static Class<?> PKG = AbstractFileErrorHandler.class; // for i18n purposes, needed by Translator2!!
@@ -62,7 +62,7 @@ public abstract class AbstractFileErrorHandler implements FileErrorHandler {
   private BaseStep baseStep;
 
   public AbstractFileErrorHandler( Date date, String destinationDirectory, String fileExtension, String encoding,
-    BaseStep baseStep ) {
+                                   BaseStep baseStep ) {
     this.destinationDirectory = destinationDirectory;
     this.fileExtension = fileExtension;
     this.encoding = encoding;
@@ -80,7 +80,7 @@ public abstract class AbstractFileErrorHandler implements FileErrorHandler {
   }
 
   public static FileObject getReplayFilename( String destinationDirectory, String processingFilename,
-    String dateString, String extension, Object source ) throws HopFileException {
+                                              String dateString, String extension, Object source ) throws HopFileException {
     String name = null;
     String sourceAdding = "";
     if ( !NO_PARTS.equals( source ) ) {
@@ -95,7 +95,7 @@ public abstract class AbstractFileErrorHandler implements FileErrorHandler {
   }
 
   public static FileObject getReplayFilename( String destinationDirectory, String processingFilename, Date date,
-    String extension, Object source ) throws HopFileException {
+                                              String extension, Object source ) throws HopFileException {
     return getReplayFilename(
       destinationDirectory, processingFilename, createDateFormat().format( date ), extension, source );
   }

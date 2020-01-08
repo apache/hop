@@ -22,17 +22,17 @@
 
 package org.apache.hop.core;
 
-import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Dimension2D;
-import java.awt.image.BufferedImage;
-
 import org.apache.batik.bridge.BridgeContext;
 import org.apache.batik.bridge.DocumentLoader;
 import org.apache.batik.bridge.GVTBuilder;
 import org.apache.batik.bridge.UserAgentAdapter;
 import org.apache.batik.gvt.GraphicsNode;
 import org.apache.hop.core.svg.SvgImage;
+
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Dimension2D;
+import java.awt.image.BufferedImage;
 
 public class SwingUniversalImageSvg extends SwingUniversalImage {
   private final GraphicsNode svgGraphicsNode;
@@ -71,7 +71,7 @@ public class SwingUniversalImageSvg extends SwingUniversalImage {
   }
 
   public static void render( Graphics2D gc, GraphicsNode svgGraphicsNode, Dimension2D svgGraphicsSize, int centerX,
-      int centerY, int width, int height, double angleRadians ) {
+                             int centerY, int width, int height, double angleRadians ) {
     double scaleX = width / svgGraphicsSize.getWidth();
     double scaleY = height / svgGraphicsSize.getHeight();
 

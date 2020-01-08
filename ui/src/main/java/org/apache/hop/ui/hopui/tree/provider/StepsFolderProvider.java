@@ -22,7 +22,6 @@
 
 package org.apache.hop.ui.hopui.tree.provider;
 
-import org.eclipse.swt.graphics.Image;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -33,6 +32,7 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.widget.tree.TreeNode;
 import org.apache.hop.ui.hopui.HopUi;
+import org.eclipse.swt.graphics.Image;
 
 /**
  * Created by bmorrise on 6/26/18.
@@ -69,9 +69,6 @@ public class StepsFolderProvider extends AutomaticTreeFolderProvider {
       TreeNode childTreeNode = createTreeNode( treeNode, stepMeta.getName(), stepIcon );
       childTreeNode.setData( "StepId", stepMeta.getStepID() );
 
-      if ( stepMeta.isShared() ) {
-        childTreeNode.setFont( GUIResource.getInstance().getFontBold() );
-      }
       if ( !stepMeta.isDrawn() ) {
         childTreeNode.setForeground( GUIResource.getInstance().getColorDarkGray() );
       }

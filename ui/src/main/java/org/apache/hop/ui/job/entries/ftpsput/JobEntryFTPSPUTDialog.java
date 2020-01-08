@@ -22,6 +22,22 @@
 
 package org.apache.hop.ui.job.entries.ftpsput;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.ftpsget.FTPSConnection;
+import org.apache.hop.job.entries.ftpsput.JobEntryFTPSPUT;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.LabelTextVar;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -46,22 +62,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.ftpsget.FTPSConnection;
-import org.apache.hop.job.entries.ftpsput.JobEntryFTPSPUT;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.LabelTextVar;
-import org.apache.hop.ui.core.widget.PasswordTextVar;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * This dialog allows you to edit the FTPS Put job entry settings
@@ -383,7 +383,7 @@ public class JobEntryFTPSPUTDialog extends JobEntryDialog implements JobEntryDia
     wProxyHost =
       new LabelTextVar(
         jobMeta, wServerSettings, BaseMessages.getString( PKG, "JobFTPSPUT.ProxyHost.Label" ), BaseMessages
-          .getString( PKG, "JobFTPSPUT.ProxyHost.Tooltip" ) );
+        .getString( PKG, "JobFTPSPUT.ProxyHost.Tooltip" ) );
     props.setLook( wProxyHost );
     wProxyHost.addModifyListener( lsMod );
     fdProxyHost = new FormData();
@@ -396,7 +396,7 @@ public class JobEntryFTPSPUTDialog extends JobEntryDialog implements JobEntryDia
     wProxyPort =
       new LabelTextVar(
         jobMeta, wServerSettings, BaseMessages.getString( PKG, "JobFTPSPUT.ProxyPort.Label" ), BaseMessages
-          .getString( PKG, "JobFTPSPUT.ProxyPort.Tooltip" ) );
+        .getString( PKG, "JobFTPSPUT.ProxyPort.Tooltip" ) );
     props.setLook( wProxyPort );
     wProxyPort.addModifyListener( lsMod );
     fdProxyPort = new FormData();
@@ -931,7 +931,7 @@ public class JobEntryFTPSPUTDialog extends JobEntryDialog implements JobEntryDia
       }
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
       mb.setMessage( BaseMessages.getString( PKG, "JobFTPSPUT.ErrorConnect.NOK", realServername,
-          e.getMessage() ) + Const.CR );
+        e.getMessage() ) + Const.CR );
       mb.setText( BaseMessages.getString( PKG, "JobFTPSPUT.ErrorConnect.Title.Bad" ) );
       mb.open();
     }

@@ -22,24 +22,18 @@
 
 package org.apache.hop.trans.steps.webservices;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -47,42 +41,65 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class WebServiceMeta extends BaseStepMeta implements StepMetaInterface {
   public static final String XSD_NS_URI = "http://www.w3.org/2001/XMLSchema";
 
   public static final int DEFAULT_STEP = 1000;
 
-  /** The input web service fields */
+  /**
+   * The input web service fields
+   */
   private List<WebServiceField> fieldsIn;
 
-  /** The output web service fields */
+  /**
+   * The output web service fields
+   */
   private List<WebServiceField> fieldsOut;
 
-  /** Web service URL */
+  /**
+   * Web service URL
+   */
   private String url;
 
-  /** Name of the web service operation to use */
+  /**
+   * Name of the web service operation to use
+   */
   private String operationName;
 
-  /** Name of the operation request name: optional, can be different from the operation name */
+  /**
+   * Name of the operation request name: optional, can be different from the operation name
+   */
   private String operationRequestName;
 
-  /** The name-space of the operation */
+  /**
+   * The name-space of the operation
+   */
   private String operationNamespace;
 
-  /** The name of the object that encapsulates the input fields in case we're dealing with a table */
+  /**
+   * The name of the object that encapsulates the input fields in case we're dealing with a table
+   */
   private String inFieldContainerName;
 
-  /** Name of the input object */
+  /**
+   * Name of the input object
+   */
   private String inFieldArgumentName;
 
-  /** Name of the object that encapsulates the output fields in case we're dealing with a table */
+  /**
+   * Name of the object that encapsulates the output fields in case we're dealing with a table
+   */
   private String outFieldContainerName;
 
-  /** Name of the output object */
+  /**
+   * Name of the output object
+   */
   private String outFieldArgumentName;
 
   private String proxyHost;
@@ -93,19 +110,29 @@ public class WebServiceMeta extends BaseStepMeta implements StepMetaInterface {
 
   private String httpPassword;
 
-  /** Flag to allow input data to pass to the output */
+  /**
+   * Flag to allow input data to pass to the output
+   */
   private boolean passingInputData;
 
-  /** The number of rows to send with each call */
+  /**
+   * The number of rows to send with each call
+   */
   private int callStep = DEFAULT_STEP;
 
-  /** Use the 2.5/3.0 parsing logic (available for compatibility reasons) */
+  /**
+   * Use the 2.5/3.0 parsing logic (available for compatibility reasons)
+   */
   private boolean compatible;
 
-  /** The name of the repeating element name. Empty = a single row return */
+  /**
+   * The name of the repeating element name. Empty = a single row return
+   */
   private String repeatingElementName;
 
-  /** Is this step giving back the complete reply from the service as an XML string? */
+  /**
+   * Is this step giving back the complete reply from the service as an XML string?
+   */
   private boolean returningReplyAsString;
 
   public WebServiceMeta() {
@@ -121,7 +148,7 @@ public class WebServiceMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Input rows and output rows are different in the webservice step
     //
     if ( !isPassingInputData() ) {
@@ -167,8 +194,8 @@ public class WebServiceMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -319,7 +346,7 @@ public class WebServiceMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans disp ) {
+                                TransMeta transMeta, Trans disp ) {
     return new WebService( stepMeta, stepDataInterface, cnr, transMeta, disp );
   }
 
@@ -342,10 +369,8 @@ public class WebServiceMeta extends BaseStepMeta implements StepMetaInterface {
   /**
    * Returns the WebServicesField for the given wsName.
    *
-   * @param wsName
-   *          The name of the WebServiceField to return
-   * @param ignoreWsNsPrefix
-   *          If true the lookup of the cache of WebServiceFields will not include the target namespace prefix.
+   * @param wsName           The name of the WebServiceField to return
+   * @param ignoreWsNsPrefix If true the lookup of the cache of WebServiceFields will not include the target namespace prefix.
    * @return
    */
   public WebServiceField getFieldOutFromWsName( String wsName, boolean ignoreWsNsPrefix ) {
@@ -360,7 +385,7 @@ public class WebServiceMeta extends BaseStepMeta implements StepMetaInterface {
 
       // we split the wsName and set it to the last element of what was parsed
       String[] wsNameParsed = wsName.split( ":" );
-      wsName = wsNameParsed[wsNameParsed.length - 1];
+      wsName = wsNameParsed[ wsNameParsed.length - 1 ];
     }
 
     // we now look for the wsname
@@ -498,8 +523,7 @@ public class WebServiceMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param passingInputData
-   *          the passingInputData to set
+   * @param passingInputData the passingInputData to set
    */
   public void setPassingInputData( boolean passingInputData ) {
     this.passingInputData = passingInputData;
@@ -513,8 +537,7 @@ public class WebServiceMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param compatible
-   *          the compatible to set
+   * @param compatible the compatible to set
    */
   public void setCompatible( boolean compatible ) {
     this.compatible = compatible;
@@ -528,8 +551,7 @@ public class WebServiceMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param repeatingElementName
-   *          the repeatingElementName to set
+   * @param repeatingElementName the repeatingElementName to set
    */
   public void setRepeatingElementName( String repeatingElementName ) {
     this.repeatingElementName = repeatingElementName;
@@ -543,8 +565,7 @@ public class WebServiceMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param returningReplyAsString
-   *          true if the reply from the service is simply passed on as a String, mostly in XML
+   * @param returningReplyAsString true if the reply from the service is simply passed on as a String, mostly in XML
    */
   public void setReturningReplyAsString( boolean returningReplyAsString ) {
     this.returningReplyAsString = returningReplyAsString;
@@ -558,8 +579,7 @@ public class WebServiceMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param operationRequestName
-   *          the operationRequestName to set
+   * @param operationRequestName the operationRequestName to set
    */
   public void setOperationRequestName( String operationRequestName ) {
     this.operationRequestName = operationRequestName;

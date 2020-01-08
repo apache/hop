@@ -22,6 +22,17 @@
 
 package org.apache.hop.ui.trans.steps.injector;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.injector.InjectorMeta;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -40,17 +51,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.injector.InjectorMeta;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class InjectorDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = InjectorMeta.class; // for i18n purposes, needed by Translator2!!
@@ -205,10 +205,10 @@ public class InjectorDialog extends BaseStepDialog implements StepDialogInterfac
   public void getData() {
     for ( int i = 0; i < input.getFieldname().length; i++ ) {
       TableItem item = wFields.table.getItem( i );
-      item.setText( 1, input.getFieldname()[i] );
-      item.setText( 2, ValueMetaFactory.getValueMetaName( input.getType()[i] ) );
-      int len = input.getLength()[i];
-      int prc = input.getPrecision()[i];
+      item.setText( 1, input.getFieldname()[ i ] );
+      item.setText( 2, ValueMetaFactory.getValueMetaName( input.getType()[ i ] ) );
+      int len = input.getLength()[ i ];
+      int prc = input.getPrecision()[ i ];
       item.setText( 3, len >= 0 ? "" + len : "" );
       item.setText( 4, prc >= 0 ? "" + prc : "" );
     }
@@ -234,10 +234,10 @@ public class InjectorDialog extends BaseStepDialog implements StepDialogInterfac
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrfields; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      input.getFieldname()[i] = item.getText( 1 );
-      input.getType()[i] = ValueMetaFactory.getIdForValueMeta( item.getText( 2 ) );
-      input.getLength()[i] = Const.toInt( item.getText( 3 ), -1 );
-      input.getPrecision()[i] = Const.toInt( item.getText( 4 ), -1 );
+      input.getFieldname()[ i ] = item.getText( 1 );
+      input.getType()[ i ] = ValueMetaFactory.getIdForValueMeta( item.getText( 2 ) );
+      input.getLength()[ i ] = Const.toInt( item.getText( 3 ), -1 );
+      input.getPrecision()[ i ] = Const.toInt( item.getText( 4 ), -1 );
     }
     dispose();
   }

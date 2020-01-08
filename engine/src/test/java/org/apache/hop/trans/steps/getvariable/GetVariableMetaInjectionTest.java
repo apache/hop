@@ -22,14 +22,15 @@
 
 package org.apache.hop.trans.steps.getvariable;
 
+import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 public class GetVariableMetaInjectionTest extends BaseMetadataInjectionTest<GetVariableMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Before
   public void setup() throws Exception {
     setup( new GetVariableMeta() );
@@ -39,52 +40,52 @@ public class GetVariableMetaInjectionTest extends BaseMetadataInjectionTest<GetV
   public void test() throws Exception {
     check( "FIELDNAME", new StringGetter() {
       public String get() {
-        return meta.getFieldDefinitions()[0].getFieldName();
+        return meta.getFieldDefinitions()[ 0 ].getFieldName();
       }
     } );
     check( "VARIABLE", new StringGetter() {
       public String get() {
-        return meta.getFieldDefinitions()[0].getVariableString();
+        return meta.getFieldDefinitions()[ 0 ].getVariableString();
       }
     } );
     check( "FIELDTYPE", new IntGetter() {
       public int get() {
-        return meta.getFieldDefinitions()[0].getFieldType();
+        return meta.getFieldDefinitions()[ 0 ].getFieldType();
       }
     } );
     check( "FIELDFORMAT", new StringGetter() {
       public String get() {
-        return meta.getFieldDefinitions()[0].getFieldFormat();
+        return meta.getFieldDefinitions()[ 0 ].getFieldFormat();
       }
     } );
     check( "FIELDLENGTH", new IntGetter() {
       public int get() {
-        return meta.getFieldDefinitions()[0].getFieldLength();
+        return meta.getFieldDefinitions()[ 0 ].getFieldLength();
       }
     } );
     check( "FIELDPRECISION", new IntGetter() {
       public int get() {
-        return meta.getFieldDefinitions()[0].getFieldPrecision();
+        return meta.getFieldDefinitions()[ 0 ].getFieldPrecision();
       }
     } );
     check( "CURRENCY", new StringGetter() {
       public String get() {
-        return meta.getFieldDefinitions()[0].getCurrency();
+        return meta.getFieldDefinitions()[ 0 ].getCurrency();
       }
     } );
     check( "DECIMAL", new StringGetter() {
       public String get() {
-        return meta.getFieldDefinitions()[0].getDecimal();
+        return meta.getFieldDefinitions()[ 0 ].getDecimal();
       }
     } );
     check( "GROUP", new StringGetter() {
       public String get() {
-        return meta.getFieldDefinitions()[0].getGroup();
+        return meta.getFieldDefinitions()[ 0 ].getGroup();
       }
     } );
     check( "TRIMTYPE", new IntGetter() {
       public int get() {
-        return meta.getFieldDefinitions()[0].getTrimType();
+        return meta.getFieldDefinitions()[ 0 ].getTrimType();
       }
     } );
   }

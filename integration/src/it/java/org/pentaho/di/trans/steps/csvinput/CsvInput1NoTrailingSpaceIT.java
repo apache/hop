@@ -22,20 +22,20 @@
 
 package org.apache.hop.trans.steps.csvinput;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
+import org.junit.Test;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * Regression test case for PDI JIRA-1317: a csv input step with less columns in certain rows than the number of columns
  * defined in the step.
- *
+ * <p>
  * In the original problem (in v3.1-M2) this caused the filename column to be in the wrong places.
  *
  * @author Sven Boden Modified by Sean Flatley
@@ -46,8 +46,7 @@ public class CsvInput1NoTrailingSpaceIT extends CsvInput1IT {
    * Write the file to be used as input (as a temporary file).
    *
    * @return Absolute file name/path of the created file.
-   * @throws IOException
-   *           UPON
+   * @throws IOException UPON
    */
   public String writeInputFile() throws IOException {
 
@@ -72,8 +71,7 @@ public class CsvInput1NoTrailingSpaceIT extends CsvInput1IT {
   /**
    * Test case for Get XML Data step, very simple example.
    *
-   * @throws Exception
-   *           Upon any exception
+   * @throws Exception Upon any exception
    */
   @Test
   public void testCSVInput1() throws Exception {

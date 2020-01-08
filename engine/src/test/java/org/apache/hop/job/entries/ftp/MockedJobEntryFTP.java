@@ -22,10 +22,10 @@
 
 package org.apache.hop.job.entries.ftp;
 
+import com.enterprisedt.net.ftp.FTPClient;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
-import com.enterprisedt.net.ftp.FTPClient;
 
 public class MockedJobEntryFTP extends JobEntryFTP {
 

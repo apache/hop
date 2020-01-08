@@ -25,11 +25,10 @@ package org.apache.hop.www;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
 import org.owasp.encoder.Encode;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -75,7 +74,7 @@ public class AllocateServerSocketServletTest {
       }
 
       @Override
-      public void setWriteListener(WriteListener writeListener) {
+      public void setWriteListener( WriteListener writeListener ) {
 
       }
 
@@ -99,7 +98,7 @@ public class AllocateServerSocketServletTest {
     String dynamicBody =
       ServletTestUtils
         .getInsideOfTag( "BODY", response ).replaceAll( "<p>", "" ).replaceAll( "<br>", "" ).replaceAll(
-          "<H1>.+</H1>", "" ).replaceAll( "--> port", "" );
+        "<H1>.+</H1>", "" ).replaceAll( "--> port", "" );
     assertFalse( ServletTestUtils.hasBadText( dynamicBody ) );
     PowerMockito.verifyStatic( atLeastOnce() );
     Encode.forHtml( anyString() );

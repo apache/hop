@@ -26,10 +26,10 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 
 @DatabaseMetaPlugin(
-        type = "INFINIDB",
-        typeDescription = "Calpont InfiniDB"
+  type = "INFINIDB",
+  typeDescription = "Calpont InfiniDB"
 )
-@GuiPlugin( id="GUI-InfiniDbDatabaseMeta" )
+@GuiPlugin( id = "GUI-InfiniDbDatabaseMeta" )
 public class InfiniDbDatabaseMeta extends MySQLDatabaseMeta implements DatabaseInterface {
 
   // Only has a different ID to catch exceptions here and there.

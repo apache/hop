@@ -22,17 +22,10 @@
 
 package org.apache.hop.job.entries.filesexist;
 
-import java.io.IOException;
-import java.util.List;
-
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
@@ -41,16 +34,17 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * This defines a Files exist job entry.
  *
  * @author Samatar
  * @since 10-12-2007
- *
  */
 
 public class JobEntryFilesExist extends JobEntryBase implements Cloneable, JobEntryInterface {
@@ -70,7 +64,7 @@ public class JobEntryFilesExist extends JobEntryBase implements Cloneable, JobEn
   }
 
   public void allocate( int nrFields ) {
-    arguments = new String[nrFields];
+    arguments = new String[ nrFields ];
   }
 
   public Object clone() {
@@ -94,7 +88,7 @@ public class JobEntryFilesExist extends JobEntryBase implements Cloneable, JobEn
     if ( arguments != null ) {
       for ( int i = 0; i < arguments.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "name", arguments[i] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "name", arguments[ i ] ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
@@ -103,10 +97,10 @@ public class JobEntryFilesExist extends JobEntryBase implements Cloneable, JobEn
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       filename = XMLHandler.getTagValue( entrynode, "filename" );
 
       Node fields = XMLHandler.getSubNode( entrynode, "fields" );
@@ -119,7 +113,7 @@ public class JobEntryFilesExist extends JobEntryBase implements Cloneable, JobEn
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        arguments[i] = XMLHandler.getTagValue( fnode, "name" );
+        arguments[ i ] = XMLHandler.getTagValue( fnode, "name" );
 
       }
     } catch ( HopXMLException xe ) {
@@ -160,7 +154,7 @@ public class JobEntryFilesExist extends JobEntryBase implements Cloneable, JobEn
         FileObject file = null;
 
         try {
-          String realFilefoldername = environmentSubstitute( arguments[i] );
+          String realFilefoldername = environmentSubstitute( arguments[ i ] );
           file = HopVFS.getFileObject( realFilefoldername, this );
 
           if ( file.exists() && file.isReadable() ) { // TODO: is it needed to check file for readability?
@@ -211,7 +205,7 @@ public class JobEntryFilesExist extends JobEntryBase implements Cloneable, JobEn
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
   }
 
 }

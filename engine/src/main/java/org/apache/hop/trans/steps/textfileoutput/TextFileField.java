@@ -31,7 +31,6 @@ import org.apache.hop.core.row.value.ValueMetaString;
  *
  * @author Matt
  * @since 11-05-2005
- *
  */
 public class TextFileField implements Cloneable {
   @Injection( name = "OUTPUT_FIELDNAME", group = "OUTPUT_FIELDS" )
@@ -63,7 +62,7 @@ public class TextFileField implements Cloneable {
   private int trimType;
 
   public TextFileField( String name, int type, String format, int length, int precision, String currencySymbol,
-    String decimalSymbol, String groupSymbol, String nullString ) {
+                        String decimalSymbol, String groupSymbol, String nullString ) {
     this.name = name;
     this.type = type;
     this.format = format;

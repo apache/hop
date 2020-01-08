@@ -22,13 +22,7 @@
 
 package org.apache.hop.trans.steps.synchronizeaftermerge;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.OracleDatabaseMeta;
@@ -39,6 +33,7 @@ import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -47,6 +42,11 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Performs an insert/update/delete depending on the value of a field.
@@ -62,7 +62,7 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
   private SynchronizeAfterMergeData data;
 
   public SynchronizeAfterMerge( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
+                                Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -88,7 +88,7 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
     try {
       if ( operation == null ) {
         throw new HopException( BaseMessages.getString( PKG, "SynchronizeAfterMerge.Log.OperationFieldEmpty", meta
-            .getOperationOrderField() ) );
+          .getOperationOrderField() ) );
       }
 
       if ( meta.istablenameInField() ) {
@@ -98,7 +98,7 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
           throw new HopStepException( "The name of the table is not specified!" );
         }
         data.realSchemaTable =
-            data.db.getDatabaseMeta().getQuotedSchemaTableCombination( data.realSchemaName, data.realTableName );
+          data.db.getDatabaseMeta().getQuotedSchemaTableCombination( data.realSchemaName, data.realTableName );
       }
 
       if ( operation.equals( data.insertValue ) ) {
@@ -114,9 +114,9 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
 
         // The values to insert are those in the update section
         //
-        Object[] insertRowData = new Object[data.valuenrs.length];
+        Object[] insertRowData = new Object[ data.valuenrs.length ];
         for ( int i = 0; i < data.valuenrs.length; i++ ) {
-          insertRowData[i] = row[data.valuenrs[i]];
+          insertRowData[ i ] = row[ data.valuenrs[ i ] ];
         }
 
         if ( meta.istablenameInField() ) {
@@ -153,15 +153,15 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
 
       } else {
 
-        Object[] lookupRow = new Object[data.keynrs.length];
+        Object[] lookupRow = new Object[ data.keynrs.length ];
         int lookupIndex = 0;
         for ( int i = 0; i < meta.getKeyStream().length; i++ ) {
-          if ( data.keynrs[i] >= 0 ) {
-            lookupRow[lookupIndex] = row[data.keynrs[i]];
+          if ( data.keynrs[ i ] >= 0 ) {
+            lookupRow[ lookupIndex ] = row[ data.keynrs[ i ] ];
             lookupIndex++;
           }
-          if ( data.keynrs2[i] >= 0 ) {
-            lookupRow[lookupIndex] = row[data.keynrs2[i]];
+          if ( data.keynrs2[ i ] >= 0 ) {
+            lookupRow[ lookupIndex ] = row[ data.keynrs2[ i ] ];
             lookupIndex++;
           }
         }
@@ -188,7 +188,7 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
           data.db.setValues( data.lookupParameterRowMeta, lookupRow, data.lookupStatement );
           if ( log.isRowLevel() ) {
             logRowlevel( BaseMessages.getString( PKG, "SynchronizeAfterMerge.Log.ValuesSetForLookup",
-                data.lookupParameterRowMeta.getString( lookupRow ) ) );
+              data.lookupParameterRowMeta.getString( lookupRow ) ) );
           }
           Object[] add = data.db.getLookup( data.lookupStatement );
           incrementLinesInput();
@@ -198,8 +198,8 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
 
             if ( data.stringErrorKeyNotFound == null ) {
               data.stringErrorKeyNotFound =
-                  BaseMessages.getString( PKG, "SynchronizeAfterMerge.Exception.KeyCouldNotFound" )
-                      + data.lookupParameterRowMeta.getString( lookupRow );
+                BaseMessages.getString( PKG, "SynchronizeAfterMerge.Exception.KeyCouldNotFound" )
+                  + data.lookupParameterRowMeta.getString( lookupRow );
               data.stringFieldnames = "";
               for ( int i = 0; i < data.lookupParameterRowMeta.size(); i++ ) {
                 if ( i > 0 ) {
@@ -210,21 +210,21 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
             }
             data.lookupFailure = true;
             throw new HopDatabaseException( BaseMessages.getString( PKG,
-                "SynchronizeAfterMerge.Exception.KeyCouldNotFound", data.lookupParameterRowMeta.getString(
-                    lookupRow ) ) );
+              "SynchronizeAfterMerge.Exception.KeyCouldNotFound", data.lookupParameterRowMeta.getString(
+                lookupRow ) ) );
           } else {
             if ( log.isRowLevel() ) {
               logRowlevel( BaseMessages.getString( PKG, "SynchronizeAfterMerge.Log.FoundRowForUpdate",
-                  data.insertRowMeta.getString( row ) ) );
+                data.insertRowMeta.getString( row ) ) );
             }
 
             for ( int i = 0; i < data.valuenrs.length; i++ ) {
-              if ( meta.getUpdate()[i].booleanValue() ) {
-                ValueMetaInterface valueMeta = data.inputRowMeta.getValueMeta( data.valuenrs[i] );
+              if ( meta.getUpdate()[ i ].booleanValue() ) {
+                ValueMetaInterface valueMeta = data.inputRowMeta.getValueMeta( data.valuenrs[ i ] );
                 ValueMetaInterface retMeta = data.db.getReturnRowMeta().getValueMeta( i );
 
-                Object rowvalue = row[data.valuenrs[i]];
-                Object retvalue = add[i];
+                Object rowvalue = row[ data.valuenrs[ i ] ];
+                Object retvalue = add[ i ];
 
                 if ( valueMeta.compare( rowvalue, retMeta, retvalue ) != 0 ) {
                   updateorDelete = true;
@@ -252,18 +252,18 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
             }
 
             // Create the update row...
-            Object[] updateRow = new Object[data.updateParameterRowMeta.size()];
+            Object[] updateRow = new Object[ data.updateParameterRowMeta.size() ];
             int j = 0;
             for ( int i = 0; i < data.valuenrs.length; i++ ) {
-              if ( meta.getUpdate()[i].booleanValue() ) {
-                updateRow[j] = row[data.valuenrs[i]]; // the setters
+              if ( meta.getUpdate()[ i ].booleanValue() ) {
+                updateRow[ j ] = row[ data.valuenrs[ i ] ]; // the setters
                 j++;
               }
             }
 
             // add the where clause parameters, they are exactly the same for lookup and update
             for ( int i = 0; i < lookupRow.length; i++ ) {
-              updateRow[j + i] = lookupRow[i];
+              updateRow[ j + i ] = lookupRow[ i ];
             }
 
             // For PG & GP, we add a savepoint before the row.
@@ -275,7 +275,7 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
             data.db.setValues( data.updateParameterRowMeta, updateRow, data.updateStatement );
             if ( log.isRowLevel() ) {
               logRowlevel( BaseMessages.getString( PKG, "SynchronizeAfterMerge.Log.SetValuesForUpdate",
-                  data.updateParameterRowMeta.getString( updateRow ), data.inputRowMeta.getString( row ) ) );
+                data.updateParameterRowMeta.getString( updateRow ), data.inputRowMeta.getString( row ) ) );
             }
             data.db.insertRow( data.updateStatement, data.batchMode );
             performUpdate = true;
@@ -302,16 +302,16 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
             }
           }
 
-          Object[] deleteRow = new Object[data.deleteParameterRowMeta.size()];
+          Object[] deleteRow = new Object[ data.deleteParameterRowMeta.size() ];
           int deleteIndex = 0;
 
           for ( int i = 0; i < meta.getKeyStream().length; i++ ) {
-            if ( data.keynrs[i] >= 0 ) {
-              deleteRow[deleteIndex] = row[data.keynrs[i]];
+            if ( data.keynrs[ i ] >= 0 ) {
+              deleteRow[ deleteIndex ] = row[ data.keynrs[ i ] ];
               deleteIndex++;
             }
-            if ( data.keynrs2[i] >= 0 ) {
-              deleteRow[deleteIndex] = row[data.keynrs2[i]];
+            if ( data.keynrs2[ i ] >= 0 ) {
+              deleteRow[ deleteIndex ] = row[ data.keynrs2[ i ] ];
               deleteIndex++;
             }
           }
@@ -325,7 +325,7 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
           data.db.setValues( data.deleteParameterRowMeta, deleteRow, data.deleteStatement );
           if ( log.isRowLevel() ) {
             logRowlevel( BaseMessages.getString( PKG, "SynchronizeAfterMerge.Log.SetValuesForDelete",
-                data.deleteParameterRowMeta.getString( deleteRow ), data.inputRowMeta.getString( row ) ) );
+              data.deleteParameterRowMeta.getString( deleteRow ), data.inputRowMeta.getString( row ) ) );
           }
           data.db.insertRow( data.deleteStatement, data.batchMode );
           performDelete = true;
@@ -387,7 +387,7 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
               }
             } catch ( SQLException ex ) {
               throw Database.createHopDatabaseBatchException( BaseMessages.getString( PKG,
-                  "SynchronizeAfterMerge.Error.UpdatingBatch" ), ex );
+                "SynchronizeAfterMerge.Error.UpdatingBatch" ), ex );
             } catch ( Exception ex ) {
               throw new HopDatabaseException( "Unexpected error inserting row", ex );
             }
@@ -456,7 +456,7 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
         setErrors( getErrors() + 1 );
         data.db.rollback();
         throw new HopException( "Error inserting row into table [" + data.realTableName + "] with values: "
-            + data.inputRowMeta.getString( row ), dbe );
+          + data.inputRowMeta.getString( row ), dbe );
       }
     }
 
@@ -512,7 +512,7 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
       int errNr = 0;
       for ( int i = 0; i < updateCounts.length; i++ ) {
         Object[] row = data.batchBuffer.get( i );
-        if ( updateCounts[i] > 0 ) {
+        if ( updateCounts[ i ] > 0 ) {
           // send the error forward
           putRow( data.outputRowMeta, row );
           incrementLinesOutput();
@@ -553,8 +553,8 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
       if ( i != 0 ) {
         sql += ", ";
       }
-      sql += databaseMeta.quoteField( meta.getUpdateLookup()[i] );
-      data.lookupReturnRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getUpdateStream()[i] ).clone() );
+      sql += databaseMeta.quoteField( meta.getUpdateLookup()[ i ] );
+      data.lookupReturnRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getUpdateStream()[ i ] ).clone() );
     }
 
     sql += " FROM " + data.realSchemaTable + " WHERE ";
@@ -563,18 +563,18 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
       if ( i != 0 ) {
         sql += " AND ";
       }
-      sql += databaseMeta.quoteField( meta.getKeyLookup()[i] );
-      if ( "BETWEEN".equalsIgnoreCase( meta.getKeyCondition()[i] ) ) {
+      sql += databaseMeta.quoteField( meta.getKeyLookup()[ i ] );
+      if ( "BETWEEN".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) ) {
         sql += " BETWEEN ? AND ? ";
-        data.lookupParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[i] ) );
-        data.lookupParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream2()[i] ) );
+        data.lookupParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[ i ] ) );
+        data.lookupParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream2()[ i ] ) );
       } else {
-        if ( "IS NULL".equalsIgnoreCase( meta.getKeyCondition()[i] ) || "IS NOT NULL".equalsIgnoreCase( meta
-            .getKeyCondition()[i] ) ) {
-          sql += " " + meta.getKeyCondition()[i] + " ";
+        if ( "IS NULL".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) || "IS NOT NULL".equalsIgnoreCase( meta
+          .getKeyCondition()[ i ] ) ) {
+          sql += " " + meta.getKeyCondition()[ i ] + " ";
         } else {
-          sql += " " + meta.getKeyCondition()[i] + " ? ";
-          data.lookupParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[i] ) );
+          sql += " " + meta.getKeyCondition()[ i ] + " ? ";
+          data.lookupParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[ i ] ) );
         }
       }
     }
@@ -592,16 +592,16 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
     boolean comma = false;
 
     for ( int i = 0; i < meta.getUpdateLookup().length; i++ ) {
-      if ( meta.getUpdate()[i].booleanValue() ) {
+      if ( meta.getUpdate()[ i ].booleanValue() ) {
         if ( comma ) {
           sql += ",   ";
         } else {
           comma = true;
         }
 
-        sql += databaseMeta.quoteField( meta.getUpdateLookup()[i] );
+        sql += databaseMeta.quoteField( meta.getUpdateLookup()[ i ] );
         sql += " = ?" + Const.CR;
-        data.updateParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getUpdateStream()[i] ).clone() );
+        data.updateParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getUpdateStream()[ i ] ).clone() );
       }
     }
 
@@ -611,17 +611,17 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
       if ( i != 0 ) {
         sql += "AND   ";
       }
-      sql += databaseMeta.quoteField( meta.getKeyLookup()[i] );
-      if ( "BETWEEN".equalsIgnoreCase( meta.getKeyCondition()[i] ) ) {
+      sql += databaseMeta.quoteField( meta.getKeyLookup()[ i ] );
+      if ( "BETWEEN".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) ) {
         sql += " BETWEEN ? AND ? ";
-        data.updateParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[i] ) );
-        data.updateParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream2()[i] ) );
-      } else if ( "IS NULL".equalsIgnoreCase( meta.getKeyCondition()[i] ) || "IS NOT NULL".equalsIgnoreCase( meta
-          .getKeyCondition()[i] ) ) {
-        sql += " " + meta.getKeyCondition()[i] + " ";
+        data.updateParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[ i ] ) );
+        data.updateParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream2()[ i ] ) );
+      } else if ( "IS NULL".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) || "IS NOT NULL".equalsIgnoreCase( meta
+        .getKeyCondition()[ i ] ) ) {
+        sql += " " + meta.getKeyCondition()[ i ] + " ";
       } else {
-        sql += " " + meta.getKeyCondition()[i] + " ? ";
-        data.updateParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[i] ).clone() );
+        sql += " " + meta.getKeyCondition()[ i ] + " ? ";
+        data.updateParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[ i ] ).clone() );
       }
     }
     return sql;
@@ -639,17 +639,17 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
       if ( i != 0 ) {
         sql += "AND   ";
       }
-      sql += databaseMeta.quoteField( meta.getKeyLookup()[i] );
-      if ( "BETWEEN".equalsIgnoreCase( meta.getKeyCondition()[i] ) ) {
+      sql += databaseMeta.quoteField( meta.getKeyLookup()[ i ] );
+      if ( "BETWEEN".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) ) {
         sql += " BETWEEN ? AND ? ";
-        data.deleteParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[i] ) );
-        data.deleteParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream2()[i] ) );
-      } else if ( "IS NULL".equalsIgnoreCase( meta.getKeyCondition()[i] ) || "IS NOT NULL".equalsIgnoreCase( meta
-          .getKeyCondition()[i] ) ) {
-        sql += " " + meta.getKeyCondition()[i] + " ";
+        data.deleteParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[ i ] ) );
+        data.deleteParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream2()[ i ] ) );
+      } else if ( "IS NULL".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) || "IS NOT NULL".equalsIgnoreCase( meta
+        .getKeyCondition()[ i ] ) ) {
+        sql += " " + meta.getKeyCondition()[ i ] + " ";
       } else {
-        sql += " " + meta.getKeyCondition()[i] + " ? ";
-        data.deleteParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[i] ) );
+        sql += " " + meta.getKeyCondition()[ i ] + " ? ";
+        data.deleteParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[ i ] ) );
       }
     }
     return sql;
@@ -677,7 +677,7 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
           data.indexOfTableNameField = data.inputRowMeta.indexOfValue( meta.gettablenameField() );
           if ( data.indexOfTableNameField < 0 ) {
             String message =
-                "It was not possible to find table [" + meta.gettablenameField() + "] in the input fields.";
+              "It was not possible to find table [" + meta.gettablenameField() + "] in the input fields.";
             logError( message );
             throw new HopStepException( message );
           }
@@ -688,7 +688,7 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
           throw new HopStepException( "The table name is not specified (or the input field is empty)" );
         }
         data.realSchemaTable =
-            data.db.getDatabaseMeta().getQuotedSchemaTableCombination( data.realSchemaName, data.realTableName );
+          data.db.getDatabaseMeta().getQuotedSchemaTableCombination( data.realSchemaName, data.realTableName );
       }
 
       // Cache the position of the operation order field
@@ -696,8 +696,8 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
         data.indexOfOperationOrderField = data.inputRowMeta.indexOfValue( meta.getOperationOrderField() );
         if ( data.indexOfOperationOrderField < 0 ) {
           String message =
-              "It was not possible to find operation field [" + meta.getOperationOrderField()
-                  + "] in the input stream!";
+            "It was not possible to find operation field [" + meta.getOperationOrderField()
+              + "] in the input stream!";
           logError( message );
           throw new HopStepException( message );
         }
@@ -714,57 +714,57 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
         logDebug( BaseMessages.getString( PKG, "SynchronizeAfterMerge.Log.CheckingRow" ) + Arrays.toString( nextRow ) );
       }
 
-      data.keynrs = new int[meta.getKeyStream().length];
-      data.keynrs2 = new int[meta.getKeyStream().length];
+      data.keynrs = new int[ meta.getKeyStream().length ];
+      data.keynrs2 = new int[ meta.getKeyStream().length ];
       for ( int i = 0; i < meta.getKeyStream().length; i++ ) {
-        data.keynrs[i] = data.inputRowMeta.indexOfValue( meta.getKeyStream()[i] );
-        if ( data.keynrs[i] < 0 && // couldn't find field!
-            !"IS NULL".equalsIgnoreCase( meta.getKeyCondition()[i] ) && // No field needed!
-            !"IS NOT NULL".equalsIgnoreCase( meta.getKeyCondition()[i] ) // No field needed!
+        data.keynrs[ i ] = data.inputRowMeta.indexOfValue( meta.getKeyStream()[ i ] );
+        if ( data.keynrs[ i ] < 0 && // couldn't find field!
+          !"IS NULL".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) && // No field needed!
+          !"IS NOT NULL".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) // No field needed!
         ) {
           throw new HopStepException( BaseMessages.getString( PKG, "SynchronizeAfterMerge.Exception.FieldRequired",
-              meta.getKeyStream()[i] ) );
+            meta.getKeyStream()[ i ] ) );
         }
-        data.keynrs2[i] = data.inputRowMeta.indexOfValue( meta.getKeyStream2()[i] );
-        if ( data.keynrs2[i] < 0 && // couldn't find field!
-            "BETWEEN".equalsIgnoreCase( meta.getKeyCondition()[i] ) // 2 fields needed!
+        data.keynrs2[ i ] = data.inputRowMeta.indexOfValue( meta.getKeyStream2()[ i ] );
+        if ( data.keynrs2[ i ] < 0 && // couldn't find field!
+          "BETWEEN".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) // 2 fields needed!
         ) {
           throw new HopStepException( BaseMessages.getString( PKG, "SynchronizeAfterMerge.Exception.FieldRequired",
-              meta.getKeyStream2()[i] ) );
+            meta.getKeyStream2()[ i ] ) );
         }
 
         if ( log.isDebug() ) {
           logDebug( BaseMessages.getString( PKG, "SynchronizeAfterMerge.Log.FieldHasDataNumbers", meta
-              .getKeyStream()[i] ) + data.keynrs[i] );
+            .getKeyStream()[ i ] ) + data.keynrs[ i ] );
         }
       }
 
       // Insert the update fields: just names. Type doesn't matter!
       for ( int i = 0; i < meta.getUpdateLookup().length; i++ ) {
-        ValueMetaInterface insValue = data.insertRowMeta.searchValueMeta( meta.getUpdateLookup()[i] );
+        ValueMetaInterface insValue = data.insertRowMeta.searchValueMeta( meta.getUpdateLookup()[ i ] );
         if ( insValue == null ) { // Don't add twice!
           // we already checked that this value exists so it's probably safe to ignore lookup failure...
-          ValueMetaInterface insertValue = data.inputRowMeta.searchValueMeta( meta.getUpdateStream()[i] ).clone();
-          insertValue.setName( meta.getUpdateLookup()[i] );
+          ValueMetaInterface insertValue = data.inputRowMeta.searchValueMeta( meta.getUpdateStream()[ i ] ).clone();
+          insertValue.setName( meta.getUpdateLookup()[ i ] );
           data.insertRowMeta.addValueMeta( insertValue );
         } else {
           throw new HopStepException( BaseMessages.getString( PKG,
-              "SynchronizeAfterMerge.Error.SameColumnInsertedTwice", insValue.getName() ) );
+            "SynchronizeAfterMerge.Error.SameColumnInsertedTwice", insValue.getName() ) );
         }
       }
 
       // Cache the position of the compare fields in Row row
       //
-      data.valuenrs = new int[meta.getUpdateLookup().length];
+      data.valuenrs = new int[ meta.getUpdateLookup().length ];
       for ( int i = 0; i < meta.getUpdateLookup().length; i++ ) {
-        data.valuenrs[i] = data.inputRowMeta.indexOfValue( meta.getUpdateStream()[i] );
-        if ( data.valuenrs[i] < 0 ) { // couldn't find field!
+        data.valuenrs[ i ] = data.inputRowMeta.indexOfValue( meta.getUpdateStream()[ i ] );
+        if ( data.valuenrs[ i ] < 0 ) { // couldn't find field!
           throw new HopStepException( BaseMessages.getString( PKG, "SynchronizeAfterMerge.Exception.FieldRequired",
-              meta.getUpdateStream()[i] ) );
+            meta.getUpdateStream()[ i ] ) );
         }
         if ( log.isDebug() ) {
           logDebug( BaseMessages.getString( PKG, "SynchronizeAfterMerge.Log.FieldHasDataNumbers", meta
-              .getUpdateStream()[i] ) + data.valuenrs[i] );
+            .getUpdateStream()[ i ] ) + data.valuenrs[ i ] );
         }
       }
 
@@ -873,7 +873,7 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
         // Batch updates are not supported on PostgreSQL (and look-a-likes) together with error handling (PDI-366)
         //
         data.specialErrorHandling =
-            getStepMeta().isDoingErrorHandling() && meta.getDatabaseMeta().supportsErrorHandlingOnBatchUpdates();
+          getStepMeta().isDoingErrorHandling() && meta.getDatabaseMeta().supportsErrorHandlingOnBatchUpdates();
 
         data.supportsSavepoints = meta.getDatabaseMeta().getDatabaseInterface().useSafePoints();
 
@@ -902,7 +902,7 @@ public class SynchronizeAfterMerge extends BaseStep implements StepInterface {
         return true;
       } catch ( HopException ke ) {
         logError( BaseMessages.getString( PKG, "SynchronizeAfterMerge.Log.ErrorOccurredDuringStepInitialize" ) + ke
-            .getMessage() );
+          .getMessage() );
       }
     }
     return false;

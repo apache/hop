@@ -22,12 +22,8 @@
 
 package org.apache.hop.trans.steps.jobexecutor;
 
-import java.util.ArrayList;
-
 import com.google.common.annotations.VisibleForTesting;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
@@ -40,6 +36,7 @@ import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.DelegationListener;
 import org.apache.hop.job.Job;
@@ -54,13 +51,15 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.util.ArrayList;
+
 /**
  * Execute a job for every input row.
  * <p>
- *     <b>Note:</b><br/>
- *     Be aware, logic of the classes methods is very similar to corresponding methods of
- *     {@link org.apache.hop.trans.steps.transexecutor.TransExecutor TransExecutor}.
- *     If you change something in this class, consider copying your changes to TransExecutor as well.
+ * <b>Note:</b><br/>
+ * Be aware, logic of the classes methods is very similar to corresponding methods of
+ * {@link org.apache.hop.trans.steps.transexecutor.TransExecutor TransExecutor}.
+ * If you change something in this class, consider copying your changes to TransExecutor as well.
  * </p>
  *
  * @author Matt
@@ -73,7 +72,7 @@ public class JobExecutor extends BaseStep implements StepInterface {
   private JobExecutorData data;
 
   public JobExecutor( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                      Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -143,7 +142,7 @@ public class JobExecutor extends BaseStep implements StepInterface {
       // Grouping by field and execution time works ONLY if grouping by size is disabled.
       if ( data.groupSize < 0 ) {
         if ( data.groupFieldIndex >= 0 ) { // grouping by field
-          Object groupFieldData = row[data.groupFieldIndex];
+          Object groupFieldData = row[ data.groupFieldIndex ];
           if ( data.prevGroupFieldData != null ) {
             if ( data.groupFieldMeta.compare( data.prevGroupFieldData, groupFieldData ) != 0 ) {
               executeJob();
@@ -261,48 +260,48 @@ public class JobExecutor extends BaseStep implements StepInterface {
       int idx = 0;
 
       if ( !Utils.isEmpty( meta.getExecutionTimeField() ) ) {
-        outputRow[idx++] = Long.valueOf( System.currentTimeMillis() - data.groupTimeStart );
+        outputRow[ idx++ ] = Long.valueOf( System.currentTimeMillis() - data.groupTimeStart );
       }
       if ( !Utils.isEmpty( meta.getExecutionResultField() ) ) {
-        outputRow[idx++] = Boolean.valueOf( result.getResult() );
+        outputRow[ idx++ ] = Boolean.valueOf( result.getResult() );
       }
       if ( !Utils.isEmpty( meta.getExecutionNrErrorsField() ) ) {
-        outputRow[idx++] = Long.valueOf( result.getNrErrors() );
+        outputRow[ idx++ ] = Long.valueOf( result.getNrErrors() );
       }
       if ( !Utils.isEmpty( meta.getExecutionLinesReadField() ) ) {
-        outputRow[idx++] = Long.valueOf( result.getNrLinesRead() );
+        outputRow[ idx++ ] = Long.valueOf( result.getNrLinesRead() );
       }
       if ( !Utils.isEmpty( meta.getExecutionLinesWrittenField() ) ) {
-        outputRow[idx++] = Long.valueOf( result.getNrLinesWritten() );
+        outputRow[ idx++ ] = Long.valueOf( result.getNrLinesWritten() );
       }
       if ( !Utils.isEmpty( meta.getExecutionLinesInputField() ) ) {
-        outputRow[idx++] = Long.valueOf( result.getNrLinesInput() );
+        outputRow[ idx++ ] = Long.valueOf( result.getNrLinesInput() );
       }
       if ( !Utils.isEmpty( meta.getExecutionLinesOutputField() ) ) {
-        outputRow[idx++] = Long.valueOf( result.getNrLinesOutput() );
+        outputRow[ idx++ ] = Long.valueOf( result.getNrLinesOutput() );
       }
       if ( !Utils.isEmpty( meta.getExecutionLinesRejectedField() ) ) {
-        outputRow[idx++] = Long.valueOf( result.getNrLinesRejected() );
+        outputRow[ idx++ ] = Long.valueOf( result.getNrLinesRejected() );
       }
       if ( !Utils.isEmpty( meta.getExecutionLinesUpdatedField() ) ) {
-        outputRow[idx++] = Long.valueOf( result.getNrLinesUpdated() );
+        outputRow[ idx++ ] = Long.valueOf( result.getNrLinesUpdated() );
       }
       if ( !Utils.isEmpty( meta.getExecutionLinesDeletedField() ) ) {
-        outputRow[idx++] = Long.valueOf( result.getNrLinesDeleted() );
+        outputRow[ idx++ ] = Long.valueOf( result.getNrLinesDeleted() );
       }
       if ( !Utils.isEmpty( meta.getExecutionFilesRetrievedField() ) ) {
-        outputRow[idx++] = Long.valueOf( result.getNrFilesRetrieved() );
+        outputRow[ idx++ ] = Long.valueOf( result.getNrFilesRetrieved() );
       }
       if ( !Utils.isEmpty( meta.getExecutionExitStatusField() ) ) {
-        outputRow[idx++] = Long.valueOf( result.getExitStatus() );
+        outputRow[ idx++ ] = Long.valueOf( result.getExitStatus() );
       }
       if ( !Utils.isEmpty( meta.getExecutionLogTextField() ) ) {
         String channelId = data.executorJob.getLogChannelId();
         String logText = HopLogStore.getAppender().getBuffer( channelId, false ).toString();
-        outputRow[idx++] = logText;
+        outputRow[ idx++ ] = logText;
       }
       if ( !Utils.isEmpty( meta.getExecutionLogChannelIdField() ) ) {
-        outputRow[idx++] = data.executorJob.getLogChannelId();
+        outputRow[ idx++ ] = data.executorJob.getLogChannelId();
       }
 
       putRowTo( data.executionResultsOutputRowMeta, outputRow, data.executionResultRowSet );
@@ -317,13 +316,13 @@ public class JobExecutor extends BaseStep implements StepInterface {
 
         for ( int i = 0; i < meta.getResultRowsField().length; i++ ) {
           ValueMetaInterface valueMeta = row.getRowMeta().getValueMeta( i );
-          if ( valueMeta.getType() != meta.getResultRowsType()[i] ) {
+          if ( valueMeta.getType() != meta.getResultRowsType()[ i ] ) {
             throw new HopException( BaseMessages.getString(
               PKG, "JobExecutor.IncorrectDataTypePassed", valueMeta.getTypeDesc(),
-              ValueMetaFactory.getValueMetaName( meta.getResultRowsType()[i] ) ) );
+              ValueMetaFactory.getValueMetaName( meta.getResultRowsType()[ i ] ) ) );
           }
 
-          targetRow[i] = row.getData()[i];
+          targetRow[ i ] = row.getData()[ i ];
         }
         putRowTo( data.resultRowsOutputRowMeta, targetRow, data.resultRowsRowSet );
       }
@@ -333,7 +332,7 @@ public class JobExecutor extends BaseStep implements StepInterface {
       for ( ResultFile resultFile : result.getResultFilesList() ) {
         Object[] targetRow = RowDataUtil.allocateRowData( data.resultFilesOutputRowMeta.size() );
         int idx = 0;
-        targetRow[idx++] = resultFile.getFile().getName().toString();
+        targetRow[ idx++ ] = resultFile.getFile().getName().toString();
 
         // TODO: time, origin, ...
 
@@ -367,7 +366,7 @@ public class JobExecutor extends BaseStep implements StepInterface {
     String value;
 
     for ( int i = 0; i < parameters.getVariable().length; i++ ) {
-      String fieldName = parameters.getField()[i];
+      String fieldName = parameters.getField()[ i ];
       if ( !Utils.isEmpty( fieldName ) ) {
         int idx = getInputRowMeta().indexOfValue( fieldName );
         if ( idx < 0 ) {

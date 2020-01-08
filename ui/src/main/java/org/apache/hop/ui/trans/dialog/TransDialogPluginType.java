@@ -22,20 +22,19 @@
 
 package org.apache.hop.ui.trans.dialog;
 
-import java.lang.annotation.Annotation;
-import java.util.Map;
-
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 import org.apache.hop.core.plugins.PluginTypeInterface;
 
+import java.lang.annotation.Annotation;
+import java.util.Map;
+
 /**
  * This plugin allows you to capture additional information concerning transformations
  *
  * @author matt
- *
  */
 @PluginMainClassType( TransDialogPluginInterface.class )
 @PluginAnnotationType( TransDialogPlugin.class )

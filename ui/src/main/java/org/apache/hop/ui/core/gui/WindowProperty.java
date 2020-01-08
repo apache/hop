@@ -35,7 +35,6 @@ import org.eclipse.swt.widgets.Shell;
  *
  * @author Matt
  * @since 08-04-2004
- *
  */
 public class WindowProperty {
   private String name;
@@ -79,11 +78,9 @@ public class WindowProperty {
    * centered instead Note that currently, many of the defaults in org.apache.hop.ui.core/default.properties have crazy
    * values. This causes the failsafe code in here to fire a lot more than is really necessary.
    *
-   * @param shell
-   *          The dialog to position and size
-   * @param onlyPosition
-   *          Unused argument. If the window is outside the viewable client are, it must be resized to prevent
-   *          inaccessibility.
+   * @param shell        The dialog to position and size
+   * @param onlyPosition Unused argument. If the window is outside the viewable client are, it must be resized to prevent
+   *                     inaccessibility.
    * @param minWidth
    * @param minHeight
    */

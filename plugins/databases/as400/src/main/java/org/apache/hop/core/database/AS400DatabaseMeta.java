@@ -34,10 +34,10 @@ import org.apache.hop.core.row.ValueMetaInterface;
  * @since 11-mrt-2005
  */
 @DatabaseMetaPlugin(
-        type = "AS/400",
-        typeDescription = "AS/400"
+  type = "AS/400",
+  typeDescription = "AS/400"
 )
-@GuiPlugin( id="GUI-AS400DatabaseMeta" )
+@GuiPlugin( id = "GUI-AS400DatabaseMeta" )
 public class AS400DatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
@@ -71,8 +71,7 @@ public class AS400DatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   }
 
   /**
-   * @param tableName
-   *          The table to be truncated.
+   * @param tableName The table to be truncated.
    * @return The SQL statement to truncate a table: remove all rows from it without a transaction
    */
   @Override
@@ -83,46 +82,34 @@ public class AS400DatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   /**
    * Generates the SQL statement to add a column to the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
   public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                       String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " ADD " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
   public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                          String pk, boolean semicolon ) {
     return "ALTER TABLE "
       + tablename + " ALTER COLUMN " + v.getName() + " SET "
       + getFieldDefinition( v, tk, pk, use_autoinc, false, false );
@@ -130,7 +117,7 @@ public class AS400DatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
 
   @Override
   public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-    boolean add_fieldname, boolean add_cr ) {
+                                    boolean add_fieldname, boolean add_cr ) {
     String retval = "";
 
     String fieldname = v.getName();
@@ -253,7 +240,7 @@ public class AS400DatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
    * Get the maximum length of a text field (VARCHAR) for this database connection. If this size is exceeded use a CLOB.
    *
    * @return The maximum VARCHAR field length for this database type. (mostly identical to getMaxTextFieldLength() -
-   *         CLOB_LENGTH)
+   * CLOB_LENGTH)
    */
   @Override
   public int getMaxVARCHARLength() {
@@ -276,8 +263,7 @@ public class AS400DatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   /**
    * Check if a sequence exists.
    *
-   * @param sequenceName
-   *          The sequence to check
+   * @param sequenceName The sequence to check
    * @return The SQL to get the name of the sequence back from the databases data dictionary
    */
   @Override
@@ -288,8 +274,7 @@ public class AS400DatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   /**
    * Get the current value of a database sequence
    *
-   * @param sequenceName
-   *          The sequence to check
+   * @param sequenceName The sequence to check
    * @return The current value of a database sequence
    */
   @Override
@@ -300,8 +285,7 @@ public class AS400DatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   /**
    * Get the SQL to get the next value of a sequence. (Oracle only)
    *
-   * @param sequenceName
-   *          The sequence name
+   * @param sequenceName The sequence name
    * @return the SQL to get the next value of a sequence. (Oracle only)
    */
   @Override
@@ -311,7 +295,7 @@ public class AS400DatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
 
   /**
    * @return true if the database supports the NOMAXVALUE sequence option. The default is false, AS/400 and DB2 support
-   *         this.
+   * this.
    */
   @Override
   public boolean supportsSequenceNoMaxValueOption() {

@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.core;
 
+import org.apache.hop.ui.core.dialog.EnterPrintDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -34,14 +35,12 @@ import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.ui.core.dialog.EnterPrintDialog;
 
 /**
  * This class handles printing for Hop.
  *
  * @author Matt
  * @since 28-03-2004
- *
  */
 public class PrintSpool {
   private PrinterData printerdata;

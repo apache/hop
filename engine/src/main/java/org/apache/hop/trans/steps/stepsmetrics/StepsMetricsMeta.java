@@ -22,24 +22,20 @@
 
 package org.apache.hop.trans.steps.stepsmetrics;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -47,8 +43,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*
  * Created on 30-06-2008
@@ -65,10 +62,14 @@ public class StepsMetricsMeta extends BaseStepMeta implements StepMetaInterface 
   public static final String YES = "Y";
   public static final String NO = "N";
 
-  /** by which steps to display? */
+  /**
+   * by which steps to display?
+   */
   private String[] stepName;
   private String[] stepCopyNr;
-  /** Array of boolean values as string, indicating if a step is required. */
+  /**
+   * Array of boolean values as string, indicating if a step is required.
+   */
   private String[] stepRequired;
 
   private String stepnamefield;
@@ -103,9 +104,9 @@ public class StepsMetricsMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   public void allocate( int nrfields ) {
-    stepName = new String[nrfields];
-    stepCopyNr = new String[nrfields];
-    stepRequired = new String[nrfields];
+    stepName = new String[ nrfields ];
+    stepCopyNr = new String[ nrfields ];
+    stepRequired = new String[ nrfields ];
   }
 
   /**
@@ -123,16 +124,14 @@ public class StepsMetricsMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param stepName
-   *          The stepName to set.
+   * @param stepName The stepName to set.
    */
   public void setStepName( String[] stepName ) {
     this.stepName = stepName;
   }
 
   /**
-   * @param stepCopyNr
-   *          The stepCopyNr to set.
+   * @param stepCopyNr The stepCopyNr to set.
    */
   public void setStepCopyNr( String[] stepCopyNr ) {
     this.stepCopyNr = stepCopyNr;
@@ -140,17 +139,17 @@ public class StepsMetricsMeta extends BaseStepMeta implements StepMetaInterface 
 
   public String getRequiredStepsDesc( String tt ) {
     if ( tt == null ) {
-      return RequiredStepsDesc[0];
+      return RequiredStepsDesc[ 0 ];
     }
-    if ( tt.equals( RequiredStepsCode[1] ) ) {
-      return RequiredStepsDesc[1];
+    if ( tt.equals( RequiredStepsCode[ 1 ] ) ) {
+      return RequiredStepsDesc[ 1 ];
     } else {
-      return RequiredStepsDesc[0];
+      return RequiredStepsDesc[ 0 ];
     }
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     r.clear();
     String stepname = space.environmentSubstitute( stepnamefield );
     if ( !Utils.isEmpty( stepname ) ) {
@@ -225,9 +224,9 @@ public class StepsMetricsMeta extends BaseStepMeta implements StepMetaInterface 
 
       for ( int i = 0; i < nrsteps; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( steps, "step", i );
-        stepName[i] = XMLHandler.getTagValue( fnode, "name" );
-        stepCopyNr[i] = XMLHandler.getTagValue( fnode, "copyNr" );
-        stepRequired[i] = XMLHandler.getTagValue( fnode, "stepRequired" );
+        stepName[ i ] = XMLHandler.getTagValue( fnode, "name" );
+        stepCopyNr[ i ] = XMLHandler.getTagValue( fnode, "copyNr" );
+        stepRequired[ i ] = XMLHandler.getTagValue( fnode, "stepRequired" );
       }
       stepnamefield = XMLHandler.getTagValue( stepnode, "stepnamefield" );
       stepidfield = XMLHandler.getTagValue( stepnode, "stepidfield" );
@@ -249,9 +248,9 @@ public class StepsMetricsMeta extends BaseStepMeta implements StepMetaInterface 
     retval.append( "    <steps>" + Const.CR );
     for ( int i = 0; i < stepName.length; i++ ) {
       retval.append( "      <step>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", stepName[i] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "copyNr", stepCopyNr[i] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "stepRequired", stepRequired[i] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "name", stepName[ i ] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "copyNr", stepCopyNr[ i ] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "stepRequired", stepRequired[ i ] ) );
       retval.append( "        </step>" + Const.CR );
     }
     retval.append( "      </steps>" + Const.CR );
@@ -275,9 +274,9 @@ public class StepsMetricsMeta extends BaseStepMeta implements StepMetaInterface 
     allocate( nrsteps );
 
     for ( int i = 0; i < nrsteps; i++ ) {
-      stepName[i] = "step" + i;
-      stepCopyNr[i] = "CopyNr" + i;
-      stepRequired[i] = NO;
+      stepName[ i ] = "step" + i;
+      stepCopyNr[ i ] = "CopyNr" + i;
+      stepRequired[ i ] = NO;
     }
 
     stepnamefield = BaseMessages.getString( PKG, "StepsMetricsDialog.Label.Stepname" );
@@ -293,18 +292,18 @@ public class StepsMetricsMeta extends BaseStepMeta implements StepMetaInterface 
 
   public void setStepRequired( String[] stepRequiredin ) {
     for ( int i = 0; i < stepRequiredin.length; i++ ) {
-      this.stepRequired[i] = getRequiredStepsCode( stepRequiredin[i] );
+      this.stepRequired[ i ] = getRequiredStepsCode( stepRequiredin[ i ] );
     }
   }
 
   public String getRequiredStepsCode( String tt ) {
     if ( tt == null ) {
-      return RequiredStepsCode[0];
+      return RequiredStepsCode[ 0 ];
     }
-    if ( tt.equals( RequiredStepsDesc[1] ) ) {
-      return RequiredStepsCode[1];
+    if ( tt.equals( RequiredStepsDesc[ 1 ] ) ) {
+      return RequiredStepsCode[ 1 ];
     } else {
-      return RequiredStepsCode[0];
+      return RequiredStepsCode[ 0 ];
     }
   }
 
@@ -385,8 +384,8 @@ public class StepsMetricsMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( prev == null || prev.size() == 0 ) {
@@ -426,7 +425,7 @@ public class StepsMetricsMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new StepsMetrics( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 

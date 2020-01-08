@@ -33,7 +33,6 @@ import java.lang.annotation.Target;
  * added to the central logging store as listeners.
  *
  * @author matt
- *
  */
 @Documented
 @Retention( RetentionPolicy.RUNTIME )

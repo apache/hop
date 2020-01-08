@@ -22,13 +22,9 @@
 
 package org.apache.hop.trans.steps.sortedmerge;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.AfterInjection;
@@ -40,7 +36,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMeta.TransformationType;
@@ -49,8 +45,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*
  * Created on 02-jun-2003
@@ -60,10 +57,14 @@ import org.w3c.dom.Node;
 public class SortedMergeMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = SortedMergeMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** order by which fields? */
+  /**
+   * order by which fields?
+   */
   @Injection( name = "FIELD_NAME", group = "FIELDS" )
   private String[] fieldName;
-  /** false : descending, true=ascending */
+  /**
+   * false : descending, true=ascending
+   */
   @Injection( name = "ASCENDING", group = "FIELDS" )
   private boolean[] ascending;
 
@@ -72,8 +73,8 @@ public class SortedMergeMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrfields ) {
-    fieldName = new String[nrfields]; // order by
-    ascending = new boolean[nrfields];
+    fieldName = new String[ nrfields ]; // order by
+    ascending = new boolean[ nrfields ];
   }
 
   public void setDefault() {
@@ -82,7 +83,7 @@ public class SortedMergeMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( nrfields );
 
     for ( int i = 0; i < nrfields; i++ ) {
-      fieldName[i] = "field" + i;
+      fieldName[ i ] = "field" + i;
     }
   }
 
@@ -108,12 +109,12 @@ public class SortedMergeMeta extends BaseStepMeta implements StepMetaInterface {
       for ( int i = 0; i < nrfields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldName[i] = XMLHandler.getTagValue( fnode, "name" );
+        fieldName[ i ] = XMLHandler.getTagValue( fnode, "name" );
         String asc = XMLHandler.getTagValue( fnode, "ascending" );
         if ( asc.equalsIgnoreCase( "Y" ) ) {
-          ascending[i] = true;
+          ascending[ i ] = true;
         } else {
-          ascending[i] = false;
+          ascending[ i ] = false;
         }
       }
     } catch ( Exception e ) {
@@ -127,8 +128,8 @@ public class SortedMergeMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "    <fields>" + Const.CR );
     for ( int i = 0; i < fieldName.length; i++ ) {
       retval.append( "      <field>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", fieldName[i] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "ascending", ascending[i] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "name", fieldName[ i ] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "ascending", ascending[ i ] ) );
       retval.append( "        </field>" + Const.CR );
     }
     retval.append( "      </fields>" + Const.CR );
@@ -137,13 +138,13 @@ public class SortedMergeMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Set the sorted properties: ascending/descending
     for ( int i = 0; i < fieldName.length; i++ ) {
-      int idx = inputRowMeta.indexOfValue( fieldName[i] );
+      int idx = inputRowMeta.indexOfValue( fieldName[ i ] );
       if ( idx >= 0 ) {
         ValueMetaInterface valueMeta = inputRowMeta.getValueMeta( idx );
-        valueMeta.setSortedDescending( !ascending[i] );
+        valueMeta.setSortedDescending( !ascending[ i ] );
 
         // TODO: add case insensivity
       }
@@ -152,8 +153,8 @@ public class SortedMergeMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( prev != null && prev.size() > 0 ) {
@@ -167,9 +168,9 @@ public class SortedMergeMeta extends BaseStepMeta implements StepMetaInterface {
 
       // Starting from selected fields in ...
       for ( int i = 0; i < fieldName.length; i++ ) {
-        int idx = prev.indexOfValue( fieldName[i] );
+        int idx = prev.indexOfValue( fieldName[ i ] );
         if ( idx < 0 ) {
-          error_message += "\t\t" + fieldName[i] + Const.CR;
+          error_message += "\t\t" + fieldName[ i ] + Const.CR;
           error_found = true;
         }
       }
@@ -214,7 +215,7 @@ public class SortedMergeMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new SortedMerge( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -230,8 +231,7 @@ public class SortedMergeMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param ascending
-   *          the ascending to set
+   * @param ascending the ascending to set
    */
   public void setAscending( boolean[] ascending ) {
     this.ascending = ascending;
@@ -245,8 +245,7 @@ public class SortedMergeMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param fieldName
-   *          the fieldName to set
+   * @param fieldName the fieldName to set
    */
   public void setFieldName( String[] fieldName ) {
     this.fieldName = fieldName;

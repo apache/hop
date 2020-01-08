@@ -22,11 +22,6 @@
 
 package org.apache.hop.trans.steps.checksum;
 
-import java.io.ByteArrayOutputStream;
-import java.security.MessageDigest;
-import java.util.zip.Adler32;
-import java.util.zip.CRC32;
-
 import org.apache.commons.codec.binary.Hex;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
@@ -39,6 +34,11 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.io.ByteArrayOutputStream;
+import java.security.MessageDigest;
+import java.util.zip.Adler32;
+import java.util.zip.CRC32;
 
 /**
  * Caculate a checksum for each row.
@@ -55,7 +55,7 @@ public class CheckSum extends BaseStep implements StepInterface {
   private CheckSumData data;
 
   public CheckSum( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                   Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -80,20 +80,20 @@ public class CheckSum extends BaseStep implements StepInterface {
       meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
       if ( meta.getFieldName() == null || meta.getFieldName().length > 0 ) {
-        data.fieldnrs = new int[meta.getFieldName().length];
+        data.fieldnrs = new int[ meta.getFieldName().length ];
 
         for ( int i = 0; i < meta.getFieldName().length; i++ ) {
-          data.fieldnrs[i] = getInputRowMeta().indexOfValue( meta.getFieldName()[i] );
-          if ( data.fieldnrs[i] < 0 ) {
-            logError( BaseMessages.getString( PKG, "CheckSum.Log.CanNotFindField", meta.getFieldName()[i] ) );
+          data.fieldnrs[ i ] = getInputRowMeta().indexOfValue( meta.getFieldName()[ i ] );
+          if ( data.fieldnrs[ i ] < 0 ) {
+            logError( BaseMessages.getString( PKG, "CheckSum.Log.CanNotFindField", meta.getFieldName()[ i ] ) );
             throw new HopException( BaseMessages.getString( PKG, "CheckSum.Log.CanNotFindField", meta
-              .getFieldName()[i] ) );
+              .getFieldName()[ i ] ) );
           }
         }
       } else {
-        data.fieldnrs = new int[r.length];
+        data.fieldnrs = new int[ r.length ];
         for ( int i = 0; i < r.length; i++ ) {
-          data.fieldnrs[i] = i;
+          data.fieldnrs[ i ] = i;
         }
       }
       data.fieldnr = data.fieldnrs.length;
@@ -175,7 +175,7 @@ public class CheckSum extends BaseStep implements StepInterface {
 
       // Loop through fields
       for ( int i = 0; i < data.fieldnr; i++ ) {
-        Buff.append( getInputRowMeta().getValueMeta( data.fieldnrs[i] ).getNativeDataType( r[data.fieldnrs[i]] ) );
+        Buff.append( getInputRowMeta().getValueMeta( data.fieldnrs[ i ] ).getNativeDataType( r[ data.fieldnrs[ i ] ] ) );
       }
 
       // Updates the digest using the specified array of bytes
@@ -185,11 +185,11 @@ public class CheckSum extends BaseStep implements StepInterface {
 
       // Loop through fields
       for ( int i = 0; i < data.fieldnr; i++ ) {
-        if ( getInputRowMeta().getValueMeta( data.fieldnrs[i] ).isBinary() ) {
-          baos.write( getInputRowMeta().getBinary( r, data.fieldnrs[i] ) );
+        if ( getInputRowMeta().getValueMeta( data.fieldnrs[ i ] ).isBinary() ) {
+          baos.write( getInputRowMeta().getBinary( r, data.fieldnrs[ i ] ) );
         } else {
-          baos.write( getInputRowMeta().getValueMeta( data.fieldnrs[i] ).getNativeDataType( r[data.fieldnrs[i]] )
-              .toString().getBytes() );
+          baos.write( getInputRowMeta().getValueMeta( data.fieldnrs[ i ] ).getNativeDataType( r[ data.fieldnrs[ i ] ] )
+            .toString().getBytes() );
         }
       }
 
@@ -206,7 +206,7 @@ public class CheckSum extends BaseStep implements StepInterface {
   private static String getStringFromBytes( byte[] bytes ) {
     StringBuilder sb = new StringBuilder();
     for ( int i = 0; i < bytes.length; i++ ) {
-      byte b = bytes[i];
+      byte b = bytes[ i ];
       sb.append( 0x00FF & b );
       if ( i + 1 < bytes.length ) {
         sb.append( "-" );
@@ -227,8 +227,8 @@ public class CheckSum extends BaseStep implements StepInterface {
     StringBuilder hexString = new StringBuilder( 2 * s.length );
 
     for ( int i = 0; i < s.length; i++ ) {
-      hexString.append( hexDigits[( s[i] & 0x00F0 ) >> 4] ); // hi nibble
-      hexString.append( hexDigits[s[i] & 0x000F] ); // lo nibble
+      hexString.append( hexDigits[ ( s[ i ] & 0x00F0 ) >> 4 ] ); // hi nibble
+      hexString.append( hexDigits[ s[ i ] & 0x000F ] ); // lo nibble
     }
 
     return hexString.toString();
@@ -242,7 +242,7 @@ public class CheckSum extends BaseStep implements StepInterface {
 
       // Loop through fields
       for ( int i = 0; i < data.fieldnr; i++ ) {
-        Buff.append( getInputRowMeta().getValueMeta( data.fieldnrs[i] ).getNativeDataType( r[data.fieldnrs[i]] ) );
+        Buff.append( getInputRowMeta().getValueMeta( data.fieldnrs[ i ] ).getNativeDataType( r[ data.fieldnrs[ i ] ] ) );
       }
       byteArray = Buff.toString().getBytes();
     } else {
@@ -250,11 +250,11 @@ public class CheckSum extends BaseStep implements StepInterface {
 
       // Loop through fields
       for ( int i = 0; i < data.fieldnr; i++ ) {
-        if ( getInputRowMeta().getValueMeta( data.fieldnrs[i] ).isBinary() ) {
-          baos.write( getInputRowMeta().getBinary( r, data.fieldnrs[i] ) );
+        if ( getInputRowMeta().getValueMeta( data.fieldnrs[ i ] ).isBinary() ) {
+          baos.write( getInputRowMeta().getBinary( r, data.fieldnrs[ i ] ) );
         } else {
-          baos.write( getInputRowMeta().getValueMeta( data.fieldnrs[i] ).getNativeDataType( r[data.fieldnrs[i]] )
-              .toString().getBytes() );
+          baos.write( getInputRowMeta().getValueMeta( data.fieldnrs[ i ] ).getNativeDataType( r[ data.fieldnrs[ i ] ] )
+            .toString().getBytes() );
         }
       }
       byteArray = baos.toByteArray();

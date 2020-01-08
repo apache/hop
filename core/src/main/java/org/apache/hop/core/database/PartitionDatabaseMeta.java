@@ -26,7 +26,6 @@ package org.apache.hop.core.database;
  * Class to contain the information needed to parition (cluster): id, hostname, port, database
  *
  * @author Matt
- *
  */
 public class PartitionDatabaseMeta {
   String partitionId;
@@ -63,8 +62,7 @@ public class PartitionDatabaseMeta {
   }
 
   /**
-   * @param partitionId
-   *          the partitionId to set
+   * @param partitionId the partitionId to set
    */
   public void setPartitionId( String partitionId ) {
     this.partitionId = partitionId;
@@ -78,8 +76,7 @@ public class PartitionDatabaseMeta {
   }
 
   /**
-   * @param database
-   *          the database to set
+   * @param database the database to set
    */
   public void setDatabaseName( String database ) {
     this.databaseName = database;
@@ -93,8 +90,7 @@ public class PartitionDatabaseMeta {
   }
 
   /**
-   * @param hostname
-   *          the hostname to set
+   * @param hostname the hostname to set
    */
   public void setHostname( String hostname ) {
     this.hostname = hostname;
@@ -108,8 +104,7 @@ public class PartitionDatabaseMeta {
   }
 
   /**
-   * @param port
-   *          the port to set
+   * @param port the port to set
    */
   public void setPort( String port ) {
     this.port = port;
@@ -123,8 +118,7 @@ public class PartitionDatabaseMeta {
   }
 
   /**
-   * @param password
-   *          the password to set
+   * @param password the password to set
    */
   public void setPassword( String password ) {
     this.password = password;
@@ -138,8 +132,7 @@ public class PartitionDatabaseMeta {
   }
 
   /**
-   * @param username
-   *          the username to set
+   * @param username the username to set
    */
   public void setUsername( String username ) {
     this.username = username;

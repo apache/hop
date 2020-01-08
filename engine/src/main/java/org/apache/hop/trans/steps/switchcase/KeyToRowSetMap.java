@@ -22,12 +22,12 @@
 
 package org.apache.hop.trans.steps.switchcase;
 
+import org.apache.hop.core.RowSet;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.hop.core.RowSet;
 
 public class KeyToRowSetMap {
 

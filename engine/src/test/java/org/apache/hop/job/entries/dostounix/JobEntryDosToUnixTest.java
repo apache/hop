@@ -21,14 +21,13 @@
  ******************************************************************************/
 package org.apache.hop.job.entries.dostounix;
 
-import java.util.Arrays;
-
-import java.util.List;
-import java.util.Map;
-
-import org.junit.ClassRule;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.ClassRule;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class JobEntryDosToUnixTest extends JobEntryLoadSaveTestSupport<JobEntryDosToUnix> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -41,24 +40,24 @@ public class JobEntryDosToUnixTest extends JobEntryLoadSaveTestSupport<JobEntryD
   @Override
   protected List<String> listCommonAttributes() {
     return Arrays.asList(
-        "nr_errors_less_than",
-        "success_condition",
-        "resultfilenames" );
+      "nr_errors_less_than",
+      "success_condition",
+      "resultfilenames" );
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-        "nr_errors_less_than", "getNrErrorsLessThan",
-        "success_condition", "getSuccessCondition",
-        "resultfilenames", "getResultFilenames" );
+      "nr_errors_less_than", "getNrErrorsLessThan",
+      "success_condition", "getSuccessCondition",
+      "resultfilenames", "getResultFilenames" );
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-        "nr_errors_less_than", "setNrErrorsLessThan",
-        "success_condition", "setSuccessCondition",
-        "resultfilenames", "setResultFilenames" );
+      "nr_errors_less_than", "setNrErrorsLessThan",
+      "success_condition", "setSuccessCondition",
+      "resultfilenames", "setResultFilenames" );
   }
 }

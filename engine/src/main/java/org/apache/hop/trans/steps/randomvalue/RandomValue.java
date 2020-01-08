@@ -22,13 +22,6 @@
 
 package org.apache.hop.trans.steps.randomvalue;
 
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
-
-import javax.crypto.KeyGenerator;
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -42,6 +35,12 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import javax.crypto.KeyGenerator;
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 /**
  * Get random value.
@@ -58,37 +57,37 @@ public class RandomValue extends BaseStep implements StepInterface {
   private RandomValueData data;
 
   public RandomValue( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                      Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
   private Object[] getRandomValue( RowMetaInterface inputRowMeta, Object[] inputRowData ) {
-    Object[] row = new Object[data.outputRowMeta.size()];
+    Object[] row = new Object[ data.outputRowMeta.size() ];
     for ( int i = 0; i < inputRowMeta.size(); i++ ) {
-      row[i] = inputRowData[i]; // no data is changed, clone is not
+      row[ i ] = inputRowData[ i ]; // no data is changed, clone is not
       // needed here.
     }
 
     for ( int i = 0, index = inputRowMeta.size(); i < meta.getFieldName().length; i++, index++ ) {
-      switch ( meta.getFieldType()[i] ) {
+      switch ( meta.getFieldType()[ i ] ) {
         case RandomValueMeta.TYPE_RANDOM_NUMBER:
-          row[index] = data.randomgen.nextDouble();
+          row[ index ] = data.randomgen.nextDouble();
           break;
         case RandomValueMeta.TYPE_RANDOM_INTEGER:
-          row[index] = new Long( data.randomgen.nextInt() ); // nextInt() already returns all 2^32 numbers.
+          row[ index ] = new Long( data.randomgen.nextInt() ); // nextInt() already returns all 2^32 numbers.
           break;
         case RandomValueMeta.TYPE_RANDOM_STRING:
-          row[index] = Long.toString( Math.abs( data.randomgen.nextLong() ), 32 );
+          row[ index ] = Long.toString( Math.abs( data.randomgen.nextLong() ), 32 );
           break;
         case RandomValueMeta.TYPE_RANDOM_UUID:
-          row[index] = UUIDUtil.getUUIDAsString();
+          row[ index ] = UUIDUtil.getUUIDAsString();
           break;
         case RandomValueMeta.TYPE_RANDOM_UUID4:
-          row[index] = data.u4.getUUID4AsString();
+          row[ index ] = data.u4.getUUID4AsString();
           break;
         case RandomValueMeta.TYPE_RANDOM_MAC_HMACMD5:
           try {
-            row[index] = generateRandomMACHash( RandomValueMeta.TYPE_RANDOM_MAC_HMACMD5 );
+            row[ index ] = generateRandomMACHash( RandomValueMeta.TYPE_RANDOM_MAC_HMACMD5 );
           } catch ( Exception e ) {
             logError( BaseMessages.getString( PKG, "RandomValue.Log.ErrorGettingRandomHMACMD5", e.getMessage() ) );
             setErrors( 1 );
@@ -97,7 +96,7 @@ public class RandomValue extends BaseStep implements StepInterface {
           break;
         case RandomValueMeta.TYPE_RANDOM_MAC_HMACSHA1:
           try {
-            row[index] = generateRandomMACHash( RandomValueMeta.TYPE_RANDOM_MAC_HMACSHA1 );
+            row[ index ] = generateRandomMACHash( RandomValueMeta.TYPE_RANDOM_MAC_HMACSHA1 );
           } catch ( Exception e ) {
             logError( BaseMessages.getString( PKG, "RandomValue.Log.ErrorGettingRandomHMACSHA1", e.getMessage() ) );
             setErrors( 1 );
@@ -137,7 +136,7 @@ public class RandomValue extends BaseStep implements StepInterface {
     byte[] hashCode = mac.doFinal();
     StringBuilder encoded = new StringBuilder();
     for ( int i = 0; i < hashCode.length; i++ ) {
-      String _b = Integer.toHexString( hashCode[i] );
+      String _b = Integer.toHexString( hashCode[ i ] );
       if ( _b.length() == 1 ) {
         _b = "0" + _b;
       }
@@ -212,7 +211,7 @@ public class RandomValue extends BaseStep implements StepInterface {
       boolean uuid4 = false;
 
       for ( int i = 0; i < meta.getFieldName().length; i++ ) {
-        switch ( meta.getFieldType()[i] ) {
+        switch ( meta.getFieldType()[ i ] ) {
           case RandomValueMeta.TYPE_RANDOM_MAC_HMACMD5:
             genHmacMD5 = true;
             break;

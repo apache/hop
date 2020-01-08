@@ -22,20 +22,16 @@
 
 package org.apache.hop.trans.steps.sql;
 
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
-import org.powermock.reflect.Whitebox;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;

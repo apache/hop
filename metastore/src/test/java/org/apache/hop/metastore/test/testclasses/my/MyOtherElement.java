@@ -20,8 +20,8 @@ import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
 
 @MetaStoreElementType(
-    name = "My other element type",
-    description = "Another element type to test with" )
+  name = "My other element type",
+  description = "Another element type to test with" )
 public class MyOtherElement {
   private String name;
 

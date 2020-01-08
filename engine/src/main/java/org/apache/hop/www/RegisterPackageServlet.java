@@ -21,13 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.www;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.text.MessageFormat;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
@@ -45,6 +38,12 @@ import org.apache.hop.trans.TransExecutionConfiguration;
 import org.apache.hop.trans.TransMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.MessageFormat;
 
 public class RegisterPackageServlet extends BaseJobServlet {
 
@@ -65,7 +64,7 @@ public class RegisterPackageServlet extends BaseJobServlet {
   }
 
   @Override
-  WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXML ) throws HopException, IOException  {
+  WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXML ) throws HopException, IOException {
     FileObject tempFile = HopVFS.createTempFile( "export", ".zip", System.getProperty( "java.io.tmpdir" ) );
     OutputStream out = HopVFS.getOutputStream( tempFile, false );
     IOUtils.copy( request.getInputStream(), out );
@@ -82,7 +81,7 @@ public class RegisterPackageServlet extends BaseJobServlet {
 
       if ( isJob ) {
         Node node =
-            getConfigNodeFromZIP( archiveUrl, Job.CONFIGURATION_IN_EXPORT_FILENAME, JobExecutionConfiguration.XML_TAG );
+          getConfigNodeFromZIP( archiveUrl, Job.CONFIGURATION_IN_EXPORT_FILENAME, JobExecutionConfiguration.XML_TAG );
         JobExecutionConfiguration jobExecutionConfiguration = new JobExecutionConfiguration( node );
 
         JobMeta jobMeta = new JobMeta( fileUrl );
@@ -92,8 +91,8 @@ public class RegisterPackageServlet extends BaseJobServlet {
         resultId = job.getContainerObjectId();
       } else {
         Node node =
-            getConfigNodeFromZIP( archiveUrl, Trans.CONFIGURATION_IN_EXPORT_FILENAME,
-                TransExecutionConfiguration.XML_TAG );
+          getConfigNodeFromZIP( archiveUrl, Trans.CONFIGURATION_IN_EXPORT_FILENAME,
+            TransExecutionConfiguration.XML_TAG );
         TransExecutionConfiguration transExecutionConfiguration = new TransExecutionConfiguration( node );
 
         TransMeta transMeta = new TransMeta( fileUrl );

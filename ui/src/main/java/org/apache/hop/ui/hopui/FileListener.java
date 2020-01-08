@@ -22,11 +22,11 @@
 
 package org.apache.hop.ui.hopui;
 
-import java.util.Locale;
-
 import org.apache.hop.core.EngineMetaInterface;
 import org.apache.hop.core.exception.HopMissingPluginsException;
 import org.w3c.dom.Node;
+
+import java.util.Locale;
 
 public interface FileListener {
 

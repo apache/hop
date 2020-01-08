@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.sql;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
@@ -41,8 +39,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -51,8 +48,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*******************************************************************************
  * Contains meta-data to execute arbitrary SQL, optionally each row again.
@@ -116,8 +114,7 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param value
-   *          set true if we have to set params.
+   * @param value set true if we have to set params.
    */
   public void setParams( boolean value ) {
     this.setParams = value;
@@ -131,8 +128,7 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param database
-   *          The database to set.
+   * @param database The database to set.
    */
   public void setDatabaseMeta( DatabaseMeta database ) {
     this.databaseMeta = database;
@@ -146,8 +142,7 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param sql
-   *          The sql to set.
+   * @param sql The sql to set.
    */
   public void setSql( String sql ) {
     this.sql = sql;
@@ -161,8 +156,7 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param arguments
-   *          The arguments to set.
+   * @param arguments The arguments to set.
    */
   public void setArguments( String[] arguments ) {
     this.arguments = arguments;
@@ -176,8 +170,7 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param executedEachInputRow
-   *          The executedEachInputRow to set.
+   * @param executedEachInputRow The executedEachInputRow to set.
    */
   public void setExecutedEachInputRow( boolean executedEachInputRow ) {
     this.executedEachInputRow = executedEachInputRow;
@@ -191,8 +184,7 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param deleteField
-   *          The deleteField to set.
+   * @param deleteField The deleteField to set.
    */
   public void setDeleteField( String deleteField ) {
     this.deleteField = deleteField;
@@ -206,8 +198,7 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param insertField
-   *          The insertField to set.
+   * @param insertField The insertField to set.
    */
   public void setInsertField( String insertField ) {
     this.insertField = insertField;
@@ -221,8 +212,7 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param readField
-   *          The readField to set.
+   * @param readField The readField to set.
    */
   public void setReadField( String readField ) {
     this.readField = readField;
@@ -236,8 +226,7 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param updateField
-   *          The updateField to set.
+   * @param updateField The updateField to set.
    */
   public void setUpdateField( String updateField ) {
     this.updateField = updateField;
@@ -256,7 +245,7 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrargs ) {
-    arguments = new String[nrargs];
+    arguments = new String[ nrargs ];
   }
 
   private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
@@ -281,7 +270,7 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
       allocate( nrArguments );
       for ( int i = 0; i < nrArguments; i++ ) {
         Node argnode = XMLHandler.getSubNodeByNr( argsnode, "argument", i );
-        arguments[i] = XMLHandler.getTagValue( argnode, "name" );
+        arguments[ i ] = XMLHandler.getTagValue( argnode, "name" );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString(
@@ -292,11 +281,11 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
   public void setDefault() {
     databaseMeta = null;
     sql = "";
-    arguments = new String[0];
+    arguments = new String[ 0 ];
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     RowMetaAndData add =
       ExecSQL.getResultRow( new Result(), getUpdateField(), getInsertField(), getDeleteField(), getReadField() );
 
@@ -308,7 +297,7 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
 
     retval
       .append( "    " ).append(
-        XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+      XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "execute_each_row", executedEachInputRow ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "single_statement", singleStatement ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "replace_variables", replaceVariables ) );
@@ -323,8 +312,8 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "    <arguments>" ).append( Const.CR );
     for ( int i = 0; i < arguments.length; i++ ) {
       retval
-        .append( "       <argument>" ).append( XMLHandler.addTagValue( "name", arguments[i], false ) ).append(
-          "</argument>" ).append( Const.CR );
+        .append( "       <argument>" ).append( XMLHandler.addTagValue( "name", arguments[ i ], false ) ).append(
+        "</argument>" ).append( Const.CR );
     }
     retval.append( "    </arguments>" ).append( Const.CR );
 
@@ -332,8 +321,8 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( databaseMeta != null ) {
@@ -410,7 +399,7 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new ExecSQL( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -419,7 +408,7 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta, RowMeta prev,
-    String[] input, String[] output, RowMeta info ) throws HopStepException {
+                             String[] input, String[] output, RowMeta info ) throws HopStepException {
     DatabaseImpact ii =
       new DatabaseImpact(
         DatabaseImpact.TYPE_IMPACT_READ_WRITE, transMeta.getName(), stepMeta.getName(),
@@ -447,8 +436,7 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param variableReplacementActive
-   *          The variableReplacementActive to set.
+   * @param variableReplacementActive The variableReplacementActive to set.
    */
   public void setVariableReplacementActive( boolean variableReplacementActive ) {
     this.replaceVariables = variableReplacementActive;
@@ -474,8 +462,7 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param singleStatement
-   *          the singleStatement to set
+   * @param singleStatement the singleStatement to set
    */
   public void setSingleStatement( boolean singleStatement ) {
     this.singleStatement = singleStatement;

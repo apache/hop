@@ -22,13 +22,8 @@
 
 package org.apache.hop.job.entries.waitforsql;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
@@ -37,6 +32,7 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -45,19 +41,20 @@ import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This defines a Wait for SQL data job entry
  *
  * @author Samatar
  * @since 22-07-2008
- *
  */
 public class JobEntryWaitForSQL extends JobEntryBase implements Cloneable, JobEntryInterface {
   private static Class<?> PKG = JobEntryWaitForSQL.class; // for i18n purposes, needed by Translator2!!
@@ -146,7 +143,7 @@ public class JobEntryWaitForSQL extends JobEntryBase implements Cloneable, JobEn
     }
 
     for ( int i = 0; i < successConditionsDesc.length; i++ ) {
-      if ( successConditionsDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( successConditionsDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -180,9 +177,9 @@ public class JobEntryWaitForSQL extends JobEntryBase implements Cloneable, JobEn
 
   private static String getSuccessConditionCode( int i ) {
     if ( i < 0 || i >= successConditionsCode.length ) {
-      return successConditionsCode[0];
+      return successConditionsCode[ 0 ];
     }
-    return successConditionsCode[i];
+    return successConditionsCode[ i ];
   }
 
   private static int getSucessConditionByCode( String tt ) {
@@ -191,7 +188,7 @@ public class JobEntryWaitForSQL extends JobEntryBase implements Cloneable, JobEn
     }
 
     for ( int i = 0; i < successConditionsCode.length; i++ ) {
-      if ( successConditionsCode[i].equalsIgnoreCase( tt ) ) {
+      if ( successConditionsCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -200,9 +197,9 @@ public class JobEntryWaitForSQL extends JobEntryBase implements Cloneable, JobEn
 
   public static String getSuccessConditionDesc( int i ) {
     if ( i < 0 || i >= successConditionsDesc.length ) {
-      return successConditionsDesc[0];
+      return successConditionsDesc[ 0 ];
     }
-    return successConditionsDesc[i];
+    return successConditionsDesc[ i ];
   }
 
   public boolean isSuccessOnTimeout() {
@@ -235,10 +232,10 @@ public class JobEntryWaitForSQL extends JobEntryBase implements Cloneable, JobEn
   }
 
   @Override
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       String dbname = XMLHandler.getTagValue( entrynode, "connection" );
       connection = DatabaseMeta.loadDatabase( metaStore, dbname );
       schemaname = XMLHandler.getTagValue( entrynode, "schemaname" );
@@ -266,7 +263,7 @@ public class JobEntryWaitForSQL extends JobEntryBase implements Cloneable, JobEn
     }
 
     for ( int i = 0; i < successConditionsCode.length; i++ ) {
-      if ( successConditionsCode[i].equalsIgnoreCase( tt ) ) {
+      if ( successConditionsCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -448,7 +445,7 @@ public class JobEntryWaitForSQL extends JobEntryBase implements Cloneable, JobEn
   }
 
   protected boolean SQLDataOK( Result result, long nrRowsLimit, String realSchemaName, String realTableName,
-    String customSQL ) throws HopException {
+                               String customSQL ) throws HopException {
     String countStatement = null;
     long rowsCount = 0;
     boolean successOK = false;
@@ -564,9 +561,9 @@ public class JobEntryWaitForSQL extends JobEntryBase implements Cloneable, JobEn
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "WaitForSQL", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
   }
 
 }

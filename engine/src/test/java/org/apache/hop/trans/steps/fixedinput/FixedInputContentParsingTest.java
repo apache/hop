@@ -22,12 +22,13 @@
 
 package org.apache.hop.trans.steps.fixedinput;
 
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 public class FixedInputContentParsingTest extends BaseFixedParsingTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Test
   public void testDefaultOptions() throws Exception {
     meta.setLineWidth( "24" );
@@ -44,6 +45,6 @@ public class FixedInputContentParsingTest extends BaseFixedParsingTest {
     process();
 
     check( new Object[][] { { "first   ", "1       ", "1.1     " }, { "second  ", "2       ", "2.2     " }, {
-        "third   ", "3       ", "3.3     " } } );
+      "third   ", "3       ", "3.3     " } } );
   }
 }

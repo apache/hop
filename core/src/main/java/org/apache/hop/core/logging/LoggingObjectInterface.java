@@ -102,8 +102,7 @@ public interface LoggingObjectInterface {
   /**
    * Enable of disable kettle metrics gathering during execution
    *
-   * @param gatheringMetrics
-   *          set to true to enable metrics gathering during execution.
+   * @param gatheringMetrics set to true to enable metrics gathering during execution.
    */
   public void setGatheringMetrics( boolean gatheringMetrics );
 
@@ -111,8 +110,7 @@ public interface LoggingObjectInterface {
    * This option will force the create of a separate logging channel even if the logging concerns identical objects with
    * identical names.
    *
-   * @param forcingSeparateLogging
-   *          Set to true to force separate logging
+   * @param forcingSeparateLogging Set to true to force separate logging
    */
   public void setForcingSeparateLogging( boolean forcingSeparateLogging );
 

@@ -32,15 +32,14 @@ import java.util.concurrent.locks.Lock;
 
 /**
  * Generally useful methods for extracting data
- * 
+ *
  * @author matt
- * 
  */
 public class MetaStoreUtil {
 
   /**
    * Create the specified namespace if it doesn't exist.
-   * 
+   *
    * @param metaStore
    * @param namespace
    * @throws MetaStoreException
@@ -104,7 +103,7 @@ public class MetaStoreUtil {
 
   /**
    * Get a sorted list of element names for the specified element type in the given namespace.
-   * 
+   *
    * @param namespace
    * @param metaStore
    * @param elementType
@@ -124,7 +123,7 @@ public class MetaStoreUtil {
     //
     Collections.sort( names );
 
-    return names.toArray( new String[names.size()] );
+    return names.toArray( new String[ names.size() ] );
   }
 
   public static void copy( IMetaStore from, IMetaStore to ) throws MetaStoreException {

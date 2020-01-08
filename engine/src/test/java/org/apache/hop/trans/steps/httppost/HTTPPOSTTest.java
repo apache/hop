@@ -22,10 +22,10 @@
 
 package org.apache.hop.trans.steps.httppost;
 
+import org.apache.hop.core.exception.HopException;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Test;
-import org.apache.hop.core.exception.HopException;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;

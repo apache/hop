@@ -22,15 +22,12 @@
 
 package org.apache.hop.trans.steps.janino;
 
-import java.util.Objects;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.xml.XMLHandler;
-
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.Objects;
 
 public class JaninoMetaFunction implements Cloneable {
   public static final String XML_TAG = "formula";
@@ -52,7 +49,7 @@ public class JaninoMetaFunction implements Cloneable {
    * @param valuePrecision
    */
   public JaninoMetaFunction( String fieldName, String formula, int valueType, int valueLength, int valuePrecision,
-    String replaceField ) {
+                             String replaceField ) {
     this.fieldName = fieldName;
     this.formula = formula;
     this.valueType = valueType;
@@ -118,8 +115,7 @@ public class JaninoMetaFunction implements Cloneable {
   }
 
   /**
-   * @param fieldName
-   *          The fieldName to set.
+   * @param fieldName The fieldName to set.
    */
   public void setFieldName( String fieldName ) {
     this.fieldName = fieldName;
@@ -133,8 +129,7 @@ public class JaninoMetaFunction implements Cloneable {
   }
 
   /**
-   * @param valueLength
-   *          The valueLength to set.
+   * @param valueLength The valueLength to set.
    */
   public void setValueLength( int valueLength ) {
     this.valueLength = valueLength;
@@ -148,8 +143,7 @@ public class JaninoMetaFunction implements Cloneable {
   }
 
   /**
-   * @param valuePrecision
-   *          The valuePrecision to set.
+   * @param valuePrecision The valuePrecision to set.
    */
   public void setValuePrecision( int valuePrecision ) {
     this.valuePrecision = valuePrecision;
@@ -163,8 +157,7 @@ public class JaninoMetaFunction implements Cloneable {
   }
 
   /**
-   * @param valueType
-   *          The valueType to set.
+   * @param valueType The valueType to set.
    */
   public void setValueType( int valueType ) {
     this.valueType = valueType;
@@ -178,8 +171,7 @@ public class JaninoMetaFunction implements Cloneable {
   }
 
   /**
-   * @param formula
-   *          the formula to set
+   * @param formula the formula to set
    */
   public void setFormula( String formula ) {
     this.formula = formula;
@@ -193,8 +185,7 @@ public class JaninoMetaFunction implements Cloneable {
   }
 
   /**
-   * @param replaceField
-   *          the replaceField to set
+   * @param replaceField the replaceField to set
    */
   public void setReplaceField( String replaceField ) {
     this.replaceField = replaceField;

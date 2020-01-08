@@ -36,10 +36,10 @@ import org.apache.hop.core.row.ValueMetaInterface;
  * @since 11-mrt-2005
  */
 @DatabaseMetaPlugin(
-        type = "DBASE",
-        typeDescription = "dBase III, IV or 5"
+  type = "DBASE",
+  typeDescription = "dBase III, IV or 5"
 )
-@GuiPlugin( id="GUI-DbaseDatabaseMeta" )
+@GuiPlugin( id = "GUI-DbaseDatabaseMeta" )
 public class DbaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
 
   @GuiElement( id = "hostname", type = GuiElementType.NONE, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, ignored = true )
@@ -136,8 +136,7 @@ public class DbaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   }
 
   /**
-   * @param tableName
-   *          The table to be truncated.
+   * @param tableName The table to be truncated.
    * @return The SQL statement to truncate a table: remove all rows from it without a transaction
    */
   @Override
@@ -148,53 +147,40 @@ public class DbaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   /**
    * Generates the SQL statement to add a column to the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
-   *
    */
   @Override
   public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                       String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " ADD " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
   public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                          String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " MODIFY " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
   }
 
   @Override
   public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-    boolean add_fieldname, boolean add_cr ) {
+                                    boolean add_fieldname, boolean add_cr ) {
     String retval = "";
 
     String fieldname = v.getName();
@@ -254,12 +240,9 @@ public class DbaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   /**
    * Get the SQL to insert a new empty unknown record in a dimension.
    *
-   * @param schemaTable
-   *          the schema-table name to insert into
-   * @param keyField
-   *          The key field
-   * @param versionField
-   *          the version field
+   * @param schemaTable  the schema-table name to insert into
+   * @param keyField     The key field
+   * @param versionField the version field
    * @return the SQL to insert the unknown record into the SCD.
    */
   @Override

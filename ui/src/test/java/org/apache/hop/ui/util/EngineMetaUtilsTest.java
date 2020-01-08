@@ -22,15 +22,11 @@
 
 package org.apache.hop.ui.util;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import org.junit.Test;
-import org.apache.hop.core.EngineMetaInterface;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.trans.TransMeta;
+import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 public class EngineMetaUtilsTest {
 

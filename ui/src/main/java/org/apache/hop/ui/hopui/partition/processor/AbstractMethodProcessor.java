@@ -22,11 +22,11 @@
 
 package org.apache.hop.ui.hopui.partition.processor;
 
-import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.hopui.partition.PartitionSettings;
+import org.eclipse.swt.widgets.Shell;
 
 /**
  * @author Evgeniy_Lyakhov@epam.com

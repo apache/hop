@@ -26,12 +26,12 @@ import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import org.apache.hop.core.exception.HopJobException;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.exception.HopJobException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 import java.net.InetAddress;
 

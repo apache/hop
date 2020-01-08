@@ -25,18 +25,17 @@ package org.apache.hop.trans.steps.janino;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -45,7 +44,6 @@ import org.apache.hop.trans.step.StepInjectionMetaEntry;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import java.util.Arrays;
@@ -54,14 +52,16 @@ import java.util.Objects;
 
 /**
  * Contains the meta-data for the Formula step: calculates ad-hoc formula's Powered by Pentaho's "libformula"
- *
+ * <p>
  * Created on 22-feb-2007
  */
 
 public class JaninoMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = JaninoMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** The formula calculations to be performed */
+  /**
+   * The formula calculations to be performed
+   */
   private JaninoMetaFunction[] formula;
 
   public JaninoMeta() {
@@ -77,7 +77,7 @@ public class JaninoMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrCalcs ) {
-    formula = new JaninoMetaFunction[nrCalcs];
+    formula = new JaninoMetaFunction[ nrCalcs ];
   }
 
   public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
@@ -85,7 +85,7 @@ public class JaninoMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( nrCalcs );
     for ( int i = 0; i < nrCalcs; i++ ) {
       Node calcnode = XMLHandler.getSubNodeByNr( stepnode, JaninoMetaFunction.XML_TAG, i );
-      formula[i] = new JaninoMetaFunction( calcnode );
+      formula[ i ] = new JaninoMetaFunction( calcnode );
     }
   }
 
@@ -94,7 +94,7 @@ public class JaninoMeta extends BaseStepMeta implements StepMetaInterface {
 
     if ( formula != null ) {
       for ( int i = 0; i < formula.length; i++ ) {
-        retval.append( "       " + formula[i].getXML() + Const.CR );
+        retval.append( "       " + formula[ i ].getXML() + Const.CR );
       }
     }
 
@@ -120,7 +120,7 @@ public class JaninoMeta extends BaseStepMeta implements StepMetaInterface {
       retval.allocate( formula.length );
       for ( int i = 0; i < formula.length; i++ ) {
         //CHECKSTYLE:Indentation:OFF
-        retval.getFormula()[i] = (JaninoMetaFunction) formula[i].clone();
+        retval.getFormula()[ i ] = (JaninoMetaFunction) formula[ i ].clone();
       }
     } else {
       retval.allocate( 0 );
@@ -129,14 +129,14 @@ public class JaninoMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void setDefault() {
-    formula = new JaninoMetaFunction[0];
+    formula = new JaninoMetaFunction[ 0 ];
   }
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     for ( int i = 0; i < formula.length; i++ ) {
-      JaninoMetaFunction fn = formula[i];
+      JaninoMetaFunction fn = formula[ i ];
       if ( Utils.isEmpty( fn.getReplaceField() ) ) {
         // Not replacing a field.
         if ( !Utils.isEmpty( fn.getFieldName() ) ) {
@@ -171,22 +171,16 @@ public class JaninoMeta extends BaseStepMeta implements StepMetaInterface {
   /**
    * Checks the settings of this step and puts the findings in a remarks List.
    *
-   * @param remarks
-   *          The list to put the remarks in @see org.apache.hop.core.CheckResult
-   * @param stepMeta
-   *          The stepMeta to help checking
-   * @param prev
-   *          The fields coming from the previous step
-   * @param input
-   *          The input step names
-   * @param output
-   *          The output step names
-   * @param info
-   *          The fields that are used as information by the step
+   * @param remarks  The list to put the remarks in @see org.apache.hop.core.CheckResult
+   * @param stepMeta The stepMeta to help checking
+   * @param prev     The fields coming from the previous step
+   * @param input    The input step names
+   * @param output   The output step names
+   * @param info     The fields that are used as information by the step
    */
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -215,7 +209,7 @@ public class JaninoMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new Janino( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 

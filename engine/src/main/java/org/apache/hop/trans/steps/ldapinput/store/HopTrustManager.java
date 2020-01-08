@@ -22,24 +22,22 @@
 
 package org.apache.hop.trans.steps.ldapinput.store;
 
-import java.io.InputStream;
-import java.security.KeyStore;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.steps.ldapinput.LDAPInputMeta;
 
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
 /**
  * This is a wrapper around a standard X509TrustManager. It's just initialized in a specific way for Hop purposes.
- *
  */
 public class HopTrustManager implements X509TrustManager {
 
@@ -51,7 +49,6 @@ public class HopTrustManager implements X509TrustManager {
   private X509TrustManager tm;
 
   /**
-   *
    * @param certStorePath
    * @param certPassword
    * @throws HopException
@@ -86,7 +83,7 @@ public class HopTrustManager implements X509TrustManager {
         tmf = TrustManagerFactory.getInstance( "SunX509" );
         tmf.init( keyStore );
         TrustManager[] tms = tmf.getTrustManagers();
-        tm = (X509TrustManager) tms[0];
+        tm = (X509TrustManager) tms[ 0 ];
       } catch ( Exception e ) {
         throw new HopException( BaseMessages.getString(
           PKG, "HopTrustManager.Exception.CouldNotInitializeTrustManager" ), e );
@@ -111,7 +108,7 @@ public class HopTrustManager implements X509TrustManager {
 
   /**
    * Pass method from x509TrustManager to this class...
-   *
+   * <p>
    * Given the partial or complete certificate chain provided by the peer, build a certificate path to a trusted root
    * and return if it can be validated and is trusted for client SSL authentication based on the authentication type
    */
@@ -124,7 +121,7 @@ public class HopTrustManager implements X509TrustManager {
 
   /**
    * Pass method from x509TrustManager to this class...
-   *
+   * <p>
    * Given the partial or complete certificate chain provided by the peer, build a certificate path to a trusted root
    * and return if it can be validated and is trusted for server SSL authentication based on the authentication type
    */

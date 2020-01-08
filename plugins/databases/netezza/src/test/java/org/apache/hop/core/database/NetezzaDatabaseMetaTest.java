@@ -21,14 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -36,6 +28,14 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class NetezzaDatabaseMetaTest {
   private NetezzaDatabaseMeta nativeMeta, odbcMeta;
@@ -44,7 +44,7 @@ public class NetezzaDatabaseMetaTest {
   public void setupBefore() {
     nativeMeta = new NetezzaDatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    odbcMeta  = new NetezzaDatabaseMeta();
+    odbcMeta = new NetezzaDatabaseMeta();
     odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
 
   }
@@ -54,11 +54,11 @@ public class NetezzaDatabaseMetaTest {
     assertEquals( "&", nativeMeta.getExtraOptionSeparator() );
     assertEquals( "?", nativeMeta.getExtraOptionIndicator() );
     assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
-        nativeMeta.getAccessTypeList() );
+      nativeMeta.getAccessTypeList() );
     assertEquals( 5480, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertEquals( "org.netezza.Driver", nativeMeta.getDriverClass() );
-    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL(  "IGNORED", "IGNORED", "FOO" ) );
+    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "IGNORED", "IGNORED", "FOO" ) );
     assertEquals( "jdbc:netezza://FOO:BAR/WIBBLE", nativeMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
     assertEquals( "jdbc:netezza://FOO:/WIBBLE", nativeMeta.getURL( "FOO", "", "WIBBLE" ) ); // I think this is a bug...
     assertEquals( "jdbc:netezza://FOO:null/WIBBLE", nativeMeta.getURL( "FOO", null, "WIBBLE" ) ); // I think this is a bug...
@@ -139,67 +139,67 @@ public class NetezzaDatabaseMetaTest {
     assertNull( nativeMeta.getDropColumnStatement( "", null, "", false, "", false ) );
     String lineSep = System.getProperty( "line.separator" );
     assertEquals( "ALTER TABLE FOO MODIFY COLUMN BAR" + lineSep + ";" + lineSep,
-        nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), null, false, null, false ) ); // Pretty sure this is a bug ...
+      nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), null, false, null, false ) ); // Pretty sure this is a bug ...
     assertNull( nativeMeta.getSQLListOfProcedures() );
-    assertNull( nativeMeta.getSQLLockTables( new String[] { } ) );
-    assertNull( nativeMeta.getSQLUnlockTables( new String[] { } ) );
+    assertNull( nativeMeta.getSQLLockTables( new String[] {} ) );
+    assertNull( nativeMeta.getSQLUnlockTables( new String[] {} ) );
   }
 
   @Test
   public void testGetFieldDefinition() {
     assertEquals( "FOO date",
-        nativeMeta.getFieldDefinition( new ValueMetaDate( "FOO" ), null, null, false, true, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaDate( "FOO" ), null, null, false, true, false ) );
     assertEquals( "boolean",
-        nativeMeta.getFieldDefinition( new ValueMetaBoolean( "FOO" ), null, null, false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBoolean( "FOO" ), null, null, false, false, false ) );
 
     assertEquals( "",
-        nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 0, 0 ), null, null, false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 0, 0 ), null, null, false, false, false ) );
     assertEquals( "byteint",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 1, 0 ), null, null, false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 1, 0 ), null, null, false, false, false ) );
     assertEquals( "byteint",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 2, 0 ), null, null, false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 2, 0 ), null, null, false, false, false ) );
     assertEquals( "smallint",
-        nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 3, 0 ), null, null, false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 3, 0 ), null, null, false, false, false ) );
     assertEquals( "smallint",
-        nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 4, 0 ), null, null, false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 4, 0 ), null, null, false, false, false ) );
     for ( int i = 5; i < 10; i++ ) {
       assertEquals( "integer",
-          nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", i, 0 ), null, null, false, false, false ) );
+        nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", i, 0 ), null, null, false, false, false ) );
     }
     assertEquals( "bigint",
-        nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 10, 0 ), null, null, false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 10, 0 ), null, null, false, false, false ) );
     assertEquals( "",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", -22, 3 ), null, null, false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", -22, 3 ), null, null, false, false, false ) );
     assertEquals( "",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 0, 3 ), null, null, false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 0, 3 ), null, null, false, false, false ) );
     assertEquals( "real",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 1, 3 ), null, null, false, false, false ) ); // pretty sure this is a bug ...
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 1, 3 ), null, null, false, false, false ) ); // pretty sure this is a bug ...
     assertEquals( "real",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 2, 3 ), null, null, false, false, false ) ); // pretty sure this is a bug ...
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 2, 3 ), null, null, false, false, false ) ); // pretty sure this is a bug ...
     for ( int i = 3; i < 9; i++ ) {
       assertEquals( "real",
-          nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", i, 3 ), null, null, false, false, false ) );
+        nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", i, 3 ), null, null, false, false, false ) );
     }
     for ( int i = 10; i < 18; i++ ) {
       assertEquals( "double",
-          nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", i, 3 ), null, null, false, false, false ) );
+        nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", i, 3 ), null, null, false, false, false ) );
     }
     assertEquals( "numeric(18, 3)",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 18, 3 ), null, null, false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 18, 3 ), null, null, false, false, false ) );
     assertEquals( "numeric(19)",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 19, -12 ), null, null, false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 19, -12 ), null, null, false, false, false ) );
 
     assertEquals( "varchar(32767)",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", ( NetezzaDatabaseMeta.MAX_CHAR_LEN + 2 ), 0 ), null, null, false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", ( NetezzaDatabaseMeta.MAX_CHAR_LEN + 2 ), 0 ), null, null, false, false, false ) );
     assertEquals( "varchar(10)",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", 10, 0 ), null, null, false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", 10, 0 ), null, null, false, false, false ) );
 
     assertEquals( " UNKNOWN",
-        nativeMeta.getFieldDefinition( new ValueMetaBinary( "FOO", 10, 0 ), null, null, false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBinary( "FOO", 10, 0 ), null, null, false, false, false ) );
 
     String lineSep = System.getProperty( "line.separator" );
     assertEquals( " UNKNOWN" + lineSep,
-        nativeMeta.getFieldDefinition( new ValueMetaBinary( "FOO", 10, 0 ), null, null, false, false, true ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBinary( "FOO", 10, 0 ), null, null, false, false, true ) );
   }
 
 }

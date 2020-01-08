@@ -22,28 +22,25 @@
 
 package org.apache.hop.core.logging;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.trans.HasDatabasesInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * This class describes a logging channel logging table
  *
  * @author matt
- *
  */
 public class ChannelLogTable extends BaseLogTable implements Cloneable, LogTableInterface {
 
@@ -160,7 +157,7 @@ public class ChannelLogTable extends BaseLogTable implements Cloneable, LogTable
   /**
    * This method calculates all the values that are required
    *
-   * @param status the log status to use
+   * @param status  the log status to use
    * @param subject
    * @param parent
    */

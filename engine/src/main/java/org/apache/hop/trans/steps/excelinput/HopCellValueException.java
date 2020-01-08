@@ -27,7 +27,7 @@ import org.apache.hop.i18n.BaseMessages;
 
 /**
  * Extended {@link HopException} to allow passing of extra context info up the chain (sheet, row, and column IDs).
- *
+ * <p>
  * If we were really obsessive, we'd cache both the names and indexes of all the items, including the input file. But
  * this will do for a start.
  *
@@ -51,16 +51,11 @@ public class HopCellValueException extends HopException {
    * <p/>
    * <em>Note:</em> All indexes below have a 0-origin (internal index), but are reported with a 1-origin (human index).
    *
-   * @param ex
-   *          The Exception to wrap.
-   * @param sheetnr
-   *          Sheet number
-   * @param rownr
-   *          Row number
-   * @param colnr
-   *          Column number
-   * @param fieldName
-   *          The name of the field being converted
+   * @param ex        The Exception to wrap.
+   * @param sheetnr   Sheet number
+   * @param rownr     Row number
+   * @param colnr     Column number
+   * @param fieldName The name of the field being converted
    */
   public HopCellValueException( HopException ex, int sheetnr, int rownr, int colnr, String fieldName ) {
     super( ex );

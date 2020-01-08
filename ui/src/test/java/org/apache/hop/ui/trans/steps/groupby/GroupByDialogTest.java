@@ -22,12 +22,12 @@
 
 package org.apache.hop.ui.trans.steps.groupby;
 
+import org.apache.hop.ui.core.widget.TableView;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.TableItem;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.apache.hop.ui.core.widget.TableView;
 
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.doCallRealMethod;

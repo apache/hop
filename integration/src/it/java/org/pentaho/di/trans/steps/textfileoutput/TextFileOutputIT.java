@@ -22,6 +22,33 @@
 
 package org.apache.hop.trans.steps.textfileoutput;
 
+import junit.framework.TestCase;
+import org.apache.hop.TestFailedException;
+import org.apache.hop.TestUtilities;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.trans.RowStepCollector;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
+import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
+import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -34,34 +61,6 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
-import junit.framework.TestCase;
-
-import org.junit.Test;
-import org.apache.hop.TestFailedException;
-import org.apache.hop.TestUtilities;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.StepPluginType;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.trans.RowStepCollector;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransHopMeta;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
-import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 /**
  * This class tests the functionality of the TextFileOutput step.
@@ -184,7 +183,7 @@ public class TextFileOutputIT extends TestCase {
 
     ValueMetaInterface[] valuesMeta = { new ValueMetaString( "filename" ), };
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rowMetaInterface.addValueMeta( valuesMeta[i] );
+      rowMetaInterface.addValueMeta( valuesMeta[ i ] );
     }
 
     return rowMetaInterface;
@@ -214,10 +213,10 @@ public class TextFileOutputIT extends TestCase {
     RowMetaInterface rowMetaInterface = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-        { new ValueMetaInteger( "Id" ), new ValueMetaString( "City" ), new ValueMetaString( "State" ) };
+      { new ValueMetaInteger( "Id" ), new ValueMetaString( "City" ), new ValueMetaString( "State" ) };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rowMetaInterface.addValueMeta( valuesMeta[i] );
+      rowMetaInterface.addValueMeta( valuesMeta[ i ] );
     }
 
     return rowMetaInterface;
@@ -251,7 +250,7 @@ public class TextFileOutputIT extends TestCase {
   }
 
   private StepMeta createTextFileOutputStep( String name, String textFileName, String compression,
-    PluginRegistry registry ) {
+                                             PluginRegistry registry ) {
 
     // Create a Text File Output step
     String testFileOutputName = name;
@@ -260,42 +259,42 @@ public class TextFileOutputIT extends TestCase {
     StepMeta textFileOutputStep = new StepMeta( textFileInputPid, testFileOutputName, textFileOutputMeta );
 
     // initialize the fields
-    TextFileField[] fields = new TextFileField[3];
+    TextFileField[] fields = new TextFileField[ 3 ];
     for ( int idx = 0; idx < fields.length; idx++ ) {
-      fields[idx] = new TextFileField();
+      fields[ idx ] = new TextFileField();
     }
 
     // populate the fields
     // it is important that the setPosition(int)
     // is invoked with the correct position as
     // we are testing the reading of a delimited file.
-    fields[0].setName( "id" );
-    fields[0].setType( ValueMetaInterface.TYPE_INTEGER );
-    fields[0].setFormat( "" );
-    fields[0].setLength( -1 );
-    fields[0].setPrecision( -1 );
-    fields[0].setCurrencySymbol( "" );
-    fields[0].setDecimalSymbol( "" );
-    fields[0].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    fields[ 0 ].setName( "id" );
+    fields[ 0 ].setType( ValueMetaInterface.TYPE_INTEGER );
+    fields[ 0 ].setFormat( "" );
+    fields[ 0 ].setLength( -1 );
+    fields[ 0 ].setPrecision( -1 );
+    fields[ 0 ].setCurrencySymbol( "" );
+    fields[ 0 ].setDecimalSymbol( "" );
+    fields[ 0 ].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
 
     // here we're swapping the order of the last 2 columns
-    fields[1].setName( "city" );
-    fields[1].setType( ValueMetaInterface.TYPE_STRING );
-    fields[1].setFormat( "" );
-    fields[1].setLength( -1 );
-    fields[1].setPrecision( -1 );
-    fields[1].setCurrencySymbol( "" );
-    fields[1].setDecimalSymbol( "" );
-    fields[1].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    fields[ 1 ].setName( "city" );
+    fields[ 1 ].setType( ValueMetaInterface.TYPE_STRING );
+    fields[ 1 ].setFormat( "" );
+    fields[ 1 ].setLength( -1 );
+    fields[ 1 ].setPrecision( -1 );
+    fields[ 1 ].setCurrencySymbol( "" );
+    fields[ 1 ].setDecimalSymbol( "" );
+    fields[ 1 ].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
 
-    fields[2].setName( "state" );
-    fields[2].setType( ValueMetaInterface.TYPE_STRING );
-    fields[2].setFormat( "" );
-    fields[2].setLength( -1 );
-    fields[2].setPrecision( -1 );
-    fields[2].setCurrencySymbol( "" );
-    fields[2].setDecimalSymbol( "" );
-    fields[2].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    fields[ 2 ].setName( "state" );
+    fields[ 2 ].setType( ValueMetaInterface.TYPE_STRING );
+    fields[ 2 ].setFormat( "" );
+    fields[ 2 ].setLength( -1 );
+    fields[ 2 ].setPrecision( -1 );
+    fields[ 2 ].setCurrencySymbol( "" );
+    fields[ 2 ].setDecimalSymbol( "" );
+    fields[ 2 ].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
 
     // call this to allocate the number of fields
     textFileOutputMeta.allocate( 3 );
@@ -333,10 +332,10 @@ public class TextFileOutputIT extends TestCase {
         if ( columns.length != 3 ) {
           fail( "Expected 3 columns, got " + columns.length );
         }
-        rows[rowCount][0] = Long.parseLong( columns[0].trim() );
+        rows[ rowCount ][ 0 ] = Long.parseLong( columns[ 0 ].trim() );
         // column order swapped as expected from outputFields
-        rows[rowCount][1] = columns[2];
-        rows[rowCount][2] = columns[1];
+        rows[ rowCount ][ 1 ] = columns[ 2 ];
+        rows[ rowCount ][ 2 ] = columns[ 1 ];
         rowCount++;
         inputLine = input.readLine();
       }
@@ -504,7 +503,7 @@ public class TextFileOutputIT extends TestCase {
 
     // Compare the results
     List<RowMetaAndData> resultRows = dummyRowCollector.getRowsWritten();
-    Object[][] rows = new Object[10][3];
+    Object[][] rows = new Object[ 10 ][ 3 ];
     File f = new File( textFileName + ".zip" );
     f.deleteOnExit();
     try {
@@ -589,7 +588,7 @@ public class TextFileOutputIT extends TestCase {
 
     // Compare the results
     List<RowMetaAndData> resultRows = dummyRowCollector.getRowsWritten();
-    Object[][] rows = new Object[10][3];
+    Object[][] rows = new Object[ 10 ][ 3 ];
     File f = new File( textFileName + "." + EXTENSION + ".gz" );
     f.deleteOnExit();
     try {
@@ -669,7 +668,7 @@ public class TextFileOutputIT extends TestCase {
 
     // Compare the results
     List<RowMetaAndData> resultRows = dummyRowCollector.getRowsWritten();
-    Object[][] rows = new Object[10][3];
+    Object[][] rows = new Object[ 10 ][ 3 ];
     File f = new File( textFileName + "." + EXTENSION );
     f.deleteOnExit();
     try {

@@ -22,14 +22,10 @@
 
 package org.apache.hop.trans.steps.sftpput;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -37,7 +33,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entries.sftpput.JobEntrySFTPPUT;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -45,8 +41,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * Send file to SFTP host.
@@ -195,13 +192,13 @@ public class SFTPPutMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Default: nothing changes to rowMeta
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -230,7 +227,7 @@ public class SFTPPutMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new SFTPPut( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -246,8 +243,7 @@ public class SFTPPutMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param password
-   *          The password to set.
+   * @param password The password to set.
    */
   public void setPassword( String password ) {
     this.password = password;
@@ -261,8 +257,7 @@ public class SFTPPutMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param serverName
-   *          The serverName to set.
+   * @param serverName The serverName to set.
    */
   public void setServerName( String serverName ) {
     this.serverName = serverName;
@@ -276,8 +271,7 @@ public class SFTPPutMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param userName
-   *          The userName to set.
+   * @param userName The userName to set.
    */
   public void setUserName( String userName ) {
     this.userName = userName;
@@ -291,8 +285,7 @@ public class SFTPPutMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param value
-   *          The afterFTPS to set.
+   * @param value The afterFTPS to set.
    */
   public void setAfterFTPS( int value ) {
     this.afterFTPS = value;
@@ -338,8 +331,7 @@ public class SFTPPutMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param compression
-   *          The compression to set.
+   * @param compression The compression to set.
    */
   public void setCompression( String compression ) {
     this.compression = compression;
@@ -410,8 +402,7 @@ public class SFTPPutMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param createDestinationFolder
-   *          The create destination folder flag to set.
+   * @param createDestinationFolder The create destination folder flag to set.
    */
   public void setCreateDestinationFolder( boolean createDestinationFolder ) {
     this.createDestinationFolder = createDestinationFolder;

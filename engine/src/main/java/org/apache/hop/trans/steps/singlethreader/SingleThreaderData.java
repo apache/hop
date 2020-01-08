@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.singlethreader;
 
-import java.util.List;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.RowProducer;
 import org.apache.hop.trans.SingleThreadedTransExecutor;
@@ -33,10 +31,11 @@ import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepMeta;
 
+import java.util.List;
+
 /**
  * @author Matt
  * @since 24-jan-2005
- *
  */
 public class SingleThreaderData extends BaseStepData implements StepDataInterface {
   public Trans mappingTrans;

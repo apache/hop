@@ -22,15 +22,15 @@
 
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Properties;
-
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import java.util.Properties;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MSSQLServerNativeDatabaseMetaTest {
   @ClassRule
@@ -50,16 +50,16 @@ public class MSSQLServerNativeDatabaseMetaTest {
     assertEquals( "jdbc:odbc:WIBBLE", localOdbcMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
 
     assertEquals( "jdbc:sqlserver://FOO:1234;databaseName=WIBBLE;integratedSecurity=false",
-        localNativeMeta.getURL( "FOO", "1234", "WIBBLE" ) );
+      localNativeMeta.getURL( "FOO", "1234", "WIBBLE" ) );
 
     Properties attrs = new Properties();
     attrs.put( "MSSQLUseIntegratedSecurity", "false" );
     localNativeMeta.setAttributes( attrs );
     assertEquals( "jdbc:sqlserver://FOO:1234;databaseName=WIBBLE;integratedSecurity=false",
-        localNativeMeta.getURL( "FOO", "1234", "WIBBLE" ) );
+      localNativeMeta.getURL( "FOO", "1234", "WIBBLE" ) );
     attrs.put( "MSSQLUseIntegratedSecurity", "true" );
     assertEquals( "jdbc:sqlserver://FOO:1234;databaseName=WIBBLE;integratedSecurity=true",
-        localNativeMeta.getURL( "FOO", "1234", "WIBBLE" ) );
+      localNativeMeta.getURL( "FOO", "1234", "WIBBLE" ) );
 
   }
 
@@ -91,7 +91,7 @@ public class MSSQLServerNativeDatabaseMetaTest {
     mssqlServerNativeDatabaseMeta.setPluginId( "MSSQLNATIVE" );
 
     assertTrue( databaseMeta.databaseForBothDbInterfacesIsTheSame( mssqlServerDatabaseMeta,
-            mssqlServerNativeDatabaseMeta ) );
+      mssqlServerNativeDatabaseMeta ) );
   }
 
 }

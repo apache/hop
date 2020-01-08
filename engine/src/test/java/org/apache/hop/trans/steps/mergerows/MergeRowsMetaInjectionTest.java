@@ -22,14 +22,15 @@
 
 package org.apache.hop.trans.steps.mergerows;
 
+import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 public class MergeRowsMetaInjectionTest extends BaseMetadataInjectionTest<MergeRowsMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Before
   public void setup() throws Exception {
     setup( new MergeRowsMeta() );
@@ -44,12 +45,12 @@ public class MergeRowsMetaInjectionTest extends BaseMetadataInjectionTest<MergeR
     } );
     check( "KEY_FIELDS", new StringGetter() {
       public String get() {
-        return meta.getKeyFields()[0];
+        return meta.getKeyFields()[ 0 ];
       }
     } );
     check( "VALUE_FIELDS", new StringGetter() {
       public String get() {
-        return meta.getValueFields()[0];
+        return meta.getValueFields()[ 0 ];
       }
     } );
   }

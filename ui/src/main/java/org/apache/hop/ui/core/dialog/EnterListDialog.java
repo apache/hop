@@ -22,9 +22,12 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import java.util.Hashtable;
-import java.util.StringTokenizer;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.dnd.DND;
@@ -54,12 +57,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.Const;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.Hashtable;
+import java.util.StringTokenizer;
 
 /**
  * This dialogs allows you to select a number of items from a list of strings.
@@ -313,7 +313,7 @@ public class EnterListDialog extends Dialog {
         String[] ti = wListSource.getSelection();
         String data = new String();
         for ( int i = 0; i < ti.length; i++ ) {
-          data += ti[i] + Const.CR;
+          data += ti[ i ] + Const.CR;
         }
         event.data = data;
       }
@@ -431,23 +431,23 @@ public class EnterListDialog extends Dialog {
       String str = selection.get( idx );
       if ( str == null ) {
         // Not selected: show in source!
-        wListSource.add( input[i] );
+        wListSource.add( input[ i ] );
       } else {
         // Selected, show in destination!
-        wListDest.add( input[i] );
+        wListDest.add( input[ i ] );
       }
     }
   }
 
   public void addToSelection( String[] string ) {
     for ( int i = 0; i < string.length; i++ ) {
-      addToDestination( string[i] );
+      addToDestination( string[ i ] );
     }
   }
 
   public void delFromSelection( String[] string ) {
     for ( int i = 0; i < string.length; i++ ) {
-      delFromDestination( string[i] );
+      delFromDestination( string[ i ] );
     }
   }
 

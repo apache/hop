@@ -22,17 +22,16 @@
 
 package org.apache.hop.www.jaxrs;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.xml.XMLHandler;
+import org.w3c.dom.Node;
+
+import javax.xml.bind.annotation.XmlRootElement;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadMXBean;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.xml.XMLHandler;
-import org.w3c.dom.Node;
 
 @XmlRootElement
 public class ServerStatus {
@@ -78,7 +77,7 @@ public class ServerStatus {
 
     long[] threadIds = threadMXBean.getAllThreadIds();
     for ( int i = 0; i < threadIds.length; i++ ) {
-      allThreadsCpuTime += threadMXBean.getThreadCpuTime( threadIds[i] );
+      allThreadsCpuTime += threadMXBean.getThreadCpuTime( threadIds[ i ] );
     }
 
     long uptime = runtimeMXBean.getUptime();
@@ -129,8 +128,7 @@ public class ServerStatus {
   }
 
   /**
-   * @param statusDescription
-   *          the statusDescription to set
+   * @param statusDescription the statusDescription to set
    */
   public void setStatusDescription( String statusDescription ) {
     this.statusDescription = statusDescription;
@@ -144,8 +142,7 @@ public class ServerStatus {
   }
 
   /**
-   * @param errorDescription
-   *          the errorDescription to set
+   * @param errorDescription the errorDescription to set
    */
   public void setErrorDescription( String errorDescription ) {
     this.errorDescription = errorDescription;
@@ -159,8 +156,7 @@ public class ServerStatus {
   }
 
   /**
-   * @param memoryFree
-   *          the memoryFree to set
+   * @param memoryFree the memoryFree to set
    */
   public void setMemoryFree( long memoryFree ) {
     this.memoryFree = memoryFree;
@@ -174,8 +170,7 @@ public class ServerStatus {
   }
 
   /**
-   * @param memoryTotal
-   *          the memoryTotal to set
+   * @param memoryTotal the memoryTotal to set
    */
   public void setMemoryTotal( long memoryTotal ) {
     this.memoryTotal = memoryTotal;
@@ -189,8 +184,7 @@ public class ServerStatus {
   }
 
   /**
-   * @param cpuCores
-   *          the cpuCores to set
+   * @param cpuCores the cpuCores to set
    */
   public void setCpuCores( int cpuCores ) {
     this.cpuCores = cpuCores;
@@ -204,8 +198,7 @@ public class ServerStatus {
   }
 
   /**
-   * @param cpuProcessTime
-   *          the cpuProcessTime to set
+   * @param cpuProcessTime the cpuProcessTime to set
    */
   public void setCpuProcessTime( long cpuProcessTime ) {
     this.cpuProcessTime = cpuProcessTime;

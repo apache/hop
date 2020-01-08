@@ -21,38 +21,24 @@
  ******************************************************************************/
 package org.apache.hop.trans;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.trans.step.StepMeta;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.ProgressMonitorListener;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyBoolean;
-import static org.mockito.Mockito.anyMap;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
@@ -105,7 +91,7 @@ public class StepWithMappingMetaTest {
      * internal variables will be replaced by uri from kettle vfs
      * check the follow points
      * {@link org.apache.hop.trans.TransMeta#setInternalFilenameHopVariables(VariableSpace)}
-     * 
+     *
      */
     Assert.assertEquals( expected.deleteCharAt( expected.length() - 1 ).toString(), transMeta.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
   }
@@ -221,10 +207,10 @@ public class StepWithMappingMetaTest {
 
   @Test
   @PrepareForTest( StepWithMappingMeta.class )
-  public void replaceVariablesWithJobInternalVariablesTest()  {
+  public void replaceVariablesWithJobInternalVariablesTest() {
     String variableOverwrite = "paramOverwrite";
     String variableChildOnly = "childValueVariable";
-    String [] jobVariables = Const.INTERNAL_JOB_VARIABLES;
+    String[] jobVariables = Const.INTERNAL_JOB_VARIABLES;
     VariableSpace ChildVariables = new Variables();
     VariableSpace replaceByParentVariables = new Variables();
 
@@ -249,10 +235,10 @@ public class StepWithMappingMetaTest {
 
   @Test
   @PrepareForTest( StepWithMappingMeta.class )
-  public void replaceVariablesWithTransInternalVariablesTest()  {
+  public void replaceVariablesWithTransInternalVariablesTest() {
     String variableOverwrite = "paramOverwrite";
     String variableChildOnly = "childValueVariable";
-    String [] jobVariables = Const.INTERNAL_TRANS_VARIABLES;
+    String[] jobVariables = Const.INTERNAL_TRANS_VARIABLES;
     VariableSpace ChildVariables = new Variables();
     VariableSpace replaceByParentVariables = new Variables();
 

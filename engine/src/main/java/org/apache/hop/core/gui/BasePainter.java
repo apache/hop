@@ -84,8 +84,8 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends BaseM
   protected Hop candidate;
 
   public BasePainter( GCInterface gc, Object subject, Point area, ScrollBarInterface hori,
-    ScrollBarInterface vert, Point drop_candidate, Rectangle selrect, List<AreaOwner> areaOwners, int iconsize,
-    int linewidth, int gridsize, int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight ) {
+                      ScrollBarInterface vert, Point drop_candidate, Rectangle selrect, List<AreaOwner> areaOwners, int iconsize,
+                      int linewidth, int gridsize, int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight ) {
     this.gc = gc;
     this.subject = subject;
     this.area = area;
@@ -317,8 +317,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends BaseM
   }
 
   /**
-   * @param magnification
-   *          the magnification to set
+   * @param magnification the magnification to set
    */
   public void setMagnification( float magnification ) {
     this.magnification = magnification;
@@ -499,13 +498,13 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends BaseM
   }
 
   protected void drawArrow( EImage arrow, int[] line, Hop hop, Object startObject, Object endObject ) {
-    Point screen_from = real2screen( line[0], line[1] );
-    Point screen_to = real2screen( line[2], line[3] );
+    Point screen_from = real2screen( line[ 0 ], line[ 1 ] );
+    Point screen_to = real2screen( line[ 2 ], line[ 3 ] );
 
     drawArrow( arrow, screen_from.x, screen_from.y, screen_to.x, screen_to.y, theta, calcArrowLength(), -1, hop,
       startObject, endObject );
   }
 
   protected abstract void drawArrow( EImage arrow, int x1, int y1, int x2, int y2, double theta, int size, double factor,
-                            Hop jobHop, Object startObject, Object endObject );
+                                     Hop jobHop, Object startObject, Object endObject );
 }

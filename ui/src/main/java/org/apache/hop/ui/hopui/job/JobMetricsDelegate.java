@@ -22,12 +22,19 @@
 
 package org.apache.hop.ui.hopui.job;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.LoggingRegistry;
+import org.apache.hop.core.logging.MetricsPainter;
+import org.apache.hop.core.logging.MetricsPainter.MetricsDrawArea;
+import org.apache.hop.core.metrics.MetricsDuration;
+import org.apache.hop.core.metrics.MetricsUtil;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopui.SWTGC;
 import org.apache.hop.ui.hopui.delegates.HopUiDelegate;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
@@ -53,19 +60,12 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.logging.LoggingRegistry;
-import org.apache.hop.core.logging.MetricsPainter;
-import org.apache.hop.core.logging.MetricsPainter.MetricsDrawArea;
-import org.apache.hop.core.metrics.MetricsDuration;
-import org.apache.hop.core.metrics.MetricsUtil;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.hopui.SWTGC;
-import org.apache.hop.ui.hopui.HopUi;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class JobMetricsDelegate extends HopUiDelegate {
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
@@ -248,7 +248,7 @@ public class JobMetricsDelegate extends HopUiDelegate {
 
             System.out.println( duration.toString() );
             LoggingObjectInterface loggingObject =
-                LoggingRegistry.getInstance().getLoggingObject( duration.getLogChannelId() );
+              LoggingRegistry.getInstance().getLoggingObject( duration.getLogChannelId() );
             if ( loggingObject == null ) {
               return;
             }
@@ -289,7 +289,7 @@ public class JobMetricsDelegate extends HopUiDelegate {
     jobGraph.getDisplay().asyncExec( new Runnable() {
       public void run() {
         if ( metricsComposite != null && !metricsComposite.isDisposed() && canvas != null && !canvas.isDisposed()
-            && jobMetricsTab != null && !jobMetricsTab.isDisposed() ) {
+          && jobMetricsTab != null && !jobMetricsTab.isDisposed() ) {
           if ( jobMetricsTab.isShowing() ) {
             canvas.redraw();
           }
@@ -353,7 +353,7 @@ public class JobMetricsDelegate extends HopUiDelegate {
     canvas.setSize( bounds.width, bounds.height );
 
     SWTGC gc =
-        new SWTGC( Display.getCurrent(), new Point( bounds.width, bounds.height ), PropsUI.getInstance().getIconSize() );
+      new SWTGC( Display.getCurrent(), new Point( bounds.width, bounds.height ), PropsUI.getInstance().getIconSize() );
     MetricsPainter painter = new MetricsPainter( gc, barHeight );
     // checking according to method's contract
     drawAreas = painter.paint( durations );

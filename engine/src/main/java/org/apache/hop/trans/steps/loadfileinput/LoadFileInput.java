@@ -22,15 +22,9 @@
 
 package org.apache.hop.trans.steps.loadfileinput;
 
-import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
@@ -38,6 +32,7 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
@@ -47,6 +42,11 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Read files, parse them and convert them to rows and writes these to one or more output streams.
@@ -61,7 +61,7 @@ public class LoadFileInput extends BaseStep implements StepInterface {
   LoadFileInputData data;
 
   public LoadFileInput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                        Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -260,8 +260,7 @@ public class LoadFileInput extends BaseStep implements StepInterface {
   /**
    * Read a file.
    *
-   * @param vfsFilename
-   *          the filename or URL to read from
+   * @param vfsFilename the filename or URL to read from
    * @return The content of the file as a byte[]
    * @throws HopException
    */
@@ -337,7 +336,7 @@ public class LoadFileInput extends BaseStep implements StepInterface {
       // Read fields...
       for ( int i = 0; i < data.nrInputFields; i++ ) {
         // Get field
-        LoadFileInputField loadFileInputField = meta.getInputFields()[i];
+        LoadFileInputField loadFileInputField = meta.getInputFields()[ i ];
 
         Object o = null;
         int indexField = data.totalpreviousfields + i;
@@ -375,7 +374,7 @@ public class LoadFileInput extends BaseStep implements StepInterface {
             }
             if ( targetValueMeta.getType() != ValueMetaInterface.TYPE_BINARY ) {
               // handle as a String
-              if (  meta.getEncoding() != null ) {
+              if ( meta.getEncoding() != null ) {
                 o = new String( data.filecontent, meta.getEncoding() );
               } else {
                 o = new String( data.filecontent );
@@ -394,16 +393,16 @@ public class LoadFileInput extends BaseStep implements StepInterface {
 
         if ( targetValueMeta.getType() == ValueMetaInterface.TYPE_BINARY ) {
           // save as byte[] without any conversion
-          outputRowData[indexField] = o;
+          outputRowData[ indexField ] = o;
         } else {
           // convert string (processing type) to the target type
-          outputRowData[indexField] = targetValueMeta.convertData( sourceValueMeta, o );
+          outputRowData[ indexField ] = targetValueMeta.convertData( sourceValueMeta, o );
         }
 
         // Do we need to repeat this field if it is null?
         if ( loadFileInputField.isRepeated() ) {
           if ( data.previousRow != null && o == null ) {
-            outputRowData[indexField] = data.previousRow[indexField];
+            outputRowData[ indexField ] = data.previousRow[ indexField ];
           }
         }
       } // End of loop over fields...
@@ -411,41 +410,41 @@ public class LoadFileInput extends BaseStep implements StepInterface {
 
       // See if we need to add the filename to the row...
       if ( meta.includeFilename() && meta.getFilenameField() != null && meta.getFilenameField().length() > 0 ) {
-        outputRowData[rowIndex++] = data.filename;
+        outputRowData[ rowIndex++ ] = data.filename;
       }
 
       // See if we need to add the row number to the row...
       if ( meta.includeRowNumber() && meta.getRowNumberField() != null && meta.getRowNumberField().length() > 0 ) {
-        outputRowData[rowIndex++] = new Long( data.rownr );
+        outputRowData[ rowIndex++ ] = new Long( data.rownr );
       }
       // Possibly add short filename...
       if ( meta.getShortFileNameField() != null && meta.getShortFileNameField().length() > 0 ) {
-        outputRowData[rowIndex++] = data.shortFilename;
+        outputRowData[ rowIndex++ ] = data.shortFilename;
       }
       // Add Extension
       if ( meta.getExtensionField() != null && meta.getExtensionField().length() > 0 ) {
-        outputRowData[rowIndex++] = data.extension;
+        outputRowData[ rowIndex++ ] = data.extension;
       }
       // add path
       if ( meta.getPathField() != null && meta.getPathField().length() > 0 ) {
-        outputRowData[rowIndex++] = data.path;
+        outputRowData[ rowIndex++ ] = data.path;
       }
 
       // add Hidden
       if ( meta.isHiddenField() != null && meta.isHiddenField().length() > 0 ) {
-        outputRowData[rowIndex++] = new Boolean( data.hidden );
+        outputRowData[ rowIndex++ ] = new Boolean( data.hidden );
       }
       // Add modification date
       if ( meta.getLastModificationDateField() != null && meta.getLastModificationDateField().length() > 0 ) {
-        outputRowData[rowIndex++] = data.lastModificationDateTime;
+        outputRowData[ rowIndex++ ] = data.lastModificationDateTime;
       }
       // Add Uri
       if ( meta.getUriField() != null && meta.getUriField().length() > 0 ) {
-        outputRowData[rowIndex++] = data.uriName;
+        outputRowData[ rowIndex++ ] = data.uriName;
       }
       // Add RootUri
       if ( meta.getRootUriField() != null && meta.getRootUriField().length() > 0 ) {
-        outputRowData[rowIndex++] = data.rootUriName;
+        outputRowData[ rowIndex++ ] = data.rootUriName;
       }
       RowMetaInterface irow = getInputRowMeta();
 
@@ -474,8 +473,8 @@ public class LoadFileInput extends BaseStep implements StepInterface {
           // Create the output row meta-data
           data.outputRowMeta = new RowMeta();
           meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore ); // get the
-                                                                                                        // metadata
-                                                                                                        // populated
+          // metadata
+          // populated
 
           // Create convert meta-data objects that will contain Date & Number formatters
           // All non binary content is handled as a String. It would be converted to the target type after the processing.

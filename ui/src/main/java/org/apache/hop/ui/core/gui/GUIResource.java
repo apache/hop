@@ -23,6 +23,20 @@
 
 package org.apache.hop.ui.core.gui;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.SwtUniversalImage;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.plugins.JobEntryPluginType;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.PluginTypeListener;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.laf.BasePropertyHandler;
+import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.util.ImageUtil;
+import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
@@ -42,20 +56,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.SwtUniversalImage;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.plugins.JobEntryPluginType;
-import org.apache.hop.core.plugins.PluginInterface;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.PluginTypeListener;
-import org.apache.hop.core.plugins.StepPluginType;
-import org.apache.hop.laf.BasePropertyHandler;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.util.ImageUtil;
-import org.apache.hop.ui.util.SwtSvgImageUtil;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -1043,7 +1043,7 @@ public class GUIResource {
 
     // "ui/images/step-error.svg;
     imageRedStepError =
-        SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "StepErrorLinesRed_image" ) );
+      SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "StepErrorLinesRed_image" ) );
 
     // "ui/images/copy-hop.png;
     imageCopyHop = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "CopyHop_image" ) );
@@ -1215,7 +1215,7 @@ public class GUIResource {
       BasePropertyHandler.getProperty( "SpoonIcon_image" ) );
 
     imagePartitionSchema = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
-        BasePropertyHandler.getProperty( "Image_Partition_Schema" ) );
+      BasePropertyHandler.getProperty( "Image_Partition_Schema" ) );
 
     imageJobGraph = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
       BasePropertyHandler.getProperty( "ChefIcon_image" ) );
@@ -2629,52 +2629,52 @@ public class GUIResource {
   }
 
   public Image getImageBackEnabled() {
-    return imageBackEnabled.getAsBitmapForSize( display,  ConstUI.DOCUMENTATION_ICON_SIZE,
+    return imageBackEnabled.getAsBitmapForSize( display, ConstUI.DOCUMENTATION_ICON_SIZE,
       ConstUI.DOCUMENTATION_ICON_SIZE );
   }
 
   public Image getImageBackDisabled() {
-    return imageBackDisabled.getAsBitmapForSize( display,  ConstUI.DOCUMENTATION_ICON_SIZE,
+    return imageBackDisabled.getAsBitmapForSize( display, ConstUI.DOCUMENTATION_ICON_SIZE,
       ConstUI.DOCUMENTATION_ICON_SIZE );
   }
 
   public Image getImageForwardEnabled() {
-    return imageForwardEnabled.getAsBitmapForSize( display,  ConstUI.DOCUMENTATION_ICON_SIZE,
+    return imageForwardEnabled.getAsBitmapForSize( display, ConstUI.DOCUMENTATION_ICON_SIZE,
       ConstUI.DOCUMENTATION_ICON_SIZE );
   }
 
   public Image getImageForwardDisabled() {
-    return imageForwardDisabled.getAsBitmapForSize( display,  ConstUI.DOCUMENTATION_ICON_SIZE,
+    return imageForwardDisabled.getAsBitmapForSize( display, ConstUI.DOCUMENTATION_ICON_SIZE,
       ConstUI.DOCUMENTATION_ICON_SIZE );
   }
 
   public Image getImageRefreshEnabled() {
-    return imageRefreshEnabled.getAsBitmapForSize( display,  ConstUI.DOCUMENTATION_ICON_SIZE,
+    return imageRefreshEnabled.getAsBitmapForSize( display, ConstUI.DOCUMENTATION_ICON_SIZE,
       ConstUI.DOCUMENTATION_ICON_SIZE );
   }
 
   public Image getImageRefreshDisabled() {
-    return imageRefreshDisabled.getAsBitmapForSize( display,  ConstUI.DOCUMENTATION_ICON_SIZE,
+    return imageRefreshDisabled.getAsBitmapForSize( display, ConstUI.DOCUMENTATION_ICON_SIZE,
       ConstUI.DOCUMENTATION_ICON_SIZE );
   }
 
   public Image getImageHomeEnabled() {
-    return imageHomeEnabled.getAsBitmapForSize( display,  ConstUI.DOCUMENTATION_ICON_SIZE,
+    return imageHomeEnabled.getAsBitmapForSize( display, ConstUI.DOCUMENTATION_ICON_SIZE,
       ConstUI.DOCUMENTATION_ICON_SIZE );
   }
 
   public Image getImageHomeDisabled() {
-    return imageHomeDisabled.getAsBitmapForSize( display,  ConstUI.DOCUMENTATION_ICON_SIZE,
+    return imageHomeDisabled.getAsBitmapForSize( display, ConstUI.DOCUMENTATION_ICON_SIZE,
       ConstUI.DOCUMENTATION_ICON_SIZE );
   }
 
   public Image getImagePrintEnabled() {
-    return imagePrintEnabled.getAsBitmapForSize( display,  ConstUI.DOCUMENTATION_ICON_SIZE,
+    return imagePrintEnabled.getAsBitmapForSize( display, ConstUI.DOCUMENTATION_ICON_SIZE,
       ConstUI.DOCUMENTATION_ICON_SIZE );
   }
 
   public Image getImagePrintDisabled() {
-    return imagePrintDisabled.getAsBitmapForSize( display,  ConstUI.DOCUMENTATION_ICON_SIZE,
+    return imagePrintDisabled.getAsBitmapForSize( display, ConstUI.DOCUMENTATION_ICON_SIZE,
       ConstUI.DOCUMENTATION_ICON_SIZE );
   }
 

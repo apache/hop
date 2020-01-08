@@ -22,10 +22,6 @@
 
 package org.apache.hop.trans.steps.cubeoutput;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.zip.GZIPOutputStream;
-
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
@@ -38,6 +34,10 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * Outputs a stream/series of rows to a file, effectively building a sort of (compressed) microcube.
@@ -53,7 +53,7 @@ public class CubeOutput extends BaseStep implements StepInterface {
   private CubeOutputData data;
 
   public CubeOutput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                     Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -184,7 +184,7 @@ public class CubeOutput extends BaseStep implements StepInterface {
         ResultFile resultFile =
           new ResultFile(
             ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( filename, getTransMeta() ), getTransMeta()
-              .getName(), getStepname() );
+            .getName(), getStepname() );
         resultFile.setComment( "This file was created with a cube file output step" );
         addResultFile( resultFile );
       }

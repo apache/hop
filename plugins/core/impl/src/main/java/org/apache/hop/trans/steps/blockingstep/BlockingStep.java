@@ -22,17 +22,6 @@
 
 package org.apache.hop.trans.steps.blockingstep;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.SocketTimeoutException;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
@@ -49,6 +38,17 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.SocketTimeoutException;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
 /**
  * A step that blocks throughput until the input ends, then it will either output the last row or the complete input.
  */
@@ -61,7 +61,7 @@ public class BlockingStep extends BaseStep implements StepInterface {
   private Object[] lastRow;
 
   public BlockingStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
+                       Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -72,7 +72,7 @@ public class BlockingStep extends BaseStep implements StepInterface {
 
     // Time to write to disk: buffer in core is full!
     if ( data.buffer.size() == meta.getCacheSize() // Buffer is full: dump to disk
-        || ( data.files.size() > 0 && r == null && data.buffer.size() > 0 ) // No more records: join from disk
+      || ( data.files.size() > 0 && r == null && data.buffer.size() > 0 ) // No more records: join from disk
     ) {
       // Then write them to disk...
       DataOutputStream dos;
@@ -81,8 +81,8 @@ public class BlockingStep extends BaseStep implements StepInterface {
 
       try {
         FileObject fileObject =
-            HopVFS.createTempFile( meta.getPrefix(), ".tmp", environmentSubstitute( meta.getDirectory() ),
-              getTransMeta() );
+          HopVFS.createTempFile( meta.getPrefix(), ".tmp", environmentSubstitute( meta.getDirectory() ),
+            getTransMeta() );
 
         data.files.add( fileObject ); // Remember the files!
         OutputStream outputStream = HopVFS.getOutputStream( fileObject, false );
@@ -132,7 +132,7 @@ public class BlockingStep extends BaseStep implements StepInterface {
         String filename = HopVFS.getFilename( fileObject );
         if ( log.isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "BlockingStep.Log.Openfilename1" ) + filename
-              + BaseMessages.getString( PKG, "BlockingStep.Log.Openfilename2" ) );
+            + BaseMessages.getString( PKG, "BlockingStep.Log.Openfilename2" ) );
         }
         InputStream fi = HopVFS.getInputStream( fileObject );
         DataInputStream di;
@@ -151,8 +151,8 @@ public class BlockingStep extends BaseStep implements StepInterface {
 
         if ( log.isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "BlockingStep.Log.BufferSize1" ) + filename
-              + BaseMessages.getString( PKG, "BlockingStep.Log.BufferSize2" ) + buffersize + " "
-              + BaseMessages.getString( PKG, "BlockingStep.Log.BufferSize3" ) );
+            + BaseMessages.getString( PKG, "BlockingStep.Log.BufferSize2" ) + buffersize + " "
+            + BaseMessages.getString( PKG, "BlockingStep.Log.BufferSize3" ) );
         }
 
         if ( buffersize > 0 ) {

@@ -22,31 +22,30 @@
 
 package org.apache.hop.core.injection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
-import org.junit.After;
-import org.junit.Ignore;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.injection.bean.BeanInjectionInfo;
 import org.apache.hop.core.injection.bean.BeanInjector;
-import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
+import org.junit.After;
+import org.junit.Ignore;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Base class for test metadata injection.
@@ -192,8 +191,8 @@ public abstract class BaseMetadataInjectionTest<T> {
     ValueMetaInterface valueMetaString = new ValueMetaString( "f" );
 
     for ( int i = 0; i < codes.length; i++ ) {
-      injector.setProperty( meta, propertyName, setValue( valueMetaString, codes[i] ), "f" );
-      assertEquals( ids[i], getter.get() );
+      injector.setProperty( meta, propertyName, setValue( valueMetaString, codes[ i ] ), "f" );
+      assertEquals( ids[ i ], getter.get() );
     }
 
     skipPropertyTest( propertyName );
@@ -223,9 +222,9 @@ public abstract class BaseMetadataInjectionTest<T> {
   }
 
   public static int[] getTypeCodes( String[] typeNames ) {
-    int[] typeCodes = new int[typeNames.length];
+    int[] typeCodes = new int[ typeNames.length ];
     for ( int i = 0; i < typeNames.length; i++ ) {
-      typeCodes[i] = ValueMetaBase.getType( typeNames[i] );
+      typeCodes[ i ] = ValueMetaBase.getType( typeNames[ i ] );
     }
     return typeCodes;
   }

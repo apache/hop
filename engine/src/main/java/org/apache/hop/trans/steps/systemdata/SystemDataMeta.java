@@ -22,17 +22,9 @@
 
 package org.apache.hop.trans.steps.systemdata;
 
-import java.text.DecimalFormat;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
@@ -47,7 +39,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -55,8 +47,13 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /*
  * Created on 05-aug-2003
@@ -84,8 +81,7 @@ public class SystemDataMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param fieldName
-   *          The fieldName to set.
+   * @param fieldName The fieldName to set.
    */
   public void setFieldName( String[] fieldName ) {
     this.fieldName = fieldName;
@@ -99,8 +95,7 @@ public class SystemDataMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param fieldType
-   *          The fieldType to set.
+   * @param fieldType The fieldType to set.
    */
   public void setFieldType( SystemDataTypes[] fieldType ) {
     this.fieldType = fieldType;
@@ -112,8 +107,8 @@ public class SystemDataMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int count ) {
-    fieldName = new String[count];
-    fieldType = new SystemDataTypes[count];
+    fieldName = new String[ count ];
+    fieldType = new SystemDataTypes[ count ];
   }
 
   @Override
@@ -141,9 +136,9 @@ public class SystemDataMeta extends BaseStepMeta implements StepMetaInterface {
       for ( int i = 0; i < count; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldName[i] = XMLHandler.getTagValue( fnode, "name" );
+        fieldName[ i ] = XMLHandler.getTagValue( fnode, "name" );
         type = XMLHandler.getTagValue( fnode, "type" );
-        fieldType[i] = SystemDataTypes.getTypeFromString( type );
+        fieldType[ i ] = SystemDataTypes.getTypeFromString( type );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( "Unable to read step information from XML", e );
@@ -157,18 +152,18 @@ public class SystemDataMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( count );
 
     for ( int i = 0; i < count; i++ ) {
-      fieldName[i] = "field" + i;
-      fieldType[i] = SystemDataTypes.TYPE_SYSTEM_INFO_SYSTEM_DATE;
+      fieldName[ i ] = "field" + i;
+      fieldType[ i ] = SystemDataTypes.TYPE_SYSTEM_INFO_SYSTEM_DATE;
     }
   }
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     for ( int i = 0; i < fieldName.length; i++ ) {
       ValueMetaInterface v;
 
-      switch ( fieldType[i] ) {
+      switch ( fieldType[ i ] ) {
         case TYPE_SYSTEM_INFO_SYSTEM_START: // All date values...
         case TYPE_SYSTEM_INFO_SYSTEM_DATE:
         case TYPE_SYSTEM_INFO_TRANS_DATE_FROM:
@@ -216,7 +211,7 @@ public class SystemDataMeta extends BaseStepMeta implements StepMetaInterface {
         case TYPE_SYSTEM_INFO_THIS_YEAR_END:
         case TYPE_SYSTEM_INFO_NEXT_YEAR_START:
         case TYPE_SYSTEM_INFO_NEXT_YEAR_END:
-          v = new ValueMetaDate( fieldName[i] );
+          v = new ValueMetaDate( fieldName[ i ] );
           break;
         case TYPE_SYSTEM_INFO_TRANS_NAME:
         case TYPE_SYSTEM_INFO_FILENAME:
@@ -237,7 +232,7 @@ public class SystemDataMeta extends BaseStepMeta implements StepMetaInterface {
         case TYPE_SYSTEM_INFO_HOP_VERSION:
         case TYPE_SYSTEM_INFO_HOP_BUILD_VERSION:
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_LOG_TEXT:
-          v = new ValueMetaString( fieldName[i] );
+          v = new ValueMetaString( fieldName[ i ] );
           break;
         case TYPE_SYSTEM_INFO_COPYNR:
         case TYPE_SYSTEM_INFO_TRANS_BATCH_ID:
@@ -266,15 +261,15 @@ public class SystemDataMeta extends BaseStepMeta implements StepMetaInterface {
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_NR_LINES_REJECTED:
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_NR_LINES_UPDATED:
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_NR_LINES_WRITTEN:
-          v = new ValueMetaInteger( fieldName[i] );
+          v = new ValueMetaInteger( fieldName[ i ] );
           v.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
           break;
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_RESULT:
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_IS_STOPPED:
-          v = new ValueMetaBoolean( fieldName[i] );
+          v = new ValueMetaBoolean( fieldName[ i ] );
           break;
         default:
-          v = new ValueMetaNone( fieldName[i] );
+          v = new ValueMetaNone( fieldName[ i ] );
           break;
       }
       v.setOrigin( name );
@@ -290,9 +285,9 @@ public class SystemDataMeta extends BaseStepMeta implements StepMetaInterface {
 
     for ( int i = 0; i < fieldName.length; i++ ) {
       retval.append( "      <field>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", fieldName[i] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "name", fieldName[ i ] ) );
       retval.append( "        " + XMLHandler.addTagValue( "type",
-              fieldType[i] != null ? fieldType[i].getCode() : "" ) );
+        fieldType[ i ] != null ? fieldType[ i ].getCode() : "" ) );
       retval.append( "        </field>" + Const.CR );
     }
     retval.append( "      </fields>" + Const.CR );
@@ -302,15 +297,15 @@ public class SystemDataMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     // See if we have input streams leading to this step!
     int nrRemarks = remarks.size();
     for ( int i = 0; i < fieldName.length; i++ ) {
-      if ( fieldType[i].ordinal() <= SystemDataTypes.TYPE_SYSTEM_INFO_NONE.ordinal() ) {
+      if ( fieldType[ i ].ordinal() <= SystemDataTypes.TYPE_SYSTEM_INFO_NONE.ordinal() ) {
         CheckResult cr =
           new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
-            PKG, "SystemDataMeta.CheckResult.FieldHasNoType", fieldName[i] ), stepMeta );
+            PKG, "SystemDataMeta.CheckResult.FieldHasNoType", fieldName[ i ] ), stepMeta );
         remarks.add( cr );
       }
     }
@@ -327,7 +322,7 @@ public class SystemDataMeta extends BaseStepMeta implements StepMetaInterface {
    * launching a transformation. You can also use this to specify certain Environment variable values.
    *
    * @return A row of argument values. (name and optionally a default value) Put up to 10 values in the row for the
-   *         possible 10 arguments. The name of the value is "1" through "10" for the 10 possible arguments.
+   * possible 10 arguments. The name of the value is "1" through "10" for the 10 possible arguments.
    */
   @Override
   public Map<String, String> getUsedArguments() {
@@ -337,7 +332,7 @@ public class SystemDataMeta extends BaseStepMeta implements StepMetaInterface {
     for ( int argNr = 0; argNr < 10; argNr++ ) {
       boolean found = false;
       for ( int i = 0; i < fieldName.length; i++ ) {
-        if ( fieldType[i].ordinal() == SystemDataTypes.TYPE_SYSTEM_INFO_ARGUMENT_01.ordinal() + argNr ) {
+        if ( fieldType[ i ].ordinal() == SystemDataTypes.TYPE_SYSTEM_INFO_ARGUMENT_01.ordinal() + argNr ) {
           found = true;
         }
       }
@@ -351,7 +346,7 @@ public class SystemDataMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new SystemData( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

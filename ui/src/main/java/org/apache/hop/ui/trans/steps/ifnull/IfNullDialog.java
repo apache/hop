@@ -22,10 +22,22 @@
 
 package org.apache.hop.ui.trans.steps.ifnull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.ifnull.IfNullMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.TableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -47,22 +59,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.ifnull.IfNullMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.TableItemInsertListener;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class IfNullDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = IfNullMeta.class; // for i18n purposes, needed by Translator2!!
@@ -295,26 +295,26 @@ public class IfNullDialog extends BaseStepDialog implements StepDialogInterface 
     int valueTypesRows = input.getValueTypes().length;
     int FieldsCols = 4;
 
-    ColumnInfo[] colval = new ColumnInfo[FieldsCols];
-    colval[0] =
+    ColumnInfo[] colval = new ColumnInfo[ FieldsCols ];
+    colval[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "IfNullDialog.ValueType.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         ValueMetaInterface.typeCodes );
-    colval[1] =
+    colval[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "IfNullDialog.Value.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colval[2] =
+    colval[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "IfNullDialog.Value.ConversionMask" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         Const.getDateFormats() );
-    colval[3] =
+    colval[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "IfNullDialog.Value.SetEmptyString" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] {
           BaseMessages.getString( PKG, "System.Combo.Yes" ), BaseMessages.getString( PKG, "System.Combo.No" ) } );
 
-    colval[1].setUsingVariables( true );
+    colval[ 1 ].setUsingVariables( true );
     wValueTypes =
       new TableView(
         transMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colval, valueTypesRows, oldlsMod, props );
@@ -411,7 +411,7 @@ public class IfNullDialog extends BaseStepDialog implements StepDialogInterface 
 
   private void addFields() {
     int FieldsCols = 4;
-    ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
+    ColumnInfo[] colinf = new ColumnInfo[ FieldsCols ];
 
     // Table with fields
     wlFields = new Label( shell, SWT.NONE );
@@ -422,19 +422,19 @@ public class IfNullDialog extends BaseStepDialog implements StepDialogInterface 
     fdlFields.top = new FormAttachment( wValueTypes, margin );
     wlFields.setLayoutData( fdlFields );
 
-    colinf[0] =
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "IfNullDialog.Fieldname.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] {}, false );
-    colinf[1] =
+    colinf[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "IfNullDialog.Value.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinf[2] =
+    colinf[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "IfNullDialog.Value.ConversionMask" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         Const.getDateFormats() );
-    colinf[1].setUsingVariables( true );
-    colinf[3] =
+    colinf[ 1 ].setUsingVariables( true );
+    colinf[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "IfNullDialog.Value.SetEmptyString" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO,
@@ -454,7 +454,7 @@ public class IfNullDialog extends BaseStepDialog implements StepDialogInterface 
     wFields.setLayoutData( fdFields );
 
     setComboValues();
-    fieldColumns.add( colinf[0] );
+    fieldColumns.add( colinf[ 0 ] );
 
   }
 
@@ -563,17 +563,17 @@ public class IfNullDialog extends BaseStepDialog implements StepDialogInterface 
     for ( int i = 0; i < input.getValueTypes().length; i++ ) {
       TableItem ti = new TableItem( table, SWT.NONE );
       ti.setText( 0, "" + ( i + 1 ) );
-      if ( input.getValueTypes()[i].getTypeName() != null ) {
-        ti.setText( 1, input.getValueTypes()[i].getTypeName() );
+      if ( input.getValueTypes()[ i ].getTypeName() != null ) {
+        ti.setText( 1, input.getValueTypes()[ i ].getTypeName() );
       }
-      if ( input.getValueTypes()[i].getTypereplaceValue() != null ) {
-        ti.setText( 2, input.getValueTypes()[i].getTypereplaceValue() );
+      if ( input.getValueTypes()[ i ].getTypereplaceValue() != null ) {
+        ti.setText( 2, input.getValueTypes()[ i ].getTypereplaceValue() );
       }
-      if ( input.getValueTypes()[i].getTypereplaceMask() != null ) {
-        ti.setText( 3, input.getValueTypes()[i].getTypereplaceMask() );
+      if ( input.getValueTypes()[ i ].getTypereplaceMask() != null ) {
+        ti.setText( 3, input.getValueTypes()[ i ].getTypereplaceMask() );
       }
-      ti.setText( 4, input.getValueTypes()[i].isSetTypeEmptyString() ? BaseMessages.getString( PKG, "System.Combo.Yes" )
-          : BaseMessages.getString( PKG, "System.Combo.No" ) );
+      ti.setText( 4, input.getValueTypes()[ i ].isSetTypeEmptyString() ? BaseMessages.getString( PKG, "System.Combo.Yes" )
+        : BaseMessages.getString( PKG, "System.Combo.No" ) );
 
     }
 
@@ -588,16 +588,16 @@ public class IfNullDialog extends BaseStepDialog implements StepDialogInterface 
     for ( int i = 0; i < input.getFields().length; i++ ) {
       TableItem ti = new TableItem( table, SWT.NONE );
       ti.setText( 0, "" + ( i + 1 ) );
-      if ( input.getFields()[i].getFieldName() != null ) {
-        ti.setText( 1, input.getFields()[i].getFieldName() );
+      if ( input.getFields()[ i ].getFieldName() != null ) {
+        ti.setText( 1, input.getFields()[ i ].getFieldName() );
       }
-      if ( input.getFields()[i].getReplaceValue() != null ) {
-        ti.setText( 2, input.getFields()[i].getReplaceValue() );
+      if ( input.getFields()[ i ].getReplaceValue() != null ) {
+        ti.setText( 2, input.getFields()[ i ].getReplaceValue() );
       }
-      if ( input.getFields()[i].getReplaceMask() != null ) {
-        ti.setText( 3, input.getFields()[i].getReplaceMask() );
+      if ( input.getFields()[ i ].getReplaceMask() != null ) {
+        ti.setText( 3, input.getFields()[ i ].getReplaceMask() );
       }
-      ti.setText( 4, input.getFields()[i].isSetEmptyString()
+      ti.setText( 4, input.getFields()[ i ].isSetEmptyString()
         ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString( PKG, "System.Combo.No" ) );
     }
 
@@ -646,30 +646,30 @@ public class IfNullDialog extends BaseStepDialog implements StepDialogInterface 
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrtypes; i++ ) {
       TableItem ti = wValueTypes.getNonEmpty( i );
-      input.getValueTypes()[i].setTypeName( ti.getText( 1 ) );
-      input.getValueTypes()[i].setTypeEmptyString( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase(
-          ti.getText( 4 ) ) );
-      if ( input.getValueTypes()[i].isSetTypeEmptyString() ) {
-        input.getValueTypes()[i].setTypereplaceValue( "" );
-        input.getValueTypes()[i].setTypereplaceMask( "" );
+      input.getValueTypes()[ i ].setTypeName( ti.getText( 1 ) );
+      input.getValueTypes()[ i ].setTypeEmptyString( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase(
+        ti.getText( 4 ) ) );
+      if ( input.getValueTypes()[ i ].isSetTypeEmptyString() ) {
+        input.getValueTypes()[ i ].setTypereplaceValue( "" );
+        input.getValueTypes()[ i ].setTypereplaceMask( "" );
       } else {
-        input.getValueTypes()[i].setTypereplaceValue( ti.getText( 2 ) );
-        input.getValueTypes()[i].setTypereplaceMask( ti.getText( 3 ) );
+        input.getValueTypes()[ i ].setTypereplaceValue( ti.getText( 2 ) );
+        input.getValueTypes()[ i ].setTypereplaceMask( ti.getText( 3 ) );
       }
     }
 
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrfields; i++ ) {
       TableItem ti = wFields.getNonEmpty( i );
-      input.getFields()[i].setFieldName( ti.getText( 1 ) );
-      input.getFields()[i].setEmptyString( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( ti
-          .getText( 4 ) ) );
-      if ( input.getFields()[i].isSetEmptyString() ) {
-        input.getFields()[i].setReplaceValue( "" );
-        input.getFields()[i].setReplaceMask( "" );
+      input.getFields()[ i ].setFieldName( ti.getText( 1 ) );
+      input.getFields()[ i ].setEmptyString( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( ti
+        .getText( 4 ) ) );
+      if ( input.getFields()[ i ].isSetEmptyString() ) {
+        input.getFields()[ i ].setReplaceValue( "" );
+        input.getFields()[ i ].setReplaceMask( "" );
       } else {
-        input.getFields()[i].setReplaceValue( ti.getText( 2 ) );
-        input.getFields()[i].setReplaceMask( ti.getText( 3 ) );
+        input.getFields()[ i ].setReplaceValue( ti.getText( 2 ) );
+        input.getFields()[ i ].setReplaceMask( ti.getText( 3 ) );
       }
     }
     dispose();

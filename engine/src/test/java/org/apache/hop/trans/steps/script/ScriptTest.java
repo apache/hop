@@ -22,19 +22,19 @@
 
 package org.apache.hop.trans.steps.script;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.trans.TransTestingUtil;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 public class ScriptTest {
   private StepMockHelper<ScriptMeta, ScriptData> helper;

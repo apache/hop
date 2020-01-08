@@ -23,13 +23,11 @@
 package org.apache.hop.trans.steps.userdefinedjavaclass;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.codehaus.janino.ClassBodyEvaluator;
-import org.codehaus.commons.compiler.CompileException;
-import org.codehaus.janino.Scanner;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
@@ -45,7 +43,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -56,10 +54,10 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.fieldsplitter.DataTypeConverter;
 import org.apache.hop.trans.steps.userdefinedjavaclass.UserDefinedJavaClassDef.ClassType;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.codehaus.commons.compiler.CompileException;
+import org.codehaus.janino.ClassBodyEvaluator;
+import org.codehaus.janino.Scanner;
 import org.w3c.dom.Node;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -76,13 +74,13 @@ public class UserDefinedJavaClassMeta extends BaseStepMeta implements StepMetaIn
 
   public enum ElementNames {
     class_type, class_name, class_source, definitions, definition, fields, field, field_name, field_type,
-      field_length, field_precision, clear_result_fields,
+    field_length, field_precision, clear_result_fields,
 
-      info_steps, info_step, info_, target_steps, target_step, target_,
+    info_steps, info_step, info_, target_steps, target_step, target_,
 
-      step_tag, step_name, step_description,
+    step_tag, step_name, step_description,
 
-      usage_parameters, usage_parameter, parameter_tag, parameter_value, parameter_description,
+    usage_parameters, usage_parameter, parameter_tag, parameter_value, parameter_description,
   }
 
   @InjectionDeep
@@ -257,6 +255,7 @@ public class UserDefinedJavaClassMeta extends BaseStepMeta implements StepMetaIn
    * This method oders the classes by sorting all the normal classes by alphabetic order and then sorting
    * all the transaction classes by alphabetical order. This makes the resolution of classes deterministic by type and
    * then by class name.
+   *
    * @param definitions - Unorder list of user defined classes
    * @return - Ordered list of user defined classes
    */
@@ -473,7 +472,7 @@ public class UserDefinedJavaClassMeta extends BaseStepMeta implements StepMetaIn
   }
 
   public void getFields( RowMetaInterface row, String originStepname, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     if ( !checkClassCookings( getLog() ) ) {
       if ( cookErrors.size() > 0 ) {
         throw new HopStepException( "Error initializing UserDefinedJavaClass to get fields: ", cookErrors
@@ -566,8 +565,8 @@ public class UserDefinedJavaClassMeta extends BaseStepMeta implements StepMetaIn
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepinfo,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     // See if we have input streams leading to this step!
@@ -585,7 +584,7 @@ public class UserDefinedJavaClassMeta extends BaseStepMeta implements StepMetaIn
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     UserDefinedJavaClass userDefinedJavaClass =
       new UserDefinedJavaClass( stepMeta, stepDataInterface, cnr, transMeta, trans );
     if ( trans.hasHaltedSteps() ) {
@@ -611,8 +610,7 @@ public class UserDefinedJavaClassMeta extends BaseStepMeta implements StepMetaIn
   }
 
   /**
-   * @param clearingResultFields
-   *          the clearingResultFields to set
+   * @param clearingResultFields the clearingResultFields to set
    */
   public void setClearingResultFields( boolean clearingResultFields ) {
     this.clearingResultFields = clearingResultFields;
@@ -626,8 +624,7 @@ public class UserDefinedJavaClassMeta extends BaseStepMeta implements StepMetaIn
   }
 
   /**
-   * @param infoStepDefinitions
-   *          the infoStepDefinitions to set
+   * @param infoStepDefinitions the infoStepDefinitions to set
    */
   public void setInfoStepDefinitions( List<InfoStepDefinition> infoStepDefinitions ) {
     this.infoStepDefinitions = infoStepDefinitions;
@@ -641,8 +638,7 @@ public class UserDefinedJavaClassMeta extends BaseStepMeta implements StepMetaIn
   }
 
   /**
-   * @param targetStepDefinitions
-   *          the targetStepDefinitions to set
+   * @param targetStepDefinitions the targetStepDefinitions to set
    */
   public void setTargetStepDefinitions( List<TargetStepDefinition> targetStepDefinitions ) {
     this.targetStepDefinitions = targetStepDefinitions;
@@ -661,8 +657,7 @@ public class UserDefinedJavaClassMeta extends BaseStepMeta implements StepMetaIn
   }
 
   /**
-   * @param usageParameters
-   *          the usageParameters to set
+   * @param usageParameters the usageParameters to set
    */
   public void setUsageParameters( List<UsageParameter> usageParameters ) {
     this.usageParameters = usageParameters;

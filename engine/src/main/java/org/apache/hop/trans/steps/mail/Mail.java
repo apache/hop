@@ -22,17 +22,24 @@
 
 package org.apache.hop.trans.steps.mail;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSelectInfo;
+import org.apache.commons.vfs2.FileSelector;
+import org.apache.commons.vfs2.FileType;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStep;
+import org.apache.hop.trans.step.StepDataInterface;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.StepMetaInterface;
 
 import javax.activation.DataHandler;
 import javax.activation.URLDataSource;
@@ -45,25 +52,17 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
-
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSelectInfo;
-import org.apache.commons.vfs2.FileSelector;
-import org.apache.commons.vfs2.FileType;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStep;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Send mail step. based on Mail job entry
@@ -388,8 +387,8 @@ public class Mail extends BaseStep implements StepInterface {
         data.embeddedMimePart = new HashSet<MimeBodyPart>();
         try {
           for ( int i = 0; i < meta.getEmbeddedImages().length; i++ ) {
-            String imageFile = environmentSubstitute( meta.getEmbeddedImages()[i] );
-            String contentID = environmentSubstitute( meta.getContentIds()[i] );
+            String imageFile = environmentSubstitute( meta.getEmbeddedImages()[ i ] );
+            String contentID = environmentSubstitute( meta.getContentIds()[ i ] );
             image = HopVFS.getFileObject( imageFile );
 
             if ( image.exists() && image.getType() == FileType.FILE ) {
@@ -519,9 +518,9 @@ public class Mail extends BaseStep implements StepInterface {
   }
 
   public void sendMail( Object[] r, String server, int port, String senderAddress, String senderName,
-    String destination, String destinationCc, String destinationBCc, String contactPerson, String contactPhone,
-    String authenticationUser, String authenticationPassword, String mailsubject, String comment,
-    String replyToAddresses ) throws Exception {
+                        String destination, String destinationCc, String destinationBCc, String contactPerson, String contactPhone,
+                        String authenticationUser, String authenticationPassword, String mailsubject, String comment,
+                        String replyToAddresses ) throws Exception {
 
     // Send an e-mail...
     // create some properties and get the default Session
@@ -594,10 +593,10 @@ public class Mail extends BaseStep implements StepInterface {
       // get replay to
       // Split the mail-address: space separated
       String[] reply_Address_List = replyToAddresses.split( " " );
-      InternetAddress[] address = new InternetAddress[reply_Address_List.length];
+      InternetAddress[] address = new InternetAddress[ reply_Address_List.length ];
 
       for ( int i = 0; i < reply_Address_List.length; i++ ) {
-        address[i] = new InternetAddress( reply_Address_List[i] );
+        address[ i ] = new InternetAddress( reply_Address_List[ i ] );
       }
 
       // To add the real reply-to
@@ -606,9 +605,9 @@ public class Mail extends BaseStep implements StepInterface {
 
     // Split the mail-address: space separated
     String[] destinations = destination.split( " " );
-    InternetAddress[] address = new InternetAddress[destinations.length];
+    InternetAddress[] address = new InternetAddress[ destinations.length ];
     for ( int i = 0; i < destinations.length; i++ ) {
-      address[i] = new InternetAddress( destinations[i] );
+      address[ i ] = new InternetAddress( destinations[ i ] );
     }
 
     msg.setRecipients( Message.RecipientType.TO, address );
@@ -617,9 +616,9 @@ public class Mail extends BaseStep implements StepInterface {
     if ( !Utils.isEmpty( realdestinationCc ) ) {
       // Split the mail-address Cc: space separated
       String[] destinationsCc = realdestinationCc.split( " " );
-      InternetAddress[] addressCc = new InternetAddress[destinationsCc.length];
+      InternetAddress[] addressCc = new InternetAddress[ destinationsCc.length ];
       for ( int i = 0; i < destinationsCc.length; i++ ) {
-        addressCc[i] = new InternetAddress( destinationsCc[i] );
+        addressCc[ i ] = new InternetAddress( destinationsCc[ i ] );
       }
 
       msg.setRecipients( Message.RecipientType.CC, addressCc );
@@ -629,9 +628,9 @@ public class Mail extends BaseStep implements StepInterface {
     if ( !Utils.isEmpty( realdestinationBCc ) ) {
       // Split the mail-address BCc: space separated
       String[] destinationsBCc = realdestinationBCc.split( " " );
-      InternetAddress[] addressBCc = new InternetAddress[destinationsBCc.length];
+      InternetAddress[] addressBCc = new InternetAddress[ destinationsBCc.length ];
       for ( int i = 0; i < destinationsBCc.length; i++ ) {
-        addressBCc[i] = new InternetAddress( destinationsBCc[i] );
+        addressBCc[ i ] = new InternetAddress( destinationsBCc[ i ] );
       }
 
       msg.setRecipients( Message.RecipientType.BCC, addressBCc );
@@ -660,7 +659,7 @@ public class Mail extends BaseStep implements StepInterface {
         contactPerson ).append( Const.CR );
       messageText
         .append( BaseMessages.getString( PKG, "Mail.Log.Comment.Tel" ) + "  : " ).append( contactPhone ).append(
-          Const.CR );
+        Const.CR );
       messageText.append( Const.CR );
     }
     data.parts = new MimeMultipart();
@@ -765,8 +764,8 @@ public class Mail extends BaseStep implements StepInterface {
           long FileSize = 0;
           FileObject[] list = null;
           if ( sourcefile.getType() == FileType.FILE ) {
-            list = new FileObject[1];
-            list[0] = sourcefile;
+            list = new FileObject[ 1 ];
+            list[ 0 ] = sourcefile;
           } else {
             list = sourcefile.findFiles( new TextFileSelector( sourcefile.toString(), realSourceWildcard ) );
           }
@@ -782,7 +781,7 @@ public class Mail extends BaseStep implements StepInterface {
 
             for ( int i = 0; i < list.length; i++ ) {
 
-              file = HopVFS.getFileObject( HopVFS.getFilename( list[i] ), getTransMeta() );
+              file = HopVFS.getFileObject( HopVFS.getFilename( list[ i ] ), getTransMeta() );
 
               if ( zipFiles ) {
 
@@ -822,7 +821,7 @@ public class Mail extends BaseStep implements StepInterface {
 
                 for ( int i = 0; i < list.length; i++ ) {
 
-                  file = HopVFS.getFileObject( HopVFS.getFilename( list[i] ), getTransMeta() );
+                  file = HopVFS.getFileObject( HopVFS.getFilename( list[ i ] ), getTransMeta() );
 
                   ZipEntry zipEntry = new ZipEntry( file.getName().getBaseName() );
                   zipOutputStream.putNextEntry( zipEntry );
@@ -948,7 +947,7 @@ public class Mail extends BaseStep implements StepInterface {
             || ( ( !info.getFile().getParent().equals( info.getBaseFolder() ) && meta.isIncludeSubFolders() ) ) ) {
             if ( ( info.getFile().getType() == FileType.FILE && fileWildcard == null )
               || ( info.getFile().getType() == FileType.FILE && fileWildcard != null && GetFileWildcard(
-                short_filename, fileWildcard ) ) ) {
+              short_filename, fileWildcard ) ) ) {
               returncode = true;
             }
           }

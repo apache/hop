@@ -22,11 +22,7 @@
 
 package org.apache.hop.trans.steps.dbproc;
 
-import java.sql.SQLException;
-import java.util.List;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -35,6 +31,7 @@ import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -44,12 +41,14 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.sql.SQLException;
+import java.util.List;
+
 /**
  * Retrieves values from a database by calling database stored procedures or functions
  *
  * @author Matt
  * @since 26-apr-2003
- *
  */
 public class DBProc extends BaseStep implements StepInterface {
   private static Class<?> PKG = DBProcMeta.class; // for i18n purposes, needed by Translator2!!
@@ -58,7 +57,7 @@ public class DBProc extends BaseStep implements StepInterface {
   private DBProcData data;
 
   public DBProc( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                 Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -71,17 +70,17 @@ public class DBProc extends BaseStep implements StepInterface {
       data.outputMeta = data.inputRowMeta.clone();
       meta.getFields( data.outputMeta, getStepname(), null, null, this, metaStore );
 
-      data.argnrs = new int[meta.getArgument().length];
+      data.argnrs = new int[ meta.getArgument().length ];
       for ( int i = 0; i < meta.getArgument().length; i++ ) {
-        if ( !meta.getArgumentDirection()[i].equalsIgnoreCase( "OUT" ) ) { // IN or INOUT
-          data.argnrs[i] = rowMeta.indexOfValue( meta.getArgument()[i] );
-          if ( data.argnrs[i] < 0 ) {
-            logError( BaseMessages.getString( PKG, "DBProc.Log.ErrorFindingField" ) + meta.getArgument()[i] + "]" );
+        if ( !meta.getArgumentDirection()[ i ].equalsIgnoreCase( "OUT" ) ) { // IN or INOUT
+          data.argnrs[ i ] = rowMeta.indexOfValue( meta.getArgument()[ i ] );
+          if ( data.argnrs[ i ] < 0 ) {
+            logError( BaseMessages.getString( PKG, "DBProc.Log.ErrorFindingField" ) + meta.getArgument()[ i ] + "]" );
             throw new HopStepException( BaseMessages.getString( PKG, "DBProc.Exception.CouldnotFindField", meta
-              .getArgument()[i] ) );
+              .getArgument()[ i ] ) );
           }
         } else {
-          data.argnrs[i] = -1;
+          data.argnrs[ i ] = -1;
         }
       }
 
@@ -102,19 +101,19 @@ public class DBProc extends BaseStep implements StepInterface {
 
     // Function return?
     if ( !Utils.isEmpty( meta.getResultName() ) ) {
-      outputRowData[outputIndex++] = add.getData()[addIndex++]; // first is the function return
+      outputRowData[ outputIndex++ ] = add.getData()[ addIndex++ ]; // first is the function return
     }
 
     // We are only expecting the OUT and INOUT arguments here.
     // The INOUT values need to replace the value with the same name in the row.
     //
     for ( int i = 0; i < data.argnrs.length; i++ ) {
-      if ( meta.getArgumentDirection()[i].equalsIgnoreCase( "OUT" ) ) {
+      if ( meta.getArgumentDirection()[ i ].equalsIgnoreCase( "OUT" ) ) {
         // add
-        outputRowData[outputIndex++] = add.getData()[addIndex++];
-      } else if ( meta.getArgumentDirection()[i].equalsIgnoreCase( "INOUT" ) ) {
+        outputRowData[ outputIndex++ ] = add.getData()[ addIndex++ ];
+      } else if ( meta.getArgumentDirection()[ i ].equalsIgnoreCase( "INOUT" ) ) {
         // replace
-        outputRowData[data.argnrs[i]] = add.getData()[addIndex];
+        outputRowData[ data.argnrs[ i ] ] = add.getData()[ addIndex ];
         addIndex++;
       }
       // IN not taken

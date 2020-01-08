@@ -22,11 +22,21 @@
 
 package org.apache.hop.ui.hopui.job;
 
-import java.util.ArrayList;
-import java.util.ResourceBundle;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.JobEntryCopy;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopui.XulHopUiResourceBundle;
+import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
 import org.apache.hop.ui.hopui.delegates.HopUiDelegate;
+import org.apache.hop.ui.hopui.trans.LogBrowser;
+import org.apache.hop.ui.xul.HopXulLoader;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.StyledText;
@@ -39,24 +49,14 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.hopui.XulHopUiResourceBundle;
-import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
-import org.apache.hop.ui.hopui.trans.LogBrowser;
-import org.apache.hop.ui.xul.HopXulLoader;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulLoader;
 import org.pentaho.ui.xul.components.XulToolbarbutton;
 import org.pentaho.ui.xul.containers.XulToolbar;
 import org.pentaho.ui.xul.impl.XulEventHandler;
+
+import java.util.ArrayList;
+import java.util.ResourceBundle;
 
 public class JobLogDelegate extends HopUiDelegate implements XulEventHandler {
   private static Class<?> PKG = JobGraph.class; // for i18n purposes, needed by Translator2!!
@@ -215,9 +215,9 @@ public class JobLogDelegate extends HopUiDelegate implements XulEventHandler {
     }
 
     if ( err.size() > 0 ) {
-      String[] err_lines = new String[err.size()];
+      String[] err_lines = new String[ err.size() ];
       for ( i = 0; i < err_lines.length; i++ ) {
-        err_lines[i] = err.get( i );
+        err_lines[ i ] = err.get( i );
       }
 
       EnterSelectionDialog esd = new EnterSelectionDialog( jobGraph.getShell(), err_lines,

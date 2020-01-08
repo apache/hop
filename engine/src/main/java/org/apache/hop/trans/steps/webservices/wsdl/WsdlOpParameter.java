@@ -23,11 +23,10 @@
 
 package org.apache.hop.trans.steps.webservices.wsdl;
 
-import java.util.Objects;
+import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
-
-import org.w3c.dom.Element;
+import java.util.Objects;
 
 /**
  * WSDL operation parameter abstraction.
@@ -61,14 +60,10 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
    * Create operation parameters whose types do not need to be unwrapped. Typically used for RPC style parameters but
    * also may be used for DOCUMENT style when parameter style is BARE.
    *
-   * @param name
-   *          QName of the parameter.
-   * @param xmlType
-   *          XML type of the parameter.
-   * @param schemaTypeElement
-   *          The type element from the schema for this parameter, will be null if xmlType is a built-in schema type.
-   * @param wsdlTypes
-   *          Wsdl types abstraction.
+   * @param name              QName of the parameter.
+   * @param xmlType           XML type of the parameter.
+   * @param schemaTypeElement The type element from the schema for this parameter, will be null if xmlType is a built-in schema type.
+   * @param wsdlTypes         Wsdl types abstraction.
    */
   WsdlOpParameter( String name, QName xmlType, Element schemaTypeElement, WsdlTypes wsdlTypes ) {
 
@@ -84,12 +79,9 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
    * Create a new WsdlOpParameter for a simple schema type. For pararmeters of simple type, the name of the parameter
    * corresponds to the name of the message part which defines it.
    *
-   * @param name
-   *          Name of the attribute, if a namespace ref is included it will be resolved.
-   * @param e
-   *          The schema element which defines the XML type of this attribute.
-   * @param wsdlTypes
-   *          Wsdl types abstraction.
+   * @param name      Name of the attribute, if a namespace ref is included it will be resolved.
+   * @param e         The schema element which defines the XML type of this attribute.
+   * @param wsdlTypes Wsdl types abstraction.
    */
   WsdlOpParameter( String name, Element e, WsdlTypes wsdlTypes ) {
 
@@ -100,10 +92,8 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
   /**
    * Create a new WsdlOpParameter for a complex type.
    *
-   * @param e
-   *          The schema element which defines the XML type of this attribute.
-   * @param wsdlTypes
-   *          Wsdl types abstraction.
+   * @param e         The schema element which defines the XML type of this attribute.
+   * @param wsdlTypes Wsdl types abstraction.
    */
   WsdlOpParameter( Element e, WsdlTypes wsdlTypes ) {
 
@@ -181,8 +171,7 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
   /**
    * Set the mode of this parameter (IN/OUT/INOUT).
    *
-   * @param mode
-   *          the mode to set.
+   * @param mode the mode to set.
    */
   protected void setMode( ParameterMode mode ) {
     _mode = mode;
@@ -191,10 +180,8 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
   /**
    * Set the name of this parameter.
    *
-   * @param name
-   *          parameter name.
-   * @param wsdlTypes
-   *          Wsdl types abstraction.
+   * @param name      parameter name.
+   * @param wsdlTypes Wsdl types abstraction.
    */
   protected void setName( String name, WsdlTypes wsdlTypes ) {
     _name = wsdlTypes.getTypeQName( name );
@@ -204,8 +191,7 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
   /**
    * Does this element represent an array type?
    *
-   * @param e
-   *          Element to check.
+   * @param e Element to check.
    * @return true if this element represents an array type.
    */
   private boolean isArray( Element e ) {
@@ -231,10 +217,8 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
   /**
    * Get the xml type of an element.
    *
-   * @param element
-   *          Element to determine the xml type of.
-   * @param wsdlTypes
-   *          Wsdl types abstraction.
+   * @param element   Element to determine the xml type of.
+   * @param wsdlTypes Wsdl types abstraction.
    * @return QName of the element's xml type, null if type cannot be determined.
    */
   private QName getElementType( Element element, WsdlTypes wsdlTypes ) {
@@ -276,8 +260,7 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
    * In order to be an array type it must be a complex type which includes a sequence of a single element which has it's
    * minoccurs and/or maxoccures attributes set to values which denote an array.
    *
-   * @param type
-   *          Either a complexType or a simpleType node from the schema.
+   * @param type Either a complexType or a simpleType node from the schema.
    * @return The QName of the array's item type, null if the type is not an array,
    */
   private QName getArrayItemType( Element type, WsdlTypes wsdlTypes ) {
@@ -302,10 +285,8 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
   /**
    * Get an array items xml type from a sequence element.
    *
-   * @param sequenceElement
-   *          Sequence element.
-   * @param wsdlTypes
-   *          Wsdl types abstraction.
+   * @param sequenceElement Sequence element.
+   * @param wsdlTypes       Wsdl types abstraction.
    * @return QName QName of the array item xml type.
    */
   private QName getArrayItemTypeFromSequence( Element sequenceElement, WsdlTypes wsdlTypes ) {
@@ -323,10 +304,8 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
   /**
    * Get an array items xml type from a complexContent element.
    *
-   * @param ccElement
-   *          Complex content element.
-   * @param wsdlTypes
-   *          Wsdl types abstraction.
+   * @param ccElement Complex content element.
+   * @param wsdlTypes Wsdl types abstraction.
    * @return QName QName of the array item xml type.
    */
   private QName getArrayItemTypeFromComplexContent( Element ccElement, WsdlTypes wsdlTypes ) {
@@ -356,8 +335,7 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
   /**
    * Override the equals method.
    *
-   * @param o
-   *          Object to compare to.
+   * @param o Object to compare to.
    * @return true if equal
    */
   public boolean equals( Object o ) {

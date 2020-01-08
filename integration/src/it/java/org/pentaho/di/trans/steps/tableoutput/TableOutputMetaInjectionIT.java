@@ -22,12 +22,11 @@
 
 package org.apache.hop.trans.steps.tableoutput;
 
-import java.util.List;
-
 import junit.framework.TestCase;
-
 import org.apache.hop.trans.step.StepInjectionMetaEntry;
 import org.apache.hop.trans.step.StepInjectionUtil;
+
+import java.util.List;
 
 public class TableOutputMetaInjectionIT extends TestCase {
 
@@ -140,8 +139,8 @@ public class TableOutputMetaInjectionIT extends TestCase {
 
     // CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < NR_FIELDS; i++ ) {
-      meta.getFieldDatabase()[i] = DATABASE_FIELDNAME + i;
-      meta.getFieldStream()[i] = STREAM_FIELDNAME + i;
+      meta.getFieldDatabase()[ i ] = DATABASE_FIELDNAME + i;
+      meta.getFieldStream()[ i ] = STREAM_FIELDNAME + i;
     }
 
     return meta;

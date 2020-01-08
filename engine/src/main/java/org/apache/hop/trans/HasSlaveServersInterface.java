@@ -22,9 +22,9 @@
 
 package org.apache.hop.trans;
 
-import java.util.List;
-
 import org.apache.hop.cluster.SlaveServer;
+
+import java.util.List;
 
 public interface HasSlaveServersInterface {
   public List<SlaveServer> getSlaveServers();

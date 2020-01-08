@@ -22,24 +22,23 @@
 
 package org.apache.hop.trans.steps.dimensionlookup;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-
 /**
  * This class will act as a special purpose dimension Cache. The idea here is to not only cache the last version of a
  * dimension entry, but all versions. So basically, the entry key is the natural key as well as the from-to date range.
- *
+ * <p>
  * The way to achieve that result is to keep a sorted list in memory. Because we want as few conversion errors as
  * possible, we'll use the same row as we get from the database.
  *
  * @author matt
- *
  */
 public class DimensionCache implements Comparator<Object[]> {
   private RowMetaInterface rowMeta;
@@ -51,14 +50,10 @@ public class DimensionCache implements Comparator<Object[]> {
   /**
    * Create a new dimension cache object
    *
-   * @param rowMeta
-   *          the description of the rows to store
-   * @param keyIndexes
-   *          the indexes of the natural key (in that order)
-   * @param fromDateIndex
-   *          the field index where the start of the date range can be found
-   * @param toDateIndex
-   *          the field index where the end of the date range can be found
+   * @param rowMeta       the description of the rows to store
+   * @param keyIndexes    the indexes of the natural key (in that order)
+   * @param fromDateIndex the field index where the start of the date range can be found
+   * @param toDateIndex   the field index where the end of the date range can be found
    */
   public DimensionCache( RowMetaInterface rowMeta, int[] keyIndexes, int fromDateIndex, int toDateIndex ) {
     this.rowMeta = rowMeta;
@@ -70,8 +65,7 @@ public class DimensionCache implements Comparator<Object[]> {
   /**
    * Add a row to the back of the list
    *
-   * @param row
-   *          the row to add
+   * @param row the row to add
    */
   public void addRow( Object[] row ) {
     rowCache.add( row );
@@ -80,8 +74,7 @@ public class DimensionCache implements Comparator<Object[]> {
   /**
    * Get a row from the cache on a certain index
    *
-   * @param index
-   *          the index to look for
+   * @param index the index to look for
    * @return the row on the specified index
    */
   public Object[] getRow( int index ) {
@@ -91,10 +84,8 @@ public class DimensionCache implements Comparator<Object[]> {
   /**
    * Insert a row into the list on a certain index
    *
-   * @param index
-   *          the index on which the row should be inserted
-   * @param row
-   *          the row to add
+   * @param index the index on which the row should be inserted
+   * @param row   the row to add
    */
   public void addRow( int index, Object[] row ) {
     rowCache.add( index, row );
@@ -103,10 +94,8 @@ public class DimensionCache implements Comparator<Object[]> {
   /**
    * Looks up a row in the (sorted) cache.
    *
-   * @param lookupRowData
-   *          The data of the lookup row. Make sure that on the index of the from date, you put the lookup date.
-   * @throws a
-   *           HopException in case there are conversion errors during the lookup of the row
+   * @param lookupRowData The data of the lookup row. Make sure that on the index of the from date, you put the lookup date.
+   * @throws a HopException in case there are conversion errors during the lookup of the row
    */
   public int lookupRow( Object[] lookupRowData ) throws HopException {
     try {
@@ -209,9 +198,9 @@ public class DimensionCache implements Comparator<Object[]> {
       ValueMetaInterface fromDateMeta = rowMeta.getValueMeta( fromDateIndex );
       ValueMetaInterface toDateMeta = rowMeta.getValueMeta( toDateIndex );
 
-      Date fromDate = fromDateMeta.getDate( o1[fromDateIndex] );
-      Date toDate = toDateMeta.getDate( o1[toDateIndex] );
-      Date lookupDate = fromDateMeta.getDate( o2[fromDateIndex] );
+      Date fromDate = fromDateMeta.getDate( o1[ fromDateIndex ] );
+      Date toDate = toDateMeta.getDate( o1[ toDateIndex ] );
+      Date lookupDate = fromDateMeta.getDate( o2[ fromDateIndex ] );
 
       int fromCmpLookup = 0;
       if ( fromDate == null ) {
@@ -249,8 +238,7 @@ public class DimensionCache implements Comparator<Object[]> {
   }
 
   /**
-   * @param rowMeta
-   *          the rowMeta to set
+   * @param rowMeta the rowMeta to set
    */
   public void setRowMeta( RowMetaInterface rowMeta ) {
     this.rowMeta = rowMeta;
@@ -264,8 +252,7 @@ public class DimensionCache implements Comparator<Object[]> {
   }
 
   /**
-   * @param rowCache
-   *          the rowCache to set
+   * @param rowCache the rowCache to set
    */
   public void setRowCache( List<Object[]> rowCache ) {
     this.rowCache = rowCache;
@@ -279,8 +266,7 @@ public class DimensionCache implements Comparator<Object[]> {
   }
 
   /**
-   * @param keyIndexes
-   *          the keyIndexes to set
+   * @param keyIndexes the keyIndexes to set
    */
   public void setKeyIndexes( int[] keyIndexes ) {
     this.keyIndexes = keyIndexes;
@@ -294,8 +280,7 @@ public class DimensionCache implements Comparator<Object[]> {
   }
 
   /**
-   * @param fromDateIndex
-   *          the fromDateIndex to set
+   * @param fromDateIndex the fromDateIndex to set
    */
   public void setFromDateIndex( int fromDateIndex ) {
     this.fromDateIndex = fromDateIndex;
@@ -309,8 +294,7 @@ public class DimensionCache implements Comparator<Object[]> {
   }
 
   /**
-   * @param toDateIndex
-   *          the toDateIndex to set
+   * @param toDateIndex the toDateIndex to set
    */
   public void setToDateIndex( int toDateIndex ) {
     this.toDateIndex = toDateIndex;

@@ -22,27 +22,6 @@
 
 package org.apache.hop.ui.trans.debug;
 
-import java.util.Hashtable;
-import java.util.Map;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopStepException;
@@ -61,6 +40,27 @@ import org.apache.hop.ui.core.widget.ConditionEditor;
 import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+
+import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * Allows you to edit/enter the transformation debugging information
@@ -158,7 +158,7 @@ public class TransDebugDialog extends Dialog {
       }
     } );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[]{ wLaunch, wOK, wCancel }, margin, null );
+    BaseStepDialog.positionBottomButtons( shell, new Button[] { wLaunch, wOK, wCancel }, margin, null );
 
     wOK.setToolTipText( BaseMessages.getString( PKG, "TransDebugDialog.Configure.ToolTip" ) );
     wLaunch.setToolTipText( BaseMessages.getString( PKG, "TransDebugDialog.Launch.ToolTip" ) );
@@ -372,11 +372,11 @@ public class TransDebugDialog extends Dialog {
       return;
     }
 
-    previousIndex = selectionIndices[0];
+    previousIndex = selectionIndices[ 0 ];
 
     // What step did we click on?
     //
-    final StepMeta stepMeta = transDebugMeta.getTransMeta().getStep( selectionIndices[0] );
+    final StepMeta stepMeta = transDebugMeta.getTransMeta().getStep( selectionIndices[ 0 ] );
 
     // What is the step debugging metadata?
     // --> This can be null (most likely scenario)
@@ -481,7 +481,7 @@ public class TransDebugDialog extends Dialog {
         // Clear the preview step information for this step...
         //
         stepDebugMetaMap.remove( stepMeta );
-        wSteps.table.setSelection( new int[]{} );
+        wSteps.table.setSelection( new int[] {} );
         previousIndex = -1;
 
         // refresh the steps list...

@@ -26,7 +26,6 @@ import org.apache.hop.laf.BasePropertyHandler;
 
 /**
  * @author dhushon
- *
  */
 public class LAFMessageHandler extends GlobalMessages {
 

@@ -22,12 +22,12 @@
 
 package org.apache.hop.www;
 
-import java.util.Date;
-
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.xml.XMLHandler;
 import org.w3c.dom.Node;
+
+import java.util.Date;
 
 /**
  * This class is what describes the information that we keep when we detect a slave server in the cloud / cluster.<br>
@@ -45,7 +45,7 @@ public class SlaveServerDetection {
   public enum SlaveRelationShip {
 
     SLAVE_SEVER( "SLAVE_SERVER", "Slave server" ), // Regular slave server
-      FAILOVER_MASTER( "FAILOVER_MASTER", "Fail-over master server" ); // Fail-over master server
+    FAILOVER_MASTER( "FAILOVER_MASTER", "Fail-over master server" ); // Fail-over master server
 
     private String code, description;
 
@@ -126,8 +126,7 @@ public class SlaveServerDetection {
   }
 
   /**
-   * @param slaveServer
-   *          the slaveServer to set
+   * @param slaveServer the slaveServer to set
    */
   public void setSlaveServer( SlaveServer slaveServer ) {
     this.slaveServer = slaveServer;
@@ -141,8 +140,7 @@ public class SlaveServerDetection {
   }
 
   /**
-   * @param active
-   *          the active to set
+   * @param active the active to set
    */
   public void setActive( boolean active ) {
     this.active = active;
@@ -156,8 +154,7 @@ public class SlaveServerDetection {
   }
 
   /**
-   * @param lastActiveDate
-   *          the lastActiveDate to set
+   * @param lastActiveDate the lastActiveDate to set
    */
   public void setLastActiveDate( Date lastActiveDate ) {
     this.lastActiveDate = lastActiveDate;
@@ -171,8 +168,7 @@ public class SlaveServerDetection {
   }
 
   /**
-   * @param lastInactiveDate
-   *          the lastInactiveDate to set
+   * @param lastInactiveDate the lastInactiveDate to set
    */
   public void setLastInactiveDate( Date lastInactiveDate ) {
     this.lastInactiveDate = lastInactiveDate;

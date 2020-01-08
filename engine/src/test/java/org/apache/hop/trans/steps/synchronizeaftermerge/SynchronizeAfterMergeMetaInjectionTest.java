@@ -22,14 +22,15 @@
 
 package org.apache.hop.trans.steps.synchronizeaftermerge;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class SynchronizeAfterMergeMetaInjectionTest extends BaseMetadataInjectionTest<SynchronizeAfterMergeMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -56,44 +57,44 @@ public class SynchronizeAfterMergeMetaInjectionTest extends BaseMetadataInjectio
     check( "TABLE_FIELD", new StringGetter() {
       @Override
       public String get() {
-        return meta.getKeyLookup()[0];
+        return meta.getKeyLookup()[ 0 ];
       }
     } );
     check( "STREAM_FIELD1", new StringGetter() {
       @Override
       public String get() {
-        return meta.getKeyStream()[0];
+        return meta.getKeyStream()[ 0 ];
       }
     } );
     check( "STREAM_FIELD2", new StringGetter() {
       @Override
       public String get() {
-        return meta.getKeyStream2()[0];
+        return meta.getKeyStream2()[ 0 ];
       }
     } );
     check( "COMPARATOR", new StringGetter() {
       @Override
       public String get() {
-        return meta.getKeyCondition()[0];
+        return meta.getKeyCondition()[ 0 ];
       }
     } );
 
     check( "UPDATE_TABLE_FIELD", new StringGetter() {
       @Override
       public String get() {
-        return meta.getUpdateLookup()[0];
+        return meta.getUpdateLookup()[ 0 ];
       }
     } );
     check( "STREAM_FIELD", new StringGetter() {
       @Override
       public String get() {
-        return meta.getUpdateStream()[0];
+        return meta.getUpdateStream()[ 0 ];
       }
     } );
     check( "UPDATE", new BooleanGetter() {
       @Override
       public boolean get() {
-        return meta.getUpdate()[0];
+        return meta.getUpdate()[ 0 ];
       }
     } );
 
@@ -161,25 +162,25 @@ public class SynchronizeAfterMergeMetaInjectionTest extends BaseMetadataInjectio
   @Test
   public void getXML() throws HopException {
     skipProperties( "CONNECTION_NAME", "TABLE_NAME", "STREAM_FIELD2", "PERFORM_LOOKUP", "COMPARATOR",
-        "OPERATION_ORDER_FIELD", "ORDER_DELETE", "SHEMA_NAME", "TABLE_NAME_IN_FIELD", "ORDER_UPDATE", "ORDER_INSERT",
-        "USE_BATCH_UPDATE", "STREAM_FIELD", "TABLE_FIELD", "COMMIT_SIZE", "TABLE_NAME_FIELD" );
+      "OPERATION_ORDER_FIELD", "ORDER_DELETE", "SHEMA_NAME", "TABLE_NAME_IN_FIELD", "ORDER_UPDATE", "ORDER_INSERT",
+      "USE_BATCH_UPDATE", "STREAM_FIELD", "TABLE_FIELD", "COMMIT_SIZE", "TABLE_NAME_FIELD" );
     meta.setDefault();
     check( "STREAM_FIELD1", new StringGetter() {
       @Override
       public String get() {
-        return meta.getKeyStream()[0];
+        return meta.getKeyStream()[ 0 ];
       }
     } );
     check( "UPDATE_TABLE_FIELD", new StringGetter() {
       @Override
       public String get() {
-        return meta.getUpdateLookup()[0];
+        return meta.getUpdateLookup()[ 0 ];
       }
     } );
     check( "UPDATE", new BooleanGetter() {
       @Override
       public boolean get() {
-        return meta.getUpdate()[0];
+        return meta.getUpdate()[ 0 ];
       }
     } );
 

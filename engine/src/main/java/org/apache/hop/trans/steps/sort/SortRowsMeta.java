@@ -22,31 +22,21 @@
 
 package org.apache.hop.trans.steps.sort;
 
-import java.io.File;
-import java.io.Serializable;
-import java.text.Collator;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.injection.AfterInjection;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -54,8 +44,14 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.io.File;
+import java.io.Serializable;
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /*
  * Created on 02-jun-2003
@@ -65,19 +61,27 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
   private static final long serialVersionUID = -9075883720765645655L;
   private static Class<?> PKG = SortRowsMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** order by which fields? */
+  /**
+   * order by which fields?
+   */
   @Injection( name = "NAME", group = "FIELDS" )
   private String[] fieldName;
 
-  /** false : descending, true=ascending */
+  /**
+   * false : descending, true=ascending
+   */
   @Injection( name = "SORT_ASCENDING", group = "FIELDS" )
   private boolean[] ascending;
 
-  /** false : case insensitive, true=case sensitive */
+  /**
+   * false : case insensitive, true=case sensitive
+   */
   @Injection( name = "IGNORE_CASE", group = "FIELDS" )
   private boolean[] caseSensitive;
 
-  /** false : collator disabeld, true=collator enabled */
+  /**
+   * false : collator disabeld, true=collator enabled
+   */
   @Injection( name = "COLLATOR_ENABLED", group = "FIELDS" )
   private boolean[] collatorEnabled;
 
@@ -85,28 +89,40 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
   @Injection( name = "COLLATOR_STRENGTH", group = "FIELDS" )
   private int[] collatorStrength;
 
-  /** false : not a presorted field, true=presorted field */
+  /**
+   * false : not a presorted field, true=presorted field
+   */
   @Injection( name = "PRESORTED", group = "FIELDS" )
   private boolean[] preSortedField;
   private List<String> groupFields;
 
-  /** Directory to store the temp files */
+  /**
+   * Directory to store the temp files
+   */
   @Injection( name = "SORT_DIRECTORY" )
   private String directory;
 
-  /** Temp files prefix... */
+  /**
+   * Temp files prefix...
+   */
   @Injection( name = "SORT_FILE_PREFIX" )
   private String prefix;
 
-  /** The sort size: number of rows sorted and kept in memory */
+  /**
+   * The sort size: number of rows sorted and kept in memory
+   */
   @Injection( name = "SORT_SIZE_ROWS" )
   private String sortSize;
 
-  /** The free memory limit in percentages in case we don't use the sort size */
+  /**
+   * The free memory limit in percentages in case we don't use the sort size
+   */
   @Injection( name = "FREE_MEMORY_TRESHOLD" )
   private String freeMemoryLimit;
 
-  /** only pass unique rows to the output stream(s) */
+  /**
+   * only pass unique rows to the output stream(s)
+   */
   @Injection( name = "ONLY_PASS_UNIQUE_ROWS" )
   private boolean onlyPassingUniqueRows;
 
@@ -117,7 +133,9 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
   @Injection( name = "COMPRESS_TEMP_FILES" )
   private boolean compressFiles;
 
-  /** The variable to use to set the compressFiles option boolean */
+  /**
+   * The variable to use to set the compressFiles option boolean
+   */
   private String compressFilesVariable;
 
   public SortRowsMeta() {
@@ -132,8 +150,7 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
   }
 
   /**
-   * @param ascending
-   *          The ascending to set.
+   * @param ascending The ascending to set.
    */
   public void setAscending( boolean[] ascending ) {
     this.ascending = ascending;
@@ -147,8 +164,7 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
   }
 
   /**
-   * @param directory
-   *          The directory to set.
+   * @param directory The directory to set.
    */
   public void setDirectory( String directory ) {
     this.directory = directory;
@@ -162,8 +178,7 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
   }
 
   /**
-   * @param fieldName
-   *          The fieldName to set.
+   * @param fieldName The fieldName to set.
    */
   public void setFieldName( String[] fieldName ) {
     this.fieldName = fieldName;
@@ -177,8 +192,7 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
   }
 
   /**
-   * @param prefix
-   *          The prefix to set.
+   * @param prefix The prefix to set.
    */
   public void setPrefix( String prefix ) {
     this.prefix = prefix;
@@ -190,12 +204,12 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
   }
 
   public void allocate( int nrfields ) {
-    fieldName = new String[nrfields]; // order by
-    ascending = new boolean[nrfields];
-    caseSensitive = new boolean[nrfields];
-    collatorEnabled = new boolean[nrfields];
-    collatorStrength = new int[nrfields];
-    preSortedField = new boolean[nrfields];
+    fieldName = new String[ nrfields ]; // order by
+    ascending = new boolean[ nrfields ];
+    caseSensitive = new boolean[ nrfields ];
+    collatorEnabled = new boolean[ nrfields ];
+    collatorStrength = new int[ nrfields ];
+    preSortedField = new boolean[ nrfields ];
     groupFields = null;
   }
 
@@ -235,17 +249,17 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
       for ( int i = 0; i < nrfields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldName[i] = XMLHandler.getTagValue( fnode, "name" );
+        fieldName[ i ] = XMLHandler.getTagValue( fnode, "name" );
         String asc = XMLHandler.getTagValue( fnode, "ascending" );
-        ascending[i] = "Y".equalsIgnoreCase( asc );
+        ascending[ i ] = "Y".equalsIgnoreCase( asc );
         String sens = XMLHandler.getTagValue( fnode, "case_sensitive" );
         String coll = Const.NVL( XMLHandler.getTagValue( fnode, "collator_enabled" ), "N" );
-        caseSensitive[i] = Utils.isEmpty( sens ) || "Y".equalsIgnoreCase( sens );
-        collatorEnabled[i] = "Y".equalsIgnoreCase( coll );
-        collatorStrength[i] =
-            Integer.parseInt( Const.NVL( XMLHandler.getTagValue( fnode, "collator_strength" ), defaultStrength ) );
+        caseSensitive[ i ] = Utils.isEmpty( sens ) || "Y".equalsIgnoreCase( sens );
+        collatorEnabled[ i ] = "Y".equalsIgnoreCase( coll );
+        collatorStrength[ i ] =
+          Integer.parseInt( Const.NVL( XMLHandler.getTagValue( fnode, "collator_strength" ), defaultStrength ) );
         String presorted = XMLHandler.getTagValue( fnode, "presorted" );
-        preSortedField[i] = "Y".equalsIgnoreCase( presorted );
+        preSortedField[ i ] = "Y".equalsIgnoreCase( presorted );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( "Unable to load step info from XML", e );
@@ -267,11 +281,11 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
     allocate( nrfields );
 
     for ( int i = 0; i < nrfields; i++ ) {
-      fieldName[i] = "field" + i;
-      caseSensitive[i] = true;
-      collatorEnabled[i] = false;
-      collatorStrength[i] = 0;
-      preSortedField[i] = false;
+      fieldName[ i ] = "field" + i;
+      caseSensitive[ i ] = true;
+      collatorEnabled[ i ] = false;
+      collatorStrength[ i ] = 0;
+      preSortedField[ i ] = false;
     }
   }
 
@@ -289,12 +303,12 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < fieldName.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", fieldName[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "ascending", ascending[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "case_sensitive", caseSensitive[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "collator_enabled", collatorEnabled[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "collator_strength", collatorStrength[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "presorted", preSortedField[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "name", fieldName[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "ascending", ascending[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "case_sensitive", caseSensitive[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "collator_enabled", collatorEnabled[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "collator_strength", collatorStrength[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "presorted", preSortedField[ i ] ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
     retval.append( "    </fields>" ).append( Const.CR );
@@ -323,7 +337,7 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
 
   @Override
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Set the sorted properties: ascending/descending
     assignSortingCriteria( inputRowMeta );
   }
@@ -331,22 +345,22 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
   @SuppressWarnings( "WeakerAccess" )
   public void assignSortingCriteria( RowMetaInterface inputRowMeta ) {
     for ( int i = 0; i < fieldName.length; i++ ) {
-      int idx = inputRowMeta.indexOfValue( fieldName[i] );
+      int idx = inputRowMeta.indexOfValue( fieldName[ i ] );
       if ( idx >= 0 ) {
         ValueMetaInterface valueMeta = inputRowMeta.getValueMeta( idx );
         // On all these valueMetas, check to see if the value actually exists before we try to
         // set them.
         if ( ascending.length > i ) {
-          valueMeta.setSortedDescending( !ascending[i] );
+          valueMeta.setSortedDescending( !ascending[ i ] );
         }
         if ( caseSensitive.length > i ) {
-          valueMeta.setCaseInsensitive( !caseSensitive[i] );
+          valueMeta.setCaseInsensitive( !caseSensitive[ i ] );
         }
         if ( collatorEnabled.length > i ) {
-          valueMeta.setCollatorDisabled( !collatorEnabled[i] );
+          valueMeta.setCollatorDisabled( !collatorEnabled[ i ] );
         }
         if ( collatorStrength.length > i ) {
-          valueMeta.setCollatorStrength( collatorStrength[i] );
+          valueMeta.setCollatorStrength( collatorStrength[ i ] );
         }
         // Also see if lazy conversion is active on these key fields.
         // If so we want to automatically convert them to the normal storage type.
@@ -360,14 +374,14 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-      IMetaStore metaStore ) {
+                     String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( prev != null && prev.size() > 0 ) {
       cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "SortRowsMeta.CheckResult.FieldsReceived", "" + prev.size() ), stepMeta );
+        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "SortRowsMeta.CheckResult.FieldsReceived", "" + prev.size() ), stepMeta );
       remarks.add( cr );
 
       String error_message = "";
@@ -375,9 +389,9 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
 
       // Starting from selected fields in ...
       for ( int i = 0; i < fieldName.length; i++ ) {
-        int idx = prev.indexOfValue( fieldName[i] );
+        int idx = prev.indexOfValue( fieldName[ i ] );
         if ( idx < 0 ) {
-          error_message += "\t\t" + fieldName[i] + Const.CR;
+          error_message += "\t\t" + fieldName[ i ] + Const.CR;
           error_found = true;
         }
       }
@@ -389,13 +403,13 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
       } else {
         if ( fieldName.length > 0 ) {
           cr =
-              new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-                  "SortRowsMeta.CheckResult.AllSortKeysFound" ), stepMeta );
+            new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+              "SortRowsMeta.CheckResult.AllSortKeysFound" ), stepMeta );
           remarks.add( cr );
         } else {
           cr =
-              new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                  "SortRowsMeta.CheckResult.NoSortKeysEntered" ), stepMeta );
+            new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+              "SortRowsMeta.CheckResult.NoSortKeysEntered" ), stepMeta );
           remarks.add( cr );
         }
       }
@@ -407,45 +421,45 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
       if ( f.exists() ) {
         if ( f.isDirectory() ) {
           cr =
-              new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-                  "SortRowsMeta.CheckResult.DirectoryExists", realDirectory ), stepMeta );
+            new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+              "SortRowsMeta.CheckResult.DirectoryExists", realDirectory ), stepMeta );
           remarks.add( cr );
         } else {
           cr =
-              new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                  "SortRowsMeta.CheckResult.ExistsButNoDirectory", realDirectory ), stepMeta );
+            new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+              "SortRowsMeta.CheckResult.ExistsButNoDirectory", realDirectory ), stepMeta );
           remarks.add( cr );
         }
       } else {
         cr =
-            new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                "SortRowsMeta.CheckResult.DirectoryNotExists", realDirectory ), stepMeta );
+          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+            "SortRowsMeta.CheckResult.DirectoryNotExists", realDirectory ), stepMeta );
         remarks.add( cr );
       }
     } else {
       cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "SortRowsMeta.CheckResult.NoFields" ), stepMeta );
+        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+          "SortRowsMeta.CheckResult.NoFields" ), stepMeta );
       remarks.add( cr );
     }
 
     // See if we have input streams leading to this step!
     if ( input.length > 0 ) {
       cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "SortRowsMeta.CheckResult.ExpectedInputOk" ), stepMeta );
+        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "SortRowsMeta.CheckResult.ExpectedInputOk" ), stepMeta );
       remarks.add( cr );
     } else {
       cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "SortRowsMeta.CheckResult.ExpectedInputError" ), stepMeta );
+        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+          "SortRowsMeta.CheckResult.ExpectedInputError" ), stepMeta );
       remarks.add( cr );
     }
   }
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta transMeta,
-      Trans trans ) {
+                                Trans trans ) {
     return new SortRows( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -462,8 +476,7 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
   }
 
   /**
-   * @param sortSize
-   *          The sortSize to set.
+   * @param sortSize The sortSize to set.
    */
   public void setSortSize( String sortSize ) {
     this.sortSize = sortSize;
@@ -478,8 +491,7 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
   }
 
   /**
-   * @param compressFiles
-   *          Whether to compress temporary files created during sorting
+   * @param compressFiles Whether to compress temporary files created during sorting
    */
   public void setCompressFiles( boolean compressFiles ) {
     this.compressFiles = compressFiles;
@@ -493,8 +505,7 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
   }
 
   /**
-   * @param onlyPassingUniqueRows
-   *          the onlyPassingUniqueRows to set
+   * @param onlyPassingUniqueRows the onlyPassingUniqueRows to set
    */
   public void setOnlyPassingUniqueRows( boolean onlyPassingUniqueRows ) {
     this.onlyPassingUniqueRows = onlyPassingUniqueRows;
@@ -508,8 +519,7 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
   }
 
   /**
-   * @param compressFilesVariable
-   *          the compressFilesVariable to set
+   * @param compressFilesVariable the compressFilesVariable to set
    */
   public void setCompressFilesVariable( String compressFilesVariable ) {
     this.compressFilesVariable = compressFilesVariable;
@@ -523,8 +533,7 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
   }
 
   /**
-   * @param caseSensitive
-   *          the caseSensitive to set
+   * @param caseSensitive the caseSensitive to set
    */
   public void setCaseSensitive( boolean[] caseSensitive ) {
     this.caseSensitive = caseSensitive;
@@ -538,8 +547,7 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
   }
 
   /**
-   * @param collatorEnabled
-   *          the collatorEnabled to set
+   * @param collatorEnabled the collatorEnabled to set
    */
   public void setCollatorEnabled( boolean[] collatorEnabled ) {
     this.collatorEnabled = collatorEnabled;
@@ -553,8 +561,7 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
   }
 
   /**
-   * @param collatorStrength
-   *          the collatorStrength to set
+   * @param collatorStrength the collatorStrength to set
    */
   public void setCollatorStrength( int[] collatorStrength ) {
     this.collatorStrength = collatorStrength;
@@ -568,8 +575,7 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
   }
 
   /**
-   * @param freeMemoryLimit
-   *          the freeMemoryLimit to set
+   * @param freeMemoryLimit the freeMemoryLimit to set
    */
   public void setFreeMemoryLimit( String freeMemoryLimit ) {
     this.freeMemoryLimit = freeMemoryLimit;
@@ -583,8 +589,7 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
   }
 
   /**
-   * @param preSorted
-   *          the preSorteField to set
+   * @param preSorted the preSorteField to set
    */
   public void setPreSortedField( boolean[] preSorted ) {
     preSortedField = preSorted;
@@ -593,11 +598,11 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
   public List<String> getGroupFields() {
     if ( this.groupFields == null ) {
       for ( int i = 0; i < preSortedField.length; i++ ) {
-        if ( preSortedField[i] == true ) {
+        if ( preSortedField[ i ] == true ) {
           if ( groupFields == null ) {
             groupFields = new ArrayList<String>();
           }
-          groupFields.add( this.fieldName[i] );
+          groupFields.add( this.fieldName[ i ] );
         }
       }
     }

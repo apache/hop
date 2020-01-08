@@ -22,6 +22,22 @@
 
 package org.apache.hop.trans.step;
 
+import org.apache.hop.core.BlockingRowSet;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.encryption.CertificateGenEncryptUtil;
+import org.apache.hop.core.exception.HopEOFException;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XMLInterface;
+import org.apache.hop.www.SocketRepository;
+import org.w3c.dom.Node;
+
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.CipherOutputStream;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -40,30 +56,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import javax.crypto.Cipher;
-import javax.crypto.CipherInputStream;
-import javax.crypto.CipherOutputStream;
-
-import org.apache.hop.core.BlockingRowSet;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.encryption.CertificateGenEncryptUtil;
-import org.apache.hop.core.exception.HopEOFException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.core.xml.XMLInterface;
-import org.apache.hop.www.SocketRepository;
-import org.w3c.dom.Node;
-
 /**
  * Defines and handles communication to and from remote steps.
- *
+ * <p>
  * TODO: add compression as a parameter/option TODO add buffer size as a parameter
  *
  * @author Matt
- *
  */
 public class RemoteStep implements Cloneable, XMLInterface, Comparable<RemoteStep> {
 
@@ -71,16 +69,24 @@ public class RemoteStep implements Cloneable, XMLInterface, Comparable<RemoteSte
 
   private static final long TIMEOUT_IN_SECONDS = 30;
 
-  /** The target or source slave server with which we're exchanging data */
+  /**
+   * The target or source slave server with which we're exchanging data
+   */
   private String targetSlaveServerName;
 
-  /** The target or source host name */
+  /**
+   * The target or source host name
+   */
   private String hostname;
 
-  /** The remote host name */
+  /**
+   * The remote host name
+   */
   private String remoteHostname;
 
-  /** The target or source port number for the data socket */
+  /**
+   * The target or source port number for the data socket
+   */
   private String port;
 
   private ServerSocket serverSocket;
@@ -134,12 +140,11 @@ public class RemoteStep implements Cloneable, XMLInterface, Comparable<RemoteSte
    * @param targetSlaveServerName
    * @param bufferSize
    * @param compressingStreams
-   * @param rowMeta
-   *          The expected row layout to pass through this step. (input or output)
+   * @param rowMeta               The expected row layout to pass through this step. (input or output)
    */
   public RemoteStep( String hostname, String remoteHostname, String port, String sourceStep, int sourceStepCopyNr,
-    String targetStep, int targetStepCopyNr, String sourceSlaveServerName, String targetSlaveServerName,
-    int bufferSize, boolean compressingStreams, RowMetaInterface rowMeta ) {
+                     String targetStep, int targetStepCopyNr, String sourceSlaveServerName, String targetSlaveServerName,
+                     int bufferSize, boolean compressingStreams, RowMetaInterface rowMeta ) {
     super();
     this.hostname = hostname;
     this.remoteHostname = remoteHostname;
@@ -261,8 +266,7 @@ public class RemoteStep implements Cloneable, XMLInterface, Comparable<RemoteSte
   }
 
   /**
-   * @param hostname
-   *          the host name to set
+   * @param hostname the host name to set
    */
   public void setHostname( String hostname ) {
     this.hostname = hostname;
@@ -278,8 +282,7 @@ public class RemoteStep implements Cloneable, XMLInterface, Comparable<RemoteSte
   }
 
   /**
-   * @param port
-   *          the port to set
+   * @param port the port to set
    */
   public void setPort( String port ) {
     this.port = port;
@@ -316,8 +319,7 @@ public class RemoteStep implements Cloneable, XMLInterface, Comparable<RemoteSte
   }
 
   /**
-   * @param socket
-   *          the socket to set
+   * @param socket the socket to set
    */
   public void setSocket( Socket socket ) {
     this.socket = socket;
@@ -373,7 +375,7 @@ public class RemoteStep implements Cloneable, XMLInterface, Comparable<RemoteSte
               baseStep.logError( "Invalid key was received", ex );
             } catch ( InvalidKeySpecException ex ) {
               baseStep.logError( "Invalid key specification was received. Most probably public key was "
-                  + "sent instead of private or vice versa", ex );
+                + "sent instead of private or vice versa", ex );
             } catch ( Exception ex ) {
               baseStep.logError( "Error occurred during encryption initialization", ex );
             }
@@ -601,7 +603,7 @@ public class RemoteStep implements Cloneable, XMLInterface, Comparable<RemoteSte
             baseStep.logError( "Invalid key was received", ex );
           } catch ( InvalidKeySpecException ex ) {
             baseStep.logError( "Invalid key specification was received. Most probably public key was "
-                + "sent instead of private or vice versa", ex );
+              + "sent instead of private or vice versa", ex );
           } catch ( Exception ex ) {
             baseStep.logError( "Error occurred during encryption initialization", ex );
           }
@@ -794,8 +796,7 @@ public class RemoteStep implements Cloneable, XMLInterface, Comparable<RemoteSte
   }
 
   /**
-   * @param sourceStep
-   *          the sourceStep to set
+   * @param sourceStep the sourceStep to set
    */
   public void setSourceStep( String sourceStep ) {
     this.sourceStep = sourceStep;
@@ -809,8 +810,7 @@ public class RemoteStep implements Cloneable, XMLInterface, Comparable<RemoteSte
   }
 
   /**
-   * @param targetStep
-   *          the targetStep to set
+   * @param targetStep the targetStep to set
    */
   public void setTargetStep( String targetStep ) {
     this.targetStep = targetStep;
@@ -824,8 +824,7 @@ public class RemoteStep implements Cloneable, XMLInterface, Comparable<RemoteSte
   }
 
   /**
-   * @param targetSlaveServerName
-   *          the targetSlaveServerName to set
+   * @param targetSlaveServerName the targetSlaveServerName to set
    */
   public void setTargetSlaveServerName( String targetSlaveServerName ) {
     this.targetSlaveServerName = targetSlaveServerName;
@@ -839,8 +838,7 @@ public class RemoteStep implements Cloneable, XMLInterface, Comparable<RemoteSte
   }
 
   /**
-   * @param sourceStepCopyNr
-   *          the sourceStepCopyNr to set
+   * @param sourceStepCopyNr the sourceStepCopyNr to set
    */
   public void setSourceStepCopyNr( int sourceStepCopyNr ) {
     this.sourceStepCopyNr = sourceStepCopyNr;
@@ -854,8 +852,7 @@ public class RemoteStep implements Cloneable, XMLInterface, Comparable<RemoteSte
   }
 
   /**
-   * @param targetStepCopyNr
-   *          the targetStepCopyNr to set
+   * @param targetStepCopyNr the targetStepCopyNr to set
    */
   public void setTargetStepCopyNr( int targetStepCopyNr ) {
     this.targetStepCopyNr = targetStepCopyNr;
@@ -869,8 +866,7 @@ public class RemoteStep implements Cloneable, XMLInterface, Comparable<RemoteSte
   }
 
   /**
-   * @param bufferSize
-   *          the bufferSize to set
+   * @param bufferSize the bufferSize to set
    */
   public void setBufferSize( int bufferSize ) {
     this.bufferSize = bufferSize;
@@ -884,8 +880,7 @@ public class RemoteStep implements Cloneable, XMLInterface, Comparable<RemoteSte
   }
 
   /**
-   * @param compressingStreams
-   *          the compressingStreams to set
+   * @param compressingStreams the compressingStreams to set
    */
   public void setCompressingStreams( boolean compressingStreams ) {
     this.compressingStreams = compressingStreams;
@@ -899,8 +894,7 @@ public class RemoteStep implements Cloneable, XMLInterface, Comparable<RemoteSte
   }
 
   /**
-   * @param remoteHostname
-   *          the remoteHostname to set
+   * @param remoteHostname the remoteHostname to set
    */
   public void setRemoteHostname( String remoteHostname ) {
     this.remoteHostname = remoteHostname;
@@ -914,8 +908,7 @@ public class RemoteStep implements Cloneable, XMLInterface, Comparable<RemoteSte
   }
 
   /**
-   * @param sourceSlaveServerName
-   *          the sourceSlaveServerName to set
+   * @param sourceSlaveServerName the sourceSlaveServerName to set
    */
   public void setSourceSlaveServerName( String sourceSlaveServerName ) {
     this.sourceSlaveServerName = sourceSlaveServerName;

@@ -22,17 +22,13 @@
 
 package org.apache.hop.trans.steps.sqlfileoutput;
 
-import java.io.BufferedOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
@@ -42,6 +38,10 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.io.BufferedOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
 /**
  * Writes rows to a sql file.
@@ -60,7 +60,7 @@ public class SQLFileOutput extends BaseStep implements StepInterface {
   String tableName;
 
   public SQLFileOutput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                        Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -203,7 +203,7 @@ public class SQLFileOutput extends BaseStep implements StepInterface {
         ResultFile resultFile =
           new ResultFile(
             ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( filename, getTransMeta() ), getTransMeta()
-              .getName(), getStepname() );
+            .getName(), getStepname() );
         resultFile.setComment( "This file was created with a text file output step" );
         addResultFile( resultFile );
       }

@@ -22,14 +22,28 @@
 
 package org.apache.hop.ui.trans.steps.excelwriter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.excelwriter.ExcelWriterStepField;
+import org.apache.hop.trans.steps.excelwriter.ExcelWriterStepMeta;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.TableItemInsertListener;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -57,28 +71,14 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.excelwriter.ExcelWriterStepField;
-import org.apache.hop.trans.steps.excelwriter.ExcelWriterStepMeta;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.PasswordTextVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.TableItemInsertListener;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class ExcelWriterStepDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = ExcelWriterStepMeta.class; // for i18n
@@ -529,7 +529,7 @@ public class ExcelWriterStepDialog extends BaseStepDialog implements StepDialogI
     fdDateTimeFormat.right = new FormAttachment( 100, 0 );
     wDateTimeFormat.setLayoutData( fdDateTimeFormat );
     for ( int x = 0; x < dats.length; x++ ) {
-      wDateTimeFormat.add( dats[x] );
+      wDateTimeFormat.add( dats[ x ] );
     }
 
     wbShowFiles = new Button( fileGroup, SWT.PUSH | SWT.CENTER );
@@ -896,7 +896,7 @@ public class ExcelWriterStepDialog extends BaseStepDialog implements StepDialogI
     //Hide Template Sheet
     wlTemplateSheetHide = new Label( wTemplateGroup, SWT.RIGHT );
     wlTemplateSheetHide.setText( BaseMessages.getString( PKG, "ExcelWriterDialog.TemplateSheetHide.Label" ) );
-    props.setLook(  wlTemplateSheetHide );
+    props.setLook( wlTemplateSheetHide );
     FormData fdlTemplateSheetHide = new FormData();
     fdlTemplateSheetHide.left = new FormAttachment( 0, 0 );
     fdlTemplateSheetHide.top = new FormAttachment( wTemplateSheetname, margin );
@@ -1262,7 +1262,7 @@ public class ExcelWriterStepDialog extends BaseStepDialog implements StepDialogI
     }
 
     Collections.sort( nonReservedFormats );
-    formats = nonReservedFormats.toArray( new String[0] );
+    formats = nonReservedFormats.toArray( new String[ 0 ] );
 
     colinf =
       new ColumnInfo[] {
@@ -1589,13 +1589,13 @@ public class ExcelWriterStepDialog extends BaseStepDialog implements StepDialogI
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    colinf[0].setComboValues( fieldNames );
-    colinf[7].setComboValues( fieldNames );
-    colinf[8].setComboValues( fieldNames );
-    colinf[9].setComboValues( fieldNames );
+    colinf[ 0 ].setComboValues( fieldNames );
+    colinf[ 7 ].setComboValues( fieldNames );
+    colinf[ 8 ].setComboValues( fieldNames );
+    colinf[ 9 ].setComboValues( fieldNames );
   }
 
   /**
@@ -1680,7 +1680,7 @@ public class ExcelWriterStepDialog extends BaseStepDialog implements StepDialogI
     logDebug( "getting fields info..." );
 
     for ( int i = 0; i < input.getOutputFields().length; i++ ) {
-      ExcelWriterStepField field = input.getOutputFields()[i];
+      ExcelWriterStepField field = input.getOutputFields()[ i ];
 
       TableItem item = wFields.table.getItem( i );
       if ( field.getName() != null ) {
@@ -1797,7 +1797,7 @@ public class ExcelWriterStepDialog extends BaseStepDialog implements StepDialogI
       field.setCommentAuthorField( item.getText( 10 ) );
 
       //CHECKSTYLE:Indentation:OFF
-      tfoi.getOutputFields()[i] = field;
+      tfoi.getOutputFields()[ i ] = field;
     }
   }
 
@@ -1884,7 +1884,6 @@ public class ExcelWriterStepDialog extends BaseStepDialog implements StepDialogI
 
   /**
    * Sets the output width to minimal width...
-   *
    */
   public void setMinimalWidth() {
     int nrNonEmptyFields = wFields.nrNonEmpty();

@@ -40,9 +40,9 @@ public class PrimitiveBooleanArrayLoadSaveValidator implements FieldLoadSaveVali
   @Override
   public boolean[] getTestObject() {
     int max = elements == null ? new Random().nextInt( 100 ) + 50 : elements;
-    boolean[] result = new boolean[max];
+    boolean[] result = new boolean[ max ];
     for ( int i = 0; i < max; i++ ) {
-      result[i] = validator.getTestObject();
+      result[ i ] = validator.getTestObject();
     }
     return result;
   }
@@ -55,7 +55,7 @@ public class PrimitiveBooleanArrayLoadSaveValidator implements FieldLoadSaveVali
         return false;
       }
       for ( int i = 0; i < original.length; i++ ) {
-        if ( !this.validator.validateTestObject( original[i], otherList[i] ) ) {
+        if ( !this.validator.validateTestObject( original[ i ], otherList[ i ] ) ) {
           return false;
         }
       }

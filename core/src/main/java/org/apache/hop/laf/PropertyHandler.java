@@ -53,7 +53,7 @@ public interface PropertyHandler extends Handler {
    * @param key
    * @param defValue
    * @return a string representing either the value associated with the passed key or defValue should that key not be
-   *         found
+   * found
    */
   public String getProperty( String key, String defValue );
 }

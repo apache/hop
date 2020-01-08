@@ -20,14 +20,14 @@
 
 package org.apache.hop.ui.trans.steps.userdefinedjavaclass;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.ui.trans.steps.userdefinedjavaclass.UserDefinedJavaClassCodeSnippits.Snippit;
 import org.junit.Assert;
 import org.junit.Test;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.ui.trans.steps.userdefinedjavaclass.UserDefinedJavaClassCodeSnippits.Snippit;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDefinedJavaClassCodeSnippitsTest {
 

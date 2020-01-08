@@ -22,22 +22,21 @@
 
 package org.apache.hop.trans.steps.blockuntilstepsfinish;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * @author Samatar
  * @since 16-06-2008
- *
  */
 public class BlockUntilStepsFinishData extends BaseStepData implements StepDataInterface {
 
   /**
    *
-  */
+   */
   boolean continueLoop;
   public ConcurrentHashMap<Integer, StepInterface> stepInterfaces;
 

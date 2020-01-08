@@ -21,19 +21,19 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.samplerows;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SampleRowsMetaTest {
   LoadSaveTester loadSaveTester;
@@ -45,12 +45,12 @@ public class SampleRowsMetaTest {
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "linesRange", "lineNumberField" );
+      Arrays.asList( "linesRange", "lineNumberField" );
 
     Map<String, String> aMap = new HashMap<String, String>();
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, aMap, aMap );
+      new LoadSaveTester( testMetaClass, attributes, aMap, aMap );
   }
 
   @Test

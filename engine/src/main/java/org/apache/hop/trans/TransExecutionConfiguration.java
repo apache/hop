@@ -22,6 +22,23 @@
 
 package org.apache.hop.trans;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.ExecutionConfiguration;
+import org.apache.hop.cluster.SlaveServer;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.trans.debug.TransDebugMeta;
+import org.w3c.dom.Node;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,25 +48,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.ExecutionConfiguration;
-import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.trans.debug.TransDebugMeta;
-import org.w3c.dom.Node;
 
 public class TransExecutionConfiguration implements ExecutionConfiguration {
   public static final String XML_TAG = "transformation_execution_configuration";
@@ -143,16 +141,14 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param arguments
-   *          the arguments to set
+   * @param arguments the arguments to set
    */
   public void setArguments( Map<String, String> arguments ) {
     this.arguments = arguments;
   }
 
   /**
-   * @param params
-   *          the parameters to set
+   * @param params the parameters to set
    */
   public void setParams( Map<String, String> params ) {
     this.params = params;
@@ -166,14 +162,13 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param arguments
-   *          the arguments to set
+   * @param arguments the arguments to set
    */
   public void setArgumentStrings( String[] arguments ) {
     this.arguments = new HashMap<String, String>();
     if ( arguments != null ) {
       for ( int i = 0; i < arguments.length; i++ ) {
-        this.arguments.put( "arg " + ( i + 1 ), arguments[i] );
+        this.arguments.put( "arg " + ( i + 1 ), arguments[ i ] );
       }
     }
   }
@@ -186,8 +181,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param clusteredExecution
-   *          the clusteredExecution to set
+   * @param clusteredExecution the clusteredExecution to set
    */
   public void setExecutingClustered( boolean clusteredExecution ) {
     this.executingClustered = clusteredExecution;
@@ -201,8 +195,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param notExecuting
-   *          the notExecuting to set
+   * @param notExecuting the notExecuting to set
    */
   public void setClusterStarting( boolean notExecuting ) {
     this.clusterStarting = notExecuting;
@@ -216,8 +209,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param showingTransformations
-   *          the showingTransformations to set
+   * @param showingTransformations the showingTransformations to set
    */
   public void setClusterShowingTransformation( boolean showingTransformations ) {
     this.clusterShowingTransformation = showingTransformations;
@@ -231,8 +223,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param variables
-   *          the variables to set
+   * @param variables the variables to set
    */
   public void setVariables( Map<String, String> variables ) {
     this.variables = variables;
@@ -255,8 +246,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param remoteExecution
-   *          the remoteExecution to set
+   * @param remoteExecution the remoteExecution to set
    */
   public void setExecutingRemotely( boolean remoteExecution ) {
     this.executingRemotely = remoteExecution;
@@ -270,8 +260,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param clusterPosting
-   *          the clusterPosting to set
+   * @param clusterPosting the clusterPosting to set
    */
   public void setClusterPosting( boolean clusterPosting ) {
     this.clusterPosting = clusterPosting;
@@ -285,8 +274,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param localExecution
-   *          the localExecution to set
+   * @param localExecution the localExecution to set
    */
   public void setExecutingLocally( boolean localExecution ) {
     this.executingLocally = localExecution;
@@ -300,8 +288,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param clusterPreparing
-   *          the clusterPreparing to set
+   * @param clusterPreparing the clusterPreparing to set
    */
   public void setClusterPreparing( boolean clusterPreparing ) {
     this.clusterPreparing = clusterPreparing;
@@ -315,8 +302,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param remoteServer
-   *          the remoteServer to set
+   * @param remoteServer the remoteServer to set
    */
   public void setRemoteServer( SlaveServer remoteServer ) {
     this.remoteServer = remoteServer;
@@ -328,7 +314,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
 
     String[] keys = space.listVariables();
     for ( int i = 0; i < keys.length; i++ ) {
-      sp.put( keys[i], space.getVariable( keys[i] ) );
+      sp.put( keys[ i ], space.getVariable( keys[ i ] ) );
     }
 
     String[] vars = transMeta.listVariables();
@@ -336,7 +322,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
       HashMap<String, String> newVariables = new HashMap<String, String>();
 
       for ( int i = 0; i < vars.length; i++ ) {
-        String varname = vars[i];
+        String varname = vars[ i ];
         newVariables.put( varname, Const.NVL( variables.get( varname ), sp.getProperty( varname, "" ) ) );
       }
       // variables.clear();
@@ -359,7 +345,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
 
     String[] keys = space.listVariables();
     for ( int i = 0; i < keys.length; i++ ) {
-      sp.put( keys[i], space.getVariable( keys[i] ) );
+      sp.put( keys[ i ], space.getVariable( keys[ i ] ) );
     }
 
     List<String> vars = transMeta.getUsedVariables();
@@ -406,8 +392,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param replayDate
-   *          the replayDate to set
+   * @param replayDate the replayDate to set
    */
   public void setReplayDate( Date replayDate ) {
     this.replayDate = replayDate;
@@ -421,8 +406,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param usingSafeMode
-   *          the usingSafeMode to set
+   * @param usingSafeMode the usingSafeMode to set
    */
   public void setSafeModeEnabled( boolean usingSafeMode ) {
     this.safeModeEnabled = usingSafeMode;
@@ -436,8 +420,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param logLevel
-   *          the logLevel to set
+   * @param logLevel the logLevel to set
    */
   public void setLogLevel( LogLevel logLevel ) {
     this.logLevel = logLevel;
@@ -624,13 +607,13 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
       return null;
     }
 
-    String[] argNames = arguments.keySet().toArray( new String[arguments.size()] );
+    String[] argNames = arguments.keySet().toArray( new String[ arguments.size() ] );
     Arrays.sort( argNames );
 
-    String[] values = new String[argNames.length];
+    String[] values = new String[ argNames.length ];
     for ( int i = 0; i < argNames.length; i++ ) {
-      if ( argNames[i].equalsIgnoreCase( Props.STRING_ARGUMENT_NAME_PREFIX + ( i + 1 ) ) ) {
-        values[i] = arguments.get( argNames[i] );
+      if ( argNames[ i ].equalsIgnoreCase( Props.STRING_ARGUMENT_NAME_PREFIX + ( i + 1 ) ) ) {
+        values[ i ] = arguments.get( argNames[ i ] );
       }
     }
 
@@ -645,8 +628,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param transDebugMeta
-   *          the transDebugMeta to set
+   * @param transDebugMeta the transDebugMeta to set
    */
   public void setTransDebugMeta( TransDebugMeta transDebugMeta ) {
     this.transDebugMeta = transDebugMeta;
@@ -660,8 +642,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param previousResult
-   *          the previousResult to set
+   * @param previousResult the previousResult to set
    */
   public void setPreviousResult( Result previousResult ) {
     this.previousResult = previousResult;
@@ -675,8 +656,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param clearingLog
-   *          the clearingLog to set
+   * @param clearingLog the clearingLog to set
    */
   public void setClearingLog( boolean clearingLog ) {
     this.clearingLog = clearingLog;
@@ -690,8 +670,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param passingExport
-   *          the passingExport to set
+   * @param passingExport the passingExport to set
    */
   public void setPassingExport( boolean passingExport ) {
     this.passingExport = passingExport;
@@ -705,8 +684,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param gatheringMetrics
-   *          the gatheringMetrics to set
+   * @param gatheringMetrics the gatheringMetrics to set
    */
   public void setGatheringMetrics( boolean gatheringMetrics ) {
     this.gatheringMetrics = gatheringMetrics;
@@ -720,8 +698,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param showingSubComponents
-   *          the showingSubComponents to set
+   * @param showingSubComponents the showingSubComponents to set
    */
   public void setShowingSubComponents( boolean showingSubComponents ) {
     this.showingSubComponents = showingSubComponents;

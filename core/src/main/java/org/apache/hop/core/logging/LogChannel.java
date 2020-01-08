@@ -22,15 +22,15 @@
 
 package org.apache.hop.core.logging;
 
-import java.util.Date;
-import java.util.Queue;
-import java.util.Map;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.metrics.MetricsSnapshot;
 import org.apache.hop.core.metrics.MetricsSnapshotInterface;
 import org.apache.hop.core.metrics.MetricsSnapshotType;
+import org.apache.hop.core.util.Utils;
+
+import java.util.Date;
+import java.util.Map;
+import java.util.Queue;
 
 public class LogChannel implements LogChannelInterface {
 
@@ -93,7 +93,6 @@ public class LogChannel implements LogChannelInterface {
   }
 
   /**
-   *
    * @param logMessage
    * @param channelLogLevel
    */
@@ -257,8 +256,7 @@ public class LogChannel implements LogChannelInterface {
   }
 
   /**
-   * @param containerObjectId
-   *          the containerObjectId to set
+   * @param containerObjectId the containerObjectId to set
    */
   @Override
   public void setContainerObjectId( String containerObjectId ) {
@@ -274,8 +272,7 @@ public class LogChannel implements LogChannelInterface {
   }
 
   /**
-   * @param gatheringMetrics
-   *          the gatheringMetrics to set
+   * @param gatheringMetrics the gatheringMetrics to set
    */
   @Override
   public void setGatheringMetrics( boolean gatheringMetrics ) {
@@ -318,12 +315,12 @@ public class LogChannel implements LogChannelInterface {
         metricsMap = metricsRegistry.getSnapshotMap( logChannelId );
         snapshot = metricsMap.get( key );
         if ( snapshot != null ) {
-          if ( value[0] > snapshot.getValue() ) {
-            snapshot.setValue( value[0] );
+          if ( value[ 0 ] > snapshot.getValue() ) {
+            snapshot.setValue( value[ 0 ] );
             snapshot.setDate( new Date() );
           }
         } else {
-          snapshot = new MetricsSnapshot( MetricsSnapshotType.MAX, metric, subject, value[0], logChannelId );
+          snapshot = new MetricsSnapshot( MetricsSnapshotType.MAX, metric, subject, value[ 0 ], logChannelId );
           metricsMap.put( key, snapshot );
         }
 
@@ -338,12 +335,12 @@ public class LogChannel implements LogChannelInterface {
         metricsMap = metricsRegistry.getSnapshotMap( logChannelId );
         snapshot = metricsMap.get( key );
         if ( snapshot != null ) {
-          if ( value[0] < snapshot.getValue() ) {
-            snapshot.setValue( value[0] );
+          if ( value[ 0 ] < snapshot.getValue() ) {
+            snapshot.setValue( value[ 0 ] );
             snapshot.setDate( new Date() );
           }
         } else {
-          snapshot = new MetricsSnapshot( MetricsSnapshotType.MIN, metric, subject, value[0], logChannelId );
+          snapshot = new MetricsSnapshot( MetricsSnapshotType.MIN, metric, subject, value[ 0 ], logChannelId );
           metricsMap.put( key, snapshot );
         }
 
@@ -352,9 +349,9 @@ public class LogChannel implements LogChannelInterface {
         metricsMap = metricsRegistry.getSnapshotMap( logChannelId );
         snapshot = metricsMap.get( key );
         if ( snapshot != null ) {
-          snapshot.setValue( snapshot.getValue() + value[0] );
+          snapshot.setValue( snapshot.getValue() + value[ 0 ] );
         } else {
-          snapshot = new MetricsSnapshot( MetricsSnapshotType.SUM, metric, subject, value[0], logChannelId );
+          snapshot = new MetricsSnapshot( MetricsSnapshotType.SUM, metric, subject, value[ 0 ], logChannelId );
           metricsMap.put( key, snapshot );
         }
 

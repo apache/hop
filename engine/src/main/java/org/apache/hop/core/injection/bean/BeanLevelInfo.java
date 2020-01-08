@@ -22,6 +22,10 @@
 
 package org.apache.hop.core.injection.bean;
 
+import org.apache.hop.core.injection.Injection;
+import org.apache.hop.core.injection.InjectionDeep;
+import org.apache.hop.core.injection.InjectionTypeConverter;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
@@ -35,33 +39,47 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.injection.InjectionTypeConverter;
-
 /**
  * Storage for one step on the bean deep level.
  */
 class BeanLevelInfo {
   enum DIMENSION {
     NONE, ARRAY, LIST
-  };
+  }
 
-  /** Parent step or null for root. */
+  ;
+
+  /**
+   * Parent step or null for root.
+   */
   public BeanLevelInfo parent;
-  /** Class for step from field or methods. */
+  /**
+   * Class for step from field or methods.
+   */
   public Class<?> leafClass;
-  /** Field of step, or null if bean has getter/setter. */
+  /**
+   * Field of step, or null if bean has getter/setter.
+   */
   public Field field;
-  /** Getter and setter. */
+  /**
+   * Getter and setter.
+   */
   public Method getter, setter;
-  /** Dimension of level. */
+  /**
+   * Dimension of level.
+   */
   public DIMENSION dim = DIMENSION.NONE;
-  /** Values converter. */
+  /**
+   * Values converter.
+   */
   public InjectionTypeConverter converter;
-  /** False if source empty value shoudn't affect on target field. */
+  /**
+   * False if source empty value shoudn't affect on target field.
+   */
   public boolean convertEmpty;
-  /** Name prefix on the path. */
+  /**
+   * Name prefix on the path.
+   */
   public String prefix;
 
   public void init( BeanInjectionInfo info ) {
@@ -97,15 +115,15 @@ class BeanLevelInfo {
         Map<String, Type> prevGenerics = genericsInfo;
         genericsInfo = new TreeMap<>();
         for ( int i = 0; i < tps.length; i++ ) {
-          if ( args[i] instanceof TypeVariable ) {
-            TypeVariable<?> argsi = (TypeVariable<?>) args[i];
+          if ( args[ i ] instanceof TypeVariable ) {
+            TypeVariable<?> argsi = (TypeVariable<?>) args[ i ];
             Type prev = prevGenerics.get( argsi.getName() );
             if ( prev == null ) {
-              throw new RuntimeException( "Generic '" + args[i] + "' was not declared yet" );
+              throw new RuntimeException( "Generic '" + args[ i ] + "' was not declared yet" );
             }
-            genericsInfo.put( tps[i].getName(), prev );
+            genericsInfo.put( tps[ i ].getName(), prev );
           } else {
-            genericsInfo.put( tps[i].getName(), args[i] );
+            genericsInfo.put( tps[ i ].getName(), args[ i ] );
           }
         }
         System.out.println();
@@ -123,7 +141,7 @@ class BeanLevelInfo {
    * Introspect fields and methods of some class.
    */
   protected void introspect( BeanInjectionInfo info, Field[] fields, Method[] methods,
-      Map<String, Type> genericsInfo ) {
+                             Map<String, Type> genericsInfo ) {
     for ( Field f : fields ) {
       Injection annotationInjection = f.getAnnotation( Injection.class );
       InjectionDeep annotationInjectionDeep = f.getAnnotation( InjectionDeep.class );
@@ -155,7 +173,7 @@ class BeanLevelInfo {
       } else if ( List.class.equals( f.getType() ) ) {
         leaf.dim = DIMENSION.LIST;
         Type fieldType = f.getGenericType();
-        Type listType = ( (ParameterizedType) fieldType ).getActualTypeArguments()[0];
+        Type listType = ( (ParameterizedType) fieldType ).getActualTypeArguments()[ 0 ];
         try {
           t = resolveGenericType( listType, genericsInfo );
         } catch ( Throwable ex ) {
@@ -212,7 +230,7 @@ class BeanLevelInfo {
           // returns list
           leaf.dim = DIMENSION.LIST;
           ParameterizedType getterType = (ParameterizedType) getterClass;
-          getterClass = getterType.getActualTypeArguments()[0];
+          getterClass = getterType.getActualTypeArguments()[ 0 ];
         }
         Class<?> getter = (Class<?>) resolveGenericType( getterClass, genericsInfo );
         if ( getter.isArray() ) {
@@ -271,7 +289,7 @@ class BeanLevelInfo {
     }
     if ( m.getParameterTypes().length == 1 ) {
       // setter with one parameter
-      return m.getParameterTypes()[0];
+      return m.getParameterTypes()[ 0 ];
     }
     return null;
   }

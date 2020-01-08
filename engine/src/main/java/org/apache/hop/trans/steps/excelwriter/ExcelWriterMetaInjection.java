@@ -143,7 +143,7 @@ public class ExcelWriterMetaInjection implements StepMetaInjectionInterface {
       }
     }
 
-    meta.setOutputFields( excelOutputFields.toArray( new ExcelWriterStepField[excelOutputFields.size()] ) );
+    meta.setOutputFields( excelOutputFields.toArray( new ExcelWriterStepField[ excelOutputFields.size() ] ) );
 
   }
 

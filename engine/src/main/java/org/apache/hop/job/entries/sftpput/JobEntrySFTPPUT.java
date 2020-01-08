@@ -22,30 +22,17 @@
 
 package org.apache.hop.job.entries.sftpput;
 
-import org.apache.hop.job.entry.validator.AndValidator;
-import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
@@ -54,19 +41,26 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.sftp.SFTPClient;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-
+import org.apache.hop.job.entry.validator.AndValidator;
+import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This defines an SFTP put job entry.
  *
  * @author Matt
  * @since 05-11-2003
- *
  */
 public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntryInterface {
   private static Class<?> PKG = JobEntrySFTPPUT.class; // for i18n purposes, needed by Translator2!!
@@ -183,15 +177,15 @@ public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntry
 
   public static String getAfterSFTPPutCode( int i ) {
     if ( i < 0 || i >= afterFTPSCode.length ) {
-      return afterFTPSCode[0];
+      return afterFTPSCode[ 0 ];
     }
-    return afterFTPSCode[i];
+    return afterFTPSCode[ i ];
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       serverName = XMLHandler.getTagValue( entrynode, "servername" );
       serverPort = XMLHandler.getTagValue( entrynode, "serverport" );
       userName = XMLHandler.getTagValue( entrynode, "username" );
@@ -237,7 +231,7 @@ public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntry
     }
 
     for ( int i = 0; i < afterFTPSCode.length; i++ ) {
-      if ( afterFTPSCode[i].equalsIgnoreCase( tt ) ) {
+      if ( afterFTPSCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -246,9 +240,9 @@ public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntry
 
   public static String getAfterSFTPPutDesc( int i ) {
     if ( i < 0 || i >= afterFTPSDesc.length ) {
-      return afterFTPSDesc[0];
+      return afterFTPSDesc[ 0 ];
     }
-    return afterFTPSDesc[i];
+    return afterFTPSDesc[ i ];
   }
 
   public static int getAfterSFTPPutByDesc( String tt ) {
@@ -257,7 +251,7 @@ public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntry
     }
 
     for ( int i = 0; i < afterFTPSDesc.length; i++ ) {
-      if ( afterFTPSDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( afterFTPSDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -267,8 +261,7 @@ public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param createDestinationFolder
-   *          The create destination folder flag to set.
+   * @param createDestinationFolder The create destination folder flag to set.
    */
   public void setCreateDestinationFolder( boolean createDestinationFolder ) {
     this.createDestinationFolder = createDestinationFolder;
@@ -282,8 +275,7 @@ public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param successWhenNoFile
-   *          The successWhenNoFile flag to set.
+   * @param successWhenNoFile The successWhenNoFile flag to set.
    */
   public void setSuccessWhenNoFile( boolean successWhenNoFile ) {
     this.successWhenNoFile = successWhenNoFile;
@@ -312,8 +304,7 @@ public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param value
-   *          The afterFTPS to set.
+   * @param value The afterFTPS to set.
    */
   public void setAfterFTPS( int value ) {
     this.afterFTPS = value;
@@ -327,8 +318,7 @@ public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param directory
-   *          The directory to set.
+   * @param directory The directory to set.
    */
   public void setScpDirectory( String directory ) {
     this.sftpDirectory = directory;
@@ -342,8 +332,7 @@ public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param password
-   *          The password to set.
+   * @param password The password to set.
    */
   public void setPassword( String password ) {
     this.password = password;
@@ -357,8 +346,7 @@ public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param serverName
-   *          The serverName to set.
+   * @param serverName The serverName to set.
    */
   public void setServerName( String serverName ) {
     this.serverName = serverName;
@@ -372,8 +360,7 @@ public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param userName
-   *          The userName to set.
+   * @param userName The userName to set.
    */
   public void setUserName( String userName ) {
     this.userName = userName;
@@ -387,8 +374,7 @@ public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param wildcard
-   *          The wildcard to set.
+   * @param wildcard The wildcard to set.
    */
   public void setWildcard( String wildcard ) {
     this.wildcard = wildcard;
@@ -402,8 +388,7 @@ public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param localDirectory
-   *          The localDirectory to set.
+   * @param localDirectory The localDirectory to set.
    */
   public void setLocalDirectory( String localDirectory ) {
     this.localDirectory = localDirectory;
@@ -465,8 +450,7 @@ public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param compression
-   *          The compression to set.
+   * @param compression The compression to set.
    */
   public void setCompression( String compression ) {
     this.compression = compression;
@@ -742,9 +726,9 @@ public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntry
         if ( children != null ) {
           for ( int i = 0; i < children.length; i++ ) {
             // Get filename of file or directory
-            if ( children[i].getType().equals( FileType.FILE ) ) {
+            if ( children[ i ].getType().equals( FileType.FILE ) ) {
               // myFileList.add(children[i].getAbsolutePath());
-              myFileList.add( children[i] );
+              myFileList.add( children[ i ] );
             }
           } // end for
         }
@@ -888,18 +872,18 @@ public class JobEntrySFTPPUT extends JobEntryBase implements Cloneable, JobEntry
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "serverName", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate(
       this, "localDirectory", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator(),
-          JobEntryValidatorUtils.fileExistsValidator() ) );
+        JobEntryValidatorUtils.fileExistsValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "userName", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "password", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "serverPort", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.integerValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.integerValidator() ) );
   }
 
 }

@@ -22,36 +22,6 @@
 
 package org.apache.hop.ui.trans.steps.yamlinput;
 
-import java.util.ArrayList;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.DirectoryDialog;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -80,6 +50,36 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.apache.hop.ui.trans.step.ComponentSelectionListener;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+
+import java.util.ArrayList;
 
 public class YamlInputDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = YamlInputMeta.class; // for i18n purposes, needed by Translator2!!
@@ -426,29 +426,29 @@ public class YamlInputDialog extends BaseStepDialog implements StepDialogInterfa
     fdbShowFiles.bottom = new FormAttachment( 100, 0 );
     wbShowFiles.setLayoutData( fdbShowFiles );
 
-    ColumnInfo[] colinfo = new ColumnInfo[4];
-    colinfo[0] =
+    ColumnInfo[] colinfo = new ColumnInfo[ 4 ];
+    colinfo[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "YamlInputDialog.Files.Filename.Column" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    colinfo[1] =
+    colinfo[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "YamlInputDialog.Files.Wildcard.Column" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
 
-    colinfo[0].setUsingVariables( true );
-    colinfo[1].setUsingVariables( true );
-    colinfo[1].setToolTip( BaseMessages.getString( PKG, "YamlInputDialog.Files.Wildcard.Tooltip" ) );
-    colinfo[2] =
+    colinfo[ 0 ].setUsingVariables( true );
+    colinfo[ 1 ].setUsingVariables( true );
+    colinfo[ 1 ].setToolTip( BaseMessages.getString( PKG, "YamlInputDialog.Files.Wildcard.Tooltip" ) );
+    colinfo[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "YamlInputDialog.Required.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         YamlInputMeta.RequiredFilesDesc );
-    colinfo[2].setToolTip( BaseMessages.getString( PKG, "YamlInputDialog.Required.Tooltip" ) );
-    colinfo[3] =
+    colinfo[ 2 ].setToolTip( BaseMessages.getString( PKG, "YamlInputDialog.Required.Tooltip" ) );
+    colinfo[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "YamlInputDialog.IncludeSubDirs.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         YamlInputMeta.RequiredFilesDesc );
-    colinfo[3].setToolTip( BaseMessages.getString( PKG, "YamlInputDialog.IncludeSubDirs.Tooltip" ) );
+    colinfo[ 3 ].setToolTip( BaseMessages.getString( PKG, "YamlInputDialog.IncludeSubDirs.Tooltip" ) );
 
     wFilenameList =
       new TableView(
@@ -763,10 +763,10 @@ public class YamlInputDialog extends BaseStepDialog implements StepDialogInterfa
           BaseMessages.getString( PKG, "YamlInputDialog.FieldsTable.TrimType.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, YamlInputField.trimTypeDesc, true ) };
 
-    colinf[0].setUsingVariables( true );
-    colinf[0].setToolTip( BaseMessages.getString( PKG, "YamlInputDialog.FieldsTable.Name.Column.Tooltip" ) );
-    colinf[1].setUsingVariables( true );
-    colinf[1].setToolTip( BaseMessages.getString( PKG, "YamlInputDialog.FieldsTable.XPath.Column.Tooltip" ) );
+    colinf[ 0 ].setUsingVariables( true );
+    colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "YamlInputDialog.FieldsTable.Name.Column.Tooltip" ) );
+    colinf[ 1 ].setUsingVariables( true );
+    colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "YamlInputDialog.FieldsTable.XPath.Column.Tooltip" ) );
 
     wFields =
       new TableView( transMeta, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
@@ -874,8 +874,8 @@ public class YamlInputDialog extends BaseStepDialog implements StepDialogInterfa
         int idx = wFilenameList.getSelectionIndex();
         if ( idx >= 0 ) {
           String[] string = wFilenameList.getItem( idx );
-          wFilename.setText( string[0] );
-          wFilemask.setText( string[1] );
+          wFilename.setText( string[ 0 ] );
+          wFilemask.setText( string[ 1 ] );
           wFilenameList.remove( idx );
         }
         wFilenameList.removeEmptyRows();
@@ -906,7 +906,7 @@ public class YamlInputDialog extends BaseStepDialog implements StepDialogInterfa
         } catch ( HopException ex ) {
           new ErrorDialog(
             shell, BaseMessages.getString( PKG, "YamlInputDialog.ErrorParsingData.DialogTitle" ), BaseMessages
-              .getString( PKG, "YamlInputDialog.ErrorParsingData.DialogMessage" ), ex );
+            .getString( PKG, "YamlInputDialog.ErrorParsingData.DialogMessage" ), ex );
         }
       }
     } );
@@ -1002,14 +1002,14 @@ public class YamlInputDialog extends BaseStepDialog implements StepDialogInterfa
         r.getFieldNames();
 
         for ( int i = 0; i < r.getFieldNames().length; i++ ) {
-          wYAMLLField.add( r.getFieldNames()[i] );
+          wYAMLLField.add( r.getFieldNames()[ i ] );
 
         }
       }
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "YamlInputDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "YamlInputDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "YamlInputDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 
@@ -1091,7 +1091,7 @@ public class YamlInputDialog extends BaseStepDialog implements StepDialogInterfa
     } catch ( Exception e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "YamlInputDialog.ErrorParsingData.DialogTitle" ), BaseMessages
-          .getString( PKG, "YamlInputDialog.ErrorParsingData.DialogMessage" ), e );
+        .getString( PKG, "YamlInputDialog.ErrorParsingData.DialogMessage" ), e );
     } finally {
       if ( yaml != null ) {
         try {
@@ -1115,8 +1115,7 @@ public class YamlInputDialog extends BaseStepDialog implements StepDialogInterfa
   /**
    * Read the data from the TextFileInputMeta object and show it in this dialog.
    *
-   * @param in
-   *          The TextFileInputMeta object to obtain the data from.
+   * @param in The TextFileInputMeta object to obtain the data from.
    */
   public void getData( YamlInputMeta in ) {
     if ( in.getFileName() != null ) {
@@ -1124,8 +1123,8 @@ public class YamlInputDialog extends BaseStepDialog implements StepDialogInterfa
 
       for ( int i = 0; i < in.getFileName().length; i++ ) {
         wFilenameList.add( new String[] {
-          in.getFileName()[i], in.getFileMask()[i], in.getRequiredFilesDesc( in.getFileRequired()[i] ),
-          in.getRequiredFilesDesc( in.getIncludeSubFolders()[i] ) } );
+          in.getFileName()[ i ], in.getFileMask()[ i ], in.getRequiredFilesDesc( in.getFileRequired()[ i ] ),
+          in.getRequiredFilesDesc( in.getIncludeSubFolders()[ i ] ) } );
       }
       wFilenameList.removeEmptyRows();
       wFilenameList.setRowNums();
@@ -1155,7 +1154,7 @@ public class YamlInputDialog extends BaseStepDialog implements StepDialogInterfa
       logDebug( BaseMessages.getString( PKG, "YamlInputDialog.Log.GettingFieldsInfo" ) );
     }
     for ( int i = 0; i < in.getInputFields().length; i++ ) {
-      YamlInputField field = in.getInputFields()[i];
+      YamlInputField field = in.getInputFields()[ i ];
 
       if ( field != null ) {
         TableItem item = wFields.table.getItem( i );
@@ -1224,7 +1223,7 @@ public class YamlInputDialog extends BaseStepDialog implements StepDialogInterfa
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "YamlInputDialog.ErrorParsingData.DialogTitle" ), BaseMessages
-          .getString( PKG, "YamlInputDialog.ErrorParsingData.DialogMessage" ), e );
+        .getString( PKG, "YamlInputDialog.ErrorParsingData.DialogMessage" ), e );
     }
     dispose();
   }
@@ -1272,7 +1271,7 @@ public class YamlInputDialog extends BaseStepDialog implements StepDialogInterfa
       field.setTrimType( YamlInputField.getTrimTypeByDesc( item.getText( 10 ) ) );
 
       //CHECKSTYLE:Indentation:OFF
-      in.getInputFields()[i] = field;
+      in.getInputFields()[ i ] = field;
     }
   }
 
@@ -1307,21 +1306,21 @@ public class YamlInputDialog extends BaseStepDialog implements StepDialogInterfa
             EnterTextDialog etd =
               new EnterTextDialog(
                 shell, BaseMessages.getString( PKG, "System.Dialog.PreviewError.Title" ), BaseMessages
-                  .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
+                .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
             etd.setReadOnly();
             etd.open();
           }
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
               shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta( wStepname
-                .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
+              .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
           prd.open();
         }
       }
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "YamlInputDialog.ErrorPreviewingData.DialogTitle" ), BaseMessages
-          .getString( PKG, "YamlInputDialog.ErrorPreviewingData.DialogMessage" ), e );
+        .getString( PKG, "YamlInputDialog.ErrorPreviewingData.DialogMessage" ), e );
     }
   }
 }

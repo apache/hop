@@ -32,16 +32,15 @@ import java.util.Optional;
  * the i18n detailes, etc.
  *
  * @author matt
- *
  */
 public interface PluginInterface {
 
   /**
    * @return All the possible IDs that this plugin corresponds with.<br>
-   *         Multiple IDs are typically used when you migrate 2 different plugins into a single one with the same
-   *         functionality.<br>
-   *         It can also happen if you deprecate an older plugin and you want to have a new one provide compatibility
-   *         for it.<br>
+   * Multiple IDs are typically used when you migrate 2 different plugins into a single one with the same
+   * functionality.<br>
+   * It can also happen if you deprecate an older plugin and you want to have a new one provide compatibility
+   * for it.<br>
    */
   String[] getIds();
 
@@ -76,8 +75,7 @@ public interface PluginInterface {
   String getImageFile();
 
   /**
-   * @param imageFile
-   *          the location of the image (icon) file for this plugin
+   * @param imageFile the location of the image (icon) file for this plugin
    */
   void setImageFile( String imageFile );
 
@@ -102,21 +100,19 @@ public interface PluginInterface {
   Map<Class<?>, String> getClassMap();
 
   /**
-   * @param id
-   *          the plugin id to match
+   * @param id the plugin id to match
    * @return true if one of the ids matches the given argument. Return false if it doesn't.
    */
   boolean matches( String id );
 
   /**
    * @return An optional location to a help file that the plugin can refer to in case there is a loading problem. This
-   *         usually happens if a jar file is not installed correctly (class not found exceptions) etc.
+   * usually happens if a jar file is not installed correctly (class not found exceptions) etc.
    */
   String getErrorHelpFile();
 
   /**
-   * @param errorHelpFile
-   *          the errorHelpFile to set
+   * @param errorHelpFile the errorHelpFile to set
    */
   void setErrorHelpFile( String errorHelpFile );
 
@@ -128,8 +124,7 @@ public interface PluginInterface {
   String getDocumentationUrl();
 
   /**
-   * @param documentationUrl
-   *          the documentationUrl to set
+   * @param documentationUrl the documentationUrl to set
    */
   void setDocumentationUrl( String documentationUrl );
 
@@ -139,8 +134,7 @@ public interface PluginInterface {
   String getCasesUrl();
 
   /**
-   * @param casesUrl
-   *          the cases URL to set for this plugin
+   * @param casesUrl the cases URL to set for this plugin
    */
   void setCasesUrl( String casesUrl );
 
@@ -150,13 +144,12 @@ public interface PluginInterface {
   String getForumUrl();
 
   /**
-   * @param forumUrl
-   *          the forum URL to set
+   * @param forumUrl the forum URL to set
    */
   void setForumUrl( String forumUrl );
 
   /**
-   * @return The group to which this class loader belongs.  
+   * @return The group to which this class loader belongs.
    * Returns null if the plugin does not belong to a group (the default)
    */
   String getClassLoaderGroup();
@@ -166,8 +159,8 @@ public interface PluginInterface {
   String getSuggestion();
 
   /**
-   * @param group The group to which this class loader belongs.  
-   * Set to null if the plugin does not belong to a group (the default)
+   * @param group The group to which this class loader belongs.
+   *              Set to null if the plugin does not belong to a group (the default)
    */
   void setClassLoaderGroup( String group );
 

@@ -23,6 +23,9 @@
 package org.apache.hop.trans.steps.rssinput;
 
 import it.sauronsoftware.feed4j.bean.Feed;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.trans.step.BaseStepData;
+import org.apache.hop.trans.step.StepDataInterface;
 
 import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
@@ -30,10 +33,6 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.trans.step.BaseStepData;
-import org.apache.hop.trans.step.StepDataInterface;
 
 /**
  * @author Samatar Hassan

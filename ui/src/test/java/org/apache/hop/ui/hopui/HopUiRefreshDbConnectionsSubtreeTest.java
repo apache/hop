@@ -22,14 +22,14 @@
 
 package org.apache.hop.ui.hopui;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.widget.tree.TreeNode;
 import org.apache.hop.ui.hopui.tree.provider.DBConnectionFolderProvider;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Collections;
 import java.util.List;
@@ -92,7 +92,7 @@ public class HopUiRefreshDbConnectionsSubtreeTest {
   private static AbstractMeta prepareMetaWithThreeDbs() {
     AbstractMeta meta = mock( AbstractMeta.class );
     List<DatabaseMeta> dbs =
-            asList( mockDatabaseMeta( "1" ), mockDatabaseMeta( "2" ), mockDatabaseMeta( "3" ) );
+      asList( mockDatabaseMeta( "1" ), mockDatabaseMeta( "2" ), mockDatabaseMeta( "3" ) );
     when( meta.getDatabases() ).thenReturn( dbs );
     return meta;
   }

@@ -28,17 +28,18 @@ import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.util.Utils;
+
 @DatabaseMetaPlugin(
-        type = "MSSQLNATIVE",
-        typeDescription = "MS SQL Server (Native)"
+  type = "MSSQLNATIVE",
+  typeDescription = "MS SQL Server (Native)"
 )
-@GuiPlugin( id="GUI-MSSQLServerNativeDatabaseMeta" )
+@GuiPlugin( id = "GUI-MSSQLServerNativeDatabaseMeta" )
 public class MSSQLServerNativeDatabaseMeta extends MSSQLServerDatabaseMeta {
 
   public static final String ATTRIBUTE_USE_INTEGRATED_SECURITY = "MSSQLUseIntegratedSecurity";
 
   @GuiElement(
-    id="usingIntegratedSecurity",
+    id = "usingIntegratedSecurity",
     order = "20",
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.CHECKBOX,
@@ -48,7 +49,7 @@ public class MSSQLServerNativeDatabaseMeta extends MSSQLServerDatabaseMeta {
   private boolean usingIntegratedSecurity;
 
   @GuiElement(
-    id="usingDoubleDigit",
+    id = "usingDoubleDigit",
     order = "20",
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.CHECKBOX,
@@ -64,7 +65,7 @@ public class MSSQLServerNativeDatabaseMeta extends MSSQLServerDatabaseMeta {
    */
   public boolean isUsingIntegratedSecurity() {
     String flag = getAttributes().getProperty( ATTRIBUTE_USE_INTEGRATED_SECURITY );
-    return "Y".equalsIgnoreCase(flag);
+    return "Y".equalsIgnoreCase( flag );
   }
 
   /**
@@ -81,7 +82,7 @@ public class MSSQLServerNativeDatabaseMeta extends MSSQLServerDatabaseMeta {
    */
   public boolean isUsingDoubleDigit() {
     String flag = getAttributes().getProperty( ATTRIBUTE_MSSQL_DOUBLE_DECIMAL_SEPARATOR );
-    return "Y".equalsIgnoreCase(flag);
+    return "Y".equalsIgnoreCase( flag );
   }
 
   /**
@@ -130,5 +131,7 @@ public class MSSQLServerNativeDatabaseMeta extends MSSQLServerDatabaseMeta {
   }
 
   @Override
-  public boolean isMSSQLServerNativeVariant() { return true; }
+  public boolean isMSSQLServerNativeVariant() {
+    return true;
+  }
 }

@@ -22,12 +22,8 @@
 
 package org.apache.hop.trans.steps.syslog;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.util.Utils;
@@ -35,8 +31,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entries.syslog.SyslogDefs;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -44,13 +39,16 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 public class SyslogMessageMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = SyslogMessageMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** dynamic message fieldname */
+  /**
+   * dynamic message fieldname
+   */
   private String messagefieldname;
   private String serverName;
   private String port;
@@ -78,8 +76,8 @@ public class SyslogMessageMeta extends BaseStepMeta implements StepMetaInterface
     messagefieldname = null;
     port = String.valueOf( SyslogDefs.DEFAULT_PORT );
     serverName = null;
-    facility = SyslogDefs.FACILITYS[0];
-    priority = SyslogDefs.PRIORITYS[0];
+    facility = SyslogDefs.FACILITYS[ 0 ];
+    priority = SyslogDefs.PRIORITYS[ 0 ];
     datePattern = SyslogDefs.DEFAULT_DATE_FORMAT;
     addTimestamp = true;
     addHostName = true;
@@ -93,8 +91,7 @@ public class SyslogMessageMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param serverName
-   *          The serverName to set.
+   * @param serverName The serverName to set.
    */
   public void setServerName( String serverName ) {
     this.serverName = serverName;
@@ -108,16 +105,14 @@ public class SyslogMessageMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param facility
-   *          The facility to set.
+   * @param facility The facility to set.
    */
   public void setFacility( String facility ) {
     this.facility = facility;
   }
 
   /**
-   * @param priority
-   *          The priority to set.
+   * @param priority The priority to set.
    */
   public void setPriority( String priority ) {
     this.priority = priority;
@@ -131,8 +126,7 @@ public class SyslogMessageMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param messagefieldname
-   *          The messagefieldname to set.
+   * @param messagefieldname The messagefieldname to set.
    */
   public void setMessageFieldName( String messagefieldname ) {
     this.messagefieldname = messagefieldname;
@@ -153,16 +147,15 @@ public class SyslogMessageMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param port
-   *          The port to set.
+   * @param port The port to set.
    */
   public void setPort( String port ) {
     this.port = port;
   }
 
   /**
-   * @deprecated use {@link #setAddTimestamp(boolean)} instead
    * @param value
+   * @deprecated use {@link #setAddTimestamp(boolean)} instead
    */
   @Deprecated
   public void addTimestamp( boolean value ) {
@@ -181,8 +174,7 @@ public class SyslogMessageMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param pattern
-   *          The datePattern to set.
+   * @param pattern The datePattern to set.
    */
   public void setDatePattern( String pattern ) {
     this.datePattern = pattern;
@@ -196,8 +188,8 @@ public class SyslogMessageMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @deprecated use {@link #setAddHostName(boolean)} instead
    * @param value
+   * @deprecated use {@link #setAddHostName(boolean)} instead
    */
   @Deprecated
   public void addHostName( boolean value ) {
@@ -248,8 +240,8 @@ public class SyslogMessageMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -280,7 +272,7 @@ public class SyslogMessageMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new SyslogMessage( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

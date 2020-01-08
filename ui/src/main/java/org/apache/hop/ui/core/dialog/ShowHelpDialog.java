@@ -20,7 +20,11 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.LocationEvent;
@@ -44,10 +48,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -339,6 +339,7 @@ public class ShowHelpDialog extends Dialog {
       @Override
       public void changed( ProgressEvent event ) {
       }
+
       @Override
       public void completed( ProgressEvent event ) {
         if ( fromPrint ) {

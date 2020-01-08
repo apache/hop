@@ -22,6 +22,11 @@
 
 package org.apache.hop.ui.trans.steps.textfileoutputlegacy;
 
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.steps.textfileoutput.TextFileOutputMeta;
+import org.apache.hop.trans.steps.textfileoutputlegacy.TextFileOutputLegacyMeta;
+import org.apache.hop.ui.trans.steps.textfileoutput.TextFileOutputDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -32,14 +37,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.steps.textfileoutput.TextFileOutputMeta;
-import org.apache.hop.trans.steps.textfileoutputlegacy.TextFileOutputLegacyMeta;
-import org.apache.hop.ui.trans.steps.textfileoutput.TextFileOutputDialog;
 
 /**
  * This is deprecated version with capability run as command.
+ *
  * @deprecated use {@link org.apache.hop.ui.trans.steps.textfileoutput.TextFileOutputDialog} instead.
  */
 public class TextFileOutputLegacyDialog extends TextFileOutputDialog {

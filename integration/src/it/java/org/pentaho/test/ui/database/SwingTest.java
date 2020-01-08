@@ -22,19 +22,19 @@
 
 package org.pentaho.test.ui.database;
 
-import java.io.InputStream;
-
-import org.dom4j.Document;
-import org.dom4j.io.SAXReader;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.dom4j.Document;
+import org.dom4j.io.SAXReader;
 import org.pentaho.ui.database.DatabaseConnectionDialog;
 import org.pentaho.ui.database.Messages;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.containers.XulDialog;
 import org.pentaho.ui.xul.swing.SwingXulLoader;
+
+import java.io.InputStream;
 
 public class SwingTest {
 

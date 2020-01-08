@@ -22,13 +22,13 @@
 
 package org.apache.hop.trans.steps.groupby;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.trans.step.StepInjectionMetaEntry;
 import org.apache.hop.trans.step.StepMetaInjectionInterface;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This takes care of the external metadata injection into the GroupByMeta class
@@ -46,17 +46,17 @@ public class GroupByMetaInjection implements StepMetaInjectionInterface {
       ValueMetaInterface.TYPE_STRING, "Group line number field name" ), ALLWAYS_PASS_A_ROW(
       ValueMetaInterface.TYPE_STRING, "Always give back a row? (Y/N)" ),
 
-      GROUP_FIELDS( ValueMetaInterface.TYPE_NONE, "The group definition fields" ), GROUP_FIELD(
-        ValueMetaInterface.TYPE_NONE, "One group definition field" ), GROUP_FIELDNAME(
-        ValueMetaInterface.TYPE_STRING, "Group definition field name" ),
+    GROUP_FIELDS( ValueMetaInterface.TYPE_NONE, "The group definition fields" ), GROUP_FIELD(
+      ValueMetaInterface.TYPE_NONE, "One group definition field" ), GROUP_FIELDNAME(
+      ValueMetaInterface.TYPE_STRING, "Group definition field name" ),
 
-      AGG_FIELDS( ValueMetaInterface.TYPE_NONE, "The aggregation fields" ), AGG_FIELD(
-        ValueMetaInterface.TYPE_NONE, "One aggregation field" ), AGG_FIELDNAME(
-        ValueMetaInterface.TYPE_STRING, "Result field name" ), AGG_SUBJECT(
-        ValueMetaInterface.TYPE_STRING, "Aggregation subject field name" ), AGG_TYPE(
-        ValueMetaInterface.TYPE_STRING,
-        "Aggregation type (for allowed values see: http://wiki.pentaho.com/display/EAI/Group+By)" ), AGG_VALUE(
-        ValueMetaInterface.TYPE_STRING, "Value (field separator, ...)" );
+    AGG_FIELDS( ValueMetaInterface.TYPE_NONE, "The aggregation fields" ), AGG_FIELD(
+      ValueMetaInterface.TYPE_NONE, "One aggregation field" ), AGG_FIELDNAME(
+      ValueMetaInterface.TYPE_STRING, "Result field name" ), AGG_SUBJECT(
+      ValueMetaInterface.TYPE_STRING, "Aggregation subject field name" ), AGG_TYPE(
+      ValueMetaInterface.TYPE_STRING,
+      "Aggregation type (for allowed values see: http://wiki.pentaho.com/display/EAI/Group+By)" ), AGG_VALUE(
+      ValueMetaInterface.TYPE_STRING, "Value (field separator, ...)" );
 
     private int valueType;
     private String description;
@@ -253,17 +253,17 @@ public class GroupByMetaInjection implements StepMetaInjectionInterface {
     // Pass the grid to the step metadata
     //
     if ( groupFields.size() > 0 ) {
-      meta.setGroupField( groupFields.toArray( new String[groupFields.size()] ) );
+      meta.setGroupField( groupFields.toArray( new String[ groupFields.size() ] ) );
     }
     if ( aggFields.size() > 0 ) {
-      meta.setAggregateField( aggFields.toArray( new String[aggFields.size()] ) );
-      meta.setSubjectField( aggSubjects.toArray( new String[aggSubjects.size()] ) );
-      int[] types = new int[aggTypes.size()];
+      meta.setAggregateField( aggFields.toArray( new String[ aggFields.size() ] ) );
+      meta.setSubjectField( aggSubjects.toArray( new String[ aggSubjects.size() ] ) );
+      int[] types = new int[ aggTypes.size() ];
       for ( int i = 0; i < types.length; i++ ) {
-        types[i] = aggTypes.get( i );
+        types[ i ] = aggTypes.get( i );
       }
       meta.setAggregateType( types );
-      meta.setValueField( aggValues.toArray( new String[aggValues.size()] ) );
+      meta.setValueField( aggValues.toArray( new String[ aggValues.size() ] ) );
     }
   }
 

@@ -22,13 +22,13 @@
 
 package org.apache.hop.job.entries.sql;
 
+import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.ClassRule;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.ClassRule;
-import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 public class JobEntrySQLTest extends JobEntryLoadSaveTestSupport<JobEntrySQL> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -41,34 +41,34 @@ public class JobEntrySQLTest extends JobEntryLoadSaveTestSupport<JobEntrySQL> {
   @Override
   protected List<String> listCommonAttributes() {
     return Arrays.asList(
-        "sql",
-        "useVariableSubstitution",
-        "sqlfromfile",
-        "sqlfilename",
-        "sendOneStatement",
-        "database" );
+      "sql",
+      "useVariableSubstitution",
+      "sqlfromfile",
+      "sqlfilename",
+      "sendOneStatement",
+      "database" );
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-        "sql", "getSQL",
-        "useVariableSubstitution", "getUseVariableSubstitution",
-        "sqlfromfile", "getSQLFromFile",
-        "sqlfilename", "getSQLFilename",
-        "sendOneStatement", "isSendOneStatement",
-        "database", "getDatabase" );
+      "sql", "getSQL",
+      "useVariableSubstitution", "getUseVariableSubstitution",
+      "sqlfromfile", "getSQLFromFile",
+      "sqlfilename", "getSQLFilename",
+      "sendOneStatement", "isSendOneStatement",
+      "database", "getDatabase" );
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-        "sql", "setSQL",
-        "useVariableSubstitution", "setUseVariableSubstitution",
-        "sqlfromfile", "setSQLFromFile",
-        "sqlfilename", "setSQLFilename",
-        "sendOneStatement", "setSendOneStatement",
-        "database", "setDatabase" );
+      "sql", "setSQL",
+      "useVariableSubstitution", "setUseVariableSubstitution",
+      "sqlfromfile", "setSQLFromFile",
+      "sqlfilename", "setSQLFilename",
+      "sendOneStatement", "setSendOneStatement",
+      "database", "setDatabase" );
   }
 
 }

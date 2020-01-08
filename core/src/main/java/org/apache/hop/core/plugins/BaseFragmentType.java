@@ -75,12 +75,14 @@ public abstract class BaseFragmentType extends BasePluginType {
   }
 
   @Override protected URLClassLoader createUrlClassLoader( URL jarFileUrl, ClassLoader classLoader ) {
-    return new HopURLClassLoader( new URL[]{ jarFileUrl }, classLoader );
+    return new HopURLClassLoader( new URL[] { jarFileUrl }, classLoader );
   }
 
-  @Override protected void registerNatives() throws HopPluginException { }
+  @Override protected void registerNatives() throws HopPluginException {
+  }
 
-  @Override protected void registerXmlPlugins() throws HopPluginException { }
+  @Override protected void registerXmlPlugins() throws HopPluginException {
+  }
 
   @Override
   protected String extractName( Annotation annotation ) {
@@ -108,7 +110,8 @@ public abstract class BaseFragmentType extends BasePluginType {
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Annotation annotation ) { }
+  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Annotation annotation ) {
+  }
 
   protected abstract class FragmentTypeListener implements PluginTypeListener {
     private final PluginRegistry registry;
@@ -124,12 +127,13 @@ public abstract class BaseFragmentType extends BasePluginType {
     @Override
     public void pluginAdded( Object serviceObject ) {
       PluginInterface left = (PluginInterface) serviceObject;
-      PluginInterface right = registry.findPluginWithId( typeToTrack, left.getIds()[0] );
+      PluginInterface right = registry.findPluginWithId( typeToTrack, left.getIds()[ 0 ] );
       mergePlugin( left, right );
     }
 
     @Override
-    public void pluginRemoved( Object serviceObject ) { }
+    public void pluginRemoved( Object serviceObject ) {
+    }
 
     @Override
     public void pluginChanged( Object serviceObject ) {

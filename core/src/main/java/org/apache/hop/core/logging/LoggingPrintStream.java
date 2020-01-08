@@ -22,9 +22,9 @@
 
 package org.apache.hop.core.logging;
 
-import java.io.PrintStream;
-
 import org.apache.hop.core.Const;
+
+import java.io.PrintStream;
 
 public class LoggingPrintStream extends PrintStream {
 

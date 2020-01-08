@@ -22,6 +22,8 @@
 
 package org.apache.hop.www;
 
+import org.apache.hop.core.logging.LogChannelInterface;
+
 import java.io.IOException;
 import java.net.BindException;
 import java.net.InetSocketAddress;
@@ -30,13 +32,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.hop.core.logging.LogChannelInterface;
-
 /**
  * This singleton keeps a repository of all the server sockets.
  *
  * @author matt
- *
  */
 public class SocketRepository {
 
@@ -149,8 +148,7 @@ public class SocketRepository {
   }
 
   /**
-   * @param socketMap
-   *          the socketMap to set
+   * @param socketMap the socketMap to set
    */
   public void setSocketMap( Map<Integer, SocketRepositoryEntry> socketMap ) {
     this.socketMap = socketMap;
@@ -159,8 +157,7 @@ public class SocketRepository {
   /**
    * Closes all sockets on application end...
    *
-   * @throws IOException
-   *           in case there is an error
+   * @throws IOException in case there is an error
    */
   public synchronized void closeAll() {
     for ( Iterator<Map.Entry<Integer, SocketRepositoryEntry>> iterator = socketMap.entrySet().iterator();

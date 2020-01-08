@@ -22,16 +22,15 @@
 
 package org.apache.hop.trans;
 
-import java.util.List;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.core.xml.XMLInterface;
 import org.apache.hop.i18n.BaseMessages;
-
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*
  * Created on 5-apr-2004

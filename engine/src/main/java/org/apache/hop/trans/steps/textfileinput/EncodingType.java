@@ -22,11 +22,11 @@
 
 package org.apache.hop.trans.steps.textfileinput;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.hop.core.util.Utils;
+
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @deprecated replaced by implementation in the ...steps.fileinput.text package
@@ -123,10 +123,10 @@ public enum EncodingType {
         if ( withBom.length < 2 ) {
           return withBom;
         }
-        if ( withBom[0] < 0 && withBom[1] < 0 ) {
-          byte[] b = new byte[withBom.length - 2];
+        if ( withBom[ 0 ] < 0 && withBom[ 1 ] < 0 ) {
+          byte[] b = new byte[ withBom.length - 2 ];
           for ( int i = 0; i < withBom.length - 2; i++ ) {
-            b[i] = withBom[i + 2];
+            b[ i ] = withBom[ i + 2 ];
           }
           return b;
         } else {

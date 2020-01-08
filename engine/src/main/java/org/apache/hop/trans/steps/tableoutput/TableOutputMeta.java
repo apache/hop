@@ -23,11 +23,9 @@
 package org.apache.hop.trans.steps.tableoutput;
 
 import com.google.common.base.Preconditions;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.ProvidesModelerMeta;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.database.Database;
@@ -40,11 +38,11 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -54,7 +52,6 @@ import org.apache.hop.trans.step.StepInjectionMetaEntry;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import java.util.Arrays;
@@ -90,13 +87,19 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   private boolean returningGeneratedKeys;
   private String generatedKeyField;
 
-  /** Do we explicitly select the fields to update in the database */
+  /**
+   * Do we explicitly select the fields to update in the database
+   */
   private boolean specifyFields;
 
-  /** Fields containing the values in the input stream to insert */
+  /**
+   * Fields containing the values in the input stream to insert
+   */
   private String[] fieldStream;
 
-  /** Fields in the table to insert */
+  /**
+   * Fields in the table to insert
+   */
   private String[] fieldDatabase;
 
   /**
@@ -107,8 +110,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   /**
-   * @param generatedKeyField
-   *          The generatedKeyField to set.
+   * @param generatedKeyField The generatedKeyField to set.
    */
   public void setGeneratedKeyField( String generatedKeyField ) {
     this.generatedKeyField = generatedKeyField;
@@ -125,8 +127,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   /**
-   * @param returningGeneratedKeys
-   *          The returningGeneratedKeys to set.
+   * @param returningGeneratedKeys The returningGeneratedKeys to set.
    */
   public void setReturningGeneratedKeys( boolean returningGeneratedKeys ) {
     this.returningGeneratedKeys = returningGeneratedKeys;
@@ -140,8 +141,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   /**
-   * @param tableNameInTable
-   *          The tableNameInTable to set.
+   * @param tableNameInTable The tableNameInTable to set.
    */
   public void setTableNameInTable( boolean tableNameInTable ) {
     this.tableNameInTable = tableNameInTable;
@@ -155,8 +155,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   /**
-   * @param tableNameField
-   *          The tableNameField to set.
+   * @param tableNameField The tableNameField to set.
    */
   public void setTableNameField( String tableNameField ) {
     this.tableNameField = tableNameField;
@@ -170,8 +169,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   /**
-   * @param tableNameInField
-   *          The tableNameInField to set.
+   * @param tableNameInField The tableNameInField to set.
    */
   public void setTableNameInField( boolean tableNameInField ) {
     this.tableNameInField = tableNameInField;
@@ -185,8 +183,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   /**
-   * @param partitioningDaily
-   *          The partitioningDaily to set.
+   * @param partitioningDaily The partitioningDaily to set.
    */
   public void setPartitioningDaily( boolean partitioningDaily ) {
     this.partitioningDaily = partitioningDaily;
@@ -200,8 +197,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   /**
-   * @param partitioningMontly
-   *          The partitioningMontly to set.
+   * @param partitioningMontly The partitioningMontly to set.
    */
   public void setPartitioningMonthly( boolean partitioningMontly ) {
     this.partitioningMonthly = partitioningMontly;
@@ -215,8 +211,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   /**
-   * @param partitioningEnabled
-   *          The partitioningEnabled to set.
+   * @param partitioningEnabled The partitioningEnabled to set.
    */
   public void setPartitioningEnabled( boolean partitioningEnabled ) {
     this.partitioningEnabled = partitioningEnabled;
@@ -230,8 +225,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   /**
-   * @param partitioningField
-   *          The partitioningField to set.
+   * @param partitioningField The partitioningField to set.
    */
   public void setPartitioningField( String partitioningField ) {
     this.partitioningField = partitioningField;
@@ -242,13 +236,13 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
     useBatchUpdate = true;
     commitSize = "1000";
 
-    fieldStream = new String[0];
-    fieldDatabase = new String[0];
+    fieldStream = new String[ 0 ];
+    fieldDatabase = new String[ 0 ];
   }
 
   public void allocate( int nrRows ) {
-    fieldStream = new String[nrRows];
-    fieldDatabase = new String[nrRows];
+    fieldStream = new String[ nrRows ];
+    fieldDatabase = new String[ nrRows ];
   }
 
   public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
@@ -275,31 +269,28 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   /**
-   * @param database
-   *          The database to set.
+   * @param database The database to set.
    */
   public void setDatabaseMeta( DatabaseMeta database ) {
     this.databaseMeta = database;
   }
 
   /**
-  * @return Returns the commitSize.
-  */
+   * @return Returns the commitSize.
+   */
   public String getCommitSize() {
     return commitSize;
   }
 
   /**
-   * @param commitSizeInt
-   *          The commitSize to set.
+   * @param commitSizeInt The commitSize to set.
    */
   public void setCommitSize( int commitSizeInt ) {
     this.commitSize = Integer.toString( commitSizeInt );
   }
 
   /**
-   * @param commitSize
-   *          The commitSize to set.
+   * @param commitSize The commitSize to set.
    */
   public void setCommitSize( String commitSize ) {
     this.commitSize = commitSize;
@@ -315,8 +306,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   /**
    * Assign the table name to write to.
    *
-   * @param tableName
-   *          The table name to set
+   * @param tableName The table name to set
    */
   public void setTableName( String tableName ) {
     this.tableName = tableName;
@@ -332,8 +322,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   /**
-   * @param tablename
-   *          The tablename to set.
+   * @param tablename The tablename to set.
    * @deprecated Use {@link #setTableName(String)}
    */
   @Deprecated
@@ -349,16 +338,14 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   /**
-   * @param truncateTable
-   *          The truncate table flag to set.
+   * @param truncateTable The truncate table flag to set.
    */
   public void setTruncateTable( boolean truncateTable ) {
     this.truncateTable = truncateTable;
   }
 
   /**
-   * @param ignoreErrors
-   *          The ignore errors flag to set.
+   * @param ignoreErrors The ignore errors flag to set.
    */
   public void setIgnoreErrors( boolean ignoreErrors ) {
     this.ignoreErrors = ignoreErrors;
@@ -372,8 +359,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   /**
-   * @param specifyFields
-   *          The specify fields flag to set.
+   * @param specifyFields The specify fields flag to set.
    */
   public void setSpecifyFields( boolean specifyFields ) {
     this.specifyFields = specifyFields;
@@ -387,8 +373,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   /**
-   * @param useBatchUpdate
-   *          The useBatchUpdate flag to set.
+   * @param useBatchUpdate The useBatchUpdate flag to set.
    */
   public void setUseBatchUpdate( boolean useBatchUpdate ) {
     this.useBatchUpdate = useBatchUpdate;
@@ -435,8 +420,8 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
       for ( int i = 0; i < nrRows; i++ ) {
         Node knode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldDatabase[i] = XMLHandler.getTagValue( knode, "column_name" );
-        fieldStream[i] = XMLHandler.getTagValue( knode, "stream_name" );
+        fieldDatabase[ i ] = XMLHandler.getTagValue( knode, "column_name" );
+        fieldStream[ i ] = XMLHandler.getTagValue( knode, "stream_name" );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( "Unable to load step info from XML", e );
@@ -462,7 +447,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
     StringBuilder retval = new StringBuilder();
 
     retval.append( "    "
-        + XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+      + XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
     retval.append( "    " + XMLHandler.addTagValue( "schema", schemaName ) );
     retval.append( "    " + XMLHandler.addTagValue( "table", tableName ) );
     retval.append( "    " + XMLHandler.addTagValue( "commit", commitSize ) );
@@ -487,8 +472,8 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
 
     for ( int i = 0; i < fieldDatabase.length; i++ ) {
       retval.append( "        <field>" ).append( Const.CR );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "column_name", fieldDatabase[i] ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "stream_name", fieldStream[i] ) );
+      retval.append( "          " ).append( XMLHandler.addTagValue( "column_name", fieldDatabase[ i ] ) );
+      retval.append( "          " ).append( XMLHandler.addTagValue( "stream_name", fieldStream[ i ] ) );
       retval.append( "        </field>" ).append( Const.CR );
     }
     retval.append( "    </fields>" ).append( Const.CR );
@@ -497,22 +482,22 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Just add the returning key field...
     if ( returningGeneratedKeys && generatedKeyField != null && generatedKeyField.length() > 0 ) {
       ValueMetaInterface key =
-          new ValueMetaInteger( space.environmentSubstitute( generatedKeyField ) );
+        new ValueMetaInteger( space.environmentSubstitute( generatedKeyField ) );
       key.setOrigin( origin );
       row.addValueMeta( key );
     }
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-      RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-      IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     if ( databaseMeta != null ) {
       CheckResult cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "TableOutputMeta.CheckResult.ConnectionExists" ), stepMeta );
       remarks.add( cr );
 
@@ -530,7 +515,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
           String realSchemaName = db.environmentSubstitute( schemaName );
           String realTableName = db.environmentSubstitute( tableName );
           String schemaTable =
-              databaseMeta.getQuotedSchemaTableCombination( realSchemaName, realTableName );
+            databaseMeta.getQuotedSchemaTableCombination( realSchemaName, realTableName );
           // Check if this table exists...
           if ( db.checkTableExists( realSchemaName, realTableName ) ) {
             cr =
@@ -581,9 +566,9 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
                 } else {
                   // Specifying the column names explicitly
                   for ( int i = 0; i < getFieldDatabase().length; i++ ) {
-                    int idx = r.indexOfValue( getFieldDatabase()[i] );
+                    int idx = r.indexOfValue( getFieldDatabase()[ i ] );
                     if ( idx < 0 ) {
-                      error_message += "\t\t" + getFieldDatabase()[i] + Const.CR;
+                      error_message += "\t\t" + getFieldDatabase()[ i ] + Const.CR;
                       error_found = true;
                     }
                   }
@@ -628,9 +613,9 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
                 } else {
                   // Specifying the column names explicitly
                   for ( int i = 0; i < getFieldStream().length; i++ ) {
-                    int idx = prev.indexOfValue( getFieldStream()[i] );
+                    int idx = prev.indexOfValue( getFieldStream()[ i ] );
                     if ( idx < 0 ) {
-                      error_message += "\t\t" + getFieldStream()[i] + Const.CR;
+                      error_message += "\t\t" + getFieldStream()[ i ] + Const.CR;
                       error_found = true;
                     }
                   }
@@ -682,7 +667,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
       }
     } else {
       CheckResult cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "TableOutputMeta.CheckResult.NoConnection" ), stepMeta );
       remarks.add( cr );
     }
@@ -690,19 +675,19 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
     // See if we have input streams leading to this step!
     if ( input.length > 0 ) {
       CheckResult cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "TableOutputMeta.CheckResult.ExpectedInputOk" ), stepMeta );
       remarks.add( cr );
     } else {
       CheckResult cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "TableOutputMeta.CheckResult.ExpectedInputError" ), stepMeta );
       remarks.add( cr );
     }
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-      TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new TableOutput( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -711,13 +696,13 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-      RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
-      IMetaStore metaStore ) {
+                             RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
+                             IMetaStore metaStore ) {
     if ( truncateTable ) {
       DatabaseImpact ii =
-          new DatabaseImpact(
+        new DatabaseImpact(
           DatabaseImpact.TYPE_IMPACT_TRUNCATE, transMeta.getName(), stepMeta.getName(), databaseMeta
-            .getDatabaseName(), tableName, "", "", "", "", "Truncate of table" );
+          .getDatabaseName(), tableName, "", "", "", "", "Truncate of table" );
       impact.add( ii );
 
     }
@@ -726,9 +711,9 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
       for ( int i = 0; i < prev.size(); i++ ) {
         ValueMetaInterface v = prev.getValueMeta( i );
         DatabaseImpact ii =
-            new DatabaseImpact(
+          new DatabaseImpact(
             DatabaseImpact.TYPE_IMPACT_WRITE, transMeta.getName(), stepMeta.getName(), databaseMeta
-              .getDatabaseName(), tableName, v.getName(), v.getName(), v != null ? v.getOrigin() : "?", "",
+            .getDatabaseName(), tableName, v.getName(), v.getName(), v != null ? v.getOrigin() : "?", "",
             "Type = " + v.toStringMeta() );
         impact.add( ii );
       }
@@ -736,12 +721,12 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   public SQLStatement getSQLStatements( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      IMetaStore metaStore ) {
+                                        IMetaStore metaStore ) {
     return getSQLStatements( transMeta, stepMeta, prev, null, false, null );
   }
 
   public SQLStatement getSQLStatements( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev, String tk,
-      boolean use_autoinc, String pk ) {
+                                        boolean use_autoinc, String pk ) {
     SQLStatement retval = new SQLStatement( stepMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
@@ -763,7 +748,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
             retval.setSQL( cr_table );
           } catch ( HopDatabaseException dbe ) {
             retval.setError( BaseMessages.getString( PKG, "TableOutputMeta.Error.ErrorConnecting", dbe
-                .getMessage() ) );
+              .getMessage() ) );
           } finally {
             db.disconnect();
           }
@@ -827,8 +812,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   /**
-   * @param fieldStream
-   *          The fields containing the values in the input stream to insert in the table.
+   * @param fieldStream The fields containing the values in the input stream to insert in the table.
    */
   public void setFieldStream( String[] fieldStream ) {
     this.fieldStream = fieldStream;
@@ -861,8 +845,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   /**
-   * @param fieldDatabase
-   *          The fields containing the names of the fields to insert.
+   * @param fieldDatabase The fields containing the names of the fields to insert.
    */
   public void setFieldDatabase( String[] fieldDatabase ) {
     this.fieldDatabase = fieldDatabase;
@@ -876,8 +859,7 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
   }
 
   /**
-   * @param schemaName
-   *          the schemaName to set
+   * @param schemaName the schemaName to set
    */
   public void setSchemaName( String schemaName ) {
     this.schemaName = schemaName;

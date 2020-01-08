@@ -30,7 +30,6 @@ import org.apache.hop.core.database.DatabaseMeta;
  *
  * @author Matt
  * @since 02-dec-2004
- *
  */
 public class SQLStatement {
   private String stepname;
@@ -41,10 +40,8 @@ public class SQLStatement {
   /**
    * Creates a new SQLStatement
    *
-   * @param dbinfo
-   *          The database connection
-   * @param sql
-   *          The sql to execute on the connection
+   * @param dbinfo The database connection
+   * @param sql    The sql to execute on the connection
    */
   public SQLStatement( String stepname, DatabaseMeta dbinfo, String sql ) {
     this.stepname = stepname;
@@ -56,8 +53,7 @@ public class SQLStatement {
   /**
    * Set the name of the step for which the SQL is intended
    *
-   * @param stepname
-   *          the name of the step for which the SQL is intended
+   * @param stepname the name of the step for which the SQL is intended
    */
   public void setStepname( String stepname ) {
     this.stepname = stepname;
@@ -75,8 +71,7 @@ public class SQLStatement {
   /**
    * Sets the database connection for this SQL Statement
    *
-   * @param dbinfo
-   *          The databaseconnection
+   * @param dbinfo The databaseconnection
    */
   public void setDatabase( DatabaseMeta dbinfo ) {
     this.dbinfo = dbinfo;
@@ -85,8 +80,7 @@ public class SQLStatement {
   /**
    * Sets the SQL to execute for this SQL Statement.
    *
-   * @param sql
-   *          The sql to execute, without trailing ";" or anything else.
+   * @param sql The sql to execute, without trailing ";" or anything else.
    */
   public void setSQL( String sql ) {
     this.sql = sql;
@@ -113,8 +107,7 @@ public class SQLStatement {
   /**
    * Sets the error that occurred when obtaining the SQL.
    *
-   * @param error
-   *          The error that occurred when obtaining the SQL.
+   * @param error The error that occurred when obtaining the SQL.
    */
   public void setError( String error ) {
     this.error = error;

@@ -22,9 +22,6 @@
 
 package org.apache.xul.swt.tab;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.SelectionEvent;
@@ -33,8 +30,12 @@ import org.eclipse.swt.widgets.Event;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.apache.xul.swt.tab.TabItem;
-import org.apache.xul.swt.tab.TabSet;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class TabSetTest {
 
@@ -164,16 +165,16 @@ public class TabSetTest {
   }
 
   protected void wireDisposalSelection(
-      final CTabFolder cTabFolder,
-      final TabSet tabSet,
-      final CTabItem closedItem,
-      final CTabItem nextSelectItem ) {
+    final CTabFolder cTabFolder,
+    final TabSet tabSet,
+    final CTabItem closedItem,
+    final CTabItem nextSelectItem ) {
     // emulate swt side
     // on CTabItem disposal CTabFolder selects another item and notifies TabSet
     final Boolean[] disposed = { false };
     when( closedItem.isDisposed() ).then( new Answer<Boolean>() {
       public Boolean answer( InvocationOnMock invocation ) throws Throwable {
-        return disposed[0];
+        return disposed[ 0 ];
       }
     } );
     doAnswer( new Answer<Void>() {
@@ -182,7 +183,7 @@ public class TabSetTest {
         evt.item = nextSelectItem;
         evt.widget = cTabFolder;
         tabSet.widgetSelected( new SelectionEvent( evt ) );
-        disposed[0] = true;
+        disposed[ 0 ] = true;
         return null;
       }
     } ).when( closedItem ).dispose();

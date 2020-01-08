@@ -23,7 +23,27 @@
 package org.apache.hop.ui.job.entries.trans;
 
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.util.ExecutorUtil;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.trans.JobEntryTrans;
+import org.apache.hop.job.entry.JobEntryBase;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ColumnsResizer;
+import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -46,27 +66,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.util.ExecutorUtil;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.trans.JobEntryTrans;
-import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
-
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ColumnsResizer;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -163,8 +162,8 @@ public abstract class JobEntryBaseDialog extends JobEntryDialog {
   protected ComboVar wRunConfiguration;
 
   public JobEntryBaseDialog( Shell parent,
-                               JobEntryInterface jobEntryInt,
-                               JobMeta jobMeta ) {
+                             JobEntryInterface jobEntryInt,
+                             JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     log = new LogChannel( jobMeta );
   }
@@ -642,10 +641,10 @@ public abstract class JobEntryBaseDialog extends JobEntryDialog {
     }
   }
 
-//  protected void setRadioButtons() {
-//    wLocal.setVisible( wbLocal.getSelection() );
-//    wServer.setVisible( wbServer.getSelection() );
-//  }
+  //  protected void setRadioButtons() {
+  //    wLocal.setVisible( wbLocal.getSelection() );
+  //    wServer.setVisible( wbServer.getSelection() );
+  //  }
 
   protected void setActive() {
 
@@ -680,7 +679,7 @@ public abstract class JobEntryBaseDialog extends JobEntryDialog {
         List<Object> items = Arrays.asList( runConfiguration, false );
         try {
           ExtensionPointHandler.callExtensionPoint( HopUi.getInstance().getLog(), HopExtensionPoint
-                  .RunConfigurationSelection.id, items );
+            .RunConfigurationSelection.id, items );
         } catch ( HopException ignored ) {
           // Ignore errors
         }

@@ -23,67 +23,54 @@
 package org.apache.hop.ui.hopui.delegates;
 
 import org.apache.hop.cluster.ClusterSchema;
-import org.apache.hop.core.exception.HopException;
+import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.cluster.dialog.ClusterSchemaDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopui.HopUi;
-import org.apache.hop.ui.hopui.tree.provider.ClustersFolderProvider;
 
-import java.util.List;
+public class HopUiClustersDelegate  {
 
-public class HopUiClustersDelegate extends HopUiSharedObjectDelegate {
+  private final HopUi hopUi;
+  private final DelegatingMetaStore metaStore;
 
   public HopUiClustersDelegate( HopUi hopUi ) {
-    super( hopUi );
+    this.hopUi = hopUi;
+    this.metaStore = hopUi.getMetaStore();
   }
 
   public void newClusteringSchema( TransMeta transMeta ) {
-    ClusterSchema clusterSchema = new ClusterSchema();
+    try {
+      DelegatingMetaStore metaStore = hopUi.getMetaStore();
+      ClusterSchema clusterSchema = new ClusterSchema();
 
-    ClusterSchemaDialog dialog =
-      new ClusterSchemaDialog(
-        hopUi.getShell(), clusterSchema, transMeta.getClusterSchemas(), transMeta.getSlaveServers() );
-
-    if ( dialog.open() ) {
-      List<ClusterSchema> clusterSchemas = transMeta.getClusterSchemas();
-      if ( isDuplicate( clusterSchemas, clusterSchema ) ) {
-        new ErrorDialog(
-          hopUi.getShell(), getMessage( "Spoon.Dialog.ErrorSavingCluster.Title" ), getMessage(
-          "Spoon.Dialog.ErrorSavingCluster.Message", clusterSchema.getName() ),
-          new HopException( getMessage( "Spoon.Dialog.ErrorSavingCluster.NotUnique" ) ) );
-        return;
+      ClusterSchemaDialog dialog = new ClusterSchemaDialog( hopUi.getShell(), metaStore, clusterSchema );
+      if ( dialog.open() ) {
+        refreshTree();
       }
-
-      clusterSchemas.add( clusterSchema );
-
-      refreshTree();
+    } catch ( Exception e ) {
+      new ErrorDialog( hopUi.getShell(), "Error", "Error creating new cluster schema", e );
     }
   }
 
-  private void showSaveError( ClusterSchema clusterSchema, HopException e ) {
-    new ErrorDialog(
-      hopUi.getShell(), getMessage( "Spoon.Dialog.ErrorSavingCluster.Title" ),
-      getMessage( "Spoon.Dialog.ErrorSavingCluster.Message", clusterSchema.getName() ), e );
-  }
-
   public void editClusterSchema( TransMeta transMeta, ClusterSchema clusterSchema ) {
-    ClusterSchemaDialog dialog =
-      new ClusterSchemaDialog( hopUi.getShell(), clusterSchema, transMeta.getClusterSchemas(), transMeta.getSlaveServers() );
+    ClusterSchemaDialog dialog = new ClusterSchemaDialog( hopUi.getShell(), hopUi.getMetaStore(), clusterSchema );
     if ( dialog.open() ) {
-      sharedObjectSyncUtil.synchronizeClusterSchemas( clusterSchema );
       refreshTree();
     }
   }
 
   public void delClusterSchema( TransMeta transMeta, ClusterSchema clusterSchema ) {
-    int idx = transMeta.getClusterSchemas().indexOf( clusterSchema );
-    transMeta.getClusterSchemas().remove( idx );
+    try {
+      ClusterSchema.createFactory( hopUi.getMetaStore() ).deleteElement( clusterSchema.getName() );
+      refreshTree();
 
-    refreshTree();
+    } catch ( Exception e ) {
+      new ErrorDialog( hopUi.getShell(), "Error", "Error deleting cluster schema", e );
+    }
   }
 
   private void refreshTree() {
-    hopUi.refreshTree( ClustersFolderProvider.STRING_CLUSTERS );
+    hopUi.refreshTree();
   }
 }

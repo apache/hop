@@ -21,10 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.core.database;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.HopLogStore;
@@ -33,7 +29,13 @@ import org.apache.hop.core.logging.HopLoggingEventListener;
 import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.*;
+import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaInternetAddress;
+import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -42,9 +44,22 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 
-import static org.junit.Assert.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Time;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
   @ClassRule
@@ -78,7 +93,7 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
     listener = new StoreLoggingEventListener();
     HopLogStore.getAppender().addLoggingEventListener( listener );
 
-    valueMetaBase = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_NONE);
+    valueMetaBase = ValueMetaFactory.createValueMeta( ValueMetaInterface.TYPE_NONE );
 
     dbMeta = spy( new DatabaseMeta() );
     resultSet = mock( ResultSet.class );
@@ -158,7 +173,7 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
 
     // get value meta for binary type
     ValueMetaInterface binaryValueMeta =
-            obj.getValueFromSQLType( dbMeta, TEST_NAME, metaData, binaryColumnIndex, false, false );
+      obj.getValueFromSQLType( dbMeta, TEST_NAME, metaData, binaryColumnIndex, false, false );
     assertNotNull( binaryValueMeta );
     assertTrue( TEST_NAME.equals( binaryValueMeta.getName() ) );
     assertTrue( ValueMetaInterface.TYPE_BINARY == binaryValueMeta.getType() );
@@ -167,7 +182,7 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
 
     // get value meta for varbinary type
     ValueMetaInterface varbinaryValueMeta =
-            obj.getValueFromSQLType( dbMeta, TEST_NAME, metaData, varbinaryColumnIndex, false, false );
+      obj.getValueFromSQLType( dbMeta, TEST_NAME, metaData, varbinaryColumnIndex, false, false );
     assertNotNull( varbinaryValueMeta );
     assertTrue( TEST_NAME.equals( varbinaryValueMeta.getName() ) );
     assertTrue( ValueMetaInterface.TYPE_BINARY == varbinaryValueMeta.getType() );

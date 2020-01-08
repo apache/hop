@@ -37,9 +37,9 @@ class RowKey {
     if ( sdi.fieldnrs.length == 0 ) {
       keyFields = row;
     } else {
-      keyFields = new Object[sdi.fieldnrs.length];
+      keyFields = new Object[ sdi.fieldnrs.length ];
       for ( int i = 0; i < sdi.fieldnrs.length; i++ ) {
-        keyFields[i] = row[sdi.fieldnrs[i]];
+        keyFields[ i ] = row[ sdi.fieldnrs[ i ] ];
       }
     }
     hash = calculateHashCode( keyFields );

@@ -35,7 +35,6 @@ import org.w3c.dom.Node;
  *
  * @author Samatar
  * @since 20-06-2007
- *
  */
 public class LoadFileInputField implements Cloneable {
   private static Class<?> PKG = LoadFileInputMeta.class; // for i18n purposes, needed by Translator2!!
@@ -134,7 +133,7 @@ public class LoadFileInputField implements Cloneable {
     }
 
     for ( int i = 0; i < trimTypeCode.length; i++ ) {
-      if ( trimTypeCode[i].equalsIgnoreCase( tt ) ) {
+      if ( trimTypeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -147,7 +146,7 @@ public class LoadFileInputField implements Cloneable {
     }
 
     for ( int i = 0; i < ElementTypeCode.length; i++ ) {
-      if ( ElementTypeCode[i].equalsIgnoreCase( tt ) ) {
+      if ( ElementTypeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -160,7 +159,7 @@ public class LoadFileInputField implements Cloneable {
     }
 
     for ( int i = 0; i < trimTypeDesc.length; i++ ) {
-      if ( trimTypeDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( trimTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -173,7 +172,7 @@ public class LoadFileInputField implements Cloneable {
     }
 
     for ( int i = 0; i < ElementTypeDesc.length; i++ ) {
-      if ( ElementTypeDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( ElementTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -182,30 +181,30 @@ public class LoadFileInputField implements Cloneable {
 
   public static final String getTrimTypeCode( int i ) {
     if ( i < 0 || i >= trimTypeCode.length ) {
-      return trimTypeCode[0];
+      return trimTypeCode[ 0 ];
     }
-    return trimTypeCode[i];
+    return trimTypeCode[ i ];
   }
 
   public static final String getElementTypeCode( int i ) {
     if ( i < 0 || i >= ElementTypeCode.length ) {
-      return ElementTypeCode[0];
+      return ElementTypeCode[ 0 ];
     }
-    return ElementTypeCode[i];
+    return ElementTypeCode[ i ];
   }
 
   public static final String getTrimTypeDesc( int i ) {
     if ( i < 0 || i >= trimTypeDesc.length ) {
-      return trimTypeDesc[0];
+      return trimTypeDesc[ 0 ];
     }
-    return trimTypeDesc[i];
+    return trimTypeDesc[ i ];
   }
 
   public static final String getElementTypeDesc( int i ) {
     if ( i < 0 || i >= ElementTypeDesc.length ) {
-      return ElementTypeDesc[0];
+      return ElementTypeDesc[ 0 ];
     }
-    return ElementTypeDesc[i];
+    return ElementTypeDesc[ i ];
   }
 
   public Object clone() {

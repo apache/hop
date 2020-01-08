@@ -49,8 +49,7 @@ public class RowSetRow {
   }
 
   /**
-   * @param rowSet
-   *          the rowSet to set
+   * @param rowSet the rowSet to set
    */
   public void setRowSet( RowSet rowSet ) {
     this.rowSet = rowSet;
@@ -64,8 +63,7 @@ public class RowSetRow {
   }
 
   /**
-   * @param rowData
-   *          the rowData to set
+   * @param rowData the rowData to set
    */
   public void setRowData( Object[] rowData ) {
     this.rowData = rowData;
@@ -79,8 +77,7 @@ public class RowSetRow {
   }
 
   /**
-   * @param rowMeta
-   *          the rowMeta to set
+   * @param rowMeta the rowMeta to set
    */
   public void setRowMeta( RowMetaInterface rowMeta ) {
     this.rowMeta = rowMeta;

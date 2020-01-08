@@ -22,14 +22,12 @@
 
 package org.apache.hop.trans.steps.singlethreader;
 
-import java.util.ArrayList;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.SingleThreadedTransExecutor;
 import org.apache.hop.trans.StepWithMappingMeta;
@@ -46,6 +44,8 @@ import org.apache.hop.trans.steps.TransStepUtil;
 import org.apache.hop.trans.steps.mapping.MappingValueRename;
 import org.apache.hop.trans.steps.mappinginput.MappingInputData;
 
+import java.util.ArrayList;
+
 /**
  * Execute a mapping: a re-usuable transformation
  *
@@ -59,7 +59,7 @@ public class SingleThreader extends BaseStep implements StepInterface {
   private SingleThreaderData data;
 
   public SingleThreader( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                         Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -72,7 +72,7 @@ public class SingleThreader extends BaseStep implements StepInterface {
     SingleThreaderData singleThreaderData = getData();
     Object[] row = getRow();
     if ( row == null ) {
-      if (  singleThreaderData.batchCount > 0 ) {
+      if ( singleThreaderData.batchCount > 0 ) {
         singleThreaderData.batchCount = 0;
         return execOneIteration();
       }
@@ -94,8 +94,8 @@ public class SingleThreader extends BaseStep implements StepInterface {
       singleThreaderData.errorBuffer.add( row );
     }
 
-    boolean countWindow =  singleThreaderData.batchSize > 0 &&  singleThreaderData.batchCount >=  singleThreaderData.batchSize;
-    boolean timeWindow =  singleThreaderData.batchTime > 0 && ( System.currentTimeMillis() -  singleThreaderData.startTime ) >  singleThreaderData.batchTime;
+    boolean countWindow = singleThreaderData.batchSize > 0 && singleThreaderData.batchCount >= singleThreaderData.batchSize;
+    boolean timeWindow = singleThreaderData.batchTime > 0 && ( System.currentTimeMillis() - singleThreaderData.startTime ) > singleThreaderData.batchTime;
 
     if ( countWindow || timeWindow ) {
       singleThreaderData.batchCount = 0;
@@ -134,10 +134,10 @@ public class SingleThreader extends BaseStep implements StepInterface {
     if ( getStepMeta().isDoingErrorHandling() ) {
       int lastLogLine = HopLogStore.getLastBufferLineNr();
       StringBuffer logText =
-        HopLogStore.getAppender().getBuffer(  singleThreaderData.mappingTrans.getLogChannelId(), false,  singleThreaderData.lastLogLine );
+        HopLogStore.getAppender().getBuffer( singleThreaderData.mappingTrans.getLogChannelId(), false, singleThreaderData.lastLogLine );
       singleThreaderData.lastLogLine = lastLogLine;
 
-      for ( Object[] row :  singleThreaderData.errorBuffer ) {
+      for ( Object[] row : singleThreaderData.errorBuffer ) {
         putError( getInputRowMeta(), row, 1L, logText.toString(), null, "STR-001" );
       }
 
@@ -200,7 +200,7 @@ public class SingleThreader extends BaseStep implements StepInterface {
     if ( singleThreaderData.injectStepMeta.isMappingInput() ) {
       MappingInputData mappingInputData =
         (MappingInputData) singleThreaderData.mappingTrans.findDataInterface( singleThreaderData.injectStepMeta.getName() );
-      mappingInputData.sourceSteps = new StepInterface[0];
+      mappingInputData.sourceSteps = new StepInterface[ 0 ];
       mappingInputData.valueRenames = new ArrayList<MappingValueRename>();
     }
 

@@ -22,11 +22,6 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import org.eclipse.swt.widgets.TableItem;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.row.RowMeta;
@@ -34,6 +29,11 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.TransTestingUtil;
+import org.eclipse.swt.widgets.TableItem;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.mockito.Matchers.any;
@@ -58,14 +58,14 @@ public class EditRowsDialog_EmptyStringVsNull_Test {
   @Test
   public void emptyAndNullsAreNotDifferent() throws Exception {
     System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N" );
-    executeAndAssertResults( new String[]{ "", null, null } );
+    executeAndAssertResults( new String[] { "", null, null } );
   }
 
 
   @Test
   public void emptyAndNullsAreDifferent() throws Exception {
     System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y" );
-    executeAndAssertResults( new String[]{ "", "", "" } );
+    executeAndAssertResults( new String[] { "", "", "" } );
   }
 
   private void executeAndAssertResults( String[] expected ) throws Exception {

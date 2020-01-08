@@ -22,27 +22,26 @@
 
 package org.apache.hop.trans.steps.memgroupby;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
 import junit.framework.Assert;
-
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 public class MemoryGroupByNewAggregateTest {
 
@@ -56,10 +55,10 @@ public class MemoryGroupByNewAggregateTest {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     mockHelper =
-        new StepMockHelper<MemoryGroupByMeta, MemoryGroupByData>( "Memory Group By", MemoryGroupByMeta.class,
-            MemoryGroupByData.class );
+      new StepMockHelper<MemoryGroupByMeta, MemoryGroupByData>( "Memory Group By", MemoryGroupByMeta.class,
+        MemoryGroupByData.class );
     when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        mockHelper.logChannelInterface );
+      mockHelper.logChannelInterface );
     when( mockHelper.trans.isRunning() ).thenReturn( true );
 
     // In this step we will distinct String aggregations from numeric ones
@@ -82,14 +81,14 @@ public class MemoryGroupByNewAggregateTest {
   public void setUp() throws Exception {
     data = new MemoryGroupByData();
 
-    data.subjectnrs = new int[16];
-    int[] arr = new int[16];
-    String[] arrF = new String[16];
+    data.subjectnrs = new int[ 16 ];
+    int[] arr = new int[ 16 ];
+    String[] arrF = new String[ 16 ];
 
     for ( int i = 0; i < arr.length; i++ ) {
       // set aggregation types (hardcoded integer values from 1 to 18)
-      arr[i] = i + 1;
-      data.subjectnrs[i] = i;
+      arr[ i ] = i + 1;
+      data.subjectnrs[ i ] = i;
     }
     Arrays.fill( arrF, "x" );
 
@@ -109,7 +108,7 @@ public class MemoryGroupByNewAggregateTest {
 
   @Test
   public void testNewAggregate() throws HopException {
-    Object[] r = new Object[16];
+    Object[] r = new Object[ 16 ];
     Arrays.fill( r, null );
 
     Aggregate agg = new Aggregate();
@@ -122,11 +121,11 @@ public class MemoryGroupByNewAggregateTest {
     for ( int i = 0; i < agg.agg.length; i++ ) {
       int type = i + 1;
       if ( strings.contains( type ) ) {
-        Assert.assertTrue( "This is appendable type, type=" + type, agg.agg[i] instanceof Appendable );
+        Assert.assertTrue( "This is appendable type, type=" + type, agg.agg[ i ] instanceof Appendable );
       } else if ( statistics.contains( type ) ) {
-        Assert.assertTrue( "This is collection, type=" + type, agg.agg[i] instanceof Collection );
+        Assert.assertTrue( "This is collection, type=" + type, agg.agg[ i ] instanceof Collection );
       } else {
-        Assert.assertNull( "Aggregation initialized with null, type=" + type, agg.agg[i] );
+        Assert.assertNull( "Aggregation initialized with null, type=" + type, agg.agg[ i ] );
       }
     }
   }

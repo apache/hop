@@ -32,7 +32,6 @@ import org.apache.hop.core.util.Utils;
 
 /**
  * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- *
  */
 public class FastloadControlBuilder {
 
@@ -67,11 +66,9 @@ public class FastloadControlBuilder {
   /**
    * Append log on. Connection string must be in form [DBHOST]/[USER],[PASSWORD], e.g. localtd/user,pass;
    *
-   * @param connectionString
-   *          the connection string.
+   * @param connectionString the connection string.
    * @return this.
-   * @throws IllegalArgumentException
-   *           if connection string is blank.
+   * @throws IllegalArgumentException if connection string is blank.
    */
   public FastloadControlBuilder logon( final String connectionString ) throws IllegalArgumentException {
     Assert.assertNotBlank( connectionString, "Connection must not be blank" );
@@ -82,15 +79,11 @@ public class FastloadControlBuilder {
   /**
    * Append log on.
    *
-   * @param dbhost
-   *          DB host, e.g localtd
-   * @param user
-   *          the user.
-   * @param password
-   *          the password.
+   * @param dbhost   DB host, e.g localtd
+   * @param user     the user.
+   * @param password the password.
    * @return this
-   * @throws IllegalArgumentException
-   *           if input is invalid.
+   * @throws IllegalArgumentException if input is invalid.
    */
   public FastloadControlBuilder logon( final String dbhost, final String user, final String password ) throws IllegalArgumentException {
     Assert.assertNotBlank( dbhost, "DB host must not be blank" );
@@ -106,12 +99,9 @@ public class FastloadControlBuilder {
   }
 
   /**
-   *
-   * @param format
-   *          the format.
+   * @param format the format.
    * @return this.
-   * @throws IllegalArgumentException
-   *           if format is invalid.
+   * @throws IllegalArgumentException if format is invalid.
    */
   public FastloadControlBuilder setRecordFormat( final String format ) throws IllegalArgumentException {
     Assert.assertNotBlank( format, "Format must not be blank" );
@@ -119,12 +109,9 @@ public class FastloadControlBuilder {
   }
 
   /**
-   *
-   * @param sessions
-   *          the sesssions.
+   * @param sessions the sesssions.
    * @return this.
-   * @throws IllegalArgumentException
-   *           if sessions <= 0
+   * @throws IllegalArgumentException if sessions <= 0
    */
   public FastloadControlBuilder setSessions( final int sessions ) throws IllegalArgumentException {
     Assert.assertGreaterZero( sessions );
@@ -132,12 +119,9 @@ public class FastloadControlBuilder {
   }
 
   /**
-   *
-   * @param errorLimit
-   *          the errorLimit.
+   * @param errorLimit the errorLimit.
    * @return this.
-   * @throws IllegalArgumentException
-   *           if errorLimit <= 0
+   * @throws IllegalArgumentException if errorLimit <= 0
    */
   public FastloadControlBuilder setErrorLimit( final int errorLimit ) throws IllegalArgumentException {
     Assert.assertGreaterZero( errorLimit );
@@ -145,14 +129,12 @@ public class FastloadControlBuilder {
   }
 
   /**
-   * @param targetTableFields
-   *          ...
-   * @param dataFile
-   *          ...
+   * @param targetTableFields ...
+   * @param dataFile          ...
    * @return this
    */
   public FastloadControlBuilder define( final RowMetaInterface targetTableFields,
-    StringListPluginProperty tableFieldList, final String dataFile ) {
+                                        StringListPluginProperty tableFieldList, final String dataFile ) {
     Assert.assertNotNull( targetTableFields, "fields cannot be null" );
     Assert.assertNotNull( dataFile, "dataFile cannot be null" );
 
@@ -181,15 +163,13 @@ public class FastloadControlBuilder {
   }
 
   /**
-   * @param targetTableFields
-   *          ...
+   * @param targetTableFields ...
    * @param tableFieldList
-   * @param tableName
-   *          ...
+   * @param tableName         ...
    * @return ...
    */
   public FastloadControlBuilder insert( final RowMetaInterface targetTableFields,
-    StringListPluginProperty tableFieldList, final String tableName ) {
+                                        StringListPluginProperty tableFieldList, final String tableName ) {
     Assert.assertNotNull( targetTableFields, "targetTableFields cannot be null." );
     Assert.assertNotNull( tableName, "TableName cannot be null." );
 
@@ -222,7 +202,6 @@ public class FastloadControlBuilder {
   }
 
   /**
-   *
    * @return this
    */
   public FastloadControlBuilder endLoading() {
@@ -232,11 +211,9 @@ public class FastloadControlBuilder {
   /**
    * Issue begin loading with default error tables.
    *
-   * @param table
-   *          the target table.
+   * @param table the target table.
    * @return this.
-   * @throws IllegalArgumentException
-   *           if table is invalid.
+   * @throws IllegalArgumentException if table is invalid.
    */
   public FastloadControlBuilder beginLoading( final String schemaName, final String table ) throws IllegalArgumentException {
     Assert.assertNotBlank( table );
@@ -262,8 +239,7 @@ public class FastloadControlBuilder {
   /**
    * Append line, nothing if line is blank.
    *
-   * @param line
-   *          line to append.
+   * @param line line to append.
    * @return this.
    */
   public FastloadControlBuilder line( final String line ) {

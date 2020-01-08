@@ -21,18 +21,7 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.parallelgzipcsv;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -43,6 +32,17 @@ import org.apache.hop.trans.steps.loadsave.initializer.InitializerInterface;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 public class ParGzipCsvInputMetaTest implements InitializerInterface<StepMetaInterface> {
   LoadSaveTester loadSaveTester;
@@ -54,9 +54,9 @@ public class ParGzipCsvInputMetaTest implements InitializerInterface<StepMetaInt
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "filename", "filenameField", "includingFilename", "rowNumField", "headerPresent", "delimiter",
-            "enclosure", "bufferSize", "lazyConversionActive", "addResultFile", "runningInParallel", "encoding",
-            "inputFields" );
+      Arrays.asList( "filename", "filenameField", "includingFilename", "rowNumField", "headerPresent", "delimiter",
+        "enclosure", "bufferSize", "lazyConversionActive", "addResultFile", "runningInParallel", "encoding",
+        "inputFields" );
 
     Map<String, String> getterMap = new HashMap<String, String>();
     Map<String, String> setterMap = new HashMap<String, String>();
@@ -67,8 +67,8 @@ public class ParGzipCsvInputMetaTest implements InitializerInterface<StepMetaInt
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(), getterMap,
-            setterMap, attrValidatorMap, typeValidatorMap, this );
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(), getterMap,
+        setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class
@@ -120,23 +120,23 @@ public class ParGzipCsvInputMetaTest implements InitializerInterface<StepMetaInt
 
       TextFileInputField another = (TextFileInputField) actual;
       return new EqualsBuilder()
-          .append( testObject.getCurrencySymbol(), another.getCurrencySymbol() )
-          .append( testObject.getDecimalSymbol(), another.getDecimalSymbol() )
-          .append( testObject.getFormat(), another.getFormat() )
-          .append( testObject.getGroupSymbol(), another.getGroupSymbol() )
-          .append( testObject.getName(), another.getName() )
-          .append( testObject.getTrimType(), another.getTrimType() )
-          .append( testObject.getPrecision(), another.getPrecision() )
-          .append( testObject.getLength(), another.getLength() )
-          .append( testObject.getType(), another.getType() )
-          // Note - these fields aren't serialized by the meta class ... cannot test for them
-          // .append( testObject.isRepeated(), another.isRepeated() )
-          // .append( testObject.getSamples(), another.getSamples() )
-          // .append( testObject.getNullString(), another.getNullString() )
-          // .append( testObject.getIfNullValue(), another.getIfNullValue() )
-          // .append( testObject.isIgnored(), another.isIgnored() )
-          // .append( testObject.getPosition(), another.getPosition() )
-          .isEquals();
+        .append( testObject.getCurrencySymbol(), another.getCurrencySymbol() )
+        .append( testObject.getDecimalSymbol(), another.getDecimalSymbol() )
+        .append( testObject.getFormat(), another.getFormat() )
+        .append( testObject.getGroupSymbol(), another.getGroupSymbol() )
+        .append( testObject.getName(), another.getName() )
+        .append( testObject.getTrimType(), another.getTrimType() )
+        .append( testObject.getPrecision(), another.getPrecision() )
+        .append( testObject.getLength(), another.getLength() )
+        .append( testObject.getType(), another.getType() )
+        // Note - these fields aren't serialized by the meta class ... cannot test for them
+        // .append( testObject.isRepeated(), another.isRepeated() )
+        // .append( testObject.getSamples(), another.getSamples() )
+        // .append( testObject.getNullString(), another.getNullString() )
+        // .append( testObject.getIfNullValue(), another.getIfNullValue() )
+        // .append( testObject.isIgnored(), another.isIgnored() )
+        // .append( testObject.getPosition(), another.getPosition() )
+        .isEquals();
     }
   }
 }

@@ -22,9 +22,6 @@
 package org.apache.hop.ui.hopui.delegates;
 
 
-import org.eclipse.swt.widgets.Shell;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -40,10 +37,13 @@ import org.apache.hop.job.JobExecutionConfiguration;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.job.dialog.JobExecutionConfigurationDialog;
 import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.hopui.job.JobGraph;
 import org.apache.hop.ui.hopui.job.JobLogDelegate;
+import org.apache.hop.ui.job.dialog.JobExecutionConfigurationDialog;
+import org.eclipse.swt.widgets.Shell;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,7 +61,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class HopUiJobDelegateTest {
-  private static final String[] EMPTY_STRING_ARRAY = new String[]{};
+  private static final String[] EMPTY_STRING_ARRAY = new String[] {};
   private static final String TEST_VARIABLE_KEY = "variableKey";
   private static final String TEST_VARIABLE_VALUE = "variableValue";
   private static final Map<String, String> MAP_WITH_TEST_VARIABLE = new HashMap<String, String>() {
@@ -117,7 +117,7 @@ public class HopUiJobDelegateTest {
   @SuppressWarnings( "ResultOfMethodCallIgnored" )
   public void testSetParamsIntoMetaInExecuteJob() throws HopException {
     doCallRealMethod().when( delegate ).executeJob( jobMeta, true, false, null, false,
-        null, 0 );
+      null, 0 );
 
     JobExecutionConfiguration jobExecutionConfiguration = mock( JobExecutionConfiguration.class );
     RowMetaInterface rowMeta = mock( RowMetaInterface.class );
@@ -143,7 +143,7 @@ public class HopUiJobDelegateTest {
     doReturn( TEST_BOOLEAN_PARAM ).when( jobExecutionConfiguration ).isExpandingRemoteJob();
 
     delegate.executeJob( jobMeta, true, false, null, false,
-        null, 0 );
+      null, 0 );
 
     verify( jobMeta ).setVariable( TEST_VARIABLE_KEY, TEST_VARIABLE_VALUE );
     verify( jobMeta ).setParameterValue( TEST_PARAM_KEY, TEST_PARAM_VALUE );
@@ -166,9 +166,9 @@ public class HopUiJobDelegateTest {
     JobEntryInterface jobEntryInterface = mock( JobEntryInterface.class );
     when( jobEntryInterface.getDialogClassName() ).thenReturn( String.class.getName() );
     when( plugin.getClassMap() ).thenReturn( new HashMap<Class<?>, String>() {{
-        put( JobEntryInterface.class, jobEntryInterface.getClass().getName() );
-        put( JobEntryDialogInterface.class, JobEntryDialogInterface.class.getName() );
-      }} );
+      put( JobEntryInterface.class, jobEntryInterface.getClass().getName() );
+      put( JobEntryDialogInterface.class, JobEntryDialogInterface.class.getName() );
+    }} );
 
     registry.registerPlugin( JobEntryPluginType.class, plugin );
 
@@ -190,8 +190,8 @@ public class HopUiJobDelegateTest {
 
     // verify that the deprecated way is still valid
     when( plugin.getClassMap() ).thenReturn( new HashMap<Class<?>, String>() {{
-        put( JobEntryInterface.class, jobEntryInterface.getClass().getName() );
-      }} );
+      put( JobEntryInterface.class, jobEntryInterface.getClass().getName() );
+    }} );
     try {
       delegate.getJobEntryDialog( jobEntryInterface, meta ); // exception is expected here
     } catch ( Throwable ignore ) {

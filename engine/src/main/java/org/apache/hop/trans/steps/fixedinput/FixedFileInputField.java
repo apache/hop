@@ -22,14 +22,6 @@
 
 package org.apache.hop.trans.steps.fixedinput;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Objects;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -37,6 +29,14 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.core.xml.XMLInterface;
 import org.w3c.dom.Node;
+
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Objects;
 
 public class FixedFileInputField implements Cloneable, XMLInterface {
 
@@ -140,8 +140,7 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param name
-   *          the name to set
+   * @param name the name to set
    */
   public void setName( String name ) {
     this.name = name;
@@ -155,8 +154,7 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param type
-   *          the type to set
+   * @param type the type to set
    */
   public void setType( int type ) {
     this.type = type;
@@ -170,8 +168,7 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param width
-   *          the width to set
+   * @param width the width to set
    */
   public void setWidth( int width ) {
     this.width = width;
@@ -185,8 +182,7 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param length
-   *          the length to set
+   * @param length the length to set
    */
   public void setLength( int length ) {
     this.length = length;
@@ -200,8 +196,7 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param precision
-   *          the precision to set
+   * @param precision the precision to set
    */
   public void setPrecision( int precision ) {
     this.precision = precision;
@@ -215,8 +210,7 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param format
-   *          the format to set
+   * @param format the format to set
    */
   public void setFormat( String format ) {
     this.format = format;
@@ -230,8 +224,7 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param decimal
-   *          the decimal to set
+   * @param decimal the decimal to set
    */
   public void setDecimal( String decimal ) {
     this.decimal = decimal;
@@ -245,8 +238,7 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param grouping
-   *          the grouping to set
+   * @param grouping the grouping to set
    */
   public void setGrouping( String grouping ) {
     this.grouping = grouping;
@@ -260,8 +252,7 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param currency
-   *          the currency to set
+   * @param currency the currency to set
    */
   public void setCurrency( String currency ) {
     this.currency = currency;
@@ -305,34 +296,34 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
 
     // See if all samples can be transformed into a date...
     int datefmt_cnt = date_formats.length;
-    boolean[] datefmt = new boolean[date_formats.length];
+    boolean[] datefmt = new boolean[ date_formats.length ];
     for ( int i = 0; i < date_formats.length; i++ ) {
-      datefmt[i] = true;
+      datefmt[ i ] = true;
     }
     int datenul = 0;
 
     for ( int i = 0; i < samples.length; i++ ) {
       for ( int x = 0; x < date_formats.length; x++ ) {
-        if ( samples[i] == null || Const.onlySpaces( samples[i] ) || samples[i].length() == 0 ) {
-          datefmt[x] = false;
+        if ( samples[ i ] == null || Const.onlySpaces( samples[ i ] ) || samples[ i ].length() == 0 ) {
+          datefmt[ x ] = false;
           datefmt_cnt--;
         }
 
-        if ( datefmt[x] ) {
+        if ( datefmt[ x ] ) {
           try {
-            daf.applyPattern( date_formats[x] );
-            Date date = daf.parse( samples[i] );
+            daf.applyPattern( date_formats[ x ] );
+            Date date = daf.parse( samples[ i ] );
 
             Calendar cal = Calendar.getInstance();
             cal.setTime( date );
             int year = cal.get( Calendar.YEAR );
 
             if ( year < 1800 || year > 2200 ) {
-              datefmt[x] = false; // Don't try it again in the future.
+              datefmt[ x ] = false; // Don't try it again in the future.
               datefmt_cnt--; // One less that works..
             }
           } catch ( Exception e ) {
-            datefmt[x] = false; // Don't try it again in the future.
+            datefmt[ x ] = false; // Don't try it again in the future.
             datefmt_cnt--; // One less that works..
           }
         }
@@ -345,13 +336,13 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
     if ( datefmt_cnt > 0 && datenul != samples.length ) {
       int first = -1;
       for ( int i = 0; i < date_formats.length && first < 0; i++ ) {
-        if ( datefmt[i] ) {
+        if ( datefmt[ i ] ) {
           first = i;
         }
       }
 
       type = ValueMetaInterface.TYPE_DATE;
-      format = date_formats[first];
+      format = date_formats[ first ];
 
       return;
     }
@@ -366,11 +357,11 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
     decimal = "" + dfs.getDecimalSeparator();
     grouping = "" + dfs.getGroupingSeparator();
 
-    boolean[] numfmt = new boolean[number_formats.length];
-    int[] maxprecision = new int[number_formats.length];
+    boolean[] numfmt = new boolean[ number_formats.length ];
+    int[] maxprecision = new int[ number_formats.length ];
     for ( int i = 0; i < numfmt.length; i++ ) {
-      numfmt[i] = true;
-      maxprecision[i] = -1;
+      numfmt[ i ] = true;
+      maxprecision[ i ] = -1;
     }
     int numfmt_cnt = number_formats.length;
     int numnul = 0;
@@ -379,7 +370,7 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
       boolean contains_dot = false;
       boolean contains_comma = false;
 
-      String field = samples[i];
+      String field = samples[ i ];
 
       for ( int x = 0; x < field.length() && isnumber; x++ ) {
         char ch = field.charAt( x );
@@ -436,7 +427,7 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
 
         // Try the remaining possible number formats!
         for ( int x = 0; x < number_formats.length; x++ ) {
-          if ( numfmt[x] ) {
+          if ( numfmt[ x ] ) {
             boolean islong = true;
 
             try {
@@ -455,16 +446,16 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
                 // Try the double
 
                 df.setDecimalFormatSymbols( dfs );
-                df.applyPattern( number_formats[x] );
+                df.applyPattern( number_formats[ x ] );
 
                 double d = df.parse( field ).doubleValue();
                 prec = guessPrecision( d );
               }
-              if ( prec > maxprecision[x] ) {
-                maxprecision[x] = prec;
+              if ( prec > maxprecision[ x ] ) {
+                maxprecision[ x ] = prec;
               }
             } catch ( Exception e ) {
-              numfmt[x] = false; // Don't try it again in the future.
+              numfmt[ x ] = false; // Don't try it again in the future.
               numfmt_cnt--; // One less that works..
             }
           }
@@ -477,14 +468,14 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
     if ( numfmt_cnt > 0 && numnul != samples.length ) {
       int first = -1;
       for ( int i = 0; i < number_formats.length && first < 0; i++ ) {
-        if ( numfmt[i] ) {
+        if ( numfmt[ i ] ) {
           first = i;
         }
       }
 
       type = ValueMetaInterface.TYPE_NUMBER;
-      format = number_formats[first];
-      precision = maxprecision[first];
+      format = number_formats[ first ];
+      precision = maxprecision[ first ];
 
       // Wait a minute!!! What about Integers?
       // OK, only if the precision is 0 and the length <19 (java long integer)

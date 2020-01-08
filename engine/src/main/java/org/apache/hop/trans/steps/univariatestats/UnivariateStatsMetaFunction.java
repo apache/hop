@@ -1,7 +1,7 @@
 /*! ******************************************************************************
  *
- 
-* Pentaho Data Integration
+
+ * Pentaho Data Integration
  *
  * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
@@ -23,13 +23,10 @@
 
 package org.apache.hop.trans.steps.univariatestats;
 
-import java.util.Objects;
-
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
-
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.Objects;
 
 /**
  * Holds meta information about one univariate stats calculation: source field name and what derived values are to be
@@ -55,29 +52,20 @@ public class UnivariateStatsMetaFunction implements Cloneable {
   /**
    * Creates a new <code>UnivariateStatsMetaFunction</code>
    *
-   * @param sourceFieldName
-   *          the name of the input field to compute stats for
-   * @param n
-   *          output N
-   * @param mean
-   *          compute and output the mean
-   * @param stdDev
-   *          compute and output the standard deviation
-   * @param min
-   *          output the minumum value
-   * @param max
-   *          output the maximum value
-   * @param median
-   *          compute and output the median (requires data caching and sorting)
-   * @param arbPercentile
-   *          compute and output a percentile (0 <= arbPercentile <= 1)
-   * @param interpolate
-   *          true if interpolation is to be used for percentiles (rather than a simple method). See <a
-   *          href="http://www.itl.nist.gov/div898/handbook/prc/section2/prc252.htm"> The Engineering Statistics
-   *          Handbook</a> for details.
+   * @param sourceFieldName the name of the input field to compute stats for
+   * @param n               output N
+   * @param mean            compute and output the mean
+   * @param stdDev          compute and output the standard deviation
+   * @param min             output the minumum value
+   * @param max             output the maximum value
+   * @param median          compute and output the median (requires data caching and sorting)
+   * @param arbPercentile   compute and output a percentile (0 <= arbPercentile <= 1)
+   * @param interpolate     true if interpolation is to be used for percentiles (rather than a simple method). See <a
+   *                        href="http://www.itl.nist.gov/div898/handbook/prc/section2/prc252.htm"> The Engineering Statistics
+   *                        Handbook</a> for details.
    */
   public UnivariateStatsMetaFunction( String sourceFieldName, boolean n, boolean mean, boolean stdDev,
-    boolean min, boolean max, boolean median, double arbPercentile, boolean interpolate ) {
+                                      boolean min, boolean max, boolean median, double arbPercentile, boolean interpolate ) {
     m_sourceFieldName = sourceFieldName;
     m_n = n;
     m_mean = mean;
@@ -92,8 +80,7 @@ public class UnivariateStatsMetaFunction implements Cloneable {
   /**
    * Construct from an XML node
    *
-   * @param uniNode
-   *          a XML node
+   * @param uniNode a XML node
    */
   public UnivariateStatsMetaFunction( Node uniNode ) {
     String temp;
@@ -144,8 +131,7 @@ public class UnivariateStatsMetaFunction implements Cloneable {
   /**
    * Check for equality
    *
-   * @param obj
-   *          an UnivarateStatsMetaFunction to compare against
+   * @param obj an UnivarateStatsMetaFunction to compare against
    * @return true if this Object and the supplied one are the same
    */
   public boolean equals( Object obj ) {
@@ -161,7 +147,7 @@ public class UnivariateStatsMetaFunction implements Cloneable {
   @Override
   public int hashCode() {
     return Objects.hash( m_sourceFieldName, m_n, m_mean, m_stdDev, m_min, m_max, m_median, m_arbitraryPercentile,
-        m_interpolatePercentile );
+      m_interpolatePercentile );
   }
 
   /**
@@ -205,8 +191,7 @@ public class UnivariateStatsMetaFunction implements Cloneable {
   /**
    * Set the name of the input field used by this UnivariateStatsMetaFunction.
    *
-   * @param sn
-   *          the name of the source field to use
+   * @param sn the name of the source field to use
    */
   public void setSourceFieldName( String sn ) {
     m_sourceFieldName = sn;
@@ -224,8 +209,7 @@ public class UnivariateStatsMetaFunction implements Cloneable {
   /**
    * Set whether to calculate N for this input field
    *
-   * @param n
-   *          true if N is to be calculated
+   * @param n true if N is to be calculated
    */
   public void setCalcN( boolean n ) {
     m_n = n;
@@ -243,8 +227,7 @@ public class UnivariateStatsMetaFunction implements Cloneable {
   /**
    * Set whether to calculate the mean for this input field
    *
-   * @param b
-   *          true if the mean is to be calculated
+   * @param b true if the mean is to be calculated
    */
   public void setCalcMean( boolean b ) {
     m_mean = b;
@@ -262,8 +245,7 @@ public class UnivariateStatsMetaFunction implements Cloneable {
   /**
    * Set whether the standard deviation is to be calculated for this input value
    *
-   * @param b
-   *          true if the standard deviation is to be calculated
+   * @param b true if the standard deviation is to be calculated
    */
   public void setCalcStdDev( boolean b ) {
     m_stdDev = b;
@@ -281,8 +263,7 @@ public class UnivariateStatsMetaFunction implements Cloneable {
   /**
    * Set whether the minimum is to be calculated for this input value
    *
-   * @param b
-   *          true if the minimum is to be calculated
+   * @param b true if the minimum is to be calculated
    */
   public void setCalcMin( boolean b ) {
     m_min = b;
@@ -300,8 +281,7 @@ public class UnivariateStatsMetaFunction implements Cloneable {
   /**
    * Set whether the maximum is to be calculated for this input value
    *
-   * @param b
-   *          true if the maximum is to be calculated
+   * @param b true if the maximum is to be calculated
    */
   public void setCalcMax( boolean b ) {
     m_max = b;
@@ -319,8 +299,7 @@ public class UnivariateStatsMetaFunction implements Cloneable {
   /**
    * Set whether the median is to be calculated for this input value
    *
-   * @param b
-   *          true if the median is to be calculated
+   * @param b true if the median is to be calculated
    */
   public void setCalcMedian( boolean b ) {
     m_median = b;
@@ -347,8 +326,7 @@ public class UnivariateStatsMetaFunction implements Cloneable {
   /**
    * Set whether interpolation is to be used in the computation of percentiles
    *
-   * @param i
-   *          true is interpolation is to be used
+   * @param i true is interpolation is to be used
    */
   public void setInterpolatePercentile( boolean i ) {
     m_interpolatePercentile = i;
@@ -366,8 +344,7 @@ public class UnivariateStatsMetaFunction implements Cloneable {
   /**
    * Sets whether an arbitrary percentile is to be calculated for this input field
    *
-   * @param percentile
-   *          the percentile to compute (0 <= percentile <= 100)
+   * @param percentile the percentile to compute (0 <= percentile <= 100)
    */
   public void setCalcPercentile( double percentile ) {
     if ( percentile < 0 ) {

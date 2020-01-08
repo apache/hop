@@ -22,14 +22,6 @@
 
 package org.apache.hop.trans.steps.transexecutor;
 
-import java.util.Arrays;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.Result;
@@ -50,6 +42,15 @@ import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.StepMockUtil;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.Arrays;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -130,8 +131,8 @@ public class TransExecutorUnitTest {
     when( executor.createInternalTrans() ).thenCallRealMethod();
     when( executor.getTrans() ).thenReturn( transParentMock );
     when( executor.getData() ).thenReturn( transExecutorDataMock );
-    when( transMetaMock.listVariables() ).thenReturn( new String[0] );
-    when( transMetaMock.listParameters() ).thenReturn( new String[0] );
+    when( transMetaMock.listVariables() ).thenReturn( new String[ 0 ] );
+    when( transMetaMock.listParameters() ).thenReturn( new String[ 0 ] );
     when( transExecutorDataMock.getExecutorTransMeta() ).thenReturn( transMetaMock );
 
     Trans internalTrans = executor.createInternalTrans();
@@ -409,9 +410,9 @@ public class TransExecutorUnitTest {
     String paramOverwrite = "paramOverwrite";
     String parentValue = "parentValue";
 
-    meta.getParameters().setVariable( new String[]{ childParam, paramOverwrite } );
-    meta.getParameters().setInput( new String[]{ null, null } );
-    meta.getParameters().setField( new String[]{ null, null } );
+    meta.getParameters().setVariable( new String[] { childParam, paramOverwrite } );
+    meta.getParameters().setInput( new String[] { null, null } );
+    meta.getParameters().setField( new String[] { null, null } );
     Trans parent = new Trans();
     Mockito.when( executor.getTrans() ).thenReturn( parent );
 
@@ -422,9 +423,9 @@ public class TransExecutorUnitTest {
 
     Mockito.when( executor.getLogLevel() ).thenReturn( LogLevel.NOTHING );
     parent.setLog( new LogChannel( this ) );
-    Mockito.doCallRealMethod().when( executor ).createInternalTrans( );
-    Mockito.when(  executor.getData().getExecutorTransMeta().listVariables() ).thenReturn( new String[0] );
-    Mockito.when(  executor.getData().getExecutorTransMeta().listParameters() ).thenReturn( new String[0] /*{parentParam}*/ );
+    Mockito.doCallRealMethod().when( executor ).createInternalTrans();
+    Mockito.when( executor.getData().getExecutorTransMeta().listVariables() ).thenReturn( new String[ 0 ] );
+    Mockito.when( executor.getData().getExecutorTransMeta().listParameters() ).thenReturn( new String[ 0 ] /*{parentParam}*/ );
 
     Trans internalTrans = executor.createInternalTrans();
     executor.getData().setExecutorTrans( internalTrans );
@@ -447,9 +448,9 @@ public class TransExecutorUnitTest {
     String paramOverwrite = "paramOverwrite";
     String parentValue = "parentValue";
 
-    meta.getParameters().setVariable( new String[]{ childParam, paramOverwrite } );
-    meta.getParameters().setInput( new String[]{ null, null } );
-    meta.getParameters().setField( new String[]{ childParam, paramOverwrite } );
+    meta.getParameters().setVariable( new String[] { childParam, paramOverwrite } );
+    meta.getParameters().setInput( new String[] { null, null } );
+    meta.getParameters().setField( new String[] { childParam, paramOverwrite } );
     Trans parent = new Trans();
     Mockito.when( executor.getTrans() ).thenReturn( parent );
 
@@ -462,16 +463,16 @@ public class TransExecutorUnitTest {
 
     Mockito.when( executor.getLogLevel() ).thenReturn( LogLevel.NOTHING );
     parent.setLog( new LogChannel( this ) );
-    Mockito.doCallRealMethod().when( executor ).createInternalTrans( );
-    Mockito.when(  executor.getData().getExecutorTransMeta().listVariables() ).thenReturn( new String[0] );
-    Mockito.when(  executor.getData().getExecutorTransMeta().listParameters() ).thenReturn( new String[0] /*{parentParam}*/ );
+    Mockito.doCallRealMethod().when( executor ).createInternalTrans();
+    Mockito.when( executor.getData().getExecutorTransMeta().listVariables() ).thenReturn( new String[ 0 ] );
+    Mockito.when( executor.getData().getExecutorTransMeta().listParameters() ).thenReturn( new String[ 0 ] /*{parentParam}*/ );
 
     executor.getData().setInputRowMeta( inputRowMeta );
-    Mockito.when(  executor.getData().getInputRowMeta().getFieldNames() ).thenReturn( new String[]{"childParam", "paramOverwrite"} );
+    Mockito.when( executor.getData().getInputRowMeta().getFieldNames() ).thenReturn( new String[] { "childParam", "paramOverwrite" } );
 
     Trans internalTrans = executor.createInternalTrans();
     executor.getData().setExecutorTrans( internalTrans );
-    executor.passParametersToTrans( Arrays.asList( new String[]{ fieldValue1, fieldValue2 } ) );
+    executor.passParametersToTrans( Arrays.asList( new String[] { fieldValue1, fieldValue2 } ) );
 
     //When the child parameter does exist in the parent parameters, overwrite the child parameter by the parent parameter.
     Assert.assertEquals( fieldValue2, internalTrans.getVariable( paramOverwrite ) );
@@ -492,9 +493,9 @@ public class TransExecutorUnitTest {
     String paramOverwrite = "paramOverwrite";
     String parentValue = "parentValue";
 
-    meta.getParameters().setVariable( new String[]{ childParam, paramOverwrite } );
-    meta.getParameters().setInput( new String[]{ inputValue1, inputValue2 } );
-    meta.getParameters().setField( new String[]{ null, null } );
+    meta.getParameters().setVariable( new String[] { childParam, paramOverwrite } );
+    meta.getParameters().setInput( new String[] { inputValue1, inputValue2 } );
+    meta.getParameters().setField( new String[] { null, null } );
     Trans parent = new Trans();
     Mockito.when( executor.getTrans() ).thenReturn( parent );
 
@@ -505,9 +506,9 @@ public class TransExecutorUnitTest {
 
     Mockito.when( executor.getLogLevel() ).thenReturn( LogLevel.NOTHING );
     parent.setLog( new LogChannel( this ) );
-    Mockito.doCallRealMethod().when( executor ).createInternalTrans( );
-    Mockito.when(  executor.getData().getExecutorTransMeta().listVariables() ).thenReturn( new String[0] );
-    Mockito.when(  executor.getData().getExecutorTransMeta().listParameters() ).thenReturn( new String[0] /*{parentParam}*/ );
+    Mockito.doCallRealMethod().when( executor ).createInternalTrans();
+    Mockito.when( executor.getData().getExecutorTransMeta().listVariables() ).thenReturn( new String[ 0 ] );
+    Mockito.when( executor.getData().getExecutorTransMeta().listParameters() ).thenReturn( new String[ 0 ] /*{parentParam}*/ );
 
     Trans internalTrans = executor.createInternalTrans();
     executor.getData().setExecutorTrans( internalTrans );

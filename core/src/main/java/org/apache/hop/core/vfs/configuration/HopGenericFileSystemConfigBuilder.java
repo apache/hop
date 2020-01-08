@@ -22,26 +22,25 @@
 
 package org.apache.hop.core.vfs.configuration;
 
-import java.io.IOException;
-
+import org.apache.commons.vfs2.FileSystem;
 import org.apache.commons.vfs2.FileSystemConfigBuilder;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
-import org.apache.commons.vfs2.FileSystem;
 import org.apache.commons.vfs2.util.DelegatingFileSystemOptionsBuilder;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.vfs.HopVFS;
 
+import java.io.IOException;
+
 /**
  * A generic FileSystemConfigBuilder that inserts parameters and values as literally specified.
- *
+ * <p>
  * Note: ALL parameters are case sensitive! Please see individual FileSystemConfigBuilder for list of available
  * parameters. Please also see Hop FileSystemConfigBuilder overrides for additional parameters.
  *
- * @see HopSftpFileSystemConfigBuilder
- *
  * @author cboyden
+ * @see HopSftpFileSystemConfigBuilder
  */
 public class HopGenericFileSystemConfigBuilder extends FileSystemConfigBuilder implements
   IHopFileSystemConfigBuilder {
@@ -55,7 +54,7 @@ public class HopGenericFileSystemConfigBuilder extends FileSystemConfigBuilder i
 
     // Frame the parameter name
     int begin = parameter.indexOf( ".", parameter.indexOf( "." ) + 1 ) + 1; // Get the index of the second "."
-                                                                            // (vfs.scheme.parameter)
+    // (vfs.scheme.parameter)
     int end = -1;
 
     end = parameter.indexOf( '.', begin );
@@ -78,8 +77,7 @@ public class HopGenericFileSystemConfigBuilder extends FileSystemConfigBuilder i
   /**
    * Extract the scheme from a Hop VFS configuration paramter (vfs.scheme.parameter)
    *
-   * @param fullParameterName
-   *          A VFS configuration parameter in the form of 'vfs.scheme.parameter'
+   * @param fullParameterName A VFS configuration parameter in the form of 'vfs.scheme.parameter'
    */
   public static String extractScheme( String fullParameterName ) throws IllegalArgumentException {
     String result = null;
@@ -113,7 +111,7 @@ public class HopGenericFileSystemConfigBuilder extends FileSystemConfigBuilder i
 
   @Override
   public void setParameter( FileSystemOptions opts, String name, String value, String fullParameterName,
-    String vfsUrl ) throws IOException {
+                            String vfsUrl ) throws IOException {
     // Use the DelgatingFileSystemOptionsBuilder to insert generic parameters
     // This must be done to assure the correct VFS FileSystem drivers will process the parameters
     String scheme = extractScheme( fullParameterName );

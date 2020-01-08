@@ -22,14 +22,14 @@
 
 package org.apache.hop.trans.steps.parallelgzipcsv;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.zip.GZIPInputStream;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.GZIPInputStream;
 
 /**
  * @author Matt
@@ -87,20 +87,20 @@ public class ParGzipCsvInputData extends BaseStepData implements StepDataInterfa
    * @return the byte array with escaped enclosures escaped.
    */
   public byte[] removeEscapedEnclosures( byte[] field, int nrEnclosuresFound ) {
-    byte[] result = new byte[field.length - nrEnclosuresFound];
+    byte[] result = new byte[ field.length - nrEnclosuresFound ];
     int resultIndex = 0;
     for ( int i = 0; i < field.length; i++ ) {
-      if ( field[i] == enclosure[0] ) {
-        if ( !( i + 1 < field.length && field[i + 1] == enclosure[0] ) ) {
+      if ( field[ i ] == enclosure[ 0 ] ) {
+        if ( !( i + 1 < field.length && field[ i + 1 ] == enclosure[ 0 ] ) ) {
           // Not an escaped enclosure...
           // field[i]+field[i+1] is an escaped enclosure...
           // so we ignore this one
           // field[i+1] will be picked up on the next iteration.
 
-          result[resultIndex++] = field[i];
+          result[ resultIndex++ ] = field[ i ];
         }
       } else {
-        result[resultIndex++] = field[i];
+        result[ resultIndex++ ] = field[ i ];
       }
     }
     return result;
@@ -123,7 +123,7 @@ public class ParGzipCsvInputData extends BaseStepData implements StepDataInterfa
       } else {
         newSize = ( byteBuffer.length * 3 ) / 2; // increase by 50%
       }
-      byte[] newByteBuffer = new byte[newSize];
+      byte[] newByteBuffer = new byte[ newSize ];
       // Copy over the data into the new buffer.
       //
       maxBuffer = byteBuffer.length - startBuffer;

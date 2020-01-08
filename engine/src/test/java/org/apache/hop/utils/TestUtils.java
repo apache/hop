@@ -22,12 +22,6 @@
 
 package org.apache.hop.utils;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.UUID;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -35,6 +29,12 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.UUID;
+
+import static org.junit.Assert.assertTrue;
 
 public class TestUtils {
 
@@ -48,7 +48,7 @@ public class TestUtils {
     try {
       /*
        * Java.io.File only creates Temp files, so repurpose the filename for a temporary folder
-       * Delete the file that's created, and re-create as a folder. 
+       * Delete the file that's created, and re-create as a folder.
        */
       File file = File.createTempFile( "temp_pentaho_test_dir", String.valueOf( System.currentTimeMillis() ) );
       file.delete();

@@ -22,16 +22,16 @@
 
 package org.apache.hop.core.logging;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.gui.GCInterface;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.PrimitiveGCInterface.EColor;
 import org.apache.hop.core.gui.PrimitiveGCInterface.EFont;
 import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.metrics.MetricsDuration;
+import org.apache.hop.core.util.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MetricsPainter {
   private GCInterface gc;
@@ -67,8 +67,7 @@ public class MetricsPainter {
   /**
    * Draws a metrics tab.
    *
-   * @param durations
-   *          is a list of metrics durations
+   * @param durations is a list of metrics durations
    * @return list of drawing areas.Throw IllegalArgumentException in case if input parameter is null or an empty
    */
   public List<MetricsDrawArea> paint( List<MetricsDuration> durations ) {
@@ -132,10 +131,10 @@ public class MetricsPainter {
       areas.add( new MetricsDrawArea( new Rectangle( x, y, durationWidth, barHeight ), duration ) );
 
       LoggingObjectInterface loggingObject =
-          LoggingRegistry.getInstance().getLoggingObject( duration.getLogChannelId() );
+        LoggingRegistry.getInstance().getLoggingObject( duration.getLogChannelId() );
 
       String message =
-          duration.getDescription() + " - " + loggingObject.getObjectName() + " : " + duration.getDuration() + "ms";
+        duration.getDescription() + " - " + loggingObject.getObjectName() + " : " + duration.getDuration() + "ms";
       if ( duration.getCount() > 1 ) {
         message += " " + duration.getCount() + " calls, avg=" + ( duration.getDuration() / duration.getCount() );
       }

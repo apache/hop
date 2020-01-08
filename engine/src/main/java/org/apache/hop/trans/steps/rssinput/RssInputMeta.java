@@ -22,14 +22,9 @@
 
 package org.apache.hop.trans.steps.rssinput;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -37,10 +32,11 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -48,40 +44,61 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 public class RssInputMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = RssInput.class; // for i18n purposes, needed by Translator2!!
 
-  /** Flag indicating that a row number field should be included in the output */
+  /**
+   * Flag indicating that a row number field should be included in the output
+   */
   private boolean includeRowNumber;
 
-  /** The name of the field in the output containing the row number */
+  /**
+   * The name of the field in the output containing the row number
+   */
   private String rowNumberField;
 
-  /** Flag indicating that url field should be included in the output */
+  /**
+   * Flag indicating that url field should be included in the output
+   */
   private boolean includeUrl;
 
-  /** The name of the field in the output containing the url */
+  /**
+   * The name of the field in the output containing the url
+   */
   private String urlField;
 
-  /** The maximum number or lines to read */
+  /**
+   * The maximum number or lines to read
+   */
   private long rowLimit;
 
-  /** The fields to import... */
+  /**
+   * The fields to import...
+   */
   private RssInputField[] inputFields;
 
-  /** The url **/
+  /**
+   * The url
+   **/
   private String[] url;
 
-  /** read rss from */
+  /**
+   * read rss from
+   */
   private String readfrom;
 
-  /** if URL defined in a field? */
+  /**
+   * if URL defined in a field?
+   */
   private boolean urlInField;
 
-  /** URL field name */
+  /**
+   * URL field name
+   */
   private String urlFieldname;
 
   public RssInputMeta() {
@@ -96,8 +113,7 @@ public class RssInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param inputFields
-   *          The input fields to set.
+   * @param inputFields The input fields to set.
    */
   public void setInputFields( RssInputField[] inputFields ) {
     this.inputFields = inputFields;
@@ -111,8 +127,7 @@ public class RssInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param urlInField
-   *          The urlInField to set.
+   * @param urlInField The urlInField to set.
    */
   public void seturlInField( boolean urlInField ) {
     this.urlInField = urlInField;
@@ -145,16 +160,14 @@ public class RssInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param includeRowNumber
-   *          The includeRowNumber to set.
+   * @param includeRowNumber The includeRowNumber to set.
    */
   public void setIncludeRowNumber( boolean includeRowNumber ) {
     this.includeRowNumber = includeRowNumber;
   }
 
   /**
-   * @param includeUrl
-   *          The includeUrl to set.
+   * @param includeUrl The includeUrl to set.
    */
   public void setIncludeUrl( boolean includeUrl ) {
     this.includeUrl = includeUrl;
@@ -168,8 +181,7 @@ public class RssInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param rowLimit
-   *          The rowLimit to set.
+   * @param rowLimit The rowLimit to set.
    */
   public void setRowLimit( long rowLimit ) {
     this.rowLimit = rowLimit;
@@ -190,16 +202,14 @@ public class RssInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param urlField
-   *          The urlField to set.
+   * @param urlField The urlField to set.
    */
   public void seturlField( String urlField ) {
     this.urlField = urlField;
   }
 
   /**
-   * @param urlFieldname
-   *          The urlFieldname to set.
+   * @param urlFieldname The urlFieldname to set.
    */
   public void setUrlFieldname( String urlFieldname ) {
     this.urlFieldname = urlFieldname;
@@ -213,8 +223,7 @@ public class RssInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param url
-   *          The url to set.
+   * @param url The url to set.
    */
   public void setUrl( String[] url ) {
     this.url = url;
@@ -225,8 +234,7 @@ public class RssInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param rowNumberField
-   *          The rowNumberField to set.
+   * @param rowNumberField The rowNumberField to set.
    */
   public void setRowNumberField( String rowNumberField ) {
     this.rowNumberField = rowNumberField;
@@ -245,8 +253,8 @@ public class RssInputMeta extends BaseStepMeta implements StepMetaInterface {
     retval.allocate( nrUrl, nrFields );
     System.arraycopy( url, 0, retval.url, 0, nrUrl );
     for ( int i = 0; i < nrFields; i++ ) {
-      if ( inputFields[i] != null ) {
-        retval.inputFields[i] = (RssInputField) inputFields[i].clone();
+      if ( inputFields[ i ] != null ) {
+        retval.inputFields[ i ] = (RssInputField) inputFields[ i ].clone();
       }
     }
 
@@ -265,12 +273,12 @@ public class RssInputMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "    " + XMLHandler.addTagValue( "read_from", readfrom ) );
     retval.append( "    <urls>" + Const.CR );
     for ( int i = 0; i < url.length; i++ ) {
-      retval.append( "      " + XMLHandler.addTagValue( "url", url[i] ) );
+      retval.append( "      " + XMLHandler.addTagValue( "url", url[ i ] ) );
     }
     retval.append( "    </urls>" + Const.CR );
     retval.append( "    <fields>" + Const.CR );
     for ( int i = 0; i < inputFields.length; i++ ) {
-      RssInputField field = inputFields[i];
+      RssInputField field = inputFields[ i ];
       retval.append( field.getXML() );
     }
     retval.append( "      </fields>" + Const.CR );
@@ -295,13 +303,13 @@ public class RssInputMeta extends BaseStepMeta implements StepMetaInterface {
       allocate( nrUrls, nrFields );
       for ( int i = 0; i < nrUrls; i++ ) {
         Node urlnamenode = XMLHandler.getSubNodeByNr( urlnode, "url", i );
-        url[i] = XMLHandler.getNodeValue( urlnamenode );
+        url[ i ] = XMLHandler.getNodeValue( urlnamenode );
       }
 
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
         RssInputField field = new RssInputField( fnode );
-        inputFields[i] = field;
+        inputFields[ i ] = field;
       }
 
       // Is there a limit on the number of rows we process?
@@ -312,8 +320,8 @@ public class RssInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrUrl, int nrfields ) {
-    inputFields = new RssInputField[nrfields];
-    url = new String[nrUrl];
+    inputFields = new RssInputField[ nrfields ];
+    url = new String[ nrUrl ];
   }
 
   public void setDefault() {
@@ -331,22 +339,22 @@ public class RssInputMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( nrUrl, nrFields );
 
     for ( int i = 0; i < nrUrl; i++ ) {
-      url[i] = "";
+      url[ i ] = "";
 
     }
 
     for ( int i = 0; i < nrFields; i++ ) {
-      inputFields[i] = new RssInputField( "field" + ( i + 1 ) );
+      inputFields[ i ] = new RssInputField( "field" + ( i + 1 ) );
     }
 
     rowLimit = 0;
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     int i;
     for ( i = 0; i < inputFields.length; i++ ) {
-      RssInputField field = inputFields[i];
+      RssInputField field = inputFields[ i ];
 
       int type = field.getType();
       if ( type == ValueMetaInterface.TYPE_NONE ) {
@@ -388,8 +396,8 @@ public class RssInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( urlInField ) {
@@ -421,7 +429,7 @@ public class RssInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new RssInput( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 

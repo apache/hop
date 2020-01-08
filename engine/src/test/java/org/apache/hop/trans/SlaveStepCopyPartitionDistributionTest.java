@@ -21,77 +21,77 @@
  ******************************************************************************/
 package org.apache.hop.trans;
 
+import org.apache.hop.partition.PartitionSchema;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.Assert;
-import org.apache.hop.partition.PartitionSchema;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SlaveStepCopyPartitionDistributionTest {
 
-    private SlaveStepCopyPartitionDistribution slaveStep;
+  private SlaveStepCopyPartitionDistribution slaveStep;
 
-    @Before
-    public void setup() {
+  @Before
+  public void setup() {
 
-        slaveStep = new SlaveStepCopyPartitionDistribution();
-    }
+    slaveStep = new SlaveStepCopyPartitionDistribution();
+  }
 
-    @Test
-    public void equalsNullTest() {
+  @Test
+  public void equalsNullTest() {
 
-        Assert.assertFalse( slaveStep.equals( null ) );
-    }
+    Assert.assertFalse( slaveStep.equals( null ) );
+  }
 
-    @Test
-    public void equalsDifferentClassesTest() {
+  @Test
+  public void equalsDifferentClassesTest() {
 
-        Assert.assertFalse( slaveStep.equals( Integer.valueOf(5) ) );
-    }
+    Assert.assertFalse( slaveStep.equals( Integer.valueOf( 5 ) ) );
+  }
 
-    @Test
-    public void equalsSameInstanceTest() {
+  @Test
+  public void equalsSameInstanceTest() {
 
-        Assert.assertTrue( slaveStep.equals( slaveStep ) );
-    }
+    Assert.assertTrue( slaveStep.equals( slaveStep ) );
+  }
 
-    @Test
-    public void equalsDifferentStepsTest() {
+  @Test
+  public void equalsDifferentStepsTest() {
 
-        SlaveStepCopyPartitionDistribution other = new SlaveStepCopyPartitionDistribution();
-        List<PartitionSchema> schemas = new ArrayList<>();
-        schemas.add( new PartitionSchema() );
-        other.setOriginalPartitionSchemas( schemas );
-        Assert.assertFalse( slaveStep.equals( other ) );
-    }
+    SlaveStepCopyPartitionDistribution other = new SlaveStepCopyPartitionDistribution();
+    List<PartitionSchema> schemas = new ArrayList<>();
+    schemas.add( new PartitionSchema() );
+    other.setOriginalPartitionSchemas( schemas );
+    Assert.assertFalse( slaveStep.equals( other ) );
+  }
 
-    @Test
-    public void equalsTest(){
+  @Test
+  public void equalsTest() {
 
-        Assert.assertTrue( slaveStep.equals( new SlaveStepCopyPartitionDistribution() ) );
-    }
+    Assert.assertTrue( slaveStep.equals( new SlaveStepCopyPartitionDistribution() ) );
+  }
 
-    @Test
-    public void hashCodeEqualsTest() {
+  @Test
+  public void hashCodeEqualsTest() {
 
-        SlaveStepCopyPartitionDistribution other = new SlaveStepCopyPartitionDistribution();
+    SlaveStepCopyPartitionDistribution other = new SlaveStepCopyPartitionDistribution();
 
-        Assert.assertEquals( slaveStep.hashCode(), other.hashCode() );
-    }
+    Assert.assertEquals( slaveStep.hashCode(), other.hashCode() );
+  }
 
-    @Test
-    public void hashCodeDifferentTest() {
+  @Test
+  public void hashCodeDifferentTest() {
 
-        SlaveStepCopyPartitionDistribution other = new SlaveStepCopyPartitionDistribution();
-        List<PartitionSchema> schemas = new ArrayList<>();
-        PartitionSchema schema = new PartitionSchema();
-        schema.setName( "Test" );
-        schemas.add( schema );
-        other.setOriginalPartitionSchemas( schemas );
+    SlaveStepCopyPartitionDistribution other = new SlaveStepCopyPartitionDistribution();
+    List<PartitionSchema> schemas = new ArrayList<>();
+    PartitionSchema schema = new PartitionSchema();
+    schema.setName( "Test" );
+    schemas.add( schema );
+    other.setOriginalPartitionSchemas( schemas );
 
-        Assert.assertNotEquals( slaveStep.hashCode(), other.hashCode() );
+    Assert.assertNotEquals( slaveStep.hashCode(), other.hashCode() );
 
-    }
+  }
 }

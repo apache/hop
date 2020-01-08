@@ -22,13 +22,12 @@
 
 package org.apache.hop.trans.steps.systemdata;
 
+import com.sun.management.OperatingSystemMXBean;
+import org.apache.hop.core.Const;
+
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadMXBean;
-
-import org.apache.hop.core.Const;
-
-import com.sun.management.OperatingSystemMXBean;
 
 public class Management {
   private static RuntimeMXBean mx = null;

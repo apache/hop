@@ -22,17 +22,13 @@
 
 package org.apache.hop.trans.steps.fileinput.text;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopStepException;
@@ -55,7 +51,7 @@ import org.apache.hop.core.vfs.AliasedFileObject;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
@@ -70,17 +66,18 @@ import org.apache.hop.trans.steps.file.BaseFileInputAdditionalField;
 import org.apache.hop.trans.steps.file.BaseFileInputFiles;
 import org.apache.hop.trans.steps.file.BaseFileInputMeta;
 import org.apache.hop.workarounds.ResolvableResource;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 @SuppressWarnings( "deprecation" )
 @InjectionSupported( localizationPrefix = "TextFileInput.Injection.", groups = { "FILENAME_LINES", "FIELDS", "FILTERS" } )
 public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditionalField, BaseFileInputFiles, BaseFileField>
-    implements StepMetaInterface, ResolvableResource, CsvInputAwareMeta {
+  implements StepMetaInterface, ResolvableResource, CsvInputAwareMeta {
   private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator2!! TODO: check i18n
-                                                         // for base
+  // for base
 
   private static final String STRING_BASE64_PREFIX = "Base64: ";
 
@@ -96,107 +93,159 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
 
   public static class Content implements Cloneable {
 
-    /** Type of file: CSV or fixed */
+    /**
+     * Type of file: CSV or fixed
+     */
     @Injection( name = "FILE_TYPE" )
     public String fileType;
 
-    /** String used to separated field (;) */
+    /**
+     * String used to separated field (;)
+     */
     @Injection( name = "SEPARATOR" )
     public String separator;
 
-    /** String used to enclose separated fields (") */
+    /**
+     * String used to enclose separated fields (")
+     */
     @Injection( name = "ENCLOSURE" )
     public String enclosure;
 
-    /** Switch to allow breaks (CR/LF) in Enclosures */
+    /**
+     * Switch to allow breaks (CR/LF) in Enclosures
+     */
     @Injection( name = "BREAK_IN_ENCLOSURE" )
     public boolean breakInEnclosureAllowed;
 
-    /** Escape character used to escape the enclosure String (\) */
+    /**
+     * Escape character used to escape the enclosure String (\)
+     */
     @Injection( name = "ESCAPE_CHAR" )
     public String escapeCharacter;
 
-    /** Flag indicating that the file contains one header line that should be skipped. */
+    /**
+     * Flag indicating that the file contains one header line that should be skipped.
+     */
     @Injection( name = "HEADER_PRESENT" )
     public boolean header;
 
-    /** The number of header lines, defaults to 1 */
+    /**
+     * The number of header lines, defaults to 1
+     */
     @Injection( name = "NR_HEADER_LINES" )
     public int nrHeaderLines = -1;
 
-    /** Flag indicating that the file contains one footer line that should be skipped. */
+    /**
+     * Flag indicating that the file contains one footer line that should be skipped.
+     */
     @Injection( name = "HAS_FOOTER" )
     public boolean footer;
 
-    /** The number of footer lines, defaults to 1 */
+    /**
+     * The number of footer lines, defaults to 1
+     */
     @Injection( name = "NR_FOOTER_LINES" )
     public int nrFooterLines = -1;
 
-    /** Flag indicating that a single line is wrapped onto one or more lines in the text file. */
+    /**
+     * Flag indicating that a single line is wrapped onto one or more lines in the text file.
+     */
     @Injection( name = "HAS_WRAPPED_LINES" )
     public boolean lineWrapped;
 
-    /** The number of times the line wrapped */
+    /**
+     * The number of times the line wrapped
+     */
     @Injection( name = "NR_WRAPS" )
     public int nrWraps = -1;
 
-    /** Flag indicating that the text-file has a paged layout. */
+    /**
+     * Flag indicating that the text-file has a paged layout.
+     */
     @Injection( name = "HAS_PAGED_LAYOUT" )
     public boolean layoutPaged;
 
-    /** The number of lines to read per page */
+    /**
+     * The number of lines to read per page
+     */
     @Injection( name = "NR_LINES_PER_PAGE" )
     public int nrLinesPerPage = -1;
 
-    /** The number of lines in the document header */
+    /**
+     * The number of lines in the document header
+     */
     @Injection( name = "NR_DOC_HEADER_LINES" )
     public int nrLinesDocHeader = -1;
 
-    /** Type of compression being used */
+    /**
+     * Type of compression being used
+     */
     @Injection( name = "COMPRESSION_TYPE" )
     public String fileCompression;
 
-    /** Flag indicating that we should skip all empty lines */
+    /**
+     * Flag indicating that we should skip all empty lines
+     */
     @Injection( name = "NO_EMPTY_LINES" )
     public boolean noEmptyLines;
 
-    /** Flag indicating that we should include the filename in the output */
+    /**
+     * Flag indicating that we should include the filename in the output
+     */
     @Injection( name = "INCLUDE_FILENAME" )
     public boolean includeFilename;
 
-    /** The name of the field in the output containing the filename */
+    /**
+     * The name of the field in the output containing the filename
+     */
     @Injection( name = "FILENAME_FIELD" )
     public String filenameField;
 
-    /** Flag indicating that a row number field should be included in the output */
+    /**
+     * Flag indicating that a row number field should be included in the output
+     */
     @Injection( name = "INCLUDE_ROW_NUMBER" )
     public boolean includeRowNumber;
 
-    /** The name of the field in the output containing the row number */
+    /**
+     * The name of the field in the output containing the row number
+     */
     @Injection( name = "ROW_NUMBER_FIELD" )
     public String rowNumberField;
 
-    /** Flag indicating row number is per file */
+    /**
+     * Flag indicating row number is per file
+     */
     @Injection( name = "ROW_NUMBER_BY_FILE" )
     public boolean rowNumberByFile;
 
-    /** The file format: DOS or UNIX or mixed */
+    /**
+     * The file format: DOS or UNIX or mixed
+     */
     @Injection( name = "FILE_FORMAT" )
     public String fileFormat;
 
-    /** The encoding to use for reading: null or empty string means system default encoding */
+    /**
+     * The encoding to use for reading: null or empty string means system default encoding
+     */
     @Injection( name = "ENCODING" )
     public String encoding;
 
-    /** The maximum number or lines to read */
+    /**
+     * The maximum number or lines to read
+     */
     @Injection( name = "ROW_LIMIT" )
     public long rowLimit = -1;
 
-    /** Indicate whether or not we want to date fields strictly according to the format or lenient */
+    /**
+     * Indicate whether or not we want to date fields strictly according to the format or lenient
+     */
     @Injection( name = "DATE_FORMAT_LENIENT" )
     public boolean dateFormatLenient;
 
-    /** Specifies the Locale of the Date format, null means the default */
+    /**
+     * Specifies the Locale of the Date format, null means the default
+     */
     public Locale dateFormatLocale;
 
     @Injection( name = "DATE_FORMAT_LOCALE" )
@@ -204,39 +253,53 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
       this.dateFormatLocale = new Locale( locale );
     }
 
-    /** Length based on bytes or characters */
+    /**
+     * Length based on bytes or characters
+     */
     @Injection( name = "LENGTH" )
     public String length;
 
   }
 
-  /** The filters to use... */
+  /**
+   * The filters to use...
+   */
   @InjectionDeep
   private TextFileFilter[] filter = {};
 
-  /** The name of the field that will contain the number of errors in the row */
+  /**
+   * The name of the field that will contain the number of errors in the row
+   */
   @Injection( name = "ERROR_COUNT_FIELD" )
   public String errorCountField;
 
-  /** The name of the field that will contain the names of the fields that generated errors, separated by , */
+  /**
+   * The name of the field that will contain the names of the fields that generated errors, separated by ,
+   */
   @Injection( name = "ERROR_FIELDS_FIELD" )
   public String errorFieldsField;
 
-  /** The name of the field that will contain the error texts, separated by CR */
+  /**
+   * The name of the field that will contain the error texts, separated by CR
+   */
   @Injection( name = "ERROR_TEXT_FIELD" )
   public String errorTextField;
 
-  /** If error line are skipped, you can replay without introducing doubles. */
+  /**
+   * If error line are skipped, you can replay without introducing doubles.
+   */
   @Injection( name = "ERROR_LINES_SKIPPED" )
   public boolean errorLineSkipped;
 
-  /** The step to accept filenames from */
+  /**
+   * The step to accept filenames from
+   */
   private StepMeta acceptingStep;
 
   public TextFileInputMeta() {
     additionalOutputFields = new BaseFileInputAdditionalField();
     inputFiles = new BaseFileInputFiles();
-    inputFields = new BaseFileField[0];
+    inputFields = new BaseFileField[ 0 ];
   }
 
   /**
@@ -247,8 +310,7 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
   }
 
   /**
-   * @param fileName
-   *          The fileName to set.
+   * @param fileName The fileName to set.
    */
   public void setFileName( String[] fileName ) {
     inputFiles.fileName = fileName;
@@ -262,8 +324,7 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
   }
 
   /**
-   * @param filter
-   *          The array of filters to use
+   * @param filter The array of filters to use
    */
   public void setFilter( TextFileFilter[] filter ) {
     this.filter = filter;
@@ -274,7 +335,7 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
     try {
       inputFiles.acceptingFilenames = YES.equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "accept_filenames" ) );
       inputFiles.passingThruFields =
-          YES.equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "passing_through_fields" ) );
+        YES.equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "passing_through_fields" ) );
       inputFiles.acceptingField = XMLHandler.getTagValue( stepnode, "accept_field" );
       inputFiles.acceptingStepName = XMLHandler.getTagValue( stepnode, "accept_stepname" );
 
@@ -324,11 +385,11 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
         Node excludefilemasknode = XMLHandler.getSubNodeByNr( filenode, "exclude_filemask", i );
         Node fileRequirednode = XMLHandler.getSubNodeByNr( filenode, "file_required", i );
         Node includeSubFoldersnode = XMLHandler.getSubNodeByNr( filenode, "include_subfolders", i );
-        inputFiles.fileName[i] = loadSource( filenode, filenamenode, i, metaStore );
-        inputFiles.fileMask[i] = XMLHandler.getNodeValue( filemasknode );
-        inputFiles.excludeFileMask[i] = XMLHandler.getNodeValue( excludefilemasknode );
-        inputFiles.fileRequired[i] = XMLHandler.getNodeValue( fileRequirednode );
-        inputFiles.includeSubFolders[i] = XMLHandler.getNodeValue( includeSubFoldersnode );
+        inputFiles.fileName[ i ] = loadSource( filenode, filenamenode, i, metaStore );
+        inputFiles.fileMask[ i ] = XMLHandler.getNodeValue( filemasknode );
+        inputFiles.excludeFileMask[ i ] = XMLHandler.getNodeValue( excludefilemasknode );
+        inputFiles.fileRequired[ i ] = XMLHandler.getNodeValue( fileRequirednode );
+        inputFiles.includeSubFolders[ i ] = XMLHandler.getNodeValue( includeSubFoldersnode );
       }
 
       content.fileType = XMLHandler.getTagValue( stepnode, "file", "type" );
@@ -342,31 +403,31 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
 
       // Backward compatibility : just one filter
       if ( XMLHandler.getTagValue( stepnode, "filter" ) != null ) {
-        filter = new TextFileFilter[1];
-        filter[0] = new TextFileFilter();
+        filter = new TextFileFilter[ 1 ];
+        filter[ 0 ] = new TextFileFilter();
 
-        filter[0].setFilterPosition( Const.toInt( XMLHandler.getTagValue( stepnode, "filter_position" ), -1 ) );
-        filter[0].setFilterString( XMLHandler.getTagValue( stepnode, "filter_string" ) );
-        filter[0].setFilterLastLine( YES.equalsIgnoreCase( XMLHandler.getTagValue( stepnode,
-            "filter_is_last_line" ) ) );
-        filter[0].setFilterPositive( YES.equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "filter_is_positive" ) ) );
+        filter[ 0 ].setFilterPosition( Const.toInt( XMLHandler.getTagValue( stepnode, "filter_position" ), -1 ) );
+        filter[ 0 ].setFilterString( XMLHandler.getTagValue( stepnode, "filter_string" ) );
+        filter[ 0 ].setFilterLastLine( YES.equalsIgnoreCase( XMLHandler.getTagValue( stepnode,
+          "filter_is_last_line" ) ) );
+        filter[ 0 ].setFilterPositive( YES.equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "filter_is_positive" ) ) );
       } else {
         for ( int i = 0; i < nrfilters; i++ ) {
           Node fnode = XMLHandler.getSubNodeByNr( filtersNode, "filter", i );
-          filter[i] = new TextFileFilter();
+          filter[ i ] = new TextFileFilter();
 
-          filter[i].setFilterPosition( Const.toInt( XMLHandler.getTagValue( fnode, "filter_position" ), -1 ) );
+          filter[ i ].setFilterPosition( Const.toInt( XMLHandler.getTagValue( fnode, "filter_position" ), -1 ) );
 
           String filterString = XMLHandler.getTagValue( fnode, "filter_string" );
           if ( filterString != null && filterString.startsWith( STRING_BASE64_PREFIX ) ) {
-            filter[i].setFilterString( new String( Base64.decodeBase64( filterString.substring( STRING_BASE64_PREFIX
-                .length() ).getBytes() ) ) );
+            filter[ i ].setFilterString( new String( Base64.decodeBase64( filterString.substring( STRING_BASE64_PREFIX
+              .length() ).getBytes() ) ) );
           } else {
-            filter[i].setFilterString( filterString );
+            filter[ i ].setFilterString( filterString );
           }
 
-          filter[i].setFilterLastLine( YES.equalsIgnoreCase( XMLHandler.getTagValue( fnode, "filter_is_last_line" ) ) );
-          filter[i].setFilterPositive( YES.equalsIgnoreCase( XMLHandler.getTagValue( fnode, "filter_is_positive" ) ) );
+          filter[ i ].setFilterLastLine( YES.equalsIgnoreCase( XMLHandler.getTagValue( fnode, "filter_is_last_line" ) ) );
+          filter[ i ].setFilterPositive( YES.equalsIgnoreCase( XMLHandler.getTagValue( fnode, "filter_is_positive" ) ) );
         }
       }
 
@@ -388,7 +449,7 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
         field.setTrimType( ValueMetaString.getTrimTypeByCode( XMLHandler.getTagValue( fnode, "trim_type" ) ) );
         field.setRepeated( YES.equalsIgnoreCase( XMLHandler.getTagValue( fnode, "repeat" ) ) );
 
-        inputFields[i] = field;
+        inputFields[ i ] = field;
       }
 
       // Is there a limit on the number of rows we process?
@@ -403,13 +464,13 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
       errorFieldsField = XMLHandler.getTagValue( stepnode, "error_fields_field" );
       errorTextField = XMLHandler.getTagValue( stepnode, "error_text_field" );
       errorHandling.warningFilesDestinationDirectory =
-          XMLHandler.getTagValue( stepnode, "bad_line_files_destination_directory" );
+        XMLHandler.getTagValue( stepnode, "bad_line_files_destination_directory" );
       errorHandling.warningFilesExtension = XMLHandler.getTagValue( stepnode, "bad_line_files_extension" );
       errorHandling.errorFilesDestinationDirectory =
-          XMLHandler.getTagValue( stepnode, "error_line_files_destination_directory" );
+        XMLHandler.getTagValue( stepnode, "error_line_files_destination_directory" );
       errorHandling.errorFilesExtension = XMLHandler.getTagValue( stepnode, "error_line_files_extension" );
       errorHandling.lineNumberFilesDestinationDirectory =
-          XMLHandler.getTagValue( stepnode, "line_number_files_destination_directory" );
+        XMLHandler.getTagValue( stepnode, "line_number_files_destination_directory" );
       errorHandling.lineNumberFilesExtension = XMLHandler.getTagValue( stepnode, "line_number_files_extension" );
       // Backward compatible
 
@@ -425,7 +486,7 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
       additionalOutputFields.pathField = XMLHandler.getTagValue( stepnode, "pathFieldName" );
       additionalOutputFields.hiddenField = XMLHandler.getTagValue( stepnode, "hiddenFieldName" );
       additionalOutputFields.lastModificationField =
-          XMLHandler.getTagValue( stepnode, "lastModificationTimeFieldName" );
+        XMLHandler.getTagValue( stepnode, "lastModificationTimeFieldName" );
       additionalOutputFields.uriField = XMLHandler.getTagValue( stepnode, "uriNameFieldName" );
       additionalOutputFields.rootUriField = XMLHandler.getTagValue( stepnode, "rootUriNameFieldName" );
       additionalOutputFields.extensionField = XMLHandler.getTagValue( stepnode, "extensionFieldName" );
@@ -439,14 +500,14 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
   public Object clone() {
     TextFileInputMeta retval = (TextFileInputMeta) super.clone();
     retval.inputFiles = (BaseFileInputFiles) inputFiles.clone();
-    retval.inputFields = new BaseFileField[inputFields.length];
+    retval.inputFields = new BaseFileField[ inputFields.length ];
     for ( int i = 0; i < inputFields.length; i++ ) {
-      retval.inputFields[i] = (BaseFileField) inputFields[i].clone();
+      retval.inputFields[ i ] = (BaseFileField) inputFields[ i ].clone();
     }
 
-    retval.filter = new TextFileFilter[filter.length];
+    retval.filter = new TextFileFilter[ filter.length ];
     for ( int i = 0; i < filter.length; i++ ) {
-      retval.filter[i] = (TextFileFilter) filter[i].clone();
+      retval.filter[ i ] = (TextFileFilter) filter[ i ].clone();
     }
     return retval;
   }
@@ -454,16 +515,16 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
   public void allocate( int nrfiles, int nrfields, int nrfilters ) {
     allocateFiles( nrfiles );
 
-    inputFields = new BaseFileField[nrfields];
-    filter = new TextFileFilter[nrfilters];
+    inputFields = new BaseFileField[ nrfields ];
+    filter = new TextFileFilter[ nrfilters ];
   }
 
   public void allocateFiles( int nrFiles ) {
-    inputFiles.fileName = new String[nrFiles];
-    inputFiles.fileMask = new String[nrFiles];
-    inputFiles.excludeFileMask = new String[nrFiles];
-    inputFiles.fileRequired = new String[nrFiles];
-    inputFiles.includeSubFolders = new String[nrFiles];
+    inputFiles.fileName = new String[ nrFiles ];
+    inputFiles.fileMask = new String[ nrFiles ];
+    inputFiles.excludeFileMask = new String[ nrFiles ];
+    inputFiles.fileRequired = new String[ nrFiles ];
+    inputFiles.includeSubFolders = new String[ nrFiles ];
   }
 
   @Override
@@ -519,15 +580,15 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
     allocate( nrfiles, nrfields, nrfilters );
 
     for ( int i = 0; i < nrfiles; i++ ) {
-      inputFiles.fileName[i] = "filename" + ( i + 1 );
-      inputFiles.fileMask[i] = "";
-      inputFiles.excludeFileMask[i] = "";
-      inputFiles.fileRequired[i] = NO;
-      inputFiles.includeSubFolders[i] = NO;
+      inputFiles.fileName[ i ] = "filename" + ( i + 1 );
+      inputFiles.fileMask[ i ] = "";
+      inputFiles.excludeFileMask[ i ] = "";
+      inputFiles.fileRequired[ i ] = NO;
+      inputFiles.includeSubFolders[ i ] = NO;
     }
 
     for ( int i = 0; i < nrfields; i++ ) {
-      inputFields[i] = new BaseFileField( "field" + ( i + 1 ), 1, -1 );
+      inputFields[ i ] = new BaseFileField( "field" + ( i + 1 ), 1, -1 );
     }
 
     content.dateFormatLocale = Locale.getDefault();
@@ -537,7 +598,7 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     if ( !inputFiles.passingThruFields ) {
       // all incoming fields are not transmitted !
       row.clear();
@@ -545,8 +606,8 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
       if ( info != null ) {
         boolean found = false;
         for ( int i = 0; i < info.length && !found; i++ ) {
-          if ( info[i] != null ) {
-            row.mergeRowMeta( info[i], name );
+          if ( info[ i ] != null ) {
+            row.mergeRowMeta( info[ i ], name );
             found = true;
           }
         }
@@ -554,7 +615,7 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
     }
 
     for ( int i = 0; i < inputFields.length; i++ ) {
-      BaseFileField field = inputFields[i];
+      BaseFileField field = inputFields[ i ];
 
       int type = field.getType();
       if ( type == ValueMetaInterface.TYPE_NONE ) {
@@ -614,48 +675,48 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
 
     if ( StringUtils.isNotBlank( additionalOutputFields.shortFilenameField ) ) {
       ValueMetaInterface v =
-          new ValueMetaString( space.environmentSubstitute( additionalOutputFields.shortFilenameField ) );
+        new ValueMetaString( space.environmentSubstitute( additionalOutputFields.shortFilenameField ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( StringUtils.isNotBlank( additionalOutputFields.extensionField ) ) {
       ValueMetaInterface v =
-          new ValueMetaString( space.environmentSubstitute( additionalOutputFields.extensionField ) );
+        new ValueMetaString( space.environmentSubstitute( additionalOutputFields.extensionField ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( StringUtils.isNotBlank( additionalOutputFields.pathField ) ) {
       ValueMetaInterface v =
-          new ValueMetaString( space.environmentSubstitute( additionalOutputFields.pathField ) );
+        new ValueMetaString( space.environmentSubstitute( additionalOutputFields.pathField ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( StringUtils.isNotBlank( additionalOutputFields.sizeField ) ) {
       ValueMetaInterface v =
-          new ValueMetaString( space.environmentSubstitute( additionalOutputFields.sizeField ) );
+        new ValueMetaString( space.environmentSubstitute( additionalOutputFields.sizeField ) );
       v.setOrigin( name );
       v.setLength( 9 );
       row.addValueMeta( v );
     }
     if ( StringUtils.isNotBlank( additionalOutputFields.hiddenField ) ) {
       ValueMetaInterface v =
-          new ValueMetaBoolean( space.environmentSubstitute( additionalOutputFields.hiddenField ) );
+        new ValueMetaBoolean( space.environmentSubstitute( additionalOutputFields.hiddenField ) );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
 
     if ( StringUtils.isNotBlank( additionalOutputFields.lastModificationField ) ) {
       ValueMetaInterface v =
-          new ValueMetaDate( space.environmentSubstitute( additionalOutputFields.lastModificationField ) );
+        new ValueMetaDate( space.environmentSubstitute( additionalOutputFields.lastModificationField ) );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( StringUtils.isNotBlank( additionalOutputFields.uriField ) ) {
       ValueMetaInterface v =
-          new ValueMetaString( space.environmentSubstitute( additionalOutputFields.uriField ) );
+        new ValueMetaString( space.environmentSubstitute( additionalOutputFields.uriField ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
@@ -678,7 +739,7 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
     retval.append( "    " ).append( XMLHandler.addTagValue( "passing_through_fields", inputFiles.passingThruFields ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "accept_field", inputFiles.acceptingField ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "accept_stepname", ( acceptingStep != null ? acceptingStep
-        .getName() : "" ) ) );
+      .getName() : "" ) ) );
 
     retval.append( "    " ).append( XMLHandler.addTagValue( "separator", content.separator ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "enclosure", content.enclosure ) );
@@ -709,20 +770,20 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
     //to prevent the ArrayIndexOutOfBoundsException
     inputFiles.normalizeAllocation( inputFiles.fileName.length );
     for ( int i = 0; i < inputFiles.fileName.length; i++ ) {
-      saveSource( retval, inputFiles.fileName[i] );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "filemask", inputFiles.fileMask[i] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "exclude_filemask", inputFiles.excludeFileMask[i] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "file_required", inputFiles.fileRequired[i] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", inputFiles.includeSubFolders[i] ) );
+      saveSource( retval, inputFiles.fileName[ i ] );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "filemask", inputFiles.fileMask[ i ] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "exclude_filemask", inputFiles.excludeFileMask[ i ] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "file_required", inputFiles.fileRequired[ i ] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", inputFiles.includeSubFolders[ i ] ) );
     }
     retval.append( "      " ).append( XMLHandler.addTagValue( "type", content.fileType ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "compression", ( content.fileCompression == null )
-        ? "None" : content.fileCompression ) );
+      ? "None" : content.fileCompression ) );
     retval.append( "    </file>" ).append( Const.CR );
 
     retval.append( "    <filters>" ).append( Const.CR );
     for ( int i = 0; i < filter.length; i++ ) {
-      String filterString = filter[i].getFilterString();
+      String filterString = filter[ i ].getFilterString();
       byte[] filterBytes = new byte[] {};
       String filterPrefix = "";
       if ( filterString != null ) {
@@ -733,19 +794,19 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
 
       retval.append( "      <filter>" ).append( Const.CR );
       retval.append( "        " ).append( XMLHandler.addTagValue( "filter_string", filterEncoded, false ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "filter_position", filter[i].getFilterPosition(),
-          false ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "filter_is_last_line", filter[i].isFilterLastLine(),
-          false ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "filter_is_positive", filter[i].isFilterPositive(),
-          false ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "filter_position", filter[ i ].getFilterPosition(),
+        false ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "filter_is_last_line", filter[ i ].isFilterLastLine(),
+        false ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "filter_is_positive", filter[ i ].isFilterPositive(),
+        false ) );
       retval.append( "      </filter>" ).append( Const.CR );
     }
     retval.append( "    </filters>" ).append( Const.CR );
 
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < inputFields.length; i++ ) {
-      BaseFileField field = inputFields[i];
+      BaseFileField field = inputFields[ i ];
 
       retval.append( "      <field>" ).append( Const.CR );
       retval.append( "        " ).append( XMLHandler.addTagValue( "name", field.getName() ) );
@@ -771,40 +832,40 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
     retval.append( "    " ).append( XMLHandler.addTagValue( "skip_bad_files", errorHandling.skipBadFiles ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "file_error_field", errorHandling.fileErrorField ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "file_error_message_field",
-        errorHandling.fileErrorMessageField ) );
+      errorHandling.fileErrorMessageField ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "error_line_skipped", errorLineSkipped ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "error_count_field", errorCountField ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "error_fields_field", errorFieldsField ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "error_text_field", errorTextField ) );
 
     retval.append( "    " ).append( XMLHandler.addTagValue( "bad_line_files_destination_directory",
-        errorHandling.warningFilesDestinationDirectory ) );
+      errorHandling.warningFilesDestinationDirectory ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "bad_line_files_extension",
-        errorHandling.warningFilesExtension ) );
+      errorHandling.warningFilesExtension ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "error_line_files_destination_directory",
-        errorHandling.errorFilesDestinationDirectory ) );
+      errorHandling.errorFilesDestinationDirectory ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "error_line_files_extension",
-        errorHandling.errorFilesExtension ) );
+      errorHandling.errorFilesExtension ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "line_number_files_destination_directory",
-        errorHandling.lineNumberFilesDestinationDirectory ) );
+      errorHandling.lineNumberFilesDestinationDirectory ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "line_number_files_extension",
-        errorHandling.lineNumberFilesExtension ) );
+      errorHandling.lineNumberFilesExtension ) );
 
     retval.append( "    " ).append( XMLHandler.addTagValue( "date_format_lenient", content.dateFormatLenient ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "date_format_locale", content.dateFormatLocale != null
-        ? content.dateFormatLocale.toString() : null ) );
+      ? content.dateFormatLocale.toString() : null ) );
 
     retval.append( "    " ).append( XMLHandler.addTagValue( "shortFileFieldName",
-        additionalOutputFields.shortFilenameField ) );
+      additionalOutputFields.shortFilenameField ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "pathFieldName", additionalOutputFields.pathField ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "hiddenFieldName", additionalOutputFields.hiddenField ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "lastModificationTimeFieldName",
-        additionalOutputFields.lastModificationField ) );
+      additionalOutputFields.lastModificationField ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "uriNameFieldName", additionalOutputFields.uriField ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "rootUriNameFieldName",
-        additionalOutputFields.rootUriField ) );
+      additionalOutputFields.rootUriField ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "extensionFieldName",
-        additionalOutputFields.extensionField ) );
+      additionalOutputFields.extensionField ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "sizeFieldName", additionalOutputFields.sizeField ) );
 
     return retval.toString();
@@ -818,8 +879,7 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
   }
 
   /**
-   * @param steps
-   *          optionally search the info step in a list of steps
+   * @param steps optionally search the info step in a list of steps
    */
   @Override
   public void searchInfoAndTargetSteps( List<StepMeta> steps ) {
@@ -835,27 +895,27 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-      IMetaStore metaStore ) {
+                     String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     // See if we get input...
     if ( input.length > 0 ) {
       if ( !inputFiles.acceptingFilenames ) {
         cr =
-            new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                "TextFileInputMeta.CheckResult.NoInputError" ), stepMeta );
+          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+            "TextFileInputMeta.CheckResult.NoInputError" ), stepMeta );
         remarks.add( cr );
       } else {
         cr =
-            new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-                "TextFileInputMeta.CheckResult.AcceptFilenamesOk" ), stepMeta );
+          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+            "TextFileInputMeta.CheckResult.AcceptFilenamesOk" ), stepMeta );
         remarks.add( cr );
       }
     } else {
       cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "TextFileInputMeta.CheckResult.NoInputOk" ), stepMeta );
+        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "TextFileInputMeta.CheckResult.NoInputOk" ), stepMeta );
       remarks.add( cr );
     }
 
@@ -863,21 +923,21 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
     if ( textFileList.nrOfFiles() == 0 ) {
       if ( !inputFiles.acceptingFilenames ) {
         cr =
-            new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                "TextFileInputMeta.CheckResult.ExpectedFilesError" ), stepMeta );
+          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+            "TextFileInputMeta.CheckResult.ExpectedFilesError" ), stepMeta );
         remarks.add( cr );
       }
     } else {
       cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "TextFileInputMeta.CheckResult.ExpectedFilesOk", "" + textFileList.nrOfFiles() ), stepMeta );
+        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "TextFileInputMeta.CheckResult.ExpectedFilesOk", "" + textFileList.nrOfFiles() ), stepMeta );
       remarks.add( cr );
     }
   }
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta transMeta,
-      Trans trans ) {
+                                Trans trans ) {
     return new TextFileInput( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -912,12 +972,12 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
 
   public String getRequiredFilesDesc( String tt ) {
     if ( tt == null ) {
-      return RequiredFilesDesc[0];
+      return RequiredFilesDesc[ 0 ];
     }
-    if ( tt.equals( RequiredFilesCode[1] ) ) {
-      return RequiredFilesDesc[1];
+    if ( tt.equals( RequiredFilesCode[ 1 ] ) ) {
+      return RequiredFilesDesc[ 1 ];
     } else {
-      return RequiredFilesDesc[0];
+      return RequiredFilesDesc[ 0 ];
     }
   }
 
@@ -930,8 +990,7 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
   }
 
   /**
-   * @param acceptingStep
-   *          The acceptingStep to set.
+   * @param acceptingStep The acceptingStep to set.
    */
   public void setAcceptingStep( StepMeta acceptingStep ) {
     this.acceptingStep = acceptingStep;
@@ -963,19 +1022,16 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param space
-   *          the variable space to use
+   * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
-   *
+   * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-      ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore )
-        throws HopException {
+                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore )
+    throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
@@ -993,8 +1049,8 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
 
           FileObject fileObject = getFileObject( space.environmentSubstitute( fileName ), space );
 
-          inputFiles.fileName[i] =
-              resourceNamingInterface.nameResource( fileObject, space, Utils.isEmpty( inputFiles.fileMask[i] ) );
+          inputFiles.fileName[ i ] =
+            resourceNamingInterface.nameResource( fileObject, space, Utils.isEmpty( inputFiles.fileMask[ i ] ) );
         }
       }
       return null;
@@ -1035,8 +1091,7 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
   }
 
   /**
-   * @param length
-   *          the length to set
+   * @param length the length to set
    */
   public void setLength( String length ) {
     content.length = length;
@@ -1072,14 +1127,14 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
 
   public String[] getFilePaths( VariableSpace space ) {
     return FileInputList.createFilePathList(
-        space, inputFiles.fileName, inputFiles.fileMask, inputFiles.excludeFileMask,
-        inputFiles.fileRequired, inputFiles.includeSubFolderBoolean() );
+      space, inputFiles.fileName, inputFiles.fileMask, inputFiles.excludeFileMask,
+      inputFiles.fileRequired, inputFiles.includeSubFolderBoolean() );
   }
 
   public FileInputList getTextFileList( VariableSpace space ) {
     return FileInputList.createFileList(
-        space, inputFiles.fileName, inputFiles.fileMask, inputFiles.excludeFileMask,
-        inputFiles.fileRequired, inputFiles.includeSubFolderBoolean() );
+      space, inputFiles.fileName, inputFiles.fileMask, inputFiles.excludeFileMask,
+      inputFiles.fileRequired, inputFiles.includeSubFolderBoolean() );
   }
 
   /**
@@ -1092,11 +1147,11 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
   @Override
   public void resolve() {
     for ( int i = 0; i < inputFiles.fileName.length; i++ ) {
-      if ( inputFiles.fileName[i] != null && !inputFiles.fileName[i].isEmpty() ) {
+      if ( inputFiles.fileName[ i ] != null && !inputFiles.fileName[ i ].isEmpty() ) {
         try {
-          FileObject fileObject = HopVFS.getFileObject( getParentStepMeta().getParentTransMeta().environmentSubstitute( inputFiles.fileName[i] ) );
+          FileObject fileObject = HopVFS.getFileObject( getParentStepMeta().getParentTransMeta().environmentSubstitute( inputFiles.fileName[ i ] ) );
           if ( AliasedFileObject.isAliasedFile( fileObject ) ) {
-            inputFiles.fileName[i] = ( (AliasedFileObject) fileObject ).getOriginalURIString();
+            inputFiles.fileName[ i ] = ( (AliasedFileObject) fileObject ).getOriginalURIString();
           }
         } catch ( HopFileException e ) {
           throw new RuntimeException( e );

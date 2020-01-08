@@ -21,13 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
@@ -36,6 +29,13 @@ import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class Exasol4DatabaseMetaTest {
   Exasol4DatabaseMeta nativeMeta, odbcMeta;
@@ -51,7 +51,7 @@ public class Exasol4DatabaseMetaTest {
   @Test
   public void testSettings() throws Exception {
     assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE },
-        nativeMeta.getAccessTypeList() );
+      nativeMeta.getAccessTypeList() );
     assertEquals( 8563, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertFalse( nativeMeta.supportsAutoInc() );
@@ -133,45 +133,45 @@ public class Exasol4DatabaseMetaTest {
 
     String lineSep = System.getProperty( "line.separator" );
     assertEquals( "ALTER TABLE FOO DROP COLUMN BAR" + lineSep,
-        nativeMeta.getDropColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", true ) );
+      nativeMeta.getDropColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", true ) );
 
     assertEquals( "ALTER TABLE FOO ADD ( BAR TIMESTAMP ) ",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaDate( "BAR" ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaDate( "BAR" ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO ADD ( BAR TIMESTAMP ) ",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaTimestamp( "BAR" ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaTimestamp( "BAR" ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD ( BAR BOOLEAN ) ",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaBoolean( "BAR" ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaBoolean( "BAR" ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD ( BAR DECIMAL ) ",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR" ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR" ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO ADD ( BAR DECIMAL ) ",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaBigNumber( "BAR" ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaBigNumber( "BAR" ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD ( BAR DECIMAL(15) ) ",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 15, 0 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 15, 0 ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO ADD ( BAR DECIMAL(15) ) ",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaBigNumber( "BAR", 15, 0 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaBigNumber( "BAR", 15, 0 ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD ( BAR DECIMAL(15, 5) ) ",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 15, 5 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 15, 5 ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO ADD ( BAR DECIMAL(15, 5) ) ",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaBigNumber( "BAR", 15, 5 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaBigNumber( "BAR", 15, 5 ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD ( BAR INTEGER ) ",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaInteger( "BAR" ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaInteger( "BAR" ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD ( BAR VARCHAR(15) ) ",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD ( BAR VARCHAR(2000000) ) ",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", nativeMeta.getMaxVARCHARLength() + 15, 0 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", nativeMeta.getMaxVARCHARLength() + 15, 0 ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD ( BAR UNKNOWN ) ",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaInternetAddress( "BAR" ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaInternetAddress( "BAR" ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD ( BAR BIGINT NOT NULL PRIMARY KEY ) ",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaInteger( "BAR" ), "BAR", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaInteger( "BAR" ), "BAR", false, "", false ) );
   }
 
 }

@@ -22,19 +22,23 @@
 
 package org.apache.hop.partition;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.changed.ChangedFlag;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.core.xml.XMLInterface;
-
+import org.apache.hop.metastore.IHopMetaStoreElement;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metastore.persist.MetaStoreElementType;
+import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metastore.util.HopDefaults;
 import org.apache.hop.resource.ResourceHolderInterface;
-import org.apache.hop.shared.SharedObjectInterface;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * A partition schema allow you to partition a step according into a number of partitions that run independendly. It
@@ -42,17 +46,22 @@ import org.w3c.dom.Node;
  *
  * @author Matt
  */
-public class PartitionSchema extends ChangedFlag implements Cloneable, SharedObjectInterface,
-  ResourceHolderInterface, XMLInterface {
+@MetaStoreElementType(
+  name = "Partition Schema",
+  description = "Describes a partition schema"
+)
+public class PartitionSchema extends ChangedFlag implements Cloneable, ResourceHolderInterface, XMLInterface, IHopMetaStoreElement<PartitionSchema> {
   public static final String XML_TAG = "partitionschema";
 
   private String name;
 
+  @MetaStoreAttribute
   private List<String> partitionIDs;
-  private boolean shared;
 
-
+  @MetaStoreAttribute
   private boolean dynamicallyDefined;
+
+  @MetaStoreAttribute
   private String numberOfPartitionsPerSlave;
 
   private Date changedDate;
@@ -112,8 +121,7 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, SharedObj
   }
 
   /**
-   * @param name
-   *          the name to set
+   * @param name the name to set
    */
   public void setName( String name ) {
     this.name = name;
@@ -127,8 +135,7 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, SharedObj
   }
 
   /**
-   * @param partitionIDs
-   *          the partitionIDs to set
+   * @param partitionIDs the partitionIDs to set
    */
   public void setPartitionIDs( List<String> partitionIDs ) {
     this.partitionIDs = partitionIDs;
@@ -148,7 +155,7 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, SharedObj
     xml.append( "        " ).append( XMLHandler.addTagValue( "dynamic", dynamicallyDefined ) );
     xml
       .append( "        " ).append(
-        XMLHandler.addTagValue( "partitions_per_slave", numberOfPartitionsPerSlave ) );
+      XMLHandler.addTagValue( "partitions_per_slave", numberOfPartitionsPerSlave ) );
 
     xml.append( "      " ).append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
     return xml.toString();
@@ -167,21 +174,6 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, SharedObj
 
     dynamicallyDefined = "Y".equalsIgnoreCase( XMLHandler.getTagValue( partitionSchemaNode, "dynamic" ) );
     numberOfPartitionsPerSlave = XMLHandler.getTagValue( partitionSchemaNode, "partitions_per_slave" );
-  }
-
-  /**
-   * @return the shared
-   */
-  public boolean isShared() {
-    return shared;
-  }
-
-  /**
-   * @param shared
-   *          the shared to set
-   */
-  public void setShared( boolean shared ) {
-    this.shared = shared;
   }
 
   public String getDescription() {
@@ -208,8 +200,7 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, SharedObj
   }
 
   /**
-   * @param dynamicallyDefined
-   *          the dynamicallyDefined to set
+   * @param dynamicallyDefined the dynamicallyDefined to set
    */
   public void setDynamicallyDefined( boolean dynamicallyDefined ) {
     this.dynamicallyDefined = dynamicallyDefined;
@@ -223,8 +214,7 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, SharedObj
   }
 
   /**
-   * @param numberOfPartitionsPerSlave
-   *          the number of partitions per slave to set...
+   * @param numberOfPartitionsPerSlave the number of partitions per slave to set...
    */
   public void setNumberOfPartitionsPerSlave( String numberOfPartitionsPerSlave ) {
     this.numberOfPartitionsPerSlave = numberOfPartitionsPerSlave;
@@ -285,10 +275,17 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, SharedObj
   }
 
   /**
-   * @param changedDate
-   *          the changedDate to set
+   * @param changedDate the changedDate to set
    */
   public void setChangedDate( Date changedDate ) {
     this.changedDate = changedDate;
+  }
+
+  @Override public MetaStoreFactory<PartitionSchema> getFactory( IMetaStore metaStore ) {
+    return createFactory( metaStore );
+  }
+
+  public static final MetaStoreFactory<PartitionSchema> createFactory( IMetaStore metaStore ) {
+    return new MetaStoreFactory<>( PartitionSchema.class, metaStore, HopDefaults.NAMESPACE );
   }
 }

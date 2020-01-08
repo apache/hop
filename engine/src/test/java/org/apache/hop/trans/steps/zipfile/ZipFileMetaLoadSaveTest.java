@@ -21,14 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.zipfile;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -36,6 +28,14 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.IntLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ZipFileMetaLoadSaveTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -47,8 +47,8 @@ public class ZipFileMetaLoadSaveTest {
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "dynamicSourceFileNameField", "dynamicTargetFileNameField", "baseFolderField", "moveToFolderField", "addResultFilenames",
-            "overwriteZipEntry", "createParentFolder", "keepSouceFolder", "operationType" );
+      Arrays.asList( "dynamicSourceFileNameField", "dynamicTargetFileNameField", "baseFolderField", "moveToFolderField", "addResultFilenames",
+        "overwriteZipEntry", "createParentFolder", "keepSouceFolder", "operationType" );
 
     Map<String, String> getterMap = new HashMap<String, String>();
     getterMap.put( "addResultFilenames", "isaddTargetFileNametoResult" );
@@ -61,7 +61,7 @@ public class ZipFileMetaLoadSaveTest {
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
+      new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
   }
 
   @Test

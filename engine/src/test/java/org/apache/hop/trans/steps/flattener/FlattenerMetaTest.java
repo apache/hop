@@ -22,19 +22,20 @@
 
 package org.apache.hop.trans.steps.flattener;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
+import org.junit.ClassRule;
+import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
-
 public class FlattenerMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Test
   public void testRoundTrip() throws HopException {
     List<String> attributes = Arrays.asList( "field_name", "target" );

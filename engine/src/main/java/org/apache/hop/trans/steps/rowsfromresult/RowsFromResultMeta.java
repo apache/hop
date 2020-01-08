@@ -22,13 +22,9 @@
 
 package org.apache.hop.trans.steps.rowsfromresult;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
@@ -38,7 +34,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -46,8 +42,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*
  * Created on 02-jun-2003
@@ -70,8 +67,7 @@ public class RowsFromResultMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param length
-   *          The length to set.
+   * @param length The length to set.
    */
   public void setLength( int[] length ) {
     this.length = length;
@@ -85,8 +81,7 @@ public class RowsFromResultMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param name
-   *          The name to set.
+   * @param name The name to set.
    */
   public void setFieldname( String[] name ) {
     this.fieldname = name;
@@ -100,8 +95,7 @@ public class RowsFromResultMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param precision
-   *          The precision to set.
+   * @param precision The precision to set.
    */
   public void setPrecision( int[] precision ) {
     this.precision = precision;
@@ -115,8 +109,7 @@ public class RowsFromResultMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param type
-   *          The type to set.
+   * @param type The type to set.
    */
   public void setType( int[] type ) {
     this.type = type;
@@ -142,10 +135,10 @@ public class RowsFromResultMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   public void allocate( int nrFields ) {
-    fieldname = new String[nrFields];
-    type = new int[nrFields];
-    length = new int[nrFields];
-    precision = new int[nrFields];
+    fieldname = new String[ nrFields ];
+    type = new int[ nrFields ];
+    length = new int[ nrFields ];
+    precision = new int[ nrFields ];
   }
 
   public String getXML() {
@@ -153,10 +146,10 @@ public class RowsFromResultMeta extends BaseStepMeta implements StepMetaInterfac
     retval.append( "    <fields>" );
     for ( int i = 0; i < fieldname.length; i++ ) {
       retval.append( "      <field>" );
-      retval.append( "        " + XMLHandler.addTagValue( "name", fieldname[i] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( type[i] ) ) );
-      retval.append( "        " + XMLHandler.addTagValue( "length", length[i] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "precision", precision[i] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "name", fieldname[ i ] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( type[ i ] ) ) );
+      retval.append( "        " + XMLHandler.addTagValue( "length", length[ i ] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "precision", precision[ i ] ) );
       retval.append( "        </field>" );
     }
     retval.append( "      </fields>" );
@@ -172,10 +165,10 @@ public class RowsFromResultMeta extends BaseStepMeta implements StepMetaInterfac
 
     for ( int i = 0; i < nrfields; i++ ) {
       Node line = XMLHandler.getSubNodeByNr( fields, "field", i );
-      fieldname[i] = XMLHandler.getTagValue( line, "name" );
-      type[i] = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( line, "type" ) );
-      length[i] = Const.toInt( XMLHandler.getTagValue( line, "length" ), -2 );
-      precision[i] = Const.toInt( XMLHandler.getTagValue( line, "precision" ), -2 );
+      fieldname[ i ] = XMLHandler.getTagValue( line, "name" );
+      type[ i ] = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( line, "type" ) );
+      length[ i ] = Const.toInt( XMLHandler.getTagValue( line, "length" ), -2 );
+      precision[ i ] = Const.toInt( XMLHandler.getTagValue( line, "precision" ), -2 );
     }
 
   }
@@ -185,11 +178,11 @@ public class RowsFromResultMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   public void getFields( RowMetaInterface r, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     for ( int i = 0; i < this.fieldname.length; i++ ) {
       ValueMetaInterface v;
       try {
-        v = ValueMetaFactory.createValueMeta( fieldname[i], type[i], length[i], precision[i] );
+        v = ValueMetaFactory.createValueMeta( fieldname[ i ], type[ i ], length[ i ], precision[ i ] );
         v.setOrigin( origin );
         r.addValueMeta( v );
       } catch ( HopPluginException e ) {
@@ -199,8 +192,8 @@ public class RowsFromResultMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     // See if we have input streams leading to this step!
     if ( input.length > 0 ) {
       CheckResult cr =
@@ -216,7 +209,7 @@ public class RowsFromResultMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new RowsFromResult( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

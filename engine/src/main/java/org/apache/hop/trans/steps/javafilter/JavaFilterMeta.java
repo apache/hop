@@ -25,15 +25,13 @@ package org.apache.hop.trans.steps.javafilter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -47,7 +45,6 @@ import org.apache.hop.trans.step.errorhandling.Stream;
 import org.apache.hop.trans.step.errorhandling.StreamIcon;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
 import org.apache.hop.trans.step.errorhandling.StreamInterface.StreamType;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -55,13 +52,15 @@ import java.util.Objects;
 
 /**
  * Contains the meta-data for the java filter step: calculates conditions using Janino
- *
+ * <p>
  * Created on 30-oct-2009
  */
 public class JavaFilterMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = JavaFilterMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** The formula calculations to be performed */
+  /**
+   * The formula calculations to be performed
+   */
   private String condition;
 
   public JavaFilterMeta() {
@@ -132,8 +131,8 @@ public class JavaFilterMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -162,8 +161,8 @@ public class JavaFilterMeta extends BaseStepMeta implements StepMetaInterface {
         cr =
           new CheckResult(
             CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
-              PKG, "JavaFilterMeta.CheckResult.TargetStepInvalid", "true", targetStreams
-                .get( 0 ).getStepname() ), stepMeta );
+            PKG, "JavaFilterMeta.CheckResult.TargetStepInvalid", "true", targetStreams
+              .get( 0 ).getStepname() ), stepMeta );
         remarks.add( cr );
       }
     }
@@ -223,7 +222,7 @@ public class JavaFilterMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new JavaFilter( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 

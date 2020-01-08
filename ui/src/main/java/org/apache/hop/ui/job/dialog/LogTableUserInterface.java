@@ -22,8 +22,8 @@
 
 package org.apache.hop.ui.job.dialog;
 
-import org.eclipse.swt.widgets.Composite;
 import org.apache.hop.core.logging.LogTableInterface;
+import org.eclipse.swt.widgets.Composite;
 
 public interface LogTableUserInterface {
 

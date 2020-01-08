@@ -22,18 +22,12 @@
 
 package org.apache.hop.job.entry;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hop.base.BaseMeta;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.AttributesInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.attributes.AttributesUtil;
 import org.apache.hop.core.changed.ChangedFlagInterface;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.gui.GUIPositionInterface;
 import org.apache.hop.core.gui.Point;
@@ -48,13 +42,16 @@ import org.apache.hop.job.entries.missing.MissingEntry;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * This class describes the fact that a single JobEntry can be used multiple times in the same Job. Therefore it contains
  * a link to a JobEntry, a position, a number, etc.
  *
  * @author Matt
  * @since 01-10-2003
- *
  */
 
 public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterface, ChangedFlagInterface,
@@ -115,7 +112,7 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
   }
 
 
-  public JobEntryCopy( Node entrynode, List<SlaveServer> slaveServers, IMetaStore metaStore ) throws HopXMLException {
+  public JobEntryCopy( Node entrynode, IMetaStore metaStore ) throws HopXMLException {
     try {
       String stype = XMLHandler.getTagValue( entrynode, "type" );
       PluginRegistry registry = PluginRegistry.getInstance();
@@ -129,10 +126,10 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
       // Get an empty JobEntry of the appropriate class...
       if ( entry != null ) {
         if ( jobPlugin != null ) {
-          entry.setPluginId( jobPlugin.getIds()[0] );
+          entry.setPluginId( jobPlugin.getIds()[ 0 ] );
         }
         entry.setMetaStore( metaStore ); // inject metastore
-        entry.loadXML( entrynode, slaveServers, metaStore );
+        entry.loadXML( entrynode, metaStore );
 
         // Handle GUI information: nr & location?
         setNr( Const.toInt( XMLHandler.getTagValue( entrynode, "nr" ), 0 ) );
@@ -458,7 +455,7 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
       BaseMessages.getString( JobMeta.class, "JobCategory.Category.Deprecated" ) );
     for ( PluginInterface p : deprecatedJobEntries ) {
       String[] ids = p.getIds();
-      if ( !ArrayUtils.isEmpty( ids ) && ids[0].equals( this.entry != null ? this.entry.getPluginId() : "" ) ) {
+      if ( !ArrayUtils.isEmpty( ids ) && ids[ 0 ].equals( this.entry != null ? this.entry.getPluginId() : "" ) ) {
         this.isDeprecated = true;
         this.suggestion = registry.findPluginWithId( JobEntryPluginType.class, this.entry.getPluginId() ) != null
           ? registry.findPluginWithId( JobEntryPluginType.class, this.entry.getPluginId() ).getSuggestion() : "";

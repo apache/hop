@@ -21,19 +21,18 @@
  ******************************************************************************/
 package org.apache.hop.job.entries.talendjobexec;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import java.util.List;
-import java.util.Map;
-
+import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class JobEntryTalendJobExecTest extends JobEntryLoadSaveTestSupport<JobEntryTalendJobExec> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -47,8 +46,8 @@ public class JobEntryTalendJobExecTest extends JobEntryLoadSaveTestSupport<JobEn
   @Override
   protected List<String> listCommonAttributes() {
     return Arrays.asList(
-        "filename",
-        "className" );
+      "filename",
+      "className" );
   }
 
   @Test //PDI-8929

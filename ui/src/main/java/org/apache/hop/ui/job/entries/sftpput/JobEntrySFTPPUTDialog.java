@@ -22,8 +22,22 @@
 
 package org.apache.hop.ui.job.entries.sftpput;
 
-import java.net.InetAddress;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.sftp.SFTPClient;
+import org.apache.hop.job.entries.sftpput.JobEntrySFTPPUT;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.LabelTextVar;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -49,22 +63,8 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.sftp.SFTPClient;
-import org.apache.hop.job.entries.sftpput.JobEntrySFTPPUT;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.LabelTextVar;
-import org.apache.hop.ui.core.widget.PasswordTextVar;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.net.InetAddress;
 
 /**
  * This dialog allows you to edit the FTP Put job entry settings.
@@ -462,7 +462,7 @@ public class JobEntrySFTPPUTDialog extends JobEntryDialog implements JobEntryDia
     wkeyfilePass =
       new LabelTextVar(
         jobMeta, wServerSettings, BaseMessages.getString( PKG, "JobSFTPPUT.keyfilePass.Label" ), BaseMessages
-          .getString( PKG, "JobSFTPPUT.keyfilePass.Tooltip" ), true );
+        .getString( PKG, "JobSFTPPUT.keyfilePass.Tooltip" ), true );
     props.setLook( wkeyfilePass );
     wkeyfilePass.addModifyListener( lsMod );
     fdkeyfilePass = new FormData();
@@ -512,7 +512,7 @@ public class JobEntrySFTPPUTDialog extends JobEntryDialog implements JobEntryDia
     wProxyPort =
       new LabelTextVar(
         jobMeta, wServerSettings, BaseMessages.getString( PKG, "JobSFTPPUT.ProxyPort.Label" ), BaseMessages
-          .getString( PKG, "JobSFTPPUT.ProxyPort.Tooltip" ) );
+        .getString( PKG, "JobSFTPPUT.ProxyPort.Tooltip" ) );
     props.setLook( wProxyPort );
     wProxyPort.addModifyListener( lsMod );
     fdProxyPort = new FormData();
@@ -1274,13 +1274,13 @@ public class JobEntrySFTPPUTDialog extends JobEntryDialog implements JobEntryDia
     if ( wProxyType.getText().equals( SFTPClient.PROXY_TYPE_HTTP ) ) {
       if ( Utils.isEmpty( wProxyPort.getText() )
         || ( !Utils.isEmpty( wProxyPort.getText() ) && wProxyPort.getText().equals(
-          SFTPClient.SOCKS5_DEFAULT_PORT ) ) ) {
+        SFTPClient.SOCKS5_DEFAULT_PORT ) ) ) {
         wProxyPort.setText( SFTPClient.HTTP_DEFAULT_PORT );
       }
     } else {
       if ( Utils.isEmpty( wProxyPort.getText() )
         || ( !Utils.isEmpty( wProxyPort.getText() ) && wProxyPort
-          .getText().equals( SFTPClient.HTTP_DEFAULT_PORT ) ) ) {
+        .getText().equals( SFTPClient.HTTP_DEFAULT_PORT ) ) ) {
         wProxyPort.setText( SFTPClient.SOCKS5_DEFAULT_PORT );
       }
     }

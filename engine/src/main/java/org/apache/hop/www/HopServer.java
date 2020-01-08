@@ -22,13 +22,13 @@
 
 package org.apache.hop.www;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import com.google.common.annotations.VisibleForTesting;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
+import com.sun.jersey.api.json.JSONConfiguration;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -53,12 +53,11 @@ import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
-import com.sun.jersey.api.json.JSONConfiguration;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class HopServer {
   private static Class<?> PKG = HopServer.class; // for i18n purposes, needed by Translator2!!
@@ -68,11 +67,11 @@ public class HopServer {
   private boolean allOK;
   private static Options options;
 
-  public HopServer(final SlaveServerConfig config ) throws Exception {
+  public HopServer( final SlaveServerConfig config ) throws Exception {
     this( config, null );
   }
 
-  public HopServer(final SlaveServerConfig config, Boolean joinOverride ) throws Exception {
+  public HopServer( final SlaveServerConfig config, Boolean joinOverride ) throws Exception {
     this.config = config;
 
     allOK = true;
@@ -96,7 +95,7 @@ public class HopServer {
         port = Integer.parseInt( slaveServer.getPort() );
       } catch ( Exception e ) {
         log.logError( BaseMessages.getString( PKG, "Carte.Error.CanNotPartPort", slaveServer.getHostname(), "" + port ),
-            e );
+          e );
         allOK = false;
       }
     }
@@ -116,10 +115,10 @@ public class HopServer {
           SlaveServerDetection slaveServerDetection = new SlaveServerDetection( slaveServer.getClient() );
           master.sendXML( slaveServerDetection.getXML(), RegisterSlaveServlet.CONTEXT_PATH + "/" );
           log.logBasic( "Registered this slave server to master slave server [" + master.toString() + "] on address ["
-              + master.getServerAndPort() + "]" );
+            + master.getServerAndPort() + "]" );
         } catch ( Exception e ) {
           log.logError( "Unable to register to master slave server [" + master.toString() + "] on address [" + master
-              .getServerAndPort() + "]" );
+            .getServerAndPort() + "]" );
           allOK = false;
         }
         try {
@@ -129,12 +128,12 @@ public class HopServer {
             } else {
               masterProperties = master.getHopProperties();
               log.logBasic( "Got properties from master server [" + master.toString() + "], address [" + master
-                  .getServerAndPort() + "]" );
+                .getServerAndPort() + "]" );
             }
           }
         } catch ( Exception e ) {
           log.logError( "Unable to get properties from master server [" + master.toString() + "], address [" + master
-              .getServerAndPort() + "]" );
+            .getServerAndPort() + "]" );
           allOK = false;
         }
       }
@@ -154,8 +153,8 @@ public class HopServer {
       }
 
       this.webServer =
-          new WebServer( log, transformationMap, jobMap, socketRepository, detections, hostname, port, shouldJoin,
-              config.getPasswordFile(), slaveServer.getSslConfig() );
+        new WebServer( log, transformationMap, jobMap, socketRepository, detections, hostname, port, shouldJoin,
+          config.getPasswordFile(), slaveServer.getSslConfig() );
     }
   }
 
@@ -171,13 +170,13 @@ public class HopServer {
   private static void parseAndRunCommand( String[] args ) throws Exception {
     options = new Options();
     options.addOption( OptionBuilder.withLongOpt( "stop" ).withDescription( BaseMessages.getString( PKG,
-        "Carte.ParamDescription.stop" ) ).hasArg( false ).isRequired( false ).create( 's' ) );
+      "Carte.ParamDescription.stop" ) ).hasArg( false ).isRequired( false ).create( 's' ) );
     options.addOption( OptionBuilder.withLongOpt( "userName" ).withDescription( BaseMessages.getString( PKG,
-        "Carte.ParamDescription.userName" ) ).hasArg( true ).isRequired( false ).create( 'u' ) );
+      "Carte.ParamDescription.userName" ) ).hasArg( true ).isRequired( false ).create( 'u' ) );
     options.addOption( OptionBuilder.withLongOpt( "password" ).withDescription( BaseMessages.getString( PKG,
-        "Carte.ParamDescription.password" ) ).hasArg( true ).isRequired( false ).create( 'p' ) );
+      "Carte.ParamDescription.password" ) ).hasArg( true ).isRequired( false ).create( 'p' ) );
     options.addOption( OptionBuilder.withLongOpt( "help" ).withDescription( BaseMessages.getString( PKG,
-        "Carte.ParamDescription.help" ) ).create( 'h' ) );
+      "Carte.ParamDescription.help" ) ).create( 'h' ) );
 
     CommandLineParser parser = new BasicParser();
     CommandLine cmd = parser.parse( options, args );
@@ -192,12 +191,12 @@ public class HopServer {
     // Load from an xml file that describes the complete configuration...
     //
     SlaveServerConfig config = null;
-    if ( arguments.length == 1 && !Utils.isEmpty( arguments[0] ) ) {
+    if ( arguments.length == 1 && !Utils.isEmpty( arguments[ 0 ] ) ) {
       if ( cmd.hasOption( 's' ) ) {
         throw new HopServerCommandException( BaseMessages.getString( PKG, "Carte.Error.illegalStop" ) );
       }
       usingConfigFile = true;
-      FileObject file = HopVFS.getFileObject( arguments[0] );
+      FileObject file = HopVFS.getFileObject( arguments[ 0 ] );
       Document document = XMLHandler.loadXMLFile( file );
       setHopEnvironment(); // Must stand up server now to allow decryption of password
       Node configNode = XMLHandler.getSubNode( document, SlaveServerConfig.XML_TAG );
@@ -205,11 +204,11 @@ public class HopServer {
       if ( config.getAutoSequence() != null ) {
         config.readAutoSequences();
       }
-      config.setFilename( arguments[0] );
+      config.setFilename( arguments[ 0 ] );
     }
-    if ( arguments.length == 2 && !Utils.isEmpty( arguments[0] ) && !Utils.isEmpty( arguments[1] ) ) {
-      String hostname = arguments[0];
-      String port = arguments[1];
+    if ( arguments.length == 2 && !Utils.isEmpty( arguments[ 0 ] ) && !Utils.isEmpty( arguments[ 1 ] ) ) {
+      String hostname = arguments[ 0 ];
+      String port = arguments[ 1 ];
 
       if ( cmd.hasOption( 's' ) ) {
         String user = cmd.getOptionValue( 'u' );
@@ -241,13 +240,13 @@ public class HopServer {
     HopEnvironment.init();
   }
 
-  public static void runHopServer(SlaveServerConfig config ) throws Exception {
+  public static void runHopServer( SlaveServerConfig config ) throws Exception {
     HopLogStore.init( config.getMaxLogLines(), config.getMaxLogTimeoutMinutes() );
 
     config.setJoining( true );
 
     HopServer hopServer = new HopServer( config, false );
-    HopServerSingleton.setHopServer(hopServer);
+    HopServerSingleton.setHopServer( hopServer );
 
     hopServer.getWebServer().join();
   }
@@ -260,8 +259,7 @@ public class HopServer {
   }
 
   /**
-   * @param webServer
-   *          the webServer to set
+   * @param webServer the webServer to set
    */
   public void setWebServer( WebServer webServer ) {
     this.webServer = webServer;
@@ -275,8 +273,7 @@ public class HopServer {
   }
 
   /**
-   * @param config
-   *          the slave server (HopServer) configuration
+   * @param config the slave server (HopServer) configuration
    */
   public void setConfig( SlaveServerConfig config ) {
     this.config = config;
@@ -286,8 +283,8 @@ public class HopServer {
     HelpFormatter formatter = new HelpFormatter();
     String optionsHelp = getOptionsHelpForUsage();
     String header =
-        BaseMessages.getString( PKG, "Carte.Usage.Text" ) + optionsHelp + "\nor\n" + BaseMessages.getString( PKG,
-            "Carte.Usage.Text2" ) + "\n\n" + BaseMessages.getString( PKG, "Carte.MainDescription" );
+      BaseMessages.getString( PKG, "Carte.Usage.Text" ) + optionsHelp + "\nor\n" + BaseMessages.getString( PKG,
+        "Carte.Usage.Text2" ) + "\n\n" + BaseMessages.getString( PKG, "Carte.MainDescription" );
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter printWriter = new PrintWriter( stringWriter );
@@ -299,9 +296,9 @@ public class HopServer {
     System.err.println();
     System.err.println( BaseMessages.getString( PKG, "Carte.Usage.Example" ) + ": HopServer /foo/bar/hop-server-config.xml" );
     System.err.println( BaseMessages.getString( PKG, "Carte.Usage.Example" )
-        + ": HopServer http://www.example.com/hop-server-config.xml" );
+      + ": HopServer http://www.example.com/hop-server-config.xml" );
     System.err.println( BaseMessages.getString( PKG, "Carte.Usage.Example" )
-        + ": HopServer 127.0.0.1 8080 -s -u cluster -p cluster" );
+      + ": HopServer 127.0.0.1 8080 -s -u cluster -p cluster" );
 
     System.exit( 1 );
   }
@@ -337,7 +334,7 @@ public class HopServer {
    * @throws HopServerCommandException
    */
   @VisibleForTesting
-  static void callStopHopServerRestService(String hostname, String port, String username, String password )
+  static void callStopHopServerRestService( String hostname, String port, String username, String password )
     throws ParseException, HopServerCommandException {
     // get information about the remote connection
     try {
@@ -356,7 +353,7 @@ public class HopServer {
       String response = resource.get( String.class );
       if ( response == null || !response.contains( "<serverstatus>" ) ) {
         throw new HopServerCommandException( BaseMessages.getString( PKG, "Carte.Error.NoServerFound", hostname, ""
-            + port ) );
+          + port ) );
       }
 
       // This is the call that matters
@@ -364,11 +361,11 @@ public class HopServer {
       response = resource.get( String.class );
       if ( response == null || !response.contains( "Shutting Down" ) ) {
         throw new HopServerCommandException( BaseMessages.getString( PKG, "Carte.Error.NoShutdown", hostname, ""
-            + port ) );
+          + port ) );
       }
     } catch ( Exception e ) {
       throw new HopServerCommandException( BaseMessages.getString( PKG, "Carte.Error.NoServerFound", hostname, ""
-          + port ), e );
+        + port ), e );
     }
   }
 
@@ -381,15 +378,15 @@ public class HopServer {
     public HopServerCommandException() {
     }
 
-    public HopServerCommandException(final String message ) {
+    public HopServerCommandException( final String message ) {
       super( message );
     }
 
-    public HopServerCommandException(final String message, final Throwable cause ) {
+    public HopServerCommandException( final String message, final Throwable cause ) {
       super( message, cause );
     }
 
-    public HopServerCommandException(final Throwable cause ) {
+    public HopServerCommandException( final Throwable cause ) {
       super( cause );
     }
   }

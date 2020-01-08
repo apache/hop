@@ -22,6 +22,21 @@
 
 package org.apache.hop.ui.trans.steps.symmetriccrypto.symmetriccryptotrans;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.symmetriccrypto.symmetricalgorithm.SymmetricCryptoMeta;
+import org.apache.hop.trans.steps.symmetriccrypto.symmetriccryptotrans.SymmetricCryptoTransMeta;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.LabelTextVar;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -43,21 +58,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.symmetriccrypto.symmetricalgorithm.SymmetricCryptoMeta;
-import org.apache.hop.trans.steps.symmetriccrypto.symmetriccryptotrans.SymmetricCryptoTransMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.LabelTextVar;
-import org.apache.hop.ui.core.widget.PasswordTextVar;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class SymmetricCryptoTransDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = SymmetricCryptoTransMeta.class; // for i18n purposes, needed by Translator2!!
@@ -608,7 +608,7 @@ public class SymmetricCryptoTransDialog extends BaseStepDialog implements StepDi
    */
   public void getData() {
     wOperation.setText( SymmetricCryptoTransMeta.getOperationTypeDesc( input.getOperationType() ) );
-    wAlgorithm.setText( Const.NVL( input.getAlgorithm(), SymmetricCryptoMeta.TYPE_ALGORYTHM_CODE[0] ) );
+    wAlgorithm.setText( Const.NVL( input.getAlgorithm(), SymmetricCryptoMeta.TYPE_ALGORYTHM_CODE[ 0 ] ) );
     if ( input.getMessageField() != null ) {
       wMessage.setText( input.getMessageField() );
     }

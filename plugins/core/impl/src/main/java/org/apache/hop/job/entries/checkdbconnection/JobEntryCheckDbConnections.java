@@ -22,20 +22,13 @@
 
 package org.apache.hop.job.entries.checkdbconnection;
 
-import org.apache.hop.job.entry.validator.AndValidator;
-import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import java.util.List;
-
-import org.apache.hop.core.annotations.JobEntry;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
+import org.apache.hop.core.annotations.JobEntry;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
@@ -43,19 +36,21 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-
+import org.apache.hop.job.entry.validator.AndValidator;
+import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * This check db connections
  *
  * @author Samatar
  * @since 10-12-2007
- *
  */
 @JobEntry( id = "CHECK_DB_CONNECTIONS",
   i18nPackageName = "org.apache.hop.job.entries.checkdbconnection",
@@ -135,16 +130,16 @@ public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneabl
 
   private static String getWaitTimeCode( int i ) {
     if ( i < 0 || i >= unitTimeCode.length ) {
-      return unitTimeCode[0];
+      return unitTimeCode[ 0 ];
     }
-    return unitTimeCode[i];
+    return unitTimeCode[ i ];
   }
 
   public static String getWaitTimeDesc( int i ) {
     if ( i < 0 || i >= unitTimeDesc.length ) {
-      return unitTimeDesc[0];
+      return unitTimeDesc[ 0 ];
     }
-    return unitTimeDesc[i];
+    return unitTimeDesc[ i ];
   }
 
   public static int getWaitTimeByDesc( String tt ) {
@@ -153,7 +148,7 @@ public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneabl
     }
 
     for ( int i = 0; i < unitTimeDesc.length; i++ ) {
-      if ( unitTimeDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( unitTimeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -168,7 +163,7 @@ public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneabl
     }
 
     for ( int i = 0; i < unitTimeCode.length; i++ ) {
-      if ( unitTimeCode[i].equalsIgnoreCase( tt ) ) {
+      if ( unitTimeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -183,10 +178,10 @@ public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneabl
       for ( int i = 0; i < connections.length; i++ ) {
         retval.append( "        <connection>" ).append( Const.CR );
         retval.append( "          " ).append(
-          XMLHandler.addTagValue( "name", connections[i] == null ? null : connections[i].getName() ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "waitfor", waitfors[i] ) );
+          XMLHandler.addTagValue( "name", connections[ i ] == null ? null : connections[ i ].getName() ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "waitfor", waitfors[ i ] ) );
         retval
-          .append( "          " ).append( XMLHandler.addTagValue( "waittime", getWaitTimeCode( waittimes[i] ) ) );
+          .append( "          " ).append( XMLHandler.addTagValue( "waittime", getWaitTimeCode( waittimes[ i ] ) ) );
         retval.append( "        </connection>" ).append( Const.CR );
       }
     }
@@ -201,30 +196,30 @@ public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneabl
     }
 
     for ( int i = 0; i < unitTimeCode.length; i++ ) {
-      if ( unitTimeCode[i].equalsIgnoreCase( tt ) ) {
+      if ( unitTimeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
     return 0;
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       Node fields = XMLHandler.getSubNode( entrynode, "connections" );
 
       // How many hosts?
       int nrFields = XMLHandler.countNodes( fields, "connection" );
-      connections = new DatabaseMeta[nrFields];
-      waitfors = new String[nrFields];
-      waittimes = new int[nrFields];
+      connections = new DatabaseMeta[ nrFields ];
+      waitfors = new String[ nrFields ];
+      waittimes = new int[ nrFields ];
       // Read them all...
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "connection", i );
         String dbname = XMLHandler.getTagValue( fnode, "name" );
-        connections[i] = DatabaseMeta.loadDatabase( metaStore, dbname );
-        waitfors[i] = XMLHandler.getTagValue( fnode, "waitfor" );
-        waittimes[i] = getWaitByCode( Const.NVL( XMLHandler.getTagValue( fnode, "waittime" ), "" ) );
+        connections[ i ] = DatabaseMeta.loadDatabase( metaStore, dbname );
+        waitfors[ i ] = XMLHandler.getTagValue( fnode, "waitfor" );
+        waittimes[ i ] = getWaitByCode( Const.NVL( XMLHandler.getTagValue( fnode, "waittime" ), "" ) );
       }
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( BaseMessages.getString(
@@ -240,41 +235,41 @@ public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneabl
 
     if ( connections != null ) {
       for ( int i = 0; i < connections.length && !parentJob.isStopped(); i++ ) {
-        Database db = new Database( this, connections[i] );
+        Database db = new Database( this, connections[ i ] );
         db.shareVariablesWith( this );
         try {
           db.connect( parentJob.getTransactionId(), null );
 
           if ( isDetailed() ) {
-            logDetailed( BaseMessages.getString( PKG, "JobEntryCheckDbConnections.Connected", connections[i]
-              .getDatabaseName(), connections[i].getName() ) );
+            logDetailed( BaseMessages.getString( PKG, "JobEntryCheckDbConnections.Connected", connections[ i ]
+              .getDatabaseName(), connections[ i ].getName() ) );
           }
 
-          int iMaximumTimeout = Const.toInt( environmentSubstitute( waitfors[i] ), 0 );
+          int iMaximumTimeout = Const.toInt( environmentSubstitute( waitfors[ i ] ), 0 );
           if ( iMaximumTimeout > 0 ) {
 
             int Multiple = 1;
-            String waitTimeMessage = unitTimeDesc[0];
-            switch ( waittimes[i] ) {
+            String waitTimeMessage = unitTimeDesc[ 0 ];
+            switch ( waittimes[ i ] ) {
               case JobEntryCheckDbConnections.UNIT_TIME_MILLI_SECOND:
                 Multiple = 1;
-                waitTimeMessage = unitTimeDesc[0];
+                waitTimeMessage = unitTimeDesc[ 0 ];
                 break;
               case JobEntryCheckDbConnections.UNIT_TIME_SECOND:
                 Multiple = 1000; // Second
-                waitTimeMessage = unitTimeDesc[1];
+                waitTimeMessage = unitTimeDesc[ 1 ];
                 break;
               case JobEntryCheckDbConnections.UNIT_TIME_MINUTE:
                 Multiple = 60000; // Minute
-                waitTimeMessage = unitTimeDesc[2];
+                waitTimeMessage = unitTimeDesc[ 2 ];
                 break;
               case JobEntryCheckDbConnections.UNIT_TIME_HOUR:
                 Multiple = 3600000; // Hour
-                waitTimeMessage = unitTimeDesc[3];
+                waitTimeMessage = unitTimeDesc[ 3 ];
                 break;
               default:
                 Multiple = 1000; // Second
-                waitTimeMessage = unitTimeDesc[1];
+                waitTimeMessage = unitTimeDesc[ 1 ];
                 break;
             }
             if ( isDetailed() ) {
@@ -294,8 +289,8 @@ public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneabl
                 // We have reached the time limit
                 if ( isDetailed() ) {
                   logDetailed( BaseMessages.getString(
-                    PKG, "JobEntryCheckDbConnections.WaitTimeIsElapsed.Label", connections[i].getDatabaseName(),
-                    connections[i].getName() ) );
+                    PKG, "JobEntryCheckDbConnections.WaitTimeIsElapsed.Label", connections[ i ].getDatabaseName(),
+                    connections[ i ].getName() ) );
                 }
 
                 continueLoop = false;
@@ -311,13 +306,13 @@ public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneabl
 
           nrsuccess++;
           if ( isDetailed() ) {
-            logDetailed( BaseMessages.getString( PKG, "JobEntryCheckDbConnections.ConnectionOK", connections[i]
-              .getDatabaseName(), connections[i].getName() ) );
+            logDetailed( BaseMessages.getString( PKG, "JobEntryCheckDbConnections.ConnectionOK", connections[ i ]
+              .getDatabaseName(), connections[ i ].getName() ) );
           }
         } catch ( HopDatabaseException e ) {
           nrerrors++;
-          logError( BaseMessages.getString( PKG, "JobEntryCheckDbConnections.Exception", connections[i]
-            .getDatabaseName(), connections[i].getName(), e.toString() ) );
+          logError( BaseMessages.getString( PKG, "JobEntryCheckDbConnections.Exception", connections[ i ]
+            .getDatabaseName(), connections[ i ].getName(), e.toString() ) );
         } finally {
           if ( db != null ) {
             try {
@@ -359,7 +354,7 @@ public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneabl
     List<ResourceReference> references = super.getResourceDependencies( jobMeta );
     if ( connections != null ) {
       for ( int i = 0; i < connections.length; i++ ) {
-        DatabaseMeta connection = connections[i];
+        DatabaseMeta connection = connections[ i ];
         ResourceReference reference = new ResourceReference( this );
         reference.getEntries().add( new ResourceEntry( connection.getHostname(), ResourceType.SERVER ) );
         reference.getEntries().add( new ResourceEntry( connection.getDatabaseName(), ResourceType.DATABASENAME ) );
@@ -371,7 +366,7 @@ public class JobEntryCheckDbConnections extends JobEntryBase implements Cloneabl
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "tablename", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "columnname", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
   }

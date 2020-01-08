@@ -22,13 +22,13 @@
 
 package org.apache.hop.core.auth.core.impl;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-
 import org.apache.hop.core.auth.core.AuthenticationConsumer;
 import org.apache.hop.core.auth.core.AuthenticationConsumerFactory;
 import org.apache.hop.core.auth.core.AuthenticationFactoryException;
 import org.apache.hop.i18n.BaseMessages;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 
 public class DefaultAuthenticationConsumerFactory implements AuthenticationConsumerFactory<Object, Object, Object> {
   private static final Class<?> PKG = DefaultAuthenticationConsumerFactory.class;
@@ -42,16 +42,16 @@ public class DefaultAuthenticationConsumerFactory implements AuthenticationConsu
     Constructor<?>[] constructors = consumerClass.getConstructors();
     if ( constructors.length != 1 ) {
       throw new AuthenticationFactoryException( BaseMessages.getString( PKG,
-          "DefaultAuthenticationConsumerFactory.Constructor", getClass().getName(),
-          consumerClass.getCanonicalName() ) );
+        "DefaultAuthenticationConsumerFactory.Constructor", getClass().getName(),
+        consumerClass.getCanonicalName() ) );
     }
 
-    constructor = constructors[0];
+    constructor = constructors[ 0 ];
     Class<?>[] parameterTypes = constructor.getParameterTypes();
     if ( parameterTypes.length != 1 ) {
       throw new AuthenticationFactoryException( BaseMessages.getString( PKG,
-          "DefaultAuthenticationConsumerFactory.Constructor.Arg", getClass().getName(), consumerClass
-              .getCanonicalName() ) );
+        "DefaultAuthenticationConsumerFactory.Constructor.Arg", getClass().getName(), consumerClass
+          .getCanonicalName() ) );
     }
 
     Method consumeMethod = null;
@@ -59,20 +59,20 @@ public class DefaultAuthenticationConsumerFactory implements AuthenticationConsu
     for ( Method method : consumerClass.getMethods() ) {
       if ( "consume".equals( method.getName() ) ) {
         Class<?>[] methodParameterTypes = method.getParameterTypes();
-        if ( methodParameterTypes.length == 1 && consumedType.isAssignableFrom( methodParameterTypes[0] ) ) {
+        if ( methodParameterTypes.length == 1 && consumedType.isAssignableFrom( methodParameterTypes[ 0 ] ) ) {
           consumeMethod = method;
-          consumedType = methodParameterTypes[0];
+          consumedType = methodParameterTypes[ 0 ];
         }
       }
     }
 
     if ( consumeMethod == null ) {
       throw new AuthenticationFactoryException( BaseMessages.getString( PKG,
-          "DefaultAuthenticationConsumerFactory.Consume", consumerClass.getCanonicalName() ) );
+        "DefaultAuthenticationConsumerFactory.Consume", consumerClass.getCanonicalName() ) );
     }
-    this.consumedType = (Class<Object>) consumeMethod.getParameterTypes()[0];
+    this.consumedType = (Class<Object>) consumeMethod.getParameterTypes()[ 0 ];
     this.returnType = (Class<Object>) consumeMethod.getReturnType();
-    this.createArgType = (Class<Object>) parameterTypes[0];
+    this.createArgType = (Class<Object>) parameterTypes[ 0 ];
   }
 
   @Override

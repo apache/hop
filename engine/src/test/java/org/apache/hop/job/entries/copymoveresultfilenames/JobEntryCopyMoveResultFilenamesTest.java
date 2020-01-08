@@ -21,14 +21,13 @@
  ******************************************************************************/
 package org.apache.hop.job.entries.copymoveresultfilenames;
 
-import java.util.Arrays;
-
-import java.util.List;
-import java.util.Map;
-
-import org.junit.ClassRule;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.ClassRule;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class JobEntryCopyMoveResultFilenamesTest extends JobEntryLoadSaveTestSupport<JobEntryCopyMoveResultFilenames> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -41,67 +40,67 @@ public class JobEntryCopyMoveResultFilenamesTest extends JobEntryLoadSaveTestSup
   @Override
   protected List<String> listCommonAttributes() {
     return Arrays.asList(
-        "foldername",
-        "specifywildcard",
-        "wildcard",
-        "wildcardexclude",
-        "destination_folder",
-        "nr_errors_less_than",
-        "success_condition",
-        "add_date",
-        "add_time",
-        "SpecifyFormat",
-        "date_time_format",
-        "action",
-        "AddDateBeforeExtension",
-        "OverwriteFile",
-        "CreateDestinationFolder",
-        "RemovedSourceFilename",
-        "AddDestinationFilename" );
+      "foldername",
+      "specifywildcard",
+      "wildcard",
+      "wildcardexclude",
+      "destination_folder",
+      "nr_errors_less_than",
+      "success_condition",
+      "add_date",
+      "add_time",
+      "SpecifyFormat",
+      "date_time_format",
+      "action",
+      "AddDateBeforeExtension",
+      "OverwriteFile",
+      "CreateDestinationFolder",
+      "RemovedSourceFilename",
+      "AddDestinationFilename" );
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-        "foldername", "getFoldername",
-        "specifywildcard", "isSpecifyWildcard",
-        "wildcard", "getWildcard",
-        "wildcardexclude", "getWildcardExclude",
-        "destination_folder", "getDestinationFolder",
-        "nr_errors_less_than",  "getNrErrorsLessThan",
-        "success_condition", "getSuccessCondition",
-        "add_date", "isAddDate",
-        "add_time", "isAddTime",
-        "SpecifyFormat", "isSpecifyFormat",
-        "date_time_format", "getDateTimeFormat",
-        "action", "getAction",
-        "AddDateBeforeExtension", "isAddDateBeforeExtension",
-        "OverwriteFile", "isOverwriteFile",
-        "CreateDestinationFolder", "isCreateDestinationFolder",
-        "RemovedSourceFilename", "isRemovedSourceFilename",
-        "AddDestinationFilename", "isAddDestinationFilename" );
+      "foldername", "getFoldername",
+      "specifywildcard", "isSpecifyWildcard",
+      "wildcard", "getWildcard",
+      "wildcardexclude", "getWildcardExclude",
+      "destination_folder", "getDestinationFolder",
+      "nr_errors_less_than", "getNrErrorsLessThan",
+      "success_condition", "getSuccessCondition",
+      "add_date", "isAddDate",
+      "add_time", "isAddTime",
+      "SpecifyFormat", "isSpecifyFormat",
+      "date_time_format", "getDateTimeFormat",
+      "action", "getAction",
+      "AddDateBeforeExtension", "isAddDateBeforeExtension",
+      "OverwriteFile", "isOverwriteFile",
+      "CreateDestinationFolder", "isCreateDestinationFolder",
+      "RemovedSourceFilename", "isRemovedSourceFilename",
+      "AddDestinationFilename", "isAddDestinationFilename" );
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-        "foldername", "setFoldername",
-        "specifywildcard", "setSpecifyWildcard",
-        "wildcard", "setWildcard",
-        "wildcardexclude", "setWildcardExclude",
-        "destination_folder", "setDestinationFolder",
-        "nr_errors_less_than",  "setNrErrorsLessThan",
-        "success_condition", "setSuccessCondition",
-        "add_date", "setAddDate",
-        "add_time", "setAddTime",
-        "SpecifyFormat", "setSpecifyFormat",
-        "date_time_format", "setDateTimeFormat",
-        "action", "setAction",
-        "AddDateBeforeExtension", "setAddDateBeforeExtension",
-        "OverwriteFile", "setOverwriteFile",
-        "CreateDestinationFolder", "setCreateDestinationFolder",
-        "RemovedSourceFilename", "setRemovedSourceFilename",
-        "AddDestinationFilename", "setAddDestinationFilename" );
+      "foldername", "setFoldername",
+      "specifywildcard", "setSpecifyWildcard",
+      "wildcard", "setWildcard",
+      "wildcardexclude", "setWildcardExclude",
+      "destination_folder", "setDestinationFolder",
+      "nr_errors_less_than", "setNrErrorsLessThan",
+      "success_condition", "setSuccessCondition",
+      "add_date", "setAddDate",
+      "add_time", "setAddTime",
+      "SpecifyFormat", "setSpecifyFormat",
+      "date_time_format", "setDateTimeFormat",
+      "action", "setAction",
+      "AddDateBeforeExtension", "setAddDateBeforeExtension",
+      "OverwriteFile", "setOverwriteFile",
+      "CreateDestinationFolder", "setCreateDestinationFolder",
+      "RemovedSourceFilename", "setRemovedSourceFilename",
+      "AddDestinationFilename", "setAddDestinationFilename" );
   }
 
 }

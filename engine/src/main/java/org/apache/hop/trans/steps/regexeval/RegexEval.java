@@ -22,9 +22,6 @@
 
 package org.apache.hop.trans.steps.regexeval;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowDataUtil;
@@ -39,12 +36,15 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Use regular expression to validate a field or capture new fields out of an existing field.
  *
  * @author deinspanjer
- * @since 27-03-2008
  * @author Matt
+ * @since 27-03-2008
  * @since 15-08-2007
  */
 public class RegexEval extends BaseStep implements StepInterface {
@@ -56,7 +56,7 @@ public class RegexEval extends BaseStep implements StepInterface {
   private RegexEvalData data;
 
   public RegexEval( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                    Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -118,21 +118,21 @@ public class RegexEval extends BaseStep implements StepInterface {
 
       // Cache the position of the CaptureGroups
       if ( meta.isAllowCaptureGroupsFlagSet() ) {
-        data.positions = new int[meta.getFieldName().length];
+        data.positions = new int[ meta.getFieldName().length ];
         String[] fieldName = meta.getFieldName();
         for ( int i = 0; i < fieldName.length; i++ ) {
-          if ( fieldName[i] == null || fieldName[i].length() == 0 ) {
+          if ( fieldName[ i ] == null || fieldName[ i ].length() == 0 ) {
             continue;
           }
           if ( meta.isReplacefields() ) {
-            data.positions[i] = data.outputRowMeta.indexOfValue( fieldName[i] );
+            data.positions[ i ] = data.outputRowMeta.indexOfValue( fieldName[ i ] );
           } else {
-            data.positions[i] = captureIndex;
+            data.positions[ i ] = captureIndex;
             captureIndex++;
           }
         }
       } else {
-        data.positions = new int[0];
+        data.positions = new int[ 0 ];
       }
 
       // Now create objects to do string to data type conversion...
@@ -170,7 +170,7 @@ public class RegexEval extends BaseStep implements StepInterface {
         }
 
         for ( int i = 0; i < data.positions.length; i++ ) {
-          int index = data.positions[i];
+          int index = data.positions[ i ];
           String value;
           if ( isMatch ) {
             value = m.group( i + 1 );
@@ -191,15 +191,15 @@ public class RegexEval extends BaseStep implements StepInterface {
           ValueMetaInterface valueMeta = data.outputRowMeta.getValueMeta( index );
           ValueMetaInterface conversionValueMeta = data.conversionRowMeta.getValueMeta( index );
           Object convertedValue =
-            valueMeta.convertDataFromString( value, conversionValueMeta, meta.getFieldNullIf()[i], meta
-              .getFieldIfNull()[i], meta.getFieldTrimType()[i] );
+            valueMeta.convertDataFromString( value, conversionValueMeta, meta.getFieldNullIf()[ i ], meta
+              .getFieldIfNull()[ i ], meta.getFieldTrimType()[ i ] );
 
-          outputRow[index] = convertedValue;
+          outputRow[ index ] = convertedValue;
         }
       }
 
       if ( data.indexOfResultField >= 0 ) {
-        outputRow[data.indexOfResultField] = isMatch;
+        outputRow[ data.indexOfResultField ] = isMatch;
       }
 
       if ( log.isRowLevel() ) {

@@ -27,7 +27,6 @@ package org.apache.hop.core;
  *
  * @author Matt
  * @since 13-05-2003
- *
  */
 public class Counter {
   private long counter;
@@ -97,32 +96,28 @@ public class Counter {
   }
 
   /**
-   * @param counter
-   *          The counter to set.
+   * @param counter The counter to set.
    */
   public void setCounter( long counter ) {
     this.counter = counter;
   }
 
   /**
-   * @param increment
-   *          The increment to set.
+   * @param increment The increment to set.
    */
   public void setIncrement( long increment ) {
     this.increment = increment;
   }
 
   /**
-   * @param loop
-   *          The loop to set.
+   * @param loop The loop to set.
    */
   public void setLoop( boolean loop ) {
     this.loop = loop;
   }
 
   /**
-   * @param maximum
-   *          The maximum to set.
+   * @param maximum The maximum to set.
    */
   public void setMaximum( long maximum ) {
     this.maximum = maximum;

@@ -22,13 +22,28 @@
 
 package org.apache.hop.ui.trans.steps.exceloutput;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.exceloutput.ExcelField;
+import org.apache.hop.trans.steps.exceloutput.ExcelOutputMeta;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.TableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -57,28 +72,13 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.exceloutput.ExcelField;
-import org.apache.hop.trans.steps.exceloutput.ExcelOutputMeta;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.PasswordTextVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.TableItemInsertListener;
+
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class ExcelOutputDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = ExcelOutputMeta.class; // for i18n purposes, needed by Translator2!!
@@ -565,7 +565,7 @@ public class ExcelOutputDialog extends BaseStepDialog implements StepDialogInter
     fdDateTimeFormat.right = new FormAttachment( 100, 0 );
     wDateTimeFormat.setLayoutData( fdDateTimeFormat );
     for ( int x = 0; x < dats.length; x++ ) {
-      wDateTimeFormat.add( dats[x] );
+      wDateTimeFormat.add( dats[ x ] );
     }
 
     wbShowFiles = new Button( wFileComp, SWT.PUSH | SWT.CENTER );
@@ -1705,10 +1705,10 @@ public class ExcelOutputDialog extends BaseStepDialog implements StepDialogInter
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    colinf[0].setComboValues( fieldNames );
+    colinf[ 0 ].setComboValues( fieldNames );
   }
 
   private void setEncodings() {
@@ -1791,7 +1791,7 @@ public class ExcelOutputDialog extends BaseStepDialog implements StepDialogInter
     }
 
     for ( int i = 0; i < input.getOutputFields().length; i++ ) {
-      ExcelField field = input.getOutputFields()[i];
+      ExcelField field = input.getOutputFields()[ i ];
 
       TableItem item = wFields.table.getItem( i );
       if ( field.getName() != null ) {
@@ -1886,7 +1886,7 @@ public class ExcelOutputDialog extends BaseStepDialog implements StepDialogInter
       field.setFormat( item.getText( 3 ) );
 
       //CHECKSTYLE:Indentation:OFF
-      tfoi.getOutputFields()[i] = field;
+      tfoi.getOutputFields()[ i ] = field;
     }
     // Header font
     tfoi.setHeaderFontName( ExcelOutputMeta.getFontNameByDesc( wHeaderFontName.getText() ) );
@@ -1982,7 +1982,6 @@ public class ExcelOutputDialog extends BaseStepDialog implements StepDialogInter
 
   /**
    * Sets the output width to minimal width...
-   *
    */
   public void setMinimalWidth() {
     int nrNonEmptyFields = wFields.nrNonEmpty();

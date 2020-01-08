@@ -33,7 +33,6 @@ import java.lang.annotation.Target;
  * The type, implementation and nodeName arrays are correlated 1-to-1.
  *
  * @author nbaker
- *
  */
 @Retention( RetentionPolicy.RUNTIME )
 @Target( ElementType.TYPE )
@@ -52,7 +51,7 @@ public @interface PluginClassTypeMapping {
    * @return
    */
   Class<?>[] implementationClass() default {
-  // Empty
+    // Empty
   };
 
 }

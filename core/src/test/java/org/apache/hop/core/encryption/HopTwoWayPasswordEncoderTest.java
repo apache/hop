@@ -22,15 +22,13 @@
 
 package org.apache.hop.core.encryption;
 
+import org.apache.hop.core.exception.HopValueException;
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.exception.HopValueException;
 
 /**
  * Test cases for encryption, to make sure that encrypted password remain the same between versions.
@@ -200,7 +198,7 @@ public class HopTwoWayPasswordEncoderTest {
   @Test
   public void testEncodeDifferentSeed() {
 
-    HopTwoWayPasswordEncoder encoder = new HopTwoWayPasswordEncoder( );
+    HopTwoWayPasswordEncoder encoder = new HopTwoWayPasswordEncoder();
     String encodeWithDefaultSeed = encoder.encode( "Wibble", false );
     assertNotNull( encodeWithDefaultSeed );
     String decodeWithDefaultSeed = encoder.decode( encodeWithDefaultSeed );

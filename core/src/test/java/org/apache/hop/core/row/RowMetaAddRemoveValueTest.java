@@ -22,12 +22,12 @@
 
 package org.apache.hop.core.row;
 
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.row.value.ValueMetaFactory;
 
 import static org.junit.Assert.assertEquals;
 

@@ -22,9 +22,14 @@
 
 package org.apache.hop.ui.job.entries.getpop;
 
-import javax.mail.Folder;
-import javax.mail.MessagingException;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.entries.getpop.JobEntryGetPOP;
+import org.apache.hop.job.entries.getpop.MailConnectionMeta;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -39,21 +44,15 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.apache.hop.core.Const;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.entries.getpop.JobEntryGetPOP;
-import org.apache.hop.job.entries.getpop.MailConnectionMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import javax.mail.Folder;
+import javax.mail.MessagingException;
 
 /**
  * This dialog represents an explorer type of interface on a given IMAP connection. It shows the folders defined
  *
  * @author Samatar
  * @since 12-08-2009
- *
  */
 public class SelectFolderDialog extends Dialog {
   private static Class<?> PKG = JobEntryGetPOP.class; // for i18n purposes, needed by Translator2!!
@@ -176,10 +175,10 @@ public class SelectFolderDialog extends Dialog {
       for ( int i = 0; i < f.length; i++ ) {
         tiTree = topfolder ? new TreeItem( wTree, SWT.NONE ) : new TreeItem( parentTreeItem, SWT.NONE );
         tiTree.setImage( guiresource.getImageBol() );
-        tiTree.setText( f[i].getName() );
+        tiTree.setText( f[ i ].getName() );
         // Search for sub folders
-        if ( ( f[i].getType() & Folder.HOLDS_FOLDERS ) != 0 ) {
-          buildFoldersTree( f[i], tiTree, false );
+        if ( ( f[ i ].getType() & Folder.HOLDS_FOLDERS ) != 0 ) {
+          buildFoldersTree( f[ i ], tiTree, false );
         }
       }
     }
@@ -199,8 +198,8 @@ public class SelectFolderDialog extends Dialog {
   public void handleOK() {
     TreeItem[] ti = wTree.getSelection();
     if ( ti.length == 1 ) {
-      TreeItem parent = ti[0].getParentItem();
-      String fullpath = ti[0].getText();
+      TreeItem parent = ti[ 0 ].getParentItem();
+      String fullpath = ti[ 0 ].getText();
       while ( parent != null ) {
         fullpath = parent.getText() + MailConnectionMeta.FOLDER_SEPARATOR + fullpath;
         parent = parent.getParentItem();

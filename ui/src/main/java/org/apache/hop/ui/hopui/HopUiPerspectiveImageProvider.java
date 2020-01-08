@@ -26,7 +26,7 @@ public interface HopUiPerspectiveImageProvider extends HopUiPerspective {
   /**
    * Get the path to the perspective's icon, can be within a jar (classLoader) or
    * file-system.
-   * 
+   *
    * @return the path to the perspective's icon
    */
   public String getPerspectiveIconPath();

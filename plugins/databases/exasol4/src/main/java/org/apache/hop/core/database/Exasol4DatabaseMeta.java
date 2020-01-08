@@ -35,10 +35,10 @@ import org.apache.hop.core.row.ValueMetaInterface;
  * @since Jan 24, 2012
  */
 @DatabaseMetaPlugin(
-        type = "EXASOL4",
-        typeDescription = "Exasol 4"
+  type = "EXASOL4",
+  typeDescription = "Exasol 4"
 )
-@GuiPlugin( id="GUI-ExasolDatabaseMeta" )
+@GuiPlugin( id = "GUI-ExasolDatabaseMeta" )
 public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
@@ -74,8 +74,7 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   /**
    * Returns the minimal SQL to launch in order to determine the layout of the resultset for a given database table
    *
-   * @param tableName
-   *          The name of the table to determine the layout for
+   * @param tableName The name of the table to determine the layout for
    * @return The SQL to launch.
    */
   @Override
@@ -147,23 +146,17 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   /**
    * Generates the SQL statement to add a column to the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
   public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                       String pk, boolean semicolon ) {
     return "ALTER TABLE "
       + tablename + " ADD ( " + getFieldDefinition( v, tk, pk, use_autoinc, true, false ) + " ) ";
   }
@@ -171,46 +164,34 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   /**
    * Generates the SQL statement to drop a column from the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to drop a column from the specified table
    */
   @Override
   public String getDropColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                        String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " DROP COLUMN " + v.getName() + Const.CR;
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
   public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                          String pk, boolean semicolon ) {
 
     return "ALTER TABLE "
       + tablename + " MODIFY COLUMN " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
@@ -219,7 +200,7 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
 
   @Override
   public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-    boolean add_fieldname, boolean add_cr ) {
+                                    boolean add_fieldname, boolean add_cr ) {
     StringBuilder retval = new StringBuilder( 128 );
 
     String fieldname = v.getName();
@@ -356,8 +337,7 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   /**
    * Verifies on the specified database connection if an index exists on the fields with the specified name.
    *
-   * @param database
-   *          a connected database
+   * @param database   a connected database
    * @param schemaName
    * @param tableName
    * @param idx_fields
@@ -381,7 +361,7 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
    * Most databases allow you to retrieve result metadata by preparing a SELECT statement.
    *
    * @return true if the database supports retrieval of query metadata from a prepared statement. False if the query
-   *         needs to be executed first.
+   * needs to be executed first.
    */
   @Override
   public boolean supportsPreparedStatementMetadataRetrieval() {
@@ -422,5 +402,7 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   @Override
-  public boolean isExasolVariant() {return true;}
+  public boolean isExasolVariant() {
+    return true;
+  }
 }

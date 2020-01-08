@@ -73,8 +73,8 @@ public class PGBulkLoaderMetaTest {
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "schemaName", "tableName", "loadAction", "dbNameOverride", "delimiter",
-            "enclosure", "stopOnError", "fieldTable", "fieldStream", "dateMask", "databaseMeta" );
+      Arrays.asList( "schemaName", "tableName", "loadAction", "dbNameOverride", "delimiter",
+        "enclosure", "stopOnError", "fieldTable", "fieldStream", "dateMask", "databaseMeta" );
 
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
@@ -107,9 +107,9 @@ public class PGBulkLoaderMetaTest {
       }
     };
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
     FieldLoadSaveValidator<String[]> datemaskArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new DateMaskLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<String>( new DateMaskLoadSaveValidator(), 5 );
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "fieldTable", stringArrayLoadSaveValidator );
@@ -121,7 +121,7 @@ public class PGBulkLoaderMetaTest {
     // typeValidatorMap.put( int[].class.getCanonicalName(), new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator(), 1 ) );
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
+      new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
   }
 
   @Test
@@ -257,9 +257,9 @@ public class PGBulkLoaderMetaTest {
       assertEquals( "Load action not properly injected... ", "new_LOADACTION", lm.getLoadAction() );
       assertEquals( "Stop on error not properly injected... ", Boolean.TRUE, lm.isStopOnError() );
 
-      assertEquals( "Field name not properly injected... ", "new_FIELDNAME", lm.getFieldTable()[0] );
-      assertEquals( "Stream name not properly injected... ", "new_STREAMNAME", lm.getFieldStream()[0] );
-      assertEquals( "Date Mask not properly injected... ", "new_DATEMASK", lm.getDateMask()[0] );
+      assertEquals( "Field name not properly injected... ", "new_FIELDNAME", lm.getFieldTable()[ 0 ] );
+      assertEquals( "Stream name not properly injected... ", "new_STREAMNAME", lm.getFieldStream()[ 0 ] );
+      assertEquals( "Date Mask not properly injected... ", "new_DATEMASK", lm.getDateMask()[ 0 ] );
 
     } catch ( HopException e ) {
       fail( e.getMessage() );

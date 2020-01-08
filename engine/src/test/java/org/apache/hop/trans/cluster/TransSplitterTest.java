@@ -22,17 +22,6 @@
 
 package org.apache.hop.trans.cluster;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannelInterface;
@@ -42,7 +31,15 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMetaFactory;
 import org.apache.hop.trans.TransMetaFactoryImpl;
-import org.w3c.dom.Node;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class TransSplitterTest {
   private LogChannelInterfaceFactory oldLogChannelInterfaceFactory;
@@ -55,7 +52,7 @@ public class TransSplitterTest {
     oldLogChannelInterfaceFactory = HopLogStore.getLogChannelInterfaceFactory();
     HopLogStore.setLogChannelInterfaceFactory( logChannelInterfaceFactory );
     when( logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        logChannelInterface );
+      logChannelInterface );
   }
 
   @After
@@ -64,7 +61,7 @@ public class TransSplitterTest {
   }
 
   @Test
-   public void testTransSplitterRowsetSize() throws HopException {
+  public void testTransSplitterRowsetSize() throws HopException {
     TransMeta originalMeta = new TransMeta();
     originalMeta.setSizeRowset( 0 );
     TransMetaFactory factory = new TransMetaFactoryImpl();

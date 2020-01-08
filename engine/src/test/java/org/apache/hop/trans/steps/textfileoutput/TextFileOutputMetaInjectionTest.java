@@ -22,18 +22,19 @@
 
 package org.apache.hop.trans.steps.textfileoutput;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class TextFileOutputMetaInjectionTest extends BaseMetadataInjectionTest<TextFileOutputMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Before
   public void setup() throws Exception {
     setup( new TextFileOutputMeta() );
@@ -190,7 +191,7 @@ public class TextFileOutputMetaInjectionTest extends BaseMetadataInjectionTest<T
     /////////////////////////////
     check( "OUTPUT_FIELDNAME", new StringGetter() {
       public String get() {
-        return meta.getOutputFields()[0].getName();
+        return meta.getOutputFields()[ 0 ].getName();
       }
     } );
 
@@ -199,37 +200,37 @@ public class TextFileOutputMetaInjectionTest extends BaseMetadataInjectionTest<T
 
     check( "OUTPUT_FORMAT", new StringGetter() {
       public String get() {
-        return meta.getOutputFields()[0].getFormat();
+        return meta.getOutputFields()[ 0 ].getFormat();
       }
     } );
     check( "OUTPUT_LENGTH", new IntGetter() {
       public int get() {
-        return meta.getOutputFields()[0].getLength();
+        return meta.getOutputFields()[ 0 ].getLength();
       }
     } );
     check( "OUTPUT_PRECISION", new IntGetter() {
       public int get() {
-        return meta.getOutputFields()[0].getPrecision();
+        return meta.getOutputFields()[ 0 ].getPrecision();
       }
     } );
     check( "OUTPUT_CURRENCY", new StringGetter() {
       public String get() {
-        return meta.getOutputFields()[0].getCurrencySymbol();
+        return meta.getOutputFields()[ 0 ].getCurrencySymbol();
       }
     } );
     check( "OUTPUT_DECIMAL", new StringGetter() {
       public String get() {
-        return meta.getOutputFields()[0].getDecimalSymbol();
+        return meta.getOutputFields()[ 0 ].getDecimalSymbol();
       }
     } );
     check( "OUTPUT_GROUP", new StringGetter() {
       public String get() {
-        return meta.getOutputFields()[0].getGroupingSymbol();
+        return meta.getOutputFields()[ 0 ].getGroupingSymbol();
       }
     } );
     check( "OUTPUT_NULL", new StringGetter() {
       public String get() {
-        return meta.getOutputFields()[0].getNullString();
+        return meta.getOutputFields()[ 0 ].getNullString();
       }
     } );
     check( "RUN_AS_COMMAND", new BooleanGetter() {
@@ -240,9 +241,9 @@ public class TextFileOutputMetaInjectionTest extends BaseMetadataInjectionTest<T
 
     ValueMetaInterface mftt = new ValueMetaString( "f" );
     injector.setProperty( meta, "OUTPUT_TRIM", setValue( mftt, "left" ), "f" );
-    assertEquals( 1, meta.getOutputFields()[0].getTrimType() );
+    assertEquals( 1, meta.getOutputFields()[ 0 ].getTrimType() );
     injector.setProperty( meta, "OUTPUT_TRIM", setValue( mftt, "right" ), "f" );
-    assertEquals( 2, meta.getOutputFields()[0].getTrimType() );
+    assertEquals( 2, meta.getOutputFields()[ 0 ].getTrimType() );
     skipPropertyTest( "OUTPUT_TRIM" );
   }
 }

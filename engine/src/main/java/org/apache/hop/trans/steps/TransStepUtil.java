@@ -22,9 +22,9 @@
 
 package org.apache.hop.trans.steps;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.hop.trans.Trans;
+
+import javax.servlet.http.HttpServletResponse;
 
 public class TransStepUtil {
 

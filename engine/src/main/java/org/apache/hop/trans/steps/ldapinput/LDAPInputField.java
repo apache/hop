@@ -22,12 +22,12 @@
 
 package org.apache.hop.trans.steps.ldapinput;
 
-import java.util.HashSet;
-
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+
+import java.util.HashSet;
 
 /**
  * Describes an LDAP Input
@@ -110,7 +110,7 @@ public class LDAPInputField implements Cloneable {
     }
 
     for ( int i = 0; i < trimTypeCode.length; i++ ) {
-      if ( trimTypeCode[i].equalsIgnoreCase( tt ) ) {
+      if ( trimTypeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -123,7 +123,7 @@ public class LDAPInputField implements Cloneable {
     }
 
     for ( int i = 0; i < FetchAttributeAsCode.length; i++ ) {
-      if ( FetchAttributeAsCode[i].equalsIgnoreCase( tt ) ) {
+      if ( FetchAttributeAsCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -136,7 +136,7 @@ public class LDAPInputField implements Cloneable {
     }
 
     for ( int i = 0; i < trimTypeDesc.length; i++ ) {
-      if ( trimTypeDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( trimTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -149,7 +149,7 @@ public class LDAPInputField implements Cloneable {
     }
 
     for ( int i = 0; i < FetchAttributeAsDesc.length; i++ ) {
-      if ( FetchAttributeAsDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( FetchAttributeAsDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -158,30 +158,30 @@ public class LDAPInputField implements Cloneable {
 
   public static final String getTrimTypeCode( int i ) {
     if ( i < 0 || i >= trimTypeCode.length ) {
-      return trimTypeCode[0];
+      return trimTypeCode[ 0 ];
     }
-    return trimTypeCode[i];
+    return trimTypeCode[ i ];
   }
 
   public static final String getFetchAttributeAsCode( int i ) {
     if ( i < 0 || i >= FetchAttributeAsCode.length ) {
-      return FetchAttributeAsCode[0];
+      return FetchAttributeAsCode[ 0 ];
     }
-    return FetchAttributeAsCode[i];
+    return FetchAttributeAsCode[ i ];
   }
 
   public static final String getTrimTypeDesc( int i ) {
     if ( i < 0 || i >= trimTypeDesc.length ) {
-      return trimTypeDesc[0];
+      return trimTypeDesc[ 0 ];
     }
-    return trimTypeDesc[i];
+    return trimTypeDesc[ i ];
   }
 
   public static final String getFetchAttributeAsDesc( int i ) {
     if ( i < 0 || i >= FetchAttributeAsDesc.length ) {
-      return FetchAttributeAsDesc[0];
+      return FetchAttributeAsDesc[ 0 ];
     }
-    return FetchAttributeAsDesc[i];
+    return FetchAttributeAsDesc[ i ];
   }
 
   @Override

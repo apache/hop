@@ -21,14 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.ldapoutput;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
@@ -42,6 +34,14 @@ import org.apache.hop.trans.steps.loadsave.validator.BooleanLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class LDAPOutputMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -51,9 +51,9 @@ public class LDAPOutputMetaTest {
   @Before
   public void setUp() throws Exception {
     List<String> attributes =
-        Arrays.asList( "updateLookup", "updateStream", "update", "useAuthentication", "Host", "userName", "password",
-            "port", "dnFieldName", "failIfNotExist", "searchBase", "multiValuedSeparator", "operationType", "oldDnFieldName",
-            "newDnFieldName", "deleteRDN" );
+      Arrays.asList( "updateLookup", "updateStream", "update", "useAuthentication", "Host", "userName", "password",
+        "port", "dnFieldName", "failIfNotExist", "searchBase", "multiValuedSeparator", "operationType", "oldDnFieldName",
+        "newDnFieldName", "deleteRDN" );
 
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
@@ -97,9 +97,9 @@ public class LDAPOutputMetaTest {
       }
     };
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 3 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 3 );
     FieldLoadSaveValidator<Boolean[]> booleanArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<Boolean>( new BooleanLoadSaveValidator(), 3 );
+      new ArrayLoadSaveValidator<Boolean>( new BooleanLoadSaveValidator(), 3 );
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "update", booleanArrayLoadSaveValidator );
     attrValidatorMap.put( "updateLookup", stringArrayLoadSaveValidator );
@@ -113,7 +113,7 @@ public class LDAPOutputMetaTest {
     PluginRegistry.addPluginType( TwoWayPasswordEncoderPluginType.getInstance() );
     PluginRegistry.init();
     String passwordEncoderPluginID =
-        Const.NVL( EnvUtil.getSystemProperty( Const.HOP_PASSWORD_ENCODER_PLUGIN ), "Hop" );
+      Const.NVL( EnvUtil.getSystemProperty( Const.HOP_PASSWORD_ENCODER_PLUGIN ), "Hop" );
     Encr.init( passwordEncoderPluginID );
   }
 

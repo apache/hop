@@ -22,11 +22,43 @@
 
 package org.apache.hop.ui.trans.step;
 
-import com.google.common.annotations.VisibleForTesting;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.SourceToTargetMapping;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.laf.BasePropertyHandler;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
+import org.apache.hop.ui.core.dialog.EnterMappingDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -49,43 +81,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.SourceToTargetMapping;
-import org.apache.hop.core.database.DatabaseInterface;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.logging.LoggingObjectType;
-import org.apache.hop.core.logging.SimpleLoggingObject;
-import org.apache.hop.core.plugins.PluginInterface;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.StepPluginType;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.laf.BasePropertyHandler;
-import org.apache.hop.shared.SharedObjects;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
-import org.apache.hop.ui.core.dialog.EnterMappingDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.util.DialogUtils;
-import org.apache.hop.ui.util.HelpUtils;
-import org.apache.hop.metastore.api.IMetaStore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -316,6 +311,7 @@ public class BaseStepDialog extends Dialog {
       }
     } );
   }
+
   /**
    * Dispose this dialog.
    */
@@ -368,7 +364,7 @@ public class BaseStepDialog extends Dialog {
   }
 
   public static final void positionBottomButtons( Composite composite, Button[] buttons, int margin, int alignment,
-                                                   Control lastControl ) {
+                                                  Control lastControl ) {
     // Determine the largest button in the array
     Rectangle largest = null;
     for ( int i = 0; i < buttons.length; i++ ) {
@@ -603,10 +599,8 @@ public class BaseStepDialog extends Dialog {
   /**
    * Adds the connection line for the given parent and previous control, and returns a meta selection manager control
    *
-   * @param parent
-   *          the parent composite object
-   * @param previous
-   *          the previous control
+   * @param parent   the parent composite object
+   * @param previous the previous control
    * @param
    * @return the combo box UI component
    */
@@ -619,7 +613,7 @@ public class BaseStepDialog extends Dialog {
       BaseMessages.getString( PKG, "BaseStepDialog.Connection.Label" ),
       "Select the relational database connection to use" // TODO : i18n
     );
-    wConnection.addToConnectionLine( parent, previous,selected, lsMod );
+    wConnection.addToConnectionLine( parent, previous, selected, lsMod );
     return wConnection;
   }
 
@@ -852,17 +846,17 @@ public class BaseStepDialog extends Dialog {
   /**
    * Gets unused fields from previous steps and inserts them as rows into a table view.
    *
-   * @param row             the input fields
-   * @param tableView       the table view to modify
-   * @param keyColumn       the column in the table view to match with the names of the fields, checks for existance if
-   *                        >0
-   * @param nameColumn      the column numbers in which the name should end up in
-   * @param dataTypeColumn  the target column numbers in which the data type should end up in
-   * @param lengthColumn    the length column where the length should end up in (if >0)
-   * @param precisionColumn the length column where the precision should end up in (if >0)
+   * @param row                           the input fields
+   * @param tableView                     the table view to modify
+   * @param keyColumn                     the column in the table view to match with the names of the fields, checks for existance if
+   *                                      >0
+   * @param nameColumn                    the column numbers in which the name should end up in
+   * @param dataTypeColumn                the target column numbers in which the data type should end up in
+   * @param lengthColumn                  the length column where the length should end up in (if >0)
+   * @param precisionColumn               the length column where the precision should end up in (if >0)
    * @param optimizeWidth
-   * @param listener        A listener that you can use to do custom modifications to the inserted table item, based on
-   *                        a value from the provided row
+   * @param listener                      A listener that you can use to do custom modifications to the inserted table item, based on
+   *                                      a value from the provided row
    * @param getFieldsChoiceDialogProvider the GetFieldsChoice dialog provider
    */
   public static final void getFieldsFromPrevious( RowMetaInterface row, TableView tableView, int keyColumn,

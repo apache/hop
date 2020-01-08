@@ -23,10 +23,10 @@
 package org.apache.hop.trans.steps.randomccnumber;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -50,7 +50,7 @@ public class RandomCCNumberGenerator extends BaseStep implements StepInterface {
   private RandomCCNumberGeneratorData data;
 
   public RandomCCNumberGenerator( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,
-    TransMeta transMeta, Trans trans ) {
+                                  TransMeta transMeta, Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -78,7 +78,7 @@ public class RandomCCNumberGenerator extends BaseStep implements StepInterface {
       // Return card numbers
       String[] cardNumber =
         RandomCreditCardNumberGenerator.GenerateCreditCardNumbers(
-          data.cardTypes[i], data.cardLen[i], data.cardSize[i] );
+          data.cardTypes[ i ], data.cardLen[ i ], data.cardSize[ i ] );
 
       for ( int j = 0; j < cardNumber.length && !isStopped(); j++ ) {
         // Create a new row
@@ -87,16 +87,16 @@ public class RandomCCNumberGenerator extends BaseStep implements StepInterface {
 
         int index = 0;
         // add card number
-        row[index++] = cardNumber[j];
+        row[ index++ ] = cardNumber[ j ];
 
         if ( data.addCardTypeOutput ) {
           // add card type
-          row[index++] = meta.getFieldCCType()[i];
+          row[ index++ ] = meta.getFieldCCType()[ i ];
         }
 
         if ( data.addCardLengthOutput ) {
           // add card len
-          row[index++] = new Long( data.cardLen[i] );
+          row[ index++ ] = new Long( data.cardLen[ i ] );
         }
         if ( isRowLevel() ) {
           logRowlevel( BaseMessages.getString(
@@ -132,22 +132,22 @@ public class RandomCCNumberGenerator extends BaseStep implements StepInterface {
         return false;
       }
 
-      data.cardTypes = new int[meta.getFieldCCType().length];
-      data.cardLen = new int[meta.getFieldCCType().length];
-      data.cardSize = new int[meta.getFieldCCType().length];
+      data.cardTypes = new int[ meta.getFieldCCType().length ];
+      data.cardLen = new int[ meta.getFieldCCType().length ];
+      data.cardSize = new int[ meta.getFieldCCType().length ];
 
       for ( int i = 0; i < meta.getFieldCCType().length; i++ ) {
-        data.cardTypes[i] = RandomCreditCardNumberGenerator.getCardType( meta.getFieldCCType()[i] );
-        String len = environmentSubstitute( meta.getFieldCCLength()[i] );
-        data.cardLen[i] = Const.toInt( len, -1 );
-        if ( data.cardLen[i] < 0 ) {
+        data.cardTypes[ i ] = RandomCreditCardNumberGenerator.getCardType( meta.getFieldCCType()[ i ] );
+        String len = environmentSubstitute( meta.getFieldCCLength()[ i ] );
+        data.cardLen[ i ] = Const.toInt( len, -1 );
+        if ( data.cardLen[ i ] < 0 ) {
           logError( BaseMessages.getString( PKG, "RandomCCNumberGenerator.Log.WrongLength", len, String
             .valueOf( i ) ) );
           return false;
         }
-        String size = environmentSubstitute( meta.getFieldCCSize()[i] );
-        data.cardSize[i] = Const.toInt( size, -1 );
-        if ( data.cardSize[i] < 0 ) {
+        String size = environmentSubstitute( meta.getFieldCCSize()[ i ] );
+        data.cardSize[ i ] = Const.toInt( size, -1 );
+        if ( data.cardSize[ i ] < 0 ) {
           logError( BaseMessages
             .getString( PKG, "RandomCCNumberGenerator.Log.WrongSize", size, String.valueOf( i ) ) );
           return false;

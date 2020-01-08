@@ -66,8 +66,7 @@ public class TreeSelection {
   }
 
   /**
-   * @param grandParent
-   *          the grandParent to set
+   * @param grandParent the grandParent to set
    */
   public void setGrandParent( Object grandParent ) {
     this.grandParent = grandParent;
@@ -81,8 +80,7 @@ public class TreeSelection {
   }
 
   /**
-   * @param parent
-   *          the parent to set
+   * @param parent the parent to set
    */
   public void setParent( Object parent ) {
     this.parent = parent;
@@ -96,8 +94,7 @@ public class TreeSelection {
   }
 
   /**
-   * @param selection
-   *          the selection to set
+   * @param selection the selection to set
    */
   public void setSelection( Object selection ) {
     this.selection = selection;
@@ -111,8 +108,7 @@ public class TreeSelection {
   }
 
   /**
-   * @param description
-   *          the description to set
+   * @param description the description to set
    */
   public void setItemText( String description ) {
     this.itemText = description;

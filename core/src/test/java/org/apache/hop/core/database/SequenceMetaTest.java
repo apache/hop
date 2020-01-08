@@ -22,12 +22,12 @@
 
 package org.apache.hop.core.database;
 
+import org.apache.hop.core.util.Utils;
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-import org.apache.hop.core.util.Utils;
 
 public class SequenceMetaTest {
 

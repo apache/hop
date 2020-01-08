@@ -41,7 +41,6 @@ import org.apache.hop.trans.step.StepMetaInterface;
  *
  * @author Samatar
  * @since 03-Juin-2008
- *
  */
 
 public class PGPDecryptStream extends BaseStep implements StepInterface {
@@ -51,7 +50,7 @@ public class PGPDecryptStream extends BaseStep implements StepInterface {
   private PGPDecryptStreamData data;
 
   public PGPDecryptStream( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,
-    TransMeta transMeta, Trans trans ) {
+                           TransMeta transMeta, Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -119,7 +118,7 @@ public class PGPDecryptStream extends BaseStep implements StepInterface {
       // allocate output row
       Object[] outputRow = RowDataUtil.allocateRowData( data.outputRowMeta.size() );
       for ( int i = 0; i < data.NrPrevFields; i++ ) {
-        outputRow[i] = r[i];
+        outputRow[ i ] = r[ i ];
       }
 
       if ( meta.isPassphraseFromField() ) {
@@ -140,7 +139,7 @@ public class PGPDecryptStream extends BaseStep implements StepInterface {
       String decryptedData = data.gpg.decrypt( encryptedData, data.passPhrase );
 
       // Add encrypted data to input stream
-      outputRow[data.NrPrevFields] = decryptedData;
+      outputRow[ data.NrPrevFields ] = decryptedData;
 
       // add new values to the row.
       putRow( data.outputRowMeta, outputRow ); // copy row to output rowset(s);

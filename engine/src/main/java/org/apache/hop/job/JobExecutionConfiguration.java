@@ -22,6 +22,25 @@
 
 package org.apache.hop.job;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.ExecutionConfiguration;
+import org.apache.hop.cluster.SlaveServer;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.job.entries.trans.JobEntryTrans;
+import org.apache.hop.job.entry.JobEntryCopy;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.trans.TransMeta;
+import org.w3c.dom.Node;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,27 +50,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.ExecutionConfiguration;
-import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.job.entries.trans.JobEntryTrans;
-import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.w3c.dom.Node;
 
 public class JobExecutionConfiguration implements ExecutionConfiguration {
   public static final String XML_TAG = "job_execution_configuration";
@@ -142,16 +140,14 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param arguments
-   *          the arguments to set
+   * @param arguments the arguments to set
    */
   public void setArguments( Map<String, String> arguments ) {
     this.arguments = arguments;
   }
 
   /**
-   * @param params
-   *          the parameters to set
+   * @param params the parameters to set
    */
   public void setParams( Map<String, String> params ) {
     this.params = params;
@@ -165,14 +161,13 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param arguments
-   *          the arguments to set
+   * @param arguments the arguments to set
    */
   public void setArgumentStrings( String[] arguments ) {
     this.arguments = new HashMap<String, String>();
     if ( arguments != null ) {
       for ( int i = 0; i < arguments.length; i++ ) {
-        this.arguments.put( "arg " + ( i + 1 ), arguments[i] );
+        this.arguments.put( "arg " + ( i + 1 ), arguments[ i ] );
       }
     }
   }
@@ -185,8 +180,7 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param variables
-   *          the variables to set
+   * @param variables the variables to set
    */
   public void setVariables( Map<String, String> variables ) {
     this.variables = variables;
@@ -209,8 +203,7 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param remoteExecution
-   *          the remoteExecution to set
+   * @param remoteExecution the remoteExecution to set
    */
   public void setExecutingRemotely( boolean remoteExecution ) {
     this.executingRemotely = remoteExecution;
@@ -224,8 +217,7 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param localExecution
-   *          the localExecution to set
+   * @param localExecution the localExecution to set
    */
   public void setExecutingLocally( boolean localExecution ) {
     this.executingLocally = localExecution;
@@ -239,8 +231,7 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param remoteServer
-   *          the remoteServer to set
+   * @param remoteServer the remoteServer to set
    */
   public void setRemoteServer( SlaveServer remoteServer ) {
     this.remoteServer = remoteServer;
@@ -252,7 +243,7 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
 
     String[] keys = space.listVariables();
     for ( int i = 0; i < keys.length; i++ ) {
-      sp.put( keys[i], space.getVariable( keys[i] ) );
+      sp.put( keys[ i ], space.getVariable( keys[ i ] ) );
     }
 
     List<String> vars = jobMeta.getUsedVariables();
@@ -288,8 +279,7 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param replayDate
-   *          the replayDate to set
+   * @param replayDate the replayDate to set
    */
   public void setReplayDate( Date replayDate ) {
     this.replayDate = replayDate;
@@ -303,8 +293,7 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param usingSafeMode
-   *          the usingSafeMode to set
+   * @param usingSafeMode the usingSafeMode to set
    */
   public void setSafeModeEnabled( boolean usingSafeMode ) {
     this.safeModeEnabled = usingSafeMode;
@@ -326,8 +315,7 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param logLevel
-   *          the logLevel to set
+   * @param logLevel the logLevel to set
    */
   public void setLogLevel( LogLevel logLevel ) {
     this.logLevel = logLevel;
@@ -494,12 +482,12 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
       return null;
     }
 
-    String[] argNames = arguments.keySet().toArray( new String[arguments.size()] );
+    String[] argNames = arguments.keySet().toArray( new String[ arguments.size() ] );
     Arrays.sort( argNames );
 
-    String[] values = new String[argNames.length];
+    String[] values = new String[ argNames.length ];
     for ( int i = 0; i < argNames.length; i++ ) {
-      values[i] = arguments.get( argNames[i] );
+      values[ i ] = arguments.get( argNames[ i ] );
     }
 
     return values;
@@ -513,8 +501,7 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param previousResult
-   *          the previousResult to set
+   * @param previousResult the previousResult to set
    */
   public void setPreviousResult( Result previousResult ) {
     this.previousResult = previousResult;
@@ -528,8 +515,7 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param clearingLog
-   *          the clearingLog to set
+   * @param clearingLog the clearingLog to set
    */
   public void setClearingLog( boolean clearingLog ) {
     this.clearingLog = clearingLog;
@@ -543,8 +529,7 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param passingExport
-   *          the passingExport to set
+   * @param passingExport the passingExport to set
    */
   public void setPassingExport( boolean passingExport ) {
     this.passingExport = passingExport;
@@ -558,8 +543,7 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param startCopyName
-   *          the startCopyName to set
+   * @param startCopyName the startCopyName to set
    */
   public void setStartCopyName( String startCopyName ) {
     this.startCopyName = startCopyName;
@@ -573,8 +557,7 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param startCopyNr
-   *          the startCopyNr to set
+   * @param startCopyNr the startCopyNr to set
    */
   public void setStartCopyNr( int startCopyNr ) {
     this.startCopyNr = startCopyNr;
@@ -588,8 +571,7 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
   }
 
   /**
-   * @param gatheringMetrics
-   *          the gatheringMetrics to set
+   * @param gatheringMetrics the gatheringMetrics to set
    */
   public void setGatheringMetrics( boolean gatheringMetrics ) {
     this.gatheringMetrics = gatheringMetrics;

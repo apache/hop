@@ -28,7 +28,6 @@ import junit.framework.TestCase;
  * Verify MailValidation properly differentiates between valid and invalid email addresses.
  *
  * @author Jordan Ganoff (jganoff@pentaho.com)
- *
  */
 public class MailValidationIT extends TestCase {
   public void testEmailValidation_simple_valid() {

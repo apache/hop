@@ -22,20 +22,19 @@
 
 package org.apache.hop.trans.steps.mailinput;
 
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import junit.framework.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 
-import junit.framework.Assert;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BatchFolderIteratorName {
 
@@ -49,9 +48,9 @@ public class BatchFolderIteratorName {
       @Override
       public Message[] answer( InvocationOnMock invocation ) throws Throwable {
         Object[] args = invocation.getArguments();
-        int start = ( (Integer) args[0] ).intValue();
-        int end = ( (Integer) args[1] ).intValue();
-        return new Message[end - start + 1];
+        int start = ( (Integer) args[ 0 ] ).intValue();
+        int end = ( (Integer) args[ 1 ] ).intValue();
+        return new Message[ end - start + 1 ];
       }
     } );
   }

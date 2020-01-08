@@ -22,18 +22,6 @@
 
 package org.apache.hop.trans.steps.rowgenerator;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
@@ -45,6 +33,18 @@ import org.apache.hop.trans.step.RowAdapter;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 public class RowGeneratorUnitTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -89,7 +89,7 @@ public class RowGeneratorUnitTest {
   @Test
   public void testReadRowLimitAsTransformationVar() throws HopException {
     long rowLimit = ( (RowGeneratorData) rowGenerator.getStepDataInterface() ).rowLimit;
-    assertEquals( rowLimit,  1440 );
+    assertEquals( rowLimit, 1440 );
   }
 
   @Test

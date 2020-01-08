@@ -22,18 +22,16 @@
 
 package org.apache.hop.ui.trans.steps.tableoutput;
 
-import org.apache.hop.ui.core.widget.MetaSelectionManager;
-import org.eclipse.swt.custom.CCombo;
-import org.junit.Before;
-import org.junit.Test;
-
 import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.TransMeta;
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.lang.reflect.Method;
 

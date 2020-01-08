@@ -33,7 +33,6 @@ import java.lang.annotation.Target;
  * recognized and registered as an import rule plugin.
  *
  * @author matt
- *
  */
 @Documented
 @Retention( RetentionPolicy.RUNTIME )

@@ -22,12 +22,12 @@
 
 package org.apache.hop.core.util;
 
-import org.mozilla.javascript.Context;
 import org.apache.hop.compatibility.Value;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.xml.XMLHandler;
+import org.mozilla.javascript.Context;
 
 import java.math.BigDecimal;
 import java.util.Date;

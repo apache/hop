@@ -37,8 +37,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Test;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.mockito.Spy;
 
 import java.sql.PreparedStatement;
@@ -112,7 +112,6 @@ public class GreenplumValueMetaBaseTest {
     HopLogStore.getAppender().removeLoggingEventListener( listener );
     listener = new StoreLoggingEventListener();
   }
-
 
 
   @Test

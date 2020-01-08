@@ -22,9 +22,9 @@
 
 package org.apache.hop.trans.step;
 
-import java.util.List;
-
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
+
+import java.util.List;
 
 public interface StepIOMetaInterface {
 
@@ -54,24 +54,21 @@ public interface StepIOMetaInterface {
   /**
    * Add a stream to the steps I/O interface
    *
-   * @param stream
-   *          The stream to add
+   * @param stream The stream to add
    */
   public void addStream( StreamInterface stream );
 
   /**
    * Set the general info stream description
    *
-   * @param string
-   *          the info streams description
+   * @param string the info streams description
    */
   public void setGeneralInfoDescription( String string );
 
   /**
    * Set the general target stream description
    *
-   * @param string
-   *          the target streams description
+   * @param string the target streams description
    */
   public void setGeneralTargetDescription( String string );
 
@@ -91,8 +88,7 @@ public interface StepIOMetaInterface {
   public boolean isOutputDynamic();
 
   /**
-   * @param outputDynamic
-   *          set to true if the output targets of this step are dynamic (variable)
+   * @param outputDynamic set to true if the output targets of this step are dynamic (variable)
    */
   public void setOutputDynamic( boolean outputDynamic );
 
@@ -102,8 +98,7 @@ public interface StepIOMetaInterface {
   public boolean isInputDynamic();
 
   /**
-   * @param inputDynamic
-   *          set to true if the input info sources of this step are dynamic (variable)
+   * @param inputDynamic set to true if the input info sources of this step are dynamic (variable)
    */
   public void setInputDynamic( boolean inputDynamic );
 

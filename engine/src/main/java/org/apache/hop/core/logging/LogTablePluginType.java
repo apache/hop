@@ -22,10 +22,6 @@
 
 package org.apache.hop.core.logging;
 
-import java.lang.annotation.Annotation;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
@@ -38,11 +34,14 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import java.lang.annotation.Annotation;
+import java.util.List;
+import java.util.Map;
+
 /**
  * This class represents the logging plugin type.
  *
  * @author matt
- *
  */
 @PluginMainClassType( LogTablePluginInterface.class )
 @PluginAnnotationType( LogTablePlugin.class )

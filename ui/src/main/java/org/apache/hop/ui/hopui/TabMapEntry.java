@@ -42,7 +42,6 @@ public class TabMapEntry {
   private boolean showingLocation;
 
   /**
-   *
    * @param tabItem
    * @param filename
    * @param objectName
@@ -76,8 +75,7 @@ public class TabMapEntry {
   }
 
   /**
-   * @param objectName
-   *          the objectName to set
+   * @param objectName the objectName to set
    */
   public void setObjectName( String objectName ) {
     this.objectName = objectName;
@@ -91,8 +89,7 @@ public class TabMapEntry {
   }
 
   /**
-   * @param object
-   *          the object to set
+   * @param object the object to set
    */
   public void setObject( TabItemInterface object ) {
     this.object = object;
@@ -106,8 +103,7 @@ public class TabMapEntry {
   }
 
   /**
-   * @param tabItem
-   *          the tabItem to set
+   * @param tabItem the tabItem to set
    */
   public void setTabItem( TabItem tabItem ) {
     this.tabItem = tabItem;
@@ -121,8 +117,7 @@ public class TabMapEntry {
   }
 
   /**
-   * @param objectType
-   *          the objectType to set
+   * @param objectType the objectType to set
    */
   public void setObjectType( ObjectType objectType ) {
     this.objectType = objectType;
@@ -136,8 +131,7 @@ public class TabMapEntry {
   }
 
   /**
-   * @param filename
-   *          the filename to set
+   * @param filename the filename to set
    */
   public void setFilename( String filename ) {
     this.filename = filename;
@@ -151,8 +145,7 @@ public class TabMapEntry {
   }
 
   /**
-   * @param showingLocation
-   *          the showingLocation to set
+   * @param showingLocation the showingLocation to set
    */
   public void setShowingLocation( boolean showingLocation ) {
     this.showingLocation = showingLocation;

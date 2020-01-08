@@ -23,27 +23,24 @@
 package org.apache.hop.www;
 
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransConfiguration;
 
-
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.ArrayList;
-import java.util.Collections;
-
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransConfiguration;
 
 /**
  * This is a map between the transformation name and the (running/waiting/finished) transformation.
  *
  * @author Matt
- *
  */
 public class TransformationMap {
   private final Map<HopServerObjectEntry, TransData> transMap;
@@ -60,17 +57,13 @@ public class TransformationMap {
   /**
    * Add a transformation to the map
    *
-   * @param transformationName
-   *          The name of the transformation to add
-   * @param containerObjectId
-   *          the unique ID of the transformation in this container.
-   * @param trans
-   *          The transformation to add
-   * @param transConfiguration
-   *          the transformation configuration to add
+   * @param transformationName The name of the transformation to add
+   * @param containerObjectId  the unique ID of the transformation in this container.
+   * @param trans              The transformation to add
+   * @param transConfiguration the transformation configuration to add
    */
   public void addTransformation( String transformationName, String containerObjectId, Trans trans,
-    TransConfiguration transConfiguration ) {
+                                 TransConfiguration transConfiguration ) {
     HopServerObjectEntry entry = new HopServerObjectEntry( transformationName, containerObjectId );
     transMap.put( entry, new TransData( trans, transConfiguration ) );
   }
@@ -97,8 +90,7 @@ public class TransformationMap {
   }
 
   /**
-   * @param entry
-   *          The HopServer transformation object
+   * @param entry The HopServer transformation object
    * @return the transformation with the specified entry
    */
   public Trans getTransformation( HopServerObjectEntry entry ) {
@@ -119,8 +111,7 @@ public class TransformationMap {
   }
 
   /**
-   * @param entry
-   *          The HopServer transformation object
+   * @param entry The HopServer transformation object
    * @return the transformation configuration with the specified entry
    */
   public TransConfiguration getConfiguration( HopServerObjectEntry entry ) {
@@ -128,9 +119,7 @@ public class TransformationMap {
   }
 
   /**
-   *
-   * @param entry
-   *          the HopServer object entry
+   * @param entry the HopServer object entry
    */
   public void removeTransformation( HopServerObjectEntry entry ) {
     transMap.remove( entry );
@@ -145,20 +134,17 @@ public class TransformationMap {
    * This is the meat of the whole problem. We'll allocate a port for a given slave, transformation and step copy,
    * always on the same host. Algorithm: 1) Search for the right map in the hostPortMap
    *
-   * @param portRangeStart
-   *          the start of the port range as described in the used cluster schema
-   * @param hostname
-   *          the host name to allocate this address for
-   * @param clusteredRunId
-   *          A unique id, created for each new clustered run during transformation split.
+   * @param portRangeStart     the start of the port range as described in the used cluster schema
+   * @param hostname           the host name to allocate this address for
+   * @param clusteredRunId     A unique id, created for each new clustered run during transformation split.
    * @param transformationName
    * @param sourceStepName
    * @param sourceStepCopy
    * @return
    */
   public SocketPortAllocation allocateServerSocketPort( int portRangeStart, String hostname,
-    String clusteredRunId, String transformationName, String sourceSlaveName, String sourceStepName,
-    String sourceStepCopy, String targetSlaveName, String targetStepName, String targetStepCopy ) {
+                                                        String clusteredRunId, String transformationName, String sourceSlaveName, String sourceStepName,
+                                                        String sourceStepCopy, String targetSlaveName, String targetStepName, String targetStepCopy ) {
 
     // Do some validations first...
     //
@@ -204,14 +190,14 @@ public class TransformationMap {
         "A server socket allocation always has to accompanied by a target step copy but it was empty" );
     }
 
-      // Look up the sockets list for the given host
-      //
+    // Look up the sockets list for the given host
+    //
     List<SocketPortAllocation> serverSocketPorts;
     serverSocketPorts = hostServerSocketPortsMap.computeIfAbsent( hostname, k -> new CopyOnWriteArrayList<>() );
     serverSocketPorts = serverSocketPorts != null ? serverSocketPorts : hostServerSocketPortsMap.get( hostname );
 
-        // Find the socket port allocation in the list...
-        //
+    // Find the socket port allocation in the list...
+    //
     SocketPortAllocation socketPortAllocation = null;
     int maxPort = portRangeStart - 1;
     for ( int index = 0; index < serverSocketPorts.size(); index++ ) {
@@ -222,36 +208,36 @@ public class TransformationMap {
       synchronized ( spa ) {
 
         if ( spa.getClusterRunId().equalsIgnoreCase( clusteredRunId )
-            && spa.getSourceSlaveName().equalsIgnoreCase( sourceSlaveName )
-            && spa.getTargetSlaveName().equalsIgnoreCase( targetSlaveName )
-            && spa.getTransformationName().equalsIgnoreCase( transformationName )
-            && spa.getSourceStepName().equalsIgnoreCase( sourceStepName )
-            && spa.getSourceStepCopy().equalsIgnoreCase( sourceStepCopy )
-            && spa.getTargetStepName().equalsIgnoreCase( targetStepName )
-            && spa.getTargetStepCopy().equalsIgnoreCase( targetStepCopy ) ) {
-            // This is the port we want, return it. Make sure it's allocated.
-            //
+          && spa.getSourceSlaveName().equalsIgnoreCase( sourceSlaveName )
+          && spa.getTargetSlaveName().equalsIgnoreCase( targetSlaveName )
+          && spa.getTransformationName().equalsIgnoreCase( transformationName )
+          && spa.getSourceStepName().equalsIgnoreCase( sourceStepName )
+          && spa.getSourceStepCopy().equalsIgnoreCase( sourceStepCopy )
+          && spa.getTargetStepName().equalsIgnoreCase( targetStepName )
+          && spa.getTargetStepCopy().equalsIgnoreCase( targetStepCopy ) ) {
+          // This is the port we want, return it. Make sure it's allocated.
+          //
           spa.setAllocated( true );
           socketPortAllocation = spa;
           break;
         } else {
-            // If we find an available spot, take it.
-            //
+          // If we find an available spot, take it.
+          //
           if ( !spa.isAllocated() ) {
-              // This is not an allocated port.
-              // So we can basically use this port slot to put our own allocation
-              // in it.
-              //
-              // However, that is ONLY possible if the port belongs to the same
-              // slave server couple.
-              // Otherwise, we keep on searching.
-              //
+            // This is not an allocated port.
+            // So we can basically use this port slot to put our own allocation
+            // in it.
+            //
+            // However, that is ONLY possible if the port belongs to the same
+            // slave server couple.
+            // Otherwise, we keep on searching.
+            //
             if ( spa.getSourceSlaveName().equalsIgnoreCase( sourceSlaveName )
-                && spa.getTargetSlaveName().equalsIgnoreCase( targetSlaveName ) ) {
+              && spa.getTargetSlaveName().equalsIgnoreCase( targetSlaveName ) ) {
               socketPortAllocation =
-                  new SocketPortAllocation(
-                    spa.getPort(), new Date(), clusteredRunId, transformationName, sourceSlaveName,
-                    sourceStepName, sourceStepCopy, targetSlaveName, targetStepName, targetStepCopy );
+                new SocketPortAllocation(
+                  spa.getPort(), new Date(), clusteredRunId, transformationName, sourceSlaveName,
+                  sourceStepName, sourceStepCopy, targetSlaveName, targetStepName, targetStepCopy );
               serverSocketPorts.set( index, socketPortAllocation );
               break;
             }
@@ -260,38 +246,36 @@ public class TransformationMap {
       }
     }
     if ( socketPortAllocation == null ) {
-          // Allocate a new port and add it to the back of the list
-          // Normally this list should stay sorted on port number this way
-          //
+      // Allocate a new port and add it to the back of the list
+      // Normally this list should stay sorted on port number this way
+      //
       socketPortAllocation =
-            new SocketPortAllocation(
-              maxPort + 1, new Date(), clusteredRunId, transformationName, sourceSlaveName, sourceStepName,
-              sourceStepCopy, targetSlaveName, targetStepName, targetStepCopy );
+        new SocketPortAllocation(
+          maxPort + 1, new Date(), clusteredRunId, transformationName, sourceSlaveName, sourceStepName,
+          sourceStepCopy, targetSlaveName, targetStepName, targetStepCopy );
       serverSocketPorts.add( socketPortAllocation );
     }
 
-        // DEBUG : Do a verification on the content of the list.
-        // If we find a port twice in the list, complain!
-        //
-        /*
-         * for (int i = 0; i < serverSocketPortsMap.size(); i++) { for (int j = 0; j < serverSocketPortsMap.size(); j++)
-         * { if (i != j) { SocketPortAllocation one = serverSocketPortsMap.get(i); SocketPortAllocation two =
-         * serverSocketPortsMap.get(j); if (one.getPort() == two.getPort()) { throw new
-         * RuntimeException("Error detected !! Identical ports discovered in the ports list."); } } } }
-         */
+    // DEBUG : Do a verification on the content of the list.
+    // If we find a port twice in the list, complain!
+    //
+    /*
+     * for (int i = 0; i < serverSocketPortsMap.size(); i++) { for (int j = 0; j < serverSocketPortsMap.size(); j++)
+     * { if (i != j) { SocketPortAllocation one = serverSocketPortsMap.get(i); SocketPortAllocation two =
+     * serverSocketPortsMap.get(j); if (one.getPort() == two.getPort()) { throw new
+     * RuntimeException("Error detected !! Identical ports discovered in the ports list."); } } } }
+     */
 
-        // give back the good news too...
-        //
+    // give back the good news too...
+    //
     return socketPortAllocation;
   }
 
   /**
    * Deallocate all the ports for the given transformation name, across all hosts.
    *
-   * @param transName
-   *          the transformation name to release
-   * @param carteObjectId
-   *          the carte object ID to reference
+   * @param transName     the transformation name to release
+   * @param carteObjectId the carte object ID to reference
    */
   public void deallocateServerSocketPorts( String transName, String carteObjectId ) {
     for ( String hostname : hostServerSocketPortsMap.keySet() ) {
@@ -299,7 +283,7 @@ public class TransformationMap {
       for ( SocketPortAllocation spa : spas ) {
         synchronized ( spa ) {
           if ( spa.getTransformationName().equalsIgnoreCase( transName )
-              && ( Utils.isEmpty( carteObjectId ) || spa.getClusterRunId().equals( carteObjectId ) ) ) {
+            && ( Utils.isEmpty( carteObjectId ) || spa.getClusterRunId().equals( carteObjectId ) ) ) {
             spa.setAllocated( false );
           }
         }
@@ -310,8 +294,7 @@ public class TransformationMap {
   /**
    * Deallocate all the ports for the given transformation entry, across all hosts.
    *
-   * @param entry
-   *          the transformation object entry name to release the sockets for
+   * @param entry the transformation object entry name to release the sockets for
    */
   public void deallocateServerSocketPorts( HopServerObjectEntry entry ) {
     for ( String hostname : hostServerSocketPortsMap.keySet() ) {
@@ -334,8 +317,8 @@ public class TransformationMap {
     if ( serverSocketPorts == null ) {
       return; // nothing to deallocate
     }
-      // Find the socket port allocation in the list...
-      //
+    // Find the socket port allocation in the list...
+    //
     for ( SocketPortAllocation spa : serverSocketPorts ) {
       synchronized ( spa ) {
         if ( spa.getPort() == port ) {
@@ -346,7 +329,7 @@ public class TransformationMap {
     }
   }
 
-  public HopServerObjectEntry getFirstCarteObjectEntry(String transName ) {
+  public HopServerObjectEntry getFirstCarteObjectEntry( String transName ) {
     for ( HopServerObjectEntry key : transMap.keySet() ) {
       if ( key.getName().equals( transName ) ) {
         return key;
@@ -363,8 +346,7 @@ public class TransformationMap {
   }
 
   /**
-   * @param slaveServerConfig
-   *          the slaveServerConfig to set
+   * @param slaveServerConfig the slaveServerConfig to set
    */
   public void setSlaveServerConfig( SlaveServerConfig slaveServerConfig ) {
     this.slaveServerConfig = slaveServerConfig;

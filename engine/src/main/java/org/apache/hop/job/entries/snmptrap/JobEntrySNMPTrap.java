@@ -22,23 +22,16 @@
 
 package org.apache.hop.job.entries.snmptrap;
 
-import java.net.InetAddress;
-import java.util.List;
-
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-
 import org.apache.hop.metastore.api.IMetaStore;
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
@@ -63,12 +56,13 @@ import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 import org.w3c.dom.Node;
 
+import java.net.InetAddress;
+
 /**
  * This defines an SNMPTrap job entry.
  *
  * @author Matt
  * @since 05-11-2003
- *
  */
 
 public class JobEntrySNMPTrap extends JobEntryBase implements Cloneable, JobEntryInterface {
@@ -115,7 +109,7 @@ public class JobEntrySNMPTrap extends JobEntryBase implements Cloneable, JobEntr
     timeout = "" + DEFAULT_TIME_OUT;
     message = null;
     oid = null;
-    targettype = target_type_Code[0];
+    targettype = target_type_Code[ 0 ];
     user = null;
     passphrase = null;
     engineid = null;
@@ -132,23 +126,23 @@ public class JobEntrySNMPTrap extends JobEntryBase implements Cloneable, JobEntr
 
   public String getTargetTypeDesc( String tt ) {
     if ( Utils.isEmpty( tt ) ) {
-      return target_type_Desc[0];
+      return target_type_Desc[ 0 ];
     }
-    if ( tt.equalsIgnoreCase( target_type_Code[1] ) ) {
-      return target_type_Desc[1];
+    if ( tt.equalsIgnoreCase( target_type_Code[ 1 ] ) ) {
+      return target_type_Desc[ 1 ];
     } else {
-      return target_type_Desc[0];
+      return target_type_Desc[ 0 ];
     }
   }
 
   public String getTargetTypeCode( String tt ) {
     if ( tt == null ) {
-      return target_type_Code[0];
+      return target_type_Code[ 0 ];
     }
-    if ( tt.equals( target_type_Desc[1] ) ) {
-      return target_type_Code[1];
+    if ( tt.equals( target_type_Desc[ 1 ] ) ) {
+      return target_type_Code[ 1 ];
     } else {
-      return target_type_Code[0];
+      return target_type_Code[ 0 ];
     }
   }
 
@@ -170,10 +164,10 @@ public class JobEntrySNMPTrap extends JobEntryBase implements Cloneable, JobEntr
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       port = XMLHandler.getTagValue( entrynode, "port" );
       serverName = XMLHandler.getTagValue( entrynode, "servername" );
       oid = XMLHandler.getTagValue( entrynode, "oid" );
@@ -200,8 +194,7 @@ public class JobEntrySNMPTrap extends JobEntryBase implements Cloneable, JobEntr
   }
 
   /**
-   * @param serverName
-   *          The serverName to set.
+   * @param serverName The serverName to set.
    */
   public void setServerName( String serverName ) {
     this.serverName = serverName;
@@ -215,8 +208,7 @@ public class JobEntrySNMPTrap extends JobEntryBase implements Cloneable, JobEntr
   }
 
   /**
-   * @param oid
-   *          The oid to set.
+   * @param oid The oid to set.
    */
   public void setOID( String oid ) {
     this.oid = oid;
@@ -230,16 +222,14 @@ public class JobEntrySNMPTrap extends JobEntryBase implements Cloneable, JobEntr
   }
 
   /**
-   * @param comString
-   *          The comString to set.
+   * @param comString The comString to set.
    */
   public void setComString( String comString ) {
     this.comString = comString;
   }
 
   /**
-   * @param user
-   *          The user to set.
+   * @param user The user to set.
    */
   public void setUser( String user ) {
     this.user = user;
@@ -253,8 +243,7 @@ public class JobEntrySNMPTrap extends JobEntryBase implements Cloneable, JobEntr
   }
 
   /**
-   * @param user
-   *          The passphrase to set.
+   * @param user The passphrase to set.
    */
   public void setPassPhrase( String passphrase ) {
     this.passphrase = passphrase;
@@ -268,8 +257,7 @@ public class JobEntrySNMPTrap extends JobEntryBase implements Cloneable, JobEntr
   }
 
   /**
-   * @param user
-   *          The engineid to set.
+   * @param user The engineid to set.
    */
   public void setEngineID( String engineid ) {
     this.engineid = engineid;
@@ -291,8 +279,7 @@ public class JobEntrySNMPTrap extends JobEntryBase implements Cloneable, JobEntr
   }
 
   /**
-   * @param message
-   *          The message to set.
+   * @param message The message to set.
    */
   public void setMessage( String message ) {
     this.message = message;
@@ -313,16 +300,14 @@ public class JobEntrySNMPTrap extends JobEntryBase implements Cloneable, JobEntr
   }
 
   /**
-   * @param port
-   *          The port to set.
+   * @param port The port to set.
    */
   public void setPort( String port ) {
     this.port = port;
   }
 
   /**
-   * @param timeout
-   *          The timeout to set.
+   * @param timeout The timeout to set.
    */
   public void setTimeout( String timeout ) {
     this.timeout = timeout;
@@ -336,8 +321,7 @@ public class JobEntrySNMPTrap extends JobEntryBase implements Cloneable, JobEntr
   }
 
   /**
-   * @param nrretry
-   *          The nrretry to set.
+   * @param nrretry The nrretry to set.
    */
   public void setRetry( String nrretry ) {
     this.nrretry = nrretry;
@@ -370,7 +354,7 @@ public class JobEntrySNMPTrap extends JobEntryBase implements Cloneable, JobEntr
 
       UdpAddress udpAddress = new UdpAddress( InetAddress.getByName( servername ), nrPort );
       ResponseEvent response = null;
-      if ( targettype.equals( target_type_Code[0] ) ) {
+      if ( targettype.equals( target_type_Code[ 0 ] ) ) {
         // Community target
         String community = environmentSubstitute( comString );
 

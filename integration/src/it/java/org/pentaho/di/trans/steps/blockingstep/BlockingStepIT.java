@@ -22,12 +22,7 @@
 
 package org.apache.hop.trans.steps.blockingstep;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
+import junit.framework.TestCase;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
@@ -52,7 +47,11 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
 import org.apache.hop.trans.steps.injector.InjectorMeta;
 
-import junit.framework.TestCase;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Test class for the BlockingStep step.
@@ -64,15 +63,15 @@ public class BlockingStepIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    {
-      new ValueMetaString( "field1" ), new ValueMetaInteger( "field2" ),
-      new ValueMetaNumber( "field3" ), new ValueMetaDate( "field4" ),
-      new ValueMetaBoolean( "field5" ),
-      new ValueMetaBigNumber( "field6" ),
-      new ValueMetaBigNumber( "field7" ) };
+      {
+        new ValueMetaString( "field1" ), new ValueMetaInteger( "field2" ),
+        new ValueMetaNumber( "field3" ), new ValueMetaDate( "field4" ),
+        new ValueMetaBoolean( "field5" ),
+        new ValueMetaBigNumber( "field6" ),
+        new ValueMetaBigNumber( "field7" ) };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -124,9 +123,9 @@ public class BlockingStepIT extends TestCase {
       if ( r1.length != r2.length ) {
         fail( "row nr " + idx + " is not equal" );
       }
-      int[] fields = new int[r1.length];
+      int[] fields = new int[ r1.length ];
       for ( int ydx = 0; ydx < r1.length; ydx++ ) {
-        fields[ydx] = ydx;
+        fields[ ydx ] = ydx;
       }
       try {
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {

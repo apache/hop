@@ -41,12 +41,9 @@ public interface RowDistributionInterface {
   /**
    * Do the actual row distribution in the step
    *
-   * @param rowMeta
-   *          the meta-data of the row to distribute
-   * @param row
-   *          the data of the row data to distribute
-   * @param stepInterface
-   *          The step to distribute the rows in
+   * @param rowMeta       the meta-data of the row to distribute
+   * @param row           the data of the row data to distribute
+   * @param stepInterface The step to distribute the rows in
    * @throws HopStepException
    */
   public void distributeRow( RowMetaInterface rowMeta, Object[] row, StepInterface stepInterface ) throws HopStepException;

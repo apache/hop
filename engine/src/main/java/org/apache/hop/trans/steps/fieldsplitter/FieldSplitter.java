@@ -40,8 +40,8 @@ import org.apache.hop.trans.step.StepMetaInterface;
  * Split a single String fields into multiple parts based on certain conditions.
  *
  * @author Matt
- * @since 31-Okt-2003
  * @author Daniel Einspanjer
+ * @since 31-Okt-2003
  * @since 15-01-2008
  */
 public class FieldSplitter extends BaseStep implements StepInterface {

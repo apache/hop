@@ -27,12 +27,15 @@
  */
 package org.apache.hop.job.entries.dummy;
 
-import org.apache.hop.core.exception.*;
-import org.apache.hop.core.logging.*;
-import org.apache.hop.core.util.*;
+import org.apache.hop.core.exception.HopJobException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.util.Utils;
 
-import java.io.*;
-import java.util.regex.*;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.util.regex.Pattern;
 
 public class DummyJob {
 
@@ -71,7 +74,7 @@ public class DummyJob {
     File outDir = new File( _targetDir );
     outDir.mkdirs();
     for ( int i = 0; i < allFiles.length; i++ ) {
-      File cFile = allFiles[i];
+      File cFile = allFiles[ i ];
       log.logDetailed( toString(), "processing file '" + cFile + "'" );
       processFile( cFile, outDir );
     }

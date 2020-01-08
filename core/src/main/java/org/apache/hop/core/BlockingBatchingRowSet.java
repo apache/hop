@@ -22,22 +22,21 @@
 
 package org.apache.hop.core;
 
+import org.apache.hop.core.row.RowMetaInterface;
+
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.hop.core.row.RowMetaInterface;
 
 /**
  * Contains a buffer of rows. Instead of passing rows along the chain immediately we will batch them up to lower locking
  * overhead. The row set will start in accepting mode (accepting = true) It will remain there until the buffer is full.
  * Then it will switch to delivering mode (accepting = false) It will remain there until the buffer is empty.
- *
+ * <p>
  * When the row set is done and no more rows will be entering the row set we will switch to delivering mode.
  *
  * @author Matt
  * @since 04-05-2011
- *
  */
 public class BlockingBatchingRowSet extends BaseRowSet implements Comparable<RowSet>, RowSet {
   private BlockingQueue<Object[][]> putArray, getArray;
@@ -67,7 +66,7 @@ public class BlockingBatchingRowSet extends BaseRowSet implements Comparable<Row
     size = maxSize / BATCHSIZE; // each buffer's size
     Object[][] buffer;
     for ( int i = 0; i < BATCHSIZE; i++ ) {
-      buffer = new Object[size][];
+      buffer = new Object[ size ][];
       putArray.offer( buffer );
     }
     outputBuffer = null;
@@ -101,7 +100,7 @@ public class BlockingBatchingRowSet extends BaseRowSet implements Comparable<Row
       }
       putIndex = 0;
     }
-    inputBuffer[putIndex++] = rowData;
+    inputBuffer[ putIndex++ ] = rowData;
     if ( putIndex == size ) {
       try {
         getArray.offer( inputBuffer, time, tu );
@@ -151,8 +150,8 @@ public class BlockingBatchingRowSet extends BaseRowSet implements Comparable<Row
       getIndex = 0;
     }
 
-    Object[] row = outputBuffer[getIndex];
-    outputBuffer[getIndex++] = null; // prevent any hold-up to GC
+    Object[] row = outputBuffer[ getIndex ];
+    outputBuffer[ getIndex++ ] = null; // prevent any hold-up to GC
     if ( getIndex == size ) {
       putArray.offer( outputBuffer );
       outputBuffer = null;
@@ -172,9 +171,9 @@ public class BlockingBatchingRowSet extends BaseRowSet implements Comparable<Row
   public void setDone() {
     super.setDone();
     if ( putIndex > 0 && putIndex < size && inputBuffer != null ) {
-      inputBuffer[putIndex] = null; // signal the end of buffer
+      inputBuffer[ putIndex ] = null; // signal the end of buffer
       for ( int i = putIndex + 1; i < size; i++ ) {
-        inputBuffer[i] = null;
+        inputBuffer[ i ] = null;
       }
       getArray.offer( inputBuffer );
     }

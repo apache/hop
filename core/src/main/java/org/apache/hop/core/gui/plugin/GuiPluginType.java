@@ -36,7 +36,6 @@ import java.util.Map;
  * This class represents a plugin type for GUI elements like menus and toolbars.
  *
  * @author matt
- *
  */
 @PluginMainClassType( GuiInterface.class )
 @PluginAnnotationType( GuiPlugin.class )
@@ -59,7 +58,7 @@ public class GuiPluginType extends BasePluginType implements PluginTypeInterface
     super.registerNatives();
   }
 
-    @Override
+  @Override
   protected String getXmlPluginFile() {
     return Const.XML_FILE_HOP_GUI_PLUGINS;
   }
@@ -84,7 +83,7 @@ public class GuiPluginType extends BasePluginType implements PluginTypeInterface
   }
 
   public String[] getNaturalCategoriesOrder() {
-    return new String[0];
+    return new String[ 0 ];
   }
 
   @Override
@@ -119,7 +118,7 @@ public class GuiPluginType extends BasePluginType implements PluginTypeInterface
 
   @Override
   protected String extractI18nPackageName( Annotation annotation ) {
-    return ((GuiPlugin)annotation).i18nPackage();
+    return ( (GuiPlugin) annotation ).i18nPackage();
   }
 
   @Override

@@ -22,14 +22,15 @@
 
 package org.apache.hop.trans.steps.sort;
 
+import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 public class SortRowsMetaInjectionTest extends BaseMetadataInjectionTest<SortRowsMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Before
   public void setup() throws Exception {
     setup( new SortRowsMeta() );
@@ -76,37 +77,37 @@ public class SortRowsMetaInjectionTest extends BaseMetadataInjectionTest<SortRow
     check( "NAME", new StringGetter() {
       @Override
       public String get() {
-        return meta.getFieldName()[0];
+        return meta.getFieldName()[ 0 ];
       }
     } );
     check( "SORT_ASCENDING", new BooleanGetter() {
       @Override
       public boolean get() {
-        return meta.getAscending()[0];
+        return meta.getAscending()[ 0 ];
       }
     } );
     check( "IGNORE_CASE", new BooleanGetter() {
       @Override
       public boolean get() {
-        return meta.getCaseSensitive()[0];
+        return meta.getCaseSensitive()[ 0 ];
       }
     } );
     check( "PRESORTED", new BooleanGetter() {
       @Override
       public boolean get() {
-        return meta.getPreSortedField()[0];
+        return meta.getPreSortedField()[ 0 ];
       }
     } );
     check( "COLLATOR_STRENGTH", new IntGetter() {
       @Override
       public int get() {
-        return meta.getCollatorStrength()[0];
+        return meta.getCollatorStrength()[ 0 ];
       }
     } );
     check( "COLLATOR_ENABLED", new BooleanGetter() {
       @Override
       public boolean get() {
-        return meta.getCollatorEnabled()[0];
+        return meta.getCollatorEnabled()[ 0 ];
       }
     } );
   }

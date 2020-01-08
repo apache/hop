@@ -22,10 +22,10 @@
 
 package org.apache.hop.core.metrics;
 
-import java.util.Date;
-
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
+
+import java.util.Date;
 
 public class MetricsDuration {
   private Date date;
@@ -55,7 +55,7 @@ public class MetricsDuration {
    * @param duration
    */
   public MetricsDuration( Date date, String description, String subject, String logChannelId, Long duration,
-    Long count ) {
+                          Long count ) {
     this.date = date;
     this.description = description;
     this.subject = subject;
@@ -86,8 +86,7 @@ public class MetricsDuration {
   }
 
   /**
-   * @param date
-   *          the date to set
+   * @param date the date to set
    */
   public void setDate( Date date ) {
     this.date = date;
@@ -101,8 +100,7 @@ public class MetricsDuration {
   }
 
   /**
-   * @param description
-   *          the description to set
+   * @param description the description to set
    */
   public void setDescription( String description ) {
     this.description = description;
@@ -116,8 +114,7 @@ public class MetricsDuration {
   }
 
   /**
-   * @param duration
-   *          the duration to set
+   * @param duration the duration to set
    */
   public void setDuration( Long duration ) {
     this.duration = duration;
@@ -131,8 +128,7 @@ public class MetricsDuration {
   }
 
   /**
-   * @param subject
-   *          the subject to set
+   * @param subject the subject to set
    */
   public void setSubject( String subject ) {
     this.subject = subject;
@@ -146,8 +142,7 @@ public class MetricsDuration {
   }
 
   /**
-   * @param logChannelId
-   *          the logChannelId to set
+   * @param logChannelId the logChannelId to set
    */
   public void setLogChannelId( String logChannelId ) {
     this.logChannelId = logChannelId;
@@ -177,8 +172,7 @@ public class MetricsDuration {
   }
 
   /**
-   * @param endDate
-   *          the endDate to set
+   * @param endDate the endDate to set
    */
   public void setEndDate( Date endDate ) {
     this.endDate = endDate;

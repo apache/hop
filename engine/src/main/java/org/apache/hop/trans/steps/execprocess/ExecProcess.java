@@ -22,17 +22,10 @@
 
 package org.apache.hop.trans.steps.execprocess;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -42,12 +35,18 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Execute a process *
  *
  * @author Samatar
  * @since 03-11-2008
- *
  */
 
 public class ExecProcess extends BaseStep implements StepInterface {
@@ -57,7 +56,7 @@ public class ExecProcess extends BaseStep implements StepInterface {
   private ExecProcessData data;
 
   public ExecProcess( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                      Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -100,11 +99,11 @@ public class ExecProcess extends BaseStep implements StepInterface {
       }
       if ( meta.isArgumentsInFields() ) {
         if ( data.indexOfArguments == null ) {
-          data.indexOfArguments = new int[meta.getArgumentFieldNames().length];
+          data.indexOfArguments = new int[ meta.getArgumentFieldNames().length ];
           for ( int i = 0; i < data.indexOfArguments.length; i++ ) {
-            String fieldName = meta.getArgumentFieldNames()[i];
-            data.indexOfArguments[i] = data.previousRowMeta.indexOfValue( fieldName );
-            if ( data.indexOfArguments[i] < 0 ) {
+            String fieldName = meta.getArgumentFieldNames()[ i ];
+            data.indexOfArguments[ i ] = data.previousRowMeta.indexOfValue( fieldName );
+            if ( data.indexOfArguments[ i ] < 0 ) {
               logError( BaseMessages.getString( PKG, "ExecProcess.Exception.CouldnotFindField" )
                 + "[" + fieldName + "]" );
               throw new HopException(
@@ -117,7 +116,7 @@ public class ExecProcess extends BaseStep implements StepInterface {
 
     Object[] outputRow = RowDataUtil.allocateRowData( data.outputRowMeta.size() );
     for ( int i = 0; i < data.NrPrevFields; i++ ) {
-      outputRow[i] = r[i];
+      outputRow[ i ] = r[ i ];
     }
     // get process to execute
     String processString = data.previousRowMeta.getString( r, data.indexOfProcess );
@@ -137,11 +136,11 @@ public class ExecProcess extends BaseStep implements StepInterface {
         for ( int i = 0; i < data.indexOfArguments.length; i++ ) {
           // Runtime.exec will fail on null array elements
           // Convert to an empty string if value is null
-          String argString = data.previousRowMeta.getString( r, data.indexOfArguments[i] );
+          String argString = data.previousRowMeta.getString( r, data.indexOfArguments[ i ] );
           cmdArray.add( Const.NVL( argString, "" ) );
         }
 
-        execProcess( cmdArray.toArray( new String[0] ), processResult );
+        execProcess( cmdArray.toArray( new String[ 0 ] ), processResult );
       } else {
         execProcess( processString, processResult );
       }
@@ -158,13 +157,13 @@ public class ExecProcess extends BaseStep implements StepInterface {
 
       // Add result field to input stream
       int rowIndex = data.NrPrevFields;
-      outputRow[rowIndex++] = processResult.getOutputStream();
+      outputRow[ rowIndex++ ] = processResult.getOutputStream();
 
       // Add result field to input stream
-      outputRow[rowIndex++] = processResult.getErrorStream();
+      outputRow[ rowIndex++ ] = processResult.getErrorStream();
 
       // Add result field to input stream
-      outputRow[rowIndex++] = processResult.getExistStatus();
+      outputRow[ rowIndex++ ] = processResult.getExistStatus();
 
       // add new values to the row.
       putRow( data.outputRowMeta, outputRow ); // copy row to output rowset(s);
@@ -198,7 +197,7 @@ public class ExecProcess extends BaseStep implements StepInterface {
   }
 
   private void execProcess( String process, ProcessResult processresult ) throws HopException {
-    execProcess( new String[]{ process }, processresult );
+    execProcess( new String[] { process }, processresult );
   }
 
   private void execProcess( String[] process, ProcessResult processresult ) throws HopException {
@@ -209,7 +208,7 @@ public class ExecProcess extends BaseStep implements StepInterface {
       // execute process
       try {
         if ( !meta.isArgumentsInFields() ) {
-          p = data.runtime.exec( process[0] );
+          p = data.runtime.exec( process[ 0 ] );
         } else {
           p = data.runtime.exec( process );
         }

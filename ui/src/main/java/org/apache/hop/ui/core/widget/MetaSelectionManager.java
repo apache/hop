@@ -34,14 +34,12 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.IHopMetaStoreElement;
-import org.apache.hop.metastore.api.IHasName;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
-import org.apache.hop.metastore.util.HopDefaults;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopui.dialog.MetaStoreExplorerDialog;
@@ -49,7 +47,6 @@ import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.layout.FormAttachment;
@@ -63,7 +60,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.List;
 
@@ -138,7 +134,7 @@ public class MetaSelectionManager<T extends IHopMetaStoreElement> extends Compos
     fdNew.right = new FormAttachment( wManage, -margin );
     fdNew.top = new FormAttachment( wLabel, 0, SWT.CENTER );
     wNew.setLayoutData( fdNew );
-    wNew.addListener( SWT.Selection, e->newMetadata() );
+    wNew.addListener( SWT.Selection, e -> newMetadata() );
 
     wEdit = new Button( this, SWT.PUSH );
     wEdit.setText( BaseMessages.getString( PKG, "System.Button.Edit" ) );
@@ -146,7 +142,7 @@ public class MetaSelectionManager<T extends IHopMetaStoreElement> extends Compos
     fdEdit.right = new FormAttachment( wNew, -margin );
     fdEdit.top = new FormAttachment( wLabel, 0, SWT.CENTER );
     wEdit.setLayoutData( fdEdit );
-    wEdit.addListener( SWT.Selection, e->editMetadata() );
+    wEdit.addListener( SWT.Selection, e -> editMetadata() );
 
     int textFlags = SWT.SINGLE | SWT.LEFT | SWT.BORDER;
     if ( flags != SWT.NONE ) {
@@ -173,7 +169,7 @@ public class MetaSelectionManager<T extends IHopMetaStoreElement> extends Compos
   protected void editMetadata() {
 
     String selected = wCombo.getText();
-    if (StringUtils.isEmpty( selected )) {
+    if ( StringUtils.isEmpty( selected ) ) {
       return;
     }
 
@@ -183,15 +179,15 @@ public class MetaSelectionManager<T extends IHopMetaStoreElement> extends Compos
       // Load the metadata element from the metastore
       //
       T element = factory.loadElement( selected );
-      if (element==null) {
+      if ( element == null ) {
         // Something removed or renamed the element in the background
         //
-        throw new HopException( "Unable to find element '"+selected+"' in the metastore" );
+        throw new HopException( "Unable to find element '" + selected + "' in the metastore" );
       }
 
-      openMetaDialog(element, factory);
+      openMetaDialog( element, factory );
 
-    } catch(Exception e) {
+    } catch ( Exception e ) {
       new ErrorDialog( getShell(), "Error", "Error editing metadata", e );
     }
   }
@@ -208,22 +204,22 @@ public class MetaSelectionManager<T extends IHopMetaStoreElement> extends Compos
     // Create the dialog class editor...
     // Always pass the shell, the metastore and the object to edit...
     //
-    Class<?>[] constructorArguments = new Class<?>[]{
+    Class<?>[] constructorArguments = new Class<?>[] {
       Shell.class,
       IMetaStore.class,
       managedClass
-    } ;
+    };
 
     Class<IMetaStoreDialog> dialogClass;
     try {
       dialogClass = (Class<IMetaStoreDialog>) classLoader.loadClass( dialogClassName );
-    } catch(ClassNotFoundException e1) {
+    } catch ( ClassNotFoundException e1 ) {
       dialogClass = (Class<IMetaStoreDialog>) Class.forName( dialogClassName );
     }
     Constructor<IMetaStoreDialog> constructor = dialogClass.getDeclaredConstructor( constructorArguments );
     IMetaStoreDialog dialog = constructor.newInstance( getShell(), metaStore, element );
     String name = dialog.open();
-    if (name!=null) {
+    if ( name != null ) {
       // Save it in the MetaStore
       factory.saveElement( element );
 
@@ -237,8 +233,8 @@ public class MetaSelectionManager<T extends IHopMetaStoreElement> extends Compos
       // Create a new instance of the managed class
       //
       T element = managedClass.newInstance();
-      openMetaDialog(element, element.getFactory( metaStore ));
-    } catch(Exception e) {
+      openMetaDialog( element, element.getFactory( metaStore ) );
+    } catch ( Exception e ) {
       new ErrorDialog( getShell(), "Error", "Error creating new metadata element", e );
     }
   }
@@ -271,10 +267,8 @@ public class MetaSelectionManager<T extends IHopMetaStoreElement> extends Compos
   /**
    * Adds the connection line for the given parent and previous control, and returns a meta selection manager control
    *
-   * @param parent
-   *          the parent composite object
-   * @param previous
-   *          the previous control
+   * @param parent   the parent composite object
+   * @param previous the previous control
    * @param
    * @return the combo box UI component
    */
@@ -282,21 +276,21 @@ public class MetaSelectionManager<T extends IHopMetaStoreElement> extends Compos
 
     try {
       fillItems();
-    } catch(Exception e) {
+    } catch ( Exception e ) {
       LogChannel.UI.logError( "Error getting list of relational database connection names from the metastore", e );
     }
     addModifyListener( lsMod );
 
     // Set a default value if there is only 1 connection in the list and nothing else is previously selected...
     //
-    if (selected==null) {
-      if (getItemCount()==1) {
+    if ( selected == null ) {
+      if ( getItemCount() == 1 ) {
         select( 0 );
       }
     } else {
       // Just set the value
       //
-      setText( Const.NVL(selected.getName(), "") );
+      setText( Const.NVL( selected.getName(), "" ) );
     }
 
     FormData fdConnection = new FormData();
@@ -309,9 +303,6 @@ public class MetaSelectionManager<T extends IHopMetaStoreElement> extends Compos
     }
     setLayoutData( fdConnection );
   }
-
-
-
 
 
   public void addModifyListener( ModifyListener lsMod ) {

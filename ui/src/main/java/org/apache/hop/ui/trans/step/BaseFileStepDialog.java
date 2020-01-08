@@ -22,6 +22,11 @@
 
 package org.apache.hop.ui.trans.step;
 
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.file.BaseFileInputMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -32,14 +37,9 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.file.BaseFileInputMeta;
 
 public abstract class BaseFileStepDialog<T extends BaseFileInputMeta<?, ?, ?>> extends BaseStepDialog implements
-    StepDialogInterface {
+  StepDialogInterface {
   protected final Class<?> PKG = getClass();
 
   protected T input;
@@ -107,19 +107,16 @@ public abstract class BaseFileStepDialog<T extends BaseFileInputMeta<?, ?, ?>> e
   /**
    * Read the data from the meta object and show it in this dialog.
    *
-   * @param meta
-   *          The meta object to obtain the data from.
+   * @param meta The meta object to obtain the data from.
    */
   protected abstract void getData( T meta );
 
   /**
    * Fill meta object from UI options.
    *
-   * @param meta
-   *          meta object
-   * @param preview
-   *          flag for preview or real options should be used. Currently, only one option is differ for preview - EOL
-   *          chars. It uses as "mixed" for be able to preview any file.
+   * @param meta    meta object
+   * @param preview flag for preview or real options should be used. Currently, only one option is differ for preview - EOL
+   *                chars. It uses as "mixed" for be able to preview any file.
    */
   protected abstract void getInfo( T meta, boolean preview );
 

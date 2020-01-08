@@ -22,19 +22,18 @@
 
 package org.apache.hop.www.jaxrs;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
 import org.apache.hop.job.Job;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.www.HopServerObjectEntry;
 import org.apache.hop.www.HopServerSingleton;
 import org.apache.hop.www.SlaveServerConfig;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.List;
 
 @Path( "/carte" )
 public class HopServerResource {
@@ -50,7 +49,7 @@ public class HopServerResource {
     return HopServerSingleton.getInstance().getJobMap().getJob( getCarteObjectEntry( id ) );
   }
 
-  public static HopServerObjectEntry getCarteObjectEntry(String id ) {
+  public static HopServerObjectEntry getCarteObjectEntry( String id ) {
     List<HopServerObjectEntry> transList =
       HopServerSingleton.getInstance().getTransformationMap().getTransformationObjects();
     for ( HopServerObjectEntry entry : transList ) {

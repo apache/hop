@@ -21,9 +21,9 @@
  ******************************************************************************/
 package org.apache.hop.job.entries.createfile;
 
-import org.junit.ClassRule;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,6 +32,7 @@ import java.util.Map;
 
 public class JobEntryCreateFileLoadSaveTest extends JobEntryLoadSaveTestSupport<JobEntryCreateFile> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Override protected Class<JobEntryCreateFile> getJobEntryClass() {
     return JobEntryCreateFile.class;
   }

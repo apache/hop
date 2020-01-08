@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.zipfile;
 
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -31,21 +29,20 @@ import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.junit.Test;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -116,7 +113,7 @@ public class ZipFileMetaTest {
     RowMetaInterface info = mock( RowMetaInterface.class );
     ArrayList<CheckResultInterface> remarks = new ArrayList<>();
 
-    zipFileMeta.check( remarks, transMeta, stepInfo, prev, new String[]{"input"}, new String[]{"output"}, info,
+    zipFileMeta.check( remarks, transMeta, stepInfo, prev, new String[] { "input" }, new String[] { "output" }, info,
       new Variables(), metastore );
     assertEquals( 2, remarks.size() );
     assertEquals( "Source Filename field is missing!", remarks.get( 0 ).getText() );
@@ -125,7 +122,7 @@ public class ZipFileMetaTest {
     remarks = new ArrayList<>();
     zipFileMeta = new ZipFileMeta();
     zipFileMeta.setDynamicSourceFileNameField( "sourceFileField" );
-    zipFileMeta.check( remarks, transMeta, stepInfo, prev, new String[0], new String[]{"output"}, info,
+    zipFileMeta.check( remarks, transMeta, stepInfo, prev, new String[ 0 ], new String[] { "output" }, info,
       new Variables(), metastore );
     assertEquals( 2, remarks.size() );
     assertEquals( "Target Filename field was specified", remarks.get( 0 ).getText() );

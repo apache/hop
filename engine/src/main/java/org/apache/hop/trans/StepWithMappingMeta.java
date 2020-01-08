@@ -22,11 +22,6 @@
 
 package org.apache.hop.trans;
 
-import static org.apache.hop.core.Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY;
-import static org.apache.hop.core.Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY;
-import static org.apache.hop.core.Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY;
-import static org.apache.hop.core.Const.INTERNAL_VARIABLE_JOB_FILENAME_NAME;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -40,11 +35,11 @@ import org.apache.hop.core.util.serialization.BaseSerializingMeta;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.mapping.MappingIODefinition;
-import org.apache.hop.metastore.api.IMetaStore;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,11 +49,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.apache.hop.core.Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY;
+import static org.apache.hop.core.Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY;
+import static org.apache.hop.core.Const.INTERNAL_VARIABLE_JOB_FILENAME_NAME;
+import static org.apache.hop.core.Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY;
+
 /**
  * This class is supposed to use in steps where the mapping to sub transformations takes place
  *
- * @since 02-jan-2017
  * @author Yury Bakhmutski
+ * @since 02-jan-2017
  */
 public abstract class StepWithMappingMeta extends BaseSerializingMeta implements StepMetaInterface {
   //default value
@@ -72,7 +72,7 @@ public abstract class StepWithMappingMeta extends BaseSerializingMeta implements
 
   /**
    * @return new var space with follow vars from parent space or just new space if parent was null
-   * 
+   * <p>
    * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY}
    * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY}
    * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY}
@@ -97,23 +97,23 @@ public abstract class StepWithMappingMeta extends BaseSerializingMeta implements
     // send restricted parentVariables with several important options
     // Otherwise we destroy child variables and the option "Inherit all variables from the transformation" is enabled always.
     VariableSpace tmpSpace = r.resolveCurrentDirectory( getVarSpaceOnlyWithRequiredParentVars( space ),
-        executorMeta.getParentStepMeta(), executorMeta.getFileName() );
+      executorMeta.getParentStepMeta(), executorMeta.getFileName() );
 
-        String realFilename = tmpSpace.environmentSubstitute( executorMeta.getFileName() );
-        if ( space != null ) {
-          // This is a parent transformation and parent variable should work here. A child file name can be resolved via parent space.
-          realFilename = space.environmentSubstitute( realFilename );
-        }
-        try {
-          // OK, load the meta-data from file...
-          // Don't set internal variables: they belong to the parent thread!
-          if ( mappingTransMeta == null ) {
-            mappingTransMeta = new TransMeta( realFilename, metaStore, true, tmpSpace );
-            LogChannel.GENERAL.logDetailed( "Loading transformation from repository", "Transformation was loaded from XML file [" + realFilename + "]" );
-          }
-        } catch ( Exception e ) {
-          throw new HopException( BaseMessages.getString( PKG, "StepWithMappingMeta.Exception.UnableToLoadTrans" ), e );
-        }
+    String realFilename = tmpSpace.environmentSubstitute( executorMeta.getFileName() );
+    if ( space != null ) {
+      // This is a parent transformation and parent variable should work here. A child file name can be resolved via parent space.
+      realFilename = space.environmentSubstitute( realFilename );
+    }
+    try {
+      // OK, load the meta-data from file...
+      // Don't set internal variables: they belong to the parent thread!
+      if ( mappingTransMeta == null ) {
+        mappingTransMeta = new TransMeta( realFilename, metaStore, true, tmpSpace );
+        LogChannel.GENERAL.logDetailed( "Loading transformation from repository", "Transformation was loaded from XML file [" + realFilename + "]" );
+      }
+    } catch ( Exception e ) {
+      throw new HopException( BaseMessages.getString( PKG, "StepWithMappingMeta.Exception.UnableToLoadTrans" ), e );
+    }
 
     if ( mappingTransMeta == null ) {  //skip warning
       return null;
@@ -136,7 +136,7 @@ public abstract class StepWithMappingMeta extends BaseSerializingMeta implements
 
   public static void activateParams( VariableSpace childVariableSpace, NamedParams childNamedParams, VariableSpace parent, String[] listParameters,
                                      String[] mappingVariables, String[] inputFields ) {
-    activateParams(  childVariableSpace,  childNamedParams,  parent, listParameters, mappingVariables,  inputFields, true );
+    activateParams( childVariableSpace, childNamedParams, parent, listParameters, mappingVariables, inputFields, true );
   }
 
   public static void activateParams( VariableSpace childVariableSpace, NamedParams childNamedParams, VariableSpace parent, String[] listParameters,
@@ -194,7 +194,6 @@ public abstract class StepWithMappingMeta extends BaseSerializingMeta implements
   }
 
 
-
   /**
    * @return the fileName
    */
@@ -208,6 +207,7 @@ public abstract class StepWithMappingMeta extends BaseSerializingMeta implements
   public void setFileName( String fileName ) {
     this.fileName = fileName;
   }
+
   /**
    * @param fileName the fileName to set
    */
@@ -234,8 +234,8 @@ public abstract class StepWithMappingMeta extends BaseSerializingMeta implements
       // there. (mapping recursively down)
       //
       String proposedNewFilename =
-              mappingTransMeta.exportResources(
-                      mappingTransMeta, definitions, resourceNamingInterface, metaStore );
+        mappingTransMeta.exportResources(
+          mappingTransMeta, definitions, resourceNamingInterface, metaStore );
 
       // To get a relative path to it, we inject
       // ${Internal.Entry.Current.Directory}
@@ -256,7 +256,7 @@ public abstract class StepWithMappingMeta extends BaseSerializingMeta implements
     }
   }
 
-  public static  void addMissingVariables( VariableSpace fromSpace, VariableSpace toSpace ) {
+  public static void addMissingVariables( VariableSpace fromSpace, VariableSpace toSpace ) {
     if ( toSpace == null ) {
       return;
     }
@@ -281,7 +281,7 @@ public abstract class StepWithMappingMeta extends BaseSerializingMeta implements
   }
 
   public static void replaceVariableValues( VariableSpace childTransMeta, VariableSpace replaceBy ) {
-    replaceVariableValues(  childTransMeta,  replaceBy, "" );
+    replaceVariableValues( childTransMeta, replaceBy, "" );
   }
 
   private static boolean isInternalVariable( String variableName, String type ) {

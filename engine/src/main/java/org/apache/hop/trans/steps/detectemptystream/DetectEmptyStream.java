@@ -46,7 +46,7 @@ public class DetectEmptyStream extends BaseStep implements StepInterface {
   private DetectEmptyStreamData data;
 
   public DetectEmptyStream( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,
-    TransMeta transMeta, Trans trans ) {
+                            TransMeta transMeta, Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 

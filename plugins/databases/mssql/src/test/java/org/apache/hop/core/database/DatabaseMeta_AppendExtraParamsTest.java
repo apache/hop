@@ -22,30 +22,29 @@
 
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMapOf;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.Variables;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMapOf;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 
 /**
- *
  * This test is designed to check that jdbc url (with no extra parameters)
  * remains valid (sure, we check syntax only) after adding any extra parameters
  * in spite of number of this parameters and their validity.
@@ -73,7 +72,7 @@ public class DatabaseMeta_AppendExtraParamsTest {
     mssqlServerDatabaseMeta.setPluginId( CONN_TYPE_MSSQL );
     doAnswer( new Answer() {
       @Override public Object answer( InvocationOnMock invocation ) throws Throwable {
-        return variables.environmentSubstitute( (String) invocation.getArguments()[0] );
+        return variables.environmentSubstitute( (String) invocation.getArguments()[ 0 ] );
       }
     } ).when( meta ).environmentSubstitute( anyString() );
     doReturn( mssqlServerDatabaseMeta ).when( meta ).getDatabaseInterface();
@@ -126,7 +125,7 @@ public class DatabaseMeta_AppendExtraParamsTest {
     Map<String, String> extraOptions = generateExtraOptions( STRING_DEFAULT, 2 );
 
     // emulate that there is no database with STRING_DEFAULT plugin id.
-    doThrow( new HopDatabaseException(  ) ).when( meta ).getDbInterface( STRING_DEFAULT );
+    doThrow( new HopDatabaseException() ).when( meta ).getDbInterface( STRING_DEFAULT );
     String connUrlWithExtraOptions = meta.appendExtraOptions( CONN_URL_NO_EXTRA_OPTIONS, extraOptions );
     assertEquals( CONN_URL_NO_EXTRA_OPTIONS, connUrlWithExtraOptions );
   }

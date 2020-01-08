@@ -22,16 +22,9 @@
 
 package org.apache.hop.trans.steps.normaliser;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
@@ -43,7 +36,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -51,8 +44,12 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /*
  * Created on 30-okt-2003
@@ -104,8 +101,7 @@ public class NormaliserMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param typeField
-   *          The typeField to set.
+   * @param typeField The typeField to set.
    */
   public void setTypeField( String typeField ) {
     this.typeField = typeField;
@@ -120,10 +116,10 @@ public class NormaliserMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public Set<String> getFieldNames() {
-    Set<String> fieldNames = new HashSet<>( );
+    Set<String> fieldNames = new HashSet<>();
     String s;
     for ( int i = 0; i < normaliserFields.length; i++ ) {
-      s = normaliserFields[i].getName();
+      s = normaliserFields[ i ].getName();
       if ( s != null ) {
         fieldNames.add( s.toLowerCase() );
       }
@@ -137,9 +133,9 @@ public class NormaliserMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrfields ) {
-    normaliserFields = new NormaliserField[nrfields];
+    normaliserFields = new NormaliserField[ nrfields ];
     for ( int i = 0; i < nrfields; i++ ) {
-      normaliserFields[i] = new NormaliserField();
+      normaliserFields[ i ] = new NormaliserField();
     }
   }
 
@@ -152,7 +148,7 @@ public class NormaliserMeta extends BaseStepMeta implements StepMetaInterface {
     retval.allocate( nrfields );
 
     for ( int i = 0; i < nrfields; i++ ) {
-      retval.normaliserFields[i] = (NormaliserField) normaliserFields[i].clone();
+      retval.normaliserFields[ i ] = (NormaliserField) normaliserFields[ i ].clone();
     }
 
     return retval;
@@ -170,13 +166,13 @@ public class NormaliserMeta extends BaseStepMeta implements StepMetaInterface {
       for ( int i = 0; i < nrfields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        normaliserFields[i].setName( XMLHandler.getTagValue( fnode, "name" ) );
-        normaliserFields[i].setValue( XMLHandler.getTagValue( fnode, "value" ) );
-        normaliserFields[i].setNorm( XMLHandler.getTagValue( fnode, "norm" ) );
+        normaliserFields[ i ].setName( XMLHandler.getTagValue( fnode, "name" ) );
+        normaliserFields[ i ].setValue( XMLHandler.getTagValue( fnode, "value" ) );
+        normaliserFields[ i ].setNorm( XMLHandler.getTagValue( fnode, "norm" ) );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString( PKG,
-          "NormaliserMeta.Exception.UnableToLoadStepInfoFromXML" ), e );
+        "NormaliserMeta.Exception.UnableToLoadStepInfoFromXML" ), e );
     }
   }
 
@@ -189,15 +185,15 @@ public class NormaliserMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( nrfields );
 
     for ( int i = 0; i < nrfields; i++ ) {
-      normaliserFields[i].setName( "field" + i );
-      normaliserFields[i].setValue( "value" + i );
-      normaliserFields[i].setNorm( "value" + i );
+      normaliserFields[ i ].setName( "field" + i );
+      normaliserFields[ i ].setValue( "value" + i );
+      normaliserFields[ i ].setNorm( "value" + i );
     }
   }
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     // Get a unique list of the occurrences of the type
     //
@@ -205,13 +201,13 @@ public class NormaliserMeta extends BaseStepMeta implements StepMetaInterface {
     List<String> field_occ = new ArrayList<>();
     int maxlen = 0;
     for ( int i = 0; i < normaliserFields.length; i++ ) {
-      if ( !norm_occ.contains( normaliserFields[i].getNorm() ) ) {
-        norm_occ.add( normaliserFields[i].getNorm() );
-        field_occ.add( normaliserFields[i].getName() );
+      if ( !norm_occ.contains( normaliserFields[ i ].getNorm() ) ) {
+        norm_occ.add( normaliserFields[ i ].getNorm() );
+        field_occ.add( normaliserFields[ i ].getName() );
       }
 
-      if ( normaliserFields[i].getValue().length() > maxlen ) {
-        maxlen = normaliserFields[i].getValue().length();
+      if ( normaliserFields[ i ].getValue().length() > maxlen ) {
+        maxlen = normaliserFields[ i ].getValue().length();
       }
     }
 
@@ -243,7 +239,7 @@ public class NormaliserMeta extends BaseStepMeta implements StepMetaInterface {
     // Now remove all the normalized fields...
     //
     for ( int i = 0; i < normaliserFields.length; i++ ) {
-      int idx = row.indexOfValue( normaliserFields[i].getName() );
+      int idx = row.indexOfValue( normaliserFields[ i ].getName() );
       if ( idx >= 0 ) {
         row.removeValueMeta( idx );
       }
@@ -259,9 +255,9 @@ public class NormaliserMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "    <fields>" );
     for ( int i = 0; i < normaliserFields.length; i++ ) {
       retval.append( "      <field>" );
-      retval.append( "        " + XMLHandler.addTagValue( "name", normaliserFields[i].getName() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "value", normaliserFields[i].getValue() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "norm", normaliserFields[i].getNorm() ) );
+      retval.append( "        " + XMLHandler.addTagValue( "name", normaliserFields[ i ].getName() ) );
+      retval.append( "        " + XMLHandler.addTagValue( "value", normaliserFields[ i ].getValue() ) );
+      retval.append( "        " + XMLHandler.addTagValue( "norm", normaliserFields[ i ].getNorm() ) );
       retval.append( "        </field>" );
     }
     retval.append( "      </fields>" );
@@ -271,8 +267,8 @@ public class NormaliserMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-      IMetaStore metaStore ) {
+                     String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
 
     String error_message = "";
     CheckResult cr;
@@ -280,8 +276,8 @@ public class NormaliserMeta extends BaseStepMeta implements StepMetaInterface {
     // Look up fields in the input stream <prev>
     if ( prev != null && prev.size() > 0 ) {
       cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "NormaliserMeta.CheckResult.StepReceivingFieldsOK", prev.size() + "" ), stepMeta );
+        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "NormaliserMeta.CheckResult.StepReceivingFieldsOK", prev.size() + "" ), stepMeta );
       remarks.add( cr );
 
       boolean first = true;
@@ -289,7 +285,7 @@ public class NormaliserMeta extends BaseStepMeta implements StepMetaInterface {
       boolean error_found = false;
 
       for ( int i = 0; i < normaliserFields.length; i++ ) {
-        String lufield = normaliserFields[i].getName();
+        String lufield = normaliserFields[ i ].getName();
 
         ValueMetaInterface v = prev.searchValueMeta( lufield );
         if ( v == null ) {
@@ -305,13 +301,13 @@ public class NormaliserMeta extends BaseStepMeta implements StepMetaInterface {
         cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, stepMeta );
       } else {
         cr =
-            new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-                "NormaliserMeta.CheckResult.AllFieldsFound" ), stepMeta );
+          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+            "NormaliserMeta.CheckResult.AllFieldsFound" ), stepMeta );
       }
       remarks.add( cr );
     } else {
       error_message =
-          BaseMessages.getString( PKG, "NormaliserMeta.CheckResult.CouldNotReadFieldsFromPreviousStep" ) + Const.CR;
+        BaseMessages.getString( PKG, "NormaliserMeta.CheckResult.CouldNotReadFieldsFromPreviousStep" ) + Const.CR;
       cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, stepMeta );
       remarks.add( cr );
     }
@@ -319,20 +315,20 @@ public class NormaliserMeta extends BaseStepMeta implements StepMetaInterface {
     // See if we have input streams leading to this step!
     if ( input.length > 0 ) {
       cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "NormaliserMeta.CheckResult.StepReceivingInfoOK" ), stepMeta );
+        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "NormaliserMeta.CheckResult.StepReceivingInfoOK" ), stepMeta );
       remarks.add( cr );
     } else {
       cr =
-          new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "NormaliserMeta.CheckResult.NoInputReceivedError" ), stepMeta );
+        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+          "NormaliserMeta.CheckResult.NoInputReceivedError" ), stepMeta );
       remarks.add( cr );
     }
   }
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta transMeta,
-      Trans trans ) {
+                                Trans trans ) {
     return new Normaliser( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -363,8 +359,7 @@ public class NormaliserMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     /**
-     * @param name
-     *          the name to set
+     * @param name the name to set
      */
     public void setName( String name ) {
       this.name = name;
@@ -378,8 +373,7 @@ public class NormaliserMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     /**
-     * @param value
-     *          the value to set
+     * @param value the value to set
      */
     public void setValue( String value ) {
       this.value = value;
@@ -393,8 +387,7 @@ public class NormaliserMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     /**
-     * @param norm
-     *          the norm to set
+     * @param norm the norm to set
      */
     public void setNorm( String norm ) {
       this.norm = norm;

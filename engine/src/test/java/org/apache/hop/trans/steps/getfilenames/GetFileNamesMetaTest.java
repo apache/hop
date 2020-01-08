@@ -22,14 +22,6 @@
 
 package org.apache.hop.trans.steps.getfilenames;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -37,6 +29,14 @@ import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 public class GetFileNamesMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -103,7 +103,7 @@ public class GetFileNamesMetaTest {
 
     LoadSaveTester<GetFileNamesMeta> loadSaveTester =
       new LoadSaveTester<>( GetFileNamesMeta.class, attributes, getterMap, setterMap,
-          fieldLoadSaveValidatorAttributeMap, new HashMap<String, FieldLoadSaveValidator<?>>() );
+        fieldLoadSaveValidatorAttributeMap, new HashMap<String, FieldLoadSaveValidator<?>>() );
 
     loadSaveTester.testSerialization();
   }
@@ -113,7 +113,7 @@ public class GetFileNamesMetaTest {
     @Override
     public FileInputList.FileTypeFilter getTestObject() {
       FileInputList.FileTypeFilter[] filters = FileInputList.FileTypeFilter.values();
-      return filters[new Random().nextInt( filters.length )];
+      return filters[ new Random().nextInt( filters.length ) ];
     }
 
     @Override
@@ -129,7 +129,7 @@ public class GetFileNamesMetaTest {
 
     @Override
     public String getTestObject() {
-      return GetFileNamesMeta.RequiredFilesCode[new Random().nextInt( GetFileNamesMeta.RequiredFilesCode.length )];
+      return GetFileNamesMeta.RequiredFilesCode[ new Random().nextInt( GetFileNamesMeta.RequiredFilesCode.length ) ];
     }
 
     @Override

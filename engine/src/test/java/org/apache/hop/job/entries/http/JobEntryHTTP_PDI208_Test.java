@@ -22,7 +22,23 @@
 
 package org.apache.hop.job.entries.http;
 
-import static org.junit.Assert.assertTrue;
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
+import org.apache.commons.io.FileUtils;
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.job.Job;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,24 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.io.FileUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.job.Job;
-
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import static org.junit.Assert.assertTrue;
 
 public class JobEntryHTTP_PDI208_Test {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -80,7 +79,7 @@ public class JobEntryHTTP_PDI208_Test {
     tempFileForDownload.deleteOnExit();
 
     Object[] r = new Object[] { HTTP_SERVER_BASEURL + "/uploadFile",
-            localFileForUpload.getCanonicalPath(), tempFileForDownload.getCanonicalPath() };
+      localFileForUpload.getCanonicalPath(), tempFileForDownload.getCanonicalPath() };
     RowMeta rowMetaDefault = new RowMeta();
     rowMetaDefault.addValueMeta( new ValueMetaString( "URL" ) );
     rowMetaDefault.addValueMeta( new ValueMetaString( "UPLOAD" ) );
@@ -106,7 +105,7 @@ public class JobEntryHTTP_PDI208_Test {
     tempFileForDownload.deleteOnExit();
 
     Object[] r = new Object[] { HTTP_SERVER_BASEURL + "/uploadFile",
-            localFileForUpload.getCanonicalPath(), tempFileForDownload.getCanonicalPath() };
+      localFileForUpload.getCanonicalPath(), tempFileForDownload.getCanonicalPath() };
     RowMeta rowMetaDefault = new RowMeta();
     rowMetaDefault.addValueMeta( new ValueMetaString( "MyURL" ) );
     rowMetaDefault.addValueMeta( new ValueMetaString( "MyUpload" ) );

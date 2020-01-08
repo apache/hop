@@ -22,15 +22,6 @@
 
 package org.apache.hop.trans.steps.getfilesrowscount;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.step.StepMetaInterface;
@@ -40,6 +31,15 @@ import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.YNLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class GetFilesRowsCountMetaTest implements InitializerInterface<StepMetaInterface> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -49,9 +49,9 @@ public class GetFilesRowsCountMetaTest implements InitializerInterface<StepMetaI
   @Before
   public void setUp() throws Exception {
     List<String> attributes =
-        Arrays.asList( "fileName", "fileMask", "excludeFileMask", "includeFilesCount", "filesCountFieldName",
-            "rowsCountFieldName", "RowSeparator_format", "RowSeparator", "filefield", "isaddresult",
-            "outputFilenameField", "fileRequired", "includeSubFolders", "smartCount" );
+      Arrays.asList( "fileName", "fileMask", "excludeFileMask", "includeFilesCount", "filesCountFieldName",
+        "rowsCountFieldName", "RowSeparator_format", "RowSeparator", "filefield", "isaddresult",
+        "outputFilenameField", "fileRequired", "includeSubFolders", "smartCount" );
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
         put( "fileName", "getFileName" );
@@ -89,9 +89,9 @@ public class GetFilesRowsCountMetaTest implements InitializerInterface<StepMetaI
       }
     };
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
     FieldLoadSaveValidator<String[]> ynArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new YNLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<String>( new YNLoadSaveValidator(), 5 );
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "fileName", stringArrayLoadSaveValidator );
@@ -102,8 +102,8 @@ public class GetFilesRowsCountMetaTest implements InitializerInterface<StepMetaI
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( GetFilesRowsCountMeta.class, attributes, new ArrayList<String>(), new ArrayList<String>(),
-            getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+      new LoadSaveTester( GetFilesRowsCountMeta.class, attributes, new ArrayList<String>(), new ArrayList<String>(),
+        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class

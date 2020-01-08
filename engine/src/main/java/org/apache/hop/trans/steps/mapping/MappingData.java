@@ -22,9 +22,6 @@
 
 package org.apache.hop.trans.steps.mapping;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.SingleThreadedTransExecutor;
 import org.apache.hop.trans.Trans;
@@ -34,10 +31,12 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.steps.mappinginput.MappingInput;
 import org.apache.hop.trans.steps.mappingoutput.MappingOutput;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Matt
  * @since 24-jan-2005
- *
  */
 public class MappingData extends BaseStepData implements StepDataInterface {
   public Trans mappingTrans;

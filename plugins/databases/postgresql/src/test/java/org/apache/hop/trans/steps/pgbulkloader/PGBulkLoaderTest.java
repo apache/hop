@@ -95,11 +95,11 @@ public class PGBulkLoaderTest {
   public void testCreateCommandLine() throws Exception {
     PGBulkLoaderMeta meta = mock( PGBulkLoaderMeta.class );
     doReturn( new DatabaseMeta() ).when( meta ).getDatabaseMeta();
-    doReturn( new String[0] ).when( meta ).getFieldStream();
+    doReturn( new String[ 0 ] ).when( meta ).getFieldStream();
     PGBulkLoaderData data = mock( PGBulkLoaderData.class );
 
     PGBulkLoader spy = spy( pgBulkLoader );
-    doReturn( new Object[0] ).when( spy ).getRow();
+    doReturn( new Object[ 0 ] ).when( spy ).getRow();
     doReturn( "" ).when( spy ).getCopyCommand();
     doNothing().when( spy ).connect();
     doNothing().when( spy ).checkClientEncoding();

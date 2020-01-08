@@ -22,11 +22,7 @@
 
 package org.apache.hop.trans.steps.unique;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import org.junit.Test;
+import junit.framework.TestCase;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
@@ -49,12 +45,15 @@ import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
 import org.apache.hop.trans.steps.injector.InjectorMeta;
 import org.apache.hop.trans.steps.sort.SortRowsMeta;
 import org.apache.hop.trans.steps.uniquerows.UniqueRowsMeta;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Test class for the Unique step.
- *
+ * <p>
  * These tests only cover the case (in)sensitive comparison of a single key field, and to ensure the first row is not
  * treated as both duplicate and unique.
  *
@@ -69,7 +68,7 @@ public class UniqueRowsIT extends TestCase {
     ValueMetaInterface[] valuesMeta = { new ValueMetaString( "KEY" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -236,9 +235,9 @@ public class UniqueRowsIT extends TestCase {
       if ( rm1.size() != rm2.size() ) {
         fail( "row nr " + idx + " is not equal" );
       }
-      int[] fields = new int[r1.length];
+      int[] fields = new int[ r1.length ];
       for ( int ydx = 0; ydx < r1.length; ydx++ ) {
-        fields[ydx] = ydx;
+        fields[ ydx ] = ydx;
       }
       try {
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {

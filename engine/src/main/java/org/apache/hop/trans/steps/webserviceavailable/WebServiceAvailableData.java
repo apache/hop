@@ -29,7 +29,6 @@ import org.apache.hop.trans.step.StepDataInterface;
 /**
  * @author Samatar
  * @since 03-02-2010
- *
  */
 public class WebServiceAvailableData extends BaseStepData implements StepDataInterface {
   public int indexOfURL;

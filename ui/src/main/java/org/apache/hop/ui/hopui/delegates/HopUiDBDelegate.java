@@ -44,7 +44,6 @@ import org.apache.hop.ui.core.database.dialog.SQLEditor;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.SQLStatementsDialog;
 import org.apache.hop.ui.hopui.HopUi;
-import org.apache.hop.ui.hopui.SharedObjectSyncUtil;
 import org.apache.hop.ui.hopui.dialog.GetJobSQLProgressDialog;
 import org.apache.hop.ui.hopui.dialog.GetSQLProgressDialog;
 import org.apache.hop.ui.hopui.tree.provider.DBConnectionFolderProvider;
@@ -56,14 +55,9 @@ import java.util.List;
 public class HopUiDBDelegate extends HopUiDelegate {
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
   private DatabaseDialog databaseDialog;
-  private SharedObjectSyncUtil sharedObjectSyncUtil;
 
   public HopUiDBDelegate( HopUi hopUi ) {
     super( hopUi );
-  }
-
-  public void setSharedObjectSyncUtil( SharedObjectSyncUtil sharedObjectSyncUtil ) {
-    this.sharedObjectSyncUtil = sharedObjectSyncUtil;
   }
 
   public void sqlConnection( DatabaseMeta databaseMeta ) {
@@ -94,8 +88,8 @@ public class HopUiDBDelegate extends HopUiDelegate {
         refreshTree();
       }
       hopUi.setShellText();
-    } catch(Exception e) {
-      new ErrorDialog(hopUi.getShell(), "Error", "Error editing connection", e);
+    } catch ( Exception e ) {
+      new ErrorDialog( hopUi.getShell(), "Error", "Error editing connection", e );
     }
   }
 
@@ -163,8 +157,8 @@ public class HopUiDBDelegate extends HopUiDelegate {
       DatabaseExplorerDialog std = new DatabaseExplorerDialog( hopUi.getShell(), SWT.NONE, databaseMeta, databases, aLook );
       std.open();
       return new String[] { std.getSchemaName(), std.getTableName() };
-    } catch(Exception e) {
-      new ErrorDialog( hopUi.getShell(), "Error", "Error exploring database", e);
+    } catch ( Exception e ) {
+      new ErrorDialog( hopUi.getShell(), "Error", "Error exploring database", e );
       return new String[] {};
     }
   }
@@ -270,7 +264,7 @@ public class HopUiDBDelegate extends HopUiDelegate {
   public void newConnection( VariableSpace space ) throws HopXMLException {
 
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    if ( space!=null ) {
+    if ( space != null ) {
       databaseMeta.shareVariablesWith( space );
     } else {
       databaseMeta.initializeVariablesFrom( null );

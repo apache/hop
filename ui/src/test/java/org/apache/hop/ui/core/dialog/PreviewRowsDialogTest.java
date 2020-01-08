@@ -22,6 +22,12 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.hop.core.Props;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.ui.core.PropsUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -29,12 +35,6 @@ import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.ui.core.PropsUI;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
@@ -55,7 +55,7 @@ public class PreviewRowsDialogTest {
     propsField.set( PropsUI.class, Mockito.mock( PropsUI.class ) );
 
     PreviewRowsDialog previewRowsDialog = new PreviewRowsDialog( Mockito.mock( Shell.class ), Mockito.mock( VariableSpace.class ), SWT.None, "test",
-            rowMetaInterface, Collections.emptyList() );
+      rowMetaInterface, Collections.emptyList() );
 
     //run without NPE
     int actualResult = previewRowsDialog.getDataForRow( Mockito.mock( TableItem.class ), null );

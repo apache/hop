@@ -25,8 +25,6 @@ package org.apache.hop.trans.steps.mergerows;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRowException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
@@ -39,7 +37,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMeta.TransformationType;
@@ -54,7 +52,6 @@ import org.apache.hop.trans.step.errorhandling.Stream;
 import org.apache.hop.trans.step.errorhandling.StreamIcon;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
 import org.apache.hop.trans.step.errorhandling.StreamInterface.StreamType;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -83,8 +80,7 @@ public class MergeRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param keyFields
-   *          The keyFields to set.
+   * @param keyFields The keyFields to set.
    */
   public void setKeyFields( String[] keyFields ) {
     this.keyFields = keyFields;
@@ -98,8 +94,7 @@ public class MergeRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param valueFields
-   *          The valueFields to set.
+   * @param valueFields The valueFields to set.
    */
   public void setValueFields( String[] valueFields ) {
     this.valueFields = valueFields;
@@ -122,16 +117,15 @@ public class MergeRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param flagField
-   *          The flagField to set.
+   * @param flagField The flagField to set.
    */
   public void setFlagField( String flagField ) {
     this.flagField = flagField;
   }
 
   public void allocate( int nrKeys, int nrValues ) {
-    keyFields = new String[nrKeys];
-    valueFields = new String[nrValues];
+    keyFields = new String[ nrKeys ];
+    valueFields = new String[ nrValues ];
   }
 
   @Override
@@ -151,13 +145,13 @@ public class MergeRowsMeta extends BaseStepMeta implements StepMetaInterface {
 
     retval.append( "    <keys>" + Const.CR );
     for ( int i = 0; i < keyFields.length; i++ ) {
-      retval.append( "      " + XMLHandler.addTagValue( "key", keyFields[i] ) );
+      retval.append( "      " + XMLHandler.addTagValue( "key", keyFields[ i ] ) );
     }
     retval.append( "    </keys>" + Const.CR );
 
     retval.append( "    <values>" + Const.CR );
     for ( int i = 0; i < valueFields.length; i++ ) {
-      retval.append( "      " + XMLHandler.addTagValue( "value", valueFields[i] ) );
+      retval.append( "      " + XMLHandler.addTagValue( "value", valueFields[ i ] ) );
     }
     retval.append( "    </values>" + Const.CR );
 
@@ -186,12 +180,12 @@ public class MergeRowsMeta extends BaseStepMeta implements StepMetaInterface {
 
       for ( int i = 0; i < nrKeys; i++ ) {
         Node keynode = XMLHandler.getSubNodeByNr( keysnode, "key", i );
-        keyFields[i] = XMLHandler.getNodeValue( keynode );
+        keyFields[ i ] = XMLHandler.getNodeValue( keynode );
       }
 
       for ( int i = 0; i < nrValues; i++ ) {
         Node valuenode = XMLHandler.getSubNodeByNr( valuesnode, "value", i );
-        valueFields[i] = XMLHandler.getNodeValue( valuenode );
+        valueFields[ i ] = XMLHandler.getNodeValue( valuenode );
       }
 
       flagField = XMLHandler.getTagValue( stepnode, "flag_field" );
@@ -232,15 +226,15 @@ public class MergeRowsMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // We don't have any input fields here in "r" as they are all info fields.
     // So we just merge in the info fields.
     //
     if ( info != null ) {
       boolean found = false;
       for ( int i = 0; i < info.length && !found; i++ ) {
-        if ( info[i] != null ) {
-          r.mergeRowMeta( info[i], name );
+        if ( info[ i ] != null ) {
+          r.mergeRowMeta( info[ i ], name );
           found = true;
         }
       }
@@ -257,8 +251,8 @@ public class MergeRowsMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     List<StreamInterface> infoStreams = getStepIOMeta().getInfoStreams();
@@ -315,7 +309,7 @@ public class MergeRowsMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new MergeRows( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 

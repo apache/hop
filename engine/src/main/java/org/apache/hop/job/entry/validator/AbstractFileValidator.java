@@ -22,11 +22,11 @@
 
 package org.apache.hop.job.entry.validator;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.CheckResultSourceInterface;
 import org.apache.hop.core.variables.VariableSpace;
+
+import java.util.List;
 
 public abstract class AbstractFileValidator implements JobEntryValidator {
 
@@ -39,7 +39,7 @@ public abstract class AbstractFileValidator implements JobEntryValidator {
   }
 
   protected VariableSpace getVariableSpace( CheckResultSourceInterface source, String propertyName,
-    List<CheckResultInterface> remarks, ValidatorContext context ) {
+                                            List<CheckResultInterface> remarks, ValidatorContext context ) {
     Object obj = context.get( KEY_VARIABLE_SPACE );
     if ( obj instanceof VariableSpace ) {
       return (VariableSpace) obj;

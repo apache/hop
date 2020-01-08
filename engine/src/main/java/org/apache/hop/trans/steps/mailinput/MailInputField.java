@@ -99,9 +99,9 @@ public class MailInputField implements Cloneable {
 
   public static final String getColumnDesc( int i ) {
     if ( i < 0 || i >= ColumnDesc.length ) {
-      return ColumnDesc[0];
+      return ColumnDesc[ 0 ];
     }
-    return ColumnDesc[i];
+    return ColumnDesc[ i ];
   }
 
   public int getColumn() {
@@ -114,9 +114,9 @@ public class MailInputField implements Cloneable {
 
   public static final String getColumnCode( int i ) {
     if ( i < 0 || i >= ColumnCode.length ) {
-      return ColumnCode[0];
+      return ColumnCode[ 0 ];
     }
-    return ColumnCode[i];
+    return ColumnCode[ i ];
   }
 
   public static final int getColumnByCode( String tt ) {
@@ -125,7 +125,7 @@ public class MailInputField implements Cloneable {
     }
 
     for ( int i = 0; i < ColumnCode.length; i++ ) {
-      if ( ColumnCode[i].equalsIgnoreCase( tt ) ) {
+      if ( ColumnCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -155,7 +155,7 @@ public class MailInputField implements Cloneable {
     }
 
     for ( int i = 0; i < ColumnDesc.length; i++ ) {
-      if ( ColumnDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( ColumnDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }

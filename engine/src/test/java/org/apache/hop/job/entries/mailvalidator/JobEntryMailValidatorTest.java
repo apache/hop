@@ -21,18 +21,18 @@
  ******************************************************************************/
 package org.apache.hop.job.entries.mailvalidator;
 
-import static org.junit.Assert.assertNotNull;
-import java.util.Arrays;
-
-import java.util.List;
-import java.util.Map;
-
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertNotNull;
 
 
 public class JobEntryMailValidatorTest extends JobEntryLoadSaveTestSupport<JobEntryMailValidator> {
@@ -46,31 +46,31 @@ public class JobEntryMailValidatorTest extends JobEntryLoadSaveTestSupport<JobEn
   @Override
   protected List<String> listCommonAttributes() {
     return Arrays.asList(
-        "smtpCheck",
-        "timeout",
-        "defaultSMTP",
-        "emailSender",
-        "emailAddress" );
+      "smtpCheck",
+      "timeout",
+      "defaultSMTP",
+      "emailSender",
+      "emailAddress" );
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-        "smtpCheck", "isSMTPCheck",
-        "timeout", "getTimeOut",
-        "defaultSMTP", "getDefaultSMTP",
-        "emailSender", "geteMailSender",
-        "emailAddress", "getEmailAddress" );
+      "smtpCheck", "isSMTPCheck",
+      "timeout", "getTimeOut",
+      "defaultSMTP", "getDefaultSMTP",
+      "emailSender", "geteMailSender",
+      "emailAddress", "getEmailAddress" );
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-        "smtpCheck", "setSMTPCheck",
-        "timeout", "setTimeOut",
-        "defaultSMTP", "setDefaultSMTP",
-        "emailSender", "seteMailSender",
-        "emailAddress", "setEmailAddress" );
+      "smtpCheck", "setSMTPCheck",
+      "timeout", "setTimeOut",
+      "defaultSMTP", "setDefaultSMTP",
+      "emailSender", "seteMailSender",
+      "emailAddress", "setEmailAddress" );
   }
 
   @Test

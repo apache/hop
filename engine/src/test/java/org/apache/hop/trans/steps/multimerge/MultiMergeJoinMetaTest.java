@@ -21,19 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.multimerge;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNull;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -44,10 +31,22 @@ import org.apache.hop.trans.steps.loadsave.initializer.InitializerInterface;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Tatsiana_Kasiankova
- *
  */
 public class MultiMergeJoinMetaTest implements InitializerInterface<StepMetaInterface> {
   LoadSaveTester loadSaveTester;
@@ -61,12 +60,12 @@ public class MultiMergeJoinMetaTest implements InitializerInterface<StepMetaInte
     PluginRegistry.init( false );
     multiMergeMeta = new MultiMergeJoinMeta();
     List<String> attributes =
-        Arrays.asList( "joinType", "keyFields", "inputSteps" );
+      Arrays.asList( "joinType", "keyFields", "inputSteps" );
 
     Map<String, String> getterMap = new HashMap<String, String>();
     Map<String, String> setterMap = new HashMap<String, String>();
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
@@ -76,8 +75,8 @@ public class MultiMergeJoinMetaTest implements InitializerInterface<StepMetaInte
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
-            getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class
@@ -106,7 +105,7 @@ public class MultiMergeJoinMetaTest implements InitializerInterface<StepMetaInte
   public void testGetXml() {
     String[] inputSteps = new String[] { "Step1", "Step2" };
     multiMergeMeta.setInputSteps( inputSteps );
-    multiMergeMeta.setKeyFields( new String[] {"Key1", "Key2"} );
+    multiMergeMeta.setKeyFields( new String[] { "Key1", "Key2" } );
     String xml = multiMergeMeta.getXML();
     Assert.assertTrue( xml.contains( "step0" ) );
     Assert.assertTrue( xml.contains( "step1" ) );

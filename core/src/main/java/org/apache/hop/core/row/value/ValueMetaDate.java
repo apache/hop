@@ -22,11 +22,10 @@
 
 package org.apache.hop.core.row.value;
 
-import java.util.Date;
-
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.util.Utils;
+
+import java.util.Date;
 
 public class ValueMetaDate extends ValueMetaBase implements ValueMetaInterface {
 

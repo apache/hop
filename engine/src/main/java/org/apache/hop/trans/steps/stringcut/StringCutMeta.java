@@ -22,23 +22,19 @@
 
 package org.apache.hop.trans.steps.stringcut;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -46,8 +42,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * @author Samatar Hassan
@@ -77,8 +74,7 @@ public class StringCutMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param keyStream
-   *          The fieldInStream to set.
+   * @param keyStream The fieldInStream to set.
    */
   public void setFieldInStream( String[] keyStream ) {
     this.fieldInStream = keyStream;
@@ -92,8 +88,7 @@ public class StringCutMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param keyStream
-   *          The fieldOutStream to set.
+   * @param keyStream The fieldOutStream to set.
    */
   public void setFieldOutStream( String[] keyStream ) {
     this.fieldOutStream = keyStream;
@@ -120,10 +115,10 @@ public class StringCutMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrkeys ) {
-    fieldInStream = new String[nrkeys];
-    fieldOutStream = new String[nrkeys];
-    cutTo = new String[nrkeys];
-    cutFrom = new String[nrkeys];
+    fieldInStream = new String[ nrkeys ];
+    fieldOutStream = new String[ nrkeys ];
+    cutTo = new String[ nrkeys ];
+    cutFrom = new String[ nrkeys ];
   }
 
   public Object clone() {
@@ -150,10 +145,10 @@ public class StringCutMeta extends BaseStepMeta implements StepMetaInterface {
 
       for ( int i = 0; i < nrkeys; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( lookup, "field", i );
-        fieldInStream[i] = Const.NVL( XMLHandler.getTagValue( fnode, "in_stream_name" ), "" );
-        fieldOutStream[i] = Const.NVL( XMLHandler.getTagValue( fnode, "out_stream_name" ), "" );
-        cutFrom[i] = Const.NVL( XMLHandler.getTagValue( fnode, "cut_from" ), "" );
-        cutTo[i] = Const.NVL( XMLHandler.getTagValue( fnode, "cut_to" ), "" );
+        fieldInStream[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "in_stream_name" ), "" );
+        fieldOutStream[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "out_stream_name" ), "" );
+        cutFrom[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "cut_from" ), "" );
+        cutTo[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "cut_to" ), "" );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString(
@@ -177,10 +172,10 @@ public class StringCutMeta extends BaseStepMeta implements StepMetaInterface {
 
     for ( int i = 0; i < fieldInStream.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "in_stream_name", fieldInStream[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "out_stream_name", fieldOutStream[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "cut_from", cutFrom[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "cut_to", cutTo[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "in_stream_name", fieldInStream[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "out_stream_name", fieldOutStream[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "cut_from", cutFrom[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "cut_to", cutTo[ i ] ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
 
@@ -190,16 +185,16 @@ public class StringCutMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     for ( int i = 0; i < fieldOutStream.length; i++ ) {
       ValueMetaInterface v;
-      if ( !Utils.isEmpty( fieldOutStream[i] ) ) {
-        v = new ValueMetaString( space.environmentSubstitute( fieldOutStream[i] ) );
+      if ( !Utils.isEmpty( fieldOutStream[ i ] ) ) {
+        v = new ValueMetaString( space.environmentSubstitute( fieldOutStream[ i ] ) );
         v.setLength( 100, -1 );
         v.setOrigin( name );
         inputRowMeta.addValueMeta( v );
       } else {
-        v = inputRowMeta.searchValueMeta( fieldInStream[i] );
+        v = inputRowMeta.searchValueMeta( fieldInStream[ i ] );
         if ( v == null ) {
           continue;
         }
@@ -209,8 +204,8 @@ public class StringCutMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepinfo,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
 
     CheckResult cr;
     String error_message = "";
@@ -224,7 +219,7 @@ public class StringCutMeta extends BaseStepMeta implements StepMetaInterface {
     } else {
 
       for ( int i = 0; i < fieldInStream.length; i++ ) {
-        String field = fieldInStream[i];
+        String field = fieldInStream[ i ];
 
         ValueMetaInterface v = prev.searchValueMeta( field );
         if ( v == null ) {
@@ -250,7 +245,7 @@ public class StringCutMeta extends BaseStepMeta implements StepMetaInterface {
       first = true;
       error_found = false;
       for ( int i = 0; i < fieldInStream.length; i++ ) {
-        String field = fieldInStream[i];
+        String field = fieldInStream[ i ];
 
         ValueMetaInterface v = prev.searchValueMeta( field );
         if ( v != null ) {
@@ -276,7 +271,7 @@ public class StringCutMeta extends BaseStepMeta implements StepMetaInterface {
 
       if ( fieldInStream.length > 0 ) {
         for ( int idx = 0; idx < fieldInStream.length; idx++ ) {
-          if ( Utils.isEmpty( fieldInStream[idx] ) ) {
+          if ( Utils.isEmpty( fieldInStream[ idx ] ) ) {
             cr =
               new CheckResult(
                 CheckResult.TYPE_RESULT_ERROR,
@@ -292,7 +287,7 @@ public class StringCutMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new StringCut( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

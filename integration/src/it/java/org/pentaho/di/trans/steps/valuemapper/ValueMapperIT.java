@@ -22,10 +22,7 @@
 
 package org.apache.hop.trans.steps.valuemapper;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
+import junit.framework.TestCase;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -46,7 +43,9 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
 import org.apache.hop.trans.steps.injector.InjectorMeta;
 
-import junit.framework.TestCase;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Test class for the ValueMapper step.
@@ -60,7 +59,7 @@ public class ValueMapperIT extends TestCase {
     ValueMetaInterface[] valuesMeta = { new ValueMetaString( "field1" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -101,10 +100,10 @@ public class ValueMapperIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    { new ValueMetaString( "field1" ), new ValueMetaString( "new_field" ), };
+      { new ValueMetaString( "field1" ), new ValueMetaString( "new_field" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -317,9 +316,9 @@ public class ValueMapperIT extends TestCase {
       if ( rm1.size() != rm2.size() ) {
         fail( "row nr " + idx + " is not equal" );
       }
-      int[] fields = new int[r1.length];
+      int[] fields = new int[ r1.length ];
       for ( int ydx = 0; ydx < r1.length; ydx++ ) {
-        fields[ydx] = ydx;
+        fields[ ydx ] = ydx;
       }
       try {
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {
@@ -336,7 +335,7 @@ public class ValueMapperIT extends TestCase {
   /**
    * Test case for valuemapper step. Injector step to a valuemapper step to a dummy step. Rows go in and should be
    * mapped accordingly.
-   *
+   * <p>
    * This test will write the mappings in a new field.
    */
   public void testValueMapper1() throws Exception {
@@ -446,7 +445,7 @@ public class ValueMapperIT extends TestCase {
   /**
    * Test case for valuemapper step. Injector step to a valuemapper step to a dummy step. Rows go in and should be
    * mapped accordingly.
-   *
+   * <p>
    * This test will write the mappings in the same field.
    */
   public void testValueMapper2() throws Exception {
@@ -556,7 +555,7 @@ public class ValueMapperIT extends TestCase {
   /**
    * Test case for valuemapper step. Injector step to a valuemapper step to a dummy step. Rows go in and should be
    * mapped accordingly.
-   *
+   * <p>
    * This test will explicitly test the empty field processing.
    */
   public void testValueMapper3() throws Exception {
@@ -664,10 +663,11 @@ public class ValueMapperIT extends TestCase {
   }
 
   /*----------------- TODO */
+
   /**
    * Test case for valuemapper step. Injector step to a valuemapper step to a dummy step. Rows go in and should be
    * mapped accordingly.
-   *
+   * <p>
    * This test will write the mappings in a new field, using a non matching default.
    */
   public void testValueMapper4() throws Exception {
@@ -778,7 +778,7 @@ public class ValueMapperIT extends TestCase {
   /**
    * Test case for valuemapper step. Injector step to a valuemapper step to a dummy step. Rows go in and should be
    * mapped accordingly.
-   *
+   * <p>
    * This test will write the mappings in the same field. Using a non matching default.
    */
   public void testValueMapper5() throws Exception {
@@ -889,7 +889,7 @@ public class ValueMapperIT extends TestCase {
   /**
    * Test case for valuemapper step. Injector step to a valuemapper step to a dummy step. Rows go in and should be
    * mapped accordingly.
-   *
+   * <p>
    * This test will explicitly test the empty field processing. using a non matching default.
    */
   public void testValueMapper6() throws Exception {

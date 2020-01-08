@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.mappinginput;
 
-import java.util.List;
-
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
@@ -40,6 +38,8 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.mapping.MappingValueRename;
 
+import java.util.List;
+
 /**
  * Do nothing. Pass all input data to the next steps.
  *
@@ -55,7 +55,7 @@ public class MappingInput extends BaseStep implements StepInterface {
   private MappingInputData data;
 
   public MappingInput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
+                       Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -86,7 +86,7 @@ public class MappingInput extends BaseStep implements StepInterface {
         }
         if ( totalsleep > timeOut ) {
           throw new HopException( BaseMessages.getString( PKG,
-              "MappingInput.Exception.UnableToConnectWithParentMapping", "" + ( totalsleep / 1000 ) ) );
+            "MappingInput.Exception.UnableToConnectWithParentMapping", "" + ( totalsleep / 1000 ) ) );
         }
       }
 
@@ -121,14 +121,14 @@ public class MappingInput extends BaseStep implements StepInterface {
         ValueMetaInterface valueMeta = data.outputRowMeta.searchValueMeta( valueRename.getSourceValueName() );
         if ( valueMeta == null ) {
           throw new HopStepException( BaseMessages.getString( PKG, "MappingInput.Exception.UnableToFindMappedValue",
-              valueRename.getSourceValueName() ) );
+            valueRename.getSourceValueName() ) );
         }
         valueMeta.setName( valueRename.getTargetValueName() );
 
         valueMeta = getInputRowMeta().searchValueMeta( valueRename.getSourceValueName() );
         if ( valueMeta == null ) {
           throw new HopStepException( BaseMessages.getString( PKG, "MappingInput.Exception.UnableToFindMappedValue",
-              valueRename.getSourceValueName() ) );
+            valueRename.getSourceValueName() ) );
         }
         valueMeta.setName( valueRename.getTargetValueName() );
       }
@@ -153,9 +153,9 @@ public class MappingInput extends BaseStep implements StepInterface {
         //
         // Create a list of the indexes to get the right order or fields on the output.
         //
-        data.fieldNrs = new int[data.outputRowMeta.size()];
+        data.fieldNrs = new int[ data.outputRowMeta.size() ];
         for ( int i = 0; i < data.outputRowMeta.size(); i++ ) {
-          data.fieldNrs[i] = getInputRowMeta().indexOfValue( data.outputRowMeta.getValueMeta( i ).getName() );
+          data.fieldNrs[ i ] = getInputRowMeta().indexOfValue( data.outputRowMeta.getValueMeta( i ).getName() );
         }
       }
     }
@@ -164,7 +164,7 @@ public class MappingInput extends BaseStep implements StepInterface {
     if ( meta.isSelectingAndSortingUnspecifiedFields() ) {
       Object[] outputRowData = RowDataUtil.allocateRowData( data.outputRowMeta.size() );
       for ( int i = 0; i < data.fieldNrs.length; i++ ) {
-        outputRowData[i] = row[data.fieldNrs[i]];
+        outputRowData[ i ] = row[ data.fieldNrs[ i ] ];
       }
       putRow( data.outputRowMeta, outputRowData );
     } else {
@@ -182,16 +182,16 @@ public class MappingInput extends BaseStep implements StepInterface {
   }
 
   public void setConnectorSteps( StepInterface[] sourceSteps, List<MappingValueRename> valueRenames,
-      String mappingStepname ) {
+                                 String mappingStepname ) {
 
     if ( sourceSteps == null ) {
       throw new IllegalArgumentException( BaseMessages
-          .getString( PKG, "MappingInput.Exception.IllegalArgumentSourceStep" ) );
+        .getString( PKG, "MappingInput.Exception.IllegalArgumentSourceStep" ) );
     }
 
     if ( valueRenames == null ) {
       throw new IllegalArgumentException( BaseMessages
-          .getString( PKG, "MappingInput.Exception.IllegalArgumentValueRename" ) );
+        .getString( PKG, "MappingInput.Exception.IllegalArgumentValueRename" ) );
     }
 
     if ( sourceSteps.length != 0 ) {

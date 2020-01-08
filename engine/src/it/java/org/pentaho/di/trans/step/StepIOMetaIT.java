@@ -22,9 +22,9 @@
 
 package org.apache.hop.trans.step;
 
-import org.junit.Test;
 import org.apache.hop.trans.step.errorhandling.Stream;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
+import org.junit.Test;
 
 import static org.junit.Assert.assertNull;
 

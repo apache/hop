@@ -22,11 +22,11 @@
 
 package org.apache.hop.job.entries.ftpsget;
 
+import org.apache.hop.core.logging.HopLogStore;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
-import org.apache.hop.core.logging.HopLogStore;
 
 public class JobEntryFTPSGetTest {
 
@@ -37,6 +37,7 @@ public class JobEntryFTPSGetTest {
 
   /**
    * PDI-6868, attempt to set binary mode is after the connection.connect() succeeded.
+   *
    * @throws Exception
    */
   @Test

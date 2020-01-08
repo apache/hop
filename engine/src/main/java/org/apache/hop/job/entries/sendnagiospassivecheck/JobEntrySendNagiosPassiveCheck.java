@@ -22,33 +22,6 @@
 
 package org.apache.hop.job.entries.sendnagiospassivecheck;
 
-import org.apache.hop.job.entry.validator.AndValidator;
-import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import java.util.List;
-
-import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
-
-import org.apache.hop.resource.ResourceEntry;
-import org.apache.hop.resource.ResourceEntry.ResourceType;
-import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.w3c.dom.Node;
-
 import com.googlecode.jsendnsca.Level;
 import com.googlecode.jsendnsca.MessagePayload;
 import com.googlecode.jsendnsca.NagiosPassiveCheckSender;
@@ -56,13 +29,33 @@ import com.googlecode.jsendnsca.NagiosSettings;
 import com.googlecode.jsendnsca.builders.MessagePayloadBuilder;
 import com.googlecode.jsendnsca.builders.NagiosSettingsBuilder;
 import com.googlecode.jsendnsca.encryption.Encryption;
+import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.JobEntryBase;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.validator.AndValidator;
+import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.resource.ResourceEntry;
+import org.apache.hop.resource.ResourceEntry.ResourceType;
+import org.apache.hop.resource.ResourceReference;
+import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * This defines an SendNagiosPassiveCheck job entry.
  *
  * @author Samatar
  * @since 01-10-2011
- *
  */
 
 public class JobEntrySendNagiosPassiveCheck extends JobEntryBase implements Cloneable, JobEntryInterface {
@@ -147,7 +140,7 @@ public class JobEntrySendNagiosPassiveCheck extends JobEntryBase implements Clon
     }
 
     for ( int i = 0; i < encryption_mode_Desc.length; i++ ) {
-      if ( encryption_mode_Desc[i].equalsIgnoreCase( tt ) ) {
+      if ( encryption_mode_Desc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -158,16 +151,16 @@ public class JobEntrySendNagiosPassiveCheck extends JobEntryBase implements Clon
 
   public static String getEncryptionModeDesc( int i ) {
     if ( i < 0 || i >= encryption_mode_Desc.length ) {
-      return encryption_mode_Desc[0];
+      return encryption_mode_Desc[ 0 ];
     }
-    return encryption_mode_Desc[i];
+    return encryption_mode_Desc[ i ];
   }
 
   public static String getLevelDesc( int i ) {
     if ( i < 0 || i >= level_type_Desc.length ) {
-      return level_type_Desc[0];
+      return level_type_Desc[ 0 ];
     }
-    return level_type_Desc[i];
+    return level_type_Desc[ i ];
   }
 
   public static int getLevelByDesc( String tt ) {
@@ -176,7 +169,7 @@ public class JobEntrySendNagiosPassiveCheck extends JobEntryBase implements Clon
     }
 
     for ( int i = 0; i < level_type_Desc.length; i++ ) {
-      if ( level_type_Desc[i].equalsIgnoreCase( tt ) ) {
+      if ( level_type_Desc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -187,16 +180,16 @@ public class JobEntrySendNagiosPassiveCheck extends JobEntryBase implements Clon
 
   private static String getEncryptionModeCode( int i ) {
     if ( i < 0 || i >= encryption_mode_Code.length ) {
-      return encryption_mode_Code[0];
+      return encryption_mode_Code[ 0 ];
     }
-    return encryption_mode_Code[i];
+    return encryption_mode_Code[ i ];
   }
 
   private String getLevelCode( int i ) {
     if ( i < 0 || i >= level_type_Code.length ) {
-      return level_type_Code[0];
+      return level_type_Code[ 0 ];
     }
-    return level_type_Code[i];
+    return level_type_Code[ i ];
   }
 
   public String getXML() {
@@ -225,7 +218,7 @@ public class JobEntrySendNagiosPassiveCheck extends JobEntryBase implements Clon
     }
 
     for ( int i = 0; i < encryption_mode_Code.length; i++ ) {
-      if ( encryption_mode_Code[i].equalsIgnoreCase( tt ) ) {
+      if ( encryption_mode_Code[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -238,17 +231,17 @@ public class JobEntrySendNagiosPassiveCheck extends JobEntryBase implements Clon
     }
 
     for ( int i = 0; i < level_type_Code.length; i++ ) {
-      if ( level_type_Code[i].equalsIgnoreCase( tt ) ) {
+      if ( level_type_Code[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
     return 0;
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       port = XMLHandler.getTagValue( entrynode, "port" );
       serverName = XMLHandler.getTagValue( entrynode, "servername" );
       responseTimeOut = XMLHandler.getTagValue( entrynode, "responseTimeOut" );
@@ -275,8 +268,7 @@ public class JobEntrySendNagiosPassiveCheck extends JobEntryBase implements Clon
   }
 
   /**
-   * @param serverName
-   *          The serverName to set.
+   * @param serverName The serverName to set.
    */
   public void setServerName( String serverName ) {
     this.serverName = serverName;
@@ -290,8 +282,7 @@ public class JobEntrySendNagiosPassiveCheck extends JobEntryBase implements Clon
   }
 
   /**
-   * @param senderServerName
-   *          The senderServerName to set.
+   * @param senderServerName The senderServerName to set.
    */
   public void setSenderServerName( String senderServerName ) {
     this.senderServerName = senderServerName;
@@ -305,16 +296,14 @@ public class JobEntrySendNagiosPassiveCheck extends JobEntryBase implements Clon
   }
 
   /**
-   * @param senderServiceName
-   *          The senderServiceName to set.
+   * @param senderServiceName The senderServiceName to set.
    */
   public void setSenderServiceName( String senderServiceName ) {
     this.senderServiceName = senderServiceName;
   }
 
   /**
-   * @param password
-   *          The password to set.
+   * @param password The password to set.
    */
   public void setPassword( String password ) {
     this.password = password;
@@ -344,8 +333,7 @@ public class JobEntrySendNagiosPassiveCheck extends JobEntryBase implements Clon
   }
 
   /**
-   * @param message
-   *          The message to set.
+   * @param message The message to set.
    */
   public void setMessage( String message ) {
     this.message = message;
@@ -366,16 +354,14 @@ public class JobEntrySendNagiosPassiveCheck extends JobEntryBase implements Clon
   }
 
   /**
-   * @param port
-   *          The port to set.
+   * @param port The port to set.
    */
   public void setPort( String port ) {
     this.port = port;
   }
 
   /**
-   * @param responseTimeOut
-   *          The responseTimeOut to set.
+   * @param responseTimeOut The responseTimeOut to set.
    */
   public void setResponseTimeOut( String responseTimeOut ) {
     this.responseTimeOut = responseTimeOut;
@@ -389,8 +375,7 @@ public class JobEntrySendNagiosPassiveCheck extends JobEntryBase implements Clon
   }
 
   /**
-   * @param connectionTimeOut
-   *          The connectionTimeOut to set.
+   * @param connectionTimeOut The connectionTimeOut to set.
    */
   public void setConnectionTimeOut( String connectionTimeOut ) {
     this.connectionTimeOut = connectionTimeOut;
@@ -519,9 +504,9 @@ public class JobEntrySendNagiosPassiveCheck extends JobEntryBase implements Clon
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "serverName", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
   }
 
 }

@@ -22,8 +22,6 @@
 
 package org.apache.hop.core.auth.core.impl;
 
-import java.lang.reflect.Proxy;
-
 import org.apache.hop.core.auth.core.AuthenticationConsumer;
 import org.apache.hop.core.auth.core.AuthenticationConsumerFactory;
 import org.apache.hop.core.auth.core.AuthenticationConsumerInvocationHandler;
@@ -31,13 +29,15 @@ import org.apache.hop.core.auth.core.AuthenticationConsumptionException;
 import org.apache.hop.core.auth.core.AuthenticationPerformer;
 import org.apache.hop.core.auth.core.AuthenticationProvider;
 
+import java.lang.reflect.Proxy;
+
 public class ClassloaderBridgingAuthenticationPerformer<ReturnType, CreateArgType, ConsumedType> implements
-    AuthenticationPerformer<ReturnType, CreateArgType> {
+  AuthenticationPerformer<ReturnType, CreateArgType> {
   private final AuthenticationProvider provider;
   private final AuthenticationConsumerFactory<ReturnType, CreateArgType, ConsumedType> authenticationConsumerFactory;
 
   public ClassloaderBridgingAuthenticationPerformer( AuthenticationProvider provider,
-      AuthenticationConsumerFactory<ReturnType, CreateArgType, ConsumedType> authenticationConsumerFactory ) {
+                                                     AuthenticationConsumerFactory<ReturnType, CreateArgType, ConsumedType> authenticationConsumerFactory ) {
     this.provider = provider;
     this.authenticationConsumerFactory = authenticationConsumerFactory;
   }
@@ -46,11 +46,11 @@ public class ClassloaderBridgingAuthenticationPerformer<ReturnType, CreateArgTyp
   @Override
   public ReturnType perform( CreateArgType consumerCreateArg ) throws AuthenticationConsumptionException {
     AuthenticationConsumer<ReturnType, ConsumedType> consumer =
-        authenticationConsumerFactory.create( consumerCreateArg );
+      authenticationConsumerFactory.create( consumerCreateArg );
     ConsumedType providerProxy =
-        (ConsumedType) Proxy.newProxyInstance( consumer.getClass().getClassLoader(),
-            new Class[] { authenticationConsumerFactory.getConsumedType() },
-            new AuthenticationConsumerInvocationHandler( provider ) );
+      (ConsumedType) Proxy.newProxyInstance( consumer.getClass().getClassLoader(),
+        new Class[] { authenticationConsumerFactory.getConsumedType() },
+        new AuthenticationConsumerInvocationHandler( provider ) );
     return consumer.consume( providerProxy );
   }
 

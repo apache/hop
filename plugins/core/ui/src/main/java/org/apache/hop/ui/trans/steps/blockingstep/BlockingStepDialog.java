@@ -22,6 +22,16 @@
 
 package org.apache.hop.ui.trans.steps.blockingstep;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.blockingstep.BlockingStepMeta;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -40,19 +50,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.annotations.PluginDialog;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.blockingstep.BlockingStepMeta;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 @PluginDialog( id = "BlockingStep", image = "BLK.svg", pluginType = PluginDialog.PluginType.STEP,
-    documentationUrl = "http://wiki.pentaho.com/display/EAI/Blocking+step" )
+  documentationUrl = "http://wiki.pentaho.com/display/EAI/Blocking+step" )
 public class BlockingStepDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = BlockingStepDialog.class; // for i18n purposes, needed by Translator2!!
 

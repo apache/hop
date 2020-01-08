@@ -23,14 +23,11 @@
 package org.apache.hop.trans.steps.sasinput;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.core.xml.XMLInterface;
-
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 /**
@@ -60,7 +57,7 @@ public class SasInputField implements XMLInterface, Cloneable {
    * @param trimType
    */
   public SasInputField( String name, String rename, int type, String conversionMask, String decimalSymbol,
-    String groupingSymbol, int trimType ) {
+                        String groupingSymbol, int trimType ) {
     this.name = name;
     this.rename = rename;
     this.type = type;
@@ -99,7 +96,7 @@ public class SasInputField implements XMLInterface, Cloneable {
     return retval.toString();
   }
 
- public SasInputField( Node node ) throws HopXMLException {
+  public SasInputField( Node node ) throws HopXMLException {
     name = XMLHandler.getTagValue( node, "name" );
     rename = XMLHandler.getTagValue( node, "rename" );
     type = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( node, "type" ) );
@@ -119,8 +116,7 @@ public class SasInputField implements XMLInterface, Cloneable {
   }
 
   /**
-   * @param name
-   *          the name to set
+   * @param name the name to set
    */
   public void setName( String name ) {
     this.name = name;
@@ -134,8 +130,7 @@ public class SasInputField implements XMLInterface, Cloneable {
   }
 
   /**
-   * @param rename
-   *          the rename to set
+   * @param rename the rename to set
    */
   public void setRename( String rename ) {
     this.rename = rename;
@@ -149,8 +144,7 @@ public class SasInputField implements XMLInterface, Cloneable {
   }
 
   /**
-   * @param type
-   *          the type to set
+   * @param type the type to set
    */
   public void setType( int type ) {
     this.type = type;
@@ -164,8 +158,7 @@ public class SasInputField implements XMLInterface, Cloneable {
   }
 
   /**
-   * @param conversionMask
-   *          the conversionMask to set
+   * @param conversionMask the conversionMask to set
    */
   public void setConversionMask( String conversionMask ) {
     this.conversionMask = conversionMask;
@@ -179,8 +172,7 @@ public class SasInputField implements XMLInterface, Cloneable {
   }
 
   /**
-   * @param decimalSymbol
-   *          the decimalSymbol to set
+   * @param decimalSymbol the decimalSymbol to set
    */
   public void setDecimalSymbol( String decimalSymbol ) {
     this.decimalSymbol = decimalSymbol;
@@ -194,8 +186,7 @@ public class SasInputField implements XMLInterface, Cloneable {
   }
 
   /**
-   * @param groupingSymbol
-   *          the groupingSymbol to set
+   * @param groupingSymbol the groupingSymbol to set
    */
   public void setGroupingSymbol( String groupingSymbol ) {
     this.groupingSymbol = groupingSymbol;
@@ -209,8 +200,7 @@ public class SasInputField implements XMLInterface, Cloneable {
   }
 
   /**
-   * @param trimType
-   *          the trimType to set
+   * @param trimType the trimType to set
    */
   public void setTrimType( int trimType ) {
     this.trimType = trimType;
@@ -224,8 +214,7 @@ public class SasInputField implements XMLInterface, Cloneable {
   }
 
   /**
-   * @param precision
-   *          the precision to set
+   * @param precision the precision to set
    */
   public void setPrecision( int precision ) {
     this.precision = precision;
@@ -239,8 +228,7 @@ public class SasInputField implements XMLInterface, Cloneable {
   }
 
   /**
-   * @param length
-   *          the length to set
+   * @param length the length to set
    */
   public void setLength( int length ) {
     this.length = length;

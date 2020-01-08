@@ -22,6 +22,13 @@
 
 package org.apache.hop.ui.hopui;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.i18n.GlobalMessageUtil;
+import org.apache.hop.i18n.LanguageChoice;
+import org.apache.hop.ui.core.gui.GUIResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -33,13 +40,6 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.i18n.GlobalMessageUtil;
-import org.apache.hop.i18n.LanguageChoice;
-import org.apache.hop.ui.core.gui.GUIResource;
 import org.pentaho.ui.xul.XulComponent;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulException;
@@ -66,12 +66,11 @@ import java.util.ResourceBundle;
 
 /**
  * Singleton Object controlling SpoonPerspectives.
- *
+ * <p>
  * A Perspective is an optional Spoon mode that can be added by a HopUiPlugin. Perspectives take over the look of the
  * entire application by replacing the main UI area.
  *
  * @author nbaker
- *
  */
 public class HopUiPerspectiveManager {
 
@@ -216,7 +215,6 @@ public class HopUiPerspectiveManager {
   /**
    * Changes perspective visibility due to {@code hidePerspective} value.
    * If perspective exists already, and we want to make it visible, no new perspective will be added.
-   *
    */
   private void changePerspectiveVisibility( final String perspectiveId, boolean hidePerspective ) {
     PerspectiveManager perspectiveManager;
@@ -275,10 +273,8 @@ public class HopUiPerspectiveManager {
    * perspective removing any overlays its applied to the UI. It then switches the main deck to display the perspective
    * UI and applies the optional overlays to the main Spoon XUL container.
    *
-   * @param clazz
-   *          SpoonPerspective class literal
-   * @throws HopException
-   *           throws a HopException if no perspective is found for the given parameter
+   * @param clazz SpoonPerspective class literal
+   * @throws HopException throws a HopException if no perspective is found for the given parameter
    */
   public void activatePerspective( Class<? extends HopUiPerspective> clazz ) throws HopException {
 
@@ -456,7 +452,7 @@ public class HopUiPerspectiveManager {
       deck.addChild( box );
 
       PerspectiveManager perspectiveManager =
-          new PerspectiveManager( per, box, mainToolbar, perspectiveList, name );
+        new PerspectiveManager( per, box, mainToolbar, perspectiveList, name );
       perspectiveManagerMap.put( per, perspectiveManager );
       // Need to force init for main perspective even if it won't be shown
       if ( perspectiveIdx == y || y == 0 ) {
@@ -517,6 +513,7 @@ public class HopUiPerspectiveManager {
   HopUi getSpoon() {
     return HopUi.getInstance();
   }
+
   /**
    * For testing
    */

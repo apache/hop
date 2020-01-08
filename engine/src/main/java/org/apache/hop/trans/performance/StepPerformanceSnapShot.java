@@ -65,8 +65,8 @@ public class StepPerformanceSnapShot {
    * @param totalErrors
    */
   public StepPerformanceSnapShot( int seqNr, long batchId, Date date, String transName, String stepName,
-    int stepCopy, long totalLinesRead, long totalLinesWritten, long totalLinesInput, long totalLinesOutput,
-    long totalLinesUpdated, long totalLinesRejected, long totalErrors ) {
+                                  int stepCopy, long totalLinesRead, long totalLinesWritten, long totalLinesInput, long totalLinesOutput,
+                                  long totalLinesUpdated, long totalLinesRejected, long totalErrors ) {
     this.seqNr = seqNr;
     this.batchId = batchId;
     this.date = date;
@@ -115,8 +115,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param date
-   *          the date to set
+   * @param date the date to set
    */
   public void setDate( Date date ) {
     this.date = date;
@@ -130,8 +129,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param stepName
-   *          the stepName to set
+   * @param stepName the stepName to set
    */
   public void setStepName( String stepName ) {
     this.stepName = stepName;
@@ -145,8 +143,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param stepCopy
-   *          the stepCopy to set
+   * @param stepCopy the stepCopy to set
    */
   public void setStepCopy( int stepCopy ) {
     this.stepCopy = stepCopy;
@@ -160,8 +157,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param totalLinesRead
-   *          the totalLinesRead to set
+   * @param totalLinesRead the totalLinesRead to set
    */
   public void setTotalLinesRead( long totalLinesRead ) {
     this.totalLinesRead = totalLinesRead;
@@ -175,8 +171,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param totalLinesWritten
-   *          the totalLinesWritten to set
+   * @param totalLinesWritten the totalLinesWritten to set
    */
   public void setTotalLinesWritten( long totalLinesWritten ) {
     this.totalLinesWritten = totalLinesWritten;
@@ -190,8 +185,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param totalLinesInput
-   *          the totalLinesInput to set
+   * @param totalLinesInput the totalLinesInput to set
    */
   public void setTotalLinesInput( long totalLinesInput ) {
     this.totalLinesInput = totalLinesInput;
@@ -205,8 +199,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param totalLinesOutput
-   *          the totalLinesOutput to set
+   * @param totalLinesOutput the totalLinesOutput to set
    */
   public void setTotalLinesOutput( long totalLinesOutput ) {
     this.totalLinesOutput = totalLinesOutput;
@@ -220,8 +213,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param totalLinesUpdated
-   *          the totalLinesUpdated to set
+   * @param totalLinesUpdated the totalLinesUpdated to set
    */
   public void setTotalLinesUpdated( long totalLinesUpdated ) {
     this.totalLinesUpdated = totalLinesUpdated;
@@ -235,8 +227,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param totalLinesRejected
-   *          the totalLinesRejected to set
+   * @param totalLinesRejected the totalLinesRejected to set
    */
   public void setTotalLinesRejected( long totalLinesRejected ) {
     this.totalLinesRejected = totalLinesRejected;
@@ -250,8 +241,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param totalErrors
-   *          the totalErrors to set
+   * @param totalErrors the totalErrors to set
    */
   public void setTotalErrors( long totalErrors ) {
     this.totalErrors = totalErrors;
@@ -265,8 +255,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param timeDifference
-   *          the timeDifference to set
+   * @param timeDifference the timeDifference to set
    */
   public void setTimeDifference( long timeDifference ) {
     this.timeDifference = timeDifference;
@@ -280,8 +269,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param linesRead
-   *          the linesRead to set
+   * @param linesRead the linesRead to set
    */
   public void setLinesRead( long linesRead ) {
     this.linesRead = linesRead;
@@ -295,8 +283,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param linesWritten
-   *          the linesWritten to set
+   * @param linesWritten the linesWritten to set
    */
   public void setLinesWritten( long linesWritten ) {
     this.linesWritten = linesWritten;
@@ -310,8 +297,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param linesInput
-   *          the linesInput to set
+   * @param linesInput the linesInput to set
    */
   public void setLinesInput( long linesInput ) {
     this.linesInput = linesInput;
@@ -325,8 +311,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param linesOutput
-   *          the linesOutput to set
+   * @param linesOutput the linesOutput to set
    */
   public void setLinesOutput( long linesOutput ) {
     this.linesOutput = linesOutput;
@@ -340,8 +325,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param linesUpdated
-   *          the linesUpdated to set
+   * @param linesUpdated the linesUpdated to set
    */
   public void setLinesUpdated( long linesUpdated ) {
     this.linesUpdated = linesUpdated;
@@ -355,8 +339,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param linesRejected
-   *          the linesRejected to set
+   * @param linesRejected the linesRejected to set
    */
   public void setLinesRejected( long linesRejected ) {
     this.linesRejected = linesRejected;
@@ -370,8 +353,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param errors
-   *          the errors to set
+   * @param errors the errors to set
    */
   public void setErrors( long errors ) {
     this.errors = errors;
@@ -385,8 +367,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param inputBufferSize
-   *          the inputBufferSize to set
+   * @param inputBufferSize the inputBufferSize to set
    */
   public void setInputBufferSize( long inputBufferSize ) {
     this.inputBufferSize = inputBufferSize;
@@ -400,8 +381,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param outputBufferSize
-   *          the outputBufferSize to set
+   * @param outputBufferSize the outputBufferSize to set
    */
   public void setOutputBufferSize( long outputBufferSize ) {
     this.outputBufferSize = outputBufferSize;
@@ -415,8 +395,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param seqNr
-   *          the seqNr to set
+   * @param seqNr the seqNr to set
    */
   public void setSeqNr( int seqNr ) {
     this.seqNr = seqNr;
@@ -430,8 +409,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param batchId
-   *          the batchId to set
+   * @param batchId the batchId to set
    */
   public void setBatchId( long batchId ) {
     this.batchId = batchId;
@@ -445,8 +423,7 @@ public class StepPerformanceSnapShot {
   }
 
   /**
-   * @param transName
-   *          the transName to set
+   * @param transName the transName to set
    */
   public void setTransName( String transName ) {
     this.transName = transName;

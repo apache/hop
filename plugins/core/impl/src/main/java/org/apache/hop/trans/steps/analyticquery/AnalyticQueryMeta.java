@@ -22,14 +22,10 @@
 
 package org.apache.hop.trans.steps.analyticquery;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Step;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.AfterInjection;
@@ -42,7 +38,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMeta.TransformationType;
@@ -51,8 +47,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * @author ngoodman
@@ -69,33 +66,45 @@ public class AnalyticQueryMeta extends BaseStepMeta implements StepMetaInterface
   public static final int TYPE_FUNCT_LAG = 1;
 
   public static final String[] typeGroupCode = /* WARNING: DO NOT TRANSLATE THIS. WE ARE SERIOUS, DON'T TRANSLATE! */
-  { "LEAD", "LAG", };
+    { "LEAD", "LAG", };
 
   public static final String[] typeGroupLongDesc = {
     BaseMessages.getString( PKG, "AnalyticQueryMeta.TypeGroupLongDesc.LEAD" ),
     BaseMessages.getString( PKG, "AnalyticQueryMeta.TypeGroupLongDesc.LAG" ) };
 
-  /** Fields to partition by ie, CUSTOMER, PRODUCT */
+  /**
+   * Fields to partition by ie, CUSTOMER, PRODUCT
+   */
   @Injection( name = "GROUP_FIELDS" )
   private String[] groupField;
 
   private int number_of_fields;
   /** BEGIN arrays (each of size number_of_fields) */
 
-  /** Name of OUTPUT fieldname "MYNEWLEADFUNCTION" */
+  /**
+   * Name of OUTPUT fieldname "MYNEWLEADFUNCTION"
+   */
   @Injection( name = "OUTPUT.AGGREGATE_FIELD" )
   private String[] aggregateField;
-  /** Name of the input fieldname it operates on "ORDERTOTAL" */
+  /**
+   * Name of the input fieldname it operates on "ORDERTOTAL"
+   */
   @Injection( name = "OUTPUT.SUBJECT_FIELD" )
   private String[] subjectField;
-  /** Aggregate type (LEAD/LAG, etc) */
+  /**
+   * Aggregate type (LEAD/LAG, etc)
+   */
   @Injection( name = "OUTPUT.AGGREGATE_TYPE" )
   private int[] aggregateType;
-  /** Offset "N" of how many rows to go forward/back */
+  /**
+   * Offset "N" of how many rows to go forward/back
+   */
   @Injection( name = "OUTPUT.VALUE_FIELD" )
   private int[] valueField;
 
-  /** END arrays are one for each configured analytic function */
+  /**
+   * END arrays are one for each configured analytic function
+   */
 
   public AnalyticQueryMeta() {
     super(); // allocate BaseStepMeta
@@ -109,8 +118,7 @@ public class AnalyticQueryMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param aggregateField
-   *          The aggregateField to set.
+   * @param aggregateField The aggregateField to set.
    */
   public void setAggregateField( String[] aggregateField ) {
     this.aggregateField = aggregateField;
@@ -124,8 +132,7 @@ public class AnalyticQueryMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param aggregateType
-   *          The aggregateType to set.
+   * @param aggregateType The aggregateType to set.
    */
   public void setAggregateType( int[] aggregateType ) {
     this.aggregateType = aggregateType;
@@ -139,8 +146,7 @@ public class AnalyticQueryMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param groupField
-   *          The groupField to set.
+   * @param groupField The groupField to set.
    */
   public void setGroupField( String[] groupField ) {
     this.groupField = groupField;
@@ -154,8 +160,7 @@ public class AnalyticQueryMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param subjectField
-   *          The subjectField to set.
+   * @param subjectField The subjectField to set.
    */
   public void setSubjectField( String[] subjectField ) {
     this.subjectField = subjectField;
@@ -169,8 +174,7 @@ public class AnalyticQueryMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param valueField
-   *          The valueField to set.
+   * @param valueField The valueField to set.
    */
   public void setValueField( int[] valueField ) {
     this.valueField = valueField;
@@ -181,11 +185,11 @@ public class AnalyticQueryMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void allocate( int sizegroup, int nrfields ) {
-    groupField = new String[sizegroup];
-    aggregateField = new String[nrfields];
-    subjectField = new String[nrfields];
-    aggregateType = new int[nrfields];
-    valueField = new int[nrfields];
+    groupField = new String[ sizegroup ];
+    aggregateField = new String[ nrfields ];
+    subjectField = new String[ nrfields ];
+    aggregateType = new int[ nrfields ];
+    valueField = new int[ nrfields ];
 
     number_of_fields = nrfields;
   }
@@ -208,15 +212,15 @@ public class AnalyticQueryMeta extends BaseStepMeta implements StepMetaInterface
 
       for ( int i = 0; i < sizegroup; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( groupn, "field", i );
-        groupField[i] = XMLHandler.getTagValue( fnode, "name" );
+        groupField[ i ] = XMLHandler.getTagValue( fnode, "name" );
       }
       for ( int i = 0; i < nrfields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        aggregateField[i] = XMLHandler.getTagValue( fnode, "aggregate" );
-        subjectField[i] = XMLHandler.getTagValue( fnode, "subject" );
-        aggregateType[i] = getType( XMLHandler.getTagValue( fnode, "type" ) );
+        aggregateField[ i ] = XMLHandler.getTagValue( fnode, "aggregate" );
+        subjectField[ i ] = XMLHandler.getTagValue( fnode, "subject" );
+        aggregateType[ i ] = getType( XMLHandler.getTagValue( fnode, "type" ) );
 
-        valueField[i] = Integer.parseInt( XMLHandler.getTagValue( fnode, "valuefield" ) );
+        valueField[ i ] = Integer.parseInt( XMLHandler.getTagValue( fnode, "valuefield" ) );
       }
 
     } catch ( Exception e ) {
@@ -227,12 +231,12 @@ public class AnalyticQueryMeta extends BaseStepMeta implements StepMetaInterface
 
   public static final int getType( String desc ) {
     for ( int i = 0; i < typeGroupCode.length; i++ ) {
-      if ( typeGroupCode[i].equalsIgnoreCase( desc ) ) {
+      if ( typeGroupCode[ i ].equalsIgnoreCase( desc ) ) {
         return i;
       }
     }
     for ( int i = 0; i < typeGroupLongDesc.length; i++ ) {
-      if ( typeGroupLongDesc[i].equalsIgnoreCase( desc ) ) {
+      if ( typeGroupLongDesc[ i ].equalsIgnoreCase( desc ) ) {
         return i;
       }
     }
@@ -243,14 +247,14 @@ public class AnalyticQueryMeta extends BaseStepMeta implements StepMetaInterface
     if ( i < 0 || i >= typeGroupCode.length ) {
       return null;
     }
-    return typeGroupCode[i];
+    return typeGroupCode[ i ];
   }
 
   public static final String getTypeDescLong( int i ) {
     if ( i < 0 || i >= typeGroupLongDesc.length ) {
       return null;
     }
-    return typeGroupLongDesc[i];
+    return typeGroupLongDesc[ i ];
   }
 
   public void setDefault() {
@@ -262,7 +266,7 @@ public class AnalyticQueryMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void getFields( RowMetaInterface r, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // re-assemble a new row of metadata
     //
     RowMetaInterface fields = new RowMeta();
@@ -274,24 +278,24 @@ public class AnalyticQueryMeta extends BaseStepMeta implements StepMetaInterface
     for ( int i = 0; i < number_of_fields; i++ ) {
 
       int index_of_subject = -1;
-      index_of_subject = r.indexOfValue( subjectField[i] );
+      index_of_subject = r.indexOfValue( subjectField[ i ] );
 
       // if we found the subjectField in the RowMetaInterface, and we should....
       if ( index_of_subject > -1 ) {
         ValueMetaInterface vmi = r.getValueMeta( index_of_subject ).clone();
         vmi.setOrigin( origin );
-        vmi.setName( aggregateField[i] );
+        vmi.setName( aggregateField[ i ] );
         fields.addValueMeta( r.size() + i, vmi );
       } else {
         // we have a condition where the subjectField can't be found from the rowMetaInterface
         StringBuilder sbfieldNames = new StringBuilder();
         String[] fieldNames = r.getFieldNames();
         for ( int j = 0; j < fieldNames.length; j++ ) {
-          sbfieldNames.append( "[" + fieldNames[j] + "]" + ( j < fieldNames.length - 1 ? ", " : "" ) );
+          sbfieldNames.append( "[" + fieldNames[ j ] + "]" + ( j < fieldNames.length - 1 ? ", " : "" ) );
         }
         throw new HopStepException( BaseMessages.getString(
           PKG, "AnalyticQueryMeta.Exception.SubjectFieldNotFound", getParentStepMeta().getName(),
-          subjectField[i], sbfieldNames.toString() ) );
+          subjectField[ i ], sbfieldNames.toString() ) );
       }
     }
 
@@ -306,7 +310,7 @@ public class AnalyticQueryMeta extends BaseStepMeta implements StepMetaInterface
     retval.append( "      <group>" ).append( Const.CR );
     for ( int i = 0; i < groupField.length; i++ ) {
       retval.append( "        <field>" ).append( Const.CR );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "name", groupField[i] ) );
+      retval.append( "          " ).append( XMLHandler.addTagValue( "name", groupField[ i ] ) );
       retval.append( "        </field>" ).append( Const.CR );
     }
     retval.append( "      </group>" ).append( Const.CR );
@@ -314,10 +318,10 @@ public class AnalyticQueryMeta extends BaseStepMeta implements StepMetaInterface
     retval.append( "      <fields>" ).append( Const.CR );
     for ( int i = 0; i < subjectField.length; i++ ) {
       retval.append( "        <field>" ).append( Const.CR );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "aggregate", aggregateField[i] ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "subject", subjectField[i] ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "type", getTypeDesc( aggregateType[i] ) ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "valuefield", valueField[i] ) );
+      retval.append( "          " ).append( XMLHandler.addTagValue( "aggregate", aggregateField[ i ] ) );
+      retval.append( "          " ).append( XMLHandler.addTagValue( "subject", subjectField[ i ] ) );
+      retval.append( "          " ).append( XMLHandler.addTagValue( "type", getTypeDesc( aggregateType[ i ] ) ) );
+      retval.append( "          " ).append( XMLHandler.addTagValue( "valuefield", valueField[ i ] ) );
       retval.append( "        </field>" ).append( Const.CR );
     }
     retval.append( "      </fields>" ).append( Const.CR );
@@ -326,8 +330,8 @@ public class AnalyticQueryMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( input.length > 0 ) {
@@ -344,7 +348,7 @@ public class AnalyticQueryMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new AnalyticQuery( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

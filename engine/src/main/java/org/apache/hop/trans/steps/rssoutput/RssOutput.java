@@ -22,31 +22,6 @@
 
 package org.apache.hop.trans.steps.rssoutput;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.Writer;
-import java.util.Date;
-
-import org.apache.commons.vfs2.FileObject;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
-import org.dom4j.io.OutputFormat;
-import org.dom4j.io.XMLWriter;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopStepException;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStep;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
-
 import com.sun.syndication.feed.module.georss.GeoRSSModule;
 import com.sun.syndication.feed.module.georss.SimpleModuleImpl;
 import com.sun.syndication.feed.module.georss.W3CGeoModuleImpl;
@@ -59,6 +34,30 @@ import com.sun.syndication.feed.synd.SyndFeedImpl;
 import com.sun.syndication.feed.synd.SyndImage;
 import com.sun.syndication.feed.synd.SyndImageImpl;
 import com.sun.syndication.io.SyndFeedOutput;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStep;
+import org.apache.hop.trans.step.StepDataInterface;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.StepMetaInterface;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Writer;
+import java.util.Date;
 
 /**
  * Output rows to RSS feed and create a file.
@@ -73,7 +72,7 @@ public class RssOutput extends BaseStep implements StepInterface {
   private RssOutputData data;
 
   public RssOutput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                    Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -438,23 +437,23 @@ public class RssOutput extends BaseStep implements StepInterface {
       } else {
         // Custom RSS
         // Check Custom channel fields
-        data.customchannels = new int[meta.getChannelCustomFields().length];
+        data.customchannels = new int[ meta.getChannelCustomFields().length ];
         for ( int i = 0; i < meta.getChannelCustomFields().length; i++ ) {
-          data.customchannels[i] = data.inputRowMeta.indexOfValue( meta.getChannelCustomFields()[i] );
-          if ( data.customchannels[i] < 0 ) { // couldn't find field!
+          data.customchannels[ i ] = data.inputRowMeta.indexOfValue( meta.getChannelCustomFields()[ i ] );
+          if ( data.customchannels[ i ] < 0 ) { // couldn't find field!
 
             throw new HopStepException( BaseMessages.getString( PKG, "RssOutput.Exception.FieldRequired", meta
-              .getChannelCustomFields()[i] ) );
+              .getChannelCustomFields()[ i ] ) );
           }
         }
         // Check Custom channel fields
-        data.customitems = new int[meta.getItemCustomFields().length];
+        data.customitems = new int[ meta.getItemCustomFields().length ];
         for ( int i = 0; i < meta.getItemCustomFields().length; i++ ) {
-          data.customitems[i] = data.inputRowMeta.indexOfValue( meta.getItemCustomFields()[i] );
-          if ( data.customitems[i] < 0 ) { // couldn't find field!
+          data.customitems[ i ] = data.inputRowMeta.indexOfValue( meta.getItemCustomFields()[ i ] );
+          if ( data.customitems[ i ] < 0 ) { // couldn't find field!
 
             throw new HopStepException( BaseMessages.getString( PKG, "RssOutput.Exception.FieldRequired", meta
-              .getItemCustomFields()[i] ) );
+              .getItemCustomFields()[ i ] ) );
           }
         }
         // Prepare Output RSS Custom document
@@ -464,8 +463,8 @@ public class RssOutput extends BaseStep implements StepInterface {
         // add namespaces here ...
         for ( int i = 0; i < meta.getNameSpaces().length; i++ ) {
           data.rssElement.addNamespace(
-            environmentSubstitute( meta.getNameSpacesTitle()[i] ),
-            environmentSubstitute( meta.getNameSpaces()[i] ) );
+            environmentSubstitute( meta.getNameSpacesTitle()[ i ] ),
+            environmentSubstitute( meta.getNameSpaces()[ i ] ) );
         }
 
         // Add channel
@@ -473,8 +472,8 @@ public class RssOutput extends BaseStep implements StepInterface {
 
         // Set channel Only the first time ...
         for ( int i = 0; i < data.customchannels.length; i++ ) {
-          String channelname = environmentSubstitute( meta.getChannelCustomTags()[i] );
-          String channelvalue = data.inputRowMeta.getString( r, data.customchannels[i] );
+          String channelname = environmentSubstitute( meta.getChannelCustomTags()[ i ] );
+          String channelvalue = data.inputRowMeta.getString( r, data.customchannels[ i ] );
 
           if ( log.isDetailed() ) {
             logDetailed( "outputting channel value <"
@@ -535,8 +534,8 @@ public class RssOutput extends BaseStep implements StepInterface {
       }
       for ( int i = 0; i < data.customitems.length; i++ ) {
         // get item value and name
-        String itemname = environmentSubstitute( meta.getItemCustomTags()[i] );
-        String itemvalue = data.inputRowMeta.getString( r, data.customitems[i] );
+        String itemname = environmentSubstitute( meta.getItemCustomTags()[ i ] );
+        String itemvalue = data.inputRowMeta.getString( r, data.customitems[ i ] );
 
         if ( log.isDetailed() ) {
           logDetailed( "outputting item value <" + itemname + ">" + itemvalue + "<" + itemname + "/>" );
@@ -580,20 +579,15 @@ public class RssOutput extends BaseStep implements StepInterface {
   }
 
   /**
-   * @param author
-   *          : The author of the event
-   * @param title
-   *          : The title of the event
-   * @param link
-   *          : The link to the element in RES
-   * @param date
-   *          : The event's date
-   * @param desc
-   *          : The event's description
+   * @param author : The author of the event
+   * @param title  : The title of the event
+   * @param link   : The link to the element in RES
+   * @param date   : The event's date
+   * @param desc   : The event's description
    */
   @SuppressWarnings( "unchecked" )
   public boolean createEntry( String author, String title, String link, Date date, String desc,
-    String geopointLat, String geopointLong ) {
+                              String geopointLat, String geopointLong ) {
     boolean retval = false;
     try {
       // Add entry to the feed
@@ -642,7 +636,7 @@ public class RssOutput extends BaseStep implements StepInterface {
   }
 
   private boolean WriteToFile( String title, String link, String description, Date Pubdate, String copyright,
-    String imageTitle, String imageDescription, String imageLink, String imageUrl, String language, String author ) {
+                               String imageTitle, String imageDescription, String imageLink, String imageUrl, String language, String author ) {
     boolean retval = false;
     try {
       // Specify Filename
@@ -715,7 +709,7 @@ public class RssOutput extends BaseStep implements StepInterface {
         ResultFile resultFile =
           new ResultFile(
             ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( fileName, getTransMeta() ), getTransMeta()
-              .getName(), getStepname() );
+            .getName(), getStepname() );
         resultFile.setComment( "This file was created with a RSS Output step" );
         addResultFile( resultFile );
       }

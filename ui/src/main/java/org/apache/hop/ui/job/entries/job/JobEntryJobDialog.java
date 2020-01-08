@@ -23,6 +23,29 @@
 package org.apache.hop.ui.job.entries.job;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobExecutionConfiguration;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.job.JobEntryJob;
+import org.apache.hop.job.entry.JobEntryBase;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entries.trans.JobEntryBaseDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -39,30 +62,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobExecutionConfiguration;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.job.JobEntryJob;
-import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entries.trans.JobEntryBaseDialog;
-import org.apache.hop.ui.hopui.HopUi;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.util.SwtSvgImageUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -212,7 +211,7 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
 
     wbBrowse.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-      pickFileVFS();
+        pickFileVFS();
       }
     } );
 
@@ -257,9 +256,9 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
       String[] existing = wParameters.getItems( 1 );
 
       for ( int i = 0; i < parameters.length; i++ ) {
-        if ( Const.indexOfString( parameters[i], existing ) < 0 ) {
+        if ( Const.indexOfString( parameters[ i ], existing ) < 0 ) {
           TableItem item = new TableItem( wParameters.table, SWT.NONE );
-          item.setText( 1, parameters[i] );
+          item.setText( 1, parameters[ i ] );
         }
       }
       wParameters.removeEmptyRows();
@@ -363,8 +362,8 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
     if ( jobEntry.arguments != null ) {
       for ( int i = 0; i < jobEntry.arguments.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.arguments[i] != null ) {
-          ti.setText( 1, jobEntry.arguments[i] );
+        if ( jobEntry.arguments[ i ] != null ) {
+          ti.setText( 1, jobEntry.arguments[ i ] );
         }
       }
       wFields.setRowNums();
@@ -375,10 +374,10 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
     if ( jobEntry.parameters != null ) {
       for ( int i = 0; i < jobEntry.parameters.length; i++ ) {
         TableItem ti = wParameters.table.getItem( i );
-        if ( !Utils.isEmpty( jobEntry.parameters[i] ) ) {
-          ti.setText( 1, Const.NVL( jobEntry.parameters[i], "" ) );
-          ti.setText( 2, Const.NVL( jobEntry.parameterFieldNames[i], "" ) );
-          ti.setText( 3, Const.NVL( jobEntry.parameterValues[i], "" ) );
+        if ( !Utils.isEmpty( jobEntry.parameters[ i ] ) ) {
+          ti.setText( 1, Const.NVL( jobEntry.parameters[ i ], "" ) );
+          ti.setText( 2, Const.NVL( jobEntry.parameterFieldNames[ i ], "" ) );
+          ti.setText( 3, Const.NVL( jobEntry.parameterValues[ i ], "" ) );
         }
       }
       wParameters.setRowNums();
@@ -457,12 +456,12 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
         nr++;
       }
     }
-    jej.arguments = new String[nr];
+    jej.arguments = new String[ nr ];
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
-        jej.arguments[nr] = arg;
+        jej.arguments[ nr ] = arg;
         nr++;
       }
     }
@@ -476,27 +475,27 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
         nr++;
       }
     }
-    jej.parameters = new String[nr];
-    jej.parameterFieldNames = new String[nr];
-    jej.parameterValues = new String[nr];
+    jej.parameters = new String[ nr ];
+    jej.parameterFieldNames = new String[ nr ];
+    jej.parameterValues = new String[ nr ];
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
       String param = wParameters.getNonEmpty( i ).getText( 1 );
       String fieldName = wParameters.getNonEmpty( i ).getText( 2 );
       String value = wParameters.getNonEmpty( i ).getText( 3 );
 
-      jej.parameters[nr] = param;
+      jej.parameters[ nr ] = param;
 
       if ( !Utils.isEmpty( Const.trim( fieldName ) ) ) {
-        jej.parameterFieldNames[nr] = fieldName;
+        jej.parameterFieldNames[ nr ] = fieldName;
       } else {
-        jej.parameterFieldNames[nr] = "";
+        jej.parameterFieldNames[ nr ] = "";
       }
 
       if ( !Utils.isEmpty( Const.trim( value ) ) ) {
-        jej.parameterValues[nr] = value;
+        jej.parameterValues[ nr ] = value;
       } else {
-        jej.parameterValues[nr] = "";
+        jej.parameterValues[ nr ] = "";
       }
 
       nr++;
@@ -509,7 +508,7 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
     jej.logfile = wLogfile.getText();
     jej.logext = wLogext.getText();
     if ( wLoglevel.getSelectionIndex() >= 0 ) {
-      jej.logFileLevel = LogLevel.values()[wLoglevel.getSelectionIndex()];
+      jej.logFileLevel = LogLevel.values()[ wLoglevel.getSelectionIndex() ];
     } else {
       jej.logFileLevel = LogLevel.BASIC;
     }

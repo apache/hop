@@ -22,12 +22,11 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -43,11 +42,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Dialog to enter a text. (descriptions etc.)
@@ -83,7 +83,9 @@ public class ShowMessageDialog extends Dialog {
   private boolean scroll;
   private boolean hasIcon;
 
-  /** Timeout of dialog in seconds */
+  /**
+   * Timeout of dialog in seconds
+   */
   private int timeOut;
 
   private List<Button> buttons;
@@ -100,15 +102,11 @@ public class ShowMessageDialog extends Dialog {
   /**
    * Dialog to allow someone to show a text with an icon in front
    *
-   * @param parent
-   *          The parent shell to use
-   * @param flags
-   *          the icon to show using SWT flags: SWT.ICON_WARNING, SWT.ICON_ERROR, ... Also SWT.OK, SWT.CANCEL is
-   *          allowed.
-   * @param title
-   *          The dialog title
-   * @param message
-   *          The message to display
+   * @param parent  The parent shell to use
+   * @param flags   the icon to show using SWT flags: SWT.ICON_WARNING, SWT.ICON_ERROR, ... Also SWT.OK, SWT.CANCEL is
+   *                allowed.
+   * @param title   The dialog title
+   * @param message The message to display
    */
   public ShowMessageDialog( Shell parent, int flags, String title, String message ) {
     this( parent, flags, title, message, false );
@@ -117,17 +115,12 @@ public class ShowMessageDialog extends Dialog {
   /**
    * Dialog to allow someone to show a text with an icon in front
    *
-   * @param parent
-   *          The parent shell to use
-   * @param flags
-   *          the icon to show using SWT flags: SWT.ICON_WARNING, SWT.ICON_ERROR, ... Also SWT.OK, SWT.CANCEL is
-   *          allowed.
-   * @param title
-   *          The dialog title
-   * @param message
-   *          The message to display
-   * @param scroll
-   *          Set the dialog to a default size and enable scrolling
+   * @param parent  The parent shell to use
+   * @param flags   the icon to show using SWT flags: SWT.ICON_WARNING, SWT.ICON_ERROR, ... Also SWT.OK, SWT.CANCEL is
+   *                allowed.
+   * @param title   The dialog title
+   * @param message The message to display
+   * @param scroll  Set the dialog to a default size and enable scrolling
    */
   public ShowMessageDialog( Shell parent, int flags, String title, String message, boolean scroll ) {
     this( parent, flags, buttonTextByFlagDefaults, title, message, scroll );
@@ -136,22 +129,16 @@ public class ShowMessageDialog extends Dialog {
   /**
    * Dialog to allow someone to show a text with an icon in front
    *
-   * @param parent
-   *          The parent shell to use
-   * @param flags
-   *          the icon to show using SWT flags: SWT.ICON_WARNING, SWT.ICON_ERROR, ... Also SWT.OK, SWT.CANCEL is
-   *          allowed.
-   * @param buttonTextByFlag
-   *          Custom text to display for each button by flag i.e. key: SWT.OK, value: "Custom OK"
-   *          Note - controls button order, use an ordered map to maintain button order.
-   * @param title
-   *          The dialog title
-   * @param message
-   *          The message to display
-   * @param scroll
-   *          Set the dialog to a default size and enable scrolling
+   * @param parent           The parent shell to use
+   * @param flags            the icon to show using SWT flags: SWT.ICON_WARNING, SWT.ICON_ERROR, ... Also SWT.OK, SWT.CANCEL is
+   *                         allowed.
+   * @param buttonTextByFlag Custom text to display for each button by flag i.e. key: SWT.OK, value: "Custom OK"
+   *                         Note - controls button order, use an ordered map to maintain button order.
+   * @param title            The dialog title
+   * @param message          The message to display
+   * @param scroll           Set the dialog to a default size and enable scrolling
    */
-  public ShowMessageDialog( Shell parent, int flags, Map<Integer, String> buttonTextByFlag, String title, String message, boolean scroll  ) {
+  public ShowMessageDialog( Shell parent, int flags, Map<Integer, String> buttonTextByFlag, String title, String message, boolean scroll ) {
     super( parent, SWT.NONE );
     this.buttonTextByFlag = buttonTextByFlag;
     this.parent = parent;
@@ -314,14 +301,14 @@ public class ShowMessageDialog extends Dialog {
         formLayout.marginWidth = 15;
         formLayout.marginHeight = 15;
         setFdlDesc( margin * 3, 0, 0, margin );
-        BaseStepDialog.positionBottomButtons( shell, buttons.toArray( new Button[buttons.size()] ), 0,
+        BaseStepDialog.positionBottomButtons( shell, buttons.toArray( new Button[ buttons.size() ] ), 0,
           BaseStepDialog.BUTTON_ALIGNMENT_RIGHT, wlDesc );
         break;
       default:
         formLayout.marginWidth = Const.FORM_MARGIN;
         formLayout.marginHeight = Const.FORM_MARGIN;
         setFdlDesc( margin * 2, margin, 0, margin );
-        BaseStepDialog.positionBottomButtons( shell, buttons.toArray( new Button[buttons.size()] ), margin, wlDesc );
+        BaseStepDialog.positionBottomButtons( shell, buttons.toArray( new Button[ buttons.size() ] ), margin, wlDesc );
         break;
     }
   }
@@ -344,8 +331,7 @@ public class ShowMessageDialog extends Dialog {
   }
 
   /**
-   * @param timeOut
-   *          the timeOut to set
+   * @param timeOut the timeOut to set
    */
   public void setTimeOut( int timeOut ) {
     this.timeOut = timeOut;

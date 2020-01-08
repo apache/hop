@@ -22,15 +22,15 @@
 
 package org.apache.hop.job.entry.validator;
 
-import java.io.IOException;
-import java.util.List;
-
 import org.apache.commons.validator.util.ValidatorUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.CheckResultSourceInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Fails if a field's value is a filename and the file does not exist.
@@ -46,7 +46,7 @@ public class FileDoesNotExistValidator extends AbstractFileValidator {
   static final String VALIDATOR_NAME = "fileDoesNotExist";
 
   public boolean validate( CheckResultSourceInterface source, String propertyName,
-    List<CheckResultInterface> remarks, ValidatorContext context ) {
+                           List<CheckResultInterface> remarks, ValidatorContext context ) {
 
     String filename = ValidatorUtils.getValueAsString( source, propertyName );
     VariableSpace variableSpace = getVariableSpace( source, propertyName, remarks, context );
@@ -90,7 +90,7 @@ public class FileDoesNotExistValidator extends AbstractFileValidator {
   }
 
   protected boolean getFailIfExists( CheckResultSourceInterface source, String propertyName,
-    List<CheckResultInterface> remarks, ValidatorContext context ) {
+                                     List<CheckResultInterface> remarks, ValidatorContext context ) {
     Object obj = context.get( KEY_FAIL_IF_EXISTS );
     if ( obj instanceof Boolean ) {
       return (Boolean) obj;

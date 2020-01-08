@@ -22,24 +22,20 @@
 
 package org.apache.hop.trans.steps.symmetriccrypto.symmetriccryptotrans;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -48,8 +44,9 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.symmetriccrypto.symmetricalgorithm.SymmetricCryptoMeta;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * Symmetric algorithm Executes a SymmetricCryptoTrans on the values in the input stream. Selected calculated values can
@@ -57,12 +54,13 @@ import org.w3c.dom.Node;
  *
  * @author Samatar
  * @since 5-apr-2003
- *
  */
 public class SymmetricCryptoTransMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = SymmetricCryptoTransMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** Operations type */
+  /**
+   * Operations type
+   */
   private int operationType;
 
   /**
@@ -104,7 +102,7 @@ public class SymmetricCryptoTransMeta extends BaseStepMeta implements StepMetaIn
     }
 
     for ( int i = 0; i < operationTypeCode.length; i++ ) {
-      if ( operationTypeCode[i].equalsIgnoreCase( tt ) ) {
+      if ( operationTypeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -121,7 +119,7 @@ public class SymmetricCryptoTransMeta extends BaseStepMeta implements StepMetaIn
     }
 
     for ( int i = 0; i < operationTypeDesc.length; i++ ) {
-      if ( operationTypeDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( operationTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -135,9 +133,9 @@ public class SymmetricCryptoTransMeta extends BaseStepMeta implements StepMetaIn
 
   public static String getOperationTypeDesc( int i ) {
     if ( i < 0 || i >= operationTypeDesc.length ) {
-      return operationTypeDesc[0];
+      return operationTypeDesc[ 0 ];
     }
-    return operationTypeDesc[i];
+    return operationTypeDesc[ i ];
   }
 
   /**
@@ -181,8 +179,7 @@ public class SymmetricCryptoTransMeta extends BaseStepMeta implements StepMetaIn
   }
 
   /**
-   * @param algorithm
-   *          The algorithm to set.
+   * @param algorithm The algorithm to set.
    */
   public void setAlgorithm( String algorithm ) {
     this.algorithm = algorithm;
@@ -193,8 +190,7 @@ public class SymmetricCryptoTransMeta extends BaseStepMeta implements StepMetaIn
   }
 
   /**
-   * @param readKeyAsBinary
-   *          The readKeyAsBinary to set.
+   * @param readKeyAsBinary The readKeyAsBinary to set.
    */
   public void setReadKeyAsBinary( boolean readKeyAsBinary ) {
     this.readKeyAsBinary = readKeyAsBinary;
@@ -205,8 +201,7 @@ public class SymmetricCryptoTransMeta extends BaseStepMeta implements StepMetaIn
   }
 
   /**
-   * @param outputResultAsBinary
-   *          The outputResultAsBinary to set.
+   * @param outputResultAsBinary The outputResultAsBinary to set.
    */
   public void setOutputResultAsBinary( boolean outputResultAsBinary ) {
     this.outputResultAsBinary = outputResultAsBinary;
@@ -217,16 +212,14 @@ public class SymmetricCryptoTransMeta extends BaseStepMeta implements StepMetaIn
   }
 
   /**
-   * @param schema
-   *          The schema to set.
+   * @param schema The schema to set.
    */
   public void setSchema( String schema ) {
     this.schema = schema;
   }
 
   /**
-   * @param secretKeyField
-   *          The secretKeyField to set.
+   * @param secretKeyField The secretKeyField to set.
    */
   public void setsecretKeyField( String secretKeyField ) {
     this.secretKeyField = secretKeyField;
@@ -286,14 +279,14 @@ public class SymmetricCryptoTransMeta extends BaseStepMeta implements StepMetaIn
     secretKey = null;
     secretKeyInField = false;
     operationType = OPERATION_TYPE_ENCRYPT;
-    algorithm = SymmetricCryptoMeta.TYPE_ALGORYTHM_CODE[0];
+    algorithm = SymmetricCryptoMeta.TYPE_ALGORYTHM_CODE[ 0 ];
     schema = algorithm;
     readKeyAsBinary = false;
     outputResultAsBinary = false;
   }
 
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     if ( !Utils.isEmpty( getResultfieldname() ) ) {
       int type = ValueMetaInterface.TYPE_STRING;
@@ -331,14 +324,14 @@ public class SymmetricCryptoTransMeta extends BaseStepMeta implements StepMetaIn
 
   private static String getOperationTypeCode( int i ) {
     if ( i < 0 || i >= operationTypeCode.length ) {
-      return operationTypeCode[0];
+      return operationTypeCode[ 0 ];
     }
-    return operationTypeCode[i];
+    return operationTypeCode[ i ];
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepinfo,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
 
     CheckResult cr;
 
@@ -346,7 +339,7 @@ public class SymmetricCryptoTransMeta extends BaseStepMeta implements StepMetaIn
       cr =
         new CheckResult(
           CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-            PKG, "SymmetricCryptoTransMeta.CheckResult.ConnectedStepOK", String.valueOf( prev.size() ) ),
+          PKG, "SymmetricCryptoTransMeta.CheckResult.ConnectedStepOK", String.valueOf( prev.size() ) ),
           stepinfo );
     } else {
       cr =
@@ -368,7 +361,7 @@ public class SymmetricCryptoTransMeta extends BaseStepMeta implements StepMetaIn
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new SymmetricCryptoTrans( stepMeta, stepDataInterface, cnr, transMeta, trans );
 
   }

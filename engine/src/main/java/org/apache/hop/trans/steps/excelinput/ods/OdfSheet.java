@@ -22,13 +22,13 @@
 
 package org.apache.hop.trans.steps.excelinput.ods;
 
+import org.apache.hop.core.spreadsheet.KCell;
+import org.apache.hop.core.spreadsheet.KSheet;
 import org.odftoolkit.odfdom.doc.table.OdfTable;
 import org.odftoolkit.odfdom.doc.table.OdfTableCell;
 import org.odftoolkit.odfdom.doc.table.OdfTableRow;
 import org.odftoolkit.odfdom.dom.element.table.TableTableCellElement;
 import org.odftoolkit.odfdom.dom.element.table.TableTableRowElement;
-import org.apache.hop.core.spreadsheet.KCell;
-import org.apache.hop.core.spreadsheet.KSheet;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -39,7 +39,7 @@ public class OdfSheet implements KSheet {
 
   public OdfSheet( OdfTable table ) {
     this.table = table;
-    nrOfRows = findNrRows( );
+    nrOfRows = findNrRows();
     roughNrOfCols = table.getColumnCount();
   }
 
@@ -129,7 +129,7 @@ public class OdfSheet implements KSheet {
     for ( int i = 0; i < cols; i++ ) {
       OdfTableCell cell = row.getCellByIndex( i );
       if ( cell != null ) {
-        xlsCells[i] = new OdfCell( cell );
+        xlsCells[ i ] = new OdfCell( cell );
       }
     }
     return xlsCells;

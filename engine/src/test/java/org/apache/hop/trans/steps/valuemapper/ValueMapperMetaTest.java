@@ -21,17 +21,7 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.valuemapper;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -42,6 +32,16 @@ import org.apache.hop.trans.steps.loadsave.initializer.InitializerInterface;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ValueMapperMetaTest implements InitializerInterface<StepMetaInterface> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -51,13 +51,13 @@ public class ValueMapperMetaTest implements InitializerInterface<StepMetaInterfa
   @Before
   public void setUpLoadSave() throws Exception {
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 7 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 7 );
 
     init( stringArrayLoadSaveValidator, stringArrayLoadSaveValidator );
   }
 
   private void init( FieldLoadSaveValidator<String[]> sourceStringArrayLoadSaveValidator,
-    FieldLoadSaveValidator<String[]> targetStringArrayLoadSaveValidator ) throws HopException {
+                     FieldLoadSaveValidator<String[]> targetStringArrayLoadSaveValidator ) throws HopException {
 
     HopEnvironment.init();
     PluginRegistry.init( false );
@@ -137,7 +137,7 @@ public class ValueMapperMetaTest implements InitializerInterface<StepMetaInterfa
     public String getTestObject() {
       int i = index;
       index = ++index % values.length;
-      return values[i];
+      return values[ i ];
     }
 
     @Override

@@ -22,6 +22,15 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -41,15 +50,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * This dialog allows you to enter a (single line) String.
@@ -94,10 +94,8 @@ public class EnterStringDialog extends Dialog {
    * This constructs without allowing for variable substitution. This constructor allows for backwards compatibility for
    * objects that wish to create this object without variable substitution.
    *
-   * @param parent
-   *          Parent gui object
-   * @param string
-   *          The string to display in the dialog
+   * @param parent    Parent gui object
+   * @param string    The string to display in the dialog
    * @param shellText
    * @param lineText
    */
@@ -108,19 +106,15 @@ public class EnterStringDialog extends Dialog {
   /**
    * Constructs with the ability to use environmental variable substitution.
    *
-   * @param parent
-   *          Parent gui object
-   * @param string
-   *          The string to display in the dialog
+   * @param parent         Parent gui object
+   * @param string         The string to display in the dialog
    * @param shellText
    * @param lineText
-   * @param allowVariables
-   *          Indicates to allow environmental substitution
-   * @param transMeta
-   *          This object has the has the environmental variables
+   * @param allowVariables Indicates to allow environmental substitution
+   * @param transMeta      This object has the has the environmental variables
    */
   public EnterStringDialog( Shell parent, String string, String shellText, String lineText,
-    boolean allowVariables, TransMeta transMeta ) {
+                            boolean allowVariables, TransMeta transMeta ) {
     super( parent, SWT.NONE );
     this.props = PropsUI.getInstance();
     this.string = string;
@@ -295,8 +289,7 @@ public class EnterStringDialog extends Dialog {
   }
 
   /**
-   * @param manditory
-   *          the manditory to set
+   * @param manditory the manditory to set
    */
   @Deprecated
   public void setManditory( boolean manditory ) {
@@ -304,8 +297,7 @@ public class EnterStringDialog extends Dialog {
   }
 
   /**
-   * @param mandatory
-   *          the manditory to set
+   * @param mandatory the manditory to set
    */
   public void setMandatory( boolean mandatory ) {
     this.mandatory = mandatory;

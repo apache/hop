@@ -33,7 +33,6 @@ import java.lang.annotation.Target;
  * of a TwoWayPasswordEncoderInterface class.
  *
  * @author matt
- *
  */
 @Documented
 @Retention( RetentionPolicy.RUNTIME )
@@ -41,7 +40,7 @@ import java.lang.annotation.Target;
 public @interface TwoWayPasswordEncoderPlugin {
   /**
    * @return The ID of the password encoder plugin. You can specify more than one ID in a comma separated format: id1,id2,id3 for
-   *         deprecation purposes.
+   * deprecation purposes.
    */
   String id();
 

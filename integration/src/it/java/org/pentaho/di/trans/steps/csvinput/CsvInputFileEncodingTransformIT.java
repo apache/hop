@@ -22,19 +22,19 @@
 
 package org.apache.hop.trans.steps.csvinput;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Regression test case for Jira PDI-10242: a csv input step does not recognize parameter in encoding
- *
+ * <p>
  * In the original problem this caused every other row to be skipped.
  *
  * @author Kanstantsin Karneliuk
@@ -68,8 +68,7 @@ public class CsvInputFileEncodingTransformIT extends CsvInput3IT {
   /**
    * Test case for PDI 10242, that test the whole transformation run -- not just init step
    *
-   * @throws Exception
-   *           Upon any exception
+   * @throws Exception Upon any exception
    */
   @Test
   public void testCSVInput1() throws Exception {
@@ -86,8 +85,7 @@ public class CsvInputFileEncodingTransformIT extends CsvInput3IT {
   /**
    * Test case for PDI 10242, that test the whole transformation run -- not just init step
    *
-   * @throws Exception
-   *           Upon any exception
+   * @throws Exception Upon any exception
    */
   @Test
   public void testCSVSpecSymbolInput() throws Exception {
@@ -104,8 +102,7 @@ public class CsvInputFileEncodingTransformIT extends CsvInput3IT {
   /**
    * Test case for PDI 10242, that test the whole transformation run -- not just init step
    *
-   * @throws Exception
-   *           Upon any exception
+   * @throws Exception Upon any exception
    */
   @Test
   public void testCSVException() throws Exception {
@@ -122,8 +119,7 @@ public class CsvInputFileEncodingTransformIT extends CsvInput3IT {
   /**
    * Test case for PDI 10242, that test the whole transformation run -- regression check
    *
-   * @throws Exception
-   *           Upon any exception
+   * @throws Exception Upon any exception
    */
   @Test
   public void testCSVFixedEncoding() throws Exception {
@@ -137,8 +133,7 @@ public class CsvInputFileEncodingTransformIT extends CsvInput3IT {
   /**
    * Test case for PDI 10242, that test the whole transformation run -- regression check
    *
-   * @throws Exception
-   *           Upon any exception
+   * @throws Exception Upon any exception
    */
   @Test
   public void testCSVNullEncoding() throws Exception {

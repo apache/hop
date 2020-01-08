@@ -22,20 +22,21 @@
 
 package org.apache.hop.trans.steps.cubeinput;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
+import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
+import org.junit.ClassRule;
+import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
-import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
-
 public class CubeInputMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Test
   public void testRoundTrip() throws HopException {
     List<String> attributes =
@@ -53,7 +54,7 @@ public class CubeInputMetaTest {
 
     LoadSaveTester loadSaveTester =
       new LoadSaveTester( CubeInputMeta.class, attributes, getterMap, setterMap,
-          new HashMap<String, FieldLoadSaveValidator<?>>(), new HashMap<String, FieldLoadSaveValidator<?>>() );
+        new HashMap<String, FieldLoadSaveValidator<?>>(), new HashMap<String, FieldLoadSaveValidator<?>>() );
 
     loadSaveTester.testSerialization();
   }

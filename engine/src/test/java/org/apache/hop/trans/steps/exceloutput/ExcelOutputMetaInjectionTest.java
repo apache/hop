@@ -22,14 +22,15 @@
 
 package org.apache.hop.trans.steps.exceloutput;
 
+import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 public class ExcelOutputMetaInjectionTest extends BaseMetadataInjectionTest<ExcelOutputMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Before
   public void setup() throws Exception {
     setup( new ExcelOutputMeta() );
@@ -177,7 +178,7 @@ public class ExcelOutputMetaInjectionTest extends BaseMetadataInjectionTest<Exce
 
     check( "NAME", new StringGetter() {
       public String get() {
-        return meta.getOutputFields()[0].getName();
+        return meta.getOutputFields()[ 0 ].getName();
       }
     } );
     // TODO check field type plugins
@@ -185,7 +186,7 @@ public class ExcelOutputMetaInjectionTest extends BaseMetadataInjectionTest<Exce
 
     check( "FORMAT", new StringGetter() {
       public String get() {
-        return meta.getOutputFields()[0].getFormat();
+        return meta.getOutputFields()[ 0 ].getFormat();
       }
     } );
 

@@ -22,9 +22,6 @@
 
 package org.apache.hop.core.row;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.value.ValueMetaBase;
@@ -38,6 +35,9 @@ import org.apache.hop.core.row.value.ValueMetaSerializable;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.xml.XMLHandler;
 import org.w3c.dom.Node;
+
+import java.math.BigDecimal;
+import java.util.Date;
 
 public class ValueMetaAndData {
   public static final String XML_TAG = "value";
@@ -110,8 +110,7 @@ public class ValueMetaAndData {
    * Produce the XML representation of this value.
    *
    * @return a String containing the XML to represent this Value.
-   * @throws HopValueException
-   *           in case there is a data conversion error, only throws in case of lazy conversion
+   * @throws HopValueException in case there is a data conversion error, only throws in case of lazy conversion
    */
   public String getXML() throws HopValueException {
     ValueMetaInterface meta = valueMeta.clone();
@@ -141,8 +140,7 @@ public class ValueMetaAndData {
   /**
    * Construct a new Value and read the data from XML
    *
-   * @param valnode
-   *          The XML Node to read from.
+   * @param valnode The XML Node to read from.
    */
   public ValueMetaAndData( Node valnode ) {
     this();
@@ -152,8 +150,7 @@ public class ValueMetaAndData {
   /**
    * Read the data for this Value from an XML Node
    *
-   * @param valnode
-   *          The XML Node to read from
+   * @param valnode The XML Node to read from
    * @return true if all went well, false if something went wrong.
    */
   public boolean loadXML( Node valnode ) {
@@ -213,8 +210,7 @@ public class ValueMetaAndData {
   }
 
   /**
-   * @param valueData
-   *          the valueData to set
+   * @param valueData the valueData to set
    */
   public void setValueData( Object valueData ) {
     this.valueData = valueData;
@@ -228,8 +224,7 @@ public class ValueMetaAndData {
   }
 
   /**
-   * @param valueMeta
-   *          the valueMeta to set
+   * @param valueMeta the valueMeta to set
    */
   public void setValueMeta( ValueMetaInterface valueMeta ) {
     this.valueMeta = valueMeta;

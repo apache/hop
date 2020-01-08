@@ -21,14 +21,14 @@
  ******************************************************************************/
 package org.apache.hop.core.util;
 
+import org.apache.commons.collections.BidiMap;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
-
-import org.apache.commons.collections.BidiMap;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -179,16 +179,16 @@ public class DateDetectorTest {
       String pattern = (String) iterator.next();
       String dateString = buildTestDate( pattern );
       assertEquals( "Did not detect a matching date pattern using the date \"" + dateString + "\"", pattern,
-          DateDetector.detectDateFormatBiased( dateString, locale, pattern ) );
+        DateDetector.detectDateFormatBiased( dateString, locale, pattern ) );
     }
   }
 
   private String buildTestDate( String pattern ) {
     String dateString =
-        pattern.replace( "dd", "31" ).replace( "yyyy", "2015" ).replace( "MMMM", "Decr" ).replace( "MMM", "Dec" )
-            .replace( "MM", "12" ).replace( "yy", "15" ).replace( "HH", "12" ).replace( "mm", "00" ).replace( "ss",
-                "00" ).replace( "SSS", "123" );
-//    System.out.println( pattern + " : " + dateString );
+      pattern.replace( "dd", "31" ).replace( "yyyy", "2015" ).replace( "MMMM", "Decr" ).replace( "MMM", "Dec" )
+        .replace( "MM", "12" ).replace( "yy", "15" ).replace( "HH", "12" ).replace( "mm", "00" ).replace( "ss",
+        "00" ).replace( "SSS", "123" );
+    //    System.out.println( pattern + " : " + dateString );
     return dateString;
   }
 

@@ -29,7 +29,6 @@ import org.apache.hop.i18n.BaseMessages;
  *
  * @author Matt
  * @since 11-01-04
- *
  */
 public class CheckResult implements CheckResultInterface {
   private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator2!!
@@ -70,7 +69,7 @@ public class CheckResult implements CheckResultInterface {
 
   @Override
   public String getTypeDesc() {
-    return typeDesc[type];
+    return typeDesc[ type ];
   }
 
   @Override
@@ -86,7 +85,7 @@ public class CheckResult implements CheckResultInterface {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append( typeDesc[type] ).append( ": " ).append( text );
+    sb.append( typeDesc[ type ] ).append( ": " ).append( text );
 
     if ( sourceMeta != null ) {
       sb.append( " (" ).append( sourceMeta.getName() ).append( ")" );
@@ -104,8 +103,7 @@ public class CheckResult implements CheckResultInterface {
   }
 
   /**
-   * @param errorCode
-   *          the errorCode to set
+   * @param errorCode the errorCode to set
    */
   @Override
   public void setErrorCode( String errorCode ) {

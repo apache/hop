@@ -26,11 +26,11 @@ import org.apache.hop.core.auth.core.AuthenticationConsumer;
 import org.apache.hop.core.auth.core.AuthenticationConsumptionException;
 
 public class DelegatingUsernamePasswordConsumer implements
-    AuthenticationConsumer<Object, UsernamePasswordAuthenticationProvider> {
+  AuthenticationConsumer<Object, UsernamePasswordAuthenticationProvider> {
   private AuthenticationConsumer<Object, UsernamePasswordAuthenticationProvider> delegate;
 
   public DelegatingUsernamePasswordConsumer(
-      AuthenticationConsumer<Object, UsernamePasswordAuthenticationProvider> delegate ) {
+    AuthenticationConsumer<Object, UsernamePasswordAuthenticationProvider> delegate ) {
     this.delegate = delegate;
   }
 

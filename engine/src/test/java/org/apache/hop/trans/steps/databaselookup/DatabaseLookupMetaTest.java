@@ -22,20 +22,6 @@
 
 package org.apache.hop.trans.steps.databaselookup;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
@@ -54,6 +40,20 @@ import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.NonZeroIntLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class DatabaseLookupMetaTest implements InitializerInterface<StepMetaInterface> {
   LoadSaveTester loadSaveTester;
@@ -65,16 +65,16 @@ public class DatabaseLookupMetaTest implements InitializerInterface<StepMetaInte
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "schemaName", "tablename", "databaseMeta", "orderByClause", "cached",
-            "cacheSize", "loadingAllDataInCache", "failingOnMultipleResults", "eatingRowOnLookupFailure",
-            "streamKeyField1", "streamKeyField2", "keyCondition", "tableKeyField", "returnValueField",
-            "returnValueNewName", "returnValueDefault", "returnValueDefaultType" );
+      Arrays.asList( "schemaName", "tablename", "databaseMeta", "orderByClause", "cached",
+        "cacheSize", "loadingAllDataInCache", "failingOnMultipleResults", "eatingRowOnLookupFailure",
+        "streamKeyField1", "streamKeyField2", "keyCondition", "tableKeyField", "returnValueField",
+        "returnValueNewName", "returnValueDefault", "returnValueDefaultType" );
 
     Map<String, String> getterMap = new HashMap<String, String>();
     Map<String, String> setterMap = new HashMap<String, String>();
 
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "streamKeyField1", stringArrayLoadSaveValidator );
@@ -85,15 +85,15 @@ public class DatabaseLookupMetaTest implements InitializerInterface<StepMetaInte
     attrValidatorMap.put( "returnValueNewName", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "returnValueDefault", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "returnValueDefaultType",
-         new PrimitiveIntArrayLoadSaveValidator( new NonZeroIntLoadSaveValidator( 7 ), 5 ) );
+      new PrimitiveIntArrayLoadSaveValidator( new NonZeroIntLoadSaveValidator( 7 ), 5 ) );
 
     attrValidatorMap.put( "databaseMeta", new DatabaseMetaLoadSaveValidator() );
 
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
-            getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class
@@ -119,9 +119,9 @@ public class DatabaseLookupMetaTest implements InitializerInterface<StepMetaInte
 
     ValueMetaInterface v1 = new ValueMetaString( "match" );
     ValueMetaInterface v2 = new ValueMetaString( "match1" );
-    RowMetaInterface[] info = new RowMetaInterface[1];
-    info[0] = new RowMeta();
-    info[0].setValueMetaList( Arrays.asList( v1, v2 ) );
+    RowMetaInterface[] info = new RowMetaInterface[ 1 ];
+    info[ 0 ] = new RowMeta();
+    info[ 0 ].setValueMetaList( Arrays.asList( v1, v2 ) );
 
     ValueMetaInterface r1 = new ValueMetaString( "value" );
     RowMetaInterface row = new RowMeta();

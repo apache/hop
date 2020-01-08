@@ -22,11 +22,11 @@
 
 package org.apache.hop.trans.step;
 
-import java.util.List;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
+
+import java.util.List;
 
 public class StepInjectionUtil {
 
@@ -70,12 +70,12 @@ public class StepInjectionUtil {
   }
 
   public static StepInjectionMetaEntry findEntry( List<StepInjectionMetaEntry> entries,
-    StepMetaInjectionEntryInterface match ) {
+                                                  StepMetaInjectionEntryInterface match ) {
     return findEntry( entries, match.name() );
   }
 
   public static StepInjectionMetaEntry findEntry( List<StepInjectionMetaEntry> entries,
-    String key ) {
+                                                  String key ) {
     for ( StepInjectionMetaEntry entry : entries ) {
       if ( entry.getKey().equals( key ) ) {
         return entry;
@@ -93,7 +93,7 @@ public class StepInjectionUtil {
    * @throws HopException
    */
   public static void compareEntryValues( List<StepInjectionMetaEntry> refEntries,
-    List<StepInjectionMetaEntry> cmpEntries ) throws HopException {
+                                         List<StepInjectionMetaEntry> cmpEntries ) throws HopException {
 
     if ( refEntries.size() != cmpEntries.size() ) {
       throw new HopException( "The number of reference entries (" + refEntries.size()

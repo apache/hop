@@ -22,11 +22,6 @@
 
 package org.apache.hop.trans.steps.sortedmerge;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
@@ -39,6 +34,11 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Do nothing. Pass all input data to the next steps.
@@ -53,14 +53,14 @@ public class SortedMerge extends BaseStep implements StepInterface {
   private SortedMergeData data;
 
   public SortedMerge( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                      Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
   /**
    * We read from all streams in the partition merge mode For that we need at least one row on all input rowsets... If
    * we don't have a row, we wait for one.
-   *
+   * <p>
    * TODO: keep the inputRowSets() list sorted and go from there. That should dramatically improve speed as you only
    * need half as many comparisons.
    *
@@ -108,15 +108,15 @@ public class SortedMerge extends BaseStep implements StepInterface {
           //
           if ( data.fieldIndices == null ) {
             // Get the indexes of the specified sort fields...
-            data.fieldIndices = new int[meta.getFieldName().length];
+            data.fieldIndices = new int[ meta.getFieldName().length ];
             for ( int f = 0; f < data.fieldIndices.length; f++ ) {
-              data.fieldIndices[f] = data.rowMeta.indexOfValue( meta.getFieldName()[f] );
-              if ( data.fieldIndices[f] < 0 ) {
+              data.fieldIndices[ f ] = data.rowMeta.indexOfValue( meta.getFieldName()[ f ] );
+              if ( data.fieldIndices[ f ] < 0 ) {
                 throw new HopStepException( "Unable to find fieldname ["
-                  + meta.getFieldName()[f] + "] in row : " + data.rowMeta );
+                  + meta.getFieldName()[ f ] + "] in row : " + data.rowMeta );
               }
 
-              data.rowMeta.getValueMeta( data.fieldIndices[f] ).setSortedDescending( !meta.getAscending()[f] );
+              data.rowMeta.getValueMeta( data.fieldIndices[ f ] ).setSortedDescending( !meta.getAscending()[ f ] );
             }
           }
         }

@@ -28,7 +28,6 @@ import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.base.AbstractMeta;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.LastUsedFile;
@@ -91,7 +90,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * The definition of a PDI job is represented by a JobMeta object. It is typically loaded from a .kjb file, a PDI
@@ -388,7 +386,6 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
         jobMeta.jobcopies = new ArrayList<JobEntryCopy>();
         jobMeta.jobhops = new ArrayList<JobHopMeta>();
         jobMeta.notes = new ArrayList<NotePadMeta>();
-        jobMeta.slaveServers = new ArrayList<SlaveServer>();
         jobMeta.namedParams = new NamedParamsDefault();
       }
 
@@ -401,9 +398,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
       for ( NotePadMeta entry : notes ) {
         jobMeta.notes.add( (NotePadMeta) entry.clone() );
       }
-      for ( SlaveServer slave : slaveServers ) {
-        jobMeta.getSlaveServers().add( (SlaveServer) slave.clone() );
-      }
+
       for ( String key : listParameters() ) {
         jobMeta.addParameterDefinition( key, getParameterDefault( key ), getParameterDescription( key ) );
       }
@@ -559,15 +554,6 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
     }
     retval.append( "    " ).append( XMLHandler.closeTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
 
-    // The slave servers...
-    //
-    retval.append( "    " ).append( XMLHandler.openTag( XML_TAG_SLAVESERVERS ) ).append( Const.CR );
-    for ( int i = 0; i < slaveServers.size(); i++ ) {
-      SlaveServer slaveServer = slaveServers.get( i );
-      retval.append( slaveServer.getXML() );
-    }
-    retval.append( "    " ).append( XMLHandler.closeTag( XML_TAG_SLAVESERVERS ) ).append( Const.CR );
-
     // Append the job logging information...
     //
     for ( LogTableInterface logTable : getLogTables() ) {
@@ -575,7 +561,6 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
     }
 
     retval.append( "   " ).append( XMLHandler.addTagValue( "pass_batchid", batchIdPassed ) );
-    retval.append( "   " ).append( XMLHandler.addTagValue( "shared_objects_file", sharedObjectsFile ) );
 
     retval.append( "  " ).append( XMLHandler.openTag( "entries" ) ).append( Const.CR );
     for ( int i = 0; i < nrJobEntries(); i++ ) {
@@ -661,7 +646,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
   /**
    * Create a new JobMeta object by loading it from a a DOM node.
    *
-   * @param jobnode  The node to load from
+   * @param jobnode The node to load from
    * @throws HopXMLException
    */
   public JobMeta( Node jobnode ) throws HopXMLException {
@@ -725,7 +710,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
   /**
    * Load xml.
    *
-   * @param jobnode  the jobnode
+   * @param jobnode the jobnode
    * @throws HopXMLException the kettle xml exception
    */
   public void loadXML( Node jobnode ) throws HopXMLException {
@@ -735,8 +720,8 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
   /**
    * Load xml.
    *
-   * @param jobnode  the jobnode
-   * @param fname    The filename
+   * @param jobnode the jobnode
+   * @param fname   The filename
    * @throws HopXMLException the kettle xml exception
    */
   public void loadXML( Node jobnode, String fname )
@@ -767,7 +752,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
    */
   @Deprecated
   public void loadXML( Node jobnode, String fname, boolean ignoreRepositorySharedObjects ) throws HopXMLException {
-    loadXML( jobnode, fname, null, ignoreRepositorySharedObjects  );
+    loadXML( jobnode, fname, null, ignoreRepositorySharedObjects );
   }
 
   /**
@@ -823,17 +808,6 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
         modifiedDate = XMLHandler.stringToDate( modDate );
       }
 
-      // Load the default list of databases
-      // Read objects from the shared XML file & the repository
-      try {
-        sharedObjectsFile = XMLHandler.getTagValue( jobnode, "shared_objects_file" );
-        sharedObjects = readSharedObjects();
-      } catch ( Exception e ) {
-        LogChannel.GENERAL
-          .logError( BaseMessages.getString( PKG, "JobMeta.ErrorReadingSharedObjects.Message", e.toString() ) );
-        LogChannel.GENERAL.logError( Const.getStackTracker( e ) );
-      }
-
       // Read the named parameters.
       Node paramsNode = XMLHandler.getSubNode( jobnode, XML_TAG_PARAMETERS );
       int nrParams = XMLHandler.countNodes( paramsNode, "parameter" );
@@ -846,18 +820,6 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
         String descr = XMLHandler.getTagValue( paramNode, "description" );
 
         addParameterDefinition( paramName, defValue, descr );
-      }
-
-      // Read the slave servers...
-      //
-      Node slaveServersNode = XMLHandler.getSubNode( jobnode, XML_TAG_SLAVESERVERS );
-      int nrSlaveServers = XMLHandler.countNodes( slaveServersNode, SlaveServer.XML_TAG );
-      for ( int i = 0; i < nrSlaveServers; i++ ) {
-        Node slaveServerNode = XMLHandler.getSubNodeByNr( slaveServersNode, SlaveServer.XML_TAG, i );
-        SlaveServer slaveServer = new SlaveServer( slaveServerNode );
-        slaveServer.shareVariablesWith( this );
-
-        slaveServers.add( slaveServer );
       }
 
       /*
@@ -900,7 +862,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
         Node entrynode = XMLHandler.getSubNodeByNr( entriesnode, "entry", i );
         // System.out.println("Reading entry:\n"+entrynode);
 
-        JobEntryCopy je = new JobEntryCopy( entrynode, slaveServers, metaStore );
+        JobEntryCopy je = new JobEntryCopy( entrynode, metaStore );
 
         if ( je.isSpecial() && je.isMissing() ) {
           addMissingEntry( (MissingEntry) je.getEntry() );

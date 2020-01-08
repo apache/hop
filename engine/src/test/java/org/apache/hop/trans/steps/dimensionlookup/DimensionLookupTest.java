@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.dimensionlookup;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -31,6 +29,8 @@ import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepPartitioningMeta;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.sql.Connection;
 import java.util.Date;
@@ -60,9 +60,9 @@ public class DimensionLookupTest {
 
     dimensionLookupMeta = mock( DimensionLookupMeta.class );
     doReturn( databaseMeta ).when( dimensionLookupMeta ).getDatabaseMeta();
-    doReturn( new String[]{} ).when( dimensionLookupMeta ).getKeyLookup();
-    doReturn( new String[]{} ).when( dimensionLookupMeta ).getFieldLookup();
-    doReturn( new int[]{} ).when( dimensionLookupMeta ).getFieldUpdate();
+    doReturn( new String[] {} ).when( dimensionLookupMeta ).getKeyLookup();
+    doReturn( new String[] {} ).when( dimensionLookupMeta ).getFieldLookup();
+    doReturn( new int[] {} ).when( dimensionLookupMeta ).getFieldUpdate();
 
     stepMeta = mock( StepMeta.class );
     doReturn( "step" ).when( stepMeta ).getName();
@@ -74,8 +74,8 @@ public class DimensionLookupTest {
 
     dimensionLookupData = mock( DimensionLookupData.class );
     dimensionLookupData.db = db;
-    dimensionLookupData.keynrs = new int[] { };
-    dimensionLookupData.fieldnrs = new int[] { };
+    dimensionLookupData.keynrs = new int[] {};
+    dimensionLookupData.fieldnrs = new int[] {};
 
     TransMeta transMeta = mock( TransMeta.class );
     doReturn( stepMeta ).when( transMeta ).findStep( anyString() );

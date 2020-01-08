@@ -22,12 +22,6 @@
 
 package org.apache.hop.trans.steps.scriptvalues_mod;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import org.junit.Test;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
@@ -40,15 +34,23 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
 import org.apache.hop.trans.steps.injector.InjectorMeta;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Tests setting the optimization level of ScriptValuesMetaMod. This unit test will call the ScriptValuesMetaMod.check()
  * to test the setting.
- *
+ * <p>
  * This class depends on JavaScriptSpecialTest for the creation of test data.
- *
+ * <p>
  * The java script optimization is described here: https://developer.mozilla.org/en/Rhino_Optimization
- *
+ * <p>
  * If Rhino's error message is changed in future releases then this unit test will break. In that case
  * RANGE_ERROR_MESSAGE_PREFIX will have to be modified accordingly.
  *
@@ -58,7 +60,7 @@ public class OptimizationLevelIT {
 
   /**
    * The error message that Rhino will give when an out or range optimization level is set will start with this.
-   *
+   * <p>
    * If we update Ketle with a version of Rhino
    */
   private static final String RANGE_ERROR_MESSAGE_PREFIX = "Optimization level outside [-1..9]";
@@ -109,10 +111,8 @@ public class OptimizationLevelIT {
    * Performs the JUnit assertEquals for the passed optimization level. The return value of testOptimizationLevel is
    * asserted with containsErrorMessage.
    *
-   * @param optimizationLevel
-   *          the optimization level to test
-   * @param containsErrorMessage
-   *          True if the check contains the error message, false if not.
+   * @param optimizationLevel    the optimization level to test
+   * @param containsErrorMessage True if the check contains the error message, false if not.
    */
   private void test( String optimizationLevel, boolean containsErrorMessage ) {
     try {

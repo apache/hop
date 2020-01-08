@@ -22,18 +22,17 @@
 
 package org.apache.hop.www;
 
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Date;
-import java.util.List;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.hop.core.Const;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.i18n.BaseMessages;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Date;
+import java.util.List;
 
 public class GetSlavesServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static Class<?> PKG = GetSlavesServlet.class; // for i18n purposes,
@@ -57,73 +56,72 @@ public class GetSlavesServlet extends BaseHttpServlet implements HopServerPlugin
   }
 
   /**
-<div id="mindtouch">
-    <h1>/hop/getSlaves</h1>
-    <a name="GET"></a>
-    <h2>GET</h2>
-    <p>Gets list of slave servers.
-  Retrieves list of slave servers which are known to specific server.</p>
-
-    <p><b>Example Request:</b><br />
-    <pre function="syntax.xml">
-    GET /hop/getSlaves
-    </pre>
-    </p>
-
-  <h3>Response Body</h3>
-
-  <table class="pentaho-table">
-    <tbody>
-      <tr>
-        <td align="right">element:</td>
-        <td>(custom)</td>
-      </tr>
-      <tr>
-        <td align="right">media types:</td>
-        <td>text/xml</td>
-      </tr>
-    </tbody>
-  </table>
-    <p>Response contains list of slave servers.</p>
-
-    <p><b>Example Response:</b></p>
-    <pre function="syntax.xml">
-    <?xml version="1.0" encoding="UTF-8"?>
-    <SlaveServerDetections>
-    <SlaveServerDetection>
-      <slaveserver>
-        <name>Dynamic slave &#x5b;localhost&#x3a;909&#x5d;</name><hostname>localhost</hostname><port>909</port>
-        <webAppName/><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password>
-        <proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master>
-      </slaveserver>
-      <active>Y</active>
-      <last_active_date>2014&#x2f;11&#x2f;17 06&#x3a;42&#x3a;28.043</last_active_date>
-      <last_inactive_date>2014&#x2f;11&#x2f;17 06&#x3a;42&#x3a;27.372</last_inactive_date>
-    </SlaveServerDetection>
-
-  </SlaveServerDetections>
-    </pre>
-
-    <h3>Status Codes</h3>
-    <table class="pentaho-table">
-  <tbody>
-    <tr>
-      <th>code</th>
-      <th>description</th>
-    </tr>
-    <tr>
-      <td>200</td>
-      <td>Request was processed.</td>
-    </tr>
-    <tr>
-      <td>500</td>
-      <td>Internal server error occurs during request processing.</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-  */
+   * <div id="mindtouch">
+   * <h1>/hop/getSlaves</h1>
+   * <a name="GET"></a>
+   * <h2>GET</h2>
+   * <p>Gets list of slave servers.
+   * Retrieves list of slave servers which are known to specific server.</p>
+   *
+   * <p><b>Example Request:</b><br />
+   * <pre function="syntax.xml">
+   * GET /hop/getSlaves
+   * </pre>
+   * </p>
+   *
+   * <h3>Response Body</h3>
+   *
+   * <table class="pentaho-table">
+   * <tbody>
+   * <tr>
+   * <td align="right">element:</td>
+   * <td>(custom)</td>
+   * </tr>
+   * <tr>
+   * <td align="right">media types:</td>
+   * <td>text/xml</td>
+   * </tr>
+   * </tbody>
+   * </table>
+   * <p>Response contains list of slave servers.</p>
+   *
+   * <p><b>Example Response:</b></p>
+   * <pre function="syntax.xml">
+   * <?xml version="1.0" encoding="UTF-8"?>
+   * <SlaveServerDetections>
+   * <SlaveServerDetection>
+   * <slaveserver>
+   * <name>Dynamic slave &#x5b;localhost&#x3a;909&#x5d;</name><hostname>localhost</hostname><port>909</port>
+   * <webAppName/><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password>
+   * <proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master>
+   * </slaveserver>
+   * <active>Y</active>
+   * <last_active_date>2014&#x2f;11&#x2f;17 06&#x3a;42&#x3a;28.043</last_active_date>
+   * <last_inactive_date>2014&#x2f;11&#x2f;17 06&#x3a;42&#x3a;27.372</last_inactive_date>
+   * </SlaveServerDetection>
+   *
+   * </SlaveServerDetections>
+   * </pre>
+   *
+   * <h3>Status Codes</h3>
+   * <table class="pentaho-table">
+   * <tbody>
+   * <tr>
+   * <th>code</th>
+   * <th>description</th>
+   * </tr>
+   * <tr>
+   * <td>200</td>
+   * <td>Request was processed.</td>
+   * </tr>
+   * <tr>
+   * <td>500</td>
+   * <td>Internal server error occurs during request processing.</td>
+   * </tr>
+   * </tbody>
+   * </table>
+   * </div>
+   */
   public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
     IOException {
     if ( isJettyMode() && !request.getContextPath().startsWith( CONTEXT_PATH ) ) {

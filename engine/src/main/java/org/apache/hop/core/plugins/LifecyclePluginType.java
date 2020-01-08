@@ -22,19 +22,18 @@
 
 package org.apache.hop.core.plugins;
 
-import java.lang.annotation.Annotation;
-import java.util.Map;
-
 import org.apache.hop.core.annotations.LifecyclePlugin;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.gui.GUIOption;
 import org.apache.hop.core.lifecycle.LifecycleListener;
 
+import java.lang.annotation.Annotation;
+import java.util.Map;
+
 /**
  * This class represents the repository plugin type.
  *
  * @author matt
- *
  */
 @PluginMainClassType( LifecycleListener.class )
 @PluginExtraClassTypes( classTypes = { GUIOption.class } )

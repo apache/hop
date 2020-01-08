@@ -22,12 +22,12 @@
 
 package org.apache.hop.trans;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.RowListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Helper class for testcases. You can add an instance of this class to a step to read all of the Rows the step read or

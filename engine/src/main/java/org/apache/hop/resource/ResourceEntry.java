@@ -50,8 +50,7 @@ public class ResourceEntry {
   }
 
   /**
-   * @param resource
-   *          the resource to set
+   * @param resource the resource to set
    */
   public void setResource( String resource ) {
     this.resource = resource;
@@ -65,8 +64,7 @@ public class ResourceEntry {
   }
 
   /**
-   * @param resourcetype
-   *          the resourcetype to set
+   * @param resourcetype the resourcetype to set
    */
   public void setResourcetype( ResourceType resourcetype ) {
     this.resourcetype = resourcetype;
@@ -79,7 +77,7 @@ public class ResourceEntry {
       .append( "<Resource type='" )
       .append( this.getResourcetype() )
       .append( "'><![CDATA[" ).append( this.getResource() ).append( "]]>" ).append( "</Resource>" ).append(
-        StringUtil.CRLF );
+      StringUtil.CRLF );
     return buff.toString();
   }
 

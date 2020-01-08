@@ -22,8 +22,21 @@
 
 package org.apache.hop.ui.job.entries.snmptrap;
 
-import java.net.InetAddress;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.snmptrap.JobEntrySNMPTrap;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.LabelText;
+import org.apache.hop.ui.core.widget.LabelTextVar;
+import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -46,23 +59,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.snmptrap.JobEntrySNMPTrap;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.LabelText;
-import org.apache.hop.ui.core.widget.LabelTextVar;
-import org.apache.hop.ui.core.widget.StyledTextComp;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.snmp4j.UserTarget;
 import org.snmp4j.smi.UdpAddress;
+
+import java.net.InetAddress;
 
 /**
  * This dialog allows you to edit the SNMPTrap job entry settings.
@@ -236,7 +236,7 @@ public class JobEntrySNMPTrapDialog extends JobEntryDialog implements JobEntryDi
     wServerName =
       new LabelTextVar(
         jobMeta, wServerSettings, BaseMessages.getString( PKG, "JobSNMPTrap.Server.Label" ), BaseMessages
-          .getString( PKG, "JobSNMPTrap.Server.Tooltip" ) );
+        .getString( PKG, "JobSNMPTrap.Server.Tooltip" ) );
     props.setLook( wServerName );
     wServerName.addModifyListener( lsMod );
     fdServerName = new FormData();
@@ -249,7 +249,7 @@ public class JobEntrySNMPTrapDialog extends JobEntryDialog implements JobEntryDi
     wPort =
       new LabelTextVar(
         jobMeta, wServerSettings, BaseMessages.getString( PKG, "JobSNMPTrap.Port.Label" ), BaseMessages
-          .getString( PKG, "JobSNMPTrap.Port.Tooltip" ) );
+        .getString( PKG, "JobSNMPTrap.Port.Tooltip" ) );
     props.setLook( wPort );
     wPort.addModifyListener( lsMod );
     fdPort = new FormData();
@@ -262,7 +262,7 @@ public class JobEntrySNMPTrapDialog extends JobEntryDialog implements JobEntryDi
     wOID =
       new LabelTextVar(
         jobMeta, wServerSettings, BaseMessages.getString( PKG, "JobSNMPTrap.OID.Label" ), BaseMessages
-          .getString( PKG, "JobSNMPTrap.OID.Tooltip" ) );
+        .getString( PKG, "JobSNMPTrap.OID.Tooltip" ) );
     props.setLook( wOID );
     wOID.addModifyListener( lsMod );
     fdOID = new FormData();
@@ -330,7 +330,7 @@ public class JobEntrySNMPTrapDialog extends JobEntryDialog implements JobEntryDi
     wComString =
       new LabelTextVar(
         jobMeta, wAdvancedSettings, BaseMessages.getString( PKG, "JobSNMPTrap.ComString.Label" ), BaseMessages
-          .getString( PKG, "JobSNMPTrap.ComString.Tooltip" ) );
+        .getString( PKG, "JobSNMPTrap.ComString.Tooltip" ) );
     props.setLook( wComString );
     wComString.addModifyListener( lsMod );
     fdComString = new FormData();
@@ -343,7 +343,7 @@ public class JobEntrySNMPTrapDialog extends JobEntryDialog implements JobEntryDi
     wUser =
       new LabelTextVar(
         jobMeta, wAdvancedSettings, BaseMessages.getString( PKG, "JobSNMPTrap.User.Label" ), BaseMessages
-          .getString( PKG, "JobSNMPTrap.User.Tooltip" ) );
+        .getString( PKG, "JobSNMPTrap.User.Tooltip" ) );
     props.setLook( wUser );
     wUser.addModifyListener( lsMod );
     fdUser = new FormData();
@@ -369,7 +369,7 @@ public class JobEntrySNMPTrapDialog extends JobEntryDialog implements JobEntryDi
     wEngineID =
       new LabelTextVar(
         jobMeta, wAdvancedSettings, BaseMessages.getString( PKG, "JobSNMPTrap.EngineID.Label" ), BaseMessages
-          .getString( PKG, "JobSNMPTrap.EngineID.Tooltip" ) );
+        .getString( PKG, "JobSNMPTrap.EngineID.Tooltip" ) );
     props.setLook( wEngineID );
     wEngineID.addModifyListener( lsMod );
     fdEngineID = new FormData();
@@ -382,7 +382,7 @@ public class JobEntrySNMPTrapDialog extends JobEntryDialog implements JobEntryDi
     wRetry =
       new LabelTextVar(
         jobMeta, wAdvancedSettings, BaseMessages.getString( PKG, "JobSNMPTrap.Retry.Label" ), BaseMessages
-          .getString( PKG, "JobSNMPTrap.Retry.Tooltip" ) );
+        .getString( PKG, "JobSNMPTrap.Retry.Tooltip" ) );
     props.setLook( wRetry );
     wRetry.addModifyListener( lsMod );
     fdRetry = new FormData();
@@ -395,7 +395,7 @@ public class JobEntrySNMPTrapDialog extends JobEntryDialog implements JobEntryDi
     wTimeout =
       new LabelTextVar(
         jobMeta, wAdvancedSettings, BaseMessages.getString( PKG, "JobSNMPTrap.Timeout.Label" ), BaseMessages
-          .getString( PKG, "JobSNMPTrap.Timeout.Tooltip" ) );
+        .getString( PKG, "JobSNMPTrap.Timeout.Tooltip" ) );
     props.setLook( wTimeout );
     wTimeout.addModifyListener( lsMod );
     fdTimeout = new FormData();

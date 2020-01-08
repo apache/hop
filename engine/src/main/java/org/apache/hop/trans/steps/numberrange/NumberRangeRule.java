@@ -28,7 +28,6 @@ import java.util.Objects;
  * Contains one rule for a number range
  *
  * @author ronny.roeller@fredhopper.com
- *
  */
 public class NumberRangeRule {
 

@@ -22,15 +22,6 @@
 
 package org.apache.hop.trans.steps.csvinput;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.io.BufferedInputStream;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.vfs2.FileObject;
@@ -60,6 +51,15 @@ import org.apache.hop.trans.steps.textfileinput.EncodingType;
 import org.apache.hop.trans.steps.textfileinput.TextFileInput;
 import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
 import org.apache.hop.trans.steps.textfileinput.TextFileInputMeta;
+
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Read a simple CSV file Just output Strings found in the file...
@@ -329,7 +329,7 @@ public class CsvInput extends BaseStep implements StepInterface {
 
       // Open the next one...
       //
-      data.fieldsMapping = createFieldMapping( data.filenames[data.filenr], meta );
+      data.fieldsMapping = createFieldMapping( data.filenames[ data.filenr ], meta );
       FileObject fileObject = HopVFS.getFileObject( data.filenames[ data.filenr ], getTransMeta() );
       if ( !( fileObject instanceof LocalFile ) ) {
         // We can only use NIO on local files at the moment, so that's what we limit ourselves to.
@@ -455,9 +455,9 @@ public class CsvInput extends BaseStep implements StepInterface {
     String realEncoding = environmentSubstitute( csvInputMeta.getEncoding() );
 
     try ( FileObject fileObject = HopVFS.getFileObject( fileName, getTransMeta() );
-        BOMInputStream inputStream =
+          BOMInputStream inputStream =
             new BOMInputStream( HopVFS.getInputStream( fileObject ), ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE,
-                ByteOrderMark.UTF_16BE ) ) {
+              ByteOrderMark.UTF_16BE ) ) {
       InputStreamReader reader = null;
       if ( Utils.isEmpty( realEncoding ) ) {
         reader = new InputStreamReader( inputStream );
@@ -466,10 +466,10 @@ public class CsvInput extends BaseStep implements StepInterface {
       }
       EncodingType encodingType = EncodingType.guessEncodingType( reader.getEncoding() );
       String line =
-          TextFileInput.getLine( log, reader, encodingType, TextFileInputMeta.FILE_FORMAT_UNIX, new StringBuilder(
-              1000 ) );
+        TextFileInput.getLine( log, reader, encodingType, TextFileInputMeta.FILE_FORMAT_UNIX, new StringBuilder(
+          1000 ) );
       String[] fieldNames =
-          CsvInput.guessStringsFromLine( log, line, delimiter, enclosure, csvInputMeta.getEscapeCharacter() );
+        CsvInput.guessStringsFromLine( log, line, delimiter, enclosure, csvInputMeta.getEscapeCharacter() );
       if ( !Utils.isEmpty( csvInputMeta.getEnclosure() ) ) {
         removeEnclosure( fieldNames, csvInputMeta.getEnclosure() );
       }
@@ -482,10 +482,10 @@ public class CsvInput extends BaseStep implements StepInterface {
 
   static String[] fieldNames( CsvInputMeta csvInputMeta ) {
     TextFileInputField[] fields = csvInputMeta.getInputFields();
-    String[] fieldNames = new String[fields.length];
+    String[] fieldNames = new String[ fields.length ];
     for ( int i = 0; i < fields.length; i++ ) {
       // We need to sanitize field names because existing ktr files may contain field names with leading BOM
-      fieldNames[i] = EncodingType.removeBOMIfPresent( fields[i].getName() );
+      fieldNames[ i ] = EncodingType.removeBOMIfPresent( fields[ i ].getName() );
     }
     return fieldNames;
   }
@@ -514,9 +514,8 @@ public class CsvInput extends BaseStep implements StepInterface {
    * We have to do some work for this: read last byte from the previous step and make sure that it is a new line byte.
    * But it's not enough. There could be a situation, where new line is indicated by '\r\n' construction. And if we are
    * <b>between</b> this construction, we want to skip last '\n', and don't want to include it in our line.
-   *
+   * <p>
    * So, we DON'T skip line only if the previous char is new line indicator AND we are not between '\r\n'.
-   *
    */
   private boolean needToSkipRow() {
     try {
@@ -601,7 +600,7 @@ public class CsvInput extends BaseStep implements StepInterface {
               }
 
               if ( data.isAddingRowNumber ) {
-                outputRowData[data.rownumFieldIndex] = data.rowNumber++;
+                outputRowData[ data.rownumFieldIndex ] = data.rowNumber++;
               }
 
               incrementLinesInput();
@@ -728,7 +727,7 @@ public class CsvInput extends BaseStep implements StepInterface {
         if ( actualFieldIndex != FieldsMapping.FIELD_DOES_NOT_EXIST ) {
           if ( !skipRow ) {
             if ( meta.isLazyConversionActive() ) {
-              outputRowData[actualFieldIndex] = field;
+              outputRowData[ actualFieldIndex ] = field;
             } else {
               // We're not lazy so we convert the data right here and now.
               // The convert object uses binary storage as such we just have to ask the native type from it.
@@ -736,11 +735,11 @@ public class CsvInput extends BaseStep implements StepInterface {
               //
               ValueMetaInterface sourceValueMeta = data.convertRowMeta.getValueMeta( actualFieldIndex );
               try {
-                outputRowData[actualFieldIndex] = sourceValueMeta.convertBinaryStringToNativeType( field );
+                outputRowData[ actualFieldIndex ] = sourceValueMeta.convertBinaryStringToNativeType( field );
               } catch ( HopValueException e ) {
                 // There was a conversion error,
                 //
-                outputRowData[actualFieldIndex] = null;
+                outputRowData[ actualFieldIndex ] = null;
 
                 if ( conversionExceptions == null ) {
                   conversionExceptions = new ArrayList<Exception>();
@@ -752,7 +751,7 @@ public class CsvInput extends BaseStep implements StepInterface {
               }
             }
           } else {
-            outputRowData[actualFieldIndex] = null; // nothing for the header, no conversions here.
+            outputRowData[ actualFieldIndex ] = null; // nothing for the header, no conversions here.
           }
         }
 

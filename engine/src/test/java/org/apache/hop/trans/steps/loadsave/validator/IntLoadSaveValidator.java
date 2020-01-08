@@ -39,7 +39,7 @@ public class IntLoadSaveValidator implements FieldLoadSaveValidator<Integer> {
 
   /**
    * An IntLoadSaveValidator that only returns test values between 0 and maxValue, inclusive.
-   * 
+   *
    * @param maxValue The maximum Int value that should be returned
    */
   public IntLoadSaveValidator( Integer maxValue ) {

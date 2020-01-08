@@ -22,22 +22,26 @@
 package org.apache.hop.ui.trans.steps.sftpput;
 
 import org.apache.commons.lang.reflect.FieldUtils;
-import org.eclipse.swt.widgets.Shell;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.Props;
 import org.apache.hop.job.entries.sftp.SFTPClient;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.steps.sftpput.SFTPPutMeta;
 import org.apache.hop.ui.core.PropsUI;
+import org.eclipse.swt.widgets.Shell;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.lang.reflect.Field;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Created by Yury_Ilyukevich on 7/1/2015.

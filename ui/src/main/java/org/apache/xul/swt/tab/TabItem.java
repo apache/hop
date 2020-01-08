@@ -22,14 +22,14 @@
 
 package org.apache.xul.swt.tab;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TabItem {
 

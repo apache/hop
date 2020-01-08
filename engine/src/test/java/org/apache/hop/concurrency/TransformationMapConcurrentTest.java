@@ -21,11 +21,11 @@
  ******************************************************************************/
 package org.apache.hop.concurrency;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.www.HopServerObjectEntry;
 import org.apache.hop.www.SocketPortAllocation;
 import org.apache.hop.www.TransformationMap;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,35 +60,35 @@ public class TransformationMapConcurrentTest {
     // adding allocations with equal hostname, source and slave name. Should not allocate one port as there is
     // no deallocate tasks and !spa.isAllocated() returns true
     for ( int i = 1; i <= numberOfSameSourceAndTargetSlaveNameAllocations; i++ ) {
-      concurrentAllocateTasks.add( new ConcurrentAllocate( 40000, "host1", "id" + i, "trans" + i, "slave-1", "source" + i,  "" + i, "slave-2", "target" + i, "" + i ) );
+      concurrentAllocateTasks.add( new ConcurrentAllocate( 40000, "host1", "id" + i, "trans" + i, "slave-1", "source" + i, "" + i, "slave-2", "target" + i, "" + i ) );
     }
 
     // adding different allocations
     for ( int i = 2; i <= numberOfDifferentAllocations + 1; i++ ) {
-      concurrentAllocateTasks.add( new ConcurrentAllocate( 40000, "host" + i, "id" + i, "trans" + i, "slave-" + i, "source" + i,  "" + i, "slave-" + i, "target" + i, "" + i ) );
+      concurrentAllocateTasks.add( new ConcurrentAllocate( 40000, "host" + i, "id" + i, "trans" + i, "slave-" + i, "source" + i, "" + i, "slave-" + i, "target" + i, "" + i ) );
     }
 
     // adding allocations which have the same hostname as different ones but diff properties
     for ( int i = 1; i <= numberOfSameHosts; i++ ) {
-      concurrentAllocateTasks.add( new ConcurrentAllocate( 40000, "host" + i, "diff", "diff", "diff", "diff",  "diff", "diff", "diff", "diff" ) );
+      concurrentAllocateTasks.add( new ConcurrentAllocate( 40000, "host" + i, "diff", "diff", "diff", "diff", "diff", "diff", "diff", "diff" ) );
     }
 
     for ( int i = 0; i < numberOfDeallocateTasks; i++ ) {
       HopServerObjectEntry hopServerObjectEntry = new HopServerObjectEntry( "trans" + i, "id" + 1 );
-      concurrentDeallocateTasks.add( new ConcurrentDeallocate( i, "host" + i, hopServerObjectEntry) );
+      concurrentDeallocateTasks.add( new ConcurrentDeallocate( i, "host" + i, hopServerObjectEntry ) );
     }
 
   }
 
   @Test
   public void testConcurrentAllocateServerSocketPort() throws Exception {
-    ConcurrencyTestRunner.runAndCheckNoExceptionRaised( concurrentAllocateTasks, Collections.emptyList(),  new AtomicBoolean( true ) );
+    ConcurrencyTestRunner.runAndCheckNoExceptionRaised( concurrentAllocateTasks, Collections.emptyList(), new AtomicBoolean( true ) );
 
   }
 
   @Test
   public void testConcurrentAllocateAndDeallocateServerSocketPort() throws Exception {
-    ConcurrencyTestRunner.runAndCheckNoExceptionRaised( concurrentDeallocateTasks, concurrentAllocateTasks,  new AtomicBoolean( true ) );
+    ConcurrencyTestRunner.runAndCheckNoExceptionRaised( concurrentDeallocateTasks, concurrentAllocateTasks, new AtomicBoolean( true ) );
   }
 
 
@@ -106,8 +106,8 @@ public class TransformationMapConcurrentTest {
     String targetStepCopy;
 
     public ConcurrentAllocate( int portRangeStart, String hostname, String clusteredRunId,
-                                String transformationName, String sourceSlaveName, String sourceStepName,
-                                String sourceStepCopy, String targetSlaveName, String targetStepName, String targetStepCopy ) {
+                               String transformationName, String sourceSlaveName, String sourceStepName,
+                               String sourceStepCopy, String targetSlaveName, String targetStepName, String targetStepCopy ) {
       this.portRangeStart = portRangeStart;
       this.hostname = hostname;
       this.clusteredRunId = clusteredRunId;

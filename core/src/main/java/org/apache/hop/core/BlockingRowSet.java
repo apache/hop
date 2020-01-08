@@ -22,11 +22,11 @@
 
 package org.apache.hop.core;
 
+import org.apache.hop.core.row.RowMetaInterface;
+
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.hop.core.row.RowMetaInterface;
 
 /**
  * Contains a buffer of rows. Getting rows from the buffer or putting rows in the buffer is synchronized to allow
@@ -34,7 +34,6 @@ import org.apache.hop.core.row.RowMetaInterface;
  *
  * @author Matt
  * @since 04-04-2003
- *
  */
 public class BlockingRowSet extends BaseRowSet implements Comparable<RowSet>, RowSet {
   private BlockingQueue<Object[]> queArray;

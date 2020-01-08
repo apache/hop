@@ -22,10 +22,6 @@
 
 package org.apache.hop.trans.steps.csvinput;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -35,34 +31,39 @@ import org.apache.hop.trans.step.StepMetaDataCombi;
 import org.apache.hop.trans.steps.StepMockUtil;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
 import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.io.File;
+
 import static org.junit.Assert.assertEquals;
 
 /**
- *  We take file with content
- *  and run it parallel with several steps.
- *  see docs for {@link CsvInput#prepareToRunInParallel} to understand how running file in parallel works
- *
- *  We measure the correctness of work by counting the number of lines, written on each step.
- *  As a result, we should come to this pseudo formula: numberOfLines = sum of number of lines written by each step.
- *
- *  Just a simple example:
- *  Assume, we have file with this content:
- *
- *  a,b\r\n
- *  c,d\r\n
- *
- *  If we will run it with 2 steps, we expect the first step to read 1st line, and the second step to read second line.
- *
- *  Every test is built in this pattern.
- *
- *  We actually play with 4 things:
- *  - file content
- *  - number of threads (it's actually same as number of steps)
- *  - representation of new line (it can be 2 bytes: '\r\n' (windows) or 1 byte: '\r' or '\n' (Mac, Linux) .
- *  Representation can differ. So, if we have different types of new lines in one file - it's ok.
- *  - file ends with new line or not
+ * We take file with content
+ * and run it parallel with several steps.
+ * see docs for {@link CsvInput#prepareToRunInParallel} to understand how running file in parallel works
+ * <p>
+ * We measure the correctness of work by counting the number of lines, written on each step.
+ * As a result, we should come to this pseudo formula: numberOfLines = sum of number of lines written by each step.
+ * <p>
+ * Just a simple example:
+ * Assume, we have file with this content:
+ * <p>
+ * a,b\r\n
+ * c,d\r\n
+ * <p>
+ * If we will run it with 2 steps, we expect the first step to read 1st line, and the second step to read second line.
+ * <p>
+ * Every test is built in this pattern.
+ * <p>
+ * We actually play with 4 things:
+ * - file content
+ * - number of threads (it's actually same as number of steps)
+ * - representation of new line (it can be 2 bytes: '\r\n' (windows) or 1 byte: '\r' or '\n' (Mac, Linux) .
+ * Representation can differ. So, if we have different types of new lines in one file - it's ok.
+ * - file ends with new line or not
  */
 public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
   private StepMockHelper<CsvInputMeta, StepDataInterface> stepMockHelper;
@@ -84,7 +85,7 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
   public void oneByteNewLineIndicator_NewLineAtTheEnd_2Threads() throws Exception {
     final int totalNumberOfSteps = 2;
     final String fileContent =
-          "a;1\r"
+      "a;1\r"
         + "b;2\r";
 
     File sharedFile = createTestFile( "UTF-8", fileContent );
@@ -98,9 +99,9 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
     final int totalNumberOfSteps = 2;
 
     final String fileContent =
-            "a;1\r"
-          + "b;2\r"
-          + "c;3";
+      "a;1\r"
+        + "b;2\r"
+        + "c;3";
 
     File sharedFile = createTestFile( "UTF-8", fileContent );
 
@@ -113,7 +114,7 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
     final int totalNumberOfSteps = 2;
 
     final String fileContent =
-          "ab;111\r\n"
+      "ab;111\r\n"
         + "bc;222\r\n"
         + "cd;333\r\n"
         + "de;444\r\n"
@@ -135,7 +136,7 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
     final int totalNumberOfSteps = 2;
 
     final String fileContent =
-          "ab;111\r\n"
+      "ab;111\r\n"
         + "bc;222\r\n"
         + "cd;333\r\n"
         + "de;444\r\n"
@@ -156,8 +157,8 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
   @Test
   public void twoByteNewLineIndicator_NewLineAtTheEnd_2Threads() throws Exception {
     final String fileContent =
-            "a;1\r\n"
-          + "b;2\r\n";
+      "a;1\r\n"
+        + "b;2\r\n";
     final int totalNumberOfSteps = 2;
 
     File sharedFile = createTestFile( "UTF-8", fileContent );
@@ -169,8 +170,8 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
   @Test
   public void twoByteNewLineIndicator_NoNewLineAtTheEnd_2Threads() throws Exception {
     final String fileContent =
-            "a;1\r\n"
-          + "b;2";
+      "a;1\r\n"
+        + "b;2";
     final int totalNumberOfSteps = 2;
 
     File sharedFile = createTestFile( "UTF-8", fileContent );
@@ -185,15 +186,15 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
   @Test
   public void twoByteNewLineIndicator_NewLineAtTheEnd_3Threads() throws Exception {
     final String fileContent =
-            "a;1\r\n"
-          + "b;2\r\n"
+      "a;1\r\n"
+        + "b;2\r\n"
         // thread 1 should read until this line
-          + "c;3\r\n"
-          + "d;4\r\n"
+        + "c;3\r\n"
+        + "d;4\r\n"
         // thread 2 should read until this line
-          + "e;5\r\n"
-          + "f;6\r\n";
-        // thread 3 should read until this line
+        + "e;5\r\n"
+        + "f;6\r\n";
+    // thread 3 should read until this line
 
 
     final int totalNumberOfSteps = 3;
@@ -214,9 +215,9 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
   @Test
   public void mixedBytesNewLineIndicator_NoNewLineAtTheEnd_2Threads() throws Exception {
     final String fileContent =
-            "abcd;1\r\n"
-          + "b;2\r\n"
-          + "d;3";
+      "abcd;1\r\n"
+        + "b;2\r\n"
+        + "d;3";
 
 
     final int totalNumberOfSteps = 2;
@@ -230,9 +231,9 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
   @Test
   public void mixedBytesNewLineIndicator_NewLineAtTheEnd_2Threads() throws Exception {
     final String fileContent =
-            "abcd;1\r\n"
-          + "b;2\r"
-          + "d;3\r";
+      "abcd;1\r\n"
+        + "b;2\r"
+        + "d;3\r";
 
 
     final int totalNumberOfSteps = 2;

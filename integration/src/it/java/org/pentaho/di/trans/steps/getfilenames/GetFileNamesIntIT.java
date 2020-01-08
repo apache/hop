@@ -22,18 +22,6 @@
 
 package org.apache.hop.trans.steps.getfilenames;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -41,6 +29,18 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.trans.TransHopMeta;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransTestFactory;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class GetFileNamesIntIT {
 
@@ -60,11 +60,11 @@ public class GetFileNamesIntIT {
     meta.setDefault();
 
     meta.allocate( 1 );
-    meta.setFileName( new String[]{ "${MY_FOLDER_PARAM}" } );
-    meta.setFileMask( new String[]{ ".*" } );
-    meta.setExcludeFileMask( new String[]{ "" } );
-    meta.setFileRequired( new String[]{ "Y" } );
-    meta.setIncludeSubFolders( new String[]{ "N" } );
+    meta.setFileName( new String[] { "${MY_FOLDER_PARAM}" } );
+    meta.setFileMask( new String[] { ".*" } );
+    meta.setExcludeFileMask( new String[] { "" } );
+    meta.setFileRequired( new String[] { "Y" } );
+    meta.setIncludeSubFolders( new String[] { "N" } );
 
     TransMeta transMeta = TransTestFactory.generateTestTransformation( null, meta, STEPNAME );
     //Remove the Injector hop, as it's not needed for this transformation
@@ -101,11 +101,11 @@ public class GetFileNamesIntIT {
     meta.setDefault();
 
     meta.allocate( 1 );
-    meta.setFileName( new String[]{ "${MY_FOLDER_PARAM}" } );
-    meta.setFileMask( new String[]{ "" } );
-    meta.setExcludeFileMask( new String[]{ "" } );
-    meta.setFileRequired( new String[]{ "Y" } );
-    meta.setIncludeSubFolders( new String[]{ "N" } );
+    meta.setFileName( new String[] { "${MY_FOLDER_PARAM}" } );
+    meta.setFileMask( new String[] { "" } );
+    meta.setExcludeFileMask( new String[] { "" } );
+    meta.setFileRequired( new String[] { "Y" } );
+    meta.setIncludeSubFolders( new String[] { "N" } );
 
     TransMeta transMeta = TransTestFactory.generateTestTransformation( null, meta, STEPNAME );
     //Remove the Injector hop, as it's not needed for this transformation
@@ -142,11 +142,11 @@ public class GetFileNamesIntIT {
     meta.setDefault();
 
     meta.allocate( 1 );
-    meta.setFileName( new String[]{ "${MY_FOLDER_PARAM}" } );
-    meta.setFileMask( new String[]{ ".*" } );
-    meta.setExcludeFileMask( new String[]{ "" } );
-    meta.setFileRequired( new String[]{ "Y" } );
-    meta.setIncludeSubFolders( new String[]{ "N" } );
+    meta.setFileName( new String[] { "${MY_FOLDER_PARAM}" } );
+    meta.setFileMask( new String[] { ".*" } );
+    meta.setExcludeFileMask( new String[] { "" } );
+    meta.setFileRequired( new String[] { "Y" } );
+    meta.setIncludeSubFolders( new String[] { "N" } );
     meta.setFilterFileType( 1 );
 
     TransMeta transMeta = TransTestFactory.generateTestTransformation( null, meta, STEPNAME );
@@ -182,11 +182,11 @@ public class GetFileNamesIntIT {
     meta.setDefault();
 
     meta.allocate( 1 );
-    meta.setFileName( new String[]{ "${MY_FOLDER_PARAM}" } );
-    meta.setFileMask( new String[]{ "" } );
-    meta.setExcludeFileMask( new String[]{ "" } );
-    meta.setFileRequired( new String[]{ "Y" } );
-    meta.setIncludeSubFolders( new String[]{ "N" } );
+    meta.setFileName( new String[] { "${MY_FOLDER_PARAM}" } );
+    meta.setFileMask( new String[] { "" } );
+    meta.setExcludeFileMask( new String[] { "" } );
+    meta.setFileRequired( new String[] { "Y" } );
+    meta.setIncludeSubFolders( new String[] { "N" } );
     meta.setFilterFileType( 1 );
 
     TransMeta transMeta = TransTestFactory.generateTestTransformation( null, meta, STEPNAME );
@@ -222,11 +222,11 @@ public class GetFileNamesIntIT {
     meta.setDefault();
 
     meta.allocate( 1 );
-    meta.setFileName( new String[]{ "${MY_FOLDER_PARAM}" } );
-    meta.setFileMask( new String[]{ ".*" } );
-    meta.setExcludeFileMask( new String[]{ "" } );
-    meta.setFileRequired( new String[]{ "Y" } );
-    meta.setIncludeSubFolders( new String[]{ "N" } );
+    meta.setFileName( new String[] { "${MY_FOLDER_PARAM}" } );
+    meta.setFileMask( new String[] { ".*" } );
+    meta.setExcludeFileMask( new String[] { "" } );
+    meta.setFileRequired( new String[] { "Y" } );
+    meta.setIncludeSubFolders( new String[] { "N" } );
     meta.setFilterFileType( 2 );
 
     TransMeta transMeta = TransTestFactory.generateTestTransformation( null, meta, STEPNAME );
@@ -262,11 +262,11 @@ public class GetFileNamesIntIT {
     meta.setDefault();
 
     meta.allocate( 1 );
-    meta.setFileName( new String[]{ "${MY_FOLDER_PARAM}" } );
-    meta.setFileMask( new String[]{ "" } );
-    meta.setExcludeFileMask( new String[]{ "" } );
-    meta.setFileRequired( new String[]{ "Y" } );
-    meta.setIncludeSubFolders( new String[]{ "N" } );
+    meta.setFileName( new String[] { "${MY_FOLDER_PARAM}" } );
+    meta.setFileMask( new String[] { "" } );
+    meta.setExcludeFileMask( new String[] { "" } );
+    meta.setFileRequired( new String[] { "Y" } );
+    meta.setIncludeSubFolders( new String[] { "N" } );
     meta.setFilterFileType( 2 );
 
     TransMeta transMeta = TransTestFactory.generateTestTransformation( null, meta, STEPNAME );

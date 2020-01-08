@@ -22,10 +22,9 @@
 
 package org.apache.hop.trans.steps.ssh;
 
-import java.io.CharArrayWriter;
-import java.io.InputStream;
-
 import com.google.common.annotations.VisibleForTesting;
+import com.trilead.ssh2.Connection;
+import com.trilead.ssh2.HTTPProxyData;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
@@ -38,13 +37,12 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 
-import com.trilead.ssh2.Connection;
-import com.trilead.ssh2.HTTPProxyData;
+import java.io.CharArrayWriter;
+import java.io.InputStream;
 
 /**
  * @author Samatar
  * @since 03-Juin-2008
- *
  */
 public class SSHData extends BaseStepData implements StepDataInterface {
   public int indexOfCommand;
@@ -71,8 +69,8 @@ public class SSHData extends BaseStepData implements StepDataInterface {
   }
 
   public static Connection OpenConnection( String serveur, int port, String username, String password,
-      boolean useKey, String keyFilename, String passPhrase, int timeOut, VariableSpace space, String proxyhost,
-      int proxyport, String proxyusername, String proxypassword ) throws HopException {
+                                           boolean useKey, String keyFilename, String passPhrase, int timeOut, VariableSpace space, String proxyhost,
+                                           int proxyport, String proxyusername, String proxypassword ) throws HopException {
     Connection conn = null;
     char[] content = null;
     boolean isAuthenticated = false;
@@ -140,7 +138,7 @@ public class SSHData extends BaseStepData implements StepDataInterface {
   }
 
   @VisibleForTesting
-   static Connection createConnection( String serveur, int port ) {
+  static Connection createConnection( String serveur, int port ) {
     return new Connection( serveur, port );
   }
 }

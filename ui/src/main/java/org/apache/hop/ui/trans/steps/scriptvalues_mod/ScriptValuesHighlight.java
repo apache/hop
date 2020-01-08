@@ -33,12 +33,6 @@
 
 package org.apache.hop.ui.trans.steps.scriptvalues_mod;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Vector;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.LineStyleEvent;
 import org.eclipse.swt.custom.LineStyleListener;
@@ -47,6 +41,12 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Vector;
 
 class ScriptValuesHighlight implements LineStyleListener {
   JavaScanner scanner = new JavaScanner();
@@ -84,21 +84,21 @@ class ScriptValuesHighlight implements LineStyleListener {
     if ( type < 0 || type >= tokenColors.length ) {
       return null;
     }
-    return colors[tokenColors[type]];
+    return colors[ tokenColors[ type ] ];
   }
 
   boolean inBlockComment( int start, int end ) {
     for ( int i = 0; i < blockComments.size(); i++ ) {
       int[] offsets = blockComments.elementAt( i );
       // start of comment in the line
-      if ( ( offsets[0] >= start ) && ( offsets[0] <= end ) ) {
+      if ( ( offsets[ 0 ] >= start ) && ( offsets[ 0 ] <= end ) ) {
         return true;
       }
       // end of comment in the line
-      if ( ( offsets[1] >= start ) && ( offsets[1] <= end ) ) {
+      if ( ( offsets[ 1 ] >= start ) && ( offsets[ 1 ] <= end ) ) {
         return true;
       }
-      if ( ( offsets[0] <= start ) && ( offsets[1] >= end ) ) {
+      if ( ( offsets[ 0 ] <= start ) && ( offsets[ 1 ] >= end ) ) {
         return true;
       }
     }
@@ -113,20 +113,20 @@ class ScriptValuesHighlight implements LineStyleListener {
       new Color( display, new RGB( 127, 0, 85 ) ), // blue
       new Color( display, new RGB( 255, 102, 0 ) ) // Hop Functions / Orange
     };
-    tokenColors = new int[MAXIMUM_TOKEN];
-    tokenColors[WORD] = 0;
-    tokenColors[WHITE] = 0;
-    tokenColors[KEY] = 3;
-    tokenColors[COMMENT] = 1;
-    tokenColors[STRING] = 2;
-    tokenColors[OTHER] = 0;
-    tokenColors[NUMBER] = 0;
-    tokenColors[FUNCTIONS] = 4;
+    tokenColors = new int[ MAXIMUM_TOKEN ];
+    tokenColors[ WORD ] = 0;
+    tokenColors[ WHITE ] = 0;
+    tokenColors[ KEY ] = 3;
+    tokenColors[ COMMENT ] = 1;
+    tokenColors[ STRING ] = 2;
+    tokenColors[ OTHER ] = 0;
+    tokenColors[ NUMBER ] = 0;
+    tokenColors[ FUNCTIONS ] = 4;
   }
 
   void disposeColors() {
     for ( int i = 0; i < colors.length; i++ ) {
-      colors[i].dispose();
+      colors[ i ].dispose();
     }
   }
 
@@ -140,8 +140,8 @@ class ScriptValuesHighlight implements LineStyleListener {
     StyleRange lastStyle;
 
     if ( inBlockComment( event.lineOffset, event.lineOffset + event.lineText.length() ) ) {
-      styles.addElement( new StyleRange( event.lineOffset, event.lineText.length() + 4, colors[2], null ) );
-      event.styles = new StyleRange[styles.size()];
+      styles.addElement( new StyleRange( event.lineOffset, event.lineText.length() + 4, colors[ 2 ], null ) );
+      event.styles = new StyleRange[ styles.size() ];
       styles.copyInto( event.styles );
       return;
     }
@@ -165,7 +165,7 @@ class ScriptValuesHighlight implements LineStyleListener {
           }
         } else {
           Color color = getColor( token );
-          if ( color != colors[0] ) { // hardcoded default foreground color, black
+          if ( color != colors[ 0 ] ) { // hardcoded default foreground color, black
             StyleRange style =
               new StyleRange( scanner.getStartOffset() + event.lineOffset, scanner.getLength(), color, null );
             if ( token == KEY ) {
@@ -186,7 +186,7 @@ class ScriptValuesHighlight implements LineStyleListener {
       }
       token = scanner.nextToken();
     }
-    event.styles = new StyleRange[styles.size()];
+    event.styles = new StyleRange[ styles.size() ];
     styles.copyInto( event.styles );
   }
 
@@ -196,7 +196,7 @@ class ScriptValuesHighlight implements LineStyleListener {
     int ch;
     boolean blkComment = false;
     int cnt = 0;
-    int[] offsets = new int[2];
+    int[] offsets = new int[ 2 ];
     boolean done = false;
 
     try {
@@ -204,7 +204,7 @@ class ScriptValuesHighlight implements LineStyleListener {
         switch ( ch = buffer.read() ) {
           case -1: {
             if ( blkComment ) {
-              offsets[1] = cnt;
+              offsets[ 1 ] = cnt;
               blockComments.addElement( offsets );
             }
             done = true;
@@ -213,8 +213,8 @@ class ScriptValuesHighlight implements LineStyleListener {
           case '/': {
             ch = buffer.read();
             if ( ( ch == '*' ) && ( !blkComment ) ) {
-              offsets = new int[2];
-              offsets[0] = cnt;
+              offsets = new int[ 2 ];
+              offsets[ 0 ] = cnt;
               blkComment = true;
               cnt++;
             } else {
@@ -229,7 +229,7 @@ class ScriptValuesHighlight implements LineStyleListener {
               cnt++;
               if ( ch == '/' ) {
                 blkComment = false;
-                offsets[1] = cnt;
+                offsets[ 1 ] = cnt;
                 blockComments.addElement( offsets );
               }
             }
@@ -290,7 +290,7 @@ class ScriptValuesHighlight implements LineStyleListener {
       fgKeys = new Hashtable<String, Integer>();
       Integer k = Integer.valueOf( KEY );
       for ( int i = 0; i < fgKeywords.length; i++ ) {
-        fgKeys.put( fgKeywords[i], k );
+        fgKeys.put( fgKeywords[ i ], k );
       }
     }
 
@@ -302,7 +302,7 @@ class ScriptValuesHighlight implements LineStyleListener {
       kfKeys = new Hashtable<String, Integer>();
       Integer k = Integer.valueOf( FUNCTIONS );
       for ( int i = 0; i < kfKeywords.length; i++ ) {
-        kfKeys.put( kfKeywords[i], k );
+        kfKeys.put( kfKeywords[ i ], k );
       }
     }
 
@@ -338,7 +338,7 @@ class ScriptValuesHighlight implements LineStyleListener {
             }
             return OTHER;
           case '\'': // char const
-            for ( ;; ) {
+            for ( ; ; ) {
               c = read();
               switch ( c ) {
                 case '\'':
@@ -355,7 +355,7 @@ class ScriptValuesHighlight implements LineStyleListener {
             }
 
           case '"': // string
-            for ( ;; ) {
+            for ( ; ; ) {
               c = read();
               switch ( c ) {
                 case '"':

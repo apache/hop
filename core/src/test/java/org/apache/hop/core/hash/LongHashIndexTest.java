@@ -22,15 +22,15 @@
 
 package org.apache.hop.core.hash;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopValueException;
+import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 /**
- * 
  * Test class for the basic functionality of LongHashIndex.
- * 
  */
 public class LongHashIndexTest {
 

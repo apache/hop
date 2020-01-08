@@ -21,11 +21,11 @@
  ******************************************************************************/
 package org.apache.hop.kitchen;
 
+import org.apache.hop.base.CommandExecutorCodes;
+import org.apache.hop.core.Result;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.apache.hop.base.CommandExecutorCodes;
-import org.apache.hop.core.Result;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -35,10 +35,10 @@ import java.io.PrintStream;
 import java.security.Permission;
 import java.util.UUID;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 
 public class KitchenIT {
 
@@ -53,7 +53,7 @@ public class KitchenIT {
   private static final String JOB_EXEC_RESULT_TRUE = "(result=[true])";
   private static final String FAILED_JOB_EXEC_PATTERN = "Finished with errors";
 
-  private static final String BASE_PATH = "." +  File.separator + "test_kjbs" + File.separator;
+  private static final String BASE_PATH = "." + File.separator + "test_kjbs" + File.separator;
   private static final String EXPECTED_COMPLETE_WITH_SUCCESS_PATH = BASE_PATH + "expected_complete_with_success";
   private static final String EXPECTED_COMPLETE_WITH_FAILURE_PATH = BASE_PATH + "expected_complete_with_failure";
   private static final String EXPECTED_PARAMS_PASSED_ALONG = BASE_PATH + "expected_params_passed_along";
@@ -132,7 +132,7 @@ public class KitchenIT {
 
       try {
 
-        Kitchen.main( new String[]{ "/file:" + testKJBFullPath, "/level:Basic", "/logfile:" + logFileFullPath } );
+        Kitchen.main( new String[] { "/file:" + testKJBFullPath, "/level:Basic", "/logfile:" + logFileFullPath } );
 
       } catch ( SecurityException e ) {
         // All OK / expected: SecurityException is purposely thrown when Kitchen triggers System.exitJVM()
@@ -171,7 +171,7 @@ public class KitchenIT {
 
       try {
 
-        Kitchen.main( new String[]{ "/file:" + testKJBFullPath, "/level:Basic", "/logfile:" + logFileFullPath } );
+        Kitchen.main( new String[] { "/file:" + testKJBFullPath, "/level:Basic", "/logfile:" + logFileFullPath } );
 
       } catch ( SecurityException e ) {
         // All OK / expected: SecurityException is purposely thrown when Kitchen triggers System.exitJVM()
@@ -253,7 +253,7 @@ public class KitchenIT {
 
     try {
       BufferedReader rd = new BufferedReader(
-              new InputStreamReader( this.getClass().getResourceAsStream( relativePath ) ) );
+        new InputStreamReader( this.getClass().getResourceAsStream( relativePath ) ) );
       StringBuffer logFileContentBuffer = new StringBuffer();
       String line = "";
       while ( ( line = rd.readLine() ) != null ) {

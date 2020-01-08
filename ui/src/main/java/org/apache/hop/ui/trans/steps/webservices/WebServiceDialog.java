@@ -22,18 +22,37 @@
 
 package org.apache.hop.ui.trans.steps.webservices;
 
-import java.io.File;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-
-import javax.xml.namespace.QName;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMeta;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.steps.webservices.WebServiceField;
+import org.apache.hop.trans.steps.webservices.WebServiceMeta;
+import org.apache.hop.trans.steps.webservices.wsdl.ComplexType;
+import org.apache.hop.trans.steps.webservices.wsdl.Wsdl;
+import org.apache.hop.trans.steps.webservices.wsdl.WsdlOpParameter;
+import org.apache.hop.trans.steps.webservices.wsdl.WsdlOpParameter.ParameterMode;
+import org.apache.hop.trans.steps.webservices.wsdl.WsdlOpParameterContainer;
+import org.apache.hop.trans.steps.webservices.wsdl.WsdlOpParameterList;
+import org.apache.hop.trans.steps.webservices.wsdl.WsdlOperation;
+import org.apache.hop.trans.steps.webservices.wsdl.WsdlOperationContainer;
+import org.apache.hop.trans.steps.webservices.wsdl.WsdlParamContainer;
+import org.apache.hop.trans.steps.webservices.wsdl.XsdType;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -59,37 +78,17 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopStepException;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.trans.steps.webservices.WebServiceField;
-import org.apache.hop.trans.steps.webservices.WebServiceMeta;
-import org.apache.hop.trans.steps.webservices.wsdl.ComplexType;
-import org.apache.hop.trans.steps.webservices.wsdl.Wsdl;
-import org.apache.hop.trans.steps.webservices.wsdl.WsdlOpParameter;
-import org.apache.hop.trans.steps.webservices.wsdl.WsdlOpParameter.ParameterMode;
-import org.apache.hop.trans.steps.webservices.wsdl.WsdlOpParameterContainer;
-import org.apache.hop.trans.steps.webservices.wsdl.WsdlOpParameterList;
-import org.apache.hop.trans.steps.webservices.wsdl.WsdlOperation;
-import org.apache.hop.trans.steps.webservices.wsdl.WsdlOperationContainer;
-import org.apache.hop.trans.steps.webservices.wsdl.WsdlParamContainer;
-import org.apache.hop.trans.steps.webservices.wsdl.XsdType;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.PasswordTextVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import javax.xml.namespace.QName;
+import java.io.File;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 
 public class WebServiceDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = WebServiceMeta.class; // for i18n purposes, needed by Translator2!!
@@ -136,22 +135,34 @@ public class WebServiceDialog extends BaseStepDialog implements StepDialogInterf
   private Label wlProxyPort;
   private TextVar wProxyPort;
 
-  /** The input fields */
+  /**
+   * The input fields
+   */
   private TableView fieldInTableView;
 
-  /** The output fields */
+  /**
+   * The output fields
+   */
   private TableView fieldOutTableView;
 
-  /** Web service tab item */
+  /**
+   * Web service tab item
+   */
   private CTabItem tabItemWebService;
 
-  /** input fields tab item */
+  /**
+   * input fields tab item
+   */
   private CTabItem tabItemFieldIn;
 
-  /** output fields tab item */
+  /**
+   * output fields tab item
+   */
   private CTabItem tabItemFieldOut;
 
-  /** WSDL */
+  /**
+   * WSDL
+   */
   private Wsdl wsdl;
 
   private WsdlOperation wsdlOperation;
@@ -210,8 +221,8 @@ public class WebServiceDialog extends BaseStepDialog implements StepDialogInterf
       wsdl = null;
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "WebServiceDialog.ERROR0009.UnreachableURI" ), BaseMessages
-          .getString( PKG, "WebServiceDialog.ErrorDialog.Title" )
-          + anURI, e );
+        .getString( PKG, "WebServiceDialog.ErrorDialog.Title" )
+        + anURI, e );
 
       log.logError( BaseMessages.getString( PKG, "WebServiceDialog.ErrorDialog.Title" ) + anURI, e.getMessage() );
       return;
@@ -346,7 +357,6 @@ public class WebServiceDialog extends BaseStepDialog implements StepDialogInterf
    * Initialization of the tree: - construction using the URL of the WS - add selection listeners to the tree
    *
    * @throws HopException
-   *
    */
   private void initTreeTabWebService( String anURI ) throws HopException {
     String text = wOperation.getText();
@@ -420,11 +430,11 @@ public class WebServiceDialog extends BaseStepDialog implements StepDialogInterf
         if ( inWsdlParamContainer != null ) {
           TableItem[] items = fieldInTableView.table.getItems();
           for ( int i = 0; i < items.length; i++ ) {
-            String type = inWsdlParamContainer.getParamType( items[i].getText( 2 ) );
+            String type = inWsdlParamContainer.getParamType( items[ i ].getText( 2 ) );
             if ( type != null ) {
-              items[i].setText( 3, type );
+              items[ i ].setText( 3, type );
             } else {
-              items[i].dispose();
+              items[ i ].dispose();
             }
           }
         }
@@ -484,8 +494,8 @@ public class WebServiceDialog extends BaseStepDialog implements StepDialogInterf
 
     String ret = null;
     for ( int i = 0; i < items.length && ret == null; i++ ) {
-      if ( items[i].getText( 2 ).equals( wsName ) ) {
-        ret = items[i].getText( 1 );
+      if ( items[ i ].getText( 2 ).equals( wsName ) ) {
+        ret = items[ i ].getText( 1 );
       }
     }
     return ret;
@@ -548,7 +558,7 @@ public class WebServiceDialog extends BaseStepDialog implements StepDialogInterf
         if ( outWsdlParamContainer != null ) {
           TableItem[] items = fieldOutTableView.table.getItems();
           for ( int i = 0; i < items.length; i++ ) {
-            items[i].setText( 3, outWsdlParamContainer.getParamType( items[i].getText( 2 ) ) );
+            items[ i ].setText( 3, outWsdlParamContainer.getParamType( items[ i ].getText( 2 ) ) );
           }
         }
       }
@@ -608,8 +618,8 @@ public class WebServiceDialog extends BaseStepDialog implements StepDialogInterf
       // If we have already saved fields mapping, we only show these mappings
       for ( int cpt = 0; cpt < params.length; cpt++ ) {
         ValueMetaInterface value =
-          new ValueMeta( params[cpt], XsdType.xsdTypeToHopType( inWsdlParamContainer
-            .getParamType( params[cpt] ) ) );
+          new ValueMeta( params[ cpt ], XsdType.xsdTypeToHopType( inWsdlParamContainer
+            .getParamType( params[ cpt ] ) ) );
         r.addValueMeta( value );
       }
     }
@@ -624,8 +634,8 @@ public class WebServiceDialog extends BaseStepDialog implements StepDialogInterf
       // If we have already saved fields mapping, we only show these mappings
       for ( int cpt = 0; cpt < outParams.length; cpt++ ) {
         ValueMetaInterface value =
-          new ValueMeta( outParams[cpt], XsdType.xsdTypeToHopType( outWsdlParamContainer
-            .getParamType( outParams[cpt] ) ) );
+          new ValueMeta( outParams[ cpt ], XsdType.xsdTypeToHopType( outWsdlParamContainer
+            .getParamType( outParams[ cpt ] ) ) );
         r.addValueMeta( value );
       }
     }
@@ -698,7 +708,6 @@ public class WebServiceDialog extends BaseStepDialog implements StepDialogInterf
 
   /**
    * Save the data and close the dialog
-   *
    */
   private void getInfo( WebServiceMeta webServiceMeta ) {
     webServiceMeta.setUrl( wURL.getText() );

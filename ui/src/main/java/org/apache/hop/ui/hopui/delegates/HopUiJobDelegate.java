@@ -23,19 +23,9 @@
 package org.apache.hop.ui.hopui.delegates;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.hop.ui.hopui.HopUi;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.jface.wizard.WizardDialog;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.Point;
@@ -43,7 +33,6 @@ import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.plugins.JobEntryPluginType;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.StepPluginType;
 import org.apache.hop.core.undo.TransAction;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
@@ -53,29 +42,25 @@ import org.apache.hop.job.JobExecutionConfiguration;
 import org.apache.hop.job.JobHopMeta;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.special.JobEntrySpecial;
-import org.apache.hop.job.entries.sql.JobEntrySQL;
-import org.apache.hop.job.entries.trans.JobEntryTrans;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.trans.TransHopMeta;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.tableinput.TableInputMeta;
-import org.apache.hop.trans.steps.tableoutput.TableOutputMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.job.dialog.JobExecutionConfigurationDialog;
+import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.hopui.TabMapEntry;
 import org.apache.hop.ui.hopui.TabMapEntry.ObjectType;
 import org.apache.hop.ui.hopui.job.JobGraph;
+import org.apache.hop.ui.job.dialog.JobExecutionConfigurationDialog;
 import org.apache.xul.swt.tab.TabItem;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -124,7 +109,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
 
         // Generate the appropriate class...
         JobEntryInterface jei = (JobEntryInterface) registry.loadClass( jobPlugin );
-        jei.setPluginId( jobPlugin.getIds()[0] );
+        jei.setPluginId( jobPlugin.getIds()[ 0 ] );
         jei.setName( entry_name );
 
         if ( jei.isSpecial() ) {
@@ -257,15 +242,15 @@ public class HopUiJobDelegate extends HopUiDelegate {
 
     // Hops belonging to the deleting jobEntries are placed in a single transaction and removed.
     List<JobHopMeta> jobHops = new ArrayList<>();
-    int[] hopIndexes = new int[job.nrJobHops()];
+    int[] hopIndexes = new int[ job.nrJobHops() ];
     int hopIndex = 0;
     for ( int i = job.nrJobHops() - 1; i >= 0; i-- ) {
       JobHopMeta hi = job.getJobHop( i );
       for ( int j = 0; j < jobEntries.length && hopIndex < hopIndexes.length; j++ ) {
-        if ( hi.getFromEntry().equals( jobEntries[j] ) || hi.getToEntry().equals( jobEntries[j] ) ) {
+        if ( hi.getFromEntry().equals( jobEntries[ j ] ) || hi.getToEntry().equals( jobEntries[ j ] ) ) {
           int idx = job.indexOfJobHop( hi );
           jobHops.add( (JobHopMeta) hi.clone() );
-          hopIndexes[hopIndex] = idx;
+          hopIndexes[ hopIndex ] = idx;
           job.removeJobHop( idx );
           hopUi.refreshTree();
           hopIndex++;
@@ -274,16 +259,16 @@ public class HopUiJobDelegate extends HopUiDelegate {
       }
     }
     if ( !jobHops.isEmpty() ) {
-      JobHopMeta[] hops = jobHops.toArray( new JobHopMeta[jobHops.size()] );
+      JobHopMeta[] hops = jobHops.toArray( new JobHopMeta[ jobHops.size() ] );
       hopUi.addUndoDelete( job, hops, hopIndexes );
     }
 
     // Deleting jobEntries are placed all in a single transaction and removed.
-    int[] positions = new int[jobEntries.length];
+    int[] positions = new int[ jobEntries.length ];
     for ( int i = 0; i < jobEntries.length; i++ ) {
-      int pos = job.indexOfJobEntry( jobEntries[i] );
+      int pos = job.indexOfJobEntry( jobEntries[ i ] );
       job.removeJobEntry( pos );
-      positions[i] = pos;
+      positions[ i ] = pos;
     }
     hopUi.addUndoDelete( job, jobEntries, positions );
 
@@ -371,7 +356,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
 
       for ( int i = 0; i < nr; i++ ) {
         Node entrynode = XMLHandler.getSubNodeByNr( entriesnode, "entry", i );
-        JobEntryCopy copy = new JobEntryCopy( entrynode, jobMeta.getSlaveServers(), hopUi.getMetaStore() );
+        JobEntryCopy copy = new JobEntryCopy( entrynode, hopUi.getMetaStore() );
         if ( copy.isStart() && ( jobMeta.findStart() != null ) ) {
           JobGraph.showOnlyStartOnceMessage( hopUi.getShell() );
           continue;
@@ -400,18 +385,18 @@ public class HopUiJobDelegate extends HopUiDelegate {
       Point offset = new Point( loc.x - min.x, loc.y - min.y );
 
       // Undo/redo object positions...
-      int[] position = new int[entries.length];
+      int[] position = new int[ entries.length ];
 
       for ( int i = 0; i < entries.length; i++ ) {
-        Point p = entries[i].getLocation();
-        String name = entries[i].getName();
+        Point p = entries[ i ].getLocation();
+        String name = entries[ i ].getName();
 
-        entries[i].setLocation( p.x + offset.x, p.y + offset.y );
+        entries[ i ].setLocation( p.x + offset.x, p.y + offset.y );
 
         // Check the name, find alternative...
-        entries[i].setName( jobMeta.getAlternativeJobentryName( name ) );
-        jobMeta.addJobEntry( entries[i] );
-        position[i] = jobMeta.indexOfJobEntry( entries[i] );
+        entries[ i ].setName( jobMeta.getAlternativeJobentryName( name ) );
+        jobMeta.addJobEntry( entries[ i ] );
+        position[ i ] = jobMeta.indexOfJobEntry( entries[ i ] );
       }
 
       // Save undo information too...
@@ -472,8 +457,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
   /**
    * Add a job to the job map
    *
-   * @param jobMeta
-   *          the job to add to the map
+   * @param jobMeta the job to add to the map
    * @return true if the job was added
    */
   public boolean addJob( JobMeta jobMeta ) {
@@ -494,8 +478,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
   }
 
   /**
-   * @param jobMeta
-   *          the transformation to close, make sure it's ok to dispose of it BEFORE you call this.
+   * @param jobMeta the transformation to close, make sure it's ok to dispose of it BEFORE you call this.
    */
   public void closeJob( JobMeta jobMeta ) {
     // Close the associated tabs...
@@ -655,20 +638,20 @@ public class HopUiJobDelegate extends HopUiDelegate {
   }
 
   public JobMeta[] getLoadedJobs() {
-    return jobMap.toArray( new JobMeta[jobMap.size()] );
+    return jobMap.toArray( new JobMeta[ jobMap.size() ] );
   }
 
   public void redoJobAction( JobMeta jobMeta, TransAction transAction ) {
     switch ( transAction.getType() ) {
-    //
-    // NEW
-    //
+      //
+      // NEW
+      //
       case TransAction.TYPE_ACTION_NEW_JOB_ENTRY:
         // re-delete the entry at correct location:
         JobEntryCopy[] si = (JobEntryCopy[]) transAction.getCurrent();
         int[] idx = transAction.getCurrentIndex();
         for ( int i = 0; i < idx.length; i++ ) {
-          jobMeta.addJobEntry( idx[i], si[i] );
+          jobMeta.addJobEntry( idx[ i ], si[ i ] );
         }
         hopUi.refreshTree();
         hopUi.refreshGraph();
@@ -679,7 +662,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         NotePadMeta[] ni = (NotePadMeta[]) transAction.getCurrent();
         idx = transAction.getCurrentIndex();
         for ( int i = 0; i < idx.length; i++ ) {
-          jobMeta.addNote( idx[i], ni[i] );
+          jobMeta.addNote( idx[ i ], ni[ i ] );
         }
         hopUi.refreshTree();
         hopUi.refreshGraph();
@@ -690,7 +673,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         JobHopMeta[] hi = (JobHopMeta[]) transAction.getCurrent();
         idx = transAction.getCurrentIndex();
         for ( int i = 0; i < idx.length; i++ ) {
-          jobMeta.addJobHop( idx[i], hi[i] );
+          jobMeta.addJobHop( idx[ i ], hi[ i ] );
         }
         hopUi.refreshTree();
         hopUi.refreshGraph();
@@ -703,7 +686,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         // re-remove the entry at correct location:
         idx = transAction.getCurrentIndex();
         for ( int i = idx.length - 1; i >= 0; i-- ) {
-          jobMeta.removeJobEntry( idx[i] );
+          jobMeta.removeJobEntry( idx[ i ] );
         }
         hopUi.refreshTree();
         hopUi.refreshGraph();
@@ -713,7 +696,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         // re-remove the note at correct location:
         idx = transAction.getCurrentIndex();
         for ( int i = idx.length - 1; i >= 0; i-- ) {
-          jobMeta.removeNote( idx[i] );
+          jobMeta.removeNote( idx[ i ] );
         }
         hopUi.refreshTree();
         hopUi.refreshGraph();
@@ -723,7 +706,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         // re-remove the hop at correct location:
         idx = transAction.getCurrentIndex();
         for ( int i = idx.length - 1; i >= 0; i-- ) {
-          jobMeta.removeJobHop( idx[i] );
+          jobMeta.removeJobHop( idx[ i ] );
         }
         hopUi.refreshTree();
         hopUi.refreshGraph();
@@ -737,8 +720,8 @@ public class HopUiJobDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_CHANGE_JOB_ENTRY:
         // replace with "current" version.
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          JobEntryCopy copy = (JobEntryCopy) ( (JobEntryCopy) ( transAction.getCurrent()[i] ) ).clone_deep();
-          jobMeta.getJobEntry( transAction.getCurrentIndex()[i] ).replaceMeta( copy );
+          JobEntryCopy copy = (JobEntryCopy) ( (JobEntryCopy) ( transAction.getCurrent()[ i ] ) ).clone_deep();
+          jobMeta.getJobEntry( transAction.getCurrentIndex()[ i ] ).replaceMeta( copy );
         }
         hopUi.refreshTree();
         hopUi.refreshGraph();
@@ -751,8 +734,8 @@ public class HopUiJobDelegate extends HopUiDelegate {
         idx = transAction.getCurrentIndex();
 
         for ( int i = 0; i < idx.length; i++ ) {
-          jobMeta.removeNote( idx[i] );
-          jobMeta.addNote( idx[i], ni[i] );
+          jobMeta.removeNote( idx[ i ] );
+          jobMeta.addNote( idx[ i ], ni[ i ] );
         }
         hopUi.refreshTree();
         hopUi.refreshGraph();
@@ -765,8 +748,8 @@ public class HopUiJobDelegate extends HopUiDelegate {
         idx = transAction.getCurrentIndex();
 
         for ( int i = 0; i < idx.length; i++ ) {
-          jobMeta.removeJobHop( idx[i] );
-          jobMeta.addJobHop( idx[i], hi[i] );
+          jobMeta.removeJobHop( idx[ i ] );
+          jobMeta.addJobHop( idx[ i ], hi[ i ] );
         }
         hopUi.refreshTree();
         hopUi.refreshGraph();
@@ -780,8 +763,8 @@ public class HopUiJobDelegate extends HopUiDelegate {
         idx = transAction.getCurrentIndex();
         Point[] p = transAction.getCurrentLocation();
         for ( int i = 0; i < p.length; i++ ) {
-          JobEntryCopy entry = jobMeta.getJobEntry( idx[i] );
-          entry.setLocation( p[i] );
+          JobEntryCopy entry = jobMeta.getJobEntry( idx[ i ] );
+          entry.setLocation( p[ i ] );
         }
         hopUi.refreshGraph();
         break;
@@ -790,8 +773,8 @@ public class HopUiJobDelegate extends HopUiDelegate {
         idx = transAction.getCurrentIndex();
         Point[] curr = transAction.getCurrentLocation();
         for ( int i = 0; i < idx.length; i++ ) {
-          NotePadMeta npi = jobMeta.getNote( idx[i] );
-          npi.setLocation( curr[i] );
+          NotePadMeta npi = jobMeta.getNote( idx[ i ] );
+          npi.setLocation( curr[ i ] );
         }
         hopUi.refreshGraph();
         break;
@@ -803,12 +786,12 @@ public class HopUiJobDelegate extends HopUiDelegate {
 
   public void undoJobAction( JobMeta jobMeta, TransAction transAction ) {
     switch ( transAction.getType() ) {
-    // We created a new entry : undo this...
+      // We created a new entry : undo this...
       case TransAction.TYPE_ACTION_NEW_JOB_ENTRY:
         // Delete the entry at correct location:
         int[] idx = transAction.getCurrentIndex();
         for ( int i = idx.length - 1; i >= 0; i-- ) {
-          jobMeta.removeJobEntry( idx[i] );
+          jobMeta.removeJobEntry( idx[ i ] );
         }
         hopUi.refreshTree();
         hopUi.refreshGraph();
@@ -819,7 +802,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         // Delete the note at correct location:
         idx = transAction.getCurrentIndex();
         for ( int i = idx.length - 1; i >= 0; i-- ) {
-          jobMeta.removeNote( idx[i] );
+          jobMeta.removeNote( idx[ i ] );
         }
         hopUi.refreshTree();
         hopUi.refreshGraph();
@@ -830,7 +813,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         // Delete the hop at correct location:
         idx = transAction.getCurrentIndex();
         for ( int i = idx.length - 1; i >= 0; i-- ) {
-          jobMeta.removeJobHop( idx[i] );
+          jobMeta.removeJobHop( idx[ i ] );
         }
         hopUi.refreshTree();
         hopUi.refreshGraph();
@@ -846,7 +829,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         JobEntryCopy[] ce = (JobEntryCopy[]) transAction.getCurrent();
         idx = transAction.getCurrentIndex();
         for ( int i = 0; i < ce.length; i++ ) {
-          jobMeta.addJobEntry( idx[i], ce[i] );
+          jobMeta.addJobEntry( idx[ i ], ce[ i ] );
         }
         hopUi.refreshTree();
         hopUi.refreshGraph();
@@ -858,7 +841,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         NotePadMeta[] ni = (NotePadMeta[]) transAction.getCurrent();
         idx = transAction.getCurrentIndex();
         for ( int i = 0; i < idx.length; i++ ) {
-          jobMeta.addNote( idx[i], ni[i] );
+          jobMeta.addNote( idx[ i ], ni[ i ] );
         }
         hopUi.refreshTree();
         hopUi.refreshGraph();
@@ -870,7 +853,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         JobHopMeta[] hi = (JobHopMeta[]) transAction.getCurrent();
         idx = transAction.getCurrentIndex();
         for ( int i = 0; i < hi.length; i++ ) {
-          jobMeta.addJobHop( idx[i], hi[i] );
+          jobMeta.addJobHop( idx[ i ], hi[ i ] );
         }
         hopUi.refreshTree();
         hopUi.refreshGraph();
@@ -884,8 +867,8 @@ public class HopUiJobDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_CHANGE_JOB_ENTRY:
         // Delete the current job entry, insert previous version.
         for ( int i = 0; i < transAction.getPrevious().length; i++ ) {
-          JobEntryCopy copy = (JobEntryCopy) ( (JobEntryCopy) transAction.getPrevious()[i] ).clone();
-          jobMeta.getJobEntry( transAction.getCurrentIndex()[i] ).replaceMeta( copy );
+          JobEntryCopy copy = (JobEntryCopy) ( (JobEntryCopy) transAction.getPrevious()[ i ] ).clone();
+          jobMeta.getJobEntry( transAction.getCurrentIndex()[ i ] ).replaceMeta( copy );
 
         }
         hopUi.refreshTree();
@@ -898,8 +881,8 @@ public class HopUiJobDelegate extends HopUiDelegate {
         NotePadMeta[] prev = (NotePadMeta[]) transAction.getPrevious();
         idx = transAction.getCurrentIndex();
         for ( int i = 0; i < idx.length; i++ ) {
-          jobMeta.removeNote( idx[i] );
-          jobMeta.addNote( idx[i], prev[i] );
+          jobMeta.removeNote( idx[ i ] );
+          jobMeta.addNote( idx[ i ], prev[ i ] );
         }
         hopUi.refreshTree();
         hopUi.refreshGraph();
@@ -911,8 +894,8 @@ public class HopUiJobDelegate extends HopUiDelegate {
         JobHopMeta[] prevHops = (JobHopMeta[]) transAction.getPrevious();
         idx = transAction.getCurrentIndex();
         for ( int i = 0; i < idx.length; i++ ) {
-          jobMeta.removeJobHop( idx[i] );
-          jobMeta.addJobHop( idx[i], prevHops[i] );
+          jobMeta.removeJobHop( idx[ i ] );
+          jobMeta.addJobHop( idx[ i ], prevHops[ i ] );
         }
         hopUi.refreshTree();
         hopUi.refreshGraph();
@@ -928,8 +911,8 @@ public class HopUiJobDelegate extends HopUiDelegate {
         idx = transAction.getCurrentIndex();
         Point[] p = transAction.getPreviousLocation();
         for ( int i = 0; i < p.length; i++ ) {
-          JobEntryCopy entry = jobMeta.getJobEntry( idx[i] );
-          entry.setLocation( p[i] );
+          JobEntryCopy entry = jobMeta.getJobEntry( idx[ i ] );
+          entry.setLocation( p[ i ] );
         }
         hopUi.refreshGraph();
         break;
@@ -939,8 +922,8 @@ public class HopUiJobDelegate extends HopUiDelegate {
         idx = transAction.getCurrentIndex();
         Point[] prevLoc = transAction.getPreviousLocation();
         for ( int i = 0; i < idx.length; i++ ) {
-          NotePadMeta npi = jobMeta.getNote( idx[i] );
-          npi.setLocation( prevLoc[i] );
+          NotePadMeta npi = jobMeta.getNote( idx[ i ] );
+          npi.setLocation( prevLoc[ i ] );
         }
         hopUi.refreshGraph();
         break;
@@ -951,7 +934,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
   }
 
   public void executeJob( JobMeta jobMeta, boolean local, boolean remote, Date replayDate, boolean safe,
-    String startCopyName, int startCopyNr ) throws HopException {
+                          String startCopyName, int startCopyNr ) throws HopException {
 
     if ( jobMeta == null ) {
       return;
@@ -965,7 +948,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
     String[] fields = hopUi.variables.getRowMeta().getFieldNames();
     Map<String, String> variableMap = new HashMap<>();
     for ( int idx = 0; idx < fields.length; idx++ ) {
-      variableMap.put( fields[idx], data[idx].toString() );
+      variableMap.put( fields[ idx ], data[ idx ].toString() );
     }
 
     executionConfiguration.setVariables( variableMap );
@@ -1020,7 +1003,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
 
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiJobMetaExecutionStart.id, jobMeta );
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiJobExecutionConfiguration.id,
-          executionConfiguration );
+        executionConfiguration );
 
       try {
         ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiTransBeforeStart.id, new Object[] {

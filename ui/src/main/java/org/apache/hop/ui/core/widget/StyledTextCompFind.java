@@ -22,6 +22,9 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.gui.GUIResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ModifyEvent;
@@ -39,9 +42,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.gui.GUIResource;
 
 public class StyledTextCompFind extends org.eclipse.swt.widgets.Dialog {
   private static Class<?> PKG = StyledTextCompFind.class; // for i18n purposes, needed by Translator2!!

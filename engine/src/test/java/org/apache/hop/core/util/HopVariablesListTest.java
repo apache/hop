@@ -22,16 +22,16 @@
 
 package org.apache.hop.core.util;
 
-import org.junit.Test;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopVariablesList;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Created by Yury_Bakhmutski on 11/4/2015.
@@ -47,8 +47,8 @@ public class HopVariablesListTest {
     assertEquals( false, actual );
 
     String vfsUserDirIsRootDefaultMessage =
-        "Set this variable to true if VFS should treat the user directory"
-            + " as the root directory when connecting via ftp. Defaults to false.";
+      "Set this variable to true if VFS should treat the user directory"
+        + " as the root directory when connecting via ftp. Defaults to false.";
     assertEquals( variablesList.getDescriptionMap().get( Const.VFS_USER_DIR_IS_ROOT ), vfsUserDirIsRootDefaultMessage );
   }
 

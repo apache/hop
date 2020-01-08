@@ -22,6 +22,20 @@
 
 package org.apache.hop;
 
+import junit.framework.ComparisonFailure;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
+import org.apache.hop.trans.steps.injector.InjectorMeta;
+import org.apache.hop.trans.steps.sort.SortRowsMeta;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
@@ -33,21 +47,6 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-
-import junit.framework.ComparisonFailure;
-
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.StepPluginType;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
-import org.apache.hop.trans.steps.injector.InjectorMeta;
-import org.apache.hop.trans.steps.sort.SortRowsMeta;
 
 public class TestUtilities {
 
@@ -89,7 +88,6 @@ public class TestUtilities {
     checkRows( rows1, rows2, -1 );
   }
 
-  
 
   /**
    * Check the 2 lists comparing the rows in order. If they are not the same fail the test.
@@ -133,8 +131,8 @@ public class TestUtilities {
         }
         if ( rowMetaAndData1.getRowMeta().compare( rowObject1, rowObject2, fields ) != 0 ) {
           throw new ComparisonFailure( "row nr " + idx + " is not equal",
-          rowMetaInterface1.getString( rowObject1 ),
-          rowMetaInterface1.getString( rowObject2 ) ); 
+            rowMetaInterface1.getString( rowObject1 ),
+            rowMetaInterface1.getString( rowObject2 ) );
         }
       } catch ( HopValueException e ) {
         throw new TestFailedException( "row nr " + idx + " is not equal" );
@@ -355,7 +353,7 @@ public class TestUtilities {
 
       for ( int i = 0; i < parameters.length; i += 2 ) {
         Object parameter = parameters[ i ];
-        Object value = parameters[i + 1];
+        Object value = parameters[ i + 1 ];
         trans.setParameterValue( parameter.toString(), value.toString() );
       }
     }

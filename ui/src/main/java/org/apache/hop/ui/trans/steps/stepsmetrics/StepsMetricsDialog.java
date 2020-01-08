@@ -22,9 +22,20 @@
 
 package org.apache.hop.ui.trans.steps.stepsmetrics;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.stepsmetrics.StepsMetrics;
+import org.apache.hop.trans.steps.stepsmetrics.StepsMetricsMeta;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -47,20 +58,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.stepsmetrics.StepsMetrics;
-import org.apache.hop.trans.steps.stepsmetrics.StepsMetricsMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class StepsMetricsDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = StepsMetrics.class; // for i18n purposes, needed by Translator2!!
@@ -206,20 +206,20 @@ public class StepsMetricsDialog extends BaseStepDialog implements StepDialogInte
     final int FieldsCols = 3;
     final int FieldsRows = input.getStepName().length;
 
-    ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
+    ColumnInfo[] colinf = new ColumnInfo[ FieldsCols ];
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StepsMetricsDialog.Fieldname.Step" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         previousSteps, false );
-    colinf[1] =
+    colinf[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StepsMetricsDialog.Fieldname.CopyNr" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    colinf[2] =
+    colinf[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StepsMetricsDialog.Required.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         YES_NO_COMBO );
-    colinf[1].setUsingVariables( true );
+    colinf[ 1 ].setUsingVariables( true );
     wFields =
       new TableView(
         transMeta, wGeneralComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
@@ -506,17 +506,17 @@ public class StepsMetricsDialog extends BaseStepDialog implements StepDialogInte
 
     List<String> entries = new ArrayList<String>();
     for ( int i = 0; i < previousSteps.length; i++ ) {
-      if ( !previousSteps[i].equals( stepname ) ) {
+      if ( !previousSteps[ i ].equals( stepname ) ) {
         if ( nextSteps != null ) {
           for ( int j = 0; j < nextSteps.length; j++ ) {
-            if ( !nextSteps[j].equals( previousSteps[i] ) ) {
-              entries.add( previousSteps[i] );
+            if ( !nextSteps[ j ].equals( previousSteps[ i ] ) ) {
+              entries.add( previousSteps[ i ] );
             }
           }
         }
       }
     }
-    previousSteps = entries.toArray( new String[entries.size()] );
+    previousSteps = entries.toArray( new String[ entries.size() ] );
   }
 
   private void get() {
@@ -526,7 +526,7 @@ public class StepsMetricsDialog extends BaseStepDialog implements StepDialogInte
     for ( int i = 0; i < previousSteps.length; i++ ) {
       TableItem ti = new TableItem( table, SWT.NONE );
       ti.setText( 0, "" + ( i + 1 ) );
-      ti.setText( 1, previousSteps[i] );
+      ti.setText( 1, previousSteps[ i ] );
       ti.setText( 2, "0" );
       ti.setText( 3, BaseMessages.getString( PKG, "System.Combo.No" ) );
     }
@@ -547,10 +547,10 @@ public class StepsMetricsDialog extends BaseStepDialog implements StepDialogInte
     for ( int i = 0; i < input.getStepName().length; i++ ) {
       TableItem ti = new TableItem( table, SWT.NONE );
       ti.setText( 0, "" + ( i + 1 ) );
-      if ( input.getStepName()[i] != null ) {
-        ti.setText( 1, input.getStepName()[i] );
-        ti.setText( 2, String.valueOf( Const.toInt( input.getStepCopyNr()[i], 0 ) ) );
-        ti.setText( 3, input.getRequiredStepsDesc( input.getStepRequired()[i] ) );
+      if ( input.getStepName()[ i ] != null ) {
+        ti.setText( 1, input.getStepName()[ i ] );
+        ti.setText( 2, String.valueOf( Const.toInt( input.getStepCopyNr()[ i ], 0 ) ) );
+        ti.setText( 3, input.getRequiredStepsDesc( input.getStepRequired()[ i ] ) );
       }
     }
 
@@ -614,9 +614,9 @@ public class StepsMetricsDialog extends BaseStepDialog implements StepDialogInte
       StepMeta tm = transMeta.findStep( ti.getText( 1 ) );
       //CHECKSTYLE:Indentation:OFF
       if ( tm != null ) {
-        in.getStepName()[i] = tm.getName();
-        in.getStepCopyNr()[i] = "" + Const.toInt( ti.getText( 2 ), 0 );
-        in.getStepRequired()[i] = in.getRequiredStepsCode( ti.getText( 3 ) );
+        in.getStepName()[ i ] = tm.getName();
+        in.getStepCopyNr()[ i ] = "" + Const.toInt( ti.getText( 2 ), 0 );
+        in.getStepRequired()[ i ] = in.getRequiredStepsCode( ti.getText( 3 ) );
       }
 
     }

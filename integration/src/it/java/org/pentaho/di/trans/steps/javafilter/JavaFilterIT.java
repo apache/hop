@@ -22,11 +22,6 @@
 
 package org.apache.hop.trans.steps.javafilter;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -35,6 +30,11 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransTestFactory;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
@@ -53,8 +53,8 @@ public class JavaFilterIT {
     List<RowMetaAndData> input = new ArrayList<RowMetaAndData>();
     RowMeta rm = new RowMeta();
     rm.addValueMeta( new ValueMetaString( fieldName ) );
-    input.add( new RowMetaAndData( rm, new Object[]{ "Car" } ) );
-    input.add( new RowMetaAndData( rm, new Object[]{ "Bus" } ) );
+    input.add( new RowMetaAndData( rm, new Object[] { "Car" } ) );
+    input.add( new RowMetaAndData( rm, new Object[] { "Bus" } ) );
 
     return input;
   }

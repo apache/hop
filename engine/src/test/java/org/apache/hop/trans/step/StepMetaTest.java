@@ -23,13 +23,13 @@
 package org.apache.hop.trans.step;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.junit.Test;
 import org.apache.hop.cluster.ClusterSchema;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.util.AbstractStepMeta;
 import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.utils.TestUtils;
 import org.apache.hop.trans.steps.missing.MissingTrans;
+import org.apache.hop.utils.TestUtils;
+import org.junit.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -82,7 +82,7 @@ public class StepMetaTest {
   public void stepMetaXmlConsistency() throws Exception {
     StepMeta meta = new StepMeta( "id", "name", null );
     StepMetaInterface smi = new MissingTrans( meta.getName(), meta.getStepID() );
-    meta.setStepMetaInterface( smi  );
+    meta.setStepMetaInterface( smi );
     StepMeta fromXml = StepMeta.fromXml( meta.getXML() );
     assertThat( meta.getXML(), is( fromXml.getXML() ) );
   }

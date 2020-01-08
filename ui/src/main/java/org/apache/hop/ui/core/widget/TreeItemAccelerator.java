@@ -22,19 +22,18 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.ui.core.ConstUI;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.apache.hop.ui.core.ConstUI;
 
 /**
  * This class can be used to define accelerators (actions) to a tree item that just got created.
  *
  * @author Matt
- *
  */
 public class TreeItemAccelerator {
   public static final void addDoubleClick( final TreeItem treeItem, final DoubleClickInterface doubleClick ) {
@@ -46,7 +45,7 @@ public class TreeItemAccelerator {
         public void widgetDefaultSelected( SelectionEvent selectionEvent ) {
           TreeItem[] items = tree.getSelection();
           for ( int i = 0; i < items.length; i++ ) {
-            String[] path2 = ConstUI.getTreeStrings( items[i] );
+            String[] path2 = ConstUI.getTreeStrings( items[ i ] );
             if ( equalPaths( path1, path2 ) ) {
               doubleClick.action( treeItem );
             }
@@ -73,7 +72,7 @@ public class TreeItemAccelerator {
     }
 
     for ( int i = 0; i < path1.length; i++ ) {
-      if ( !path1[i].equals( path2[i] ) ) {
+      if ( !path1[ i ].equals( path2[ i ] ) ) {
         return false;
       }
     }

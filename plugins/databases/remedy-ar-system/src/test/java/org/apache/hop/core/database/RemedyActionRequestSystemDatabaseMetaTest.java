@@ -21,12 +21,12 @@
  ******************************************************************************/
 package org.apache.hop.core.database;
 
+import org.junit.Before;
+import org.junit.Test;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-
-import org.junit.Before;
-import org.junit.Test;
 
 public class RemedyActionRequestSystemDatabaseMetaTest {
   RemedyActionRequestSystemDatabaseMeta odbcMeta;
@@ -40,7 +40,7 @@ public class RemedyActionRequestSystemDatabaseMetaTest {
   @Test
   public void testSettings() throws Exception {
     assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_ODBC },
-        odbcMeta.getAccessTypeList() );
+      odbcMeta.getAccessTypeList() );
     assertEquals( 1, odbcMeta.getNotFoundTK( true ) );
     assertEquals( 0, odbcMeta.getNotFoundTK( false ) );
     assertEquals( "jdbc:odbc:WIBBLE", odbcMeta.getURL( "FOO", "BAR", "WIBBLE" ) );

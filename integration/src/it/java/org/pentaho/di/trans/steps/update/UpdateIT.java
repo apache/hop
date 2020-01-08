@@ -22,15 +22,7 @@
 
 package org.apache.hop.trans.steps.update;
 
-import static org.junit.Assert.assertArrayEquals;
-
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.After;
-import org.junit.Before;
+import junit.framework.TestCase;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
@@ -50,8 +42,15 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.injector.InjectorMeta;
+import org.junit.After;
+import org.junit.Before;
 
-import junit.framework.TestCase;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.assertArrayEquals;
 
 public class UpdateIT extends TestCase {
 
@@ -93,14 +92,14 @@ public class UpdateIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    {
-      new ValueMetaInteger( "ID", 8, 0 ),
-      new ValueMetaInteger( "CODE", 8, 0 ),
-      new ValueMetaString( "VALUE", 255, 0 ),
-      new ValueMetaInteger( "ROW_ORDER", 8, 0 ), };
+      {
+        new ValueMetaInteger( "ID", 8, 0 ),
+        new ValueMetaInteger( "CODE", 8, 0 ),
+        new ValueMetaString( "VALUE", 255, 0 ),
+        new ValueMetaInteger( "ROW_ORDER", 8, 0 ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
     return rm;
   }
@@ -111,33 +110,33 @@ public class UpdateIT extends TestCase {
 
     // make sure to initialize the step
     if ( upd.getKeyLookup() == null ) {
-      upd.setKeyLookup( new String[0] );
-      upd.setKeyCondition( new String[0] );
-      upd.setKeyStream( new String[0] );
-      upd.setKeyStream2( new String[0] );
+      upd.setKeyLookup( new String[ 0 ] );
+      upd.setKeyCondition( new String[ 0 ] );
+      upd.setKeyStream( new String[ 0 ] );
+      upd.setKeyStream2( new String[ 0 ] );
     }
 
     int newLength = upd.getKeyLookup().length + 1;
 
     ArrayList<String> newKeyLookup = new ArrayList<String>( newLength );
     newKeyLookup.addAll( Arrays.asList( upd.getKeyLookup() ) );
-    newKeyLookup.add( def[0] );
-    upd.setKeyLookup( newKeyLookup.toArray( new String[0] ) );
+    newKeyLookup.add( def[ 0 ] );
+    upd.setKeyLookup( newKeyLookup.toArray( new String[ 0 ] ) );
 
     ArrayList<String> newKeyCondition = new ArrayList<String>( newLength );
     newKeyCondition.addAll( Arrays.asList( upd.getKeyCondition() ) );
-    newKeyCondition.add( def[1] );
-    upd.setKeyCondition( newKeyCondition.toArray( new String[0] ) );
+    newKeyCondition.add( def[ 1 ] );
+    upd.setKeyCondition( newKeyCondition.toArray( new String[ 0 ] ) );
 
     ArrayList<String> newKeyStream = new ArrayList<String>( newLength );
     newKeyStream.addAll( Arrays.asList( upd.getKeyStream() ) );
-    newKeyStream.add( def[2] );
-    upd.setKeyStream( newKeyStream.toArray( new String[0] ) );
+    newKeyStream.add( def[ 2 ] );
+    upd.setKeyStream( newKeyStream.toArray( new String[ 0 ] ) );
 
     ArrayList<String> newKeyStream2 = new ArrayList<String>( newLength );
     newKeyStream2.addAll( Arrays.asList( upd.getKeyStream2() ) );
-    newKeyStream2.add( def[3] );
-    upd.setKeyStream2( newKeyStream2.toArray( new String[0] ) );
+    newKeyStream2.add( def[ 3 ] );
+    upd.setKeyStream2( newKeyStream2.toArray( new String[ 0 ] ) );
 
   }
 
@@ -155,7 +154,7 @@ public class UpdateIT extends TestCase {
 
     // Add the database connections
     for ( int i = 0; i < databasesXML.length; i++ ) {
-      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[i] );
+      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[ i ] );
       transMeta.addDatabase( databaseMeta );
     }
 
@@ -279,7 +278,7 @@ public class UpdateIT extends TestCase {
       rows.add( rs.getString( "VALUE" ) );
     }
 
-    return rows.toArray( new String[0] );
+    return rows.toArray( new String[ 0 ] );
 
   }
 

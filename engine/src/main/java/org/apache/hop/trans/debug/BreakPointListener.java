@@ -22,11 +22,11 @@
 
 package org.apache.hop.trans.debug;
 
-import java.util.List;
-
 import org.apache.hop.core.row.RowMetaInterface;
+
+import java.util.List;
 
 public interface BreakPointListener {
   public void breakPointHit( TransDebugMeta transDebugMeta, StepDebugMeta stepDebugMeta,
-    RowMetaInterface rowBufferMeta, List<Object[]> rowBuffer );
+                             RowMetaInterface rowBufferMeta, List<Object[]> rowBuffer );
 }

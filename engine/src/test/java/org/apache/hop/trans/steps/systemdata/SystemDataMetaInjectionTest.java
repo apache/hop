@@ -22,9 +22,9 @@
 
 package org.apache.hop.trans.steps.systemdata;
 
+import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 
 public class SystemDataMetaInjectionTest extends BaseMetadataInjectionTest<SystemDataMeta> {
 

@@ -89,7 +89,6 @@ import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceExportInterface;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.step.BaseStep;
 import org.apache.hop.trans.step.RemoteStep;
 import org.apache.hop.trans.step.StepErrorMeta;
@@ -162,11 +161,6 @@ public class TransMeta extends AbstractMeta
    * The list of dependencies associated with the transformation.
    */
   protected List<TransDependency> dependencies;
-
-  /**
-   * The list of cluster schemas associated with the transformation.
-   */
-  protected List<ClusterSchema> clusterSchemas;
 
   /**
    * The list of partition schemas associated with the transformation.
@@ -657,8 +651,6 @@ public class TransMeta extends AbstractMeta
         transMeta.notes = new ArrayList<>();
         transMeta.dependencies = new ArrayList<>();
         transMeta.partitionSchemas = new ArrayList<>();
-        transMeta.slaveServers = new ArrayList<>();
-        transMeta.clusterSchemas = new ArrayList<>();
         transMeta.namedParams = new NamedParamsDefault();
         transMeta.stepChangeListeners = new ArrayList<>();
       }
@@ -690,12 +682,6 @@ public class TransMeta extends AbstractMeta
       for ( TransDependency dep : dependencies ) {
         transMeta.addDependency( (TransDependency) dep.clone() );
       }
-      for ( SlaveServer slave : slaveServers ) {
-        transMeta.getSlaveServers().add( (SlaveServer) slave.clone() );
-      }
-      for ( ClusterSchema schema : clusterSchemas ) {
-        transMeta.getClusterSchemas().add( schema.clone() );
-      }
       for ( PartitionSchema schema : partitionSchemas ) {
         transMeta.getPartitionSchemas().add( (PartitionSchema) schema.clone() );
       }
@@ -721,7 +707,6 @@ public class TransMeta extends AbstractMeta
     hops = new ArrayList<>();
     dependencies = new ArrayList<>();
     partitionSchemas = new ArrayList<>();
-    clusterSchemas = new ArrayList<>();
     namedParams = new NamedParamsDefault();
     stepChangeListeners = new ArrayList<>();
 
@@ -2406,7 +2391,6 @@ public class TransMeta extends AbstractMeta
     retval.append( "    " ).append( XMLHandler.addTagValue( "feedback_shown", feedbackShown ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "feedback_size", feedbackSize ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "using_thread_priorities", usingThreadPriorityManagment ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "shared_objects_file", sharedObjectsFile ) );
 
     // Performance monitoring
     //
@@ -2435,27 +2419,6 @@ public class TransMeta extends AbstractMeta
         retval.append( partitionSchema.getXML() );
       }
       retval.append( "    " ).append( XMLHandler.closeTag( XML_TAG_PARTITIONSCHEMAS ) ).append( Const.CR );
-    }
-    // The slave servers...
-    //
-    if ( includeSlaves ) {
-      retval.append( "    " ).append( XMLHandler.openTag( XML_TAG_SLAVESERVERS ) ).append( Const.CR );
-      for ( int i = 0; i < slaveServers.size(); i++ ) {
-        SlaveServer slaveServer = slaveServers.get( i );
-        retval.append( slaveServer.getXML() );
-      }
-      retval.append( "    " ).append( XMLHandler.closeTag( XML_TAG_SLAVESERVERS ) ).append( Const.CR );
-    }
-
-    // The cluster schemas...
-    //
-    if ( includeClusters ) {
-      retval.append( "    " ).append( XMLHandler.openTag( XML_TAG_CLUSTERSCHEMAS ) ).append( Const.CR );
-      for ( int i = 0; i < clusterSchemas.size(); i++ ) {
-        ClusterSchema clusterSchema = clusterSchemas.get( i );
-        retval.append( clusterSchema.getXML() );
-      }
-      retval.append( "    " ).append( XMLHandler.closeTag( XML_TAG_CLUSTERSCHEMAS ) ).append( Const.CR );
     }
 
     retval.append( "    " ).append( XMLHandler.addTagValue( "created_user", createdUser ) );
@@ -2725,18 +2688,6 @@ public class TransMeta extends AbstractMeta
         //
         setFilename( fname );
 
-        // Read all the database connections from the repository to make sure that we don't overwrite any there by
-        // loading from XML.
-        //
-        try {
-          sharedObjectsFile = XMLHandler.getTagValue( transnode, "info", "shared_objects_file" );
-          sharedObjects = readSharedObjects();
-        } catch ( Exception e ) {
-          log
-            .logError( BaseMessages.getString( PKG, "TransMeta.ErrorReadingSharedObjects.Message", e.toString() ) );
-          log.logError( Const.getStackTracker( e ) );
-        }
-
         // Read the notes...
         Node notepadsnode = XMLHandler.getSubNode( transnode, XML_TAG_NOTEPADS );
         int nrnotes = XMLHandler.countNodes( notepadsnode, NotePadMeta.XML_TAG );
@@ -2765,23 +2716,7 @@ public class TransMeta extends AbstractMeta
           if ( stepMeta.isMissing() ) {
             addMissingTrans( (MissingTrans) stepMeta.getStepMetaInterface() );
           }
-          // Check if the step exists and if it's a shared step.
-          // If so, then we will keep the shared version, not this one.
-          // The stored XML is only for backup purposes.
-          //
-          StepMeta check = findStep( stepMeta.getName() );
-          if ( check != null ) {
-            if ( !check.isShared() ) {
-              // Don't overwrite shared objects
-
-              addOrReplaceStep( stepMeta );
-            } else {
-              check.setDraw( stepMeta.isDrawn() ); // Just keep the drawn flag and location
-              check.setLocation( stepMeta.getLocation() );
-            }
-          } else {
-            addStep( stepMeta ); // simply add it.
-          }
+          addOrReplaceStep( stepMeta );
         }
 
         // Read the error handling code of the steps...
@@ -2975,38 +2910,6 @@ public class TransMeta extends AbstractMeta
           }
         }
 
-        // Read the slave servers...
-        //
-        Node slaveServersNode = XMLHandler.getSubNode( infonode, XML_TAG_SLAVESERVERS );
-        int nrSlaveServers = XMLHandler.countNodes( slaveServersNode, SlaveServer.XML_TAG );
-        for ( int i = 0; i < nrSlaveServers; i++ ) {
-          Node slaveServerNode = XMLHandler.getSubNodeByNr( slaveServersNode, SlaveServer.XML_TAG, i );
-          SlaveServer slaveServer = new SlaveServer( slaveServerNode );
-          if ( slaveServer.getName() == null ) {
-            log.logError( BaseMessages.getString( PKG, "TransMeta.Log.WarningWhileCreationSlaveServer", slaveServer.getName() ) );
-            continue;
-          }
-          slaveServer.shareVariablesWith( this );
-          slaveServers.add( slaveServer );
-        }
-
-        // Read the cluster schemas
-        //
-        Node clusterSchemasNode = XMLHandler.getSubNode( infonode, XML_TAG_CLUSTERSCHEMAS );
-        int nrClusterSchemas = XMLHandler.countNodes( clusterSchemasNode, ClusterSchema.XML_TAG );
-        for ( int i = 0; i < nrClusterSchemas; i++ ) {
-          Node clusterSchemaNode = XMLHandler.getSubNodeByNr( clusterSchemasNode, ClusterSchema.XML_TAG, i );
-          ClusterSchema clusterSchema = new ClusterSchema( clusterSchemaNode, slaveServers );
-          clusterSchema.shareVariablesWith( this );
-          clusterSchemas.add( clusterSchema );
-        }
-
-        // Have all step clustering schema meta-data reference the correct cluster schemas that we just loaded
-        //
-        for ( int i = 0; i < nrSteps(); i++ ) {
-          getStep( i ).setClusterSchemaAfterLoading( clusterSchemas );
-        }
-
         String srowset = XMLHandler.getTagValue( infonode, "size_rowset" );
         sizeRowset = Const.toInt( srowset, Const.ROWS_IN_ROWSET );
         sleepTimeEmpty =
@@ -3109,26 +3012,6 @@ public class TransMeta extends AbstractMeta
     this.isKeyPrivate = privateKey;
   }
 
-  @Override
-  public boolean loadSharedObject( SharedObjectInterface object ) {
-    if ( !super.loadSharedObject( object ) ) {
-      if ( object instanceof StepMeta ) {
-        StepMeta stepMeta = (StepMeta) object;
-        addOrReplaceStep( stepMeta );
-      } else if ( object instanceof PartitionSchema ) {
-        PartitionSchema partitionSchema = (PartitionSchema) object;
-        addOrReplacePartitionSchema( partitionSchema );
-      } else if ( object instanceof ClusterSchema ) {
-        ClusterSchema clusterSchema = (ClusterSchema) object;
-        clusterSchema.shareVariablesWith( this );
-        addOrReplaceClusterSchema( clusterSchema );
-      } else {
-        return false;
-      }
-    }
-    return true;
-  }
-
   /**
    * Gets a List of all the steps that are used in at least one active hop. These steps will be used to execute the
    * transformation. The others will not be executed.<br/>
@@ -3223,9 +3106,6 @@ public class TransMeta extends AbstractMeta
     for ( int i = 0; i < partitionSchemas.size(); i++ ) {
       partitionSchemas.get( i ).setChanged( false );
     }
-    for ( int i = 0; i < clusterSchemas.size(); i++ ) {
-      clusterSchemas.get( i ).setChanged( false );
-    }
 
     super.clearChanged();
   }
@@ -3288,22 +3168,6 @@ public class TransMeta extends AbstractMeta
   }
 
   /**
-   * Checks whether or not any of the clustering schemas have been changed.
-   *
-   * @return true if the clustering schemas have been changed, false otherwise
-   */
-  public boolean haveClusterSchemasChanged() {
-    for ( int i = 0; i < clusterSchemas.size(); i++ ) {
-      ClusterSchema cs = clusterSchemas.get( i );
-      if ( cs.hasChanged() ) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  /**
    * Checks whether or not the transformation has changed.
    *
    * @return true if the transformation has changed, false otherwise
@@ -3319,11 +3183,7 @@ public class TransMeta extends AbstractMeta
     if ( haveHopsChanged() ) {
       return true;
     }
-    if ( havePartitionSchemasChanged() ) {
-      return true;
-    }
-    return haveClusterSchemasChanged();
-
+    return havePartitionSchemasChanged();
   }
 
   private boolean isErrorNode( Node errorHandingNode, Node checkNode ) {
@@ -4944,37 +4804,6 @@ public class TransMeta extends AbstractMeta
   }
 
   /**
-   * Gets a list of the cluster schemas used by the transformation.
-   *
-   * @return a list of ClusterSchemas
-   */
-  public List<ClusterSchema> getClusterSchemas() {
-    return clusterSchemas;
-  }
-
-  /**
-   * Sets list of the cluster schemas used by the transformation.
-   *
-   * @param clusterSchemas the list of ClusterSchemas to set
-   */
-  public void setClusterSchemas( List<ClusterSchema> clusterSchemas ) {
-    this.clusterSchemas = clusterSchemas;
-  }
-
-  /**
-   * Gets the cluster schema names.
-   *
-   * @return a String array containing the cluster schemas' names
-   */
-  public String[] getClusterSchemaNames() {
-    String[] names = new String[ clusterSchemas.size() ];
-    for ( int i = 0; i < names.length; i++ ) {
-      names[ i ] = clusterSchemas.get( i ).getName();
-    }
-    return names;
-  }
-
-  /**
    * Find a partition schema using its name.
    *
    * @param name The name of the partition schema to look for.
@@ -4983,22 +4812,6 @@ public class TransMeta extends AbstractMeta
   public PartitionSchema findPartitionSchema( String name ) {
     for ( int i = 0; i < partitionSchemas.size(); i++ ) {
       PartitionSchema schema = partitionSchemas.get( i );
-      if ( schema.getName().equalsIgnoreCase( name ) ) {
-        return schema;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Find a clustering schema using its name.
-   *
-   * @param name The name of the clustering schema to look for.
-   * @return the cluster schema with the specified name of null if nothing was found
-   */
-  public ClusterSchema findClusterSchema( String name ) {
-    for ( int i = 0; i < clusterSchemas.size(); i++ ) {
-      ClusterSchema schema = clusterSchemas.get( i );
       if ( schema.getName().equalsIgnoreCase( name ) ) {
         return schema;
       }
@@ -5020,30 +4833,6 @@ public class TransMeta extends AbstractMeta
       previous.replaceMeta( partitionSchema );
     }
     setChanged();
-  }
-
-  /**
-   * Add a new cluster schema to the transformation if that didn't exist yet. Otherwise, replace it.
-   *
-   * @param clusterSchema The cluster schema to be added.
-   */
-  public void addOrReplaceClusterSchema( ClusterSchema clusterSchema ) {
-    int index = clusterSchemas.indexOf( clusterSchema );
-    if ( index < 0 ) {
-      clusterSchemas.add( clusterSchema );
-    } else {
-      ClusterSchema previous = clusterSchemas.get( index );
-      previous.replaceMeta( clusterSchema );
-    }
-    setChanged();
-  }
-
-  @Override protected List<SharedObjectInterface> getAllSharedObjects() {
-    List<SharedObjectInterface> shared = super.getAllSharedObjects();
-    shared.addAll( steps );
-    shared.addAll( partitionSchemas );
-    shared.addAll( clusterSchemas );
-    return shared;
   }
 
   /**
@@ -5746,7 +5535,6 @@ public class TransMeta extends AbstractMeta
       .append( this.isFeedbackShown() )
       .append( this.getFeedbackSize() )
       .append( this.isUsingThreadPriorityManagment() )
-      .append( this.getSharedObjectsFile() )
       .append( this.isCapturingStepPerformanceSnapShots() )
       .append( this.getStepPerformanceCapturingDelay() )
       .append( this.getStepPerformanceCapturingSizeLimit() )
@@ -5759,8 +5547,6 @@ public class TransMeta extends AbstractMeta
 
       .append( this.getDependencies() )
       .append( this.getPartitionSchemas() )
-      .append( this.getSlaveServers() )
-      .append( this.getClusterSchemas() )
       .append( this.getSlaveStepCopyPartitionDistribution() )
       .append( this.isSlaveTransformation() )
 
@@ -5779,7 +5565,6 @@ public class TransMeta extends AbstractMeta
       hashCodeBuilder
         .append( step.getName() )
         .append( step.getStepMetaInterface().getXML() )
-        .append( step.getClusterSchema() )
         .append( step.getRemoteInputSteps() )
         .append( step.getRemoteOutputSteps() )
         .append( step.isDoingErrorHandling() );

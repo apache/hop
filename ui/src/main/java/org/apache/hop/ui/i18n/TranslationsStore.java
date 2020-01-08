@@ -22,19 +22,18 @@
 
 package org.apache.hop.ui.i18n;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannelInterface;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannelInterface;
-
 /**
  * This class contains and handles all the translations for the keys specified in the Java source code.
  *
  * @author matt
- *
  */
 public class TranslationsStore {
 
@@ -57,7 +56,7 @@ public class TranslationsStore {
    * @param map
    */
   public TranslationsStore( LogChannelInterface log, List<String> localeList, String mainLocale,
-    Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences ) {
+                            Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences ) {
     super();
     this.log = log;
     this.localeList = localeList;
@@ -70,8 +69,7 @@ public class TranslationsStore {
   /**
    * Read all the translated messages for all the specified locale and all the specified locale
    *
-   * @param directories
-   *          The reference source directories to search packages in
+   * @param directories The reference source directories to search packages in
    * @throws HopException
    */
   public void read( List<String> directories ) throws HopException {
@@ -98,8 +96,7 @@ public class TranslationsStore {
   }
 
   /**
-   * @param localeList
-   *          the localeList to set
+   * @param localeList the localeList to set
    */
   public void setLocaleList( List<String> localeList ) {
     this.localeList = localeList;
@@ -113,8 +110,7 @@ public class TranslationsStore {
   }
 
   /**
-   * @param mainLocale
-   *          the mainLocale to set
+   * @param mainLocale the mainLocale to set
    */
   public void setMainLocale( String mainLocale ) {
     this.mainLocale = mainLocale;
@@ -123,14 +119,10 @@ public class TranslationsStore {
   /**
    * Look up the translation for a key in a certain locale
    *
-   * @param locale
-   *          the locale to hunt for
-   * @param sourceFolder
-   *          the source folder to look in
-   * @param messagesPackage
-   *          the messages package to look in
-   * @param key
-   *          the key
+   * @param locale          the locale to hunt for
+   * @param sourceFolder    the source folder to look in
+   * @param messagesPackage the messages package to look in
+   * @param key             the key
    * @return the translation for the specified key in the desired locale, from the requested package
    */
   public String lookupKeyValue( String locale, String messagesPackage, String key ) {
@@ -218,10 +210,8 @@ public class TranslationsStore {
   }
 
   /**
-   * @param searchLocale
-   *          the locale the filter on.
-   * @param messagesPackage
-   *          the messagesPackage to filter on. Specify null to get all message stores.
+   * @param searchLocale    the locale the filter on.
+   * @param messagesPackage the messagesPackage to filter on. Specify null to get all message stores.
    * @return the list of messages stores for the main locale
    */
   public List<MessagesStore> getMessagesStores( String searchLocale, String messagesPackage ) {

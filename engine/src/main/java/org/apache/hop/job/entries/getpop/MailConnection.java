@@ -72,7 +72,6 @@ import java.util.regex.Pattern;
  *
  * @author Samatar
  * @since 01-04-2009
- *
  */
 
 public class MailConnection {
@@ -144,22 +143,16 @@ public class MailConnection {
   /**
    * Construct a new Database MailConnection
    *
-   * @param protocol
-   *          the protocol used : MailConnection.PROTOCOL_POP3 or MailConnection.PROTOCOL_IMAP.
-   * @param server
-   *          the target server (ip ou name)
-   * @param port
-   *          port number on the server
+   * @param protocol      the protocol used : MailConnection.PROTOCOL_POP3 or MailConnection.PROTOCOL_IMAP.
+   * @param server        the target server (ip ou name)
+   * @param port          port number on the server
    * @param password
-   * @param usessl
-   *          specify if the connection is established via SSL
-   * @param useproxy
-   *          specify if we use proxy authentication
-   * @param proxyusername
-   *          proxy authorised user
+   * @param usessl        specify if the connection is established via SSL
+   * @param useproxy      specify if we use proxy authentication
+   * @param proxyusername proxy authorised user
    */
   public MailConnection( LogChannelInterface log, int protocol, String server, int port, String username,
-    String password, boolean usessl, boolean useproxy, String proxyusername ) throws HopException {
+                         String password, boolean usessl, boolean useproxy, String proxyusername ) throws HopException {
 
     this.log = log;
 
@@ -274,7 +267,6 @@ public class MailConnection {
 
   /**
    * @return Returns the store
-   *
    */
   public Store getStore() {
     return this.store;
@@ -282,7 +274,6 @@ public class MailConnection {
 
   /**
    * @return Returns the folder
-   *
    */
   public Folder getFolder() {
     return this.folder;
@@ -291,8 +282,7 @@ public class MailConnection {
   /**
    * Open the connection.
    *
-   * @throws HopException
-   *           if something went wrong.
+   * @throws HopException if something went wrong.
    */
   public void connect() throws HopException {
     if ( log.isDetailed() ) {
@@ -325,10 +315,8 @@ public class MailConnection {
   /**
    * Open the default folder (INBOX)
    *
-   * @param write
-   *          open the folder in write mode
-   * @throws HopException
-   *           if something went wrong.
+   * @param write open the folder in write mode
+   * @throws HopException if something went wrong.
    */
   public void openFolder( boolean write ) throws HopException {
     openFolder( null, true, write );
@@ -337,12 +325,9 @@ public class MailConnection {
   /**
    * Open the folder.
    *
-   * @param foldername
-   *          the name of the folder to open
-   * @param write
-   *          open the folder in write mode
-   * @throws HopException
-   *           if something went wrong.
+   * @param foldername the name of the folder to open
+   * @param write      open the folder in write mode
+   * @throws HopException if something went wrong.
    */
   public void openFolder( String foldername, boolean write ) throws HopException {
     openFolder( foldername, false, write );
@@ -351,14 +336,10 @@ public class MailConnection {
   /**
    * Open the folder.
    *
-   * @param foldername
-   *          the name of the folder to open
-   * @param defaultFolder
-   *          true to open the default folder (INBOX)
-   * @param write
-   *          open the folder in write mode
-   * @throws HopException
-   *           if something went wrong.
+   * @param foldername    the name of the folder to open
+   * @param defaultFolder true to open the default folder (INBOX)
+   * @param write         open the folder in write mode
+   * @throws HopException if something went wrong.
    */
   public void openFolder( String foldername, boolean defaultFolder, boolean write ) throws HopException {
     this.write = write;
@@ -433,7 +414,7 @@ public class MailConnection {
     dfolder = this.getStore().getDefaultFolder();
     // Open destination folder
     for ( int i = 0; i < folderparts.length; i++ ) {
-      dfolder = dfolder.getFolder( folderparts[i] );
+      dfolder = dfolder.getFolder( folderparts[ i ] );
     }
     return dfolder;
   }
@@ -463,8 +444,7 @@ public class MailConnection {
   /**
    * Close folder.
    *
-   * @param expunge
-   *          expunge folder
+   * @param expunge expunge folder
    * @throws HopException
    */
   public void closeFolder( boolean expunge ) throws HopException {
@@ -491,8 +471,7 @@ public class MailConnection {
   /**
    * Add search term.
    *
-   * @param term
-   *          search term to add
+   * @param term search term to add
    */
   private void addSearchTerm( SearchTerm term ) {
     if ( this.searchTerm != null ) {
@@ -509,10 +488,8 @@ public class MailConnection {
   /**
    * Set filter on subject.
    *
-   * @param subject
-   *          messages will be filtered on subject
-   * @param notTerm
-   *          negate condition
+   * @param subject messages will be filtered on subject
+   * @param notTerm negate condition
    */
   public void setSubjectTerm( String subject, boolean notTerm ) {
     if ( !Utils.isEmpty( subject ) ) {
@@ -528,8 +505,7 @@ public class MailConnection {
    * Search all messages with body containing the word bodyfilter
    *
    * @param bodyfilter
-   * @param notTerm
-   *          negate condition
+   * @param notTerm    negate condition
    */
   public void setBodyTerm( String bodyfilter, boolean notTerm ) {
     if ( !Utils.isEmpty( bodyfilter ) ) {
@@ -544,10 +520,8 @@ public class MailConnection {
   /**
    * Set filter on message sender.
    *
-   * @param sender
-   *          messages will be filtered on sender
-   * @param notTerm
-   *          negate condition
+   * @param sender  messages will be filtered on sender
+   * @param notTerm negate condition
    */
   public void setSenderTerm( String sender, boolean notTerm ) {
     if ( !Utils.isEmpty( sender ) ) {
@@ -562,8 +536,7 @@ public class MailConnection {
   /**
    * Set filter on receipient.
    *
-   * @param receipient
-   *          messages will be filtered on receipient
+   * @param receipient messages will be filtered on receipient
    */
   public void setReceipientTerm( String receipient ) {
     if ( !Utils.isEmpty( receipient ) ) {
@@ -574,8 +547,7 @@ public class MailConnection {
   /**
    * Set filter on message received date.
    *
-   * @param receiveddate
-   *          messages will be filtered on receiveddate
+   * @param receiveddate messages will be filtered on receiveddate
    */
   public void setReceivedDateTermEQ( Date receiveddate ) {
     if ( this.protocol == MailConnectionMeta.PROTOCOL_POP3 ) {
@@ -588,8 +560,7 @@ public class MailConnection {
   /**
    * Set filter on message received date.
    *
-   * @param futureDate
-   *          messages will be filtered on futureDate
+   * @param futureDate messages will be filtered on futureDate
    */
   public void setReceivedDateTermLT( Date futureDate ) {
     if ( this.protocol == MailConnectionMeta.PROTOCOL_POP3 ) {
@@ -602,8 +573,7 @@ public class MailConnection {
   /**
    * Set filter on message received date.
    *
-   * @param pastDate
-   *          messages will be filtered on pastDate
+   * @param pastDate messages will be filtered on pastDate
    */
   public void setReceivedDateTermGT( Date pastDate ) {
     if ( this.protocol == MailConnectionMeta.PROTOCOL_POP3 ) {
@@ -687,8 +657,7 @@ public class MailConnection {
   /**
    * Disconnect from the server and close folder, connection.
    *
-   * @param expunge
-   *          expunge folder
+   * @param expunge expunge folder
    * @throws HopException
    */
   public void disconnect( boolean expunge ) throws HopException {
@@ -721,10 +690,8 @@ public class MailConnection {
   /**
    * Export message content to a filename.
    *
-   * @param filename
-   *          the target filename
-   * @param foldername
-   *          the parent folder of filename
+   * @param filename   the target filename
+   * @param foldername the parent folder of filename
    * @throws HopException
    */
 
@@ -747,8 +714,7 @@ public class MailConnection {
   /**
    * Save attached files to a folder.
    *
-   * @param foldername
-   *          the target foldername
+   * @param foldername the target foldername
    * @throws HopException
    */
   public void saveAttachedFiles( String foldername ) throws HopException {
@@ -758,10 +724,8 @@ public class MailConnection {
   /**
    * Save attached files to a folder.
    *
-   * @param foldername
-   *          the target foldername
-   * @param pattern
-   *          regular expression to filter on files
+   * @param foldername the target foldername
+   * @param pattern    regular expression to filter on files
    * @throws HopException
    */
   public void saveAttachedFiles( String foldername, Pattern pattern ) throws HopException {
@@ -911,10 +875,8 @@ public class MailConnection {
   /**
    * Set destination folder
    *
-   * @param foldername
-   *          destination foldername
-   * @param createFolder
-   *          flag create folder if needed
+   * @param foldername   destination foldername
+   * @param createFolder flag create folder if needed
    * @throws HopException
    */
   public void setDestinationFolder( String foldername, boolean createFolder ) throws HopException {
@@ -923,7 +885,7 @@ public class MailConnection {
       Folder f = this.getStore().getDefaultFolder();
       // Open destination folder
       for ( int i = 0; i < folderparts.length; i++ ) {
-        f = f.getFolder( folderparts[i] );
+        f = f.getFolder( folderparts[ i ] );
         if ( !f.exists() ) {
           if ( createFolder ) {
             // Create folder
@@ -1013,7 +975,7 @@ public class MailConnection {
   public void fetchNext() throws HopException {
     updateMessageNr();
     try {
-      this.message = this.messages[getMessageNr()];
+      this.message = this.messages[ getMessageNr() ];
     } catch ( Exception e ) {
       throw new HopException( BaseMessages.getString( PKG, "MailConnection.Error.FetchingMessages" ), e );
     }
@@ -1123,8 +1085,7 @@ public class MailConnection {
   /**
    * Check if a folder exists on server (only IMAP).
    *
-   * @param foldername
-   *          the name of the folder
+   * @param foldername the name of the folder
    * @return true is folder exists
    */
   public boolean folderExists( String foldername ) {
@@ -1156,9 +1117,9 @@ public class MailConnection {
         Folder[] f = folder.list();
         for ( int i = 0; i < f.length; i++ ) {
           // Search for sub folders
-          if ( ( f[i].getType() & Folder.HOLDS_FOLDERS ) != 0 ) {
-            list.add( f[i].getFullName() );
-            list.addAll( returnSubfolders( f[i] ) );
+          if ( ( f[ i ].getType() & Folder.HOLDS_FOLDERS ) != 0 ) {
+            list.add( f[ i ].getFullName() );
+            list.addAll( returnSubfolders( f[ i ] ) );
           }
         }
       }
@@ -1171,14 +1132,13 @@ public class MailConnection {
   /**
    * Returns all subfolders of the specified folder
    *
-   * @param folder
-   *          parent folder
+   * @param folder parent folder
    * @return sub folders
    */
   public String[] returnAllFolders( Folder folder ) throws HopException {
     HashSet<String> list = new HashSet<String>();
     list = returnSubfolders( folder );
-    return list.toArray( new String[list.size()] );
+    return list.toArray( new String[ list.size() ] );
   }
 
   /**
@@ -1193,8 +1153,7 @@ public class MailConnection {
   /**
    * Returns all subfolders of the folder folder
    *
-   * @param folder
-   *          target folder
+   * @param folder target folder
    * @return sub folders
    */
   public String[] returnAllFolders( String folder ) throws HopException {
@@ -1366,9 +1325,8 @@ public class MailConnection {
   /**
    * Returns attached files count for the current message
    *
+   * @param pattern (optional)
    * @return true if message is Draft
-   * @param pattern
-   *          (optional)
    */
   public int getAttachedFilesCount( Pattern pattern ) throws HopException {
     return getAttachedFilesCount( getMessage(), pattern );

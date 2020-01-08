@@ -22,19 +22,10 @@
 
 package org.apache.hop.job.entries.deleteresultfilenames;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
@@ -47,9 +38,13 @@ import org.apache.hop.job.entry.validator.AbstractFileValidator;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This defines a 'deleteresultfilenames' job entry. Its main use would be to create empty folder that can be used to
@@ -57,7 +52,6 @@ import org.w3c.dom.Node;
  *
  * @author Samatar
  * @since 26-10-2007
- *
  */
 public class JobEntryDeleteResultFilenames extends JobEntryBase implements Cloneable, JobEntryInterface {
   private static Class<?> PKG = JobEntryDeleteResultFilenames.class; // for i18n purposes, needed by Translator2!!
@@ -96,10 +90,10 @@ public class JobEntryDeleteResultFilenames extends JobEntryBase implements Clone
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       foldername = XMLHandler.getTagValue( entrynode, "foldername" );
       specifywildcard = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "specify_wildcard" ) );
       wildcard = XMLHandler.getTagValue( entrynode, "wildcard" );
@@ -173,7 +167,7 @@ public class JobEntryDeleteResultFilenames extends JobEntryBase implements Clone
               if ( file != null && file.exists() ) {
                 if ( CheckFileWildcard( file.getName().getBaseName(), environmentSubstitute( wildcard ), true )
                   && !CheckFileWildcard(
-                    file.getName().getBaseName(), environmentSubstitute( wildcardexclude ), false ) ) {
+                  file.getName().getBaseName(), environmentSubstitute( wildcardexclude ), false ) ) {
                   // Remove file from result files list
                   result.getResultFiles().remove( resultFile.getFile().toString() );
 
@@ -222,7 +216,7 @@ public class JobEntryDeleteResultFilenames extends JobEntryBase implements Clone
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, JobEntryValidatorUtils.notNullValidator(), JobEntryValidatorUtils.fileDoesNotExistValidator() );

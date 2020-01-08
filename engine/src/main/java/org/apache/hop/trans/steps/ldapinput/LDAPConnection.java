@@ -22,12 +22,15 @@
 
 package org.apache.hop.trans.steps.ldapinput;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.i18n.BaseMessages;
 
 import javax.naming.NameClassPair;
 import javax.naming.NameNotFoundException;
@@ -44,16 +47,12 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.PagedResultsControl;
 import javax.naming.ldap.PagedResultsResponseControl;
 import javax.naming.ldap.SortControl;
-
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.i18n.BaseMessages;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public class LDAPConnection {
   private static Class<?> PKG = LDAPInputMeta.class; // for i18n purposes, needed by Translator2!!
@@ -102,7 +101,7 @@ public class LDAPConnection {
    * Construct a new LDAP Connection
    */
   public LDAPConnection( LogChannelInterface logInterface, VariableSpace variableSpace, LdapMeta meta,
-    Collection<String> binaryAttributes ) throws HopException {
+                         Collection<String> binaryAttributes ) throws HopException {
     this.log = logInterface;
     protocol = new LdapProtocolFactory( logInterface ).createLdapProtocol( variableSpace, meta, binaryAttributes );
     this.sortingAttributes = new ArrayList<String>();
@@ -120,10 +119,8 @@ public class LDAPConnection {
   /**
    * Connect to LDAP server
    *
-   * @param username
-   *          : username
-   * @param password
-   *          : password
+   * @param username : username
+   * @param password : password
    * @throws HopException
    */
   public void connect( String username, String password ) throws HopException {
@@ -239,7 +236,7 @@ public class LDAPConnection {
       // Set the sort search?
       if ( isSortingAttributes() ) {
         // Create a sort control that sorts based on attributes
-        setSortingAttributesKeys( getSortingAttributes().toArray( new String[getSortingAttributes().size()] ) );
+        setSortingAttributesKeys( getSortingAttributes().toArray( new String[ getSortingAttributes().size() ] ) );
         ctlk = new SortControl( getSortingAttributesKeys(), Control.NONCRITICAL );
         nrCtl++;
         if ( log.isDebug() ) {
@@ -260,13 +257,13 @@ public class LDAPConnection {
       }
 
       if ( nrCtl > 0 ) {
-        Control[] ctls = new Control[nrCtl];
+        Control[] ctls = new Control[ nrCtl ];
         int index = 0;
         if ( ctlk != null ) {
-          ctls[index++] = ctlk;
+          ctls[ index++ ] = ctlk;
         }
         if ( ctlp != null ) {
-          ctls[index++] = ctlp;
+          ctls[ index++ ] = ctlp;
         }
         getInitialContext().setRequestControls( ctls );
       }
@@ -306,16 +303,16 @@ public class LDAPConnection {
   public int update( String dn, String[] attributes, String[] values, boolean checkEntry ) throws HopException {
     try {
       int nrAttributes = attributes.length;
-      ModificationItem[] mods = new ModificationItem[nrAttributes];
+      ModificationItem[] mods = new ModificationItem[ nrAttributes ];
       for ( int i = 0; i < nrAttributes; i++ ) {
         // Define attribute
-        Attribute mod = new BasicAttribute( attributes[i], values[i] );
+        Attribute mod = new BasicAttribute( attributes[ i ], values[ i ] );
         if ( log.isDebug() ) {
           log
-            .logDebug( BaseMessages.getString( PKG, "LDAPConnection.Update.Attribute", attributes[i], values[i] ) );
+            .logDebug( BaseMessages.getString( PKG, "LDAPConnection.Update.Attribute", attributes[ i ], values[ i ] ) );
         }
         // Save update action on attribute
-        mods[i] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, mod );
+        mods[ i ] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, mod );
       }
       // We have all requested attribute
       // let's update now
@@ -354,14 +351,10 @@ public class LDAPConnection {
   /**
    * Insert record in LDAP based on DN
    *
-   * @param dn
-   *          : Distinguished Name (Key for lookup)
-   * @param attributes
-   *          : contains all the attributes to set for insert
-   * @param values
-   *          : contains all the values for attributes
-   * @param multValuedSeparator
-   *          : multi-valued attributes separator
+   * @param dn                  : Distinguished Name (Key for lookup)
+   * @param attributes          : contains all the attributes to set for insert
+   * @param values              : contains all the values for attributes
+   * @param multValuedSeparator : multi-valued attributes separator
    * @throws HopException
    */
   public void insert( String dn, String[] attributes, String[] values, String multValuedSeparator ) throws HopException {
@@ -382,23 +375,17 @@ public class LDAPConnection {
    * Upsert record in LDAP First we will check if the entry exist based on DN If we can not find it, we will create it
    * otherwise, we will perform an update
    *
-   * @param dn
-   *          : Distinguished Name (Key for lookup)
-   * @param attributes
-   *          : contains all the attributes to set for insert
-   * @param values
-   *          : contains all the values for attributes
-   * @param attributesToUpdate
-   *          : contains attributes to update
-   * @param valuesToUpdate
-   *          : contains values for attributes to update
-   * @param multValuedSeparator
-   *          : multi-valued attributes separator
+   * @param dn                  : Distinguished Name (Key for lookup)
+   * @param attributes          : contains all the attributes to set for insert
+   * @param values              : contains all the values for attributes
+   * @param attributesToUpdate  : contains attributes to update
+   * @param valuesToUpdate      : contains values for attributes to update
+   * @param multValuedSeparator : multi-valued attributes separator
    * @return status : STATUS_INSERTED, STATUS_UPDATED or STATUS_SKIPPED
    * @throws HopException
    */
   public int upsert( String dn, String[] attributes, String[] values, String[] attributesToUpdate,
-    String[] valuesToUpdate, String multValuedSeparator ) throws HopException {
+                     String[] valuesToUpdate, String multValuedSeparator ) throws HopException {
 
     try {
 
@@ -430,17 +417,17 @@ public class LDAPConnection {
     Attributes attrs = new javax.naming.directory.BasicAttributes( true );
     int nrAttributes = attributes.length;
     for ( int i = 0; i < nrAttributes; i++ ) {
-      if ( !Utils.isEmpty( values[i] ) ) {
+      if ( !Utils.isEmpty( values[ i ] ) ) {
         // We have a value
-        String value = values[i].trim();
+        String value = values[ i ].trim();
         if ( multValuedSeparator != null && value.indexOf( multValuedSeparator ) > 0 ) {
-          Attribute attr = new javax.naming.directory.BasicAttribute( attributes[i] );
+          Attribute attr = new javax.naming.directory.BasicAttribute( attributes[ i ] );
           for ( String attribute : value.split( multValuedSeparator ) ) {
             attr.add( attribute );
           }
           attrs.put( attr );
         } else {
-          attrs.put( attributes[i], value );
+          attrs.put( attributes[ i ], value );
         }
       }
     }
@@ -450,13 +437,10 @@ public class LDAPConnection {
   /**
    * Rename an entry
    *
-   * @param oldDn
-   *          Distinguished name of the entry to rename
-   * @param newDn
-   *          target Distinguished name (new)
-   * @param deleteRDN
-   *          To specify whether you want to keep the old name attribute when you use rename entry true : do not keep
-   *          the old value (defaut) false : keep the old value as an attribute
+   * @param oldDn     Distinguished name of the entry to rename
+   * @param newDn     target Distinguished name (new)
+   * @param deleteRDN To specify whether you want to keep the old name attribute when you use rename entry true : do not keep
+   *                  the old value (defaut) false : keep the old value as an attribute
    * @throws HopException
    */
   public void rename( String oldDn, String newDn, boolean deleteRDN ) throws HopException {
@@ -558,8 +542,8 @@ public class LDAPConnection {
           Control[] rc = getInitialContext().getResponseControls();
           if ( rc != null ) {
             for ( int i = 0; i < rc.length; i++ ) {
-              if ( rc[i] instanceof PagedResultsResponseControl ) {
-                PagedResultsResponseControl prc = (PagedResultsResponseControl) rc[i];
+              if ( rc[ i ] instanceof PagedResultsResponseControl ) {
+                PagedResultsResponseControl prc = (PagedResultsResponseControl) rc[ i ];
                 cookie = prc.getCookie();
               }
             }
@@ -655,22 +639,22 @@ public class LDAPConnection {
     long rid;
     String strSID;
     strSID = "S";
-    version = SID[0];
+    version = SID[ 0 ];
     strSID = strSID + "-" + Long.toString( version );
-    authority = SID[4];
+    authority = SID[ 4 ];
     for ( int i = 0; i < 4; i++ ) {
       authority <<= 8;
-      authority += SID[4 + i] & 0xFF;
+      authority += SID[ 4 + i ] & 0xFF;
     }
     strSID = strSID + "-" + Long.toString( authority );
-    count = SID[2];
+    count = SID[ 2 ];
     count <<= 8;
-    count += SID[1] & 0xFF;
+    count += SID[ 1 ] & 0xFF;
     for ( int j = 0; j < count; j++ ) {
-      rid = SID[11 + ( j * 4 )] & 0xFF;
+      rid = SID[ 11 + ( j * 4 ) ] & 0xFF;
       for ( int k = 1; k < 4; k++ ) {
         rid <<= 8;
-        rid += SID[11 - k + ( j * 4 )] & 0xFF;
+        rid += SID[ 11 - k + ( j * 4 ) ] & 0xFF;
       }
       strSID = strSID + "-" + Long.toString( rid );
     }
@@ -686,7 +670,7 @@ public class LDAPConnection {
   private static String byteToHexEncode( byte[] inArr ) {
     StringBuilder guid = new StringBuilder();
     for ( int i = 0; i < inArr.length; i++ ) {
-      StringBuilder dblByte = new StringBuilder( Integer.toHexString( inArr[i] & 0xff ) );
+      StringBuilder dblByte = new StringBuilder( Integer.toHexString( inArr[ i ] & 0xff ) );
       if ( dblByte.length() == 1 ) {
         guid.append( "0" );
       }

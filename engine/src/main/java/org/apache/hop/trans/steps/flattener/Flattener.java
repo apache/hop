@@ -46,7 +46,7 @@ public class Flattener extends BaseStep implements StepInterface {
   private FlattenerData data;
 
   public Flattener( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                    Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
 
     meta = (FlattenerMeta) getStepMeta().getStepMetaInterface();
@@ -85,14 +85,14 @@ public class Flattener extends BaseStep implements StepInterface {
 
       // Allocate the result row...
       //
-      data.targetResult = new Object[meta.getTargetField().length];
+      data.targetResult = new Object[ meta.getTargetField().length ];
 
       first = false;
     }
 
     // set it to value # data.processed
     //
-    data.targetResult[data.processed++] = r[data.fieldNr];
+    data.targetResult[ data.processed++ ] = r[ data.fieldNr ];
 
     if ( data.processed >= meta.getTargetField().length ) {
       Object[] outputRowData = createOutputRow( r );
@@ -101,7 +101,7 @@ public class Flattener extends BaseStep implements StepInterface {
       putRow( data.outputRowMeta, outputRowData );
 
       // clear the result row
-      data.targetResult = new Object[meta.getTargetField().length];
+      data.targetResult = new Object[ meta.getTargetField().length ];
 
       data.processed = 0;
     }
@@ -125,14 +125,14 @@ public class Flattener extends BaseStep implements StepInterface {
     //
     for ( int i = 0; i < data.inputRowMeta.size(); i++ ) {
       if ( i != data.fieldNr ) {
-        outputRowData[outputIndex++] = rowData[i];
+        outputRowData[ outputIndex++ ] = rowData[ i ];
       }
     }
 
     // Now add the fields we flattened...
     //
     for ( int i = 0; i < data.targetResult.length; i++ ) {
-      outputRowData[outputIndex++] = data.targetResult[i];
+      outputRowData[ outputIndex++ ] = data.targetResult[ i ];
     }
 
     return outputRowData;

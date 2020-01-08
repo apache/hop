@@ -83,7 +83,7 @@ public class ExtensionPointMap {
 
   /**
    * Add the extension point plugin to the map
-   * 
+   *
    * @param extensionPointPlugin
    */
   public void addExtensionPoint( PluginInterface extensionPointPlugin ) {
@@ -99,7 +99,7 @@ public class ExtensionPointMap {
 
   /**
    * Remove the extension point plugin from the map
-   * 
+   *
    * @param extensionPointPlugin
    */
   public void removeExtensionPoint( PluginInterface extensionPointPlugin ) {
@@ -136,12 +136,12 @@ public class ExtensionPointMap {
 
   /**
    * Call the extension point(s) corresponding to the given id
-   *
+   * <p>
    * This iteration was isolated here to protect against ConcurrentModificationException using PluginRegistry's lock
    *
-   * @param log     log channel to pass to extension point call
-   * @param id      the id of the extension point interface
-   * @param object  object to pass to extension point call
+   * @param log    log channel to pass to extension point call
+   * @param id     the id of the extension point interface
+   * @param object object to pass to extension point call
    */
   public void callExtensionPoint( LogChannelInterface log, String id, Object object ) throws HopException {
     lock.readLock().lock();
@@ -158,11 +158,11 @@ public class ExtensionPointMap {
 
   /**
    * Returns the element in the position (rowId,columnId) of the table
-   *
+   * <p>
    * Useful for Unit Testing
    *
-   * @param rowId     the key of the row to be accessed
-   * @param columnId  the key of the column to be accessed
+   * @param rowId    the key of the row to be accessed
+   * @param columnId the key of the column to be accessed
    */
   ExtensionPointInterface getTableValue( String rowId, String columnId ) {
     lock.readLock().lock();
@@ -176,7 +176,7 @@ public class ExtensionPointMap {
 
   /**
    * Returns the number of rows of the table
-   *
+   * <p>
    * Useful for Unit Testing
    */
   int getNumberOfRows() {

@@ -22,32 +22,18 @@
 
 package org.apache.hop.job.entries.movefiles;
 
-import org.apache.hop.job.entry.validator.AbstractFileValidator;
-import org.apache.hop.job.entry.validator.AndValidator;
-import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
@@ -56,10 +42,19 @@ import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.validator.AbstractFileValidator;
+import org.apache.hop.job.entry.validator.AndValidator;
+import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This defines a 'move files' job entry.
@@ -145,9 +140,9 @@ public class JobEntryMoveFiles extends JobEntryBase implements Cloneable, JobEnt
   }
 
   public void allocate( int nrFields ) {
-    source_filefolder = new String[nrFields];
-    destination_filefolder = new String[nrFields];
-    wildcard = new String[nrFields];
+    source_filefolder = new String[ nrFields ];
+    destination_filefolder = new String[ nrFields ];
+    wildcard = new String[ nrFields ];
   }
 
   public Object clone() {
@@ -198,10 +193,10 @@ public class JobEntryMoveFiles extends JobEntryBase implements Cloneable, JobEnt
     if ( source_filefolder != null ) {
       for ( int i = 0; i < source_filefolder.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "source_filefolder", source_filefolder[i] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "source_filefolder", source_filefolder[ i ] ) );
         retval.append( "          " ).append(
-          XMLHandler.addTagValue( "destination_filefolder", destination_filefolder[i] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "wildcard", wildcard[i] ) );
+          XMLHandler.addTagValue( "destination_filefolder", destination_filefolder[ i ] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "wildcard", wildcard[ i ] ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
@@ -210,10 +205,10 @@ public class JobEntryMoveFiles extends JobEntryBase implements Cloneable, JobEnt
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       move_empty_folders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "move_empty_folders" ) );
       arg_from_previous = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
       include_subfolders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "include_subfolders" ) );
@@ -253,9 +248,9 @@ public class JobEntryMoveFiles extends JobEntryBase implements Cloneable, JobEnt
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        source_filefolder[i] = XMLHandler.getTagValue( fnode, "source_filefolder" );
-        destination_filefolder[i] = XMLHandler.getTagValue( fnode, "destination_filefolder" );
-        wildcard[i] = XMLHandler.getTagValue( fnode, "wildcard" );
+        source_filefolder[ i ] = XMLHandler.getTagValue( fnode, "source_filefolder" );
+        destination_filefolder[ i ] = XMLHandler.getTagValue( fnode, "destination_filefolder" );
+        wildcard[ i ] = XMLHandler.getTagValue( fnode, "wildcard" );
       }
     } catch ( HopXMLException xe ) {
 
@@ -373,8 +368,8 @@ public class JobEntryMoveFiles extends JobEntryBase implements Cloneable, JobEnt
         } else {
           if ( log.isDetailed() ) {
             logDetailed( BaseMessages.getString(
-              PKG, "JobMoveFiles.Log.IgnoringRow", vsourcefilefolder[iteration],
-              vdestinationfilefolder[iteration], vwildcard[iteration] ) );
+              PKG, "JobMoveFiles.Log.IgnoringRow", vsourcefilefolder[ iteration ],
+              vdestinationfilefolder[ iteration ], vwildcard[ iteration ] ) );
           }
         }
       }
@@ -391,16 +386,16 @@ public class JobEntryMoveFiles extends JobEntryBase implements Cloneable, JobEnt
           return result;
         }
 
-        if ( !Utils.isEmpty( vsourcefilefolder[i] ) && !Utils.isEmpty( vdestinationfilefolder[i] ) ) {
+        if ( !Utils.isEmpty( vsourcefilefolder[ i ] ) && !Utils.isEmpty( vdestinationfilefolder[ i ] ) ) {
           // ok we can process this file/folder
           if ( log.isDetailed() ) {
             logDetailed( BaseMessages.getString(
-              PKG, "JobMoveFiles.Log.ProcessingRow", vsourcefilefolder[i], vdestinationfilefolder[i],
-              vwildcard[i] ) );
+              PKG, "JobMoveFiles.Log.ProcessingRow", vsourcefilefolder[ i ], vdestinationfilefolder[ i ],
+              vwildcard[ i ] ) );
           }
 
           if ( !ProcessFileFolder(
-            vsourcefilefolder[i], vdestinationfilefolder[i], vwildcard[i], parentJob, result, MoveToFolder ) ) {
+            vsourcefilefolder[ i ], vdestinationfilefolder[ i ], vwildcard[ i ], parentJob, result, MoveToFolder ) ) {
             // Update Errors
             updateErrors();
           }
@@ -408,8 +403,8 @@ public class JobEntryMoveFiles extends JobEntryBase implements Cloneable, JobEnt
           if ( log.isDetailed() ) {
             logDetailed( BaseMessages
               .getString(
-                PKG, "JobMoveFiles.Log.IgnoringRow", vsourcefilefolder[i], vdestinationfilefolder[i],
-                vwildcard[i] ) );
+                PKG, "JobMoveFiles.Log.IgnoringRow", vsourcefilefolder[ i ], vdestinationfilefolder[ i ],
+                vwildcard[ i ] ) );
           }
         }
       }
@@ -449,7 +444,7 @@ public class JobEntryMoveFiles extends JobEntryBase implements Cloneable, JobEnt
   }
 
   private boolean ProcessFileFolder( String sourcefilefoldername, String destinationfilefoldername,
-    String wildcard, Job parentJob, Result result, String MoveToFolder ) {
+                                     String wildcard, Job parentJob, Result result, String MoveToFolder ) {
     boolean entrystatus = false;
     FileObject sourcefilefolder = null;
     FileObject destinationfilefolder = null;
@@ -582,7 +577,7 @@ public class JobEntryMoveFiles extends JobEntryBase implements Cloneable, JobEnt
                     return false;
                   }
                   // Fetch files in list one after one ...
-                  Currentfile = fileObjects[j];
+                  Currentfile = fileObjects[ j ];
 
                   if ( !MoveOneFile(
                     Currentfile, sourcefilefolder, realDestinationFilefoldername, realWildcard, parentJob,
@@ -642,7 +637,7 @@ public class JobEntryMoveFiles extends JobEntryBase implements Cloneable, JobEnt
   }
 
   private boolean MoveFile( String shortfilename, FileObject sourcefilename, FileObject destinationfilename,
-    FileObject movetofolderfolder, Job parentJob, Result result ) {
+                            FileObject movetofolderfolder, Job parentJob, Result result ) {
 
     FileObject destinationfile = null;
     boolean retval = false;
@@ -823,8 +818,8 @@ public class JobEntryMoveFiles extends JobEntryBase implements Cloneable, JobEnt
   }
 
   private boolean MoveOneFile( FileObject Currentfile, FileObject sourcefilefolder,
-    String realDestinationFilefoldername, String realWildcard, Job parentJob, Result result,
-    FileObject movetofolderfolder ) {
+                               String realDestinationFilefoldername, String realWildcard, Job parentJob, Result result,
+                               FileObject movetofolderfolder ) {
     boolean entrystatus = false;
     FileObject file_name = null;
 
@@ -1262,7 +1257,7 @@ public class JobEntryMoveFiles extends JobEntryBase implements Cloneable, JobEnt
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     boolean res = JobEntryValidatorUtils.andValidator().validate( this, "arguments", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
 
     if ( res == false ) {

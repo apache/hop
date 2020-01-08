@@ -22,17 +22,17 @@
 
 package org.apache.hop.resource;
 
-import java.util.List;
-
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.resource.ResourceEntry.ResourceType;
+import org.apache.hop.trans.TransMeta;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.resource.ResourceEntry.ResourceType;
-import org.apache.hop.trans.TransMeta;
+
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

@@ -22,14 +22,15 @@
 
 package org.apache.hop.trans.steps.mergejoin;
 
+import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 public class MergeJoinMetaInjectionStep extends BaseMetadataInjectionTest<MergeJoinMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Before
   public void setup() throws Exception {
     setup( new MergeJoinMeta() );
@@ -44,12 +45,12 @@ public class MergeJoinMetaInjectionStep extends BaseMetadataInjectionTest<MergeJ
     } );
     check( "KEY_FIELD1", new StringGetter() {
       public String get() {
-        return meta.getKeyFields1()[0];
+        return meta.getKeyFields1()[ 0 ];
       }
     } );
     check( "KEY_FIELD2", new StringGetter() {
       public String get() {
-        return meta.getKeyFields2()[0];
+        return meta.getKeyFields2()[ 0 ];
       }
     } );
   }

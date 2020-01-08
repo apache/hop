@@ -41,7 +41,6 @@ import org.apache.hop.trans.step.StepMetaInterface;
  *
  * @author Samatar
  * @since 03-Juin-2008
- *
  */
 
 public class ColumnExists extends BaseStep implements StepInterface {
@@ -51,7 +50,7 @@ public class ColumnExists extends BaseStep implements StepInterface {
   private ColumnExistsData data;
 
   public ColumnExists( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
+                       Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -95,7 +94,7 @@ public class ColumnExists extends BaseStep implements StepInterface {
           if ( data.indexOfTablename < 0 ) {
             // The field is unreachable !
             logError( BaseMessages.getString( PKG, "ColumnExists.Exception.CouldnotFindField" ) + "["
-                + meta.getDynamicTablenameField() + "]" );
+              + meta.getDynamicTablenameField() + "]" );
             throw new HopException( BaseMessages.getString( PKG, "ColumnExists.Exception.CouldnotFindField",
               meta.getDynamicTablenameField() ) );
           }
@@ -114,7 +113,7 @@ public class ColumnExists extends BaseStep implements StepInterface {
         if ( data.indexOfColumnname < 0 ) {
           // The field is unreachable !
           logError( BaseMessages.getString( PKG, "ColumnExists.Exception.CouldnotFindField" ) + "["
-              + meta.getDynamicColumnnameField() + "]" );
+            + meta.getDynamicColumnnameField() + "]" );
           throw new HopException( BaseMessages.getString( PKG, "ColumnExists.Exception.CouldnotFindField",
             meta.getDynamicColumnnameField() ) );
         }

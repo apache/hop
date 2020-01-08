@@ -21,14 +21,13 @@
  ******************************************************************************/
 package org.apache.hop.job.entries.ping;
 
-import java.util.Arrays;
-
-import java.util.List;
-import java.util.Map;
-
-import org.junit.ClassRule;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.ClassRule;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class JobEntryPingTest extends JobEntryLoadSaveTestSupport<JobEntryPing> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -41,26 +40,26 @@ public class JobEntryPingTest extends JobEntryLoadSaveTestSupport<JobEntryPing> 
   @Override
   protected List<String> listCommonAttributes() {
     return Arrays.asList(
-        "hostname",
-        "nbrPackets",
-        "timeout",
-        "pingtype" );
+      "hostname",
+      "nbrPackets",
+      "timeout",
+      "pingtype" );
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-        "hostname", "getHostname",
-        "nbrPackets", "getNbrPackets",
-        "timeout", "getTimeOut" );
+      "hostname", "getHostname",
+      "nbrPackets", "getNbrPackets",
+      "timeout", "getTimeOut" );
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-        "hostname", "setHostname",
-        "nbrPackets", "setNbrPackets",
-        "timeout", "setTimeOut" );
+      "hostname", "setHostname",
+      "nbrPackets", "setNbrPackets",
+      "timeout", "setTimeOut" );
   }
 
 }

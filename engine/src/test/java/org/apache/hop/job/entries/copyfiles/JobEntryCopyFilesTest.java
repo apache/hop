@@ -21,24 +21,22 @@
  ******************************************************************************/
 package org.apache.hop.job.entries.copyfiles;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyObject;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
@@ -46,7 +44,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class JobEntryCopyFilesTest {
   private JobEntryCopyFiles entry;
@@ -77,7 +74,7 @@ public class JobEntryCopyFilesTest {
     entry.execute( new Result(), 0 );
 
     verify( entry, never() ).processFileFolder( anyString(), anyString(),
-        anyString(), any( Job.class ), any( Result.class ) );
+      anyString(), any( Job.class ), any( Result.class ) );
   }
 
   @Test
@@ -92,7 +89,7 @@ public class JobEntryCopyFilesTest {
     Result result = entry.execute( new Result(), 0 );
 
     verify( entry ).processFileFolder( anyString(), anyString(),
-        anyString(), any( Job.class ), any( Result.class ) );
+      anyString(), any( Job.class ), any( Result.class ) );
     verify( entry, atLeast( 1 ) ).preprocessfilefilder( any( String[].class ) );
     assertFalse( result.getResult() );
     assertEquals( 1, result.getNrErrors() );
@@ -110,7 +107,7 @@ public class JobEntryCopyFilesTest {
     Result result = entry.execute( new Result(), 0 );
 
     verify( entry, times( srcPath.length ) ).processFileFolder( anyString(), anyString(),
-        anyString(), any( Job.class ), any( Result.class ) );
+      anyString(), any( Job.class ), any( Result.class ) );
     assertFalse( result.getResult() );
     assertEquals( 3, result.getNrErrors() );
   }
@@ -125,8 +122,8 @@ public class JobEntryCopyFilesTest {
     entry.wildcard = new String[] { EMPTY };
 
     String xml = "<entry>" + entry.getXML() + "</entry>";
-    assertTrue( xml.contains( srcPath[0] ) );
-    assertTrue( xml.contains( destPath[0] ) );
+    assertTrue( xml.contains( srcPath[ 0 ] ) );
+    assertTrue( xml.contains( destPath[ 0 ] ) );
     JobEntryCopyFiles loadedentry = new JobEntryCopyFiles();
     InputStream is = new ByteArrayInputStream( xml.getBytes() );
     loadedentry.loadXML( XMLHandler.getSubNode(
@@ -135,9 +132,8 @@ public class JobEntryCopyFilesTest {
         false,
         false ),
       "entry" ),
-      null,
       null );
-    assertTrue( loadedentry.destination_filefolder[0].equals( destPath[0] ) );
-    assertTrue( loadedentry.source_filefolder[0].equals( srcPath[0] ) );
+    assertTrue( loadedentry.destination_filefolder[ 0 ].equals( destPath[ 0 ] ) );
+    assertTrue( loadedentry.source_filefolder[ 0 ].equals( srcPath[ 0 ] ) );
   }
 }

@@ -22,12 +22,34 @@
 
 package org.apache.hop.ui.trans.steps.ldapoutput;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.SourceToTargetMapping;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.ldapinput.LDAPConnection;
+import org.apache.hop.trans.steps.ldapinput.LdapProtocol;
+import org.apache.hop.trans.steps.ldapinput.LdapProtocolFactory;
+import org.apache.hop.trans.steps.ldapoutput.LDAPOutputMeta;
+import org.apache.hop.ui.core.dialog.EnterMappingDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.TableItemInsertListener;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -55,34 +77,12 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.SourceToTargetMapping;
-import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.ldapinput.LDAPConnection;
-import org.apache.hop.trans.steps.ldapinput.LdapProtocol;
-import org.apache.hop.trans.steps.ldapinput.LdapProtocolFactory;
-import org.apache.hop.trans.steps.ldapoutput.LDAPOutputMeta;
-import org.apache.hop.ui.core.dialog.EnterMappingDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.PasswordTextVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.TableItemInsertListener;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class LDAPOutputDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = LDAPOutputMeta.class; // for i18n purposes, needed by Translator2!!
@@ -1000,21 +1000,21 @@ public class LDAPOutputDialog extends BaseStepDialog implements StepDialogInterf
     int UpInsCols = 3;
     int UpInsRows = ( input.getUpdateLookup() != null ? input.getUpdateLookup().length : 1 );
 
-    ciReturn = new ColumnInfo[UpInsCols];
-    ciReturn[0] =
+    ciReturn = new ColumnInfo[ UpInsCols ];
+    ciReturn[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "LDAPOutputUpdateDialog.ColumnInfo.TableField" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    ciReturn[1] =
+    ciReturn[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "LDAPOutputUpdateDialog.ColumnInfo.StreamField" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    ciReturn[2] =
+    ciReturn[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "LDAPOutputUpdateDialog.ColumnInfo.Update" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "Y", "N" } );
 
-    tableFieldColumns.add( ciReturn[0] );
+    tableFieldColumns.add( ciReturn[ 0 ] );
     wReturn =
       new TableView( transMeta, wFields, SWT.BORDER
         | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn, UpInsRows, lsMod, props );
@@ -1215,8 +1215,7 @@ public class LDAPOutputDialog extends BaseStepDialog implements StepDialogInterf
   /**
    * Read the data from the LDAPOutputMeta object and show it in this dialog.
    *
-   * @param in
-   *          The LDAPOutputMeta object to obtain the data from.
+   * @param in The LDAPOutputMeta object to obtain the data from.
    */
   public void getData( LDAPOutputMeta in ) {
     wProtocol.setText( Const.NVL( in.getProtocol(), LdapProtocolFactory.getConnectionTypes( log ).get( 0 ) ) );
@@ -1269,13 +1268,13 @@ public class LDAPOutputDialog extends BaseStepDialog implements StepDialogInterf
     if ( input.getUpdateLookup() != null ) {
       for ( int i = 0; i < input.getUpdateLookup().length; i++ ) {
         TableItem item = wReturn.table.getItem( i );
-        if ( input.getUpdateLookup()[i] != null ) {
-          item.setText( 1, input.getUpdateLookup()[i] );
+        if ( input.getUpdateLookup()[ i ] != null ) {
+          item.setText( 1, input.getUpdateLookup()[ i ] );
         }
-        if ( input.getUpdateStream()[i] != null ) {
-          item.setText( 2, input.getUpdateStream()[i] );
+        if ( input.getUpdateStream()[ i ] != null ) {
+          item.setText( 2, input.getUpdateStream()[ i ] );
         }
-        if ( input.getUpdate()[i] == null || input.getUpdate()[i].booleanValue() ) {
+        if ( input.getUpdate()[ i ] == null || input.getUpdate()[ i ].booleanValue() ) {
           item.setText( 3, "Y" );
         } else {
           item.setText( 3, "N" );
@@ -1308,7 +1307,7 @@ public class LDAPOutputDialog extends BaseStepDialog implements StepDialogInterf
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "LDAPOutputDialog.ErrorParsingData.DialogTitle" ), BaseMessages
-          .getString( PKG, "LDAPOutputDialog.ErrorParsingData.DialogMessage" ), e );
+        .getString( PKG, "LDAPOutputDialog.ErrorParsingData.DialogMessage" ), e );
     }
     dispose();
   }
@@ -1345,9 +1344,9 @@ public class LDAPOutputDialog extends BaseStepDialog implements StepDialogInterf
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrfields; i++ ) {
       TableItem item = wReturn.getNonEmpty( i );
-      in.getUpdateLookup()[i] = item.getText( 1 );
-      in.getUpdateStream()[i] = item.getText( 2 );
-      in.getUpdate()[i] = Boolean.valueOf( "Y".equals( item.getText( 3 ) ) );
+      in.getUpdateLookup()[ i ] = item.getText( 1 );
+      in.getUpdateStream()[ i ] = item.getText( 2 );
+      in.getUpdate()[ i ] = Boolean.valueOf( "Y".equals( item.getText( 3 ) ) );
     }
   }
 
@@ -1385,7 +1384,7 @@ public class LDAPOutputDialog extends BaseStepDialog implements StepDialogInterf
       } catch ( HopException ke ) {
         new ErrorDialog(
           shell, BaseMessages.getString( PKG, "LDAPOutputDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-            .getString( PKG, "LDAPOutputDialog.FailedToGetFields.DialogMessage" ), ke );
+          .getString( PKG, "LDAPOutputDialog.FailedToGetFields.DialogMessage" ), ke );
       }
       gotPrevious = true;
     }
@@ -1402,10 +1401,10 @@ public class LDAPOutputDialog extends BaseStepDialog implements StepDialogInterf
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
     Const.sortStrings( fieldNames );
     // return fields
-    ciReturn[1].setComboValues( fieldNames );
+    ciReturn[ 1 ].setComboValues( fieldNames );
   }
 
   private void getUpdate() {
@@ -1430,7 +1429,7 @@ public class LDAPOutputDialog extends BaseStepDialog implements StepDialogInterf
   private void updateOperation() {
     boolean activateFields =
       ( LDAPOutputMeta.getOperationTypeByDesc( wOperation.getText() ) != LDAPOutputMeta.OPERATION_TYPE_DELETE
-      && LDAPOutputMeta.getOperationTypeByDesc( wOperation.getText() ) != LDAPOutputMeta.OPERATION_TYPE_RENAME );
+        && LDAPOutputMeta.getOperationTypeByDesc( wOperation.getText() ) != LDAPOutputMeta.OPERATION_TYPE_RENAME );
 
     wlReturn.setEnabled( activateFields );
     wReturn.setEnabled( activateFields );
@@ -1531,10 +1530,10 @@ public class LDAPOutputDialog extends BaseStepDialog implements StepDialogInterf
       }
     }
 
-    String[] inputNames = new String[sourceFields.size()];
+    String[] inputNames = new String[ sourceFields.size() ];
     for ( int i = 0; i < sourceFields.size(); i++ ) {
       ValueMetaInterface value = sourceFields.getValueMeta( i );
-      inputNames[i] = value.getName() + EnterMappingDialog.STRING_ORIGIN_SEPARATOR + value.getOrigin() + ")";
+      inputNames[ i ] = value.getName() + EnterMappingDialog.STRING_ORIGIN_SEPARATOR + value.getOrigin() + ")";
     }
 
     // Create the existing mapping list...
@@ -1633,9 +1632,9 @@ public class LDAPOutputDialog extends BaseStepDialog implements StepDialogInterf
             try {
               RowMetaInterface fields = getLDAPFields();
               // loop through the objects and find build the list of fields
-              String[] fieldsName = new String[fields.size()];
+              String[] fieldsName = new String[ fields.size() ];
               for ( int i = 0; i < fields.size(); i++ ) {
-                fieldsName[i] = fields.getValueMeta( i ).getName();
+                fieldsName[ i ] = fields.getValueMeta( i ).getName();
               }
 
               if ( fieldsName != null ) {

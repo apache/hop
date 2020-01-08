@@ -26,19 +26,11 @@
 
 package org.apache.hop.trans.steps.excelinput.staxpoi;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TimeZone;
-
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.spreadsheet.KCell;
+import org.apache.hop.core.spreadsheet.KCellType;
+import org.apache.hop.core.spreadsheet.KSheet;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
@@ -46,9 +38,16 @@ import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
-import org.apache.hop.core.spreadsheet.KCell;
-import org.apache.hop.core.spreadsheet.KCellType;
-import org.apache.hop.core.spreadsheet.KSheet;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Streaming reader for XLSX sheets.<br>
@@ -82,7 +81,7 @@ public class StaxPoiSheet implements KSheet {
   private StylesTable styles;
 
   public StaxPoiSheet( XSSFReader reader, String sheetName, String sheetID )
-      throws InvalidFormatException, IOException, XMLStreamException {
+    throws InvalidFormatException, IOException, XMLStreamException {
     this.sheetName = sheetName;
     xssfReader = reader;
     sheetId = sheetID;
@@ -98,7 +97,7 @@ public class StaxPoiSheet implements KSheet {
         String dim = sheetReader.getAttributeValue( null, "ref" );
         // empty sheets have dimension with no range
         if ( StringUtils.contains( dim, ':' ) ) {
-          dim = dim.split( ":" )[1];
+          dim = dim.split( ":" )[ 1 ];
           numRows = StaxUtil.extractRowNumber( dim );
           numCols = StaxUtil.extractColumnNumber( dim );
         } else {
@@ -174,7 +173,7 @@ public class StaxPoiSheet implements KSheet {
     }
     if ( rownr + 1 < firstRow ) {
       // before first non-empty row
-      return new KCell[0];
+      return new KCell[ 0 ];
     }
     if ( rownr > 0 && currentRow == rownr + 1 ) {
       if ( currentRowCells != null ) {
@@ -182,7 +181,7 @@ public class StaxPoiSheet implements KSheet {
       }
       // The case when the table contains the empty row(s) before the header
       // but at the same time user wants to read starting from 0 row
-      return new KCell[0];
+      return new KCell[ 0 ];
     }
     try {
       if ( currentRow >= rownr + 1 ) {
@@ -226,7 +225,7 @@ public class StaxPoiSheet implements KSheet {
         }
         if ( event == XMLStreamConstants.END_ELEMENT && sheetReader.getLocalName().equals( "row" ) ) {
           // premature end of row, returning what we have
-          return cells.toArray( new StaxPoiCell[cells.size()] );
+          return cells.toArray( new StaxPoiCell[ cells.size() ] );
         }
       }
       String cellLocation = sheetReader.getAttributeValue( null, "r" );
@@ -272,9 +271,9 @@ public class StaxPoiSheet implements KSheet {
         // else let cell be null
         setCells( cells, undefinedColIndex, columnIndex, null );
       }
-        undefinedColIndex = columnIndex + 1;
+      undefinedColIndex = columnIndex + 1;
     }
-    return cells.toArray( new StaxPoiCell[cells.size()] );
+    return cells.toArray( new StaxPoiCell[ cells.size() ] );
   }
 
   private static void setCells( List<StaxPoiCell> cellsArray, int firstUndefinedColIndex, int foundColIndex, StaxPoiCell cell ) {
@@ -305,7 +304,7 @@ public class StaxPoiSheet implements KSheet {
     // if random access this will be very expensive
     KCell[] row = getRow( rownr );
     if ( row != null && rownr < row.length ) {
-      return row[colnr];
+      return row[ colnr ];
     }
     return null;
   }

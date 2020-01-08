@@ -22,14 +22,6 @@
 
 package org.apache.hop.trans.steps.groupby;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
@@ -43,10 +35,17 @@ import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransTestFactory;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 'Int' is added just to avoid name conflicts with engine/test_src existing class.
- * 
  */
 public class GroupByIntIT {
 
@@ -74,19 +73,19 @@ public class GroupByIntIT {
     rm.addValueMeta( new ValueMetaNumber( KEY3 ) );
     rm.addValueMeta( new ValueMetaBigNumber( KEY4 ) );
 
-    Object[] row = new Object[4];
+    Object[] row = new Object[ 4 ];
     List<Integer> nullsList = Arrays.asList( nulls );
 
     for ( int i = 0; i < count; i++ ) {
       if ( nullsList.contains( i ) ) {
         for ( int j = 0; j < row.length; j++ ) {
-          row[j] = null;
+          row[ j ] = null;
         }
       } else {
-        row[0] = "";
-        row[1] = 1L;
-        row[2] = 2.0;
-        row[3] = new BigDecimal( 3 );
+        row[ 0 ] = "";
+        row[ 1 ] = 1L;
+        row[ 2 ] = 2.0;
+        row[ 3 ] = new BigDecimal( 3 );
       }
       list.add( new RowMetaAndData( rm, row ) );
     }
@@ -95,9 +94,9 @@ public class GroupByIntIT {
 
   /**
    * Since of PDI-10250 fix we replace null value with 0 representation. But not all 0 is the same.
-   * We must be correct if it is 0L, or it is double 0, or it is BigDecimal 0. 
-   * Not keep attention to java class conversions we can get specific errors on UI :(   * 
-   * 
+   * We must be correct if it is 0L, or it is double 0, or it is BigDecimal 0.
+   * Not keep attention to java class conversions we can get specific errors on UI :(   *
+   *
    * @throws HopException
    */
   @Test
@@ -115,8 +114,8 @@ public class GroupByIntIT {
     TransMeta transMeta = TransTestFactory.generateTestTransformation( null, meta, stepName );
     List<RowMetaAndData> inputList = getTestRowMetaAndData( 2, new Integer[] { 0, 1 } );
     List<RowMetaAndData> ret =
-        TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, stepName,
-            TransTestFactory.DUMMY_STEPNAME, inputList );
+      TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, stepName,
+        TransTestFactory.DUMMY_STEPNAME, inputList );
 
     Assert.assertNotNull( "At least it is not null", ret );
     Assert.assertEquals( "Ouput is just one row", 1, ret.size() );
@@ -129,19 +128,19 @@ public class GroupByIntIT {
 
     vmi = rmd.getValueMeta( 1 );
     Assert.assertEquals( "The next value is first aggregation", OUT1, vmi.getName() );
-    Assert.assertEquals( "Since it was null String output will be empty string", "", rmd.getData()[1] );
+    Assert.assertEquals( "Since it was null String output will be empty string", "", rmd.getData()[ 1 ] );
 
     vmi = rmd.getValueMeta( 2 );
     Assert.assertEquals( "Third field is second output field", OUT2, vmi.getName() );
     Assert.assertEquals( "To keep correct conversion it must be Long object (Integer representation)", 0L, rmd
-        .getData()[2] );
+      .getData()[ 2 ] );
 
     vmi = rmd.getValueMeta( 3 );
     Assert.assertEquals( "4 is 3 output field", OUT3, vmi.getName() );
-    Assert.assertEquals( "And since it was null it become correct 0", 0.0, rmd.getData()[3] );
+    Assert.assertEquals( "And since it was null it become correct 0", 0.0, rmd.getData()[ 3 ] );
 
     vmi = rmd.getValueMeta( 4 );
-    Assert.assertEquals( "And the last one is null which becomes 0 BigNumber", new BigDecimal( 0 ), rmd.getData()[4] );
+    Assert.assertEquals( "And the last one is null which becomes 0 BigNumber", new BigDecimal( 0 ), rmd.getData()[ 4 ] );
 
   }
 

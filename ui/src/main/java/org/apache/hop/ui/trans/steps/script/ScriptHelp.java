@@ -22,15 +22,15 @@
 
 package org.apache.hop.ui.trans.steps.script;
 
-import java.io.InputStream;
-import java.util.Hashtable;
-
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.xml.XMLHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.io.InputStream;
+import java.util.Hashtable;
 
 public class ScriptHelp {
 

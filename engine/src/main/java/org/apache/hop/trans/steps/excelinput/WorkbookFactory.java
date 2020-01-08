@@ -22,14 +22,14 @@
 
 package org.apache.hop.trans.steps.excelinput;
 
-import java.io.InputStream;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.spreadsheet.KWorkbook;
 import org.apache.hop.trans.steps.excelinput.jxl.XLSWorkbook;
 import org.apache.hop.trans.steps.excelinput.ods.OdfWorkbook;
 import org.apache.hop.trans.steps.excelinput.poi.PoiWorkbook;
 import org.apache.hop.trans.steps.excelinput.staxpoi.StaxPoiWorkbook;
+
+import java.io.InputStream;
 
 public class WorkbookFactory {
 

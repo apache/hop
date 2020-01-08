@@ -38,10 +38,14 @@ public class StringOperationsData extends BaseStepData implements StepDataInterf
 
   public String[] outStreamNrs;
 
-  /** Runtime trim operators */
+  /**
+   * Runtime trim operators
+   */
   public int[] trimOperators;
 
-  /** Runtime trim operators */
+  /**
+   * Runtime trim operators
+   */
   public int[] lowerUpperOperators;
 
   public int[] padType;

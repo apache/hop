@@ -22,13 +22,24 @@
 
 package org.apache.hop.ui.trans.steps.http;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.http.HTTPMeta;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -55,24 +66,13 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.http.HTTPMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.PasswordTextVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class HTTPDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = HTTPMeta.class; // for i18n purposes, needed by Translator2!!
@@ -710,7 +710,7 @@ public class HTTPDialog extends BaseStepDialog implements StepDialogInterface {
           new String[] { "" }, false ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "HTTPDialog.ColumnInfo.Header" ), ColumnInfo.COLUMN_TYPE_TEXT, false ), };
-    colinfHeaders[1].setUsingVariables( true );
+    colinfHeaders[ 1 ].setUsingVariables( true );
     wHeaders =
       new TableView(
         transMeta, wAdditionalComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinfHeaders, HeadersRows,
@@ -882,11 +882,11 @@ public class HTTPDialog extends BaseStepDialog implements StepDialogInterface {
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    colinf[0].setComboValues( fieldNames );
-    colinfHeaders[0].setComboValues( fieldNames );
+    colinf[ 0 ].setComboValues( fieldNames );
+    colinfHeaders[ 0 ].setComboValues( fieldNames );
   }
 
   private void activeUrlInfield() {
@@ -907,19 +907,19 @@ public class HTTPDialog extends BaseStepDialog implements StepDialogInterface {
     if ( input.getArgumentField() != null ) {
       for ( int i = 0; i < input.getArgumentField().length; i++ ) {
         TableItem item = wFields.table.getItem( i );
-        item.setText( 1, Const.NVL( input.getArgumentField()[i], "" ) );
-        item.setText( 2, Const.NVL( input.getArgumentParameter()[i], "" ) );
+        item.setText( 1, Const.NVL( input.getArgumentField()[ i ], "" ) );
+        item.setText( 2, Const.NVL( input.getArgumentParameter()[ i ], "" ) );
       }
     }
 
     if ( input.getHeaderField() != null ) {
       for ( int i = 0; i < input.getHeaderField().length; i++ ) {
         TableItem item = wHeaders.table.getItem( i );
-        if ( input.getHeaderField()[i] != null ) {
-          item.setText( 1, input.getHeaderField()[i] );
+        if ( input.getHeaderField()[ i ] != null ) {
+          item.setText( 1, input.getHeaderField()[ i ] );
         }
-        if ( input.getHeaderParameter()[i] != null ) {
-          item.setText( 2, input.getHeaderParameter()[i] );
+        if ( input.getHeaderParameter()[ i ] != null ) {
+          item.setText( 2, input.getHeaderParameter()[ i ] );
         }
       }
     }
@@ -986,8 +986,8 @@ public class HTTPDialog extends BaseStepDialog implements StepDialogInterface {
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrargs; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      input.getArgumentField()[i] = item.getText( 1 );
-      input.getArgumentParameter()[i] = item.getText( 2 );
+      input.getArgumentField()[ i ] = item.getText( 1 );
+      input.getArgumentParameter()[ i ] = item.getText( 2 );
     }
 
     if ( log.isDebug() ) {
@@ -996,8 +996,8 @@ public class HTTPDialog extends BaseStepDialog implements StepDialogInterface {
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrheaders; i++ ) {
       TableItem item = wHeaders.getNonEmpty( i );
-      input.getHeaderField()[i] = item.getText( 1 );
-      input.getHeaderParameter()[i] = item.getText( 2 );
+      input.getHeaderField()[ i ] = item.getText( 1 );
+      input.getHeaderParameter()[ i ] = item.getText( 2 );
     }
 
     input.setUrl( wUrl.getText() );
@@ -1030,7 +1030,7 @@ public class HTTPDialog extends BaseStepDialog implements StepDialogInterface {
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "HTTPDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "HTTPDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "HTTPDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 
@@ -1043,7 +1043,7 @@ public class HTTPDialog extends BaseStepDialog implements StepDialogInterface {
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "HTTPDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "HTTPDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "HTTPDialog.FailedToGetFields.DialogMessage" ), ke );
     }
 
   }

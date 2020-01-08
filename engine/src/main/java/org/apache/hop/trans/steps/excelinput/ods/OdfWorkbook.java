@@ -22,18 +22,18 @@
 
 package org.apache.hop.trans.steps.excelinput.ods;
 
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.odftoolkit.odfdom.doc.OdfDocument;
-import org.odftoolkit.odfdom.doc.OdfSpreadsheetDocument;
-import org.odftoolkit.odfdom.doc.table.OdfTable;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.spreadsheet.KSheet;
 import org.apache.hop.core.spreadsheet.KWorkbook;
 import org.apache.hop.core.vfs.HopVFS;
+import org.odftoolkit.odfdom.doc.OdfDocument;
+import org.odftoolkit.odfdom.doc.OdfSpreadsheetDocument;
+import org.odftoolkit.odfdom.doc.table.OdfTable;
+
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class OdfWorkbook implements KWorkbook {
 
@@ -87,9 +87,9 @@ public class OdfWorkbook implements KWorkbook {
   public String[] getSheetNames() {
     List<OdfTable> list = document.getTableList();
     int nrSheets = list.size();
-    String[] names = new String[nrSheets];
+    String[] names = new String[ nrSheets ];
     for ( int i = 0; i < nrSheets; i++ ) {
-      names[i] = list.get( i ).getTableName();
+      names[ i ] = list.get( i ).getTableName();
     }
     return names;
   }

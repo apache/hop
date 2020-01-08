@@ -21,6 +21,10 @@
  ******************************************************************************/
 package org.apache.hop.ui.hopui;
 
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -28,10 +32,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.plugins.PluginInterface;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulException;
 
@@ -81,7 +81,7 @@ public class HopUiPluginManagerTest {
     when( hopUiPluginManager.getPluginRegistry() ).thenReturn( pluginRegistry );
     when( hopUiPluginManager.getSpoonPerspectiveManager() ).thenReturn( hopUiPerspectiveManager );
     when( pluginRegistry.loadClass( any( PluginInterface.class ) ) )
-        .thenReturn( hopUiPluginInterface1, hopUiPluginInterface2 );
+      .thenReturn( hopUiPluginInterface1, hopUiPluginInterface2 );
   }
 
   @Test
@@ -121,7 +121,7 @@ public class HopUiPluginManagerTest {
 
     assertEquals( 2, pluginInterfaces.size() );
     assertTrue( pluginInterfaces
-        .containsAll( Arrays.asList( hopUiPluginInterface1, hopUiPluginInterface2 ) ) );
+      .containsAll( Arrays.asList( hopUiPluginInterface1, hopUiPluginInterface2 ) ) );
   }
 
   @Test

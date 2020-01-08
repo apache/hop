@@ -22,6 +22,27 @@
 
 package org.apache.hop.ui.i18n;
 
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSelectInfo;
+import org.apache.commons.vfs2.FileSelector;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -34,33 +55,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSelectInfo;
-import org.apache.commons.vfs2.FileSelector;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.i18n.BaseMessages;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 /**
  * This class takes care of crawling through the source code
  *
  * @author matt
- *
  */
 public class MessagesSourceCrawler {
 
@@ -97,13 +95,11 @@ public class MessagesSourceCrawler {
   private LogChannelInterface log;
 
   /**
-   * @param sourceDirectories
-   *          The source directories to crawl through
-   * @param singleMessagesFile
-   *          the messages file if there is only one, otherwise: null
+   * @param sourceDirectories  The source directories to crawl through
+   * @param singleMessagesFile the messages file if there is only one, otherwise: null
    */
   public MessagesSourceCrawler( LogChannelInterface log, List<String> sourceDirectories,
-    String singleMessagesFile, List<SourceCrawlerXMLFolder> xmlFolders ) {
+                                String singleMessagesFile, List<SourceCrawlerXMLFolder> xmlFolders ) {
     super();
     this.log = log;
     this.sourceDirectories = sourceDirectories;
@@ -128,8 +124,7 @@ public class MessagesSourceCrawler {
   }
 
   /**
-   * @param sourceDirectories
-   *          The source directories to crawl through
+   * @param sourceDirectories The source directories to crawl through
    */
   public void setSourceDirectories( List<String> sourceDirectories ) {
     this.sourceDirectories = sourceDirectories;
@@ -143,8 +138,7 @@ public class MessagesSourceCrawler {
   }
 
   /**
-   * @param filesToAvoid
-   *          the files to avoid
+   * @param filesToAvoid the files to avoid
    */
   public void setFilesToAvoid( List<String> filesToAvoid ) {
     this.filesToAvoid = filesToAvoid;
@@ -154,8 +148,7 @@ public class MessagesSourceCrawler {
    * Add a key occurrence to the list of occurrences. The list is kept sorted on key and message package. If the key
    * already exists, we increment the number of occurrences.
    *
-   * @param occ
-   *          The key occurrence to add
+   * @param occ The key occurrence to add
    */
   public void addKeyOccurrence( KeyOccurrence occ ) {
 
@@ -264,8 +257,8 @@ public class MessagesSourceCrawler {
   }
 
   private void addLabelOccurrences( String sourceFolder, FileObject fileObject, NodeList nodeList,
-    String keyPrefix, String tag, String attribute, String defaultPackage,
-    List<SourceCrawlerPackageException> packageExcpeptions ) throws Exception {
+                                    String keyPrefix, String tag, String attribute, String defaultPackage,
+                                    List<SourceCrawlerPackageException> packageExcpeptions ) throws Exception {
     if ( nodeList == null ) {
       return;
     }
@@ -315,13 +308,9 @@ public class MessagesSourceCrawler {
   /**
    * Look for additional occurrences of keys in the specified file.
    *
-   * @param sourceFolder
-   *          The folder the java file and messages files live in
-   *
-   * @param javaFile
-   *          The java source file to examine
-   * @throws IOException
-   *           In case there is a problem accessing the specified source file.
+   * @param sourceFolder The folder the java file and messages files live in
+   * @param javaFile     The java source file to examine
+   * @throws IOException In case there is a problem accessing the specified source file.
    */
   public void lookForOccurrencesInFile( String sourceFolder, FileObject javaFile ) throws IOException {
 
@@ -458,22 +447,15 @@ public class MessagesSourceCrawler {
   /**
    * Extract the needed information from the line and the index on which Messages.getString() occurs.
    *
-   * @param sourceFolder
-   *          The source folder the messages and java files live in
-   *
-   * @param fileObject
-   *          the file we're reading
-   * @param messagesPackage
-   *          the messages package
-   * @param line
-   *          the line
-   * @param row
-   *          the row number
-   * @param index
-   *          the index in the line on which "Messages.getString(" is located.
+   * @param sourceFolder    The source folder the messages and java files live in
+   * @param fileObject      the file we're reading
+   * @param messagesPackage the messages package
+   * @param line            the line
+   * @param row             the row number
+   * @param index           the index in the line on which "Messages.getString(" is located.
    */
   private void addLineOccurrence( String sourceFolder, FileObject fileObject, String messagesPackage, String line,
-    int row, int index, String scanPhrase ) {
+                                  int row, int index, String scanPhrase ) {
     // Right after the "Messages.getString(" string is the key, quoted (")
     // until the next comma...
     //
@@ -564,10 +546,8 @@ public class MessagesSourceCrawler {
   /**
    * Get all the key occurrences for a certain messages package.
    *
-   * @param sourceFolder
-   *          the source folder to reference
-   * @param messagesPackage
-   *          the package to hunt for
+   * @param sourceFolder    the source folder to reference
+   * @param messagesPackage the package to hunt for
    * @return all the key occurrences for a certain messages package.
    */
   public List<KeyOccurrence> getOccurrencesForPackage( String messagesPackage ) {
@@ -609,8 +589,7 @@ public class MessagesSourceCrawler {
   }
 
   /**
-   * @param singleMessagesFile
-   *          the singleMessagesFile to set
+   * @param singleMessagesFile the singleMessagesFile to set
    */
   public void setSingleMessagesFile( String singleMessagesFile ) {
     this.singleMessagesFile = singleMessagesFile;
@@ -624,8 +603,7 @@ public class MessagesSourceCrawler {
   }
 
   /**
-   * @param scanPhrases
-   *          the scanPhrases to set
+   * @param scanPhrases the scanPhrases to set
    */
   public void setScanPhrases( String[] scanPhrases ) {
     this.scanPhrases = scanPhrases;

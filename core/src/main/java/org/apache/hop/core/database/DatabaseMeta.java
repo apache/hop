@@ -46,15 +46,11 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.IHopMetaStoreElement;
-import org.apache.hop.metastore.api.IHasFactory;
-import org.apache.hop.metastore.api.IHasName;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
-
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.metastore.util.HopDefaults;
-import org.apache.hop.shared.SharedObjectBase;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -66,7 +62,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
@@ -81,7 +76,7 @@ import java.util.concurrent.Future;
   name = "Relational Database Connection",
   description = "This contains all the metadata needed to connect to a relational database"
 )
-public class DatabaseMeta extends SharedObjectBase implements Cloneable, VariableSpace, IHopMetaStoreElement<DatabaseMeta> {
+public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElement<DatabaseMeta> {
   private static Class<?> PKG = Database.class; // for i18n purposes, needed by Translator2!!
 
   public static final String XML_TAG = "connection";
@@ -100,7 +95,7 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, Variabl
 
   private String name;
 
-  @MetaStoreAttribute(key="rdbms")
+  @MetaStoreAttribute( key = "rdbms" )
   private DatabaseInterface databaseInterface;
 
   private static volatile Future<Map<String, DatabaseInterface>> allDatabaseInterfaces;
@@ -189,23 +184,23 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, Variabl
   }
 
   @Override public MetaStoreFactory<DatabaseMeta> getFactory( IMetaStore metaStore ) {
-    return createFactory(metaStore);
+    return createFactory( metaStore );
   }
 
-  public static final MetaStoreFactory<DatabaseMeta> createFactory( IMetaStore metaStore) {
+  public static final MetaStoreFactory<DatabaseMeta> createFactory( IMetaStore metaStore ) {
     MetaStoreFactory<DatabaseMeta> factory = new MetaStoreFactory<>( DatabaseMeta.class, metaStore, HopDefaults.NAMESPACE );
     factory.setObjectFactory( new DatabaseMetaStoreObjectFactory() );
     return factory;
   }
 
   public static DatabaseMeta loadDatabase( IMetaStore metaStore, String connectionName ) throws HopXMLException {
-    if (metaStore==null || StringUtils.isEmpty(connectionName)) {
+    if ( metaStore == null || StringUtils.isEmpty( connectionName ) ) {
       return null; // Nothing to find or load
     }
     try {
       return createFactory( metaStore ).loadElement( connectionName );
-    } catch(Exception e) {
-      throw new HopXMLException( "Unable to load relational database connection '"+connectionName+"'", e );
+    } catch ( Exception e ) {
+      throw new HopXMLException( "Unable to load relational database connection '" + connectionName + "'", e );
     }
   }
 
@@ -634,7 +629,7 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, Variabl
      * A manually constructed URL overrides all other options.
      * We make sure to see that there's no space or tab in the field
      */
-    if ( StringUtils.isNotEmpty(getManualUrl()) && StringUtils.isNotBlank( getManualUrl() )) {
+    if ( StringUtils.isNotEmpty( getManualUrl() ) && StringUtils.isNotBlank( getManualUrl() ) ) {
       return getManualUrl();
     }
 
@@ -741,11 +736,11 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, Variabl
     Properties properties = new Properties();
 
     Map<String, String> map = getExtraOptionsMap();
-    for (String option : map.keySet()) {
-      String value = map.get(option);
+    for ( String option : map.keySet() ) {
+      String value = map.get( option );
       properties.put(
-        environmentSubstitute(option),
-        environmentSubstitute(Const.NVL( value, "" ))
+        environmentSubstitute( option ),
+        environmentSubstitute( Const.NVL( value, "" ) )
       );
     }
 
@@ -774,7 +769,7 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, Variabl
    * @return all the extra JDBC options, in their original form, for this specific database type
    */
   public Map<String, String> getExtraOptionsMap() {
-    Map<String,String> optionsMap = new HashMap<>();
+    Map<String, String> optionsMap = new HashMap<>();
 
     Map<String, String> map = getExtraOptions();
     if ( map.size() > 0 ) {
@@ -793,7 +788,7 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, Variabl
             if ( value != null && value.equals( EMPTY_OPTIONS_STRING ) ) {
               value = "";
             }
-            optionsMap.put(parameter, value);
+            optionsMap.put( parameter, value );
           }
         }
       }
@@ -1035,7 +1030,7 @@ public class DatabaseMeta extends SharedObjectBase implements Cloneable, Variabl
   }
 
   public String getDriverClass() {
-    if (getAccessType()==TYPE_ACCESS_ODBC) {
+    if ( getAccessType() == TYPE_ACCESS_ODBC ) {
       return "sun.jdbc.odbc.JdbcOdbcDriver";
     } else {
       return environmentSubstitute( databaseInterface.getDriverClass() );

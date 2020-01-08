@@ -22,21 +22,6 @@
 
 package org.apache.hop.trans.steps.sort;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
@@ -55,6 +40,21 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.SocketTimeoutException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
 /**
  * Sort the rows in the input-streams based on certain criteria
  *
@@ -68,7 +68,7 @@ public class SortRows extends BaseStep implements StepInterface {
   private SortRowsData data;
 
   public SortRows( StepMeta stepMeta, StepDataInterface stepDataInterface,
-      int copyNr, TransMeta transMeta, Trans trans ) {
+                   int copyNr, TransMeta transMeta, Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
 
     meta = (SortRowsMeta) getStepMeta().getStepMetaInterface();
@@ -79,8 +79,8 @@ public class SortRows extends BaseStep implements StepInterface {
     // we need convert some keys?
     if ( data.convertKeysToNative != null ) {
       for ( int i = 0; i < data.convertKeysToNative.length; i++ ) {
-        int index = data.convertKeysToNative[i];
-        r[index] = rowMeta.getValueMeta( index ).convertBinaryStringToNativeType( (byte[]) r[index] );
+        int index = data.convertKeysToNative[ i ];
+        r[ index ] = rowMeta.getValueMeta( index ).convertBinaryStringToNativeType( (byte[]) r[ index ] );
       }
     }
 
@@ -108,11 +108,11 @@ public class SortRows extends BaseStep implements StepInterface {
     // Buffer is full: sort & dump to disk
     boolean doSort = data.buffer.size() == data.sortSize;
     doSort |=
-        data.freeMemoryPctLimit > 0 && data.freeMemoryPct < data.freeMemoryPctLimit
-            && data.buffer.size() >= data.minSortSize;
+      data.freeMemoryPctLimit > 0 && data.freeMemoryPct < data.freeMemoryPctLimit
+        && data.buffer.size() >= data.minSortSize;
     if ( log.isDebug() ) {
       this.logDebug( BaseMessages.getString( PKG, "SortRows.Debug.StartDumpToDisk", data.freeMemoryPct, data.buffer
-          .size() ) );
+        .size() ) );
     }
     // time to sort the buffer and write the data to disk...
     if ( doSort ) {
@@ -138,8 +138,8 @@ public class SortRows extends BaseStep implements StepInterface {
 
     try {
       FileObject fileObject =
-          HopVFS.createTempFile( meta.getPrefix(), ".tmp", environmentSubstitute( meta.getDirectory() ),
-              getTransMeta() );
+        HopVFS.createTempFile( meta.getPrefix(), ".tmp", environmentSubstitute( meta.getDirectory() ),
+          getTransMeta() );
 
       data.files.add( fileObject ); // Remember the files!
       OutputStream outputStream = HopVFS.getOutputStream( fileObject, false );
@@ -164,7 +164,7 @@ public class SortRows extends BaseStep implements StepInterface {
               duplicates.add( index );
               if ( log.isRowLevel() ) {
                 logRowlevel( BaseMessages.getString( PKG, "SortRows.RowLevel.DuplicateRowRemoved", data.outputRowMeta
-                    .getString( row ) ) );
+                  .getString( row ) ) );
               }
             }
           }
@@ -193,7 +193,7 @@ public class SortRows extends BaseStep implements StepInterface {
       if ( data.sortSize < 0 ) {
         if ( data.buffer.size() > data.minSortSize ) {
           data.minSortSize = data.buffer.size(); // if we did it once, we can do
-                                                 // it again.
+          // it again.
 
           // Memory usage goes up over time, even with garbage collection
           // We need pointers, file handles, etc.
@@ -270,7 +270,7 @@ public class SortRows extends BaseStep implements StepInterface {
 
           if ( log.isDetailed() ) {
             logDetailed( BaseMessages.getString( PKG, "SortRows.Detailed.FromFileExpectingRows",
-                filename, buffersize ) );
+              filename, buffersize ) );
           }
 
           if ( buffersize > 0 ) {
@@ -308,7 +308,7 @@ public class SortRows extends BaseStep implements StepInterface {
           for ( int i = 0; i < data.rowbuffer.size() && !isStopped(); i++ ) {
             Object[] b = data.rowbuffer.get( i );
             logRowlevel( BaseMessages
-                .getString( PKG, "SortRows.RowLevel.PrintRow", i, data.outputRowMeta.getString( b ) ) );
+              .getString( PKG, "SortRows.RowLevel.PrintRow", i, data.outputRowMeta.getString( b ) ) );
           }
         }
 
@@ -398,11 +398,11 @@ public class SortRows extends BaseStep implements StepInterface {
 
         // we do set exact list instead of null
         groupFields = meta.getGroupFields();
-        data.groupnrs = new int[groupFields.size()];
+        data.groupnrs = new int[ groupFields.size() ];
 
         for ( int i = 0; i < groupFields.size(); i++ ) {
-          data.groupnrs[i] = inputRowMeta.indexOfValue( groupFields.get( i ) );
-          if ( data.groupnrs[i] < 0 ) {
+          data.groupnrs[ i ] = inputRowMeta.indexOfValue( groupFields.get( i ) );
+          if ( data.groupnrs[ i ] < 0 ) {
             logError( BaseMessages.getString( PKG, "SortRows.Error.PresortedFieldNotFound", groupFields.get( i ) ) );
             setErrors( 1 );
             stopAll();
@@ -412,7 +412,7 @@ public class SortRows extends BaseStep implements StepInterface {
       }
 
       String[] fieldNames = meta.getFieldName();
-      data.fieldnrs = new int[fieldNames.length];
+      data.fieldnrs = new int[ fieldNames.length ];
       List<Integer> toConvert = new ArrayList<Integer>();
 
       // Metadata
@@ -421,20 +421,20 @@ public class SortRows extends BaseStep implements StepInterface {
       data.comparator = new RowTemapFileComparator( data.outputRowMeta, data.fieldnrs );
 
       for ( int i = 0; i < fieldNames.length; i++ ) {
-        data.fieldnrs[i] = inputRowMeta.indexOfValue( fieldNames[i] );
-        if ( data.fieldnrs[i] < 0 ) {
+        data.fieldnrs[ i ] = inputRowMeta.indexOfValue( fieldNames[ i ] );
+        if ( data.fieldnrs[ i ] < 0 ) {
           throw new HopException( BaseMessages.getString( PKG, "SortRowsMeta.CheckResult.StepFieldNotInInputStream",
-              meta.getFieldName()[i], getStepname() ) );
+            meta.getFieldName()[ i ], getStepname() ) );
         }
         // do we need binary conversion for this type?
-        if ( inputRowMeta.getValueMeta( data.fieldnrs[i] ).isStorageBinaryString() ) {
-          toConvert.add( data.fieldnrs[i] );
+        if ( inputRowMeta.getValueMeta( data.fieldnrs[ i ] ).isStorageBinaryString() ) {
+          toConvert.add( data.fieldnrs[ i ] );
         }
       }
-      data.convertKeysToNative = toConvert.isEmpty() ? null : new int[toConvert.size()];
+      data.convertKeysToNative = toConvert.isEmpty() ? null : new int[ toConvert.size() ];
       int i = 0;
       for ( Integer in : toConvert ) {
-        data.convertKeysToNative[i] = in;
+        data.convertKeysToNative[ i ] = in;
         i++;
       }
       data.rowComparator = new RowObjectArrayComparator( data.outputRowMeta, data.fieldnrs );
@@ -492,7 +492,6 @@ public class SortRows extends BaseStep implements StepInterface {
   /**
    * This method passes all rows in the buffer to the next steps. Usually call to this method indicates that this
    * particular step finishing processing.
-   *
    */
   void passBuffer() throws HopException {
     // Now we can start the output!
@@ -520,7 +519,7 @@ public class SortRows extends BaseStep implements StepInterface {
           int result = data.outputRowMeta.compare( r, previousRow, data.fieldnrs );
           if ( result != 0 ) {
             putRow( data.outputRowMeta, r ); // copy row to possible alternate
-                                             // rowset(s).
+            // rowset(s).
           }
         } else {
           putRow( data.outputRowMeta, r ); // copy row to next steps
@@ -528,7 +527,7 @@ public class SortRows extends BaseStep implements StepInterface {
         previousRow = r;
       } else {
         putRow( data.outputRowMeta, r ); // copy row to possible alternate
-                                         // rowset(s).
+        // rowset(s).
       }
 
       r = getBuffer();

@@ -29,7 +29,6 @@ import org.apache.hop.core.row.ValueMetaInterface;
  * TODO: move this to XML somewhere...
  *
  * @author matt
- *
  */
 public enum SelectValuesAttr implements HopAttributeInterface {
 
@@ -85,7 +84,7 @@ public enum SelectValuesAttr implements HopAttributeInterface {
    * @param type
    */
   private SelectValuesAttr( String xmlCode, String repCode, String description, String tooltip, int type,
-    SelectValuesAttr parent ) {
+                            SelectValuesAttr parent ) {
     this.xmlCode = xmlCode;
     this.repCode = repCode;
     this.description = description;
@@ -105,8 +104,7 @@ public enum SelectValuesAttr implements HopAttributeInterface {
   }
 
   /**
-   * @param xmlCode
-   *          The XML Code to search for
+   * @param xmlCode The XML Code to search for
    * @return the attribute that corresponds to the XML code or null if nothing was found.
    */
   public static SelectValuesAttr findByKey( String key ) {

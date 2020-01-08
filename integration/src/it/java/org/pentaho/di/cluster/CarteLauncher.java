@@ -62,8 +62,7 @@ public class CarteLauncher implements Runnable {
   }
 
   /**
-   * @param carte
-   *          the carte to set
+   * @param carte the carte to set
    */
   public void setCarte( Carte carte ) {
     this.carte = carte;
@@ -77,8 +76,7 @@ public class CarteLauncher implements Runnable {
   }
 
   /**
-   * @param exception
-   *          the exception to set
+   * @param exception the exception to set
    */
   public void setException( Exception exception ) {
     this.exception = exception;
@@ -92,8 +90,7 @@ public class CarteLauncher implements Runnable {
   }
 
   /**
-   * @param failure
-   *          the failure to set
+   * @param failure the failure to set
    */
   public void setFailure( boolean failure ) {
     this.failure = failure;
@@ -107,8 +104,7 @@ public class CarteLauncher implements Runnable {
   }
 
   /**
-   * @param config
-   *          the config to set
+   * @param config the config to set
    */
   public void setConfig( SlaveServerConfig config ) {
     this.config = config;

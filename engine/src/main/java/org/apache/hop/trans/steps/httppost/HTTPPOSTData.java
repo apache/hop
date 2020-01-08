@@ -23,15 +23,14 @@
 package org.apache.hop.trans.steps.httppost;
 
 
-import org.apache.http.NameValuePair;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+import org.apache.http.NameValuePair;
 
 /**
  * @author Matt
  * @since 24-jan-2005
- *
  */
 public class HTTPPOSTData extends BaseStepData implements StepDataInterface {
   public RowMetaInterface outputRowMeta;

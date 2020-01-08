@@ -22,6 +22,8 @@
 
 package org.apache.hop.core.util;
 
+import org.apache.hop.core.logging.LogChannelInterface;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -29,13 +31,15 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Vector;
 
-import org.apache.hop.core.logging.LogChannelInterface;
-
 public class SortedFileOutputStream extends FileOutputStream {
-  /** Internal buffer to catch output. Before really writing output, the properties get sorted. */
+  /**
+   * Internal buffer to catch output. Before really writing output, the properties get sorted.
+   */
   private StringBuilder sb = null;
 
-  /** Logger, for the few errors that may occur. */
+  /**
+   * Logger, for the few errors that may occur.
+   */
   private LogChannelInterface log = null;
 
   /**
@@ -108,8 +112,8 @@ public class SortedFileOutputStream extends FileOutputStream {
       super.close();
     }
 
-    int[] iPos = new int[1];
-    iPos[0] = 0;
+    int[] iPos = new int[ 1 ];
+    iPos[ 0 ] = 0;
     String sLine = nextLine( iPos );
 
     Vector<String> lines = new Vector<String>();
@@ -165,33 +169,32 @@ public class SortedFileOutputStream extends FileOutputStream {
    * Get next line. The line end is marked at the first occurrence of an unescaped '\n' or '\r' character. All following
    * '\n' or '\r' characters after the first unescaped '\n' or '\r' character are included in the line.
    *
-   * @param iPos
-   *          The position from where to start at. This is passed as array of size one to <i>pass back</i> the parsing
-   *          position (kind of C++ reference pass)
+   * @param iPos The position from where to start at. This is passed as array of size one to <i>pass back</i> the parsing
+   *             position (kind of C++ reference pass)
    * @return
    */
   private String nextLine( int[] iPos ) {
     // End of StringBuilder reached?
-    if ( iPos[0] >= sb.length() ) {
+    if ( iPos[ 0 ] >= sb.length() ) {
       return null;
     }
 
     // Remember start
-    int iStart = iPos[0];
-    char c = sb.charAt( iPos[0] );
+    int iStart = iPos[ 0 ];
+    char c = sb.charAt( iPos[ 0 ] );
 
     // Read until end of stream reached or first '\n' or '\r' character found
-    while ( iPos[0] < sb.length() && c != '\n' && c != '\r' ) {
-      c = sb.charAt( iPos[0]++ );
+    while ( iPos[ 0 ] < sb.length() && c != '\n' && c != '\r' ) {
+      c = sb.charAt( iPos[ 0 ]++ );
 
       // If now we have '\r' or '\n' and they are escaped, we just read the next
       // character. For this at least two characters must have been read.
-      if ( iPos[0] >= 2 ) {
+      if ( iPos[ 0 ] >= 2 ) {
         // Is it an escaped '\r' or '\n'?
-        if ( ( c == '\n' || c == '\r' ) && ( iPos[0] - 2 == '\\' ) ) {
+        if ( ( c == '\n' || c == '\r' ) && ( iPos[ 0 ] - 2 == '\\' ) ) {
           // Yes! Just read next character, if not end of stream reached
-          if ( iPos[0] < sb.length() ) {
-            c = sb.charAt( iPos[0]++ );
+          if ( iPos[ 0 ] < sb.length() ) {
+            c = sb.charAt( iPos[ 0 ]++ );
           }
         }
       }
@@ -199,21 +202,21 @@ public class SortedFileOutputStream extends FileOutputStream {
 
     // Either we've found a '\r' or '\n' character or we are at the end of the stream.
     // In either case return.
-    if ( iPos[0] == sb.length() ) {
+    if ( iPos[ 0 ] == sb.length() ) {
       // Return complete remainder
       return sb.substring( iStart );
     } else {
       // Consume characters as long as '\r' or '\n' is found.
-      while ( iPos[0] < sb.length() && ( c == '\n' || c == '\r' ) ) {
-        c = sb.charAt( iPos[0]++ );
+      while ( iPos[ 0 ] < sb.length() && ( c == '\n' || c == '\r' ) ) {
+        c = sb.charAt( iPos[ 0 ]++ );
       }
 
       // Return complete remainder or part of stream
-      if ( iPos[0] == sb.length() ) {
+      if ( iPos[ 0 ] == sb.length() ) {
         return sb.substring( iStart );
       } else {
-        iPos[0]--;
-        return sb.substring( iStart, iPos[0] );
+        iPos[ 0 ]--;
+        return sb.substring( iStart, iPos[ 0 ] );
       }
     }
   }

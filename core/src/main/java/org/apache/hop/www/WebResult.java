@@ -117,8 +117,7 @@ public class WebResult {
   }
 
   /**
-   * @param id
-   *          the id to set
+   * @param id the id to set
    */
   public void setId( String id ) {
     this.id = id;

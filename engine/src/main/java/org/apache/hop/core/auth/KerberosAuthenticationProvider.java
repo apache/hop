@@ -37,6 +37,7 @@ public class KerberosAuthenticationProvider implements AuthenticationProvider {
       return KerberosAuthenticationProvider.class;
     }
   }
+
   private String principal;
   private boolean useExternalCredentials;
   private String password;
@@ -49,7 +50,7 @@ public class KerberosAuthenticationProvider implements AuthenticationProvider {
   }
 
   public KerberosAuthenticationProvider( String id, String principal, boolean useExternalCredentials, String password,
-      boolean useKeytab, String keytabLocation ) {
+                                         boolean useKeytab, String keytabLocation ) {
     this.id = id;
     this.principal = principal;
     this.useExternalCredentials = useExternalCredentials;

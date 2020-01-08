@@ -22,13 +22,13 @@
 
 package org.apache.hop.core.plugins;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopFileException;
 import org.scannotation.AnnotationDB;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class JarFileCache {
 

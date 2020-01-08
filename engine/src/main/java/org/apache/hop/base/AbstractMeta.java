@@ -22,7 +22,6 @@
 
 package org.apache.hop.base;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.cluster.SlaveServer;
@@ -30,14 +29,10 @@ import org.apache.hop.core.AttributesInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.EngineMetaInterface;
 import org.apache.hop.core.NotePadMeta;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.attributes.metastore.EmbeddedMetaStore;
 import org.apache.hop.core.changed.ChangedFlag;
 import org.apache.hop.core.changed.ChangedFlagInterface;
 import org.apache.hop.core.changed.HopObserver;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.metastore.DatabaseMetaStoreObjectFactory;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.UndoInterface;
@@ -47,11 +42,8 @@ import org.apache.hop.core.listeners.FilenameChangedListener;
 import org.apache.hop.core.listeners.NameChangedListener;
 import org.apache.hop.core.logging.ChannelLogTable;
 import org.apache.hop.core.logging.DefaultLogLevel;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.osgi.api.MetastoreLocatorOsgi;
-import org.apache.hop.core.osgi.api.NamedClusterServiceOsgi;
 import org.apache.hop.core.parameters.DuplicateParamException;
 import org.apache.hop.core.parameters.NamedParams;
 import org.apache.hop.core.parameters.NamedParamsDefault;
@@ -62,21 +54,14 @@ import org.apache.hop.core.undo.TransAction;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
-import org.apache.hop.metastore.util.HopDefaults;
-import org.apache.hop.shared.SharedObjectInterface;
-import org.apache.hop.shared.SharedObjects;
-import org.apache.hop.trans.HasDatabasesInterface;
 import org.apache.hop.trans.HasSlaveServersInterface;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -125,8 +110,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
 
   protected Set<CurrentDirectoryChangedListener> currentDirectoryChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<CurrentDirectoryChangedListener, Boolean>() );
 
-  protected List<SlaveServer> slaveServers;
-
   protected List<NotePadMeta> notes;
 
   protected ChannelLogTable channelLogTable;
@@ -136,8 +119,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   protected List<TransAction> undo;
 
   protected Map<String, Map<String, String>> attributesMap;
-
-  protected EmbeddedMetaStore embeddedMetaStore = new EmbeddedMetaStore( this );
 
   protected VariableSpace variables = new Variables();
 
@@ -150,18 +131,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   protected String createdUser, modifiedUser;
 
   protected Date createdDate, modifiedDate;
-
-  protected NamedClusterServiceOsgi namedClusterServiceOsgi;
-
-  /**
-   * If this is null, we load from the default shared objects file : $HOP_HOME/.kettle/shared.xml
-   */
-  protected String sharedObjectsFile;
-
-  /**
-   * The last loaded version of the shared objects
-   */
-  protected SharedObjects sharedObjects;
 
   protected final ChangedFlag changedFlag = new ChangedFlag();
 
@@ -339,21 +308,21 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    * @return The database connection or null if nothing was found.
    */
   public DatabaseMeta findDatabase( String name ) {
-    if (metaStore==null || StringUtils.isEmpty(name)) {
+    if ( metaStore == null || StringUtils.isEmpty( name ) ) {
       return null;
     }
     try {
       return DatabaseMeta.createFactory( metaStore ).loadElement( name );
-    } catch( MetaStoreException e) {
-      throw new RuntimeException( "Unable to load database with name '"+name+"' from the metastore", e );
+    } catch ( MetaStoreException e ) {
+      throw new RuntimeException( "Unable to load database with name '" + name + "' from the metastore", e );
     }
   }
 
   public int nrDatabases() {
     try {
       return DatabaseMeta.createFactory( metaStore ).getElementNames().size();
-    } catch( MetaStoreException e) {
-      throw new RuntimeException( "Unable to load database with name '"+name+"' from the metastore", e );
+    } catch ( MetaStoreException e ) {
+      throw new RuntimeException( "Unable to load database with name '" + name + "' from the metastore", e );
     }
   }
 
@@ -510,21 +479,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
     }
   }
 
-  /**
-   * Add a new slave server to the transformation if that didn't exist yet. Otherwise, replace it.
-   *
-   * @param slaveServer The slave server to be added.
-   */
-  public void addOrReplaceSlaveServer( SlaveServer slaveServer ) {
-    int index = slaveServers.indexOf( slaveServer );
-    if ( index < 0 ) {
-      slaveServers.add( slaveServer );
-    } else {
-      SlaveServer previous = slaveServers.get( index );
-      previous.replaceMeta( slaveServer );
-    }
-    setChanged();
-  }
 
   /**
    * Gets a list of slave servers.
@@ -533,16 +487,11 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    */
   @Override
   public List<SlaveServer> getSlaveServers() {
-    return slaveServers;
-  }
-
-  /**
-   * Sets the slave servers.
-   *
-   * @param slaveServers the slaveServers to set
-   */
-  public void setSlaveServers( List<SlaveServer> slaveServers ) {
-    this.slaveServers = slaveServers;
+    try {
+      return SlaveServer.createFactory( metaStore ).getElements();
+    } catch ( MetaStoreException e ) {
+      throw new RuntimeException( "Unable to load slave servers from the metastore", e );
+    }
   }
 
   /**
@@ -552,7 +501,14 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    * @return the slave server or null if we couldn't spot an approriate entry.
    */
   public SlaveServer findSlaveServer( String serverString ) {
-    return SlaveServer.findSlaveServer( slaveServers, serverString );
+    if ( metaStore == null || StringUtils.isEmpty( name ) ) {
+      return null;
+    }
+    try {
+      return SlaveServer.createFactory( metaStore ).loadElement( name );
+    } catch ( MetaStoreException e ) {
+      throw new RuntimeException( "Unable to load slave server with name '" + name + "' from the metastore", e );
+    }
   }
 
   /**
@@ -561,7 +517,13 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
    * @return An array list slave server names
    */
   public String[] getSlaveServerNames() {
-    return SlaveServer.getSlaveServerNames( slaveServers );
+    try {
+      List<String> names = SlaveServer.createFactory( metaStore ).getElementNames();
+      Collections.sort( names );
+      return names.toArray( new String[ 0 ] );
+    } catch ( MetaStoreException e ) {
+      throw new RuntimeException( "Unable to get slave server names from the metastore", e );
+    }
   }
 
   /*
@@ -741,10 +703,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
       return 0;
     }
     return undo.size();
-  }
-
-  public EmbeddedMetaStore getEmbeddedMetaStore() {
-    return embeddedMetaStore;
   }
 
   @Override
@@ -979,7 +937,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   public List<DatabaseMeta> getDatabases() {
     try {
       return DatabaseMeta.createFactory( metaStore ).getElements();
-    } catch( MetaStoreException e) {
+    } catch ( MetaStoreException e ) {
       throw new RuntimeException( "Unable to load databases from the metastore", e );
     }
   }
@@ -992,9 +950,9 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   public String[] getDatabaseNames() {
     try {
       List<String> names = DatabaseMeta.createFactory( metaStore ).getElementNames();
-      Collections.sort(names);
-      return names.toArray( new String[0] );
-    } catch( MetaStoreException e) {
+      Collections.sort( names );
+      return names.toArray( new String[ 0 ] );
+    } catch ( MetaStoreException e ) {
       throw new RuntimeException( "Unable to get database names from the metastore", e );
     }
   }
@@ -1311,85 +1269,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
     this.metaStore = metaStore;
   }
 
-  /**
-   * Gets the shared objects file.
-   *
-   * @return the sharedObjectsFile
-   */
-  public String getSharedObjectsFile() {
-    return sharedObjectsFile;
-  }
-
-  /**
-   * Sets the shared objects file.
-   *
-   * @param sharedObjectsFile the sharedObjectsFile to set
-   */
-  public void setSharedObjectsFile( String sharedObjectsFile ) {
-    this.sharedObjectsFile = sharedObjectsFile;
-  }
-
-  /**
-   * Gets the shared objects.
-   *
-   * @return the sharedObjects
-   */
-  public SharedObjects getSharedObjects() {
-    if ( sharedObjects == null ) {
-      try {
-        String soFile = environmentSubstitute( sharedObjectsFile );
-        sharedObjects = new SharedObjects( soFile );
-      } catch ( HopException e ) {
-        LogChannel.GENERAL.logDebug( e.getMessage(), e );
-      }
-    }
-    return sharedObjects;
-  }
-
-  /**
-   * Sets the shared objects.
-   *
-   * @param sharedObjects the sharedObjects to set
-   */
-  public void setSharedObjects( SharedObjects sharedObjects ) {
-    this.sharedObjects = sharedObjects;
-  }
-
-  /**
-   * Read shared objects.
-   *
-   * @return the shared objects
-   * @throws HopException the kettle exception
-   */
-  public SharedObjects readSharedObjects() throws HopException {
-    // Extract the shared steps, connections, etc. using the SharedObjects
-    // class
-    //
-    String soFile = environmentSubstitute( sharedObjectsFile );
-    SharedObjects sharedObjects = new SharedObjects( soFile );
-    Map<?, SharedObjectInterface> objectsMap = sharedObjects.getObjectsMap();
-
-    // First read the databases...
-    // We read databases & slaves first because there might be dependencies
-    // that need to be resolved.
-    //
-    for ( SharedObjectInterface object : objectsMap.values() ) {
-      loadSharedObject( object );
-    }
-
-    return sharedObjects;
-  }
-
-  protected boolean loadSharedObject( SharedObjectInterface object ) {
-   if ( object instanceof SlaveServer ) {
-      SlaveServer slaveServer = (SlaveServer) object;
-      slaveServer.shareVariablesWith( this );
-      addOrReplaceSlaveServer( slaveServer );
-    } else {
-      return false;
-    }
-    return true;
-  }
 
   /**
    * Sets the internal name kettle variable.
@@ -1482,7 +1361,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
     setName( null );
     setFilename( null );
     notes = new ArrayList<>();
-    slaveServers = new ArrayList<>();
     channelLogTable = ChannelLogTable.getDefault( this, metaStore );
     attributesMap = new HashMap<>();
     max_undo = Const.MAX_UNDO;
@@ -1647,44 +1525,17 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
     this.privateDatabases = privateDatabases;
   }
 
-  @Override public void saveSharedObjects() throws HopException {
-    try {
-      // Load all the shared objects...
-      String soFile = environmentSubstitute( sharedObjectsFile );
-      SharedObjects sharedObjects = new SharedObjects( soFile );
-      // in-memory shared objects are supposed to be in sync, discard those on file to allow edit/delete
-      sharedObjects.setObjectsMap( new Hashtable<>() );
-
-      for ( SharedObjectInterface sharedObject : getAllSharedObjects() ) {
-        if ( sharedObject.isShared() ) {
-          sharedObjects.storeObject( sharedObject );
-        }
-      }
-
-      sharedObjects.saveToFile();
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to save shared ojects", e );
-    }
-  }
-
-  protected List<SharedObjectInterface> getAllSharedObjects() {
-    List<SharedObjectInterface> shared = new ArrayList<>();
-    shared.addAll( slaveServers );
-    return shared;
-  }
-
-
   protected int compare( AbstractMeta meta1, AbstractMeta meta2 ) {
     // If we don't have a filename...
     //
-    if ( StringUtils.isEmpty( meta1.getFilename()) && StringUtils.isNotEmpty( meta2.getFilename() ) ) {
+    if ( StringUtils.isEmpty( meta1.getFilename() ) && StringUtils.isNotEmpty( meta2.getFilename() ) ) {
       return -1;
     }
-    if ( StringUtils.isNotEmpty( meta1.getFilename()) && StringUtils.isEmpty( meta2.getFilename() ) ) {
+    if ( StringUtils.isNotEmpty( meta1.getFilename() ) && StringUtils.isEmpty( meta2.getFilename() ) ) {
       return 1;
     }
-    if ( (StringUtils.isEmpty( meta1.getFilename() ) && StringUtils.isEmpty( meta2.getFilename() )
-       || (meta1.getFilename().equals( meta2.getFilename() )) )
+    if ( ( StringUtils.isEmpty( meta1.getFilename() ) && StringUtils.isEmpty( meta2.getFilename() )
+      || ( meta1.getFilename().equals( meta2.getFilename() ) ) )
     ) {
       // Compare names...
       //
@@ -1704,14 +1555,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   @Override
   public int hashCode() {
     return Objects.hash( filename, name );
-  }
-
-  public NamedClusterServiceOsgi getNamedClusterServiceOsgi() {
-    return namedClusterServiceOsgi;
-  }
-
-  public void setNamedClusterServiceOsgi( NamedClusterServiceOsgi namedClusterServiceOsgi ) {
-    this.namedClusterServiceOsgi = namedClusterServiceOsgi;
   }
 
   private static class RunOptions {

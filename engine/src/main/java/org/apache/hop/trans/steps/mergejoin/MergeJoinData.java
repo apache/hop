@@ -22,17 +22,16 @@
 
 package org.apache.hop.trans.steps.mergejoin;
 
-import java.util.List;
-
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 
+import java.util.List;
+
 /**
  * @author Biswapesh
  * @since 24-nov-2005
- *
  */
 
 public class MergeJoinData extends BaseStepData implements StepDataInterface {

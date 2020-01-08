@@ -25,7 +25,6 @@ package org.apache.hop.trans.steps.creditcardvalidator;
 /**
  * @author Samatar
  * @since 03-Juin-2008
- *
  */
 public class ReturnIndicator {
   public String CardType;

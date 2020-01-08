@@ -22,11 +22,7 @@
 
 package org.apache.hop.trans;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
+import junit.framework.TestCase;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
@@ -45,7 +41,10 @@ import org.apache.hop.trans.TransMeta.TransformationType;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMetaDataCombi;
 
-import junit.framework.TestCase;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class TransSingleThreadIT extends TestCase {
 
@@ -155,15 +154,15 @@ public class TransSingleThreadIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    {
-      new ValueMetaString( "field1" ), new ValueMetaInteger( "field2" ),
-      new ValueMetaNumber( "field3" ), new ValueMetaDate( "field4" ),
-      new ValueMetaBoolean( "field5" ),
-      new ValueMetaBigNumber( "field6" ),
-      new ValueMetaBigNumber( "field7" ), };
+      {
+        new ValueMetaString( "field1" ), new ValueMetaInteger( "field2" ),
+        new ValueMetaNumber( "field3" ), new ValueMetaDate( "field4" ),
+        new ValueMetaBoolean( "field5" ),
+        new ValueMetaBigNumber( "field6" ),
+        new ValueMetaBigNumber( "field7" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;

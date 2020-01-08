@@ -22,17 +22,6 @@
 package org.apache.hop.trans.steps.exceloutput;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -43,6 +32,17 @@ import org.apache.hop.trans.steps.loadsave.initializer.InitializerInterface;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.IntLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 public class ExcelOutputMetaTest implements InitializerInterface<StepMetaInterface> {
   LoadSaveTester loadSaveTester;
@@ -54,13 +54,13 @@ public class ExcelOutputMetaTest implements InitializerInterface<StepMetaInterfa
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "headerFontName", "headerFontSize", "headerFontBold", "headerFontItalic", "headerFontUnderline",
-            "headerFontOrientation", "headerFontColor", "headerBackGroundColor", "headerRowHeight", "headerAlignment",
-            "headerImage", "rowFontName", "rowFontSize", "rowFontColor", "rowBackGroundColor", "fileName", "extension",
-            "password", "headerEnabled", "footerEnabled", "splitEvery", "stepNrInFilename", "dateInFilename", "addToResultFiles",
-            "sheetProtected", "timeInFilename", "templateEnabled", "templateFileName", "templateAppend", "sheetname", "useTempFiles",
-            "tempDirectory", "encoding", "append", "doNotOpenNewFileInit", "createParentFolder", "specifyFormat", "dateTimeFormat",
-            "autoSizeColumns", "nullBlank", "outputFields" );
+      Arrays.asList( "headerFontName", "headerFontSize", "headerFontBold", "headerFontItalic", "headerFontUnderline",
+        "headerFontOrientation", "headerFontColor", "headerBackGroundColor", "headerRowHeight", "headerAlignment",
+        "headerImage", "rowFontName", "rowFontSize", "rowFontColor", "rowBackGroundColor", "fileName", "extension",
+        "password", "headerEnabled", "footerEnabled", "splitEvery", "stepNrInFilename", "dateInFilename", "addToResultFiles",
+        "sheetProtected", "timeInFilename", "templateEnabled", "templateFileName", "templateAppend", "sheetname", "useTempFiles",
+        "tempDirectory", "encoding", "append", "doNotOpenNewFileInit", "createParentFolder", "specifyFormat", "dateTimeFormat",
+        "autoSizeColumns", "nullBlank", "outputFields" );
 
     // Note - newline (get/set) doesn't appear to be used or persisted. So, it's not included in the load/save tester.
 
@@ -74,7 +74,7 @@ public class ExcelOutputMetaTest implements InitializerInterface<StepMetaInterfa
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "outputFields",
-        new ArrayLoadSaveValidator<ExcelField>( new ExcelFieldLoadSaveValidator(), 5 ) );
+      new ArrayLoadSaveValidator<ExcelField>( new ExcelFieldLoadSaveValidator(), 5 ) );
     attrValidatorMap.put( "headerFontName", new IntLoadSaveValidator( ExcelOutputMeta.font_name_code.length ) );
     attrValidatorMap.put( "headerFontUnderline", new IntLoadSaveValidator( ExcelOutputMeta.font_underline_code.length ) );
     attrValidatorMap.put( "headerFontOrientation", new IntLoadSaveValidator( ExcelOutputMeta.font_orientation_code.length ) );
@@ -88,8 +88,8 @@ public class ExcelOutputMetaTest implements InitializerInterface<StepMetaInterfa
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
-            getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class
@@ -107,6 +107,7 @@ public class ExcelOutputMetaTest implements InitializerInterface<StepMetaInterfa
 
   public class ExcelFieldLoadSaveValidator implements FieldLoadSaveValidator<ExcelField> {
     final Random rand = new Random();
+
     @Override
     public ExcelField getTestObject() {
       ExcelField rtn = new ExcelField();

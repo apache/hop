@@ -22,18 +22,6 @@
 
 package org.apache.hop.trans.steps.stringoperations;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -51,6 +39,18 @@ import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 
 /**
@@ -66,10 +66,10 @@ public class StringOperationsMetaTest implements InitializerInterface<StepMetaIn
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "padLen", "padChar", "fieldInStream", "fieldOutStream", "trimType", "lowerUpper", "initCap", "maskXML", "digits", "removeSpecialCharacters", "paddingType" );
+      Arrays.asList( "padLen", "padChar", "fieldInStream", "fieldOutStream", "trimType", "lowerUpper", "initCap", "maskXML", "digits", "removeSpecialCharacters", "paddingType" );
 
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "padLen", stringArrayLoadSaveValidator );
@@ -77,25 +77,25 @@ public class StringOperationsMetaTest implements InitializerInterface<StepMetaIn
     attrValidatorMap.put( "fieldInStream", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fieldOutStream", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "trimType",
-        new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( 4 ), 5 ) );
+      new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( 4 ), 5 ) );
     attrValidatorMap.put( "lowerUpper",
-        new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( StringOperationsMeta.lowerUpperCode.length ), 5 ) );
+      new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( StringOperationsMeta.lowerUpperCode.length ), 5 ) );
     attrValidatorMap.put( "initCap",
-        new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( StringOperationsMeta.initCapCode.length ), 5 ) );
+      new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( StringOperationsMeta.initCapCode.length ), 5 ) );
     attrValidatorMap.put( "maskXML",
-        new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( StringOperationsMeta.maskXMLCode.length ), 5 ) );
+      new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( StringOperationsMeta.maskXMLCode.length ), 5 ) );
     attrValidatorMap.put( "digits",
-        new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( StringOperationsMeta.digitsCode.length ), 5 ) );
+      new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( StringOperationsMeta.digitsCode.length ), 5 ) );
     attrValidatorMap.put( "removeSpecialCharacters",
-        new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( StringOperationsMeta.removeSpecialCharactersCode.length ), 5 ) );
+      new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( StringOperationsMeta.removeSpecialCharactersCode.length ), 5 ) );
     attrValidatorMap.put( "paddingType",
-        new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( StringOperationsMeta.paddingCode.length ), 5 ) );
+      new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( StringOperationsMeta.paddingCode.length ), 5 ) );
 
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
-            new HashMap<String, String>(), new HashMap<String, String>(), attrValidatorMap, typeValidatorMap, this );
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+        new HashMap<String, String>(), new HashMap<String, String>(), attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class

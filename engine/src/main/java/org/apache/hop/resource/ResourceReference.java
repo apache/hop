@@ -22,20 +22,18 @@
 
 package org.apache.hop.resource;
 
+import org.apache.hop.core.util.StringUtil;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.hop.core.util.StringUtil;
 
 public class ResourceReference {
   private ResourceHolderInterface resourceReferenceHolder;
   private List<ResourceEntry> entries;
 
   /**
-   * @param resourceReferenceHolder
-   *          Where to put the resource references
-   * @param entries
-   *          the resource entries list
+   * @param resourceReferenceHolder Where to put the resource references
+   * @param entries                 the resource entries list
    */
   public ResourceReference( ResourceHolderInterface resourceReferenceHolder, List<ResourceEntry> entries ) {
     super();
@@ -56,8 +54,7 @@ public class ResourceReference {
   }
 
   /**
-   * @param resourceReferenceHolder
-   *          the resource reference holder to set
+   * @param resourceReferenceHolder the resource reference holder to set
    */
   public void setReferenceHolder( ResourceHolderInterface resourceReferenceHolder ) {
     this.resourceReferenceHolder = resourceReferenceHolder;
@@ -71,8 +68,7 @@ public class ResourceReference {
   }
 
   /**
-   * @param entries
-   *          the entries to set
+   * @param entries the entries to set
    */
   public void setEntries( List<ResourceEntry> entries ) {
     this.entries = entries;
@@ -117,7 +113,7 @@ public class ResourceReference {
   }
 
   public void addXmlElementWithAttribute( StringBuilder buff, int indentLevel, String elementName, String attrName,
-    String attrValue ) {
+                                          String attrValue ) {
     buff
       .append( StringUtil.getIndent( indentLevel ) )
       .append( "<" ).append( elementName ).append( " " ).append( attrName ).append( "='" );
@@ -138,7 +134,7 @@ public class ResourceReference {
     buff
       .append( StringUtil.getIndent( indentLevel ) )
       .append( "<" ).append( elementName ).append( "><![CDATA[" ).append( elementValue ).append( "]]></" ).append(
-        elementName ).append( ">" ).append( StringUtil.CRLF );
+      elementName ).append( ">" ).append( StringUtil.CRLF );
   }
 
 }

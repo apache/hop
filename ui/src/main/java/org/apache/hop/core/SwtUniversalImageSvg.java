@@ -22,10 +22,6 @@
 
 package org.apache.hop.core;
 
-import java.awt.Graphics2D;
-import java.awt.geom.Dimension2D;
-import java.awt.image.BufferedImage;
-
 import org.apache.batik.bridge.BridgeContext;
 import org.apache.batik.bridge.DocumentLoader;
 import org.apache.batik.bridge.GVTBuilder;
@@ -33,9 +29,13 @@ import org.apache.batik.bridge.UserAgentAdapter;
 import org.apache.batik.ext.awt.image.codec.png.PNGRegistryEntry;
 import org.apache.batik.ext.awt.image.spi.ImageTagRegistry;
 import org.apache.batik.gvt.GraphicsNode;
+import org.apache.hop.core.svg.SvgImage;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Image;
-import org.apache.hop.core.svg.SvgImage;
+
+import java.awt.*;
+import java.awt.geom.Dimension2D;
+import java.awt.image.BufferedImage;
 
 public class SwtUniversalImageSvg extends SwtUniversalImage {
   private final GraphicsNode svgGraphicsNode;
@@ -60,7 +60,7 @@ public class SwtUniversalImageSvg extends SwtUniversalImage {
   @Override
   protected Image renderSimple( Device device ) {
     return renderSimple( device, (int) Math.round( svgGraphicsSize.getWidth() ), (int) Math.round( svgGraphicsSize
-        .getHeight() ) );
+      .getHeight() ) );
   }
 
   @Override
@@ -80,7 +80,7 @@ public class SwtUniversalImageSvg extends SwtUniversalImage {
 
     Graphics2D gc = SwingUniversalImage.createGraphics( doubleArea );
     SwingUniversalImageSvg.render( gc, svgGraphicsNode, svgGraphicsSize, doubleArea.getWidth() / 2, doubleArea
-        .getHeight() / 2, width, height, angleRadians );
+      .getHeight() / 2, width, height, angleRadians );
 
     gc.dispose();
 

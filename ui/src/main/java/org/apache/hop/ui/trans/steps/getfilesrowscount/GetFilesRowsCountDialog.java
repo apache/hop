@@ -22,6 +22,29 @@
 
 package org.apache.hop.ui.trans.steps.getfilesrowscount;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPreviewFactory;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.getfilesrowscount.GetFilesRowsCountMeta;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -49,29 +72,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPreviewFactory;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.getfilesrowscount.GetFilesRowsCountMeta;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class GetFilesRowsCountDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = GetFilesRowsCountMeta.class; // for i18n purposes, needed by Translator2!!
@@ -394,34 +394,34 @@ public class GetFilesRowsCountDialog extends BaseStepDialog implements StepDialo
     fdbShowFiles.bottom = new FormAttachment( 100, 0 );
     wbShowFiles.setLayoutData( fdbShowFiles );
 
-    ColumnInfo[] colinfo = new ColumnInfo[5];
-    colinfo[0] =
+    ColumnInfo[] colinfo = new ColumnInfo[ 5 ];
+    colinfo[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "GetFilesRowsCountDialog.Files.Filename.Column" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinfo[1] =
+    colinfo[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "GetFilesRowsCountDialog.Files.Wildcard.Column" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinfo[2] =
+    colinfo[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "GetFilesRowsDialog.Files.ExcludeWildcard.Column" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
 
-    colinfo[3] =
+    colinfo[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "GetFilesRowsCountDialog.Required.Column" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, GetFilesRowsCountMeta.RequiredFilesDesc );
-    colinfo[4] =
+    colinfo[ 4 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "GetFilesRowsCountDialog.IncludeSubDirs.Column" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, GetFilesRowsCountMeta.RequiredFilesDesc );
 
-    colinfo[0].setUsingVariables( true );
-    colinfo[1].setUsingVariables( true );
-    colinfo[1].setToolTip( BaseMessages.getString( PKG, "GetFilesRowsCountDialog.Files.Wildcard.Tooltip" ) );
-    colinfo[2].setUsingVariables( true );
-    colinfo[2].setToolTip( BaseMessages.getString( PKG, "GetFilesRowsDialog.Files.ExcludeWildcard.Tooltip" ) );
+    colinfo[ 0 ].setUsingVariables( true );
+    colinfo[ 1 ].setUsingVariables( true );
+    colinfo[ 1 ].setToolTip( BaseMessages.getString( PKG, "GetFilesRowsCountDialog.Files.Wildcard.Tooltip" ) );
+    colinfo[ 2 ].setUsingVariables( true );
+    colinfo[ 2 ].setToolTip( BaseMessages.getString( PKG, "GetFilesRowsDialog.Files.ExcludeWildcard.Tooltip" ) );
 
     wFilenameList =
       new TableView(
@@ -771,7 +771,7 @@ public class GetFilesRowsCountDialog extends BaseStepDialog implements StepDialo
       public void widgetSelected( SelectionEvent arg0 ) {
         wFilenameList.add( new String[] {
           wFilename.getText(), wFilemask.getText(), wExcludeFilemask.getText(),
-          GetFilesRowsCountMeta.RequiredFilesCode[0], GetFilesRowsCountMeta.RequiredFilesCode[0] } );
+          GetFilesRowsCountMeta.RequiredFilesCode[ 0 ], GetFilesRowsCountMeta.RequiredFilesCode[ 0 ] } );
         wFilename.setText( "" );
         wFilemask.setText( "" );
         wExcludeFilemask.setText( "" );
@@ -800,9 +800,9 @@ public class GetFilesRowsCountDialog extends BaseStepDialog implements StepDialo
         int idx = wFilenameList.getSelectionIndex();
         if ( idx >= 0 ) {
           String[] string = wFilenameList.getItem( idx );
-          wFilename.setText( string[0] );
-          wFilemask.setText( string[1] );
-          wExcludeFilemask.setText( string[2] );
+          wFilename.setText( string[ 0 ] );
+          wFilemask.setText( string[ 1 ] );
+          wExcludeFilemask.setText( string[ 2 ] );
           wFilenameList.remove( idx );
         }
         wFilenameList.removeEmptyRows();
@@ -952,7 +952,7 @@ public class GetFilesRowsCountDialog extends BaseStepDialog implements StepDialo
         r.getFieldNames();
 
         for ( int i = 0; i < r.getFieldNames().length; i++ ) {
-          wFilenameField.add( r.getFieldNames()[i] );
+          wFilenameField.add( r.getFieldNames()[ i ] );
 
         }
       }
@@ -966,17 +966,16 @@ public class GetFilesRowsCountDialog extends BaseStepDialog implements StepDialo
   /**
    * Read the data from the GetFilesRowsCountMeta object and show it in this dialog.
    *
-   * @param in
-   *          The GetFilesRowsCountMeta object to obtain the data from.
+   * @param in The GetFilesRowsCountMeta object to obtain the data from.
    */
   public void getData( GetFilesRowsCountMeta in ) {
     if ( in.getFileName() != null ) {
       wFilenameList.removeAll();
       for ( int i = 0; i < in.getFileName().length; i++ ) {
         wFilenameList.add( new String[] {
-          in.getFileName()[i], in.getFileMask()[i], in.getExludeFileMask()[i],
-          in.getRequiredFilesDesc( in.getFileRequired()[i] ),
-          in.getRequiredFilesDesc( in.getIncludeSubFolders()[i] ) } );
+          in.getFileName()[ i ], in.getFileMask()[ i ], in.getExludeFileMask()[ i ],
+          in.getRequiredFilesDesc( in.getFileRequired()[ i ] ),
+          in.getRequiredFilesDesc( in.getIncludeSubFolders()[ i ] ) } );
       }
       wFilenameList.removeEmptyRows();
       wFilenameList.setRowNums();
@@ -1128,7 +1127,7 @@ public class GetFilesRowsCountDialog extends BaseStepDialog implements StepDialo
             EnterTextDialog etd =
               new EnterTextDialog(
                 shell, BaseMessages.getString( PKG, "System.Dialog.PreviewError.Title" ), BaseMessages
-                  .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
+                .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
             etd.setReadOnly();
             etd.open();
           }
@@ -1136,7 +1135,7 @@ public class GetFilesRowsCountDialog extends BaseStepDialog implements StepDialo
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
               shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta( wStepname
-                .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
+              .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
           prd.open();
 
         }

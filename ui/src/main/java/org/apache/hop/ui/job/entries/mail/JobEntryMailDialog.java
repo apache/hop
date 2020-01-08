@@ -22,10 +22,24 @@
 
 package org.apache.hop.ui.job.entries.mail;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Random;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.mail.JobEntryMail;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.LabelText;
+import org.apache.hop.ui.core.widget.LabelTextVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -53,24 +67,10 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.mail.JobEntryMail;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.LabelText;
-import org.apache.hop.ui.core.widget.LabelTextVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Dialog that allows you to edit a JobEntryMail object.
@@ -885,7 +885,7 @@ public class JobEntryMailDialog extends JobEntryDialog implements JobEntryDialog
     wSubject =
       new LabelTextVar(
         jobMeta, wMessageGroup, BaseMessages.getString( PKG, "JobMail.Subject.Label" ), BaseMessages
-          .getString( PKG, "JobMail.Subject.Tooltip" ) );
+        .getString( PKG, "JobMail.Subject.Tooltip" ) );
     wSubject.addModifyListener( lsMod );
     fdSubject = new FormData();
     fdSubject.left = new FormAttachment( 0, 0 );
@@ -1007,7 +1007,7 @@ public class JobEntryMailDialog extends JobEntryDialog implements JobEntryDialog
     fdTypes.right = new FormAttachment( 100, 0 );
     wTypes.setLayoutData( fdTypes );
     for ( int i = 0; i < ResultFile.getAllTypeDesc().length; i++ ) {
-      wTypes.add( ResultFile.getAllTypeDesc()[i] );
+      wTypes.add( ResultFile.getAllTypeDesc()[ i ] );
     }
 
     // Zip Files?
@@ -1037,7 +1037,7 @@ public class JobEntryMailDialog extends JobEntryDialog implements JobEntryDialog
     wZipFilename =
       new LabelTextVar(
         jobMeta, wResultFilesGroup, BaseMessages.getString( PKG, "JobMail.ZipFilename.Label" ), BaseMessages
-          .getString( PKG, "JobMail.ZipFilename.Tooltip" ) );
+        .getString( PKG, "JobMail.ZipFilename.Tooltip" ) );
     wZipFilename.addModifyListener( lsMod );
     fdZipFilename = new FormData();
     fdZipFilename.left = new FormAttachment( 0, 0 );
@@ -1190,10 +1190,10 @@ public class JobEntryMailDialog extends JobEntryDialog implements JobEntryDialog
           BaseMessages.getString( PKG, "JobMail.Fields.ContentID.Label" ), ColumnInfo.COLUMN_TYPE_TEXT,
           false ), };
 
-    colinf[0].setUsingVariables( true );
-    colinf[0].setToolTip( BaseMessages.getString( PKG, "JobMail.Fields.Image.Tooltip" ) );
-    colinf[1].setUsingVariables( true );
-    colinf[1].setToolTip( BaseMessages.getString( PKG, "JobMail.Fields.ContentID.Tooltip" ) );
+    colinf[ 0 ].setUsingVariables( true );
+    colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "JobMail.Fields.Image.Tooltip" ) );
+    colinf[ 1 ].setUsingVariables( true );
+    colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "JobMail.Fields.ContentID.Tooltip" ) );
 
     wFields =
       new TableView(
@@ -1237,8 +1237,8 @@ public class JobEntryMailDialog extends JobEntryDialog implements JobEntryDialog
         int idx = wFields.getSelectionIndex();
         if ( idx >= 0 ) {
           String[] string = wFields.getItem( idx );
-          wImageFilename.setText( string[0] );
-          wContentID.setText( string[1] );
+          wImageFilename.setText( string[ 0 ] );
+          wContentID.setText( string[ 1 ] );
           wFields.remove( idx );
         }
         wFields.removeEmptyRows();
@@ -1510,11 +1510,11 @@ public class JobEntryMailDialog extends JobEntryDialog implements JobEntryDialog
     if ( jobEntry.embeddedimages != null ) {
       for ( int i = 0; i < jobEntry.embeddedimages.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.embeddedimages[i] != null ) {
-          ti.setText( 1, jobEntry.embeddedimages[i] );
+        if ( jobEntry.embeddedimages[ i ] != null ) {
+          ti.setText( 1, jobEntry.embeddedimages[ i ] );
         }
-        if ( jobEntry.contentids[i] != null ) {
-          ti.setText( 2, jobEntry.contentids[i] );
+        if ( jobEntry.contentids[ i ] != null ) {
+          ti.setText( 2, jobEntry.contentids[ i ] );
         }
       }
       wFields.setRowNums();
@@ -1612,15 +1612,15 @@ public class JobEntryMailDialog extends JobEntryDialog implements JobEntryDialog
         nr++;
       }
     }
-    jobEntry.embeddedimages = new String[nr];
-    jobEntry.contentids = new String[nr];
+    jobEntry.embeddedimages = new String[ nr ];
+    jobEntry.contentids = new String[ nr ];
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       String wild = wFields.getNonEmpty( i ).getText( 2 );
       if ( arg != null && arg.length() != 0 ) {
-        jobEntry.embeddedimages[nr] = arg;
-        jobEntry.contentids[nr] = wild;
+        jobEntry.embeddedimages[ nr ] = arg;
+        jobEntry.contentids[ nr ] = wild;
         nr++;
       }
     }

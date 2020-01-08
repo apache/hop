@@ -22,9 +22,9 @@
 
 package org.apache.hop.ui.hopui.job;
 
-import java.util.List;
-
 import org.apache.hop.job.entry.JobEntryCopy;
+
+import java.util.List;
 
 public class JobEntryCopyResult {
 
@@ -57,8 +57,7 @@ public class JobEntryCopyResult {
   }
 
   /**
-   * @param jobEntryName
-   *          the jobEntryName to set
+   * @param jobEntryName the jobEntryName to set
    */
   public void setJobEntryName( String jobEntryName ) {
     this.jobEntryName = jobEntryName;
@@ -72,8 +71,7 @@ public class JobEntryCopyResult {
   }
 
   /**
-   * @param result
-   *          the result to set
+   * @param result the result to set
    */
   public void setResult( Boolean result ) {
     this.result = result;
@@ -87,8 +85,7 @@ public class JobEntryCopyResult {
   }
 
   /**
-   * @param errors
-   *          the errors to set
+   * @param errors the errors to set
    */
   public void setErrors( Long errors ) {
     this.errors = errors;
@@ -102,8 +99,7 @@ public class JobEntryCopyResult {
   }
 
   /**
-   * @param copyNr
-   *          the copyNr to set
+   * @param copyNr the copyNr to set
    */
   public void setCopyNr( int copyNr ) {
     this.copyNr = copyNr;

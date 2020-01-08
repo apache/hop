@@ -22,14 +22,14 @@
 
 package org.apache.hop.ui.hopui;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.trans.TransHopMeta;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.widget.tree.TreeNode;
 import org.apache.hop.ui.hopui.tree.provider.HopsFolderProvider;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;

@@ -22,13 +22,13 @@
 
 package org.apache.hop.trans.steps.ldapinput;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.variables.VariableSpace;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class LdapProtocolFactory {
   protected static final List<Class<? extends LdapProtocol>> protocols = initProtocols();
@@ -78,17 +78,14 @@ public class LdapProtocolFactory {
   /**
    * Creates the LdapProtocol appropriate for the LdapMeta
    *
-   * @param variableSpace
-   *          the variable space for environment substitutions
-   * @param meta
-   *          the ldap meta
-   * @param binaryAttributes
-   *          binary attributes to associate with the connection
+   * @param variableSpace    the variable space for environment substitutions
+   * @param meta             the ldap meta
+   * @param binaryAttributes binary attributes to associate with the connection
    * @return an LdapProtocol
    * @throws HopException
    */
   public LdapProtocol createLdapProtocol( VariableSpace variableSpace, LdapMeta meta,
-    Collection<String> binaryAttributes ) throws HopException {
+                                          Collection<String> binaryAttributes ) throws HopException {
     String connectionType = variableSpace.environmentSubstitute( meta.getProtocol() );
 
     synchronized ( protocols ) {

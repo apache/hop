@@ -22,8 +22,20 @@
 
 package org.apache.hop.ui.core.widget;
 
-import java.util.ArrayList;
-
+import org.apache.hop.core.Condition;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaAndData;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterValueDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -51,29 +63,16 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.Condition;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaAndData;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.EnterValueDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
 
 /**
  * Widget that allows you to edit a Condition in a graphical way.
  *
  * @author Matt
  * @since 29-07-2004
- *
  */
 
 public class ConditionEditor extends Composite {
@@ -409,7 +408,7 @@ public class ConditionEditor extends Composite {
                 }
                 EnterValueDialog evd = new EnterValueDialog( shell, SWT.NONE, v.getValueMeta(), v.getValueData() );
                 evd.setModalDialog( true ); // To keep the condition editor from being closed with a value dialog still
-                                            // open. (PDI-140)
+                // open. (PDI-140)
                 ValueMetaAndData newval = evd.open();
                 if ( newval != null ) {
                   active_condition.setRightValuename( null );
@@ -787,8 +786,8 @@ public class ConditionEditor extends Composite {
     } else {
       drawNegated( gc, 0, 0, active_condition );
 
-      size_cond = new Rectangle[active_condition.nrConditions()];
-      size_oper = new Rectangle[active_condition.nrConditions()];
+      size_cond = new Rectangle[ active_condition.nrConditions() ];
+      size_oper = new Rectangle[ active_condition.nrConditions() ];
 
       int basex = 10;
       int basey = size_not.y + 5;
@@ -838,7 +837,7 @@ public class ConditionEditor extends Composite {
   }
 
   private Rectangle getAndNotSize( GC gc ) {
-    Point p = gc.textExtent( Condition.operators[Condition.OPERATOR_AND_NOT] );
+    Point p = gc.textExtent( Condition.operators[ Condition.OPERATOR_AND_NOT ] );
     return new Rectangle( 0, 0, p.x, p.y );
   }
 
@@ -895,7 +894,7 @@ public class ConditionEditor extends Composite {
       ext_left = gc.textExtent( "<field>" );
     }
 
-    String fn_max = Condition.functions[Condition.FUNC_NOT_NULL];
+    String fn_max = Condition.functions[ Condition.FUNC_NOT_NULL ];
     String fn = condition.getFunctionDesc();
     Point ext_fn = gc.textExtent( fn_max );
 
@@ -1021,14 +1020,14 @@ public class ConditionEditor extends Composite {
     if ( nr > 0 ) {
       String operator = condition.getOperatorDesc();
       // Remember the size of the rectangle!
-      size_oper[nr] = new Rectangle( opx, opy, opw, oph );
+      size_oper[ nr ] = new Rectangle( opx, opy, opw, oph );
       if ( nr == hover_operator ) {
         gc.setBackground( gray );
-        gc.fillRectangle( Real2Screen( size_oper[nr] ) );
-        gc.drawRectangle( Real2Screen( size_oper[nr] ) );
+        gc.fillRectangle( Real2Screen( size_oper[ nr ] ) );
+        gc.drawRectangle( Real2Screen( size_oper[ nr ] ) );
         gc.setBackground( bg );
       }
-      gc.drawText( operator, size_oper[nr].x + 2 + offsetx, size_oper[nr].y + 2 + offsety, SWT.DRAW_TRANSPARENT );
+      gc.drawText( operator, size_oper[ nr ].x + 2 + offsetx, size_oper[ nr ].y + 2 + offsety, SWT.DRAW_TRANSPARENT );
     }
 
     /*
@@ -1043,15 +1042,15 @@ public class ConditionEditor extends Composite {
     ch = p.y + 5;
 
     // Remember the size of the rectangle!
-    size_cond[nr] = new Rectangle( cx, cy, cw, ch );
+    size_cond[ nr ] = new Rectangle( cx, cy, cw, ch );
 
     if ( nr == hover_condition ) {
       gc.setBackground( gray );
-      gc.fillRectangle( Real2Screen( size_cond[nr] ) );
-      gc.drawRectangle( Real2Screen( size_cond[nr] ) );
+      gc.fillRectangle( Real2Screen( size_cond[ nr ] ) );
+      gc.drawRectangle( Real2Screen( size_cond[ nr ] ) );
       gc.setBackground( bg );
     }
-    gc.drawText( str, size_cond[nr].x + 2 + offsetx, size_cond[nr].y + 5 + offsety, SWT.DRAW_DELIMITER
+    gc.drawText( str, size_cond[ nr ].x + 2 + offsetx, size_cond[ nr ].y + 5 + offsety, SWT.DRAW_DELIMITER
       | SWT.DRAW_TRANSPARENT | SWT.DRAW_TAB | SWT.DRAW_MNEMONIC );
 
     p.x += 0;
@@ -1113,7 +1112,7 @@ public class ConditionEditor extends Composite {
     }
 
     for ( int i = 0; i < size_cond.length; i++ ) {
-      if ( size_cond[i] != null && Screen2Real( size_cond[i] ).contains( screen ) ) {
+      if ( size_cond[ i ] != null && Screen2Real( size_cond[ i ] ).contains( screen ) ) {
         return i;
       }
     }
@@ -1130,7 +1129,7 @@ public class ConditionEditor extends Composite {
     }
 
     for ( int i = 0; i < size_oper.length; i++ ) {
-      if ( size_oper[i] != null && Screen2Real( size_oper[i] ).contains( screen ) ) {
+      if ( size_oper[ i ] != null && Screen2Real( size_oper[ i ] ).contains( screen ) ) {
         return i;
       }
     }
@@ -1212,8 +1211,7 @@ public class ConditionEditor extends Composite {
   /**
    * Edit the condition in a separate dialog box...
    *
-   * @param condition
-   *          The condition to be edited
+   * @param condition The condition to be edited
    */
   private void editCondition( int nr ) {
     if ( active_condition.isComposite() ) {
@@ -1235,8 +1233,7 @@ public class ConditionEditor extends Composite {
   /**
    * Add a sub-condition to the active condition...
    *
-   * @param condition
-   *          The condition to which we want to add one more.
+   * @param condition The condition to which we want to add one more.
    */
   private void addCondition( Condition condition ) {
     active_condition.addCondition( condition );
@@ -1245,16 +1242,14 @@ public class ConditionEditor extends Composite {
   /**
    * Remove a sub-condition from the active condition...
    *
-   * @param condition
-   *          The condition to which we want to add one more.
+   * @param condition The condition to which we want to add one more.
    */
   private void removeCondition( int nr ) {
     active_condition.removeCondition( nr );
   }
 
   /**
-   * @param messageString
-   *          The messageString to set.
+   * @param messageString The messageString to set.
    */
   public void setMessageString( String messageString ) {
     this.messageString = messageString;
@@ -1292,15 +1287,15 @@ public class ConditionEditor extends Composite {
     } else {
       if ( size_cond != null ) {
         for ( int i = 0; i < size_cond.length; i++ ) {
-          if ( size_cond[i] != null ) {
-            maxdrawn = maxdrawn.union( size_cond[i] );
+          if ( size_cond[ i ] != null ) {
+            maxdrawn = maxdrawn.union( size_cond[ i ] );
           }
         }
       }
       if ( size_oper != null ) {
         for ( int i = 0; i < size_oper.length; i++ ) {
-          if ( size_oper[i] != null ) {
-            maxdrawn = maxdrawn.union( size_oper[i] );
+          if ( size_oper[ i ] != null ) {
+            maxdrawn = maxdrawn.union( size_oper[ i ] );
           }
         }
       }

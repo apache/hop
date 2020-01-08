@@ -22,8 +22,6 @@
 
 package org.apache.hop.core;
 
-import java.util.Date;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.value.ValueMetaDate;
@@ -33,11 +31,12 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Node;
 
+import java.util.Date;
+
 /**
  * This is a result file: a file as a result of the execution of a job entry, a transformation step, etc.
  *
  * @author matt
- *
  */
 public class ResultFile implements Cloneable {
   private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator2!!
@@ -68,14 +67,10 @@ public class ResultFile implements Cloneable {
   /**
    * Construct a new result file
    *
-   * @param type
-   *          The type of file : FILE_TYPE_GENERAL, ...
-   * @param file
-   *          The file to use
-   * @param originParent
-   *          The transformation or job that has generated this result file
-   * @param origin
-   *          The step or job entry that has generated this result file
+   * @param type         The type of file : FILE_TYPE_GENERAL, ...
+   * @param file         The file to use
+   * @param originParent The transformation or job that has generated this result file
+   * @param origin       The step or job entry that has generated this result file
    */
   public ResultFile( int type, FileObject file, String originParent, String origin ) {
     this.type = type;
@@ -106,8 +101,7 @@ public class ResultFile implements Cloneable {
   }
 
   /**
-   * @param comment
-   *          The comment to set.
+   * @param comment The comment to set.
    */
   public void setComment( String comment ) {
     this.comment = comment;
@@ -121,8 +115,7 @@ public class ResultFile implements Cloneable {
   }
 
   /**
-   * @param file
-   *          The file to set.
+   * @param file The file to set.
    */
   public void setFile( FileObject file ) {
     this.file = file;
@@ -136,8 +129,7 @@ public class ResultFile implements Cloneable {
   }
 
   /**
-   * @param origin
-   *          The origin to set : the step or job entry that generated this result file
+   * @param origin The origin to set : the step or job entry that generated this result file
    */
   public void setOrigin( String origin ) {
     this.origin = origin;
@@ -151,8 +143,7 @@ public class ResultFile implements Cloneable {
   }
 
   /**
-   * @param originParent
-   *          The originParent to set : the transformation or job that generated this result file
+   * @param originParent The originParent to set : the transformation or job that generated this result file
    */
   public void setOriginParent( String originParent ) {
     this.originParent = originParent;
@@ -166,8 +157,7 @@ public class ResultFile implements Cloneable {
   }
 
   /**
-   * @param type
-   *          The type to set.
+   * @param type The type to set.
    */
   public void setType( int type ) {
     this.type = type;
@@ -177,18 +167,17 @@ public class ResultFile implements Cloneable {
    * @return The description of this result files type.
    */
   public String getTypeDesc() {
-    return fileTypeDesc[type];
+    return fileTypeDesc[ type ];
   }
 
   public String getTypeCode() {
-    return fileTypeCode[type];
+    return fileTypeCode[ type ];
   }
 
   /**
    * Search for the result file type, looking in both the descriptions (i18n depending) and the codes
    *
-   * @param typeString
-   *          the type string to search for
+   * @param typeString the type string to search for
    * @return the result file type
    */
   public static final int getType( String typeString ) {
@@ -205,21 +194,19 @@ public class ResultFile implements Cloneable {
   }
 
   /**
-   * @param fileType
-   *          the result file type
+   * @param fileType the result file type
    * @return the result file type code
    */
   public static final String getTypeCode( int fileType ) {
-    return fileTypeCode[fileType];
+    return fileTypeCode[ fileType ];
   }
 
   /**
-   * @param fileType
-   *          the result file type
+   * @param fileType the result file type
    * @return the result file type description
    */
   public static final String getTypeDesc( int fileType ) {
-    return fileTypeDesc[fileType];
+    return fileTypeDesc[ fileType ];
   }
 
   public static final String[] getAllTypeDesc() {
@@ -234,8 +221,7 @@ public class ResultFile implements Cloneable {
   }
 
   /**
-   * @param timestamp
-   *          The timestamp to set.
+   * @param timestamp The timestamp to set.
    */
   public void setTimestamp( Date timestamp ) {
     this.timestamp = timestamp;

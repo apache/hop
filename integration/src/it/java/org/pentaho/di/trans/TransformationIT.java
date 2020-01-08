@@ -22,12 +22,7 @@
 
 package org.apache.hop.trans;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
-
 import junit.framework.TestCase;
-
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -36,6 +31,10 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
+
 public abstract class TransformationIT extends TestCase {
 
   public TransformationIT() throws HopException {
@@ -43,7 +42,7 @@ public abstract class TransformationIT extends TestCase {
     HopEnvironment.init( false );
   }
 
-  public TransformationIT(String name ) throws HopException {
+  public TransformationIT( String name ) throws HopException {
     super( name );
     HopEnvironment.init( false );
   }
@@ -88,9 +87,9 @@ public abstract class TransformationIT extends TestCase {
       if ( rm1.size() != rm2.size() ) {
         fail( "row nr " + it1.nextIndex() + " is not equal" );
       }
-      int[] fields = new int[r1.length];
+      int[] fields = new int[ r1.length ];
       for ( int ydx = 0; ydx < r1.length; ydx++ ) {
-        fields[ydx] = ydx;
+        fields[ ydx ] = ydx;
       }
       try {
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {

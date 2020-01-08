@@ -38,6 +38,7 @@ import java.io.IOException;
 
 /**
  * This is deprecated version with capability run as command.
+ *
  * @deprecated use {@link org.apache.hop.trans.steps.textfileoutput.TextFileOutput} instead.
  */
 @Deprecated
@@ -50,7 +51,7 @@ public class TextFileOutputLegacy extends TextFileOutput {
 
   @Override
   protected boolean writeRowTo( Object[] row ) throws HopException {
-    if ( ( (TextFileOutputLegacyMeta) meta).isFileAsCommand() ) {
+    if ( ( (TextFileOutputLegacyMeta) meta ).isFileAsCommand() ) {
       return writeRowToCommand( row );
     } else {
       return super.writeRowTo( row );

@@ -22,10 +22,6 @@
 
 package org.apache.hop.core.row.value;
 
-import java.lang.annotation.Annotation;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
@@ -40,11 +36,14 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import java.lang.annotation.Annotation;
+import java.util.List;
+import java.util.Map;
+
 /**
  * This class represents the value meta plugin type.
  *
  * @author matt
- *
  */
 
 @PluginMainClassType( ValueMetaInterface.class )

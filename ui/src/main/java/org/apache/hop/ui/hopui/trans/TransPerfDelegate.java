@@ -22,19 +22,14 @@
 
 package org.apache.hop.ui.hopui.trans;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.geom.Ellipse2D;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.performance.StepPerformanceSnapShot;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.hopui.delegates.HopUiDelegate;
+import org.apache.hop.ui.trans.dialog.TransDialog;
+import org.apache.hop.ui.util.ImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.ControlAdapter;
@@ -65,13 +60,17 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.category.DefaultCategoryDataset;
-import org.apache.hop.core.Const;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.performance.StepPerformanceSnapShot;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.hopui.HopUi;
-import org.apache.hop.ui.trans.dialog.TransDialog;
-import org.apache.hop.ui.util.ImageUtil;
+
+import java.awt.*;
+import java.awt.geom.Ellipse2D;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class TransPerfDelegate extends HopUiDelegate {
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
@@ -210,7 +209,7 @@ public class TransPerfDelegate extends HopUiDelegate {
     }
 
     Set<String> stepsSet = stepPerformanceSnapShots.keySet();
-    steps = stepsSet.toArray( new String[stepsSet.size()] );
+    steps = stepsSet.toArray( new String[ stepsSet.size() ] );
     Arrays.sort( steps );
 
     // Display 2 lists with the data types and the steps on the left side.
@@ -239,7 +238,7 @@ public class TransPerfDelegate extends HopUiDelegate {
         // first step in the selection...
         //
         if ( dataList.getSelectionCount() > 1 && stepsList.getSelectionCount() > 1 ) {
-          stepsList.setSelection( stepsList.getSelectionIndices()[0] );
+          stepsList.setSelection( stepsList.getSelectionIndices()[ 0 ] );
         }
 
         updateGraph();
@@ -277,7 +276,7 @@ public class TransPerfDelegate extends HopUiDelegate {
         // first data item in the selection...
         //
         if ( dataList.getSelectionCount() > 1 && stepsList.getSelectionCount() > 1 ) {
-          dataList.setSelection( dataList.getSelectionIndices()[0] );
+          dataList.setSelection( dataList.getSelectionIndices()[ 0 ] );
         }
 
         updateGraph();
@@ -427,7 +426,7 @@ public class TransPerfDelegate extends HopUiDelegate {
 
     String[] selectedSteps = stepsList.getSelection();
     if ( selectedSteps == null || selectedSteps.length == 0 ) {
-      selectedSteps = new String[] { steps[0], }; // first step
+      selectedSteps = new String[] { steps[ 0 ], }; // first step
       stepsList.select( 0 );
     }
     int[] dataIndices = dataList.getSelectionIndices();
@@ -446,7 +445,7 @@ public class TransPerfDelegate extends HopUiDelegate {
 
     for ( int t = 0; t < selectedSteps.length; t++ ) {
 
-      String stepNameCopy = selectedSteps[t];
+      String stepNameCopy = selectedSteps[ t ];
 
       List<StepPerformanceSnapShot> snapShotList = stepPerformanceSnapShots.get( stepNameCopy );
       if ( snapShotList != null && snapShotList.size() > 1 ) {
@@ -466,11 +465,11 @@ public class TransPerfDelegate extends HopUiDelegate {
               if ( multiStep ) {
                 dataType = stepNameCopy;
               } else {
-                dataType = dataChoices[dataIndices[d]];
+                dataType = dataChoices[ dataIndices[ d ] ];
               }
               String xLabel = Integer.toString( Math.round( i * timeDifference / 1000 ) );
               Double metric = null;
-              switch ( dataIndices[d] ) {
+              switch ( dataIndices[ d ] ) {
                 case DATA_CHOICE_INPUT:
                   metric = snapShot.getLinesInput() * factor;
                   break;
@@ -520,9 +519,9 @@ public class TransPerfDelegate extends HopUiDelegate {
     }
     String chartTitle = title;
     if ( multiStep ) {
-      chartTitle += " (" + dataChoices[dataIndices[0]] + ")";
+      chartTitle += " (" + dataChoices[ dataIndices[ 0 ] ] + ")";
     } else {
-      chartTitle += " (" + selectedSteps[0] + ")";
+      chartTitle += " (" + selectedSteps[ 0 ] + ")";
     }
     final JFreeChart chart =
       ChartFactory.createLineChart( chartTitle, // chart title

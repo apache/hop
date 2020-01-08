@@ -22,10 +22,7 @@
 
 package org.apache.hop.core.parameters;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
+import junit.framework.TestCase;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
@@ -45,7 +42,9 @@ import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
 import org.apache.hop.trans.steps.getvariable.GetVariableMeta;
 import org.apache.hop.trans.steps.getvariable.GetVariableMeta.FieldDefinition;
 
-import junit.framework.TestCase;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Test class for parameters in transformations.
@@ -57,10 +56,10 @@ public class ParameterSimpleTransIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    { new ValueMetaString( "PARAM1" ), new ValueMetaString( "PARAM2" ), };
+      { new ValueMetaString( "PARAM1" ), new ValueMetaString( "PARAM2" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -82,10 +81,10 @@ public class ParameterSimpleTransIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    { new ValueMetaString( "PARAM1" ), new ValueMetaString( "PARAM2" ), };
+      { new ValueMetaString( "PARAM1" ), new ValueMetaString( "PARAM2" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -107,12 +106,12 @@ public class ParameterSimpleTransIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    {
-      new ValueMetaString( "${JAVA_HOME}" ),
-      new ValueMetaString( "PARAM2" ), };
+      {
+        new ValueMetaString( "${JAVA_HOME}" ),
+        new ValueMetaString( "PARAM2" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -134,10 +133,10 @@ public class ParameterSimpleTransIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    { new ValueMetaString( "PARAM1" ), new ValueMetaString( "PARAM2" ), };
+      { new ValueMetaString( "PARAM1" ), new ValueMetaString( "PARAM2" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -159,10 +158,10 @@ public class ParameterSimpleTransIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    { new ValueMetaString( "PARAM1" ), new ValueMetaString( "PARAM2" ), };
+      { new ValueMetaString( "PARAM1" ), new ValueMetaString( "PARAM2" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -183,10 +182,8 @@ public class ParameterSimpleTransIT extends TestCase {
   /**
    * Check the 2 lists comparing the rows in order. If they are not the same fail the test.
    *
-   * @param rows1
-   *          first row set to compare
-   * @param rows2
-   *          second row set to compare
+   * @param rows1 first row set to compare
+   * @param rows2 second row set to compare
    */
   public void checkRows( List<RowMetaAndData> rows1, List<RowMetaAndData> rows2 ) {
     int idx = 1;
@@ -206,9 +203,9 @@ public class ParameterSimpleTransIT extends TestCase {
       if ( rm1.size() != rm2.size() ) {
         fail( "row nr " + idx + " is not equal" );
       }
-      int[] fields = new int[rm1.size()];
+      int[] fields = new int[ rm1.size() ];
       for ( int ydx = 0; ydx < rm1.size(); ydx++ ) {
-        fields[ydx] = ydx;
+        fields[ ydx ] = ydx;
       }
       try {
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {
@@ -225,8 +222,7 @@ public class ParameterSimpleTransIT extends TestCase {
   /**
    * Test case for parameters using a simple transformation.
    *
-   * @throws Exception
-   *           exception on any problem.
+   * @throws Exception exception on any problem.
    */
   public void testParameterSimpleTrans1() throws Exception {
     HopEnvironment.init();
@@ -264,20 +260,20 @@ public class ParameterSimpleTransIT extends TestCase {
     String[] grouping = { "", "" };
     int[] trimType = { ValueMetaInterface.TRIM_TYPE_NONE, ValueMetaInterface.TRIM_TYPE_NONE };
 
-    FieldDefinition[] fields = new FieldDefinition[fieldName.length];
+    FieldDefinition[] fields = new FieldDefinition[ fieldName.length ];
     for ( int i = 0; i < fields.length; i++ ) {
       FieldDefinition field = new FieldDefinition();
-      field.setFieldName( fieldName[i] );
-      field.setVariableString( varName[i] );
-      field.setFieldType( fieldType[i] );
-      field.setFieldLength( length[i] );
-      field.setFieldPrecision( precision[i] );
-      field.setFieldFormat( format[i] );
-      field.setCurrency( currency[i] );
-      field.setDecimal( decimal[i] );
-      field.setGroup( grouping[i] );
-      field.setTrimType( trimType[i] );
-      fields[i] = field;
+      field.setFieldName( fieldName[ i ] );
+      field.setVariableString( varName[ i ] );
+      field.setFieldType( fieldType[ i ] );
+      field.setFieldLength( length[ i ] );
+      field.setFieldPrecision( precision[ i ] );
+      field.setFieldFormat( format[ i ] );
+      field.setCurrency( currency[ i ] );
+      field.setDecimal( decimal[ i ] );
+      field.setGroup( grouping[ i ] );
+      field.setTrimType( trimType[ i ] );
+      fields[ i ] = field;
     }
     gvm.setFieldDefinitions( fields );
 
@@ -321,8 +317,7 @@ public class ParameterSimpleTransIT extends TestCase {
    * Test case for parameters using a simple transformation. Here 1 parameter is not provided as value, so the default
    * will be used.
    *
-   * @throws Exception
-   *           exception on any problem.
+   * @throws Exception exception on any problem.
    */
   public void testParameterSimpleTrans2() throws Exception {
     HopEnvironment.init();
@@ -360,20 +355,20 @@ public class ParameterSimpleTransIT extends TestCase {
     String[] grouping = { "", "" };
     int[] trimType = { ValueMetaInterface.TRIM_TYPE_NONE, ValueMetaInterface.TRIM_TYPE_NONE };
 
-    FieldDefinition[] fields = new FieldDefinition[fieldName.length];
+    FieldDefinition[] fields = new FieldDefinition[ fieldName.length ];
     for ( int i = 0; i < fields.length; i++ ) {
       FieldDefinition field = new FieldDefinition();
-      field.setFieldName( fieldName[i] );
-      field.setVariableString( varName[i] );
-      field.setFieldType( fieldType[i] );
-      field.setFieldLength( length[i] );
-      field.setFieldPrecision( precision[i] );
-      field.setFieldFormat( format[i] );
-      field.setCurrency( currency[i] );
-      field.setDecimal( decimal[i] );
-      field.setGroup( grouping[i] );
-      field.setTrimType( trimType[i] );
-      fields[i] = field;
+      field.setFieldName( fieldName[ i ] );
+      field.setVariableString( varName[ i ] );
+      field.setFieldType( fieldType[ i ] );
+      field.setFieldLength( length[ i ] );
+      field.setFieldPrecision( precision[ i ] );
+      field.setFieldFormat( format[ i ] );
+      field.setCurrency( currency[ i ] );
+      field.setDecimal( decimal[ i ] );
+      field.setGroup( grouping[ i ] );
+      field.setTrimType( trimType[ i ] );
+      fields[ i ] = field;
     }
     gvm.setFieldDefinitions( fields );
 
@@ -416,8 +411,7 @@ public class ParameterSimpleTransIT extends TestCase {
   /**
    * Test case for parameters using a simple transformation. Here blocking some unwise usage of parameters.
    *
-   * @throws Exception
-   *           exception on any problem.
+   * @throws Exception exception on any problem.
    */
   public void testParameterSimpleTrans3() throws Exception {
     HopEnvironment.init();
@@ -455,20 +449,20 @@ public class ParameterSimpleTransIT extends TestCase {
     String[] grouping = { "", "" };
     int[] trimType = { ValueMetaInterface.TRIM_TYPE_NONE, ValueMetaInterface.TRIM_TYPE_NONE };
 
-    FieldDefinition[] fields = new FieldDefinition[fieldName.length];
+    FieldDefinition[] fields = new FieldDefinition[ fieldName.length ];
     for ( int i = 0; i < fields.length; i++ ) {
       FieldDefinition field = new FieldDefinition();
-      field.setFieldName( fieldName[i] );
-      field.setVariableString( varName[i] );
-      field.setFieldType( fieldType[i] );
-      field.setFieldLength( length[i] );
-      field.setFieldPrecision( precision[i] );
-      field.setFieldFormat( format[i] );
-      field.setCurrency( currency[i] );
-      field.setDecimal( decimal[i] );
-      field.setGroup( grouping[i] );
-      field.setTrimType( trimType[i] );
-      fields[i] = field;
+      field.setFieldName( fieldName[ i ] );
+      field.setVariableString( varName[ i ] );
+      field.setFieldType( fieldType[ i ] );
+      field.setFieldLength( length[ i ] );
+      field.setFieldPrecision( precision[ i ] );
+      field.setFieldFormat( format[ i ] );
+      field.setCurrency( currency[ i ] );
+      field.setDecimal( decimal[ i ] );
+      field.setGroup( grouping[ i ] );
+      field.setTrimType( trimType[ i ] );
+      fields[ i ] = field;
     }
     gvm.setFieldDefinitions( fields );
 
@@ -511,8 +505,7 @@ public class ParameterSimpleTransIT extends TestCase {
   /**
    * Test case for parameters using a simple transformation. Check whether parameters override variables.
    *
-   * @throws Exception
-   *           exception on any problem.
+   * @throws Exception exception on any problem.
    */
   public void testParameterSimpleTrans4() throws Exception {
     HopEnvironment.init();
@@ -550,20 +543,20 @@ public class ParameterSimpleTransIT extends TestCase {
     String[] grouping = { "", "" };
     int[] trimType = { ValueMetaInterface.TRIM_TYPE_NONE, ValueMetaInterface.TRIM_TYPE_NONE };
 
-    FieldDefinition[] fields = new FieldDefinition[fieldName.length];
+    FieldDefinition[] fields = new FieldDefinition[ fieldName.length ];
     for ( int i = 0; i < fields.length; i++ ) {
       FieldDefinition field = new FieldDefinition();
-      field.setFieldName( fieldName[i] );
-      field.setVariableString( varName[i] );
-      field.setFieldType( fieldType[i] );
-      field.setFieldLength( length[i] );
-      field.setFieldPrecision( precision[i] );
-      field.setFieldFormat( format[i] );
-      field.setCurrency( currency[i] );
-      field.setDecimal( decimal[i] );
-      field.setGroup( grouping[i] );
-      field.setTrimType( trimType[i] );
-      fields[i] = field;
+      field.setFieldName( fieldName[ i ] );
+      field.setVariableString( varName[ i ] );
+      field.setFieldType( fieldType[ i ] );
+      field.setFieldLength( length[ i ] );
+      field.setFieldPrecision( precision[ i ] );
+      field.setFieldFormat( format[ i ] );
+      field.setCurrency( currency[ i ] );
+      field.setDecimal( decimal[ i ] );
+      field.setGroup( grouping[ i ] );
+      field.setTrimType( trimType[ i ] );
+      fields[ i ] = field;
     }
     gvm.setFieldDefinitions( fields );
 
@@ -609,8 +602,7 @@ public class ParameterSimpleTransIT extends TestCase {
   /**
    * Test case for parameters using a simple transformation. Check whether parameters override variables.
    *
-   * @throws Exception
-   *           exception on any problem.
+   * @throws Exception exception on any problem.
    */
   public void testParameterSimpleTrans5() throws Exception {
     HopEnvironment.init();
@@ -648,20 +640,20 @@ public class ParameterSimpleTransIT extends TestCase {
     String[] grouping = { "", "" };
     int[] trimType = { ValueMetaInterface.TRIM_TYPE_NONE, ValueMetaInterface.TRIM_TYPE_NONE };
 
-    FieldDefinition[] fields = new FieldDefinition[fieldName.length];
+    FieldDefinition[] fields = new FieldDefinition[ fieldName.length ];
     for ( int i = 0; i < fields.length; i++ ) {
       FieldDefinition field = new FieldDefinition();
-      field.setFieldName( fieldName[i] );
-      field.setVariableString( varName[i] );
-      field.setFieldType( fieldType[i] );
-      field.setFieldLength( length[i] );
-      field.setFieldPrecision( precision[i] );
-      field.setFieldFormat( format[i] );
-      field.setCurrency( currency[i] );
-      field.setDecimal( decimal[i] );
-      field.setGroup( grouping[i] );
-      field.setTrimType( trimType[i] );
-      fields[i] = field;
+      field.setFieldName( fieldName[ i ] );
+      field.setVariableString( varName[ i ] );
+      field.setFieldType( fieldType[ i ] );
+      field.setFieldLength( length[ i ] );
+      field.setFieldPrecision( precision[ i ] );
+      field.setFieldFormat( format[ i ] );
+      field.setCurrency( currency[ i ] );
+      field.setDecimal( decimal[ i ] );
+      field.setGroup( grouping[ i ] );
+      field.setTrimType( trimType[ i ] );
+      fields[ i ] = field;
     }
     gvm.setFieldDefinitions( fields );
 
@@ -707,8 +699,7 @@ public class ParameterSimpleTransIT extends TestCase {
   /**
    * Test case for parameters using a simple transformation. Check whether parameters override variables.
    *
-   * @throws Exception
-   *           exception on any problem.
+   * @throws Exception exception on any problem.
    */
   public void testParameterSimpleTrans6() throws Exception {
     HopEnvironment.init();
@@ -746,20 +737,20 @@ public class ParameterSimpleTransIT extends TestCase {
     String[] grouping = { "", "" };
     int[] trimType = { ValueMetaInterface.TRIM_TYPE_NONE, ValueMetaInterface.TRIM_TYPE_NONE };
 
-    FieldDefinition[] fields = new FieldDefinition[fieldName.length];
+    FieldDefinition[] fields = new FieldDefinition[ fieldName.length ];
     for ( int i = 0; i < fields.length; i++ ) {
       FieldDefinition field = new FieldDefinition();
-      field.setFieldName( fieldName[i] );
-      field.setVariableString( varName[i] );
-      field.setFieldType( fieldType[i] );
-      field.setFieldLength( length[i] );
-      field.setFieldPrecision( precision[i] );
-      field.setFieldFormat( format[i] );
-      field.setCurrency( currency[i] );
-      field.setDecimal( decimal[i] );
-      field.setGroup( grouping[i] );
-      field.setTrimType( trimType[i] );
-      fields[i] = field;
+      field.setFieldName( fieldName[ i ] );
+      field.setVariableString( varName[ i ] );
+      field.setFieldType( fieldType[ i ] );
+      field.setFieldLength( length[ i ] );
+      field.setFieldPrecision( precision[ i ] );
+      field.setFieldFormat( format[ i ] );
+      field.setCurrency( currency[ i ] );
+      field.setDecimal( decimal[ i ] );
+      field.setGroup( grouping[ i ] );
+      field.setTrimType( trimType[ i ] );
+      fields[ i ] = field;
     }
     gvm.setFieldDefinitions( fields );
 

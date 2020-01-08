@@ -22,35 +22,18 @@
 
 package org.apache.hop.job.entries.setvariables;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -58,6 +41,19 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 public class JobEntrySetVariablesTest {
   private Job job;
@@ -108,6 +104,7 @@ public class JobEntrySetVariablesTest {
     assertEquals( "English", entry.getVariable( "English" ) );
     assertEquals( "中文", entry.getVariable( "Chinese" ) );
   }
+
   @Test
   public void testInputStreamClosed() throws Exception {
     // properties files without native2ascii
@@ -181,33 +178,27 @@ public class JobEntrySetVariablesTest {
 
   @Test
   public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_JVM_NullVariable() throws Exception {
-    List<DatabaseMeta> databases = mock( List.class );
-    List<SlaveServer> slaveServers = mock( List.class );
     IMetaStore metaStore = mock( IMetaStore.class );
-    entry.loadXML( getEntryNode( "nullVariable", null, "JVM" ), slaveServers, metaStore );
+    entry.loadXML( getEntryNode( "nullVariable", null, "JVM" ), metaStore );
     Result result = entry.execute( new Result(), 0 );
     assertTrue( "Result should be true", result.getResult() );
-    assertNull( System.getProperty( "nullVariable" )  );
+    assertNull( System.getProperty( "nullVariable" ) );
   }
 
   @Test
   public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_CURRENT_JOB_NullVariable() throws Exception {
-    List<DatabaseMeta> databases = mock( List.class );
-    List<SlaveServer> slaveServers = mock( List.class );
     IMetaStore metaStore = mock( IMetaStore.class );
-    entry.loadXML( getEntryNode( "nullVariable", null, "CURRENT_JOB" ), slaveServers, metaStore );
+    entry.loadXML( getEntryNode( "nullVariable", null, "CURRENT_JOB" ), metaStore );
     Result result = entry.execute( new Result(), 0 );
     assertTrue( "Result should be true", result.getResult() );
-    assertNull( entry.getVariable( "nullVariable" )  );
+    assertNull( entry.getVariable( "nullVariable" ) );
   }
 
   @Test
   public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_JVM_VariableNotNull() throws Exception {
-    List<DatabaseMeta> databases = mock( List.class );
-    List<SlaveServer> slaveServers = mock( List.class );
     IMetaStore metaStore = mock( IMetaStore.class );
-    entry.loadXML( getEntryNode( "variableNotNull", "someValue", "JVM" ), slaveServers, metaStore );
-    assertNull( System.getProperty( "variableNotNull" )  );
+    entry.loadXML( getEntryNode( "variableNotNull", "someValue", "JVM" ), metaStore );
+    assertNull( System.getProperty( "variableNotNull" ) );
     Result result = entry.execute( new Result(), 0 );
     assertTrue( "Result should be true", result.getResult() );
     assertEquals( "someValue", System.getProperty( "variableNotNull" ) );
@@ -215,11 +206,9 @@ public class JobEntrySetVariablesTest {
 
   @Test
   public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_CURRENT_JOB_VariableNotNull() throws Exception {
-    List<DatabaseMeta> databases = mock( List.class );
-    List<SlaveServer> slaveServers = mock( List.class );
     IMetaStore metaStore = mock( IMetaStore.class );
-    entry.loadXML( getEntryNode( "variableNotNull", "someValue", "CURRENT_JOB" ), slaveServers, metaStore );
-    assertNull( System.getProperty( "variableNotNull" )  );
+    entry.loadXML( getEntryNode( "variableNotNull", "someValue", "CURRENT_JOB" ), metaStore );
+    assertNull( System.getProperty( "variableNotNull" ) );
     Result result = entry.execute( new Result(), 0 );
     assertTrue( "Result should be true", result.getResult() );
     assertEquals( "someValue", entry.getVariable( "variableNotNull" ) );

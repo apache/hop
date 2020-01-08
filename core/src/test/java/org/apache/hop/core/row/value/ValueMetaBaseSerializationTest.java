@@ -21,8 +21,10 @@
  ******************************************************************************/
 package org.apache.hop.core.row.value;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -32,10 +34,8 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.TimeZone;
 
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Andrey Khayrutdinov

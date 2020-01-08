@@ -22,12 +22,12 @@
 
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class SqlScriptParserTest {
 
@@ -36,9 +36,9 @@ public class SqlScriptParserTest {
 
   @Test
   public void testSplit() {
-    assertEquals( Arrays.asList( new String[0] ), sqlScriptParser.split( null ) );
-    assertEquals( Arrays.asList( new String[0] ), sqlScriptParser.split( "" ) );
-    assertEquals( Arrays.asList( new String[0] ), sqlScriptParser.split( " " ) );
+    assertEquals( Arrays.asList( new String[ 0 ] ), sqlScriptParser.split( null ) );
+    assertEquals( Arrays.asList( new String[ 0 ] ), sqlScriptParser.split( "" ) );
+    assertEquals( Arrays.asList( new String[ 0 ] ), sqlScriptParser.split( " " ) );
     assertEquals( Arrays.asList( "SELECT 1", "SELECT 2" ), sqlScriptParser.split( "SELECT 1;SELECT 2" ) );
     assertEquals( Collections.singletonList( "SELECT '1;2'" ), sqlScriptParser.split( "SELECT '1;2'" ) );
     assertEquals( Collections.singletonList( "SELECT \"1;2\"" ), sqlScriptParser.split( "SELECT \"1;2\"" ) );
@@ -48,15 +48,15 @@ public class SqlScriptParserTest {
     assertEquals( Arrays.asList( "SELECT /1", "2" ), sqlScriptParser.split( "SELECT /1;;;;2" ) );
     assertEquals( Collections.singletonList( "SELECT /1" ), sqlScriptParser.split( "SELECT /1;\n  \n" ) );
     assertEquals( Collections.singletonList( "SELECT \"hello\\\"world\" FROM dual" ),
-            sqlScriptParser.split( "SELECT \"hello\\\"world\" FROM dual" ) );
+      sqlScriptParser.split( "SELECT \"hello\\\"world\" FROM dual" ) );
     assertEquals( Collections.singletonList( "CREATE TABLE test1 (col1 STRING) TBLPROPERTIES (\"prop1\" = \"my\\\"value\")" ),
-            sqlScriptParser.split( "CREATE TABLE test1 (col1 STRING) TBLPROPERTIES (\"prop1\" = \"my\\\"value\");" ) );
+      sqlScriptParser.split( "CREATE TABLE test1 (col1 STRING) TBLPROPERTIES (\"prop1\" = \"my\\\"value\");" ) );
     assertEquals( Collections.singletonList( "CREATE TABLE test1 (col1 STRING) TBLPROPERTIES ('prop1' = 'my\\\"value')" ),
-            sqlScriptParser.split( "CREATE TABLE test1 (col1 STRING) TBLPROPERTIES ('prop1' = 'my\\\"value');" ) );
+      sqlScriptParser.split( "CREATE TABLE test1 (col1 STRING) TBLPROPERTIES ('prop1' = 'my\\\"value');" ) );
     assertEquals( Collections.singletonList( "SELECT \"test\\\";SELECT 1" ), sqlScriptParser.split( "SELECT \"test\\\";SELECT 1" ) );
     assertEquals( Collections.singletonList( "SELECT 'test\\';SELECT 1" ), sqlScriptParser.split( "SELECT 'test\\';SELECT 1" ) );
     assertEquals( Arrays.asList( "create table pdi13654 (col1 string) TBLPROPERTIES (\"quoteChar\"=\"\\\"\", \"escapeChar\"=\"\\\\\")", "SELECT 1" ),
-            sqlScriptParser.split( "create table pdi13654 (col1 string) TBLPROPERTIES (\"quoteChar\"=\"\\\"\", \"escapeChar\"=\"\\\\\");SELECT 1" ) );
+      sqlScriptParser.split( "create table pdi13654 (col1 string) TBLPROPERTIES (\"quoteChar\"=\"\\\"\", \"escapeChar\"=\"\\\\\");SELECT 1" ) );
     //PDI-16224
     assertEquals( Collections.singletonList( "SELECT 1 from test where t='\\'||t=a" ), oracleSqlScriptParser.split( "SELECT 1 from test where t='\\'||t=a;" ) );
   }
@@ -72,20 +72,20 @@ public class SqlScriptParserTest {
     assertEquals( "SELECT  col1 FROM  account", sqlScriptParser.removeComments( "SELECT /* \"my_column'\" */ col1 FROM /* 'my_table' */ account" ) );
     assertEquals( "SELECT '/' as col1, '*/*' as regex ", sqlScriptParser.removeComments( "SELECT '/' as col1, '*/*' as regex " ) );
     assertEquals( "SELECT INSTR('/loader/*/*.txt', '/') - INSTR('/loader/*/*.txt', '/') ",
-            sqlScriptParser.removeComments( "SELECT INSTR('/loader/*/*.txt', '/') - INSTR('/loader/*/*.txt', '/') " ) );
+      sqlScriptParser.removeComments( "SELECT INSTR('/loader/*/*.txt', '/') - INSTR('/loader/*/*.txt', '/') " ) );
     assertEquals( "SELECT  col1, col2, col3 FROM account WHERE name = 'Pentaho'",
-            sqlScriptParser.removeComments( "SELECT /* my data*/ col1, col2, col3 FROM account WHERE name = 'Pentaho'" ) );
+      sqlScriptParser.removeComments( "SELECT /* my data*/ col1, col2, col3 FROM account WHERE name = 'Pentaho'" ) );
     assertEquals( "SELECT /*+ ORACLE hint*/ col1, col2, col3 FROM account WHERE name = 'Pentaho'",
-            sqlScriptParser.removeComments( "SELECT /*+ ORACLE hint*/ col1, col2, col3 FROM account WHERE name = 'Pentaho'" ) );
+      sqlScriptParser.removeComments( "SELECT /*+ ORACLE hint*/ col1, col2, col3 FROM account WHERE name = 'Pentaho'" ) );
     assertEquals( "SELECT \n/*+ ORACLE hint*/ col1, col2, col3 FROM account WHERE name = 'Pentaho'",
-            sqlScriptParser.removeComments( "SELECT \n/*+ ORACLE hint*/ col1, col2, col3 FROM account WHERE name = 'Pentaho'" ) );
+      sqlScriptParser.removeComments( "SELECT \n/*+ ORACLE hint*/ col1, col2, col3 FROM account WHERE name = 'Pentaho'" ) );
     assertEquals( "SELECT \n/*+ ORACLE hint*/\n col1, col2, col3 FROM account WHERE name = 'Pentaho'",
-            sqlScriptParser.removeComments( "SELECT \n/*+ ORACLE hint*/\n col1, col2, col3 FROM account WHERE name = 'Pentaho'" ) );
+      sqlScriptParser.removeComments( "SELECT \n/*+ ORACLE hint*/\n col1, col2, col3 FROM account WHERE name = 'Pentaho'" ) );
     assertEquals( "SELECT \"hello\\\"world\" FROM dual", sqlScriptParser.removeComments( "SELECT \"hello\\\"world\" FROM dual" ) );
     assertEquals( "CREATE TABLE test1 (col1 STRING) TBLPROPERTIES (\"prop1\" = \"my\\\"value\")",
-            sqlScriptParser.removeComments( "CREATE TABLE test1 (col1 STRING) TBLPROPERTIES (\"prop1\" = \"my\\\"value\")" ) );
+      sqlScriptParser.removeComments( "CREATE TABLE test1 (col1 STRING) TBLPROPERTIES (\"prop1\" = \"my\\\"value\")" ) );
     assertEquals( "CREATE TABLE test1 (col1 STRING) TBLPROPERTIES ('prop1' = 'my\\\"value')",
-            sqlScriptParser.removeComments( "CREATE TABLE test1 (col1 STRING) TBLPROPERTIES ('prop1' = 'my\\\"value')" ) );
+      sqlScriptParser.removeComments( "CREATE TABLE test1 (col1 STRING) TBLPROPERTIES ('prop1' = 'my\\\"value')" ) );
     //PDI-16224
     assertEquals( "SELECT 1 from test where t='\\'||t=a", oracleSqlScriptParser.removeComments( "SELECT 1 from test where t='\\'/* comment */||t=a" ) );
   }

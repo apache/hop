@@ -39,8 +39,7 @@ public interface LogChannelInterface {
   String getContainerObjectId();
 
   /**
-   * @param containerObjectId
-   *          the containerObjectId to set
+   * @param containerObjectId the containerObjectId to set
    */
   void setContainerObjectId( String containerObjectId );
 
@@ -92,8 +91,7 @@ public interface LogChannelInterface {
    * This option will force the create of a separate logging channel even if the logging concerns identical objects with
    * identical names.
    *
-   * @param forcingSeparateLogging
-   *          Set to true to force separate logging
+   * @param forcingSeparateLogging Set to true to force separate logging
    */
   void setForcingSeparateLogging( boolean forcingSeparateLogging );
 
@@ -107,10 +105,8 @@ public interface LogChannelInterface {
    * depending on the type of metric specified. For example, for MetricsInterface.look up the maximum value in the
    * metrics and replace it if the new value is higher. The snapshot date will be retained in that case.
    *
-   * @param metric
-   *          The metric to use (ex. connect to a database)
-   * @param value
-   *          the value to store
+   * @param metric The metric to use (ex. connect to a database)
+   * @param value  the value to store
    */
   void snap( MetricsInterface metric, long... value );
 
@@ -119,12 +115,9 @@ public interface LogChannelInterface {
    * maximum value in the metrics and replace it if the new value is higher. The snapshot date will be retained in that
    * case.
    *
-   * @param metric
-   *          The metric to use (ex. connect to a database)
-   * @param subject
-   *          The subject (ex. the name of the database)
-   * @param value
-   *          the value to store
+   * @param metric  The metric to use (ex. connect to a database)
+   * @param subject The subject (ex. the name of the database)
+   * @param value   the value to store
    */
   void snap( MetricsInterface metric, String subject, long... value );
 }

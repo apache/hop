@@ -22,13 +22,13 @@
 
 package org.apache.hop.core.database;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseConnectionPoolParameter {
   private String parameter;
@@ -58,8 +58,7 @@ public class DatabaseConnectionPoolParameter {
   }
 
   /**
-   * @param defaultValue
-   *          the defaultValue to set
+   * @param defaultValue the defaultValue to set
    */
   public void setDefaultValue( String defaultValue ) {
     this.defaultValue = defaultValue;
@@ -73,8 +72,7 @@ public class DatabaseConnectionPoolParameter {
   }
 
   /**
-   * @param description
-   *          the description to set
+   * @param description the description to set
    */
   public void setDescription( String description ) {
     this.description = description;
@@ -88,33 +86,32 @@ public class DatabaseConnectionPoolParameter {
   }
 
   /**
-   * @param parameter
-   *          the parameter to set
+   * @param parameter the parameter to set
    */
   public void setParameter( String parameter ) {
     this.parameter = parameter;
   }
 
   public static final String[] getParameterNames( DatabaseConnectionPoolParameter[] poolParameters ) {
-    String[] names = new String[poolParameters.length];
+    String[] names = new String[ poolParameters.length ];
     for ( int i = 0; i < names.length; i++ ) {
-      names[i] = poolParameters[i].getParameter();
+      names[ i ] = poolParameters[ i ].getParameter();
     }
     return names;
   }
 
   public static final DatabaseConnectionPoolParameter findParameter( String parameterName,
-    DatabaseConnectionPoolParameter[] poolParameters ) {
+                                                                     DatabaseConnectionPoolParameter[] poolParameters ) {
     for ( int i = 0; i < poolParameters.length; i++ ) {
-      if ( poolParameters[i].getParameter().equalsIgnoreCase( parameterName ) ) {
-        return poolParameters[i];
+      if ( poolParameters[ i ].getParameter().equalsIgnoreCase( parameterName ) ) {
+        return poolParameters[ i ];
       }
     }
     return null;
   }
 
   public static final List<RowMetaAndData> getRowList( DatabaseConnectionPoolParameter[] poolParameters,
-    String titleParameter, String titleDefaultValue, String titleDescription ) {
+                                                       String titleParameter, String titleDefaultValue, String titleDescription ) {
     RowMetaInterface rowMeta = new RowMeta();
 
     rowMeta.addValueMeta( new ValueMetaString( titleParameter ) );
@@ -124,12 +121,12 @@ public class DatabaseConnectionPoolParameter {
     List<RowMetaAndData> list = new ArrayList<RowMetaAndData>();
 
     for ( int i = 0; i < poolParameters.length; i++ ) {
-      DatabaseConnectionPoolParameter p = poolParameters[i];
+      DatabaseConnectionPoolParameter p = poolParameters[ i ];
 
-      Object[] row = new Object[rowMeta.size()];
-      row[0] = p.getParameter();
-      row[1] = p.getDefaultValue();
-      row[2] = p.getDescription();
+      Object[] row = new Object[ rowMeta.size() ];
+      row[ 0 ] = p.getParameter();
+      row[ 1 ] = p.getDefaultValue();
+      row[ 2 ] = p.getDescription();
 
       list.add( new RowMetaAndData( rowMeta, row ) );
     }

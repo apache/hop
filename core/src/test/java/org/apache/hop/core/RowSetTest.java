@@ -23,13 +23,13 @@
 package org.apache.hop.core;
 
 
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -48,7 +48,7 @@ public class RowSetTest {
     ValueMetaInterface[] valuesMeta = { new ValueMetaInteger( "ROWNR" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -100,7 +100,7 @@ public class RowSetTest {
     // Pop off row. State: 2
     Object[] r = set.getRow();
     int i = rm.indexOfValue( "ROWNR" );
-    assertEquals( 1L, ( (Long) r[i] ).longValue() );
+    assertEquals( 1L, ( (Long) r[ i ] ).longValue() );
     // TODO assertTrue(!set.isEmpty());
     // TODO assertTrue(!set.isFull());
     assertEquals( 1, set.size() );
@@ -128,7 +128,7 @@ public class RowSetTest {
     // Pop off row. State: 3 4
     r = set.getRow();
     i = rm.indexOfValue( "ROWNR" );
-    assertEquals( 2L, ( (Long) r[i] ).longValue() );
+    assertEquals( 2L, ( (Long) r[ i ] ).longValue() );
     // TODO assertTrue(!set.isEmpty());
     // TODO assertTrue(!set.isFull());
     assertEquals( 2, set.size() );
@@ -142,7 +142,7 @@ public class RowSetTest {
     // Pop off row. State: 4 5
     r = set.getRow();
     i = rm.indexOfValue( "ROWNR" );
-    assertEquals( 3L, ( (Long) r[i] ).longValue() );
+    assertEquals( 3L, ( (Long) r[ i ] ).longValue() );
     // TODO assertTrue(!set.isEmpty());
     // TODO assertTrue(!set.isFull());
     assertEquals( 2, set.size() );
@@ -150,7 +150,7 @@ public class RowSetTest {
     // Pop off row. State: 5
     r = set.getRow();
     i = rm.indexOfValue( "ROWNR" );
-    assertEquals( 4L, ( (Long) r[i] ).longValue() );
+    assertEquals( 4L, ( (Long) r[ i ] ).longValue() );
     // TODO assertTrue(!set.isEmpty());
     // TODO assertTrue(!set.isFull());
     assertEquals( 1, set.size() );
@@ -158,7 +158,7 @@ public class RowSetTest {
     // Pop off row. State:
     r = set.getRow();
     i = rm.indexOfValue( "ROWNR" );
-    assertEquals( 5L, ( (Long) r[i] ).longValue() );
+    assertEquals( 5L, ( (Long) r[ i ] ).longValue() );
     // TODO assertTrue(set.isEmpty());
     // TODO assertTrue(!set.isFull());
     assertEquals( 0, set.size() );

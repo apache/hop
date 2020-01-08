@@ -22,14 +22,14 @@
 
 package org.apache.hop.core.metrics;
 
-import static org.junit.Assert.assertEquals;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.util.Calendar;
 import java.util.Date;
 
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import static org.junit.Assert.assertEquals;
 
 public class MetricsDurationTest {
 

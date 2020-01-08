@@ -22,13 +22,6 @@
 
 package org.apache.hop.trans.steps.textfileinput;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.TextFileInputFieldInterface;
 import org.apache.hop.core.injection.Injection;
@@ -36,13 +29,19 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 
 /**
  * Describes a single field in a text file
  *
  * @author Matt
  * @since 19-04-2004
- *
  * @deprecated replaced by implementation in the ...steps.fileinput.text package
  */
 @Deprecated
@@ -221,7 +220,7 @@ public class TextFileInputField implements Cloneable, TextFileInputFieldInterfac
     this.samples = samples;
   }
 
-  public String[] getSamples( ) {
+  public String[] getSamples() {
     return this.samples;
   }
 
@@ -317,9 +316,9 @@ public class TextFileInputField implements Cloneable, TextFileInputFieldInterfac
     boolean spaces_after = false;
 
     for ( int i = 0; i < samples.length; i++ ) {
-      spaces_before |= Const.nrSpacesBefore( samples[i] ) > 0;
-      spaces_after |= Const.nrSpacesAfter( samples[i] ) > 0;
-      samples[i] = Const.trim( samples[i] );
+      spaces_before |= Const.nrSpacesBefore( samples[ i ] ) > 0;
+      spaces_after |= Const.nrSpacesAfter( samples[ i ] ) > 0;
+      samples[ i ] = Const.trim( samples[ i ] );
     }
 
     trimtype = ValueMetaInterface.TRIM_TYPE_NONE;
@@ -354,37 +353,37 @@ public class TextFileInputField implements Cloneable, TextFileInputFieldInterfac
 
     // See if all samples can be transformed into a date...
     int datefmt_cnt = date_formats.length;
-    boolean[] datefmt = new boolean[date_formats.length];
+    boolean[] datefmt = new boolean[ date_formats.length ];
     for ( int i = 0; i < date_formats.length; i++ ) {
-      datefmt[i] = true;
+      datefmt[ i ] = true;
     }
     int datenul = 0;
 
     for ( int i = 0; i < samples.length; i++ ) {
-      if ( samples[i].length() > 0 && samples[i].equalsIgnoreCase( nullString ) ) {
+      if ( samples[ i ].length() > 0 && samples[ i ].equalsIgnoreCase( nullString ) ) {
         datenul++;
       } else {
         for ( int x = 0; x < date_formats.length; x++ ) {
-          if ( samples[i] == null || Const.onlySpaces( samples[i] ) || samples[i].length() == 0 ) {
-            datefmt[x] = false;
+          if ( samples[ i ] == null || Const.onlySpaces( samples[ i ] ) || samples[ i ].length() == 0 ) {
+            datefmt[ x ] = false;
             datefmt_cnt--;
           }
 
-          if ( datefmt[x] ) {
+          if ( datefmt[ x ] ) {
             try {
-              daf.applyPattern( date_formats[x] );
-              Date date = daf.parse( samples[i] );
+              daf.applyPattern( date_formats[ x ] );
+              Date date = daf.parse( samples[ i ] );
 
               Calendar cal = Calendar.getInstance();
               cal.setTime( date );
               int year = cal.get( Calendar.YEAR );
 
               if ( year < 1800 || year > 2200 ) {
-                datefmt[x] = false; // Don't try it again in the future.
+                datefmt[ x ] = false; // Don't try it again in the future.
                 datefmt_cnt--; // One less that works..
               }
             } catch ( Exception e ) {
-              datefmt[x] = false; // Don't try it again in the future.
+              datefmt[ x ] = false; // Don't try it again in the future.
               datefmt_cnt--; // One less that works..
             }
           }
@@ -398,13 +397,13 @@ public class TextFileInputField implements Cloneable, TextFileInputFieldInterfac
     if ( datefmt_cnt > 0 && datenul != samples.length ) {
       int first = -1;
       for ( int i = 0; i < date_formats.length && first < 0; i++ ) {
-        if ( datefmt[i] ) {
+        if ( datefmt[ i ] ) {
           first = i;
         }
       }
 
       type = ValueMetaInterface.TYPE_DATE;
-      format = date_formats[first];
+      format = date_formats[ first ];
 
       return;
     }
@@ -419,11 +418,11 @@ public class TextFileInputField implements Cloneable, TextFileInputFieldInterfac
     decimalSymbol = "" + dfs.getDecimalSeparator();
     groupSymbol = "" + dfs.getGroupingSeparator();
 
-    boolean[] numfmt = new boolean[number_formats.length];
-    int[] maxprecision = new int[number_formats.length];
+    boolean[] numfmt = new boolean[ number_formats.length ];
+    int[] maxprecision = new int[ number_formats.length ];
     for ( int i = 0; i < numfmt.length; i++ ) {
-      numfmt[i] = true;
-      maxprecision[i] = -1;
+      numfmt[ i ] = true;
+      maxprecision[ i ] = -1;
     }
     int numfmt_cnt = number_formats.length;
     int numnul = 0;
@@ -432,7 +431,7 @@ public class TextFileInputField implements Cloneable, TextFileInputFieldInterfac
       boolean contains_dot = false;
       boolean contains_comma = false;
 
-      String field = samples[i];
+      String field = samples[ i ];
 
       if ( field.length() > 0 && field.equalsIgnoreCase( nullString ) ) {
         numnul++;
@@ -489,7 +488,7 @@ public class TextFileInputField implements Cloneable, TextFileInputFieldInterfac
 
           // Try the remaining possible number formats!
           for ( int x = 0; x < number_formats.length; x++ ) {
-            if ( numfmt[x] ) {
+            if ( numfmt[ x ] ) {
               boolean islong = true;
 
               try {
@@ -507,16 +506,16 @@ public class TextFileInputField implements Cloneable, TextFileInputFieldInterfac
                 if ( !islong ) { // Try the double
 
                   df.setDecimalFormatSymbols( dfs );
-                  df.applyPattern( number_formats[x] );
+                  df.applyPattern( number_formats[ x ] );
 
                   double d = df.parse( field ).doubleValue();
                   prec = guessPrecision( d );
                 }
-                if ( prec > maxprecision[x] ) {
-                  maxprecision[x] = prec;
+                if ( prec > maxprecision[ x ] ) {
+                  maxprecision[ x ] = prec;
                 }
               } catch ( Exception e ) {
-                numfmt[x] = false; // Don't try it again in the future.
+                numfmt[ x ] = false; // Don't try it again in the future.
                 numfmt_cnt--; // One less that works..
               }
             }
@@ -530,14 +529,14 @@ public class TextFileInputField implements Cloneable, TextFileInputFieldInterfac
     if ( numfmt_cnt > 0 && numnul != samples.length ) {
       int first = -1;
       for ( int i = 0; i < number_formats.length && first < 0; i++ ) {
-        if ( numfmt[i] ) {
+        if ( numfmt[ i ] ) {
           first = i;
         }
       }
 
       type = ValueMetaInterface.TYPE_NUMBER;
-      format = number_formats[first];
-      precision = maxprecision[first];
+      format = number_formats[ first ];
+      precision = maxprecision[ first ];
 
       // Wait a minute!!! What about Integers?
       // OK, only if the precision is 0 and the length <19 (java long integer)
@@ -595,7 +594,7 @@ public class TextFileInputField implements Cloneable, TextFileInputFieldInterfac
     // If the string contains only spaces?
     boolean stop = false;
     for ( int i = 0; i < samples.length && !stop; i++ ) {
-      if ( !Const.onlySpaces( samples[i] ) ) {
+      if ( !Const.onlySpaces( samples[ i ] ) ) {
         stop = true;
       }
     }
@@ -607,7 +606,7 @@ public class TextFileInputField implements Cloneable, TextFileInputFieldInterfac
     // If all the strings are empty
     stop = false;
     for ( int i = 0; i < samples.length && !stop; i++ ) {
-      if ( samples[i].length() > 0 ) {
+      if ( samples[ i ].length() > 0 ) {
         stop = true;
       }
     }
@@ -619,7 +618,7 @@ public class TextFileInputField implements Cloneable, TextFileInputFieldInterfac
     // If all the strings are equivalent to NULL
     stop = false;
     for ( int i = 0; i < samples.length && !stop; i++ ) {
-      if ( !samples[i].equalsIgnoreCase( nullString ) ) {
+      if ( !samples[ i ].equalsIgnoreCase( nullString ) ) {
         stop = true;
       }
     }

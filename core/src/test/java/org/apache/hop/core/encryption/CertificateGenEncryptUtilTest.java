@@ -22,20 +22,19 @@
 
 package org.apache.hop.core.encryption;
 
-import java.security.KeyPair;
-import java.util.Arrays;
-
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
 
 import java.security.Key;
+import java.security.KeyPair;
+import java.util.Arrays;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 public class CertificateGenEncryptUtilTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
@@ -51,8 +50,8 @@ public class CertificateGenEncryptUtilTest {
     byte[] pat = pattern.getBytes();
     KeyPair kp = CertificateGenEncryptUtil.generateKeyPair();
 
-    byte [] encr = CertificateGenEncryptUtil.encryptUsingKey( pat, kp.getPublic() );
-    byte [] decr = CertificateGenEncryptUtil.decryptUsingKey( encr, kp.getPrivate() );
+    byte[] encr = CertificateGenEncryptUtil.encryptUsingKey( pat, kp.getPublic() );
+    byte[] decr = CertificateGenEncryptUtil.decryptUsingKey( encr, kp.getPrivate() );
 
     assertTrue( Arrays.equals( pat, decr ) );
   }
@@ -62,8 +61,8 @@ public class CertificateGenEncryptUtilTest {
     byte[] pat = pattern.getBytes();
     KeyPair kp = CertificateGenEncryptUtil.generateKeyPair();
 
-    byte [] encr = CertificateGenEncryptUtil.encryptUsingKey( pat, kp.getPrivate() );
-    byte [] decr = CertificateGenEncryptUtil.decryptUsingKey( encr, kp.getPublic() );
+    byte[] encr = CertificateGenEncryptUtil.encryptUsingKey( pat, kp.getPrivate() );
+    byte[] decr = CertificateGenEncryptUtil.decryptUsingKey( encr, kp.getPublic() );
 
     assertTrue( Arrays.equals( pat, decr ) );
   }
@@ -73,9 +72,9 @@ public class CertificateGenEncryptUtilTest {
     byte[] pat = pattern.getBytes();
     KeyPair kp = CertificateGenEncryptUtil.generateKeyPair();
 
-    byte [] encr = CertificateGenEncryptUtil.encryptUsingKey( pat, kp.getPrivate() );
+    byte[] encr = CertificateGenEncryptUtil.encryptUsingKey( pat, kp.getPrivate() );
     KeyPair kp1 = CertificateGenEncryptUtil.generateKeyPair();
-    byte [] decr = CertificateGenEncryptUtil.decryptUsingKey( encr, kp1.getPublic() );
+    byte[] decr = CertificateGenEncryptUtil.decryptUsingKey( encr, kp1.getPublic() );
     assertNotEquals( encr, decr );
     decr = CertificateGenEncryptUtil.decryptUsingKey( encr, kp.getPublic() );
     assertTrue( Arrays.equals( pat, decr ) );
@@ -86,8 +85,8 @@ public class CertificateGenEncryptUtilTest {
     byte[] pat = pattern.getBytes();
     KeyPair kp = CertificateGenEncryptUtil.generateKeyPair();
 
-    byte [] encr = CertificateGenEncryptUtil.encryptUsingKey( pat, kp.getPublic() );
-    byte [] decr = CertificateGenEncryptUtil.decryptUsingKey( encr, kp.getPublic() );
+    byte[] encr = CertificateGenEncryptUtil.encryptUsingKey( pat, kp.getPublic() );
+    byte[] decr = CertificateGenEncryptUtil.decryptUsingKey( encr, kp.getPublic() );
 
     assertNotEquals( encr, decr );
   }
@@ -97,8 +96,8 @@ public class CertificateGenEncryptUtilTest {
     byte[] pat = pattern.getBytes();
     KeyPair kp = CertificateGenEncryptUtil.generateKeyPair();
 
-    byte [] encr = CertificateGenEncryptUtil.encryptUsingKey( pat, kp.getPrivate() );
-    byte [] decr = CertificateGenEncryptUtil.decryptUsingKey( encr, kp.getPrivate() );
+    byte[] encr = CertificateGenEncryptUtil.encryptUsingKey( pat, kp.getPrivate() );
+    byte[] decr = CertificateGenEncryptUtil.decryptUsingKey( encr, kp.getPrivate() );
 
     assertNotEquals( encr, decr );
   }
@@ -155,9 +154,9 @@ public class CertificateGenEncryptUtilTest {
     KeyPair kp = CertificateGenEncryptUtil.generateKeyPair();
     Key privateKey = kp.getPrivate();
     byte[] encryptedKey = CertificateGenEncryptUtil.encodeKeyForTransmission( kp.getPublic(), key );
-    byte[] encryptedKey1 = new byte[encryptedKey.length];
+    byte[] encryptedKey1 = new byte[ encryptedKey.length ];
     System.arraycopy( encryptedKey, 0, encryptedKey1, 0, encryptedKey.length );
-    encryptedKey1[encryptedKey1.length - 1] = (byte) ( encryptedKey1[encryptedKey1.length - 1] - 1 );
+    encryptedKey1[ encryptedKey1.length - 1 ] = (byte) ( encryptedKey1[ encryptedKey1.length - 1 ] - 1 );
     encryptedKey = encryptedKey1;
     CertificateGenEncryptUtil.decodeTransmittedKey( privateKey.getEncoded(), encryptedKey, true );
   }
@@ -168,9 +167,9 @@ public class CertificateGenEncryptUtilTest {
     KeyPair kp = CertificateGenEncryptUtil.generateKeyPair();
     Key privateKey = kp.getPrivate();
     byte[] encryptedKey = CertificateGenEncryptUtil.encodeKeyForTransmission( privateKey, key );
-    byte[] encryptedKey1 = new byte[encryptedKey.length];
+    byte[] encryptedKey1 = new byte[ encryptedKey.length ];
     System.arraycopy( encryptedKey, 0, encryptedKey1, 0, encryptedKey.length );
-    encryptedKey1[encryptedKey1.length - 1] = (byte) ( encryptedKey1[encryptedKey1.length - 1] - 1 );
+    encryptedKey1[ encryptedKey1.length - 1 ] = (byte) ( encryptedKey1[ encryptedKey1.length - 1 ] - 1 );
     encryptedKey = encryptedKey1;
     CertificateGenEncryptUtil.decodeTransmittedKey( kp.getPublic().getEncoded(), encryptedKey, false );
   }
@@ -181,9 +180,9 @@ public class CertificateGenEncryptUtilTest {
     KeyPair kp = CertificateGenEncryptUtil.generateKeyPair();
     Key privateKey = kp.getPrivate();
     byte[] encryptedKey = CertificateGenEncryptUtil.encodeKeyForTransmission( kp.getPublic(), key );
-    byte[] encryptedKey1 = new byte[privateKey.getEncoded().length];
+    byte[] encryptedKey1 = new byte[ privateKey.getEncoded().length ];
     System.arraycopy( privateKey.getEncoded(), 0, encryptedKey1, 0, privateKey.getEncoded().length );
-    encryptedKey1[encryptedKey1.length - 1] = (byte) ( encryptedKey1[encryptedKey1.length - 1] - 1 );
+    encryptedKey1[ encryptedKey1.length - 1 ] = (byte) ( encryptedKey1[ encryptedKey1.length - 1 ] - 1 );
     CertificateGenEncryptUtil.decodeTransmittedKey( encryptedKey1, encryptedKey, true );
   }
 
@@ -193,9 +192,9 @@ public class CertificateGenEncryptUtilTest {
     KeyPair kp = CertificateGenEncryptUtil.generateKeyPair();
     Key privateKey = kp.getPrivate();
     byte[] encryptedKey = CertificateGenEncryptUtil.encodeKeyForTransmission( privateKey, key );
-    byte[] encryptedKey1 = new byte[kp.getPublic().getEncoded().length];
+    byte[] encryptedKey1 = new byte[ kp.getPublic().getEncoded().length ];
     System.arraycopy( kp.getPublic().getEncoded(), 0, encryptedKey1, 0, kp.getPublic().getEncoded().length );
-    encryptedKey1[encryptedKey1.length - 1] = (byte) ( encryptedKey1[encryptedKey1.length - 1] - 1 );
+    encryptedKey1[ encryptedKey1.length - 1 ] = (byte) ( encryptedKey1[ encryptedKey1.length - 1 ] - 1 );
     CertificateGenEncryptUtil.decodeTransmittedKey( encryptedKey1, encryptedKey, false );
   }
 }

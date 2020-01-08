@@ -22,6 +22,28 @@
 
 package org.apache.hop.ui.trans.steps.ssh;
 
+import com.trilead.ssh2.Connection;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPreviewFactory;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.ssh.SSHData;
+import org.apache.hop.trans.steps.ssh.SSHMeta;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.widget.LabelTextVar;
+import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -47,29 +69,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPreviewFactory;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.ssh.SSHData;
-import org.apache.hop.trans.steps.ssh.SSHMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.widget.LabelTextVar;
-import org.apache.hop.ui.core.widget.StyledTextComp;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-
-import com.trilead.ssh2.Connection;
 
 public class SSHDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = SSHMeta.class; // for i18n purposes, needed by Translator2!!
@@ -243,7 +242,7 @@ public class SSHDialog extends BaseStepDialog implements StepDialogInterface {
     wServerName =
       new LabelTextVar(
         transMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.Server.Label" ), BaseMessages
-          .getString( PKG, "SSHDialog.Server.Tooltip" ) );
+        .getString( PKG, "SSHDialog.Server.Tooltip" ) );
     props.setLook( wServerName );
     wServerName.addModifyListener( lsMod );
     fdServerName = new FormData();
@@ -256,7 +255,7 @@ public class SSHDialog extends BaseStepDialog implements StepDialogInterface {
     wPort =
       new LabelTextVar(
         transMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.Port.Label" ), BaseMessages
-          .getString( PKG, "SSHDialog.Port.Tooltip" ) );
+        .getString( PKG, "SSHDialog.Port.Tooltip" ) );
     props.setLook( wPort );
     wPort.addModifyListener( lsMod );
     fdPort = new FormData();
@@ -269,7 +268,7 @@ public class SSHDialog extends BaseStepDialog implements StepDialogInterface {
     wTimeOut =
       new LabelTextVar(
         transMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.TimeOut.Label" ), BaseMessages
-          .getString( PKG, "SSHDialog.TimeOut.Tooltip" ) );
+        .getString( PKG, "SSHDialog.TimeOut.Tooltip" ) );
     props.setLook( wTimeOut );
     wTimeOut.addModifyListener( lsMod );
     fdTimeOut = new FormData();
@@ -282,7 +281,7 @@ public class SSHDialog extends BaseStepDialog implements StepDialogInterface {
     wUserName =
       new LabelTextVar(
         transMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.UserName.Label" ), BaseMessages
-          .getString( PKG, "SSHDialog.UserName.Tooltip" ) );
+        .getString( PKG, "SSHDialog.UserName.Tooltip" ) );
     props.setLook( wUserName );
     wUserName.addModifyListener( lsMod );
     fdUserName = new FormData();
@@ -295,7 +294,7 @@ public class SSHDialog extends BaseStepDialog implements StepDialogInterface {
     wPassword =
       new LabelTextVar(
         transMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.Password.Label" ), BaseMessages
-          .getString( PKG, "SSHDialog.Password.Tooltip" ), true );
+        .getString( PKG, "SSHDialog.Password.Tooltip" ), true );
     props.setLook( wPassword );
     wPassword.addModifyListener( lsMod );
     fdPassword = new FormData();
@@ -358,7 +357,7 @@ public class SSHDialog extends BaseStepDialog implements StepDialogInterface {
     wPrivateKey =
       new LabelTextVar(
         transMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.PrivateKey.Label" ), BaseMessages
-          .getString( PKG, "SSHDialog.PrivateKey.Tooltip" ) );
+        .getString( PKG, "SSHDialog.PrivateKey.Tooltip" ) );
     props.setLook( wPassword );
     wPrivateKey.addModifyListener( lsMod );
     fdPrivateKey = new FormData();
@@ -371,7 +370,7 @@ public class SSHDialog extends BaseStepDialog implements StepDialogInterface {
     wPassphrase =
       new LabelTextVar(
         transMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.Passphrase.Label" ), BaseMessages
-          .getString( PKG, "SSHDialog.Passphrase.Tooltip" ), true );
+        .getString( PKG, "SSHDialog.Passphrase.Tooltip" ), true );
     props.setLook( wPassphrase );
     wPassphrase.addModifyListener( lsMod );
     fdPassphrase = new FormData();
@@ -384,7 +383,7 @@ public class SSHDialog extends BaseStepDialog implements StepDialogInterface {
     wProxyHost =
       new LabelTextVar(
         transMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.ProxyHost.Label" ), BaseMessages
-          .getString( PKG, "SSHDialog.ProxyHost.Tooltip" ) );
+        .getString( PKG, "SSHDialog.ProxyHost.Tooltip" ) );
     props.setLook( wProxyHost );
     wProxyHost.addModifyListener( lsMod );
     fdProxyHost = new FormData();
@@ -397,7 +396,7 @@ public class SSHDialog extends BaseStepDialog implements StepDialogInterface {
     wProxyPort =
       new LabelTextVar(
         transMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.ProxyPort.Label" ), BaseMessages
-          .getString( PKG, "SSHDialog.ProxyPort.Tooltip" ) );
+        .getString( PKG, "SSHDialog.ProxyPort.Tooltip" ) );
     props.setLook( wProxyPort );
     wProxyPort.addModifyListener( lsMod );
     fdProxyPort = new FormData();
@@ -496,7 +495,7 @@ public class SSHDialog extends BaseStepDialog implements StepDialogInterface {
     wResultOutFieldName =
       new LabelTextVar(
         transMeta, wOutput, BaseMessages.getString( PKG, "SSHDialog.ResultOutFieldName.Label" ), BaseMessages
-          .getString( PKG, "SSHDialog.ResultOutFieldName.Tooltip" ) );
+        .getString( PKG, "SSHDialog.ResultOutFieldName.Tooltip" ) );
     props.setLook( wResultOutFieldName );
     wResultOutFieldName.addModifyListener( lsMod );
     fdResultOutFieldName = new FormData();
@@ -509,7 +508,7 @@ public class SSHDialog extends BaseStepDialog implements StepDialogInterface {
     wResultErrFieldName =
       new LabelTextVar(
         transMeta, wOutput, BaseMessages.getString( PKG, "SSHDialog.ResultErrFieldName.Label" ), BaseMessages
-          .getString( PKG, "SSHDialog.ResultErrFieldName.Tooltip" ) );
+        .getString( PKG, "SSHDialog.ResultErrFieldName.Tooltip" ) );
     props.setLook( wResultErrFieldName );
     wResultErrFieldName.addModifyListener( lsMod );
     fdResultErrFieldName = new FormData();
@@ -850,7 +849,7 @@ public class SSHDialog extends BaseStepDialog implements StepDialogInterface {
       } catch ( HopException ke ) {
         new ErrorDialog(
           shell, BaseMessages.getString( PKG, "SSHDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-            .getString( PKG, "SSHDialog.FailedToGetFields.DialogMessage" ), ke );
+          .getString( PKG, "SSHDialog.FailedToGetFields.DialogMessage" ), ke );
       }
     }
   }
@@ -861,14 +860,14 @@ public class SSHDialog extends BaseStepDialog implements StepDialogInterface {
     String servername = transMeta.environmentSubstitute( wServerName.getText() );
     int nrPort = Const.toInt( transMeta.environmentSubstitute( wPort.getText() ), 22 );
     String username = transMeta.environmentSubstitute( wUserName.getText() );
-    String password = Utils.resolvePassword( transMeta,  wPassword.getText() );
+    String password = Utils.resolvePassword( transMeta, wPassword.getText() );
     String keyFilename = transMeta.environmentSubstitute( wPrivateKey.getText() );
     String passphrase = transMeta.environmentSubstitute( wPassphrase.getText() );
     int timeOut = Const.toInt( transMeta.environmentSubstitute( wTimeOut.getText() ), 0 );
     String proxyhost = transMeta.environmentSubstitute( wProxyHost.getText() );
     int proxyport = Const.toInt( transMeta.environmentSubstitute( wProxyPort.getText() ), 0 );
     String proxyusername = transMeta.environmentSubstitute( wProxyUsername.getText() );
-    String proxypassword = Utils.resolvePassword( transMeta,  wProxyPassword.getText() );
+    String proxypassword = Utils.resolvePassword( transMeta, wProxyPassword.getText() );
 
     Connection conn = null;
     try {
@@ -905,7 +904,6 @@ public class SSHDialog extends BaseStepDialog implements StepDialogInterface {
 
   /**
    * Preview the data generated by this step. This generates a transformation using this step & a dummy and previews it.
-   *
    */
   private void preview() {
     try {
@@ -918,7 +916,7 @@ public class SSHDialog extends BaseStepDialog implements StepDialogInterface {
       EnterNumberDialog numberDialog =
         new EnterNumberDialog(
           shell, 1, BaseMessages.getString( PKG, "SSHDialog.NumberRows.DialogTitle" ), BaseMessages.getString(
-            PKG, "SSHDialog.NumberRows.DialogMessage" ) );
+          PKG, "SSHDialog.NumberRows.DialogMessage" ) );
 
       int previewSize = numberDialog.open();
       if ( previewSize > 0 ) {
@@ -935,14 +933,14 @@ public class SSHDialog extends BaseStepDialog implements StepDialogInterface {
             EnterTextDialog etd =
               new EnterTextDialog(
                 shell, BaseMessages.getString( PKG, "System.Dialog.PreviewError.Title" ), BaseMessages
-                  .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
+                .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
             etd.setReadOnly();
             etd.open();
           }
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
               shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta( wStepname
-                .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
+              .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
           prd.open();
 
         }

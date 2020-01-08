@@ -22,8 +22,16 @@
 
 package org.apache.hop.ui.hopui.dialog;
 
-import java.util.List;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
@@ -38,16 +46,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.apache.hop.core.Const;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.List;
 
 public class PreviewSelectDialog extends Dialog {
   private static Class<?> PKG = PreviewSelectDialog.class; // for i18n purposes, needed by Translator2!!
@@ -92,8 +92,8 @@ public class PreviewSelectDialog extends Dialog {
 
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "PreviewSelectDialog.Dialog.PreviewSelection.Title" ) ); // Preview
-                                                                                                         // selection
-                                                                                                         // screen
+    // selection
+    // screen
     shell.setImage( GUIResource.getInstance().getImageLogoSmall() );
 
     int margin = Const.MARGIN;
@@ -110,14 +110,14 @@ public class PreviewSelectDialog extends Dialog {
     final int FieldsRows = usedSteps.size();
 
     ColumnInfo[] colinf =
-    {
-      new ColumnInfo(
-        BaseMessages.getString( PKG, "PreviewSelectDialog.Column.Stepname" ), ColumnInfo.COLUMN_TYPE_TEXT,
-        false, true ), // Stepname
-      new ColumnInfo(
-        BaseMessages.getString( PKG, "PreviewSelectDialog.Column.PreviewSize" ),
-        ColumnInfo.COLUMN_TYPE_TEXT, false, false ), // Preview size
-    };
+      {
+        new ColumnInfo(
+          BaseMessages.getString( PKG, "PreviewSelectDialog.Column.Stepname" ), ColumnInfo.COLUMN_TYPE_TEXT,
+          false, true ), // Stepname
+        new ColumnInfo(
+          BaseMessages.getString( PKG, "PreviewSelectDialog.Column.PreviewSize" ),
+          ColumnInfo.COLUMN_TYPE_TEXT, false, false ), // Preview size
+      };
 
     wFields =
       new TableView( transMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows,
@@ -199,8 +199,8 @@ public class PreviewSelectDialog extends Dialog {
 
         // Remember the last time...?
         for ( int x = 0; x < prSteps.length; x++ ) {
-          if ( prSteps[x].equalsIgnoreCase( name ) ) {
-            item.setText( 2, "" + prSizes[x] );
+          if ( prSteps[ x ].equalsIgnoreCase( name ) ) {
+            item.setText( 2, "" + prSizes[ x ] );
           }
         }
       }
@@ -238,8 +238,8 @@ public class PreviewSelectDialog extends Dialog {
       }
     }
 
-    previewSteps = new String[sels];
-    previewSizes = new int[sels];
+    previewSteps = new String[ sels ];
+    previewSizes = new int[ sels ];
 
     sels = 0;
     for ( int i = 0; i < wFields.table.getItemCount(); i++ ) {
@@ -247,8 +247,8 @@ public class PreviewSelectDialog extends Dialog {
       int size = Const.toInt( ti.getText( 2 ), 0 );
 
       if ( size > 0 ) {
-        previewSteps[sels] = ti.getText( 1 );
-        previewSizes[sels] = size;
+        previewSteps[ sels ] = ti.getText( 1 );
+        previewSizes[ sels ] = size;
 
         sels++;
       }

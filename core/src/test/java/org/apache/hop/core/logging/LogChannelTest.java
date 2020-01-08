@@ -22,25 +22,25 @@
 
 package org.apache.hop.core.logging;
 
+import org.apache.hop.core.util.Utils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.apache.hop.core.util.Utils;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-import static org.mockito.Mockito.verify;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith( PowerMockRunner.class )
-@PrepareForTest( {DefaultLogLevel.class, LoggingRegistry.class, LogLevel.class, HopLogStore.class, Utils.class} )
+@PrepareForTest( { DefaultLogLevel.class, LoggingRegistry.class, LogLevel.class, HopLogStore.class, Utils.class } )
 public class LogChannelTest {
 
   private LogChannel logChannel;

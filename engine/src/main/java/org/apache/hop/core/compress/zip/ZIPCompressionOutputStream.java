@@ -22,15 +22,15 @@
 
 package org.apache.hop.core.compress.zip;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.compress.CompressionOutputStream;
+import org.apache.hop.core.compress.CompressionProvider;
+import org.apache.hop.core.util.Utils;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.compress.CompressionOutputStream;
-import org.apache.hop.core.compress.CompressionProvider;
 
 public class ZIPCompressionOutputStream extends CompressionOutputStream {
 

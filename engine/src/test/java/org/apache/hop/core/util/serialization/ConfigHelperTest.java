@@ -28,9 +28,9 @@ import org.junit.Test;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.hop.core.util.serialization.ConfigHelper.conf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.apache.hop.core.util.serialization.ConfigHelper.conf;
 
 public class ConfigHelperTest {
 

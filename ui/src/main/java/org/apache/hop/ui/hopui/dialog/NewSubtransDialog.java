@@ -23,17 +23,17 @@
 package org.apache.hop.ui.hopui.dialog;
 
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.FormDataBuilder;
+import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
@@ -46,7 +46,6 @@ import org.eclipse.swt.widgets.Shell;
  * Shows a pop-up message dialog after the sub-transformation creation.
  *
  * @author Aliaksandr Kastenka
- *
  */
 public class NewSubtransDialog extends Dialog {
   private static Class<?> PKG = NewSubtransDialog.class; // for i18n purposes, needed by Translator2!!

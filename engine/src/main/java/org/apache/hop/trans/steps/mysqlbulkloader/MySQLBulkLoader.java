@@ -22,17 +22,7 @@
 
 package org.apache.hop.trans.steps.mysqlbulkloader;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Date;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.DBCache;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
@@ -44,6 +34,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.util.StreamLogger;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -53,9 +44,18 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
+
 /**
  * Performs a streaming bulk load to a MySQL table.
- *
+ * <p>
  * Based on Sven Boden's Oracle Bulk Loader step
  *
  * @author matt
@@ -70,7 +70,7 @@ public class MySQLBulkLoader extends BaseStep implements StepInterface {
   private final String threadWaitTimeText = "5min";
 
   public MySQLBulkLoader( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
+                          Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -89,7 +89,7 @@ public class MySQLBulkLoader extends BaseStep implements StepInterface {
         //
         String mkFifoCmd = "mkfifo " + data.fifoFilename;
         //
-        logBasic( BaseMessages.getString( PKG, "MySQLBulkLoader.Message.CREATINGFIFO",  data.dbDescription, mkFifoCmd ) );
+        logBasic( BaseMessages.getString( PKG, "MySQLBulkLoader.Message.CREATINGFIFO", data.dbDescription, mkFifoCmd ) );
         Process mkFifoProcess = rt.exec( mkFifoCmd );
         StreamLogger errorLogger = new StreamLogger( log, mkFifoProcess.getErrorStream(), "mkFifoError" );
         StreamLogger outputLogger = new StreamLogger( log, mkFifoProcess.getInputStream(), "mkFifoOuptut" );
@@ -101,7 +101,7 @@ public class MySQLBulkLoader extends BaseStep implements StepInterface {
         }
 
         String chmodCmd = "chmod 666 " + data.fifoFilename;
-        logBasic( BaseMessages.getString( PKG, "MySQLBulkLoader.Message.SETTINGPERMISSIONSFIFO",  data.dbDescription, chmodCmd ) );
+        logBasic( BaseMessages.getString( PKG, "MySQLBulkLoader.Message.SETTINGPERMISSIONSFIFO", data.dbDescription, chmodCmd ) );
         Process chmodProcess = rt.exec( chmodCmd );
         errorLogger = new StreamLogger( log, chmodProcess.getErrorStream(), "chmodError" );
         outputLogger = new StreamLogger( log, chmodProcess.getInputStream(), "chmodOuptut" );
@@ -123,7 +123,7 @@ public class MySQLBulkLoader extends BaseStep implements StepInterface {
       data.db = new Database( this, meta.getDatabaseMeta() );
       data.db.shareVariablesWith( this );
       PluginInterface dbPlugin =
-          PluginRegistry.getInstance().getPlugin( DatabasePluginType.class, meta.getDatabaseMeta().getDatabaseInterface() );
+        PluginRegistry.getInstance().getPlugin( DatabasePluginType.class, meta.getDatabaseMeta().getDatabaseInterface() );
       data.dbDescription = ( dbPlugin != null ) ? dbPlugin.getDescription() : BaseMessages.getString( PKG, "MySQLBulkLoader.UnknownDB" );
 
       // Connect to the database
@@ -135,7 +135,7 @@ public class MySQLBulkLoader extends BaseStep implements StepInterface {
         data.db.connect( getPartitionID() );
       }
 
-      logBasic( BaseMessages.getString( PKG, "MySQLBulkLoader.Message.CONNECTED",  data.dbDescription ) );
+      logBasic( BaseMessages.getString( PKG, "MySQLBulkLoader.Message.CONNECTED", data.dbDescription ) );
 
       // 3) Now we are ready to run the load command...
       //
@@ -151,8 +151,8 @@ public class MySQLBulkLoader extends BaseStep implements StepInterface {
 
     String loadCommand = "";
     loadCommand +=
-        "LOAD DATA " + ( meta.isLocalFile() ? "LOCAL" : "" ) + " INFILE '"
-            + environmentSubstitute( meta.getFifoFileName() ) + "' ";
+      "LOAD DATA " + ( meta.isLocalFile() ? "LOCAL" : "" ) + " INFILE '"
+        + environmentSubstitute( meta.getFifoFileName() ) + "' ";
     if ( meta.isReplacingData() ) {
       loadCommand += "REPLACE ";
     } else if ( meta.isIgnoringErrors() ) {
@@ -172,13 +172,13 @@ public class MySQLBulkLoader extends BaseStep implements StepInterface {
       loadCommand += "OPTIONALLY ENCLOSED BY '" + meta.getEnclosure() + "' ";
     }
     loadCommand +=
-        "ESCAPED BY '" + meta.getEscapeChar() + ( "\\".equals( meta.getEscapeChar() ) ? meta.getEscapeChar() : "" )
-            + "' ";
+      "ESCAPED BY '" + meta.getEscapeChar() + ( "\\".equals( meta.getEscapeChar() ) ? meta.getEscapeChar() : "" )
+        + "' ";
 
     // Build list of column names to set
     loadCommand += "(";
     for ( int cnt = 0; cnt < meta.getFieldTable().length; cnt++ ) {
-      loadCommand += meta.getDatabaseMeta().quoteField( meta.getFieldTable()[cnt] );
+      loadCommand += meta.getDatabaseMeta().quoteField( meta.getFieldTable()[ cnt ] );
       if ( cnt < meta.getFieldTable().length - 1 ) {
         loadCommand += ",";
       }
@@ -186,7 +186,7 @@ public class MySQLBulkLoader extends BaseStep implements StepInterface {
 
     loadCommand += ");" + Const.CR;
 
-    logBasic( BaseMessages.getString( PKG, "MySQLBulkLoader.Message.STARTING",  data.dbDescription, loadCommand ) );
+    logBasic( BaseMessages.getString( PKG, "MySQLBulkLoader.Message.STARTING", data.dbDescription, loadCommand ) );
 
     data.sqlRunner = new SqlRunner( data, loadCommand );
     data.sqlRunner.start();
@@ -194,7 +194,7 @@ public class MySQLBulkLoader extends BaseStep implements StepInterface {
     // Ready to start writing rows to the FIFO file now...
     //
     if ( !Const.isWindows() ) {
-      logBasic( BaseMessages.getString( PKG, "MySQLBulkLoader.Message.OPENFIFO",  data.fifoFilename ) );
+      logBasic( BaseMessages.getString( PKG, "MySQLBulkLoader.Message.OPENFIFO", data.fifoFilename ) );
       OpenFifo openFifo = new OpenFifo( data.fifoFilename, 1000 );
       openFifo.start();
 
@@ -250,27 +250,27 @@ public class MySQLBulkLoader extends BaseStep implements StepInterface {
 
         // Cache field indexes.
         //
-        data.keynrs = new int[meta.getFieldStream().length];
+        data.keynrs = new int[ meta.getFieldStream().length ];
         for ( int i = 0; i < data.keynrs.length; i++ ) {
-          data.keynrs[i] = getInputRowMeta().indexOfValue( meta.getFieldStream()[i] );
+          data.keynrs[ i ] = getInputRowMeta().indexOfValue( meta.getFieldStream()[ i ] );
         }
 
-        data.bulkFormatMeta = new ValueMetaInterface[data.keynrs.length];
+        data.bulkFormatMeta = new ValueMetaInterface[ data.keynrs.length ];
         for ( int i = 0; i < data.keynrs.length; i++ ) {
-          ValueMetaInterface sourceMeta = getInputRowMeta().getValueMeta( data.keynrs[i] );
+          ValueMetaInterface sourceMeta = getInputRowMeta().getValueMeta( data.keynrs[ i ] );
           if ( sourceMeta.isDate() ) {
-            if ( meta.getFieldFormatType()[i] == MySQLBulkLoaderMeta.FIELD_FORMAT_TYPE_DATE ) {
-              data.bulkFormatMeta[i] = data.bulkDateMeta.clone();
-            } else if ( meta.getFieldFormatType()[i] == MySQLBulkLoaderMeta.FIELD_FORMAT_TYPE_TIMESTAMP ) {
-              data.bulkFormatMeta[i] = data.bulkTimestampMeta.clone(); // default to timestamp
+            if ( meta.getFieldFormatType()[ i ] == MySQLBulkLoaderMeta.FIELD_FORMAT_TYPE_DATE ) {
+              data.bulkFormatMeta[ i ] = data.bulkDateMeta.clone();
+            } else if ( meta.getFieldFormatType()[ i ] == MySQLBulkLoaderMeta.FIELD_FORMAT_TYPE_TIMESTAMP ) {
+              data.bulkFormatMeta[ i ] = data.bulkTimestampMeta.clone(); // default to timestamp
             }
           } else if ( sourceMeta.isNumeric()
-              && meta.getFieldFormatType()[i] == MySQLBulkLoaderMeta.FIELD_FORMAT_TYPE_NUMBER ) {
-            data.bulkFormatMeta[i] = data.bulkNumberMeta.clone();
+            && meta.getFieldFormatType()[ i ] == MySQLBulkLoaderMeta.FIELD_FORMAT_TYPE_NUMBER ) {
+            data.bulkFormatMeta[ i ] = data.bulkNumberMeta.clone();
           }
 
-          if ( data.bulkFormatMeta[i] == null && !sourceMeta.isStorageBinaryString() ) {
-            data.bulkFormatMeta[i] = sourceMeta.clone();
+          if ( data.bulkFormatMeta[ i ] == null && !sourceMeta.isStorageBinaryString() ) {
+            data.bulkFormatMeta[ i ] = sourceMeta.clone();
           }
         }
 
@@ -336,9 +336,9 @@ public class MySQLBulkLoader extends BaseStep implements StepInterface {
           data.fifoStream.write( data.separator );
         }
 
-        int index = data.keynrs[i];
+        int index = data.keynrs[ i ];
         ValueMetaInterface valueMeta = rowMeta.getValueMeta( index );
-        Object valueData = r[index];
+        Object valueData = r[ index ];
 
         if ( valueData == null ) {
           data.fifoStream.write( "NULL".getBytes() );
@@ -347,13 +347,13 @@ public class MySQLBulkLoader extends BaseStep implements StepInterface {
             case ValueMetaInterface.TYPE_STRING:
               data.fifoStream.write( data.quote );
               if ( valueMeta.isStorageBinaryString()
-                  && meta.getFieldFormatType()[i] == MySQLBulkLoaderMeta.FIELD_FORMAT_TYPE_OK ) {
+                && meta.getFieldFormatType()[ i ] == MySQLBulkLoaderMeta.FIELD_FORMAT_TYPE_OK ) {
                 // We had a string, just dump it back.
                 data.fifoStream.write( (byte[]) valueData );
               } else {
                 String string = valueMeta.getString( valueData );
                 if ( string != null ) {
-                  if ( meta.getFieldFormatType()[i] == MySQLBulkLoaderMeta.FIELD_FORMAT_TYPE_STRING_ESCAPE ) {
+                  if ( meta.getFieldFormatType()[ i ] == MySQLBulkLoaderMeta.FIELD_FORMAT_TYPE_STRING_ESCAPE ) {
                     string = Const.replace( string, meta.getEscapeChar(), meta.getEscapeChar() + meta.getEscapeChar() );
                     string = Const.replace( string, meta.getEnclosure(), meta.getEscapeChar() + meta.getEnclosure() );
                   }
@@ -363,37 +363,37 @@ public class MySQLBulkLoader extends BaseStep implements StepInterface {
               data.fifoStream.write( data.quote );
               break;
             case ValueMetaInterface.TYPE_INTEGER:
-              if ( valueMeta.isStorageBinaryString() && data.bulkFormatMeta[i] == null ) {
+              if ( valueMeta.isStorageBinaryString() && data.bulkFormatMeta[ i ] == null ) {
                 data.fifoStream.write( valueMeta.getBinaryString( valueData ) );
               } else {
                 Long integer = valueMeta.getInteger( valueData );
                 if ( integer != null ) {
-                  data.fifoStream.write( data.bulkFormatMeta[i].getString( integer ).getBytes() );
+                  data.fifoStream.write( data.bulkFormatMeta[ i ].getString( integer ).getBytes() );
                 }
               }
               break;
             case ValueMetaInterface.TYPE_DATE:
-              if ( valueMeta.isStorageBinaryString() && data.bulkFormatMeta[i] == null ) {
+              if ( valueMeta.isStorageBinaryString() && data.bulkFormatMeta[ i ] == null ) {
                 data.fifoStream.write( valueMeta.getBinaryString( valueData ) );
               } else {
                 Date date = valueMeta.getDate( valueData );
                 if ( date != null ) {
-                  data.fifoStream.write( data.bulkFormatMeta[i].getString( date ).getBytes() );
+                  data.fifoStream.write( data.bulkFormatMeta[ i ].getString( date ).getBytes() );
                 }
               }
               break;
             case ValueMetaInterface.TYPE_BOOLEAN:
-              if ( valueMeta.isStorageBinaryString() && data.bulkFormatMeta[i] == null ) {
+              if ( valueMeta.isStorageBinaryString() && data.bulkFormatMeta[ i ] == null ) {
                 data.fifoStream.write( valueMeta.getBinaryString( valueData ) );
               } else {
                 Boolean b = valueMeta.getBoolean( valueData );
                 if ( b != null ) {
-                  data.fifoStream.write( data.bulkFormatMeta[i].getString( b ).getBytes() );
+                  data.fifoStream.write( data.bulkFormatMeta[ i ].getString( b ).getBytes() );
                 }
               }
               break;
             case ValueMetaInterface.TYPE_NUMBER:
-              if ( valueMeta.isStorageBinaryString() && data.bulkFormatMeta[i] == null ) {
+              if ( valueMeta.isStorageBinaryString() && data.bulkFormatMeta[ i ] == null ) {
                 data.fifoStream.write( (byte[]) valueData );
               } else {
                 /**
@@ -403,22 +403,22 @@ public class MySQLBulkLoader extends BaseStep implements StepInterface {
                  * http://jira.pentaho.com/browse/PDI-11421
                  */
                 if ( getLinesWritten() == 0 ) {
-                  data.bulkFormatMeta[i].setConversionMask( null );
+                  data.bulkFormatMeta[ i ].setConversionMask( null );
                 }
 
                 Double d = valueMeta.getNumber( valueData );
                 if ( d != null ) {
-                  data.fifoStream.write( data.bulkFormatMeta[i].getString( d ).getBytes() );
+                  data.fifoStream.write( data.bulkFormatMeta[ i ].getString( d ).getBytes() );
                 }
               }
               break;
             case ValueMetaInterface.TYPE_BIGNUMBER:
-              if ( valueMeta.isStorageBinaryString() && data.bulkFormatMeta[i] == null ) {
+              if ( valueMeta.isStorageBinaryString() && data.bulkFormatMeta[ i ] == null ) {
                 data.fifoStream.write( (byte[]) valueData );
               } else {
                 BigDecimal bn = valueMeta.getBigNumber( valueData );
                 if ( bn != null ) {
-                  data.fifoStream.write( data.bulkFormatMeta[i].getString( bn ).getBytes() );
+                  data.fifoStream.write( data.bulkFormatMeta[ i ].getString( bn ).getBytes() );
                 }
               }
               break;
@@ -511,8 +511,8 @@ public class MySQLBulkLoader extends BaseStep implements StepInterface {
 
       // Schema-table combination...
       data.schemaTable =
-          meta.getDatabaseMeta().getQuotedSchemaTableCombination( environmentSubstitute( meta.getSchemaName() ),
-              environmentSubstitute( meta.getTableName() ) );
+        meta.getDatabaseMeta().getQuotedSchemaTableCombination( environmentSubstitute( meta.getSchemaName() ),
+          environmentSubstitute( meta.getTableName() ) );
 
       return true;
     }

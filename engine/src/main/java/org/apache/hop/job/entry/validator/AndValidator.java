@@ -22,10 +22,10 @@
 
 package org.apache.hop.job.entry.validator;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.CheckResultSourceInterface;
+
+import java.util.List;
 
 /**
  * Boolean ANDs the results of all validators. If one validator fails, <code>false</code> is immediately returned. The
@@ -43,7 +43,7 @@ public class AndValidator implements JobEntryValidator {
   private static final String VALIDATOR_NAME = "and";
 
   public boolean validate( CheckResultSourceInterface source, String propertyName,
-    List<CheckResultInterface> remarks, ValidatorContext context ) {
+                           List<CheckResultInterface> remarks, ValidatorContext context ) {
     // Object o = context.get(KEY_VALIDATORS);
 
     Object[] validators = (Object[]) context.get( KEY_VALIDATORS );

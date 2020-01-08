@@ -22,14 +22,14 @@
 
 package org.apache.hop.ui.hopui;
 
+import org.apache.hop.ui.hopui.trans.TransGraph;
+import org.apache.xul.swt.tab.TabItem;
+import org.apache.xul.swt.tab.TabSet;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.junit.Test;
-import org.apache.hop.ui.hopui.trans.TransGraph;
-import org.apache.xul.swt.tab.TabItem;
-import org.apache.xul.swt.tab.TabSet;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -114,7 +114,7 @@ public class ExpandedContentManagerTest {
     when( hopUi.getTabSet() ).thenReturn( tabSet );
     when( tabSet.getSelected() ).thenReturn( tabItem );
     when( tabItem.getSashWeights() ).thenReturn( new int[] { 3, 2, 1 } );
-    when( transGraph.getChildren() ).thenReturn( new Control[]{ browser } );
+    when( transGraph.getChildren() ).thenReturn( new Control[] { browser } );
     when( browser.getParent() ).thenReturn( parent );
     return parent;
   }

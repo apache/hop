@@ -22,22 +22,18 @@
 
 package org.apache.hop.core.logging;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
-import org.apache.hop.metastore.util.HopDefaults;
-import org.apache.hop.trans.HasDatabasesInterface;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class BaseLogTable {
   public static final String XML_TAG = "field";
@@ -130,7 +126,7 @@ public abstract class BaseLogTable {
     try {
       return DatabaseMeta.createFactory( metaStore ).loadElement( name );
     } catch ( MetaStoreException e ) {
-      throw new RuntimeException( "Unable to load database connection '"+name+"'", e);
+      throw new RuntimeException( "Unable to load database connection '" + name + "'", e );
     }
   }
 
@@ -166,8 +162,7 @@ public abstract class BaseLogTable {
   }
 
   /**
-   * @param schemaName
-   *          the schemaName to set
+   * @param schemaName the schemaName to set
    */
   public void setSchemaName( String schemaName ) {
     this.schemaName = schemaName;
@@ -198,8 +193,7 @@ public abstract class BaseLogTable {
   }
 
   /**
-   * @param tableName
-   *          the tableName to set
+   * @param tableName the tableName to set
    */
   public void setTableName( String tableName ) {
     this.tableName = tableName;
@@ -217,8 +211,7 @@ public abstract class BaseLogTable {
   }
 
   /**
-   * @param fields
-   *          the fields to set
+   * @param fields the fields to set
    */
   public void setFields( List<LogTableField> fields ) {
     this.fields = fields;
@@ -227,8 +220,7 @@ public abstract class BaseLogTable {
   /**
    * Find a log table field in this log table definition. Use the id of the field to do the lookup.
    *
-   * @param id
-   *          the id of the field to search for
+   * @param id the id of the field to search for
    * @return the log table field or null if nothing was found.
    */
   public LogTableField findField( String id ) {
@@ -257,8 +249,7 @@ public abstract class BaseLogTable {
   /**
    * Return the subject in the form of a string for the specified ID.
    *
-   * @param id
-   *          the id of the field to look for.
+   * @param id the id of the field to look for.
    * @return the string of the subject (name of step) or null if nothing was found.
    */
   public String getSubjectString( String id ) {
@@ -401,8 +392,7 @@ public abstract class BaseLogTable {
   }
 
   /**
-   * @param timeoutInDays
-   *          the timeoutInDays to set
+   * @param timeoutInDays the timeoutInDays to set
    */
   public void setTimeoutInDays( String timeoutInDays ) {
     this.timeoutInDays = timeoutInDays;
@@ -416,8 +406,7 @@ public abstract class BaseLogTable {
   }
 
   /**
-   * @param connectionName
-   *          the connectionName to set
+   * @param connectionName the connectionName to set
    */
   public void setConnectionName( String connectionName ) {
     this.connectionName = connectionName;

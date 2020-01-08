@@ -42,8 +42,6 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
-
-import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -77,37 +75,59 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
 
   private static Class<?> PKG = PGBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** what's the schema for the target? */
+  /**
+   * what's the schema for the target?
+   */
   private String schemaName;
 
-  /** what's the table for the target? */
+  /**
+   * what's the table for the target?
+   */
   private String tableName;
 
-  /** database connection */
+  /**
+   * database connection
+   */
   private DatabaseMeta databaseMeta;
 
-  /** Field value to dateMask after lookup */
+  /**
+   * Field value to dateMask after lookup
+   */
   private String[] fieldTable;
 
-  /** Field name in the stream */
+  /**
+   * Field name in the stream
+   */
   private String[] fieldStream;
 
-  /** boolean indicating if field needs to be updated */
+  /**
+   * boolean indicating if field needs to be updated
+   */
   private String[] dateMask;
 
-  /** Load action */
+  /**
+   * Load action
+   */
   private String loadAction;
 
-  /** Database name override */
+  /**
+   * Database name override
+   */
   private String dbNameOverride;
 
-  /** The field delimiter to use for loading */
+  /**
+   * The field delimiter to use for loading
+   */
   private String delimiter;
 
-  /** The enclosure to use for loading */
+  /**
+   * The enclosure to use for loading
+   */
   private String enclosure;
 
-  /** Stop On Error */
+  /**
+   * Stop On Error
+   */
   private boolean stopOnError;
 
   /*
@@ -139,8 +159,7 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
   }
 
   /**
-   * @param database
-   *          The database to set.
+   * @param database The database to set.
    */
   public void setDatabaseMeta( DatabaseMeta database ) {
     this.databaseMeta = database;
@@ -154,8 +173,7 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
   }
 
   /**
-   * @param tableName
-   *          The tableName to set.
+   * @param tableName The tableName to set.
    */
   public void setTableName( String tableName ) {
     this.tableName = tableName;
@@ -169,8 +187,7 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
   }
 
   /**
-   * @param fieldTable
-   *          The fieldTable to set.
+   * @param fieldTable The fieldTable to set.
    */
   public void setFieldTable( String[] fieldTable ) {
     this.fieldTable = fieldTable;
@@ -184,8 +201,7 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
   }
 
   /**
-   * @param fieldStream
-   *          The fieldStream to set.
+   * @param fieldStream The fieldStream to set.
    */
   public void setFieldStream( String[] fieldStream ) {
     this.fieldStream = fieldStream;
@@ -204,9 +220,9 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
   }
 
   public void allocate( int nrvalues ) {
-    fieldTable = new String[nrvalues];
-    fieldStream = new String[nrvalues];
-    dateMask = new String[nrvalues];
+    fieldTable = new String[ nrvalues ];
+    fieldStream = new String[ nrvalues ];
+    dateMask = new String[ nrvalues ];
   }
 
   public Object clone() {
@@ -220,7 +236,7 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
     return retval;
   }
 
-  private void readData( Node stepnode, IMetaStore metaStore) throws HopXMLException {
+  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
     try {
       String con = XMLHandler.getTagValue( stepnode, "connection" );
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
@@ -241,21 +257,21 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
       for ( int i = 0; i < nrvalues; i++ ) {
         Node vnode = XMLHandler.getSubNodeByNr( stepnode, "mapping", i );
 
-        fieldTable[i] = XMLHandler.getTagValue( vnode, "stream_name" );
-        fieldStream[i] = XMLHandler.getTagValue( vnode, "field_name" );
-        if ( fieldStream[i] == null ) {
-          fieldStream[i] = fieldTable[i]; // default: the same name!
+        fieldTable[ i ] = XMLHandler.getTagValue( vnode, "stream_name" );
+        fieldStream[ i ] = XMLHandler.getTagValue( vnode, "field_name" );
+        if ( fieldStream[ i ] == null ) {
+          fieldStream[ i ] = fieldTable[ i ]; // default: the same name!
         }
         String locDateMask = XMLHandler.getTagValue( vnode, "date_mask" );
         if ( locDateMask == null ) {
-          dateMask[i] = "";
+          dateMask[ i ] = "";
         } else {
           if ( PGBulkLoaderMeta.DATE_MASK_DATE.equals( locDateMask )
             || PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH.equals( locDateMask )
             || PGBulkLoaderMeta.DATE_MASK_DATETIME.equals( locDateMask ) ) {
-            dateMask[i] = locDateMask;
+            dateMask[ i ] = locDateMask;
           } else {
-            dateMask[i] = "";
+            dateMask[ i ] = "";
           }
         }
       }
@@ -283,7 +299,7 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
 
     retval
       .append( "    " ).append(
-        XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+      XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "schema", schemaName ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "table", tableName ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "load_action", loadAction ) );
@@ -294,9 +310,9 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
 
     for ( int i = 0; i < fieldTable.length; i++ ) {
       retval.append( "      <mapping>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "stream_name", fieldTable[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field_name", fieldStream[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "date_mask", dateMask[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "stream_name", fieldTable[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "field_name", fieldStream[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "date_mask", dateMask[ i ] ) );
       retval.append( "      </mapping>" ).append( Const.CR );
     }
 
@@ -304,13 +320,13 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
   }
 
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Default: nothing changes to rowMeta
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -347,7 +363,7 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
             error_message = "";
 
             for ( int i = 0; i < fieldTable.length; i++ ) {
-              String field = fieldTable[i];
+              String field = fieldTable[ i ];
 
               ValueMetaInterface v = r.searchValueMeta( field );
               if ( v == null ) {
@@ -389,7 +405,7 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
           boolean error_found = false;
 
           for ( int i = 0; i < fieldStream.length; i++ ) {
-            ValueMetaInterface v = prev.searchValueMeta( fieldStream[i] );
+            ValueMetaInterface v = prev.searchValueMeta( fieldStream[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
@@ -397,7 +413,7 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
                   BaseMessages.getString( PKG, "GPBulkLoaderMeta.CheckResult.MissingFieldsInInput" ) + Const.CR;
               }
               error_found = true;
-              error_message += "\t\t" + fieldStream[i] + Const.CR;
+              error_message += "\t\t" + fieldStream[ i ] + Const.CR;
             }
           }
           if ( error_found ) {
@@ -443,7 +459,7 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
   }
 
   public SQLStatement getSQLStatements( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-    IMetaStore metaStore ) throws HopStepException {
+                                        IMetaStore metaStore ) throws HopStepException {
     SQLStatement retval = new SQLStatement( stepMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
@@ -453,13 +469,13 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
 
         // Now change the field names
         for ( int i = 0; i < fieldTable.length; i++ ) {
-          ValueMetaInterface v = prev.searchValueMeta( fieldStream[i] );
+          ValueMetaInterface v = prev.searchValueMeta( fieldStream[ i ] );
           if ( v != null ) {
             ValueMetaInterface tableField = v.clone();
-            tableField.setName( fieldTable[i] );
+            tableField.setName( fieldTable[ i ] );
             tableFields.addValueMeta( tableField );
           } else {
-            throw new HopStepException( "Unable to find field [" + fieldStream[i] + "] in the input rows" );
+            throw new HopStepException( "Unable to find field [" + fieldStream[ i ] + "] in the input rows" );
           }
         }
 
@@ -504,20 +520,20 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
       /* DEBUG CHECK THIS */
       // Insert dateMask fields : read/write
       for ( int i = 0; i < fieldTable.length; i++ ) {
-        ValueMetaInterface v = prev.searchValueMeta( fieldStream[i] );
+        ValueMetaInterface v = prev.searchValueMeta( fieldStream[ i ] );
 
         DatabaseImpact ii =
           new DatabaseImpact(
             DatabaseImpact.TYPE_IMPACT_READ_WRITE, transMeta.getName(), stepMeta.getName(), databaseMeta
-              .getDatabaseName(), transMeta.environmentSubstitute( tableName ), fieldTable[i],
-            fieldStream[i], v != null ? v.getOrigin() : "?", "", "Type = " + v.toStringMeta() );
+            .getDatabaseName(), transMeta.environmentSubstitute( tableName ), fieldTable[ i ],
+            fieldStream[ i ], v != null ? v.getOrigin() : "?", "", "Type = " + v.toStringMeta() );
         impact.add( ii );
       }
     }
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new PGBulkLoader( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -574,8 +590,7 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
   }
 
   /**
-   * @param schemaName
-   *          the schemaName to set
+   * @param schemaName the schemaName to set
    */
   public void setSchemaName( String schemaName ) {
     this.schemaName = schemaName;
@@ -674,9 +689,9 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
         if ( attr.getKey().equals( "MAPPINGS" ) ) {
           List<StepInjectionMetaEntry> selectMappings = entry.getDetails();
 
-          fieldTable = new String[selectMappings.size()];
-          fieldStream = new String[selectMappings.size()];
-          dateMask = new String[selectMappings.size()];
+          fieldTable = new String[ selectMappings.size() ];
+          fieldStream = new String[ selectMappings.size() ];
+          dateMask = new String[ selectMappings.size() ];
 
           for ( int row = 0; row < selectMappings.size(); row++ ) {
             StepInjectionMetaEntry selectField = selectMappings.get( row );
@@ -689,11 +704,11 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
 
               String attributeValue = (String) fieldAttribute.getValue();
               if ( fieldAttr.getKey().equals( "STREAMNAME" ) ) {
-                getFieldStream()[row] = attributeValue;
+                getFieldStream()[ row ] = attributeValue;
               } else if ( fieldAttr.getKey().equals( "FIELDNAME" ) ) {
-                getFieldTable()[row] = attributeValue;
+                getFieldTable()[ row ] = attributeValue;
               } else if ( fieldAttr.getKey().equals( "DATEMASK" ) ) {
-                getDateMask()[row] = attributeValue;
+                getDateMask()[ row ] = attributeValue;
               } else {
                 throw new RuntimeException( "Unhandled metadata injection of attribute: "
                   + fieldAttr.toString() + " - " + fieldAttr.getDescription() );
@@ -703,8 +718,8 @@ public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionI
         }
         if ( !Utils.isEmpty( getFieldStream() ) ) {
           for ( int i = 0; i < getFieldStream().length; i++ ) {
-            logDetailed( "row " + Integer.toString( i ) + ": stream=" + getFieldStream()[i]
-              + " : table=" + getFieldTable()[i] );
+            logDetailed( "row " + Integer.toString( i ) + ": stream=" + getFieldStream()[ i ]
+              + " : table=" + getFieldTable()[ i ] );
           }
         }
 

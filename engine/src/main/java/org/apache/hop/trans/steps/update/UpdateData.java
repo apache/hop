@@ -22,17 +22,16 @@
 
 package org.apache.hop.trans.steps.update;
 
-import java.sql.PreparedStatement;
-
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 
+import java.sql.PreparedStatement;
+
 /**
  * @author Matt
  * @since 28-feb-2005
- *
  */
 public class UpdateData extends BaseStepData implements StepDataInterface {
   public Database db;

@@ -22,10 +22,6 @@
 
 package org.apache.hop.trans.steps.validator;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
@@ -33,10 +29,10 @@ import org.apache.hop.core.injection.InjectionTypeConverter;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
-
 import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 public class Validation implements Cloneable {
   public static final String XML_TAG = "validator_field";
@@ -223,10 +219,10 @@ public class Validation implements Cloneable {
 
     Node allowedValuesNode = XMLHandler.getSubNode( calcnode, XML_TAG_ALLOWED );
     int nrValues = XMLHandler.countNodes( allowedValuesNode, "value" );
-    allowedValues = new String[nrValues];
+    allowedValues = new String[ nrValues ];
     for ( int i = 0; i < nrValues; i++ ) {
       Node allowedNode = XMLHandler.getSubNodeByNr( allowedValuesNode, "value", i );
-      allowedValues[i] = XMLHandler.getNodeValue( allowedNode );
+      allowedValues[ i ] = XMLHandler.getNodeValue( allowedNode );
     }
   }
 
@@ -238,8 +234,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param fieldName
-   *          the field name to validate
+   * @param fieldName the field name to validate
    */
   public void setFieldName( String fieldName ) {
     this.fieldName = fieldName;
@@ -253,8 +248,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param maximumLength
-   *          the maximumLength to set
+   * @param maximumLength the maximumLength to set
    */
   public void setMaximumLength( String maximumLength ) {
     this.maximumLength = maximumLength;
@@ -268,8 +262,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param minimumLength
-   *          the minimumLength to set
+   * @param minimumLength the minimumLength to set
    */
   public void setMinimumLength( String minimumLength ) {
     this.minimumLength = minimumLength;
@@ -283,8 +276,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param nullAllowed
-   *          the nullAllowed to set
+   * @param nullAllowed the nullAllowed to set
    */
   public void setNullAllowed( boolean nullAllowed ) {
     this.nullAllowed = nullAllowed;
@@ -298,8 +290,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param dataType
-   *          the dataType to set
+   * @param dataType the dataType to set
    */
   public void setDataType( int dataType ) {
     this.dataType = dataType;
@@ -313,8 +304,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param conversionMask
-   *          the conversionMask to set
+   * @param conversionMask the conversionMask to set
    */
   public void setConversionMask( String conversionMask ) {
     this.conversionMask = conversionMask;
@@ -328,8 +318,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param decimalSymbol
-   *          the decimalSymbol to set
+   * @param decimalSymbol the decimalSymbol to set
    */
   public void setDecimalSymbol( String decimalSymbol ) {
     this.decimalSymbol = decimalSymbol;
@@ -343,8 +332,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param groupingSymbol
-   *          the groupingSymbol to set
+   * @param groupingSymbol the groupingSymbol to set
    */
   public void setGroupingSymbol( String groupingSymbol ) {
     this.groupingSymbol = groupingSymbol;
@@ -358,8 +346,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param minimumValue
-   *          the minimumValue to set
+   * @param minimumValue the minimumValue to set
    */
   public void setMinimumValue( String minimumValue ) {
     this.minimumValue = minimumValue;
@@ -373,8 +360,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param maximumValue
-   *          the maximumValue to set
+   * @param maximumValue the maximumValue to set
    */
   public void setMaximumValue( String maximumValue ) {
     this.maximumValue = maximumValue;
@@ -388,8 +374,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param allowedValues
-   *          the allowedValues to set
+   * @param allowedValues the allowedValues to set
    */
   public void setAllowedValues( String[] allowedValues ) {
     this.allowedValues = allowedValues;
@@ -403,8 +388,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param dataTypeVerified
-   *          the dataTypeVerified to set
+   * @param dataTypeVerified the dataTypeVerified to set
    */
   public void setDataTypeVerified( boolean dataTypeVerified ) {
     this.dataTypeVerified = dataTypeVerified;
@@ -418,8 +402,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param errorCode
-   *          the errorCode to set
+   * @param errorCode the errorCode to set
    */
   public void setErrorCode( String errorCode ) {
     this.errorCode = errorCode;
@@ -433,8 +416,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param errorDescription
-   *          the errorDescription to set
+   * @param errorDescription the errorDescription to set
    */
   public void setErrorDescription( String errorDescription ) {
     this.errorDescription = errorDescription;
@@ -455,8 +437,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param startString
-   *          the startString to set
+   * @param startString the startString to set
    */
   public void setStartString( String startString ) {
     this.startString = startString;
@@ -470,8 +451,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param startStringNotAllowed
-   *          the startStringNotAllowed to set
+   * @param startStringNotAllowed the startStringNotAllowed to set
    */
   public void setStartStringNotAllowed( String startStringNotAllowed ) {
     this.startStringNotAllowed = startStringNotAllowed;
@@ -485,8 +465,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param endString
-   *          the endString to set
+   * @param endString the endString to set
    */
   public void setEndString( String endString ) {
     this.endString = endString;
@@ -500,16 +479,14 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param endStringNotAllowed
-   *          the endStringNotAllowed to set
+   * @param endStringNotAllowed the endStringNotAllowed to set
    */
   public void setEndStringNotAllowed( String endStringNotAllowed ) {
     this.endStringNotAllowed = endStringNotAllowed;
   }
 
   /**
-   * @param onlyNumericAllowed
-   *          the onlyNumericAllowed to set
+   * @param onlyNumericAllowed the onlyNumericAllowed to set
    */
   public void setOnlyNumericAllowed( boolean onlyNumericAllowed ) {
     this.onlyNumericAllowed = onlyNumericAllowed;
@@ -523,8 +500,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param regularExpression
-   *          the regularExpression to set
+   * @param regularExpression the regularExpression to set
    */
   public void setRegularExpression( String regularExpression ) {
     this.regularExpression = regularExpression;
@@ -538,8 +514,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param name
-   *          the new name for this validation
+   * @param name the new name for this validation
    */
   public void setName( String name ) {
     this.name = name;
@@ -553,8 +528,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param regularExpressionNotAllowed
-   *          the regularExpressionNotAllowed to set
+   * @param regularExpressionNotAllowed the regularExpressionNotAllowed to set
    */
   public void setRegularExpressionNotAllowed( String regularExpressionNotAllowed ) {
     this.regularExpressionNotAllowed = regularExpressionNotAllowed;
@@ -563,10 +537,8 @@ public class Validation implements Cloneable {
   /**
    * Find a validation by name in a list of validations
    *
-   * @param validations
-   *          The list to search
-   * @param name
-   *          the name to search for
+   * @param validations The list to search
+   * @param name        the name to search for
    * @return the validation if one matches or null if none is found.
    */
   public static Validation findValidation( List<Validation> validations, String name ) {
@@ -586,8 +558,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param onlyNullAllowed
-   *          the onlyNullAllowed to set
+   * @param onlyNullAllowed the onlyNullAllowed to set
    */
   public void setOnlyNullAllowed( boolean onlyNullAllowed ) {
     this.onlyNullAllowed = onlyNullAllowed;
@@ -601,8 +572,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param sourcingValues
-   *          the sourcingValues to set
+   * @param sourcingValues the sourcingValues to set
    */
   public void setSourcingValues( boolean sourcingValues ) {
     this.sourcingValues = sourcingValues;
@@ -616,8 +586,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param sourcingField
-   *          the sourcingField to set
+   * @param sourcingField the sourcingField to set
    */
   public void setSourcingField( String sourcingField ) {
     this.sourcingField = sourcingField;
@@ -631,8 +600,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param sourcingStepName
-   *          the sourcingStepName to set
+   * @param sourcingStepName the sourcingStepName to set
    */
   public void setSourcingStepName( String sourcingStepName ) {
     this.sourcingStepName = sourcingStepName;
@@ -646,8 +614,7 @@ public class Validation implements Cloneable {
   }
 
   /**
-   * @param sourcingStep
-   *          the sourcingStep to set
+   * @param sourcingStep the sourcingStep to set
    */
   public void setSourcingStep( StepMeta sourcingStep ) {
     this.sourcingStep = sourcingStep;

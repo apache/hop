@@ -22,13 +22,25 @@
 
 package org.apache.hop.ui.trans.steps.multimerge;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepIOMetaInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.errorhandling.Stream;
+import org.apache.hop.trans.step.errorhandling.StreamIcon;
+import org.apache.hop.trans.step.errorhandling.StreamInterface;
+import org.apache.hop.trans.step.errorhandling.StreamInterface.StreamType;
+import org.apache.hop.trans.steps.multimerge.MultiMergeJoinMeta;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
@@ -50,25 +62,13 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepIOMetaInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.errorhandling.Stream;
-import org.apache.hop.trans.step.errorhandling.StreamIcon;
-import org.apache.hop.trans.step.errorhandling.StreamInterface;
-import org.apache.hop.trans.step.errorhandling.StreamInterface.StreamType;
-import org.apache.hop.trans.steps.multimerge.MultiMergeJoinMeta;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = MultiMergeJoinMeta.class; // for i18n purposes, needed by Translator2!!
@@ -92,8 +92,8 @@ public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogIn
     joinMeta = (MultiMergeJoinMeta) in;
 
     String[] inputStepNames = getInputStepNames();
-    wInputStepArray = new CCombo[inputStepNames.length];
-    keyValTextBox = new Text[inputStepNames.length];
+    wInputStepArray = new CCombo[ inputStepNames.length ];
+    keyValTextBox = new Text[ inputStepNames.length ];
   }
 
   private String[] getInputStepNames() {
@@ -107,7 +107,7 @@ public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogIn
     if ( prevStepNames != null ) {
       String prevStepName;
       for ( int i = 0; i < prevStepNames.length; i++ ) {
-        prevStepName = prevStepNames[i];
+        prevStepName = prevStepNames[ i ];
         if ( nameList.contains( prevStepName ) ) {
           continue;
         }
@@ -115,7 +115,7 @@ public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogIn
       }
     }
 
-    return nameList.toArray( new String[nameList.size()] );
+    return nameList.toArray( new String[ nameList.size() ] );
   }
 
   /*
@@ -236,7 +236,7 @@ public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogIn
     fdlType.left = new FormAttachment( 0, 0 );
     fdlType.right = new FormAttachment( 15, -margin );
     if ( wInputStepArray.length > 0 ) {
-      fdlType.top = new FormAttachment( wInputStepArray[wInputStepArray.length - 1], margin );
+      fdlType.top = new FormAttachment( wInputStepArray[ wInputStepArray.length - 1 ], margin );
     } else {
       fdlType.top = new FormAttachment( wStepname, margin );
     }
@@ -249,7 +249,7 @@ public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogIn
     joinTypeCombo.addModifyListener( lsMod );
     FormData fdType = new FormData();
     if ( wInputStepArray.length > 0 ) {
-      fdType.top = new FormAttachment( wInputStepArray[wInputStepArray.length - 1], margin );
+      fdType.top = new FormAttachment( wInputStepArray[ wInputStepArray.length - 1 ], margin );
     } else {
       fdType.top = new FormAttachment( wStepname, margin );
     }
@@ -280,26 +280,26 @@ public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogIn
       if ( index == 0 ) {
         fdlStep.top = new FormAttachment( wStepname, margin );
       } else {
-        fdlStep.top = new FormAttachment( wInputStepArray[index - 1], margin );
+        fdlStep.top = new FormAttachment( wInputStepArray[ index - 1 ], margin );
       }
 
       wlStep.setLayoutData( fdlStep );
-      wInputStepArray[index] = new CCombo( shell, SWT.BORDER );
-      props.setLook( wInputStepArray[index] );
+      wInputStepArray[ index ] = new CCombo( shell, SWT.BORDER );
+      props.setLook( wInputStepArray[ index ] );
 
-      wInputStepArray[index].setItems( inputSteps );
+      wInputStepArray[ index ].setItems( inputSteps );
 
-      wInputStepArray[index].addModifyListener( lsMod );
+      wInputStepArray[ index ].addModifyListener( lsMod );
       fdStep1 = new FormData();
       fdStep1.left = new FormAttachment( 15, 0 );
       if ( index == 0 ) {
         fdStep1.top = new FormAttachment( wStepname, margin );
       } else {
-        fdStep1.top = new FormAttachment( wInputStepArray[index - 1], margin );
+        fdStep1.top = new FormAttachment( wInputStepArray[ index - 1 ], margin );
       }
 
       fdStep1.right = new FormAttachment( 35, 0 );
-      wInputStepArray[index].setLayoutData( fdStep1 );
+      wInputStepArray[ index ].setLayoutData( fdStep1 );
 
       Label keyLabel = new Label( shell, SWT.LEFT );
       keyLabel.setText( BaseMessages.getString( PKG, "MultiMergeJoinMeta.JoinKeys" ) );
@@ -310,36 +310,36 @@ public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogIn
       if ( index == 0 ) {
         keyStep.top = new FormAttachment( wStepname, margin );
       } else {
-        keyStep.top = new FormAttachment( wInputStepArray[index - 1], margin );
+        keyStep.top = new FormAttachment( wInputStepArray[ index - 1 ], margin );
       }
       keyLabel.setLayoutData( keyStep );
 
-      keyValTextBox[index] = new Text( shell, SWT.READ_ONLY | SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-      props.setLook( keyValTextBox[index] );
-      keyValTextBox[index].setText( "" );
-      keyValTextBox[index].addModifyListener( lsMod );
+      keyValTextBox[ index ] = new Text( shell, SWT.READ_ONLY | SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+      props.setLook( keyValTextBox[ index ] );
+      keyValTextBox[ index ].setText( "" );
+      keyValTextBox[ index ].addModifyListener( lsMod );
       FormData keyData = new FormData();
       keyData.left = new FormAttachment( 45, margin + 5 );
       keyData.right = new FormAttachment( 65, -margin );
       if ( index == 0 ) {
         keyData.top = new FormAttachment( wStepname, margin );
       } else {
-        keyData.top = new FormAttachment( wInputStepArray[index - 1], margin );
+        keyData.top = new FormAttachment( wInputStepArray[ index - 1 ], margin );
       }
-      keyValTextBox[index].setLayoutData( keyData );
+      keyValTextBox[ index ].setLayoutData( keyData );
 
       Button button = new Button( shell, SWT.PUSH );
       button.setText( BaseMessages.getString( PKG, "MultiMergeJoinMeta.SelectKeys" ) );
       // add listener
       button
-        .addListener( SWT.Selection, new ConfigureKeyButtonListener( this, keyValTextBox[index], index, lsMod ) );
+        .addListener( SWT.Selection, new ConfigureKeyButtonListener( this, keyValTextBox[ index ], index, lsMod ) );
       FormData buttonData = new FormData();
       buttonData.left = new FormAttachment( 65, margin );
       buttonData.right = new FormAttachment( 80, -margin );
       if ( index == 0 ) {
         buttonData.top = new FormAttachment( wStepname, margin );
       } else {
-        buttonData.top = new FormAttachment( wInputStepArray[index - 1], margin );
+        buttonData.top = new FormAttachment( wInputStepArray[ index - 1 ], margin );
       }
       button.setLayoutData( buttonData );
     }
@@ -395,7 +395,7 @@ public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogIn
     final Runnable runnable = new Runnable() {
       public void run() {
         try {
-          CCombo wInputStep = wInputStepArray[inputStreamIndex];
+          CCombo wInputStep = wInputStepArray[ inputStreamIndex ];
           String stepName = wInputStep.getText();
           StepMeta stepMeta = transMeta.findStep( stepName );
           if ( stepMeta != null ) {
@@ -465,8 +465,8 @@ public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogIn
 
     for ( int i = 0; i < keys.length; i++ ) {
       TableItem item = wKeys.table.getItem( i );
-      if ( keys[i] != null ) {
-        item.setText( 1, keys[i] );
+      if ( keys[ i ] != null ) {
+        item.setText( 1, keys[ i ] );
       }
     }
 
@@ -486,10 +486,10 @@ public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogIn
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    ciKeys[0].setComboValues( fieldNames );
+    ciKeys[ 0 ].setComboValues( fieldNames );
   }
 
   /**
@@ -502,18 +502,18 @@ public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogIn
       String[] keyFields = joinMeta.getKeyFields();
       String keyField;
       for ( int i = 0; i < inputStepNames.length; i++ ) {
-        inputStepName = Const.NVL( inputStepNames[i], "" );
-        wInputStepArray[i].setText( inputStepName );
+        inputStepName = Const.NVL( inputStepNames[ i ], "" );
+        wInputStepArray[ i ].setText( inputStepName );
 
-        keyField = Const.NVL( i < keyFields.length ? keyFields[i] : null, "" );
-        keyValTextBox[i].setText( keyField );
+        keyField = Const.NVL( i < keyFields.length ? keyFields[ i ] : null, "" );
+        keyValTextBox[ i ].setText( keyField );
       }
 
       String joinType = joinMeta.getJoinType();
       if ( joinType != null && joinType.length() > 0 ) {
         joinTypeCombo.setText( joinType );
       } else {
-        joinTypeCombo.setText( MultiMergeJoinMeta.join_types[0] );
+        joinTypeCombo.setText( MultiMergeJoinMeta.join_types[ 0 ] );
       }
     }
     wStepname.selectAll();
@@ -541,7 +541,7 @@ public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogIn
     CCombo wInputStep;
     String inputStepName;
     for ( int i = 0; i < wInputStepArray.length; i++ ) {
-      wInputStep = wInputStepArray[i];
+      wInputStep = wInputStepArray[ i ];
       inputStepName = wInputStep.getText();
 
       if ( Utils.isEmpty( inputStepName ) ) {
@@ -549,7 +549,7 @@ public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogIn
       }
 
       inputStepNameList.add( inputStepName );
-      keyList.add( keyValTextBox[i].getText() );
+      keyList.add( keyValTextBox[ i ].getText() );
 
       if ( infoStreams.size() < inputStepNameList.size() ) {
         streamDescription = BaseMessages.getString( PKG, "MultiMergeJoin.InfoStream.Description" );
@@ -567,10 +567,10 @@ public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogIn
     infoStreams = stepIOMeta.getInfoStreams();
     for ( int i = 0; i < inputStepCount; i++ ) {
       inputStepName = inputStepNameList.get( i );
-      inputSteps[i] = inputStepName;
+      inputSteps[ i ] = inputStepName;
       stream = infoStreams.get( i );
       stream.setStepMeta( transMeta.findStep( inputStepName ) );
-      keyFields[i] = keyList.get( i );
+      keyFields[ i ] = keyList.get( i );
     }
 
     meta.setJoinType( joinTypeCombo.getText() );
@@ -606,7 +606,6 @@ public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogIn
    * Listener for Configure Keys button
    *
    * @author A71481
-   *
    */
   private static class ConfigureKeyButtonListener implements Listener {
     MultiMergeJoinDialog dialog;
@@ -615,7 +614,7 @@ public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogIn
     ModifyListener listener;
 
     public ConfigureKeyButtonListener( MultiMergeJoinDialog dialog, Text textBox, int streamIndex,
-      ModifyListener lsMod ) {
+                                       ModifyListener lsMod ) {
       this.dialog = dialog;
       this.textBox = textBox;
       this.listener = lsMod;

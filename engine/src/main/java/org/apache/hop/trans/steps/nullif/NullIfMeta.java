@@ -22,13 +22,9 @@
 
 package org.apache.hop.trans.steps.nullif;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
@@ -39,7 +35,7 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -47,8 +43,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*
  * Created on 05-aug-2003
@@ -74,8 +71,7 @@ public class NullIfMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     /**
-     * @param fieldName
-     *          The fieldName to set.
+     * @param fieldName The fieldName to set.
      */
     public void setFieldName( String fieldName ) {
       this.fieldName = fieldName;
@@ -89,8 +85,7 @@ public class NullIfMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     /**
-     * @param fieldValue
-     *          The fieldValue to set.
+     * @param fieldValue The fieldValue to set.
      */
     public void setFieldValue( String fieldValue ) {
       Boolean isEmptyAndNullDiffer = ValueMetaBase.convertStringToBoolean(
@@ -128,9 +123,9 @@ public class NullIfMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int count ) {
-    fields = new Field[count];
+    fields = new Field[ count ];
     for ( int i = 0; i < count; i++ ) {
-      fields[i] = new Field();
+      fields[ i ] = new Field();
     }
   }
 
@@ -142,7 +137,7 @@ public class NullIfMeta extends BaseStepMeta implements StepMetaInterface {
     retval.allocate( count );
 
     for ( int i = 0; i < count; i++ ) {
-      retval.getFields()[i] = fields[i].clone();
+      retval.getFields()[ i ] = fields[ i ].clone();
     }
     return retval;
   }
@@ -157,12 +152,12 @@ public class NullIfMeta extends BaseStepMeta implements StepMetaInterface {
       for ( int i = 0; i < count; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fieldNodes, "field", i );
 
-        fields[i].setFieldName( XMLHandler.getTagValue( fnode, "name" ) );
-        fields[i].setFieldValue( XMLHandler.getTagValue( fnode, "value" ) );
+        fields[ i ].setFieldName( XMLHandler.getTagValue( fnode, "name" ) );
+        fields[ i ].setFieldValue( XMLHandler.getTagValue( fnode, "value" ) );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "NullIfMeta.Exception.UnableToReadStepInfoFromXML" ),
-          e );
+        e );
     }
   }
 
@@ -172,13 +167,13 @@ public class NullIfMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( count );
 
     for ( int i = 0; i < count; i++ ) {
-      fields[i].setFieldName( "field" + i );
-      fields[i].setFieldValue( "" );
+      fields[ i ].setFieldName( "field" + i );
+      fields[ i ].setFieldValue( "" );
     }
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, IMetaStore metaStore ) {
+                         VariableSpace space, IMetaStore metaStore ) {
     if ( r == null ) {
       r = new RowMeta(); // give back values
       // Meta-data doesn't change here, only the value possibly turns to NULL
@@ -194,8 +189,8 @@ public class NullIfMeta extends BaseStepMeta implements StepMetaInterface {
 
     for ( int i = 0; i < fields.length; i++ ) {
       retval.append( "      <field>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", fields[i].getFieldName() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "value", fields[i].getFieldValue() ) );
+      retval.append( "        " + XMLHandler.addTagValue( "name", fields[ i ].getFieldName() ) );
+      retval.append( "        " + XMLHandler.addTagValue( "value", fields[ i ].getFieldValue() ) );
       retval.append( "        </field>" + Const.CR );
     }
     retval.append( "      </fields>" + Const.CR );
@@ -204,37 +199,37 @@ public class NullIfMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-      IMetaStore metaStore ) {
+                     String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, BaseMessages.getString( PKG,
-              "NullIfMeta.CheckResult.NoReceivingFieldsError" ), stepMeta );
+        new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, BaseMessages.getString( PKG,
+          "NullIfMeta.CheckResult.NoReceivingFieldsError" ), stepMeta );
       remarks.add( cr );
     } else {
       cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "NullIfMeta.CheckResult.StepReceivingFieldsOK", prev.size() + "" ), stepMeta );
+        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "NullIfMeta.CheckResult.StepReceivingFieldsOK", prev.size() + "" ), stepMeta );
       remarks.add( cr );
     }
 
     // See if we have input streams leading to this step!
     if ( input.length > 0 ) {
       cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "NullIfMeta.CheckResult.StepRecevingInfoFromOtherSteps" ), stepMeta );
+        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "NullIfMeta.CheckResult.StepRecevingInfoFromOtherSteps" ), stepMeta );
       remarks.add( cr );
     } else {
       cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "NullIfMeta.CheckResult.NoInputReceivedError" ), stepMeta );
+        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+          "NullIfMeta.CheckResult.NoInputReceivedError" ), stepMeta );
       remarks.add( cr );
     }
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta transMeta,
-      Trans trans ) {
+                                Trans trans ) {
     return new NullIf( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

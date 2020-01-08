@@ -22,14 +22,6 @@
 
 package org.apache.hop.trans.steps.analyticquery;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
@@ -39,6 +31,14 @@ import org.apache.hop.trans.steps.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AnalyticQueryMetaTest {
 
@@ -72,7 +72,7 @@ public class AnalyticQueryMetaTest {
   @Test
   public void testPDI16559() throws Exception {
     StepMockHelper<AnalyticQueryMeta, AnalyticQueryData> mockHelper =
-        new StepMockHelper<AnalyticQueryMeta, AnalyticQueryData>( "analyticQuery", AnalyticQueryMeta.class, AnalyticQueryData.class );
+      new StepMockHelper<AnalyticQueryMeta, AnalyticQueryData>( "analyticQuery", AnalyticQueryMeta.class, AnalyticQueryData.class );
 
     AnalyticQueryMeta analyticQuery = new AnalyticQueryMeta();
     analyticQuery.setGroupField( new String[] { "group1", "group2" } );

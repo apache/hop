@@ -22,14 +22,14 @@
 
 package org.apache.hop.ui.repository.repositoryexplorer.model;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Test;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class UIRepositoryObjectIT {
   UIRepositoryObject.DateObjectComparator c = new UIRepositoryObject.DateObjectComparator();

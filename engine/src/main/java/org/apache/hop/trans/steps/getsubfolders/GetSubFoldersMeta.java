@@ -22,15 +22,10 @@
 
 package org.apache.hop.trans.steps.getsubfolders;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
@@ -41,11 +36,12 @@ import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
@@ -55,8 +51,10 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Samatar
@@ -72,25 +70,39 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
 
   public static final String NO = "N";
 
-  /** Array of filenames */
+  /**
+   * Array of filenames
+   */
   private String[] folderName;
 
-  /** Array of boolean values as string, indicating if a file is required. */
+  /**
+   * Array of boolean values as string, indicating if a file is required.
+   */
   private String[] folderRequired;
 
-  /** Flag indicating that a row number field should be included in the output */
+  /**
+   * Flag indicating that a row number field should be included in the output
+   */
   private boolean includeRowNumber;
 
-  /** The name of the field in the output containing the row number */
+  /**
+   * The name of the field in the output containing the row number
+   */
   private String rowNumberField;
 
-  /** The name of the field in the output containing the foldername */
+  /**
+   * The name of the field in the output containing the foldername
+   */
   private String dynamicFoldernameField;
 
-  /** folder name from previous fields **/
+  /**
+   * folder name from previous fields
+   **/
   private boolean isFoldernameDynamic;
 
-  /** The maximum number or lines to read */
+  /**
+   * The maximum number or lines to read
+   */
   private long rowLimit;
 
   public GetSubFoldersMeta() {
@@ -99,12 +111,12 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
 
   public String getRequiredFilesDesc( String tt ) {
     if ( Utils.isEmpty( tt ) ) {
-      return RequiredFoldersDesc[0];
+      return RequiredFoldersDesc[ 0 ];
     }
-    if ( tt.equalsIgnoreCase( RequiredFoldersCode[1] ) ) {
-      return RequiredFoldersDesc[1];
+    if ( tt.equalsIgnoreCase( RequiredFoldersCode[ 1 ] ) ) {
+      return RequiredFoldersDesc[ 1 ];
     } else {
-      return RequiredFoldersDesc[0];
+      return RequiredFoldersDesc[ 0 ];
     }
   }
 
@@ -116,16 +128,14 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param dynamicFoldernameField
-   *          The dynamic foldername field to set.
+   * @param dynamicFoldernameField The dynamic foldername field to set.
    */
   public void setDynamicFoldernameField( String dynamicFoldernameField ) {
     this.dynamicFoldernameField = dynamicFoldernameField;
   }
 
   /**
-   * @param rowNumberField
-   *          The rowNumberField to set.
+   * @param rowNumberField The rowNumberField to set.
    */
   public void setRowNumberField( String rowNumberField ) {
     this.rowNumberField = rowNumberField;
@@ -153,16 +163,14 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param isFoldernameDynamic
-   *          The isFoldernameDynamic to set.
+   * @param isFoldernameDynamic The isFoldernameDynamic to set.
    */
   public void setFolderField( boolean isFoldernameDynamic ) {
     this.isFoldernameDynamic = isFoldernameDynamic;
   }
 
   /**
-   * @param includeRowNumber
-   *          The includeRowNumber to set.
+   * @param includeRowNumber The includeRowNumber to set.
    */
   public void setIncludeRowNumber( boolean includeRowNumber ) {
     this.includeRowNumber = includeRowNumber;
@@ -177,24 +185,23 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
 
   public String getRequiredFoldersCode( String tt ) {
     if ( tt == null ) {
-      return RequiredFoldersCode[0];
+      return RequiredFoldersCode[ 0 ];
     }
-    if ( tt.equals( RequiredFoldersDesc[1] ) ) {
-      return RequiredFoldersCode[1];
+    if ( tt.equals( RequiredFoldersDesc[ 1 ] ) ) {
+      return RequiredFoldersCode[ 1 ];
     } else {
-      return RequiredFoldersCode[0];
+      return RequiredFoldersCode[ 0 ];
     }
   }
 
   /**
-   * @param folderRequiredin
-   *          The folderRequired to set.
+   * @param folderRequiredin The folderRequired to set.
    */
 
   public void setFolderRequired( String[] folderRequiredin ) {
-    this.folderRequired = new String[folderRequiredin.length];
+    this.folderRequired = new String[ folderRequiredin.length ];
     for ( int i = 0; i < folderRequiredin.length; i++ ) {
-      this.folderRequired[i] = getRequiredFoldersCode( folderRequiredin[i] );
+      this.folderRequired[ i ] = getRequiredFoldersCode( folderRequiredin[ i ] );
     }
   }
 
@@ -206,8 +213,7 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param folderName
-   *          The folderName to set.
+   * @param folderName The folderName to set.
    */
   public void setFolderName( String[] folderName ) {
     this.folderName = folderName;
@@ -221,8 +227,7 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param rowLimit
-   *          The rowLimit to set.
+   * @param rowLimit The rowLimit to set.
    */
   public void setRowLimit( long rowLimit ) {
     this.rowLimit = rowLimit;
@@ -246,8 +251,8 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void allocate( int nrfiles ) {
-    folderName = new String[nrfiles];
-    folderRequired = new String[nrfiles];
+    folderName = new String[ nrfiles ];
+    folderRequired = new String[ nrfiles ];
   }
 
   public void setDefault() {
@@ -260,13 +265,13 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
     allocate( nrfiles );
 
     for ( int i = 0; i < nrfiles; i++ ) {
-      folderName[i] = "folderName" + ( i + 1 );
-      folderRequired[i] = NO;
+      folderName[ i ] = "folderName" + ( i + 1 );
+      folderRequired[ i ] = NO;
     }
   }
 
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     // the folderName
     ValueMetaInterface folderName = new ValueMetaString( "folderName" );
@@ -346,8 +351,8 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
     retval.append( "    <file>" ).append( Const.CR );
 
     for ( int i = 0; i < folderName.length; i++ ) {
-      retval.append( "      " ).append( XMLHandler.addTagValue( "name", folderName[i] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "file_required", folderRequired[i] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "name", folderName[ i ] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "file_required", folderRequired[ i ] ) );
     }
     retval.append( "    </file>" ).append( Const.CR );
 
@@ -372,8 +377,8 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
       for ( int i = 0; i < nrfiles; i++ ) {
         Node folderNamenode = XMLHandler.getSubNodeByNr( filenode, "name", i );
         Node folderRequirednode = XMLHandler.getSubNodeByNr( filenode, "file_required", i );
-        folderName[i] = XMLHandler.getNodeValue( folderNamenode );
-        folderRequired[i] = XMLHandler.getNodeValue( folderRequirednode );
+        folderName[ i ] = XMLHandler.getNodeValue( folderNamenode );
+        folderRequired[ i ] = XMLHandler.getNodeValue( folderRequirednode );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( "Unable to load step info from XML", e );
@@ -389,8 +394,8 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     // See if we get input...
@@ -446,7 +451,7 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new GetSubFolders( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -460,17 +465,14 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param space
-   *          the variable space to use
+   * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
-   *
+   * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
@@ -478,8 +480,8 @@ public class GetSubFoldersMeta extends BaseStepMeta implements StepMetaInterface
       //
       if ( !isFoldernameDynamic ) {
         for ( int i = 0; i < folderName.length; i++ ) {
-          FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( folderName[i] ), space );
-          folderName[i] = resourceNamingInterface.nameResource( fileObject, space, true );
+          FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( folderName[ i ] ), space );
+          folderName[ i ] = resourceNamingInterface.nameResource( fileObject, space, true );
         }
       }
       return null;

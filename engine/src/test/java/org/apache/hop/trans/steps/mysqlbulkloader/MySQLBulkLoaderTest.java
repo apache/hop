@@ -22,16 +22,6 @@
 
 package org.apache.hop.trans.steps.mysqlbulkloader;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.MySQLDatabaseMeta;
@@ -46,18 +36,25 @@ import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.matchers.JUnitMatchers.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -71,7 +68,7 @@ public class MySQLBulkLoaderTest {
 
   MySQLBulkLoaderMeta lmeta;
   MySQLBulkLoaderData ldata;
-  MySQLBulkLoader     lder;
+  MySQLBulkLoader lder;
   StepMeta smeta;
 
   @BeforeClass
@@ -120,8 +117,8 @@ public class MySQLBulkLoaderTest {
     Node stepNode = (Node) document.getDocumentElement();
     lm.loadXML( stepNode, metastore );
     int[] codes = lm.getFieldFormatType();
-    assertEquals( 3, codes[0] );
-    assertEquals( 4, codes[1] );
+    assertEquals( 3, codes[ 0 ] );
+    assertEquals( 4, codes[ 1 ] );
   }
 
   @Test
@@ -135,7 +132,7 @@ public class MySQLBulkLoaderTest {
     assertEquals( "UTF8", ldata.bulkTimestampMeta.getStringEncoding() );
     assertEquals( "UTF8", ldata.bulkDateMeta.getStringEncoding() );
     assertEquals( "UTF8", ldata.bulkNumberMeta.getStringEncoding() );
-    assertEquals(  "`someschema`.`sometable`",  ldata.schemaTable );
+    assertEquals( "`someschema`.`sometable`", ldata.schemaTable );
   }
 
   /**
@@ -193,8 +190,8 @@ public class MySQLBulkLoaderTest {
     smi.setDatabaseMeta( mock( DatabaseMeta.class ) );
 
     MySQLBulkLoaderData sdi = new MySQLBulkLoaderData();
-    sdi.keynrs = new int[1];
-    sdi.keynrs[0] = 0;
+    sdi.keynrs = new int[ 1 ];
+    sdi.keynrs[ 0 ] = 0;
     sdi.fifoStream = mock( OutputStream.class );
     loader.init( smi, sdi );
     loader.first = false;
@@ -246,8 +243,8 @@ public class MySQLBulkLoaderTest {
     vmn.setLength( 6, 3 );
 
     MySQLBulkLoaderData sdi = new MySQLBulkLoaderData();
-    sdi.keynrs = new int[1];
-    sdi.keynrs[0] = 0;
+    sdi.keynrs = new int[ 1 ];
+    sdi.keynrs[ 0 ] = 0;
     sdi.fifoStream = mock( OutputStream.class );
     sdi.bulkFormatMeta = new ValueMetaInterface[] { vmn };
 

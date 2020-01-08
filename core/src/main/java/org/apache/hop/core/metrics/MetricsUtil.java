@@ -22,28 +22,26 @@
 
 package org.apache.hop.core.metrics;
 
-import java.util.ArrayList;
-import java.util.Queue;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.logging.Metrics;
 import org.apache.hop.core.logging.MetricsInterface;
 import org.apache.hop.core.logging.MetricsRegistry;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+
 public class MetricsUtil {
 
   /**
    * Calculates the durations between the START and STOP snapshots for a given metric description
    *
-   * @param logChannelId
-   *          the id of the log channel to investigate
-   * @param metricsCode
-   *          the metric code
+   * @param logChannelId the id of the log channel to investigate
+   * @param metricsCode  the metric code
    * @return the duration in ms
    */
   public static List<MetricsDuration> getDuration( String logChannelId, Metrics metric ) {
@@ -109,8 +107,7 @@ public class MetricsUtil {
   /**
    * Calculates the durations between the START and STOP snapshots per metric description and subject (if any)
    *
-   * @param logChannelId
-   *          the id of the log channel to investigate
+   * @param logChannelId the id of the log channel to investigate
    * @return the duration in ms
    */
   public static List<MetricsDuration> getDurations( String logChannelId ) {

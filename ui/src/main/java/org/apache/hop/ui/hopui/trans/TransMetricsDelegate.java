@@ -22,13 +22,19 @@
 
 package org.apache.hop.ui.hopui.trans;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.LoggingRegistry;
+import org.apache.hop.core.logging.MetricsPainter;
+import org.apache.hop.core.logging.MetricsPainter.MetricsDrawArea;
+import org.apache.hop.core.metrics.MetricsDuration;
+import org.apache.hop.core.metrics.MetricsUtil;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopui.SWTGC;
 import org.apache.hop.ui.hopui.delegates.HopUiDelegate;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
@@ -54,18 +60,12 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.logging.LoggingRegistry;
-import org.apache.hop.core.logging.MetricsPainter;
-import org.apache.hop.core.logging.MetricsPainter.MetricsDrawArea;
-import org.apache.hop.core.metrics.MetricsDuration;
-import org.apache.hop.core.metrics.MetricsUtil;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.hopui.SWTGC;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class TransMetricsDelegate extends HopUiDelegate {
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!

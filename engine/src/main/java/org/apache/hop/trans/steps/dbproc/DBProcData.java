@@ -30,7 +30,6 @@ import org.apache.hop.trans.step.StepDataInterface;
 /**
  * @author Matt
  * @since 24-jan-2005
- *
  */
 public class DBProcData extends BaseStepData implements StepDataInterface {
   public int[] argnrs;

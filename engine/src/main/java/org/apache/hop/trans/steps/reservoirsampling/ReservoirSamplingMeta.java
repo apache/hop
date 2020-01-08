@@ -22,20 +22,15 @@
 
 package org.apache.hop.trans.steps.reservoirsampling;
 
-import java.util.List;
-import java.util.Objects;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -43,8 +38,10 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Contains the meta data for the ReservoirSampling step.
@@ -81,8 +78,7 @@ public class ReservoirSamplingMeta extends BaseStepMeta implements StepMetaInter
   /**
    * Set the size of the sample to generate
    *
-   * @param sampleS
-   *          the size of the sample
+   * @param sampleS the size of the sample
    */
   public void setSampleSize( String sampleS ) {
     m_sampleSize = sampleS;
@@ -100,8 +96,7 @@ public class ReservoirSamplingMeta extends BaseStepMeta implements StepMetaInter
   /**
    * Set the seed value for the random number generator
    *
-   * @param seed
-   *          the seed value
+   * @param seed the seed value
    */
   public void setSeed( String seed ) {
     m_randomSeed = seed;
@@ -126,8 +121,7 @@ public class ReservoirSamplingMeta extends BaseStepMeta implements StepMetaInter
   /**
    * Check for equality
    *
-   * @param obj
-   *          an <code>Object</code> to compare with
+   * @param obj an <code>Object</code> to compare with
    * @return true if equal to the supplied object
    */
   public boolean equals( Object obj ) {
@@ -165,10 +159,8 @@ public class ReservoirSamplingMeta extends BaseStepMeta implements StepMetaInter
   /**
    * Loads the meta data for this (configured) step from XML.
    *
-   * @param stepnode
-   *          the step to load
-   * @exception HopXMLException
-   *              if an error occurs
+   * @param stepnode the step to load
+   * @throws HopXMLException if an error occurs
    */
   public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
 
@@ -184,14 +176,14 @@ public class ReservoirSamplingMeta extends BaseStepMeta implements StepMetaInter
   }
 
   public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     // nothing to do, as no fields are added/deleted
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transmeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
 
     CheckResult cr;
 
@@ -220,21 +212,16 @@ public class ReservoirSamplingMeta extends BaseStepMeta implements StepMetaInter
   /**
    * Get the executing step, needed by Trans to launch a step.
    *
-   * @param stepMeta
-   *          the step info
-   * @param stepDataInterface
-   *          the step data interface linked to this step. Here the step can store temporary data, database connections,
-   *          etc.
-   * @param cnr
-   *          the copy number to get.
-   * @param tr
-   *          the transformation info.
-   * @param trans
-   *          the launching transformation
+   * @param stepMeta          the step info
+   * @param stepDataInterface the step data interface linked to this step. Here the step can store temporary data, database connections,
+   *                          etc.
+   * @param cnr               the copy number to get.
+   * @param tr                the transformation info.
+   * @param trans             the launching transformation
    * @return a <code>StepInterface</code> value
    */
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new ReservoirSampling( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 

@@ -23,10 +23,6 @@
 package org.apache.hop.ui.trans.step.common;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.TransMeta;
@@ -34,6 +30,10 @@ import org.apache.hop.trans.step.BaseStepMeta;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.BaseMessageDialog;
 import org.apache.hop.ui.core.widget.TableView;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -99,7 +99,7 @@ public interface GetFieldsCapableStepDialog<StepMetaType extends BaseStepMeta> {
       int fieldNameIndex = getFieldsTable().hasIndexColumn() ? 1 : 0;
       fieldNamesInTable.add( item.getText( fieldNameIndex ) );
     }
-    final List<String> newFieldNames = Arrays.asList( fieldNamesInTable.toArray( new String[fieldNamesInTable.size()] ) ).stream().filter(
+    final List<String> newFieldNames = Arrays.asList( fieldNamesInTable.toArray( new String[ fieldNamesInTable.size() ] ) ).stream().filter(
       fieldName -> !Arrays.asList( incomingFieldNames ).contains( fieldName ) ).collect( Collectors.toList() );
     return newFieldNames;
   }

@@ -19,9 +19,8 @@ package org.apache.hop.metastore.api.exceptions;
 
 /**
  * This exception is thrown in case of a general problem with the underlying store.
- * 
+ *
  * @author matt
- * 
  */
 public class MetaStoreException extends Exception {
   private static final long serialVersionUID = -1562965693472591981L;

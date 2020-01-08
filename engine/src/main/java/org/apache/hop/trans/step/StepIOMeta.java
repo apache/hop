@@ -22,10 +22,10 @@
 
 package org.apache.hop.trans.step;
 
+import org.apache.hop.trans.step.errorhandling.StreamInterface;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.hop.trans.step.errorhandling.StreamInterface;
 
 public class StepIOMeta implements StepIOMetaInterface, Cloneable {
   private boolean inputAcceptor;
@@ -45,7 +45,7 @@ public class StepIOMeta implements StepIOMetaInterface, Cloneable {
    * @param outputProducer
    */
   public StepIOMeta( boolean inputAcceptor, boolean outputProducer, boolean inputOptional,
-    boolean sortedDataRequired, boolean inputDynamic, boolean outputDynamic ) {
+                     boolean sortedDataRequired, boolean inputDynamic, boolean outputDynamic ) {
     this.inputAcceptor = inputAcceptor;
     this.outputProducer = outputProducer;
     this.inputOptional = inputOptional;
@@ -72,8 +72,7 @@ public class StepIOMeta implements StepIOMetaInterface, Cloneable {
   }
 
   /**
-   * @param inputAcceptor
-   *          the inputAcceptor to set
+   * @param inputAcceptor the inputAcceptor to set
    */
   public void setInputAcceptor( boolean inputAcceptor ) {
     this.inputAcceptor = inputAcceptor;
@@ -87,8 +86,7 @@ public class StepIOMeta implements StepIOMetaInterface, Cloneable {
   }
 
   /**
-   * @param outputProducer
-   *          the outputProducer to set
+   * @param outputProducer the outputProducer to set
    */
   public void setOutputProducer( boolean outputProducer ) {
     this.outputProducer = outputProducer;
@@ -102,8 +100,7 @@ public class StepIOMeta implements StepIOMetaInterface, Cloneable {
   }
 
   /**
-   * @param inputOptional
-   *          the inputOptional to set
+   * @param inputOptional the inputOptional to set
    */
   public void setInputOptional( boolean inputOptional ) {
     this.inputOptional = inputOptional;
@@ -111,8 +108,7 @@ public class StepIOMeta implements StepIOMetaInterface, Cloneable {
 
   /**
    * @return the info streams of this step. Important: Modifying this list does not have any effect on the Steps IO
-   *         metadata.
-   *
+   * metadata.
    */
   public List<StreamInterface> getInfoStreams() {
     List<StreamInterface> list = new ArrayList<StreamInterface>();
@@ -128,8 +124,7 @@ public class StepIOMeta implements StepIOMetaInterface, Cloneable {
 
   /**
    * @return the target streams of this step. Important: Modifying this list does not have any effect on the Steps IO
-   *         metadata.
-   *
+   * metadata.
    */
   public List<StreamInterface> getTargetStreams() {
     List<StreamInterface> list = new ArrayList<StreamInterface>();
@@ -151,8 +146,7 @@ public class StepIOMeta implements StepIOMetaInterface, Cloneable {
   }
 
   /**
-   * @param sortedDataRequired
-   *          the sortedDataRequired to set
+   * @param sortedDataRequired the sortedDataRequired to set
    */
   public void setSortedDataRequired( boolean sortedDataRequired ) {
     this.sortedDataRequired = sortedDataRequired;
@@ -164,18 +158,18 @@ public class StepIOMeta implements StepIOMetaInterface, Cloneable {
 
   public String[] getInfoStepnames() {
     List<StreamInterface> infoStreams = getInfoStreams();
-    String[] names = new String[infoStreams.size()];
+    String[] names = new String[ infoStreams.size() ];
     for ( int i = 0; i < names.length; i++ ) {
-      names[i] = infoStreams.get( i ).getStepname();
+      names[ i ] = infoStreams.get( i ).getStepname();
     }
     return names;
   }
 
   public String[] getTargetStepnames() {
     List<StreamInterface> targetStreams = getTargetStreams();
-    String[] names = new String[targetStreams.size()];
+    String[] names = new String[ targetStreams.size() ];
     for ( int i = 0; i < names.length; i++ ) {
-      names[i] = targetStreams.get( i ).getStepname();
+      names[ i ] = targetStreams.get( i ).getStepname();
     }
     return names;
   }
@@ -200,7 +194,7 @@ public class StepIOMeta implements StepIOMetaInterface, Cloneable {
       if ( i >= list.size() ) {
         throw new RuntimeException( "We expect all possible info streams to be pre-populated!" );
       }
-      streams.get( i ).setStepMeta( infoSteps[i] );
+      streams.get( i ).setStepMeta( infoSteps[ i ] );
     }
   }
 
@@ -212,8 +206,7 @@ public class StepIOMeta implements StepIOMetaInterface, Cloneable {
   }
 
   /**
-   * @param generalInfoDescription
-   *          the generalInfoDescription to set
+   * @param generalInfoDescription the generalInfoDescription to set
    */
   public void setGeneralInfoDescription( String generalInfoDescription ) {
     this.generalInfoDescription = generalInfoDescription;
@@ -227,8 +220,7 @@ public class StepIOMeta implements StepIOMetaInterface, Cloneable {
   }
 
   /**
-   * @param generalTargetDescription
-   *          the generalTargetDescription to set
+   * @param generalTargetDescription the generalTargetDescription to set
    */
   public void setGeneralTargetDescription( String generalTargetDescription ) {
     this.generalTargetDescription = generalTargetDescription;
@@ -246,8 +238,7 @@ public class StepIOMeta implements StepIOMetaInterface, Cloneable {
   }
 
   /**
-   * @param outputDynamic
-   *          the outputDynamic to set
+   * @param outputDynamic the outputDynamic to set
    */
   public void setOutputDynamic( boolean outputDynamic ) {
     this.outputDynamic = outputDynamic;
@@ -261,8 +252,7 @@ public class StepIOMeta implements StepIOMetaInterface, Cloneable {
   }
 
   /**
-   * @param inputDynamic
-   *          the inputDynamic to set
+   * @param inputDynamic the inputDynamic to set
    */
   public void setInputDynamic( boolean inputDynamic ) {
     this.inputDynamic = inputDynamic;

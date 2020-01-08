@@ -22,10 +22,6 @@
 
 package org.apache.hop.trans.steps.ifnull;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.StringUtil;
@@ -38,6 +34,10 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * Sets a field value to a constant if it is null
@@ -53,7 +53,7 @@ public class IfNull extends BaseStep implements StepInterface {
   private IfNullData data;
 
   public IfNull( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                 Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -85,22 +85,22 @@ public class IfNull extends BaseStep implements StepInterface {
         // Consider only selected fields
         if ( meta.getFields() != null && meta.getFields().length > 0 ) {
           int fieldsLength = meta.getFields().length;
-          data.fieldnrs = new int[fieldsLength];
-          data.defaultValues = new String[fieldsLength];
-          data.defaultMasks = new String[fieldsLength];
-          data.setEmptyString = new boolean[fieldsLength];
+          data.fieldnrs = new int[ fieldsLength ];
+          data.defaultValues = new String[ fieldsLength ];
+          data.defaultMasks = new String[ fieldsLength ];
+          data.setEmptyString = new boolean[ fieldsLength ];
 
           for ( int i = 0; i < meta.getFields().length; i++ ) {
-            data.fieldnrs[i] = data.outputRowMeta.indexOfValue( meta.getFields()[i].getFieldName() );
-            if ( data.fieldnrs[i] < 0 ) {
-              logError( BaseMessages.getString( PKG, "IfNull.Log.CanNotFindField", meta.getFields()[i]
-                  .getFieldName() ) );
-              throw new HopException( BaseMessages.getString( PKG, "IfNull.Log.CanNotFindField", meta.getFields()[i]
-                  .getFieldName() ) );
+            data.fieldnrs[ i ] = data.outputRowMeta.indexOfValue( meta.getFields()[ i ].getFieldName() );
+            if ( data.fieldnrs[ i ] < 0 ) {
+              logError( BaseMessages.getString( PKG, "IfNull.Log.CanNotFindField", meta.getFields()[ i ]
+                .getFieldName() ) );
+              throw new HopException( BaseMessages.getString( PKG, "IfNull.Log.CanNotFindField", meta.getFields()[ i ]
+                .getFieldName() ) );
             }
-            data.defaultValues[i] = environmentSubstitute( meta.getFields()[i].getReplaceValue() );
-            data.defaultMasks[i] = environmentSubstitute( meta.getFields()[i].getReplaceMask() );
-            data.setEmptyString[i] = meta.getFields()[i].isSetEmptyString();
+            data.defaultValues[ i ] = environmentSubstitute( meta.getFields()[ i ].getReplaceValue() );
+            data.defaultMasks[ i ] = environmentSubstitute( meta.getFields()[ i ].getReplaceMask() );
+            data.setEmptyString[ i ] = meta.getFields()[ i ].isSetEmptyString();
           }
         } else {
           throw new HopException( BaseMessages.getString( PKG, "IfNull.Log.SelectFieldsEmpty" ) );
@@ -110,26 +110,26 @@ public class IfNull extends BaseStep implements StepInterface {
         if ( meta.getValueTypes() != null && meta.getValueTypes().length > 0 ) {
           // return the real default values
           int typeLength = meta.getValueTypes().length;
-          data.defaultValues = new String[typeLength];
-          data.defaultMasks = new String[typeLength];
-          data.setEmptyString = new boolean[typeLength];
+          data.defaultValues = new String[ typeLength ];
+          data.defaultMasks = new String[ typeLength ];
+          data.setEmptyString = new boolean[ typeLength ];
 
           // return all type codes
           HashSet<String> AlllistTypes = new HashSet<String>();
           for ( int i = 0; i < ValueMetaInterface.typeCodes.length; i++ ) {
-            AlllistTypes.add( ValueMetaInterface.typeCodes[i] );
+            AlllistTypes.add( ValueMetaInterface.typeCodes[ i ] );
           }
 
           for ( int i = 0; i < meta.getValueTypes().length; i++ ) {
-            if ( !AlllistTypes.contains( meta.getValueTypes()[i].getTypeName() ) ) {
+            if ( !AlllistTypes.contains( meta.getValueTypes()[ i ].getTypeName() ) ) {
               throw new HopException( BaseMessages.getString( PKG, "IfNull.Log.CanNotFindValueType", meta
-                  .getValueTypes()[i].getTypeName() ) );
+                .getValueTypes()[ i ].getTypeName() ) );
             }
 
-            data.ListTypes.put( meta.getValueTypes()[i].getTypeName(), i );
-            data.defaultValues[i] = environmentSubstitute( meta.getValueTypes()[i].getTypereplaceValue() );
-            data.defaultMasks[i] = environmentSubstitute( meta.getValueTypes()[i].getTypereplaceMask() );
-            data.setEmptyString[i] = meta.getValueTypes()[i].isSetTypeEmptyString();
+            data.ListTypes.put( meta.getValueTypes()[ i ].getTypeName(), i );
+            data.defaultValues[ i ] = environmentSubstitute( meta.getValueTypes()[ i ].getTypereplaceValue() );
+            data.defaultMasks[ i ] = environmentSubstitute( meta.getValueTypes()[ i ].getTypereplaceMask() );
+            data.setEmptyString[ i ] = meta.getValueTypes()[ i ].isSetTypeEmptyString();
           }
 
           HashSet<Integer> fieldsSelectedIndex = new HashSet<Integer>();
@@ -139,11 +139,11 @@ public class IfNull extends BaseStep implements StepInterface {
               fieldsSelectedIndex.add( i );
             }
           }
-          data.fieldnrs = new int[fieldsSelectedIndex.size()];
+          data.fieldnrs = new int[ fieldsSelectedIndex.size() ];
           List<Integer> entries = new ArrayList<Integer>( fieldsSelectedIndex );
-          Integer[] fieldnr = entries.toArray( new Integer[entries.size()] );
+          Integer[] fieldnr = entries.toArray( new Integer[ entries.size() ] );
           for ( int i = 0; i < fieldnr.length; i++ ) {
-            data.fieldnrs[i] = fieldnr[i];
+            data.fieldnrs[ i ] = fieldnr[ i ];
           }
         } else {
           throw new HopException( BaseMessages.getString( PKG, "IfNull.Log.SelectValueTypesEmpty" ) );
@@ -155,9 +155,9 @@ public class IfNull extends BaseStep implements StepInterface {
         data.realSetEmptyString = meta.isSetEmptyStringAll();
 
         // Consider all fields in input stream
-        data.fieldnrs = new int[data.outputRowMeta.size()];
+        data.fieldnrs = new int[ data.outputRowMeta.size() ];
         for ( int i = 0; i < data.outputRowMeta.size(); i++ ) {
-          data.fieldnrs[i] = i;
+          data.fieldnrs[ i ] = i;
         }
       }
       data.fieldnr = data.fieldnrs.length;
@@ -194,26 +194,26 @@ public class IfNull extends BaseStep implements StepInterface {
   private void updateFields( Object[] r ) throws Exception {
     // Loop through fields
     for ( int i = 0; i < data.fieldnr; i++ ) {
-      ValueMetaInterface sourceValueMeta = data.convertRowMeta.getValueMeta( data.fieldnrs[i] );
-      if ( data.outputRowMeta.getValueMeta( data.fieldnrs[i] ).isNull( r[data.fieldnrs[i]] ) ) {
+      ValueMetaInterface sourceValueMeta = data.convertRowMeta.getValueMeta( data.fieldnrs[ i ] );
+      if ( data.outputRowMeta.getValueMeta( data.fieldnrs[ i ] ).isNull( r[ data.fieldnrs[ i ] ] ) ) {
         if ( meta.isSelectValuesType() ) {
-          ValueMetaInterface fieldMeta = data.outputRowMeta.getValueMeta( data.fieldnrs[i] );
+          ValueMetaInterface fieldMeta = data.outputRowMeta.getValueMeta( data.fieldnrs[ i ] );
           int pos = data.ListTypes.get( fieldMeta.getTypeDesc() );
 
           replaceNull(
-            r, sourceValueMeta, data.fieldnrs[i], data.defaultValues[pos], data.defaultMasks[pos],
-            data.setEmptyString[pos] );
+            r, sourceValueMeta, data.fieldnrs[ i ], data.defaultValues[ pos ], data.defaultMasks[ pos ],
+            data.setEmptyString[ pos ] );
         } else if ( meta.isSelectFields() ) {
           replaceNull(
-            r, sourceValueMeta, data.fieldnrs[i], data.defaultValues[i], data.defaultMasks[i],
-            data.setEmptyString[i] );
+            r, sourceValueMeta, data.fieldnrs[ i ], data.defaultValues[ i ], data.defaultMasks[ i ],
+            data.setEmptyString[ i ] );
         } else { // all
-          if ( data.outputRowMeta.getValueMeta( data.fieldnrs[i] ).isDate() ) {
+          if ( data.outputRowMeta.getValueMeta( data.fieldnrs[ i ] ).isDate() ) {
             replaceNull(
-              r, sourceValueMeta, data.fieldnrs[i], data.realReplaceByValue, data.realconversionMask, false );
+              r, sourceValueMeta, data.fieldnrs[ i ], data.realReplaceByValue, data.realconversionMask, false );
           } else { // don't use any special date format when not a date
             replaceNull(
-              r, sourceValueMeta, data.fieldnrs[i], data.realReplaceByValue, null, data.realSetEmptyString );
+              r, sourceValueMeta, data.fieldnrs[ i ], data.realReplaceByValue, null, data.realSetEmptyString );
           }
         }
 
@@ -222,9 +222,9 @@ public class IfNull extends BaseStep implements StepInterface {
   }
 
   public void replaceNull( Object[] row, ValueMetaInterface sourceValueMeta, int i, String realReplaceByValue,
-    String realconversionMask, boolean setEmptystring ) throws Exception {
+                           String realconversionMask, boolean setEmptystring ) throws Exception {
     if ( setEmptystring ) {
-      row[i] = StringUtil.EMPTY_STRING;
+      row[ i ] = StringUtil.EMPTY_STRING;
     } else {
       // DO CONVERSION OF THE DEFAULT VALUE ...
       // Entered by user
@@ -232,7 +232,7 @@ public class IfNull extends BaseStep implements StepInterface {
       if ( !Utils.isEmpty( realconversionMask ) ) {
         sourceValueMeta.setConversionMask( realconversionMask );
       }
-      row[i] = targetValueMeta.convertData( sourceValueMeta, realReplaceByValue );
+      row[ i ] = targetValueMeta.convertData( sourceValueMeta, realReplaceByValue );
     }
   }
 

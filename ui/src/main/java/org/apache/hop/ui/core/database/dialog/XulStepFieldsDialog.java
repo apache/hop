@@ -24,11 +24,11 @@ package org.apache.hop.ui.core.database.dialog;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
 import org.apache.hop.ui.xul.HopXulLoader;
+import org.eclipse.swt.widgets.Shell;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulRunner;
 import org.pentaho.ui.xul.containers.XulDialog;
@@ -48,7 +48,7 @@ public class XulStepFieldsDialog {
   private static final String XUL = "org.apache.hop/ui/core/database/dialog/step_fields.xul";
 
   public XulStepFieldsDialog( Shell aShell, int aStyle, DatabaseMeta aDatabaseMeta, String aTableName,
-    RowMetaInterface anInput, String schemaName ) {
+                              RowMetaInterface anInput, String schemaName ) {
     this.shell = aShell;
     this.schemaTableCombo = aDatabaseMeta.getQuotedSchemaTableCombination( schemaName, aTableName );
     this.databaseMeta = aDatabaseMeta;

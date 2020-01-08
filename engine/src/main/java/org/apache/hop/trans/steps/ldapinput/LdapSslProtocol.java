@@ -22,14 +22,14 @@
 
 package org.apache.hop.trans.steps.ldapinput;
 
-import java.util.Collection;
-import java.util.Map;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.trans.steps.ldapinput.store.CustomSocketFactory;
+
+import java.util.Collection;
+import java.util.Map;
 
 public class LdapSslProtocol extends LdapProtocol {
 
@@ -40,7 +40,7 @@ public class LdapSslProtocol extends LdapProtocol {
   private final String trustStorePassword;
 
   public LdapSslProtocol( LogChannelInterface log, VariableSpace variableSpace, LdapMeta meta,
-    Collection<String> binaryAttributes ) {
+                          Collection<String> binaryAttributes ) {
     super( log, variableSpace, meta, binaryAttributes );
     String trustStorePath = null;
     String trustStorePassword = null;
@@ -48,8 +48,8 @@ public class LdapSslProtocol extends LdapProtocol {
 
     if ( meta.isUseCertificate() ) {
       trustStorePath = variableSpace.environmentSubstitute( meta.getTrustStorePath() );
-      trustStorePassword =  Utils.resolvePassword( variableSpace,
-              meta.getTrustStorePassword() );
+      trustStorePassword = Utils.resolvePassword( variableSpace,
+        meta.getTrustStorePassword() );
       trustAllCertificates = meta.isTrustAllCertificates();
     }
 
@@ -80,7 +80,7 @@ public class LdapSslProtocol extends LdapProtocol {
   }
 
   protected void configureSocketFactory( boolean trustAllCertificates, String trustStorePath,
-    String trustStorePassword ) throws HopException {
+                                         String trustStorePassword ) throws HopException {
     if ( trustAllCertificates ) {
       CustomSocketFactory.configure();
     } else {

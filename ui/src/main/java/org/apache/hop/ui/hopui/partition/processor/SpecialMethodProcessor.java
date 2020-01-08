@@ -22,12 +22,12 @@
 
 package org.apache.hop.ui.hopui.partition.processor;
 
-import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.trans.step.StepDialogInterface;
 import org.apache.hop.ui.hopui.delegates.HopUiDelegates;
 import org.apache.hop.ui.hopui.partition.PartitionSettings;
+import org.eclipse.swt.widgets.Shell;
 
 /**
  * @author Evgeniy_Lyakhov@epam.com
@@ -50,7 +50,7 @@ public class SpecialMethodProcessor extends AbstractMethodProcessor {
     StepDialogInterface partitionDialog =
       delegates.steps.getPartitionerDialog( settings.getStepMeta(), settings.getStepMeta().getStepPartitioningMeta(),
         settings.getTransMeta() );
-    String  fieldName = partitionDialog.open();
+    String fieldName = partitionDialog.open();
     if ( StringUtil.isEmpty( fieldName ) ) {
       settings.rollback( settings.getBefore() );
     }

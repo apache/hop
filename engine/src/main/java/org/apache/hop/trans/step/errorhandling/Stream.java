@@ -40,7 +40,7 @@ public class Stream implements StreamInterface {
    * @param description
    */
   public Stream( StreamType streamType, StepMeta stepMeta, String description, StreamIcon streamIcon,
-    Object subject ) {
+                 Object subject ) {
     this.streamType = streamType;
     this.stepMeta = stepMeta;
     this.description = description;
@@ -99,8 +99,7 @@ public class Stream implements StreamInterface {
   }
 
   /**
-   * @param description
-   *          the description to set
+   * @param description the description to set
    */
   public void setDescription( String description ) {
     this.description = description;
@@ -114,8 +113,7 @@ public class Stream implements StreamInterface {
   }
 
   /**
-   * @param streamType
-   *          the streamType to set
+   * @param streamType the streamType to set
    */
   public void setStreamType( StreamType streamType ) {
     this.streamType = streamType;
@@ -129,8 +127,7 @@ public class Stream implements StreamInterface {
   }
 
   /**
-   * @param stepMeta
-   *          the stepMeta to set
+   * @param stepMeta the stepMeta to set
    */
   public void setStepMeta( StepMeta stepMeta ) {
     this.stepMeta = stepMeta;
@@ -144,8 +141,7 @@ public class Stream implements StreamInterface {
   }
 
   /**
-   * @param streamIcon
-   *          the streamIcon to set
+   * @param streamIcon the streamIcon to set
    */
   public void setStreamIcon( StreamIcon streamIcon ) {
     this.streamIcon = streamIcon;
@@ -159,8 +155,7 @@ public class Stream implements StreamInterface {
   }
 
   /**
-   * @param subject
-   *          the subject to set
+   * @param subject the subject to set
    */
   public void setSubject( Object subject ) {
     this.subject = subject;

@@ -22,19 +22,19 @@
 
 package org.apache.hop.ui.hopui;
 
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.mock;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotNull;
-
-import org.apache.hop.ui.hopui.delegates.HopUiTabsDelegate;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.ui.hopui.delegates.HopUiDelegates;
+import org.apache.hop.ui.hopui.delegates.HopUiTabsDelegate;
 import org.apache.hop.ui.hopui.job.JobGraph;
 import org.apache.xul.swt.tab.TabItem;
 import org.apache.xul.swt.tab.TabSet;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.mock;
 
 public class HopUiActiveJobGraphTest {
 

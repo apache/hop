@@ -22,27 +22,14 @@
 
 package org.apache.hop.ui.trans.step;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Monitor;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableItem;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.StepPluginType;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.trans.TransMeta;
@@ -61,12 +48,25 @@ import org.apache.hop.ui.hopui.XulHopUiResourceBundle;
 import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
 import org.apache.hop.ui.util.HelpUtils;
 import org.apache.hop.ui.xul.HopXulLoader;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Monitor;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.XulSettingsManager;
 import org.pentaho.ui.xul.containers.XulTree;
 import org.pentaho.ui.xul.containers.XulTreeRow;
 import org.pentaho.ui.xul.swt.SwtBindingFactory;
 import org.pentaho.ui.xul.swt.SwtXulRunner;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
 
 /**
  * User: nbaker Date: Jun 7, 2010
@@ -121,7 +121,7 @@ public abstract class BaseStepXulDialog extends BaseStepGenericXulDialog {
   }
 
   public BaseStepXulDialog( String xulFile, Shell parent, BaseStepMeta baseStepMeta, TransMeta transMeta,
-    String stepname ) {
+                            String stepname ) {
 
     super( xulFile, parent, baseStepMeta, transMeta, stepname );
 
@@ -251,27 +251,19 @@ public abstract class BaseStepXulDialog extends BaseStepGenericXulDialog {
   /**
    * Gets unused fields from previous steps and inserts them as rows into a table view.
    *
-   * @param row
-   *          the input fields
-   * @param tableView
-   *          the table view to modify
-   * @param keyColumn
-   *          the column in the table view to match with the names of the fields, checks for existance if >0
-   * @param nameColumn
-   *          the column numbers in which the name should end up in
-   * @param dataTypeColumn
-   *          the target column numbers in which the data type should end up in
-   * @param lengthColumn
-   *          the length column where the length should end up in (if >0)
-   * @param precisionColumn
-   *          the length column where the precision should end up in (if >0)
-   * @param listener
-   *          A listener that you can use to do custom modifications to the inserted table item, based on a value from
-   *          the provided row
+   * @param row             the input fields
+   * @param tableView       the table view to modify
+   * @param keyColumn       the column in the table view to match with the names of the fields, checks for existance if >0
+   * @param nameColumn      the column numbers in which the name should end up in
+   * @param dataTypeColumn  the target column numbers in which the data type should end up in
+   * @param lengthColumn    the length column where the length should end up in (if >0)
+   * @param precisionColumn the length column where the precision should end up in (if >0)
+   * @param listener        A listener that you can use to do custom modifications to the inserted table item, based on a value from
+   *                        the provided row
    */
   public static final void getFieldsFromPrevious( RowMetaInterface row, XulTree tableView, int keyColumn,
-    int[] nameColumn, int[] dataTypeColumn, int lengthColumn, int precisionColumn,
-    TableItemInsertListener listener ) {
+                                                  int[] nameColumn, int[] dataTypeColumn, int lengthColumn, int precisionColumn,
+                                                  TableItemInsertListener listener ) {
     if ( row == null || row.size() == 0 ) {
       return; // nothing to do
     }
@@ -301,10 +293,10 @@ public abstract class BaseStepXulDialog extends BaseStepGenericXulDialog {
           null,
           BaseMessages.getString( PKG, "BaseStepDialog.GetFieldsChoice.Message", "" + keys.size(), "" + row.size() ),
           MessageDialog.WARNING, new String[] {
-            BaseMessages.getString( PKG, "BaseStepDialog.AddNew" ),
-            BaseMessages.getString( PKG, "BaseStepDialog.Add" ),
-            BaseMessages.getString( PKG, "BaseStepDialog.ClearAndAdd" ),
-            BaseMessages.getString( PKG, "BaseStepDialog.Cancel" ), }, 0 );
+          BaseMessages.getString( PKG, "BaseStepDialog.AddNew" ),
+          BaseMessages.getString( PKG, "BaseStepDialog.Add" ),
+          BaseMessages.getString( PKG, "BaseStepDialog.ClearAndAdd" ),
+          BaseMessages.getString( PKG, "BaseStepDialog.Cancel" ), }, 0 );
       MessageDialog.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
       int idx = md.open();
       choice = idx & 0xFF;
@@ -334,11 +326,11 @@ public abstract class BaseStepXulDialog extends BaseStepGenericXulDialog {
         XulTreeRow tRow = tableView.getRootChildren().addNewRow();
 
         for ( int c = 0; c < nameColumn.length; c++ ) {
-          tRow.addCellText( nameColumn[c], Const.NVL( v.getName(), "" ) );
+          tRow.addCellText( nameColumn[ c ], Const.NVL( v.getName(), "" ) );
         }
         if ( dataTypeColumn != null ) {
           for ( int c = 0; c < dataTypeColumn.length; c++ ) {
-            tRow.addCellText( dataTypeColumn[c], v.getTypeDesc() );
+            tRow.addCellText( dataTypeColumn[ c ], v.getTypeDesc() );
           }
         }
         if ( lengthColumn > 0 ) {
@@ -368,12 +360,9 @@ public abstract class BaseStepXulDialog extends BaseStepGenericXulDialog {
   /**
    * Gets fields from previous steps and populate a ComboVar.
    *
-   * @param comboVar
-   *          the comboVar to populate
-   * @param TransMeta
-   *          the source transformation
-   * @param StepMeta
-   *          the source step
+   * @param comboVar  the comboVar to populate
+   * @param TransMeta the source transformation
+   * @param StepMeta  the source step
    */
   public static final void getFieldsFromPrevious( ComboVar comboVar, TransMeta transMeta, StepMeta stepMeta ) {
     String selectedField = null;
@@ -407,24 +396,19 @@ public abstract class BaseStepXulDialog extends BaseStepGenericXulDialog {
   /**
    * Create a new field mapping between source and target steps.
    *
-   * @param shell
-   *          the shell of the parent window
-   * @param sourceFields
-   *          the source fields
-   * @param targetFields
-   *          the target fields
-   * @param fieldMapping
-   *          the list of source to target mappings to default to (can be empty but not null)
-   * @throws HopException
-   *           in case something goes wrong during the field mapping
+   * @param shell        the shell of the parent window
+   * @param sourceFields the source fields
+   * @param targetFields the target fields
+   * @param fieldMapping the list of source to target mappings to default to (can be empty but not null)
+   * @throws HopException in case something goes wrong during the field mapping
    */
   public static final void generateFieldMapping( Shell shell, RowMetaInterface sourceFields,
-    RowMetaInterface targetFields, java.util.List<SourceToTargetMapping> fieldMapping ) throws HopException {
+                                                 RowMetaInterface targetFields, java.util.List<SourceToTargetMapping> fieldMapping ) throws HopException {
     // Build the mapping: let the user decide!!
     String[] source = sourceFields.getFieldNames();
     for ( int i = 0; i < source.length; i++ ) {
       ValueMetaInterface v = sourceFields.getValueMeta( i );
-      source[i] += EnterMappingDialog.STRING_ORIGIN_SEPARATOR + v.getOrigin() + ")";
+      source[ i ] += EnterMappingDialog.STRING_ORIGIN_SEPARATOR + v.getOrigin() + ")";
     }
     String[] target = targetFields.getFieldNames();
 
@@ -437,7 +421,7 @@ public abstract class BaseStepXulDialog extends BaseStepGenericXulDialog {
   }
 
   public static void getFieldsFromPrevious( RowMetaInterface row, XulTree tableView, List<Object> fields,
-    StepTableDataObject field, TableItemInsertXulListener listener ) {
+                                            StepTableDataObject field, TableItemInsertXulListener listener ) {
     if ( row == null || row.size() == 0 ) {
       return; // nothing to do
     }
@@ -461,10 +445,10 @@ public abstract class BaseStepXulDialog extends BaseStepGenericXulDialog {
           null,
           BaseMessages.getString( PKG, "BaseStepDialog.GetFieldsChoice.Message", "" + keys.size(), "" + row.size() ),
           MessageDialog.WARNING, new String[] {
-            BaseMessages.getString( PKG, "BaseStepDialog.AddNew" ),
-            BaseMessages.getString( PKG, "BaseStepDialog.Add" ),
-            BaseMessages.getString( PKG, "BaseStepDialog.ClearAndAdd" ),
-            BaseMessages.getString( PKG, "BaseStepDialog.Cancel" ), }, 0 );
+          BaseMessages.getString( PKG, "BaseStepDialog.AddNew" ),
+          BaseMessages.getString( PKG, "BaseStepDialog.Add" ),
+          BaseMessages.getString( PKG, "BaseStepDialog.ClearAndAdd" ),
+          BaseMessages.getString( PKG, "BaseStepDialog.Cancel" ), }, 0 );
       MessageDialog.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
       int idx = md.open();
       choice = idx & 0xFF;

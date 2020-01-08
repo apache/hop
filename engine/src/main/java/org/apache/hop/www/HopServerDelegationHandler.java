@@ -35,14 +35,13 @@ import org.apache.hop.trans.TransExecutionConfiguration;
  * added recursively down as long as the listener methods are called.
  *
  * @author matt
- *
  */
 public class HopServerDelegationHandler implements DelegationListener {
 
   protected TransformationMap transformationMap;
   protected JobMap jobMap;
 
-  public HopServerDelegationHandler(TransformationMap transformationMap, JobMap jobMap ) {
+  public HopServerDelegationHandler( TransformationMap transformationMap, JobMap jobMap ) {
     super();
     this.transformationMap = transformationMap;
     this.jobMap = jobMap;
@@ -60,7 +59,7 @@ public class HopServerDelegationHandler implements DelegationListener {
 
   @Override
   public synchronized void transformationDelegationStarted( Trans delegatedTrans,
-    TransExecutionConfiguration transExecutionConfiguration ) {
+                                                            TransExecutionConfiguration transExecutionConfiguration ) {
     TransConfiguration tc = new TransConfiguration( delegatedTrans.getTransMeta(), transExecutionConfiguration );
     transformationMap.registerTransformation( delegatedTrans, tc );
     delegatedTrans.addDelegationListener( this );

@@ -22,9 +22,9 @@
 
 package org.apache.test.util.impl;
 
-import static org.junit.Assert.assertTrue;
-
 import org.apache.test.util.ObjectValidator;
+
+import static org.junit.Assert.assertTrue;
 
 public class EqualsEqualsValidator<T> implements ObjectValidator<T> {
 

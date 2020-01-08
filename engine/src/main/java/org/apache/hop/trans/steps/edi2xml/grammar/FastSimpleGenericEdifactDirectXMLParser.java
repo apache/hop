@@ -27,11 +27,6 @@
 
 package org.apache.hop.trans.steps.edi2xml.grammar;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.antlr.runtime.BitSet;
 import org.antlr.runtime.IntStream;
 import org.antlr.runtime.MismatchedSetException;
@@ -47,6 +42,11 @@ import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.AngleBracketTemplateLexer;
 import org.apache.commons.lang.StringEscapeUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 @SuppressWarnings( { "all", "warnings", "unchecked" } )
 public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
@@ -180,7 +180,9 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
     public String toString() {
       return st == null ? null : st.toString();
     }
-  };
+  }
+
+  ;
 
   // $ANTLR start "edifact"
   // C:\\workspace-sts\\Hop trunk -
@@ -230,7 +232,8 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
       // restruct\\engine\\src\\org\\pentaho\\di\\trans\\steps\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:83:4:
       // ( segment )*
-      loop2: do {
+      loop2:
+      do {
         int alt2 = 2;
         int LA2_0 = input.LA( 1 );
 
@@ -278,7 +281,9 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
     public String toString() {
       return st == null ? null : st.toString();
     }
-  };
+  }
+
+  ;
 
   // $ANTLR start "una"
   // C:\\workspace-sts\\Hop trunk -
@@ -326,7 +331,9 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
     public String toString() {
       return st == null ? null : st.toString();
     }
-  };
+  }
+
+  ;
 
   // $ANTLR start "segment"
   // C:\\workspace-sts\\Hop trunk -
@@ -358,7 +365,8 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
       // restruct\\engine\\src\\org\\pentaho\\di\\trans\\steps\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:92:4:
       // ( data_element )*
-      loop3: do {
+      loop3:
+      do {
         int alt3 = 2;
         int LA3_0 = input.LA( 1 );
 
@@ -387,7 +395,8 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
       // restruct\\engine\\src\\org\\pentaho\\di\\trans\\steps\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:92:37:
       // ( ' ' | '\\n' | '\\r' | '\\t' )*
-      loop4: do {
+      loop4:
+      do {
         int alt4 = 2;
         int LA4_0 = input.LA( 1 );
 
@@ -437,7 +446,9 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
     public String toString() {
       return st == null ? null : st.toString();
     }
-  };
+  }
+
+  ;
 
   // $ANTLR start "data_element"
   // C:\\workspace-sts\\Hop trunk -
@@ -485,7 +496,9 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
     public String toString() {
       return st == null ? null : st.toString();
     }
-  };
+  }
+
+  ;
 
   // $ANTLR start "data_element_payload"
   // C:\\workspace-sts\\Hop trunk -
@@ -511,7 +524,8 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
       // restruct\\engine\\src\\org\\pentaho\\di\\trans\\steps\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:99:4:
       // ( composite_data_item ds )*
-      loop5: do {
+      loop5:
+      do {
         int alt5 = 2;
         int LA5_0 = input.LA( 1 );
 
@@ -570,7 +584,9 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
     public String toString() {
       return st == null ? null : st.toString();
     }
-  };
+  }
+
+  ;
 
   // $ANTLR start "composite_data_item"
   // C:\\workspace-sts\\Hop trunk -
@@ -621,7 +637,9 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
     public String toString() {
       return st == null ? null : st.toString();
     }
-  };
+  }
+
+  ;
 
   // $ANTLR start "composite_data_item_val"
   // C:\\workspace-sts\\Hop trunk -
@@ -643,7 +661,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
       if ( ( LA6_0 == TEXT_DATA ) ) {
         alt6 = 1;
       } else if ( ( ( LA6_0 >= COMPLEX_ELEMENT_ITEM_SEPARATOR && LA6_0 <= ELEMENT_SEPARATOR )
-      || LA6_0 == SEGMENT_TERMINATOR ) ) {
+        || LA6_0 == SEGMENT_TERMINATOR ) ) {
         alt6 = 2;
       } else {
         NoViableAltException nvae = new NoViableAltException( "", 6, 0, input );
@@ -692,7 +710,9 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
     public String toString() {
       return st == null ? null : st.toString();
     }
-  };
+  }
+
+  ;
 
   // $ANTLR start "tag"
   // C:\\workspace-sts\\Hop trunk -
@@ -725,7 +745,8 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
       // restruct\\engine\\src\\org\\pentaho\\di\\trans\\steps\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:108:74:
       // ( ds i+= tag_index_id )*
-      loop7: do {
+      loop7:
+      do {
         int alt7 = 2;
         int LA7_0 = input.LA( 1 );
 
@@ -778,7 +799,9 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
     public String toString() {
       return st == null ? null : st.toString();
     }
-  };
+  }
+
+  ;
 
   // $ANTLR start "tag_name"
   // C:\\workspace-sts\\Hop trunk -
@@ -823,7 +846,9 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
     public String toString() {
       return st == null ? null : st.toString();
     }
-  };
+  }
+
+  ;
 
   // $ANTLR start "tag_index_id"
   // C:\\workspace-sts\\Hop trunk -
@@ -872,7 +897,9 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
     public String toString() {
       return st == null ? null : st.toString();
     }
-  };
+  }
+
+  ;
 
   // $ANTLR start "tag_index_id_val"
   // C:\\workspace-sts\\Hop trunk -
@@ -894,7 +921,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
       if ( ( LA8_0 == TEXT_DATA ) ) {
         alt8 = 1;
       } else if ( ( ( LA8_0 >= COMPLEX_ELEMENT_ITEM_SEPARATOR && LA8_0 <= ELEMENT_SEPARATOR )
-      || LA8_0 == SEGMENT_TERMINATOR ) ) {
+        || LA8_0 == SEGMENT_TERMINATOR ) ) {
         alt8 = 2;
       } else {
         NoViableAltException nvae = new NoViableAltException( "", 8, 0, input );
@@ -941,7 +968,9 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
     public String toString() {
       return st == null ? null : st.toString();
     }
-  };
+  }
+
+  ;
 
   // $ANTLR start "ds"
   // C:\\workspace-sts\\Hop trunk -
@@ -984,7 +1013,9 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
     public String toString() {
       return st == null ? null : st.toString();
     }
-  };
+  }
+
+  ;
 
   // $ANTLR start "ss"
   // C:\\workspace-sts\\Hop trunk -
@@ -1027,7 +1058,9 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
     public String toString() {
       return st == null ? null : st.toString();
     }
-  };
+  }
+
+  ;
 
   // $ANTLR start "txt"
   // C:\\workspace-sts\\Hop trunk -

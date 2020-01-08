@@ -22,16 +22,16 @@
 
 package org.apache.hop.trans.steps.getslavesequence;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
+import org.junit.ClassRule;
+import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 
 public class GetSlaveSequenceMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -39,7 +39,7 @@ public class GetSlaveSequenceMetaTest {
   @Test
   public void testRoundTrip() throws HopException {
     List<String> attributes =
-        Arrays.asList( "valuename", "slave", "seqname", "increment" );
+      Arrays.asList( "valuename", "slave", "seqname", "increment" );
     Map<String, String> getterMap = new HashMap<String, String>();
     getterMap.put( "valuename", "getValuename" );
     getterMap.put( "slave", "getSlaveServerName" );

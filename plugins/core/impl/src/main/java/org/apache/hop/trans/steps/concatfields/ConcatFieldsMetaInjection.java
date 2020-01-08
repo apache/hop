@@ -22,10 +22,6 @@
 
 package org.apache.hop.trans.steps.concatfields;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -34,6 +30,10 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.trans.step.StepInjectionMetaEntry;
 import org.apache.hop.trans.step.StepMetaInjectionInterface;
 import org.apache.hop.trans.steps.textfileoutput.TextFileField;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * This takes care of the external metadata injection into the TableOutputMeta class

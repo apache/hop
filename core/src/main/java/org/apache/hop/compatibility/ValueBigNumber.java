@@ -31,7 +31,6 @@ import java.util.Date;
  *
  * @author Matt
  * @since 05-09-2005
- *
  */
 public class ValueBigNumber implements ValueInterface, Cloneable {
   private BigDecimal number;

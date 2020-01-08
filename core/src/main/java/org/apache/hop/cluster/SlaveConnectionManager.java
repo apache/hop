@@ -100,7 +100,7 @@ public class SlaveConnectionManager {
   }
 
   public HttpClient createHttpClient( String user, String password,
-                                               String proxyHost, int proxyPort, AuthScope authScope ) {
+                                      String proxyHost, int proxyPort, AuthScope authScope ) {
     HttpHost httpHost = new HttpHost( proxyHost, proxyPort );
 
     RequestConfig requestConfig = RequestConfig.custom()

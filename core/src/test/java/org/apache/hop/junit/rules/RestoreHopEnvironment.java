@@ -23,7 +23,6 @@
 package org.apache.hop.junit.rules;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.rules.ExternalResource;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Props;
@@ -42,6 +41,7 @@ import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.core.xml.XMLHandlerCache;
 import org.apache.hop.i18n.LanguageChoice;
+import org.junit.rules.ExternalResource;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -62,7 +62,8 @@ public class RestoreHopEnvironment extends ExternalResource {
    * Creates a {@code RestoreHopEnvironment} rule that restores all system properties and resets any Hop related
    * environment instances.
    */
-  public RestoreHopEnvironment() { }
+  public RestoreHopEnvironment() {
+  }
 
   void defaultInit() throws Throwable {
     // make sure static class initializers are correctly initialized
@@ -100,7 +101,7 @@ public class RestoreHopEnvironment extends ExternalResource {
     XMLHandlerCache.getInstance().clear();
     ValueMetaFactory.pluginRegistry = PluginRegistry.getInstance();
     // under no circumstance reset the LoggingRegistry
-//    LoggingRegistry.getInstance().reset();
+    //    LoggingRegistry.getInstance().reset();
   }
 
   @Override protected void before() throws Throwable {

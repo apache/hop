@@ -42,6 +42,7 @@ import org.apache.hop.metastore.api.security.MetaStoreElementOwnerType;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStoreAttribute;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStoreElement;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStoreElementOwner;
+import org.apache.hop.metastore.util.MetaStoreUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -49,8 +50,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import org.apache.hop.metastore.util.MetaStoreUtil;
 
 /**
  * @author nhudak

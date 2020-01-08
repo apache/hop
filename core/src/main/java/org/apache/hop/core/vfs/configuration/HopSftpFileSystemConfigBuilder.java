@@ -22,9 +22,7 @@
 
 package org.apache.hop.core.vfs.configuration;
 
-import java.io.File;
-import java.io.IOException;
-
+import com.jcraft.jsch.UserInfo;
 import org.apache.commons.vfs2.FileSystem;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.provider.FileNameParser;
@@ -36,13 +34,14 @@ import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
 
-import com.jcraft.jsch.UserInfo;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * An SFTP FileSystemConfigBuilder that uses Hop variables to build SFTP VFS configuration options. Options can be
  * specified by host by appending the host name (as it will appear in the VFS URL) to the end of the parameter. (e.g.-
  * vfs.sftp.parameter.192.168.1.5)
- *
+ * <p>
  * Overriden parameters are currently:
  * <table style="text-align: left;" border="1">
  * <tr>
@@ -87,7 +86,7 @@ public class HopSftpFileSystemConfigBuilder extends HopGenericFileSystemConfigBu
    */
   @Override
   public void setParameter( FileSystemOptions opts, String name, String value, String fullParameterName,
-    String vfsUrl ) throws IOException {
+                            String vfsUrl ) throws IOException {
     if ( !fullParameterName.startsWith( "vfs.sftp" ) ) {
       // This is not an SFTP parameter. Delegate to the generic handler
       super.setParameter( opts, name, value, fullParameterName, vfsUrl );
@@ -110,11 +109,11 @@ public class HopSftpFileSystemConfigBuilder extends HopGenericFileSystemConfigBu
               identities = new IdentityInfo[] { new IdentityInfo( new File( value ) ) };
             } else {
               // Copy, in a Java 5 friendly manner, identities into a larger array
-              IdentityInfo[] temp = new IdentityInfo[identities.length + 1];
+              IdentityInfo[] temp = new IdentityInfo[ identities.length + 1 ];
               System.arraycopy( identities, 0, temp, 0, identities.length );
               identities = temp;
 
-              identities[identities.length - 1] = new IdentityInfo( new File( value ) );
+              identities[ identities.length - 1 ] = new IdentityInfo( new File( value ) );
             }
             setParam( opts, IDENTITY_KEY, identities );
           } else {

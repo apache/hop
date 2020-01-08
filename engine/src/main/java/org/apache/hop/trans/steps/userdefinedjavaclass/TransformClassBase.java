@@ -22,10 +22,6 @@
 
 package org.apache.hop.trans.steps.userdefinedjavaclass;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowSet;
@@ -55,6 +51,10 @@ import org.apache.hop.trans.step.errorhandling.StreamInterface.StreamType;
 import org.apache.hop.trans.steps.userdefinedjavaclass.UserDefinedJavaClassMeta.FieldInfo;
 import org.apache.hop.www.SocketRepository;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public abstract class TransformClassBase {
   private static Class<?> PKG = UserDefinedJavaClassMeta.class; // for i18n purposes, needed by Translator2!!
 
@@ -65,7 +65,7 @@ public abstract class TransformClassBase {
   protected UserDefinedJavaClassData data;
 
   public TransformClassBase( UserDefinedJavaClass parent, UserDefinedJavaClassMeta meta,
-    UserDefinedJavaClassData data ) throws HopStepException {
+                             UserDefinedJavaClassData data ) throws HopStepException {
     this.parent = parent;
     this.meta = meta;
     this.data = data;
@@ -433,7 +433,7 @@ public abstract class TransformClassBase {
   public abstract boolean processRow( StepMetaInterface smi, StepDataInterface sdi ) throws HopException;
 
   public void putError( RowMetaInterface rowMeta, Object[] row, long nrErrors, String errorDescriptions,
-    String fieldNames, String errorCodes ) throws HopStepException {
+                        String fieldNames, String errorCodes ) throws HopStepException {
     parent.putErrorImpl( rowMeta, row, nrErrors, errorDescriptions, fieldNames, errorCodes );
   }
 
@@ -535,7 +535,7 @@ public abstract class TransformClassBase {
 
   @SuppressWarnings( "unchecked" )
   public static void getFields( boolean clearResultFields, RowMetaInterface row, String originStepname,
-    RowMetaInterface[] info, StepMeta nextStep, VariableSpace space, List<?> fields ) throws HopStepException {
+                                RowMetaInterface[] info, StepMeta nextStep, VariableSpace space, List<?> fields ) throws HopStepException {
     if ( clearResultFields ) {
       row.clear();
     }

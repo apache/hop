@@ -22,9 +22,6 @@
 
 package org.apache.hop.trans.steps.reservoirsampling;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.trans.Trans;
@@ -36,6 +33,9 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.reservoirsampling.ReservoirSamplingData.PROC_MODE;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class ReservoirSampling extends BaseStep implements StepInterface {
 
   private ReservoirSamplingMeta m_meta;
@@ -44,42 +44,34 @@ public class ReservoirSampling extends BaseStep implements StepInterface {
   /**
    * Creates a new <code>ReservoirSampling</code> instance.
    * <p>
-   *
+   * <p>
    * Implements the reservoir sampling algorithm "R" by Jeffrey Scott Vitter. (algorithm is implemented in
    * ReservoirSamplingData.java
    * <p>
    * For more information see:<br>
    * <br>
-   *
+   * <p>
    * Vitter, J. S. Random Sampling with a Reservoir. ACM Transactions on Mathematical Software, Vol. 11, No. 1, March
    * 1985. Pages 37-57.
    *
-   * @param stepMeta
-   *          holds the step's meta data
-   * @param stepDataInterface
-   *          holds the step's temporary data
-   * @param copyNr
-   *          the number assigned to the step
-   * @param transMeta
-   *          meta data for the transformation
-   * @param trans
-   *          a <code>Trans</code> value
+   * @param stepMeta          holds the step's meta data
+   * @param stepDataInterface holds the step's temporary data
+   * @param copyNr            the number assigned to the step
+   * @param transMeta         meta data for the transformation
+   * @param trans             a <code>Trans</code> value
    */
   public ReservoirSampling( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,
-    TransMeta transMeta, Trans trans ) {
+                            TransMeta transMeta, Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
   /**
    * Process an incoming row of data.
    *
-   * @param smi
-   *          a <code>StepMetaInterface</code> value
-   * @param sdi
-   *          a <code>StepDataInterface</code> value
+   * @param smi a <code>StepMetaInterface</code> value
+   * @param sdi a <code>StepDataInterface</code> value
    * @return a <code>boolean</code> value
-   * @exception HopException
-   *              if an error occurs
+   * @throws HopException if an error occurs
    */
   public boolean processRow( StepMetaInterface smi, StepDataInterface sdi ) throws HopException {
 
@@ -165,10 +157,8 @@ public class ReservoirSampling extends BaseStep implements StepInterface {
   /**
    * Initialize the step.
    *
-   * @param smi
-   *          a <code>StepMetaInterface</code> value
-   * @param sdi
-   *          a <code>StepDataInterface</code> value
+   * @param smi a <code>StepMetaInterface</code> value
+   * @param sdi a <code>StepDataInterface</code> value
    * @return a <code>boolean</code> value
    */
   public boolean init( StepMetaInterface smi, StepDataInterface sdi ) {

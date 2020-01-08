@@ -22,56 +22,46 @@
 
 package org.apache.hop.job.entries.trans;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.doReturn;
-import static org.powermock.reflect.Whitebox.setInternalState;
+import org.apache.hop.cluster.SlaveServer;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.listeners.CurrentDirectoryChangedListener;
+import org.apache.hop.core.parameters.NamedParams;
+import org.apache.hop.core.parameters.NamedParamsDefault;
+import org.apache.hop.core.parameters.UnknownParamException;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.trans.Trans;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.hop.core.listeners.CurrentDirectoryChangedListener;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.parameters.NamedParams;
-import org.apache.hop.core.parameters.NamedParamsDefault;
-import org.apache.hop.core.parameters.UnknownParamException;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.job.Job;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.resource.ResourceNamingInterface;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.powermock.reflect.Whitebox.setInternalState;
 
 public class JobEntryTransTest {
   private final String JOB_ENTRY_TRANS_NAME = "JobEntryTransName";
@@ -107,7 +97,7 @@ public class JobEntryTransTest {
     List<SlaveServer> slaveServers = mock( List.class );
     IMetaStore metaStore = mock( IMetaStore.class );
     JobEntryTrans jobEntryTrans = getJobEntryTrans();
-    jobEntryTrans.loadXML( getEntryNode( includeJobName), slaveServers, metaStore );
+    jobEntryTrans.loadXML( getEntryNode( includeJobName ), metaStore );
   }
 
   @Test
@@ -118,23 +108,23 @@ public class JobEntryTransTest {
     jet.setParentJobMeta( meta );
     jet.setParentJobMeta( null );
     verify( meta, times( 1 ) ).addCurrentDirectoryChangedListener( any( CurrentDirectoryChangedListener.class ) );
-    verify( meta, times( 1 ) ).removeCurrentDirectoryChangedListener( any(CurrentDirectoryChangedListener.class) );
+    verify( meta, times( 1 ) ).removeCurrentDirectoryChangedListener( any( CurrentDirectoryChangedListener.class ) );
   }
 
   @Test
   public void testPrepareFieldNamesParameters() throws UnknownParamException {
     // array of params
-    String[] parameterNames = new String[2];
-    parameterNames[0] = "param1";
-    parameterNames[1] = "param2";
+    String[] parameterNames = new String[ 2 ];
+    parameterNames[ 0 ] = "param1";
+    parameterNames[ 1 ] = "param2";
 
     // array of fieldNames params
-    String[] parameterFieldNames = new String[1];
-    parameterFieldNames[0] = "StreamParam1";
+    String[] parameterFieldNames = new String[ 1 ];
+    parameterFieldNames[ 0 ] = "StreamParam1";
 
     // array of parameterValues params
-    String[] parameterValues = new String[2];
-    parameterValues[1] = "ValueParam2";
+    String[] parameterValues = new String[ 2 ];
+    parameterValues[ 1 ] = "ValueParam2";
 
 
     JobEntryTrans jet = new JobEntryTrans();
@@ -143,8 +133,8 @@ public class JobEntryTransTest {
 
     //at this point StreamColumnNameParams are already inserted in namedParams
     NamedParams namedParam = Mockito.mock( NamedParamsDefault.class );
-    Mockito.doReturn( "value1" ).when( namedParam ).getParameterValue(  "param1" );
-    Mockito.doReturn( "value2" ).when( namedParam ).getParameterValue(  "param2" );
+    Mockito.doReturn( "value1" ).when( namedParam ).getParameterValue( "param1" );
+    Mockito.doReturn( "value2" ).when( namedParam ).getParameterValue( "param2" );
 
     jet.prepareFieldNamesParameters( parameterNames, parameterFieldNames, parameterValues, namedParam, jet );
 

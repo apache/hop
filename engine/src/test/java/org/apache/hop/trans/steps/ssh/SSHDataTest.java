@@ -22,22 +22,22 @@
 package org.apache.hop.trans.steps.ssh;
 
 
+import com.trilead.ssh2.Connection;
 import com.trilead.ssh2.HTTPProxyData;
 import com.trilead.ssh2.ServerHostKeyVerifier;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.vfs.HopVFS;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.vfs.HopVFS;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import com.trilead.ssh2.Connection;
 
 import java.io.ByteArrayInputStream;
 
@@ -117,7 +117,7 @@ public class SSHDataTest {
     when( fileObject.getContent() ).thenReturn( fileContent );
     when( fileContent.getSize() ).thenReturn( 1000L );
     when( fileContent.getInputStream() ).thenReturn( new ByteArrayInputStream( new byte[] { 1, 2, 3, 4, 5 } ) );
-    when( variableSpace.environmentSubstitute( passPhrase ) ).thenReturn(  passPhrase );
+    when( variableSpace.environmentSubstitute( passPhrase ) ).thenReturn( passPhrase );
     when( connection.authenticateWithPublicKey( eq( username ), Matchers.<char[]>any(), eq( passPhrase ) ) ).thenReturn( true );
     SSHData.OpenConnection( server, port, username, null, true, keyFilePath,
       passPhrase, 0, variableSpace, null, 0, null, null );

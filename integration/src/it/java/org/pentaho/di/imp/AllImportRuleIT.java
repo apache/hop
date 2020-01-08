@@ -24,7 +24,6 @@ package org.apache.hop.imp;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.apache.hop.imp.rule.DatabaseConfigurationImportRuleIT;
 import org.apache.hop.imp.rule.JobHasDescriptionImportRuleIT;
 import org.apache.hop.imp.rule.JobHasJobLogConfiguredImportRuleIT;

@@ -36,50 +36,80 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
   public static final String XML_TAG = "meta";
 
   // META-DATA mode
-  /** Fields of which we want to change the meta data */
+  /**
+   * Fields of which we want to change the meta data
+   */
   @Injection( name = "META_NAME", group = "METAS" )
   private String name;
-  /** Meta: new name of field */
+  /**
+   * Meta: new name of field
+   */
   @Injection( name = "META_RENAME", group = "METAS" )
   private String rename;
-  /** Meta: new Value type for this field or TYPE_NONE if no change needed! */
+  /**
+   * Meta: new Value type for this field or TYPE_NONE if no change needed!
+   */
   private int type;
-  /** Meta: new length of field */
+  /**
+   * Meta: new length of field
+   */
   @Injection( name = "META_LENGTH", group = "METAS" )
   private int length = -1;
-  /** Meta: new precision of field (for numbers) */
+  /**
+   * Meta: new precision of field (for numbers)
+   */
   @Injection( name = "META_PRECISION", group = "METAS" )
   private int precision = -1;
-  /** Meta: the storage type, NORMAL or BINARY_STRING */
+  /**
+   * Meta: the storage type, NORMAL or BINARY_STRING
+   */
   private int storageType;
-  /** The conversion metadata if any conversion needs to take place */
+  /**
+   * The conversion metadata if any conversion needs to take place
+   */
   @Injection( name = "META_CONVERSION_MASK", group = "METAS" )
   private String conversionMask;
-  /** Treat the date format as lenient */
+  /**
+   * Treat the date format as lenient
+   */
   @Injection( name = "META_DATE_FORMAT_LENIENT", group = "METAS" )
   private boolean dateFormatLenient;
 
-  /** This is the locale to use for date parsing */
+  /**
+   * This is the locale to use for date parsing
+   */
   @Injection( name = "META_DATE_FORMAT_LOCALE", group = "METAS" )
   private String dateFormatLocale;
 
-  /** This is the time zone to use for date parsing */
+  /**
+   * This is the time zone to use for date parsing
+   */
   @Injection( name = "META_DATE_FORMAT_TIMEZONE", group = "METAS" )
   private String dateFormatTimeZone;
 
-  /** Treat string to number format as lenient */
+  /**
+   * Treat string to number format as lenient
+   */
   @Injection( name = "META_LENIENT_STRING_TO_NUMBER", group = "METAS" )
   private boolean lenientStringToNumber;
-  /** The decimal symbol for number conversions */
+  /**
+   * The decimal symbol for number conversions
+   */
   @Injection( name = "META_DECIMAL", group = "METAS" )
   private String decimalSymbol;
-  /** The grouping symbol for number conversions */
+  /**
+   * The grouping symbol for number conversions
+   */
   @Injection( name = "META_GROUPING", group = "METAS" )
   private String groupingSymbol;
-  /** The currency symbol for number conversions */
+  /**
+   * The currency symbol for number conversions
+   */
   @Injection( name = "META_CURRENCY", group = "METAS" )
   private String currencySymbol;
-  /** The encoding to use when decoding binary data to Strings */
+  /**
+   * The encoding to use when decoding binary data to Strings
+   */
   @Injection( name = "META_ENCODING", group = "METAS" )
   private String encoding;
 
@@ -93,18 +123,17 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
   /**
    * @Deprecated This method is left here for external code that may be using it. It may be removed in the future.
    * @see #SelectMetadataChange(StepAttributesInterface, String, String, int, int, int, int, String, boolean, String,
-   *      String, String)
+   * String, String)
    */
   public SelectMetadataChange( StepAttributesInterface attributesInterface, String name, String rename, int type,
-    int length, int precision, int storageType, String conversionMask, String decimalSymbol,
-    String groupingSymbol, String currencySymbol ) {
+                               int length, int precision, int storageType, String conversionMask, String decimalSymbol,
+                               String groupingSymbol, String currencySymbol ) {
     this(
       attributesInterface, name, rename, type, length, precision, storageType, conversionMask, false, null,
       null, false, decimalSymbol, groupingSymbol, currencySymbol );
   }
 
   /**
-   *
    * @param attributesInterface
    * @param name
    * @param rename
@@ -122,9 +151,9 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
    * @param currencySymbol
    */
   public SelectMetadataChange( StepAttributesInterface attributesInterface, String name, String rename, int type,
-    int length, int precision, int storageType, String conversionMask, boolean dateFormatLenient,
-    String dateFormatLocale, String dateFormatTimeZone, boolean lenientStringToNumber, String decimalSymbol,
-    String groupingSymbol, String currencySymbol ) {
+                               int length, int precision, int storageType, String conversionMask, boolean dateFormatLenient,
+                               String dateFormatLocale, String dateFormatTimeZone, boolean lenientStringToNumber, String decimalSymbol,
+                               String groupingSymbol, String currencySymbol ) {
     this( attributesInterface );
     this.name = name;
     this.rename = rename;
@@ -165,8 +194,8 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
       XMLHandler.addTagValue( attributesInterface.getXmlCode( "META_DATE_FORMAT_LOCALE" ), dateFormatLocale ) );
     retval
       .append( "        " ).append(
-        XMLHandler.addTagValue(
-          attributesInterface.getXmlCode( "META_DATE_FORMAT_TIMEZONE" ), dateFormatTimeZone ) );
+      XMLHandler.addTagValue(
+        attributesInterface.getXmlCode( "META_DATE_FORMAT_TIMEZONE" ), dateFormatTimeZone ) );
     retval.append( "        " ).append(
       XMLHandler.addTagValue( attributesInterface.getXmlCode( "META_LENIENT_STRING_TO_NUMBER" ), Boolean
         .toString( lenientStringToNumber ) ) );
@@ -230,8 +259,7 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param name
-   *          the name to set
+   * @param name the name to set
    */
   public void setName( String name ) {
     this.name = name;
@@ -245,8 +273,7 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param rename
-   *          the rename to set
+   * @param rename the rename to set
    */
   public void setRename( String rename ) {
     this.rename = rename;
@@ -260,8 +287,7 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param type
-   *          the type to set
+   * @param type the type to set
    */
   public void setType( int type ) {
     this.type = type;
@@ -280,8 +306,7 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param length
-   *          the length to set
+   * @param length the length to set
    */
   public void setLength( int length ) {
     this.length = length;
@@ -295,8 +320,7 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param precision
-   *          the precision to set
+   * @param precision the precision to set
    */
   public void setPrecision( int precision ) {
     this.precision = precision;
@@ -310,8 +334,7 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param storageType
-   *          the storageType to set
+   * @param storageType the storageType to set
    */
   public void setStorageType( int storageType ) {
     this.storageType = storageType;
@@ -330,15 +353,13 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param conversionMask
-   *          the conversionMask to set
+   * @param conversionMask the conversionMask to set
    */
   public void setConversionMask( String conversionMask ) {
     this.conversionMask = conversionMask;
   }
 
   /**
-   *
    * @return whether date conversion from string is lenient or not
    */
   public boolean isDateFormatLenient() {
@@ -346,8 +367,7 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param dateFormatLenient
-   *          whether date conversion from string is lenient or not
+   * @param dateFormatLenient whether date conversion from string is lenient or not
    */
   public void setDateFormatLenient( boolean dateFormatLenient ) {
     this.dateFormatLenient = dateFormatLenient;
@@ -361,8 +381,7 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param decimalSymbol
-   *          the decimalSymbol to set
+   * @param decimalSymbol the decimalSymbol to set
    */
   public void setDecimalSymbol( String decimalSymbol ) {
     this.decimalSymbol = decimalSymbol;
@@ -376,8 +395,7 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param groupingSymbol
-   *          the groupingSymbol to set
+   * @param groupingSymbol the groupingSymbol to set
    */
   public void setGroupingSymbol( String groupingSymbol ) {
     this.groupingSymbol = groupingSymbol;
@@ -391,8 +409,7 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param currencySymbol
-   *          the currencySymbol to set
+   * @param currencySymbol the currencySymbol to set
    */
   public void setCurrencySymbol( String currencySymbol ) {
     this.currencySymbol = currencySymbol;
@@ -406,8 +423,7 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param encoding
-   *          the encoding to use when decoding binary data to strings
+   * @param encoding the encoding to use when decoding binary data to strings
    */
   public void setEncoding( String encoding ) {
     this.encoding = encoding;
@@ -421,8 +437,7 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param lenientStringToNumber
-   *          the lenientStringToNumber to set
+   * @param lenientStringToNumber the lenientStringToNumber to set
    */
   public void setLenientStringToNumber( boolean lenientStringToNumber ) {
     this.lenientStringToNumber = lenientStringToNumber;
@@ -436,8 +451,7 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param dateFormatLocale
-   *          the dateFormatLocale to set
+   * @param dateFormatLocale the dateFormatLocale to set
    */
   public void setDateFormatLocale( String dateFormatLocale ) {
     this.dateFormatLocale = dateFormatLocale;
@@ -451,8 +465,7 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
   }
 
   /**
-   * @param dateFormatTimeZone
-   *          the dateFormatTimeZone to set
+   * @param dateFormatTimeZone the dateFormatTimeZone to set
    */
   public void setDateFormatTimeZone( String dateFormatTimeZone ) {
     this.dateFormatTimeZone = dateFormatTimeZone;

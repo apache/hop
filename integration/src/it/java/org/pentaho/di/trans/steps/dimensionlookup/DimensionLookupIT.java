@@ -22,22 +22,6 @@
 
 package org.apache.hop.trans.steps.dimensionlookup;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Date;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -47,6 +31,22 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Date;
+
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DimensionLookupIT {
   private StepMeta mockStepMeta;
@@ -88,7 +88,7 @@ public class DimensionLookupIT {
     when( mockDimensionLookupMeta.getDatabaseMeta() ).thenReturn( mockDatabaseMeta );
     when( mockDatabaseMeta.quoteField( anyString() ) ).thenAnswer( new Answer<String>() {
       public String answer( InvocationOnMock invocation ) throws Throwable {
-        return "\"" + invocation.getArguments()[0] + "\"";
+        return "\"" + invocation.getArguments()[ 0 ] + "\"";
       }
     } );
     String keyField = "testKeyField";
@@ -112,7 +112,7 @@ public class DimensionLookupIT {
   public void testDimInsertPreparesStatementWithReturnKeysForNullTechnicalKey() throws HopException,
     SQLException {
     RowMetaInterface mockMetaInterface = mock( RowMetaInterface.class );
-    Object[] row = new Object[0];
+    Object[] row = new Object[ 0 ];
     Long technicalKey = null;
     boolean newEntry = false;
     Long versionNr = 2L;
@@ -130,7 +130,7 @@ public class DimensionLookupIT {
   public void testDimInsertPreparesStatementWithReturnKeysForNotNullTechnicalKey() throws HopException,
     SQLException {
     RowMetaInterface mockMetaInterface = mock( RowMetaInterface.class );
-    Object[] row = new Object[0];
+    Object[] row = new Object[ 0 ];
     Long technicalKey = 1L;
     boolean newEntry = false;
     Long versionNr = 2L;

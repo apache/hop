@@ -32,19 +32,24 @@ import java.io.StringReader;
  * literals are supported, including nested quotes (whether the SQL dialect supports them or not).
  *
  * @author Matt Burgess
- * 
  * @deprecated Use SqlScriptParser instead.
  */
 @Deprecated
 public class SqlCommentScrubber {
 
-  /** End-of-File (EOF) indicator **/
+  /**
+   * End-of-File (EOF) indicator
+   **/
   public static final int EOF = -1;
 
-  /** End-of-Line (EOL) indicator **/
+  /**
+   * End-of-Line (EOL) indicator
+   **/
   public static final int EOL = 10;
 
-  /** List of characters that can signify a string literal **/
+  /**
+   * List of characters that can signify a string literal
+   **/
   private static final int[] QUOTE_CHARS = { '\'', '"' };
 
   /**
@@ -56,9 +61,7 @@ public class SqlCommentScrubber {
   /**
    * Checks to see whether the character is a quote character
    *
-   * @param ch
-   *          the input character to check
-   *
+   * @param ch the input character to check
    * @return true if the input character is a quote character, false if not
    */
   private static boolean isQuoteChar( int ch ) {
@@ -78,9 +81,7 @@ public class SqlCommentScrubber {
    * character is starting, ending, or inside a single-quoted string literal, as this takes precedence over comment
    * constructs. In other words, comments inside strings are not actually comments, they are part of the string literal.
    *
-   * @param text
-   *          a string representing the SQL query to parse and from which to remove comments
-   *
+   * @param text a string representing the SQL query to parse and from which to remove comments
    * @return the input string with SQL comments removed, or null if the input string is null
    */
   public static String removeComments( String text ) {
@@ -95,7 +96,7 @@ public class SqlCommentScrubber {
     boolean inString = false;
     StringReader buffer = new StringReader( text );
     int ch;
-    char currentStringChar = (char) QUOTE_CHARS[0];
+    char currentStringChar = (char) QUOTE_CHARS[ 0 ];
     boolean done = false;
 
     try {
@@ -132,7 +133,7 @@ public class SqlCommentScrubber {
               // If we see a multi-line comment starter (/*) and we're not in a string or
               // multi-line comment, then we have started a multi-line comment.
               if ( ( ch == '*' ) && ( !blkComment ) && ( !inString ) ) {
-               // Make sure that the next character isn't a + which identifies a hint in Oracle (PDI-13054)
+                // Make sure that the next character isn't a + which identifies a hint in Oracle (PDI-13054)
                 ch = buffer.read();
                 if ( ch == '+' ) {
                   queryWithoutComments.append( '/' );

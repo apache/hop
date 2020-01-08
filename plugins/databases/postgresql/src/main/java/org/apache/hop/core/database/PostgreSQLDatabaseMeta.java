@@ -42,7 +42,6 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
   private static final int GB_LIMIT = 1_073_741_824;
 
 
-
   @Override
   public boolean isPostgresVariant() {
     return true;
@@ -174,8 +173,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
   /**
    * Get the SQL to get the next value of a sequence. (PostgreSQL version)
    *
-   * @param sequenceName
-   *          The sequence name
+   * @param sequenceName The sequence name
    * @return the SQL to get the next value of a sequence.
    */
   @Override
@@ -186,8 +184,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
   /**
    * Get the SQL to get the next value of a sequence. (PostgreSQL version)
    *
-   * @param sequenceName
-   *          The sequence name
+   * @param sequenceName The sequence name
    * @return the SQL to get the next value of a sequence.
    */
   @Override
@@ -198,82 +195,63 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
   /**
    * Check if a sequence exists.
    *
-   * @param sequenceName
-   *          The sequence to check
+   * @param sequenceName The sequence to check
    * @return The SQL to get the name of the sequence back from the databases data dictionary
    */
   @Override
   public String getSQLSequenceExists( String sequenceName ) {
     return "SELECT relname AS sequence_name FROM pg_catalog.pg_statio_all_sequences WHERE relname = '"
-        + sequenceName.toLowerCase() + "'";
+      + sequenceName.toLowerCase() + "'";
   }
 
   /**
    * Generates the SQL statement to add a column to the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
   public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-      String pk, boolean semicolon ) {
+                                       String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " ADD COLUMN " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
   }
 
   /**
    * Generates the SQL statement to drop a column from the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to drop a column from the specified table
    */
   @Override
   public String getDropColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-      String pk, boolean semicolon ) {
+                                        String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " DROP COLUMN " + v.getName();
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
   public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-      String pk, boolean semicolon ) {
+                                          String pk, boolean semicolon ) {
     String retval = "";
 
     ValueMetaInterface tmpColumn = v.clone();
@@ -308,7 +286,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
 
   @Override
   public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-      boolean add_fieldname, boolean add_cr ) {
+                                    boolean add_fieldname, boolean add_cr ) {
     String retval = "";
 
     String fieldname = v.getName();
@@ -339,7 +317,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
       case ValueMetaInterface.TYPE_INTEGER:
       case ValueMetaInterface.TYPE_BIGNUMBER:
         if ( fieldname.equalsIgnoreCase( tk ) || // Technical key
-            fieldname.equalsIgnoreCase( pk ) // Primary key
+          fieldname.equalsIgnoreCase( pk ) // Primary key
         ) {
           retval += "BIGSERIAL";
         } else {
@@ -391,7 +369,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
   @Override
   public String getSQLListOfProcedures() {
     return "select proname " + "from pg_proc, pg_user " + "where pg_user.usesysid = pg_proc.proowner "
-        + "and upper(pg_user.usename) = '" + getUsername().toUpperCase() + "' " + "order by proname";
+      + "and upper(pg_user.usename) = '" + getUsername().toUpperCase() + "' " + "order by proname";
   }
 
   /*
@@ -484,8 +462,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
   }
 
   /**
-   * @param tableNames
-   *          The names of the tables to lock
+   * @param tableNames The names of the tables to lock
    * @return The SQL commands to lock database tables for write purposes.
    */
   @Override
@@ -495,7 +472,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
       if ( i > 0 ) {
         sql += ", ";
       }
-      sql += tableNames[i] + " ";
+      sql += tableNames[ i ] + " ";
     }
     sql += "IN ACCESS EXCLUSIVE MODE;" + Const.CR;
 
@@ -503,8 +480,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
   }
 
   /**
-   * @param tableName
-   *          The name of the table to unlock
+   * @param tableName The name of the table to unlock
    * @return The SQL command to unlock a database table.
    */
   @Override
@@ -514,7 +490,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
 
   /**
    * @return true if the database defaults to naming tables and fields in uppercase. True for most databases except for
-   *         stubborn stuff like PostgreSQL ;-)
+   * stubborn stuff like PostgreSQL ;-)
    */
   @Override
   public boolean isDefaultingToUppercase() {
@@ -560,7 +536,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
 
   /**
    * @return true if the database supports the use of safe-points and if it is appropriate to ever use it (default to
-   *         false)
+   * false)
    */
   @Override
   public boolean useSafePoints() {

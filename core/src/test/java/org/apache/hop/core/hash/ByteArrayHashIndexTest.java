@@ -22,14 +22,14 @@
 
 package org.apache.hop.core.hash;
 
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.RowMeta;
+import org.junit.Test;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-
-import org.junit.Test;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.RowMeta;
 
 public class ByteArrayHashIndexTest {
 
@@ -54,10 +54,10 @@ public class ByteArrayHashIndexTest {
   @Test
   public void testGetAndPut() throws HopValueException {
     ByteArrayHashIndex obj = new ByteArrayHashIndex( new RowMeta(), 10 );
-    assertNull( obj.get( new byte[]{ 10 } ) );
+    assertNull( obj.get( new byte[] { 10 } ) );
 
-    obj.put( new byte[]{ 10 }, new byte[]{ 53, 12 } );
-    assertNotNull( obj.get( new byte[]{ 10 } ) );
-    assertArrayEquals( new byte[]{ 53, 12 }, obj.get( new byte[]{ 10 } ) );
+    obj.put( new byte[] { 10 }, new byte[] { 53, 12 } );
+    assertNotNull( obj.get( new byte[] { 10 } ) );
+    assertArrayEquals( new byte[] { 53, 12 }, obj.get( new byte[] { 10 } ) );
   }
 }

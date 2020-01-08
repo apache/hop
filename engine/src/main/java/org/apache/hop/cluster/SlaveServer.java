@@ -23,28 +23,6 @@
 package org.apache.hop.cluster;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.message.BasicHeader;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.changed.ChangedFlag;
 import org.apache.hop.core.encryption.Encr;
@@ -61,8 +39,13 @@ import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.core.xml.XMLInterface;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.IHopMetaStoreElement;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.api.exceptions.MetaStoreException;
+import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metastore.persist.MetaStoreElementType;
+import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metastore.util.HopDefaults;
 import org.apache.hop.www.AllocateServerSocketServlet;
 import org.apache.hop.www.CleanupTransServlet;
 import org.apache.hop.www.GetJobStatusServlet;
@@ -86,6 +69,28 @@ import org.apache.hop.www.StartTransServlet;
 import org.apache.hop.www.StopJobServlet;
 import org.apache.hop.www.StopTransServlet;
 import org.apache.hop.www.WebResult;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.message.BasicHeader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -105,11 +110,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectInterface, VariableSpace,
-  XMLInterface {
+@MetaStoreElementType(
+  name = "Slave Server",
+  description = "Defines a Hop Slave Server"
+)
+public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace, XMLInterface, IHopMetaStoreElement<SlaveServer> {
   private static Class<?> PKG = SlaveServer.class; // for i18n purposes, needed by Translator2!!
 
   public static final String STRING_SLAVESERVER = "Slave Server";
@@ -147,45 +153,53 @@ public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectI
 
   private String name;
 
+  @MetaStoreAttribute
   private String hostname;
 
+  @MetaStoreAttribute
   private String port;
 
+  @MetaStoreAttribute
   private String webAppName;
 
+  @MetaStoreAttribute
   private String username;
 
+  @MetaStoreAttribute( password = true )
   private String password;
 
+  @MetaStoreAttribute
   private String proxyHostname;
 
+  @MetaStoreAttribute
   private String proxyPort;
 
+  @MetaStoreAttribute
   private String nonProxyHosts;
 
+  @MetaStoreAttribute
   private String propertiesMasterName;
 
+  @MetaStoreAttribute
   private boolean overrideExistingProperties;
 
+  @MetaStoreAttribute
   private boolean master;
-
-  private boolean shared;
 
   private VariableSpace variables = new Variables();
 
   private Date changedDate;
 
+  @MetaStoreAttribute
   private boolean sslMode;
 
+  @MetaStoreAttribute
   private SslConfiguration sslConfig;
-
-  private ReadWriteLock lock;
 
   public SlaveServer() {
     initializeVariablesFrom( null );
     this.log = new LogChannel( STRING_SLAVESERVER );
     this.changedDate = new Date();
-    lock = new ReentrantReadWriteLock();
   }
 
   public SlaveServer( String name, String hostname, String port, String username, String password ) {
@@ -250,24 +264,19 @@ public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectI
 
     xml.append( "      " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
 
-    lock.readLock().lock();
-    try {
-      xml.append( "        " ).append( XMLHandler.addTagValue( "name", name ) );
-      xml.append( "        " ).append( XMLHandler.addTagValue( "hostname", hostname ) );
-      xml.append( "        " ).append( XMLHandler.addTagValue( "port", port ) );
-      xml.append( "        " ).append( XMLHandler.addTagValue( "webAppName", webAppName ) );
-      xml.append( "        " ).append( XMLHandler.addTagValue( "username", username ) );
-      xml.append( XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ), false ) );
-      xml.append( "        " ).append( XMLHandler.addTagValue( "proxy_hostname", proxyHostname ) );
-      xml.append( "        " ).append( XMLHandler.addTagValue( "proxy_port", proxyPort ) );
-      xml.append( "        " ).append( XMLHandler.addTagValue( "non_proxy_hosts", nonProxyHosts ) );
-      xml.append( "        " ).append( XMLHandler.addTagValue( "master", master ) );
-      xml.append( "        " ).append( XMLHandler.addTagValue( SSL_MODE_TAG, isSslMode(), false ) );
-      if ( sslConfig != null ) {
-        xml.append( sslConfig.getXML() );
-      }
-    } finally {
-      lock.readLock().unlock();
+    xml.append( "        " ).append( XMLHandler.addTagValue( "name", name ) );
+    xml.append( "        " ).append( XMLHandler.addTagValue( "hostname", hostname ) );
+    xml.append( "        " ).append( XMLHandler.addTagValue( "port", port ) );
+    xml.append( "        " ).append( XMLHandler.addTagValue( "webAppName", webAppName ) );
+    xml.append( "        " ).append( XMLHandler.addTagValue( "username", username ) );
+    xml.append( XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ), false ) );
+    xml.append( "        " ).append( XMLHandler.addTagValue( "proxy_hostname", proxyHostname ) );
+    xml.append( "        " ).append( XMLHandler.addTagValue( "proxy_port", proxyPort ) );
+    xml.append( "        " ).append( XMLHandler.addTagValue( "non_proxy_hosts", nonProxyHosts ) );
+    xml.append( "        " ).append( XMLHandler.addTagValue( "master", master ) );
+    xml.append( "        " ).append( XMLHandler.addTagValue( SSL_MODE_TAG, isSslMode(), false ) );
+    if ( sslConfig != null ) {
+      xml.append( sslConfig.getXML() );
     }
 
     xml.append( "      " ).append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
@@ -277,56 +286,36 @@ public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectI
 
   public Object clone() {
     SlaveServer slaveServer = new SlaveServer();
-    lock.readLock().lock();
-    try {
-      slaveServer.replaceMeta( this );
-    } finally {
-      lock.readLock().unlock();
-    }
+    slaveServer.replaceMeta( this );
     return slaveServer;
   }
 
   public void replaceMeta( SlaveServer slaveServer ) {
-    lock.writeLock().lock();
-    try {
-      this.name = slaveServer.name;
-      this.hostname = slaveServer.hostname;
-      this.port = slaveServer.port;
-      this.webAppName = slaveServer.webAppName;
-      this.username = slaveServer.username;
-      this.password = slaveServer.password;
-      this.proxyHostname = slaveServer.proxyHostname;
-      this.proxyPort = slaveServer.proxyPort;
-      this.nonProxyHosts = slaveServer.nonProxyHosts;
-      this.master = slaveServer.master;
+    this.name = slaveServer.name;
+    this.hostname = slaveServer.hostname;
+    this.port = slaveServer.port;
+    this.webAppName = slaveServer.webAppName;
+    this.username = slaveServer.username;
+    this.password = slaveServer.password;
+    this.proxyHostname = slaveServer.proxyHostname;
+    this.proxyPort = slaveServer.proxyPort;
+    this.nonProxyHosts = slaveServer.nonProxyHosts;
+    this.master = slaveServer.master;
 
-      this.shared = slaveServer.shared;
-      this.sslMode = slaveServer.sslMode;
+    this.sslMode = slaveServer.sslMode;
 
-      this.setChanged( true );
-    } finally {
-      lock.writeLock().unlock();
-    }
+    this.setChanged( true );
+
   }
 
   public String toString() {
-    lock.readLock().lock();
-    try {
-      return name;
-    } finally {
-      lock.readLock().unlock();
-    }
+    return name;
   }
 
   public String getServerAndPort() {
     String realHostname;
 
-    lock.readLock().lock();
-    try {
-      realHostname = environmentSubstitute( hostname );
-    } finally {
-      lock.readLock().unlock();
-    }
+    realHostname = environmentSubstitute( hostname );
 
     if ( !Utils.isEmpty( realHostname ) ) {
       return realHostname + getPortSpecification();
@@ -339,12 +328,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectI
       return false;
     }
     SlaveServer slave = (SlaveServer) obj;
-    lock.readLock().lock();
-    try {
-      return name.equalsIgnoreCase( slave.getName() );
-    } finally {
-      lock.readLock().unlock();
-    }
+    return name.equalsIgnoreCase( slave.getName() );
   }
 
   public int hashCode() {
@@ -352,216 +336,140 @@ public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectI
   }
 
   public String getHostname() {
-    lock.readLock().lock();
-    try {
-      return hostname;
-    } finally {
-      lock.readLock().unlock();
-    }
+    return hostname;
   }
 
   public void setHostname( String urlString ) {
-    lock.writeLock().lock();
     this.hostname = urlString;
-    lock.writeLock().unlock();
   }
 
   /**
    * @return the password
    */
   public String getPassword() {
-    lock.readLock().lock();
-    try {
-      return password;
-    } finally {
-      lock.readLock().unlock();
-    }
+    return password;
   }
 
   /**
    * @param password the password to set
    */
   public void setPassword( String password ) {
-    lock.writeLock().lock();
     this.password = password;
-    lock.writeLock().unlock();
   }
 
   /**
    * @return the username
    */
   public String getUsername() {
-    lock.readLock().lock();
-    try {
-      return username;
-    } finally {
-      lock.readLock().unlock();
-    }
+    return username;
   }
 
   /**
    * @param username the username to set
    */
   public void setUsername( String username ) {
-    lock.writeLock().lock();
     this.username = username;
-    lock.writeLock().unlock();
   }
 
   /**
    * @return the username
    */
   public String getWebAppName() {
-    lock.readLock().lock();
-    try {
-      return webAppName;
-    } finally {
-      lock.readLock().unlock();
-    }
+    return webAppName;
   }
 
   /**
    * @param webAppName the web application name to set
    */
   public void setWebAppName( String webAppName ) {
-    lock.writeLock().lock();
     this.webAppName = webAppName;
-    lock.writeLock().unlock();
   }
 
   /**
    * @return the nonProxyHosts
    */
   public String getNonProxyHosts() {
-    lock.readLock().lock();
-    try {
-      return nonProxyHosts;
-    } finally {
-      lock.readLock().unlock();
-    }
+    return nonProxyHosts;
   }
 
   /**
    * @param nonProxyHosts the nonProxyHosts to set
    */
   public void setNonProxyHosts( String nonProxyHosts ) {
-    lock.writeLock().lock();
     this.nonProxyHosts = nonProxyHosts;
-    lock.writeLock().unlock();
   }
 
   /**
    * @return the proxyHostname
    */
   public String getProxyHostname() {
-    lock.readLock().lock();
-    try {
-      return proxyHostname;
-    } finally {
-      lock.readLock().unlock();
-    }
+    return proxyHostname;
   }
 
   /**
    * @param proxyHostname the proxyHostname to set
    */
   public void setProxyHostname( String proxyHostname ) {
-    lock.writeLock().lock();
     this.proxyHostname = proxyHostname;
-    lock.writeLock().unlock();
   }
 
   /**
    * @return the proxyPort
    */
   public String getProxyPort() {
-    lock.readLock().lock();
-    try {
-      return proxyPort;
-    } finally {
-      lock.readLock().unlock();
-    }
+    return proxyPort;
   }
 
   /**
    * @param proxyPort the proxyPort to set
    */
   public void setProxyPort( String proxyPort ) {
-    lock.writeLock().lock();
     this.proxyPort = proxyPort;
-    lock.writeLock().unlock();
   }
 
   /**
    * @return the Master name for read properties
    */
   public String getPropertiesMasterName() {
-    lock.readLock().lock();
-    try {
-      return propertiesMasterName;
-    } finally {
-      lock.readLock().unlock();
-    }
+    return propertiesMasterName;
   }
 
   /**
    * @return flag for read properties from Master
    */
   public boolean isOverrideExistingProperties() {
-    lock.readLock().lock();
-    try {
-      return overrideExistingProperties;
-    } finally {
-      lock.readLock().unlock();
-    }
+    return overrideExistingProperties;
   }
 
   /**
    * @return the port
    */
   public String getPort() {
-    lock.readLock().lock();
-    try {
-      return port;
-    } finally {
-      lock.readLock().unlock();
-    }
+    return port;
   }
 
   /**
    * @param port the port to set
    */
   public void setPort( String port ) {
-    lock.writeLock().lock();
     this.port = port;
-    lock.writeLock().unlock();
   }
 
   public String getPortSpecification() {
-    lock.readLock().lock();
-    try {
-      String realPort = environmentSubstitute( port );
-      String portSpec = ":" + realPort;
-      if ( Utils.isEmpty( realPort ) || port.equals( "80" ) ) {
-        portSpec = "";
-      }
-      return portSpec;
-    } finally {
-      lock.readLock().unlock();
+    String realPort = environmentSubstitute( port );
+    String portSpec = ":" + realPort;
+    if ( Utils.isEmpty( realPort ) || port.equals( "80" ) ) {
+      portSpec = "";
     }
+    return portSpec;
 
   }
 
   public String constructUrl( String serviceAndArguments ) throws UnsupportedEncodingException {
     String realHostname = null;
     String proxyHostname = null;
-    lock.readLock().lock();
-    try {
-      realHostname = environmentSubstitute( hostname );
-      proxyHostname = environmentSubstitute( getProxyHostname() );
-    } finally {
-      lock.readLock().unlock();
-    }
+    realHostname = environmentSubstitute( hostname );
+    proxyHostname = environmentSubstitute( getProxyHostname() );
     if ( !Utils.isEmpty( proxyHostname ) && realHostname.equals( "localhost" ) ) {
       realHostname = "127.0.0.1";
     }
@@ -639,7 +547,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectI
     if ( type != null && load != null ) {
       serviceUrl +=
         "/?" + RegisterPackageServlet.PARAMETER_TYPE + "=" + type
-        + "&" + RegisterPackageServlet.PARAMETER_LOAD + "=" + URLEncoder.encode( load, "UTF-8" );
+          + "&" + RegisterPackageServlet.PARAMETER_LOAD + "=" + URLEncoder.encode( load, "UTF-8" );
     }
 
     String urlString = constructUrl( serviceUrl );
@@ -675,7 +583,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectI
         method.releaseConnection();
         if ( log.isDetailed() ) {
           log.logDetailed( BaseMessages.getString( PKG, "SlaveServer.DETAILED_SentExportToService",
-              RegisterPackageServlet.CONTEXT_PATH, environmentSubstitute( hostname ) ) );
+            RegisterPackageServlet.CONTEXT_PATH, environmentSubstitute( hostname ) ) );
         }
       }
     }
@@ -683,11 +591,12 @@ public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectI
 
   /**
    * Executes method with authentication.
+   *
    * @param method
    * @return
    * @throws IOException
    * @throws ClientProtocolException
-   * @throws HopException if response not ok
+   * @throws HopException            if response not ok
    */
   private String executeAuth( HttpUriRequest method ) throws IOException, ClientProtocolException, HopException {
     HttpResponse httpResponse = getHttpClient().execute( method, getAuthContext() );
@@ -714,21 +623,13 @@ public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectI
   }
 
   private void addCredentials( HttpClientContext context ) {
-    String userName;
-    String password;
-    String host;
-    int port;
-    String proxyHost;
-    lock.readLock().lock();
-    try {
-      host = environmentSubstitute( hostname );
-      port = Const.toInt( environmentSubstitute( this.port ), 80 );
-      userName = environmentSubstitute( username );
-      password = Encr.decryptPasswordOptionallyEncrypted( environmentSubstitute( this.password ) );
-      proxyHost = environmentSubstitute( proxyHostname );
-    } finally {
-      lock.readLock().unlock();
-    }
+
+    String host = environmentSubstitute( hostname );
+    int port = Const.toInt( environmentSubstitute( this.port ), 80 );
+    String userName = environmentSubstitute( username );
+    String password = Encr.decryptPasswordOptionallyEncrypted( environmentSubstitute( this.password ) );
+    String proxyHost = environmentSubstitute( proxyHostname );
+
     CredentialsProvider provider = new BasicCredentialsProvider();
     UsernamePasswordCredentials credentials = new UsernamePasswordCredentials( userName, password );
     if ( !Utils.isEmpty( proxyHost ) && host.equals( "localhost" ) ) {
@@ -745,22 +646,11 @@ public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectI
   }
 
   private void addProxy( HttpClientContext context ) {
-    String proxyHost;
-    String proxyPort;
-    String nonProxyHosts;
+    String proxyHost = environmentSubstitute( this.proxyHostname );
+    String proxyPort = environmentSubstitute( this.proxyPort );
+    String nonProxyHosts = environmentSubstitute( this.nonProxyHosts );
 
-    String hostName;
-
-    lock.readLock().lock();
-    try {
-      proxyHost = environmentSubstitute( this.proxyHostname );
-      proxyPort = environmentSubstitute( this.proxyPort );
-      nonProxyHosts = environmentSubstitute( this.nonProxyHosts );
-
-      hostName = environmentSubstitute( this.hostname );
-    } finally {
-      lock.readLock().unlock();
-    }
+    String hostName = environmentSubstitute( this.hostname );
     if ( Utils.isEmpty( proxyHost ) || Utils.isEmpty( proxyPort ) ) {
       return;
     }
@@ -778,7 +668,6 @@ public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectI
   }
 
   /**
-   *
    * @return HttpClientContext with authorization credentials
    */
   protected HttpClientContext getAuthContext() {
@@ -792,22 +681,14 @@ public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectI
    * @return the master
    */
   public boolean isMaster() {
-    lock.readLock().lock();
-    try {
-      return master;
-    } finally {
-      lock.readLock().unlock();
-    }
+    return master;
   }
 
   /**
    * @param master the master to set
    */
   public void setMaster( boolean master ) {
-    lock.writeLock().lock();
     this.master = master;
-    lock.writeLock().unlock();
-
   }
 
   public String execService( String service, boolean retry ) throws Exception {
@@ -1049,13 +930,10 @@ public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectI
     return null;
   }
 
-  public static String[] getSlaveServerNames( List<SlaveServer> slaveServers ) {
-    String[] names = new String[ slaveServers.size() ];
-    for ( int i = 0; i < slaveServers.size(); i++ ) {
-      SlaveServer slaveServer = slaveServers.get( i );
-      names[ i ] = slaveServer.getName();
-    }
-    return names;
+  public static String[] getSlaveServerNames( IMetaStore metaStore ) throws MetaStoreException {
+    MetaStoreFactory<SlaveServer> factory = createFactory( metaStore );
+    List<String> names = factory.getElementNames();
+    return names.toArray( new String[ 0 ] );
   }
 
   public int allocateServerSocket( String runId, int portRangeStart, String hostname,
@@ -1103,33 +981,11 @@ public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectI
   }
 
   public String getName() {
-    lock.readLock().lock();
-    try {
-      return name;
-    } finally {
-      lock.readLock().unlock();
-    }
+    return name;
   }
 
   public void setName( String name ) {
-    lock.writeLock().lock();
     this.name = name;
-    lock.writeLock().unlock();
-  }
-
-  public boolean isShared() {
-    lock.readLock().lock();
-    try {
-      return shared;
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  public void setShared( boolean shared ) {
-    lock.writeLock().lock();
-    this.shared = shared;
-    lock.writeLock().unlock();
   }
 
   public void copyVariablesFrom( VariableSpace space ) {
@@ -1274,62 +1130,53 @@ public class SlaveServer extends ChangedFlag implements Cloneable, SharedObjectI
   }
 
   public SlaveServer getClient() {
-    lock.readLock().lock();
-    try {
-      String pHostName = getHostname();
-      String pPort = getPort();
-      String name = MessageFormat.format( "Dynamic slave [{0}:{1}]", pHostName, pPort );
-      SlaveServer client = new SlaveServer( name, pHostName, pPort, getUsername(), getPassword() );
-      client.setSslMode( isSslMode() );
-      return client;
-    } finally {
-      lock.readLock().unlock();
-    }
-
+    String pHostName = getHostname();
+    String pPort = getPort();
+    String name = MessageFormat.format( "Dynamic slave [{0}:{1}]", pHostName, pPort );
+    SlaveServer client = new SlaveServer( name, pHostName, pPort, getUsername(), getPassword() );
+    client.setSslMode( isSslMode() );
+    return client;
   }
 
   /**
    * @return the changedDate
    */
   public Date getChangedDate() {
-    lock.readLock().lock();
-    try {
-      return changedDate;
-    } finally {
-      lock.readLock().unlock();
-    }
+    return changedDate;
   }
 
   /**
    * @param sslMode
    */
   public void setSslMode( boolean sslMode ) {
-    lock.writeLock().lock();
     this.sslMode = sslMode;
-    lock.writeLock().unlock();
   }
 
   /**
    * @return the sslMode
    */
   public boolean isSslMode() {
-    lock.readLock().lock();
-    try {
-      return sslMode;
-    } finally {
-      lock.readLock().unlock();
-    }
+    return sslMode;
   }
 
   /**
    * @return the sslConfig
    */
   public SslConfiguration getSslConfig() {
-    lock.readLock().lock();
-    try {
-      return sslConfig;
-    } finally {
-      lock.readLock().unlock();
-    }
+    return sslConfig;
+  }
+
+  /**
+   * No plugin, object factory or anything, just return the factory
+   *
+   * @param metaStore The metastore to use
+   * @return
+   */
+  @Override public MetaStoreFactory<SlaveServer> getFactory( IMetaStore metaStore ) {
+    return createFactory( metaStore );
+  }
+
+  public static final MetaStoreFactory<SlaveServer> createFactory( IMetaStore metaStore ) {
+    return new MetaStoreFactory<>( SlaveServer.class, metaStore, HopDefaults.NAMESPACE );
   }
 }

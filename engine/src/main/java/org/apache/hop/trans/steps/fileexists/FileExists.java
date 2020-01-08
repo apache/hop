@@ -42,7 +42,6 @@ import org.apache.hop.trans.step.StepMetaInterface;
  *
  * @author Samatar
  * @since 03-Juin-2008
- *
  */
 
 public class FileExists extends BaseStep implements StepInterface {
@@ -52,7 +51,7 @@ public class FileExists extends BaseStep implements StepInterface {
   private FileExistsData data;
 
   public FileExists( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                     Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -103,7 +102,7 @@ public class FileExists extends BaseStep implements StepInterface {
 
       Object[] outputRow = RowDataUtil.allocateRowData( data.outputRowMeta.size() );
       for ( int i = 0; i < data.NrPrevFields; i++ ) {
-        outputRow[i] = r[i];
+        outputRow[ i ] = r[ i ];
       }
       // get filename
       String filename = data.previousRowMeta.getString( r, data.indexOfFileename );
@@ -133,12 +132,12 @@ public class FileExists extends BaseStep implements StepInterface {
       }
 
       // Add result field to input stream
-      outputRow[data.NrPrevFields] = fileexists;
+      outputRow[ data.NrPrevFields ] = fileexists;
       int rowIndex = data.NrPrevFields;
       rowIndex++;
 
       if ( meta.includeFileType() && !Utils.isEmpty( meta.getFileTypeFieldName() ) ) {
-        outputRow[rowIndex] = filetype;
+        outputRow[ rowIndex ] = filetype;
       }
 
       // add new values to the row.

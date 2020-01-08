@@ -22,14 +22,14 @@
 
 package org.apache.hop.core.fileinput;
 
+import org.apache.commons.vfs2.FileObject;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Collection;
-
-import org.apache.commons.vfs2.FileObject;
 
 /**
  * <p>
@@ -78,8 +78,7 @@ public class CharsetToolkit {
   /**
    * Constructor of the <code>com.glaforge.i18n.io.CharsetToolkit</code> utility class.
    *
-   * @param buffer
-   *          the byte buffer of which we want to know the encoding.
+   * @param buffer the byte buffer of which we want to know the encoding.
    */
   public CharsetToolkit( byte[] buffer ) {
     this.buffer = buffer;
@@ -89,10 +88,8 @@ public class CharsetToolkit {
   /**
    * Constructor of the <code>com.glaforge.i18n.io.CharsetToolkit</code> utility class.
    *
-   * @param buffer
-   *          the byte buffer of which we want to know the encoding.
-   * @param defaultCharset
-   *          the default Charset to use in case an 8-bit charset is recognized.
+   * @param buffer         the byte buffer of which we want to know the encoding.
+   * @param defaultCharset the default Charset to use in case an 8-bit charset is recognized.
    */
   public CharsetToolkit( byte[] buffer, Charset defaultCharset ) {
     this.buffer = buffer;
@@ -102,9 +99,8 @@ public class CharsetToolkit {
   /**
    * Defines the default <code>Charset</code> used in case the buffer represents an 8-bit <code>Charset</code>.
    *
-   * @param defaultCharset
-   *          the default <code>Charset</code> to be returned by <code>guessEncoding()</code> if an 8-bit
-   *          <code>Charset</code> is encountered.
+   * @param defaultCharset the default <code>Charset</code> to be returned by <code>guessEncoding()</code> if an 8-bit
+   *                       <code>Charset</code> is encountered.
    */
   public void setDefaultCharset( Charset defaultCharset ) {
     if ( defaultCharset != null ) {
@@ -132,8 +128,7 @@ public class CharsetToolkit {
    * any special character in the range 128-255, but that may be or become a file encoded with the default
    * <code>charset</code> rather than US-ASCII.
    *
-   * @param enforce
-   *          a boolean specifying the use or not of US-ASCII.
+   * @param enforce a boolean specifying the use or not of US-ASCII.
    */
   public void setEnforce8Bit( boolean enforce ) {
     this.enforce8Bit = enforce;
@@ -215,12 +210,12 @@ public class CharsetToolkit {
     int length = buffer.length;
     int i = 0;
     while ( i < length - 6 ) {
-      byte b0 = buffer[i];
-      byte b1 = buffer[i + 1];
-      byte b2 = buffer[i + 2];
-      byte b3 = buffer[i + 3];
-      byte b4 = buffer[i + 4];
-      byte b5 = buffer[i + 5];
+      byte b0 = buffer[ i ];
+      byte b1 = buffer[ i + 1 ];
+      byte b2 = buffer[ i + 2 ];
+      byte b3 = buffer[ i + 3 ];
+      byte b4 = buffer[ i + 4 ];
+      byte b5 = buffer[ i + 5 ];
       if ( b0 < 0 ) {
         // a high order bit was encountered, thus the encoding is not US-ASCII
         // it may be either an 8-bit encoding or UTF-8
@@ -303,7 +298,7 @@ public class CharsetToolkit {
 
   public static Charset guessEncoding( File f, int bufferLength ) throws FileNotFoundException, IOException {
     FileInputStream fis = new FileInputStream( f );
-    byte[] buffer = new byte[bufferLength];
+    byte[] buffer = new byte[ bufferLength ];
     fis.read( buffer );
     fis.close();
     CharsetToolkit toolkit = new CharsetToolkit( buffer );
@@ -313,7 +308,7 @@ public class CharsetToolkit {
 
   public static Charset guessEncoding( File f, int bufferLength, Charset defaultCharset ) throws FileNotFoundException, IOException {
     FileInputStream fis = new FileInputStream( f );
-    byte[] buffer = new byte[bufferLength];
+    byte[] buffer = new byte[ bufferLength ];
     fis.read( buffer );
     fis.close();
     CharsetToolkit toolkit = new CharsetToolkit( buffer );
@@ -324,8 +319,7 @@ public class CharsetToolkit {
   /**
    * If the byte has the form 10xxxxx, then it's a continuation byte of a multiple byte character;
    *
-   * @param b
-   *          a byte.
+   * @param b a byte.
    * @return true if it's a continuation char.
    */
   private static boolean isContinuationChar( byte b ) {
@@ -335,8 +329,7 @@ public class CharsetToolkit {
   /**
    * If the byte has the form 110xxxx, then it's the first byte of a two-bytes sequence character.
    *
-   * @param b
-   *          a byte.
+   * @param b a byte.
    * @return true if it's the first byte of a two-bytes sequence.
    */
   private static boolean isTwoBytesSequence( byte b ) {
@@ -346,8 +339,7 @@ public class CharsetToolkit {
   /**
    * If the byte has the form 1110xxx, then it's the first byte of a three-bytes sequence character.
    *
-   * @param b
-   *          a byte.
+   * @param b a byte.
    * @return true if it's the first byte of a three-bytes sequence.
    */
   private static boolean isThreeBytesSequence( byte b ) {
@@ -357,8 +349,7 @@ public class CharsetToolkit {
   /**
    * If the byte has the form 11110xx, then it's the first byte of a four-bytes sequence character.
    *
-   * @param b
-   *          a byte.
+   * @param b a byte.
    * @return true if it's the first byte of a four-bytes sequence.
    */
   private static boolean isFourBytesSequence( byte b ) {
@@ -368,8 +359,7 @@ public class CharsetToolkit {
   /**
    * If the byte has the form 11110xx, then it's the first byte of a five-bytes sequence character.
    *
-   * @param b
-   *          a byte.
+   * @param b a byte.
    * @return true if it's the first byte of a five-bytes sequence.
    */
   private static boolean isFiveBytesSequence( byte b ) {
@@ -379,8 +369,7 @@ public class CharsetToolkit {
   /**
    * If the byte has the form 1110xxx, then it's the first byte of a six-bytes sequence character.
    *
-   * @param b
-   *          a byte.
+   * @param b a byte.
    * @return true if it's the first byte of a six-bytes sequence.
    */
   private static boolean isSixBytesSequence( byte b ) {
@@ -399,34 +388,31 @@ public class CharsetToolkit {
   /**
    * Has a Byte Order Marker for UTF-8 (Used by Microsoft's Notepad and other editors).
    *
-   * @param bom
-   *          a buffer.
+   * @param bom a buffer.
    * @return true if the buffer has a BOM for UTF8.
    */
   private static boolean hasUTF8Bom( byte[] bom ) {
-    return ( bom[0] == -17 && bom[1] == -69 && bom[2] == -65 );
+    return ( bom[ 0 ] == -17 && bom[ 1 ] == -69 && bom[ 2 ] == -65 );
   }
 
   /**
    * Has a Byte Order Marker for UTF-16 Low Endian (ucs-2le, ucs-4le, and ucs-16le).
    *
-   * @param bom
-   *          a buffer.
+   * @param bom a buffer.
    * @return true if the buffer has a BOM for UTF-16 Low Endian.
    */
   private static boolean hasUTF16LEBom( byte[] bom ) {
-    return ( bom[0] == -1 && bom[1] == -2 );
+    return ( bom[ 0 ] == -1 && bom[ 1 ] == -2 );
   }
 
   /**
    * Has a Byte Order Marker for UTF-16 Big Endian (utf-16 and ucs-2).
    *
-   * @param bom
-   *          a buffer.
+   * @param bom a buffer.
    * @return true if the buffer has a BOM for UTF-16 Big Endian.
    */
   private static boolean hasUTF16BEBom( byte[] bom ) {
-    return ( bom[0] == -2 && bom[1] == -1 );
+    return ( bom[ 0 ] == -2 && bom[ 1 ] == -1 );
   }
 
   /**
@@ -436,6 +422,6 @@ public class CharsetToolkit {
    */
   public static Charset[] getAvailableCharsets() {
     Collection<Charset> collection = Charset.availableCharsets().values();
-    return collection.toArray( new Charset[collection.size()] );
+    return collection.toArray( new Charset[ collection.size() ] );
   }
 }

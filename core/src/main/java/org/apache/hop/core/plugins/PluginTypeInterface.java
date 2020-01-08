@@ -22,10 +22,10 @@
 
 package org.apache.hop.core.plugins;
 
+import org.apache.hop.core.exception.HopPluginException;
+
 import java.net.URL;
 import java.util.List;
-
-import org.apache.hop.core.exception.HopPluginException;
 
 /**
  * This interface describes a plugin type.<br>
@@ -34,17 +34,14 @@ import org.apache.hop.core.exception.HopPluginException;
  * It also explains us where to load plugins of this type.<br>
  *
  * @author matt
- *
  */
 public interface PluginTypeInterface {
 
   /**
    * Register an additional class type to be managed by the plugin system.
    *
-   * @param clz
-   *          category class, usually an interface
-   * @param xmlNodeName
-   *          xml node to search for a class name
+   * @param clz         category class, usually an interface
+   * @param xmlNodeName xml node to search for a class name
    */
   void addObjectType( Class<?> clz, String xmlNodeName );
 
@@ -64,7 +61,6 @@ public interface PluginTypeInterface {
   List<PluginFolderInterface> getPluginFolders();
 
   /**
-   *
    * @throws HopPluginException
    */
   void searchPlugins() throws HopPluginException;
@@ -72,20 +68,15 @@ public interface PluginTypeInterface {
   /**
    * Handle an annotated plugin
    *
-   * @param clazz
-   *          The class to use
-   * @param annotation
-   *          The annotation to get information from
-   * @param libraries
-   *          The libraries to add
-   * @param nativePluginType
-   *          Is this a native plugin?
-   * @param pluginFolder
-   *          The plugin folder to use
+   * @param clazz            The class to use
+   * @param annotation       The annotation to get information from
+   * @param libraries        The libraries to add
+   * @param nativePluginType Is this a native plugin?
+   * @param pluginFolder     The plugin folder to use
    * @throws HopPluginException
    */
   void handlePluginAnnotation( Class<?> clazz, java.lang.annotation.Annotation annotation,
-    List<String> libraries, boolean nativePluginType, URL pluginFolder ) throws HopPluginException;
+                               List<String> libraries, boolean nativePluginType, URL pluginFolder ) throws HopPluginException;
 
   default boolean isFragment() {
     return false;

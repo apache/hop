@@ -22,13 +22,13 @@
 
 package org.apache.hop.core.database;
 
-import java.sql.ResultSet;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
+
+import java.sql.ResultSet;
 
 /**
  * Contains Oracle specific information through static final members
@@ -74,8 +74,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   /**
    * Returns the minimal SQL to launch in order to determine the layout of the resultset for a given database table
    *
-   * @param tableName
-   *          The name of the table to determine the layout for
+   * @param tableName The name of the table to determine the layout for
    * @return The SQL to launch.
    */
   @Override
@@ -145,14 +144,14 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
         if ( hostname != null && hostname.length() > 0 && port != null && port.length() > 0 ) {
           // User wants the full url
           return "jdbc:oracle:oci:@(description=(address=(host=" + hostname + ")(protocol=tcp)(port=" + port
-              + "))(connect_data=(sid=" + databaseName + ")))";
+            + "))(connect_data=(sid=" + databaseName + ")))";
         } else {
           // User wants the shortcut url
           return "jdbc:oracle:oci:@" + databaseName;
         }
       } else {
         throw new HopDatabaseException(
-            "Unable to construct a JDBC URL: at least the database name must be specified" );
+          "Unable to construct a JDBC URL: at least the database name must be specified" );
       }
     }
   }
@@ -176,8 +175,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   /**
    * Check if a sequence exists.
    *
-   * @param sequenceName
-   *          The sequence to check
+   * @param sequenceName The sequence to check
    * @return The SQL to get the name of the sequence back from the databases data dictionary
    */
   @Override
@@ -200,8 +198,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   /**
    * Get the current value of a database sequence
    *
-   * @param sequenceName
-   *          The sequence to check
+   * @param sequenceName The sequence to check
    * @return The current value of a database sequence
    */
   @Override
@@ -212,8 +209,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   /**
    * Get the SQL to get the next value of a sequence. (Oracle only)
    *
-   * @param sequenceName
-   *          The sequence name
+   * @param sequenceName The sequence name
    * @return the SQL to get the next value of a sequence. (Oracle only)
    */
   @Override
@@ -245,23 +241,17 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   /**
    * Generates the SQL statement to add a column to the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
   public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                       String pk, boolean semicolon ) {
     return "ALTER TABLE "
       + tablename + " ADD ( " + getFieldDefinition( v, tk, pk, use_autoinc, true, false ) + " ) ";
   }
@@ -269,46 +259,34 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   /**
    * Generates the SQL statement to drop a column from the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to drop a column from the specified table
    */
   @Override
   public String getDropColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                        String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " DROP ( " + v.getName() + " ) " + Const.CR;
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
   public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                          String pk, boolean semicolon ) {
     ValueMetaInterface tmpColumn = v.clone();
     String tmpName = v.getName();
     boolean isQuoted = tmpName.startsWith( "\"" ) && tmpName.endsWith( "\"" );
@@ -353,7 +331,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
 
   @Override
   public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-    boolean add_fieldname, boolean add_cr ) {
+                                    boolean add_fieldname, boolean add_cr ) {
     StringBuilder retval = new StringBuilder( 128 );
 
     String fieldname = v.getName();
@@ -460,7 +438,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   public String getSQLLockTables( String[] tableNames ) {
     StringBuilder sql = new StringBuilder( 128 );
     for ( int i = 0; i < tableNames.length; i++ ) {
-      sql.append( "LOCK TABLE " ).append( tableNames[i] ).append( " IN EXCLUSIVE MODE;" ).append( Const.CR );
+      sql.append( "LOCK TABLE " ).append( tableNames[ i ] ).append( " IN EXCLUSIVE MODE;" ).append( Const.CR );
     }
     return sql.toString();
   }
@@ -481,8 +459,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   /**
    * Verifies on the specified database connection if an index exists on the fields with the specified name.
    *
-   * @param database
-   *          a connected database
+   * @param database   a connected database
    * @param schemaName
    * @param tableName
    * @param idx_fields
@@ -494,9 +471,9 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
 
     String tablename = database.getDatabaseMeta().getQuotedSchemaTableCombination( schemaName, tableName );
 
-    boolean[] exists = new boolean[idx_fields.length];
+    boolean[] exists = new boolean[ idx_fields.length ];
     for ( int i = 0; i < exists.length; i++ ) {
-      exists[i] = false;
+      exists[ i ] = false;
     }
 
     try {
@@ -513,7 +490,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
             String column = database.getReturnRowMeta().getString( row, "COLUMN_NAME", "" );
             int idx = Const.indexOfString( column, idx_fields );
             if ( idx >= 0 ) {
-              exists[idx] = true;
+              exists[ idx ] = true;
             }
 
             row = database.getRow( res );
@@ -531,7 +508,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
       // See if all the fields are indexed...
       boolean all = true;
       for ( int i = 0; i < exists.length && all; i++ ) {
-        if ( !exists[i] ) {
+        if ( !exists[ i ] ) {
           all = false;
         }
       }
@@ -551,7 +528,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
    * Most databases allow you to retrieve result metadata by preparing a SELECT statement.
    *
    * @return true if the database supports retrieval of query metadata from a prepared statement. False if the query
-   *         needs to be executed first.
+   * needs to be executed first.
    */
   @Override
   public boolean supportsPreparedStatementMetadataRetrieval() {
@@ -598,15 +575,11 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
    * Returns an empty string as most databases do not support tablespaces. Subclasses can override this method to
    * generate the DDL.
    *
-   * @param variables
-   *          variables needed for variable substitution.
-   * @param databaseMeta
-   *          databaseMeta needed for it's quoteField method. Since we are doing variable substitution we need to meta
-   *          so that we can act on the variable substitution first and then the creation of the entire string that will
-   *          be retuned.
-   * @param tablespace
-   *          tablespaceName name of the tablespace.
-   *
+   * @param variables    variables needed for variable substitution.
+   * @param databaseMeta databaseMeta needed for it's quoteField method. Since we are doing variable substitution we need to meta
+   *                     so that we can act on the variable substitution first and then the creation of the entire string that will
+   *                     be retuned.
+   * @param tablespace   tablespaceName name of the tablespace.
    * @return String the TABLESPACE tablespaceName section of an Oracle CREATE DDL statement.
    */
   @Override
@@ -663,7 +636,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   }
 
   /**
-   * @param  strictBigNumberInterpretation true if use strict number(38) interpretation
+   * @param strictBigNumberInterpretation true if use strict number(38) interpretation
    */
   public void setStrictBigNumberInterpretation( boolean strictBigNumberInterpretation ) {
     getAttributes().setProperty( STRICT_BIGNUMBER_INTERPRETATION, strictBigNumberInterpretation ? "Y" : "N" );

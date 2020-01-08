@@ -22,25 +22,24 @@
 
 package org.apache.hop.www;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.logging.LogChannelInterface;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 public class GetSlavesServletTest {
 

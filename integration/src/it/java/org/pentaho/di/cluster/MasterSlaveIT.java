@@ -22,11 +22,6 @@
 
 package org.apache.hop.cluster;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -37,6 +32,11 @@ import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransExecutionConfiguration;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.cluster.TransSplitter;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 public class MasterSlaveIT extends BaseCluster {
 
@@ -263,6 +263,7 @@ public class MasterSlaveIT extends BaseCluster {
   /**
    * This test check passing rows to sub-transformation executed on cluster
    * See PDI-10704 for details
+   *
    * @throws Exception
    */
   public void runSubtransformationClustered() throws Exception {
@@ -294,7 +295,7 @@ public class MasterSlaveIT extends BaseCluster {
   }
 
   private static TransMeta loadTransMetaReplaceSlavesInCluster( ClusterGenerator clusterGenerator,
-    String testFilename ) throws HopException {
+                                                                String testFilename ) throws HopException {
     TransMeta transMeta = new TransMeta( testFilename );
 
     // Add the slave servers

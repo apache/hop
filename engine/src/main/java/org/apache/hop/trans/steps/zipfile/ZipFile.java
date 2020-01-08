@@ -22,6 +22,23 @@
 
 package org.apache.hop.trans.steps.zipfile;
 
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.FileType;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStep;
+import org.apache.hop.trans.step.StepDataInterface;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.StepMetaInterface;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,29 +52,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
-import org.apache.commons.vfs2.FileType;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStep;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
-
 /**
  * Zip file *
  *
  * @author Samatar
  * @since 03-Juin-2008
- *
  */
 
 public class ZipFile extends BaseStep implements StepInterface {
@@ -67,7 +66,7 @@ public class ZipFile extends BaseStep implements StepInterface {
   private ZipFileData data;
 
   public ZipFile( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                  Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -373,7 +372,7 @@ public class ZipFile extends BaseStep implements StepInterface {
       }
 
       // Prepare Zip File
-      buffer = new byte[18024];
+      buffer = new byte[ 18024 ];
       dest = HopVFS.getOutputStream( localrealZipfilename, false );
       buff = new BufferedOutputStream( dest );
       out = new ZipOutputStream( buff );

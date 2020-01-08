@@ -22,6 +22,15 @@
 
 package org.apache.hop.ui.hopui.dialog;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -39,21 +48,11 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * Shows a dialog that allows you to select the steps you want to preview by entering a number of rows.
  *
  * @author Matt
- *
  */
 public class EnterPreviewRowsDialog extends Dialog {
   private static Class<?> PKG = EnterPreviewRowsDialog.class; // for i18n purposes, needed by Translator2!!
@@ -74,7 +73,7 @@ public class EnterPreviewRowsDialog extends Dialog {
   private PropsUI props;
 
   public EnterPreviewRowsDialog( Shell parent, int style, java.util.List<String> stepNames,
-    java.util.List<RowMetaInterface> rowMetas, java.util.List<java.util.List<Object[]>> rowBuffers ) {
+                                 java.util.List<RowMetaInterface> rowMetas, java.util.List<java.util.List<Object[]>> rowBuffers ) {
     super( parent, style );
     this.stepNames = stepNames;
     this.rowDatas = rowBuffers;
@@ -95,7 +94,7 @@ public class EnterPreviewRowsDialog extends Dialog {
 
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "EnterPreviewRowsDialog.Dialog.PreviewStep.Title" ) ); // Select the
-                                                                                                       // preview step:
+    // preview step:
     shell.setImage( GUIResource.getInstance().getImageLogoSmall() );
 
     int middle = props.getMiddlePct();
@@ -104,7 +103,7 @@ public class EnterPreviewRowsDialog extends Dialog {
     // Filename line
     wlStepList = new Label( shell, SWT.NONE );
     wlStepList.setText( BaseMessages.getString( PKG, "EnterPreviewRowsDialog.Dialog.PreviewStep.Message" ) ); // Step
-                                                                                                              // name :
+    // name :
     props.setLook( wlStepList );
     fdlStepList = new FormData();
     fdlStepList.left = new FormAttachment( 0, 0 );

@@ -22,7 +22,6 @@
 
 package org.apache.hop.ui.core.auth;
 
-import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.HopUiFactory;
 import org.apache.hop.core.logging.LogChannel;
@@ -30,6 +29,7 @@ import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.auth.controller.AuthProviderController;
 import org.apache.hop.ui.core.auth.model.NamedProvider;
+import org.eclipse.swt.widgets.Shell;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.XulRunner;
@@ -93,7 +93,7 @@ public class AuthProviderDialog {
         runner.initialize();
       } catch ( XulException e ) {
         HopUiFactory.getInstance().messageBox( e.getLocalizedMessage(),
-            resourceBundle.getString( "error.on_initialization" ), false, Const.ERROR );
+          resourceBundle.getString( "error.on_initialization" ), false, Const.ERROR );
         log.logError( resourceBundle.getString( "error.on_initialization" ), e );
       }
     } catch ( XulException e ) {

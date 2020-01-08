@@ -22,25 +22,25 @@
 
 package org.apache.hop.core.compress;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
+import org.apache.hop.core.compress.NoneCompressionProvider.NoneCompressionInputStream;
+import org.apache.hop.core.compress.NoneCompressionProvider.NoneCompressionOutputStream;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.compress.NoneCompressionProvider.NoneCompressionInputStream;
-import org.apache.hop.core.compress.NoneCompressionProvider.NoneCompressionOutputStream;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class NoneCompressionProviderTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

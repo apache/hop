@@ -22,16 +22,10 @@
 
 package org.apache.hop.trans.steps.getfilenames;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
@@ -42,11 +36,12 @@ import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -59,8 +54,11 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = GetFileNamesMeta.class; // for i18n purposes, needed by Translator2!!
@@ -73,31 +71,49 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
 
   private static final String YES = "Y";
 
-  /** Array of filenames */
+  /**
+   * Array of filenames
+   */
   private String[] fileName;
 
-  /** Wildcard or filemask (regular expression) */
+  /**
+   * Wildcard or filemask (regular expression)
+   */
   private String[] fileMask;
 
-  /** Wildcard or filemask to exclude (regular expression) */
+  /**
+   * Wildcard or filemask to exclude (regular expression)
+   */
   private String[] excludeFileMask;
 
-  /** Array of boolean values as string, indicating if a file is required. */
+  /**
+   * Array of boolean values as string, indicating if a file is required.
+   */
   private String[] fileRequired;
 
-  /** Array of boolean values as string, indicating if we need to fetch sub folders. */
+  /**
+   * Array of boolean values as string, indicating if we need to fetch sub folders.
+   */
   private String[] includeSubFolders;
 
-  /** Filter indicating file filter */
+  /**
+   * Filter indicating file filter
+   */
   private FileInputList.FileTypeFilter fileTypeFilter;
 
-  /** The name of the field in the output containing the filename */
+  /**
+   * The name of the field in the output containing the filename
+   */
   private String filenameField;
 
-  /** Flag indicating that a row number field should be included in the output */
+  /**
+   * Flag indicating that a row number field should be included in the output
+   */
   private boolean includeRowNumber;
 
-  /** The name of the field in the output containing the row number */
+  /**
+   * The name of the field in the output containing the row number
+   */
   private String rowNumberField;
 
   private String dynamicFilenameField;
@@ -105,17 +121,23 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
   private String dynamicWildcardField;
   private String dynamicExcludeWildcardField;
 
-  /** file name from previous fields **/
+  /**
+   * file name from previous fields
+   **/
   private boolean filefield;
 
   private boolean dynamicIncludeSubFolders;
 
   private boolean isaddresult;
 
-  /** The maximum number or lines to read */
+  /**
+   * The maximum number or lines to read
+   */
   private long rowLimit;
 
-  /** Flag : do not fail if no file */
+  /**
+   * Flag : do not fail if no file
+   */
   private boolean doNotFailIfNoFile;
 
   public GetFileNamesMeta() {
@@ -130,8 +152,7 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param doNotFailIfNoFile
-   *          the doNotFailIfNoFile to set
+   * @param doNotFailIfNoFile the doNotFailIfNoFile to set
    */
   public void setdoNotFailIfNoFile( boolean doNotFailIfNoFile ) {
     this.doNotFailIfNoFile = doNotFailIfNoFile;
@@ -152,24 +173,21 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param dynamicFilenameField
-   *          The dynamic filename field to set.
+   * @param dynamicFilenameField The dynamic filename field to set.
    */
   public void setDynamicFilenameField( String dynamicFilenameField ) {
     this.dynamicFilenameField = dynamicFilenameField;
   }
 
   /**
-   * @param dynamicWildcardField
-   *          The dynamic wildcard field to set.
+   * @param dynamicWildcardField The dynamic wildcard field to set.
    */
   public void setDynamicWildcardField( String dynamicWildcardField ) {
     this.dynamicWildcardField = dynamicWildcardField;
   }
 
   /**
-   * @param rowNumberField
-   *          The rowNumberField to set.
+   * @param rowNumberField The rowNumberField to set.
    */
   public void setRowNumberField( String rowNumberField ) {
     this.rowNumberField = rowNumberField;
@@ -194,8 +212,7 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param dynamicExcludeWildcardField
-   *          The dynamic excludeWildcard field to set.
+   * @param dynamicExcludeWildcardField The dynamic excludeWildcard field to set.
    */
   public void setDynamicExcludeWildcardField( String dynamicExcludeWildcardField ) {
     this.dynamicExcludeWildcardField = dynamicExcludeWildcardField;
@@ -216,8 +233,7 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param filefield
-   *          The filefield to set.
+   * @param filefield The filefield to set.
    */
   public void setFileField( boolean filefield ) {
     this.filefield = filefield;
@@ -232,16 +248,14 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param includeRowNumber
-   *          The includeRowNumber to set.
+   * @param includeRowNumber The includeRowNumber to set.
    */
   public void setIncludeRowNumber( boolean includeRowNumber ) {
     this.includeRowNumber = includeRowNumber;
   }
 
   /**
-   * @param isaddresult
-   *          The isaddresult to set.
+   * @param isaddresult The isaddresult to set.
    */
   public void setAddResultFile( boolean isaddresult ) {
     this.isaddresult = isaddresult;
@@ -269,16 +283,14 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param fileMask
-   *          The fileMask to set.
+   * @param fileMask The fileMask to set.
    */
   public void setFileMask( String[] fileMask ) {
     this.fileMask = fileMask;
   }
 
   /**
-   * @param excludeFileMask
-   *          The excludeFileMask to set.
+   * @param excludeFileMask The excludeFileMask to set.
    */
   public void setExcludeFileMask( String[] excludeFileMask ) {
     this.excludeFileMask = excludeFileMask;
@@ -301,13 +313,12 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param fileRequiredin
-   *          The fileRequired to set.
+   * @param fileRequiredin The fileRequired to set.
    */
   public void setFileRequired( String[] fileRequiredin ) {
-    this.fileRequired = new String[fileRequiredin.length];
+    this.fileRequired = new String[ fileRequiredin.length ];
     for ( int i = 0; i < fileRequiredin.length; i++ ) {
-      this.fileRequired[i] = getRequiredFilesCode( fileRequiredin[i] );
+      this.fileRequired[ i ] = getRequiredFilesCode( fileRequiredin[ i ] );
     }
   }
 
@@ -319,8 +330,7 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param fileName
-   *          The fileName to set.
+   * @param fileName The fileName to set.
    */
   public void setFileName( String[] fileName ) {
     this.fileName = fileName;
@@ -328,30 +338,30 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
 
   public String getRequiredFilesDesc( String tt ) {
     if ( tt == null ) {
-      return RequiredFilesDesc[0];
+      return RequiredFilesDesc[ 0 ];
     }
-    if ( tt.equals( RequiredFilesCode[1] ) ) {
-      return RequiredFilesDesc[1];
+    if ( tt.equals( RequiredFilesCode[ 1 ] ) ) {
+      return RequiredFilesDesc[ 1 ];
     } else {
-      return RequiredFilesDesc[0];
+      return RequiredFilesDesc[ 0 ];
     }
   }
 
   public void setIncludeSubFolders( String[] includeSubFoldersin ) {
-    this.includeSubFolders = new String[includeSubFoldersin.length];
+    this.includeSubFolders = new String[ includeSubFoldersin.length ];
     for ( int i = 0; i < includeSubFoldersin.length; i++ ) {
-      this.includeSubFolders[i] = getRequiredFilesCode( includeSubFoldersin[i] );
+      this.includeSubFolders[ i ] = getRequiredFilesCode( includeSubFoldersin[ i ] );
     }
   }
 
   public String getRequiredFilesCode( String tt ) {
     if ( tt == null ) {
-      return RequiredFilesCode[0];
+      return RequiredFilesCode[ 0 ];
     }
-    if ( tt.equals( RequiredFilesDesc[1] ) ) {
-      return RequiredFilesCode[1];
+    if ( tt.equals( RequiredFilesDesc[ 1 ] ) ) {
+      return RequiredFilesCode[ 1 ];
     } else {
-      return RequiredFilesCode[0];
+      return RequiredFilesCode[ 0 ];
     }
   }
 
@@ -363,8 +373,7 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param rowLimit
-   *          The rowLimit to set.
+   * @param rowLimit The rowLimit to set.
    */
   public void setRowLimit( long rowLimit ) {
     this.rowLimit = rowLimit;
@@ -406,11 +415,11 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   public void allocate( int nrfiles ) {
-    fileName = new String[nrfiles];
-    fileMask = new String[nrfiles];
-    excludeFileMask = new String[nrfiles];
-    fileRequired = new String[nrfiles];
-    includeSubFolders = new String[nrfiles];
+    fileName = new String[ nrfiles ];
+    fileMask = new String[ nrfiles ];
+    excludeFileMask = new String[ nrfiles ];
+    fileRequired = new String[ nrfiles ];
+    includeSubFolders = new String[ nrfiles ];
   }
 
   @Override
@@ -430,17 +439,17 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
     allocate( nrfiles );
 
     for ( int i = 0; i < nrfiles; i++ ) {
-      fileName[i] = "filename" + ( i + 1 );
-      fileMask[i] = "";
-      excludeFileMask[i] = "";
-      fileRequired[i] = NO;
-      includeSubFolders[i] = NO;
+      fileName[ i ] = "filename" + ( i + 1 );
+      fileMask[ i ] = "";
+      excludeFileMask[ i ] = "";
+      fileRequired[ i ] = NO;
+      includeSubFolders[ i ] = NO;
     }
   }
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     // the filename
     ValueMetaInterface filename = new ValueMetaString( "filename" );
@@ -547,11 +556,11 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
     retval.append( "    <file>" ).append( Const.CR );
 
     for ( int i = 0; i < fileName.length; i++ ) {
-      retval.append( "      " ).append( XMLHandler.addTagValue( "name", fileName[i] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "filemask", fileMask[i] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "exclude_filemask", excludeFileMask[i] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "file_required", fileRequired[i] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", includeSubFolders[i] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "name", fileName[ i ] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "filemask", fileMask[ i ] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "exclude_filemask", excludeFileMask[ i ] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "file_required", fileRequired[ i ] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", includeSubFolders[ i ] ) );
     }
     retval.append( "    </file>" ).append( Const.CR );
 
@@ -588,11 +597,11 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
         Node excludefilemasknode = XMLHandler.getSubNodeByNr( filenode, "exclude_filemask", i );
         Node fileRequirednode = XMLHandler.getSubNodeByNr( filenode, "file_required", i );
         Node includeSubFoldersnode = XMLHandler.getSubNodeByNr( filenode, "include_subfolders", i );
-        fileName[i] = XMLHandler.getNodeValue( filenamenode );
-        fileMask[i] = XMLHandler.getNodeValue( filemasknode );
-        excludeFileMask[i] = XMLHandler.getNodeValue( excludefilemasknode );
-        fileRequired[i] = XMLHandler.getNodeValue( fileRequirednode );
-        includeSubFolders[i] = XMLHandler.getNodeValue( includeSubFoldersnode );
+        fileName[ i ] = XMLHandler.getNodeValue( filenamenode );
+        fileMask[ i ] = XMLHandler.getNodeValue( filemasknode );
+        excludeFileMask[ i ] = XMLHandler.getNodeValue( excludefilemasknode );
+        fileRequired[ i ] = XMLHandler.getNodeValue( fileRequirednode );
+        includeSubFolders[ i ] = XMLHandler.getNodeValue( includeSubFoldersnode );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( "Unable to load step info from XML", e );
@@ -601,9 +610,9 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
 
   private boolean[] includeSubFolderBoolean() {
     int len = fileName.length;
-    boolean[] includeSubFolderBoolean = new boolean[len];
+    boolean[] includeSubFolderBoolean = new boolean[ len ];
     for ( int i = 0; i < len; i++ ) {
-      includeSubFolderBoolean[i] = YES.equalsIgnoreCase( includeSubFolders[i] );
+      includeSubFolderBoolean[ i ] = YES.equalsIgnoreCase( includeSubFolders[ i ] );
     }
     return includeSubFolderBoolean;
   }
@@ -613,9 +622,9 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   private FileInputList.FileTypeFilter[] buildFileTypeFiltersArray( String[] fileName ) {
-    FileInputList.FileTypeFilter[] filters = new FileInputList.FileTypeFilter[fileName.length];
+    FileInputList.FileTypeFilter[] filters = new FileInputList.FileTypeFilter[ fileName.length ];
     for ( int i = 0; i < fileName.length; i++ ) {
-      filters[i] = getFileTypeFilter();
+      filters[ i ] = getFileTypeFilter();
     }
     return filters;
   }
@@ -633,7 +642,7 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   public FileInputList getDynamicFileList( VariableSpace space, String[] filename, String[] filemask,
-    String[] excludefilemask, String[] filerequired, boolean[] includesubfolders ) {
+                                           String[] excludefilemask, String[] filerequired, boolean[] includesubfolders ) {
     return FileInputList.createFileList(
       space, filename, filemask, excludefilemask, filerequired, includesubfolders,
       buildFileTypeFiltersArray( filename ) );
@@ -641,8 +650,8 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     // See if we get input...
@@ -707,7 +716,7 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
     String[] files = getFilePaths( transMeta );
     if ( files != null ) {
       for ( int i = 0; i < files.length; i++ ) {
-        reference.getEntries().add( new ResourceEntry( files[i], ResourceType.FILE ) );
+        reference.getEntries().add( new ResourceEntry( files[ i ], ResourceType.FILE ) );
       }
     }
     return references;
@@ -715,7 +724,7 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new GetFileNames( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -725,20 +734,16 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param space
-   *          the variable space to use
+   * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param repository
-   *          The repository to optionally load other resources from (to be converted to XML)
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
-   *
+   * @param repository              The repository to optionally load other resources from (to be converted to XML)
+   * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
@@ -749,8 +754,8 @@ public class GetFileNamesMeta extends BaseStepMeta implements StepMetaInterface 
         // Replace the filename ONLY (folder or filename)
         //
         for ( int i = 0; i < fileName.length; i++ ) {
-          FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( fileName[i] ), space );
-          fileName[i] = resourceNamingInterface.nameResource( fileObject, space, Utils.isEmpty( fileMask[i] ) );
+          FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( fileName[ i ] ), space );
+          fileName[ i ] = resourceNamingInterface.nameResource( fileObject, space, Utils.isEmpty( fileMask[ i ] ) );
         }
       }
       return null;

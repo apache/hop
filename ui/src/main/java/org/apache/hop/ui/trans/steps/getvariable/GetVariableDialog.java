@@ -22,6 +22,26 @@
 
 package org.apache.hop.ui.trans.steps.getvariable;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPreviewFactory;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.getvariable.GetVariableMeta;
+import org.apache.hop.trans.steps.getvariable.GetVariableMeta.FieldDefinition;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -40,26 +60,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPreviewFactory;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.getvariable.GetVariableMeta;
-import org.apache.hop.trans.steps.getvariable.GetVariableMeta.FieldDefinition;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class GetVariableDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = GetVariableMeta.class; // for i18n purposes, needed by Translator2!!
@@ -166,8 +166,8 @@ public class GetVariableDialog extends BaseStepDialog implements StepDialogInter
           BaseMessages.getString( PKG, "GetVariableDialog.TrimType.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
           ValueMetaString.getTrimTypeDescriptions() ), };
 
-    colinf[1].setToolTip( BaseMessages.getString( PKG, "GetVariableDialog.VariableColumn.Tooltip" ) );
-    colinf[1].setUsingVariables( true );
+    colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "GetVariableDialog.VariableColumn.Tooltip" ) );
+    colinf[ 1 ].setUsingVariables( true );
 
     wFields =
       new TableView(
@@ -259,7 +259,7 @@ public class GetVariableDialog extends BaseStepDialog implements StepDialogInter
       TableItem item = wFields.table.getItem( i );
 
       int index = 1;
-      FieldDefinition currentField = input.getFieldDefinitions()[i];
+      FieldDefinition currentField = input.getFieldDefinitions()[ i ];
       item.setText( index++, Const.NVL( currentField.getFieldName(), "" ) );
       item.setText( index++, Const.NVL( currentField.getVariableString(), "" ) );
       item.setText( index++, ValueMetaFactory.getValueMetaName( currentField.getFieldType() ) );
@@ -297,7 +297,7 @@ public class GetVariableDialog extends BaseStepDialog implements StepDialogInter
     for ( int i = 0; i < count; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
 
-      FieldDefinition currentField = input.getFieldDefinitions()[i];
+      FieldDefinition currentField = input.getFieldDefinitions()[ i ];
       int index = 1;
       currentField.setFieldName( item.getText( index++ ) );
       currentField.setVariableString( item.getText( index++ ) );
@@ -354,7 +354,7 @@ public class GetVariableDialog extends BaseStepDialog implements StepDialogInter
             EnterTextDialog etd =
               new EnterTextDialog(
                 shell, BaseMessages.getString( PKG, "System.Dialog.PreviewError.Title" ), BaseMessages
-                  .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
+                .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
             etd.setReadOnly();
             etd.open();
           }
@@ -362,7 +362,7 @@ public class GetVariableDialog extends BaseStepDialog implements StepDialogInter
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
               shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta( wStepname
-                .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
+              .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
           prd.open();
 
         }
@@ -370,7 +370,7 @@ public class GetVariableDialog extends BaseStepDialog implements StepDialogInter
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "GetVariableDialog.ErrorPreviewingData.DialogTitle" ), BaseMessages
-          .getString( PKG, "GetVariableDialog.ErrorPreviewingData.DialogMessage" ), e );
+        .getString( PKG, "GetVariableDialog.ErrorPreviewingData.DialogMessage" ), e );
     }
   }
 
@@ -381,14 +381,14 @@ public class GetVariableDialog extends BaseStepDialog implements StepDialogInter
     }
     String[] key = transMeta.listVariables();
     int size = key.length;
-    String[] val = new String[size];
+    String[] val = new String[ size ];
     wFields.removeAll();
 
     for ( int i = 0; i < size; i++ ) {
-      val[i] = transMeta.environmentSubstitute( key[i] );
+      val[ i ] = transMeta.environmentSubstitute( key[ i ] );
       TableItem tableItem = new TableItem( wFields.table, 0 );
-      tableItem.setText( 1, key[i] );
-      tableItem.setText( 2, "${" + key[i] + "}" );
+      tableItem.setText( 1, key[ i ] );
+      tableItem.setText( 2, "${" + key[ i ] + "}" );
       tableItem.setText( 3, "String" );
     }
     wFields.removeEmptyRows();

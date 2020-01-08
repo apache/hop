@@ -22,13 +22,13 @@
 
 package org.apache.hop.trans.steps.filestoresult;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Matt

@@ -22,14 +22,15 @@
 
 package org.apache.hop.trans.steps.multimerge;
 
+import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 public class MultiMergeJoinMetaInjectionTest extends BaseMetadataInjectionTest<MultiMergeJoinMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Before
   public void setup() throws Exception {
     setup( new MultiMergeJoinMeta() );
@@ -44,12 +45,12 @@ public class MultiMergeJoinMetaInjectionTest extends BaseMetadataInjectionTest<M
     } );
     check( "KEY_FIELDS", new StringGetter() {
       public String get() {
-        return meta.getKeyFields()[0];
+        return meta.getKeyFields()[ 0 ];
       }
     } );
     check( "INPUT_STEPS", new StringGetter() {
       public String get() {
-        return meta.getInputSteps()[0];
+        return meta.getInputSteps()[ 0 ];
       }
     } );
   }

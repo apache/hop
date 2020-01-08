@@ -31,14 +31,15 @@ import org.apache.hop.core.variables.VariableSpace;
  */
 public class TextFileFilterProcessor {
 
-  /** The filters to process */
+  /**
+   * The filters to process
+   */
   private TextFileFilter[] filters;
   private String[] filtersString;
   private boolean stopProcessing;
 
   /**
-   * @param filters
-   *          The filters to process
+   * @param filters The filters to process
    */
   public TextFileFilterProcessor( TextFileFilter[] filters, VariableSpace space ) {
     this.filters = filters;
@@ -48,9 +49,9 @@ public class TextFileFilterProcessor {
       // This makes processing faster in case there are no filters.
       filters = null;
     } else {
-      filtersString = new String[filters.length];
+      filtersString = new String[ filters.length ];
       for ( int f = 0; f < filters.length; f++ ) {
-        filtersString[f] = space.environmentSubstitute( filters[f].getFilterString() );
+        filtersString[ f ] = space.environmentSubstitute( filters[ f ].getFilterString() );
       }
     }
   }
@@ -69,8 +70,8 @@ public class TextFileFilterProcessor {
     // is skipped if one of them is found
 
     for ( int f = 0; f < filters.length && filterOK; f++ ) {
-      TextFileFilter filter = filters[f];
-      String filterString = filtersString[f];
+      TextFileFilter filter = filters[ f ];
+      String filterString = filtersString[ f ];
       if ( filter.isFilterPositive() ) {
         positiveMode = true;
       }

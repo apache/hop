@@ -22,11 +22,10 @@
 
 package org.apache.hop.core.row.value;
 
-import java.math.BigDecimal;
-
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.util.Utils;
+
+import java.math.BigDecimal;
 
 public class ValueMetaBigNumber extends ValueMetaBase implements ValueMetaInterface {
 

@@ -22,18 +22,7 @@
 
 package org.apache.hop.trans.steps.ifnull;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import junit.framework.Assert;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.QueueRowSet;
@@ -47,13 +36,23 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.ifnull.IfNullMeta.Fields;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
-import org.apache.hop.metastore.api.IMetaStore;
-
-import junit.framework.Assert;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for IfNull step
@@ -75,7 +74,7 @@ public class IfNullTest {
   public void setUp() {
     smh = new StepMockHelper<IfNullMeta, IfNullData>( "Field IfNull processor", IfNullMeta.class, IfNullData.class );
     when( smh.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        smh.logChannelInterface );
+      smh.logChannelInterface );
     when( smh.trans.isRunning() ).thenReturn( true );
 
   }
@@ -94,17 +93,17 @@ public class IfNullTest {
     doReturn( createFields( "null-field", "empty-field", "space-field" ) ).when( processRowMeta ).getFields();
     doReturn( "replace-value" ).when( processRowMeta ).getReplaceAllByValue();
     doCallRealMethod().when( processRowMeta ).getFields( any( RowMetaInterface.class ), anyString(), any(
-        RowMetaInterface[].class ), any( StepMeta.class ), any( VariableSpace.class ), any(
-            IMetaStore.class ) );
+      RowMetaInterface[].class ), any( StepMeta.class ), any( VariableSpace.class ), any(
+      IMetaStore.class ) );
     return processRowMeta;
   }
 
   private static Fields[] createFields( String... fieldNames ) {
-    Fields[] fields = new Fields[fieldNames.length];
+    Fields[] fields = new Fields[ fieldNames.length ];
     for ( int i = 0; i < fields.length; i++ ) {
       Fields currentField = new Fields();
-      currentField.setFieldName( fieldNames[i] );
-      fields[i] = currentField;
+      currentField.setFieldName( fieldNames[ i ] );
+      fields[ i ] = currentField;
     }
     return fields;
   }
@@ -123,11 +122,11 @@ public class IfNullTest {
     IfNull step = new IfNull( smh.stepMeta, smh.stepDataInterface, 0, smh.transMeta, smh.trans );
     step.init( smh.initStepMetaInterface, smh.stepDataInterface );
     final RowMeta inputRowMeta = buildInputRowMeta( //
-        new ValueMetaString( "some-field" ), //
-        new ValueMetaString( "null-field" ), //
-        new ValueMetaString( "empty-field" ), //
-        new ValueMetaString( "space-field" ), //
-        new ValueMetaString( "another-field" ) //
+      new ValueMetaString( "some-field" ), //
+      new ValueMetaString( "null-field" ), //
+      new ValueMetaString( "empty-field" ), //
+      new ValueMetaString( "space-field" ), //
+      new ValueMetaString( "another-field" ) //
     );
     step.setInputRowMeta( inputRowMeta );
 
@@ -154,11 +153,11 @@ public class IfNullTest {
     IfNull step = new IfNull( smh.stepMeta, smh.stepDataInterface, 0, smh.transMeta, smh.trans );
     step.init( smh.initStepMetaInterface, smh.stepDataInterface );
     final RowMeta inputRowMeta = buildInputRowMeta( //
-        new ValueMetaString( "some-field" ), //
-        new ValueMetaString( "null-field" ), //
-        new ValueMetaString( "empty-field" ), //
-        new ValueMetaString( "space-field" ), //
-        new ValueMetaString( "another-field" ) //
+      new ValueMetaString( "some-field" ), //
+      new ValueMetaString( "null-field" ), //
+      new ValueMetaString( "empty-field" ), //
+      new ValueMetaString( "space-field" ), //
+      new ValueMetaString( "another-field" ) //
     );
     step.setInputRowMeta( inputRowMeta );
 
@@ -182,10 +181,10 @@ public class IfNullTest {
   private void assertRowSetMatches( String msg, Object[] expectedRow, RowSet outputRowSet ) {
     Object[] actualRow = outputRowSet.getRow();
     Assert.assertEquals( msg + ". Output row is of an unexpected length", expectedRow.length, outputRowSet.getRowMeta()
-        .size() );
+      .size() );
 
     for ( int i = 0; i < expectedRow.length; i++ ) {
-      Assert.assertEquals( msg + ". Unexpected output value at index " + i, expectedRow[i], actualRow[i] );
+      Assert.assertEquals( msg + ". Unexpected output value at index " + i, expectedRow[ i ], actualRow[ i ] );
     }
   }
 }

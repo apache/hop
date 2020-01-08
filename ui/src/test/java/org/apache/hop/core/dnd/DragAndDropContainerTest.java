@@ -22,8 +22,8 @@
 
 package org.apache.hop.core.dnd;
 
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -33,7 +33,7 @@ public class DragAndDropContainerTest {
 
   @Test
   public void newDNDContainer() {
-    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_STEP_TYPE, "Step Name"  );
+    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_STEP_TYPE, "Step Name" );
 
     assertNotNull( dnd );
     assertNull( dnd.getId() );
@@ -44,7 +44,7 @@ public class DragAndDropContainerTest {
 
   @Test
   public void newDNDContainerWithId() {
-    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_STEP_TYPE, "Step Name", "StepID"  );
+    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_STEP_TYPE, "Step Name", "StepID" );
 
     assertNotNull( dnd );
     assertEquals( "StepID", dnd.getId() );
@@ -55,7 +55,7 @@ public class DragAndDropContainerTest {
 
   @Test
   public void setId() {
-    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_STEP_TYPE, "Step Name"  );
+    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_STEP_TYPE, "Step Name" );
     dnd.setId( "StepID" );
 
     assertEquals( "StepID", dnd.getId() );
@@ -63,7 +63,7 @@ public class DragAndDropContainerTest {
 
   @Test
   public void setData() {
-    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_STEP_TYPE, "Step Name"  );
+    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_STEP_TYPE, "Step Name" );
     dnd.setData( "Another Step" );
 
     assertEquals( "Another Step", dnd.getData() );
@@ -71,7 +71,7 @@ public class DragAndDropContainerTest {
 
   @Test
   public void setType() {
-    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_JOB_ENTRY, "Step Name"  );
+    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_JOB_ENTRY, "Step Name" );
     dnd.setType( DragAndDropContainer.TYPE_BASE_STEP_TYPE );
 
     assertEquals( DragAndDropContainer.TYPE_BASE_STEP_TYPE, dnd.getType() );
@@ -84,27 +84,27 @@ public class DragAndDropContainerTest {
 
   @Test
   public void getXML() {
-    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_STEP_TYPE, "Step Name"  );
+    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_STEP_TYPE, "Step Name" );
 
     String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-               + "<DragAndDrop>\n"
-               + "  <DragType>BaseStep</DragType>\n"
-               + "  <Data>U3RlcCBOYW1l</Data>\n"
-               + "</DragAndDrop>\n";
+      + "<DragAndDrop>\n"
+      + "  <DragType>BaseStep</DragType>\n"
+      + "  <Data>U3RlcCBOYW1l</Data>\n"
+      + "</DragAndDrop>\n";
 
     assertEquals( xml, dnd.getXML() );
   }
 
   @Test
   public void getXMLWithId() {
-    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_STEP_TYPE, "Step Name", "StepID"  );
+    DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_STEP_TYPE, "Step Name", "StepID" );
 
     String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                 + "<DragAndDrop>\n"
-                 + "  <ID>StepID</ID>\n"
-                 + "  <DragType>BaseStep</DragType>\n"
-                 + "  <Data>U3RlcCBOYW1l</Data>\n"
-                 + "</DragAndDrop>\n";
+      + "<DragAndDrop>\n"
+      + "  <ID>StepID</ID>\n"
+      + "  <DragType>BaseStep</DragType>\n"
+      + "  <Data>U3RlcCBOYW1l</Data>\n"
+      + "</DragAndDrop>\n";
 
     assertEquals( xml, dnd.getXML() );
   }
@@ -112,10 +112,10 @@ public class DragAndDropContainerTest {
   @Test
   public void newFromXML() throws HopException {
     String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-               + "<DragAndDrop>\n"
-               + "  <DragType>BaseStep</DragType>\n"
-               + "  <Data>U3RlcCBOYW1l</Data>\n"
-               + "</DragAndDrop>\n";
+      + "<DragAndDrop>\n"
+      + "  <DragType>BaseStep</DragType>\n"
+      + "  <Data>U3RlcCBOYW1l</Data>\n"
+      + "</DragAndDrop>\n";
 
     DragAndDropContainer dnd = new DragAndDropContainer( xml );
 
@@ -129,11 +129,11 @@ public class DragAndDropContainerTest {
   @Test
   public void newFromXMLWithId() throws HopException {
     String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-               + "<DragAndDrop>\n"
-               + "  <ID>StepID</ID>\n"
-               + "  <DragType>BaseStep</DragType>\n"
-               + "  <Data>U3RlcCBOYW1l</Data>\n"
-               + "</DragAndDrop>\n";
+      + "<DragAndDrop>\n"
+      + "  <ID>StepID</ID>\n"
+      + "  <DragType>BaseStep</DragType>\n"
+      + "  <Data>U3RlcCBOYW1l</Data>\n"
+      + "</DragAndDrop>\n";
 
     DragAndDropContainer dnd = new DragAndDropContainer( xml );
 

@@ -22,18 +22,17 @@
 
 package org.apache.hop.trans.steps.javafilter;
 
-import java.util.List;
-
-import org.codehaus.janino.ExpressionEvaluator;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+import org.codehaus.janino.ExpressionEvaluator;
+
+import java.util.List;
 
 /**
  * @author Matt
  * @since 8-sep-2005
- *
  */
 public class JavaFilterData extends BaseStepData implements StepDataInterface {
   public static final int RETURN_TYPE_STRING = 0;

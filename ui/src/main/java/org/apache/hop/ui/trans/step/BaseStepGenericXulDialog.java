@@ -22,13 +22,6 @@
 
 package org.apache.hop.ui.trans.step;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.ResourceBundle;
-
-import org.apache.hop.core.database.DatabaseInterface;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.logging.LoggingObjectType;
@@ -38,11 +31,11 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.StepPluginType;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
 import org.apache.hop.trans.step.StepDialogInterface;
 import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.XulLoader;
@@ -51,12 +44,15 @@ import org.pentaho.ui.xul.XulSettingsManager;
 import org.pentaho.ui.xul.binding.BindingFactory;
 import org.pentaho.ui.xul.components.XulButton;
 import org.pentaho.ui.xul.components.XulLabel;
-import org.pentaho.ui.xul.components.XulMenuList;
 import org.pentaho.ui.xul.components.XulMessageBox;
 import org.pentaho.ui.xul.components.XulTextbox;
 import org.pentaho.ui.xul.containers.XulDialog;
 import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 import org.pentaho.ui.xul.impl.XulEventHandler;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.ResourceBundle;
 
 /**
  * User: gmoran Date: Jan 28, 2013
@@ -241,7 +237,8 @@ public abstract class BaseStepGenericXulDialog extends AbstractXulEventHandler i
 
   public abstract void onCancel();
 
-  public void onHelp() {  }
+  public void onHelp() {
+  }
 
   protected abstract Class<?> getClassForMessages();
 

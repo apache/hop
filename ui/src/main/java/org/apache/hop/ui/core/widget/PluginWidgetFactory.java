@@ -22,6 +22,8 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.core.util.Assert;
+import org.apache.hop.core.variables.VariableSpace;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -30,12 +32,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.util.Assert;
-import org.apache.hop.core.variables.VariableSpace;
 
 /**
  * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- *
  */
 public class PluginWidgetFactory {
 
@@ -64,12 +63,9 @@ public class PluginWidgetFactory {
   /**
    * Constructor.
    *
-   * @param shell
-   *          the shell to set.
-   * @param varSpace
-   *          the variableSpace to be used. e.g. for TextVar
-   * @throws IllegalArgumentException
-   *           if shell is null.
+   * @param shell    the shell to set.
+   * @param varSpace the variableSpace to be used. e.g. for TextVar
+   * @throws IllegalArgumentException if shell is null.
    */
   public PluginWidgetFactory( final Shell shell, final VariableSpace varSpace ) throws IllegalArgumentException {
     Assert.assertNotNull( shell, "Shell cannot be null" );
@@ -87,8 +83,7 @@ public class PluginWidgetFactory {
   }
 
   /**
-   * @param margin
-   *          the margin to set
+   * @param margin the margin to set
    */
   public void setMargin( final int margin ) {
     this.margin = margin;
@@ -102,8 +97,7 @@ public class PluginWidgetFactory {
   }
 
   /**
-   * @param middle
-   *          the middle to set
+   * @param middle the middle to set
    */
   public void setMiddle( final int middle ) {
     this.middle = middle;
@@ -112,8 +106,7 @@ public class PluginWidgetFactory {
   /**
    * Create label.
    *
-   * @param text
-   *          text to set.
+   * @param text text to set.
    * @return new label.
    */
   public Label createRightLabel( final String text ) {
@@ -123,10 +116,8 @@ public class PluginWidgetFactory {
   /**
    * Create label.
    *
-   * @param style
-   *          style to use.
-   * @param text
-   *          text to set.
+   * @param style style to use.
+   * @param text  text to set.
    * @return new label.
    */
   public Label createLabel( final int style, final String text ) {
@@ -138,8 +129,7 @@ public class PluginWidgetFactory {
   /**
    * Convenience method to create FormData for labels.
    *
-   * @param topControl
-   *          the control which is above the current label, or null if none above.
+   * @param topControl the control which is above the current label, or null if none above.
    * @return layoutData.
    */
   public FormData createLabelLayoutData( final Control topControl ) {
@@ -158,8 +148,7 @@ public class PluginWidgetFactory {
   /**
    * Convenience method to create FormData for Controls beside a label.
    *
-   * @param topControl
-   *          the control which is above the current label, or null if none above.
+   * @param topControl the control which is above the current label, or null if none above.
    * @return layoutData.
    */
   public FormData createControlLayoutData( final Control topControl ) {
@@ -177,8 +166,7 @@ public class PluginWidgetFactory {
   }
 
   /**
-   * @param text
-   *          text to set.
+   * @param text text to set.
    * @return text widget.
    */
   public Text createSingleTextLeft( final String text ) {
@@ -186,10 +174,8 @@ public class PluginWidgetFactory {
   }
 
   /**
-   * @param style
-   *          style to use.
-   * @param text
-   *          text to set.
+   * @param style style to use.
+   * @param text  text to set.
    * @return text widget.
    */
   public Text createText( final int style, final String text ) {
@@ -206,10 +192,8 @@ public class PluginWidgetFactory {
   }
 
   /**
-   * @param style
-   *          style to use.
-   * @param text
-   *          text to set.
+   * @param style style to use.
+   * @param text  text to set.
    * @return new button.
    */
   public Button createButton( final int style, final String text ) {
@@ -219,8 +203,7 @@ public class PluginWidgetFactory {
   }
 
   /**
-   * @param text
-   *          text to set.
+   * @param text text to set.
    * @return new button.
    */
   public Button createPushButton( final String text ) {

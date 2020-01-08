@@ -22,13 +22,12 @@
 
 package org.apache.hop.trans.steps.ldapinput;
 
-import java.util.HashSet;
-
-import javax.naming.directory.Attributes;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import javax.naming.directory.Attributes;
+import java.util.HashSet;
 
 /**
  * @author Samatar Hassan

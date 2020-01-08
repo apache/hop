@@ -22,19 +22,19 @@
 
 package org.apache.hop.ui.hopui.dialog;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.swt.widgets.Shell;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 /**
  * Takes care of displaying a dialog that will handle the wait while getting the SQL for a job...
@@ -70,10 +70,10 @@ public class GetJobSQLProgressDialog {
         } catch ( HopException e ) {
           throw new InvocationTargetException( e, BaseMessages.getString(
             PKG, "GetJobSQLProgressDialog.RuntimeError.UnableToGenerateSQL.Exception", e.getMessage() ) ); // Error
-                                                                                                           // generating
-                                                                                                           // SQL for
-                                                                                                           // job:
-                                                                                                           // \n{0}
+          // generating
+          // SQL for
+          // job:
+          // \n{0}
         }
       }
     };

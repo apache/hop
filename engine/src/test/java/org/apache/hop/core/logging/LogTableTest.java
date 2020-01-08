@@ -1,33 +1,32 @@
 /*!
-* Copyright 2010 - 2018 Hitachi Vantara.  All rights reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*
-*/
+ * Copyright 2010 - 2018 Hitachi Vantara.  All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 package org.apache.hop.core.logging;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.HasDatabasesInterface;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 public class LogTableTest {
   private static String PARAM_START_SYMBOL = "${";
@@ -46,6 +45,7 @@ public class LogTableTest {
     mockedVariableSpace = mock( VariableSpace.class );
     mockedMetaStore = mock( IMetaStore.class );
   }
+
   @Test
   public void hardcodedFieldsNotChanged() {
     tableFieldsChangedCorrectlyAfterNullingGlobalParams( HARDCODED_VALUE, HARDCODED_VALUE );
@@ -99,7 +99,7 @@ public class LogTableTest {
 
   private JobLogTable getJobLogTableWithAllEqFields( String fieldsValue ) {
     JobLogTable jobLogTable = JobLogTable.getDefault( mockedVariableSpace, mockedMetaStore );
-    initCommonTableFields( jobLogTable, fieldsValue  );
+    initCommonTableFields( jobLogTable, fieldsValue );
     jobLogTable.setLogSizeLimit( fieldsValue );
     jobLogTable.setLogInterval( fieldsValue );
 

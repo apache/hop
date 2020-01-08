@@ -22,16 +22,15 @@
 
 package org.apache.hop.www;
 
-import java.io.IOException;
-import java.util.List;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogChannelInterface;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
+import java.io.IOException;
+import java.util.List;
 
 public class BaseHttpServlet extends HttpServlet {
 
@@ -181,7 +180,7 @@ public class BaseHttpServlet extends HttpServlet {
   }
 
   public void setup( TransformationMap transformationMap, JobMap jobMap, SocketRepository socketRepository,
-    List<SlaveServerDetection> detections ) {
+                     List<SlaveServerDetection> detections ) {
     this.transformationMap = transformationMap;
     this.jobMap = jobMap;
     this.socketRepository = socketRepository;

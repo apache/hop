@@ -26,9 +26,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.ValueMetaInterface;
 
-import java.util.Comparator;
-
 import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * @author Andrey Khayrutdinov
@@ -60,6 +59,7 @@ abstract class Index {
   /**
    * Performs binary search algorithm looking for {@code value} in the sorted array and returns decoded index of
    * insertion (decoded index returned by Arrays.binarySearch())
+   *
    * @param value value to look for
    * @return decoded index
    */

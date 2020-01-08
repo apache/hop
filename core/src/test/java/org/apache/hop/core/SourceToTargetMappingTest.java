@@ -23,7 +23,7 @@ package org.apache.hop.core;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class SourceToTargetMappingTest {
 
@@ -36,7 +36,7 @@ public class SourceToTargetMappingTest {
     mapping.setTargetPosition( 1 );
     assertEquals( 0, mapping.getSourcePosition() );
     assertEquals( 1, mapping.getTargetPosition() );
-    assertEquals( "foo", mapping.getSourceString( new String[]{ "foo", "bar" } ) );
-    assertEquals( "bar", mapping.getTargetString( new String[]{ "foo", "bar" } ) );
+    assertEquals( "foo", mapping.getSourceString( new String[] { "foo", "bar" } ) );
+    assertEquals( "bar", mapping.getTargetString( new String[] { "foo", "bar" } ) );
   }
 }

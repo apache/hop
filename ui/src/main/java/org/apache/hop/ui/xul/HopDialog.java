@@ -22,10 +22,10 @@
 
 package org.apache.hop.ui.xul;
 
-import org.eclipse.swt.graphics.Image;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.eclipse.swt.graphics.Image;
 import org.pentaho.ui.xul.XulComponent;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.containers.XulRoot;
@@ -84,7 +84,7 @@ public class HopDialog extends SwtDialog {
   public void hide() {
 
     if ( closing || dialog.getMainArea().isDisposed() || getParentShell( getParent() ).isDisposed()
-        || ( getParent() instanceof SwtDialog && ( (SwtDialog) getParent() ).isDisposing() ) ) {
+      || ( getParent() instanceof SwtDialog && ( (SwtDialog) getParent() ).isDisposing() ) ) {
       return;
     }
 

@@ -22,11 +22,11 @@
 
 package org.apache.hop.ui.core.database.dialog;
 
-import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.eclipse.swt.widgets.Shell;
 import org.pentaho.ui.xul.binding.Binding;
 import org.pentaho.ui.xul.binding.Binding.Type;
 import org.pentaho.ui.xul.binding.BindingConvertor;
@@ -51,7 +51,7 @@ public class XulStepFieldsController extends AbstractXulEventHandler {
   private RowMetaInterface rowMetaInterface;
 
   public XulStepFieldsController( Shell aShell, DatabaseMeta aDatabaseMeta, String schemaTableCombo,
-    RowMetaInterface anInput ) {
+                                  RowMetaInterface anInput ) {
     this.shell = aShell;
     this.databaseMeta = aDatabaseMeta;
     this.schemaTableCombo = schemaTableCombo;

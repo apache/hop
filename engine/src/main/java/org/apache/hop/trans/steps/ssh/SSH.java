@@ -22,11 +22,12 @@
 
 package org.apache.hop.trans.steps.ssh;
 
+import com.trilead.ssh2.Session;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -36,14 +37,11 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
-import com.trilead.ssh2.Session;
-
 /**
  * Write commands to SSH *
  *
  * @author Samatar
  * @since 03-Juin-2008
- *
  */
 
 public class SSH extends BaseStep implements StepInterface {
@@ -114,9 +112,9 @@ public class SSH extends BaseStep implements StepInterface {
       this.setInputRowMeta( imeta );
     }
     // Reserve room
-    Object[] rowData = new Object[data.nrOutputFields];
+    Object[] rowData = new Object[ data.nrOutputFields ];
     for ( int i = 0; i < data.nrInputFields; i++ ) {
-      rowData[i] = row[i]; // no data is changed, clone is not needed here.
+      rowData[ i ] = row[ i ]; // no data is changed, clone is not needed here.
     }
     int index = data.nrInputFields;
 
@@ -150,11 +148,11 @@ public class SSH extends BaseStep implements StepInterface {
       }
 
       // Add stdout to output
-      rowData[index++] = sessionresult.getStd();
+      rowData[ index++ ] = sessionresult.getStd();
 
       if ( !Utils.isEmpty( data.stdTypeField ) ) {
         // Add stdtype to output
-        rowData[index++] = sessionresult.isStdTypeErr();
+        rowData[ index++ ] = sessionresult.isStdTypeErr();
       }
 
       if ( log.isRowLevel() ) {

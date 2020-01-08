@@ -17,9 +17,6 @@
 package org.apache.hop.metastore.test;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
@@ -27,6 +24,9 @@ import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 import org.apache.hop.metastore.stores.xml.XmlMetaStore;
 import org.apache.hop.metastore.test.testclasses.my.ChildElement;
 import org.apache.hop.metastore.test.testclasses.my.ParentElement;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;

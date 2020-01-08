@@ -22,22 +22,8 @@
 
 package org.apache.hop.ui.hopui.delegates;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.ui.hopui.HopUi;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.browser.BrowserFunction;
-import org.eclipse.swt.browser.LocationListener;
-import org.eclipse.swt.browser.OpenWindowListener;
-import org.eclipse.swt.browser.WindowEvent;
-import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.program.Program;
-import org.eclipse.swt.widgets.Composite;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
@@ -55,6 +41,7 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopui.AbstractGraph;
+import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.hopui.HopUiBrowser;
 import org.apache.hop.ui.hopui.TabItemInterface;
 import org.apache.hop.ui.hopui.TabMapEntry;
@@ -63,6 +50,19 @@ import org.apache.hop.ui.hopui.job.JobGraph;
 import org.apache.hop.ui.hopui.trans.TransGraph;
 import org.apache.xul.swt.tab.TabItem;
 import org.apache.xul.swt.tab.TabSet;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.browser.BrowserFunction;
+import org.eclipse.swt.browser.LocationListener;
+import org.eclipse.swt.browser.OpenWindowListener;
+import org.eclipse.swt.browser.WindowEvent;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.program.Program;
+import org.eclipse.swt.widgets.Composite;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class HopUiTabsDelegate extends HopUiDelegate {
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
@@ -303,7 +303,7 @@ public class HopUiTabsDelegate extends HopUiDelegate {
 
         new BrowserFunction( browser.getBrowser(), "openURL" ) {
           public Object function( Object[] arguments ) {
-            Program.launch( arguments[0].toString() );
+            Program.launch( arguments[ 0 ].toString() );
             return null;
           }
         };
@@ -327,7 +327,7 @@ public class HopUiTabsDelegate extends HopUiDelegate {
       if ( !ok ) {
         // Log an error
         //
-        log.logError( "Unable to open browser tab for URL: "+urlString, e );
+        log.logError( "Unable to open browser tab for URL: " + urlString, e );
         return false;
       } else {
         return true;
@@ -361,11 +361,9 @@ public class HopUiTabsDelegate extends HopUiDelegate {
    * Finds the tab for the transformation that matches the metadata provided (either the file must be the same or the
    * repository id).
    *
-   * @param trans
-   *          Transformation metadata to look for
+   * @param trans Transformation metadata to look for
    * @return Tab with transformation open whose metadata matches {@code trans} or {@code null} if no tab exists.
-   * @throws HopFileException
-   *           If there is a problem loading the file object for an open transformation with an invalid a filename.
+   * @throws HopFileException If there is a problem loading the file object for an open transformation with an invalid a filename.
    */
   public TabMapEntry findTabForTransformation( TransMeta trans ) throws HopFileException {
     // File for the transformation we're looking for. It will be loaded upon first request.

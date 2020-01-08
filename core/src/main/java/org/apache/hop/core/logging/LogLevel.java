@@ -29,7 +29,9 @@ public enum LogLevel {
   NOTHING( 0, "Nothing" ), ERROR( 1, "Error" ), MINIMAL( 2, "Minimal" ), BASIC( 3, "Basic" ), DETAILED(
     4, "Detailed" ), DEBUG( 5, "Debug" ), ROWLEVEL( 6, "Rowlevel" );
 
-  /** for i18n purposes, needed by Translator2!! */
+  /**
+   * for i18n purposes, needed by Translator2!!
+   */
   private static Class<?> PKG = LogLevel.class;
 
   public static final String[] logLevelDescriptions = {
@@ -58,14 +60,13 @@ public enum LogLevel {
   }
 
   public String getDescription() {
-    return logLevelDescriptions[level];
+    return logLevelDescriptions[ level ];
   }
 
   /**
    * Return the log level for a certain log level code
    *
-   * @param code
-   *          the code to look for
+   * @param code the code to look for
    * @return the log level or BASIC if nothing matches.
    */
   public static LogLevel getLogLevelForCode( String code ) {
@@ -78,8 +79,7 @@ public enum LogLevel {
   }
 
   /**
-   * @param filterLogLevel
-   *          the filter log level
+   * @param filterLogLevel the filter log level
    * @return true if the log level is visible compared to the filter log level specified
    */
   public boolean isVisible( LogLevel filterLogLevel ) {
@@ -146,9 +146,9 @@ public enum LogLevel {
    * @return An array of log level codes, sorted by level (0==Nothing, 6=Row Level)
    */
   public static String[] logLogLevelCodes() {
-    String[] codes = new String[values().length];
+    String[] codes = new String[ values().length ];
     for ( int i = 0; i < codes.length; i++ ) {
-      codes[i] = values()[i].getCode();
+      codes[ i ] = values()[ i ].getCode();
     }
     return codes;
   }

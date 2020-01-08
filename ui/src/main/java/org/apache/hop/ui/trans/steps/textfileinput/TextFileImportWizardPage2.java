@@ -22,8 +22,15 @@
 
 package org.apache.hop.ui.trans.steps.textfileinput;
 
-import java.util.Vector;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.gui.TextFileInputFieldInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
+import org.apache.hop.trans.steps.textfileinput.TextFileInputMeta;
+import org.apache.hop.ui.core.PropsUI;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -41,15 +48,8 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.gui.TextFileInputFieldInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
-import org.apache.hop.trans.steps.textfileinput.TextFileInputMeta;
-import org.apache.hop.ui.core.PropsUI;
+
+import java.util.Vector;
 
 /**
  * @deprecated replaced by implementation in the ...steps.fileinput.text package
@@ -128,7 +128,7 @@ public class TextFileImportWizardPage2 extends WizardPage {
   private Shell shell;
 
   public TextFileImportWizardPage2( String arg, PropsUI props, java.util.List<String> rows,
-    Vector<TextFileInputFieldInterface> fields ) {
+                                    Vector<TextFileInputFieldInterface> fields ) {
     super( arg );
     this.props = props;
     this.rows = rows;
@@ -231,7 +231,7 @@ public class TextFileImportWizardPage2 extends WizardPage {
     wFieldtype = new CCombo( composite, SWT.BORDER | SWT.READ_ONLY );
     props.setLook( wFieldtype );
     for ( int i = 0; i < ValueMetaFactory.getValueMetaNames().length; i++ ) {
-      wFieldtype.add( ValueMetaFactory.getValueMetaNames()[i] );
+      wFieldtype.add( ValueMetaFactory.getValueMetaNames()[ i ] );
     }
     fdFieldtype = new FormData();
     fdFieldtype.left = new FormAttachment( middle, margin );
@@ -285,7 +285,7 @@ public class TextFileImportWizardPage2 extends WizardPage {
     wTrimtype = new CCombo( composite, SWT.BORDER | SWT.READ_ONLY );
     props.setLook( wTrimtype );
     for ( int i = 0; i < ValueMetaString.trimTypeDesc.length; i++ ) {
-      wTrimtype.add( ValueMetaString.trimTypeDesc[i] );
+      wTrimtype.add( ValueMetaString.trimTypeDesc[ i ] );
     }
     fdTrimtype = new FormData();
     fdTrimtype.left = new FormAttachment( middle, margin );
@@ -633,22 +633,22 @@ public class TextFileImportWizardPage2 extends WizardPage {
 
   private String[] getRowSamples( int position, int length ) {
     if ( position < 0 || position + length < 0 ) {
-      return new String[0];
+      return new String[ 0 ];
     }
 
-    String[] retval = new String[rows.size()];
+    String[] retval = new String[ rows.size() ];
 
     for ( int i = 0; i < rows.size(); i++ ) {
       String line = rows.get( i );
 
       if ( position < line.length() ) {
         if ( position + length >= line.length() ) {
-          retval[i] = line.substring( position );
+          retval[ i ] = line.substring( position );
         } else {
-          retval[i] = line.substring( position, position + length );
+          retval[ i ] = line.substring( position, position + length );
         }
       } else {
-        retval[i] = "";
+        retval[ i ] = "";
       }
     }
 
@@ -708,7 +708,7 @@ public class TextFileImportWizardPage2 extends WizardPage {
       wSamples.removeAll();
       String[] samples = getRowSamples( from, length );
       for ( int i = 0; i < samples.length; i++ ) {
-        wSamples.add( samples[i] );
+        wSamples.add( samples[ i ] );
       }
 
     }

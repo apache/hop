@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.file;
 
-import java.util.List;
-
 import com.google.common.base.Preconditions;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.injection.InjectionDeep;
@@ -33,13 +31,15 @@ import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 
+import java.util.List;
+
 /**
  * Base meta for file-based input steps.
  *
  * @author Alexander Buloichik
  */
 public abstract class BaseFileInputMeta<A extends BaseFileInputAdditionalField, I extends BaseFileInputFiles, F extends BaseFileField>
-    extends BaseFileMeta {
+  extends BaseFileMeta {
   private static Class<?> PKG = BaseFileInputMeta.class; // for i18n purposes, needed by Translator2!!
 
   public static final String[] RequiredFilesCode = new String[] { "N", "Y" };
@@ -49,13 +49,15 @@ public abstract class BaseFileInputMeta<A extends BaseFileInputAdditionalField, 
   public static final String YES = "Y";
 
   public static final String[] RequiredFilesDesc =
-      new String[] { BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG,
-          "System.Combo.Yes" ) };
+    new String[] { BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG,
+      "System.Combo.Yes" ) };
 
   @InjectionDeep
   public I inputFiles;
 
-  /** The fields to import... */
+  /**
+   * The fields to import...
+   */
   @InjectionDeep
   public F[] inputFields;
 
@@ -86,7 +88,7 @@ public abstract class BaseFileInputMeta<A extends BaseFileInputAdditionalField, 
    */
   public void inputFiles_fileRequired( String[] fileRequiredin ) {
     for ( int i = 0; i < fileRequiredin.length; i++ ) {
-      inputFiles.fileRequired[i] = getRequiredFilesCode( fileRequiredin[i] );
+      inputFiles.fileRequired[ i ] = getRequiredFilesCode( fileRequiredin[ i ] );
     }
   }
 
@@ -96,25 +98,25 @@ public abstract class BaseFileInputMeta<A extends BaseFileInputAdditionalField, 
 
   public void inputFiles_includeSubFolders( String[] includeSubFoldersin ) {
     for ( int i = 0; i < includeSubFoldersin.length; i++ ) {
-      inputFiles.includeSubFolders[i] = getRequiredFilesCode( includeSubFoldersin[i] );
+      inputFiles.includeSubFolders[ i ] = getRequiredFilesCode( includeSubFoldersin[ i ] );
     }
   }
 
   public static String getRequiredFilesCode( String tt ) {
     if ( tt == null ) {
-      return RequiredFilesCode[0];
+      return RequiredFilesCode[ 0 ];
     }
-    if ( tt.equals( RequiredFilesDesc[1] ) ) {
-      return RequiredFilesCode[1];
+    if ( tt.equals( RequiredFilesDesc[ 1 ] ) ) {
+      return RequiredFilesCode[ 1 ];
     } else {
-      return RequiredFilesCode[0];
+      return RequiredFilesCode[ 0 ];
     }
   }
 
   public FileInputList getFileInputList( VariableSpace space ) {
     inputFiles.normalizeAllocation( inputFiles.fileName.length );
     return FileInputList.createFileList( space, inputFiles.fileName, inputFiles.fileMask, inputFiles.excludeFileMask,
-        inputFiles.fileRequired, inputFiles.includeSubFolderBoolean() );
+      inputFiles.fileRequired, inputFiles.includeSubFolderBoolean() );
   }
 
   @Override
@@ -149,6 +151,6 @@ public abstract class BaseFileInputMeta<A extends BaseFileInputAdditionalField, 
         }
       }
     }
-    return new String[]{};
+    return new String[] {};
   }
 }

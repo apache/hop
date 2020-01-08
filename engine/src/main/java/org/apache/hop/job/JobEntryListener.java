@@ -30,5 +30,5 @@ public interface JobEntryListener {
   public void beforeExecution( Job job, JobEntryCopy jobEntryCopy, JobEntryInterface jobEntryInterface );
 
   public void afterExecution( Job job, JobEntryCopy jobEntryCopy, JobEntryInterface jobEntryInterface,
-    Result result );
+                              Result result );
 }

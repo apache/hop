@@ -22,14 +22,14 @@
 
 package org.apache.hop.core;
 
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaAndData;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -45,7 +45,7 @@ public class ConditionTest {
     boolean negate = true;
 
     Condition condition = new Condition( negate, left, func, right, null );
-    assertFalse( condition.evaluate( new RowMeta(), new Object[]{ "test" } ) );
+    assertFalse( condition.evaluate( new RowMeta(), new Object[] { "test" } ) );
   }
 
   @Test
@@ -64,8 +64,8 @@ public class ConditionTest {
     String right = "name3";
     Condition condition = new Condition( left, Condition.FUNC_EQUAL, right, null );
 
-    assertTrue( condition.evaluate( rowMeta1, new Object[] { 1.0, 2.0, 1.0} ) );
-    assertTrue( condition.evaluate( rowMeta2, new Object[] { 2.0, 1.0, 1.0} ) );
+    assertTrue( condition.evaluate( rowMeta1, new Object[] { 1.0, 2.0, 1.0 } ) );
+    assertTrue( condition.evaluate( rowMeta2, new Object[] { 2.0, 1.0, 1.0 } ) );
   }
 
   @Test

@@ -22,21 +22,19 @@
 
 package org.apache.hop.core.config;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import ognl.OgnlContext;
 import ognl.OgnlException;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.hop.core.exception.HopConfigException;
 import org.apache.hop.i18n.BaseMessages;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Helper class that allows properties to be set based on predefined prefixes, such as ognl:.
  *
  * @author Alex Silva
- *
  */
 public class PropertySetter {
   // for later maybe; when we have a centralized message repository.
@@ -60,13 +58,13 @@ public class PropertySetter {
         + property + "] and obbject class [" + obj.getClass().getName() + "]" );
     }
 
-    String directive = expression[0];
+    String directive = expression[ 0 ];
 
     if ( I18N.equalsIgnoreCase( directive ) ) {
 
       if ( expression.length == 3 ) {
-        String packageName = expression[1];
-        String key = expression[2];
+        String packageName = expression[ 1 ];
+        String key = expression[ 2 ];
 
         val = BaseMessages.getString( packageName, key );
       } else {
@@ -81,10 +79,10 @@ public class PropertySetter {
         if ( expr == null ) {
           synchronized ( ognl ) {
             try {
-              ognl.put( value, expr = new OgnlExpression( expression[1] ) );
+              ognl.put( value, expr = new OgnlExpression( expression[ 1 ] ) );
 
             } catch ( OgnlException e ) {
-              throw new HopConfigException( "Unable to parse expression [" + expression[1] + "] with Ognl", e );
+              throw new HopConfigException( "Unable to parse expression [" + expression[ 1 ] + "] with Ognl", e );
             }
           }
         }
@@ -94,7 +92,7 @@ public class PropertySetter {
           val = expr.getValue( octx, this );
         } catch ( OgnlException e ) {
           throw new HopConfigException(
-            "Unable to get value for expression [" + expression[1] + "] with Ognl", e );
+            "Unable to get value for expression [" + expression[ 1 ] + "] with Ognl", e );
         }
       } else {
         throw new HopConfigException(

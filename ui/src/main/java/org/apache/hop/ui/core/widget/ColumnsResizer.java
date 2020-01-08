@@ -49,8 +49,8 @@ public class ColumnsResizer implements Listener {
     TableColumn[] columns = table.getColumns();
     int len = Math.min( weights.length, columns.length );
     for ( int i = 0; i < len - 1; i++ ) {
-      if ( weights[i] > 0 ) {
-        columns[i].addListener( SWT.Resize, getColumnResizeListener( i ) );
+      if ( weights[ i ] > 0 ) {
+        columns[ i ].addListener( SWT.Resize, getColumnResizeListener( i ) );
       }
     }
   }
@@ -71,29 +71,29 @@ public class ColumnsResizer implements Listener {
         int firstWidth = 0, restWidth = 0;
         int len = Math.min( weights.length, columns.length );
         for ( int i = 0; i <= colIdx; i++ ) {
-          firstWidth += columns[i].getWidth();
+          firstWidth += columns[ i ].getWidth();
         }
         float restWeightsBefore = 0;
         for ( int i = colIdx + 1; i < len; i++ ) {
-          restWeightsBefore += weights[i];
-          restWidth += columns[i].getWidth();
+          restWeightsBefore += weights[ i ];
+          restWidth += columns[ i ].getWidth();
         }
         int tableWidth = getTableWidth( table );
 
         final int minWeight = 4;
         for ( int i = 0; i <= colIdx; i++ ) {
-          if ( weights[i] > 0 ) {
-            weights[i] = columns[i].getWidth();
+          if ( weights[ i ] > 0 ) {
+            weights[ i ] = columns[ i ].getWidth();
           }
         }
         int columnsWidth = firstWidth + restWidth;
         int shortening = columnsWidth - tableWidth;
         float newRestWidth = restWidth - shortening;
         for ( int i = colIdx + 1; i < len; i++ ) {
-          if ( weights[i] > 0 ) {
-            float w = weights[i];
+          if ( weights[ i ] > 0 ) {
+            float w = weights[ i ];
             w = w / restWeightsBefore * newRestWidth;
-            weights[i] = Math.max( Math.round( w ), minWeight );
+            weights[ i ] = Math.max( Math.round( w ), minWeight );
           }
         }
         applyWeigths( table );

@@ -22,12 +22,12 @@
 
 package org.apache.hop.trans.steps.databaselookup.readallcache;
 
+import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.apache.hop.core.row.value.ValueMetaInteger;
 
 import java.util.Arrays;
 import java.util.BitSet;

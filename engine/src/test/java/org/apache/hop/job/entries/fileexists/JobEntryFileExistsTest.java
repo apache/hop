@@ -21,13 +21,12 @@
  ******************************************************************************/
 package org.apache.hop.job.entries.fileexists;
 
-import java.util.Arrays;
-
-import java.util.List;
-
-import org.junit.ClassRule;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.ClassRule;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class JobEntryFileExistsTest extends JobEntryLoadSaveTestSupport<JobEntryFileExists> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -40,7 +39,7 @@ public class JobEntryFileExistsTest extends JobEntryLoadSaveTestSupport<JobEntry
   @Override
   protected List<String> listCommonAttributes() {
     return Arrays.asList(
-        "filename" );
+      "filename" );
   }
 
 }

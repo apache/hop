@@ -22,12 +22,6 @@
 
 package org.apache.hop.ui.hopui;
 
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
@@ -36,6 +30,12 @@ import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginMainClassType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.PluginTypeInterface;
+
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @PluginMainClassType( HopUiExtenderPluginInterface.class )
 @PluginAnnotationType( HopUiExtenderPlugin.class )
@@ -61,7 +61,7 @@ public class HopUiExtenderPluginType extends BasePluginType implements PluginTyp
     PluginRegistry instance = PluginRegistry.getInstance();
     List<PluginInterface> pluginInterfaces = instance.getPlugins( HopUiExtenderPluginType.class );
 
-    List<HopUiExtenderPluginInterface> relevantPluginInterfaces = new ArrayList<HopUiExtenderPluginInterface>(  );
+    List<HopUiExtenderPluginInterface> relevantPluginInterfaces = new ArrayList<HopUiExtenderPluginInterface>();
     if ( pluginInterfaces != null ) {
       for ( PluginInterface pluginInterface : pluginInterfaces ) {
         try {

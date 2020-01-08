@@ -22,9 +22,6 @@
 
 package org.apache.hop.trans.steps.mergerows;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRowException;
@@ -41,6 +38,9 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Merge rows from 2 sorted streams to detect changes. Use this as feed for a dimension in case you have no time stamps
@@ -62,7 +62,7 @@ public class MergeRows extends BaseStep implements StepInterface {
   private boolean useRefWhenIdentical = false;
 
   public MergeRows( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                    Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -230,7 +230,7 @@ public class MergeRows extends BaseStep implements StepInterface {
   }
 
   /**
-   * @see StepInterface#init(org.apache.hop.trans.step.StepMetaInterface , org.apache.hop.trans.step.StepDataInterface)
+   * @see StepInterface#init(org.apache.hop.trans.step.StepMetaInterface, org.apache.hop.trans.step.StepDataInterface)
    */
   public boolean init( StepMetaInterface smi, StepDataInterface sdi ) {
     meta = (MergeRowsMeta) smi;
@@ -251,14 +251,10 @@ public class MergeRows extends BaseStep implements StepInterface {
   /**
    * Checks whether 2 template rows are compatible for the mergestep.
    *
-   * @param referenceRowMeta
-   *          Reference row
-   * @param compareRowMeta
-   *          Row to compare to
-   *
+   * @param referenceRowMeta Reference row
+   * @param compareRowMeta   Row to compare to
    * @return true when templates are compatible.
-   * @throws HopRowException
-   *           in case there is a compatibility error.
+   * @throws HopRowException in case there is a compatibility error.
    */
   static void checkInputLayoutValid( RowMetaInterface referenceRowMeta, RowMetaInterface compareRowMeta ) throws HopRowException {
     if ( referenceRowMeta != null && compareRowMeta != null ) {

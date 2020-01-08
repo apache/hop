@@ -22,17 +22,13 @@
 
 package org.apache.hop.core.util;
 
-import java.util.prefs.Preferences;
-
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
-
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.prefs.Preferences;
 
 /**
  * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- *
  */
 public class BooleanPluginProperty extends KeyValue<Boolean> implements PluginProperty {
 
@@ -44,10 +40,8 @@ public class BooleanPluginProperty extends KeyValue<Boolean> implements PluginPr
   /**
    * Constructor. Value is null.
    *
-   * @param key
-   *          key to set.
-   * @throws IllegalArgumentException
-   *           if key is invalid.
+   * @param key key to set.
+   * @throws IllegalArgumentException if key is invalid.
    */
   public BooleanPluginProperty( final String key ) throws IllegalArgumentException {
     super( key, DEFAULT_BOOLEAN_VALUE );
@@ -55,7 +49,6 @@ public class BooleanPluginProperty extends KeyValue<Boolean> implements PluginPr
 
   /**
    * {@inheritDoc}
-   *
    */
   public boolean evaluate() {
     return Boolean.TRUE.equals( this.getValue() );
@@ -77,12 +70,14 @@ public class BooleanPluginProperty extends KeyValue<Boolean> implements PluginPr
   }
 
   /**
+   *
    */
   public void saveToPreferences( final Preferences node ) {
     node.putBoolean( this.getKey(), this.getValue() );
   }
 
   /**
+   *
    */
   public void readFromPreferences( final Preferences node ) {
     this.setValue( node.getBoolean( this.getKey(), this.getValue() ) );

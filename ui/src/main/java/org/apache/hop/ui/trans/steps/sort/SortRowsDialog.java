@@ -22,12 +22,25 @@
 
 package org.apache.hop.ui.trans.steps.sort;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.sort.SortRowsMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.CheckBoxVar;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.ComponentSelectionListener;
+import org.apache.hop.ui.trans.step.TableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -49,25 +62,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.sort.SortRowsMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.CheckBoxVar;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.ComponentSelectionListener;
-import org.apache.hop.ui.trans.step.TableItemInsertListener;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class SortRowsDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = SortRowsMeta.class; // for i18n purposes, needed by Translator2!!
@@ -338,25 +338,25 @@ public class SortRowsDialog extends BaseStepDialog implements StepDialogInterfac
         new ColumnInfo(
           BaseMessages.getString( PKG, "SortRowsDialog.CaseInsensitive.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-            BaseMessages.getString( PKG, "System.Combo.Yes" ),
-            BaseMessages.getString( PKG, "System.Combo.No" ) } ),
+          BaseMessages.getString( PKG, "System.Combo.Yes" ),
+          BaseMessages.getString( PKG, "System.Combo.No" ) } ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "SortRowsDialog.CollatorDisabled.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-            BaseMessages.getString( PKG, "System.Combo.Yes" ),
-            BaseMessages.getString( PKG, "System.Combo.No" ) } ),
+          BaseMessages.getString( PKG, "System.Combo.Yes" ),
+          BaseMessages.getString( PKG, "System.Combo.No" ) } ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "SortRowsDialog.CollatorStrength.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-            BaseMessages.getString( PKG, "System.Combo.Primary" ),
-            BaseMessages.getString( PKG, "System.Combo.Secondary" ),
-            BaseMessages.getString( PKG, "System.Combo.Tertiary" ),
-            BaseMessages.getString( PKG, "System.Combo.Identical" ) }, true ),
+          BaseMessages.getString( PKG, "System.Combo.Primary" ),
+          BaseMessages.getString( PKG, "System.Combo.Secondary" ),
+          BaseMessages.getString( PKG, "System.Combo.Tertiary" ),
+          BaseMessages.getString( PKG, "System.Combo.Identical" ) }, true ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "SortRowsDialog.PreSortedField.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-            BaseMessages.getString( PKG, "System.Combo.Yes" ),
-            BaseMessages.getString( PKG, "System.Combo.No" ) } ) };
+          BaseMessages.getString( PKG, "System.Combo.Yes" ),
+          BaseMessages.getString( PKG, "System.Combo.No" ) } ) };
 
     wFields =
       new TableView(
@@ -475,10 +475,10 @@ public class SortRowsDialog extends BaseStepDialog implements StepDialogInterfac
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    colinf[0].setComboValues( fieldNames );
+    colinf[ 0 ].setComboValues( fieldNames );
   }
 
   /**
@@ -504,16 +504,16 @@ public class SortRowsDialog extends BaseStepDialog implements StepDialogInterfac
     for ( int i = 0; i < input.getFieldName().length; i++ ) {
       TableItem ti = new TableItem( table, SWT.NONE );
       ti.setText( 0, "" + ( i + 1 ) );
-      ti.setText( 1, input.getFieldName()[i] );
-      ti.setText( 2, input.getAscending()[i] ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages
+      ti.setText( 1, input.getFieldName()[ i ] );
+      ti.setText( 2, input.getAscending()[ i ] ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages
         .getString( PKG, "System.Combo.No" ) );
-      ti.setText( 3, input.getCaseSensitive()[i]
+      ti.setText( 3, input.getCaseSensitive()[ i ]
         ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString( PKG, "System.Combo.No" ) );
-      ti.setText( 4, input.getCollatorEnabled()[i]
+      ti.setText( 4, input.getCollatorEnabled()[ i ]
         ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString( PKG, "System.Combo.No" ) );
-      ti.setText( 5, input.getCollatorStrength()[i] == 0
-        ? BaseMessages.getString( PKG, "System.Combo.Primary" ) : Integer.toString( input.getCollatorStrength()[i] ) );
-      ti.setText( 6, input.getPreSortedField()[i]
+      ti.setText( 5, input.getCollatorStrength()[ i ] == 0
+        ? BaseMessages.getString( PKG, "System.Combo.Primary" ) : Integer.toString( input.getCollatorStrength()[ i ] ) );
+      ti.setText( 6, input.getPreSortedField()[ i ]
         ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString( PKG, "System.Combo.No" ) );
     }
 
@@ -556,16 +556,16 @@ public class SortRowsDialog extends BaseStepDialog implements StepDialogInterfac
     //CHECKSTYLE:LineLength:OFF
     for ( int i = 0; i < nrfields; i++ ) {
       TableItem ti = wFields.getNonEmpty( i );
-      input.getFieldName()[i] = ti.getText( 1 );
-      input.getAscending()[i] = Utils.isEmpty( ti.getText( 2 ) ) || BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( ti.getText( 2 ) );
-      input.getCaseSensitive()[i] = BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( ti.getText( 3 ) );
-      input.getCollatorEnabled()[i] = BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( ti.getText( 4 ) );
+      input.getFieldName()[ i ] = ti.getText( 1 );
+      input.getAscending()[ i ] = Utils.isEmpty( ti.getText( 2 ) ) || BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( ti.getText( 2 ) );
+      input.getCaseSensitive()[ i ] = BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( ti.getText( 3 ) );
+      input.getCollatorEnabled()[ i ] = BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( ti.getText( 4 ) );
       if ( ti.getText( 5 ) == "" ) {
-        input.getCollatorStrength()[i] = Integer.parseInt( BaseMessages.getString( PKG, "System.Combo.Primary" ) );
+        input.getCollatorStrength()[ i ] = Integer.parseInt( BaseMessages.getString( PKG, "System.Combo.Primary" ) );
       } else {
-        input.getCollatorStrength()[i] = Integer.parseInt( ti.getText( 5 ) );
+        input.getCollatorStrength()[ i ] = Integer.parseInt( ti.getText( 5 ) );
       }
-      input.getPreSortedField()[i] = BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( ti.getText( 6 ) );
+      input.getPreSortedField()[ i ] = BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( ti.getText( 6 ) );
     }
 
     dispose();

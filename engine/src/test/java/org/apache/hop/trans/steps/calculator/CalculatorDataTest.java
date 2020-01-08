@@ -22,11 +22,11 @@
 
 package org.apache.hop.trans.steps.calculator;
 
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 

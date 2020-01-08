@@ -22,8 +22,16 @@
 
 package org.apache.hop.ui.trans.step;
 
-import java.util.List;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepErrorMeta;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -44,24 +52,14 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepErrorMeta;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.TextVar;
+
+import java.util.List;
 
 /**
- *
  * Dialog that allows you to edit the step error handling meta-data
  *
  * @author Matt
  * @since 31-10-2006
- *
  */
 public class StepErrorMetaDialog extends Dialog {
   private static Class<?> PKG = StepInterface.class; // for i18n purposes, needed by Translator2!!
@@ -94,7 +92,7 @@ public class StepErrorMetaDialog extends Dialog {
   private TransMeta transMeta;
 
   public StepErrorMetaDialog( Shell par, StepErrorMeta stepErrorMeta, TransMeta transMeta,
-    List<StepMeta> targetSteps ) {
+                              List<StepMeta> targetSteps ) {
     super( par, SWT.NONE );
     this.stepErrorMeta = stepErrorMeta.clone();
     this.originalStepErrorMeta = stepErrorMeta;

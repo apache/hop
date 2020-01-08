@@ -22,6 +22,8 @@
 
 package org.apache.hop.core.plugins;
 
+import org.apache.hop.i18n.BaseMessages;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -36,8 +38,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 import java.util.jar.JarFile;
-
-import org.apache.hop.i18n.BaseMessages;
 
 public class HopURLClassLoader extends URLClassLoader {
   private static Class<?> PKG = HopURLClassLoader.class; // for i18n purposes, needed by Translator2!!
@@ -110,7 +110,7 @@ public class HopURLClassLoader extends URLClassLoader {
       // System.err.println("Error loading class from URLClassLoader: "+name);
     } catch ( SecurityException e ) {
       System.err.println( BaseMessages.getString( PKG, "HopURLClassLoader.Exception.UnableToLoadClass",
-              e.toString() ) );
+        e.toString() ) );
     }
 
     return loadClassFromParent( name, resolve );
@@ -126,11 +126,11 @@ public class HopURLClassLoader extends URLClassLoader {
       // Get the jar, load the bytes from the jar file, construct class from scratch as in snippet below...
 
       /*
-       * 
+       *
        * loaded = super.findClass(name);
-       * 
+       *
        * URL url = super.findResource(newName);
-       * 
+       *
        * InputStream clis = getResourceAsStream(newName);
        */
 
@@ -145,20 +145,20 @@ public class HopURLClassLoader extends URLClassLoader {
   }
 
   private byte[] toBytes( InputStream is ) {
-    byte[] retval = new byte[0];
+    byte[] retval = new byte[ 0 ];
     try {
       int a = is.available();
       while ( a > 0 ) {
-        byte[] buffer = new byte[a];
+        byte[] buffer = new byte[ a ];
         is.read( buffer );
 
-        byte[] newretval = new byte[retval.length + a];
+        byte[] newretval = new byte[ retval.length + a ];
 
         for ( int i = 0; i < retval.length; i++ ) {
-          newretval[i] = retval[i]; // old part
+          newretval[ i ] = retval[ i ]; // old part
         }
         for ( int i = 0; i < a; i++ ) {
-          newretval[retval.length + i] = buffer[i]; // new part
+          newretval[ retval.length + i ] = buffer[ i ]; // new part
         }
 
         retval = newretval;
@@ -168,7 +168,7 @@ public class HopURLClassLoader extends URLClassLoader {
       return retval;
     } catch ( Exception e ) {
       System.out.println( BaseMessages.getString( PKG, "HopURLClassLoader.Exception.UnableToReadClass" )
-          + e.toString() );
+        + e.toString() );
       return null;
     }
   }

@@ -22,17 +22,7 @@
 
 package org.apache.hop.trans.steps.denormaliser;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopValueException;
@@ -43,6 +33,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -51,6 +42,15 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Denormalises data based on key-value pairs
@@ -69,7 +69,7 @@ public class Denormaliser extends BaseStep implements StepInterface {
   private Map<String, ValueMetaInterface> conversionMetaCache = new HashMap<String, ValueMetaInterface>();
 
   public Denormaliser( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
+                       Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
 
     meta = (DenormaliserMeta) getStepMeta().getStepMetaInterface();
@@ -144,9 +144,9 @@ public class Denormaliser extends BaseStep implements StepInterface {
     }
 
     Map<Integer, Integer> subjects = new Hashtable<Integer, Integer>();
-    data.fieldNameIndex = new int[meta.getDenormaliserTargetField().length];
+    data.fieldNameIndex = new int[ meta.getDenormaliserTargetField().length ];
     for ( int i = 0; i < meta.getDenormaliserTargetField().length; i++ ) {
-      DenormaliserTargetField field = meta.getDenormaliserTargetField()[i];
+      DenormaliserTargetField field = meta.getDenormaliserTargetField()[ i ];
       int idx = data.inputRowMeta.indexOfValue( field.getFieldName() );
       if ( idx < 0 ) {
         logError( BaseMessages.getString( PKG, "Denormaliser.Log.UnpivotFieldNotFound", field.getFieldName() ) );
@@ -154,12 +154,12 @@ public class Denormaliser extends BaseStep implements StepInterface {
         stopAll();
         return false;
       }
-      data.fieldNameIndex[i] = idx;
+      data.fieldNameIndex[ i ] = idx;
       subjects.put( Integer.valueOf( idx ), Integer.valueOf( idx ) );
 
       // See if by accident, the value fieldname isn't the same as the key fieldname.
       // This is not supported of-course and given the complexity of the step, you can miss:
-      if ( data.fieldNameIndex[i] == data.keyFieldNr ) {
+      if ( data.fieldNameIndex[ i ] == data.keyFieldNr ) {
         logError( BaseMessages.getString( PKG, "Denormaliser.Log.ValueFieldSameAsKeyField", field.getFieldName() ) );
         setErrors( 1 );
         stopAll();
@@ -179,13 +179,13 @@ public class Denormaliser extends BaseStep implements StepInterface {
     }
 
     Set<Integer> subjectSet = subjects.keySet();
-    data.fieldNrs = subjectSet.toArray( new Integer[subjectSet.size()] );
+    data.fieldNrs = subjectSet.toArray( new Integer[ subjectSet.size() ] );
 
-    data.groupnrs = new int[meta.getGroupField().length];
+    data.groupnrs = new int[ meta.getGroupField().length ];
     for ( int i = 0; i < meta.getGroupField().length; i++ ) {
-      data.groupnrs[i] = data.inputRowMeta.indexOfValue( meta.getGroupField()[i] );
-      if ( data.groupnrs[i] < 0 ) {
-        logError( BaseMessages.getString( PKG, "Denormaliser.Log.GroupingFieldNotFound", meta.getGroupField()[i] ) );
+      data.groupnrs[ i ] = data.inputRowMeta.indexOfValue( meta.getGroupField()[ i ] );
+      if ( data.groupnrs[ i ] < 0 ) {
+        logError( BaseMessages.getString( PKG, "Denormaliser.Log.GroupingFieldNotFound", meta.getGroupField()[ i ] ) );
         setErrors( 1 );
         stopAll();
         return false;
@@ -195,13 +195,13 @@ public class Denormaliser extends BaseStep implements StepInterface {
     List<Integer> removeList = new ArrayList<Integer>();
     removeList.add( Integer.valueOf( data.keyFieldNr ) );
     for ( int i = 0; i < data.fieldNrs.length; i++ ) {
-      removeList.add( data.fieldNrs[i] );
+      removeList.add( data.fieldNrs[ i ] );
     }
     Collections.sort( removeList );
 
-    data.removeNrs = new int[removeList.size()];
+    data.removeNrs = new int[ removeList.size() ];
     for ( int i = 0; i < removeList.size(); i++ ) {
-      data.removeNrs[i] = removeList.get( i );
+      data.removeNrs[ i ] = removeList.get( i );
     }
     return true;
   }
@@ -235,22 +235,22 @@ public class Denormaliser extends BaseStep implements StepInterface {
     //
     int removeIndex = 0;
     for ( int i = 0; i < rowMeta.size(); i++ ) {
-      if ( removeIndex < data.removeNrs.length && i == data.removeNrs[removeIndex] ) {
+      if ( removeIndex < data.removeNrs.length && i == data.removeNrs[ removeIndex ] ) {
         removeIndex++;
       } else {
-        outputRowData[outputIndex++] = rowData[i];
+        outputRowData[ outputIndex++ ] = rowData[ i ];
       }
     }
 
     // Add the unpivoted fields...
     //
     for ( int i = 0; i < data.targetResult.length; i++ ) {
-      Object resultValue = data.targetResult[i];
-      DenormaliserTargetField field = meta.getDenormaliserTargetField()[i];
+      Object resultValue = data.targetResult[ i ];
+      DenormaliserTargetField field = meta.getDenormaliserTargetField()[ i ];
       switch ( field.getTargetAggregationType() ) {
         case DenormaliserTargetField.TYPE_AGGR_AVERAGE:
-          long count = data.counters[i];
-          Object sum = data.sum[i];
+          long count = data.counters[ i ];
+          Object sum = data.sum[ i ];
           if ( count > 0 ) {
             if ( sum instanceof Long ) {
               resultValue = (Long) sum / count;
@@ -269,8 +269,8 @@ public class Denormaliser extends BaseStep implements StepInterface {
           }
           if ( field.getTargetType() != ValueMetaInterface.TYPE_INTEGER ) {
             resultValue =
-                data.outputRowMeta.getValueMeta( outputIndex ).convertData(
-                    new ValueMetaInteger( "num_values_aggregation" ), resultValue );
+              data.outputRowMeta.getValueMeta( outputIndex ).convertData(
+                new ValueMetaInteger( "num_values_aggregation" ), resultValue );
           }
           break;
         default:
@@ -280,7 +280,7 @@ public class Denormaliser extends BaseStep implements StepInterface {
         // PDI-9662 seems all rows for min function was nulls...
         resultValue = getZero( outputIndex );
       }
-      outputRowData[outputIndex++] = resultValue;
+      outputRowData[ outputIndex++ ] = resultValue;
     }
 
     return outputRowData;
@@ -301,24 +301,24 @@ public class Denormaliser extends BaseStep implements StepInterface {
    *
    * @throws HopException
    */
-  private void newGroup( ) throws HopException {
+  private void newGroup() throws HopException {
     // There is no need anymore to take care of the meta-data.
     // That is done once in DenormaliserMeta.getFields()
     //
-    data.targetResult = new Object[meta.getDenormaliserTargetFields().length];
+    data.targetResult = new Object[ meta.getDenormaliserTargetFields().length ];
 
     DenormaliserTargetField[] fields = meta.getDenormaliserTargetField();
 
     for ( int i = 0; i < fields.length; i++ ) {
-      data.counters[i] = 0L; // set to 0
-      data.sum[i] = null;
+      data.counters[ i ] = 0L; // set to 0
+      data.sum[ i ] = null;
     }
   }
 
   /**
    * This method de-normalizes a single key-value pair. It looks up the key and determines the value name to store it
    * in. It converts it to the right type and stores it in the result row.
-   *
+   * <p>
    * Used for junits in DenormaliserAggregationsTest
    *
    * @param r
@@ -326,7 +326,7 @@ public class Denormaliser extends BaseStep implements StepInterface {
    */
   void deNormalise( RowMetaInterface rowMeta, Object[] rowData ) throws HopValueException {
     ValueMetaInterface valueMeta = rowMeta.getValueMeta( data.keyFieldNr );
-    Object valueData = rowData[data.keyFieldNr];
+    Object valueData = rowData[ data.keyFieldNr ];
 
     String key = valueMeta.getCompatibleString( valueData );
     if ( Utils.isEmpty( key ) ) {
@@ -346,20 +346,20 @@ public class Denormaliser extends BaseStep implements StepInterface {
       // keyNr is the field in DenormaliserTargetField[]
       //
       int idx = keyNr.intValue();
-      DenormaliserTargetField field = meta.getDenormaliserTargetField()[idx];
+      DenormaliserTargetField field = meta.getDenormaliserTargetField()[ idx ];
 
       // This is the value we need to de-normalise, convert, aggregate.
       //
-      ValueMetaInterface sourceMeta = rowMeta.getValueMeta( data.fieldNameIndex[idx] );
-      Object sourceData = rowData[data.fieldNameIndex[idx]];
+      ValueMetaInterface sourceMeta = rowMeta.getValueMeta( data.fieldNameIndex[ idx ] );
+      Object sourceData = rowData[ data.fieldNameIndex[ idx ] ];
       Object targetData;
       // What is the target value metadata??
       //
       ValueMetaInterface targetMeta =
-          data.outputRowMeta.getValueMeta( data.inputRowMeta.size() - data.removeNrs.length + idx );
+        data.outputRowMeta.getValueMeta( data.inputRowMeta.size() - data.removeNrs.length + idx );
       // What was the previous target in the result row?
       //
-      Object prevTargetData = data.targetResult[idx];
+      Object prevTargetData = data.targetResult[ idx ];
 
       // clone source meta as it can be used by other steps ans set conversion meta
       // to convert date to target format
@@ -385,7 +385,7 @@ public class Denormaliser extends BaseStep implements StepInterface {
             break;
           }
           if ( ( prevTargetData == null && !minNullIsValued )
-                  || sourceMeta.compare( sourceData, targetMeta, prevTargetData ) < 0 ) {
+            || sourceMeta.compare( sourceData, targetMeta, prevTargetData ) < 0 ) {
             prevTargetData = targetMeta.convertData( sourceMeta, sourceData );
           }
           break;
@@ -395,16 +395,16 @@ public class Denormaliser extends BaseStep implements StepInterface {
           }
           break;
         case DenormaliserTargetField.TYPE_AGGR_COUNT_ALL:
-          prevTargetData = ++data.counters[idx];
+          prevTargetData = ++data.counters[ idx ];
           break;
         case DenormaliserTargetField.TYPE_AGGR_AVERAGE:
           targetData = targetMeta.convertData( sourceMeta, sourceData );
           if ( !sourceMeta.isNull( sourceData ) ) {
-            prevTargetData = data.counters[idx]++;
-            if ( data.sum[idx] == null ) {
-              data.sum[idx] = targetData;
+            prevTargetData = data.counters[ idx ]++;
+            if ( data.sum[ idx ] == null ) {
+              data.sum[ idx ] = targetData;
             } else {
-              data.sum[idx] = ValueDataUtil.plus( targetMeta, data.sum[idx], targetMeta, targetData );
+              data.sum[ idx ] = ValueDataUtil.plus( targetMeta, data.sum[ idx ], targetMeta, targetData );
             }
             // data.sum[idx] = (Integer)data.sum[idx] + (Integer)sourceData;
           }
@@ -427,7 +427,7 @@ public class Denormaliser extends BaseStep implements StepInterface {
 
       // Update the result row too
       //
-      data.targetResult[idx] = prevTargetData;
+      data.targetResult[ idx ] = prevTargetData;
     }
   }
 
@@ -437,8 +437,8 @@ public class Denormaliser extends BaseStep implements StepInterface {
     data = (DenormaliserData) sdi;
 
     if ( super.init( smi, sdi ) ) {
-      data.counters = new long[meta.getDenormaliserTargetField().length];
-      data.sum = new Object[meta.getDenormaliserTargetField().length];
+      data.counters = new long[ meta.getDenormaliserTargetField().length ];
+      data.sum = new Object[ meta.getDenormaliserTargetField().length ];
 
       return true;
     }
@@ -473,8 +473,7 @@ public class Denormaliser extends BaseStep implements StepInterface {
   /**
    * Used for junits in DenormaliserAggregationsTest
    *
-   * @param allNullsAreZero
-   *          the allNullsAreZero to set
+   * @param allNullsAreZero the allNullsAreZero to set
    */
   void setAllNullsAreZero( boolean allNullsAreZero ) {
     this.allNullsAreZero = allNullsAreZero;
@@ -483,8 +482,7 @@ public class Denormaliser extends BaseStep implements StepInterface {
   /**
    * Used for junits in DenormaliserAggregationsTest
    *
-   * @param minNullIsValued
-   *          the minNullIsValued to set
+   * @param minNullIsValued the minNullIsValued to set
    */
   void setMinNullIsValued( boolean minNullIsValued ) {
     this.minNullIsValued = minNullIsValued;

@@ -22,16 +22,16 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.FormDataBuilder;
+import org.apache.hop.ui.core.PropsUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.FormDataBuilder;
-import org.apache.hop.ui.core.PropsUI;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

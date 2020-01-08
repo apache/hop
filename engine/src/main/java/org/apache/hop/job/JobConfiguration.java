@@ -22,13 +22,13 @@
 
 package org.apache.hop.job;
 
-import java.io.IOException;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import java.io.IOException;
 
 public class JobConfiguration {
   public static final String XML_TAG = "job_configuration";
@@ -79,8 +79,7 @@ public class JobConfiguration {
   }
 
   /**
-   * @param jobExecutionConfiguration
-   *          the jobExecutionConfiguration to set
+   * @param jobExecutionConfiguration the jobExecutionConfiguration to set
    */
   public void setJobExecutionConfiguration( JobExecutionConfiguration jobExecutionConfiguration ) {
     this.jobExecutionConfiguration = jobExecutionConfiguration;
@@ -94,8 +93,7 @@ public class JobConfiguration {
   }
 
   /**
-   * @param jobMeta
-   *          the job meta data to set
+   * @param jobMeta the job meta data to set
    */
   public void setJobMeta( JobMeta jobMeta ) {
     this.jobMeta = jobMeta;

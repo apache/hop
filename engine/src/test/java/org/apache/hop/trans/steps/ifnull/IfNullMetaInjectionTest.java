@@ -22,11 +22,11 @@
 
 package org.apache.hop.trans.steps.ifnull;
 
+import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 public class IfNullMetaInjectionTest extends BaseMetadataInjectionTest<IfNullMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -40,42 +40,42 @@ public class IfNullMetaInjectionTest extends BaseMetadataInjectionTest<IfNullMet
   public void test() throws Exception {
     check( "FIELD_NAME", new StringGetter() {
       public String get() {
-        return meta.getFields()[0].getFieldName();
+        return meta.getFields()[ 0 ].getFieldName();
       }
     } );
     check( "REPLACE_VALUE", new StringGetter() {
       public String get() {
-        return meta.getFields()[0].getReplaceValue();
+        return meta.getFields()[ 0 ].getReplaceValue();
       }
     } );
     check( "TYPE_NAME", new StringGetter() {
       public String get() {
-        return meta.getValueTypes()[0].getTypeName();
+        return meta.getValueTypes()[ 0 ].getTypeName();
       }
     } );
     check( "TYPE_REPLACE_VALUE", new StringGetter() {
       public String get() {
-        return meta.getValueTypes()[0].getTypereplaceValue();
+        return meta.getValueTypes()[ 0 ].getTypereplaceValue();
       }
     } );
     check( "TYPE_REPLACE_MASK", new StringGetter() {
       public String get() {
-        return meta.getValueTypes()[0].getTypereplaceMask();
+        return meta.getValueTypes()[ 0 ].getTypereplaceMask();
       }
     } );
     check( "REPLACE_MASK", new StringGetter() {
       public String get() {
-        return meta.getFields()[0].getReplaceMask();
+        return meta.getFields()[ 0 ].getReplaceMask();
       }
     } );
     check( "SET_TYPE_EMPTY_STRING", new BooleanGetter() {
       public boolean get() {
-        return meta.getValueTypes()[0].isSetTypeEmptyString();
+        return meta.getValueTypes()[ 0 ].isSetTypeEmptyString();
       }
     } );
     check( "SET_EMPTY_STRING", new BooleanGetter() {
       public boolean get() {
-        return meta.getFields()[0].isSetEmptyString();
+        return meta.getFields()[ 0 ].isSetEmptyString();
       }
     } );
     check( "SELECT_FIELDS", new BooleanGetter() {

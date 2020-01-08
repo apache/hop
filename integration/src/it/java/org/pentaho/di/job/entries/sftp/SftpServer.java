@@ -22,12 +22,9 @@
 
 package org.apache.hop.job.entries.sftp;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Properties;
-import java.util.Random;
-import java.util.UUID;
-
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
 import org.apache.sshd.SshServer;
 import org.apache.sshd.common.NamedFactory;
 import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
@@ -39,9 +36,11 @@ import org.apache.sshd.server.session.ServerSession;
 import org.apache.sshd.sftp.subsystem.SftpSubsystem;
 import org.junit.rules.TemporaryFolder;
 
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Properties;
+import java.util.Random;
+import java.util.UUID;
 
 /**
  * @author Andrey Khayrutdinov
@@ -67,19 +66,13 @@ public class SftpServer implements PasswordAuthenticator {
 
   /**
    * Creates a server's instance for <tt>localhost</tt>, using supplied values for username, password, and port.
-   * 
-   * @param username
-   *   The username that will be allowed for authentication
-   * @param password
-   *   The password that will be allowed for authentication
-   * @param port
-   *   The port number that the SSH Server should listen on
-   * @param homeDir
-   *   The local directory that should be the SSH Server's root directory
-   * @param hostKeyPath
-   *   The file that should be used to store the SSH Host Key
-   * @return
-   *   An SftpServer instance
+   *
+   * @param username    The username that will be allowed for authentication
+   * @param password    The password that will be allowed for authentication
+   * @param port        The port number that the SSH Server should listen on
+   * @param homeDir     The local directory that should be the SSH Server's root directory
+   * @param hostKeyPath The file that should be used to store the SSH Host Key
+   * @return An SftpServer instance
    * @throws IOException
    */
   public SftpServer( String username, String password, int port, String homeDir, String hostKeyPath ) {

@@ -22,22 +22,22 @@
 
 package org.apache.hop.trans.steps.excelinput.poi;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.provider.local.LocalFile;
-import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.spreadsheet.KSheet;
 import org.apache.hop.core.spreadsheet.KWorkbook;
 import org.apache.hop.core.vfs.HopVFS;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class PoiWorkbook implements KWorkbook {
 
@@ -120,9 +120,9 @@ public class PoiWorkbook implements KWorkbook {
 
   public String[] getSheetNames() {
     int nrSheets = workbook.getNumberOfSheets();
-    String[] names = new String[nrSheets];
+    String[] names = new String[ nrSheets ];
     for ( int i = 0; i < nrSheets; i++ ) {
-      names[i] = workbook.getSheetName( i );
+      names[ i ] = workbook.getSheetName( i );
     }
     return names;
   }

@@ -21,18 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.datagrid;
 
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -47,6 +35,18 @@ import org.apache.hop.trans.steps.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import static org.junit.Assert.assertTrue;
 
 public class DataGridMetaTest implements InitializerInterface<StepMetaInterface> {
   LoadSaveTester loadSaveTester;
@@ -58,8 +58,8 @@ public class DataGridMetaTest implements InitializerInterface<StepMetaInterface>
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "currency", "decimal", "group", "fieldName", "fieldType", "fieldFormat", "fieldLength",
-            "fieldPrecision", "setEmptyString", "dataLines" );
+      Arrays.asList( "currency", "decimal", "group", "fieldName", "fieldType", "fieldFormat", "fieldLength",
+        "fieldPrecision", "setEmptyString", "dataLines" );
 
     Map<String, String> getterMap = new HashMap<String, String>();
     Map<String, String> setterMap = new HashMap<String, String>() {
@@ -68,7 +68,7 @@ public class DataGridMetaTest implements InitializerInterface<StepMetaInterface>
       }
     };
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 3 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 3 );
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "currency", stringArrayLoadSaveValidator );
@@ -80,16 +80,16 @@ public class DataGridMetaTest implements InitializerInterface<StepMetaInterface>
     attrValidatorMap.put( "fieldLength",
       new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( 75 ), 3 ) );
     attrValidatorMap.put( "fieldPrecision",
-        new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( 9 ), 3 ) );
+      new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( 9 ), 3 ) );
     attrValidatorMap.put( "setEmptyString",
-         new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 3 ) );
-    attrValidatorMap.put(  "dataLines", new DataGridLinesLoadSaveValidator() );
+      new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 3 ) );
+    attrValidatorMap.put( "dataLines", new DataGridLinesLoadSaveValidator() );
 
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
-            getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class
@@ -107,6 +107,7 @@ public class DataGridMetaTest implements InitializerInterface<StepMetaInterface>
 
   public class DataGridLinesLoadSaveValidator implements FieldLoadSaveValidator<List<List<String>>> {
     final Random rand = new Random();
+
     @Override
     public List<List<String>> getTestObject() {
       List<List<String>> dataLinesList = new ArrayList<List<String>>();

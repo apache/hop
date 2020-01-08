@@ -22,20 +22,7 @@
 
 package org.apache.hop.www;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.html.dom.HTMLDocumentImpl;
-import org.cyberneko.html.parsers.DOMFragmentParser;
-import org.eclipse.jetty.testing.HttpTester;
-import org.eclipse.jetty.testing.ServletTester;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -48,6 +35,14 @@ import org.apache.hop.trans.TransExecutionConfiguration;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransPreviewFactory;
 import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
+import org.apache.html.dom.HTMLDocumentImpl;
+import org.cyberneko.html.parsers.DOMFragmentParser;
+import org.eclipse.jetty.testing.HttpTester;
+import org.eclipse.jetty.testing.ServletTester;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
@@ -55,6 +50,11 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.html.HTMLDocument;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CarteIT {
 
@@ -330,20 +330,20 @@ public class CarteIT {
     A.allocate( 3 );
     A.setRowLimit( "10000000" );
 
-    A.getFieldName()[0] = "ID";
-    A.getFieldType()[0] = ValueMetaFactory.getValueMetaName( ValueMetaInterface.TYPE_INTEGER );
-    A.getFieldLength()[0] = 7;
-    A.getValue()[0] = "1234";
+    A.getFieldName()[ 0 ] = "ID";
+    A.getFieldType()[ 0 ] = ValueMetaFactory.getValueMetaName( ValueMetaInterface.TYPE_INTEGER );
+    A.getFieldLength()[ 0 ] = 7;
+    A.getValue()[ 0 ] = "1234";
 
-    A.getFieldName()[1] = "Name";
-    A.getFieldType()[1] = ValueMetaFactory.getValueMetaName( ValueMetaInterface.TYPE_STRING );
-    A.getFieldLength()[1] = 35;
-    A.getValue()[1] = "Some name";
+    A.getFieldName()[ 1 ] = "Name";
+    A.getFieldType()[ 1 ] = ValueMetaFactory.getValueMetaName( ValueMetaInterface.TYPE_STRING );
+    A.getFieldLength()[ 1 ] = 35;
+    A.getValue()[ 1 ] = "Some name";
 
-    A.getFieldName()[2] = "Last updated";
-    A.getFieldType()[2] = ValueMetaFactory.getValueMetaName( ValueMetaInterface.TYPE_DATE );
-    A.getFieldFormat()[2] = "yyyy/MM/dd";
-    A.getValue()[2] = "2010/02/09";
+    A.getFieldName()[ 2 ] = "Last updated";
+    A.getFieldType()[ 2 ] = ValueMetaFactory.getValueMetaName( ValueMetaInterface.TYPE_DATE );
+    A.getFieldFormat()[ 2 ] = "yyyy/MM/dd";
+    A.getValue()[ 2 ] = "2010/02/09";
 
     TransMeta transMeta = TransPreviewFactory.generatePreviewTransformation( null, A, "A" );
     transMeta.setName( "CarteUnitTest" );

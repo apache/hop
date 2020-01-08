@@ -21,17 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import org.apache.hop.core.plugins.DatabaseMetaPlugin;
-import org.apache.hop.core.plugins.DatabasePluginType;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
@@ -40,6 +29,14 @@ import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class PostgreSQLDatabaseMetaTest {
   PostgreSQLDatabaseMeta nativeMeta, odbcMeta;
@@ -58,7 +55,7 @@ public class PostgreSQLDatabaseMetaTest {
     assertEquals( "&", nativeMeta.getExtraOptionSeparator() );
     assertEquals( "?", nativeMeta.getExtraOptionIndicator() );
     assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
-        nativeMeta.getAccessTypeList() );
+      nativeMeta.getAccessTypeList() );
     assertEquals( 5432, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertEquals( "org.postgresql.Driver", nativeMeta.getDriverClass() );
@@ -168,96 +165,96 @@ public class PostgreSQLDatabaseMetaTest {
     assertEquals( "SELECT nextval('FOO')", nativeMeta.getSQLNextSequenceValue( "FOO" ) );
     assertEquals( "SELECT currval('FOO')", nativeMeta.getSQLCurrentSequenceValue( "FOO" ) );
     assertEquals( "SELECT relname AS sequence_name FROM pg_catalog.pg_statio_all_sequences WHERE relname = 'foo'",
-        nativeMeta.getSQLSequenceExists( "FOO" ) );
+      nativeMeta.getSQLSequenceExists( "FOO" ) );
 
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR TIMESTAMP",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaDate( "BAR" ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaDate( "BAR" ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR TIMESTAMP",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaTimestamp( "BAR" ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaTimestamp( "BAR" ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR CHAR(1)",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaBoolean( "BAR" ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaBoolean( "BAR" ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR BIGINT",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 10, 0 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 10, 0 ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR BIGINT",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaBigNumber( "BAR", 10, 0 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaBigNumber( "BAR", 10, 0 ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR BIGINT",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaInteger( "BAR", 10, 0 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaInteger( "BAR", 10, 0 ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR DOUBLE PRECISION",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 0, 0 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 0, 0 ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR INTEGER",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 5, 0 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 5, 0 ), "", false, "", false ) );
 
 
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(13, 3)",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 10, 3 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 10, 3 ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(13, 3)",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaBigNumber( "BAR", 10, 3 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaBigNumber( "BAR", 10, 3 ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(25, 4)",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaBigNumber( "BAR", 21, 4 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaBigNumber( "BAR", 21, 4 ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR TEXT",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", nativeMeta.getMaxVARCHARLength() + 2, 0 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", nativeMeta.getMaxVARCHARLength() + 2, 0 ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR VARCHAR(15)",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR BIGINT",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 10, -7 ), "", false, "", false ) ); // Bug here - invalid SQL
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 10, -7 ), "", false, "", false ) ); // Bug here - invalid SQL
 
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(29, 7)",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaBigNumber( "BAR", 22, 7 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaBigNumber( "BAR", 22, 7 ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR DOUBLE PRECISION",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", -10, 7 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", -10, 7 ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR NUMERIC(12, 7)",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 5, 7 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 5, 7 ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR  UNKNOWN",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaInternetAddress( "BAR" ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaInternetAddress( "BAR" ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR BIGSERIAL",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaInteger( "BAR" ), "BAR", true, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaInteger( "BAR" ), "BAR", true, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR BIGSERIAL",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 26, 8 ), "BAR", true, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaNumber( "BAR", 26, 8 ), "BAR", true, "", false ) );
 
     String lineSep = System.getProperty( "line.separator" );
     assertEquals( "ALTER TABLE FOO DROP COLUMN BAR",
-        nativeMeta.getDropColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", true ) );
+      nativeMeta.getDropColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", true ) );
 
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR_KTL VARCHAR(15);" + lineSep
-                  + "UPDATE FOO SET BAR_KTL=BAR;" + lineSep + "ALTER TABLE FOO DROP COLUMN BAR;" + lineSep
-                  + "ALTER TABLE FOO RENAME BAR_KTL TO BAR;" + lineSep,
-        nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", true ) );
+        + "UPDATE FOO SET BAR_KTL=BAR;" + lineSep + "ALTER TABLE FOO DROP COLUMN BAR;" + lineSep
+        + "ALTER TABLE FOO RENAME BAR_KTL TO BAR;" + lineSep,
+      nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", true ) );
 
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR_KTL TEXT;" + lineSep
         + "UPDATE FOO SET BAR_KTL=BAR;" + lineSep + "ALTER TABLE FOO DROP COLUMN BAR;" + lineSep
         + "ALTER TABLE FOO RENAME BAR_KTL TO BAR;" + lineSep,
-        nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR" ), "", false, "", true ) );
+      nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR" ), "", false, "", true ) );
 
     odbcMeta.setSupportsBooleanDataType( true ); // some subclass of the MSSQL meta probably ...
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR BOOLEAN",
-        odbcMeta.getAddColumnStatement( "FOO", new ValueMetaBoolean( "BAR" ), "", false, "", false ) );
+      odbcMeta.getAddColumnStatement( "FOO", new ValueMetaBoolean( "BAR" ), "", false, "", false ) );
     odbcMeta.setSupportsBooleanDataType( false );
 
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR SMALLINT",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaInteger( "BAR", 4, 0 ), "", true, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaInteger( "BAR", 4, 0 ), "", true, "", false ) );
 
     odbcMeta.setUsername( "fOoUsEr" );
     assertEquals( "select proname " + "from pg_proc, pg_user " + "where pg_user.usesysid = pg_proc.proowner "
         + "and upper(pg_user.usename) = 'FOOUSER' order by proname",
-        odbcMeta.getSQLListOfProcedures() );
+      odbcMeta.getSQLListOfProcedures() );
 
     assertEquals( "LOCK TABLE FOO , BAR IN ACCESS EXCLUSIVE MODE;" + lineSep,
-        nativeMeta.getSQLLockTables( new String[] { "FOO", "BAR" } ) );
+      nativeMeta.getSQLLockTables( new String[] { "FOO", "BAR" } ) );
 
-    assertNull( nativeMeta.getSQLUnlockTables(  new String[] { "FOO" } ) );
+    assertNull( nativeMeta.getSQLUnlockTables( new String[] { "FOO" } ) );
   }
 
 }

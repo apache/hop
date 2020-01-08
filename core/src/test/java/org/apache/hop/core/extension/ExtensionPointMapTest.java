@@ -20,12 +20,12 @@
 
 package org.apache.hop.core.extension;
 
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.plugins.PluginRegistry;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -46,7 +46,7 @@ public class ExtensionPointMapTest {
     pluginInterface = mock( PluginMockInterface.class );
     when( pluginInterface.getName() ).thenReturn( TEST_NAME );
     when( pluginInterface.getMainType() ).thenReturn( (Class) ExtensionPointInterface.class );
-    when( pluginInterface.getIds() ).thenReturn( new String[] {"testID"} );
+    when( pluginInterface.getIds() ).thenReturn( new String[] { "testID" } );
 
     extensionPoint = mock( ExtensionPointInterface.class );
     when( pluginInterface.loadClass( ExtensionPointInterface.class ) ).thenReturn( extensionPoint );

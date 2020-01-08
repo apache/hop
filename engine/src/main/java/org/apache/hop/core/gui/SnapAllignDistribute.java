@@ -22,9 +22,9 @@
 
 package org.apache.hop.core.gui;
 
-import java.util.List;
-
 import org.apache.hop.core.AddUndoPositionInterface;
+
+import java.util.List;
 
 public class SnapAllignDistribute {
   private List<? extends GUIPositionInterface> elements;
@@ -34,7 +34,7 @@ public class SnapAllignDistribute {
   private UndoInterface undoInterface;
 
   public SnapAllignDistribute( UndoInterface undoInterface, List<? extends GUIPositionInterface> elements,
-    int[] indices, AddUndoPositionInterface addUndoPositionInterface, Redrawable redrawable ) {
+                               int[] indices, AddUndoPositionInterface addUndoPositionInterface, Redrawable redrawable ) {
     this.undoInterface = undoInterface;
     this.elements = elements;
     this.indices = indices;
@@ -49,17 +49,17 @@ public class SnapAllignDistribute {
 
     // First look for the minimum x coordinate...
 
-    GUIPositionInterface[] elemArray = new GUIPositionInterface[elements.size()];
+    GUIPositionInterface[] elemArray = new GUIPositionInterface[ elements.size() ];
 
-    Point[] before = new Point[elements.size()];
-    Point[] after = new Point[elements.size()];
+    Point[] before = new Point[ elements.size() ];
+    Point[] after = new Point[ elements.size() ];
 
     for ( int i = 0; i < elements.size(); i++ ) {
       GUIPositionInterface positionInterface = elements.get( i );
 
-      elemArray[i] = positionInterface;
+      elemArray[ i ] = positionInterface;
       Point p = positionInterface.getLocation();
-      before[i] = new Point( p.x, p.y );
+      before[ i ] = new Point( p.x, p.y );
 
       // What's the modulus ?
       int dx = p.x % size;
@@ -81,7 +81,7 @@ public class SnapAllignDistribute {
       } else {
         p.y -= dy;
       }
-      after[i] = new Point( p.x, p.y );
+      after[ i ] = new Point( p.x, p.y );
     }
 
     if ( addUndoPositionInterface != null ) {
@@ -95,10 +95,10 @@ public class SnapAllignDistribute {
       return;
     }
 
-    GUIPositionInterface[] elemArray = elements.toArray( new GUIPositionInterface[elements.size()] );
+    GUIPositionInterface[] elemArray = elements.toArray( new GUIPositionInterface[ elements.size() ] );
 
-    Point[] before = new Point[elements.size()];
-    Point[] after = new Point[elements.size()];
+    Point[] before = new Point[ elements.size() ];
+    Point[] after = new Point[ elements.size() ];
 
     int min = 99999;
 
@@ -116,9 +116,9 @@ public class SnapAllignDistribute {
       GUIPositionInterface element = elements.get( i );
 
       Point p = element.getLocation();
-      before[i] = new Point( p.x, p.y );
+      before[ i ] = new Point( p.x, p.y );
       element.setLocation( min, p.y );
-      after[i] = new Point( min, p.y );
+      after[ i ] = new Point( min, p.y );
     }
 
     if ( addUndoPositionInterface != null ) {
@@ -132,10 +132,10 @@ public class SnapAllignDistribute {
       return;
     }
 
-    GUIPositionInterface[] elemArray = elements.toArray( new GUIPositionInterface[elements.size()] );
+    GUIPositionInterface[] elemArray = elements.toArray( new GUIPositionInterface[ elements.size() ] );
 
-    Point[] before = new Point[elements.size()];
-    Point[] after = new Point[elements.size()];
+    Point[] before = new Point[ elements.size() ];
+    Point[] after = new Point[ elements.size() ];
 
     int max = -99999;
 
@@ -153,9 +153,9 @@ public class SnapAllignDistribute {
       GUIPositionInterface stepMeta = elements.get( i );
 
       Point p = stepMeta.getLocation();
-      before[i] = new Point( p.x, p.y );
+      before[ i ] = new Point( p.x, p.y );
       stepMeta.setLocation( max, p.y );
-      after[i] = new Point( max, p.y );
+      after[ i ] = new Point( max, p.y );
     }
 
     if ( addUndoPositionInterface != null ) {
@@ -169,10 +169,10 @@ public class SnapAllignDistribute {
       return;
     }
 
-    GUIPositionInterface[] elemArray = elements.toArray( new GUIPositionInterface[elements.size()] );
+    GUIPositionInterface[] elemArray = elements.toArray( new GUIPositionInterface[ elements.size() ] );
 
-    Point[] before = new Point[elements.size()];
-    Point[] after = new Point[elements.size()];
+    Point[] before = new Point[ elements.size() ];
+    Point[] after = new Point[ elements.size() ];
 
     int min = 99999;
 
@@ -189,9 +189,9 @@ public class SnapAllignDistribute {
       GUIPositionInterface element = elements.get( i );
 
       Point p = element.getLocation();
-      before[i] = new Point( p.x, p.y );
+      before[ i ] = new Point( p.x, p.y );
       element.setLocation( p.x, min );
-      after[i] = new Point( p.x, min );
+      after[ i ] = new Point( p.x, min );
     }
 
     if ( addUndoPositionInterface != null ) {
@@ -205,10 +205,10 @@ public class SnapAllignDistribute {
       return;
     }
 
-    GUIPositionInterface[] elemArray = elements.toArray( new GUIPositionInterface[elements.size()] );
+    GUIPositionInterface[] elemArray = elements.toArray( new GUIPositionInterface[ elements.size() ] );
 
-    Point[] before = new Point[elements.size()];
-    Point[] after = new Point[elements.size()];
+    Point[] before = new Point[ elements.size() ];
+    Point[] after = new Point[ elements.size() ];
 
     int max = -99999;
 
@@ -227,9 +227,9 @@ public class SnapAllignDistribute {
       GUIPositionInterface element = elements.get( i );
 
       Point p = element.getLocation();
-      before[i] = new Point( p.x, p.y );
+      before[ i ] = new Point( p.x, p.y );
       element.setLocation( p.x, max );
-      after[i] = new Point( p.x, max );
+      after[ i ] = new Point( p.x, max );
     }
 
     if ( addUndoPositionInterface != null ) {
@@ -243,15 +243,15 @@ public class SnapAllignDistribute {
       return;
     }
 
-    GUIPositionInterface[] elemArray = elements.toArray( new GUIPositionInterface[elements.size()] );
+    GUIPositionInterface[] elemArray = elements.toArray( new GUIPositionInterface[ elements.size() ] );
 
-    Point[] before = new Point[elements.size()];
-    Point[] after = new Point[elements.size()];
+    Point[] before = new Point[ elements.size() ];
+    Point[] after = new Point[ elements.size() ];
 
     int min = 99999;
     int max = -99999;
 
-    int[] order = new int[elements.size()];
+    int[] order = new int[ elements.size() ];
 
     // First look for the minimum & maximum x coordinate...
     for ( int i = 0; i < elements.size(); i++ ) {
@@ -264,7 +264,7 @@ public class SnapAllignDistribute {
       if ( p.x > max ) {
         max = p.x;
       }
-      order[i] = i;
+      order[ i ] = i;
     }
 
     // Difficult to keep the steps in the correct order.
@@ -274,17 +274,17 @@ public class SnapAllignDistribute {
     // Then sort order[], based upon the coordinate of the step.
     for ( int i = 0; i < elements.size(); i++ ) {
       for ( int j = 0; j < elements.size() - 1; j++ ) {
-        Point p1 = ( elements.get( order[j] ) ).getLocation();
-        Point p2 = ( elements.get( order[j + 1] ) ).getLocation();
+        Point p1 = ( elements.get( order[ j ] ) ).getLocation();
+        Point p2 = ( elements.get( order[ j + 1 ] ) ).getLocation();
         if ( p1.x > p2.x ) { // swap
 
-          int dummy = order[j];
-          order[j] = order[j + 1];
-          order[j + 1] = dummy;
+          int dummy = order[ j ];
+          order[ j ] = order[ j + 1 ];
+          order[ j + 1 ] = dummy;
 
-          dummy = indices[j];
-          indices[j] = indices[j + 1];
-          indices[j + 1] = dummy;
+          dummy = indices[ j ];
+          indices[ j ] = indices[ j + 1 ];
+          indices[ j + 1 ] = dummy;
         }
       }
     }
@@ -293,13 +293,13 @@ public class SnapAllignDistribute {
     int distance = ( max - min ) / ( elements.size() - 1 );
 
     for ( int i = 0; i < elements.size(); i++ ) {
-      GUIPositionInterface element = elements.get( order[i] );
+      GUIPositionInterface element = elements.get( order[ i ] );
 
       Point p = element.getLocation();
-      before[i] = new Point( p.x, p.y );
+      before[ i ] = new Point( p.x, p.y );
       p.x = min + ( i * distance );
-      after[i] = new Point( p.x, p.y );
-      elemArray[i] = element;
+      after[ i ] = new Point( p.x, p.y );
+      elemArray[ i ] = element;
     }
 
     // Undo!
@@ -314,15 +314,15 @@ public class SnapAllignDistribute {
       return;
     }
 
-    GUIPositionInterface[] elemArray = elements.toArray( new GUIPositionInterface[elements.size()] );
+    GUIPositionInterface[] elemArray = elements.toArray( new GUIPositionInterface[ elements.size() ] );
 
-    Point[] before = new Point[elements.size()];
-    Point[] after = new Point[elements.size()];
+    Point[] before = new Point[ elements.size() ];
+    Point[] after = new Point[ elements.size() ];
 
     int min = 99999;
     int max = -99999;
 
-    int[] order = new int[elements.size()];
+    int[] order = new int[ elements.size() ];
 
     // First look for the minimum & maximum y coordinate...
     for ( int i = 0; i < elements.size(); i++ ) {
@@ -335,7 +335,7 @@ public class SnapAllignDistribute {
       if ( p.y > max ) {
         max = p.y;
       }
-      order[i] = i;
+      order[ i ] = i;
     }
 
     // Difficult to keep the steps in the correct order.
@@ -345,17 +345,17 @@ public class SnapAllignDistribute {
     // Then sort order[], based upon the coordinate of the step.
     for ( int i = 0; i < elements.size(); i++ ) {
       for ( int j = 0; j < elements.size() - 1; j++ ) {
-        Point p1 = ( elements.get( order[j] ) ).getLocation();
-        Point p2 = ( elements.get( order[j + 1] ) ).getLocation();
+        Point p1 = ( elements.get( order[ j ] ) ).getLocation();
+        Point p2 = ( elements.get( order[ j + 1 ] ) ).getLocation();
         if ( p1.y > p2.y ) { // swap
 
-          int dummy = order[j];
-          order[j] = order[j + 1];
-          order[j + 1] = dummy;
+          int dummy = order[ j ];
+          order[ j ] = order[ j + 1 ];
+          order[ j + 1 ] = dummy;
 
-          dummy = indices[j];
-          indices[j] = indices[j + 1];
-          indices[j + 1] = dummy;
+          dummy = indices[ j ];
+          indices[ j ] = indices[ j + 1 ];
+          indices[ j + 1 ] = dummy;
         }
       }
     }
@@ -364,13 +364,13 @@ public class SnapAllignDistribute {
     int distance = ( max - min ) / ( elements.size() - 1 );
 
     for ( int i = 0; i < elements.size(); i++ ) {
-      GUIPositionInterface element = elements.get( order[i] );
+      GUIPositionInterface element = elements.get( order[ i ] );
 
       Point p = element.getLocation();
-      before[i] = new Point( p.x, p.y );
+      before[ i ] = new Point( p.x, p.y );
       p.y = min + ( i * distance );
-      after[i] = new Point( p.x, p.y );
-      elemArray[i] = element;
+      after[ i ] = new Point( p.x, p.y );
+      elemArray[ i ] = element;
     }
 
     // Undo!

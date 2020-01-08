@@ -25,7 +25,6 @@ package org.apache.hop.trans;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
-
 import org.apache.hop.trans.step.StepPartitioningMeta;
 import org.w3c.dom.Node;
 
@@ -108,21 +107,17 @@ public interface Partitioner {
   /**
    * Gets the partition.
    *
-   * @param rowMeta
-   *          the row meta
-   * @param r
-   *          the r
+   * @param rowMeta the row meta
+   * @param r       the r
    * @return the partition
-   * @throws HopException
-   *           the kettle exception
+   * @throws HopException the kettle exception
    */
   public int getPartition( RowMetaInterface rowMeta, Object[] r ) throws HopException;
 
   /**
    * Sets the meta.
    *
-   * @param meta
-   *          the new meta
+   * @param meta the new meta
    */
   public void setMeta( StepPartitioningMeta meta );
 
@@ -143,16 +138,14 @@ public interface Partitioner {
   /**
    * Sets the id.
    *
-   * @param id
-   *          the new id
+   * @param id the new id
    */
   public void setId( String id );
 
   /**
    * Sets the description.
    *
-   * @param description
-   *          the new description
+   * @param description the new description
    */
   public void setDescription( String description );
 
@@ -180,10 +173,8 @@ public interface Partitioner {
   /**
    * Load xml.
    *
-   * @param partitioningMethodNode
-   *          the partitioning method node
-   * @throws HopXMLException
-   *           the kettle xml exception
+   * @param partitioningMethodNode the partitioning method node
+   * @throws HopXMLException the kettle xml exception
    */
   public void loadXML( Node partitioningMethodNode ) throws HopXMLException;
 

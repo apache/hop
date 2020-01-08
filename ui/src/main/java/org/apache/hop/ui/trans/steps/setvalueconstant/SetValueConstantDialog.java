@@ -22,6 +22,22 @@
 
 package org.apache.hop.ui.trans.steps.setvalueconstant;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.setvalueconstant.SetValueConstantMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.TableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -41,22 +57,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.setvalueconstant.SetValueConstantMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.TableItemInsertListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -167,20 +167,20 @@ public class SetValueConstantDialog extends BaseStepDialog implements StepDialog
 
     int FieldsCols = 4;
     final int FieldsRows = input.getFields().size();
-    colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
+    colinf = new ColumnInfo[ FieldsCols ];
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SetValueConstantDialog.Fieldname.Column" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {}, false );
-    colinf[1] =
+    colinf[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SetValueConstantDialog.Value.Column" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    colinf[2] =
+    colinf[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SetValueConstantDialog.Value.ConversionMask" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, Const.getDateFormats() );
-    colinf[3] =
+    colinf[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SetValueConstantDialog.Value.SetEmptyString" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO,
@@ -294,10 +294,10 @@ public class SetValueConstantDialog extends BaseStepDialog implements StepDialog
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    colinf[0].setComboValues( fieldNames );
+    colinf[ 0 ].setComboValues( fieldNames );
   }
 
   private void get() {
@@ -342,7 +342,7 @@ public class SetValueConstantDialog extends BaseStepDialog implements StepDialog
         ti.setText( 3, field.getReplaceMask() );
       }
       ti.setText( 4, field.isEmptyString() ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages
-              .getString( PKG, "System.Combo.No" ) );
+        .getString( PKG, "System.Combo.No" ) );
 
     }
 

@@ -17,15 +17,14 @@
 
 package org.apache.hop.metastore.api.exceptions;
 
-import java.util.List;
-
 import org.apache.hop.metastore.api.IMetaStoreElement;
+
+import java.util.List;
 
 /**
  * This exception is thrown in case a data type is created in a metadata store when it already exists.
- * 
+ *
  * @author matt
- * 
  */
 
 public class MetaStoreElementExistException extends MetaStoreException {
@@ -62,8 +61,7 @@ public class MetaStoreElementExistException extends MetaStoreException {
   }
 
   /**
-   * @param entities
-   *          the entities to set
+   * @param entities the entities to set
    */
   public void setEntities( List<IMetaStoreElement> entities ) {
     this.entities = entities;

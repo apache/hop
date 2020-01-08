@@ -35,9 +35,8 @@ public class LongHashIndex {
 
   /**
    * Create a new long/long hash index
-   * 
-   * @param size
-   *          the initial size of the hash index
+   *
+   * @param size the initial size of the hash index
    */
   public LongHashIndex( int size ) {
 
@@ -49,7 +48,7 @@ public class LongHashIndex {
 
     this.resizeThresHold = (int) ( factor2Size * STANDARD_LOAD_FACTOR );
 
-    index = new LongHashIndexEntry[factor2Size];
+    index = new LongHashIndexEntry[ factor2Size ];
   }
 
   /**
@@ -71,7 +70,7 @@ public class LongHashIndex {
     int hashCode = generateHashCode( key );
 
     int indexPointer = indexFor( hashCode, index.length );
-    LongHashIndexEntry check = index[indexPointer];
+    LongHashIndexEntry check = index[ indexPointer ];
 
     while ( check != null ) {
       if ( check.hashCode == hashCode && check.equalsKey( key ) ) {
@@ -86,7 +85,7 @@ public class LongHashIndex {
     int hashCode = generateHashCode( key );
     int indexPointer = indexFor( hashCode, index.length );
 
-    LongHashIndexEntry check = index[indexPointer];
+    LongHashIndexEntry check = index[ indexPointer ];
     LongHashIndexEntry previousCheck = null;
 
     while ( check != null ) {
@@ -107,7 +106,7 @@ public class LongHashIndex {
     if ( previousCheck != null ) {
       previousCheck.nextEntry = new LongHashIndexEntry( hashCode, key, value, null );
     } else {
-      index[indexPointer] = new LongHashIndexEntry( hashCode, key, value, null );
+      index[ indexPointer ] = new LongHashIndexEntry( hashCode, key, value, null );
     }
 
     // If required, resize the table...
@@ -131,7 +130,7 @@ public class LongHashIndex {
       //
       int newSize = 2 * index.length;
 
-      LongHashIndexEntry[] newIndex = new LongHashIndexEntry[newSize];
+      LongHashIndexEntry[] newIndex = new LongHashIndexEntry[ newSize ];
 
       // Loop over the old index and re-distribute the entries
       // We want to make sure that the calculation
@@ -139,9 +138,9 @@ public class LongHashIndex {
       // ends up in the right location after re-sizing...
       //
       for ( int i = 0; i < oldIndex.length; i++ ) {
-        LongHashIndexEntry entry = oldIndex[i];
+        LongHashIndexEntry entry = oldIndex[ i ];
         if ( entry != null ) {
-          oldIndex[i] = null;
+          oldIndex[ i ] = null;
 
           // Make sure we follow all the linked entries...
           // This is a bit of extra work, TODO: see how we can avoid it!
@@ -149,8 +148,8 @@ public class LongHashIndex {
           do {
             LongHashIndexEntry next = entry.nextEntry;
             int indexPointer = indexFor( entry.hashCode, newSize );
-            entry.nextEntry = newIndex[indexPointer];
-            newIndex[indexPointer] = entry;
+            entry.nextEntry = newIndex[ indexPointer ];
+            newIndex[ indexPointer ] = entry;
             entry = next;
           } while ( entry != null );
         }

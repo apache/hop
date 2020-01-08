@@ -22,11 +22,11 @@
 
 package org.apache.hop.ui.job.dialog;
 
+import org.apache.hop.core.logging.LogTableInterface;
+import org.apache.hop.job.JobMeta;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.logging.LogTableInterface;
-import org.apache.hop.job.JobMeta;
 
 public interface JobDialogPluginInterface {
   public void addTab( JobMeta jobMeta, Shell shell, CTabFolder tabFolder );

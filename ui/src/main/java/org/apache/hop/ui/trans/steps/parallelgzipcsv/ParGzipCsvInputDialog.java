@@ -22,42 +22,9 @@
 
 package org.apache.hop.ui.trans.steps.parallelgzipcsv;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.provider.local.LocalFile;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowMeta;
@@ -65,6 +32,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
@@ -89,6 +57,38 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.apache.hop.ui.trans.steps.textfileinput.TextFileCSVImportProgressDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 public class ParGzipCsvInputDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = ParGzipCsvInputMeta.class; // for i18n purposes, needed by Translator2!!
@@ -495,7 +495,7 @@ public class ParGzipCsvInputDialog extends BaseStepDialog implements StepDialogI
           BaseMessages.getString( PKG, "ParGzipCsvInputDialog.TrimTypeColumn.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaString.trimTypeDesc ), };
 
-    colinf[2].setComboValuesSelectionListener( new ComboValuesSelectionListener() {
+    colinf[ 2 ].setComboValuesSelectionListener( new ComboValuesSelectionListener() {
 
       public String[] getComboValues( TableItem tableItem, int rowNr, int colNr ) {
         String[] comboValues = new String[] {};
@@ -676,7 +676,7 @@ public class ParGzipCsvInputDialog extends BaseStepDialog implements StepDialogI
     wEncoding.setText( Const.NVL( inputMeta.getEncoding(), "" ) );
 
     for ( int i = 0; i < inputMeta.getInputFields().length; i++ ) {
-      TextFileInputField field = inputMeta.getInputFields()[i];
+      TextFileInputField field = inputMeta.getInputFields()[ i ];
 
       TableItem item = new TableItem( wFields.table, SWT.NONE );
       int colnr = 1;
@@ -729,18 +729,18 @@ public class ParGzipCsvInputDialog extends BaseStepDialog implements StepDialogI
     for ( int i = 0; i < nrNonEmptyFields; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
       //CHECKSTYLE:Indentation:OFF
-      inputMeta.getInputFields()[i] = new TextFileInputField();
+      inputMeta.getInputFields()[ i ] = new TextFileInputField();
 
       int colnr = 1;
-      inputMeta.getInputFields()[i].setName( item.getText( colnr++ ) );
-      inputMeta.getInputFields()[i].setType( ValueMetaFactory.getIdForValueMeta( item.getText( colnr++ ) ) );
-      inputMeta.getInputFields()[i].setFormat( item.getText( colnr++ ) );
-      inputMeta.getInputFields()[i].setLength( Const.toInt( item.getText( colnr++ ), -1 ) );
-      inputMeta.getInputFields()[i].setPrecision( Const.toInt( item.getText( colnr++ ), -1 ) );
-      inputMeta.getInputFields()[i].setCurrencySymbol( item.getText( colnr++ ) );
-      inputMeta.getInputFields()[i].setDecimalSymbol( item.getText( colnr++ ) );
-      inputMeta.getInputFields()[i].setGroupSymbol( item.getText( colnr++ ) );
-      inputMeta.getInputFields()[i].setTrimType( ValueMetaString.getTrimTypeByDesc( item.getText( colnr++ ) ) );
+      inputMeta.getInputFields()[ i ].setName( item.getText( colnr++ ) );
+      inputMeta.getInputFields()[ i ].setType( ValueMetaFactory.getIdForValueMeta( item.getText( colnr++ ) ) );
+      inputMeta.getInputFields()[ i ].setFormat( item.getText( colnr++ ) );
+      inputMeta.getInputFields()[ i ].setLength( Const.toInt( item.getText( colnr++ ), -1 ) );
+      inputMeta.getInputFields()[ i ].setPrecision( Const.toInt( item.getText( colnr++ ), -1 ) );
+      inputMeta.getInputFields()[ i ].setCurrencySymbol( item.getText( colnr++ ) );
+      inputMeta.getInputFields()[ i ].setDecimalSymbol( item.getText( colnr++ ) );
+      inputMeta.getInputFields()[ i ].setGroupSymbol( item.getText( colnr++ ) );
+      inputMeta.getInputFields()[ i ].setTrimType( ValueMetaString.getTrimTypeByDesc( item.getText( colnr++ ) ) );
     }
     wFields.removeEmptyRows();
     wFields.setRowNums();
@@ -797,14 +797,14 @@ public class ParGzipCsvInputDialog extends BaseStepDialog implements StepDialogI
         //
         DecimalFormat df = new DecimalFormat( "000" );
         for ( int i = 0; i < fieldNames.length; i++ ) {
-          fieldNames[i] = "Field_" + df.format( i );
+          fieldNames[ i ] = "Field_" + df.format( i );
         }
       } else {
         if ( !Utils.isEmpty( meta.getEnclosure() ) ) {
           for ( int i = 0; i < fieldNames.length; i++ ) {
-            if ( fieldNames[i].startsWith( meta.getEnclosure() )
-              && fieldNames[i].endsWith( meta.getEnclosure() ) && fieldNames[i].length() > 1 ) {
-              fieldNames[i] = fieldNames[i].substring( 1, fieldNames[i].length() - 1 );
+            if ( fieldNames[ i ].startsWith( meta.getEnclosure() )
+              && fieldNames[ i ].endsWith( meta.getEnclosure() ) && fieldNames[ i ].length() > 1 ) {
+              fieldNames[ i ] = fieldNames[ i ].substring( 1, fieldNames[ i ].length() - 1 );
             }
           }
         }
@@ -813,14 +813,14 @@ public class ParGzipCsvInputDialog extends BaseStepDialog implements StepDialogI
       // Trim the names to make sure...
       //
       for ( int i = 0; i < fieldNames.length; i++ ) {
-        fieldNames[i] = Const.trim( fieldNames[i] );
+        fieldNames[ i ] = Const.trim( fieldNames[ i ] );
       }
 
       // Update the GUI
       //
       for ( int i = 0; i < fieldNames.length; i++ ) {
         TableItem item = new TableItem( wFields.table, SWT.NONE );
-        item.setText( 1, fieldNames[i] );
+        item.setText( 1, fieldNames[ i ] );
         item.setText( 2, ValueMetaFactory.getValueMetaName( ValueMetaInterface.TYPE_STRING ) );
       }
       wFields.removeEmptyRows();
@@ -859,7 +859,7 @@ public class ParGzipCsvInputDialog extends BaseStepDialog implements StepDialogI
     } catch ( IOException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "ParGzipCsvInputDialog.IOError.DialogTitle" ), BaseMessages
-          .getString( PKG, "ParGzipCsvInputDialog.IOError.DialogMessage" ), e );
+        .getString( PKG, "ParGzipCsvInputDialog.IOError.DialogMessage" ), e );
     } catch ( HopException e ) {
       new ErrorDialog( shell, BaseMessages.getString( PKG, "System.Dialog.Error.Title" ), BaseMessages.getString(
         PKG, "ParGzipCsvInputDialog.ErrorGettingFileDesc.DialogMessage" ), e );
@@ -900,7 +900,7 @@ public class ParGzipCsvInputDialog extends BaseStepDialog implements StepDialogI
           EnterTextDialog etd =
             new EnterTextDialog(
               shell, BaseMessages.getString( PKG, "System.Dialog.PreviewError.Title" ), BaseMessages
-                .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
+              .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
           etd.setReadOnly();
           etd.open();
         }
@@ -909,7 +909,7 @@ public class ParGzipCsvInputDialog extends BaseStepDialog implements StepDialogI
       PreviewRowsDialog prd =
         new PreviewRowsDialog(
           shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta( wStepname
-            .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
+          .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
       prd.open();
     }
   }

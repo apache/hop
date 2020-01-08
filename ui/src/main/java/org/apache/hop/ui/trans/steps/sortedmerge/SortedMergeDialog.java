@@ -22,12 +22,23 @@
 
 package org.apache.hop.ui.trans.steps.sortedmerge;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.sortedmerge.SortedMergeMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.TableItemInsertListener;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
@@ -49,23 +60,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.sortedmerge.SortedMergeMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.TableItemInsertListener;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class SortedMergeDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = SortedMergeMeta.class; // for i18n purposes, needed by Translator2!!
@@ -153,12 +153,12 @@ public class SortedMergeDialog extends BaseStepDialog implements StepDialogInter
     final int FieldsCols = 2;
     final int FieldsRows = input.getFieldName().length;
 
-    colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
+    colinf = new ColumnInfo[ FieldsCols ];
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SortedMergeDialog.Fieldname.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] { "" }, false );
-    colinf[1] =
+    colinf[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SortedMergeDialog.Ascending.Column" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO,
@@ -257,10 +257,10 @@ public class SortedMergeDialog extends BaseStepDialog implements StepDialogInter
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    colinf[0].setComboValues( fieldNames );
+    colinf[ 0 ].setComboValues( fieldNames );
   }
 
   /**
@@ -274,8 +274,8 @@ public class SortedMergeDialog extends BaseStepDialog implements StepDialogInter
     for ( int i = 0; i < input.getFieldName().length; i++ ) {
       TableItem ti = new TableItem( table, SWT.NONE );
       ti.setText( 0, "" + ( i + 1 ) );
-      ti.setText( 1, input.getFieldName()[i] );
-      ti.setText( 2, input.getAscending()[i] ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages
+      ti.setText( 1, input.getFieldName()[ i ] );
+      ti.setText( 2, input.getAscending()[ i ] ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages
         .getString( PKG, "System.Combo.No" ) );
     }
 
@@ -306,8 +306,8 @@ public class SortedMergeDialog extends BaseStepDialog implements StepDialogInter
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrfields; i++ ) {
       TableItem ti = wFields.getNonEmpty( i );
-      input.getFieldName()[i] = ti.getText( 1 );
-      input.getAscending()[i] =
+      input.getFieldName()[ i ] = ti.getText( 1 );
+      input.getAscending()[ i ] =
         BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( ti.getText( 2 ) );
     }
 

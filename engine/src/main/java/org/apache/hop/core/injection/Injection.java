@@ -34,15 +34,23 @@ import java.lang.annotation.Target;
 @Target( { ElementType.FIELD, ElementType.METHOD } )
 public @interface Injection {
 
-  /** Injection key. */
+  /**
+   * Injection key.
+   */
   String name();
 
-  /** Injection group. */
+  /**
+   * Injection group.
+   */
   String group() default "";
 
-  /** Converter from RowMetaAndData to java types. */
+  /**
+   * Converter from RowMetaAndData to java types.
+   */
   Class<? extends InjectionTypeConverter> converter() default DefaultInjectionTypeConverter.class;
 
-  /** Convert empty values or not. By default, empty value doesn't change target value. */
+  /**
+   * Convert empty values or not. By default, empty value doesn't change target value.
+   */
   boolean convertEmpty() default false;
 }

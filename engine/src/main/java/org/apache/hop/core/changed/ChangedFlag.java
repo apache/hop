@@ -24,11 +24,11 @@ package org.apache.hop.core.changed;
 
 import java.util.Collections;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChangedFlag implements ChangedFlagInterface {
-  private Set<HopObserver> obs = Collections.newSetFromMap( new ConcurrentHashMap<HopObserver, Boolean>( ) );
+  private Set<HopObserver> obs = Collections.newSetFromMap( new ConcurrentHashMap<HopObserver, Boolean>() );
 
   private AtomicBoolean changed = new AtomicBoolean();
 
@@ -56,10 +56,10 @@ public class ChangedFlag implements ChangedFlagInterface {
     if ( !changed.get() ) {
       return;
     }
-    lobs = obs.toArray( new HopObserver[obs.size()] );
+    lobs = obs.toArray( new HopObserver[ obs.size() ] );
     clearChanged();
     for ( int i = lobs.length - 1; i >= 0; i-- ) {
-      lobs[i].update( this, arg );
+      lobs[ i ].update( this, arg );
     }
   }
 
@@ -73,8 +73,7 @@ public class ChangedFlag implements ChangedFlagInterface {
   /**
    * Sets whether or not this has changed.
    *
-   * @param ch
-   *          true if you want to mark this as changed, false otherwise
+   * @param ch true if you want to mark this as changed, false otherwise
    */
   public void setChanged( boolean b ) {
     changed.set( b );

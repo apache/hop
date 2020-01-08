@@ -22,22 +22,16 @@
 
 package org.apache.hop.trans.steps.fixedinput;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.ByteBuffer;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
@@ -47,6 +41,12 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.ByteBuffer;
 
 /**
  * Read a simple fixed width file Just output fields found in the file...
@@ -61,7 +61,7 @@ public class FixedInput extends BaseStep implements StepInterface {
   private FixedInputData data;
 
   public FixedInput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                     Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -106,8 +106,7 @@ public class FixedInput extends BaseStep implements StepInterface {
   /**
    * Read a single row of data from the file...
    *
-   * @param doConversions
-   *          if you want to do conversions, set to false for the header row.
+   * @param doConversions if you want to do conversions, set to false for the header row.
    * @return a row of data...
    * @throws HopException
    */
@@ -143,7 +142,7 @@ public class FixedInput extends BaseStep implements StepInterface {
       FixedFileInputField[] fieldDefinitions = meta.getFieldDefinition();
       for ( int i = 0; i < fieldDefinitions.length; i++ ) {
 
-        int fieldWidth = fieldDefinitions[i].getWidth();
+        int fieldWidth = fieldDefinitions[ i ].getWidth();
         data.endBuffer = data.startBuffer + fieldWidth;
         if ( data.endBuffer > data.bufferSize ) {
           // Oops, we need to read more data...
@@ -176,22 +175,22 @@ public class FixedInput extends BaseStep implements StepInterface {
           // Just take what's left for the current field.
           fieldWidth = data.bufferSize;
         }
-        byte[] field = new byte[fieldWidth];
+        byte[] field = new byte[ fieldWidth ];
         System.arraycopy( data.byteBuffer, data.startBuffer, field, 0, fieldWidth );
 
         if ( doConversions ) {
           if ( meta.isLazyConversionActive() ) {
-            outputRowData[outputIndex++] = field;
+            outputRowData[ outputIndex++ ] = field;
           } else {
             // We're not lazy so we convert the data right here and now.
             // The convert object uses binary storage as such we just have to ask the native type from it.
             // That will do the actual conversion.
             //
             ValueMetaInterface sourceValueMeta = data.convertRowMeta.getValueMeta( outputIndex );
-            outputRowData[outputIndex++] = sourceValueMeta.convertBinaryStringToNativeType( field );
+            outputRowData[ outputIndex++ ] = sourceValueMeta.convertBinaryStringToNativeType( field );
           }
         } else {
-          outputRowData[outputIndex++] = null; // nothing for the header, no conversions here.
+          outputRowData[ outputIndex++ ] = null; // nothing for the header, no conversions here.
         }
 
         // OK, onto the next field...
@@ -217,11 +216,11 @@ public class FixedInput extends BaseStep implements StepInterface {
 
         // CR + Line feed in the worst case.
         //
-        if ( data.byteBuffer[data.startBuffer] == '\n' || data.byteBuffer[data.startBuffer] == '\r' ) {
+        if ( data.byteBuffer[ data.startBuffer ] == '\n' || data.byteBuffer[ data.startBuffer ] == '\r' ) {
 
           data.startBuffer++;
 
-          if ( data.byteBuffer[data.startBuffer] == '\n' || data.byteBuffer[data.startBuffer] == '\r' ) {
+          if ( data.byteBuffer[ data.startBuffer ] == '\n' || data.byteBuffer[ data.startBuffer ] == '\r' ) {
 
             data.startBuffer++;
           }

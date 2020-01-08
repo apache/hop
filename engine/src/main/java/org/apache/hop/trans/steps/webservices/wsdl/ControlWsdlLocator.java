@@ -22,6 +22,9 @@
 
 package org.apache.hop.trans.steps.webservices.wsdl;
 
+import org.xml.sax.InputSource;
+
+import javax.wsdl.xml.WSDLLocator;
 import java.beans.beancontext.BeanContext;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,10 +34,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.wsdl.xml.WSDLLocator;
-
-import org.xml.sax.InputSource;
 
 /**
  * Implementation of WSDLLocator for Beehive controls. This WSDLLocator implementation may open multiple input streams,
@@ -48,10 +47,8 @@ public final class ControlWsdlLocator implements WSDLLocator {
   /**
    * Create a new wsdl locator for the wsdl file with the specified name.
    *
-   * @param wsdlName
-   *          Name of the WSDL file to try to load. Name may include file path elements.
-   * @param beanContext
-   *          The ControlBeanContext of the control which wants to load a WSDL file.
+   * @param wsdlName    Name of the WSDL file to try to load. Name may include file path elements.
+   * @param beanContext The ControlBeanContext of the control which wants to load a WSDL file.
    */
   public ControlWsdlLocator( String wsdlName, BeanContext beanContext ) {
 

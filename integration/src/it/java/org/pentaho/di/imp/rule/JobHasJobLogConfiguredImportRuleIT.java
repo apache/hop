@@ -22,10 +22,7 @@
 
 package org.apache.hop.imp.rule;
 
-import java.util.List;
-
 import junit.framework.TestCase;
-
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.logging.JobLogTable;
@@ -34,6 +31,8 @@ import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.imp.rules.JobHasJobLogConfiguredImportRule;
 import org.apache.hop.job.JobMeta;
+
+import java.util.List;
 
 public class JobHasJobLogConfiguredImportRuleIT extends TestCase {
 

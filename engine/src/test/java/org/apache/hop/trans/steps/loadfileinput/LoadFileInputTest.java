@@ -27,12 +27,6 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.VFS;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
@@ -50,6 +44,12 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
@@ -148,7 +148,7 @@ public class LoadFileInputTest {
     runtimeSDI = runtimeSMI.getStepData();
 
     inputField = new LoadFileInputField();
-    ((LoadFileInputMeta) runtimeSMI).setInputFields( new LoadFileInputField[] { inputField } );
+    ( (LoadFileInputMeta) runtimeSMI ).setInputFields( new LoadFileInputField[] { inputField } );
     stepLoadFileInput.init( runtimeSMI, runtimeSDI );
   }
 
@@ -319,13 +319,13 @@ public class LoadFileInputTest {
     ( (LoadFileInputMeta) runtimeSMI ).setEncoding( "UTF-8" );
     stepInputFiles.addFile( getFile( "UTF-8.txt" ) );
     Object[] result = stepLoadFileInput.getOneRow();
-    assertEquals( " UTF-8 string ÕÕÕ€ ", result[0] );
-    assertEquals( 1L, result[2] );
-    assertEquals( "UTF-8.txt", result[3] );
-    assertEquals( "txt", result[4] );
-    assertEquals( false, result[6] );
-    assertEquals( getFile( "UTF-8.txt" ).getURL().toString(), result[8] );
-    assertEquals( getFile( "UTF-8.txt" ).getName().getRootURI(), result[9] );
+    assertEquals( " UTF-8 string ÕÕÕ€ ", result[ 0 ] );
+    assertEquals( 1L, result[ 2 ] );
+    assertEquals( "UTF-8.txt", result[ 3 ] );
+    assertEquals( "txt", result[ 4 ] );
+    assertEquals( false, result[ 6 ] );
+    assertEquals( getFile( "UTF-8.txt" ).getURL().toString(), result[ 8 ] );
+    assertEquals( getFile( "UTF-8.txt" ).getName().getRootURI(), result[ 9 ] );
   }
 
   @Test
@@ -333,7 +333,7 @@ public class LoadFileInputTest {
     ( (LoadFileInputMeta) runtimeSMI ).setEncoding( "UTF-8" );
     inputField.setTrimType( ValueMetaInterface.TRIM_TYPE_LEFT );
     stepInputFiles.addFile( getFile( "UTF-8.txt" ) );
-    assertEquals( "UTF-8 string ÕÕÕ€ ", stepLoadFileInput.getOneRow()[0] );
+    assertEquals( "UTF-8 string ÕÕÕ€ ", stepLoadFileInput.getOneRow()[ 0 ] );
   }
 
   @Test
@@ -341,7 +341,7 @@ public class LoadFileInputTest {
     ( (LoadFileInputMeta) runtimeSMI ).setEncoding( "UTF-8" );
     inputField.setTrimType( ValueMetaInterface.TRIM_TYPE_RIGHT );
     stepInputFiles.addFile( getFile( "UTF-8.txt" ) );
-    assertEquals( " UTF-8 string ÕÕÕ€", stepLoadFileInput.getOneRow()[0] );
+    assertEquals( " UTF-8 string ÕÕÕ€", stepLoadFileInput.getOneRow()[ 0 ] );
   }
 
   @Test
@@ -349,7 +349,7 @@ public class LoadFileInputTest {
     ( (LoadFileInputMeta) runtimeSMI ).setEncoding( "UTF-8" );
     inputField.setTrimType( ValueMetaInterface.TRIM_TYPE_BOTH );
     stepInputFiles.addFile( getFile( "UTF-8.txt" ) );
-    assertEquals( "UTF-8 string ÕÕÕ€", stepLoadFileInput.getOneRow()[0] );
+    assertEquals( "UTF-8 string ÕÕÕ€", stepLoadFileInput.getOneRow()[ 0 ] );
   }
 
   @Test
@@ -357,7 +357,7 @@ public class LoadFileInputTest {
     ( (LoadFileInputMeta) runtimeSMI ).setEncoding( "Windows-1252" );
     inputField.setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
     stepInputFiles.addFile( getFile( "Windows-1252.txt" ) );
-    assertEquals( " Windows-1252 string ÕÕÕ€ ", stepLoadFileInput.getOneRow()[0] );
+    assertEquals( " Windows-1252 string ÕÕÕ€ ", stepLoadFileInput.getOneRow()[ 0 ] );
   }
 
   @Test
@@ -365,7 +365,7 @@ public class LoadFileInputTest {
     // string with Windows-1252 encoding but with no encoding set
     ( (LoadFileInputMeta) runtimeSMI ).setEncoding( null );
     stepInputFiles.addFile( getFile( "Windows-1252.txt" ) );
-    assertNotEquals( " Windows-1252 string ÕÕÕ€ ", stepLoadFileInput.getOneRow()[0] );
+    assertNotEquals( " Windows-1252 string ÕÕÕ€ ", stepLoadFileInput.getOneRow()[ 0 ] );
     assertEquals( " Windows-1252 string ÕÕÕ€ ", new String( stepLoadFileInput.data.filecontent, "Windows-1252" ) );
   }
 
@@ -382,7 +382,7 @@ public class LoadFileInputTest {
     stepInputFiles.addFile( getFile( "pentaho_splash.png" ) );
     inputField = new LoadFileInputField();
     inputField.setType( ValueMetaInterface.TYPE_BINARY );
-    ( (LoadFileInputMeta) runtimeSMI ).setInputFields( new LoadFileInputField[]{ inputField } );
+    ( (LoadFileInputMeta) runtimeSMI ).setInputFields( new LoadFileInputField[] { inputField } );
 
     assertNotNull( stepLoadFileInput.getOneRow() );
     assertArrayEquals( IOUtils.toByteArray( getFile( "pentaho_splash.png" ).getContent().getInputStream() ), stepLoadFileInput.data.filecontent );
@@ -397,7 +397,7 @@ public class LoadFileInputTest {
 
     Mockito.when( loadFileInput.copyOrCloneArrayFromLoadFile( rowData, readrow ) ).thenCallRealMethod();
 
-    assertEquals( 5,  loadFileInput.copyOrCloneArrayFromLoadFile( rowData, readrow ).length );
+    assertEquals( 5, loadFileInput.copyOrCloneArrayFromLoadFile( rowData, readrow ).length );
   }
 
   @Test
@@ -409,7 +409,7 @@ public class LoadFileInputTest {
 
     Mockito.when( loadFileInput.copyOrCloneArrayFromLoadFile( rowData, readrow ) ).thenCallRealMethod();
 
-    assertEquals( 6,  loadFileInput.copyOrCloneArrayFromLoadFile( rowData, readrow ).length );
+    assertEquals( 6, loadFileInput.copyOrCloneArrayFromLoadFile( rowData, readrow ).length );
   }
 
   @Test
@@ -421,7 +421,7 @@ public class LoadFileInputTest {
 
     Mockito.when( loadFileInput.copyOrCloneArrayFromLoadFile( rowData, readrow ) ).thenCallRealMethod();
 
-    assertEquals( 5,  loadFileInput.copyOrCloneArrayFromLoadFile( rowData, readrow ).length );
+    assertEquals( 5, loadFileInput.copyOrCloneArrayFromLoadFile( rowData, readrow ).length );
   }
 
 }

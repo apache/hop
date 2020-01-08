@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.regexeval;
 
-import java.util.List;
-
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -36,9 +34,11 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransTestFactory;
 import org.apache.hop.trans.TransformationIT;
 
+import java.util.List;
+
 /**
  * Test class for the RegexEval step.
- *
+ * <p>
  * Needs a lot more cases.
  *
  * @author Sven Boden
@@ -134,8 +134,8 @@ public class RegexEvalIT extends TransformationIT {
     regexEvalMeta.setAllowCaptureGroupsFlag( true );
     regexEvalMeta.allocate( 1 );
     //CHECKSTYLE:Indentation:OFF
-    regexEvalMeta.getFieldName()[0] = "cap";
-    regexEvalMeta.getFieldType()[0] = ValueMetaInterface.TYPE_INTEGER;
+    regexEvalMeta.getFieldName()[ 0 ] = "cap";
+    regexEvalMeta.getFieldType()[ 0 ] = ValueMetaInterface.TYPE_INTEGER;
 
     TransMeta transMeta =
       TransTestFactory.generateTestTransformation( new Variables(), regexEvalMeta, regexStepName );
@@ -161,21 +161,21 @@ public class RegexEvalIT extends TransformationIT {
 
     regexEvalMeta.allocate( 4 );
 
-    regexEvalMeta.getFieldName()[0] = "cap";
-    regexEvalMeta.getFieldType()[0] = ValueMetaInterface.TYPE_STRING;
+    regexEvalMeta.getFieldName()[ 0 ] = "cap";
+    regexEvalMeta.getFieldType()[ 0 ] = ValueMetaInterface.TYPE_STRING;
 
-    regexEvalMeta.getFieldName()[1] = "capIfNull";
-    regexEvalMeta.getFieldType()[1] = ValueMetaInterface.TYPE_STRING;
-    regexEvalMeta.getFieldIfNull()[1] = "x";
+    regexEvalMeta.getFieldName()[ 1 ] = "capIfNull";
+    regexEvalMeta.getFieldType()[ 1 ] = ValueMetaInterface.TYPE_STRING;
+    regexEvalMeta.getFieldIfNull()[ 1 ] = "x";
 
-    regexEvalMeta.getFieldName()[2] = "capNullIf";
-    regexEvalMeta.getFieldType()[2] = ValueMetaInterface.TYPE_STRING;
-    regexEvalMeta.getFieldNullIf()[2] = "1";
+    regexEvalMeta.getFieldName()[ 2 ] = "capNullIf";
+    regexEvalMeta.getFieldType()[ 2 ] = ValueMetaInterface.TYPE_STRING;
+    regexEvalMeta.getFieldNullIf()[ 2 ] = "1";
 
-    regexEvalMeta.getFieldName()[3] = "capIfNullNullIf";
-    regexEvalMeta.getFieldType()[3] = ValueMetaInterface.TYPE_INTEGER;
-    regexEvalMeta.getFieldIfNull()[3] = "0";
-    regexEvalMeta.getFieldNullIf()[3] = "B";
+    regexEvalMeta.getFieldName()[ 3 ] = "capIfNullNullIf";
+    regexEvalMeta.getFieldType()[ 3 ] = ValueMetaInterface.TYPE_INTEGER;
+    regexEvalMeta.getFieldIfNull()[ 3 ] = "0";
+    regexEvalMeta.getFieldNullIf()[ 3 ] = "B";
 
     TransMeta transMeta =
       TransTestFactory.generateTestTransformation( new Variables(), regexEvalMeta, regexStepName );

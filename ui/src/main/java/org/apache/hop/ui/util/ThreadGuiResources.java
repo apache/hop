@@ -22,22 +22,22 @@
 
 package org.apache.hop.ui.util;
 
-import org.eclipse.swt.widgets.Display;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.HopUiFactory;
 import org.apache.hop.core.gui.ThreadDialogs;
+import org.eclipse.swt.widgets.Display;
 
 public class ThreadGuiResources implements ThreadDialogs {
 
   public boolean threadMessageBox( final String message, final String text, boolean allowCancel, int type ) {
 
-    final boolean[] result = new boolean[1];
+    final boolean[] result = new boolean[ 1 ];
     Display.getDefault().syncExec( new Runnable() {
       public void run() {
-        result[0] = HopUiFactory.getInstance().messageBox( message, text, true, Const.INFO );
+        result[ 0 ] = HopUiFactory.getInstance().messageBox( message, text, true, Const.INFO );
       }
     } );
-    return result[0];
+    return result[ 0 ];
   }
 
 }

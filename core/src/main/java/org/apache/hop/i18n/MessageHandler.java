@@ -30,7 +30,6 @@ import org.apache.hop.laf.Handler;
  * ways.
  *
  * @author dhushon
- *
  */
 public interface MessageHandler extends Handler {
 

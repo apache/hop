@@ -66,9 +66,9 @@ public class ExplorerHarness {
         System.out.println( "Revision: ".concat( revision == null ? "null" : revision ) );
         return false; // do not close explorer
       }
-      
+
       @Override
-      public boolean error ( String message ) throws Exception {
+      public boolean error( String message ) throws Exception {
         System.out.println( "Error message: ".concat( message ) );
         return true;
       }

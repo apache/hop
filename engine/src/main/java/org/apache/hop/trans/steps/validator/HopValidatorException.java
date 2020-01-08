@@ -58,20 +58,15 @@ public class HopValidatorException extends HopValueException {
   /**
    * Constructs a new Throwable with the specified detail message.
    *
-   * @param Validator
-   *          - the instance of Validator that this object will reference use environmenSubsitute invokation. The class
-   *          is probably where this object is being created.
-   * @param validatorField
-   *          - the Validation in which the failure happened and this exception is to be created for.
-   * @param code
-   *          - the error code, see the static members of this class.
-   * @param message
-   *          - the detail message. The detail message is saved for later retrieval by the getMessage() method.
-   * @param fieldName
-   *          - the name of the field that failed Validation.
+   * @param Validator      - the instance of Validator that this object will reference use environmenSubsitute invokation. The class
+   *                       is probably where this object is being created.
+   * @param validatorField - the Validation in which the failure happened and this exception is to be created for.
+   * @param code           - the error code, see the static members of this class.
+   * @param message        - the detail message. The detail message is saved for later retrieval by the getMessage() method.
+   * @param fieldName      - the name of the field that failed Validation.
    */
   public HopValidatorException( Validator validator, Validation validatorField, int code, String message,
-    String fieldname ) {
+                                String fieldname ) {
     super( message );
     this.validator = validator;
     this.validatorField = validatorField;
@@ -87,8 +82,7 @@ public class HopValidatorException extends HopValueException {
   }
 
   /**
-   * @param code
-   *          the code to set
+   * @param code the code to set
    */
   public void setCode( int code ) {
     this.code = code;
@@ -102,7 +96,7 @@ public class HopValidatorException extends HopValueException {
       String validatorCode = validator.environmentSubstitute( validatorField.getErrorCode() );
       return validatorCode;
     }
-    return errorCode[code];
+    return errorCode[ code ];
   }
 
   @Override
@@ -122,8 +116,7 @@ public class HopValidatorException extends HopValueException {
   }
 
   /**
-   * @param fieldname
-   *          the fieldname to set
+   * @param fieldname the fieldname to set
    */
   public void setFieldname( String fieldname ) {
     this.fieldname = fieldname;
@@ -137,8 +130,7 @@ public class HopValidatorException extends HopValueException {
   }
 
   /**
-   * @param validatorField
-   *          the validatorField to set
+   * @param validatorField the validatorField to set
    */
   public void setValidatorField( Validation validatorField ) {
     this.validatorField = validatorField;

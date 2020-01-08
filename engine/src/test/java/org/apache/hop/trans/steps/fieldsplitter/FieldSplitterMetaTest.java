@@ -22,20 +22,11 @@
 
 package org.apache.hop.trans.steps.fieldsplitter;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.BooleanLoadSaveValidator;
@@ -44,6 +35,15 @@ import org.apache.hop.trans.steps.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class FieldSplitterMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -159,7 +159,7 @@ public class FieldSplitterMetaTest {
     fieldSplitter.setFieldDecimal( new String[] { "asdf", "qwer", "zxcvb", "erty", "asfaf", "fhdfhg" } );
     fieldSplitter.setFieldCurrency( new String[] { "$", "$", "$", "$", "$", "$" } );
     fieldSplitter.setFieldLength( new int[] { 12, 6, 15, 14, 23, 177, 13, 21 } );
-    fieldSplitter.setFieldPrecision( new int[] { 7, 7, 7, 7, 12, 16, 5, 5, 5} );
+    fieldSplitter.setFieldPrecision( new int[] { 7, 7, 7, 7, 12, 16, 5, 5, 5 } );
     fieldSplitter.setFieldNullIf( new String[] { "hdfgh", "sdfgsdg", "ZZfZDf", "dfhfh", "235gwst", "qreqwre" } );
     fieldSplitter.setFieldIfNull( new String[] { "asdfsaf", "qwreqwr", "afxxvzxvc", "qwreasgf", "zxcgdfg" } );
 

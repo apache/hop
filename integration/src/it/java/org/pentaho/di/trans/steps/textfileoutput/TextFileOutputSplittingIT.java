@@ -25,15 +25,15 @@ package org.apache.hop.trans.steps.textfileoutput;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.util.List;
 

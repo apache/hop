@@ -22,13 +22,10 @@
 
 package org.apache.hop.trans.steps.ldapoutput;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -38,6 +35,9 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.ldapinput.LDAPConnection;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Write to LDAP.
@@ -52,7 +52,7 @@ public class LDAPOutput extends BaseStep implements StepInterface {
   private LDAPOutputData data;
 
   public LDAPOutput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                     Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -81,9 +81,9 @@ public class LDAPOutput extends BaseStep implements StepInterface {
         }
 
         // Take care of variable
-        data.fieldsAttribute = new String[data.nrfields];
+        data.fieldsAttribute = new String[ data.nrfields ];
         // Build the mapping of input position to field name
-        data.fieldStream = new int[data.nrfields];
+        data.fieldStream = new int[ data.nrfields ];
 
         // Fields to update
         List<Integer> fieldsToUpdateInStreaml = new ArrayList<Integer>();
@@ -91,38 +91,38 @@ public class LDAPOutput extends BaseStep implements StepInterface {
 
         for ( int i = 0; i < data.nrfields; i++ ) {
 
-          data.fieldStream[i] =
-            getInputRowMeta().indexOfValue( environmentSubstitute( meta.getUpdateStream()[i] ) );
-          if ( data.fieldStream[i] < 0 ) {
+          data.fieldStream[ i ] =
+            getInputRowMeta().indexOfValue( environmentSubstitute( meta.getUpdateStream()[ i ] ) );
+          if ( data.fieldStream[ i ] < 0 ) {
             throw new HopException( "Field ["
-              + meta.getUpdateStream()[i] + "] couldn't be found in the input stream!" );
+              + meta.getUpdateStream()[ i ] + "] couldn't be found in the input stream!" );
           }
-          data.fieldsAttribute[i] = environmentSubstitute( meta.getUpdateLookup()[i] );
+          data.fieldsAttribute[ i ] = environmentSubstitute( meta.getUpdateLookup()[ i ] );
 
           if ( meta.getOperationType() == LDAPOutputMeta.OPERATION_TYPE_UPSERT ) {
-            if ( meta.getUpdate()[i].booleanValue() ) {
+            if ( meta.getUpdate()[ i ].booleanValue() ) {
               // We need also to keep care of the fields to update
-              fieldsToUpdateInStreaml.add( data.fieldStream[i] );
-              fieldsToUpdateAttributel.add( data.fieldsAttribute[i] );
+              fieldsToUpdateInStreaml.add( data.fieldStream[ i ] );
+              fieldsToUpdateAttributel.add( data.fieldsAttribute[ i ] );
             }
           }
         }
 
         data.nrfieldsToUpdate = fieldsToUpdateInStreaml.size();
         if ( data.nrfieldsToUpdate > 0 ) {
-          data.fieldStreamToUpdate = new int[data.nrfieldsToUpdate];
-          data.fieldsAttributeToUpdate = new String[data.nrfieldsToUpdate];
+          data.fieldStreamToUpdate = new int[ data.nrfieldsToUpdate ];
+          data.fieldsAttributeToUpdate = new String[ data.nrfieldsToUpdate ];
           for ( int i = 0; i < fieldsToUpdateInStreaml.size(); i++ ) {
-            data.fieldStreamToUpdate[i] = fieldsToUpdateInStreaml.get( i );
-            data.fieldsAttributeToUpdate[i] = fieldsToUpdateAttributel.get( i );
+            data.fieldStreamToUpdate[ i ] = fieldsToUpdateInStreaml.get( i );
+            data.fieldsAttributeToUpdate[ i ] = fieldsToUpdateAttributel.get( i );
           }
         }
         fieldsToUpdateInStreaml = null;
         fieldsToUpdateAttributel = null;
 
-        data.attributes = new String[data.nrfields];
+        data.attributes = new String[ data.nrfields ];
         if ( meta.getOperationType() == LDAPOutputMeta.OPERATION_TYPE_UPSERT && data.nrfieldsToUpdate > 0 ) {
-          data.attributesToUpdate = new String[data.nrfieldsToUpdate];
+          data.attributesToUpdate = new String[ data.nrfieldsToUpdate ];
         }
       }
 
@@ -185,7 +185,7 @@ public class LDAPOutput extends BaseStep implements StepInterface {
         if ( meta.getOperationType() != LDAPOutputMeta.OPERATION_TYPE_DELETE ) {
           // Build new value attributes
           for ( int i = 0; i < data.nrfields; i++ ) {
-            data.attributes[i] = getInputRowMeta().getString( outputRowData, data.fieldStream[i] );
+            data.attributes[ i ] = getInputRowMeta().getString( outputRowData, data.fieldStream[ i ] );
           }
         }
       }
@@ -193,7 +193,7 @@ public class LDAPOutput extends BaseStep implements StepInterface {
         case LDAPOutputMeta.OPERATION_TYPE_UPSERT:
           // handle fields to update
           for ( int i = 0; i < data.nrfieldsToUpdate; i++ ) {
-            data.attributesToUpdate[i] = getInputRowMeta().getString( outputRowData, data.fieldStreamToUpdate[i] );
+            data.attributesToUpdate[ i ] = getInputRowMeta().getString( outputRowData, data.fieldStreamToUpdate[ i ] );
           }
           int status =
             data.connection.upsert(

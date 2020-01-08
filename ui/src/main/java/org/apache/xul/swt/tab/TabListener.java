@@ -22,8 +22,6 @@
 
 package org.apache.xul.swt.tab;
 
-import org.apache.xul.swt.tab.TabItem;
-
 public interface TabListener {
 
   public void tabSelected( TabItem item );

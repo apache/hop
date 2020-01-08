@@ -22,9 +22,8 @@
 
 package org.apache.hop.trans.steps.terafast;
 
-import org.apache.commons.lang.SystemUtils;
-
 import junit.framework.TestCase;
+import org.apache.commons.lang.SystemUtils;
 
 public class FastloadControlBuilderIT extends TestCase {
 

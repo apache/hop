@@ -22,10 +22,6 @@
 
 package org.apache.hop.trans.steps.insertupdate;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
@@ -45,6 +41,10 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Performs a lookup in a database table. If the key doesn't exist it inserts values into the table, otherwise it
  * performs an update of the changed values. If nothing changed, do nothing.
@@ -59,23 +59,23 @@ public class InsertUpdate extends BaseStep implements StepInterface {
   private InsertUpdateData data;
 
   public InsertUpdate( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                       Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
   protected synchronized void lookupValues( RowMetaInterface rowMeta, Object[] row ) throws HopException {
     // OK, now do the lookup.
     // We need the lookupvalues for that.
-    Object[] lookupRow = new Object[data.lookupParameterRowMeta.size()];
+    Object[] lookupRow = new Object[ data.lookupParameterRowMeta.size() ];
     int lookupIndex = 0;
 
     for ( int i = 0; i < data.keynrs.length; i++ ) {
-      if ( data.keynrs[i] >= 0 ) {
-        lookupRow[lookupIndex] = row[data.keynrs[i]];
+      if ( data.keynrs[ i ] >= 0 ) {
+        lookupRow[ lookupIndex ] = row[ data.keynrs[ i ] ];
         lookupIndex++;
       }
-      if ( data.keynrs2[i] >= 0 ) {
-        lookupRow[lookupIndex] = row[data.keynrs2[i]];
+      if ( data.keynrs2[ i ] >= 0 ) {
+        lookupRow[ lookupIndex ] = row[ data.keynrs2[ i ] ];
         lookupIndex++;
       }
     }
@@ -102,9 +102,9 @@ public class InsertUpdate extends BaseStep implements StepInterface {
       // The values to insert are those in the update section (all fields should be specified)
       // For the others, we have no definite mapping!
       //
-      Object[] insertRow = new Object[data.valuenrs.length];
+      Object[] insertRow = new Object[ data.valuenrs.length ];
       for ( int i = 0; i < data.valuenrs.length; i++ ) {
-        insertRow[i] = row[data.valuenrs[i]];
+        insertRow[ i ] = row[ data.valuenrs[ i ] ];
       }
 
       // Set the values on the prepared statement...
@@ -128,12 +128,12 @@ public class InsertUpdate extends BaseStep implements StepInterface {
          */
         boolean update = false;
         for ( int i = 0; i < data.valuenrs.length; i++ ) {
-          if ( meta.getUpdate()[i].booleanValue() ) {
-            ValueMetaInterface valueMeta = rowMeta.getValueMeta( data.valuenrs[i] );
+          if ( meta.getUpdate()[ i ].booleanValue() ) {
+            ValueMetaInterface valueMeta = rowMeta.getValueMeta( data.valuenrs[ i ] );
             ValueMetaInterface retMeta = data.db.getReturnRowMeta().getValueMeta( i );
 
-            Object rowvalue = row[data.valuenrs[i]];
-            Object retvalue = add[i];
+            Object rowvalue = row[ data.valuenrs[ i ] ];
+            Object retvalue = add[ i ];
 
             if ( retMeta.compare( retvalue, valueMeta, rowvalue ) != 0 ) {
               update = true;
@@ -142,17 +142,17 @@ public class InsertUpdate extends BaseStep implements StepInterface {
         }
         if ( update ) {
           // Create the update row...
-          Object[] updateRow = new Object[data.updateParameterRowMeta.size()];
+          Object[] updateRow = new Object[ data.updateParameterRowMeta.size() ];
           int j = 0;
           for ( int i = 0; i < data.valuenrs.length; i++ ) {
-            if ( meta.getUpdate()[i].booleanValue() ) {
-              updateRow[j] = row[data.valuenrs[i]]; // the setters
+            if ( meta.getUpdate()[ i ].booleanValue() ) {
+              updateRow[ j ] = row[ data.valuenrs[ i ] ]; // the setters
               j++;
             }
           }
           // add the where clause parameters, they are exactly the same for lookup and update
           for ( int i = 0; i < lookupRow.length; i++ ) {
-            updateRow[j + i] = lookupRow[i];
+            updateRow[ j + i ] = lookupRow[ i ];
           }
 
           if ( log.isRowLevel() ) {
@@ -208,56 +208,56 @@ public class InsertUpdate extends BaseStep implements StepInterface {
       ArrayList<Integer> keynrs2 = new ArrayList<Integer>( meta.getKeyStream().length );
 
       for ( int i = 0; i < meta.getKeyStream().length; i++ ) {
-        int keynr = getInputRowMeta().indexOfValue( meta.getKeyStream()[i] );
+        int keynr = getInputRowMeta().indexOfValue( meta.getKeyStream()[ i ] );
 
         if ( keynr < 0 && // couldn't find field!
-          !"IS NULL".equalsIgnoreCase( meta.getKeyCondition()[i] ) && // No field needed!
-          !"IS NOT NULL".equalsIgnoreCase( meta.getKeyCondition()[i] ) // No field needed!
+          !"IS NULL".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) && // No field needed!
+          !"IS NOT NULL".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) // No field needed!
         ) {
           throw new HopStepException( BaseMessages.getString( PKG, "InsertUpdate.Exception.FieldRequired", meta
-            .getKeyStream()[i] ) );
+            .getKeyStream()[ i ] ) );
         }
         keynrs.add( keynr );
 
         // this operator needs two bindings
-        if ( "= ~NULL".equalsIgnoreCase( meta.getKeyCondition()[i] ) ) {
+        if ( "= ~NULL".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) ) {
           keynrs.add( keynr );
           keynrs2.add( -1 );
         }
 
-        int keynr2 = getInputRowMeta().indexOfValue( meta.getKeyStream2()[i] );
+        int keynr2 = getInputRowMeta().indexOfValue( meta.getKeyStream2()[ i ] );
         if ( keynr2 < 0 && // couldn't find field!
-          "BETWEEN".equalsIgnoreCase( meta.getKeyCondition()[i] ) // 2 fields needed!
+          "BETWEEN".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) // 2 fields needed!
         ) {
           throw new HopStepException( BaseMessages.getString( PKG, "InsertUpdate.Exception.FieldRequired", meta
-            .getKeyStream2()[i] ) );
+            .getKeyStream2()[ i ] ) );
         }
         keynrs2.add( keynr2 );
 
         if ( log.isDebug() ) {
-          logDebug( BaseMessages.getString( PKG, "InsertUpdate.Log.FieldHasDataNumbers", meta.getKeyStream()[i] )
+          logDebug( BaseMessages.getString( PKG, "InsertUpdate.Log.FieldHasDataNumbers", meta.getKeyStream()[ i ] )
             + "" + keynrs.get( keynrs.size() - 1 ) );
         }
       }
 
-      data.keynrs = ArrayUtils.toPrimitive( keynrs.toArray( new Integer[0] ) );
-      data.keynrs2 = ArrayUtils.toPrimitive( keynrs2.toArray( new Integer[0] ) );
+      data.keynrs = ArrayUtils.toPrimitive( keynrs.toArray( new Integer[ 0 ] ) );
+      data.keynrs2 = ArrayUtils.toPrimitive( keynrs2.toArray( new Integer[ 0 ] ) );
 
       // Cache the position of the compare fields in Row row
       //
-      data.valuenrs = new int[meta.getUpdateLookup().length];
+      data.valuenrs = new int[ meta.getUpdateLookup().length ];
       for ( int i = 0; i < meta.getUpdateLookup().length; i++ ) {
-        data.valuenrs[i] = getInputRowMeta().indexOfValue( meta.getUpdateStream()[i] );
-        if ( data.valuenrs[i] < 0 ) {
+        data.valuenrs[ i ] = getInputRowMeta().indexOfValue( meta.getUpdateStream()[ i ] );
+        if ( data.valuenrs[ i ] < 0 ) {
           // couldn't find field!
 
           throw new HopStepException( BaseMessages.getString( PKG, "InsertUpdate.Exception.FieldRequired", meta
-            .getUpdateStream()[i] ) );
+            .getUpdateStream()[ i ] ) );
         }
         if ( log.isDebug() ) {
           logDebug( BaseMessages
-            .getString( PKG, "InsertUpdate.Log.FieldHasDataNumbers", meta.getUpdateStream()[i] )
-            + data.valuenrs[i] );
+            .getString( PKG, "InsertUpdate.Log.FieldHasDataNumbers", meta.getUpdateStream()[ i ] )
+            + data.valuenrs[ i ] );
         }
       }
 
@@ -267,13 +267,13 @@ public class InsertUpdate extends BaseStep implements StepInterface {
 
       // Insert the update fields: just names. Type doesn't matter!
       for ( int i = 0; i < meta.getUpdateLookup().length; i++ ) {
-        ValueMetaInterface insValue = data.insertRowMeta.searchValueMeta( meta.getUpdateLookup()[i] );
+        ValueMetaInterface insValue = data.insertRowMeta.searchValueMeta( meta.getUpdateLookup()[ i ] );
         if ( insValue == null ) {
           // Don't add twice!
 
           // we already checked that this value exists so it's probably safe to ignore lookup failure...
-          ValueMetaInterface insertValue = getInputRowMeta().searchValueMeta( meta.getUpdateStream()[i] ).clone();
-          insertValue.setName( meta.getUpdateLookup()[i] );
+          ValueMetaInterface insertValue = getInputRowMeta().searchValueMeta( meta.getUpdateStream()[ i ] ).clone();
+          insertValue.setName( meta.getUpdateLookup()[ i ] );
           data.insertRowMeta.addValueMeta( insertValue );
         } else {
           throw new HopStepException( "The same column can't be inserted into the target row twice: "
@@ -287,8 +287,8 @@ public class InsertUpdate extends BaseStep implements StepInterface {
       if ( !meta.isUpdateBypassed() ) {
         List<String> updateColumns = new ArrayList<String>();
         for ( int i = 0; i < meta.getUpdate().length; i++ ) {
-          if ( meta.getUpdate()[i].booleanValue() ) {
-            updateColumns.add( meta.getUpdateLookup()[i] );
+          if ( meta.getUpdate()[ i ].booleanValue() ) {
+            updateColumns.add( meta.getUpdateLookup()[ i ] );
           }
         }
         prepareUpdate( getInputRowMeta() );
@@ -298,7 +298,7 @@ public class InsertUpdate extends BaseStep implements StepInterface {
     try {
       lookupValues( getInputRowMeta(), r ); // add new values to the row in rowset[0].
       putRow( data.outputRowMeta, r ); // Nothing changed to the input, return the same row, pass a "cloned" metadata
-                                       // row.
+      // row.
 
       if ( checkFeedback( getLinesRead() ) ) {
         if ( log.isBasic() ) {
@@ -338,8 +338,8 @@ public class InsertUpdate extends BaseStep implements StepInterface {
       if ( i != 0 ) {
         sql += ", ";
       }
-      sql += databaseMeta.quoteField( meta.getUpdateLookup()[i] );
-      data.lookupReturnRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getUpdateStream()[i] ).clone() );
+      sql += databaseMeta.quoteField( meta.getUpdateLookup()[ i ] );
+      data.lookupReturnRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getUpdateStream()[ i ] ).clone() );
     }
 
     sql += " FROM " + data.schemaTable + " WHERE ";
@@ -351,16 +351,16 @@ public class InsertUpdate extends BaseStep implements StepInterface {
 
       sql += " ( ( ";
 
-      sql += databaseMeta.quoteField( meta.getKeyLookup()[i] );
-      if ( "BETWEEN".equalsIgnoreCase( meta.getKeyCondition()[i] ) ) {
+      sql += databaseMeta.quoteField( meta.getKeyLookup()[ i ] );
+      if ( "BETWEEN".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) ) {
         sql += " BETWEEN ? AND ? ";
-        data.lookupParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[i] ) );
-        data.lookupParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream2()[i] ) );
+        data.lookupParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[ i ] ) );
+        data.lookupParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream2()[ i ] ) );
       } else {
-        if ( "IS NULL".equalsIgnoreCase( meta.getKeyCondition()[i] )
-          || "IS NOT NULL".equalsIgnoreCase( meta.getKeyCondition()[i] ) ) {
-          sql += " " + meta.getKeyCondition()[i] + " ";
-        } else if ( "= ~NULL".equalsIgnoreCase( meta.getKeyCondition()[i] ) ) {
+        if ( "IS NULL".equalsIgnoreCase( meta.getKeyCondition()[ i ] )
+          || "IS NOT NULL".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) ) {
+          sql += " " + meta.getKeyCondition()[ i ] + " ";
+        } else if ( "= ~NULL".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) ) {
 
           sql += " IS NULL AND ";
 
@@ -370,14 +370,14 @@ public class InsertUpdate extends BaseStep implements StepInterface {
             sql += " ? IS NULL ";
           }
           // null check
-          data.lookupParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[i] ) );
-          sql += " ) OR ( " + databaseMeta.quoteField( meta.getKeyLookup()[i] ) + " = ? ";
+          data.lookupParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[ i ] ) );
+          sql += " ) OR ( " + databaseMeta.quoteField( meta.getKeyLookup()[ i ] ) + " = ? ";
           // equality check, cloning so auto-rename because of adding same fieldname does not cause problems
-          data.lookupParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[i] ).clone() );
+          data.lookupParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[ i ] ).clone() );
 
         } else {
-          sql += " " + meta.getKeyCondition()[i] + " ? ";
-          data.lookupParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[i] ) );
+          sql += " " + meta.getKeyCondition()[ i ] + " ? ";
+          data.lookupParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[ i ] ) );
         }
       }
       sql += " ) ) ";
@@ -404,16 +404,16 @@ public class InsertUpdate extends BaseStep implements StepInterface {
     boolean comma = false;
 
     for ( int i = 0; i < meta.getUpdateLookup().length; i++ ) {
-      if ( meta.getUpdate()[i].booleanValue() ) {
+      if ( meta.getUpdate()[ i ].booleanValue() ) {
         if ( comma ) {
           sql += ",   ";
         } else {
           comma = true;
         }
 
-        sql += databaseMeta.quoteField( meta.getUpdateLookup()[i] );
+        sql += databaseMeta.quoteField( meta.getUpdateLookup()[ i ] );
         sql += " = ?" + Const.CR;
-        data.updateParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getUpdateStream()[i] ).clone() );
+        data.updateParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getUpdateStream()[ i ] ).clone() );
       }
     }
 
@@ -424,15 +424,15 @@ public class InsertUpdate extends BaseStep implements StepInterface {
         sql += "AND   ";
       }
       sql += " ( ( ";
-      sql += databaseMeta.quoteField( meta.getKeyLookup()[i] );
-      if ( "BETWEEN".equalsIgnoreCase( meta.getKeyCondition()[i] ) ) {
+      sql += databaseMeta.quoteField( meta.getKeyLookup()[ i ] );
+      if ( "BETWEEN".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) ) {
         sql += " BETWEEN ? AND ? ";
-        data.updateParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[i] ) );
-        data.updateParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream2()[i] ) );
-      } else if ( "IS NULL".equalsIgnoreCase( meta.getKeyCondition()[i] )
-        || "IS NOT NULL".equalsIgnoreCase( meta.getKeyCondition()[i] ) ) {
-        sql += " " + meta.getKeyCondition()[i] + " ";
-      } else if ( "= ~NULL".equalsIgnoreCase( meta.getKeyCondition()[i] ) ) {
+        data.updateParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[ i ] ) );
+        data.updateParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream2()[ i ] ) );
+      } else if ( "IS NULL".equalsIgnoreCase( meta.getKeyCondition()[ i ] )
+        || "IS NOT NULL".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) ) {
+        sql += " " + meta.getKeyCondition()[ i ] + " ";
+      } else if ( "= ~NULL".equalsIgnoreCase( meta.getKeyCondition()[ i ] ) ) {
 
         sql += " IS NULL AND ";
 
@@ -442,14 +442,14 @@ public class InsertUpdate extends BaseStep implements StepInterface {
           sql += "? IS NULL";
         }
         // null check
-        data.updateParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[i] ) );
-        sql += " ) OR ( " + databaseMeta.quoteField( meta.getKeyLookup()[i] ) + " = ?";
+        data.updateParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[ i ] ) );
+        sql += " ) OR ( " + databaseMeta.quoteField( meta.getKeyLookup()[ i ] ) + " = ?";
         // equality check, cloning so auto-rename because of adding same fieldname does not cause problems
-        data.updateParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[i] ).clone() );
+        data.updateParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[ i ] ).clone() );
 
       } else {
-        sql += " " + meta.getKeyCondition()[i] + " ? ";
-        data.updateParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[i] ).clone() );
+        sql += " " + meta.getKeyCondition()[ i ] + " ? ";
+        data.updateParameterRowMeta.addValueMeta( rowMeta.searchValueMeta( meta.getKeyStream()[ i ] ).clone() );
       }
       sql += " ) ) ";
     }
@@ -483,7 +483,7 @@ public class InsertUpdate extends BaseStep implements StepInterface {
         } else {
           data.db.connect( getPartitionID() );
         }
-        data.db.setCommit(  meta.getCommitSize( this ) );
+        data.db.setCommit( meta.getCommitSize( this ) );
 
         return true;
       } catch ( HopException ke ) {

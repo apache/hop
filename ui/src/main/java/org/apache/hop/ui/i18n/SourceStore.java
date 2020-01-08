@@ -22,24 +22,25 @@
 
 package org.apache.hop.ui.i18n;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannelInterface;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannelInterface;
 
 /**
  * Read the messages files for the source folders of the specified locale.
  *
  * @author matt
- *
  */
 public class SourceStore {
 
   private Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences;
 
-  /** message package - MessageStore */
+  /**
+   * message package - MessageStore
+   */
   private Map<String, MessagesStore> messagesMap;
 
   private String locale;
@@ -48,7 +49,7 @@ public class SourceStore {
   private String sourceFolder;
 
   public SourceStore( LogChannelInterface log, String locale, String sourceFolder,
-    Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences ) {
+                      Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences ) {
     this.log = log;
     this.locale = locale;
     this.sourceFolder = sourceFolder;

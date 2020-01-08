@@ -22,18 +22,14 @@
 
 package org.apache.hop.core.util;
 
-import java.util.prefs.Preferences;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
-
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.prefs.Preferences;
 
 /**
  * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- *
  */
 public class StringPluginProperty extends KeyValue<String> implements PluginProperty {
 
@@ -45,28 +41,29 @@ public class StringPluginProperty extends KeyValue<String> implements PluginProp
   /**
    * Constructor. Value is null.
    *
-   * @param key
-   *          key to set.
-   * @throws IllegalArgumentException
-   *           if key is invalid.
+   * @param key key to set.
+   * @throws IllegalArgumentException if key is invalid.
    */
   public StringPluginProperty( final String key ) throws IllegalArgumentException {
     super( key, DEFAULT_STRING_VALUE );
   }
 
   /**
+   *
    */
   public boolean evaluate() {
     return StringUtils.isNotBlank( this.getValue() );
   }
 
   /**
+   *
    */
   public void appendXml( final StringBuilder builder ) {
     builder.append( XMLHandler.addTagValue( this.getKey(), this.getValue() ) );
   }
 
   /**
+   *
    */
   public void loadXml( final Node node ) {
     final String value = XMLHandler.getTagValue( node, this.getKey() );
@@ -74,12 +71,14 @@ public class StringPluginProperty extends KeyValue<String> implements PluginProp
   }
 
   /**
+   *
    */
   public void saveToPreferences( final Preferences node ) {
     node.put( this.getKey(), this.getValue() );
   }
 
   /**
+   *
    */
   public void readFromPreferences( final Preferences node ) {
     this.setValue( node.get( this.getKey(), this.getValue() ) );

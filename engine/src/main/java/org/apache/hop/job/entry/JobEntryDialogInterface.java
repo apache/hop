@@ -51,7 +51,6 @@ import org.apache.hop.metastore.api.IMetaStore;
  *
  * @author Matt
  * @since 29-okt-2004
- *
  */
 public interface JobEntryDialogInterface {
 

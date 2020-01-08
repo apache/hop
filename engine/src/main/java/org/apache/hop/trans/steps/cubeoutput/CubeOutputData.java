@@ -22,13 +22,13 @@
 
 package org.apache.hop.trans.steps.cubeoutput;
 
-import java.io.DataOutputStream;
-import java.io.OutputStream;
-import java.util.zip.GZIPOutputStream;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import java.io.DataOutputStream;
+import java.io.OutputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * @author Matt

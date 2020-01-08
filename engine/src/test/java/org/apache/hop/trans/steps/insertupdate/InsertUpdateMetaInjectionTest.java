@@ -22,14 +22,15 @@
 
 package org.apache.hop.trans.steps.insertupdate;
 
+import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 public class InsertUpdateMetaInjectionTest extends BaseMetadataInjectionTest<InsertUpdateMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Before
   public void setup() throws Exception {
     setup( new InsertUpdateMeta() );
@@ -59,37 +60,37 @@ public class InsertUpdateMetaInjectionTest extends BaseMetadataInjectionTest<Ins
     } );
     check( "KEY_STREAM", new StringGetter() {
       public String get() {
-        return meta.getKeyStream()[0];
+        return meta.getKeyStream()[ 0 ];
       }
     } );
     check( "KEY_LOOKUP", new StringGetter() {
       public String get() {
-        return meta.getKeyLookup()[0];
+        return meta.getKeyLookup()[ 0 ];
       }
     } );
     check( "KEY_CONDITION", new StringGetter() {
       public String get() {
-        return meta.getKeyCondition()[0];
+        return meta.getKeyCondition()[ 0 ];
       }
     } );
     check( "KEY_STREAM2", new StringGetter() {
       public String get() {
-        return meta.getKeyStream2()[0];
+        return meta.getKeyStream2()[ 0 ];
       }
     } );
     check( "UPDATE_LOOKUP", new StringGetter() {
       public String get() {
-        return meta.getUpdateLookup()[0];
+        return meta.getUpdateLookup()[ 0 ];
       }
     } );
     check( "UPDATE_STREAM", new StringGetter() {
       public String get() {
-        return meta.getUpdateStream()[0];
+        return meta.getUpdateStream()[ 0 ];
       }
     } );
     check( "UPDATE_FLAG", new BooleanGetter() {
       public boolean get() {
-        return meta.getUpdate()[0];
+        return meta.getUpdate()[ 0 ];
       }
     } );
     skipPropertyTest( "CONNECTIONNAME" );

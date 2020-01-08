@@ -22,10 +22,10 @@
 
 package org.apache.hop.trans.steps.csvinput;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class UnnamedFieldsMappingTest {
 

@@ -22,9 +22,6 @@
 
 package org.apache.hop.job;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
@@ -36,6 +33,9 @@ import org.apache.hop.job.entries.trans.JobEntryTrans;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -45,10 +45,7 @@ import java.net.URISyntaxException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -253,7 +250,7 @@ public class JobMetaTest {
 
     JobMeta meta = new JobMeta();
 
-    meta.loadXML( jobNode, null, Mockito.mock( IMetaStore.class ), false);
+    meta.loadXML( jobNode, null, Mockito.mock( IMetaStore.class ), false );
     Job job = new Job( meta );
     job.setInternalHopVariables( null );
   }
@@ -312,8 +309,8 @@ public class JobMetaTest {
   }
 
   @Test
-  public void testSetInternalEntryCurrentDirectoryWithFilename( ) {
-    JobMeta jobMetaTest = new JobMeta(  );
+  public void testSetInternalEntryCurrentDirectoryWithFilename() {
+    JobMeta jobMetaTest = new JobMeta();
     jobMetaTest.setFilename( "hasFilename" );
     jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
     jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
@@ -324,18 +321,18 @@ public class JobMetaTest {
   }
 
   @Test
-  public void testSetInternalEntryCurrentDirectoryWithoutFilenameOrRepository( ) {
-    JobMeta jobMetaTest = new JobMeta(  );
+  public void testSetInternalEntryCurrentDirectoryWithoutFilenameOrRepository() {
+    JobMeta jobMetaTest = new JobMeta();
     jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
     jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
     jobMetaTest.setInternalEntryCurrentDirectory();
 
-    assertEquals( "Original value defined at run execution", jobMetaTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY )  );
+    assertEquals( "Original value defined at run execution", jobMetaTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
   }
 
   @Test
-  public void testUpdateCurrentDirWithFilename( ) {
-    JobMeta jobMetaTest = new JobMeta(  );
+  public void testUpdateCurrentDirWithFilename() {
+    JobMeta jobMetaTest = new JobMeta();
     jobMetaTest.setFilename( "hasFilename" );
     jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
     jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
@@ -346,13 +343,13 @@ public class JobMetaTest {
   }
 
   @Test
-  public void testUpdateCurrentDirWithoutFilenameOrRepository( ) {
-    JobMeta jobMetaTest = new JobMeta(  );
+  public void testUpdateCurrentDirWithoutFilenameOrRepository() {
+    JobMeta jobMetaTest = new JobMeta();
     jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
     jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
     jobMetaTest.updateCurrentDir();
 
-    assertEquals( "Original value defined at run execution", jobMetaTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY )  );
+    assertEquals( "Original value defined at run execution", jobMetaTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
   }
 
 }

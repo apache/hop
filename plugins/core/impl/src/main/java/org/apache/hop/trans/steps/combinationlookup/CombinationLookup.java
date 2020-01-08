@@ -22,17 +22,7 @@
 
 package org.apache.hop.trans.steps.combinationlookup;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -46,6 +36,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -54,6 +45,15 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Manages or looks up information in a Type 1 or junk dimension.
@@ -757,18 +757,18 @@ public class CombinationLookup extends BaseStep implements StepInterface {
 
       /* build SQl Statement to preload cache
        *
-           * SELECT
-           * min(<retval>) as <retval>,
-           * key1,
-           * key2,
-           * key3
-           * FROM   <table>
-           *
-           * GROUP BY key1,
-           * key2,
-           * key3;
-           *
-           */
+       * SELECT
+       * min(<retval>) as <retval>,
+       * key1,
+       * key2,
+       * key3
+       * FROM   <table>
+       *
+       * GROUP BY key1,
+       * key2,
+       * key3;
+       *
+       */
 
       // Build a string representation of the lookupKeys
       for ( int i = 0; i < meta.getKeyLookup().length; i++ ) {

@@ -23,32 +23,11 @@
 
 package org.apache.hop.trans.step;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.ExtensionDataInterface;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
@@ -69,11 +48,12 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.partition.PartitionSchema;
-
 import org.apache.hop.trans.BasePartitioner;
 import org.apache.hop.trans.SlaveStepCopyPartitionDistribution;
 import org.apache.hop.trans.Trans;
@@ -84,7 +64,25 @@ import org.apache.hop.trans.steps.mapping.Mapping;
 import org.apache.hop.trans.steps.mappinginput.MappingInput;
 import org.apache.hop.trans.steps.mappingoutput.MappingOutput;
 import org.apache.hop.www.SocketRepository;
-import org.apache.hop.metastore.api.IMetaStore;
+
+import java.io.Closeable;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * This class can be extended for the actual row processing of the implemented step.
@@ -285,7 +283,9 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
    */
   public boolean first;
 
-  /**   */
+  /**
+   *
+   */
   public boolean terminator;
 
   public List<Object[]> terminator_rows;

@@ -53,8 +53,7 @@ public class Kjube {
    * Determines whether or not a character is considered a space. A character is considered a space in Hop if it is a
    * space, a tab, a newline or a cariage return.
    *
-   * @param c
-   *          The character to verify if it is a space.
+   * @param c The character to verify if it is a space.
    * @return true if the character is a space. false otherwise.
    */
   public static final boolean isSpace( char c ) {
@@ -64,8 +63,7 @@ public class Kjube {
   /**
    * Left trim: remove spaces to the left of a String.
    *
-   * @param str
-   *          The String to left trim
+   * @param str The String to left trim
    * @return The left trimmed String
    */
   public static String ltrim( String source ) {
@@ -83,8 +81,7 @@ public class Kjube {
   /**
    * Right trim: remove spaces to the right of a string
    *
-   * @param str
-   *          The string to right trim
+   * @param str The string to right trim
    * @return The trimmed string.
    */
   public static String rtrim( String source ) {
@@ -103,8 +100,7 @@ public class Kjube {
   /**
    * Trims a string: removes the leading and trailing spaces of a String.
    *
-   * @param str
-   *          The string to trim
+   * @param str The string to trim
    * @return The trimmed string.
    */
   public static final String trim( String str ) {

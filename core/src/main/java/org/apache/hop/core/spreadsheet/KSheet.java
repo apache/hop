@@ -31,11 +31,9 @@ public interface KSheet {
   /**
    * Get one row of cells in the sheets
    *
-   * @param rownr
-   *          The row number to get
+   * @param rownr The row number to get
    * @return the cells of the row
-   * @throws ArrayIndexOutOfBoundsException
-   *           in case you try to read beyond the last row. (never returns null as such)
+   * @throws ArrayIndexOutOfBoundsException in case you try to read beyond the last row. (never returns null as such)
    */
   public KCell[] getRow( int rownr );
 
@@ -52,10 +50,8 @@ public interface KSheet {
   /**
    * Get a cell in the sheet by specification of its coordinates.
    *
-   * @param colnr
-   *          The column number
-   * @param rownr
-   *          The row number
+   * @param colnr The column number
+   * @param rownr The row number
    * @return The cell at the specified coordinates.
    */
   public KCell getCell( int colnr, int rownr );

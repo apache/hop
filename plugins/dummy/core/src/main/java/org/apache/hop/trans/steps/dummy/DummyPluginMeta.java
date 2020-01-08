@@ -22,22 +22,32 @@
 
 package org.apache.hop.trans.steps.dummy;
 
+import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.Step;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaAndData;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.eclipse.swt.widgets.*;
-import org.apache.hop.core.*;
-import org.apache.hop.core.annotations.*;
-import org.apache.hop.core.database.*;
-import org.apache.hop.core.exception.*;
-import org.apache.hop.core.row.*;
-import org.apache.hop.core.row.value.*;
-import org.apache.hop.core.variables.*;
-import org.apache.hop.core.xml.*;
-import org.apache.hop.trans.*;
-import org.apache.hop.trans.step.*;
-import org.w3c.dom.*;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDataInterface;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.StepMetaInterface;
+import org.eclipse.swt.widgets.Shell;
+import org.w3c.dom.Node;
 
 import java.util.List;
-import java.util.*;
 
 /*
  * Created on 02-jun-2003
@@ -45,12 +55,12 @@ import java.util.*;
  */
 
 @Step( id = "DummyStep",
-      image = "deprecated.svg",
-      i18nPackageName = "be.ibridge.kettle.dummy",
-      name = "DummyPlugin.Step.Name",
-      description = "DummyPlugin.Step.Description",
-      categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Deprecated",
-      suggestion = "DummyPlugin.Step.SuggestedStep" )
+  image = "deprecated.svg",
+  i18nPackageName = "be.ibridge.kettle.dummy",
+  name = "DummyPlugin.Step.Name",
+  description = "DummyPlugin.Step.Description",
+  categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Deprecated",
+  suggestion = "DummyPlugin.Step.SuggestedStep" )
 public class DummyPluginMeta extends BaseStepMeta implements StepMetaInterface {
   private ValueMetaAndData value;
 
@@ -102,7 +112,7 @@ public class DummyPluginMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
-      try {
+    try {
       value = new ValueMetaAndData();
 
       Node valnode = XMLHandler.getSubNode( stepnode, "values", "value" );

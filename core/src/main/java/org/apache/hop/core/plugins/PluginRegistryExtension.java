@@ -24,7 +24,7 @@ package org.apache.hop.core.plugins;
 
 /**
  * Implementations of this class extend the built-in functionality of the plugin registry.
- *
+ * <p>
  * User: nbaker Date: 3/14/11
  */
 public interface PluginRegistryExtension {

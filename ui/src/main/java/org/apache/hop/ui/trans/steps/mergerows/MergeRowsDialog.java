@@ -22,8 +22,22 @@
 
 package org.apache.hop.ui.trans.steps.mergerows;
 
-import java.util.List;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.errorhandling.StreamInterface;
+import org.apache.hop.trans.steps.mergerows.MergeRowsMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
@@ -45,22 +59,8 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.errorhandling.StreamInterface;
-import org.apache.hop.trans.steps.mergerows.MergeRowsMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.List;
 
 public class MergeRowsDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = MergeRowsMeta.class; // for i18n purposes, needed by Translator2!!
@@ -357,14 +357,14 @@ public class MergeRowsDialog extends BaseStepDialog implements StepDialogInterfa
 
     for ( int i = 0; i < input.getKeyFields().length; i++ ) {
       TableItem item = wKeys.table.getItem( i );
-      if ( input.getKeyFields()[i] != null ) {
-        item.setText( 1, input.getKeyFields()[i] );
+      if ( input.getKeyFields()[ i ] != null ) {
+        item.setText( 1, input.getKeyFields()[ i ] );
       }
     }
     for ( int i = 0; i < input.getValueFields().length; i++ ) {
       TableItem item = wValues.table.getItem( i );
-      if ( input.getValueFields()[i] != null ) {
-        item.setText( 1, input.getValueFields()[i] );
+      if ( input.getValueFields()[ i ] != null ) {
+        item.setText( 1, input.getValueFields()[ i ] );
       }
     }
 
@@ -396,13 +396,13 @@ public class MergeRowsDialog extends BaseStepDialog implements StepDialogInterfa
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrKeys; i++ ) {
       TableItem item = wKeys.getNonEmpty( i );
-      input.getKeyFields()[i] = item.getText( 1 );
+      input.getKeyFields()[ i ] = item.getText( 1 );
     }
 
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrValues; i++ ) {
       TableItem item = wValues.getNonEmpty( i );
-      input.getValueFields()[i] = item.getText( 1 );
+      input.getValueFields()[ i ] = item.getText( 1 );
     }
 
     stepname = wStepname.getText(); // return value
@@ -417,7 +417,7 @@ public class MergeRowsDialog extends BaseStepDialog implements StepDialogInterfa
           new String[] { BaseMessages.getString( PKG, "MergeRowsDialog.MergeRowsWarningDialog.Option1" ) },
           0,
           BaseMessages.getString( PKG, "MergeRowsDialog.MergeRowsWarningDialog.Option2" ), "N".equalsIgnoreCase(
-            props.getCustomParameter( STRING_SORT_WARNING_PARAMETER, "Y" ) ) );
+          props.getCustomParameter( STRING_SORT_WARNING_PARAMETER, "Y" ) ) );
       MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
       md.open();
       props.setCustomParameter( STRING_SORT_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
@@ -440,7 +440,7 @@ public class MergeRowsDialog extends BaseStepDialog implements StepDialogInterfa
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "MergeRowsDialog.ErrorGettingFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "MergeRowsDialog.ErrorGettingFields.DialogMessage" ), e );
+        .getString( PKG, "MergeRowsDialog.ErrorGettingFields.DialogMessage" ), e );
     }
   }
 
@@ -456,7 +456,7 @@ public class MergeRowsDialog extends BaseStepDialog implements StepDialogInterfa
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "MergeRowsDialog.ErrorGettingFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "MergeRowsDialog.ErrorGettingFields.DialogMessage" ), e );
+        .getString( PKG, "MergeRowsDialog.ErrorGettingFields.DialogMessage" ), e );
     }
   }
 }

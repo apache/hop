@@ -22,45 +22,54 @@
 
 package org.apache.hop.trans.step;
 
-import java.util.List;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.changed.ChangedFlag;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.core.xml.XMLInterface;
 import org.w3c.dom.Node;
 
+import java.util.List;
+
 /**
  * This class contains the metadata to handle proper error handling on a step level.
  *
  * @author Matt
- *
  */
 public class StepErrorMeta extends ChangedFlag implements XMLInterface, Cloneable {
   public static final String XML_ERROR_TAG = "error";
   public static final String XML_SOURCE_STEP_TAG = "source_step";
   public static final String XML_TARGET_STEP_TAG = "target_step";
 
-  /** The source step that can send the error rows */
+  /**
+   * The source step that can send the error rows
+   */
   private StepMeta sourceStep;
 
-  /** The target step to send the error rows to */
+  /**
+   * The target step to send the error rows to
+   */
   private StepMeta targetStep;
 
-  /** Is the error handling enabled? */
+  /**
+   * Is the error handling enabled?
+   */
   private boolean enabled;
 
-  /** the name of the field value to contain the number of errors (null or empty means it's not needed) */
+  /**
+   * the name of the field value to contain the number of errors (null or empty means it's not needed)
+   */
   private String nrErrorsValuename;
 
-  /** the name of the field value to contain the error description(s) (null or empty means it's not needed) */
+  /**
+   * the name of the field value to contain the error description(s) (null or empty means it's not needed)
+   */
   private String errorDescriptionsValuename;
 
   /**
@@ -69,16 +78,24 @@ public class StepErrorMeta extends ChangedFlag implements XMLInterface, Cloneabl
    */
   private String errorFieldsValuename;
 
-  /** the name of the field value to contain the error code(s) (null or empty means it's not needed) */
+  /**
+   * the name of the field value to contain the error code(s) (null or empty means it's not needed)
+   */
   private String errorCodesValuename;
 
-  /** The maximum number of errors allowed before we stop processing with a hard error */
+  /**
+   * The maximum number of errors allowed before we stop processing with a hard error
+   */
   private String maxErrors = "";
 
-  /** The maximum percent of errors allowed before we stop processing with a hard error */
+  /**
+   * The maximum percent of errors allowed before we stop processing with a hard error
+   */
   private String maxPercentErrors = "";
 
-  /** The minimum number of rows to read before the percentage evaluation takes place */
+  /**
+   * The minimum number of rows to read before the percentage evaluation takes place
+   */
   private String minPercentRows = "";
 
   private VariableSpace variables;
@@ -86,8 +103,7 @@ public class StepErrorMeta extends ChangedFlag implements XMLInterface, Cloneabl
   /**
    * Create a new step error handling metadata object
    *
-   * @param sourceStep
-   *          The source step that can send the error rows
+   * @param sourceStep The source step that can send the error rows
    */
   public StepErrorMeta( VariableSpace space, StepMeta sourceStep ) {
     this.sourceStep = sourceStep;
@@ -98,10 +114,8 @@ public class StepErrorMeta extends ChangedFlag implements XMLInterface, Cloneabl
   /**
    * Create a new step error handling metadata object
    *
-   * @param sourceStep
-   *          The source step that can send the error rows
-   * @param targetStep
-   *          The target step to send the error rows to
+   * @param sourceStep The source step that can send the error rows
+   * @param targetStep The target step to send the error rows to
    */
   public StepErrorMeta( VariableSpace space, StepMeta sourceStep, StepMeta targetStep ) {
     this.sourceStep = sourceStep;
@@ -113,22 +127,16 @@ public class StepErrorMeta extends ChangedFlag implements XMLInterface, Cloneabl
   /**
    * Create a new step error handling metadata object
    *
-   * @param sourceStep
-   *          The source step that can send the error rows
-   * @param targetStep
-   *          The target step to send the error rows to
-   * @param nrErrorsValuename
-   *          the name of the field value to contain the number of errors (null or empty means it's not needed)
-   * @param errorDescriptionsValuename
-   *          the name of the field value to contain the error description(s) (null or empty means it's not needed)
-   * @param errorFieldsValuename
-   *          the name of the field value to contain the fields for which the error(s) occured (null or empty means it's
-   *          not needed)
-   * @param errorCodesValuename
-   *          the name of the field value to contain the error code(s) (null or empty means it's not needed)
+   * @param sourceStep                 The source step that can send the error rows
+   * @param targetStep                 The target step to send the error rows to
+   * @param nrErrorsValuename          the name of the field value to contain the number of errors (null or empty means it's not needed)
+   * @param errorDescriptionsValuename the name of the field value to contain the error description(s) (null or empty means it's not needed)
+   * @param errorFieldsValuename       the name of the field value to contain the fields for which the error(s) occured (null or empty means it's
+   *                                   not needed)
+   * @param errorCodesValuename        the name of the field value to contain the error code(s) (null or empty means it's not needed)
    */
   public StepErrorMeta( VariableSpace space, StepMeta sourceStep, StepMeta targetStep, String nrErrorsValuename,
-    String errorDescriptionsValuename, String errorFieldsValuename, String errorCodesValuename ) {
+                        String errorDescriptionsValuename, String errorFieldsValuename, String errorCodesValuename ) {
     this.sourceStep = sourceStep;
     this.targetStep = targetStep;
     this.enabled = false;
@@ -161,7 +169,7 @@ public class StepErrorMeta extends ChangedFlag implements XMLInterface, Cloneabl
     xml.append( "        " ).append( XMLHandler.addTagValue( "nr_valuename", nrErrorsValuename ) );
     xml
       .append( "        " ).append(
-        XMLHandler.addTagValue( "descriptions_valuename", errorDescriptionsValuename ) );
+      XMLHandler.addTagValue( "descriptions_valuename", errorDescriptionsValuename ) );
     xml.append( "        " ).append( XMLHandler.addTagValue( "fields_valuename", errorFieldsValuename ) );
     xml.append( "        " ).append( XMLHandler.addTagValue( "codes_valuename", errorCodesValuename ) );
     xml.append( "        " ).append( XMLHandler.addTagValue( "max_errors", maxErrors ) );
@@ -195,8 +203,7 @@ public class StepErrorMeta extends ChangedFlag implements XMLInterface, Cloneabl
   }
 
   /**
-   * @param errorCodesValuename
-   *          the error codes valuename to set
+   * @param errorCodesValuename the error codes valuename to set
    */
   public void setErrorCodesValuename( String errorCodesValuename ) {
     this.errorCodesValuename = errorCodesValuename;
@@ -210,8 +217,7 @@ public class StepErrorMeta extends ChangedFlag implements XMLInterface, Cloneabl
   }
 
   /**
-   * @param errorDescriptionsValuename
-   *          the error descriptions valuename to set
+   * @param errorDescriptionsValuename the error descriptions valuename to set
    */
   public void setErrorDescriptionsValuename( String errorDescriptionsValuename ) {
     this.errorDescriptionsValuename = errorDescriptionsValuename;
@@ -225,8 +231,7 @@ public class StepErrorMeta extends ChangedFlag implements XMLInterface, Cloneabl
   }
 
   /**
-   * @param errorFieldsValuename
-   *          the error fields valuename to set
+   * @param errorFieldsValuename the error fields valuename to set
    */
   public void setErrorFieldsValuename( String errorFieldsValuename ) {
     this.errorFieldsValuename = errorFieldsValuename;
@@ -240,8 +245,7 @@ public class StepErrorMeta extends ChangedFlag implements XMLInterface, Cloneabl
   }
 
   /**
-   * @param nrErrorsValuename
-   *          the nr errors valuename to set
+   * @param nrErrorsValuename the nr errors valuename to set
    */
   public void setNrErrorsValuename( String nrErrorsValuename ) {
     this.nrErrorsValuename = nrErrorsValuename;
@@ -255,8 +259,7 @@ public class StepErrorMeta extends ChangedFlag implements XMLInterface, Cloneabl
   }
 
   /**
-   * @param targetStep
-   *          the target step to set
+   * @param targetStep the target step to set
    */
   public void setTargetStep( StepMeta targetStep ) {
     this.targetStep = targetStep;
@@ -270,8 +273,7 @@ public class StepErrorMeta extends ChangedFlag implements XMLInterface, Cloneabl
   }
 
   /**
-   * @param sourceStep
-   *          The source step can send the error rows
+   * @param sourceStep The source step can send the error rows
    */
   public void setSourceStep( StepMeta sourceStep ) {
     this.sourceStep = sourceStep;
@@ -285,8 +287,7 @@ public class StepErrorMeta extends ChangedFlag implements XMLInterface, Cloneabl
   }
 
   /**
-   * @param enabled
-   *          the enabled flag to set: Is the error handling enabled?
+   * @param enabled the enabled flag to set: Is the error handling enabled?
    */
   public void setEnabled( boolean enabled ) {
     this.enabled = enabled;
@@ -297,7 +298,7 @@ public class StepErrorMeta extends ChangedFlag implements XMLInterface, Cloneabl
   }
 
   public RowMetaInterface getErrorRowMeta( long nrErrors, String errorDescriptions, String fieldNames,
-    String errorCodes ) {
+                                           String errorCodes ) {
     RowMetaInterface row = new RowMeta();
 
     String nrErr = variables.environmentSubstitute( getNrErrorsValuename() );
@@ -326,27 +327,27 @@ public class StepErrorMeta extends ChangedFlag implements XMLInterface, Cloneabl
   }
 
   public void addErrorRowData( Object[] row, int startIndex, long nrErrors, String errorDescriptions,
-    String fieldNames, String errorCodes ) {
+                               String fieldNames, String errorCodes ) {
     int index = startIndex;
 
     String nrErr = variables.environmentSubstitute( getNrErrorsValuename() );
     if ( !Utils.isEmpty( nrErr ) ) {
-      row[index] = new Long( nrErrors );
+      row[ index ] = new Long( nrErrors );
       index++;
     }
     String errDesc = variables.environmentSubstitute( getErrorDescriptionsValuename() );
     if ( !Utils.isEmpty( errDesc ) ) {
-      row[index] = errorDescriptions;
+      row[ index ] = errorDescriptions;
       index++;
     }
     String errFields = variables.environmentSubstitute( getErrorFieldsValuename() );
     if ( !Utils.isEmpty( errFields ) ) {
-      row[index] = fieldNames;
+      row[ index ] = fieldNames;
       index++;
     }
     String errCodes = variables.environmentSubstitute( getErrorCodesValuename() );
     if ( !Utils.isEmpty( errCodes ) ) {
-      row[index] = errorCodes;
+      row[ index ] = errorCodes;
       index++;
     }
   }
@@ -359,8 +360,7 @@ public class StepErrorMeta extends ChangedFlag implements XMLInterface, Cloneabl
   }
 
   /**
-   * @param maxErrors
-   *          the maxErrors to set
+   * @param maxErrors the maxErrors to set
    */
   public void setMaxErrors( String maxErrors ) {
     this.maxErrors = maxErrors;
@@ -374,8 +374,7 @@ public class StepErrorMeta extends ChangedFlag implements XMLInterface, Cloneabl
   }
 
   /**
-   * @param maxPercentErrors
-   *          the maxPercentErrors to set
+   * @param maxPercentErrors the maxPercentErrors to set
    */
   public void setMaxPercentErrors( String maxPercentErrors ) {
     this.maxPercentErrors = maxPercentErrors;
@@ -389,8 +388,7 @@ public class StepErrorMeta extends ChangedFlag implements XMLInterface, Cloneabl
   }
 
   /**
-   * @param minRowsForPercent
-   *          the minRowsForPercent to set
+   * @param minRowsForPercent the minRowsForPercent to set
    */
   public void setMinPercentRows( String minRowsForPercent ) {
     this.minPercentRows = minRowsForPercent;

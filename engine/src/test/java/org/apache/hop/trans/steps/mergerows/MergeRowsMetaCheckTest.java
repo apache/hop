@@ -22,20 +22,7 @@
 
 package org.apache.hop.trans.steps.mergerows;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -44,7 +31,17 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MergeRowsMetaCheckTest {
 
@@ -102,7 +99,7 @@ public class MergeRowsMetaCheckTest {
     when( transMeta.getPrevStepFields( REFERENCE_STEP_NAME ) ).thenReturn( generateRowMetaEmpty() );
     when( transMeta.getPrevStepFields( COMPARISON_STEP_NAME ) ).thenReturn( generateRowMetaEmpty() );
 
-    meta.check( remarks, transMeta, stepMeta, (RowMeta) null, new String[0], new String[0],
+    meta.check( remarks, transMeta, stepMeta, (RowMeta) null, new String[ 0 ], new String[ 0 ],
       (RowMeta) null, new Variables(), null );
 
     assertNotNull( remarks );
@@ -115,7 +112,7 @@ public class MergeRowsMetaCheckTest {
     when( transMeta.getPrevStepFields( REFERENCE_STEP_NAME ) ).thenReturn( generateRowMeta10Strings() );
     when( transMeta.getPrevStepFields( COMPARISON_STEP_NAME ) ).thenReturn( generateRowMeta10Strings() );
 
-    meta.check( remarks, transMeta, stepMeta, (RowMeta) null, new String[0], new String[0], (RowMeta) null, new Variables(), null );
+    meta.check( remarks, transMeta, stepMeta, (RowMeta) null, new String[ 0 ], new String[ 0 ], (RowMeta) null, new Variables(), null );
 
     assertNotNull( remarks );
     assertTrue( remarks.size() >= 2 );
@@ -127,7 +124,7 @@ public class MergeRowsMetaCheckTest {
     when( transMeta.getPrevStepFields( REFERENCE_STEP_NAME ) ).thenReturn( generateRowMetaEmpty() );
     when( transMeta.getPrevStepFields( COMPARISON_STEP_NAME ) ).thenReturn( generateRowMeta10Strings() );
 
-    meta.check( remarks, transMeta, stepMeta, (RowMeta) null, new String[0], new String[0], (RowMeta) null, new Variables(), null );
+    meta.check( remarks, transMeta, stepMeta, (RowMeta) null, new String[ 0 ], new String[ 0 ], (RowMeta) null, new Variables(), null );
 
     assertNotNull( remarks );
     assertTrue( remarks.size() >= 2 );
@@ -139,7 +136,7 @@ public class MergeRowsMetaCheckTest {
     when( transMeta.getPrevStepFields( REFERENCE_STEP_NAME ) ).thenReturn( generateRowMeta10MixedTypes() );
     when( transMeta.getPrevStepFields( COMPARISON_STEP_NAME ) ).thenReturn( generateRowMeta10Strings() );
 
-    meta.check( remarks, transMeta, stepMeta, (RowMeta) null, new String[0], new String[0],
+    meta.check( remarks, transMeta, stepMeta, (RowMeta) null, new String[ 0 ], new String[ 0 ],
       (RowMeta) null, new Variables(), null );
 
     assertNotNull( remarks );

@@ -22,10 +22,7 @@
 
 package org.apache.hop.trans;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
+import junit.framework.TestCase;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
@@ -40,7 +37,9 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
 import org.apache.hop.trans.steps.injector.InjectorMeta;
 
-import junit.framework.TestCase;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Test class for the use of hops, specifically we want to check the copy and distribute mode.
@@ -55,7 +54,7 @@ public class HopIT extends TestCase {
     ValueMetaInterface[] valuesMeta = { new ValueMetaInteger( "field1" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -106,9 +105,9 @@ public class HopIT extends TestCase {
       if ( r1.length != r2.length ) {
         fail( "row nr " + idx + "is not equal" );
       }
-      int[] fields = new int[r1.length];
+      int[] fields = new int[ r1.length ];
       for ( int ydx = 0; ydx < r1.length; ydx++ ) {
-        fields[ydx] = ydx;
+        fields[ ydx ] = ydx;
       }
       try {
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {
@@ -124,10 +123,10 @@ public class HopIT extends TestCase {
 
   /**
    * Test case for hop using copy.
-   *
+   * <p>
    * The transformation is as follows: an injector step links to a dummy step, which in turn links to 2 target dummy
    * steps.
-   *
+   * <p>
    * Both dummy1 and dummy2 should get all rows.
    */
   public void testCopyHops() throws Exception {
@@ -225,10 +224,10 @@ public class HopIT extends TestCase {
 
   /**
    * Test case for hop use.
-   *
+   * <p>
    * The transformation is as follows: an injector step links to a dummy step, which in turn links to 2 target dummy
    * steps.
-   *
+   * <p>
    * The default in the GUI of spoon is copy mode, but here it seems to be distribute.
    */
   public void testDefaultConfiguration() throws Exception {
@@ -343,10 +342,10 @@ public class HopIT extends TestCase {
 
   /**
    * Test case for hop use.
-   *
+   * <p>
    * The transformation is as follows: an injector step links to a dummy step, which in turn links to 2 target dummy
    * steps.
-   *
+   * <p>
    * This testcase uses distribute mode, so each hop in turn should get a row.
    */
   public void testDistributeHops() throws Exception {

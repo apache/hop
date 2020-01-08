@@ -22,12 +22,20 @@
 
 package org.apache.hop.ui.trans.steps.nullif;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.nullif.NullIfMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -46,20 +54,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.nullif.NullIfMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class NullIfDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = NullIfMeta.class; // for i18n purposes, needed by Translator2!!
@@ -139,12 +139,12 @@ public class NullIfDialog extends BaseStepDialog implements StepDialogInterface 
     final int FieldsCols = 2;
     final int fieldsRows = input.getFields().length;
 
-    colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
+    colinf = new ColumnInfo[ FieldsCols ];
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "NullIfDialog.ColumnInfo.Name" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] { "" }, false );
-    colinf[1] =
+    colinf[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "NullIfDialog.ColumnInfo.ValueToNull" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
@@ -255,10 +255,10 @@ public class NullIfDialog extends BaseStepDialog implements StepDialogInterface 
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    colinf[0].setComboValues( fieldNames );
+    colinf[ 0 ].setComboValues( fieldNames );
   }
 
   /**
@@ -269,8 +269,8 @@ public class NullIfDialog extends BaseStepDialog implements StepDialogInterface 
 
     for ( int i = 0; i < input.getFields().length; i++ ) {
       TableItem item = wFields.table.getItem( i );
-      String name = input.getFields()[i].getFieldName();
-      String type = input.getFields()[i].getFieldValue();
+      String name = input.getFields()[ i ].getFieldName();
+      String type = input.getFields()[ i ].getFieldValue();
 
       if ( name != null ) {
         item.setText( 1, name );
@@ -307,8 +307,8 @@ public class NullIfDialog extends BaseStepDialog implements StepDialogInterface 
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < count; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      input.getFields()[i].setFieldName( item.getText( 1 ) );
-      input.getFields()[i].setFieldValue( item.getText( 2 ) );
+      input.getFields()[ i ].setFieldName( item.getText( 1 ) );
+      input.getFields()[ i ].setFieldValue( item.getText( 2 ) );
     }
     dispose();
   }

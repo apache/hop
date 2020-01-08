@@ -22,11 +22,22 @@
 
 package org.apache.hop.ui.partition.dialog;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.partition.PartitionSchema;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -47,39 +58,23 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.PartitionDatabaseMeta;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.util.DialogUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- *
  * Dialog that allows you to edit the settings of the partition schema
  *
- * @see PartitionSchema
  * @author Matt
+ * @see PartitionSchema
  * @since 17-11-2006
- *
  */
 
 public class PartitionSchemaDialog extends Dialog {
   private static Class<?> PKG = PartitionSchemaDialog.class; // for i18n purposes, needed by Translator2!!
 
+  private final IMetaStore metaStore;
   private PartitionSchema partitionSchema;
-
-  private Collection<PartitionSchema> existingSchemas;
 
   private Shell shell;
 
@@ -109,12 +104,11 @@ public class PartitionSchemaDialog extends Dialog {
 
   private VariableSpace variableSpace;
 
-  public PartitionSchemaDialog( Shell par, PartitionSchema partitionSchema,
-      Collection<PartitionSchema> existingSchemas, VariableSpace variableSpace ) {
+  public PartitionSchemaDialog( Shell par, IMetaStore metaStore, PartitionSchema partitionSchema, VariableSpace variableSpace ) {
     super( par, SWT.NONE );
+    this.metaStore = metaStore;
     this.partitionSchema = (PartitionSchema) partitionSchema.clone();
     this.originalSchema = partitionSchema;
-    this.existingSchemas = existingSchemas;
     this.databases = databases;
     this.variableSpace = variableSpace;
 
@@ -317,31 +311,36 @@ public class PartitionSchemaDialog extends Dialog {
   }
 
   public void ok() {
-    getInfo();
+    try {
+      MetaStoreFactory<PartitionSchema> partitionFactory = PartitionSchema.createFactory( metaStore );
+      getInfo();
 
-    if ( !partitionSchema.getName().equals( originalSchema.getName() ) ) {
-      if ( DialogUtils.objectWithTheSameNameExists( partitionSchema, existingSchemas ) ) {
-        String title = BaseMessages.getString( PKG, "PartitionSchemaDialog.PartitionSchemaNameExists.Title" );
-        String message =
+      if ( !partitionSchema.getName().equals( originalSchema.getName() ) ) {
+        if ( partitionFactory.elementExists( partitionSchema.getName() ) ) {
+          String title = BaseMessages.getString( PKG, "PartitionSchemaDialog.PartitionSchemaNameExists.Title" );
+          String message =
             BaseMessages.getString( PKG, "PartitionSchemaDialog.PartitionSchemaNameExists", partitionSchema.getName() );
-        String okButton = BaseMessages.getString( PKG, "System.Button.OK" );
-        MessageDialog dialog =
+          String okButton = BaseMessages.getString( PKG, "System.Button.OK" );
+          MessageDialog dialog =
             new MessageDialog( shell, title, null, message, MessageDialog.ERROR, new String[] { okButton }, 0 );
 
-        dialog.open();
-        return;
+          dialog.open();
+          return;
+        }
       }
+
+      originalSchema.setName( partitionSchema.getName() );
+      originalSchema.setPartitionIDs( partitionSchema.getPartitionIDs() );
+      originalSchema.setDynamicallyDefined( wDynamic.getSelection() );
+      originalSchema.setNumberOfPartitionsPerSlave( wNumber.getText() );
+      originalSchema.setChanged();
+
+      ok = true;
+
+      dispose();
+    } catch ( Exception e ) {
+      new ErrorDialog( shell, "Error", "Error getting dialog information for the partition schema", e );
     }
-
-    originalSchema.setName( partitionSchema.getName() );
-    originalSchema.setPartitionIDs( partitionSchema.getPartitionIDs() );
-    originalSchema.setDynamicallyDefined( wDynamic.getSelection() );
-    originalSchema.setNumberOfPartitionsPerSlave( wNumber.getText() );
-    originalSchema.setChanged();
-
-    ok = true;
-
-    dispose();
   }
 
   // Get dialog info in partition schema meta-data

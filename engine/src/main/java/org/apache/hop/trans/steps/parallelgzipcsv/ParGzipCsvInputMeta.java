@@ -22,16 +22,10 @@
 
 package org.apache.hop.trans.steps.parallelgzipcsv;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
@@ -40,11 +34,12 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -61,13 +56,16 @@ import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.textfileinput.InputFileMetaInterface;
 import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
 import org.apache.hop.trans.steps.textfileinput.TextFileInputMeta;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 /**
- * @since 2009-03-06
  * @author matt
  * @version 3.2
+ * @since 2009-03-06
  */
 
 public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterface, InputFileMetaInterface {
@@ -114,7 +112,7 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
     int nrFields = inputFields.length;
     retval.allocate( nrFields );
     for ( int i = 0; i < nrFields; i++ ) {
-      retval.inputFields[ i ] = (TextFileInputField) inputFields [ i ].clone();
+      retval.inputFields[ i ] = (TextFileInputField) inputFields[ i ].clone();
     }
     return retval;
   }
@@ -150,19 +148,19 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
       allocate( nrfields );
 
       for ( int i = 0; i < nrfields; i++ ) {
-        inputFields[i] = new TextFileInputField();
+        inputFields[ i ] = new TextFileInputField();
 
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        inputFields[i].setName( XMLHandler.getTagValue( fnode, "name" ) );
-        inputFields[i].setType( ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( fnode, "type" ) ) );
-        inputFields[i].setFormat( XMLHandler.getTagValue( fnode, "format" ) );
-        inputFields[i].setCurrencySymbol( XMLHandler.getTagValue( fnode, "currency" ) );
-        inputFields[i].setDecimalSymbol( XMLHandler.getTagValue( fnode, "decimal" ) );
-        inputFields[i].setGroupSymbol( XMLHandler.getTagValue( fnode, "group" ) );
-        inputFields[i].setLength( Const.toInt( XMLHandler.getTagValue( fnode, "length" ), -1 ) );
-        inputFields[i].setPrecision( Const.toInt( XMLHandler.getTagValue( fnode, "precision" ), -1 ) );
-        inputFields[i].setTrimType( ValueMetaString.getTrimTypeByCode( XMLHandler.getTagValue( fnode, "trim_type" ) ) );
+        inputFields[ i ].setName( XMLHandler.getTagValue( fnode, "name" ) );
+        inputFields[ i ].setType( ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( fnode, "type" ) ) );
+        inputFields[ i ].setFormat( XMLHandler.getTagValue( fnode, "format" ) );
+        inputFields[ i ].setCurrencySymbol( XMLHandler.getTagValue( fnode, "currency" ) );
+        inputFields[ i ].setDecimalSymbol( XMLHandler.getTagValue( fnode, "decimal" ) );
+        inputFields[ i ].setGroupSymbol( XMLHandler.getTagValue( fnode, "group" ) );
+        inputFields[ i ].setLength( Const.toInt( XMLHandler.getTagValue( fnode, "length" ), -1 ) );
+        inputFields[ i ].setPrecision( Const.toInt( XMLHandler.getTagValue( fnode, "precision" ), -1 ) );
+        inputFields[ i ].setTrimType( ValueMetaString.getTrimTypeByCode( XMLHandler.getTagValue( fnode, "trim_type" ) ) );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( "Unable to load step info from XML", e );
@@ -170,7 +168,7 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   public void allocate( int nrFields ) {
-    inputFields = new TextFileInputField[nrFields];
+    inputFields = new TextFileInputField[ nrFields ];
   }
 
   @Override
@@ -192,7 +190,7 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
 
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < inputFields.length; i++ ) {
-      TextFileInputField field = inputFields[i];
+      TextFileInputField field = inputFields[ i ];
 
       retval.append( "      <field>" ).append( Const.CR );
       retval.append( "        " ).append( XMLHandler.addTagValue( "name", field.getName() ) );
@@ -215,12 +213,12 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
 
   @Override
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     try {
       rowMeta.clear(); // Start with a clean slate, eats the input
 
       for ( int i = 0; i < inputFields.length; i++ ) {
-        TextFileInputField field = inputFields[i];
+        TextFileInputField field = inputFields[ i ];
 
         ValueMetaInterface valueMeta = ValueMetaFactory.createValueMeta( field.getName(), field.getType() );
         valueMeta.setConversionMask( field.getFormat() );
@@ -276,8 +274,8 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -307,7 +305,7 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new ParGzipCsvInput( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -324,8 +322,7 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param delimiter
-   *          the delimiter to set
+   * @param delimiter the delimiter to set
    */
   public void setDelimiter( String delimiter ) {
     this.delimiter = delimiter;
@@ -339,8 +336,7 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param filename
-   *          the filename to set
+   * @param filename the filename to set
    */
   public void setFilename( String filename ) {
     this.filename = filename;
@@ -354,8 +350,7 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param bufferSize
-   *          the bufferSize to set
+   * @param bufferSize the bufferSize to set
    */
   public void setBufferSize( String bufferSize ) {
     this.bufferSize = bufferSize;
@@ -363,16 +358,15 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
 
   /**
    * @return true if lazy conversion is turned on: conversions are delayed as long as possible, perhaps to never occur
-   *         at all.
+   * at all.
    */
   public boolean isLazyConversionActive() {
     return lazyConversionActive;
   }
 
   /**
-   * @param lazyConversionActive
-   *          true if lazy conversion is to be turned on: conversions are delayed as long as possible, perhaps to never
-   *          occur at all.
+   * @param lazyConversionActive true if lazy conversion is to be turned on: conversions are delayed as long as possible, perhaps to never
+   *                             occur at all.
    */
   public void setLazyConversionActive( boolean lazyConversionActive ) {
     this.lazyConversionActive = lazyConversionActive;
@@ -386,8 +380,7 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param headerPresent
-   *          the headerPresent to set
+   * @param headerPresent the headerPresent to set
    */
   public void setHeaderPresent( boolean headerPresent ) {
     this.headerPresent = headerPresent;
@@ -402,8 +395,7 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param enclosure
-   *          the enclosure to set
+   * @param enclosure the enclosure to set
    */
   public void setEnclosure( String enclosure ) {
     this.enclosure = enclosure;
@@ -434,8 +426,7 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param inputFields
-   *          the inputFields to set
+   * @param inputFields the inputFields to set
    */
   public void setInputFields( TextFileInputField[] inputFields ) {
     this.inputFields = inputFields;
@@ -519,8 +510,7 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param filenameField
-   *          the filenameField to set
+   * @param filenameField the filenameField to set
    */
   public void setFilenameField( String filenameField ) {
     this.filenameField = filenameField;
@@ -534,8 +524,7 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param includingFilename
-   *          the includingFilename to set
+   * @param includingFilename the includingFilename to set
    */
   public void setIncludingFilename( boolean includingFilename ) {
     this.includingFilename = includingFilename;
@@ -549,16 +538,14 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param rowNumField
-   *          the rowNumField to set
+   * @param rowNumField the rowNumField to set
    */
   public void setRowNumField( String rowNumField ) {
     this.rowNumField = rowNumField;
   }
 
   /**
-   * @param isaddresult
-   *          The isaddresult to set.
+   * @param isaddresult The isaddresult to set.
    */
   public void setAddResultFile( boolean isaddresult ) {
     this.isaddresult = isaddresult;
@@ -579,8 +566,7 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param runningInParallel
-   *          the runningInParallel to set
+   * @param runningInParallel the runningInParallel to set
    */
   public void setRunningInParallel( boolean runningInParallel ) {
     this.runningInParallel = runningInParallel;
@@ -594,8 +580,7 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param encoding
-   *          the encoding to set
+   * @param encoding the encoding to set
    */
   public void setEncoding( String encoding ) {
     this.encoding = encoding;
@@ -607,18 +592,15 @@ public class ParGzipCsvInputMeta extends BaseStepMeta implements StepMetaInterfa
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param space
-   *          the variable space to use
+   * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
-   *
+   * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

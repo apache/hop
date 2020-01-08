@@ -22,12 +22,8 @@
 
 package org.apache.hop.trans.steps.creditcardvalidator;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -38,7 +34,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -46,8 +42,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*
  * Created on 03-Juin-2008
@@ -57,14 +54,18 @@ import org.w3c.dom.Node;
 public class CreditCardValidatorMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = CreditCardValidatorMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** dynamic field */
+  /**
+   * dynamic field
+   */
   private String fieldname;
 
   private String cardtype;
 
   private String notvalidmsg;
 
-  /** function result: new value name */
+  /**
+   * function result: new value name
+   */
   private String resultfieldname;
 
   private boolean onlydigits;
@@ -81,8 +82,7 @@ public class CreditCardValidatorMeta extends BaseStepMeta implements StepMetaInt
   }
 
   /**
-   * @param fieldname
-   *          The fieldname to set.
+   * @param fieldname The fieldname to set.
    */
   public void setDynamicField( String fieldname ) {
     this.fieldname = fieldname;
@@ -104,16 +104,14 @@ public class CreditCardValidatorMeta extends BaseStepMeta implements StepMetaInt
   }
 
   /**
-   * @param resultfieldname
-   *          The resultfieldname to set.
+   * @param resultfieldname The resultfieldname to set.
    */
   public void setResultFieldName( String resultfieldname ) {
     this.resultfieldname = resultfieldname;
   }
 
   /**
-   * @param cardtype
-   *          The cardtype to set.
+   * @param cardtype The cardtype to set.
    */
   public void setCardType( String cardtype ) {
     this.cardtype = cardtype;
@@ -127,8 +125,7 @@ public class CreditCardValidatorMeta extends BaseStepMeta implements StepMetaInt
   }
 
   /**
-   * @param notvalidmsg
-   *          The notvalidmsg to set.
+   * @param notvalidmsg The notvalidmsg to set.
    */
   public void setNotValidMsg( String notvalidmsg ) {
     this.notvalidmsg = notvalidmsg;
@@ -159,7 +156,7 @@ public class CreditCardValidatorMeta extends BaseStepMeta implements StepMetaInt
   }
 
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     String realresultfieldname = space.environmentSubstitute( resultfieldname );
     if ( !Utils.isEmpty( realresultfieldname ) ) {
       ValueMetaInterface v = new ValueMetaBoolean( realresultfieldname );
@@ -207,8 +204,8 @@ public class CreditCardValidatorMeta extends BaseStepMeta implements StepMetaInt
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -247,7 +244,7 @@ public class CreditCardValidatorMeta extends BaseStepMeta implements StepMetaInt
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new CreditCardValidator( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

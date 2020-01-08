@@ -22,20 +22,9 @@
 
 package org.apache.hop.trans.steps.fileinput;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.VFS;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.compress.CompressionPluginType;
 import org.apache.hop.core.exception.HopStepException;
@@ -51,6 +40,17 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.file.BaseFileField;
+import org.junit.Before;
+import org.junit.Ignore;
+
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Base class for all tests for BaseFileInput steps.
@@ -125,10 +125,9 @@ public abstract class BaseParsingTest<Meta extends StepMetaInterface, Data exten
 
   /**
    * Check result of parsing.
-   * 
-   * @param expected
-   *          array of rows of fields, i.e. { {"field 1 value in row 1","field 2 value in row 1"}, {
-   *          "field 1 value in row 2","field 2 value in row 2"} }
+   *
+   * @param expected array of rows of fields, i.e. { {"field 1 value in row 1","field 2 value in row 1"}, {
+   *                 "field 1 value in row 2","field 2 value in row 2"} }
    */
   protected void check( Object[][] expected ) throws Exception {
     checkErrors();
@@ -146,9 +145,8 @@ public abstract class BaseParsingTest<Meta extends StepMetaInterface, Data exten
   /**
    * Check result of parsing.
    *
-   * @param expected
-   *          array of rows of fields, i.e. { {"field 1 value in row 1","field 2 value in row 1"}, {
-   *          "field 1 value in row 2","field 2 value in row 2"} }
+   * @param expected array of rows of fields, i.e. { {"field 1 value in row 1","field 2 value in row 1"}, {
+   *                 "field 1 value in row 2","field 2 value in row 2"} }
    */
   protected void checkRowCount( Object[][] expected ) throws Exception {
     assertEquals( "Wrong rows count", expected.length, rows.size() );
@@ -158,13 +156,12 @@ public abstract class BaseParsingTest<Meta extends StepMetaInterface, Data exten
   /**
    * Check content of parsing.
    *
-   * @param expected
-   *          array of rows of fields, i.e. { {"field 1 value in row 1","field 2 value in row 1"}, {
-   *          "field 1 value in row 2","field 2 value in row 2"} }
+   * @param expected array of rows of fields, i.e. { {"field 1 value in row 1","field 2 value in row 1"}, {
+   *                 "field 1 value in row 2","field 2 value in row 2"} }
    */
   protected void checkContent( Object[][] expected ) throws Exception {
     for ( int i = 0; i < expected.length; i++ ) {
-      assertArrayEquals( "Wrong row: " + Arrays.asList( rows.get( i ) ), expected[i], rows.get( i ) );
+      assertArrayEquals( "Wrong row: " + Arrays.asList( rows.get( i ) ), expected[ i ], rows.get( i ) );
     }
   }
 

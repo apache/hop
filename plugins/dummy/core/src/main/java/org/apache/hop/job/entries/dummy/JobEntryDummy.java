@@ -22,19 +22,13 @@
 
 package org.apache.hop.job.entries.dummy;
 
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
-import java.util.List;
 
 
 /**
@@ -45,9 +39,9 @@ import java.util.List;
  */
 
 @org.apache.hop.core.annotations.JobEntry( id = "DummyJob", suggestion = "DummyPlugin.Job.SuggestedEntry",
-      i18nPackageName = "pdi.jobentry.dummy", image = "deprecated.svg",
-      name = "DummyPlugin.Job.Name", description = "DummyPlugin.Job.Description",
-      categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Deprecated" )
+  i18nPackageName = "pdi.jobentry.dummy", image = "deprecated.svg",
+  name = "DummyPlugin.Job.Name", description = "DummyPlugin.Job.Description",
+  categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Deprecated" )
 public class JobEntryDummy extends JobEntryBase implements Cloneable, JobEntryInterface {
 
   private static final String WILDCARD = "wildcard";
@@ -106,15 +100,15 @@ public class JobEntryDummy extends JobEntryBase implements Cloneable, JobEntryIn
   }
 
   @Override
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode, IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       sourceDirectory = XMLHandler.getTagValue( entrynode, SOURCEDIRECTORY );
       targetDirectory = XMLHandler.getTagValue( entrynode, TARGETDIRECTORY );
       wildcard = XMLHandler.getTagValue( entrynode, WILDCARD );
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( "Unable to load file exists job entry from XML node",
-          xe );
+        xe );
     }
   }
 
@@ -126,8 +120,7 @@ public class JobEntryDummy extends JobEntryBase implements Cloneable, JobEntryIn
   }
 
   /**
-   * @param targetDirectory
-   *          The targetDirectory to set.
+   * @param targetDirectory The targetDirectory to set.
    */
   public void setTargetDirectory( String targetDirectory ) {
     this.targetDirectory = targetDirectory;
@@ -151,7 +144,7 @@ public class JobEntryDummy extends JobEntryBase implements Cloneable, JobEntryIn
     String realTargetDirectory = environmentSubstitute( targetDirectory );
     String realSourceDirectory = environmentSubstitute( sourceDirectory );
     DummyJob proc = new DummyJob( realSourceDirectory, realTargetDirectory,
-        realWildcard );
+      realWildcard );
 
     try {
       filesRetrieved = proc.process();

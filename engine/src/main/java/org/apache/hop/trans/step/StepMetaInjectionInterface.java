@@ -22,9 +22,9 @@
 
 package org.apache.hop.trans.step;
 
-import java.util.List;
-
 import org.apache.hop.core.exception.HopException;
+
+import java.util.List;
 
 /**
  * This interface allows an external program to inject metadata using a standard flat set of metadata attributes.
@@ -36,12 +36,13 @@ import org.apache.hop.core.exception.HopException;
 public interface StepMetaInjectionInterface {
   /**
    * @return A list of step injection metadata entries. In case the data type of the entry is NONE (0) you will get at
-   *         least one entry in the details section. You can use this list to see a description of all the metadata.
+   * least one entry in the details section. You can use this list to see a description of all the metadata.
    */
   public List<StepInjectionMetaEntry> getStepInjectionMetadataEntries() throws HopException;
 
   /**
    * Inject the metadata specified into the step metadata
+   *
    * @param metadata the metadata to inject.
    * @throws HopException
    */
@@ -50,8 +51,9 @@ public interface StepMetaInjectionInterface {
   /**
    * Extracts the step metadata in a standard fashion.  Enables unit testing more easily by extracting the step
    * metadata and then doing the re-injection into an empty step.
+   *
    * @return A list of step injection metadata entries in a standard fashion.  Includes both the entry and the value
-   *         for the entry.
+   * for the entry.
    * @throws HopException
    */
   public List<StepInjectionMetaEntry> extractStepMetadataEntries() throws HopException;

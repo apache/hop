@@ -22,13 +22,13 @@
 
 package org.apache.hop.trans.steps.getfilesrowscount;
 
-import java.io.InputStream;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import java.io.InputStream;
 
 /**
  * @author Samatar Hassan

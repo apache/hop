@@ -22,15 +22,10 @@
 
 package org.apache.hop.trans.steps.rssoutput;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -38,7 +33,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -46,8 +41,11 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Output rows to RSS feed and create a file.
@@ -81,67 +79,105 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
 
   private boolean AddToResult;
 
-  /** The base name of the output file */
+  /**
+   * The base name of the output file
+   */
   private String fileName;
 
-  /** The file extention in case of a generated filename */
+  /**
+   * The file extention in case of a generated filename
+   */
   private String extension;
 
-  /** Flag: add the stepnr in the filename */
+  /**
+   * Flag: add the stepnr in the filename
+   */
   private boolean stepNrInFilename;
 
-  /** Flag: add the partition number in the filename */
+  /**
+   * Flag: add the partition number in the filename
+   */
   private boolean partNrInFilename;
 
-  /** Flag: add the date in the filename */
+  /**
+   * Flag: add the date in the filename
+   */
   private boolean dateInFilename;
 
-  /** Flag: add the time in the filename */
+  /**
+   * Flag: add the time in the filename
+   */
   private boolean timeInFilename;
 
-  /** Flag: create parent folder if needed */
+  /**
+   * Flag: create parent folder if needed
+   */
   private boolean createparentfolder;
 
-  /** Rss version **/
+  /**
+   * Rss version
+   **/
   private String version;
 
-  /** Rss encoding **/
+  /**
+   * Rss encoding
+   **/
   private String encoding;
 
-  /** Flag : add image to RSS feed **/
+  /**
+   * Flag : add image to RSS feed
+   **/
   private boolean addimage;
 
   private boolean addgeorss;
 
   private boolean usegeorssgml;
 
-  /** The field that contain filename */
+  /**
+   * The field that contain filename
+   */
   private String filenamefield;
 
-  /** Flag : is filename defined in a field **/
+  /**
+   * Flag : is filename defined in a field
+   **/
   private boolean isfilenameinfield;
 
-  /** which fields do we use for Channel Custom ? */
+  /**
+   * which fields do we use for Channel Custom ?
+   */
   private String[] ChannelCustomFields;
 
-  /** add namespaces? */
+  /**
+   * add namespaces?
+   */
   private String[] NameSpaces;
 
   private String[] NameSpacesTitle;
 
-  /** which fields do we use for getChannelCustomTags Custom ? */
+  /**
+   * which fields do we use for getChannelCustomTags Custom ?
+   */
   private String[] channelCustomTags;
 
-  /** which fields do we use for Item Custom Field? */
+  /**
+   * which fields do we use for Item Custom Field?
+   */
   private String[] ItemCustomFields;
 
-  /** which fields do we use for Item Custom tag ? */
+  /**
+   * which fields do we use for Item Custom tag ?
+   */
   private String[] itemCustomTags;
 
-  /** create custom RSS ? */
+  /**
+   * create custom RSS ?
+   */
   private boolean customrss;
 
-  /** display item tag in output ? */
+  /**
+   * display item tag in output ?
+   */
   private boolean displayitem;
 
   public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
@@ -175,18 +211,18 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrfields ) {
-    ChannelCustomFields = new String[nrfields];
-    channelCustomTags = new String[nrfields];
+    ChannelCustomFields = new String[ nrfields ];
+    channelCustomTags = new String[ nrfields ];
   }
 
   public void allocateitem( int nrfields ) {
-    ItemCustomFields = new String[nrfields];
-    itemCustomTags = new String[nrfields];
+    ItemCustomFields = new String[ nrfields ];
+    itemCustomTags = new String[ nrfields ];
   }
 
   public void allocatenamespace( int nrnamespaces ) {
-    NameSpaces = new String[nrnamespaces];
-    NameSpacesTitle = new String[nrnamespaces];
+    NameSpaces = new String[ nrnamespaces ];
+    NameSpacesTitle = new String[ nrnamespaces ];
   }
 
   /**
@@ -197,8 +233,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param version
-   *          The version to set.
+   * @param version The version to set.
    */
   public void setVersion( String version ) {
     this.version = version;
@@ -212,8 +247,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param encoding
-   *          The encoding to set.
+   * @param encoding The encoding to set.
    */
   public void setEncoding( String encoding ) {
     this.encoding = encoding;
@@ -227,8 +261,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param filenamefield
-   *          The filenamefield to set.
+   * @param filenamefield The filenamefield to set.
    */
   public void setFileNameField( String filenamefield ) {
     this.filenamefield = filenamefield;
@@ -242,8 +275,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param extension
-   *          The extension to set.
+   * @param extension The extension to set.
    */
   public void setExtension( String extension ) {
     this.extension = extension;
@@ -264,8 +296,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param stepNrInFilename
-   *          The stepNrInFilename to set.
+   * @param stepNrInFilename The stepNrInFilename to set.
    */
   public void setStepNrInFilename( boolean stepNrInFilename ) {
     this.stepNrInFilename = stepNrInFilename;
@@ -286,24 +317,21 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param dateInFilename
-   *          The dateInFilename to set.
+   * @param dateInFilename The dateInFilename to set.
    */
   public void setDateInFilename( boolean dateInFilename ) {
     this.dateInFilename = dateInFilename;
   }
 
   /**
-   * @param timeInFilename
-   *          The timeInFilename to set.
+   * @param timeInFilename The timeInFilename to set.
    */
   public void setTimeInFilename( boolean timeInFilename ) {
     this.timeInFilename = timeInFilename;
   }
 
   /**
-   * @param fileName
-   *          The fileName to set.
+   * @param fileName The fileName to set.
    */
   public void setFileName( String fileName ) {
     this.fileName = fileName;
@@ -317,16 +345,14 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param AddToResult
-   *          The Add file to result to set.
+   * @param AddToResult The Add file to result to set.
    */
   public void setAddToResult( boolean AddToResult ) {
     this.AddToResult = AddToResult;
   }
 
   /**
-   * @param customrss
-   *          The custom RSS flag to set.
+   * @param customrss The custom RSS flag to set.
    */
   public void setCustomRss( boolean customrss ) {
     this.customrss = customrss;
@@ -340,8 +366,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param displayitem
-   *          The display itema ta flag.
+   * @param displayitem The display itema ta flag.
    */
   public void setDisplayItem( boolean displayitem ) {
     this.displayitem = displayitem;
@@ -362,8 +387,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param addimage
-   *          The addimage to set.
+   * @param addimage The addimage to set.
    */
   public void setAddImage( boolean addimage ) {
     this.addimage = addimage;
@@ -377,8 +401,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param addgeorss
-   *          The addgeorss to set.
+   * @param addgeorss The addgeorss to set.
    */
   public void setAddGeoRSS( boolean addgeorss ) {
     this.addgeorss = addgeorss;
@@ -392,8 +415,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param usegeorssgml
-   *          The usegeorssgml to set.
+   * @param usegeorssgml The usegeorssgml to set.
    */
   public void setUseGeoRSSGML( boolean usegeorssgml ) {
     this.usegeorssgml = usegeorssgml;
@@ -407,8 +429,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param isfilenameinfield
-   *          The isfilenameinfield to set.
+   * @param isfilenameinfield The isfilenameinfield to set.
    */
   public void setFilenameInField( boolean isfilenameinfield ) {
     this.isfilenameinfield = isfilenameinfield;
@@ -422,8 +443,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param ChannelCustomFields
-   *          The ChannelCustomFields to set.
+   * @param ChannelCustomFields The ChannelCustomFields to set.
    */
   public void setChannelCustomFields( String[] ChannelCustomFields ) {
     this.ChannelCustomFields = ChannelCustomFields;
@@ -437,8 +457,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param NameSpaces
-   *          The NameSpaces to set.
+   * @param NameSpaces The NameSpaces to set.
    */
   public void setNameSpaces( String[] NameSpaces ) {
     this.NameSpaces = NameSpaces;
@@ -452,8 +471,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param NameSpacesTitle
-   *          The NameSpacesTitle to set.
+   * @param NameSpacesTitle The NameSpacesTitle to set.
    */
   public void setNameSpacesTitle( String[] NameSpacesTitle ) {
     this.NameSpacesTitle = NameSpacesTitle;
@@ -467,8 +485,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param channelCustomTags
-   *          The channelCustomTags to set.
+   * @param channelCustomTags The channelCustomTags to set.
    */
   public void setChannelCustomTags( String[] channelCustomTags ) {
     this.channelCustomTags = channelCustomTags;
@@ -482,8 +499,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param itemCustomTags
-   *          The getChannelCustomTags to set.
+   * @param itemCustomTags The getChannelCustomTags to set.
    */
   public void setItemCustomTags( String[] itemCustomTags ) {
     this.itemCustomTags = itemCustomTags;
@@ -497,8 +513,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param value
-   *          The ItemCustomFields to set.
+   * @param value The ItemCustomFields to set.
    */
   public void setItemCustomFields( String[] value ) {
     this.ItemCustomFields = value;
@@ -512,8 +527,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param createparentfolder
-   *          The create parent folder flag to set.
+   * @param createparentfolder The create parent folder flag to set.
    */
   public void setCreateParentFolder( boolean createparentfolder ) {
     this.createparentfolder = createparentfolder;
@@ -544,17 +558,17 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
       nr++;
     }
 
-    String[] retval = new String[nr];
+    String[] retval = new String[ nr ];
 
     int i = 0;
     for ( int copy = 0; copy < copies; copy++ ) {
       for ( int part = 0; part < parts; part++ ) {
-        retval[i] = buildFilename( space, copy );
+        retval[ i ] = buildFilename( space, copy );
         i++;
       }
     }
     if ( i < nr ) {
-      retval[i] = "...";
+      retval[ i ] = "...";
     }
 
     return retval;
@@ -664,8 +678,8 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
 
       for ( int i = 0; i < nrchannelfields; i++ ) {
         Node knode = XMLHandler.getSubNodeByNr( keys, "channel_custom_fields", i );
-        channelCustomTags[i] = XMLHandler.getTagValue( knode, "tag" );
-        ChannelCustomFields[i] = XMLHandler.getTagValue( knode, "field" );
+        channelCustomTags[ i ] = XMLHandler.getTagValue( knode, "tag" );
+        ChannelCustomFields[ i ] = XMLHandler.getTagValue( knode, "field" );
       }
       // Custom Item fields
       int nritemfields = XMLHandler.countNodes( keys, "item_custom_fields" );
@@ -673,8 +687,8 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
 
       for ( int i = 0; i < nritemfields; i++ ) {
         Node knode = XMLHandler.getSubNodeByNr( keys, "item_custom_fields", i );
-        itemCustomTags[i] = XMLHandler.getTagValue( knode, "tag" );
-        ItemCustomFields[i] = XMLHandler.getTagValue( knode, "field" );
+        itemCustomTags[ i ] = XMLHandler.getTagValue( knode, "tag" );
+        ItemCustomFields[ i ] = XMLHandler.getTagValue( knode, "field" );
       }
       // NameSpaces
       Node keysNameSpaces = XMLHandler.getSubNode( stepnode, "namespaces" );
@@ -682,8 +696,8 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
       allocatenamespace( nrnamespaces );
       for ( int i = 0; i < nrnamespaces; i++ ) {
         Node knode = XMLHandler.getSubNodeByNr( keysNameSpaces, "namespace", i );
-        NameSpacesTitle[i] = XMLHandler.getTagValue( knode, "namespace_tag" );
-        NameSpaces[i] = XMLHandler.getTagValue( knode, "namespace_value" );
+        NameSpacesTitle[ i ] = XMLHandler.getTagValue( knode, "namespace_tag" );
+        NameSpaces[ i ] = XMLHandler.getTagValue( knode, "namespace_value" );
       }
 
     } catch ( Exception e ) {
@@ -724,24 +738,24 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( nrchannelfields );
     // channel custom fields
     for ( int i = 0; i < nrchannelfields; i++ ) {
-      ChannelCustomFields[i] = "field" + i;
-      channelCustomTags[i] = "tag" + i;
+      ChannelCustomFields[ i ] = "field" + i;
+      channelCustomTags[ i ] = "tag" + i;
     }
 
     int nritemfields = 0;
     allocateitem( nritemfields );
     // Custom Item Fields
     for ( int i = 0; i < nritemfields; i++ ) {
-      ItemCustomFields[i] = "field" + i;
-      itemCustomTags[i] = "tag" + i;
+      ItemCustomFields[ i ] = "field" + i;
+      itemCustomTags[ i ] = "tag" + i;
     }
     // Namespaces
     int nrnamespaces = 0;
     allocatenamespace( nrnamespaces );
     // Namespaces
     for ( int i = 0; i < nrnamespaces; i++ ) {
-      NameSpacesTitle[i] = "namespace_title" + i;
-      NameSpaces[i] = "namespace" + i;
+      NameSpacesTitle[ i ] = "namespace_title" + i;
+      NameSpaces[ i ] = "namespace" + i;
     }
   }
 
@@ -796,14 +810,14 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "      <fields>" ).append( Const.CR );
     for ( int i = 0; i < ChannelCustomFields.length; i++ ) {
       retval.append( "        <channel_custom_fields>" ).append( Const.CR );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "tag", channelCustomTags[i] ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "field", ChannelCustomFields[i] ) );
+      retval.append( "          " ).append( XMLHandler.addTagValue( "tag", channelCustomTags[ i ] ) );
+      retval.append( "          " ).append( XMLHandler.addTagValue( "field", ChannelCustomFields[ i ] ) );
       retval.append( "        </channel_custom_fields>" ).append( Const.CR );
     }
     for ( int i = 0; i < ItemCustomFields.length; i++ ) {
       retval.append( "        <Item_custom_fields>" ).append( Const.CR );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "tag", itemCustomTags[i] ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "field", ItemCustomFields[i] ) );
+      retval.append( "          " ).append( XMLHandler.addTagValue( "tag", itemCustomTags[ i ] ) );
+      retval.append( "          " ).append( XMLHandler.addTagValue( "field", ItemCustomFields[ i ] ) );
       retval.append( "        </Item_custom_fields>" ).append( Const.CR );
     }
     retval.append( "      </fields>" ).append( Const.CR );
@@ -811,8 +825,8 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "      <namespaces>" ).append( Const.CR );
     for ( int i = 0; i < NameSpaces.length; i++ ) {
       retval.append( "        <namespace>" ).append( Const.CR );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "namespace_tag", NameSpacesTitle[i] ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "namespace_value", NameSpaces[i] ) );
+      retval.append( "          " ).append( XMLHandler.addTagValue( "namespace_tag", NameSpacesTitle[ i ] ) );
+      retval.append( "          " ).append( XMLHandler.addTagValue( "namespace_value", NameSpaces[ i ] ) );
       retval.append( "        </namespace>" ).append( Const.CR );
     }
     retval.append( "      </namespaces>" ).append( Const.CR );
@@ -821,8 +835,8 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
 
     CheckResult cr;
 
@@ -955,80 +969,70 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param channelauthor
-   *          the channelauthor to set
+   * @param channelauthor the channelauthor to set
    */
   public void setChannelAuthor( String channelauthor ) {
     this.channelauthor = channelauthor;
   }
 
   /**
-   * @param channeltitle
-   *          the channeltitle to set
+   * @param channeltitle the channeltitle to set
    */
   public void setChannelTitle( String channeltitle ) {
     this.channeltitle = channeltitle;
   }
 
   /**
-   * @param channellink
-   *          the channellink to set
+   * @param channellink the channellink to set
    */
   public void setChannelLink( String channellink ) {
     this.channellink = channellink;
   }
 
   /**
-   * @param channelpubdate
-   *          the channelpubdate to set
+   * @param channelpubdate the channelpubdate to set
    */
   public void setChannelPubDate( String channelpubdate ) {
     this.channelpubdate = channelpubdate;
   }
 
   /**
-   * @param channelimagetitle
-   *          the channelimagetitle to set
+   * @param channelimagetitle the channelimagetitle to set
    */
   public void setChannelImageTitle( String channelimagetitle ) {
     this.channelimagetitle = channelimagetitle;
   }
 
   /**
-   * @param channelimagelink
-   *          the channelimagelink to set
+   * @param channelimagelink the channelimagelink to set
    */
   public void setChannelImageLink( String channelimagelink ) {
     this.channelimagelink = channelimagelink;
   }
 
   /**
-   * @param channelimageurl
-   *          the channelimageurl to set
+   * @param channelimageurl the channelimageurl to set
    */
   public void setChannelImageUrl( String channelimageurl ) {
     this.channelimageurl = channelimageurl;
   }
 
   /**
-   * @param channelimagedescription
-   *          the channelimagedescription to set
+   * @param channelimagedescription the channelimagedescription to set
    */
   public void setChannelImageDescription( String channelimagedescription ) {
     this.channelimagedescription = channelimagedescription;
   }
 
   /**
-   * @param channellanguage
-   *          the channellanguage to set
+   * @param channellanguage the channellanguage to set
    */
   public void setChannelLanguage( String channellanguage ) {
     this.channellanguage = channellanguage;
   }
 
   /**
-   * @param channeldescription
-   *          the channeldescription to set
+   * @param channeldescription the channeldescription to set
    */
   public void setChannelDescription( String channeldescription ) {
     this.channeldescription = channeldescription;
@@ -1049,8 +1053,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param geopointlat
-   *          the geopointlat to set
+   * @param geopointlat the geopointlat to set
    */
   public void setGeoPointLat( String geopointlat ) {
     this.geopointlat = geopointlat;
@@ -1064,8 +1067,7 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param geopointlong
-   *          the geopointlong to set
+   * @param geopointlong the geopointlong to set
    */
   public void setGeoPointLong( String geopointlong ) {
     this.geopointlong = geopointlong;
@@ -1100,40 +1102,35 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param itemtitle
-   *          the itemtitle to set
+   * @param itemtitle the itemtitle to set
    */
   public void setItemTitle( String itemtitle ) {
     this.itemtitle = itemtitle;
   }
 
   /**
-   * @param itemdescription
-   *          the itemdescription to set
+   * @param itemdescription the itemdescription to set
    */
   public void setItemDescription( String itemdescription ) {
     this.itemdescription = itemdescription;
   }
 
   /**
-   * @param itemlink
-   *          the itemlink to set
+   * @param itemlink the itemlink to set
    */
   public void setItemLink( String itemlink ) {
     this.itemlink = itemlink;
   }
 
   /**
-   * @param itempubdate
-   *          the itempubdate to set
+   * @param itempubdate the itempubdate to set
    */
   public void setItemPubDate( String itempubdate ) {
     this.itempubdate = itempubdate;
   }
 
   /**
-   * @param itemauthor
-   *          the itemauthor to set
+   * @param itemauthor the itemauthor to set
    */
   public void setItemAuthor( String itemauthor ) {
     this.itemauthor = itemauthor;
@@ -1147,15 +1144,14 @@ public class RssOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param channelcopyright
-   *          the channelcopyright to set
+   * @param channelcopyright the channelcopyright to set
    */
   public void setChannelCopyright( String channelcopyright ) {
     this.channelcopyright = channelcopyright;
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new RssOutput( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 }

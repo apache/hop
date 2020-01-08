@@ -16,12 +16,12 @@
  */
 package org.apache.hop.metastore.test.testclasses.my;
 
+import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metastore.persist.MetaStoreElementType;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
-import org.apache.hop.metastore.persist.MetaStoreElementType;
 
 @MetaStoreElementType(
   name = "My element type",
@@ -69,7 +69,7 @@ public class MyElement {
   @MetaStoreAttribute( factoryNameReference = true, factoryNameKey = FACTORY_OTHER_ELEMENT )
   private MyOtherElement myOtherElement;
 
-  /** 
+  /**
    * We need the empty constructor for our factory.  Having any other constructor is fine too, but this one is mandatory!
    */
   public MyElement() {

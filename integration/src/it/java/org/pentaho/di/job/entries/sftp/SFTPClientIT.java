@@ -22,26 +22,25 @@
 
 package org.apache.hop.job.entries.sftp;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.net.InetAddress;
-
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.Session;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.vfs.HopVFS;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.vfs.HopVFS;
 
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.Session;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.InetAddress;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Andrey Khayrutdinov

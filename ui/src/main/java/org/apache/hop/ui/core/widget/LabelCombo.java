@@ -22,6 +22,8 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.ui.core.PropsUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
@@ -32,8 +34,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.apache.hop.core.Const;
-import org.apache.hop.ui.core.PropsUI;
 
 public class LabelCombo extends Composite {
   private static final PropsUI props = PropsUI.getInstance();

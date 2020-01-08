@@ -24,7 +24,7 @@ package org.apache.hop.core.plugins;
 
 /**
  * Listeners can be registered with the plugin registry to receive notifications of plugins being added/remove/modified
- *
+ * <p>
  * User: nbaker Date: 11/11/10
  */
 public interface PluginTypeListener {

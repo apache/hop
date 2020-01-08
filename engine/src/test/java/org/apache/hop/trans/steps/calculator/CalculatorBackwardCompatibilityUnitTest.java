@@ -22,20 +22,6 @@
 
 package org.apache.hop.trans.steps.calculator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
-
-import java.lang.reflect.Field;
-import java.math.BigDecimal;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowSet;
@@ -51,6 +37,20 @@ import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.step.RowAdapter;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.lang.reflect.Field;
+import java.math.BigDecimal;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for calculator step
@@ -163,15 +163,15 @@ public class CalculatorBackwardCompatibilityUnitTest {
 
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] { new CalculatorMetaFunction( "test",
-        CalculatorMetaFunction.CALC_ROUND_1, "Value", null, null, ValueMetaInterface.TYPE_NUMBER, 2, 0, false, "", "",
-        "", "" ) } );
+      CalculatorMetaFunction.CALC_ROUND_1, "Value", null, null, ValueMetaInterface.TYPE_NUMBER, 2, 0, false, "", "",
+      "", "" ) } );
 
     // Verify output
     try {
       calculator.addRowListener( new RowAdapter() {
         @Override
         public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
-          assertEquals( expectedResult, row[1] );
+          assertEquals( expectedResult, row[ 1 ] );
         }
       } );
       calculator.processRow( meta, new CalculatorData() );
@@ -216,15 +216,15 @@ public class CalculatorBackwardCompatibilityUnitTest {
 
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] { new CalculatorMetaFunction( "test",
-        CalculatorMetaFunction.CALC_ROUND_2, "Value", "Precision", null, ValueMetaInterface.TYPE_NUMBER, 2, 0, false,
-        "", "", "", "" ) } );
+      CalculatorMetaFunction.CALC_ROUND_2, "Value", "Precision", null, ValueMetaInterface.TYPE_NUMBER, 2, 0, false,
+      "", "", "", "" ) } );
 
     // Verify output
     try {
       calculator.addRowListener( new RowAdapter() {
         @Override
         public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
-          assertEquals( expectedResult, row[2] );
+          assertEquals( expectedResult, row[ 2 ] );
         }
       } );
       calculator.processRow( meta, new CalculatorData() );
@@ -266,15 +266,15 @@ public class CalculatorBackwardCompatibilityUnitTest {
 
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] { new CalculatorMetaFunction( "test",
-        CalculatorMetaFunction.CALC_ROUND_STD_1, "Value", null, null, ValueMetaInterface.TYPE_NUMBER, 2, 0, false, "",
-        "", "", "" ) } );
+      CalculatorMetaFunction.CALC_ROUND_STD_1, "Value", null, null, ValueMetaInterface.TYPE_NUMBER, 2, 0, false, "",
+      "", "", "" ) } );
 
     // Verify output
     try {
       calculator.addRowListener( new RowAdapter() {
         @Override
         public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
-          assertEquals( expectedResult, row[1] );
+          assertEquals( expectedResult, row[ 1 ] );
         }
       } );
       calculator.processRow( meta, new CalculatorData() );
@@ -319,15 +319,15 @@ public class CalculatorBackwardCompatibilityUnitTest {
 
     CalculatorMeta meta = new CalculatorMeta();
     meta.setCalculation( new CalculatorMetaFunction[] { new CalculatorMetaFunction( "test",
-        CalculatorMetaFunction.CALC_ROUND_STD_2, "Value", "Precision", null, ValueMetaInterface.TYPE_NUMBER, 2, 0,
-        false, "", "", "", "" ) } );
+      CalculatorMetaFunction.CALC_ROUND_STD_2, "Value", "Precision", null, ValueMetaInterface.TYPE_NUMBER, 2, 0,
+      false, "", "", "", "" ) } );
 
     // Verify output
     try {
       calculator.addRowListener( new RowAdapter() {
         @Override
         public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
-          assertEquals( expectedResult, row[2] );
+          assertEquals( expectedResult, row[ 2 ] );
         }
       } );
       calculator.processRow( meta, new CalculatorData() );

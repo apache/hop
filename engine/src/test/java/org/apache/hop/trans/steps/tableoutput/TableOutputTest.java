@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.tableoutput;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -33,6 +31,8 @@ import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepPartitioningMeta;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.sql.Connection;
 import java.util.Map;
@@ -97,7 +97,7 @@ public class TableOutputTest {
 
   @Test
   public void testWriteToTable() throws Exception {
-    tableOutputSpy.writeToTable( mock( RowMetaInterface.class ), new Object[]{} );
+    tableOutputSpy.writeToTable( mock( RowMetaInterface.class ), new Object[] {} );
   }
 
   @Test
@@ -154,7 +154,7 @@ public class TableOutputTest {
   @Test
   public void testProcessRow_truncatesOnFirstRow() throws Exception {
     when( tableOutputMeta.truncateTable() ).thenReturn( true );
-    Object[] row = new Object[]{};
+    Object[] row = new Object[] {};
     doReturn( row ).when( tableOutputSpy ).getRow();
 
     try {
@@ -168,7 +168,7 @@ public class TableOutputTest {
   @Test
   public void testProcessRow_doesNotTruncateOnOtherRows() throws Exception {
     when( tableOutputMeta.truncateTable() ).thenReturn( true );
-    Object[] row = new Object[]{};
+    Object[] row = new Object[] {};
     doReturn( row ).when( tableOutputSpy ).getRow();
     tableOutputSpy.first = false;
     doReturn( null ).when( tableOutputSpy ).writeToTable( any( RowMetaInterface.class ), any( row.getClass() ) );
@@ -182,7 +182,7 @@ public class TableOutputTest {
   @Test
   public void testInit_unsupportedConnection() {
 
-    TableOutputMeta meta =  mock( TableOutputMeta.class );
+    TableOutputMeta meta = mock( TableOutputMeta.class );
     TableOutputData data = mock( TableOutputData.class );
 
     DatabaseInterface dbInterface = mock( DatabaseInterface.class );

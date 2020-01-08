@@ -21,18 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.mappinginput;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.logging.LoggingObjectInterface;
@@ -51,6 +39,18 @@ import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.mapping.MappingValueRename;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MappingInputFieldsTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -71,13 +71,13 @@ public class MappingInputFieldsTest {
     Map<Class<?>, String> classes = new HashMap<Class<?>, String>();
     classes.put( ValueMetaInterface.class, "org.apache.hop.core.row.value.ValueMetaString" );
     p1 =
-        new Plugin( new String[] { "2" }, ValueMetaPluginType.class, ValueMetaInterface.class, "", "", "", "", false,
+      new Plugin( new String[] { "2" }, ValueMetaPluginType.class, ValueMetaInterface.class, "", "", "", "", false,
         true, classes, null, null, null );
 
     classes = new HashMap<Class<?>, String>();
     classes.put( ValueMetaInterface.class, "org.apache.hop.core.row.value.ValueMetaInteger" );
     p2 =
-        new Plugin( new String[] { "5" }, ValueMetaPluginType.class, ValueMetaInterface.class, "", "", "", "", false,
+      new Plugin( new String[] { "5" }, ValueMetaPluginType.class, ValueMetaInterface.class, "", "", "", "", false,
         true, classes, null, null, null );
 
     PluginRegistry.getInstance().registerPlugin( ValueMetaPluginType.class, p1 );
@@ -186,13 +186,13 @@ public class MappingInputFieldsTest {
     assertEquals( "the field name-meta mismatch.", "string", outMeta.getValueMeta( i++ ).getName() );
 
     // Check if row-data corresponds to the row-meta
-    assertEquals( "the field value mismatch.", new Integer( 100502 ), outRowData[0] );
-    assertEquals( "the field value mismatch.", new Integer( 100504 ), outRowData[1] );
-    assertEquals( "the field value mismatch.", new Integer( 100500 ), outRowData[2] );
-    assertEquals( "the field value mismatch.", new Integer( 100501 ), outRowData[3] );
-    assertEquals( "the field value mismatch.", new Integer( 100503 ), outRowData[4] );
-    assertEquals( "the field value mismatch.", new Integer( 100505 ), outRowData[5] );
-    assertEquals( "the field value mismatch.", "str", outRowData[6] );
+    assertEquals( "the field value mismatch.", new Integer( 100502 ), outRowData[ 0 ] );
+    assertEquals( "the field value mismatch.", new Integer( 100504 ), outRowData[ 1 ] );
+    assertEquals( "the field value mismatch.", new Integer( 100500 ), outRowData[ 2 ] );
+    assertEquals( "the field value mismatch.", new Integer( 100501 ), outRowData[ 3 ] );
+    assertEquals( "the field value mismatch.", new Integer( 100503 ), outRowData[ 4 ] );
+    assertEquals( "the field value mismatch.", new Integer( 100505 ), outRowData[ 5 ] );
+    assertEquals( "the field value mismatch.", "str", outRowData[ 6 ] );
 
     assertTrue( step.processRow( meta, sdi ) );
 
@@ -227,13 +227,13 @@ public class MappingInputFieldsTest {
     assertEquals( "the field name-meta mismatch.", "string", outMeta.getValueMeta( i++ ).getName() );
 
     // Check if row-data corresponds to the row-meta
-    assertEquals( "the field value mismatch.", new Integer( 200502 ), outRowData[0] );
-    assertEquals( "the field value mismatch.", new Integer( 200504 ), outRowData[1] );
-    assertEquals( "the field value mismatch.", new Integer( 200500 ), outRowData[2] );
-    assertEquals( "the field value mismatch.", new Integer( 200501 ), outRowData[3] );
-    assertEquals( "the field value mismatch.", new Integer( 200503 ), outRowData[4] );
-    assertEquals( "the field value mismatch.", new Integer( 200505 ), outRowData[5] );
-    assertEquals( "the field value mismatch.", "str_1", outRowData[6] );
+    assertEquals( "the field value mismatch.", new Integer( 200502 ), outRowData[ 0 ] );
+    assertEquals( "the field value mismatch.", new Integer( 200504 ), outRowData[ 1 ] );
+    assertEquals( "the field value mismatch.", new Integer( 200500 ), outRowData[ 2 ] );
+    assertEquals( "the field value mismatch.", new Integer( 200501 ), outRowData[ 3 ] );
+    assertEquals( "the field value mismatch.", new Integer( 200503 ), outRowData[ 4 ] );
+    assertEquals( "the field value mismatch.", new Integer( 200505 ), outRowData[ 5 ] );
+    assertEquals( "the field value mismatch.", "str_1", outRowData[ 6 ] );
 
   }
 
@@ -308,13 +308,13 @@ public class MappingInputFieldsTest {
     assertEquals( "the field name-meta mismatch.", "number5", outMeta.getValueMeta( i++ ).getName() );
 
     // Check if row-data corresponds to the row-meta
-    assertEquals( "the field value mismatch.", "str", outRowData[0] );
-    assertEquals( "the field value mismatch.", new Integer( 100501 ), outRowData[1] );
-    assertEquals( "the field value mismatch.", new Integer( 100502 ), outRowData[2] );
-    assertEquals( "the field value mismatch.", new Integer( 100503 ), outRowData[3] );
-    assertEquals( "the field value mismatch.", new Integer( 100500 ), outRowData[4] );
-    assertEquals( "the field value mismatch.", new Integer( 100504 ), outRowData[5] );
-    assertEquals( "the field value mismatch.", new Integer( 100505 ), outRowData[6] );
+    assertEquals( "the field value mismatch.", "str", outRowData[ 0 ] );
+    assertEquals( "the field value mismatch.", new Integer( 100501 ), outRowData[ 1 ] );
+    assertEquals( "the field value mismatch.", new Integer( 100502 ), outRowData[ 2 ] );
+    assertEquals( "the field value mismatch.", new Integer( 100503 ), outRowData[ 3 ] );
+    assertEquals( "the field value mismatch.", new Integer( 100500 ), outRowData[ 4 ] );
+    assertEquals( "the field value mismatch.", new Integer( 100504 ), outRowData[ 5 ] );
+    assertEquals( "the field value mismatch.", new Integer( 100505 ), outRowData[ 6 ] );
 
     assertTrue( step.processRow( meta, sdi ) );
 
@@ -349,13 +349,13 @@ public class MappingInputFieldsTest {
     assertEquals( "the field name-meta mismatch.", "number5", outMeta.getValueMeta( i++ ).getName() );
 
     // Check if row-data corresponds to the row-meta
-    assertEquals( "the field value mismatch.", "str_1", outRowData[0] );
-    assertEquals( "the field value mismatch.", new Integer( 200501 ), outRowData[1] );
-    assertEquals( "the field value mismatch.", new Integer( 200502 ), outRowData[2] );
-    assertEquals( "the field value mismatch.", new Integer( 200503 ), outRowData[3] );
-    assertEquals( "the field value mismatch.", new Integer( 200500 ), outRowData[4] );
-    assertEquals( "the field value mismatch.", new Integer( 200504 ), outRowData[5] );
-    assertEquals( "the field value mismatch.", new Integer( 200505 ), outRowData[6] );
+    assertEquals( "the field value mismatch.", "str_1", outRowData[ 0 ] );
+    assertEquals( "the field value mismatch.", new Integer( 200501 ), outRowData[ 1 ] );
+    assertEquals( "the field value mismatch.", new Integer( 200502 ), outRowData[ 2 ] );
+    assertEquals( "the field value mismatch.", new Integer( 200503 ), outRowData[ 3 ] );
+    assertEquals( "the field value mismatch.", new Integer( 200500 ), outRowData[ 4 ] );
+    assertEquals( "the field value mismatch.", new Integer( 200504 ), outRowData[ 5 ] );
+    assertEquals( "the field value mismatch.", new Integer( 200505 ), outRowData[ 6 ] );
 
   }
 }

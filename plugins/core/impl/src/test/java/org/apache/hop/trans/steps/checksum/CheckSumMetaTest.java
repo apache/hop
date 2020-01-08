@@ -22,15 +22,6 @@
 
 package org.apache.hop.trans.steps.checksum;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
@@ -39,6 +30,15 @@ import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 public class CheckSumMetaTest implements InitializerInterface<CheckSumMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -52,15 +52,15 @@ public class CheckSumMetaTest implements InitializerInterface<CheckSumMeta> {
   @Test
   public void testConstants() {
     assertEquals( "CRC32", CheckSumMeta.TYPE_CRC32 );
-    assertEquals( "CRC32", CheckSumMeta.checksumtypeCodes[0] );
+    assertEquals( "CRC32", CheckSumMeta.checksumtypeCodes[ 0 ] );
     assertEquals( "ADLER32", CheckSumMeta.TYPE_ADLER32 );
-    assertEquals( "ADLER32", CheckSumMeta.checksumtypeCodes[1] );
+    assertEquals( "ADLER32", CheckSumMeta.checksumtypeCodes[ 1 ] );
     assertEquals( "MD5", CheckSumMeta.TYPE_MD5 );
-    assertEquals( "MD5", CheckSumMeta.checksumtypeCodes[2] );
+    assertEquals( "MD5", CheckSumMeta.checksumtypeCodes[ 2 ] );
     assertEquals( "SHA-1", CheckSumMeta.TYPE_SHA1 );
-    assertEquals( "SHA-1", CheckSumMeta.checksumtypeCodes[3] );
+    assertEquals( "SHA-1", CheckSumMeta.checksumtypeCodes[ 3 ] );
     assertEquals( "SHA-256", CheckSumMeta.TYPE_SHA256 );
-    assertEquals( "SHA-256", CheckSumMeta.checksumtypeCodes[4] );
+    assertEquals( "SHA-256", CheckSumMeta.checksumtypeCodes[ 4 ] );
     assertEquals( CheckSumMeta.checksumtypeCodes.length, CheckSumMeta.checksumtypeDescs.length );
   }
 

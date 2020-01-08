@@ -22,10 +22,7 @@
 
 package org.apache.hop.imp.rule;
 
-import java.util.List;
-
 import junit.framework.TestCase;
-
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.ImportRulePluginType;
 import org.apache.hop.core.plugins.PluginInterface;
@@ -35,6 +32,8 @@ import org.apache.hop.job.JobHopMeta;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.special.JobEntrySpecial;
 import org.apache.hop.job.entry.JobEntryCopy;
+
+import java.util.List;
 
 public class JobHasNoDisabledHopsImportRuleIT extends TestCase {
 

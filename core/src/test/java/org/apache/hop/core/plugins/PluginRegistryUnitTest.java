@@ -22,9 +22,6 @@
 
 package org.apache.hop.core.plugins;
 
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopPluginClassMapException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.extension.PluginMockInterface;
@@ -32,6 +29,9 @@ import org.apache.hop.core.logging.LoggingPluginType;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
@@ -73,7 +73,7 @@ public class PluginRegistryUnitTest {
   public void testSupplementalPluginMappings() throws Exception {
     PluginRegistry registry = PluginRegistry.getInstance();
     PluginInterface mockPlugin = mock( PluginInterface.class );
-    when( mockPlugin.getIds() ).thenReturn( new String[] { "mockPlugin"} );
+    when( mockPlugin.getIds() ).thenReturn( new String[] { "mockPlugin" } );
     when( mockPlugin.matches( "mockPlugin" ) ).thenReturn( true );
     when( mockPlugin.getName() ).thenReturn( "mockPlugin" );
     doReturn( LoggingPluginType.class ).when( mockPlugin ).getPluginType();
@@ -99,22 +99,22 @@ public class PluginRegistryUnitTest {
   public void testPluginClassloaderGroup() throws Exception {
     PluginRegistry registry = PluginRegistry.getInstance();
     PluginInterface mockPlugin1 = mock( PluginInterface.class );
-    when( mockPlugin1.getIds() ).thenReturn( new String[] { "mockPlugin"} );
+    when( mockPlugin1.getIds() ).thenReturn( new String[] { "mockPlugin" } );
     when( mockPlugin1.matches( "mockPlugin" ) ).thenReturn( true );
     when( mockPlugin1.getName() ).thenReturn( "mockPlugin" );
     when( mockPlugin1.getClassMap() ).thenReturn( new HashMap<Class<?>, String>() {{
-        put( PluginTypeInterface.class, String.class.getName() );
-      }} );
+      put( PluginTypeInterface.class, String.class.getName() );
+    }} );
     when( mockPlugin1.getClassLoaderGroup() ).thenReturn( "groupPlugin" );
     doReturn( BasePluginType.class ).when( mockPlugin1 ).getPluginType();
 
     PluginInterface mockPlugin2 = mock( PluginInterface.class );
-    when( mockPlugin2.getIds() ).thenReturn( new String[] { "mockPlugin2"} );
+    when( mockPlugin2.getIds() ).thenReturn( new String[] { "mockPlugin2" } );
     when( mockPlugin2.matches( "mockPlugin2" ) ).thenReturn( true );
     when( mockPlugin2.getName() ).thenReturn( "mockPlugin2" );
     when( mockPlugin2.getClassMap() ).thenReturn( new HashMap<Class<?>, String>() {{
-        put( PluginTypeInterface.class, Integer.class.getName() );
-      }} );
+      put( PluginTypeInterface.class, Integer.class.getName() );
+    }} );
     when( mockPlugin2.getClassLoaderGroup() ).thenReturn( "groupPlugin" );
     doReturn( BasePluginType.class ).when( mockPlugin2 ).getPluginType();
 
@@ -148,21 +148,27 @@ public class PluginRegistryUnitTest {
                                               Class<? extends PluginTypeInterface> typeToTrack ) {
         super.initListeners( BaseFragmentType.class, typeToTrack );
       }
+
       @Override protected String extractID( Annotation annotation ) {
         return null;
       }
+
       @Override protected String extractImageFile( Annotation annotation ) {
         return null;
       }
+
       @Override protected String extractDocumentationUrl( Annotation annotation ) {
         return null;
       }
+
       @Override protected String extractCasesUrl( Annotation annotation ) {
         return null;
       }
+
       @Override protected String extractForumUrl( Annotation annotation ) {
         return null;
       }
+
       @Override protected String extractSuggestion( Annotation annotation ) {
         return null;
       }

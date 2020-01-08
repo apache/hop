@@ -22,10 +22,7 @@
 
 package org.apache.hop.trans;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import junit.framework.TestCase;
-
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.logging.HopLogStore;
@@ -35,6 +32,8 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepMeta;
 import org.apache.hop.trans.step.RowAdapter;
 import org.apache.hop.trans.step.StepInterface;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NormalExecutionIT extends TestCase {
 
@@ -50,7 +49,7 @@ public class NormalExecutionIT extends TestCase {
   }
 
   /**
-   * Mock {@link org.apache.hop.trans.step.RowListener} that totals the number of events. 
+   * Mock {@link org.apache.hop.trans.step.RowListener} that totals the number of events.
    * Can be stopped with {@code close()}.
    */
   protected class CountingRowListener extends RowAdapter {
@@ -155,7 +154,7 @@ public class NormalExecutionIT extends TestCase {
   }
 
   /**
-   * Tests that all rows are written out to {@link org.apache.hop.trans.step.RowListener}s 
+   * Tests that all rows are written out to {@link org.apache.hop.trans.step.RowListener}s
    * before {@link Trans#waitUntilFinished} returns.
    */
   public void testWaitUntilFinished() throws Exception {
@@ -188,10 +187,10 @@ public class NormalExecutionIT extends TestCase {
       output.addRowListener( countingListener );
 
       // Feed input to transformation
-      Object[] row = new Object[1];
+      Object[] row = new Object[ 1 ];
       trans.startThreads();
       for ( Integer i = 0; i < ROWS; i++ ) {
-        row[0] = i;
+        row[ 0 ] = i;
         producer.putRow( injectorRowMeta, row );
       }
       producer.finished();

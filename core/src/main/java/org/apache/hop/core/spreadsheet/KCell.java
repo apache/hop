@@ -27,10 +27,10 @@ public interface KCell {
 
   /**
    * @return java.util.Date for KCellType.DATE<br>
-   *         Boolean for KCellType.BOOLEAN<br>
-   *         Double for KCellType.NUMBER<br>
-   *         String for KCellType.LABEL<br>
-   *         null for KCellType.EMPTY<br>
+   * Boolean for KCellType.BOOLEAN<br>
+   * Double for KCellType.NUMBER<br>
+   * String for KCellType.LABEL<br>
+   * null for KCellType.EMPTY<br>
    */
   public Object getValue();
 

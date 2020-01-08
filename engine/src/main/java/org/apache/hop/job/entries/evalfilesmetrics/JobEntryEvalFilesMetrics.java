@@ -22,32 +22,18 @@
 
 package org.apache.hop.job.entries.evalfilesmetrics;
 
-import org.apache.hop.job.entry.validator.AbstractFileValidator;
-import org.apache.hop.job.entry.validator.AndValidator;
-import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Iterator;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
@@ -57,10 +43,19 @@ import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.simpleeval.JobEntrySimpleEval;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.validator.AbstractFileValidator;
+import org.apache.hop.job.entry.validator.AndValidator;
+import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This defines a 'evaluate files metrics' job entry.
@@ -158,9 +153,9 @@ public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable,
   }
 
   public void allocate( int nrFields ) {
-    sourceFileFolder = new String[nrFields];
-    sourceWildcard = new String[nrFields];
-    sourceIncludeSubfolders = new String[nrFields];
+    sourceFileFolder = new String[ nrFields ];
+    sourceWildcard = new String[ nrFields ];
+    sourceIncludeSubfolders = new String[ nrFields ];
   }
 
   public Object clone() {
@@ -190,10 +185,10 @@ public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable,
     if ( sourceFileFolder != null ) {
       for ( int i = 0; i < sourceFileFolder.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "source_filefolder", sourceFileFolder[i] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "wildcard", sourceWildcard[i] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "source_filefolder", sourceFileFolder[ i ] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "wildcard", sourceWildcard[ i ] ) );
         retval
-          .append( "          " ).append( XMLHandler.addTagValue( "include_subFolders", sourceIncludeSubfolders[i] ) );
+          .append( "          " ).append( XMLHandler.addTagValue( "include_subFolders", sourceIncludeSubfolders[ i ] ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
@@ -213,30 +208,30 @@ public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable,
 
   public static String getIncludeSubFolders( String tt ) {
     if ( tt == null ) {
-      return IncludeSubFoldersCodes[0];
+      return IncludeSubFoldersCodes[ 0 ];
     }
-    if ( tt.equals( IncludeSubFoldersDesc[1] ) ) {
-      return IncludeSubFoldersCodes[1];
+    if ( tt.equals( IncludeSubFoldersDesc[ 1 ] ) ) {
+      return IncludeSubFoldersCodes[ 1 ];
     } else {
-      return IncludeSubFoldersCodes[0];
+      return IncludeSubFoldersCodes[ 0 ];
     }
   }
 
   public static String getIncludeSubFoldersDesc( String tt ) {
     if ( tt == null ) {
-      return IncludeSubFoldersDesc[0];
+      return IncludeSubFoldersDesc[ 0 ];
     }
-    if ( tt.equals( IncludeSubFoldersCodes[1] ) ) {
-      return IncludeSubFoldersDesc[1];
+    if ( tt.equals( IncludeSubFoldersCodes[ 1 ] ) ) {
+      return IncludeSubFoldersDesc[ 1 ];
     } else {
-      return IncludeSubFoldersDesc[0];
+      return IncludeSubFoldersDesc[ 0 ];
     }
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
 
       Node fields = XMLHandler.getSubNode( entrynode, "fields" );
 
@@ -248,9 +243,9 @@ public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable,
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        sourceFileFolder[i] = XMLHandler.getTagValue( fnode, "source_filefolder" );
-        sourceWildcard[i] = XMLHandler.getTagValue( fnode, "wildcard" );
-        sourceIncludeSubfolders[i] = XMLHandler.getTagValue( fnode, "include_subFolders" );
+        sourceFileFolder[ i ] = XMLHandler.getTagValue( fnode, "source_filefolder" );
+        sourceWildcard[ i ] = XMLHandler.getTagValue( fnode, "wildcard" );
+        sourceIncludeSubfolders[ i ] = XMLHandler.getTagValue( fnode, "include_subFolders" );
       }
 
       resultFilenamesWildcard = XMLHandler.getTagValue( entrynode, "result_filenames_wildcard" );
@@ -423,10 +418,10 @@ public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable,
 
             if ( isDetailed() ) {
               logDetailed( BaseMessages.getString(
-                PKG, "JobEvalFilesMetrics.Log.ProcessingRow", vsourcefilefolder[i], vwildcard[i] ) );
+                PKG, "JobEvalFilesMetrics.Log.ProcessingRow", vsourcefilefolder[ i ], vwildcard[ i ] ) );
             }
 
-            ProcessFileFolder( vsourcefilefolder[i], vwildcard[i], vincludeSubFolders[i], parentJob, result );
+            ProcessFileFolder( vsourcefilefolder[ i ], vwildcard[ i ], vincludeSubFolders[ i ], parentJob, result );
           }
         } else {
           logError( BaseMessages.getString( PKG, "JobEvalFilesMetrics.Error.FilesGridEmpty" ) );
@@ -641,7 +636,7 @@ public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable,
   }
 
   private void ProcessFileFolder( String sourcefilefoldername, String wildcard, String includeSubfolders,
-    Job parentJob, Result result ) {
+                                  Job parentJob, Result result ) {
 
     FileObject sourcefilefolder = null;
     FileObject CurrentFile = null;
@@ -707,7 +702,7 @@ public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable,
           if ( fileObjects != null ) {
             for ( int j = 0; j < fileObjects.length && !parentJob.isStopped(); j++ ) {
               // Fetch files in list one after one ...
-              CurrentFile = fileObjects[j];
+              CurrentFile = fileObjects[ j ];
 
               if ( !CurrentFile.getParent().toString().equals( sourcefilefolder.toString() ) ) {
                 // Not in the Base Folder..Only if include sub folders
@@ -845,7 +840,7 @@ public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable,
     }
 
     for ( int i = 0; i < scaleDesc.length; i++ ) {
-      if ( scaleDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( scaleDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -860,7 +855,7 @@ public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable,
     }
 
     for ( int i = 0; i < SourceFilesDesc.length; i++ ) {
-      if ( SourceFilesDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( SourceFilesDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -875,7 +870,7 @@ public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable,
     }
 
     for ( int i = 0; i < EvaluationTypeDesc.length; i++ ) {
-      if ( EvaluationTypeDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( EvaluationTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -890,7 +885,7 @@ public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable,
     }
 
     for ( int i = 0; i < scaleCodes.length; i++ ) {
-      if ( scaleCodes[i].equalsIgnoreCase( tt ) ) {
+      if ( scaleCodes[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -903,7 +898,7 @@ public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable,
     }
 
     for ( int i = 0; i < SourceFilesCodes.length; i++ ) {
-      if ( SourceFilesCodes[i].equalsIgnoreCase( tt ) ) {
+      if ( SourceFilesCodes[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -916,7 +911,7 @@ public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable,
     }
 
     for ( int i = 0; i < EvaluationTypeCodes.length; i++ ) {
-      if ( EvaluationTypeCodes[i].equalsIgnoreCase( tt ) ) {
+      if ( EvaluationTypeCodes[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -925,44 +920,44 @@ public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable,
 
   public static String getScaleDesc( int i ) {
     if ( i < 0 || i >= scaleDesc.length ) {
-      return scaleDesc[0];
+      return scaleDesc[ 0 ];
     }
-    return scaleDesc[i];
+    return scaleDesc[ i ];
   }
 
   public static String getEvaluationTypeDesc( int i ) {
     if ( i < 0 || i >= EvaluationTypeDesc.length ) {
-      return EvaluationTypeDesc[0];
+      return EvaluationTypeDesc[ 0 ];
     }
-    return EvaluationTypeDesc[i];
+    return EvaluationTypeDesc[ i ];
   }
 
   public static String getSourceFilesDesc( int i ) {
     if ( i < 0 || i >= SourceFilesDesc.length ) {
-      return SourceFilesDesc[0];
+      return SourceFilesDesc[ 0 ];
     }
-    return SourceFilesDesc[i];
+    return SourceFilesDesc[ i ];
   }
 
   public static String getScaleCode( int i ) {
     if ( i < 0 || i >= scaleCodes.length ) {
-      return scaleCodes[0];
+      return scaleCodes[ 0 ];
     }
-    return scaleCodes[i];
+    return scaleCodes[ i ];
   }
 
   public static String getSourceFilesCode( int i ) {
     if ( i < 0 || i >= SourceFilesCodes.length ) {
-      return SourceFilesCodes[0];
+      return SourceFilesCodes[ 0 ];
     }
-    return SourceFilesCodes[i];
+    return SourceFilesCodes[ i ];
   }
 
   public static String getEvaluationTypeCode( int i ) {
     if ( i < 0 || i >= EvaluationTypeCodes.length ) {
-      return EvaluationTypeCodes[0];
+      return EvaluationTypeCodes[ 0 ];
     }
-    return EvaluationTypeCodes[i];
+    return EvaluationTypeCodes[ i ];
   }
 
   public int getScale() {
@@ -970,9 +965,9 @@ public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable,
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     boolean res = JobEntryValidatorUtils.andValidator().validate( this, "arguments", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
 
     if ( res == false ) {
       return;
@@ -981,7 +976,7 @@ public class JobEntryEvalFilesMetrics extends JobEntryBase implements Cloneable,
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, JobEntryValidatorUtils.notNullValidator(),
-        JobEntryValidatorUtils.fileExistsValidator() );
+      JobEntryValidatorUtils.fileExistsValidator() );
 
     for ( int i = 0; i < sourceFileFolder.length; i++ ) {
       JobEntryValidatorUtils.andValidator().validate( this, "arguments[" + i + "]", remarks, ctx );

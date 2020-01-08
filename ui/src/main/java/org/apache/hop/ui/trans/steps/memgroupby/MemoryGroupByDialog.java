@@ -22,12 +22,20 @@
 
 package org.apache.hop.ui.trans.steps.memgroupby;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.memgroupby.MemoryGroupByMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -47,20 +55,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.memgroupby.MemoryGroupByMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class MemoryGroupByDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = MemoryGroupByMeta.class; // for i18n purposes, needed by Translator2!!
@@ -179,8 +179,8 @@ public class MemoryGroupByDialog extends BaseStepDialog implements StepDialogInt
     int nrKeyCols = 1;
     int nrKeyRows = ( input.getGroupField() != null ? input.getGroupField().length : 1 );
 
-    ciKey = new ColumnInfo[nrKeyCols];
-    ciKey[0] =
+    ciKey = new ColumnInfo[ nrKeyCols ];
+    ciKey[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "MemoryGroupByDialog.ColumnInfo.GroupField" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
@@ -216,25 +216,25 @@ public class MemoryGroupByDialog extends BaseStepDialog implements StepDialogInt
     int UpInsCols = 4;
     int UpInsRows = ( input.getAggregateField() != null ? input.getAggregateField().length : 1 );
 
-    ciReturn = new ColumnInfo[UpInsCols];
-    ciReturn[0] =
+    ciReturn = new ColumnInfo[ UpInsCols ];
+    ciReturn[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "MemoryGroupByDialog.ColumnInfo.Name" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    ciReturn[1] =
+    ciReturn[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "MemoryGroupByDialog.ColumnInfo.Subject" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    ciReturn[2] =
+    ciReturn[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "MemoryGroupByDialog.ColumnInfo.Type" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         MemoryGroupByMeta.typeGroupLongDesc );
-    ciReturn[3] =
+    ciReturn[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "MemoryGroupByDialog.ColumnInfo.Value" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    ciReturn[3].setToolTip( BaseMessages.getString( PKG, "MemoryGroupByDialog.ColumnInfo.Value.Tooltip" ) );
-    ciReturn[3].setUsingVariables( true );
+    ciReturn[ 3 ].setToolTip( BaseMessages.getString( PKG, "MemoryGroupByDialog.ColumnInfo.Value.Tooltip" ) );
+    ciReturn[ 3 ].setUsingVariables( true );
 
     wAgg =
       new TableView(
@@ -361,11 +361,11 @@ public class MemoryGroupByDialog extends BaseStepDialog implements StepDialogInt
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    ciKey[0].setComboValues( fieldNames );
-    ciReturn[1].setComboValues( fieldNames );
+    ciKey[ 0 ].setComboValues( fieldNames );
+    ciReturn[ 1 ].setComboValues( fieldNames );
   }
 
   /**
@@ -379,8 +379,8 @@ public class MemoryGroupByDialog extends BaseStepDialog implements StepDialogInt
     if ( input.getGroupField() != null ) {
       for ( int i = 0; i < input.getGroupField().length; i++ ) {
         TableItem item = wGroup.table.getItem( i );
-        if ( input.getGroupField()[i] != null ) {
-          item.setText( 1, input.getGroupField()[i] );
+        if ( input.getGroupField()[ i ] != null ) {
+          item.setText( 1, input.getGroupField()[ i ] );
         }
       }
     }
@@ -388,15 +388,15 @@ public class MemoryGroupByDialog extends BaseStepDialog implements StepDialogInt
     if ( input.getAggregateField() != null ) {
       for ( int i = 0; i < input.getAggregateField().length; i++ ) {
         TableItem item = wAgg.table.getItem( i );
-        if ( input.getAggregateField()[i] != null ) {
-          item.setText( 1, input.getAggregateField()[i] );
+        if ( input.getAggregateField()[ i ] != null ) {
+          item.setText( 1, input.getAggregateField()[ i ] );
         }
-        if ( input.getSubjectField()[i] != null ) {
-          item.setText( 2, input.getSubjectField()[i] );
+        if ( input.getSubjectField()[ i ] != null ) {
+          item.setText( 2, input.getSubjectField()[ i ] );
         }
-        item.setText( 3, Const.NVL( MemoryGroupByMeta.getTypeDescLong( input.getAggregateType()[i] ), "" ) );
-        if ( input.getValueField()[i] != null ) {
-          item.setText( 4, input.getValueField()[i] );
+        item.setText( 3, Const.NVL( MemoryGroupByMeta.getTypeDescLong( input.getAggregateType()[ i ] ), "" ) );
+        if ( input.getValueField()[ i ] != null ) {
+          item.setText( 4, input.getValueField()[ i ] );
         }
       }
     }
@@ -431,16 +431,16 @@ public class MemoryGroupByDialog extends BaseStepDialog implements StepDialogInt
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < sizegroup; i++ ) {
       TableItem item = wGroup.getNonEmpty( i );
-      input.getGroupField()[i] = item.getText( 1 );
+      input.getGroupField()[ i ] = item.getText( 1 );
     }
 
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrfields; i++ ) {
       TableItem item = wAgg.getNonEmpty( i );
-      input.getAggregateField()[i] = item.getText( 1 );
-      input.getSubjectField()[i] = item.getText( 2 );
-      input.getAggregateType()[i] = MemoryGroupByMeta.getType( item.getText( 3 ) );
-      input.getValueField()[i] = item.getText( 4 );
+      input.getAggregateField()[ i ] = item.getText( 1 );
+      input.getSubjectField()[ i ] = item.getText( 2 );
+      input.getAggregateType()[ i ] = MemoryGroupByMeta.getType( item.getText( 3 ) );
+      input.getValueField()[ i ] = item.getText( 4 );
     }
 
     stepname = wStepname.getText();
@@ -457,7 +457,7 @@ public class MemoryGroupByDialog extends BaseStepDialog implements StepDialogInt
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "MemoryGroupByDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "MemoryGroupByDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "MemoryGroupByDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 
@@ -470,7 +470,7 @@ public class MemoryGroupByDialog extends BaseStepDialog implements StepDialogInt
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "MemoryGroupByDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "MemoryGroupByDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "MemoryGroupByDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 }

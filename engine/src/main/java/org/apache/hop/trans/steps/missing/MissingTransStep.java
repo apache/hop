@@ -34,7 +34,7 @@ public class MissingTransStep extends DummyTrans {
   private static Class<?> PKG = MissingTransStep.class; // for i18n purposes, needed by Translator2!!
 
   public MissingTransStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
+                           Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 

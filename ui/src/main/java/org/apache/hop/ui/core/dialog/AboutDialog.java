@@ -22,12 +22,12 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.hop.core.exception.HopException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.exception.HopException;
 
 public class AboutDialog extends Dialog {
 

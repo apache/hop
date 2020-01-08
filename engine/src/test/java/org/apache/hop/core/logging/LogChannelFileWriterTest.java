@@ -24,7 +24,6 @@ package org.apache.hop.core.logging;
 
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,15 +33,14 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.OutputStream;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.never;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith( MockitoJUnitRunner.class )
@@ -72,7 +70,7 @@ public class LogChannelFileWriterTest {
     LogChannelFileWriter writer = new LogChannelFileWriter( id, fileObject, false );
 
     LoggingRegistry.getInstance().getLogChannelFileWriterBuffer( id ).addEvent(
-            new HopLoggingEvent( logMessage, System.currentTimeMillis(), LogLevel.BASIC ) );
+      new HopLoggingEvent( logMessage, System.currentTimeMillis(), LogLevel.BASIC ) );
 
     writer.flush();
 
@@ -88,8 +86,9 @@ public class LogChannelFileWriterTest {
 
     doAnswer( invocationOnMock -> {
       Thread.sleep( 2000 );
-      return null; } )
-            .when( outputStream ).close();
+      return null;
+    } )
+      .when( outputStream ).close();
 
     writer.startLogging();
 

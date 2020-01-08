@@ -22,13 +22,22 @@
 
 package org.apache.hop.ui.trans.steps.groupby;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.IntStream;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.groupby.GroupByMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
@@ -50,22 +59,13 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.groupby.GroupByMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.IntStream;
 
 public class GroupByDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = GroupByMeta.class; // for i18n purposes, needed by Translator2!!
@@ -349,8 +349,8 @@ public class GroupByDialog extends BaseStepDialog implements StepDialogInterface
     int nrKeyCols = 1;
     int nrKeyRows = ( input.getGroupField() != null ? input.getGroupField().length : 1 );
 
-    ciKey = new ColumnInfo[nrKeyCols];
-    ciKey[0] =
+    ciKey = new ColumnInfo[ nrKeyCols ];
+    ciKey[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "GroupByDialog.ColumnInfo.GroupField" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] { "" }, false );
@@ -386,23 +386,23 @@ public class GroupByDialog extends BaseStepDialog implements StepDialogInterface
     int UpInsCols = 4;
     int UpInsRows = ( input.getAggregateField() != null ? input.getAggregateField().length : 1 );
 
-    ciReturn = new ColumnInfo[UpInsCols];
-    ciReturn[0] =
+    ciReturn = new ColumnInfo[ UpInsCols ];
+    ciReturn[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "GroupByDialog.ColumnInfo.Name" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    ciReturn[1] =
+    ciReturn[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "GroupByDialog.ColumnInfo.Subject" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] { "" }, false );
-    ciReturn[2] =
+    ciReturn[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "GroupByDialog.ColumnInfo.Type" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         GroupByMeta.typeGroupLongDesc );
-    ciReturn[3] =
+    ciReturn[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "GroupByDialog.ColumnInfo.Value" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    ciReturn[3].setToolTip( BaseMessages.getString( PKG, "GroupByDialog.ColumnInfo.Value.Tooltip" ) );
-    ciReturn[3].setUsingVariables( true );
+    ciReturn[ 3 ].setToolTip( BaseMessages.getString( PKG, "GroupByDialog.ColumnInfo.Value.Tooltip" ) );
+    ciReturn[ 3 ].setUsingVariables( true );
 
     wAgg =
       new TableView(
@@ -528,11 +528,11 @@ public class GroupByDialog extends BaseStepDialog implements StepDialogInterface
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    ciKey[0].setComboValues( fieldNames );
-    ciReturn[1].setComboValues( fieldNames );
+    ciKey[ 0 ].setComboValues( fieldNames );
+    ciReturn[ 1 ].setComboValues( fieldNames );
   }
 
   public void setFlags() {
@@ -571,8 +571,8 @@ public class GroupByDialog extends BaseStepDialog implements StepDialogInterface
     if ( input.getGroupField() != null ) {
       for ( int i = 0; i < input.getGroupField().length; i++ ) {
         TableItem item = wGroup.table.getItem( i );
-        if ( input.getGroupField()[i] != null ) {
-          item.setText( 1, input.getGroupField()[i] );
+        if ( input.getGroupField()[ i ] != null ) {
+          item.setText( 1, input.getGroupField()[ i ] );
         }
       }
     }
@@ -580,15 +580,15 @@ public class GroupByDialog extends BaseStepDialog implements StepDialogInterface
     if ( input.getAggregateField() != null ) {
       for ( int i = 0; i < input.getAggregateField().length; i++ ) {
         TableItem item = wAgg.table.getItem( i );
-        if ( input.getAggregateField()[i] != null ) {
-          item.setText( 1, input.getAggregateField()[i] );
+        if ( input.getAggregateField()[ i ] != null ) {
+          item.setText( 1, input.getAggregateField()[ i ] );
         }
-        if ( input.getSubjectField()[i] != null ) {
-          item.setText( 2, input.getSubjectField()[i] );
+        if ( input.getSubjectField()[ i ] != null ) {
+          item.setText( 2, input.getSubjectField()[ i ] );
         }
-        item.setText( 3, GroupByMeta.getTypeDescLong( input.getAggregateType()[i] ) );
-        if ( input.getValueField()[i] != null ) {
-          item.setText( 4, input.getValueField()[i] );
+        item.setText( 3, GroupByMeta.getTypeDescLong( input.getAggregateType()[ i ] ) );
+        if ( input.getValueField()[ i ] != null ) {
+          item.setText( 4, input.getValueField()[ i ] );
         }
       }
     }
@@ -631,16 +631,16 @@ public class GroupByDialog extends BaseStepDialog implements StepDialogInterface
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < sizegroup; i++ ) {
       TableItem item = wGroup.getNonEmpty( i );
-      input.getGroupField()[i] = item.getText( 1 );
+      input.getGroupField()[ i ] = item.getText( 1 );
     }
 
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrfields; i++ ) {
       TableItem item = wAgg.getNonEmpty( i );
-      input.getAggregateField()[i] = item.getText( 1 );
-      input.getSubjectField()[i] = item.getText( 2 );
-      input.getAggregateType()[i] = GroupByMeta.getType( item.getText( 3 ) );
-      input.getValueField()[i] = item.getText( 4 );
+      input.getAggregateField()[ i ] = item.getText( 1 );
+      input.getSubjectField()[ i ] = item.getText( 2 );
+      input.getAggregateType()[ i ] = GroupByMeta.getType( item.getText( 3 ) );
+      input.getValueField()[ i ] = item.getText( 4 );
     }
 
     stepname = wStepname.getText();
@@ -654,7 +654,7 @@ public class GroupByDialog extends BaseStepDialog implements StepDialogInterface
           new String[] { BaseMessages.getString( PKG, "GroupByDialog.GroupByWarningDialog.Option1" ) },
           0,
           BaseMessages.getString( PKG, "GroupByDialog.GroupByWarningDialog.Option2" ), "N".equalsIgnoreCase(
-            props.getCustomParameter( STRING_SORT_WARNING_PARAMETER, "Y" ) ) );
+          props.getCustomParameter( STRING_SORT_WARNING_PARAMETER, "Y" ) ) );
       MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
       md.open();
       props.setCustomParameter( STRING_SORT_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
@@ -673,7 +673,7 @@ public class GroupByDialog extends BaseStepDialog implements StepDialogInterface
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "GroupByDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "GroupByDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "GroupByDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 
@@ -686,7 +686,7 @@ public class GroupByDialog extends BaseStepDialog implements StepDialogInterface
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "GroupByDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "GroupByDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "GroupByDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 
@@ -694,14 +694,14 @@ public class GroupByDialog extends BaseStepDialog implements StepDialogInterface
    * Method to update on-the-fly "Include All Rows" checkbox whether "Cumulative sum" or "Cumulative average" values are configured in the Aggregation table.
    *
    * @param aggregationTable the aggregation table to check the entries
-   * @param allRowsButton the checkbox to update
-   * @param forceUpdate if an update must be done
+   * @param allRowsButton    the checkbox to update
+   * @param forceUpdate      if an update must be done
    */
   void updateAllRowsCheckbox( TableView aggregationTable, Button allRowsButton, boolean forceUpdate ) {
 
     boolean isCumulativeSelected = IntStream.range( 0, aggregationTable.nrNonEmpty() )
-            .map( row -> GroupByMeta.getType( aggregationTable.getNonEmpty( row ).getText( AGGREGATION_TABLE_TYPE_INDEX ) ) )
-            .anyMatch( pred -> pred == GroupByMeta.TYPE_GROUP_CUMULATIVE_SUM || pred == GroupByMeta.TYPE_GROUP_CUMULATIVE_AVERAGE );
+      .map( row -> GroupByMeta.getType( aggregationTable.getNonEmpty( row ).getText( AGGREGATION_TABLE_TYPE_INDEX ) ) )
+      .anyMatch( pred -> pred == GroupByMeta.TYPE_GROUP_CUMULATIVE_SUM || pred == GroupByMeta.TYPE_GROUP_CUMULATIVE_AVERAGE );
 
     allRowsButton.setEnabled( !isCumulativeSelected );
 

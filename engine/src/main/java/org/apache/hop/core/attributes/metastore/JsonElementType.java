@@ -23,14 +23,13 @@
 package org.apache.hop.core.attributes.metastore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.apache.hop.metastore.api.BaseElementType;
 import org.apache.hop.metastore.api.IMetaStoreElementType;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 
 import java.io.IOException;
-
-import com.google.common.base.Preconditions;
 
 /**
  * @author nhudak

@@ -29,7 +29,6 @@ import java.util.List;
  *
  * @author Matt
  * @since 9-12-2004
- *
  */
 public class HopDatabaseBatchException extends HopDatabaseException {
   public static final long serialVersionUID = 0x8D8EA0264F7A1C0EL;
@@ -48,8 +47,7 @@ public class HopDatabaseBatchException extends HopDatabaseException {
   /**
    * Constructs a new throwable with the specified detail message.
    *
-   * @param message
-   *          - the detail message. The detail message is saved for later retrieval by the getMessage() method.
+   * @param message - the detail message. The detail message is saved for later retrieval by the getMessage() method.
    */
   public HopDatabaseBatchException( String message ) {
     super( message );
@@ -59,9 +57,8 @@ public class HopDatabaseBatchException extends HopDatabaseException {
    * Constructs a new throwable with the specified cause and a detail message of (cause==null ? null : cause.toString())
    * (which typically contains the class and detail message of cause).
    *
-   * @param cause
-   *          the cause (which is saved for later retrieval by the getCause() method). (A null value is permitted, and
-   *          indicates that the cause is nonexistent or unknown.)
+   * @param cause the cause (which is saved for later retrieval by the getCause() method). (A null value is permitted, and
+   *              indicates that the cause is nonexistent or unknown.)
    */
   public HopDatabaseBatchException( Throwable cause ) {
     super( cause );
@@ -70,11 +67,9 @@ public class HopDatabaseBatchException extends HopDatabaseException {
   /**
    * Constructs a new throwable with the specified detail message and cause.
    *
-   * @param message
-   *          the detail message (which is saved for later retrieval by the getMessage() method).
-   * @param cause
-   *          the cause (which is saved for later retrieval by the getCause() method). (A null value is permitted, and
-   *          indicates that the cause is nonexistent or unknown.)
+   * @param message the detail message (which is saved for later retrieval by the getMessage() method).
+   * @param cause   the cause (which is saved for later retrieval by the getCause() method). (A null value is permitted, and
+   *                indicates that the cause is nonexistent or unknown.)
    */
   public HopDatabaseBatchException( String message, Throwable cause ) {
     super( message, cause );
@@ -88,8 +83,7 @@ public class HopDatabaseBatchException extends HopDatabaseException {
   }
 
   /**
-   * @param updateCounts
-   *          The updateCounts to set.
+   * @param updateCounts The updateCounts to set.
    */
   public void setUpdateCounts( int[] updateCounts ) {
     this.updateCounts = updateCounts;

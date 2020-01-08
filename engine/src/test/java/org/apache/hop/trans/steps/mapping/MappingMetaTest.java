@@ -21,14 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.mapping;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -38,6 +30,14 @@ import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.ListLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.MappingIODefinitionLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.MappingParametersLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MappingMetaTest {
   LoadSaveTester loadSaveTester;
@@ -49,8 +49,8 @@ public class MappingMetaTest {
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "fileName", "allowingMultipleInputs", "allowingMultipleOutputs",
-            "inputMappings", "outputMappings", "mappingParameters" );
+      Arrays.asList( "fileName", "allowingMultipleInputs", "allowingMultipleOutputs",
+        "inputMappings", "outputMappings", "mappingParameters" );
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "inputMappings", new ListLoadSaveValidator<MappingIODefinition>( new MappingIODefinitionLoadSaveValidator(), 5 ) );
@@ -60,8 +60,8 @@ public class MappingMetaTest {
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, new HashMap<String, String>(), new HashMap<String, String>(),
-            attrValidatorMap, typeValidatorMap );
+      new LoadSaveTester( testMetaClass, attributes, new HashMap<String, String>(), new HashMap<String, String>(),
+        attrValidatorMap, typeValidatorMap );
   }
 
   @Test

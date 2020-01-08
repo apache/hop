@@ -22,7 +22,30 @@
 
 package org.apache.hop.ui.job.entries.trans;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.trans.JobEntryTrans;
+import org.apache.hop.job.entry.JobEntryBase;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.trans.TransExecutionConfiguration;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.SimpleMessageDialog;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -41,30 +64,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.trans.JobEntryTrans;
-import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-
-import org.apache.hop.trans.TransExecutionConfiguration;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.SimpleMessageDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.util.SwtSvgImageUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -349,7 +348,7 @@ public class JobEntryTransDialog extends JobEntryBaseDialog implements JobEntryD
   public void getData() {
     wName.setText( Const.NVL( jobEntry.getName(), "" ) );
 
-      wPath.setText( Const.NVL( jobEntry.getFilename(), "" ) );
+    wPath.setText( Const.NVL( jobEntry.getFilename(), "" ) );
 
     // Arguments
     if ( jobEntry.arguments != null ) {

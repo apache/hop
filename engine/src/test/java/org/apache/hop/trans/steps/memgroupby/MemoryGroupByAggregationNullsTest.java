@@ -22,17 +22,6 @@
 
 package org.apache.hop.trans.steps.memgroupby;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
-
-import java.util.HashMap;
-
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
@@ -42,6 +31,17 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.steps.memgroupby.MemoryGroupByData.HashEntry;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.HashMap;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 public class MemoryGroupByAggregationNullsTest {
 
@@ -60,10 +60,10 @@ public class MemoryGroupByAggregationNullsTest {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     mockHelper =
-        new StepMockHelper<MemoryGroupByMeta, MemoryGroupByData>( "Memory Group By", MemoryGroupByMeta.class,
-            MemoryGroupByData.class );
+      new StepMockHelper<MemoryGroupByMeta, MemoryGroupByData>( "Memory Group By", MemoryGroupByMeta.class,
+        MemoryGroupByData.class );
     when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        mockHelper.logChannelInterface );
+      mockHelper.logChannelInterface );
     when( mockHelper.trans.isRunning() ).thenReturn( true );
   }
 
@@ -99,18 +99,18 @@ public class MemoryGroupByAggregationNullsTest {
 
   // test hash entry
   HashEntry getHashEntry() {
-    return data.getHashEntry( new Object[data.groupMeta.size()] );
+    return data.getHashEntry( new Object[ data.groupMeta.size() ] );
   }
 
   /**
    * PDI-10250 - "Group by" step - Minimum aggregation doesn't work
-   * 
+   * <p>
    * HOP_AGGREGATION_MIN_NULL_IS_VALUED
-   * 
+   * <p>
    * Set this variable to Y to set the minimum to NULL if NULL is within an aggregate. Otherwise by default NULL is
    * ignored by the MIN aggregate and MIN is set to the minimum value that is not NULL. See also the variable
    * HOP_AGGREGATION_ALL_NULLS_ARE_ZERO.
-   * 
+   *
    * @throws HopException
    */
   @Test
@@ -121,7 +121,7 @@ public class MemoryGroupByAggregationNullsTest {
     Aggregate agg = data.map.get( getHashEntry() );
     Assert.assertNotNull( "Hash code strategy changed?", agg );
 
-    Assert.assertNull( "Value is set", agg.agg[0] );
+    Assert.assertNull( "Value is set", agg.agg[ 0 ] );
   }
 
   @Test
@@ -132,13 +132,13 @@ public class MemoryGroupByAggregationNullsTest {
     Aggregate agg = data.map.get( getHashEntry() );
     Assert.assertNotNull( "Hash code strategy changed?", agg );
 
-    Assert.assertEquals( "Value is NOT set", def, agg.agg[0] );
+    Assert.assertEquals( "Value is NOT set", def, agg.agg[ 0 ] );
   }
 
   /**
    * Set this variable to Y to return 0 when all values within an aggregate are NULL. Otherwise by default a NULL is
    * returned when all values are NULL.
-   * 
+   *
    * @throws HopValueException
    */
 
@@ -147,34 +147,34 @@ public class MemoryGroupByAggregationNullsTest {
     // data.agg[0] is not null - this is the default behavior
     step.setAllNullsAreZero( true );
     Object[] row = step.getAggregateResult( aggregate );
-    Assert.assertEquals( "Default value is not corrupted", def, row[0] );
+    Assert.assertEquals( "Default value is not corrupted", def, row[ 0 ] );
   }
 
   @Test
   public void getAggregateResulTestMin_1_Test() throws HopValueException {
-    aggregate.agg[0] = null;
+    aggregate.agg[ 0 ] = null;
     step.setAllNullsAreZero( true );
     Object[] row = step.getAggregateResult( aggregate );
-    Assert.assertEquals( "Returns 0 if aggregation is null", new Long( 0 ), row[0] );
+    Assert.assertEquals( "Returns 0 if aggregation is null", new Long( 0 ), row[ 0 ] );
   }
 
   @Test
   public void getAggregateResulTestMin_3_Test() throws HopValueException {
-    aggregate.agg[0] = null;
+    aggregate.agg[ 0 ] = null;
     step.setAllNullsAreZero( false );
     Object[] row = step.getAggregateResult( aggregate );
-    Assert.assertNull( "Returns null if aggregation is null", row[0] );
+    Assert.assertNull( "Returns null if aggregation is null", row[ 0 ] );
   }
 
   @Test
   public void addToAggregateLazyConversionMinTest() throws Exception {
     vmi.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
     vmi.setStorageMetadata( new ValueMetaString() );
-    aggregate.agg = new Object[] { new byte[0] };
+    aggregate.agg = new Object[] { new byte[ 0 ] };
     byte[] bytes = { 51 };
     step.addToAggregate( new Object[] { bytes } );
     Aggregate result = data.map.get( getHashEntry() );
-    Assert.assertEquals( "Returns non-null value", bytes, result.agg[0] );
+    Assert.assertEquals( "Returns non-null value", bytes, result.agg[ 0 ] );
   }
 
   // PDI-16150
@@ -187,7 +187,7 @@ public class MemoryGroupByAggregationNullsTest {
     vmi.setStorageMetadata( new ValueMetaString() );
     aggregate.counts = new long[] { 0L };
     Mockito.doReturn( new String[] { "test" } ).when( memoryGroupByMeta ).getSubjectField();
-    aggregate.agg = new Object[] { new byte[0] };
+    aggregate.agg = new Object[] { new byte[ 0 ] };
     step = new MemoryGroupBy( mockHelper.stepMeta, data, 0, mockHelper.transMeta, mockHelper.trans );
 
     String binaryData0 = "11011";
@@ -195,10 +195,10 @@ public class MemoryGroupByAggregationNullsTest {
     step.addToAggregate( new Object[] { binaryData0.getBytes() } );
     step.addToAggregate( new Object[] { binaryData1.getBytes() } );
 
-    Object[] distinctObjs = data.map.get( getHashEntry() ).distinctObjs[0].toArray();
+    Object[] distinctObjs = data.map.get( getHashEntry() ).distinctObjs[ 0 ].toArray();
 
-    Assert.assertEquals( binaryData0, distinctObjs[1] );
-    Assert.assertEquals( binaryData1, distinctObjs[0] );
+    Assert.assertEquals( binaryData0, distinctObjs[ 1 ] );
+    Assert.assertEquals( binaryData1, distinctObjs[ 0 ] );
   }
 
 }

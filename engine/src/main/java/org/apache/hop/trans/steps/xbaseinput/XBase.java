@@ -22,10 +22,9 @@
 
 package org.apache.hop.trans.steps.xbaseinput;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
+import com.linuxense.javadbf.DBFException;
+import com.linuxense.javadbf.DBFField;
+import com.linuxense.javadbf.DBFReader;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelInterface;
@@ -38,16 +37,15 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 
-import com.linuxense.javadbf.DBFException;
-import com.linuxense.javadbf.DBFField;
-import com.linuxense.javadbf.DBFReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Handles file reading from XBase (DBF) type of files.
  *
  * @author Matt
  * @since 12-08-2004
- *
  */
 
 public class XBase {
@@ -99,7 +97,7 @@ public class XBase {
       // Fetch all field information
       //
       debug = "allocate data types";
-      datatype = new byte[reader.getFieldCount()];
+      datatype = new byte[ reader.getFieldCount() ];
 
       for ( int i = 0; i < reader.getFieldCount(); i++ ) {
         if ( log.isDebug() ) {
@@ -109,8 +107,8 @@ public class XBase {
         DBFField field = reader.getField( i );
         ValueMetaInterface value = null;
 
-        datatype[i] = field.getDataType();
-        switch ( datatype[i] ) {
+        datatype[ i ] = field.getDataType();
+        switch ( datatype[ i ] ) {
           case DBFField.FIELD_TYPE_M: // Memo
             debug = "memo field";
             if ( ( log != null ) && log.isDebug() ) {
@@ -141,7 +139,7 @@ public class XBase {
             break;
           default:
             if ( ( log != null ) && ( log.isDebug() ) ) {
-              log.logDebug( "Unknown Datatype" + datatype[i] );
+              log.logDebug( "Unknown Datatype" + datatype[ i ] );
             }
         }
 
@@ -175,19 +173,19 @@ public class XBase {
       // Set the values in the row...
       //
       for ( int i = 0; i < reader.getFieldCount(); i++ ) {
-        switch ( datatype[i] ) {
+        switch ( datatype[ i ] ) {
           case DBFField.FIELD_TYPE_M: // Memo
-            if ( rowobj[i] != null ) {
-              r[i] = rowobj[i];
+            if ( rowobj[ i ] != null ) {
+              r[ i ] = rowobj[ i ];
             }
             break;
           case DBFField.FIELD_TYPE_C: // Character
-            r[i] = Const.rtrim( (String) rowobj[i] );
+            r[ i ] = Const.rtrim( (String) rowobj[ i ] );
             break;
           case FIELD_TYPE_I: // Numeric
             try {
-              if ( rowobj[i] != null ) {
-                r[i] = ( (Integer) rowobj[i] ).doubleValue();
+              if ( rowobj[ i ] != null ) {
+                r[ i ] = ( (Integer) rowobj[ i ] ).doubleValue();
               }
             } catch ( NumberFormatException e ) {
               throw new HopException( "Error parsing field #"
@@ -197,8 +195,8 @@ public class XBase {
           case DBFField.FIELD_TYPE_N: // Numeric
             // Convert to Double!!
             try {
-              if ( rowobj[i] != null ) {
-                r[i] = rowobj[i];
+              if ( rowobj[ i ] != null ) {
+                r[ i ] = rowobj[ i ];
               }
             } catch ( NumberFormatException e ) {
               throw new HopException( "Error parsing field #"
@@ -208,8 +206,8 @@ public class XBase {
           case DBFField.FIELD_TYPE_F: // Float
             // Convert to double!!
             try {
-              if ( rowobj[i] != null ) {
-                r[i] = new Double( (Float) rowobj[i] );
+              if ( rowobj[ i ] != null ) {
+                r[ i ] = new Double( (Float) rowobj[ i ] );
               }
             } catch ( NumberFormatException e ) {
               throw new HopException( "Error parsing field #"
@@ -217,10 +215,10 @@ public class XBase {
             }
             break;
           case DBFField.FIELD_TYPE_L: // Logical
-            r[i] = rowobj[i];
+            r[ i ] = rowobj[ i ];
             break;
           case DBFField.FIELD_TYPE_D: // Date
-            r[i] = rowobj[i];
+            r[ i ] = rowobj[ i ];
             break;
           /*
            * case DBFField.FIELD_TYPE_P: // Picture v.setValue( (String)rowobj[i] ); // Set to String at first... break;
@@ -290,8 +288,7 @@ public class XBase {
   }
 
   /**
-   * @param dbfFile
-   *          the dbfFile to set
+   * @param dbfFile the dbfFile to set
    */
   public void setDbfFile( String dbfFile ) {
     this.dbfFile = dbfFile;

@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.script;
 
-import java.util.List;
-
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -31,6 +29,8 @@ import org.apache.hop.trans.step.RowListener;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.util.List;
 
 /**
  * Interface to make the real ScriptValueMod and ScriptValueModDummy similar.

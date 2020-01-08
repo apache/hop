@@ -22,9 +22,46 @@
  ******************************************************************************/
 
 package org.apache.hop.ui.trans.dialog;
-import java.util.ArrayList;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.ChannelLogTable;
+import org.apache.hop.core.logging.LogStatus;
+import org.apache.hop.core.logging.LogTableField;
+import org.apache.hop.core.logging.LogTableInterface;
+import org.apache.hop.core.logging.MetricsLogTable;
+import org.apache.hop.core.logging.PerformanceLogTable;
+import org.apache.hop.core.logging.StepLogTable;
+import org.apache.hop.core.logging.TransLogTable;
+import org.apache.hop.core.parameters.DuplicateParamException;
+import org.apache.hop.core.parameters.UnknownParamException;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransDependency;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransMeta.TransformationType;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.steps.databaselookup.DatabaseLookupMeta;
+import org.apache.hop.trans.steps.tableinput.TableInputMeta;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
+import org.apache.hop.ui.core.database.dialog.SQLEditor;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.FieldDisabledListener;
 import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -52,45 +89,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.ChannelLogTable;
-import org.apache.hop.core.logging.LogStatus;
-import org.apache.hop.core.logging.LogTableField;
-import org.apache.hop.core.logging.LogTableInterface;
-import org.apache.hop.core.logging.MetricsLogTable;
-import org.apache.hop.core.logging.PerformanceLogTable;
-import org.apache.hop.core.logging.StepLogTable;
-import org.apache.hop.core.logging.TransLogTable;
-import org.apache.hop.core.parameters.DuplicateParamException;
-import org.apache.hop.core.parameters.UnknownParamException;
-import org.apache.hop.core.plugins.PluginInterface;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransDependency;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransMeta.TransformationType;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.trans.steps.databaselookup.DatabaseLookupMeta;
-import org.apache.hop.trans.steps.tableinput.TableInputMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
-import org.apache.hop.ui.core.database.dialog.SQLEditor;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.FieldDisabledListener;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.ArrayList;
 
 
 public class TransDialog extends Dialog {
@@ -182,10 +182,6 @@ public class TransDialog extends Dialog {
 
   private Text wFeedbackSize;
 
-  private TextVar wSharedObjectsFile;
-
-  private boolean sharedObjectsFileChanged;
-
   private Button wManageThreads;
 
   private boolean directoryChangeAllowed;
@@ -219,11 +215,11 @@ public class TransDialog extends Dialog {
   private ArrayList<TransDialogPluginInterface> extraTabs;
 
   public TransDialog( Shell parent, int style, TransMeta transMeta, Tabs currentTab ) {
-    this( parent, style, transMeta);
+    this( parent, style, transMeta );
     this.currentTab = currentTab;
   }
 
-  public TransDialog( Shell parent, int style, TransMeta transMeta) {
+  public TransDialog( Shell parent, int style, TransMeta transMeta ) {
     super( parent, style );
     this.props = PropsUI.getInstance();
     this.transMeta = transMeta;
@@ -293,7 +289,7 @@ public class TransDialog extends Dialog {
         extraTabs.add( extraTab );
       } catch ( Exception e ) {
         new ErrorDialog( shell, "Error", "Error loading transformation dialog plugin with id "
-          + transDialogPlugin.getIds()[0], e );
+          + transDialogPlugin.getIds()[ 0 ], e );
       }
     }
 
@@ -377,7 +373,6 @@ public class TransDialog extends Dialog {
     BaseStepDialog.setSize( shell );
 
     changed = false;
-    sharedObjectsFileChanged = false;
 
     shell.open();
     while ( !shell.isDisposed() ) {
@@ -420,7 +415,7 @@ public class TransDialog extends Dialog {
     fdlTransname.right = new FormAttachment( middle, -margin );
     fdlTransname.top = new FormAttachment( 0, margin );
     wlTransname.setLayoutData( fdlTransname );
-    wTransname = new Text( wTransComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER  );
+    wTransname = new Text( wTransComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTransname );
     wTransname.addModifyListener( lsMod );
     FormData fdTransname = new FormData();
@@ -645,16 +640,16 @@ public class TransDialog extends Dialog {
     final int FieldsCols = 3;
     final int FieldsRows = transMeta.listParameters().length;
 
-    ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
+    ColumnInfo[] colinf = new ColumnInfo[ FieldsCols ];
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "TransDialog.ColumnInfo.Parameter.Label" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    colinf[1] =
+    colinf[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "TransDialog.ColumnInfo.Default.Label" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    colinf[2] =
+    colinf[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "TransDialog.ColumnInfo.Description.Label" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
@@ -839,11 +834,11 @@ public class TransDialog extends Dialog {
 
     // Log table connection...
     //
-    wLogconnection = new MetaSelectionManager<DatabaseMeta>(transMeta, transMeta.getMetaStore(), DatabaseMeta.class,
+    wLogconnection = new MetaSelectionManager<DatabaseMeta>( transMeta, transMeta.getMetaStore(), DatabaseMeta.class,
       wLogOptionsComposite, SWT.NONE,
       BaseMessages.getString( PKG, "TransDialog.LogConnection.Label" ),
       BaseMessages.getString( PKG, "TransDialog.LogConnection.Tooltip", logTable.getConnectionNameVariable() )
-      );
+    );
     wLogconnection.addToConnectionLine( wLogOptionsComposite, null, logTable.getDatabaseMeta(), lsMod );
     connectionNames = wLogconnection.getItems();
 
@@ -1002,7 +997,7 @@ public class TransDialog extends Dialog {
       }
     };
 
-    colinf[1].setDisabledListener( disabledListener );
+    colinf[ 1 ].setDisabledListener( disabledListener );
 
     wOptionFields =
       new TableView( transMeta, wLogOptionsComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.CHECK,
@@ -1147,7 +1142,7 @@ public class TransDialog extends Dialog {
       }
     };
 
-    colinf[1].setDisabledListener( disabledListener );
+    colinf[ 1 ].setDisabledListener( disabledListener );
 
     wOptionFields =
       new TableView( transMeta, wLogOptionsComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.CHECK,
@@ -1283,7 +1278,7 @@ public class TransDialog extends Dialog {
       }
     };
 
-    colinf[1].setDisabledListener( disabledListener );
+    colinf[ 1 ].setDisabledListener( disabledListener );
 
     wOptionFields =
       new TableView( transMeta, wLogOptionsComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.CHECK,
@@ -1378,7 +1373,7 @@ public class TransDialog extends Dialog {
       }
     };
 
-    colinf[1].setDisabledListener( disabledListener );
+    colinf[ 1 ].setDisabledListener( disabledListener );
 
     wOptionFields =
       new TableView( transMeta, wLogOptionsComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.CHECK,
@@ -1493,7 +1488,7 @@ public class TransDialog extends Dialog {
       }
     };
 
-    colinf[1].setDisabledListener( disabledListener );
+    colinf[ 1 ].setDisabledListener( disabledListener );
 
     wOptionFields =
       new TableView( transMeta, wLogOptionsComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.CHECK,
@@ -1672,16 +1667,16 @@ public class TransDialog extends Dialog {
     final int FieldsCols = 3;
     final int FieldsRows = transMeta.nrDependencies();
 
-    ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
+    ColumnInfo[] colinf = new ColumnInfo[ FieldsCols ];
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "TransDialog.ColumnInfo.Connection.Label" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, connectionNames );
-    colinf[1] =
+    colinf[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "TransDialog.ColumnInfo.Table.Label" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    colinf[2] =
+    colinf[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "TransDialog.ColumnInfo.Field.Label" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
@@ -1809,37 +1804,13 @@ public class TransDialog extends Dialog {
     fdUniqueConnections.right = new FormAttachment( 100, 0 );
     wUniqueConnections.setLayoutData( fdUniqueConnections );
 
-    // Shared objects file
-    Label wlSharedObjectsFile = new Label( wMiscComp, SWT.RIGHT );
-    wlSharedObjectsFile.setText( BaseMessages.getString( PKG, "TransDialog.SharedObjectsFile.Label" ) );
-    props.setLook( wlSharedObjectsFile );
-    FormData fdlSharedObjectsFile = new FormData();
-    fdlSharedObjectsFile.left = new FormAttachment( 0, 0 );
-    fdlSharedObjectsFile.right = new FormAttachment( middle, -margin );
-    fdlSharedObjectsFile.top = new FormAttachment( wUniqueConnections, margin );
-    wlSharedObjectsFile.setLayoutData( fdlSharedObjectsFile );
-    wSharedObjectsFile = new TextVar( transMeta, wMiscComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wlSharedObjectsFile.setToolTipText( BaseMessages.getString( PKG, "TransDialog.SharedObjectsFile.Tooltip" ) );
-    wSharedObjectsFile.setToolTipText( BaseMessages.getString( PKG, "TransDialog.SharedObjectsFile.Tooltip" ) );
-    props.setLook( wSharedObjectsFile );
-    FormData fdSharedObjectsFile = new FormData();
-    fdSharedObjectsFile.left = new FormAttachment( middle, 0 );
-    fdSharedObjectsFile.top = new FormAttachment( wUniqueConnections, margin );
-    fdSharedObjectsFile.right = new FormAttachment( 100, 0 );
-    wSharedObjectsFile.setLayoutData( fdSharedObjectsFile );
-    wSharedObjectsFile.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent arg0 ) {
-        sharedObjectsFileChanged = true;
-      }
-    } );
-
     // Show feedback in transformations steps?
     Label wlManageThreads = new Label( wMiscComp, SWT.RIGHT );
     wlManageThreads.setText( BaseMessages.getString( PKG, "TransDialog.ManageThreadPriorities.Label" ) );
     props.setLook( wlManageThreads );
     FormData fdlManageThreads = new FormData();
     fdlManageThreads.left = new FormAttachment( 0, 0 );
-    fdlManageThreads.top = new FormAttachment( wSharedObjectsFile, margin );
+    fdlManageThreads.top = new FormAttachment( wUniqueConnections, margin );
     fdlManageThreads.right = new FormAttachment( middle, -margin );
     wlManageThreads.setLayoutData( fdlManageThreads );
     wManageThreads = new Button( wMiscComp, SWT.CHECK );
@@ -1847,7 +1818,7 @@ public class TransDialog extends Dialog {
     props.setLook( wManageThreads );
     FormData fdManageThreads = new FormData();
     fdManageThreads.left = new FormAttachment( middle, 0 );
-    fdManageThreads.top = new FormAttachment( wSharedObjectsFile, margin );
+    fdManageThreads.top = new FormAttachment( wUniqueConnections, margin );
     fdManageThreads.right = new FormAttachment( 100, 0 );
     wManageThreads.setLayoutData( fdManageThreads );
 
@@ -2050,18 +2021,18 @@ public class TransDialog extends Dialog {
 
       String defValue;
       try {
-        defValue = transMeta.getParameterDefault( parameters[idx] );
+        defValue = transMeta.getParameterDefault( parameters[ idx ] );
       } catch ( UnknownParamException e ) {
         defValue = "";
       }
       String description;
       try {
-        description = transMeta.getParameterDescription( parameters[idx] );
+        description = transMeta.getParameterDescription( parameters[ idx ] );
       } catch ( UnknownParamException e ) {
         description = "";
       }
 
-      item.setText( 1, parameters[idx] );
+      item.setText( 1, parameters[ idx ] );
       item.setText( 2, Const.NVL( defValue, "" ) );
       item.setText( 3, Const.NVL( description, "" ) );
     }
@@ -2070,7 +2041,6 @@ public class TransDialog extends Dialog {
     wUniqueConnections.setSelection( transMeta.isUsingUniqueConnections() );
     wShowFeedback.setSelection( transMeta.isFeedbackShown() );
     wFeedbackSize.setText( Integer.toString( transMeta.getFeedbackSize() ) );
-    wSharedObjectsFile.setText( Const.NVL( transMeta.getSharedObjectsFile(), "" ) );
     wManageThreads.setSelection( transMeta.isUsingThreadPriorityManagment() );
     wTransformationType.setText( transMeta.getTransformationType().getDescription() );
 
@@ -2187,10 +2157,9 @@ public class TransDialog extends Dialog {
 
     transMeta.setFeedbackShown( wShowFeedback.getSelection() );
     transMeta.setFeedbackSize( Const.toInt( wFeedbackSize.getText(), Const.ROWS_UPDATE ) );
-    transMeta.setSharedObjectsFile( wSharedObjectsFile.getText() );
     transMeta.setUsingThreadPriorityManagment( wManageThreads.getSelection() );
-    transMeta.setTransformationType( TransformationType.values()[Const.indexOfString( wTransformationType
-      .getText(), TransformationType.getTransformationTypesDescriptions() )] );
+    transMeta.setTransformationType( TransformationType.values()[ Const.indexOfString( wTransformationType
+      .getText(), TransformationType.getTransformationTypesDescriptions() ) ] );
 
     // Performance monitoring tab:
     //
@@ -2350,7 +2319,7 @@ public class TransDialog extends Dialog {
               SQLEditor sqledit =
                 new SQLEditor(
                   transMeta, shell, SWT.NONE, logTable.getDatabaseMeta(), transMeta.getDbCache(), ddl
-                    .toString() );
+                  .toString() );
               sqledit.open();
             }
           } finally {
@@ -2380,10 +2349,6 @@ public class TransDialog extends Dialog {
     getChannelLogTableOptions();
     getStepLogTableOptions();
     getMetricsLogTableOptions();
-  }
-
-  public boolean isSharedObjectsFileChanged() {
-    return sharedObjectsFileChanged;
   }
 
   public void setDirectoryChangeAllowed( boolean directoryChangeAllowed ) {

@@ -26,7 +26,6 @@ package org.apache.hop.resource;
  * This describes the top level resource after an export
  *
  * @author matt
- *
  */
 public class TopLevelResource {
   private String baseResourceName;
@@ -52,8 +51,7 @@ public class TopLevelResource {
   }
 
   /**
-   * @param baseResourceName
-   *          the baseResourceName to set
+   * @param baseResourceName the baseResourceName to set
    */
   public void setBaseResourceName( String baseResourceName ) {
     this.baseResourceName = baseResourceName;
@@ -67,8 +65,7 @@ public class TopLevelResource {
   }
 
   /**
-   * @param archiveName
-   *          the archiveName to set
+   * @param archiveName the archiveName to set
    */
   public void setArchiveName( String archiveName ) {
     this.archiveName = archiveName;
@@ -82,8 +79,7 @@ public class TopLevelResource {
   }
 
   /**
-   * @param resourceName
-   *          the resourceName to set
+   * @param resourceName the resourceName to set
    */
   public void setResourceName( String resourceName ) {
     this.resourceName = resourceName;

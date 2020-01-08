@@ -22,14 +22,14 @@
 
 package org.apache.hop.trans.steps.webservices;
 
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.trans.steps.mock.StepMockHelper;
 import org.apache.http.Header;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicHeader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.trans.steps.mock.StepMockHelper;
 
 import java.net.URISyntaxException;
 
@@ -55,14 +55,14 @@ public class WebServiceTest {
   @Before
   public void setUpBefore() {
     mockHelper =
-        new StepMockHelper<WebServiceMeta, WebServiceData>( "WebService", WebServiceMeta.class, WebServiceData.class );
+      new StepMockHelper<WebServiceMeta, WebServiceData>( "WebService", WebServiceMeta.class, WebServiceData.class );
     when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        mockHelper.logChannelInterface );
+      mockHelper.logChannelInterface );
     when( mockHelper.trans.isRunning() ).thenReturn( true );
 
     webServiceStep =
-        spy( new WebService( mockHelper.stepMeta, mockHelper.stepDataInterface, 0, mockHelper.transMeta,
-            mockHelper.trans ) );
+      spy( new WebService( mockHelper.stepMeta, mockHelper.stepDataInterface, 0, mockHelper.transMeta,
+        mockHelper.trans ) );
   }
 
   @After

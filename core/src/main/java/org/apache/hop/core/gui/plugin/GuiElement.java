@@ -8,7 +8,6 @@ import java.lang.annotation.Target;
 
 /**
  * This annotation allows a method in a GuiPlugin to be identified as a contributor to the Hop UI
- *
  */
 @Documented
 @Retention( RetentionPolicy.RUNTIME )
@@ -31,12 +30,14 @@ public @interface GuiElement {
 
   /**
    * The label of the GUI element: the menu item text and so on.
+   *
    * @return The GUI Element Label
    */
   public String label() default "";
 
   /**
    * The tooltip of the GUI element (when applicable)
+   *
    * @return The GUI Element tooltip for the widget and the label
    */
   public String toolTip() default "";
@@ -48,12 +49,14 @@ public @interface GuiElement {
 
   /**
    * The image filename of the GUI Element, usually an SVG icon.
+   *
    * @return The
    */
   public String image() default "";
 
   /**
    * The ID of the parent GUI element. This is usually the parent menu or toolbar, ...
+   *
    * @return The ID of the parent GUI element
    */
   public String parentId() default "";
@@ -85,6 +88,7 @@ public @interface GuiElement {
 
   /**
    * You can use this to order the GUI Elements for a given scenario
+   *
    * @return The value on which the system will sort alphabetically
    */
   public String order() default "";
@@ -92,6 +96,7 @@ public @interface GuiElement {
   /**
    * Set this flag to true if you want to ignore the field as a GUI Element.
    * You can use this to override a GUI element from a base class.
+   *
    * @return
    */
   public boolean ignored() default false;

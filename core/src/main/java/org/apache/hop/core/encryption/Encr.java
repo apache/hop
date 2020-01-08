@@ -22,13 +22,13 @@
 
 package org.apache.hop.core.encryption;
 
-import org.eclipse.jetty.util.security.Password;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.Utils;
+import org.eclipse.jetty.util.security.Password;
 
 /**
  * This class handles basic encryption of passwords in Hop. Note that it's not really encryption, it's more
@@ -36,7 +36,6 @@ import org.apache.hop.core.plugins.PluginRegistry;
  *
  * @author Matt
  * @since 17-12-2003
- *
  */
 public class Encr {
 
@@ -68,6 +67,7 @@ public class Encr {
 
   /**
    * Old signature code, used in license keys, from the Hop 1.x days.
+   *
    * @param signature
    * @param verify
    * @return
@@ -80,6 +80,7 @@ public class Encr {
 
   /**
    * Old Hop 1.x code used to get a short signature from a long version signature for license checking.
+   *
    * @param signature
    * @return
    * @deprecated
@@ -120,8 +121,7 @@ public class Encr {
   /**
    * Encrypt the password, but only if the password doesn't contain any variables.
    *
-   * @param password
-   *          The password to encrypt
+   * @param password The password to encrypt
    * @return The encrypted password or the
    */
   public static final String encryptPasswordIfNotUsingVariables( String password ) {
@@ -132,8 +132,7 @@ public class Encr {
   /**
    * Decrypts a password if it contains the prefix "Encrypted "
    *
-   * @param password
-   *          The encrypted password
+   * @param password The encrypted password
    * @return The decrypted password or the original value if the password doesn't start with "Encrypted "
    */
   public static final String decryptPasswordOptionallyEncrypted( String password ) {
@@ -144,8 +143,7 @@ public class Encr {
   /**
    * Create an encrypted password
    *
-   * @param args
-   *          the password to encrypt
+   * @param args the password to encrypt
    */
   public static void main( String[] args ) throws HopException {
     HopClientEnvironment.init();
@@ -154,8 +152,8 @@ public class Encr {
       System.exit( 9 );
     }
 
-    String option = args[0];
-    String password = args[1];
+    String option = args[ 0 ];
+    String password = args[ 1 ];
 
     if ( Const.trim( option ).substring( 1 ).equalsIgnoreCase( "kettle" ) ) {
       // Hop password obfuscation

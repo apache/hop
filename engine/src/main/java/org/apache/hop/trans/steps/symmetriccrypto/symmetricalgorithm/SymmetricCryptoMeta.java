@@ -55,8 +55,7 @@ public class SymmetricCryptoMeta {
   /**
    * Construct a new Database Connection
    *
-   * @param inf
-   *          The Database Connection Info to construct the connection with.
+   * @param inf The Database Connection Info to construct the connection with.
    */
   public SymmetricCryptoMeta( String algorythm ) throws CryptoException {
     cryptographyInterface = getSymmetricCryptoInterface( algorythm );
@@ -65,12 +64,9 @@ public class SymmetricCryptoMeta {
   /**
    * Search for the right type of DatabaseInterface object and clone it.
    *
-   * @param databaseType
-   *          the type of DatabaseInterface to look for (description)
+   * @param databaseType the type of DatabaseInterface to look for (description)
    * @return The requested DatabaseInterface
-   *
-   * @throws CryptoException
-   *           when the type could not be found or referenced.
+   * @throws CryptoException when the type could not be found or referenced.
    */
   public static final SymmetricCryptoInterface getSymmetricCryptoInterface( String cryptoname ) throws CryptoException {
     return findSymmetricCryptoInterface( cryptoname );
@@ -80,18 +76,15 @@ public class SymmetricCryptoMeta {
   /**
    * Search for the right type of DatabaseInterface object and return it.
    *
-   * @param databaseType
-   *          the type of DatabaseInterface to look for (description)
+   * @param databaseType the type of DatabaseInterface to look for (description)
    * @return The requested DatabaseInterface
-   *
-   * @throws CryptoException
-   *           when the type could not be found or referenced.
+   * @throws CryptoException when the type could not be found or referenced.
    */
   private static final synchronized SymmetricCryptoInterface findSymmetricCryptoInterface( String cryptograhname ) throws CryptoException {
     SymmetricCryptoInterface[] di = getSymmetricCryptoInterfaces();
     for ( int i = 0; i < di.length; i++ ) {
-      if ( di[i].getAlgorithm().equalsIgnoreCase( cryptograhname ) ) {
-        return di[i];
+      if ( di[ i ].getAlgorithm().equalsIgnoreCase( cryptograhname ) ) {
+        return di[ i ];
       }
     }
 
@@ -105,13 +98,13 @@ public class SymmetricCryptoMeta {
     }
 
     Class<?>[] ic = SymmetricCryptoInterface.implementingClasses;
-    allSymmetricCryptoInterface = new SymmetricCryptoInterface[ic.length];
+    allSymmetricCryptoInterface = new SymmetricCryptoInterface[ ic.length ];
     for ( int i = 0; i < ic.length; i++ ) {
       try {
-        Class.forName( ic[i].getName() );
-        allSymmetricCryptoInterface[i] = (SymmetricCryptoInterface) ic[i].newInstance();
+        Class.forName( ic[ i ].getName() );
+        allSymmetricCryptoInterface[ i ] = (SymmetricCryptoInterface) ic[ i ].newInstance();
       } catch ( Exception e ) {
-        throw new RuntimeException( "Error creating class for : " + ic[i].getName(), e );
+        throw new RuntimeException( "Error creating class for : " + ic[ i ].getName(), e );
       }
     }
     return allSymmetricCryptoInterface;
@@ -133,7 +126,7 @@ public class SymmetricCryptoMeta {
     if ( !Utils.isEmpty( code ) ) {
       int nr = TYPE_ALGORYTHM_CODE.length;
       for ( int i = 0; i < nr; i++ ) {
-        if ( TYPE_ALGORYTHM_CODE[i].equals( code ) ) {
+        if ( TYPE_ALGORYTHM_CODE[ i ].equals( code ) ) {
           return i + 1;
         }
       }

@@ -23,15 +23,13 @@
 package org.apache.hop.core.vfs;
 
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-
-
-import org.junit.Test;
 import org.apache.hop.core.exception.HopFileException;
-
+import org.junit.Test;
 
 import java.io.IOException;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 public class HopVFSTest {
@@ -39,6 +37,7 @@ public class HopVFSTest {
   /**
    * Test to validate that startsWitScheme() returns true if the fileName starts with
    * known protocol like zip: jar: then it returns true else returns false
+   *
    * @param fileName
    */
   @Test
@@ -53,20 +52,20 @@ public class HopVFSTest {
 
   @Test
   public void testCheckForSchemeSuccess() throws HopFileException, IOException {
-    String[] schemes = {"hdfs"};
+    String[] schemes = { "hdfs" };
     String vfsFilename = "hdfs://hsbcmaster.labs.eag.hitachivantara.com:8020/tmp/acltest/";
 
-    boolean test = HopVFS.checkForScheme(schemes, true, vfsFilename, null, null);
+    boolean test = HopVFS.checkForScheme( schemes, true, vfsFilename, null, null );
     assertFalse( test );
 
   }
 
   @Test
   public void testCheckForSchemeFail() throws HopFileException, IOException {
-    String[] schemes = {"file"};
+    String[] schemes = { "file" };
     String vfsFilename = "hdfs://hsbcmaster.labs.eag.hitachivantara.com:8020/tmp/acltest/";
 
-    boolean test = HopVFS.checkForScheme(schemes, true, vfsFilename, null, null);
+    boolean test = HopVFS.checkForScheme( schemes, true, vfsFilename, null, null );
     assertTrue( test );
 
   }

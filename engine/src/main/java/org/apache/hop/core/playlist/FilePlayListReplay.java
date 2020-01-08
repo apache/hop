@@ -22,12 +22,12 @@
 
 package org.apache.hop.core.playlist;
 
-import java.io.IOException;
-import java.util.Date;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.trans.step.errorhandling.AbstractFileErrorHandler;
+
+import java.io.IOException;
+import java.util.Date;
 
 public class FilePlayListReplay implements FilePlayList {
 
@@ -48,7 +48,7 @@ public class FilePlayListReplay implements FilePlayList {
   private FilePlayListReplayFile currentErrorFile;
 
   public FilePlayListReplay( Date replayDate, String lineNumberDirectory, String lineNumberExtension,
-    String errorDirectory, String errorExtension, String encoding ) {
+                             String errorDirectory, String errorExtension, String encoding ) {
     this.replayDate = replayDate;
     this.errorDirectory = errorDirectory;
     this.errorExtension = errorExtension;

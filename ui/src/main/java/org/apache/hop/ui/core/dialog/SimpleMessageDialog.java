@@ -21,12 +21,12 @@
  */
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.hop.i18n.BaseMessages;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.i18n.BaseMessages;
 
 import java.lang.reflect.Field;
 

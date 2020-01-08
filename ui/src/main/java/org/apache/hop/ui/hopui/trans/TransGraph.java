@@ -24,8 +24,100 @@
 package org.apache.hop.ui.hopui.trans;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.EngineMetaInterface;
+import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.SwtUniversalImage;
+import org.apache.hop.core.dnd.DragAndDropContainer;
+import org.apache.hop.core.dnd.XMLTransfer;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.gui.AreaOwner;
+import org.apache.hop.core.gui.AreaOwner.AreaType;
+import org.apache.hop.core.gui.BasePainter;
+import org.apache.hop.core.gui.GCInterface;
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.gui.Redrawable;
+import org.apache.hop.core.gui.SnapAllignDistribute;
+import org.apache.hop.core.logging.DefaultLogLevel;
+import org.apache.hop.core.logging.HasLogChannelInterface;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.HopLoggingEvent;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.LogMessage;
+import org.apache.hop.core.logging.LogParentProvidedInterface;
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.LoggingRegistry;
+import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.Job;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.lineage.TransDataLineage;
+import org.apache.hop.trans.DatabaseImpact;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransExecutionConfiguration;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPainter;
+import org.apache.hop.trans.debug.BreakPointListener;
+import org.apache.hop.trans.debug.StepDebugMeta;
+import org.apache.hop.trans.debug.TransDebugMeta;
+import org.apache.hop.trans.debug.TransDebugMetaWrapper;
+import org.apache.hop.trans.step.RemoteStep;
+import org.apache.hop.trans.step.RowDistributionInterface;
+import org.apache.hop.trans.step.RowDistributionPluginType;
+import org.apache.hop.trans.step.RowListener;
+import org.apache.hop.trans.step.StepErrorMeta;
+import org.apache.hop.trans.step.StepIOMetaInterface;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.StepMetaDataCombi;
+import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.step.errorhandling.Stream;
+import org.apache.hop.trans.step.errorhandling.StreamIcon;
+import org.apache.hop.trans.step.errorhandling.StreamInterface;
+import org.apache.hop.trans.step.errorhandling.StreamInterface.StreamType;
+import org.apache.hop.trans.steps.tableinput.TableInputMeta;
+import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.dialog.DialogClosedListener;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterStringDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.dialog.StepFieldsDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.CheckBoxToolTip;
+import org.apache.hop.ui.core.widget.CheckBoxToolTipListener;
+import org.apache.hop.ui.hopui.AbstractGraph;
 import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopui.HopUiExtenderPluginInterface;
+import org.apache.hop.ui.hopui.HopUiExtenderPluginType;
 import org.apache.hop.ui.hopui.HopUiPluginManager;
+import org.apache.hop.ui.hopui.SWTGC;
+import org.apache.hop.ui.hopui.SwtScrollBar;
+import org.apache.hop.ui.hopui.TabItemInterface;
+import org.apache.hop.ui.hopui.XulHopUiResourceBundle;
+import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
+import org.apache.hop.ui.hopui.dialog.EnterPreviewRowsDialog;
+import org.apache.hop.ui.hopui.dialog.NotePadDialog;
+import org.apache.hop.ui.hopui.dialog.SearchFieldsProgressDialog;
+import org.apache.hop.ui.hopui.job.JobGraph;
+import org.apache.hop.ui.trans.dialog.TransDialog;
+import org.apache.hop.ui.xul.HopXulLoader;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -77,99 +169,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Widget;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.EngineMetaInterface;
-import org.apache.hop.core.NotePadMeta;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.SwtUniversalImage;
-import org.apache.hop.core.dnd.DragAndDropContainer;
-import org.apache.hop.core.dnd.XMLTransfer;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopStepException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.gui.AreaOwner;
-import org.apache.hop.core.gui.AreaOwner.AreaType;
-import org.apache.hop.core.gui.BasePainter;
-import org.apache.hop.core.gui.GCInterface;
-import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.Redrawable;
-import org.apache.hop.core.gui.SnapAllignDistribute;
-import org.apache.hop.core.logging.DefaultLogLevel;
-import org.apache.hop.core.logging.HasLogChannelInterface;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.HopLoggingEvent;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.logging.LogMessage;
-import org.apache.hop.core.logging.LogParentProvidedInterface;
-import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.logging.LoggingObjectType;
-import org.apache.hop.core.logging.LoggingRegistry;
-import org.apache.hop.core.logging.SimpleLoggingObject;
-import org.apache.hop.core.plugins.PluginInterface;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.StepPluginType;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.Job;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.lineage.TransDataLineage;
-import org.apache.hop.shared.SharedObjects;
-import org.apache.hop.trans.DatabaseImpact;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransExecutionConfiguration;
-import org.apache.hop.trans.TransHopMeta;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPainter;
-import org.apache.hop.trans.debug.BreakPointListener;
-import org.apache.hop.trans.debug.StepDebugMeta;
-import org.apache.hop.trans.debug.TransDebugMeta;
-import org.apache.hop.trans.debug.TransDebugMetaWrapper;
-import org.apache.hop.trans.step.RemoteStep;
-import org.apache.hop.trans.step.RowDistributionInterface;
-import org.apache.hop.trans.step.RowDistributionPluginType;
-import org.apache.hop.trans.step.RowListener;
-import org.apache.hop.trans.step.StepErrorMeta;
-import org.apache.hop.trans.step.StepIOMetaInterface;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaDataCombi;
-import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.trans.step.errorhandling.Stream;
-import org.apache.hop.trans.step.errorhandling.StreamIcon;
-import org.apache.hop.trans.step.errorhandling.StreamInterface;
-import org.apache.hop.trans.step.errorhandling.StreamInterface.StreamType;
-import org.apache.hop.trans.steps.tableinput.TableInputMeta;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.dialog.DialogClosedListener;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.EnterStringDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.dialog.StepFieldsDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.CheckBoxToolTip;
-import org.apache.hop.ui.core.widget.CheckBoxToolTipListener;
-import org.apache.hop.ui.hopui.AbstractGraph;
-import org.apache.hop.ui.hopui.SWTGC;
-import org.apache.hop.ui.hopui.HopUiExtenderPluginInterface;
-import org.apache.hop.ui.hopui.HopUiExtenderPluginType;
-import org.apache.hop.ui.hopui.SwtScrollBar;
-import org.apache.hop.ui.hopui.TabItemInterface;
-import org.apache.hop.ui.hopui.XulHopUiResourceBundle;
-import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
-import org.apache.hop.ui.hopui.dialog.EnterPreviewRowsDialog;
-import org.apache.hop.ui.hopui.dialog.NotePadDialog;
-import org.apache.hop.ui.hopui.dialog.SearchFieldsProgressDialog;
-import org.apache.hop.ui.hopui.job.JobGraph;
-import org.apache.hop.ui.trans.dialog.TransDialog;
-import org.apache.hop.ui.xul.HopXulLoader;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.components.XulMenuitem;
@@ -735,7 +734,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
 
       @Override
       public void run() {
-      setControlStates();
+        setControlStates();
       }
     };
     timer.schedule( timerTask, 2000, 1000 );
@@ -3534,28 +3533,6 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
     tid.setDirectoryChangeAllowed( allowDirectoryChange );
     TransMeta ti = tid.open();
 
-    // Load shared objects
-    //
-    if ( tid.isSharedObjectsFileChanged() ) {
-      try {
-        SharedObjects sharedObjects = transMeta.readSharedObjects();
-        hopUi.sharedObjectsFileMap.put( sharedObjects.getFilename(), sharedObjects );
-      } catch ( HopException e ) {
-        // CHECKSTYLE:LineLength:OFF
-        new ErrorDialog( hopUi.getShell(),
-          BaseMessages.getString( PKG, "Spoon.Dialog.ErrorReadingSharedObjects.Title" ), BaseMessages.getString( PKG,
-          "Spoon.Dialog.ErrorReadingSharedObjects.Message", hopUi.makeTabName( transMeta, true ) ), e );
-      }
-
-      // If we added properties, add them to the variables too, so that they appear in the CTRL-SPACE variable
-      // completion.
-      //
-      hopUi.setParametersAsVariablesInUI( transMeta, transMeta );
-
-      hopUi.refreshTree();
-      hopUi.delegates.tabs.renameTabs(); // cheap operation, might as will do it anyway
-    }
-
     hopUi.setShellText();
     return ti != null;
   }
@@ -3797,7 +3774,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
 
     // filename set & not changed?
     //
-    if ( StringUtils.isNotEmpty( transMeta.getFilename()) && !transMeta.hasChanged()) {
+    if ( StringUtils.isNotEmpty( transMeta.getFilename() ) && !transMeta.hasChanged() ) {
       if ( trans == null || !running ) {
         try {
           // Set the requested logging level..

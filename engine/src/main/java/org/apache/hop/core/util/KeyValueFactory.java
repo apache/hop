@@ -22,18 +22,15 @@
 
 package org.apache.hop.core.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *
+ * @param <T> type of key value.
  * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- *
- * @param <T>
- *          type of key value.
  */
 public class KeyValueFactory<T> {
 
@@ -97,8 +94,7 @@ public class KeyValueFactory<T> {
   /**
    * Constructor.
    *
-   * @param defaultValue
-   *          default value to set.
+   * @param defaultValue default value to set.
    */
   public KeyValueFactory( final T defaultValue ) {
     this.defaultValue = defaultValue;
@@ -112,22 +108,18 @@ public class KeyValueFactory<T> {
   }
 
   /**
-   * @param key
-   *          key to set.
+   * @param key key to set.
    * @return new key value initialized with default value.
-   * @throws IllegalArgumentException
-   *           if key is blank.
+   * @throws IllegalArgumentException if key is blank.
    */
   public KeyValue<T> create( final String key ) throws IllegalArgumentException {
     return new KeyValue<T>( key, this.defaultValue );
   }
 
   /**
-   * @param keys
-   *          keys to use.
+   * @param keys keys to use.
    * @return new instances.
-   * @throws IllegalArgumentException
-   *           if one key is blank.
+   * @throws IllegalArgumentException if one key is blank.
    */
   public List<KeyValue<T>> createAll( final String... keys ) throws IllegalArgumentException {
     final List<KeyValue<T>> instances = new ArrayList<KeyValue<T>>();

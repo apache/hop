@@ -22,35 +22,30 @@
 
 package org.apache.hop.job.entries.syslog;
 
-import java.util.List;
-
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-
 import org.apache.hop.metastore.api.IMetaStore;
 import org.productivity.java.syslog4j.Syslog;
 import org.productivity.java.syslog4j.SyslogIF;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * This defines a Syslog job entry.
  *
  * @author Samatar
  * @since 05-01-2010
- *
  */
 public class JobEntrySyslog extends JobEntryBase implements Cloneable, JobEntryInterface {
   private static Class<?> PKG = JobEntrySyslog.class; // for i18n purposes, needed by Translator2!!
@@ -69,8 +64,8 @@ public class JobEntrySyslog extends JobEntryBase implements Cloneable, JobEntryI
     port = String.valueOf( SyslogDefs.DEFAULT_PORT );
     serverName = null;
     message = null;
-    facility = SyslogDefs.FACILITYS[0];
-    priority = SyslogDefs.PRIORITYS[0];
+    facility = SyslogDefs.FACILITYS[ 0 ];
+    priority = SyslogDefs.PRIORITYS[ 0 ];
     datePattern = SyslogDefs.DEFAULT_DATE_FORMAT;
     addTimestamp = true;
     addHostname = true;
@@ -101,10 +96,10 @@ public class JobEntrySyslog extends JobEntryBase implements Cloneable, JobEntryI
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       port = XMLHandler.getTagValue( entrynode, "port" );
       serverName = XMLHandler.getTagValue( entrynode, "servername" );
       facility = XMLHandler.getTagValue( entrynode, "facility" );
@@ -127,8 +122,7 @@ public class JobEntrySyslog extends JobEntryBase implements Cloneable, JobEntryI
   }
 
   /**
-   * @param serverName
-   *          The serverName to set.
+   * @param serverName The serverName to set.
    */
   public void setServerName( String serverName ) {
     this.serverName = serverName;
@@ -142,16 +136,14 @@ public class JobEntrySyslog extends JobEntryBase implements Cloneable, JobEntryI
   }
 
   /**
-   * @param facility
-   *          The facility to set.
+   * @param facility The facility to set.
    */
   public void setFacility( String facility ) {
     this.facility = facility;
   }
 
   /**
-   * @param priority
-   *          The priority to set.
+   * @param priority The priority to set.
    */
   public void setPriority( String priority ) {
     this.priority = priority;
@@ -165,8 +157,7 @@ public class JobEntrySyslog extends JobEntryBase implements Cloneable, JobEntryI
   }
 
   /**
-   * @param message
-   *          The message to set.
+   * @param message The message to set.
    */
   public void setMessage( String message ) {
     this.message = message;
@@ -202,8 +193,7 @@ public class JobEntrySyslog extends JobEntryBase implements Cloneable, JobEntryI
   }
 
   /**
-   * @param pattern
-   *          The datePattern to set.
+   * @param pattern The datePattern to set.
    */
   public void setDatePattern( String pattern ) {
     this.datePattern = pattern;
@@ -224,8 +214,7 @@ public class JobEntrySyslog extends JobEntryBase implements Cloneable, JobEntryI
   }
 
   /**
-   * @param port
-   *          The port to set.
+   * @param port The port to set.
    */
   public void setPort( String port ) {
     this.port = port;
@@ -296,7 +285,7 @@ public class JobEntrySyslog extends JobEntryBase implements Cloneable, JobEntryI
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
 
   }
 

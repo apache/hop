@@ -22,21 +22,6 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import java.util.List;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
@@ -50,6 +35,21 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+
+import java.util.List;
 
 /**
  * Displays an ArrayList of rows in a TableView and allows you to select one.
@@ -77,7 +77,6 @@ public class SelectRowDialog extends Dialog {
   private VariableSpace variables;
 
   /**
-   *
    * @param parent
    * @param style
    * @param buf
@@ -126,12 +125,12 @@ public class SelectRowDialog extends Dialog {
 
     int FieldsRows = buffer.size();
 
-    ColumnInfo[] colinf = new ColumnInfo[rowMeta.size()];
+    ColumnInfo[] colinf = new ColumnInfo[ rowMeta.size() ];
     for ( int i = 0; i < rowMeta.size(); i++ ) {
       ValueMetaInterface v = rowMeta.getValueMeta( i );
-      colinf[i] = new ColumnInfo( v.getName(), ColumnInfo.COLUMN_TYPE_TEXT, false );
-      colinf[i].setToolTip( v.toStringMeta() );
-      colinf[i].setReadOnly( true );
+      colinf[ i ] = new ColumnInfo( v.getName(), ColumnInfo.COLUMN_TYPE_TEXT, false );
+      colinf[ i ].setToolTip( v.toStringMeta() );
+      colinf[ i ].setReadOnly( true );
     }
 
     wFields =
@@ -208,9 +207,9 @@ public class SelectRowDialog extends Dialog {
 
         try {
           if ( v.isNumeric() ) {
-            show = v.getString( rowData[c] );
+            show = v.getString( rowData[ c ] );
           } else {
-            show = v.getString( rowData[c] );
+            show = v.getString( rowData[ c ] );
           }
         } catch ( HopValueException e ) {
           show = "<conversion error>";
@@ -230,8 +229,8 @@ public class SelectRowDialog extends Dialog {
 
   private void ok() {
     int[] idx = wFields.getSelectionIndices();
-    if ( idx.length > 0 && idx[0] < buffer.size() ) {
-      selection = buffer.get( idx[0] );
+    if ( idx.length > 0 && idx[ 0 ] < buffer.size() ) {
+      selection = buffer.get( idx[ 0 ] );
     }
     dispose();
   }

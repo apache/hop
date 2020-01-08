@@ -62,7 +62,7 @@ public class HopUiPluginManager implements PluginTypeListener {
   @Override public void pluginAdded( final Object serviceObject ) {
     try {
       HopUiPluginInterface hopUiPluginInterface =
-          (HopUiPluginInterface) getPluginRegistry().loadClass( (PluginInterface) serviceObject );
+        (HopUiPluginInterface) getPluginRegistry().loadClass( (PluginInterface) serviceObject );
 
       if ( plugins.get( serviceObject ) != null ) {
         return;

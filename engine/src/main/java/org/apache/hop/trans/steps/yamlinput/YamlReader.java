@@ -22,6 +22,19 @@
 
 package org.apache.hop.trans.steps.yamlinput;
 
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaNone;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVFS;
+import org.yaml.snakeyaml.Yaml;
+
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -31,19 +44,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaNone;
-import org.apache.hop.core.vfs.HopVFS;
-import org.yaml.snakeyaml.Yaml;
 
 /**
  * Read YAML files, parse them and convert them to rows and writes these to one or more output streams.
@@ -140,7 +140,7 @@ public class YamlReader {
     if ( getDocument() != null ) {
       if ( isMapUsed() ) {
         Map<Object, Object> map = (Map<Object, Object>) getDocument();
-        retval = new Object[rowMeta.size()];
+        retval = new Object[ rowMeta.size() ];
         for ( int i = 0; i < rowMeta.size(); i++ ) {
           ValueMetaInterface valueMeta = rowMeta.getValueMeta( i );
           Object o = null;
@@ -149,7 +149,7 @@ public class YamlReader {
           } else {
             o = map.get( valueMeta.getName() );
           }
-          retval[i] = getValue( o, valueMeta );
+          retval[ i ] = getValue( o, valueMeta );
         }
 
         // We have done with this document
@@ -162,7 +162,7 @@ public class YamlReader {
             Iterator<Object> it = list.iterator();
             Object value = it.next();
             Map<Object, Object> map = (Map<Object, Object>) value;
-            retval = new Object[rowMeta.size()];
+            retval = new Object[ rowMeta.size() ];
             for ( int i = 0; i < rowMeta.size(); i++ ) {
               ValueMetaInterface valueMeta = rowMeta.getValueMeta( i );
               Object o = null;
@@ -171,14 +171,14 @@ public class YamlReader {
               } else {
                 o = map.get( valueMeta.getName() );
               }
-              retval[i] = getValue( o, valueMeta );
+              retval[ i ] = getValue( o, valueMeta );
             }
           } else {
 
             ValueMetaInterface valueMeta = rowMeta.getValueMeta( 0 );
-            retval = new Object[1];
+            retval = new Object[ 1 ];
 
-            retval[0] = getValue( dataList, valueMeta );
+            retval[ 0 ] = getValue( dataList, valueMeta );
           }
           dataList = null;
         } else {

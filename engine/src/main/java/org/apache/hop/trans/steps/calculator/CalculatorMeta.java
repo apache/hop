@@ -22,13 +22,8 @@
 
 package org.apache.hop.trans.steps.calculator;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -38,7 +33,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -46,8 +41,10 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Contains the meta-data for the Calculator step: calculates predefined formula's
@@ -57,10 +54,14 @@ import org.w3c.dom.Node;
 public class CalculatorMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = CalculatorMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** The calculations to be performed */
+  /**
+   * The calculations to be performed
+   */
   private CalculatorMetaFunction[] calculation;
 
-  /** Raise an error if file does not exist */
+  /**
+   * Raise an error if file does not exist
+   */
   private boolean failIfNoFile;
 
   public CalculatorMetaFunction[] getCalculation() {
@@ -80,7 +81,7 @@ public class CalculatorMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrCalcs ) {
-    calculation = new CalculatorMetaFunction[nrCalcs];
+    calculation = new CalculatorMetaFunction[ nrCalcs ];
   }
 
   @Override
@@ -91,7 +92,7 @@ public class CalculatorMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( nrCalcs );
     for ( int i = 0; i < nrCalcs; i++ ) {
       Node calcnode = XMLHandler.getSubNodeByNr( stepnode, CalculatorMetaFunction.XML_TAG, i );
-      calculation[i] = new CalculatorMetaFunction( calcnode );
+      calculation[ i ] = new CalculatorMetaFunction( calcnode );
     }
   }
 
@@ -132,7 +133,7 @@ public class CalculatorMeta extends BaseStepMeta implements StepMetaInterface {
     if ( calculation != null ) {
       retval.allocate( calculation.length );
       for ( int i = 0; i < calculation.length; i++ ) {
-        ( retval.getCalculation() )[i] = (CalculatorMetaFunction) calculation[i].clone();
+        ( retval.getCalculation() )[ i ] = (CalculatorMetaFunction) calculation[ i ].clone();
       }
     } else {
       retval.allocate( 0 );
@@ -143,12 +144,12 @@ public class CalculatorMeta extends BaseStepMeta implements StepMetaInterface {
   @Override
   public void setDefault() {
     failIfNoFile = true;
-    calculation = new CalculatorMetaFunction[0];
+    calculation = new CalculatorMetaFunction[ 0 ];
   }
 
   @Override
   public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     for ( CalculatorMetaFunction fn : calculation ) {
       if ( !fn.isRemovedFromResult() ) {
         if ( !Utils.isEmpty( fn.getFieldName() ) ) { // It's a new field!
@@ -199,8 +200,8 @@ public class CalculatorMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     // See if we have input streams leading to this step!
@@ -231,7 +232,7 @@ public class CalculatorMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new Calculator( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 

@@ -21,15 +21,15 @@
  ******************************************************************************/
 package org.apache.hop.job.entries.getpop;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogChannelInterface;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
 
 import javax.mail.Folder;
 import javax.mail.MessagingException;
@@ -53,7 +53,7 @@ public class MailConnectionTest {
   /**
    * PDI-7426 Test {@link MailConnection#openFolder(String, boolean, boolean)} method. tests that folders are opened
    * recursively
-   * 
+   *
    * @throws HopException
    * @throws MessagingException
    */
@@ -66,7 +66,7 @@ public class MailConnectionTest {
 
   /**
    * PDI-7426 Test {@link MailConnection#setDestinationFolder(String, boolean)} method.
-   * 
+   *
    * @throws HopException
    * @throws MessagingException
    */
@@ -79,7 +79,7 @@ public class MailConnectionTest {
 
   /**
    * PDI-17713 Test {@link MailConnection#findValidTarget(String, String) }
-   *
+   * <p>
    * Note - this test case relies on the ability to create temporary files
    * of zero-byte size in the java.io.tmpdir folder.
    */
@@ -203,7 +203,7 @@ public class MailConnectionTest {
       when( c.create( Mockito.anyInt() ) ).thenAnswer( new Answer<Boolean>() {
         @Override
         public Boolean answer( InvocationOnMock invocation ) throws Throwable {
-          Object arg0 = invocation.getArguments()[0];
+          Object arg0 = invocation.getArguments()[ 0 ];
           mode = Integer.class.cast( arg0 );
           cCreated = true;
           return true;

@@ -37,8 +37,7 @@ public interface StepDataInterface {
   /**
    * Sets the status.
    *
-   * @param status
-   *          the new status
+   * @param status the new status
    */
   public void setStatus( StepExecutionStatus status );
 

@@ -22,13 +22,13 @@
 
 package org.apache.hop.job.entries.folderisempty;
 
+import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.ClassRule;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.ClassRule;
-import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 public class JobEntryFolderIsEmptyLoadSaveTest extends JobEntryLoadSaveTestSupport<JobEntryFolderIsEmpty> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -46,18 +46,18 @@ public class JobEntryFolderIsEmptyLoadSaveTest extends JobEntryLoadSaveTestSuppo
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-        "foldername", "getFoldername",
-        "includeSubfolders", "isIncludeSubFolders",
-        "specifywildcard", "isSpecifyWildcard",
-        "wildcard", "getWildcard" );
+      "foldername", "getFoldername",
+      "includeSubfolders", "isIncludeSubFolders",
+      "specifywildcard", "isSpecifyWildcard",
+      "wildcard", "getWildcard" );
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-        "foldername", "setFoldername",
-        "includeSubfolders", "setIncludeSubFolders",
-        "specifywildcard", "setSpecifyWildcard",
-        "wildcard", "setWildcard" );
+      "foldername", "setFoldername",
+      "includeSubfolders", "setIncludeSubFolders",
+      "specifywildcard", "setSpecifyWildcard",
+      "wildcard", "setWildcard" );
   }
 }

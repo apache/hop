@@ -22,6 +22,11 @@
 
 package org.apache.hop.trans.steps.joinrows;
 
+import org.apache.hop.core.RowSet;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.trans.step.BaseStepData;
+import org.apache.hop.trans.step.StepDataInterface;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -29,15 +34,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.List;
 
-import org.apache.hop.core.RowSet;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.trans.step.BaseStepData;
-import org.apache.hop.trans.step.StepDataInterface;
-
 /**
  * @author Matt
  * @since 24-jan-2005
- *
  */
 public class JoinRowsData extends BaseStepData implements StepDataInterface {
   public File[] file;

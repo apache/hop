@@ -22,29 +22,16 @@
 
 package org.apache.hop.trans;
 
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.plugins.ClassLoadingPluginInterface;
 import org.apache.hop.core.plugins.PluginInterface;
-import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import static org.junit.Assert.assertEquals;
 
 public class TransExecutionConfigurationTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

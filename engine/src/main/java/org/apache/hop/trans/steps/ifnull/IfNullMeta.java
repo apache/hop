@@ -22,24 +22,19 @@
 
 package org.apache.hop.trans.steps.ifnull;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -47,8 +42,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 @InjectionSupported( localizationPrefix = "IfNull.Injection.", groups = { "FIELDS", "VALUE_TYPES" } )
 public class IfNullMeta extends BaseStepMeta implements StepMetaInterface {
@@ -56,18 +52,24 @@ public class IfNullMeta extends BaseStepMeta implements StepMetaInterface {
 
   public static class Fields implements Cloneable {
 
-    /** which fields to display? */
+    /**
+     * which fields to display?
+     */
     @Injection( name = "FIELD_NAME", group = "FIELDS" )
     private String fieldName;
 
-    /** by which value we replace */
+    /**
+     * by which value we replace
+     */
     @Injection( name = "REPLACE_VALUE", group = "FIELDS" )
     private String replaceValue;
 
     @Injection( name = "REPLACE_MASK", group = "FIELDS" )
     private String replaceMask;
 
-    /** Flag : set empty string **/
+    /**
+     * Flag : set empty string
+     **/
     @Injection( name = "SET_EMPTY_STRING", group = "FIELDS" )
     private boolean setEmptyString;
 
@@ -114,18 +116,24 @@ public class IfNullMeta extends BaseStepMeta implements StepMetaInterface {
 
   public static class ValueTypes implements Cloneable {
 
-    /** which types to display? */
+    /**
+     * which types to display?
+     */
     @Injection( name = "TYPE_NAME", group = "VALUE_TYPES" )
     private String typeName;
 
-    /** by which value we replace */
+    /**
+     * by which value we replace
+     */
     @Injection( name = "TYPE_REPLACE_VALUE", group = "VALUE_TYPES" )
     private String typereplaceValue;
 
     @Injection( name = "TYPE_REPLACE_MASK", group = "VALUE_TYPES" )
     private String typereplaceMask;
 
-    /** Flag : set empty string for type **/
+    /**
+     * Flag : set empty string for type
+     **/
     @Injection( name = "SET_TYPE_EMPTY_STRING", group = "VALUE_TYPES" )
     private boolean setTypeEmptyString;
 
@@ -188,7 +196,9 @@ public class IfNullMeta extends BaseStepMeta implements StepMetaInterface {
   @Injection( name = "REPLACE_ALL_MASK" )
   private String replaceAllMask;
 
-  /** The flag to set auto commit on or off on the connection */
+  /**
+   * The flag to set auto commit on or off on the connection
+   */
   @Injection( name = "SET_EMPTY_STRING_ALL" )
   private boolean setEmptyStringAll;
 
@@ -204,8 +214,7 @@ public class IfNullMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param setEmptyStringAll
-   *          The setEmptyStringAll to set.
+   * @param setEmptyStringAll The setEmptyStringAll to set.
    */
   public void setEmptyStringAll( boolean setEmptyStringAll ) {
     this.setEmptyStringAll = setEmptyStringAll;
@@ -223,24 +232,24 @@ public class IfNullMeta extends BaseStepMeta implements StepMetaInterface {
     retval.allocate( nrTypes, nrfields );
 
     for ( int i = 0; i < nrTypes; i++ ) {
-      retval.getValueTypes()[i] = valueTypes[i].clone();
+      retval.getValueTypes()[ i ] = valueTypes[ i ].clone();
     }
 
     for ( int i = 0; i < nrfields; i++ ) {
-      retval.getFields()[i] = fields[i].clone();
+      retval.getFields()[ i ] = fields[ i ].clone();
     }
 
     return retval;
   }
 
   public void allocate( int nrtypes, int nrfields ) {
-    valueTypes = new ValueTypes[nrtypes];
+    valueTypes = new ValueTypes[ nrtypes ];
     for ( int i = 0; i < nrtypes; i++ ) {
-      valueTypes[i] = new ValueTypes();
+      valueTypes[ i ] = new ValueTypes();
     }
-    fields = new Fields[nrfields];
+    fields = new Fields[ nrfields ];
     for ( int i = 0; i < nrfields; i++ ) {
-      fields[i] = new Fields();
+      fields[ i ] = new Fields();
     }
   }
 
@@ -310,20 +319,20 @@ public class IfNullMeta extends BaseStepMeta implements StepMetaInterface {
 
       for ( int i = 0; i < nrtypes; i++ ) {
         Node tnode = XMLHandler.getSubNodeByNr( types, "valuetype", i );
-        valueTypes[i].setTypeName( XMLHandler.getTagValue( tnode, "name" ) );
-        valueTypes[i].setTypereplaceValue( XMLHandler.getTagValue( tnode, "value" ) );
-        valueTypes[i].setTypereplaceMask( XMLHandler.getTagValue( tnode, "mask" ) );
+        valueTypes[ i ].setTypeName( XMLHandler.getTagValue( tnode, "name" ) );
+        valueTypes[ i ].setTypereplaceValue( XMLHandler.getTagValue( tnode, "value" ) );
+        valueTypes[ i ].setTypereplaceMask( XMLHandler.getTagValue( tnode, "mask" ) );
         String typeemptyString = XMLHandler.getTagValue( tnode, "set_type_empty_string" );
-        valueTypes[i].setTypeEmptyString( !Utils.isEmpty( typeemptyString ) && "Y".equalsIgnoreCase(
-            typeemptyString ) );
+        valueTypes[ i ].setTypeEmptyString( !Utils.isEmpty( typeemptyString ) && "Y".equalsIgnoreCase(
+          typeemptyString ) );
       }
       for ( int i = 0; i < nrfields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fieldNodes, "field", i );
-        fields[i].setFieldName( XMLHandler.getTagValue( fnode, "name" ) );
-        fields[i].setReplaceValue( XMLHandler.getTagValue( fnode, "value" ) );
-        fields[i].setReplaceMask( XMLHandler.getTagValue( fnode, "mask" ) );
+        fields[ i ].setFieldName( XMLHandler.getTagValue( fnode, "name" ) );
+        fields[ i ].setReplaceValue( XMLHandler.getTagValue( fnode, "value" ) );
+        fields[ i ].setReplaceMask( XMLHandler.getTagValue( fnode, "mask" ) );
         String emptyString = XMLHandler.getTagValue( fnode, "set_empty_string" );
-        fields[i].setEmptyString( !Utils.isEmpty( emptyString ) && "Y".equalsIgnoreCase( emptyString ) );
+        fields[ i ].setEmptyString( !Utils.isEmpty( emptyString ) && "Y".equalsIgnoreCase( emptyString ) );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( "It was not possibke to load the IfNull metadata from XML", e );
@@ -342,11 +351,11 @@ public class IfNullMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "    <valuetypes>" + Const.CR );
     for ( int i = 0; i < valueTypes.length; i++ ) {
       retval.append( "      <valuetype>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", valueTypes[i].getTypeName() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "value", valueTypes[i].getTypereplaceValue() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "mask", valueTypes[i].getTypereplaceMask() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "set_type_empty_string", valueTypes[i]
-          .isSetTypeEmptyString() ) );
+      retval.append( "        " + XMLHandler.addTagValue( "name", valueTypes[ i ].getTypeName() ) );
+      retval.append( "        " + XMLHandler.addTagValue( "value", valueTypes[ i ].getTypereplaceValue() ) );
+      retval.append( "        " + XMLHandler.addTagValue( "mask", valueTypes[ i ].getTypereplaceMask() ) );
+      retval.append( "        " + XMLHandler.addTagValue( "set_type_empty_string", valueTypes[ i ]
+        .isSetTypeEmptyString() ) );
       retval.append( "        </valuetype>" + Const.CR );
     }
     retval.append( "      </valuetypes>" + Const.CR );
@@ -354,10 +363,10 @@ public class IfNullMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "    <fields>" + Const.CR );
     for ( int i = 0; i < fields.length; i++ ) {
       retval.append( "      <field>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", fields[i].getFieldName() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "value", fields[i].getReplaceValue() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "mask", fields[i].getReplaceMask() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "set_empty_string", fields[i].isSetEmptyString() ) );
+      retval.append( "        " + XMLHandler.addTagValue( "name", fields[ i ].getFieldName() ) );
+      retval.append( "        " + XMLHandler.addTagValue( "value", fields[ i ].getReplaceValue() ) );
+      retval.append( "        " + XMLHandler.addTagValue( "mask", fields[ i ].getReplaceMask() ) );
+      retval.append( "        " + XMLHandler.addTagValue( "set_empty_string", fields[ i ].isSetEmptyString() ) );
       retval.append( "        </field>" + Const.CR );
     }
     retval.append( "      </fields>" + Const.CR );
@@ -397,8 +406,8 @@ public class IfNullMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -416,9 +425,9 @@ public class IfNullMeta extends BaseStepMeta implements StepMetaInterface {
 
       // Starting from selected fields in ...
       for ( int i = 0; i < fields.length; i++ ) {
-        int idx = prev.indexOfValue( fields[i].getFieldName() );
+        int idx = prev.indexOfValue( fields[ i ].getFieldName() );
         if ( idx < 0 ) {
-          error_message += "\t\t" + fields[i].getFieldName() + Const.CR;
+          error_message += "\t\t" + fields[ i ].getFieldName() + Const.CR;
           error_found = true;
         }
       }
@@ -458,7 +467,7 @@ public class IfNullMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new IfNull( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 

@@ -22,16 +22,8 @@
 
 package org.apache.hop.trans.steps.transexecutor;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Arrays;
-
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
@@ -41,6 +33,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.DelegationListener;
 import org.apache.hop.trans.StepWithMappingMeta;
@@ -54,13 +47,20 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.TransStepUtil;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Execute a transformation for every input row, set parameters.
  * <p>
- *     <b>Note:</b><br/>
- *     Be aware, logic of the classes methods is very similar to corresponding methods of
- *     {@link org.apache.hop.trans.steps.jobexecutor.JobExecutor JobExecutor}.
- *     If you change something in this class, consider copying your changes to JobExecutor as well.
+ * <b>Note:</b><br/>
+ * Be aware, logic of the classes methods is very similar to corresponding methods of
+ * {@link org.apache.hop.trans.steps.jobexecutor.JobExecutor JobExecutor}.
+ * If you change something in this class, consider copying your changes to JobExecutor as well.
  * </p>
  *
  * @author Matt
@@ -97,7 +97,7 @@ public class TransExecutor extends BaseStep implements StepInterface {
       }
 
       List<String> incomingFieldValues = new ArrayList<String>();
-      if (  getInputRowMeta() != null ) {
+      if ( getInputRowMeta() != null ) {
         for ( int i = 0; i < getInputRowMeta().size(); i++ ) {
           String fieldvalue = getInputRowMeta().getString( row, i );
           incomingFieldValues.add( fieldvalue );
@@ -302,7 +302,7 @@ public class TransExecutor extends BaseStep implements StepInterface {
     // A map where the final parameters and values are stored.
     Map<String, String> resolvingValuesMap = new LinkedHashMap<String, String>();
     for ( int i = 0; i < parameters.getVariable().length; i++ ) {
-      resolvingValuesMap.put( parameters.getVariable()[i], null );
+      resolvingValuesMap.put( parameters.getVariable()[ i ], null );
     }
 
     //The names of the "Fields to use".
@@ -323,7 +323,7 @@ public class TransExecutor extends BaseStep implements StepInterface {
     /////////////////////////////////////////////
     // For all parameters declared in transExecutor
     for ( int i = 0; i < parameters.getVariable().length; i++ ) {
-      String currentVariableToUpdate = (String) resolvingValuesMap.keySet().toArray()[i];
+      String currentVariableToUpdate = (String) resolvingValuesMap.keySet().toArray()[ i ];
       boolean hasIncomingFieldValues = incomingFieldValues != null && !incomingFieldValues.isEmpty();
       try {
         if ( i < fieldsToUse.size() && incomingFields.contains( fieldsToUse.get( i ) ) && hasIncomingFieldValues
@@ -340,37 +340,37 @@ public class TransExecutor extends BaseStep implements StepInterface {
               // if not an empty cell then it is a declared variable that was resolved as null by previous steps
               // put "" value ( not null) and also set transExecutor variable - to force create this variable
               resolvingValuesMap.put( currentVariableToUpdate, "" );
-              this.setVariable( parameters.getVariable()[i], resolvingValuesMap.get( parameters.getVariable()[i] ) );
+              this.setVariable( parameters.getVariable()[ i ], resolvingValuesMap.get( parameters.getVariable()[ i ] ) );
             } else {
-              if ( !Utils.isEmpty( Const.trim( this.getVariable( parameters.getVariable()[i] ) ) ) && meta.getParameters().isInheritingAllVariables() ) {
+              if ( !Utils.isEmpty( Const.trim( this.getVariable( parameters.getVariable()[ i ] ) ) ) && meta.getParameters().isInheritingAllVariables() ) {
                 // if everything is empty, then check for last option - parent variables if isInheriting is checked - if exists - put that value
-                resolvingValuesMap.put( currentVariableToUpdate, this.getVariable( parameters.getVariable()[i] ) );
+                resolvingValuesMap.put( currentVariableToUpdate, this.getVariable( parameters.getVariable()[ i ] ) );
               } else {
                 // last case - if no variables defined - put "" value ( not null)
                 // and also set transExecutor variable - to force create this variable
                 resolvingValuesMap.put( currentVariableToUpdate, "" );
-                this.setVariable( parameters.getVariable()[i], resolvingValuesMap.get( parameters.getVariable()[i] ) );
+                this.setVariable( parameters.getVariable()[ i ], resolvingValuesMap.get( parameters.getVariable()[ i ] ) );
               }
             }
           }
         }
       } catch ( Exception e ) {
         //Set the value to the first parameter in the resolvingValuesMap.
-        resolvingValuesMap.put( (String) resolvingValuesMap.keySet().toArray()[i], "" );
-        this.setVariable( parameters.getVariable()[i], resolvingValuesMap.get( parameters.getVariable()[i] ) );
+        resolvingValuesMap.put( (String) resolvingValuesMap.keySet().toArray()[ i ], "" );
+        this.setVariable( parameters.getVariable()[ i ], resolvingValuesMap.get( parameters.getVariable()[ i ] ) );
       }
     }
     /////////////////////////////////////////////
 
     //Transform the values of the resolvingValuesMap into a String array "inputFieldValues" to be passed as parameter..
-    String[] inputFieldValues = new String[parameters.getVariable().length];
+    String[] inputFieldValues = new String[ parameters.getVariable().length ];
     for ( int i = 0; i < parameters.getVariable().length; i++ ) {
-      inputFieldValues[i] = resolvingValuesMap.get( parameters.getVariable()[i] );
+      inputFieldValues[ i ] = resolvingValuesMap.get( parameters.getVariable()[ i ] );
     }
 
     Trans trans = getExecutorTrans();
     StepWithMappingMeta
-        .activateParams( trans, trans, this, trans.listParameters(), parameters.getVariable(), inputFieldValues, meta.getParameters().isInheritingAllVariables() );
+      .activateParams( trans, trans, this, trans.listParameters(), parameters.getVariable(), inputFieldValues, meta.getParameters().isInheritingAllVariables() );
   }
 
   @VisibleForTesting
@@ -542,7 +542,7 @@ public class TransExecutor extends BaseStep implements StepInterface {
     this.data = data;
   }
 
-  protected List<String> getLastIncomingFieldValues( ) {
+  protected List<String> getLastIncomingFieldValues() {
     TransExecutorData transExecutorData = getData();
     List<String> lastIncomingFieldValues = new ArrayList<>();
     if ( transExecutorData == null || transExecutorData.groupBuffer.isEmpty() ) {

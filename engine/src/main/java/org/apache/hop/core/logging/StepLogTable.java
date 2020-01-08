@@ -22,10 +22,6 @@
 
 package org.apache.hop.core.logging;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -35,16 +31,18 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.trans.HasDatabasesInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaDataCombi;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * This class describes a step logging table
  *
  * @author matt
- *
  */
 public class StepLogTable extends BaseLogTable implements Cloneable, LogTableInterface {
 
@@ -55,10 +53,10 @@ public class StepLogTable extends BaseLogTable implements Cloneable, LogTableInt
   public enum ID {
 
     ID_BATCH( "ID_BATCH" ), CHANNEL_ID( "CHANNEL_ID" ), LOG_DATE( "LOG_DATE" ), TRANSNAME( "TRANSNAME" ),
-      STEPNAME( "STEPNAME" ), STEP_COPY( "STEP_COPY" ), LINES_READ( "LINES_READ" ),
-      LINES_WRITTEN( "LINES_WRITTEN" ), LINES_UPDATED( "LINES_UPDATED" ), LINES_INPUT( "LINES_INPUT" ),
-      LINES_OUTPUT( "LINES_OUTPUT" ), LINES_REJECTED( "LINES_REJECTED" ), ERRORS( "ERRORS" ),
-      LOG_FIELD( "LOG_FIELD" );
+    STEPNAME( "STEPNAME" ), STEP_COPY( "STEP_COPY" ), LINES_READ( "LINES_READ" ),
+    LINES_WRITTEN( "LINES_WRITTEN" ), LINES_UPDATED( "LINES_UPDATED" ), LINES_INPUT( "LINES_INPUT" ),
+    LINES_OUTPUT( "LINES_OUTPUT" ), LINES_REJECTED( "LINES_REJECTED" ), ERRORS( "ERRORS" ),
+    LOG_FIELD( "LOG_FIELD" );
 
     private String id;
 
@@ -126,20 +124,35 @@ public class StepLogTable extends BaseLogTable implements Cloneable, LogTableInt
   public static StepLogTable getDefault( VariableSpace space, IMetaStore metaStore ) {
     StepLogTable table = new StepLogTable( space, metaStore );
 
-    table.fields.add( new LogTableField( ID.ID_BATCH.id, true, false, "ID_BATCH", BaseMessages.getString( PKG, "StepLogTable.FieldName.IdBatch" ), BaseMessages.getString( PKG, "StepLogTable.FieldDescription.IdBatch" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
-    table.fields.add( new LogTableField( ID.CHANNEL_ID.id, true, false, "CHANNEL_ID", BaseMessages.getString( PKG, "StepLogTable.FieldName.ChannelId" ), BaseMessages.getString( PKG, "StepLogTable.FieldDescription.ChannelId" ), ValueMetaInterface.TYPE_STRING, 255 ) );
-    table.fields.add( new LogTableField( ID.LOG_DATE.id, true, false, "LOG_DATE", BaseMessages.getString( PKG, "StepLogTable.FieldName.LogDate" ), BaseMessages.getString( PKG, "StepLogTable.FieldDescription.LogDate" ), ValueMetaInterface.TYPE_DATE, -1 ) );
-    table.fields.add( new LogTableField( ID.TRANSNAME.id, true, false, "TRANSNAME", BaseMessages.getString( PKG, "StepLogTable.FieldName.TransName" ), BaseMessages.getString( PKG, "StepLogTable.FieldDescription.TransName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
-    table.fields.add( new LogTableField( ID.STEPNAME.id, true, false, "STEPNAME", BaseMessages.getString( PKG, "StepLogTable.FieldName.StepName" ), BaseMessages.getString( PKG, "StepLogTable.FieldDescription.StepName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
-    table.fields.add( new LogTableField( ID.STEP_COPY.id, true, false, "STEP_COPY", BaseMessages.getString( PKG, "StepLogTable.FieldName.StepCopy" ), BaseMessages.getString( PKG, "StepLogTable.FieldDescription.StepCopy" ), ValueMetaInterface.TYPE_INTEGER, 3 ) );
-    table.fields.add( new LogTableField( ID.LINES_READ.id, true, false, "LINES_READ", BaseMessages.getString( PKG, "StepLogTable.FieldName.LinesRead" ), BaseMessages.getString( PKG, "StepLogTable.FieldDescription.LinesRead" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
-    table.fields.add( new LogTableField( ID.LINES_WRITTEN.id, true, false, "LINES_WRITTEN", BaseMessages.getString( PKG, "StepLogTable.FieldName.LinesWritten" ), BaseMessages.getString( PKG, "StepLogTable.FieldDescription.LinesWritten" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
-    table.fields.add( new LogTableField( ID.LINES_UPDATED.id, true, false, "LINES_UPDATED", BaseMessages.getString( PKG, "StepLogTable.FieldName.LinesUpdated" ), BaseMessages.getString( PKG, "StepLogTable.FieldDescription.LinesUpdated" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
-    table.fields.add( new LogTableField( ID.LINES_INPUT.id, true, false, "LINES_INPUT", BaseMessages.getString( PKG, "StepLogTable.FieldName.LinesInput" ), BaseMessages.getString( PKG, "StepLogTable.FieldDescription.LinesInput" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
-    table.fields.add( new LogTableField( ID.LINES_OUTPUT.id, true, false, "LINES_OUTPUT", BaseMessages.getString( PKG, "StepLogTable.FieldName.LinesOutput" ), BaseMessages.getString( PKG, "StepLogTable.FieldDescription.LinesOutput" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
-    table.fields.add( new LogTableField( ID.LINES_REJECTED.id, true, false, "LINES_REJECTED", BaseMessages.getString( PKG, "StepLogTable.FieldName.LinesRejected" ), BaseMessages.getString( PKG, "StepLogTable.FieldDescription.LinesRejected" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
-    table.fields.add( new LogTableField( ID.ERRORS.id, true, false, "ERRORS", BaseMessages.getString( PKG, "StepLogTable.FieldName.Errors" ), BaseMessages.getString( PKG, "StepLogTable.FieldDescription.Errors" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
-    table.fields.add( new LogTableField( ID.LOG_FIELD.id, false, false, "LOG_FIELD", BaseMessages.getString( PKG, "StepLogTable.FieldName.LogField" ), BaseMessages.getString( PKG, "StepLogTable.FieldDescription.LogField" ), ValueMetaInterface.TYPE_STRING, DatabaseMeta.CLOB_LENGTH ) );
+    table.fields.add( new LogTableField( ID.ID_BATCH.id, true, false, "ID_BATCH", BaseMessages.getString( PKG, "StepLogTable.FieldName.IdBatch" ),
+      BaseMessages.getString( PKG, "StepLogTable.FieldDescription.IdBatch" ), ValueMetaInterface.TYPE_INTEGER, 8 ) );
+    table.fields.add( new LogTableField( ID.CHANNEL_ID.id, true, false, "CHANNEL_ID", BaseMessages.getString( PKG, "StepLogTable.FieldName.ChannelId" ),
+      BaseMessages.getString( PKG, "StepLogTable.FieldDescription.ChannelId" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+    table.fields.add( new LogTableField( ID.LOG_DATE.id, true, false, "LOG_DATE", BaseMessages.getString( PKG, "StepLogTable.FieldName.LogDate" ),
+      BaseMessages.getString( PKG, "StepLogTable.FieldDescription.LogDate" ), ValueMetaInterface.TYPE_DATE, -1 ) );
+    table.fields.add( new LogTableField( ID.TRANSNAME.id, true, false, "TRANSNAME", BaseMessages.getString( PKG, "StepLogTable.FieldName.TransName" ),
+      BaseMessages.getString( PKG, "StepLogTable.FieldDescription.TransName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+    table.fields.add( new LogTableField( ID.STEPNAME.id, true, false, "STEPNAME", BaseMessages.getString( PKG, "StepLogTable.FieldName.StepName" ),
+      BaseMessages.getString( PKG, "StepLogTable.FieldDescription.StepName" ), ValueMetaInterface.TYPE_STRING, 255 ) );
+    table.fields.add( new LogTableField( ID.STEP_COPY.id, true, false, "STEP_COPY", BaseMessages.getString( PKG, "StepLogTable.FieldName.StepCopy" ),
+      BaseMessages.getString( PKG, "StepLogTable.FieldDescription.StepCopy" ), ValueMetaInterface.TYPE_INTEGER, 3 ) );
+    table.fields.add( new LogTableField( ID.LINES_READ.id, true, false, "LINES_READ", BaseMessages.getString( PKG, "StepLogTable.FieldName.LinesRead" ),
+      BaseMessages.getString( PKG, "StepLogTable.FieldDescription.LinesRead" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+    table.fields.add( new LogTableField( ID.LINES_WRITTEN.id, true, false, "LINES_WRITTEN", BaseMessages.getString( PKG, "StepLogTable.FieldName.LinesWritten" ),
+      BaseMessages.getString( PKG, "StepLogTable.FieldDescription.LinesWritten" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+    table.fields.add( new LogTableField( ID.LINES_UPDATED.id, true, false, "LINES_UPDATED", BaseMessages.getString( PKG, "StepLogTable.FieldName.LinesUpdated" ),
+      BaseMessages.getString( PKG, "StepLogTable.FieldDescription.LinesUpdated" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+    table.fields.add( new LogTableField( ID.LINES_INPUT.id, true, false, "LINES_INPUT", BaseMessages.getString( PKG, "StepLogTable.FieldName.LinesInput" ),
+      BaseMessages.getString( PKG, "StepLogTable.FieldDescription.LinesInput" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+    table.fields.add( new LogTableField( ID.LINES_OUTPUT.id, true, false, "LINES_OUTPUT", BaseMessages.getString( PKG, "StepLogTable.FieldName.LinesOutput" ),
+      BaseMessages.getString( PKG, "StepLogTable.FieldDescription.LinesOutput" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+    table.fields.add( new LogTableField( ID.LINES_REJECTED.id, true, false, "LINES_REJECTED", BaseMessages.getString( PKG, "StepLogTable.FieldName.LinesRejected" ),
+      BaseMessages.getString( PKG, "StepLogTable.FieldDescription.LinesRejected" ), ValueMetaInterface.TYPE_INTEGER, 18 ) );
+    table.fields.add(
+      new LogTableField( ID.ERRORS.id, true, false, "ERRORS", BaseMessages.getString( PKG, "StepLogTable.FieldName.Errors" ), BaseMessages.getString( PKG, "StepLogTable.FieldDescription.Errors" ),
+        ValueMetaInterface.TYPE_INTEGER, 18 ) );
+    table.fields.add( new LogTableField( ID.LOG_FIELD.id, false, false, "LOG_FIELD", BaseMessages.getString( PKG, "StepLogTable.FieldName.LogField" ),
+      BaseMessages.getString( PKG, "StepLogTable.FieldDescription.LogField" ), ValueMetaInterface.TYPE_STRING, DatabaseMeta.CLOB_LENGTH ) );
 
     table.findField( ID.TRANSNAME.id ).setNameField( true );
     table.findField( ID.LOG_DATE.id ).setLogDateField( true );
@@ -154,8 +167,7 @@ public class StepLogTable extends BaseLogTable implements Cloneable, LogTableInt
   /**
    * This method calculates all the values that are required
    *
-   * @param status
-   *          the log status to use
+   * @param status  the log status to use
    * @param subject
    * @param parent
    */

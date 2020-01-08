@@ -56,18 +56,18 @@ public class DenormaliserTargetField {
   public static final int TYPE_AGGR_CONCAT_COMMA = 6;
 
   public static final String[] typeAggrDesc = /* WARNING: DO NOT TRANSLATE THIS. WE ARE SERIOUS, DON'T TRANSLATE! */
-  { "-", "SUM", "AVERAGE", "MIN", "MAX", "COUNT_ALL", "CONCAT_COMMA"
-  };
+    { "-", "SUM", "AVERAGE", "MIN", "MAX", "COUNT_ALL", "CONCAT_COMMA"
+    };
 
   public static final String[] typeAggrLongDesc =
-  {
-    "-", BaseMessages.getString( PKG, "DenormaliserTargetField.TypeAggrLongDesc.Sum" ),
-    BaseMessages.getString( PKG, "DenormaliserTargetField.TypeAggrLongDesc.Average" ),
-    BaseMessages.getString( PKG, "DenormaliserTargetField.TypeAggrLongDesc.Min" ),
-    BaseMessages.getString( PKG, "DenormaliserTargetField.TypeAggrLongDesc.Max" ),
-    BaseMessages.getString( PKG, "DenormaliserTargetField.TypeAggrLongDesc.CountAll" ),
-    BaseMessages.getString( PKG, "DenormaliserTargetField.TypeAggrLongDesc.ConcatComma" )
-  };
+    {
+      "-", BaseMessages.getString( PKG, "DenormaliserTargetField.TypeAggrLongDesc.Sum" ),
+      BaseMessages.getString( PKG, "DenormaliserTargetField.TypeAggrLongDesc.Average" ),
+      BaseMessages.getString( PKG, "DenormaliserTargetField.TypeAggrLongDesc.Min" ),
+      BaseMessages.getString( PKG, "DenormaliserTargetField.TypeAggrLongDesc.Max" ),
+      BaseMessages.getString( PKG, "DenormaliserTargetField.TypeAggrLongDesc.CountAll" ),
+      BaseMessages.getString( PKG, "DenormaliserTargetField.TypeAggrLongDesc.ConcatComma" )
+    };
 
   /**
    * @return Returns the fieldName.
@@ -77,8 +77,7 @@ public class DenormaliserTargetField {
   }
 
   /**
-   * @param fieldName
-   *          The fieldName to set.
+   * @param fieldName The fieldName to set.
    */
   public void setFieldName( String fieldName ) {
     this.fieldName = fieldName;
@@ -92,8 +91,7 @@ public class DenormaliserTargetField {
   }
 
   /**
-   * @param targetFormat
-   *          The targetFormat to set.
+   * @param targetFormat The targetFormat to set.
    */
   public void setTargetFormat( String targetFormat ) {
     this.targetFormat = targetFormat;
@@ -113,8 +111,7 @@ public class DenormaliserTargetField {
   }
 
   /**
-   * @param keyValue
-   *          The keyValue to set.
+   * @param keyValue The keyValue to set.
    */
   public void setKeyValue( String keyValue ) {
     this.keyValue = keyValue;
@@ -128,8 +125,7 @@ public class DenormaliserTargetField {
   }
 
   /**
-   * @param targetCurrencySymbol
-   *          The targetCurrencySymbol to set.
+   * @param targetCurrencySymbol The targetCurrencySymbol to set.
    */
   public void setTargetCurrencySymbol( String targetCurrencySymbol ) {
     this.targetCurrencySymbol = targetCurrencySymbol;
@@ -143,8 +139,7 @@ public class DenormaliserTargetField {
   }
 
   /**
-   * @param targetDecimalSymbol
-   *          The targetDecimalSymbol to set.
+   * @param targetDecimalSymbol The targetDecimalSymbol to set.
    */
   public void setTargetDecimalSymbol( String targetDecimalSymbol ) {
     this.targetDecimalSymbol = targetDecimalSymbol;
@@ -158,8 +153,7 @@ public class DenormaliserTargetField {
   }
 
   /**
-   * @param targetGroupingSymbol
-   *          The targetGroupingSymbol to set.
+   * @param targetGroupingSymbol The targetGroupingSymbol to set.
    */
   public void setTargetGroupingSymbol( String targetGroupingSymbol ) {
     this.targetGroupingSymbol = targetGroupingSymbol;
@@ -173,8 +167,7 @@ public class DenormaliserTargetField {
   }
 
   /**
-   * @param targetLength
-   *          The targetLength to set.
+   * @param targetLength The targetLength to set.
    */
   public void setTargetLength( int targetLength ) {
     this.targetLength = targetLength;
@@ -188,8 +181,7 @@ public class DenormaliserTargetField {
   }
 
   /**
-   * @param targetName
-   *          The targetName to set.
+   * @param targetName The targetName to set.
    */
   public void setTargetName( String targetName ) {
     this.targetName = targetName;
@@ -203,8 +195,7 @@ public class DenormaliserTargetField {
   }
 
   /**
-   * @param targetNullString
-   *          The targetNullString to set.
+   * @param targetNullString The targetNullString to set.
    */
   public void setTargetNullString( String targetNullString ) {
     this.targetNullString = targetNullString;
@@ -218,8 +209,7 @@ public class DenormaliserTargetField {
   }
 
   /**
-   * @param targetPrecision
-   *          The targetPrecision to set.
+   * @param targetPrecision The targetPrecision to set.
    */
   public void setTargetPrecision( int targetPrecision ) {
     this.targetPrecision = targetPrecision;
@@ -233,8 +223,7 @@ public class DenormaliserTargetField {
   }
 
   /**
-   * @param targetType
-   *          The targetType to set.
+   * @param targetType The targetType to set.
    */
   public void setTargetType( int targetType ) {
     this.targetType = targetType;
@@ -250,8 +239,7 @@ public class DenormaliserTargetField {
   /**
    * Set the target type
    *
-   * @param typeDesc
-   *          the target value type description
+   * @param typeDesc the target value type description
    */
   public void setTargetType( String typeDesc ) {
     targetType = ValueMetaFactory.getIdForValueMeta( typeDesc );
@@ -265,8 +253,7 @@ public class DenormaliserTargetField {
   }
 
   /**
-   * @param targetAggregationType
-   *          Specify the The aggregation type: when a key-value collision occurs, what it the aggregation to use.
+   * @param targetAggregationType Specify the The aggregation type: when a key-value collision occurs, what it the aggregation to use.
    */
   public void setTargetAggregationType( int targetAggregationType ) {
     this.targetAggregationType = targetAggregationType;
@@ -274,12 +261,12 @@ public class DenormaliserTargetField {
 
   public static final int getAggregationType( String desc ) {
     for ( int i = 0; i < typeAggrDesc.length; i++ ) {
-      if ( typeAggrDesc[i].equalsIgnoreCase( desc ) ) {
+      if ( typeAggrDesc[ i ].equalsIgnoreCase( desc ) ) {
         return i;
       }
     }
     for ( int i = 0; i < typeAggrLongDesc.length; i++ ) {
-      if ( typeAggrLongDesc[i].equalsIgnoreCase( desc ) ) {
+      if ( typeAggrLongDesc[ i ].equalsIgnoreCase( desc ) ) {
         return i;
       }
     }
@@ -290,14 +277,14 @@ public class DenormaliserTargetField {
     if ( i < 0 || i >= typeAggrDesc.length ) {
       return null;
     }
-    return typeAggrDesc[i];
+    return typeAggrDesc[ i ];
   }
 
   public static final String getAggregationTypeDescLong( int i ) {
     if ( i < 0 || i >= typeAggrLongDesc.length ) {
       return null;
     }
-    return typeAggrLongDesc[i];
+    return typeAggrLongDesc[ i ];
   }
 
   public void setTargetAggregationType( String aggregationType ) {

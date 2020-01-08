@@ -22,11 +22,11 @@
 
 package org.apache.hop.trans.steps.fileinput.text;
 
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.file.BaseFileField;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 public class TextFileInputContentParsingTest extends BaseTextParsingTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -141,7 +141,7 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
     initByFile( "fixed.csv" );
 
     setFields( new BaseFileField( "f1", 0, 7 ), new BaseFileField( "f2", 8, 7 ), new BaseFileField( "f3",
-        16, 7 ) );
+      16, 7 ) );
 
     process();
 
@@ -159,10 +159,10 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
     initByFile( "test-fixed-length-bytes.txt" );
 
     setFields(
-        new BaseFileField( "f1", 0, 5 ),
-        new BaseFileField( "f2", 5, 3 ),
-        new BaseFileField( "f3", 8, 1 ),
-        new BaseFileField( "f4", 9, 3 ) );
+      new BaseFileField( "f1", 0, 5 ),
+      new BaseFileField( "f2", 5, 3 ),
+      new BaseFileField( "f3", 8, 1 ),
+      new BaseFileField( "f4", 9, 3 ) );
 
     process();
 
@@ -179,10 +179,10 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
     initByFile( "test-fixed-length-characters.txt" );
 
     setFields(
-        new BaseFileField( "f1", 0, 3 ),
-        new BaseFileField( "f2", 3, 2 ),
-        new BaseFileField( "f3", 5, 2 ),
-        new BaseFileField( "f4", 7, 4 ) );
+      new BaseFileField( "f1", 0, 3 ),
+      new BaseFileField( "f2", 3, 2 ),
+      new BaseFileField( "f3", 5, 2 ),
+      new BaseFileField( "f4", 7, 4 ) );
 
     process();
     check( new Object[][] { { "ABC", "DE", "FG", "HIJK" }, { "LmN", "oP", "qR", "sTuV" } } );
@@ -213,8 +213,8 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
     Variables vars = new Variables();
     vars.setVariable( "VAR_TEST", "second" );
     data.filterProcessor =
-        new TextFileFilterProcessor( new TextFileFilter[] { new TextFileFilter( 0, "${VAR_TEST}", false, false ) },
-            vars );
+      new TextFileFilterProcessor( new TextFileFilter[] { new TextFileFilter( 0, "${VAR_TEST}", false, false ) },
+        vars );
     setFields( new BaseFileField( "f1", -1, -1 ), new BaseFileField( "f2", -1, -1 ),
       new BaseFileField( "f2", -1, -1 ) );
 

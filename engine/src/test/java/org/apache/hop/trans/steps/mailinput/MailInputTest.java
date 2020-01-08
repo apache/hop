@@ -22,17 +22,17 @@
 
 package org.apache.hop.trans.steps.mailinput;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.job.entries.getpop.MailConnectionMeta;
+import org.apache.hop.trans.steps.mock.StepMockHelper;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.job.entries.getpop.MailConnectionMeta;
-import org.apache.hop.trans.steps.mock.StepMockHelper;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MailInputTest {
 
@@ -41,9 +41,9 @@ public class MailInputTest {
   @Before
   public void setUp() throws Exception {
     mockHelper =
-        new StepMockHelper<MailInputMeta, MailInputData>( "MailInput", MailInputMeta.class, MailInputData.class );
+      new StepMockHelper<MailInputMeta, MailInputData>( "MailInput", MailInputMeta.class, MailInputData.class );
     when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        mockHelper.logChannelInterface );
+      mockHelper.logChannelInterface );
     when( mockHelper.trans.isRunning() ).thenReturn( true );
   }
 
@@ -58,7 +58,7 @@ public class MailInputTest {
   @Test
   public void testInitSetGetFirstForIMAP() {
     MailInput step =
-        new MailInput( mockHelper.stepMeta, mockHelper.stepDataInterface, 0, mockHelper.transMeta, mockHelper.trans );
+      new MailInput( mockHelper.stepMeta, mockHelper.stepDataInterface, 0, mockHelper.transMeta, mockHelper.trans );
     MailInputData data = new MailInputData();
     MailInputMeta meta = mock( MailInputMeta.class );
     when( meta.isDynamicFolder() ).thenReturn( false );
@@ -77,7 +77,7 @@ public class MailInputTest {
   @Test
   public void testInitSetGetFirstForPOP3() {
     MailInput step =
-        new MailInput( mockHelper.stepMeta, mockHelper.stepDataInterface, 0, mockHelper.transMeta, mockHelper.trans );
+      new MailInput( mockHelper.stepMeta, mockHelper.stepDataInterface, 0, mockHelper.transMeta, mockHelper.trans );
     MailInputData data = new MailInputData();
     MailInputMeta meta = mock( MailInputMeta.class );
     when( meta.isDynamicFolder() ).thenReturn( false );
@@ -96,7 +96,7 @@ public class MailInputTest {
   @Test
   public void testInitSetGetFirstLimitOverride() {
     MailInput step =
-        new MailInput( mockHelper.stepMeta, mockHelper.stepDataInterface, 0, mockHelper.transMeta, mockHelper.trans );
+      new MailInput( mockHelper.stepMeta, mockHelper.stepDataInterface, 0, mockHelper.transMeta, mockHelper.trans );
     MailInputData data = new MailInputData();
     MailInputMeta meta = mock( MailInputMeta.class );
     when( meta.isDynamicFolder() ).thenReturn( false );
@@ -117,7 +117,7 @@ public class MailInputTest {
   @Test
   public void testInitSetGetFirstForMBOXIgnored() {
     MailInput step =
-        new MailInput( mockHelper.stepMeta, mockHelper.stepDataInterface, 0, mockHelper.transMeta, mockHelper.trans );
+      new MailInput( mockHelper.stepMeta, mockHelper.stepDataInterface, 0, mockHelper.transMeta, mockHelper.trans );
     MailInputData data = new MailInputData();
     MailInputMeta meta = mock( MailInputMeta.class );
     when( meta.isDynamicFolder() ).thenReturn( false );

@@ -22,29 +22,28 @@
 
 package org.apache.hop.trans.steps.ldapinput;
 
-import static junit.framework.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Hashtable;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.trans.steps.ldapinput.store.CustomSocketFactory;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.StartTlsRequest;
 import javax.naming.ldap.StartTlsResponse;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Hashtable;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.trans.steps.ldapinput.store.CustomSocketFactory;
+import static junit.framework.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class LdapTlsProtocolIT {
   private LogChannelInterface mockLogChannelInterface;
@@ -61,7 +60,7 @@ public class LdapTlsProtocolIT {
     public Hashtable<String, String> contextEnv = null;
 
     public TestableLdapTlsProtocol( LogChannelInterface log, VariableSpace variableSpace, LdapMeta meta,
-      Collection<String> binaryAttributes ) {
+                                    Collection<String> binaryAttributes ) {
       super( log, variableSpace, meta, binaryAttributes );
     }
 
@@ -73,7 +72,7 @@ public class LdapTlsProtocolIT {
 
     @Override
     protected void configureSocketFactory( boolean trustAllCertificates, String trustStorePath,
-      String trustStorePassword ) throws HopException {
+                                           String trustStorePassword ) throws HopException {
       CustomSocketFactory.configure();
     }
   }

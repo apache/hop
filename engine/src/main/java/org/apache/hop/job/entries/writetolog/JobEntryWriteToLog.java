@@ -22,29 +22,23 @@
 
 package org.apache.hop.job.entries.writetolog;
 
-import java.util.Date;
-import java.util.List;
-
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.Date;
 
 /**
  * Job entry type to output message to the job log.
@@ -97,10 +91,10 @@ public class JobEntryWriteToLog extends JobEntryBase implements Cloneable, JobEn
   }
 
   @Override
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       logmessage = XMLHandler.getTagValue( entrynode, "logmessage" );
       entryLogLevel = LogLevel.getLogLevelForCode( XMLHandler.getTagValue( entrynode, "loglevel" ) );
       logsubject = XMLHandler.getTagValue( entrynode, "logsubject" );
@@ -259,8 +253,7 @@ public class JobEntryWriteToLog extends JobEntryBase implements Cloneable, JobEn
    * Execute this job entry and return the result. In this case it means, just set the result boolean in the Result
    * class.
    *
-   * @param prev_result
-   *          The result of the previous execution
+   * @param prev_result The result of the previous execution
    * @return The Result of the execution.
    */
   @Override

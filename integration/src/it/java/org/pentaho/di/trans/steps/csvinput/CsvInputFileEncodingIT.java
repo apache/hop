@@ -22,12 +22,6 @@
 
 package org.apache.hop.trans.steps.csvinput;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -35,10 +29,16 @@ import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Regression test case for Jira PDI-10242: a csv input step does not recognize parameter in encoding
- *
+ * <p>
  * In the original problem this caused every other row to be skipped.
  *
  * @author Kanstantsin Karneliuk

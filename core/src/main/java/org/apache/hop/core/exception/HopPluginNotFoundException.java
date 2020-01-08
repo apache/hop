@@ -26,7 +26,6 @@ package org.apache.hop.core.exception;
  * This exception is thrown in case there is an error in the Hop plugin loader
  *
  * @author matt
- *
  */
 public class HopPluginNotFoundException extends HopPluginException {
 

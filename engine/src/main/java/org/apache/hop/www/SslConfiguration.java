@@ -27,11 +27,11 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.w3c.dom.Node;
 
 /**
  * @author Tatsiana_Kasiankova
- *
  */
 public class SslConfiguration {
   private static Class<?> PKG = SslConfiguration.class; // for i18n purposes, needed by Translator2!!
@@ -50,21 +50,25 @@ public class SslConfiguration {
 
   private static final String NULL = "null";
 
+  @MetaStoreAttribute
   private String keyStoreType = "JKS";
 
+  @MetaStoreAttribute
   private String keyStore;
 
+  @MetaStoreAttribute( password = true )
   private String keyStorePassword;
 
+  @MetaStoreAttribute( password = true )
   private String keyPassword;
 
   public SslConfiguration( Node sslConfigNode ) {
     super();
     setKeyStore( XMLHandler.getTagValue( sslConfigNode, XML_TAG_KEY_STORE ) );
     setKeyStorePassword( Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( sslConfigNode,
-        XML_TAG_KEY_STORE_PASSWORD ) ) );
+      XML_TAG_KEY_STORE_PASSWORD ) ) );
     setKeyPassword( Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( sslConfigNode,
-        XML_TAG_KEY_PASSWORD ) ) );
+      XML_TAG_KEY_PASSWORD ) ) );
     setKeyStoreType( XMLHandler.getTagValue( sslConfigNode, XML_TAG_KEY_STORE_TYPE ) );
   }
 
@@ -76,8 +80,7 @@ public class SslConfiguration {
   }
 
   /**
-   * @param keyStoreType
-   *          the keyStoreType to set
+   * @param keyStoreType the keyStoreType to set
    */
   public void setKeyStoreType( String keyStoreType ) {
     if ( keyStoreType != null ) {
@@ -93,14 +96,13 @@ public class SslConfiguration {
   }
 
   /**
-   * @param keyStorePath
-   *          the keyStorePath to set
+   * @param keyStore the keyStore to set
    */
   public void setKeyStore( String keyStore ) {
     Validate.notNull( keyStore, BaseMessages.getString( PKG, "WebServer.Error.IllegalSslParameter", XML_TAG_KEY_STORE,
-        NULL ) );
+      NULL ) );
     Validate.notEmpty( keyStore, BaseMessages.getString( PKG, "WebServer.Error.IllegalSslParameter", XML_TAG_KEY_STORE,
-        EMPTY ) );
+      EMPTY ) );
     this.keyStore = keyStore;
   }
 
@@ -112,14 +114,13 @@ public class SslConfiguration {
   }
 
   /**
-   * @param keyStorePassword
-   *          the keyStorePassword to set
+   * @param keyStorePassword the keyStorePassword to set
    */
   public void setKeyStorePassword( String keyStorePassword ) {
     Validate.notNull( keyStorePassword, BaseMessages.getString( PKG, "WebServer.Error.IllegalSslParameter",
-        XML_TAG_KEY_STORE_PASSWORD, NULL ) );
+      XML_TAG_KEY_STORE_PASSWORD, NULL ) );
     Validate.notEmpty( keyStorePassword, BaseMessages.getString( PKG, "WebServer.Error.IllegalSslParameter",
-        XML_TAG_KEY_STORE_PASSWORD, EMPTY ) );
+      XML_TAG_KEY_STORE_PASSWORD, EMPTY ) );
     this.keyStorePassword = keyStorePassword;
   }
 
@@ -131,8 +132,7 @@ public class SslConfiguration {
   }
 
   /**
-   * @param keyPassword
-   *          the keyPassword to set
+   * @param keyPassword the keyPassword to set
    */
   public void setKeyPassword( String keyPassword ) {
     this.keyPassword = keyPassword;

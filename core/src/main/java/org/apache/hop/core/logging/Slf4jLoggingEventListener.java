@@ -22,20 +22,20 @@
 
 package org.apache.hop.core.logging;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.function.Function;
-
 import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.function.Function;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.hop.core.logging.LoggingObjectType.DATABASE;
-import static org.apache.hop.core.logging.LoggingObjectType.TRANS;
-import static org.apache.hop.core.logging.LoggingObjectType.STEP;
 import static org.apache.hop.core.logging.LoggingObjectType.JOB;
 import static org.apache.hop.core.logging.LoggingObjectType.JOBENTRY;
+import static org.apache.hop.core.logging.LoggingObjectType.STEP;
+import static org.apache.hop.core.logging.LoggingObjectType.TRANS;
 
 public class Slf4jLoggingEventListener implements HopLoggingEventListener {
 
@@ -66,7 +66,7 @@ public class Slf4jLoggingEventListener implements HopLoggingEventListener {
         // this can happen if logObject has been discarded while log events are still in flight.
         logToLogger( diLogger, message.getLevel(),
           message.getSubject() + " " + message.getMessage() );
-      } else if ( loggingObject.getObjectType() == TRANS || loggingObject.getObjectType() == STEP || loggingObject.getObjectType() == DATABASE  ) {
+      } else if ( loggingObject.getObjectType() == TRANS || loggingObject.getObjectType() == STEP || loggingObject.getObjectType() == DATABASE ) {
         logToLogger( transLogger, message.getLevel(), loggingObject, message );
       } else if ( loggingObject.getObjectType() == JOB || loggingObject.getObjectType() == JOBENTRY ) {
         logToLogger( jobLogger, message.getLevel(), loggingObject, message );

@@ -22,10 +22,10 @@
 
 package org.apache.hop.trans.step;
 
-import org.junit.Test;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.trans.step.errorhandling.Stream;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
+import org.junit.Test;
 
 import java.util.List;
 
@@ -50,7 +50,7 @@ public class BaseStepMetaCloningTest {
     meta.setChanged( true );
     meta.databases = new Database[] { db1, db2 };
     StepIOMetaInterface ioMeta = new StepIOMeta( true, false, false, false, false, false );
-    meta.setStepIOMeta( ioMeta ); 
+    meta.setStepIOMeta( ioMeta );
     meta.parentStepMeta = stepMeta;
 
     BaseStepMeta clone = (BaseStepMeta) meta.clone();

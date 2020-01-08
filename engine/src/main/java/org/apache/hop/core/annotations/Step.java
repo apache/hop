@@ -31,12 +31,11 @@ import java.lang.annotation.Target;
 /**
  * An alternate way of defining steps. Classes annotated with "Step" are automatically recognized and registered as a
  * step.
- *
+ * <p>
  * Important: The XML definitions alienate annotated steps and the two methods of definition are therefore mutually
  * exclusive.
  *
  * @author Alex Silva
- *
  */
 @Documented
 @Retention( RetentionPolicy.RUNTIME )
@@ -45,7 +44,7 @@ public @interface Step {
 
   /**
    * @return The ID of the step. You can specify more than one ID in a comma separated format: id1,id2,id3 for
-   *         deprecation purposes.
+   * deprecation purposes.
    */
   String id();
 

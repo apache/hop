@@ -22,14 +22,37 @@
 
 package org.apache.hop.ui.hopui;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.hop.cluster.SlaveServer;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.EngineMetaInterface;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.step.StepStatus;
+import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TreeMemory;
+import org.apache.hop.ui.core.widget.TreeUtil;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.www.SlaveServerJobStatus;
+import org.apache.hop.www.SlaveServerStatus;
+import org.apache.hop.www.SlaveServerTransStatus;
+import org.apache.hop.www.SniffStepServlet;
+import org.apache.hop.www.WebResult;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.DisposeEvent;
@@ -52,45 +75,21 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
-import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.EngineMetaInterface;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.step.StepStatus;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TreeMemory;
-import org.apache.hop.ui.core.widget.TreeUtil;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.www.SlaveServerJobStatus;
-import org.apache.hop.www.SlaveServerStatus;
-import org.apache.hop.www.SlaveServerTransStatus;
-import org.apache.hop.www.SniffStepServlet;
-import org.apache.hop.www.WebResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * HopUiSlave handles the display of the slave server information in a Spoon tab.
  *
- * @see HopUi
  * @author Matt
+ * @see HopUi
  * @since 12 nov 2006
  */
 public class HopUiSlave extends Composite implements TabItemInterface {
@@ -141,10 +140,10 @@ public class HopUiSlave extends Composite implements TabItemInterface {
       path = ConstUI.getTreeStrings( treeIt );
       this.length = path.length;
       if ( path.length > 0 ) {
-        itemType = path[0];
+        itemType = path[ 0 ];
       }
       if ( path.length > 1 ) {
-        name = path[1];
+        name = path[ 1 ];
       }
       if ( path.length == 3 ) {
         treeIt = treeIt.getParentItem();
@@ -292,19 +291,19 @@ public class HopUiSlave extends Composite implements TabItemInterface {
       new ColumnInfo( BaseMessages.getString( PKG, "SpoonSlave.Column.CarteObjectId" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
       new ColumnInfo( BaseMessages.getString( PKG, "SpoonSlave.Column.LogDate" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ), };
 
-    colinf[1].setAllignement( SWT.RIGHT );
-    colinf[2].setAllignement( SWT.RIGHT );
-    colinf[3].setAllignement( SWT.RIGHT );
-    colinf[4].setAllignement( SWT.RIGHT );
-    colinf[5].setAllignement( SWT.RIGHT );
-    colinf[6].setAllignement( SWT.RIGHT );
-    colinf[7].setAllignement( SWT.RIGHT );
-    colinf[8].setAllignement( SWT.RIGHT );
-    colinf[9].setAllignement( SWT.RIGHT );
-    colinf[10].setAllignement( SWT.RIGHT );
-    colinf[11].setAllignement( SWT.RIGHT );
-    colinf[12].setAllignement( SWT.RIGHT );
-    colinf[13].setAllignement( SWT.RIGHT );
+    colinf[ 1 ].setAllignement( SWT.RIGHT );
+    colinf[ 2 ].setAllignement( SWT.RIGHT );
+    colinf[ 3 ].setAllignement( SWT.RIGHT );
+    colinf[ 4 ].setAllignement( SWT.RIGHT );
+    colinf[ 5 ].setAllignement( SWT.RIGHT );
+    colinf[ 6 ].setAllignement( SWT.RIGHT );
+    colinf[ 7 ].setAllignement( SWT.RIGHT );
+    colinf[ 8 ].setAllignement( SWT.RIGHT );
+    colinf[ 9 ].setAllignement( SWT.RIGHT );
+    colinf[ 10 ].setAllignement( SWT.RIGHT );
+    colinf[ 11 ].setAllignement( SWT.RIGHT );
+    colinf[ 12 ].setAllignement( SWT.RIGHT );
+    colinf[ 13 ].setAllignement( SWT.RIGHT );
 
     wTree = new Tree( sash, SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL );
     wTree.setHeaderVisible( true );
@@ -414,7 +413,7 @@ public class HopUiSlave extends Composite implements TabItemInterface {
     } );
 
     BaseStepDialog.positionBottomButtons( this,
-        new Button[] { wRefresh, wSniff, wStart, wPause, wStop, wRemove, wError }, Const.MARGIN, null );
+      new Button[] { wRefresh, wSniff, wStart, wPause, wStop, wRemove, wError }, Const.MARGIN, null );
 
     // Put tree on top
     FormData fdTree = new FormData();
@@ -462,7 +461,7 @@ public class HopUiSlave extends Composite implements TabItemInterface {
       try {
         if ( log.isDetailed() ) {
           log.logDetailed( "Getting transformation status for [{0}] on server [{1}]", transStatus.getTransName(),
-              HopUiSlave.this.slaveServer );
+            HopUiSlave.this.slaveServer );
         }
 
         SlaveServerTransStatus ts =
@@ -484,7 +483,7 @@ public class HopUiSlave extends Composite implements TabItemInterface {
           StringBuilder trimmedLog = new StringBuilder();
           // Keep only the text from offset to the end of the log
           while ( offset != lines.length ) {
-            trimmedLog.append( lines[offset++] ).append( '\n' );
+            trimmedLog.append( lines[ offset++ ] ).append( '\n' );
           }
           logging = trimmedLog.toString();
         }
@@ -523,7 +522,7 @@ public class HopUiSlave extends Composite implements TabItemInterface {
           StringBuilder trimmedLog = new StringBuilder();
           // Keep only the text from offset to the end of the log
           while ( offset != lines.length ) {
-            trimmedLog.append( lines[offset++] ).append( '\n' );
+            trimmedLog.append( lines[ offset++ ] ).append( '\n' );
           }
           logging = trimmedLog.toString();
         }
@@ -672,14 +671,14 @@ public class HopUiSlave extends Composite implements TabItemInterface {
               EnterTextDialog dialog =
                 new EnterTextDialog(
                   shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorStartingTrans.Title" ), BaseMessages
-                    .getString( PKG, "SpoonSlave.ErrorStartingTrans.Message" ), webResult.getMessage() );
+                  .getString( PKG, "SpoonSlave.ErrorStartingTrans.Message" ), webResult.getMessage() );
               dialog.setReadOnly();
               dialog.open();
             }
           } catch ( Exception e ) {
             new ErrorDialog(
               shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorStartingTrans.Title" ), BaseMessages
-                .getString( PKG, "SpoonSlave.ErrorStartingTrans.Message" ), e );
+              .getString( PKG, "SpoonSlave.ErrorStartingTrans.Message" ), e );
           }
         }
       }
@@ -694,14 +693,14 @@ public class HopUiSlave extends Composite implements TabItemInterface {
               EnterTextDialog dialog =
                 new EnterTextDialog(
                   shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorStartingJob.Title" ), BaseMessages
-                    .getString( PKG, "SpoonSlave.ErrorStartingJob.Message" ), webResult.getMessage() );
+                  .getString( PKG, "SpoonSlave.ErrorStartingJob.Message" ), webResult.getMessage() );
               dialog.setReadOnly();
               dialog.open();
             }
           } catch ( Exception e ) {
             new ErrorDialog(
               shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorStartingJob.Title" ), BaseMessages.getString(
-                PKG, "SpoonSlave.ErrorStartingJob.Message" ), e );
+              PKG, "SpoonSlave.ErrorStartingJob.Message" ), e );
           }
         }
       }
@@ -742,14 +741,14 @@ public class HopUiSlave extends Composite implements TabItemInterface {
               EnterTextDialog dialog =
                 new EnterTextDialog(
                   shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorStoppingTrans.Title" ), BaseMessages
-                    .getString( PKG, "SpoonSlave.ErrorStoppingTrans.Message" ), webResult.getMessage() );
+                  .getString( PKG, "SpoonSlave.ErrorStoppingTrans.Message" ), webResult.getMessage() );
               dialog.setReadOnly();
               dialog.open();
             }
           } catch ( Exception e ) {
             new ErrorDialog(
               shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorStoppingTrans.Title" ), BaseMessages
-                .getString( PKG, "SpoonSlave.ErrorStoppingTrans.Message" ), e );
+              .getString( PKG, "SpoonSlave.ErrorStoppingTrans.Message" ), e );
           }
         }
       }
@@ -764,14 +763,14 @@ public class HopUiSlave extends Composite implements TabItemInterface {
               EnterTextDialog dialog =
                 new EnterTextDialog(
                   shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorStoppingJob.Title" ), BaseMessages
-                    .getString( PKG, "SpoonSlave.ErrorStoppingJob.Message" ), webResult.getMessage() );
+                  .getString( PKG, "SpoonSlave.ErrorStoppingJob.Message" ), webResult.getMessage() );
               dialog.setReadOnly();
               dialog.open();
             }
           } catch ( Exception e ) {
             new ErrorDialog(
               shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorStoppingJob.Title" ), BaseMessages.getString(
-                PKG, "SpoonSlave.ErrorStoppingJob.Message" ), e );
+              PKG, "SpoonSlave.ErrorStoppingJob.Message" ), e );
           }
         }
       }
@@ -799,14 +798,14 @@ public class HopUiSlave extends Composite implements TabItemInterface {
               EnterTextDialog dialog =
                 new EnterTextDialog(
                   shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorRemovingTrans.Title" ), BaseMessages
-                    .getString( PKG, "SpoonSlave.ErrorRemovingTrans.Message" ), webResult.getMessage() );
+                  .getString( PKG, "SpoonSlave.ErrorRemovingTrans.Message" ), webResult.getMessage() );
               dialog.setReadOnly();
               dialog.open();
             }
           } catch ( Exception e ) {
             new ErrorDialog(
               shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorRemovingTrans.Title" ), BaseMessages
-                .getString( PKG, "SpoonSlave.ErrorRemovingTrans.Message" ), e );
+              .getString( PKG, "SpoonSlave.ErrorRemovingTrans.Message" ), e );
           }
         }
       }
@@ -826,14 +825,14 @@ public class HopUiSlave extends Composite implements TabItemInterface {
               EnterTextDialog dialog =
                 new EnterTextDialog(
                   shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorRemovingJob.Title" ), BaseMessages
-                    .getString( PKG, "SpoonSlave.ErrorRemovingJob.Message" ), webResult.getMessage() );
+                  .getString( PKG, "SpoonSlave.ErrorRemovingJob.Message" ), webResult.getMessage() );
               dialog.setReadOnly();
               dialog.open();
             }
           } catch ( Exception e ) {
             new ErrorDialog(
               shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorRemovingJob.Title" ), BaseMessages.getString(
-                PKG, "SpoonSlave.ErrorRemovingJob.Message" ), e );
+              PKG, "SpoonSlave.ErrorRemovingJob.Message" ), e );
           }
         }
       }
@@ -958,14 +957,14 @@ public class HopUiSlave extends Composite implements TabItemInterface {
     }
 
     if ( err.size() > 0 ) {
-      String[] err_lines = new String[err.size()];
+      String[] err_lines = new String[ err.size() ];
       for ( i = 0; i < err_lines.length; i++ ) {
-        err_lines[i] = err.get( i );
+        err_lines[ i ] = err.get( i );
       }
 
       EnterSelectionDialog esd = new EnterSelectionDialog( shell, err_lines,
-              BaseMessages.getString( PKG, "TransLog.Dialog.ErrorLines.Title" ), BaseMessages.getString( PKG,
-                  "TransLog.Dialog.ErrorLines.Message" ) );
+        BaseMessages.getString( PKG, "TransLog.Dialog.ErrorLines.Title" ), BaseMessages.getString( PKG,
+        "TransLog.Dialog.ErrorLines.Message" ) );
       esd.open();
       /*
        * TODO: we have multiple transformation we can go to: which one should we pick? if (line != null) { for (i = 0; i
@@ -979,15 +978,15 @@ public class HopUiSlave extends Composite implements TabItemInterface {
   private boolean lineHasErrors( String line ) {
     line = line.toUpperCase();
     return line.contains( BaseMessages.getString( PKG, "TransLog.System.ERROR2" ) )
-        || line.contains( BaseMessages.getString( PKG, "TransLog.System.EXCEPTION2" ) ) || line.contains( "ERROR" ) || // i18n
-                                                                                                                       // for
-                                                                                                                       // compatibilty
-                                                                                                                       // to
-                                                                                                                       // non
-                                                                                                                       // translated
-                                                                                                                       // steps
-                                                                                                                       // a.s.o.
-        line.contains( "EXCEPTION" );
+      || line.contains( BaseMessages.getString( PKG, "TransLog.System.EXCEPTION2" ) ) || line.contains( "ERROR" ) || // i18n
+      // for
+      // compatibilty
+      // to
+      // non
+      // translated
+      // steps
+      // a.s.o.
+      line.contains( "EXCEPTION" );
   }
 
   public String toString() {
@@ -1112,7 +1111,7 @@ public class HopUiSlave extends Composite implements TabItemInterface {
   protected void sniff() {
     TreeItem[] ti = wTree.getSelection();
     if ( ti.length == 1 ) {
-      TreeItem treeItem = ti[0];
+      TreeItem treeItem = ti[ 0 ];
       String[] path = ConstUI.getTreeStrings( treeItem );
 
       // Make sure we're positioned on a step
@@ -1120,8 +1119,8 @@ public class HopUiSlave extends Composite implements TabItemInterface {
         return;
       }
 
-      String name = path[1];
-      String step = path[2];
+      String name = path[ 1 ];
+      String step = path[ 2 ];
       String copy = treeItem.getText( 1 );
 
       EnterNumberDialog numberDialog = new EnterNumberDialog( shell, PropsUI.getInstance().getDefaultPreviewSize(),

@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.terafast;
 
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
@@ -40,16 +38,17 @@ import org.apache.hop.core.util.PluginMessages;
 import org.apache.hop.core.util.StringListPluginProperty;
 import org.apache.hop.core.util.StringPluginProperty;
 import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.metastore.api.IMetaStore;
+
+import java.util.List;
 
 /**
  * @author <a href="mailto:michael.gugerell@aschauer-edv.at">Michael Gugerell(asc145)</a>
- *
  */
 public class TeraFastMeta extends AbstractStepMeta {
 
@@ -106,7 +105,9 @@ public class TeraFastMeta extends AbstractStepMeta {
 
   private static final String VARIABLE_SUBSTITUTION = "variable_substitution";
 
-  /** available options. **/
+  /**
+   * available options.
+   **/
   private StringPluginProperty fastloadPath;
 
   private StringPluginProperty controlFile;
@@ -132,8 +133,8 @@ public class TeraFastMeta extends AbstractStepMeta {
   private StringListPluginProperty streamFieldList;
 
   /**
-     *
-     */
+   *
+   */
   public TeraFastMeta() {
     super();
     this.fastloadPath = this.getPropertyFactory().createString( FASTLOADPATH );
@@ -154,12 +155,12 @@ public class TeraFastMeta extends AbstractStepMeta {
    * {@inheritDoc}
    *
    * @see org.apache.hop.trans.step.StepMetaInterface#check(java.util.List, org.apache.hop.trans.TransMeta,
-   *      org.apache.hop.trans.step.StepMeta, org.apache.hop.core.row.RowMetaInterface, java.lang.String[],
-   *      java.lang.String[], org.apache.hop.core.row.RowMetaInterface)
+   * org.apache.hop.trans.step.StepMeta, org.apache.hop.core.row.RowMetaInterface, java.lang.String[],
+   * java.lang.String[], org.apache.hop.core.row.RowMetaInterface)
    */
   public void check( final List<CheckResultInterface> remarks, final TransMeta transmeta, final StepMeta stepMeta,
-    final RowMetaInterface prev, final String[] input, final String[] output, final RowMetaInterface info,
-    VariableSpace space, IMetaStore metaStore ) {
+                     final RowMetaInterface prev, final String[] input, final String[] output, final RowMetaInterface info,
+                     VariableSpace space, IMetaStore metaStore ) {
     CheckResult checkResult;
     try {
       RowMetaInterface tableFields = getRequiredFields( transmeta );
@@ -228,8 +229,7 @@ public class TeraFastMeta extends AbstractStepMeta {
 
   /**
    * @return the database.
-   * @throws HopException
-   *           if an error occurs.
+   * @throws HopException if an error occurs.
    */
   public Database connectToDatabase() throws HopException {
     if ( this.getDbMeta() != null ) {
@@ -244,10 +244,10 @@ public class TeraFastMeta extends AbstractStepMeta {
    * {@inheritDoc}
    *
    * @see org.apache.hop.trans.step.StepMetaInterface#getStep(org.apache.hop.trans.step.StepMeta,
-   *      org.apache.hop.trans.step.StepDataInterface, int, org.apache.hop.trans.TransMeta, org.apache.hop.trans.Trans)
+   * org.apache.hop.trans.step.StepDataInterface, int, org.apache.hop.trans.TransMeta, org.apache.hop.trans.Trans)
    */
   public StepInterface getStep( final StepMeta stepMeta, final StepDataInterface stepDataInterface, final int cnr,
-    final TransMeta transMeta, final Trans disp ) {
+                                final TransMeta transMeta, final Trans disp ) {
     return new TeraFast( stepMeta, stepDataInterface, cnr, transMeta, disp );
   }
 
@@ -281,12 +281,12 @@ public class TeraFastMeta extends AbstractStepMeta {
    * {@inheritDoc}
    *
    * @see org.apache.hop.trans.step.BaseStepMeta#getFields(org.apache.hop.core.row.RowMetaInterface, java.lang.String,
-   *      org.apache.hop.core.row.RowMetaInterface[], org.apache.hop.trans.step.StepMeta,
-   *      org.apache.hop.core.variables.VariableSpace)
+   * org.apache.hop.core.row.RowMetaInterface[], org.apache.hop.trans.step.StepMeta,
+   * org.apache.hop.core.variables.VariableSpace)
    */
   @Override
   public void getFields( final RowMetaInterface inputRowMeta, final String name, final RowMetaInterface[] info,
-    final StepMeta nextStep, final VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         final StepMeta nextStep, final VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Default: nothing changes to rowMeta
   }
 
@@ -332,8 +332,7 @@ public class TeraFastMeta extends AbstractStepMeta {
   }
 
   /**
-   * @param fastloadPath
-   *          the fastloadPath to set
+   * @param fastloadPath the fastloadPath to set
    */
   public void setFastloadPath( final StringPluginProperty fastloadPath ) {
     this.fastloadPath = fastloadPath;
@@ -347,8 +346,7 @@ public class TeraFastMeta extends AbstractStepMeta {
   }
 
   /**
-   * @param controlFile
-   *          the controlFile to set
+   * @param controlFile the controlFile to set
    */
   public void setControlFile( final StringPluginProperty controlFile ) {
     this.controlFile = controlFile;
@@ -362,8 +360,7 @@ public class TeraFastMeta extends AbstractStepMeta {
   }
 
   /**
-   * @param dataFile
-   *          the dataFile to set
+   * @param dataFile the dataFile to set
    */
   public void setDataFile( final StringPluginProperty dataFile ) {
     this.dataFile = dataFile;
@@ -377,8 +374,7 @@ public class TeraFastMeta extends AbstractStepMeta {
   }
 
   /**
-   * @param logFile
-   *          the logFile to set
+   * @param logFile the logFile to set
    */
   public void setLogFile( final StringPluginProperty logFile ) {
     this.logFile = logFile;
@@ -392,8 +388,7 @@ public class TeraFastMeta extends AbstractStepMeta {
   }
 
   /**
-   * @param sessions
-   *          the sessions to set
+   * @param sessions the sessions to set
    */
   public void setSessions( final IntegerPluginProperty sessions ) {
     this.sessions = sessions;
@@ -407,8 +402,7 @@ public class TeraFastMeta extends AbstractStepMeta {
   }
 
   /**
-   * @param errorLimit
-   *          the errorLimit to set
+   * @param errorLimit the errorLimit to set
    */
   public void setErrorLimit( final IntegerPluginProperty errorLimit ) {
     this.errorLimit = errorLimit;
@@ -422,8 +416,7 @@ public class TeraFastMeta extends AbstractStepMeta {
   }
 
   /**
-   * @param useControlFile
-   *          the useControlFile to set
+   * @param useControlFile the useControlFile to set
    */
   public void setUseControlFile( final BooleanPluginProperty useControlFile ) {
     this.useControlFile = useControlFile;
@@ -437,8 +430,7 @@ public class TeraFastMeta extends AbstractStepMeta {
   }
 
   /**
-   * @param targetTable
-   *          the targetTable to set
+   * @param targetTable the targetTable to set
    */
   public void setTargetTable( final StringPluginProperty targetTable ) {
     this.targetTable = targetTable;
@@ -452,8 +444,7 @@ public class TeraFastMeta extends AbstractStepMeta {
   }
 
   /**
-   * @param truncateTable
-   *          the truncateTable to set
+   * @param truncateTable the truncateTable to set
    */
   public void setTruncateTable( final BooleanPluginProperty truncateTable ) {
     this.truncateTable = truncateTable;
@@ -467,8 +458,7 @@ public class TeraFastMeta extends AbstractStepMeta {
   }
 
   /**
-   * @param tableFieldList
-   *          the tableFieldList to set
+   * @param tableFieldList the tableFieldList to set
    */
   public void setTableFieldList( final StringListPluginProperty tableFieldList ) {
     this.tableFieldList = tableFieldList;
@@ -482,8 +472,7 @@ public class TeraFastMeta extends AbstractStepMeta {
   }
 
   /**
-   * @param streamFieldList
-   *          the streamFieldList to set
+   * @param streamFieldList the streamFieldList to set
    */
   public void setStreamFieldList( final StringListPluginProperty streamFieldList ) {
     this.streamFieldList = streamFieldList;
@@ -497,8 +486,7 @@ public class TeraFastMeta extends AbstractStepMeta {
   }
 
   /**
-   * @param variableSubstitution
-   *          the variableSubstitution to set
+   * @param variableSubstitution the variableSubstitution to set
    */
   public void setVariableSubstitution( BooleanPluginProperty variableSubstitution ) {
     this.variableSubstitution = variableSubstitution;

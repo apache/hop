@@ -46,7 +46,7 @@ public class ObjectUsageCount implements Comparator<ObjectUsageCount>, Comparabl
   public static ObjectUsageCount fromString( String string ) {
     String[] splits = string.split( ";" );
     if ( splits.length >= 2 ) {
-      return new ObjectUsageCount( splits[0], Const.toInt( splits[1], 1 ) );
+      return new ObjectUsageCount( splits[ 0 ], Const.toInt( splits[ 1 ], 1 ) );
     }
     return new ObjectUsageCount( string, 1 );
   }
@@ -83,8 +83,7 @@ public class ObjectUsageCount implements Comparator<ObjectUsageCount>, Comparabl
   }
 
   /**
-   * @param nrUses
-   *          the nrUses to set
+   * @param nrUses the nrUses to set
    */
   public void setNrUses( int nrUses ) {
     this.nrUses = nrUses;
@@ -98,8 +97,7 @@ public class ObjectUsageCount implements Comparator<ObjectUsageCount>, Comparabl
   }
 
   /**
-   * @param objectName
-   *          the objectName to set
+   * @param objectName the objectName to set
    */
   public void setObjectName( String objectName ) {
     this.objectName = objectName;

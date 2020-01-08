@@ -20,7 +20,7 @@ public class GuiRegistry {
   }
 
   public static final GuiRegistry getInstance() {
-    if (guiRegistry==null) {
+    if ( guiRegistry == null ) {
       guiRegistry = new GuiRegistry();
     }
     return guiRegistry;
@@ -34,13 +34,13 @@ public class GuiRegistry {
    * @param parentGuiElementId
    * @param guiElements
    */
-  public void putGuiElements(String dataClassName, String parentGuiElementId, GuiElements guiElements) {
+  public void putGuiElements( String dataClassName, String parentGuiElementId, GuiElements guiElements ) {
     Map<String, GuiElements> elementsMap = dataElementsMap.get( dataClassName );
-    if (elementsMap==null) {
-      elementsMap=new HashMap<>(  );
-      dataElementsMap.put(dataClassName, elementsMap);
+    if ( elementsMap == null ) {
+      elementsMap = new HashMap<>();
+      dataElementsMap.put( dataClassName, elementsMap );
     }
-    elementsMap.put(parentGuiElementId, guiElements);
+    elementsMap.put( parentGuiElementId, guiElements );
   }
 
   /**
@@ -52,10 +52,10 @@ public class GuiRegistry {
    */
   public GuiElements findGuiElements( String dataClassName, String parentGuiElementId ) {
     Map<String, GuiElements> elementsMap = dataElementsMap.get( dataClassName );
-    if (elementsMap==null) {
+    if ( elementsMap == null ) {
       return null;
     }
-    return elementsMap.get(parentGuiElementId);
+    return elementsMap.get( parentGuiElementId );
   }
 
   /**
@@ -69,8 +69,8 @@ public class GuiRegistry {
    */
   public void addGuiElement( String dataClassName, GuiElement guiElement, String fieldName, Class<?> fieldClass ) {
     GuiElements guiElements = findGuiElements( dataClassName, guiElement.parentId() );
-    if (guiElements==null) {
-      guiElements= new GuiElements();
+    if ( guiElements == null ) {
+      guiElements = new GuiElements();
       putGuiElements( dataClassName, guiElement.parentId(), guiElements );
     }
     GuiElements child = new GuiElements( guiElement, fieldName, fieldClass );
@@ -79,15 +79,15 @@ public class GuiRegistry {
     // In those scenarios we ignore the GuiElement
     //
     GuiElements existing = guiElements.findChild( guiElement.id() );
-    if (existing!=null && existing.isIgnored()) {
+    if ( existing != null && existing.isIgnored() ) {
       return;
     }
-    if (existing!=null && child.isIgnored()) {
+    if ( existing != null && child.isIgnored() ) {
       existing.setIgnored( true );
       return;
     }
 
-    guiElements.getChildren().add(child);
+    guiElements.getChildren().add( child );
   }
 
   /**
@@ -96,10 +96,10 @@ public class GuiRegistry {
    */
   public void sortAllElements() {
     Set<String> dataClassNames = dataElementsMap.keySet();
-    for (String dataClassName : dataClassNames) {
+    for ( String dataClassName : dataClassNames ) {
       Map<String, GuiElements> guiElementsMap = dataElementsMap.get( dataClassName );
       Set<String> parentIds = guiElementsMap.keySet();
-      for (String parentId : parentIds) {
+      for ( String parentId : parentIds ) {
         GuiElements guiElements = guiElementsMap.get( parentId );
         guiElements.sortChildren();
       }

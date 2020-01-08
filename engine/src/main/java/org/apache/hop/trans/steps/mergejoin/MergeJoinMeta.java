@@ -25,8 +25,6 @@ package org.apache.hop.trans.steps.mergejoin;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
@@ -37,7 +35,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMeta.TransformationType;
@@ -52,7 +50,6 @@ import org.apache.hop.trans.step.errorhandling.Stream;
 import org.apache.hop.trans.step.errorhandling.StreamIcon;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
 import org.apache.hop.trans.step.errorhandling.StreamInterface.StreamType;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -136,8 +133,8 @@ public class MergeJoinMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrKeys1, int nrKeys2 ) {
-    keyFields1 = new String[nrKeys1];
-    keyFields2 = new String[nrKeys2];
+    keyFields1 = new String[ nrKeys1 ];
+    keyFields2 = new String[ nrKeys2 ];
   }
 
   public Object clone() {
@@ -170,13 +167,13 @@ public class MergeJoinMeta extends BaseStepMeta implements StepMetaInterface {
 
     retval.append( "    <keys_1>" + Const.CR );
     for ( int i = 0; i < keyFields1.length; i++ ) {
-      retval.append( "      " + XMLHandler.addTagValue( "key", keyFields1[i] ) );
+      retval.append( "      " + XMLHandler.addTagValue( "key", keyFields1[ i ] ) );
     }
     retval.append( "    </keys_1>" + Const.CR );
 
     retval.append( "    <keys_2>" + Const.CR );
     for ( int i = 0; i < keyFields2.length; i++ ) {
-      retval.append( "      " + XMLHandler.addTagValue( "key", keyFields2[i] ) );
+      retval.append( "      " + XMLHandler.addTagValue( "key", keyFields2[ i ] ) );
     }
     retval.append( "    </keys_2>" + Const.CR );
 
@@ -196,12 +193,12 @@ public class MergeJoinMeta extends BaseStepMeta implements StepMetaInterface {
 
       for ( int i = 0; i < nrKeys1; i++ ) {
         Node keynode = XMLHandler.getSubNodeByNr( keysNode1, "key", i );
-        keyFields1[i] = XMLHandler.getNodeValue( keynode );
+        keyFields1[ i ] = XMLHandler.getNodeValue( keynode );
       }
 
       for ( int i = 0; i < nrKeys2; i++ ) {
         Node keynode = XMLHandler.getSubNodeByNr( keysNode2, "key", i );
-        keyFields2[i] = XMLHandler.getNodeValue( keynode );
+        keyFields2[ i ] = XMLHandler.getNodeValue( keynode );
       }
 
       List<StreamInterface> infoStreams = getStepIOMeta().getInfoStreams();
@@ -215,7 +212,7 @@ public class MergeJoinMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void setDefault() {
-    joinType = join_types[0];
+    joinType = join_types[ 0 ];
     allocate( 0, 0 );
   }
 
@@ -247,8 +244,8 @@ public class MergeJoinMeta extends BaseStepMeta implements StepMetaInterface {
     //
     if ( info != null ) {
       for ( int i = 0; i < info.length; i++ ) {
-        if ( info[i] != null ) {
-          r.mergeRowMeta( info[i], name );
+        if ( info[ i ] != null ) {
+          r.mergeRowMeta( info[ i ], name );
         }
       }
     }
@@ -295,6 +292,6 @@ public class MergeJoinMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public TransformationType[] getSupportedTransformationTypes() {
-    return new TransformationType[]{ TransformationType.Normal, };
+    return new TransformationType[] { TransformationType.Normal, };
   }
 }

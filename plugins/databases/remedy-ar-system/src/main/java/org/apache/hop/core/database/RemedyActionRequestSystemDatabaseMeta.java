@@ -33,8 +33,8 @@ import org.apache.hop.core.plugins.DatabaseMetaPlugin;
  * @since 11-Sep-2007
  */
 @DatabaseMetaPlugin(
-        type = "REMEDY-AR-SYSTEM",
-        typeDescription = "Remedy Action Request System"
+  type = "REMEDY-AR-SYSTEM",
+  typeDescription = "Remedy Action Request System"
 )
 @GuiPlugin( id = "GUI-RemedyActionRequestSystemDatabaseMeta" )
 public class RemedyActionRequestSystemDatabaseMeta extends GenericDatabaseMeta implements DatabaseInterface {

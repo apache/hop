@@ -33,7 +33,7 @@ import java.util.List;
  *
  */
 public class Utils {
-  private static final int[] ZERO_LENGTH_INT_ARRAY = new int[0];
+  private static final int[] ZERO_LENGTH_INT_ARRAY = new int[ 0 ];
 
   private static int damerauLevenshteinDistance( String s, String t, int[] workspace ) {
     int lenS = s.length();
@@ -53,19 +53,19 @@ public class Utils {
     // start row with constant
     dlIndex = 0;
     for ( tmp = 0; tmp < lenT1; tmp++ ) {
-      dl[dlIndex] = tmp;
+      dl[ dlIndex ] = tmp;
       dlIndex += lenS1;
     }
     for ( int sIndex = 0; sIndex < lenS; sIndex++ ) {
       dlIndex = sIndex + 1;
-      dl[dlIndex] = dlIndex; // start column with constant
+      dl[ dlIndex ] = dlIndex; // start column with constant
       for ( int tIndex = 0; tIndex < lenT; tIndex++ ) {
         rowBefore = dlIndex;
         dlIndex += lenS1;
         // deletion
-        min = dl[rowBefore] + 1;
+        min = dl[ rowBefore ] + 1;
         // insertion
-        tmp = dl[dlIndex - 1] + 1;
+        tmp = dl[ dlIndex - 1 ] + 1;
         if ( tmp < min ) {
           min = tmp;
         }
@@ -75,7 +75,7 @@ public class Utils {
         }
         if ( sIndex > 0 && tIndex > 0 ) {
           if ( s.charAt( sIndex ) == t.charAt( tPrevIndex ) && s.charAt( sPrevIndex ) == t.charAt( tIndex ) ) {
-            tmp = dl[rowBefore - tri] + cost;
+            tmp = dl[ rowBefore - tri ] + cost;
             // transposition
             if ( tmp < min ) {
               min = tmp;
@@ -83,20 +83,20 @@ public class Utils {
           }
         }
         // substitution
-        tmp = dl[rowBefore - 1] + cost;
+        tmp = dl[ rowBefore - 1 ] + cost;
         if ( tmp < min ) {
           min = tmp;
         }
-        dl[dlIndex] = min;
+        dl[ dlIndex ] = min;
         tPrevIndex = tIndex;
       }
       sPrevIndex = sIndex;
     }
-    return dl[dlIndex];
+    return dl[ dlIndex ];
   }
 
   private static int[] getWorkspace( int sl, int tl ) {
-    return new int[( sl + 1 ) * ( tl + 1 )];
+    return new int[ ( sl + 1 ) * ( tl + 1 ) ];
   }
 
   public static int getDamerauLevenshteinDistance( String s, String t ) {
@@ -110,8 +110,7 @@ public class Utils {
   /**
    * Check if the CharSequence supplied is empty. A CharSequence is empty when it is null or when the length is 0
    *
-   * @param val
-   *          The stringBuffer to check
+   * @param val The stringBuffer to check
    * @return true if the stringBuffer supplied is empty
    */
   public static boolean isEmpty( CharSequence val ) {
@@ -122,8 +121,7 @@ public class Utils {
    * Check if the CharSequence array supplied is empty. A CharSequence array is empty when it is null or when the number of elements
    * is 0
    *
-   * @param strings
-   *          The string array to check
+   * @param strings The string array to check
    * @return true if the string array supplied is empty
    */
   public static boolean isEmpty( CharSequence[] strings ) {
@@ -133,8 +131,7 @@ public class Utils {
   /**
    * Check if the array supplied is empty. An array is empty when it is null or when the length is 0
    *
-   * @param array
-   *          The array to check
+   * @param array The array to check
    * @return true if the array supplied is empty
    */
   public static boolean isEmpty( Object[] array ) {
@@ -144,8 +141,7 @@ public class Utils {
   /**
    * Check if the list supplied is empty. An array is empty when it is null or when the length is 0
    *
-   * @param list
-   *          the list to check
+   * @param list the list to check
    * @return true if the supplied list is empty
    */
   public static boolean isEmpty( List<?> list ) {
@@ -155,11 +151,8 @@ public class Utils {
   /**
    * Resolves password from variable if it's necessary and decrypts if the password was encrypted
    *
-   *
-   * @param variables
-   *          VariableSpace is used for resolving
-   * @param password
-   *          the password for resolving and decrypting
+   * @param variables VariableSpace is used for resolving
+   * @param password  the password for resolving and decrypting
    * @return resolved decrypted password
    */
   public static String resolvePassword( VariableSpace variables, String password ) {

@@ -22,9 +22,6 @@
 
 package org.apache.hop.trans;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
@@ -32,6 +29,9 @@ import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.trans.TransMeta.TransformationType;
 import org.apache.hop.trans.step.StepMetaDataCombi;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SingleThreadedTransExecutor {
 
@@ -57,7 +57,7 @@ public class SingleThreadedTransExecutor {
 
     sortSteps();
 
-    done = new boolean[steps.size()];
+    done = new boolean[ steps.size() ];
     nrDone = 0;
 
     stepInfoStreams = new ArrayList<List<StreamInterface>>();
@@ -136,9 +136,9 @@ public class SingleThreadedTransExecutor {
     StepMetaDataCombi two = null;
 
     StringBuilder tLogString = new StringBuilder(); // this helps group our
-                                                    // output so other threads
-                                                    // don't get logs in our
-                                                    // output.
+    // output so other threads
+    // don't get logs in our
+    // output.
     tLogString.append( "-------------------------------------------------------" ).append( "\n" );
     tLogString.append( "--SingleThreadedTransExecutor.sortSteps(cocktail)" ).append( "\n" );
     tLogString.append( "--Trans: " ).append( trans.getName() ).append( "\n" );
@@ -227,7 +227,7 @@ public class SingleThreadedTransExecutor {
       if ( !forwardChange && !backwardChange ) {
         if ( testing ) {
           tLogString.append( String.format( "existing outer loop because no "
-            + "change was detected going forward or backward. index:%s  min:%s  max:%s",
+              + "change was detected going forward or backward. index:%s  min:%s  max:%s",
             x, stepsMinSize, stepsSize ) ).append( "\n" );
         }
         break;
@@ -302,7 +302,7 @@ public class SingleThreadedTransExecutor {
   public boolean oneIteration() throws HopException {
 
     for ( int s = 0; s < steps.size() && !trans.isStopped(); s++ ) {
-      if ( !done[s] ) {
+      if ( !done[ s ] ) {
 
         StepMetaDataCombi combi = steps.get( s );
 
@@ -373,7 +373,7 @@ public class SingleThreadedTransExecutor {
           nrDone++;
         }
 
-        done[s] = stepDone;
+        done[ s ] = stepDone;
       }
     }
 

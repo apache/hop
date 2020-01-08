@@ -49,6 +49,7 @@ public class StaxUtil {
 
   /**
    * Convert the column indicator in Excel like A, B, C, AE, CX and so on to a 1-based column number.
+   *
    * @param columnIndicator The indicator to convert
    * @return The 1-based column number
    */

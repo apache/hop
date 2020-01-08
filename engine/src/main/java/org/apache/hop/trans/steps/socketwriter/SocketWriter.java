@@ -22,11 +22,6 @@
 
 package org.apache.hop.trans.steps.socketwriter;
 
-import java.io.BufferedOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.zip.GZIPOutputStream;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
@@ -38,10 +33,15 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.zip.GZIPOutputStream;
+
 /**
  * Write data to a TCP/IP socket read by SocketReader. The data being sent over the socket is one serialized Row object
  * including metadata and then a series of serialized rows, data only.
- *
+ * <p>
  * This part of the SocketWriter/SocketRead pair contains the ServerSocket.
  *
  * @author Matt
@@ -54,7 +54,7 @@ public class SocketWriter extends BaseStep implements StepInterface {
   private SocketWriterData data;
 
   public SocketWriter( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                       Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 

@@ -22,13 +22,9 @@
 
 package org.apache.hop.trans.steps.flattener;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -36,7 +32,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -44,23 +40,28 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * The flattener step meta-data
  *
- * @since 17-jan-2006
  * @author Matt
+ * @since 17-jan-2006
  */
 
 public class FlattenerMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = FlattenerMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** The field to flatten */
+  /**
+   * The field to flatten
+   */
   private String fieldName;
 
-  /** Fields to flatten, same data type as input */
+  /**
+   * Fields to flatten, same data type as input
+   */
   private String[] targetField;
 
   public FlattenerMeta() {
@@ -88,7 +89,7 @@ public class FlattenerMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrfields ) {
-    targetField = new String[nrfields];
+    targetField = new String[ nrfields ];
   }
 
   public Object clone() {
@@ -104,7 +105,7 @@ public class FlattenerMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     // Remove the key value (there will be different entries for each output row)
     //
@@ -120,7 +121,7 @@ public class FlattenerMeta extends BaseStepMeta implements StepMetaInterface {
 
       for ( int i = 0; i < targetField.length; i++ ) {
         ValueMetaInterface value = v.clone();
-        value.setName( targetField[i] );
+        value.setName( targetField[ i ] );
         value.setOrigin( name );
 
         row.addValueMeta( value );
@@ -141,7 +142,7 @@ public class FlattenerMeta extends BaseStepMeta implements StepMetaInterface {
 
       for ( int i = 0; i < nrfields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        targetField[i] = XMLHandler.getTagValue( fnode, "name" );
+        targetField[ i ] = XMLHandler.getTagValue( fnode, "name" );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString(
@@ -157,7 +158,7 @@ public class FlattenerMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "      <fields>" + Const.CR );
     for ( int i = 0; i < targetField.length; i++ ) {
       retval.append( "        <field>" + Const.CR );
-      retval.append( "          " + XMLHandler.addTagValue( "name", targetField[i] ) );
+      retval.append( "          " + XMLHandler.addTagValue( "name", targetField[ i ] ) );
       retval.append( "          </field>" + Const.CR );
     }
     retval.append( "        </fields>" + Const.CR );
@@ -166,8 +167,8 @@ public class FlattenerMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
 
     CheckResult cr;
 
@@ -185,7 +186,7 @@ public class FlattenerMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new Flattener( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

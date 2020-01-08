@@ -32,7 +32,6 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
  *
  * @author Matt
  * @since 12-04-2006
- *
  */
 public class ExcelInputField implements Cloneable {
   @Injection( name = "NAME", group = "FIELDS" )

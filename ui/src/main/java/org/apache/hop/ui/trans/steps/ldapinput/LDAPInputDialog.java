@@ -22,6 +22,40 @@
 
 package org.apache.hop.ui.trans.steps.ldapinput;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPreviewFactory;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.ldapinput.LDAPConnection;
+import org.apache.hop.trans.steps.ldapinput.LDAPInputField;
+import org.apache.hop.trans.steps.ldapinput.LDAPInputMeta;
+import org.apache.hop.trans.steps.ldapinput.LdapProtocol;
+import org.apache.hop.trans.steps.ldapinput.LdapProtocolFactory;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.ControlSpaceKeyAdapter;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.ComponentSelectionListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -48,40 +82,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPreviewFactory;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.ldapinput.LDAPConnection;
-import org.apache.hop.trans.steps.ldapinput.LDAPInputField;
-import org.apache.hop.trans.steps.ldapinput.LDAPInputMeta;
-import org.apache.hop.trans.steps.ldapinput.LdapProtocol;
-import org.apache.hop.trans.steps.ldapinput.LdapProtocolFactory;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.ControlSpaceKeyAdapter;
-import org.apache.hop.ui.core.widget.PasswordTextVar;
-import org.apache.hop.ui.core.widget.StyledTextComp;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.ComponentSelectionListener;
 
 public class LDAPInputDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = LDAPInputMeta.class; // for i18n purposes, needed by Translator2!!
@@ -1065,8 +1065,8 @@ public class LDAPInputDialog extends BaseStepDialog implements StepDialogInterfa
         new ColumnInfo(
           BaseMessages.getString( PKG, "LDAPInputDialog.FieldsTable.IsSortedKey.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-            BaseMessages.getString( PKG, "System.Combo.Yes" ),
-            BaseMessages.getString( PKG, "System.Combo.No" ) }, true ),
+          BaseMessages.getString( PKG, "System.Combo.Yes" ),
+          BaseMessages.getString( PKG, "System.Combo.No" ) }, true ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "LDAPInputDialog.FieldsTable.Type.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaFactory.getValueMetaNames(), true ),
@@ -1094,15 +1094,15 @@ public class LDAPInputDialog extends BaseStepDialog implements StepDialogInterfa
         new ColumnInfo(
           BaseMessages.getString( PKG, "LDAPInputDialog.FieldsTable.Repeat.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-            BaseMessages.getString( PKG, "System.Combo.Yes" ),
-            BaseMessages.getString( PKG, "System.Combo.No" ) }, true ),
+          BaseMessages.getString( PKG, "System.Combo.Yes" ),
+          BaseMessages.getString( PKG, "System.Combo.No" ) }, true ),
 
       };
 
-    colinf[0].setUsingVariables( true );
-    colinf[0].setToolTip( BaseMessages.getString( PKG, "LDAPInputDialog.FieldsTable.Name.Column.Tooltip" ) );
-    colinf[1].setUsingVariables( true );
-    colinf[1].setToolTip( BaseMessages.getString( PKG, "LDAPInputDialog.FieldsTable.Attribute.Column.Tooltip" ) );
+    colinf[ 0 ].setUsingVariables( true );
+    colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "LDAPInputDialog.FieldsTable.Name.Column.Tooltip" ) );
+    colinf[ 1 ].setUsingVariables( true );
+    colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "LDAPInputDialog.FieldsTable.Attribute.Column.Tooltip" ) );
 
     wFields =
       new TableView( transMeta, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
@@ -1286,11 +1286,11 @@ public class LDAPInputDialog extends BaseStepDialog implements StepDialogInterfa
 
       // return fields
       RowMeta listattributes = connection.getFields( transMeta.environmentSubstitute( meta.getSearchBase() ) );
-      String[] fieldsName = new String[listattributes.size()];
+      String[] fieldsName = new String[ listattributes.size() ];
       for ( int i = 0; i < listattributes.size(); i++ ) {
 
         ValueMetaInterface v = listattributes.getValueMeta( i );
-        fieldsName[i] = v.getName();
+        fieldsName[ i ] = v.getName();
         // Get Column Name
         TableItem item = new TableItem( wFields.table, SWT.NONE );
         item.setText( 1, v.getName() );
@@ -1304,7 +1304,7 @@ public class LDAPInputDialog extends BaseStepDialog implements StepDialogInterfa
         item.setText( 4, BaseMessages.getString( PKG, "System.Combo.No" ) );
         item.setText( 5, v.getTypeDesc() );
       }
-      colinf[1].setComboValues( fieldsName );
+      colinf[ 1 ].setComboValues( fieldsName );
       wFields.removeEmptyRows();
       wFields.setRowNums();
       wFields.optWidth( true );
@@ -1312,11 +1312,11 @@ public class LDAPInputDialog extends BaseStepDialog implements StepDialogInterfa
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "LDAPInputDialog.ErrorGettingColums.DialogTitle" ), BaseMessages
-          .getString( PKG, "LDAPInputDialog.ErrorGettingColums.DialogMessage" ), e );
+        .getString( PKG, "LDAPInputDialog.ErrorGettingColums.DialogMessage" ), e );
     } catch ( Exception e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "LDAPInputDialog.ErrorGettingColums.DialogTitle" ), BaseMessages
-          .getString( PKG, "LDAPInputDialog.ErrorGettingColums.DialogMessage" ), e );
+        .getString( PKG, "LDAPInputDialog.ErrorGettingColums.DialogMessage" ), e );
 
     } finally {
       if ( connection != null ) {
@@ -1341,8 +1341,7 @@ public class LDAPInputDialog extends BaseStepDialog implements StepDialogInterfa
   /**
    * Read the data from the LDAPInputMeta object and show it in this dialog.
    *
-   * @param in
-   *          The LDAPInputMeta object to obtain the data from.
+   * @param in The LDAPInputMeta object to obtain the data from.
    */
   public void getData( LDAPInputMeta in ) {
     wProtocol.setText( Const.NVL( in.getProtocol(), LdapProtocolFactory.getConnectionTypes( log ).get( 0 ) ) );
@@ -1405,7 +1404,7 @@ public class LDAPInputDialog extends BaseStepDialog implements StepDialogInterfa
       logDebug( BaseMessages.getString( PKG, "LDAPInputDialog.Log.GettingFieldsInfo" ) );
     }
     for ( int i = 0; i < in.getInputFields().length; i++ ) {
-      LDAPInputField field = in.getInputFields()[i];
+      LDAPInputField field = in.getInputFields()[ i ];
 
       if ( field != null ) {
         TableItem item = wFields.table.getItem( i );
@@ -1496,7 +1495,7 @@ public class LDAPInputDialog extends BaseStepDialog implements StepDialogInterfa
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "LDAPInputDialog.ErrorParsingData.DialogTitle" ), BaseMessages
-          .getString( PKG, "LDAPInputDialog.ErrorParsingData.DialogMessage" ), e );
+        .getString( PKG, "LDAPInputDialog.ErrorParsingData.DialogMessage" ), e );
     }
     dispose();
   }
@@ -1553,7 +1552,7 @@ public class LDAPInputDialog extends BaseStepDialog implements StepDialogInterfa
       field.setRepeated( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 13 ) ) );
 
       //CHECKSTYLE:Indentation:OFF
-      in.getInputFields()[i] = field;
+      in.getInputFields()[ i ] = field;
     }
     in.setSearchScope( LDAPInputMeta.getSearchScopeByDesc( wsearchScope.getText() ) );
   }
@@ -1593,7 +1592,7 @@ public class LDAPInputDialog extends BaseStepDialog implements StepDialogInterfa
             EnterTextDialog etd =
               new EnterTextDialog(
                 shell, BaseMessages.getString( PKG, "System.Dialog.PreviewError.Title" ), BaseMessages
-                  .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
+                .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
             etd.setReadOnly();
             etd.open();
           }
@@ -1601,7 +1600,7 @@ public class LDAPInputDialog extends BaseStepDialog implements StepDialogInterfa
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
               shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta( wStepname
-                .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
+              .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
           prd.open();
 
         }
@@ -1609,7 +1608,7 @@ public class LDAPInputDialog extends BaseStepDialog implements StepDialogInterfa
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "LDAPInputDialog.ErrorPreviewingData.DialogTitle" ), BaseMessages
-          .getString( PKG, "LDAPInputDialog.ErrorPreviewingData.DialogMessage" ), e );
+        .getString( PKG, "LDAPInputDialog.ErrorPreviewingData.DialogMessage" ), e );
     }
   }
 
@@ -1660,7 +1659,7 @@ public class LDAPInputDialog extends BaseStepDialog implements StepDialogInterfa
       } catch ( HopException ke ) {
         new ErrorDialog(
           shell, BaseMessages.getString( PKG, "LDAPInputDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-            .getString( PKG, "LDAPInputDialog.FailedToGetFields.DialogMessage" ), ke );
+          .getString( PKG, "LDAPInputDialog.FailedToGetFields.DialogMessage" ), ke );
       }
       gotPreviousFields = true;
     }

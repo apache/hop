@@ -22,15 +22,15 @@
 
 package org.apache.hop.trans.steps.fuzzymatch;
 
-import java.util.Iterator;
-
+import com.wcohen.ss.Jaro;
+import com.wcohen.ss.JaroWinkler;
+import com.wcohen.ss.NeedlemanWunsch;
 import org.apache.commons.codec.language.DoubleMetaphone;
 import org.apache.commons.codec.language.Metaphone;
 import org.apache.commons.codec.language.RefinedSoundex;
 import org.apache.commons.codec.language.Soundex;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
@@ -39,6 +39,7 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -48,9 +49,7 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
-import com.wcohen.ss.Jaro;
-import com.wcohen.ss.JaroWinkler;
-import com.wcohen.ss.NeedlemanWunsch;
+import java.util.Iterator;
 
 /**
  * Performs a fuzzy match for each main stream field row An approximative match is done in a lookup stream
@@ -65,7 +64,7 @@ public class FuzzyMatch extends BaseStep implements StepInterface {
   private FuzzyMatchData data;
 
   public FuzzyMatch( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                     Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -102,20 +101,20 @@ public class FuzzyMatch extends BaseStep implements StepInterface {
         keyValueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
         data.infoCache.addValueMeta( keyValueMeta );
         // Add key
-        data.indexOfCachedFields[0] = indexOfLookupField;
+        data.indexOfCachedFields[ 0 ] = indexOfLookupField;
 
         // Check additional fields
         if ( data.addAdditionalFields ) {
           ValueMetaInterface additionalFieldValueMeta;
           for ( int i = 0; i < meta.getValue().length; i++ ) {
             int fi = i + 1;
-            data.indexOfCachedFields[fi] = data.infoMeta.indexOfValue( meta.getValue()[i] );
-            if ( data.indexOfCachedFields[fi] < 0 ) {
+            data.indexOfCachedFields[ fi ] = data.infoMeta.indexOfValue( meta.getValue()[ i ] );
+            if ( data.indexOfCachedFields[ fi ] < 0 ) {
               // The field is unreachable !
               throw new HopException( BaseMessages.getString(
-                PKG, "FuzzyMatch.Exception.CouldnotFindLookField", meta.getValue()[i] ) );
+                PKG, "FuzzyMatch.Exception.CouldnotFindLookField", meta.getValue()[ i ] ) );
             }
-            additionalFieldValueMeta = data.infoMeta.getValueMeta( data.indexOfCachedFields[fi] );
+            additionalFieldValueMeta = data.infoMeta.getValueMeta( data.indexOfCachedFields[ fi ] );
             additionalFieldValueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
             data.infoCache.addValueMeta( additionalFieldValueMeta );
           }
@@ -130,26 +129,26 @@ public class FuzzyMatch extends BaseStep implements StepInterface {
       // Look up the keys in the source rows
       // and store values in cache
 
-      Object[] storeData = new Object[data.nrCachedFields];
+      Object[] storeData = new Object[ data.nrCachedFields ];
       // Add key field
-      if ( rowData[data.indexOfCachedFields[0]] == null ) {
-        storeData[0] = "";
+      if ( rowData[ data.indexOfCachedFields[ 0 ] ] == null ) {
+        storeData[ 0 ] = "";
       } else {
-        ValueMetaInterface fromStreamRowMeta = rowSet.getRowMeta().getValueMeta( data.indexOfCachedFields[0] );
+        ValueMetaInterface fromStreamRowMeta = rowSet.getRowMeta().getValueMeta( data.indexOfCachedFields[ 0 ] );
         if ( fromStreamRowMeta.isStorageBinaryString() ) {
-          storeData[0] = fromStreamRowMeta.convertToNormalStorageType( rowData[data.indexOfCachedFields[0]] );
+          storeData[ 0 ] = fromStreamRowMeta.convertToNormalStorageType( rowData[ data.indexOfCachedFields[ 0 ] ] );
         } else {
-          storeData[0] = rowData[data.indexOfCachedFields[0]];
+          storeData[ 0 ] = rowData[ data.indexOfCachedFields[ 0 ] ];
         }
       }
 
       // Add additional fields?
       for ( int i = 1; i < data.nrCachedFields; i++ ) {
-        ValueMetaInterface fromStreamRowMeta = rowSet.getRowMeta().getValueMeta( data.indexOfCachedFields[i] );
+        ValueMetaInterface fromStreamRowMeta = rowSet.getRowMeta().getValueMeta( data.indexOfCachedFields[ i ] );
         if ( fromStreamRowMeta.isStorageBinaryString() ) {
-          storeData[i] = fromStreamRowMeta.convertToNormalStorageType( rowData[data.indexOfCachedFields[i]] );
+          storeData[ i ] = fromStreamRowMeta.convertToNormalStorageType( rowData[ data.indexOfCachedFields[ i ] ] );
         } else {
-          storeData[i] = rowData[data.indexOfCachedFields[i]];
+          storeData[ i ] = rowData[ data.indexOfCachedFields[ i ] ];
         }
       }
       if ( isDebug() ) {
@@ -253,7 +252,7 @@ public class FuzzyMatch extends BaseStep implements StepInterface {
       // Get cached row data
       Object[] cachedData = it.next();
       // Key value is the first value
-      String cacheValue = (String) cachedData[0];
+      String cacheValue = (String) cachedData[ 0 ];
 
       int cdistance = -1;
       String usecacheValue = cacheValue;
@@ -282,26 +281,26 @@ public class FuzzyMatch extends BaseStep implements StepInterface {
             // minimal distance
             distance = cdistance;
             int index = 0;
-            rowData[index++] = cacheValue;
+            rowData[ index++ ] = cacheValue;
             // Add metric value?
             if ( data.addValueFieldName ) {
-              rowData[index++] = distance;
+              rowData[ index++ ] = distance;
             }
             // Add additional return values?
             if ( data.addAdditionalFields ) {
               for ( int i = 0; i < meta.getValue().length; i++ ) {
                 int nr = i + 1;
                 int nf = i + index;
-                rowData[nf] = cachedData[nr];
+                rowData[ nf ] = cachedData[ nr ];
               }
             }
           }
         } else {
           // get all values separated by values separator
-          if ( rowData[0] == null ) {
-            rowData[0] = cacheValue;
+          if ( rowData[ 0 ] == null ) {
+            rowData[ 0 ] = cacheValue;
           } else {
-            rowData[0] = (String) rowData[0] + data.valueSeparator + cacheValue;
+            rowData[ 0 ] = (String) rowData[ 0 ] + data.valueSeparator + cacheValue;
           }
         }
       }
@@ -316,7 +315,7 @@ public class FuzzyMatch extends BaseStep implements StepInterface {
 
     Iterator<Object[]> it = data.look.iterator();
 
-    Object o = row[data.indexOfMainField];
+    Object o = row[ data.indexOfMainField ];
     String lookupvalue = (String) o;
 
     String lookupValueMF = getEncodedMF( lookupvalue, meta.getAlgorithmType() );
@@ -325,7 +324,7 @@ public class FuzzyMatch extends BaseStep implements StepInterface {
       // Get cached row data
       Object[] cachedData = it.next();
       // Key value is the first value
-      String cacheValue = (String) cachedData[0];
+      String cacheValue = (String) cachedData[ 0 ];
 
       String cacheValueMF = getEncodedMF( cacheValue, meta.getAlgorithmType() );
 
@@ -333,18 +332,18 @@ public class FuzzyMatch extends BaseStep implements StepInterface {
 
         // Add match value
         int index = 0;
-        rowData[index++] = cacheValue;
+        rowData[ index++ ] = cacheValue;
 
         // Add metric value?
         if ( data.addValueFieldName ) {
-          rowData[index++] = cacheValueMF;
+          rowData[ index++ ] = cacheValueMF;
         }
         // Add additional return values?
         if ( data.addAdditionalFields ) {
           for ( int i = 0; i < meta.getValue().length; i++ ) {
             int nf = i + index;
             int nr = i + 1;
-            rowData[nf] = cachedData[nr];
+            rowData[ nf ] = cachedData[ nr ];
           }
         }
       }
@@ -383,7 +382,7 @@ public class FuzzyMatch extends BaseStep implements StepInterface {
     double similarity = 0;
 
     // get current value from main stream
-    Object o = row[data.indexOfMainField];
+    Object o = row[ data.indexOfMainField ];
 
     String lookupvalue = o == null ? "" : (String) o;
 
@@ -391,7 +390,7 @@ public class FuzzyMatch extends BaseStep implements StepInterface {
       // Get cached row data
       Object[] cachedData = it.next();
       // Key value is the first value
-      String cacheValue = (String) cachedData[0];
+      String cacheValue = (String) cachedData[ 0 ];
 
       double csimilarity = new Double( 0 );
 
@@ -414,10 +413,10 @@ public class FuzzyMatch extends BaseStep implements StepInterface {
             similarity = csimilarity;
             // Update match value
             int index = 0;
-            rowData[index++] = cacheValue;
+            rowData[ index++ ] = cacheValue;
             // Add metric value?
             if ( data.addValueFieldName ) {
-              rowData[index++] = new Double( similarity );
+              rowData[ index++ ] = new Double( similarity );
             }
 
             // Add additional return values?
@@ -425,16 +424,16 @@ public class FuzzyMatch extends BaseStep implements StepInterface {
               for ( int i = 0; i < meta.getValue().length; i++ ) {
                 int nf = i + index;
                 int nr = i + 1;
-                rowData[nf] = cachedData[nr];
+                rowData[ nf ] = cachedData[ nr ];
               }
             }
           }
         } else {
           // get all values separated by values separator
-          if ( rowData[0] == null ) {
-            rowData[0] = cacheValue;
+          if ( rowData[ 0 ] == null ) {
+            rowData[ 0 ] = cacheValue;
           } else {
-            rowData[0] = (String) rowData[0] + data.valueSeparator + cacheValue;
+            rowData[ 0 ] = (String) rowData[ 0 ] + data.valueSeparator + cacheValue;
           }
         }
       }
@@ -568,7 +567,7 @@ public class FuzzyMatch extends BaseStep implements StepInterface {
           nrFields += meta.getValue().length;
         }
       }
-      data.indexOfCachedFields = new int[nrFields];
+      data.indexOfCachedFields = new int[ nrFields ];
 
       switch ( meta.getAlgorithmType() ) {
         case FuzzyMatchMeta.OPERATION_TYPE_LEVENSHTEIN:

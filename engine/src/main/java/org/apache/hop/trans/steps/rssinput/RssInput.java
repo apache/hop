@@ -26,6 +26,23 @@ import it.sauronsoftware.feed4j.FeedParser;
 import it.sauronsoftware.feed4j.FeedXMLParseException;
 import it.sauronsoftware.feed4j.UnsupportedFeedException;
 import it.sauronsoftware.feed4j.bean.FeedItem;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStep;
+import org.apache.hop.trans.step.StepDataInterface;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.StepMetaInterface;
+import org.dom4j.DocumentException;
+import org.xml.sax.SAXParseException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -36,24 +53,6 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-
-import org.dom4j.DocumentException;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStep;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
-import org.xml.sax.SAXParseException;
 
 /**
  * Read data from RSS and writes these to one or more output streams. <br/>
@@ -77,9 +76,9 @@ import org.xml.sax.SAXParseException;
  * </ul>
  * </li>
  * </ul>
- *
+ * <p>
  * Notes:
- *
+ * <p>
  * Turn on debug logging to see the full stack trace from a handled error. <br />
  *
  * @author Samatar
@@ -92,7 +91,7 @@ public class RssInput extends BaseStep implements StepInterface {
   private RssInputData data;
 
   public RssInput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                   Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -156,7 +155,7 @@ public class RssInput extends BaseStep implements StepInterface {
       }
       // Is this the last url?
       data.last_url = ( data.urlnr == data.urlsize - 1 );
-      data.currenturl = environmentSubstitute( meta.getUrl()[data.urlnr] );
+      data.currenturl = environmentSubstitute( meta.getUrl()[ data.urlnr ] );
     }
 
     if ( log.isDetailed() ) {
@@ -217,7 +216,7 @@ public class RssInput extends BaseStep implements StepInterface {
 
       // Execute for each Input field...
       for ( int j = 0; j < meta.getInputFields().length; j++ ) {
-        RssInputField RSSInputField = meta.getInputFields()[j];
+        RssInputField RSSInputField = meta.getInputFields()[ j ];
 
         String valueString = null;
         switch ( RSSInputField.getColumn() ) {
@@ -265,12 +264,12 @@ public class RssInput extends BaseStep implements StepInterface {
         //
         ValueMetaInterface targetValueMeta = data.outputRowMeta.getValueMeta( data.totalpreviousfields + j );
         ValueMetaInterface sourceValueMeta = data.convertRowMeta.getValueMeta( data.totalpreviousfields + j );
-        outputRowData[data.totalpreviousfields + j] = targetValueMeta.convertData( sourceValueMeta, valueString );
+        outputRowData[ data.totalpreviousfields + j ] = targetValueMeta.convertData( sourceValueMeta, valueString );
 
         // Do we need to repeat this field if it is null?
-        if ( meta.getInputFields()[j].isRepeated() ) {
+        if ( meta.getInputFields()[ j ].isRepeated() ) {
           if ( data.previousRow != null && Utils.isEmpty( valueString ) ) {
-            outputRowData[data.totalpreviousfields + j] = data.previousRow[data.totalpreviousfields + j];
+            outputRowData[ data.totalpreviousfields + j ] = data.previousRow[ data.totalpreviousfields + j ];
           }
         }
 
@@ -280,11 +279,11 @@ public class RssInput extends BaseStep implements StepInterface {
 
       // See if we need to add the url to the row...
       if ( meta.includeUrl() ) {
-        outputRowData[data.totalpreviousfields + rowIndex++] = data.currenturl;
+        outputRowData[ data.totalpreviousfields + rowIndex++ ] = data.currenturl;
       }
       // See if we need to add the row number to the row...
       if ( meta.includeRowNumber() ) {
-        outputRowData[data.totalpreviousfields + rowIndex++] = new Long( data.rownr );
+        outputRowData[ data.totalpreviousfields + rowIndex++ ] = new Long( data.rownr );
       }
 
       RowMetaInterface irow = getInputRowMeta();
@@ -317,7 +316,7 @@ public class RssInput extends BaseStep implements StepInterface {
     } catch ( Exception e ) {
       if ( getStepMeta().isDoingErrorHandling() ) {
         RowMeta errorMeta = new RowMeta();
-        Object[] errorData = new Object[0];
+        Object[] errorData = new Object[ 0 ];
 
         if ( this.data.readrow != null ) {
           errorMeta.addRowMeta( getInputRowMeta() );

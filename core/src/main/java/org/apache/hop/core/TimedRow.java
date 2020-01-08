@@ -53,10 +53,10 @@ public class TimedRow {
       if ( i > 0 ) {
         str.append( ", " );
       }
-      if ( row[i] == null ) {
+      if ( row[ i ] == null ) {
         str.append( "null" );
       } else {
-        str.append( row[i].toString() );
+        str.append( row[ i ].toString() );
       }
     }
     return str.toString();
@@ -70,8 +70,7 @@ public class TimedRow {
   }
 
   /**
-   * @param row
-   *          the row to set
+   * @param row the row to set
    */
   public void setRow( Object[] row ) {
     this.row = row;
@@ -85,8 +84,7 @@ public class TimedRow {
   }
 
   /**
-   * @param logDate
-   *          the logDate to set
+   * @param logDate the logDate to set
    */
   public void setLogDate( Date logDate ) {
     this.logDate = logDate;

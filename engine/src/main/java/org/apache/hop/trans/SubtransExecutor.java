@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.trans;
 
-import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
@@ -35,6 +34,7 @@ import org.apache.hop.trans.step.StepMetaDataCombi;
 import org.apache.hop.trans.step.StepStatus;
 import org.apache.hop.trans.steps.TransStepUtil;
 import org.apache.hop.trans.steps.transexecutor.TransExecutorParameters;
+import org.eclipse.jetty.util.ConcurrentHashSet;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -103,7 +103,7 @@ public class SubtransExecutor {
     running.remove( subtrans );
 
     Result subtransResult = subtrans.getResult();
-    subtransResult.setRows( rowMetaAndData  );
+    subtransResult.setRows( rowMetaAndData );
     return Optional.of( subtransResult );
   }
 

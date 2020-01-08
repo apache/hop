@@ -22,32 +22,30 @@
 
 package org.apache.hop.trans.steps.textfileoutputlegacy;
 
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.textfileoutput.TextFileOutputMeta;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
-
-import java.util.List;
 
 /**
  * This is deprecated version with capability run as command.
+ *
  * @deprecated use {@link org.apache.hop.trans.steps.textfileoutput.TextFileOutputMeta} instead.
  */
 @Deprecated
 public class TextFileOutputLegacyMeta extends TextFileOutputMeta {
 
-   /** Whether to treat this as a command to be executed and piped into */
+  /**
+   * Whether to treat this as a command to be executed and piped into
+   */
   @Injection( name = "RUN_AS_COMMAND" )
   private boolean fileAsCommand;
 
@@ -63,8 +61,7 @@ public class TextFileOutputLegacyMeta extends TextFileOutputMeta {
   }
 
   /**
-   * @param fileAsCommand
-   *          The fileAsCommand to set
+   * @param fileAsCommand The fileAsCommand to set
    */
   public void setFileAsCommand( boolean fileAsCommand ) {
     this.fileAsCommand = fileAsCommand;

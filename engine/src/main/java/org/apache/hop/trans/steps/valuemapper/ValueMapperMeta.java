@@ -22,26 +22,22 @@
 
 package org.apache.hop.trans.steps.valuemapper;
 
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.injection.AfterInjection;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -49,12 +45,13 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * Maps String values of a certain field to new values
- *
+ * <p>
  * Created on 03-apr-2006
  */
 @InjectionSupported( localizationPrefix = "ValueMapper.Injection.", groups = { "VALUES" } )
@@ -85,8 +82,7 @@ public class ValueMapperMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param fieldName
-   *          The fieldName to set.
+   * @param fieldName The fieldName to set.
    */
   public void setSourceValue( String[] fieldName ) {
     this.sourceValue = fieldName;
@@ -100,8 +96,7 @@ public class ValueMapperMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param fieldValue
-   *          The fieldValue to set.
+   * @param fieldValue The fieldValue to set.
    */
   public void setTargetValue( String[] fieldValue ) {
     this.targetValue = fieldValue;
@@ -113,8 +108,8 @@ public class ValueMapperMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int count ) {
-    sourceValue = new String[count];
-    targetValue = new String[count];
+    sourceValue = new String[ count ];
+    targetValue = new String[ count ];
   }
 
   @Override
@@ -145,8 +140,8 @@ public class ValueMapperMeta extends BaseStepMeta implements StepMetaInterface {
       for ( int i = 0; i < count; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        sourceValue[i] = XMLHandler.getTagValue( fnode, "source_value" );
-        targetValue[i] = XMLHandler.getTagValue( fnode, "target_value" );
+        sourceValue[ i ] = XMLHandler.getTagValue( fnode, "source_value" );
+        targetValue[ i ] = XMLHandler.getTagValue( fnode, "target_value" );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString(
@@ -161,14 +156,14 @@ public class ValueMapperMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( count );
 
     for ( int i = 0; i < count; i++ ) {
-      sourceValue[i] = "field" + i;
-      targetValue[i] = "";
+      sourceValue[ i ] = "field" + i;
+      targetValue[ i ] = "";
     }
   }
 
   @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) {
+                         VariableSpace space, IMetaStore metaStore ) {
     ValueMetaInterface extra = null;
     if ( !Utils.isEmpty( getTargetField() ) ) {
       extra = new ValueMetaString( getTargetField() );
@@ -178,8 +173,8 @@ public class ValueMapperMeta extends BaseStepMeta implements StepMetaInterface {
       //
       int maxlen = -1;
       for ( int i = 0; i < targetValue.length; i++ ) {
-        if ( targetValue[i] != null && targetValue[i].length() > maxlen ) {
-          maxlen = targetValue[i].length();
+        if ( targetValue[ i ] != null && targetValue[ i ].length() > maxlen ) {
+          maxlen = targetValue[ i ].length();
         }
       }
 
@@ -216,8 +211,8 @@ public class ValueMapperMeta extends BaseStepMeta implements StepMetaInterface {
 
     for ( int i = 0; i < sourceValue.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "source_value", sourceValue[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "target_value", targetValue[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "source_value", sourceValue[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "target_value", targetValue[ i ] ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
     retval.append( "    </fields>" ).append( Const.CR );
@@ -231,8 +226,8 @@ public class ValueMapperMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -262,7 +257,7 @@ public class ValueMapperMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new ValueMapper( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -279,8 +274,7 @@ public class ValueMapperMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param fieldToUse
-   *          The fieldToUse to set.
+   * @param fieldToUse The fieldToUse to set.
    */
   public void setFieldToUse( String fieldToUse ) {
     this.fieldToUse = fieldToUse;
@@ -294,8 +288,7 @@ public class ValueMapperMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param targetField
-   *          The targetField to set.
+   * @param targetField The targetField to set.
    */
   public void setTargetField( String targetField ) {
     this.targetField = targetField;
@@ -309,8 +302,7 @@ public class ValueMapperMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param nonMatchDefault
-   *          the non match default. This is the string that will be used to fill in the data when no match is found.
+   * @param nonMatchDefault the non match default. This is the string that will be used to fill in the data when no match is found.
    */
   public void setNonMatchDefault( String nonMatchDefault ) {
     this.nonMatchDefault = nonMatchDefault;

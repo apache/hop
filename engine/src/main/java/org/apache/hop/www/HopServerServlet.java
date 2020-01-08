@@ -22,6 +22,19 @@
 
 package org.apache.hop.www;
 
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.plugins.HopServerPluginType;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.PluginTypeListener;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -30,20 +43,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.plugins.HopServerPluginType;
-import org.apache.hop.core.plugins.PluginInterface;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.PluginTypeListener;
 
 public class HopServerServlet extends HttpServlet {
 
@@ -57,7 +56,7 @@ public class HopServerServlet extends HttpServlet {
   private List<SlaveServerDetection> detections;
 
   public HopServerServlet() {
-    this.log = new LogChannel(STRING_HOP_SERVER_SERVLET);
+    this.log = new LogChannel( STRING_HOP_SERVER_SERVLET );
   }
 
   public void doPost( HttpServletRequest req, HttpServletResponse resp ) throws ServletException, IOException {
@@ -158,7 +157,7 @@ public class HopServerServlet extends HttpServlet {
     } );
   }
 
-  private HopServerPluginInterface loadServlet(PluginInterface plugin ) throws HopPluginException {
+  private HopServerPluginInterface loadServlet( PluginInterface plugin ) throws HopPluginException {
     return PluginRegistry.getInstance().loadClass( plugin, HopServerPluginInterface.class );
   }
 

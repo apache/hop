@@ -22,16 +22,10 @@
 
 package org.apache.hop.trans.steps.sqlfileoutput;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -40,14 +34,14 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
-import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -56,8 +50,12 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /*
  * Created on 26-may-2007
@@ -76,40 +74,64 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
 
   private boolean createTable;
 
-  /** The base name of the output file */
+  /**
+   * The base name of the output file
+   */
   private String fileName;
 
-  /** The file extention in case of a generated filename */
+  /**
+   * The file extention in case of a generated filename
+   */
   private String extension;
 
-  /** if this value is larger then 0, the text file is split up into parts of this number of lines */
+  /**
+   * if this value is larger then 0, the text file is split up into parts of this number of lines
+   */
   private int splitEvery;
 
-  /** Flag to indicate the we want to append to the end of an existing file (if it exists) */
+  /**
+   * Flag to indicate the we want to append to the end of an existing file (if it exists)
+   */
   private boolean fileAppended;
 
-  /** Flag: add the stepnr in the filename */
+  /**
+   * Flag: add the stepnr in the filename
+   */
   private boolean stepNrInFilename;
 
-  /** Flag: add the partition number in the filename */
+  /**
+   * Flag: add the partition number in the filename
+   */
   private boolean partNrInFilename;
 
-  /** Flag: add the date in the filename */
+  /**
+   * Flag: add the date in the filename
+   */
   private boolean dateInFilename;
 
-  /** Flag: add the time in the filename */
+  /**
+   * Flag: add the time in the filename
+   */
   private boolean timeInFilename;
 
-  /** The encoding to use for reading: null or empty string means system default encoding */
+  /**
+   * The encoding to use for reading: null or empty string means system default encoding
+   */
   private String encoding;
 
-  /** The date format */
+  /**
+   * The date format
+   */
   private String dateformat;
 
-  /** Start New line for each statement */
+  /**
+   * Start New line for each statement
+   */
   private boolean StartNewLine;
 
-  /** Flag: create parent folder if needed */
+  /**
+   * Flag: create parent folder if needed
+   */
   private boolean createparentfolder;
 
   private boolean DoNotOpenNewFileInit;
@@ -133,8 +155,7 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param database
-   *          The database to set.
+   * @param database The database to set.
    */
   public void setDatabaseMeta( DatabaseMeta database ) {
     this.databaseMeta = database;
@@ -148,8 +169,7 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param extension
-   *          The extension to set.
+   * @param extension The extension to set.
    */
   public void setExtension( String extension ) {
     this.extension = extension;
@@ -163,8 +183,7 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param fileAppended
-   *          The fileAppended to set.
+   * @param fileAppended The fileAppended to set.
    */
   public void setFileAppended( boolean fileAppended ) {
     this.fileAppended = fileAppended;
@@ -185,8 +204,7 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param splitEvery
-   *          The splitEvery to set.
+   * @param splitEvery The splitEvery to set.
    */
   public void setSplitEvery( int splitEvery ) {
     this.splitEvery = splitEvery;
@@ -200,8 +218,7 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param stepNrInFilename
-   *          The stepNrInFilename to set.
+   * @param stepNrInFilename The stepNrInFilename to set.
    */
   public void setStepNrInFilename( boolean stepNrInFilename ) {
     this.stepNrInFilename = stepNrInFilename;
@@ -222,24 +239,21 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param dateInFilename
-   *          The dateInFilename to set.
+   * @param dateInFilename The dateInFilename to set.
    */
   public void setDateInFilename( boolean dateInFilename ) {
     this.dateInFilename = dateInFilename;
   }
 
   /**
-   * @param timeInFilename
-   *          The timeInFilename to set.
+   * @param timeInFilename The timeInFilename to set.
    */
   public void setTimeInFilename( boolean timeInFilename ) {
     this.timeInFilename = timeInFilename;
   }
 
   /**
-   * @param fileName
-   *          The fileName to set.
+   * @param fileName The fileName to set.
    */
   public void setFileName( String fileName ) {
     this.fileName = fileName;
@@ -260,16 +274,14 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param encoding
-   *          The desired encoding of output file, null or empty if the default system encoding needs to be used.
+   * @param encoding The desired encoding of output file, null or empty if the default system encoding needs to be used.
    */
   public void setEncoding( String encoding ) {
     this.encoding = encoding;
   }
 
   /**
-   * @param dateFormat
-   *          The desired date format of output field date used.
+   * @param dateFormat The desired date format of output field date used.
    */
   public void setDateFormat( String dateFormat ) {
     this.dateformat = dateFormat;
@@ -283,8 +295,7 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param tablename
-   *          The table name to set.
+   * @param tablename The table name to set.
    */
   public void setTablename( String tablename ) {
     this.tablename = tablename;
@@ -327,32 +338,28 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param truncateTable
-   *          The truncate table flag to set.
+   * @param truncateTable The truncate table flag to set.
    */
   public void setTruncateTable( boolean truncateTable ) {
     this.truncateTable = truncateTable;
   }
 
   /**
-   * @param AddToResult
-   *          The Add file to result to set.
+   * @param AddToResult The Add file to result to set.
    */
   public void setAddToResult( boolean AddToResult ) {
     this.AddToResult = AddToResult;
   }
 
   /**
-   * @param StartNewLine
-   *          The Start NEw Line to set.
+   * @param StartNewLine The Start NEw Line to set.
    */
   public void setStartNewLine( boolean StartNewLine ) {
     this.StartNewLine = StartNewLine;
   }
 
   /**
-   * @param createTable
-   *          The create table flag to set.
+   * @param createTable The create table flag to set.
    */
   public void setCreateTable( boolean createTable ) {
     this.createTable = createTable;
@@ -366,8 +373,7 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param createparentfolder
-   *          The create parent folder flag to set.
+   * @param createparentfolder The create parent folder flag to set.
    */
   public void setCreateParentFolder( boolean createparentfolder ) {
     this.createparentfolder = createparentfolder;
@@ -395,19 +401,19 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
       nr++;
     }
 
-    String[] retval = new String[nr];
+    String[] retval = new String[ nr ];
 
     int i = 0;
     for ( int copy = 0; copy < copies; copy++ ) {
       for ( int part = 0; part < parts; part++ ) {
         for ( int split = 0; split < splits; split++ ) {
-          retval[i] = buildFilename( fileName, copy, split );
+          retval[ i ] = buildFilename( fileName, copy, split );
           i++;
         }
       }
     }
     if ( i < nr ) {
-      retval[i] = "...";
+      retval[ i ] = "...";
     }
 
     return retval;
@@ -520,8 +526,8 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     if ( databaseMeta != null ) {
       CheckResult cr =
         new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -661,7 +667,7 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new SQLFileOutput( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -670,13 +676,13 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
-    IMetaStore metaStore ) {
+                             RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
+                             IMetaStore metaStore ) {
     if ( truncateTable ) {
       DatabaseImpact ii =
         new DatabaseImpact(
           DatabaseImpact.TYPE_IMPACT_TRUNCATE, transMeta.getName(), stepMeta.getName(), databaseMeta
-            .getDatabaseName(), tablename, "", "", "", "", "Truncate of table" );
+          .getDatabaseName(), tablename, "", "", "", "", "Truncate of table" );
       impact.add( ii );
 
     }
@@ -687,7 +693,7 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
         DatabaseImpact ii =
           new DatabaseImpact(
             DatabaseImpact.TYPE_IMPACT_WRITE, transMeta.getName(), stepMeta.getName(), databaseMeta
-              .getDatabaseName(), tablename, v.getName(), v.getName(), v != null ? v.getOrigin() : "?", "",
+            .getDatabaseName(), tablename, v.getName(), v.getName(), v != null ? v.getOrigin() : "?", "",
             "Type = " + v.toStringMeta() );
         impact.add( ii );
       }
@@ -695,7 +701,7 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public SQLStatement getSQLStatements( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-    IMetaStore metaStore ) {
+                                        IMetaStore metaStore ) {
     SQLStatement retval = new SQLStatement( stepMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
@@ -780,8 +786,7 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param schemaName
-   *          the schemaName to set
+   * @param schemaName the schemaName to set
    */
   public void setSchemaName( String schemaName ) {
     this.schemaName = schemaName;
@@ -797,17 +802,14 @@ public class SQLFileOutputMeta extends BaseStepMeta implements StepMetaInterface
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param space
-   *          the variable space to use
+   * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
-   *
+   * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

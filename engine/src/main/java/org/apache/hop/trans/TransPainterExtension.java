@@ -22,12 +22,12 @@
 
 package org.apache.hop.trans;
 
-import java.util.List;
-
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.GCInterface;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.trans.step.StepMeta;
+
+import java.util.List;
 
 public class TransPainterExtension {
 
@@ -42,8 +42,8 @@ public class TransPainterExtension {
   public int iconsize;
 
   public TransPainterExtension( GCInterface gc, boolean shadow, List<AreaOwner> areaOwners, TransMeta transMeta,
-    StepMeta stepMeta, TransHopMeta transHop, int x1, int y1, int x2, int y2, int mx, int my, Point offset,
-    int iconsize ) {
+                                StepMeta stepMeta, TransHopMeta transHop, int x1, int y1, int x2, int y2, int mx, int my, Point offset,
+                                int iconsize ) {
     super();
     this.gc = gc;
     this.shadow = shadow;

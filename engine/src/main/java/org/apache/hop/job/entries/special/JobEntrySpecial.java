@@ -22,15 +22,9 @@
 
 package org.apache.hop.job.entries.special;
 
-import java.util.Calendar;
-import java.util.List;
-
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopJobException;
 import org.apache.hop.core.exception.HopXMLException;
@@ -39,16 +33,17 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.Calendar;
+import java.util.List;
 
 /**
  * This class can contain a few special job entries such as Start and Dummy.
  *
  * @author Matt
  * @since 05-11-2003
- *
  */
 
 public class JobEntrySpecial extends JobEntryBase implements Cloneable, JobEntryInterface {
@@ -103,10 +98,10 @@ public class JobEntrySpecial extends JobEntryBase implements Cloneable, JobEntry
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       start = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "start" ) );
       dummy = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "dummy" ) );
       repeat = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "repeat" ) );
@@ -311,16 +306,14 @@ public class JobEntrySpecial extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param dummy
-   *          the dummy to set
+   * @param dummy the dummy to set
    */
   public void setDummy( boolean dummy ) {
     this.dummy = dummy;
   }
 
   /**
-   * @param start
-   *          the start to set
+   * @param start the start to set
    */
   public void setStart( boolean start ) {
     this.start = start;
@@ -328,7 +321,7 @@ public class JobEntrySpecial extends JobEntryBase implements Cloneable, JobEntry
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
 
   }
 

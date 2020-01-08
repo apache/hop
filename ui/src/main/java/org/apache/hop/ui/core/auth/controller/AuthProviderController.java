@@ -22,13 +22,6 @@
 
 package org.apache.hop.ui.core.auth.controller;
 
-import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.ResourceBundle;
-
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.ui.core.auth.model.AuthProvider;
@@ -47,15 +40,22 @@ import org.pentaho.ui.xul.components.XulTextbox;
 import org.pentaho.ui.xul.containers.XulDialog;
 import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.ResourceBundle;
+
 @SuppressWarnings( { "unchecked" } )
 public class AuthProviderController extends AbstractXulEventHandler {
 
   protected BindingConvertor<NamedModelObject<NamedProvider>, String> selectedItemsNameBinding =
-      new SelectedToStringConvertor();
+    new SelectedToStringConvertor();
   protected BindingConvertor<NamedModelObject<NamedProvider>, Object> selectedItemsItemBinding =
-      new SelectedToItemConvertor();
+    new SelectedToItemConvertor();
   protected BindingConvertor<Collection<NamedModelObject<NamedProvider>>, Boolean> itemCountBinding =
-      new RowCountToBooleanConvertor<NamedModelObject<NamedProvider>>();
+    new RowCountToBooleanConvertor<NamedModelObject<NamedProvider>>();
 
   private XulDialog xulDialog;
   private BindingFactory bf;
@@ -108,7 +108,7 @@ public class AuthProviderController extends AbstractXulEventHandler {
 
   /**
    * This will change to pull providers from the auth persistencemanager
-   * 
+   *
    * @return Collection<AuthProvider>
    */
   public Collection<AuthProvider> getPossibleTypes() {
@@ -172,18 +172,18 @@ public class AuthProviderController extends AbstractXulEventHandler {
 
       // Manage enabling/disabling layout based on item availability in the main authProvider list.
       bf.createBinding( model.getModelObjects(), "children", "remove_button", "disabled", itemCountBinding )
-          .fireSourceChanged();
+        .fireSourceChanged();
       bf.createBinding( model.getModelObjects(), "children", "name", "disabled", itemCountBinding ).fireSourceChanged();
       bf.createBinding( model.getModelObjects(), "children", "method_list", "disabled", itemCountBinding )
-          .fireSourceChanged();
+        .fireSourceChanged();
 
       // Manage enabling/disabling layout based on selection in the main authProvider list.
       bf.createBinding( "auth_list", "selectedItem", "name", "!disabled", BindingConvertor.object2Boolean() )
-          .fireSourceChanged();
+        .fireSourceChanged();
       bf.createBinding( "auth_list", "selectedItem", "method_list", "!disabled", BindingConvertor.object2Boolean() )
-          .fireSourceChanged();
+        .fireSourceChanged();
       bf.createBinding( "auth_list", "selectedItem", "remove_button", "!disabled", BindingConvertor.object2Boolean() )
-          .fireSourceChanged();
+        .fireSourceChanged();
 
       bf.setBindingType( Binding.Type.BI_DIRECTIONAL );
 
@@ -202,7 +202,7 @@ public class AuthProviderController extends AbstractXulEventHandler {
 
       // Update the method combobox with the appropriate selection for the selected authorization entry
       bf.createBinding( this.model, "selectedItem", "method_list", "selectedItem", selectedItemsItemBinding )
-          .fireSourceChanged();
+        .fireSourceChanged();
 
       // Because the programmatic selection of the item in the combobox does not fire events, we need
       // to bind the main authProvider selection to the changing of the overlay
@@ -383,7 +383,7 @@ public class AuthProviderController extends AbstractXulEventHandler {
 
   /**
    * Exposed only for junit tests
-   * 
+   *
    * @return ObjectListModel
    */
   ObjectListModel getModel() {

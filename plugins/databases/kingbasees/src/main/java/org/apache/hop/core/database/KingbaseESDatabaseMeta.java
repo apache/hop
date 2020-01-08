@@ -34,10 +34,10 @@ import org.apache.hop.core.row.ValueMetaInterface;
  * @since 21-03-2008
  */
 @DatabaseMetaPlugin(
-        type = "KINGBASEES",
-        typeDescription = "KingbaseES"
+  type = "KINGBASEES",
+  typeDescription = "KingbaseES"
 )
-@GuiPlugin( id="GUI-KingbaseDatabaseMeta" )
+@GuiPlugin( id = "GUI-KingbaseDatabaseMeta" )
 public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   /**
    * @return The extra option separator in database URL for this platform
@@ -129,8 +129,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements Database
   /**
    * Get the SQL to get the next value of a sequence.
    *
-   * @param sequenceName
-   *          The sequence name
+   * @param sequenceName The sequence name
    * @return the SQL to get the next value of a sequence.
    */
   @Override
@@ -141,8 +140,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements Database
   /**
    * Get the SQL to get the next value of a sequence.
    *
-   * @param sequenceName
-   *          The sequence name
+   * @param sequenceName The sequence name
    * @return the SQL to get the next value of a sequence.
    */
   @Override
@@ -153,8 +151,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements Database
   /**
    * Check if a sequence exists.
    *
-   * @param sequenceName
-   *          The sequence to check
+   * @param sequenceName The sequence to check
    * @return The SQL to get the name of the sequence back from the databases data dictionary
    */
   @Override
@@ -170,69 +167,51 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements Database
   /**
    * Generates the SQL statement to add a column to the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
   public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                       String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " ADD COLUMN " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
   }
 
   /**
    * Generates the SQL statement to drop a column from the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to drop a column from the specified table
    */
   @Override
   public String getDropColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                        String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " DROP COLUMN " + v.getName() + Const.CR;
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
   public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                          String pk, boolean semicolon ) {
     String retval = "";
     retval += "ALTER TABLE " + tablename + " DROP COLUMN " + v.getName() + Const.CR + ";" + Const.CR;
     retval +=
@@ -242,7 +221,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements Database
 
   @Override
   public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-    boolean add_fieldname, boolean add_cr ) {
+                                    boolean add_fieldname, boolean add_cr ) {
     String retval = "";
 
     String fieldname = v.getName();
@@ -314,8 +293,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements Database
   }
 
   /**
-   * @param the
-   *          schema name to search in or null if you want to search the whole DB
+   * @param the schema name to search in or null if you want to search the whole DB
    * @return The SQL on this database to get a list of stored procedures.
    */
   public String getSQLListOfProcedures( String schemaName ) {
@@ -410,8 +388,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements Database
   }
 
   /**
-   * @param tableNames
-   *          The names of the tables to lock
+   * @param tableNames The names of the tables to lock
    * @return The SQL commands to lock database tables for write purposes.
    */
   @Override
@@ -421,7 +398,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements Database
       if ( i > 0 ) {
         sql += ", ";
       }
-      sql += tableNames[i] + " ";
+      sql += tableNames[ i ] + " ";
     }
     sql += "IN ACCESS EXCLUSIVE MODE;" + Const.CR;
 
@@ -429,8 +406,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements Database
   }
 
   /**
-   * @param tableName
-   *          The name of the table to unlock
+   * @param tableName The name of the table to unlock
    * @return The SQL command to unlock a database table.
    */
   @Override
@@ -440,7 +416,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements Database
 
   /**
    * @return true if the database defaults to naming tables and fields in uppercase. True for most databases except for
-   *         stuborn stuff like Postgres ;-)
+   * stuborn stuff like Postgres ;-)
    */
   @Override
   public boolean isDefaultingToUppercase() {

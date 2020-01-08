@@ -31,7 +31,6 @@ import java.lang.annotation.Target;
 /**
  * An alternate way of defining plugin's dialog. Classes annotated with "PluginDialog" are automatically recognized and added
  * to the corresponding plugin's classloader.
- *
  */
 @Documented
 @Retention( RetentionPolicy.RUNTIME )
@@ -41,6 +40,7 @@ public @interface PluginDialog {
   enum PluginType {
     STEP, JOBENTRY
   }
+
   /**
    * @return The ID of the plugin.
    */

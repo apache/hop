@@ -23,7 +23,6 @@
 package org.apache.hop.resource;
 
 
-
 public interface ResourceHolderInterface {
 
   /**

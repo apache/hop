@@ -30,9 +30,9 @@ public interface LogExceptionBehaviourInterface {
   /**
    * When exception during logging is raised, depending on item settings we will throw exception up, or just put a log
    * record on this event.
-   * 
+   * <p>
    * Different behaviors are created in backward compatibility with existing code. See PDI-9790.
-   * 
+   *
    * @param packageClass
    * @param key
    * @param parameters
@@ -40,6 +40,6 @@ public interface LogExceptionBehaviourInterface {
   public void registerException( LogChannelInterface log, Class<?> packageClass, String key, String... parameters ) throws HopDatabaseException;
 
   public void registerException( LogChannelInterface log, Exception e, Class<?> packageClass, String key,
-      String... parameters ) throws HopDatabaseException;
+                                 String... parameters ) throws HopDatabaseException;
 
 }

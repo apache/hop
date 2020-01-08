@@ -22,9 +22,11 @@
 
 package org.apache.hop.ui.core.widget.warning;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.CheckBoxVar;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusListener;
@@ -38,11 +40,9 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.CheckBoxVar;
-import org.apache.hop.ui.core.widget.TextVar;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A Widget that combines a TextVar widget with a "Warning" image to the right. It's shown when there is a warning
@@ -122,8 +122,7 @@ public class TextVarWarning extends Composite implements SupportsWarningInterfac
   }
 
   /**
-   * @param text
-   *          the text in the Text widget to set.
+   * @param text the text in the Text widget to set.
    */
   public void setText( String text ) {
     wText.setText( text );

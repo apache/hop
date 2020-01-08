@@ -23,11 +23,11 @@
 package org.apache.hop.core.dnd;
 
 import org.apache.commons.codec.binary.Base64;
-import org.eclipse.swt.dnd.ByteArrayTransfer;
-import org.eclipse.swt.dnd.TransferData;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
+import org.eclipse.swt.dnd.ByteArrayTransfer;
+import org.eclipse.swt.dnd.TransferData;
 
 public class XMLTransfer extends ByteArrayTransfer {
   private static final String MYTYPENAME = "HOP_XML_TRANSFER";

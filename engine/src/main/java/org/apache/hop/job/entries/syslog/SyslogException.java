@@ -29,7 +29,6 @@ import org.apache.hop.core.exception.HopException;
  *
  * @author Samatar
  * @since 01-01-2010
- *
  */
 
 public class SyslogException extends HopException {
@@ -46,8 +45,7 @@ public class SyslogException extends HopException {
   /**
    * Constructs a new throwable with the specified detail message.
    *
-   * @param message
-   *          - the detail message. The detail message is saved for later retrieval by the getMessage() method.
+   * @param message - the detail message. The detail message is saved for later retrieval by the getMessage() method.
    */
   public SyslogException( String message ) {
     super( message );

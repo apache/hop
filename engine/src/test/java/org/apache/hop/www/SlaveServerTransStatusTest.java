@@ -22,8 +22,20 @@
 
 package org.apache.hop.www;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.www.SlaveServerJobStatusTest.LoggingStringLoadSaveValidator;
+import org.junit.Assert;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,20 +45,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
-import org.apache.hop.www.SlaveServerJobStatusTest.LoggingStringLoadSaveValidator;
-import org.w3c.dom.Node;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SlaveServerTransStatusTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

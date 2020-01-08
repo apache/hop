@@ -70,7 +70,7 @@ public class GuiElements {
     this.password = guiElement.password();
     this.i18nPackage = guiElement.i18nPackage();
     this.ignored = guiElement.ignored();
-    if (StringUtils.isNotEmpty(i18nPackage)) {
+    if ( StringUtils.isNotEmpty( i18nPackage ) ) {
       this.label = BaseMessages.getString( i18nPackage, guiElement.label() );
       this.toolTip = BaseMessages.getString( i18nPackage, guiElement.toolTip() );
     } else {
@@ -103,7 +103,7 @@ public class GuiElements {
   public void sortChildren() {
     Collections.sort( children, new Comparator<GuiElements>() {
       @Override public int compare( GuiElements o1, GuiElements o2 ) {
-        if (StringUtils.isNotEmpty( o1.order ) && StringUtils.isNotEmpty( o2.order )) {
+        if ( StringUtils.isNotEmpty( o1.order ) && StringUtils.isNotEmpty( o2.order ) ) {
           return o1.order.compareTo( o2.order );
         } else {
           return o1.id.compareTo( o2.id );
@@ -113,8 +113,8 @@ public class GuiElements {
   }
 
   public GuiElements findChild( String id ) {
-    for (GuiElements child : children) {
-      if (child.getId()!=null && child.getId().equals( id )) {
+    for ( GuiElements child : children ) {
+      if ( child.getId() != null && child.getId().equals( id ) ) {
         return child;
       }
     }

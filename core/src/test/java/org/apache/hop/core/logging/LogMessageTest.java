@@ -22,19 +22,16 @@
 
 package org.apache.hop.core.logging;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import org.apache.hop.core.Const;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.apache.hop.core.Const;
 
-import java.text.MessageFormat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Tatsiana_Kasiankova
- *
  */
 public class LogMessageTest {
   private LogMessage logMessage;
@@ -95,22 +92,22 @@ public class LogMessageTest {
   @Test
   public void testToString() throws Exception {
     LogMessage msg = new LogMessage( "Log message",
-        "Channel 01",
-        LogLevel.DEBUG );
+      "Channel 01",
+      LogLevel.DEBUG );
     msg.setSubject( "Simple" );
 
-    assertEquals( "Simple - Log message", msg.toString( ) );
+    assertEquals( "Simple - Log message", msg.toString() );
   }
 
   @Test
   public void testToString_withOneArgument() throws Exception {
     LogMessage msg = new LogMessage( "Log message for {0}",
-        "Channel 01",
-        new String[]{"Test"},
-        LogLevel.DEBUG );
+      "Channel 01",
+      new String[] { "Test" },
+      LogLevel.DEBUG );
     msg.setSubject( "Subject" );
 
-    assertEquals( "Subject - Log message for Test", msg.toString( ) );
+    assertEquals( "Subject - Log message for Test", msg.toString() );
   }
 
   @Test
@@ -131,11 +128,11 @@ public class LogMessageTest {
   private static LoggingObjectInterface getTreeLoggingObject() {
     LoggingObjectInterface rootLogObject = new SimpleLoggingObject( "ROOT_SUBJECT", LoggingObjectType.SPOON, null );
     LoggingObjectInterface transLogObject =
-        new SimpleLoggingObject( "TRANS_SUBJECT", LoggingObjectType.TRANS, rootLogObject );
+      new SimpleLoggingObject( "TRANS_SUBJECT", LoggingObjectType.TRANS, rootLogObject );
     LoggingObjectInterface stepLogObject =
-        new SimpleLoggingObject( "STEP_SUBJECT", LoggingObjectType.STEP, transLogObject );
+      new SimpleLoggingObject( "STEP_SUBJECT", LoggingObjectType.STEP, transLogObject );
     LoggingObjectInterface transChildLogObject =
-        new SimpleLoggingObject( "TRANS_CHILD_SUBJECT", LoggingObjectType.TRANS, stepLogObject );
+      new SimpleLoggingObject( "TRANS_CHILD_SUBJECT", LoggingObjectType.TRANS, stepLogObject );
     return transChildLogObject;
   }
 

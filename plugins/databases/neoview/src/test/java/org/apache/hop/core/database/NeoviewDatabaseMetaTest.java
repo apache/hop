@@ -21,26 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.ByteArrayInputStream;
-import java.math.BigDecimal;
-import java.sql.Blob;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-
-import static org.junit.Assert.assertNull;
-
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
@@ -51,6 +31,24 @@ import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
+import java.sql.Blob;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class NeoviewDatabaseMetaTest {
 
@@ -67,17 +65,18 @@ public class NeoviewDatabaseMetaTest {
   @Test
   public void testSettings() throws Exception {
     assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
-        nativeMeta.getAccessTypeList() );
+      nativeMeta.getAccessTypeList() );
     assertEquals( 18650, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertFalse( nativeMeta.supportsAutoInc() );
     assertEquals( 0, nativeMeta.getNotFoundTK( true ) );
     assertEquals( 0, nativeMeta.getNotFoundTK( false ) );
     assertEquals( "com.hp.t4jdbc.HPT4Driver", nativeMeta.getDriverClass() );
-    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL(  "IGNORED", "IGNORED", "FOO" ) );
+    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "IGNORED", "IGNORED", "FOO" ) );
     assertEquals( "jdbc:hpt4jdbc://FOO:BAR/:schema=WIBBLE", nativeMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
     assertEquals( "jdbc:hpt4jdbc://FOO:BAR/:schema=WIBBLE", nativeMeta.getURL( "FOO", "BAR", "schema=WIBBLE" ) );
-    assertEquals( "jdbc:hpt4jdbc://FOO:BAR/::catalog=abc:serverDataSource=foo:schema=wibble", nativeMeta.getURL( "FOO", "BAR", ":catalog=abc:serverDataSource=foo:schema=wibble" ) ); // also pretty sure this is broken (two colons before catalog
+    assertEquals( "jdbc:hpt4jdbc://FOO:BAR/::catalog=abc:serverDataSource=foo:schema=wibble",
+      nativeMeta.getURL( "FOO", "BAR", ":catalog=abc:serverDataSource=foo:schema=wibble" ) ); // also pretty sure this is broken (two colons before catalog
     assertEquals( "jdbc:hpt4jdbc://FOO:BAR/:catalog=abc:serverDataSource=foo:schema=wibble", nativeMeta.getURL( "FOO", "BAR", "catalog=abc:serverDataSource=foo:schema=wibble" ) );
     assertEquals( "jdbc:hpt4jdbc://FOO:/:schema=WIBBLE", nativeMeta.getURL( "FOO", "", "WIBBLE" ) ); // Pretty sure this is a bug (colon after foo)
     assertTrue( nativeMeta.isFetchSizeSupported() );
@@ -141,19 +140,19 @@ public class NeoviewDatabaseMetaTest {
 
     assertEquals( "DELETE FROM FOO", nativeMeta.getTruncateTableStatement( "FOO" ) );
     assertEquals( "ALTER TABLE FOO ADD ( BAR VARCHAR(15) ) ",
-        nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
+      nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO DROP ( BAR ) " + lineSep,
-        nativeMeta.getDropColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
+      nativeMeta.getDropColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO MODIFY BAR VARCHAR(15)",
-        nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) ); // if all the others require parens, this is likely a bug
+      nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) ); // if all the others require parens, this is likely a bug
 
     assertEquals( "insert into FOO(FOOKEY, FOOVERSION) values (0, 1)",
-        nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
+      nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
 
     assertEquals( "LOCK TABLE FOO IN EXCLUSIVE MODE;" + lineSep + "LOCK TABLE BAR IN EXCLUSIVE MODE;" + lineSep,
-        nativeMeta.getSQLLockTables( new String[] { "FOO", "BAR" } ) );
+      nativeMeta.getSQLLockTables( new String[] { "FOO", "BAR" } ) );
 
     assertNull( nativeMeta.getSQLUnlockTables( new String[] { "FOO", "BAR" } ) );
   }
@@ -161,61 +160,62 @@ public class NeoviewDatabaseMetaTest {
   @Test
   public void testGetFieldDefinition() {
     assertEquals( "FOO TIMESTAMP",
-        nativeMeta.getFieldDefinition( new ValueMetaDate( "FOO" ), "", "", false, true, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaDate( "FOO" ), "", "", false, true, false ) );
     assertEquals( "TIMESTAMP",
-        nativeMeta.getFieldDefinition( new ValueMetaTimestamp( "FOO" ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaTimestamp( "FOO" ), "", "", false, false, false ) );
     assertEquals( "CHAR(1)",
-        nativeMeta.getFieldDefinition( new ValueMetaBoolean( "FOO" ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBoolean( "FOO" ), "", "", false, false, false ) );
 
     // Primary/Tech Keys
     assertEquals( "INTEGER NOT NULL PRIMARY KEY",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 8, 0 ), "", "FOO", true, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 8, 0 ), "", "FOO", true, false, false ) );
     assertEquals( "INTEGER NOT NULL PRIMARY KEY",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 10, 0 ), "FOO", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 10, 0 ), "FOO", "", false, false, false ) );
     assertEquals( "INTEGER NOT NULL PRIMARY KEY",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 8, 0 ), "", "FOO", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 8, 0 ), "", "FOO", false, false, false ) );
 
     // Regular Integers
     assertEquals( "NUMERIC(10)",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 10, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 10, 0 ), "", "", false, false, false ) );
     assertEquals( "NUMERIC(18)",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 18, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 18, 0 ), "", "", false, false, false ) );
     assertEquals( "INTEGER",
-        nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 9, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 9, 0 ), "", "", false, false, false ) );
     assertEquals( "FLOAT",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 19, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 19, 0 ), "", "", false, false, false ) );
 
     assertEquals( "NUMERIC(10, 5)",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 10, 5 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 10, 5 ), "", "", false, false, false ) );
     assertEquals( "FLOAT",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 19, 5 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 19, 5 ), "", "", false, false, false ) );
     assertEquals( "NUMERIC(-7)",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", -7, -2 ), "", "", false, false, false ) ); // This is a bug...
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", -7, -2 ), "", "", false, false, false ) ); // This is a bug...
     assertEquals( "NUMERIC(-7, 2)",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", -7, 2 ), "", "", false, false, false ) ); // This is a bug ...
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", -7, 2 ), "", "", false, false, false ) ); // This is a bug ...
 
     // String Types
     assertEquals( "VARCHAR(15)",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", 15, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", 15, 0 ), "", "", false, false, false ) );
     assertEquals( "VARCHAR(4028)",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", nativeMeta.getMaxVARCHARLength(), 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", nativeMeta.getMaxVARCHARLength(), 0 ), "", "", false, false, false ) );
     assertEquals( "CHAR(4029)",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", 4029, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", 4029, 0 ), "", "", false, false, false ) );
     assertEquals( "CHAR(4036)",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", 4036, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", 4036, 0 ), "", "", false, false, false ) );
     assertEquals( "CLOB",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", 4037, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", 4037, 0 ), "", "", false, false, false ) );
 
     // Binary
     assertEquals( "BLOB",
-        nativeMeta.getFieldDefinition( new ValueMetaBinary( "FOO", 4037, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBinary( "FOO", 4037, 0 ), "", "", false, false, false ) );
 
     assertEquals( " UNKNOWN",
-        nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, false ) );
     assertEquals( " UNKNOWN" + System.getProperty( "line.separator" ),
-        nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, true ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, true ) );
 
   }
+
   @Test
   public void testGetValueFromResultSet() throws Exception {
     Object rtn = null;
@@ -256,12 +256,12 @@ public class NeoviewDatabaseMetaTest {
 
     // Now that the date stuff is done, validate the behaviors of other aspects of getValueFromResultSet
     Mockito.when( resultSet.wasNull() ).thenReturn( false );
-    Mockito.when(  resultSet.getBoolean( 1 ) ).thenReturn( new Boolean( true ) );
-    Mockito.when(  resultSet.getDouble( 1 ) ).thenReturn( new Double( 15 ) );
-    Mockito.when(  resultSet.getBigDecimal( 1 ) ).thenReturn( new BigDecimal( "15" ) );
-    Mockito.when(  resultSet.getLong( 1 ) ).thenReturn( new Long( "15" ) );
-    Mockito.when(  resultSet.getString( 1 ) ).thenReturn( "ASTRING" );
-    Mockito.when(  resultSet.getBytes( 1 ) ).thenReturn( "ASTRING".getBytes() );
+    Mockito.when( resultSet.getBoolean( 1 ) ).thenReturn( new Boolean( true ) );
+    Mockito.when( resultSet.getDouble( 1 ) ).thenReturn( new Double( 15 ) );
+    Mockito.when( resultSet.getBigDecimal( 1 ) ).thenReturn( new BigDecimal( "15" ) );
+    Mockito.when( resultSet.getLong( 1 ) ).thenReturn( new Long( "15" ) );
+    Mockito.when( resultSet.getString( 1 ) ).thenReturn( "ASTRING" );
+    Mockito.when( resultSet.getBytes( 1 ) ).thenReturn( "ASTRING".getBytes() );
     Blob mockBlob = Mockito.mock( Blob.class );
     byte[] bytes = "FOO".getBytes();
     ByteArrayInputStream bais = new ByteArrayInputStream( bytes );
@@ -269,7 +269,7 @@ public class NeoviewDatabaseMetaTest {
     Mockito.when( mockBlob.getBinaryStream() ).thenReturn( bais );
     Mockito.when( mockBlob.length() ).thenReturn( new Long( bytes.length ) );
     Mockito.when( mockBlob.getBytes( Mockito.anyLong(), Mockito.anyInt() ) ).thenReturn( bytes );
-    Mockito.when(  resultSet.getBlob( 1 ) ).thenReturn( mockBlob );
+    Mockito.when( resultSet.getBlob( 1 ) ).thenReturn( mockBlob );
 
     rtn = nativeMeta.getValueFromResultSet( resultSet, new ValueMetaBoolean( "FOO" ), 0 );
     assertNotNull( rtn );
@@ -298,7 +298,7 @@ public class NeoviewDatabaseMetaTest {
     assertTrue( rtn instanceof byte[] );
 
     try {
-      Mockito.when(  resultSet.getBoolean( 15 ) ).thenThrow( new SQLException( "Expected Exception Here" ) );
+      Mockito.when( resultSet.getBoolean( 15 ) ).thenThrow( new SQLException( "Expected Exception Here" ) );
       rtn = nativeMeta.getValueFromResultSet( resultSet, new ValueMetaBoolean( "FOO" ), 14 );
       fail( "Should not get here" );
     } catch ( Exception someException ) {

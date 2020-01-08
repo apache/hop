@@ -22,14 +22,9 @@
 
 package org.apache.hop.trans.steps.execsqlrow;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
@@ -37,12 +32,13 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.injection.Injection;
+import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -51,8 +47,9 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.sql.ExecSQL;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /***
  * Contains meta-data to execute arbitrary SQL from a specified field.
@@ -82,14 +79,18 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
   @Injection( name = "READ_STATS", group = "OUTPUT_FIELDS" )
   private String readField;
 
-  /** Commit size for inserts/updates */
+  /**
+   * Commit size for inserts/updates
+   */
   @Injection( name = "COMMIT_SIZE" )
   private int commitSize;
 
   @Injection( name = "READ_SQL_FROM_FILE" )
   private boolean sqlFromfile;
 
-  /** Send SQL as single statement **/
+  /**
+   * Send SQL as single statement
+   **/
   @Injection( name = "SEND_SINGLE_STATEMENT" )
   private boolean sendOneStatement;
 
@@ -101,8 +102,8 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
   public void setConnection( String connectionName ) {
     try {
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, connectionName );
-    } catch(Exception e) {
-      throw new RuntimeException( "Unable to load connection '"+connectionName+"'", e );
+    } catch ( Exception e ) {
+      throw new RuntimeException( "Unable to load connection '" + connectionName + "'", e );
     }
   }
 
@@ -114,8 +115,7 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param sendOneStatement
-   *          The sendOneStatement to set.
+   * @param sendOneStatement The sendOneStatement to set.
    */
   public void SetSendOneStatement( boolean sendOneStatement ) {
     this.sendOneStatement = sendOneStatement;
@@ -129,8 +129,7 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param sqlFromfile
-   *          The sqlFromfile to set.
+   * @param sqlFromfile The sqlFromfile to set.
    */
   public void setSqlFromfile( boolean sqlFromfile ) {
     this.sqlFromfile = sqlFromfile;
@@ -144,8 +143,7 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param database
-   *          The database to set.
+   * @param database The database to set.
    */
   public void setDatabaseMeta( DatabaseMeta database ) {
     this.databaseMeta = database;
@@ -159,8 +157,7 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param sqlField
-   *          The sqlField to sqlField.
+   * @param sqlField The sqlField to sqlField.
    */
   public void setSqlFieldName( String sqlField ) {
     this.sqlField = sqlField;
@@ -174,8 +171,7 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param commitSize
-   *          The commitSize to set.
+   * @param commitSize The commitSize to set.
    */
   public void setCommitSize( int commitSize ) {
     this.commitSize = commitSize;
@@ -189,8 +185,7 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param deleteField
-   *          The deleteField to set.
+   * @param deleteField The deleteField to set.
    */
   public void setDeleteField( String deleteField ) {
     this.deleteField = deleteField;
@@ -204,8 +199,7 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param insertField
-   *          The insertField to set.
+   * @param insertField The insertField to set.
    */
   public void setInsertField( String insertField ) {
     this.insertField = insertField;
@@ -219,8 +213,7 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param readField
-   *          The readField to set.
+   * @param readField The readField to set.
    */
   public void setReadField( String readField ) {
     this.readField = readField;
@@ -234,8 +227,7 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param updateField
-   *          The updateField to set.
+   * @param updateField The updateField to set.
    */
   public void setUpdateField( String updateField ) {
     this.updateField = updateField;
@@ -283,7 +275,7 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     RowMetaAndData add =
       ExecSQL.getResultRow( new Result(), getUpdateField(), getInsertField(), getDeleteField(), getReadField() );
 
@@ -295,7 +287,7 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "    " ).append( XMLHandler.addTagValue( "commit", commitSize ) );
     retval
       .append( "    " ).append(
-        XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+      XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "sql_field", sqlField ) );
 
     retval.append( "    " ).append( XMLHandler.addTagValue( "insert_field", insertField ) );
@@ -308,8 +300,8 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( databaseMeta != null ) {
@@ -369,7 +361,7 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new ExecSQLRow( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

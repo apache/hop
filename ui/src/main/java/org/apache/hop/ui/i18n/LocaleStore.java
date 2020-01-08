@@ -22,22 +22,23 @@
 
 package org.apache.hop.ui.i18n;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannelInterface;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannelInterface;
 
 /**
  * This class stores all the messages for a locale for all the used packages...
  *
  * @author matt
- *
  */
 public class LocaleStore {
 
-  /** The locale to handle */
+  /**
+   * The locale to handle
+   */
   private String locale;
 
   /**
@@ -54,14 +55,12 @@ public class LocaleStore {
   /**
    * Create a new LocaleStore
    *
-   * @param locale
-   *          The locale to handle
-   * @param messagesPackages
-   *          the packages to handle per source folder
+   * @param locale             The locale to handle
+   * @param messagesPackages   the packages to handle per source folder
    * @param packageOccurrences
    */
   public LocaleStore( LogChannelInterface log, String locale, String mainLocale,
-    Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences ) {
+                      Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences ) {
     this.log = log;
     this.locale = locale;
     this.mainLocale = mainLocale;
@@ -73,9 +72,7 @@ public class LocaleStore {
    * Read all the messages stores from the specified locale from all the specified packages
    *
    * @param directories
-   *
-   * @param directories
-   *          The source directories to reference the packages from
+   * @param directories The source directories to reference the packages from
    * @throws HopException
    */
   public void read( List<String> directories ) throws HopException {
@@ -99,8 +96,7 @@ public class LocaleStore {
   }
 
   /**
-   * @param locale
-   *          the locale to set
+   * @param locale the locale to set
    */
   public void setLocale( String locale ) {
     this.locale = locale;
@@ -114,8 +110,7 @@ public class LocaleStore {
   }
 
   /**
-   * @param mainLocale
-   *          the mainLocale to set
+   * @param mainLocale the mainLocale to set
    */
   public void setMainLocale( String mainLocale ) {
     this.mainLocale = mainLocale;

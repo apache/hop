@@ -22,14 +22,10 @@
 
 package org.apache.hop.trans.steps.fieldsplitter;
 
-import java.util.List;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.AfterInjection;
@@ -43,7 +39,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -51,8 +47,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*
  * Created on 31-okt-2003
@@ -61,114 +58,146 @@ import org.w3c.dom.Node;
 
 /**
  * <CODE>
-  Example1:<p>
-  -------------<p>
-  DATUM;VALUES<p>
-  20031031;500,300,200,100<p>
-<p>
-        ||<t>        delimiter     = ,<p>
-       \||/<t>       field[]       = SALES1, SALES2, SALES3, SALES4<p>
-        \/<t>        id[]          = <empty><p>
-          <t>        idrem[]       = no, no, no, no<p>
-           <t>       type[]        = Number, Number, Number, Number<p>
-            <t>      format[]      = ###.##, ###.##, ###.##, ###.##<p>
-            <t>      group[]       = <empty><p>
-            <t>      decimal[]     = .<p>
-            <t>      currency[]    = <empty><p>
-            <t>      length[]      = 3, 3, 3, 3<p>
-            <t>      precision[]   = 0, 0, 0, 0<p>
-  <p>
-  DATUM;SALES1;SALES2;SALES3;SALES4<p>
-  20031031;500;300;200;100<p>
-<p>
-  Example2:<p>
-  -----------<p>
-<p>
-  20031031;Sales2=310.50, Sales4=150.23<p>
-<p>
-        ||        delimiter     = ,<p>
-       \||/       field[]       = SALES1, SALES2, SALES3, SALES4<p>
-        \/        id[]          = Sales1, Sales2, Sales3, Sales4<p>
-                  idrem[]       = yes, yes, yes, yes (remove ID's from split field)<p>
-                  type[]        = Number, Number, Number, Number<p>
-                  format[]      = ###.##, ###.##, ###.##, ###.##<p>
-                  group[]       = <empty><p>
-                  decimal[]     = .<p>
-                  currency[]    = <empty><p>
-                  length[]      = 3, 3, 3, 3<p>
-                  precision[]   = 0, 0, 0, 0<p>
-<p>
-  DATUM;SALES1;SALES2;SALES3;SALES4<p>
-  20031031;310,50;150,23<p>
-<p>
-
-</CODE>
+ * Example1:<p>
+ * -------------<p>
+ * DATUM;VALUES<p>
+ * 20031031;500,300,200,100<p>
+ * <p>
+ * ||<t>        delimiter     = ,<p>
+ * \||/<t>       field[]       = SALES1, SALES2, SALES3, SALES4<p>
+ * \/<t>        id[]          = <empty><p>
+ * <t>        idrem[]       = no, no, no, no<p>
+ * <t>       type[]        = Number, Number, Number, Number<p>
+ * <t>      format[]      = ###.##, ###.##, ###.##, ###.##<p>
+ * <t>      group[]       = <empty><p>
+ * <t>      decimal[]     = .<p>
+ * <t>      currency[]    = <empty><p>
+ * <t>      length[]      = 3, 3, 3, 3<p>
+ * <t>      precision[]   = 0, 0, 0, 0<p>
+ * <p>
+ * DATUM;SALES1;SALES2;SALES3;SALES4<p>
+ * 20031031;500;300;200;100<p>
+ * <p>
+ * Example2:<p>
+ * -----------<p>
+ * <p>
+ * 20031031;Sales2=310.50, Sales4=150.23<p>
+ * <p>
+ * ||        delimiter     = ,<p>
+ * \||/       field[]       = SALES1, SALES2, SALES3, SALES4<p>
+ * \/        id[]          = Sales1, Sales2, Sales3, Sales4<p>
+ * idrem[]       = yes, yes, yes, yes (remove ID's from split field)<p>
+ * type[]        = Number, Number, Number, Number<p>
+ * format[]      = ###.##, ###.##, ###.##, ###.##<p>
+ * group[]       = <empty><p>
+ * decimal[]     = .<p>
+ * currency[]    = <empty><p>
+ * length[]      = 3, 3, 3, 3<p>
+ * precision[]   = 0, 0, 0, 0<p>
+ * <p>
+ * DATUM;SALES1;SALES2;SALES3;SALES4<p>
+ * 20031031;310,50;150,23<p>
+ * <p>
+ *
+ * </CODE>
  **/
 @InjectionSupported( localizationPrefix = "FieldSplitter.Injection.", groups = { "FIELDS" } )
 public class FieldSplitterMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = FieldSplitterMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** Field to split */
+  /**
+   * Field to split
+   */
   @Injection( name = "FIELD_TO_SPLIT" )
   private String splitField;
 
-  /** Split fields based upon this delimiter. */
+  /**
+   * Split fields based upon this delimiter.
+   */
   @Injection( name = "DELIMITER" )
   private String delimiter;
 
-  /** Ignore delimiter inside pairs of the enclosure string */
+  /**
+   * Ignore delimiter inside pairs of the enclosure string
+   */
   @Injection( name = "ENCLOSURE" )
   private String enclosure;
 
-  /** new field names */
+  /**
+   * new field names
+   */
   @Injection( name = "NAME", group = "FIELDS" )
   private String[] fieldName;
 
-  /** Field ID's to scan for */
+  /**
+   * Field ID's to scan for
+   */
   @Injection( name = "ID", group = "FIELDS" )
   private String[] fieldID;
 
-  /** flag: remove ID */
+  /**
+   * flag: remove ID
+   */
   @Injection( name = "REMOVE_ID", group = "FIELDS" )
   private boolean[] fieldRemoveID;
 
-  /** type of new field */
+  /**
+   * type of new field
+   */
   @Injection( name = "DATA_TYPE", group = "FIELDS", converter = DataTypeConverter.class )
   private int[] fieldType;
 
-  /** formatting mask to convert value */
+  /**
+   * formatting mask to convert value
+   */
   @Injection( name = "FORMAT", group = "FIELDS" )
   private String[] fieldFormat;
 
-  /** Grouping symbol */
+  /**
+   * Grouping symbol
+   */
   @Injection( name = "GROUPING", group = "FIELDS" )
   private String[] fieldGroup;
 
-  /** Decimal point . or , */
+  /**
+   * Decimal point . or ,
+   */
   @Injection( name = "DECIMAL", group = "FIELDS" )
   private String[] fieldDecimal;
 
-  /** Currency symbol */
+  /**
+   * Currency symbol
+   */
   @Injection( name = "CURRENCY", group = "FIELDS" )
   private String[] fieldCurrency;
 
-  /** Length of field */
+  /**
+   * Length of field
+   */
   @Injection( name = "LENGTH", group = "FIELDS" )
   private int[] fieldLength;
 
-  /** Precision of field */
+  /**
+   * Precision of field
+   */
   @Injection( name = "PRECISION", group = "FIELDS" )
   private int[] fieldPrecision;
 
-  /** Replace this value with a null */
+  /**
+   * Replace this value with a null
+   */
   @Injection( name = "NULL_IF", group = "FIELDS" )
   private String[] fieldNullIf;
 
-  /** Default value in case no value was found (ID option) */
+  /**
+   * Default value in case no value was found (ID option)
+   */
   @Injection( name = "DEFAULT", group = "FIELDS" )
   private String[] fieldIfNull;
 
-  /** Perform trimming of this type on the fieldName during lookup and storage */
+  /**
+   * Perform trimming of this type on the fieldName during lookup and storage
+   */
   @Injection( name = "TRIM_TYPE", group = "FIELDS", converter = TrimTypeConverter.class )
   private int[] fieldTrimType;
 
@@ -309,19 +338,19 @@ public class FieldSplitterMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void allocate( int nrfields ) {
-    fieldName = new String[nrfields];
-    fieldID = new String[nrfields];
-    fieldRemoveID = new boolean[nrfields];
-    fieldType = new int[nrfields];
-    fieldFormat = new String[nrfields];
-    fieldGroup = new String[nrfields];
-    fieldDecimal = new String[nrfields];
-    fieldCurrency = new String[nrfields];
-    fieldLength = new int[nrfields];
-    fieldPrecision = new int[nrfields];
-    fieldNullIf = new String[nrfields];
-    fieldIfNull = new String[nrfields];
-    fieldTrimType = new int[nrfields];
+    fieldName = new String[ nrfields ];
+    fieldID = new String[ nrfields ];
+    fieldRemoveID = new boolean[ nrfields ];
+    fieldType = new int[ nrfields ];
+    fieldFormat = new String[ nrfields ];
+    fieldGroup = new String[ nrfields ];
+    fieldDecimal = new String[ nrfields ];
+    fieldCurrency = new String[ nrfields ];
+    fieldLength = new int[ nrfields ];
+    fieldPrecision = new int[ nrfields ];
+    fieldNullIf = new String[ nrfields ];
+    fieldIfNull = new String[ nrfields ];
+    fieldTrimType = new int[ nrfields ];
   }
 
   public Object clone() {
@@ -362,25 +391,25 @@ public class FieldSplitterMeta extends BaseStepMeta implements StepMetaInterface
       for ( int i = 0; i < nrfields; i++ ) {
         final Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldName[i] = XMLHandler.getTagValue( fnode, "name" );
-        fieldID[i] = XMLHandler.getTagValue( fnode, "id" );
+        fieldName[ i ] = XMLHandler.getTagValue( fnode, "name" );
+        fieldID[ i ] = XMLHandler.getTagValue( fnode, "id" );
         final String sidrem = XMLHandler.getTagValue( fnode, "idrem" );
         final String stype = XMLHandler.getTagValue( fnode, "type" );
-        fieldFormat[i] = XMLHandler.getTagValue( fnode, "format" );
-        fieldGroup[i] = XMLHandler.getTagValue( fnode, "group" );
-        fieldDecimal[i] = XMLHandler.getTagValue( fnode, "decimal" );
-        fieldCurrency[i] = XMLHandler.getTagValue( fnode, "currency" );
+        fieldFormat[ i ] = XMLHandler.getTagValue( fnode, "format" );
+        fieldGroup[ i ] = XMLHandler.getTagValue( fnode, "group" );
+        fieldDecimal[ i ] = XMLHandler.getTagValue( fnode, "decimal" );
+        fieldCurrency[ i ] = XMLHandler.getTagValue( fnode, "currency" );
         final String slen = XMLHandler.getTagValue( fnode, "length" );
         final String sprc = XMLHandler.getTagValue( fnode, "precision" );
-        fieldNullIf[i] = XMLHandler.getTagValue( fnode, "nullif" );
-        fieldIfNull[i] = XMLHandler.getTagValue( fnode, "ifnull" );
+        fieldNullIf[ i ] = XMLHandler.getTagValue( fnode, "nullif" );
+        fieldIfNull[ i ] = XMLHandler.getTagValue( fnode, "ifnull" );
         final String trim = XMLHandler.getTagValue( fnode, "trimtype" );
 
-        fieldRemoveID[i] = "Y".equalsIgnoreCase( sidrem );
-        fieldType[i] = ValueMetaFactory.getIdForValueMeta( stype );
-        fieldLength[i] = Const.toInt( slen, -1 );
-        fieldPrecision[i] = Const.toInt( sprc, -1 );
-        fieldTrimType[i] = ValueMetaString.getTrimTypeByCode( trim );
+        fieldRemoveID[ i ] = "Y".equalsIgnoreCase( sidrem );
+        fieldType[ i ] = ValueMetaFactory.getIdForValueMeta( stype );
+        fieldLength[ i ] = Const.toInt( slen, -1 );
+        fieldPrecision[ i ] = Const.toInt( sprc, -1 );
+        fieldTrimType[ i ] = ValueMetaString.getTrimTypeByCode( trim );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString(
@@ -408,7 +437,7 @@ public class FieldSplitterMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Remove the field to split
     int idx = r.indexOfValue( getSplitField() );
     if ( idx < 0 ) { // not found
@@ -420,14 +449,14 @@ public class FieldSplitterMeta extends BaseStepMeta implements StepMetaInterface
     int count = getFieldsCount();
     for ( int i = 0; i < count; i++ ) {
       try {
-        final ValueMetaInterface v = ValueMetaFactory.createValueMeta( getFieldName()[i], getFieldType()[i] );
-        v.setLength( getFieldLength()[i], getFieldPrecision()[i] );
+        final ValueMetaInterface v = ValueMetaFactory.createValueMeta( getFieldName()[ i ], getFieldType()[ i ] );
+        v.setLength( getFieldLength()[ i ], getFieldPrecision()[ i ] );
         v.setOrigin( name );
-        v.setConversionMask( getFieldFormat()[i] );
-        v.setDecimalSymbol( getFieldDecimal()[i] );
-        v.setGroupingSymbol( getFieldGroup()[i] );
-        v.setCurrencySymbol( getFieldCurrency()[i] );
-        v.setTrimType( getFieldTrimType()[i] );
+        v.setConversionMask( getFieldFormat()[ i ] );
+        v.setDecimalSymbol( getFieldDecimal()[ i ] );
+        v.setGroupingSymbol( getFieldGroup()[ i ] );
+        v.setCurrencySymbol( getFieldCurrency()[ i ] );
+        v.setTrimType( getFieldTrimType()[ i ] );
         // TODO when implemented in UI
         // v.setDateFormatLenient(dateFormatLenient);
         // TODO when implemented in UI
@@ -460,33 +489,33 @@ public class FieldSplitterMeta extends BaseStepMeta implements StepMetaInterface
     for ( int i = 0; i < fieldName.length; i++ ) {
       retval
         .append( "      " ).append( "<field>" )
-        .append( "        " ).append( XMLHandler.addTagValue( "name", fieldName[i] ) )
+        .append( "        " ).append( XMLHandler.addTagValue( "name", fieldName[ i ] ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "id", ArrayUtils.isEmpty( fieldID ) ? null : fieldID[i] ) )
+        .append( XMLHandler.addTagValue( "id", ArrayUtils.isEmpty( fieldID ) ? null : fieldID[ i ] ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "idrem", ArrayUtils.isEmpty( fieldRemoveID ) ? false : fieldRemoveID[i] ) )
+        .append( XMLHandler.addTagValue( "idrem", ArrayUtils.isEmpty( fieldRemoveID ) ? false : fieldRemoveID[ i ] ) )
         .append( "        " )
         .append( XMLHandler.addTagValue( "type",
-          ValueMetaFactory.getValueMetaName( ArrayUtils.isEmpty( fieldType ) ? 0 : fieldType[i] ) ) )
+          ValueMetaFactory.getValueMetaName( ArrayUtils.isEmpty( fieldType ) ? 0 : fieldType[ i ] ) ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "format", ArrayUtils.isEmpty( fieldFormat ) ? null : fieldFormat[i] ) )
+        .append( XMLHandler.addTagValue( "format", ArrayUtils.isEmpty( fieldFormat ) ? null : fieldFormat[ i ] ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "group", ArrayUtils.isEmpty( fieldGroup ) ? null : fieldGroup[i] ) )
+        .append( XMLHandler.addTagValue( "group", ArrayUtils.isEmpty( fieldGroup ) ? null : fieldGroup[ i ] ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "decimal", ArrayUtils.isEmpty( fieldDecimal ) ? null : fieldDecimal[i] ) )
+        .append( XMLHandler.addTagValue( "decimal", ArrayUtils.isEmpty( fieldDecimal ) ? null : fieldDecimal[ i ] ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "currency", ArrayUtils.isEmpty( fieldCurrency ) ? null : fieldCurrency[i] ) )
+        .append( XMLHandler.addTagValue( "currency", ArrayUtils.isEmpty( fieldCurrency ) ? null : fieldCurrency[ i ] ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "length",  ArrayUtils.isEmpty( fieldLength ) ? -1 : fieldLength[i] ) )
+        .append( XMLHandler.addTagValue( "length", ArrayUtils.isEmpty( fieldLength ) ? -1 : fieldLength[ i ] ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "precision", ArrayUtils.isEmpty( fieldPrecision ) ? -1 : fieldPrecision[i] ) )
+        .append( XMLHandler.addTagValue( "precision", ArrayUtils.isEmpty( fieldPrecision ) ? -1 : fieldPrecision[ i ] ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "nullif", ArrayUtils.isEmpty( fieldNullIf ) ? null : fieldNullIf[i] ) )
+        .append( XMLHandler.addTagValue( "nullif", ArrayUtils.isEmpty( fieldNullIf ) ? null : fieldNullIf[ i ] ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "ifnull", ArrayUtils.isEmpty( fieldIfNull ) ? null : fieldIfNull[i] ) )
+        .append( XMLHandler.addTagValue( "ifnull", ArrayUtils.isEmpty( fieldIfNull ) ? null : fieldIfNull[ i ] ) )
         .append( "        " )
         .append( XMLHandler.addTagValue( "trimtype",
-          ValueMetaString.getTrimTypeCode( ArrayUtils.isEmpty( fieldTrimType ) ? 0 : fieldTrimType[i] ) ) )
+          ValueMetaString.getTrimTypeCode( ArrayUtils.isEmpty( fieldTrimType ) ? 0 : fieldTrimType[ i ] ) ) )
         .append( "      " ).append( "</field>" );
     }
     retval.append( "    " ).append( "</fields>" );
@@ -495,8 +524,8 @@ public class FieldSplitterMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     String error_message = "";
     CheckResult cr;
 
@@ -545,7 +574,7 @@ public class FieldSplitterMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new FieldSplitter( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

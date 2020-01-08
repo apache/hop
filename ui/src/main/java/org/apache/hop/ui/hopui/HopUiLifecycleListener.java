@@ -27,7 +27,6 @@ package org.apache.hop.ui.hopui;
  * as part of a HopUiPlugin.
  *
  * @author nbaker
- *
  */
 public interface HopUiLifecycleListener {
   public enum SpoonLifeCycleEvent {

@@ -22,15 +22,15 @@
 
 package org.apache.hop.www;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SlaveServerStatus {
   public static final String XML_TAG = "serverstatus";
@@ -75,7 +75,7 @@ public class SlaveServerStatus {
    * @param jobStatusList
    */
   public SlaveServerStatus( String statusDescription, List<SlaveServerTransStatus> transStatusList,
-    List<SlaveServerJobStatus> jobStatusList ) {
+                            List<SlaveServerJobStatus> jobStatusList ) {
     this.statusDescription = statusDescription;
     this.transStatusList = transStatusList;
     this.jobStatusList = jobStatusList;
@@ -171,8 +171,7 @@ public class SlaveServerStatus {
   }
 
   /**
-   * @param statusDescription
-   *          the statusDescription to set
+   * @param statusDescription the statusDescription to set
    */
   public void setStatusDescription( String statusDescription ) {
     this.statusDescription = statusDescription;
@@ -186,8 +185,7 @@ public class SlaveServerStatus {
   }
 
   /**
-   * @param transStatusList
-   *          the transStatusList to set
+   * @param transStatusList the transStatusList to set
    */
   public void setTransStatusList( List<SlaveServerTransStatus> transStatusList ) {
     this.transStatusList = transStatusList;
@@ -201,8 +199,7 @@ public class SlaveServerStatus {
   }
 
   /**
-   * @param errorDescription
-   *          the errorDescription to set
+   * @param errorDescription the errorDescription to set
    */
   public void setErrorDescription( String errorDescription ) {
     this.errorDescription = errorDescription;
@@ -238,8 +235,7 @@ public class SlaveServerStatus {
   }
 
   /**
-   * @param jobStatusList
-   *          the jobStatusList to set
+   * @param jobStatusList the jobStatusList to set
    */
   public void setJobStatusList( List<SlaveServerJobStatus> jobStatusList ) {
     this.jobStatusList = jobStatusList;
@@ -253,8 +249,7 @@ public class SlaveServerStatus {
   }
 
   /**
-   * @param memoryFree
-   *          the memoryFree to set
+   * @param memoryFree the memoryFree to set
    */
   public void setMemoryFree( long memoryFree ) {
     this.memoryFree = memoryFree;
@@ -268,8 +263,7 @@ public class SlaveServerStatus {
   }
 
   /**
-   * @param memoryTotal
-   *          the memoryTotal to set
+   * @param memoryTotal the memoryTotal to set
    */
   public void setMemoryTotal( long memoryTotal ) {
     this.memoryTotal = memoryTotal;
@@ -283,8 +277,7 @@ public class SlaveServerStatus {
   }
 
   /**
-   * @param cpuCores
-   *          the cpuCores to set
+   * @param cpuCores the cpuCores to set
    */
   public void setCpuCores( int cpuCores ) {
     this.cpuCores = cpuCores;
@@ -298,8 +291,7 @@ public class SlaveServerStatus {
   }
 
   /**
-   * @param cpuProcessTime
-   *          the cpuProcessTime to set
+   * @param cpuProcessTime the cpuProcessTime to set
    */
   public void setCpuProcessTime( long cpuProcessTime ) {
     this.cpuProcessTime = cpuProcessTime;

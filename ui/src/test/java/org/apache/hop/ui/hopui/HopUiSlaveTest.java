@@ -22,10 +22,10 @@
 
 package org.apache.hop.ui.hopui;
 
+import org.apache.hop.core.exception.HopException;
 import org.apache.http.client.ClientProtocolException;
 import org.junit.Before;
 import org.junit.Test;
-import org.apache.hop.core.exception.HopException;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -52,6 +52,7 @@ public class HopUiSlaveTest {
     assertEquals( message, e.getMessage().toString() );
 
   }
+
   @Test
   public void setErrorTextWithCauseMessageException() {
     ClientProtocolException cpe = new ClientProtocolException( "causeMessage" );
@@ -67,10 +68,11 @@ public class HopUiSlaveTest {
     assertEquals( message, cause.getMessage().toString() );
 
   }
+
   @Test
   public void setErrorTextWithCauseExceptionWithoutCauseMessage() {
     //cause without message
-    ClientProtocolException cpe = new ClientProtocolException(  );
+    ClientProtocolException cpe = new ClientProtocolException();
     Exception e = new HopException( "kettleMessage", cpe );
 
     HopUiSlave hopUiSlave = mock( HopUiSlave.class );
@@ -78,7 +80,7 @@ public class HopUiSlaveTest {
 
     String message = hopUiSlave.setExceptionMessage( e );
 
-    assertEquals( message, e.getMessage().toString()  );
+    assertEquals( message, e.getMessage().toString() );
 
   }
 

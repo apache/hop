@@ -24,14 +24,14 @@ package org.apache.hop.trans.steps.gettablenames;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -46,7 +46,6 @@ import org.apache.hop.trans.step.StepMetaInterface;
  *
  * @author Samatar
  * @since 03-Juin-2008
- *
  */
 
 public class GetTableNames extends BaseStep implements StepInterface {
@@ -56,7 +55,7 @@ public class GetTableNames extends BaseStep implements StepInterface {
   private GetTableNamesData data;
 
   public GetTableNames( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                        Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -155,18 +154,18 @@ public class GetTableNames extends BaseStep implements StepInterface {
         Object[] outputRowSyn = outputRow.clone();
         int outputIndex = data.totalpreviousfields;
 
-        String synonym = synonyms[i];
+        String synonym = synonyms[ i ];
 
-        outputRowSyn[outputIndex++] = synonym;
+        outputRowSyn[ outputIndex++ ] = synonym;
 
         if ( !Utils.isEmpty( data.realObjectTypeFieldName ) ) {
-          outputRowSyn[outputIndex++] = ObjectType;
+          outputRowSyn[ outputIndex++ ] = ObjectType;
         }
         if ( !Utils.isEmpty( data.realIsSystemObjectFieldName ) ) {
-          outputRowSyn[outputIndex++] = Boolean.valueOf( data.db.isSystemTable( synonym ) );
+          outputRowSyn[ outputIndex++ ] = Boolean.valueOf( data.db.isSystemTable( synonym ) );
         }
         if ( !Utils.isEmpty( data.realSQLCreationFieldName ) ) {
-          outputRowSyn[outputIndex++] = null;
+          outputRowSyn[ outputIndex++ ] = null;
         }
         data.rownr++;
         putRow( data.outputRowMeta, outputRowSyn ); // copy row to output rowset(s);
@@ -185,17 +184,17 @@ public class GetTableNames extends BaseStep implements StepInterface {
         Object[] outputRowProc = outputRow.clone();
         int outputIndex = data.totalpreviousfields;
 
-        String procName = procNames[i];
-        outputRowProc[outputIndex++] = procName;
+        String procName = procNames[ i ];
+        outputRowProc[ outputIndex++ ] = procName;
 
         if ( !Utils.isEmpty( data.realObjectTypeFieldName ) ) {
-          outputRowProc[outputIndex++] = ObjectType;
+          outputRowProc[ outputIndex++ ] = ObjectType;
         }
         if ( !Utils.isEmpty( data.realIsSystemObjectFieldName ) ) {
-          outputRowProc[outputIndex++] = Boolean.valueOf( data.db.isSystemTable( procName ) );
+          outputRowProc[ outputIndex++ ] = Boolean.valueOf( data.db.isSystemTable( procName ) );
         }
         if ( !Utils.isEmpty( data.realSQLCreationFieldName ) ) {
-          outputRowProc[outputIndex++] = null;
+          outputRowProc[ outputIndex++ ] = null;
         }
         data.rownr++;
         putRow( data.outputRowMeta, outputRowProc ); // copy row to output rowset(s);
@@ -217,19 +216,19 @@ public class GetTableNames extends BaseStep implements StepInterface {
           Object[] outputRowView = outputRow.clone();
           int outputIndex = data.totalpreviousfields;
 
-          String viewName = viewNames[i];
-          String viewNameWithoutSchema = viewNamesWithoutSchema[i];
-          outputRowView[outputIndex++] = viewName;
+          String viewName = viewNames[ i ];
+          String viewNameWithoutSchema = viewNamesWithoutSchema[ i ];
+          outputRowView[ outputIndex++ ] = viewName;
 
           if ( !Utils.isEmpty( data.realObjectTypeFieldName ) ) {
-            outputRowView[outputIndex++] = ObjectType;
+            outputRowView[ outputIndex++ ] = ObjectType;
           }
           if ( !Utils.isEmpty( data.realIsSystemObjectFieldName ) ) {
-            outputRowView[outputIndex++] = Boolean.valueOf( data.db.isSystemTable( viewNameWithoutSchema ) );
+            outputRowView[ outputIndex++ ] = Boolean.valueOf( data.db.isSystemTable( viewNameWithoutSchema ) );
           }
 
           if ( !Utils.isEmpty( data.realSQLCreationFieldName ) ) {
-            outputRowView[outputIndex++] = null;
+            outputRowView[ outputIndex++ ] = null;
           }
           data.rownr++;
           putRow( data.outputRowMeta, outputRowView ); // copy row to output rowset(s);
@@ -258,21 +257,21 @@ public class GetTableNames extends BaseStep implements StepInterface {
 
         int outputIndex = data.totalpreviousfields;
 
-        String tableName = tableNames[i];
-        String tableNameWithoutSchema = tableNamesWithoutSchema[i];
-        outputRowTable[outputIndex++] = tableName;
+        String tableName = tableNames[ i ];
+        String tableNameWithoutSchema = tableNamesWithoutSchema[ i ];
+        outputRowTable[ outputIndex++ ] = tableName;
 
         if ( !Utils.isEmpty( data.realObjectTypeFieldName ) ) {
-          outputRowTable[outputIndex++] = ObjectType;
+          outputRowTable[ outputIndex++ ] = ObjectType;
         }
         if ( !Utils.isEmpty( data.realIsSystemObjectFieldName ) ) {
-          outputRowTable[outputIndex++] = Boolean.valueOf( data.db.isSystemTable( tableNameWithoutSchema ) );
+          outputRowTable[ outputIndex++ ] = Boolean.valueOf( data.db.isSystemTable( tableNameWithoutSchema ) );
         }
         // Get primary key
         String pk = null;
         String[] pkc = data.db.getPrimaryKeyColumnNames( tableNameWithoutSchema );
         if ( pkc != null && pkc.length == 1 ) {
-          pk = pkc[0];
+          pk = pkc[ 0 ];
         }
         // return sql creation
         // handle simple primary key (one field)
@@ -293,13 +292,13 @@ public class GetTableNames extends BaseStep implements StepInterface {
               if ( k > 0 ) {
                 sql += ", ";
               }
-              sql += pkc[k];
+              sql += pkc[ k ];
             }
             sql += ")" + Const.CR + ")" + Const.CR + ";";
           }
         }
         if ( !Utils.isEmpty( data.realSQLCreationFieldName ) ) {
-          outputRowTable[outputIndex++] = sql;
+          outputRowTable[ outputIndex++ ] = sql;
         }
 
         data.rownr++;
@@ -329,17 +328,17 @@ public class GetTableNames extends BaseStep implements StepInterface {
 
         int outputIndex = data.totalpreviousfields;
 
-        String schemaName = schemaNames[i];
-        outputRowSchema[outputIndex++] = schemaName;
+        String schemaName = schemaNames[ i ];
+        outputRowSchema[ outputIndex++ ] = schemaName;
 
         if ( !Utils.isEmpty( data.realObjectTypeFieldName ) ) {
-          outputRowSchema[outputIndex++] = ObjectType;
+          outputRowSchema[ outputIndex++ ] = ObjectType;
         }
         if ( !Utils.isEmpty( data.realIsSystemObjectFieldName ) ) {
-          outputRowSchema[outputIndex++] = Boolean.valueOf( data.db.isSystemTable( schemaName ) );
+          outputRowSchema[ outputIndex++ ] = Boolean.valueOf( data.db.isSystemTable( schemaName ) );
         }
         if ( !Utils.isEmpty( data.realSQLCreationFieldName ) ) {
-          outputRowSchema[outputIndex++] = null;
+          outputRowSchema[ outputIndex++ ] = null;
         }
         data.rownr++;
         putRow( data.outputRowMeta, outputRowSchema ); // copy row to output rowset(s);
@@ -364,17 +363,17 @@ public class GetTableNames extends BaseStep implements StepInterface {
 
         int outputIndex = data.totalpreviousfields;
 
-        String catalogName = catalogsNames[i];
-        outputRowCatalog[outputIndex++] = catalogName;
+        String catalogName = catalogsNames[ i ];
+        outputRowCatalog[ outputIndex++ ] = catalogName;
 
         if ( !Utils.isEmpty( data.realObjectTypeFieldName ) ) {
-          outputRowCatalog[outputIndex++] = ObjectType;
+          outputRowCatalog[ outputIndex++ ] = ObjectType;
         }
         if ( !Utils.isEmpty( data.realIsSystemObjectFieldName ) ) {
-          outputRowCatalog[outputIndex++] = Boolean.valueOf( data.db.isSystemTable( catalogName ) );
+          outputRowCatalog[ outputIndex++ ] = Boolean.valueOf( data.db.isSystemTable( catalogName ) );
         }
         if ( !Utils.isEmpty( data.realSQLCreationFieldName ) ) {
-          outputRowCatalog[outputIndex++] = null;
+          outputRowCatalog[ outputIndex++ ] = null;
         }
         data.rownr++;
         putRow( data.outputRowMeta, outputRowCatalog ); // copy row to output rowset(s);
@@ -424,8 +423,8 @@ public class GetTableNames extends BaseStep implements StepInterface {
         // Create the output row meta-data
         data.outputRowMeta = new RowMeta();
         meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore ); // get the
-                                                                                                      // metadata
-                                                                                                      // populated
+        // metadata
+        // populated
       } catch ( Exception e ) {
         logError( "Error initializing step: " + e.toString() );
         logError( Const.getStackTracker( e ) );

@@ -29,7 +29,6 @@ import java.util.List;
  * It helps us to do the complete lineage from source to target and back.<br>
  *
  * @author matt
- *
  */
 public class FieldnameLineage {
   private String inputFieldname;
@@ -38,10 +37,8 @@ public class FieldnameLineage {
   /**
    * Create a new field lineage object
    *
-   * @param inputFieldname
-   *          The input field name
-   * @param outputFieldname
-   *          The output field name
+   * @param inputFieldname  The input field name
+   * @param outputFieldname The output field name
    */
   public FieldnameLineage( String inputFieldname, String outputFieldname ) {
     super();
@@ -57,8 +54,7 @@ public class FieldnameLineage {
   }
 
   /**
-   * @param inputFieldname
-   *          the input Field name to set
+   * @param inputFieldname the input Field name to set
    */
   public void setInputFieldname( String inputFieldname ) {
     this.inputFieldname = inputFieldname;
@@ -72,8 +68,7 @@ public class FieldnameLineage {
   }
 
   /**
-   * @param outputFieldname
-   *          the output Field name to set
+   * @param outputFieldname the output Field name to set
    */
   public void setOutputFieldname( String outputFieldname ) {
     this.outputFieldname = outputFieldname;
@@ -82,12 +77,10 @@ public class FieldnameLineage {
   /**
    * Search for a field name lineage object in a list.
    *
-   * @param lineages
-   *          The list
-   * @param input
-   *          the input field name to look for
+   * @param lineages The list
+   * @param input    the input field name to look for
    * @return The first encountered field name lineage object where the input field name matches. If nothing is found
-   *         null is returned.
+   * null is returned.
    */
   public static final FieldnameLineage findFieldnameLineageWithInput( List<FieldnameLineage> lineages, String input ) {
     for ( FieldnameLineage lineage : lineages ) {

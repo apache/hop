@@ -27,7 +27,6 @@ package org.apache.hop.datafactory;
  * provide the necessary resources to render any Hop input step as a native datasource in Report Designer.
  *
  * @author gmoran
- *
  */
 public interface DynamicDatasource {
 

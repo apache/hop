@@ -22,18 +22,16 @@
 
 package org.apache.hop.trans.steps.delete;
 
-import java.sql.PreparedStatement;
-
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 
+import java.sql.PreparedStatement;
+
 /**
- *
  * @author Tom
  * @since 28-March-2006
- *
  */
 public class DeleteData extends BaseStepData implements StepDataInterface {
   public Database db;

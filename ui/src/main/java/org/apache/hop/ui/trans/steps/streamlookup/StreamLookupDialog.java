@@ -22,12 +22,22 @@
 
 package org.apache.hop.ui.trans.steps.streamlookup;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.errorhandling.StreamInterface;
+import org.apache.hop.trans.steps.streamlookup.StreamLookupMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -49,22 +59,12 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.errorhandling.StreamInterface;
-import org.apache.hop.trans.steps.streamlookup.StreamLookupMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class StreamLookupDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = StreamLookupMeta.class; // for i18n purposes, needed by Translator2!!
@@ -195,12 +195,12 @@ public class StreamLookupDialog extends BaseStepDialog implements StepDialogInte
     int nrKeyCols = 2;
     int nrKeyRows = ( input.getKeystream() != null ? input.getKeystream().length : 1 );
 
-    ciKey = new ColumnInfo[nrKeyCols];
-    ciKey[0] =
+    ciKey = new ColumnInfo[ nrKeyCols ];
+    ciKey[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StreamLookupDialog.ColumnInfo.Field" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] { "" }, false );
-    ciKey[1] =
+    ciKey[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StreamLookupDialog.ColumnInfo.LookupField" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
@@ -229,20 +229,20 @@ public class StreamLookupDialog extends BaseStepDialog implements StepDialogInte
     int UpInsCols = 4;
     int UpInsRows = ( input.getValue() != null ? input.getValue().length : 1 );
 
-    ciReturn = new ColumnInfo[UpInsCols];
-    ciReturn[0] =
+    ciReturn = new ColumnInfo[ UpInsCols ];
+    ciReturn[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StreamLookupDialog.ColumnInfo.FieldReturn" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    ciReturn[1] =
+    ciReturn[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StreamLookupDialog.ColumnInfo.NewName" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    ciReturn[2] =
+    ciReturn[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StreamLookupDialog.ColumnInfo.Default" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    ciReturn[3] =
+    ciReturn[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "StreamLookupDialog.ColumnInfo.Type" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         ValueMetaFactory.getValueMetaNames() );
@@ -436,10 +436,10 @@ public class StreamLookupDialog extends BaseStepDialog implements StepDialogInte
             Set<String> keySet = fields.keySet();
             List<String> entries = new ArrayList<String>( keySet );
 
-            String[] fieldNames = entries.toArray( new String[entries.size()] );
+            String[] fieldNames = entries.toArray( new String[ entries.size() ] );
             Const.sortStrings( fieldNames );
             // return fields
-            ciKey[0].setComboValues( fieldNames );
+            ciKey[ 0 ].setComboValues( fieldNames );
           } catch ( HopException e ) {
             logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
           }
@@ -473,11 +473,11 @@ public class StreamLookupDialog extends BaseStepDialog implements StepDialogInte
             Set<String> keySet = fields.keySet();
             List<String> entries = new ArrayList<String>( keySet );
 
-            String[] fieldNames = entries.toArray( new String[entries.size()] );
+            String[] fieldNames = entries.toArray( new String[ entries.size() ] );
             Const.sortStrings( fieldNames );
             // return fields
-            ciReturn[0].setComboValues( fieldNames );
-            ciKey[1].setComboValues( fieldNames );
+            ciReturn[ 0 ].setComboValues( fieldNames );
+            ciKey[ 1 ].setComboValues( fieldNames );
           } catch ( HopException e ) {
             logError( "It was not possible to retrieve the list of fields for step [" + wStep.getText() + "]!" );
           }
@@ -498,11 +498,11 @@ public class StreamLookupDialog extends BaseStepDialog implements StepDialogInte
     if ( input.getKeystream() != null ) {
       for ( int i = 0; i < input.getKeystream().length; i++ ) {
         TableItem item = wKey.table.getItem( i );
-        if ( input.getKeystream()[i] != null ) {
-          item.setText( 1, input.getKeystream()[i] );
+        if ( input.getKeystream()[ i ] != null ) {
+          item.setText( 1, input.getKeystream()[ i ] );
         }
-        if ( input.getKeylookup()[i] != null ) {
-          item.setText( 2, input.getKeylookup()[i] );
+        if ( input.getKeylookup()[ i ] != null ) {
+          item.setText( 2, input.getKeylookup()[ i ] );
         }
       }
     }
@@ -510,16 +510,16 @@ public class StreamLookupDialog extends BaseStepDialog implements StepDialogInte
     if ( input.getValue() != null ) {
       for ( int i = 0; i < input.getValue().length; i++ ) {
         TableItem item = wReturn.table.getItem( i );
-        if ( input.getValue()[i] != null ) {
-          item.setText( 1, input.getValue()[i] );
+        if ( input.getValue()[ i ] != null ) {
+          item.setText( 1, input.getValue()[ i ] );
         }
-        if ( input.getValueName()[i] != null && !input.getValueName()[i].equals( input.getValue()[i] ) ) {
-          item.setText( 2, input.getValueName()[i] );
+        if ( input.getValueName()[ i ] != null && !input.getValueName()[ i ].equals( input.getValue()[ i ] ) ) {
+          item.setText( 2, input.getValueName()[ i ] );
         }
-        if ( input.getValueDefault()[i] != null ) {
-          item.setText( 3, input.getValueDefault()[i] );
+        if ( input.getValueDefault()[ i ] != null ) {
+          item.setText( 3, input.getValueDefault()[ i ] );
         }
-        item.setText( 4, ValueMetaFactory.getValueMetaName( input.getValueDefaultType()[i] ) );
+        item.setText( 4, ValueMetaFactory.getValueMetaName( input.getValueDefaultType()[ i ] ) );
       }
     }
 
@@ -571,8 +571,8 @@ public class StreamLookupDialog extends BaseStepDialog implements StepDialogInte
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrkeys; i++ ) {
       TableItem item = wKey.getNonEmpty( i );
-      input.getKeystream()[i] = item.getText( 1 );
-      input.getKeylookup()[i] = item.getText( 2 );
+      input.getKeystream()[ i ] = item.getText( 1 );
+      input.getKeylookup()[ i ] = item.getText( 2 );
     }
 
     if ( log.isDebug() ) {
@@ -581,13 +581,13 @@ public class StreamLookupDialog extends BaseStepDialog implements StepDialogInte
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrvalues; i++ ) {
       TableItem item = wReturn.getNonEmpty( i );
-      input.getValue()[i] = item.getText( 1 );
-      input.getValueName()[i] = item.getText( 2 );
-      if ( input.getValueName()[i] == null || input.getValueName()[i].length() == 0 ) {
-        input.getValueName()[i] = input.getValue()[i];
+      input.getValue()[ i ] = item.getText( 1 );
+      input.getValueName()[ i ] = item.getText( 2 );
+      if ( input.getValueName()[ i ] == null || input.getValueName()[ i ].length() == 0 ) {
+        input.getValueName()[ i ] = input.getValue()[ i ];
       }
-      input.getValueDefault()[i] = item.getText( 3 );
-      input.getValueDefaultType()[i] = ValueMetaFactory.getIdForValueMeta( item.getText( 4 ) );
+      input.getValueDefault()[ i ] = item.getText( 3 );
+      input.getValueDefaultType()[ i ] = ValueMetaFactory.getIdForValueMeta( item.getText( 4 ) );
     }
 
     StreamInterface infoStream = input.getStepIOMeta().getInfoStreams().get( 0 );
@@ -648,7 +648,7 @@ public class StreamLookupDialog extends BaseStepDialog implements StepDialogInte
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "StreamLookupDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "StreamLookupDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "StreamLookupDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 
@@ -674,7 +674,7 @@ public class StreamLookupDialog extends BaseStepDialog implements StepDialogInte
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "StreamLookupDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "StreamLookupDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "StreamLookupDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 }

@@ -22,11 +22,8 @@
 
 package org.apache.hop.trans.steps.databaselookup;
 
-import java.util.Arrays;
-import java.util.List;
-
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -38,6 +35,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -48,7 +46,8 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.databaselookup.readallcache.ReadAllCache;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Looks up values in a database using keys from input streams.
@@ -451,8 +450,8 @@ public class DatabaseLookup extends BaseStep implements StepInterface {
       //
       sql += " FROM "
         + dbMeta.getQuotedSchemaTableCombination(
-          environmentSubstitute( meta.getSchemaName() ),
-          environmentSubstitute( meta.getTablename() ) );
+        environmentSubstitute( meta.getSchemaName() ),
+        environmentSubstitute( meta.getTablename() ) );
 
       // order by?
       if ( meta.getOrderByClause() != null && meta.getOrderByClause().length() != 0 ) {

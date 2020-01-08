@@ -21,15 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.mail;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -40,6 +31,15 @@ import org.apache.hop.trans.steps.loadsave.initializer.InitializerInterface;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MailMetaTest implements InitializerInterface<StepMetaInterface> {
   LoadSaveTester loadSaveTester;
@@ -51,12 +51,12 @@ public class MailMetaTest implements InitializerInterface<StepMetaInterface> {
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "server", "destination", "destinationCc", "destinationBCc", "replyAddress", "replyName", "subject", "includeDate",
-            "includeSubFolders", "zipFilenameDynamic", "isFilenameDynamic", "dynamicFieldname", "dynamicWildcard", "dynamicZipFilenameField",
-            "sourceFileFoldername", "sourceWildcard", "contactPerson", "contactPhone", "comment", "includingFiles", "zipFiles", "zipFilename",
-            "zipLimitSize", "usingAuthentication", "authenticationUser", "authenticationPassword", "onlySendComment", "useHTML",
-            "usingSecureAuthentication", "usePriority", "port", "priority", "importance", "sensitivity", "secureConnectionType", "encoding",
-            "replyToAddresses", "attachContentFromField", "attachContentField", "attachContentFileNameField", "embeddedImages", "contentIds" );
+      Arrays.asList( "server", "destination", "destinationCc", "destinationBCc", "replyAddress", "replyName", "subject", "includeDate",
+        "includeSubFolders", "zipFilenameDynamic", "isFilenameDynamic", "dynamicFieldname", "dynamicWildcard", "dynamicZipFilenameField",
+        "sourceFileFoldername", "sourceWildcard", "contactPerson", "contactPhone", "comment", "includingFiles", "zipFiles", "zipFilename",
+        "zipLimitSize", "usingAuthentication", "authenticationUser", "authenticationPassword", "onlySendComment", "useHTML",
+        "usingSecureAuthentication", "usePriority", "port", "priority", "importance", "sensitivity", "secureConnectionType", "encoding",
+        "replyToAddresses", "attachContentFromField", "attachContentField", "attachContentFileNameField", "embeddedImages", "contentIds" );
 
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
@@ -69,7 +69,7 @@ public class MailMetaTest implements InitializerInterface<StepMetaInterface> {
       }
     };
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "embeddedImages", stringArrayLoadSaveValidator );
@@ -78,8 +78,8 @@ public class MailMetaTest implements InitializerInterface<StepMetaInterface> {
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
-            getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class

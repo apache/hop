@@ -22,12 +22,24 @@
 
 package org.apache.hop.ui.trans.steps.setvariable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.setvariable.SetVariableMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.ComponentSelectionListener;
+import org.apache.hop.ui.trans.step.TableItemInsertListener;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
@@ -48,24 +60,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.setvariable.SetVariableMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.ComponentSelectionListener;
-import org.apache.hop.ui.trans.step.TableItemInsertListener;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class SetVariableDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = SetVariableMeta.class; // for i18n purposes, needed by Translator2!!
@@ -166,25 +166,25 @@ public class SetVariableDialog extends BaseStepDialog implements StepDialogInter
     wlFields.setLayoutData( fdlFields );
 
     final int FieldsRows = input.getFieldName().length;
-    colinf = new ColumnInfo[4];
-    colinf[0] =
+    colinf = new ColumnInfo[ 4 ];
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SetVariableDialog.Fields.Column.FieldName" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    colinf[1] =
+    colinf[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SetVariableDialog.Fields.Column.VariableName" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinf[2] =
+    colinf[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SetVariableDialog.Fields.Column.VariableType" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, SetVariableMeta.getVariableTypeDescriptions(), false );
-    colinf[3] =
+    colinf[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SetVariableDialog.Fields.Column.DefaultValue" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinf[3].setUsingVariables( true );
-    colinf[3].setToolTip( BaseMessages.getString( PKG, "SetVariableDialog.Fields.Column.DefaultValue.Tooltip" ) );
+    colinf[ 3 ].setUsingVariables( true );
+    colinf[ 3 ].setToolTip( BaseMessages.getString( PKG, "SetVariableDialog.Fields.Column.DefaultValue.Tooltip" ) );
 
     wFields =
       new TableView(
@@ -292,10 +292,10 @@ public class SetVariableDialog extends BaseStepDialog implements StepDialogInter
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    colinf[0].setComboValues( fieldNames );
+    colinf[ 0 ].setComboValues( fieldNames );
   }
 
   /**
@@ -306,10 +306,10 @@ public class SetVariableDialog extends BaseStepDialog implements StepDialogInter
 
     for ( int i = 0; i < input.getFieldName().length; i++ ) {
       TableItem item = wFields.table.getItem( i );
-      String src = input.getFieldName()[i];
-      String tgt = input.getVariableName()[i];
-      String typ = SetVariableMeta.getVariableTypeDescription( input.getVariableType()[i] );
-      String tvv = input.getDefaultValue()[i];
+      String src = input.getFieldName()[ i ];
+      String tgt = input.getVariableName()[ i ];
+      String typ = SetVariableMeta.getVariableTypeDescription( input.getVariableType()[ i ] );
+      String tvv = input.getDefaultValue()[ i ];
 
       if ( src != null ) {
         item.setText( 1, src );
@@ -353,10 +353,10 @@ public class SetVariableDialog extends BaseStepDialog implements StepDialogInter
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < count; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      input.getFieldName()[i] = item.getText( 1 );
-      input.getVariableName()[i] = item.getText( 2 );
-      input.getVariableType()[i] = SetVariableMeta.getVariableType( item.getText( 3 ) );
-      input.getDefaultValue()[i] = item.getText( 4 );
+      input.getFieldName()[ i ] = item.getText( 1 );
+      input.getVariableName()[ i ] = item.getText( 2 );
+      input.getVariableType()[ i ] = SetVariableMeta.getVariableType( item.getText( 3 ) );
+      input.getDefaultValue()[ i ] = item.getText( 4 );
     }
 
     input.setUsingFormatting( wFormat.getSelection() );
@@ -400,7 +400,7 @@ public class SetVariableDialog extends BaseStepDialog implements StepDialogInter
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "SetVariableDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "Set.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "Set.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 }

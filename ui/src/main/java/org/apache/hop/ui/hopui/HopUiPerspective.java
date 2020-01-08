@@ -22,14 +22,14 @@
 
 package org.apache.hop.ui.hopui;
 
+import org.apache.hop.core.EngineMetaInterface;
+import org.eclipse.swt.widgets.Composite;
+import org.pentaho.ui.xul.XulOverlay;
+import org.pentaho.ui.xul.impl.XulEventHandler;
+
 import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
-
-import org.eclipse.swt.widgets.Composite;
-import org.apache.hop.core.EngineMetaInterface;
-import org.pentaho.ui.xul.XulOverlay;
-import org.pentaho.ui.xul.impl.XulEventHandler;
 
 /**
  * A SpoonPerspective is able to modify the look of the application and display it's own UI. Only one perspective can be
@@ -56,8 +56,7 @@ public interface HopUiPerspective {
   /**
    * Returns a localized name for the perspective
    *
-   * @param l
-   *          current Locale
+   * @param l current Locale
    * @return localized name
    */
   public String getDisplayName( Locale l );

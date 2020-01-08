@@ -22,6 +22,11 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -49,18 +54,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * A dialog that sets the printer settings for a Hop printout.
  *
  * @author Matt
  * @since 19-06-2003
- *
  */
 public class EnterPrintDialog extends Dialog {
   private static Class<?> PKG = EnterPrintDialog.class; // for i18n purposes, needed by Translator2!!
@@ -113,7 +112,7 @@ public class EnterPrintDialog extends Dialog {
   public double leftMargin, rightMargin, topMargin, bottomMargin;
 
   public EnterPrintDialog( Shell parent, int nrcols, int nrrows, int scale, double factorX, double factorY,
-    Rectangle m, double marginLeft, double marginRigth, double marginTop, double marginBottom, Image image ) {
+                           Rectangle m, double marginLeft, double marginRigth, double marginTop, double marginBottom, Image image ) {
     super( parent, SWT.NONE );
     props = PropsUI.getInstance();
     this.nrcols = nrcols;

@@ -22,12 +22,6 @@
 
 package org.apache.hop.trans.steps.constant;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
@@ -35,6 +29,12 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -64,12 +64,12 @@ public class ConstantTest {
 
     mockHelper = new StepMockHelper<>( "Add Constants", ConstantMeta.class, ConstantData.class );
     when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-            mockHelper.logChannelInterface );
+      mockHelper.logChannelInterface );
     when( mockHelper.trans.isRunning() ).thenReturn( true );
 
     doReturn( rowMetaAndData ).when( mockHelper.stepDataInterface ).getConstants();
     constantSpy = Mockito.spy( new Constant( mockHelper.stepMeta, mockHelper.stepDataInterface, 0,
-            mockHelper.transMeta, mockHelper.trans ) );
+      mockHelper.transMeta, mockHelper.trans ) );
   }
 
   @After
@@ -80,9 +80,9 @@ public class ConstantTest {
   @Test
   public void testProcessRow_success() throws Exception {
 
-    doReturn( new Object[1] ).when( constantSpy ).getRow();
+    doReturn( new Object[ 1 ] ).when( constantSpy ).getRow();
     doReturn( new RowMeta() ).when( constantSpy ).getInputRowMeta();
-    doReturn( new Object[1] ).when( rowMetaAndData ).getData();
+    doReturn( new Object[ 1 ] ).when( rowMetaAndData ).getData();
 
     boolean success = constantSpy.processRow( constantMeta, constantData );
     assertTrue( success );

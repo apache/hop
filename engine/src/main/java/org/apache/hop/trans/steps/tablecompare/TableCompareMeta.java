@@ -22,13 +22,9 @@
 
 package org.apache.hop.trans.steps.tablecompare;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -38,8 +34,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -47,8 +42,10 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.List;
 
 //@Step(
 //    id = "TableCompare",
@@ -96,8 +93,7 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param referenceSchemaField
-   *          the referenceSchemaField to set
+   * @param referenceSchemaField the referenceSchemaField to set
    */
   public void setReferenceSchemaField( String referenceSchemaField ) {
     this.referenceSchemaField = referenceSchemaField;
@@ -111,8 +107,7 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param referenceTableField
-   *          the referenceTableField to set
+   * @param referenceTableField the referenceTableField to set
    */
   public void setReferenceTableField( String referenceTableField ) {
     this.referenceTableField = referenceTableField;
@@ -126,8 +121,7 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param compareSchemaField
-   *          the compareSchemaField to set
+   * @param compareSchemaField the compareSchemaField to set
    */
   public void setCompareSchemaField( String compareSchemaField ) {
     this.compareSchemaField = compareSchemaField;
@@ -141,8 +135,7 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param compareTableField
-   *          the compareTableField to set
+   * @param compareTableField the compareTableField to set
    */
   public void setCompareTableField( String compareTableField ) {
     this.compareTableField = compareTableField;
@@ -156,8 +149,7 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param nrErrorsField
-   *          the nrErrorsField to set
+   * @param nrErrorsField the nrErrorsField to set
    */
   public void setNrErrorsField( String nrErrorsField ) {
     this.nrErrorsField = nrErrorsField;
@@ -171,8 +163,7 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param referenceConnection
-   *          the referenceConnection to set
+   * @param referenceConnection the referenceConnection to set
    */
   public void setReferenceConnection( DatabaseMeta referenceConnection ) {
     this.referenceConnection = referenceConnection;
@@ -186,8 +177,7 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param compareConnection
-   *          the compareConnection to set
+   * @param compareConnection the compareConnection to set
    */
   public void setCompareConnection( DatabaseMeta compareConnection ) {
     this.compareConnection = compareConnection;
@@ -219,8 +209,7 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param keyFieldsField
-   *          the keyFieldsField to set
+   * @param keyFieldsField the keyFieldsField to set
    */
   public void setKeyFieldsField( String keyFieldsField ) {
     this.keyFieldsField = keyFieldsField;
@@ -234,8 +223,7 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param excludeFieldsField
-   *          the excludeFieldsField to set
+   * @param excludeFieldsField the excludeFieldsField to set
    */
   public void setExcludeFieldsField( String excludeFieldsField ) {
     this.excludeFieldsField = excludeFieldsField;
@@ -249,8 +237,7 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param nrRecordsReferenceField
-   *          the nrRecordsReferenceField to set
+   * @param nrRecordsReferenceField the nrRecordsReferenceField to set
    */
   public void setNrRecordsReferenceField( String nrRecordsReferenceField ) {
     this.nrRecordsReferenceField = nrRecordsReferenceField;
@@ -264,8 +251,7 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param nrRecordsCompareField
-   *          the nrRecordsCompareField to set
+   * @param nrRecordsCompareField the nrRecordsCompareField to set
    */
   public void setNrRecordsCompareField( String nrRecordsCompareField ) {
     this.nrRecordsCompareField = nrRecordsCompareField;
@@ -279,8 +265,7 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param nrErrorsLeftJoinField
-   *          the nrErrorsLeftJoinField to set
+   * @param nrErrorsLeftJoinField the nrErrorsLeftJoinField to set
    */
   public void setNrErrorsLeftJoinField( String nrErrorsLeftJoinField ) {
     this.nrErrorsLeftJoinField = nrErrorsLeftJoinField;
@@ -294,8 +279,7 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param nrErrorsInnerJoinField
-   *          the nrErrorsInnerJoinField to set
+   * @param nrErrorsInnerJoinField the nrErrorsInnerJoinField to set
    */
   public void setNrErrorsInnerJoinField( String nrErrorsInnerJoinField ) {
     this.nrErrorsInnerJoinField = nrErrorsInnerJoinField;
@@ -309,8 +293,7 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param nrErrorsRightJoinField
-   *          the nrErrorsRightJoinField to set
+   * @param nrErrorsRightJoinField the nrErrorsRightJoinField to set
    */
   public void setNrErrorsRightJoinField( String nrErrorsRightJoinField ) {
     this.nrErrorsRightJoinField = nrErrorsRightJoinField;
@@ -324,8 +307,7 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param keyDescriptionField
-   *          the keyDescriptionField to set
+   * @param keyDescriptionField the keyDescriptionField to set
    */
   public void setKeyDescriptionField( String keyDescriptionField ) {
     this.keyDescriptionField = keyDescriptionField;
@@ -339,8 +321,7 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param valueReferenceField
-   *          the valueReferenceField to set
+   * @param valueReferenceField the valueReferenceField to set
    */
   public void setValueReferenceField( String valueReferenceField ) {
     this.valueReferenceField = valueReferenceField;
@@ -354,8 +335,7 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param valueCompareField
-   *          the valueCompareField to set
+   * @param valueCompareField the valueCompareField to set
    */
   public void setValueCompareField( String valueCompareField ) {
     this.valueCompareField = valueCompareField;
@@ -375,7 +355,7 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
 
   @Override
   public void getFields( RowMetaInterface inputRowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     if ( Utils.isEmpty( nrErrorsField ) ) {
       throw new HopStepException( BaseMessages.getString(
@@ -515,8 +495,8 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -546,7 +526,7 @@ public class TableCompareMeta extends BaseStepMeta implements StepMetaInterface 
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new TableCompare( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 

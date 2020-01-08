@@ -22,17 +22,16 @@
 
 package org.apache.hop.resource;
 
-import java.util.Map;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.metastore.api.IMetaStore;
+
+import java.util.Map;
 
 /**
  * The classes implementing this interface allow their used resources to be exported.
  *
  * @author Matt
- *
  */
 public interface ResourceExportInterface {
 
@@ -41,19 +40,13 @@ public interface ResourceExportInterface {
    * resource naming interface allows the object to name appropriately without worrying about those parts of the
    * implementation specific details.
    *
-   * @param space
-   *          The variable space to resolve (environment) variables with.
-   * @param definitions
-   *          The map containing the filenames and content
-   * @param namingInterface
-   *          The resource naming interface allows the object to name appropriately
-   * @param metaStore
-   *          the central metastore to load non-kettle specific metadata from
-   *
+   * @param space           The variable space to resolve (environment) variables with.
+   * @param definitions     The map containing the filenames and content
+   * @param namingInterface The resource naming interface allows the object to name appropriately
+   * @param metaStore       the central metastore to load non-kettle specific metadata from
    * @return The filename for this object. (also contained in the definitions map)
-   * @throws HopException
-   *           in case something goes wrong during the export
+   * @throws HopException in case something goes wrong during the export
    */
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException;
+                                 ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException;
 }

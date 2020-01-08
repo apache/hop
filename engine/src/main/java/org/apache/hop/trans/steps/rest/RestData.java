@@ -22,75 +22,101 @@
 
 package org.apache.hop.trans.steps.rest;
 
-import javax.ws.rs.core.MediaType;
-
+import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
+import com.sun.jersey.client.apache4.config.DefaultApacheHttpClient4Config;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
-import com.sun.jersey.client.apache4.config.DefaultApacheHttpClient4Config;
+import javax.ws.rs.core.MediaType;
 
 /**
  * @author Samatar
  * @since 16-jan-2011
- *
  */
 public class RestData extends BaseStepData implements StepDataInterface {
   public RowMetaInterface outputRowMeta;
   public RowMetaInterface inputRowMeta;
 
-  /** URL **/
+  /**
+   * URL
+   **/
   public int indexOfUrlField;
   public String realUrl;
-  /** Method **/
+  /**
+   * Method
+   **/
   public String method;
-  /** Index of method **/
+  /**
+   * Index of method
+   **/
   public int indexOfMethod;
 
   public int nrheader;
-  /** Headers **/
+  /**
+   * Headers
+   **/
   public int[] indexOfHeaderFields;
   public String[] headerNames;
 
-  /** query parameters **/
+  /**
+   * query parameters
+   **/
   public int nrParams;
   public int[] indexOfParamFields;
   public String[] paramNames;
 
-  /** matrix parameters **/
+  /**
+   * matrix parameters
+   **/
   public int nrMatrixParams;
   public int[] indexOfMatrixParamFields;
   public String[] matrixParamNames;
 
-  /** proxy **/
+  /**
+   * proxy
+   **/
   public String realProxyHost;
   public int realProxyPort;
   public String realHttpLogin;
   public String realHttpPassword;
 
-  /** Result fieldnames **/
+  /**
+   * Result fieldnames
+   **/
   public String resultFieldName;
   public String resultCodeFieldName;
   public String resultResponseFieldName;
   public String resultHeaderFieldName;
 
-  /** Flag set headers **/
+  /**
+   * Flag set headers
+   **/
   public boolean useHeaders;
 
-  /** Flag set Query Parameters **/
+  /**
+   * Flag set Query Parameters
+   **/
   public boolean useParams;
 
-  /** Flag set Matrix Parameters **/
+  /**
+   * Flag set Matrix Parameters
+   **/
   public boolean useMatrixParams;
 
-  /** Flag set body **/
+  /**
+   * Flag set body
+   **/
   public boolean useBody;
 
-  /** Index of body field **/
+  /**
+   * Index of body field
+   **/
   public int indexOfBodyField;
 
-  /** trust store **/
+  /**
+   * trust store
+   **/
   public String trustStoreFile;
   public String trustStorePassword;
 

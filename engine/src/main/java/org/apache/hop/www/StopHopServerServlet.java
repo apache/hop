@@ -22,17 +22,16 @@
 
 package org.apache.hop.www;
 
-import java.io.IOException;
-import java.io.PrintStream;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintStream;
 
 @HopServerServlet( id = "StopHopServerServlet", name = "StopHopServerServlet" )
 public class StopHopServerServlet extends BaseHttpServlet implements HopServerPluginInterface {
@@ -48,7 +47,7 @@ public class StopHopServerServlet extends BaseHttpServlet implements HopServerPl
     this( new DelayedExecutor() );
   }
 
-  public StopHopServerServlet(DelayedExecutor delayedExecutor ) {
+  public StopHopServerServlet( DelayedExecutor delayedExecutor ) {
     this.delayedExecutor = delayedExecutor;
   }
 
@@ -86,9 +85,9 @@ public class StopHopServerServlet extends BaseHttpServlet implements HopServerPl
     } else {
       out.println( "<HTML>" );
       out.println(
-          "<HEAD><TITLE>" + BaseMessages.getString( PKG, "StopCarteServlet.shutdownRequest" ) + "</TITLE></HEAD>" );
+        "<HEAD><TITLE>" + BaseMessages.getString( PKG, "StopCarteServlet.shutdownRequest" ) + "</TITLE></HEAD>" );
       out.println( "<BODY>" );
-      out.println( "<H1>" + BaseMessages.getString( PKG, "StopCarteServlet.status.label" ) +  "</H1>" );
+      out.println( "<H1>" + BaseMessages.getString( PKG, "StopCarteServlet.status.label" ) + "</H1>" );
       out.println( "<p>" );
       if ( hopServer != null ) {
         out.println( BaseMessages.getString( PKG, "StopCarteServlet.shutdownRequest.status.ok" ) );

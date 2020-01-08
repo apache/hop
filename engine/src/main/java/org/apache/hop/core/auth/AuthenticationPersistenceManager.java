@@ -48,11 +48,11 @@ public class AuthenticationPersistenceManager {
         Object pluginMain = PluginRegistry.getInstance().loadClass( plugin );
         if ( pluginMain instanceof AuthenticationConsumerType ) {
           Class<? extends AuthenticationConsumer<?, ?>> consumerClass =
-              ( (AuthenticationConsumerType) pluginMain ).getConsumerClass();
+            ( (AuthenticationConsumerType) pluginMain ).getConsumerClass();
           manager.registerConsumerClass( consumerClass );
         } else {
           throw new HopPluginException( BaseMessages.getString( PKG,
-              "AuthenticationPersistenceManager.NotConsumerType", pluginMain, AuthenticationConsumerType.class ) );
+            "AuthenticationPersistenceManager.NotConsumerType", pluginMain, AuthenticationConsumerType.class ) );
         }
       } catch ( HopPluginException e ) {
         log.logError( e.getMessage(), e );

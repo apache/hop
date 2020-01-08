@@ -22,9 +22,7 @@
 
 package org.apache.hop.ui.core.widget;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.hop.ui.core.gui.GUIResource;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
@@ -43,7 +41,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.apache.hop.ui.core.gui.GUIResource;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CheckBoxToolTip extends ToolTip {
   private String message;
@@ -184,8 +184,7 @@ public class CheckBoxToolTip extends ToolTip {
   }
 
   /**
-   * @param message
-   *          the message to set
+   * @param message the message to set
    */
   public void setMessage( String message ) {
     this.message = message;
@@ -199,8 +198,7 @@ public class CheckBoxToolTip extends ToolTip {
   }
 
   /**
-   * @param title
-   *          the title to set
+   * @param title the title to set
    */
   public void setTitle( String title ) {
     this.title = title;
@@ -214,8 +212,7 @@ public class CheckBoxToolTip extends ToolTip {
   }
 
   /**
-   * @param image
-   *          the image to set
+   * @param image the image to set
    */
   public void setImage( Image image ) {
     this.image = image;
@@ -229,8 +226,7 @@ public class CheckBoxToolTip extends ToolTip {
   }
 
   /**
-   * @param checkBoxMessage
-   *          the checkBoxMessage to set
+   * @param checkBoxMessage the checkBoxMessage to set
    */
   public void setCheckBoxMessage( String checkBoxMessage ) {
     this.checkBoxMessage = checkBoxMessage;
@@ -244,8 +240,7 @@ public class CheckBoxToolTip extends ToolTip {
   }
 
   /**
-   * @param visible
-   *          the visible to set
+   * @param visible the visible to set
    */
   public void setVisible( boolean visible ) {
     this.visible = visible;
@@ -259,8 +254,7 @@ public class CheckBoxToolTip extends ToolTip {
   }
 
   /**
-   * @param checkBoxBounds
-   *          the checkBoxBounds to set
+   * @param checkBoxBounds the checkBoxBounds to set
    */
   public void setCheckBoxBounds( Rectangle checkBoxBounds ) {
     this.checkBoxBounds = checkBoxBounds;
@@ -274,8 +268,7 @@ public class CheckBoxToolTip extends ToolTip {
   }
 
   /**
-   * @param showingScrollBars
-   *          the showingScrollBars to set
+   * @param showingScrollBars the showingScrollBars to set
    */
   public void setShowingScrollBars( boolean showingScrollBars ) {
     this.showingScrollBars = showingScrollBars;

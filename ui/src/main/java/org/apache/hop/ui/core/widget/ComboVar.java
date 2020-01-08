@@ -22,6 +22,11 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.gui.GUIResource;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -29,7 +34,6 @@ import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Image;
@@ -37,11 +41,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.gui.GUIResource;
 
 /**
  * A Widget that combines a Text widget with a Variable button that will insert an Environment variable. The tool tip of
@@ -80,7 +79,7 @@ public class ComboVar extends Composite {
   }
 
   public ComboVar( VariableSpace space, Composite composite, int flags,
-    GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface ) {
+                   GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface ) {
     this( space, composite, flags, null, getCaretPositionInterface, insertTextInterface );
   }
 
@@ -140,8 +139,7 @@ public class ComboVar extends Composite {
   }
 
   /**
-   * @param getCaretPositionInterface
-   *          the getCaretPositionInterface to set
+   * @param getCaretPositionInterface the getCaretPositionInterface to set
    */
   public void setGetCaretPositionInterface( GetCaretPositionInterface getCaretPositionInterface ) {
     this.getCaretPositionInterface = getCaretPositionInterface;
@@ -155,8 +153,7 @@ public class ComboVar extends Composite {
   }
 
   /**
-   * @param insertTextInterface
-   *          the insertTextInterface to set
+   * @param insertTextInterface the insertTextInterface to set
    */
   public void setInsertTextInterface( InsertTextInterface insertTextInterface ) {
     this.insertTextInterface = insertTextInterface;
@@ -186,8 +183,7 @@ public class ComboVar extends Composite {
   }
 
   /**
-   * @param text
-   *          the text in the Text widget to set.
+   * @param text the text in the Text widget to set.
    */
   public void setText( String text ) {
     wCombo.setText( text );

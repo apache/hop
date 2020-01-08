@@ -22,21 +22,16 @@
 
 package org.apache.hop.trans.steps.changefileencoding;
 
-import java.util.List;
-
-import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -44,19 +39,22 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
+import java.util.List;
+
 @Step( id = "ChangeFileEncoding", i18nPackageName = "org.apache.hop.trans.steps.changefileencoding",
-    name = "ChangeFileEncoding.Name", description = "ChangeFileEncoding.Description",
-    categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Utility" )
+  name = "ChangeFileEncoding.Name", description = "ChangeFileEncoding.Description",
+  categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Utility" )
 public class ChangeFileEncodingMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = ChangeFileEncoding.class; // for i18n purposes, needed by Translator2!!
 
   private boolean addsourceresultfilenames;
   private boolean addtargetresultfilenames;
 
-  /** dynamic filename */
+  /**
+   * dynamic filename
+   */
   private String filenamefield;
 
   private String targetfilenamefield;
@@ -76,8 +74,7 @@ public class ChangeFileEncodingMeta extends BaseStepMeta implements StepMetaInte
   }
 
   /**
-   * @param filenamefield
-   *          The filenamefield to set.
+   * @param filenamefield The filenamefield to set.
    */
   public void setDynamicFilenameField( String filenamefield ) {
     this.filenamefield = filenamefield;
@@ -91,8 +88,7 @@ public class ChangeFileEncodingMeta extends BaseStepMeta implements StepMetaInte
   }
 
   /**
-   * @param targetfilenamefield
-   *          The targetfilenamefield to set.
+   * @param targetfilenamefield The targetfilenamefield to set.
    */
   public void setTargetFilenameField( String targetfilenamefield ) {
     this.targetfilenamefield = targetfilenamefield;
@@ -106,8 +102,7 @@ public class ChangeFileEncodingMeta extends BaseStepMeta implements StepMetaInte
   }
 
   /**
-   * @param encoding
-   *          The sourceencoding to set.
+   * @param encoding The sourceencoding to set.
    */
   public void setSourceEncoding( String encoding ) {
     this.sourceencoding = encoding;
@@ -121,8 +116,7 @@ public class ChangeFileEncodingMeta extends BaseStepMeta implements StepMetaInte
   }
 
   /**
-   * @param encoding
-   *          The targetencoding to set.
+   * @param encoding The targetencoding to set.
    */
   public void setTargetEncoding( String encoding ) {
     this.targetencoding = encoding;
@@ -197,12 +191,12 @@ public class ChangeFileEncodingMeta extends BaseStepMeta implements StepMetaInte
 
     } catch ( Exception e ) {
       throw new HopXMLException(
-          BaseMessages.getString( PKG, "ChangeFileEncodingMeta.Exception.UnableToReadStepInfo" ), e );
+        BaseMessages.getString( PKG, "ChangeFileEncodingMeta.Exception.UnableToReadStepInfo" ), e );
     }
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space, IMetaStore metaStore ) {
+                     String[] input, String[] output, RowMetaInterface info, VariableSpace space, IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -248,21 +242,21 @@ public class ChangeFileEncodingMeta extends BaseStepMeta implements StepMetaInte
     // See if we have input streams leading to this step!
     if ( input.length > 0 ) {
       cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.ReceivingInfoFromOtherSteps" ),
-              stepMeta );
+        new CheckResult( CheckResult.TYPE_RESULT_OK,
+          BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.ReceivingInfoFromOtherSteps" ),
+          stepMeta );
       remarks.add( cr );
     } else {
       cr =
-          new CheckResult( CheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.NoInpuReceived" ), stepMeta );
+        new CheckResult( CheckResult.TYPE_RESULT_ERROR,
+          BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.NoInpuReceived" ), stepMeta );
       remarks.add( cr );
     }
 
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta transMeta,
-      Trans trans ) {
+                                Trans trans ) {
     return new ChangeFileEncoding( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

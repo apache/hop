@@ -22,10 +22,6 @@
 
 package org.apache.hop.trans.steps.exceloutput;
 
-import java.io.OutputStream;
-import java.util.Hashtable;
-import java.util.Map;
-
 import jxl.WorkbookSettings;
 import jxl.format.Colour;
 import jxl.write.WritableCellFormat;
@@ -33,11 +29,14 @@ import jxl.write.WritableFont;
 import jxl.write.WritableImage;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import java.io.OutputStream;
+import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * @author Matt

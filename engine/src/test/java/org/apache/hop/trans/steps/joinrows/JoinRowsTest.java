@@ -22,14 +22,11 @@
 
 package org.apache.hop.trans.steps.joinrows;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.BlockingRowSet;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -39,17 +36,21 @@ import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Denis Mashukov
@@ -83,7 +84,7 @@ public class JoinRowsTest {
   public void disposeDataFiles() throws Exception {
     File mockFile1 = mock( File.class );
     File mockFile2 = mock( File.class );
-    data.file = new File[] {null, mockFile1, mockFile2};
+    data.file = new File[] { null, mockFile1, mockFile2 };
     getJoinRows().dispose( meta, data );
     verify( mockFile1, times( 1 ) ).delete();
     verify( mockFile2, times( 1 ) ).delete();
@@ -150,7 +151,7 @@ public class JoinRowsTest {
     List<Object[]> rowWritten = rowStepCollector.getRowsWritten().stream().map( RowMetaAndData::getData ).collect( Collectors.toList() );
 
     for ( int i = 0; i < 9; i++ ) {
-      assertTrue( Arrays.equals( expectedResult[i], rowWritten.get( i ) ) );
+      assertTrue( Arrays.equals( expectedResult[ i ], rowWritten.get( i ) ) );
     }
   }
 
@@ -170,10 +171,10 @@ public class JoinRowsTest {
     blockingRowSet.setRowMeta( rowMeta );
 
     for ( int i = 0; i < size; i++ ) {
-      Object[] rowData = new Object[3];
-      rowData[0] = dataPrefix + " row[" + i + "]-first value";
-      rowData[1] = dataPrefix + " row[" + i + "]-second value";
-      rowData[2] = dataPrefix + " row[" + i + "]-third value";
+      Object[] rowData = new Object[ 3 ];
+      rowData[ 0 ] = dataPrefix + " row[" + i + "]-first value";
+      rowData[ 1 ] = dataPrefix + " row[" + i + "]-second value";
+      rowData[ 2 ] = dataPrefix + " row[" + i + "]-third value";
       blockingRowSet.putRow( rowMeta, rowData );
     }
 
@@ -189,15 +190,24 @@ public class JoinRowsTest {
   }
 
   private Object[][] createExpectedResult() {
-    Object[][] objects = {{"main -- row[0]-first value", "main -- row[0]-second value", "main -- row[0]-third value", "secondary -- row[0]-first value", "secondary -- row[0]-second value", "secondary -- row[0]-third value"},
-      {"main -- row[0]-first value", "main -- row[0]-second value", "main -- row[0]-third value", "secondary -- row[1]-first value", "secondary -- row[1]-second value", "secondary -- row[1]-third value"},
-      {"main -- row[0]-first value", "main -- row[0]-second value", "main -- row[0]-third value", "secondary -- row[2]-first value", "secondary -- row[2]-second value", "secondary -- row[2]-third value"},
-      {"main -- row[1]-first value", "main -- row[1]-second value", "main -- row[1]-third value", "secondary -- row[0]-first value", "secondary -- row[0]-second value", "secondary -- row[0]-third value"},
-      {"main -- row[1]-first value", "main -- row[1]-second value", "main -- row[1]-third value", "secondary -- row[1]-first value", "secondary -- row[1]-second value", "secondary -- row[1]-third value"},
-      {"main -- row[1]-first value", "main -- row[1]-second value", "main -- row[1]-third value", "secondary -- row[2]-first value", "secondary -- row[2]-second value", "secondary -- row[2]-third value"},
-      {"main -- row[2]-first value", "main -- row[2]-second value", "main -- row[2]-third value", "secondary -- row[0]-first value", "secondary -- row[0]-second value", "secondary -- row[0]-third value"},
-      {"main -- row[2]-first value", "main -- row[2]-second value", "main -- row[2]-third value", "secondary -- row[1]-first value", "secondary -- row[1]-second value", "secondary -- row[1]-third value"},
-      {"main -- row[2]-first value", "main -- row[2]-second value", "main -- row[2]-third value", "secondary -- row[2]-first value", "secondary -- row[2]-second value", "secondary -- row[2]-third value"}};
+    Object[][] objects = { { "main -- row[0]-first value", "main -- row[0]-second value", "main -- row[0]-third value", "secondary -- row[0]-first value", "secondary -- row[0]-second value",
+      "secondary -- row[0]-third value" },
+      { "main -- row[0]-first value", "main -- row[0]-second value", "main -- row[0]-third value", "secondary -- row[1]-first value", "secondary -- row[1]-second value",
+        "secondary -- row[1]-third value" },
+      { "main -- row[0]-first value", "main -- row[0]-second value", "main -- row[0]-third value", "secondary -- row[2]-first value", "secondary -- row[2]-second value",
+        "secondary -- row[2]-third value" },
+      { "main -- row[1]-first value", "main -- row[1]-second value", "main -- row[1]-third value", "secondary -- row[0]-first value", "secondary -- row[0]-second value",
+        "secondary -- row[0]-third value" },
+      { "main -- row[1]-first value", "main -- row[1]-second value", "main -- row[1]-third value", "secondary -- row[1]-first value", "secondary -- row[1]-second value",
+        "secondary -- row[1]-third value" },
+      { "main -- row[1]-first value", "main -- row[1]-second value", "main -- row[1]-third value", "secondary -- row[2]-first value", "secondary -- row[2]-second value",
+        "secondary -- row[2]-third value" },
+      { "main -- row[2]-first value", "main -- row[2]-second value", "main -- row[2]-third value", "secondary -- row[0]-first value", "secondary -- row[0]-second value",
+        "secondary -- row[0]-third value" },
+      { "main -- row[2]-first value", "main -- row[2]-second value", "main -- row[2]-third value", "secondary -- row[1]-first value", "secondary -- row[1]-second value",
+        "secondary -- row[1]-third value" },
+      { "main -- row[2]-first value", "main -- row[2]-second value", "main -- row[2]-third value", "secondary -- row[2]-first value", "secondary -- row[2]-second value",
+        "secondary -- row[2]-third value" } };
     return objects;
   }
 }

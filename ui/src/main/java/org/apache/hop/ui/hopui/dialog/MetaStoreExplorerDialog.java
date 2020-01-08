@@ -22,9 +22,24 @@
 
 package org.apache.hop.ui.hopui.dialog;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.api.IMetaStoreAttribute;
+import org.apache.hop.metastore.api.IMetaStoreElement;
+import org.apache.hop.metastore.api.IMetaStoreElementType;
+import org.apache.hop.metastore.api.exceptions.MetaStoreException;
+import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
+import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.TreeMemory;
+import org.apache.hop.ui.core.widget.TreeUtil;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MenuDetectEvent;
 import org.eclipse.swt.events.MenuDetectListener;
@@ -45,24 +60,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.TreeMemory;
-import org.apache.hop.ui.core.widget.TreeUtil;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.IMetaStoreAttribute;
-import org.apache.hop.metastore.api.IMetaStoreElement;
-import org.apache.hop.metastore.api.IMetaStoreElementType;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MetaStoreExplorerDialog {
   private static Class<?> PKG = MetaStoreExplorerDialog.class; // for i18n purposes, needed by Translator2
@@ -164,15 +164,15 @@ public class MetaStoreExplorerDialog {
         if ( tree.getSelectionCount() < 1 ) {
           return;
         }
-        TreeItem treeItem = tree.getSelection()[0];
+        TreeItem treeItem = tree.getSelection()[ 0 ];
         if ( treeItem != null ) {
           String[] labels = ConstUI.getTreeStrings( treeItem );
           int depth = ConstUI.getTreeLevel( treeItem );
           if ( depth == 3 ) {
-            final String metaStoreName = labels[0];
-            final String namespace = labels[1];
-            final String elementTypeName = labels[2];
-            final String elementName = labels[3];
+            final String metaStoreName = labels[ 0 ];
+            final String namespace = labels[ 1 ];
+            final String elementTypeName = labels[ 2 ];
+            final String elementName = labels[ 3 ];
 
             Menu menu = new Menu( tree );
             MenuItem removeItem = new MenuItem( menu, SWT.POP_UP );

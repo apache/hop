@@ -22,15 +22,9 @@
 
 package org.apache.hop.job.entries.delay;
 
-import java.util.List;
-
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
@@ -40,9 +34,10 @@ import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * Job entry type to sleep for a time. It uses a piece of javascript to do this.
@@ -85,10 +80,10 @@ public class JobEntryDelay extends JobEntryBase implements Cloneable, JobEntryIn
   }
 
   @Override
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       maximumTimeout = XMLHandler.getTagValue( entrynode, "maximumTimeout" );
       scaleTime = Integer.parseInt( XMLHandler.getTagValue( entrynode, "scaletime" ) );
     } catch ( Exception e ) {
@@ -100,8 +95,7 @@ public class JobEntryDelay extends JobEntryBase implements Cloneable, JobEntryIn
    * Execute this job entry and return the result. In this case it means, just set the result boolean in the Result
    * class.
    *
-   * @param previousResult
-   *          The result of the previous execution
+   * @param previousResult The result of the previous execution
    * @return The Result of the execution.
    */
   @Override
@@ -217,11 +211,11 @@ public class JobEntryDelay extends JobEntryBase implements Cloneable, JobEntryIn
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "maximumTimeout", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.longValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.longValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "scaleTime", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.integerValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.integerValidator() ) );
   }
 
   public int getScaleTime() {

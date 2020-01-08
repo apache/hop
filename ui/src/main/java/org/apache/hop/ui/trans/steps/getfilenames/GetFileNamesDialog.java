@@ -22,6 +22,29 @@
 
 package org.apache.hop.ui.trans.steps.getfilenames;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPreviewFactory;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.getfilenames.GetFileNamesMeta;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -47,29 +70,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPreviewFactory;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.getfilenames.GetFileNamesMeta;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class GetFileNamesDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = GetFileNamesMeta.class; // for i18n purposes, needed by Translator2!!
@@ -513,13 +513,13 @@ public class GetFileNamesDialog extends BaseStepDialog implements StepDialogInte
           BaseMessages.getString( PKG, "GetFileNamesDialog.IncludeSubDirs.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, YES_NO_COMBO ) };
 
-    colinfo[0].setUsingVariables( true );
-    colinfo[1].setUsingVariables( true );
-    colinfo[1].setToolTip( BaseMessages.getString( PKG, "GetFileNamesDialog.RegExpColumn.Column" ) );
-    colinfo[2].setUsingVariables( true );
-    colinfo[2].setToolTip( BaseMessages.getString( PKG, "GetFileNamesDialog.ExcludeRegExpColumn.Column" ) );
-    colinfo[3].setToolTip( BaseMessages.getString( PKG, "GetFileNamesDialog.Required.Tooltip" ) );
-    colinfo[4].setToolTip( BaseMessages.getString( PKG, "GetFileNamesDialog.IncludeSubDirs.ToolTip" ) );
+    colinfo[ 0 ].setUsingVariables( true );
+    colinfo[ 1 ].setUsingVariables( true );
+    colinfo[ 1 ].setToolTip( BaseMessages.getString( PKG, "GetFileNamesDialog.RegExpColumn.Column" ) );
+    colinfo[ 2 ].setUsingVariables( true );
+    colinfo[ 2 ].setToolTip( BaseMessages.getString( PKG, "GetFileNamesDialog.ExcludeRegExpColumn.Column" ) );
+    colinfo[ 3 ].setToolTip( BaseMessages.getString( PKG, "GetFileNamesDialog.Required.Tooltip" ) );
+    colinfo[ 4 ].setToolTip( BaseMessages.getString( PKG, "GetFileNamesDialog.IncludeSubDirs.ToolTip" ) );
 
     wFilenameList =
       new TableView(
@@ -796,7 +796,7 @@ public class GetFileNamesDialog extends BaseStepDialog implements StepDialogInte
       public void widgetSelected( SelectionEvent arg0 ) {
         wFilenameList.add( new String[] {
           wFilename.getText(), wFilemask.getText(), wExcludeFilemask.getText(),
-          GetFileNamesMeta.RequiredFilesCode[0], GetFileNamesMeta.RequiredFilesCode[0] } );
+          GetFileNamesMeta.RequiredFilesCode[ 0 ], GetFileNamesMeta.RequiredFilesCode[ 0 ] } );
         wFilename.setText( "" );
         wFilemask.setText( "" );
         wFilenameList.removeEmptyRows();
@@ -824,9 +824,9 @@ public class GetFileNamesDialog extends BaseStepDialog implements StepDialogInte
         int idx = wFilenameList.getSelectionIndex();
         if ( idx >= 0 ) {
           String[] string = wFilenameList.getItem( idx );
-          wFilename.setText( string[0] );
-          wFilemask.setText( string[1] );
-          wExcludeFilemask.setText( string[2] );
+          wFilename.setText( string[ 0 ] );
+          wFilemask.setText( string[ 1 ] );
+          wExcludeFilemask.setText( string[ 2 ] );
           wFilenameList.remove( idx );
         }
         wFilenameList.removeEmptyRows();
@@ -946,7 +946,7 @@ public class GetFileNamesDialog extends BaseStepDialog implements StepDialogInte
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "GetFileNamesDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "GetFileNamesDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "GetFileNamesDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 
@@ -985,8 +985,7 @@ public class GetFileNamesDialog extends BaseStepDialog implements StepDialogInte
   /**
    * Read the data from the GetFileNamesMeta object and show it in this dialog.
    *
-   * @param meta
-   *          The TextFileInputMeta object to obtain the data from.
+   * @param meta The TextFileInputMeta object to obtain the data from.
    */
   public void getData( GetFileNamesMeta meta ) {
     final GetFileNamesMeta in = meta;
@@ -996,9 +995,9 @@ public class GetFileNamesDialog extends BaseStepDialog implements StepDialogInte
 
       for ( int i = 0; i < meta.getFileName().length; i++ ) {
         wFilenameList.add( new String[] {
-          in.getFileName()[i], in.getFileMask()[i], in.getExludeFileMask()[i],
-          in.getRequiredFilesDesc( in.getFileRequired()[i] ),
-          in.getRequiredFilesDesc( in.getIncludeSubFolders()[i] ) } );
+          in.getFileName()[ i ], in.getFileMask()[ i ], in.getExludeFileMask()[ i ],
+          in.getRequiredFilesDesc( in.getFileRequired()[ i ] ),
+          in.getRequiredFilesDesc( in.getIncludeSubFolders()[ i ] ) } );
       }
 
       wdoNotFailIfNoFile.setSelection( in.isdoNotFailIfNoFile() );
@@ -1111,7 +1110,7 @@ public class GetFileNamesDialog extends BaseStepDialog implements StepDialogInte
         PreviewRowsDialog prd =
           new PreviewRowsDialog(
             shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta( wStepname
-              .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
+            .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
         prd.open();
       }
     }

@@ -23,9 +23,8 @@
 package org.apache.hop.core.listeners;
 
 /**
- * @see ContentChangedListener
  * @author matt
- *
+ * @see ContentChangedListener
  */
 public class ContentChangedAdapter implements ContentChangedListener {
   @Override

@@ -22,13 +22,13 @@
 
 package org.apache.hop.core.util;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.logging.LogChannelInterface;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
-import org.apache.hop.core.Const;
-import org.apache.hop.core.logging.LogChannelInterface;
 
 public class StreamLogger implements Runnable {
   private InputStream is;

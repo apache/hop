@@ -30,7 +30,6 @@ import org.apache.hop.trans.step.StepMeta;
 
 /**
  * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- *
  */
 public abstract class AbstractStep extends BaseStep {
 
@@ -44,27 +43,21 @@ public abstract class AbstractStep extends BaseStep {
   /**
    * Constructor.
    *
-   * @param stepMeta
-   *          the stepMeta.
-   * @param stepDataInterface
-   *          the stepDataInterface.
-   * @param copyNr
-   *          the copyNr.
-   * @param transMeta
-   *          the transMeta.
-   * @param trans
-   *          the transaction.
+   * @param stepMeta          the stepMeta.
+   * @param stepDataInterface the stepDataInterface.
+   * @param copyNr            the copyNr.
+   * @param transMeta         the transMeta.
+   * @param trans             the transaction.
    */
   public AbstractStep( final StepMeta stepMeta, final StepDataInterface stepDataInterface, final int copyNr,
-    final TransMeta transMeta, final Trans trans ) {
+                       final TransMeta transMeta, final Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
   /**
    * Log exception.
    *
-   * @param exception
-   *          exception to log.
+   * @param exception exception to log.
    */
   public void logUnexpectedError( final Throwable exception ) {
     this.logError( UNEXPECTED_ERROR, exception );

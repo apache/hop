@@ -22,16 +22,16 @@
 
 package org.apache.hop.trans.steps.csvinput;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.TransTestingUtil;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.steps.StepMockUtil;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
 import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.io.File;
 import java.util.Arrays;

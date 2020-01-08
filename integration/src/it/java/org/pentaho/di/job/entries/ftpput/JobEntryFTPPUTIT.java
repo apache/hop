@@ -22,30 +22,30 @@
 
 package org.apache.hop.job.entries.ftpput;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entries.ftpsget.FTPSConnection;
 import org.apache.hop.job.entries.ftpsget.FtpsServer;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.apache.hop.core.Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY;
 import static org.apache.hop.job.entries.ftpsget.FTPSConnection.CONNECTION_TYPE_FTP;
 import static org.apache.hop.job.entries.ftpsget.FtpsServer.ADMIN;
 import static org.apache.hop.job.entries.ftpsget.FtpsServer.DEFAULT_PORT;
 import static org.apache.hop.job.entries.ftpsget.FtpsServer.PASSWORD;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Andrey Khayrutdinov

@@ -22,13 +22,6 @@
 
 package org.apache.hop.trans.steps.changefileencoding;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
@@ -43,12 +36,18 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+
 /**
  * Change file encoding *
  *
  * @author Samatar
  * @since 03-Juin-2008
- *
  */
 
 public class ChangeFileEncoding extends BaseStep implements StepInterface {
@@ -58,7 +57,7 @@ public class ChangeFileEncoding extends BaseStep implements StepInterface {
   private ChangeFileEncodingData data;
 
   public ChangeFileEncoding( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
+                             Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -87,7 +86,7 @@ public class ChangeFileEncoding extends BaseStep implements StepInterface {
       // Check is target filename field is provided
       if ( Utils.isEmpty( meta.getTargetFilenameField() ) ) {
         throw new HopException(
-            BaseMessages.getString( PKG, "ChangeFileEncoding.Error.TargetFilenameFieldMissing" ) );
+          BaseMessages.getString( PKG, "ChangeFileEncoding.Error.TargetFilenameFieldMissing" ) );
       }
 
       // cache the position of the field
@@ -95,7 +94,7 @@ public class ChangeFileEncoding extends BaseStep implements StepInterface {
       if ( data.indexOfFileename < 0 ) {
         // The field is unreachable !
         logError( BaseMessages.getString( PKG, "ChangeFileEncoding.Exception.CouldnotFindField" ) + "["
-            + meta.getDynamicFilenameField() + "]" );
+          + meta.getDynamicFilenameField() + "]" );
         throw new HopException( BaseMessages.getString( PKG, "ChangeFileEncoding.Exception.CouldnotFindField",
           meta.getDynamicFilenameField() ) );
       }
@@ -104,7 +103,7 @@ public class ChangeFileEncoding extends BaseStep implements StepInterface {
       if ( data.indexOfTargetFileename < 0 ) {
         // The field is unreachable !
         logError( BaseMessages.getString( PKG, "ChangeFileEncoding.Exception.CouldnotFindField" ) + "["
-            + meta.getTargetFilenameField() + "]" );
+          + meta.getTargetFilenameField() + "]" );
         throw new HopException( BaseMessages.getString( PKG, "ChangeFileEncoding.Exception.CouldnotFindField",
           meta.getTargetFilenameField() ) );
       }
@@ -145,13 +144,13 @@ public class ChangeFileEncoding extends BaseStep implements StepInterface {
       // Check if source file exists
       if ( !data.sourceFile.exists() ) {
         throw new HopException(
-            BaseMessages.getString( PKG, "ChangeFileEncoding.Error.SourceFileNotExists", sourceFilename ) );
+          BaseMessages.getString( PKG, "ChangeFileEncoding.Error.SourceFileNotExists", sourceFilename ) );
       }
 
       // Check if source file is a file
       if ( data.sourceFile.getType() != FileType.FILE ) {
         throw new HopException(
-            BaseMessages.getString( PKG, "ChangeFileEncoding.Error.SourceFileNotAFile", sourceFilename ) );
+          BaseMessages.getString( PKG, "ChangeFileEncoding.Error.SourceFileNotAFile", sourceFilename ) );
       }
 
       // create directory only if not exists
@@ -204,16 +203,16 @@ public class ChangeFileEncoding extends BaseStep implements StepInterface {
 
     try {
       buffWriter =
-          new BufferedWriter(
-              new OutputStreamWriter( new FileOutputStream( targetFilename, false ), data.targetEncoding ) );
+        new BufferedWriter(
+          new OutputStreamWriter( new FileOutputStream( targetFilename, false ), data.targetEncoding ) );
       if ( Utils.isEmpty( data.sourceEncoding ) ) {
         buffReader = new BufferedReader( new InputStreamReader( new FileInputStream( sourceFilename ) ) );
       } else {
         buffReader =
-            new BufferedReader( new InputStreamReader( new FileInputStream( sourceFilename ), data.sourceEncoding ) );
+          new BufferedReader( new InputStreamReader( new FileInputStream( sourceFilename ), data.sourceEncoding ) );
       }
 
-      char[] cBuf = new char[8192];
+      char[] cBuf = new char[ 8192 ];
       int readSize = 0;
       while ( ( readSize = buffReader.read( cBuf ) ) != -1 ) {
         buffWriter.write( cBuf, 0, readSize );
@@ -223,7 +222,7 @@ public class ChangeFileEncoding extends BaseStep implements StepInterface {
       if ( meta.addSourceResultFilenames() ) {
         // Add this to the result file names...
         ResultFile resultFile =
-            new ResultFile( ResultFile.FILE_TYPE_GENERAL, data.sourceFile, getTransMeta().getName(), getStepname() );
+          new ResultFile( ResultFile.FILE_TYPE_GENERAL, data.sourceFile, getTransMeta().getName(), getStepname() );
         resultFile.setComment( BaseMessages.getString( PKG, "ChangeFileEncoding.Log.FileAddedResult" ) );
         addResultFile( resultFile );
 
@@ -236,8 +235,8 @@ public class ChangeFileEncoding extends BaseStep implements StepInterface {
       if ( meta.addTargetResultFilenames() ) {
         // Add this to the result file names...
         ResultFile resultFile =
-            new ResultFile( ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( targetFilename ),
-                getTransMeta().getName(), getStepname() );
+          new ResultFile( ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( targetFilename ),
+            getTransMeta().getName(), getStepname() );
         resultFile.setComment( BaseMessages.getString( PKG, "ChangeFileEncoding.Log.FileAddedResult" ) );
         addResultFile( resultFile );
 

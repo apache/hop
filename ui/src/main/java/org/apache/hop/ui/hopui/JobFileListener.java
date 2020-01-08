@@ -22,9 +22,6 @@
 
 package org.apache.hop.ui.hopui;
 
-import java.util.Date;
-import java.util.Locale;
-
 import org.apache.hop.core.EngineMetaInterface;
 import org.apache.hop.core.LastUsedFile;
 import org.apache.hop.core.exception.HopException;
@@ -32,12 +29,12 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.job.JobEntryJob;
-import org.apache.hop.job.entries.trans.JobEntryTrans;
-import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.job.entries.missing.MissingEntryDialog;
 import org.w3c.dom.Node;
+
+import java.util.Date;
+import java.util.Locale;
 
 public class JobFileListener implements FileListener {
 
@@ -81,8 +78,8 @@ public class JobFileListener implements FileListener {
     } catch ( HopException e ) {
       new ErrorDialog(
         hopUi.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ErrorOpening.Title" ), BaseMessages
-          .getString( PKG, "Spoon.Dialog.ErrorOpening.Message" )
-          + fname, e );
+        .getString( PKG, "Spoon.Dialog.ErrorOpening.Message" )
+        + fname, e );
     }
     return false;
   }

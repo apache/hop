@@ -22,7 +22,6 @@
 
 package org.apache.hop.trans.steps.update;
 
-import com.google.common.primitives.Ints;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
@@ -42,8 +41,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -52,9 +50,7 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-
 import org.apache.hop.trans.step.utils.RowMetaUtils;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -69,58 +65,86 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
 
   private IMetaStore metaStore;
 
-  /** The lookup table name */
+  /**
+   * The lookup table name
+   */
   @Injection( name = "SCHEMA_NAME" )
   private String schemaName;
 
-  /** The lookup table name */
+  /**
+   * The lookup table name
+   */
   @Injection( name = "TABLE_NAME" )
   private String tableName;
 
-  /** database connection */
+  /**
+   * database connection
+   */
   private DatabaseMeta databaseMeta;
 
-  /** which field in input stream to compare with? */
+  /**
+   * which field in input stream to compare with?
+   */
   @Injection( name = "KEY_STREAM", group = "KEYS" )
   private String[] keyStream;
 
-  /** field in table */
+  /**
+   * field in table
+   */
   @Injection( name = "KEY_LOOKUP", group = "KEYS" )
   private String[] keyLookup;
 
-  /** Comparator: =, <>, BETWEEN, ... */
+  /**
+   * Comparator: =, <>, BETWEEN, ...
+   */
   @Injection( name = "KEY_CONDITION", group = "KEYS" )
   private String[] keyCondition;
 
-  /** Extra field for between... */
+  /**
+   * Extra field for between...
+   */
   @Injection( name = "KEY_STREAM2", group = "KEYS" )
   private String[] keyStream2;
 
-  /** Field value to update after lookup */
+  /**
+   * Field value to update after lookup
+   */
   @Injection( name = "UPDATE_LOOKUP", group = "UPDATES" )
   private String[] updateLookup;
 
-  /** Stream name to update value with */
+  /**
+   * Stream name to update value with
+   */
   @Injection( name = "UPDATE_STREAM", group = "UPDATES" )
   private String[] updateStream;
 
-  /** Commit size for inserts/updates */
+  /**
+   * Commit size for inserts/updates
+   */
   @Injection( name = "COMMIT_SIZE" )
   private String commitSize;
 
-  /** update errors are ignored if this flag is set to true */
+  /**
+   * update errors are ignored if this flag is set to true
+   */
   @Injection( name = "IGNORE_LOOKUP_FAILURE" )
   private boolean errorIgnored;
 
-  /** adds a boolean field to the output indicating success of the update */
+  /**
+   * adds a boolean field to the output indicating success of the update
+   */
   @Injection( name = "FLAG_FIELD" )
   private String ignoreFlagField;
 
-  /** adds a boolean field to skip lookup and directly update selected fields */
+  /**
+   * adds a boolean field to skip lookup and directly update selected fields
+   */
   @Injection( name = "SKIP_LOOKUP" )
   private boolean skipLookup;
 
-  /** Flag to indicate the use of batch updates, enabled by default but disabled for backward compatibility */
+  /**
+   * Flag to indicate the use of batch updates, enabled by default but disabled for backward compatibility
+   */
   @Injection( name = "BATCH_UPDATE" )
   private boolean useBatchUpdate;
 
@@ -129,7 +153,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
     try {
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, connectionName );
     } catch ( HopXMLException e ) {
-      throw new RuntimeException( "Error loading conneciton '"+connectionName+"'", e );
+      throw new RuntimeException( "Error loading conneciton '" + connectionName + "'", e );
     }
   }
 
@@ -162,9 +186,8 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param commitSize
-   *          The commitSize to set.
-   *          @deprecated use public void setCommitSize( String commitSize ) instead
+   * @param commitSize The commitSize to set.
+   * @deprecated use public void setCommitSize( String commitSize ) instead
    */
   @Deprecated
   public void setCommitSize( int commitSize ) {
@@ -172,8 +195,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param commitSize
-   *          The commitSize to set.
+   * @param commitSize The commitSize to set.
    */
   public void setCommitSize( String commitSize ) {
     this.commitSize = commitSize;
@@ -187,8 +209,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param skipLookup
-   *          The skipLookup to set.
+   * @param skipLookup The skipLookup to set.
    */
   public void setSkipLookup( boolean skipLookup ) {
     this.skipLookup = skipLookup;
@@ -202,8 +223,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param database
-   *          The database to set.
+   * @param database The database to set.
    */
   public void setDatabaseMeta( DatabaseMeta database ) {
     this.databaseMeta = database;
@@ -217,8 +237,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param keyCondition
-   *          The keyCondition to set.
+   * @param keyCondition The keyCondition to set.
    */
   public void setKeyCondition( String[] keyCondition ) {
     this.keyCondition = keyCondition;
@@ -232,8 +251,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param keyLookup
-   *          The keyLookup to set.
+   * @param keyLookup The keyLookup to set.
    */
   public void setKeyLookup( String[] keyLookup ) {
     this.keyLookup = keyLookup;
@@ -247,8 +265,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param keyStream
-   *          The keyStream to set.
+   * @param keyStream The keyStream to set.
    */
   public void setKeyStream( String[] keyStream ) {
     this.keyStream = keyStream;
@@ -262,8 +279,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param keyStream2
-   *          The keyStream2 to set.
+   * @param keyStream2 The keyStream2 to set.
    */
   public void setKeyStream2( String[] keyStream2 ) {
     this.keyStream2 = keyStream2;
@@ -277,8 +293,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param tableName
-   *          The tableName to set.
+   * @param tableName The tableName to set.
    */
   public void setTableName( String tableName ) {
     this.tableName = tableName;
@@ -292,8 +307,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param updateLookup
-   *          The updateLookup to set.
+   * @param updateLookup The updateLookup to set.
    */
   public void setUpdateLookup( String[] updateLookup ) {
     this.updateLookup = updateLookup;
@@ -307,8 +321,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param updateStream
-   *          The updateStream to set.
+   * @param updateStream The updateStream to set.
    */
   public void setUpdateStream( String[] updateStream ) {
     this.updateStream = updateStream;
@@ -322,8 +335,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param ignoreError
-   *          The ignoreError to set.
+   * @param ignoreError The ignoreError to set.
    */
   public void setErrorIgnored( boolean ignoreError ) {
     this.errorIgnored = ignoreError;
@@ -337,8 +349,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param ignoreFlagField
-   *          The ignoreFlagField to set.
+   * @param ignoreFlagField The ignoreFlagField to set.
    */
   public void setIgnoreFlagField( String ignoreFlagField ) {
     this.ignoreFlagField = ignoreFlagField;
@@ -351,12 +362,12 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrkeys, int nrvalues ) {
-    keyStream = new String[nrkeys];
-    keyLookup = new String[nrkeys];
-    keyCondition = new String[nrkeys];
-    keyStream2 = new String[nrkeys];
-    updateLookup = new String[nrvalues];
-    updateStream = new String[nrvalues];
+    keyStream = new String[ nrkeys ];
+    keyLookup = new String[ nrkeys ];
+    keyCondition = new String[ nrkeys ];
+    keyStream2 = new String[ nrkeys ];
+    updateLookup = new String[ nrvalues ];
+    updateStream = new String[ nrvalues ];
   }
 
   @Override
@@ -403,22 +414,22 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
       for ( int i = 0; i < nrkeys; i++ ) {
         Node knode = XMLHandler.getSubNodeByNr( lookup, "key", i );
 
-        keyStream[i] = XMLHandler.getTagValue( knode, "name" );
-        keyLookup[i] = XMLHandler.getTagValue( knode, "field" );
-        keyCondition[i] = XMLHandler.getTagValue( knode, "condition" );
-        if ( keyCondition[i] == null ) {
-          keyCondition[i] = "=";
+        keyStream[ i ] = XMLHandler.getTagValue( knode, "name" );
+        keyLookup[ i ] = XMLHandler.getTagValue( knode, "field" );
+        keyCondition[ i ] = XMLHandler.getTagValue( knode, "condition" );
+        if ( keyCondition[ i ] == null ) {
+          keyCondition[ i ] = "=";
         }
-        keyStream2[i] = XMLHandler.getTagValue( knode, "name2" );
+        keyStream2[ i ] = XMLHandler.getTagValue( knode, "name2" );
       }
 
       for ( int i = 0; i < nrvalues; i++ ) {
         Node vnode = XMLHandler.getSubNodeByNr( lookup, "value", i );
 
-        updateLookup[i] = XMLHandler.getTagValue( vnode, "name" );
-        updateStream[i] = XMLHandler.getTagValue( vnode, "rename" );
-        if ( updateStream[i] == null ) {
-          updateStream[i] = updateLookup[i]; // default: the same name!
+        updateLookup[ i ] = XMLHandler.getTagValue( vnode, "name" );
+        updateStream[ i ] = XMLHandler.getTagValue( vnode, "rename" );
+        if ( updateStream[ i ] == null ) {
+          updateStream[ i ] = updateLookup[ i ]; // default: the same name!
         }
       }
     } catch ( Exception e ) {
@@ -443,15 +454,15 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( nrkeys, nrvalues );
 
     for ( int i = 0; i < nrkeys; i++ ) {
-      keyLookup[i] = "age";
-      keyCondition[i] = "BETWEEN";
-      keyStream[i] = "age_from";
-      keyStream2[i] = "age_to";
+      keyLookup[ i ] = "age";
+      keyCondition[ i ] = "BETWEEN";
+      keyStream[ i ] = "age_from";
+      keyStream2[ i ] = "age_to";
     }
 
     for ( int i = 0; i < nrvalues; i++ ) {
-      updateLookup[i] = BaseMessages.getString( PKG, "UpdateMeta.ColumnName.ReturnField" ) + i;
-      updateStream[i] = BaseMessages.getString( PKG, "UpdateMeta.ColumnName.NewName" ) + i;
+      updateLookup[ i ] = BaseMessages.getString( PKG, "UpdateMeta.ColumnName.ReturnField" ) + i;
+      updateStream[ i ] = BaseMessages.getString( PKG, "UpdateMeta.ColumnName.NewName" ) + i;
     }
   }
 
@@ -472,17 +483,17 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
 
     for ( int i = 0; i < keyStream.length; i++ ) {
       retval.append( "      <key>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", keyStream[i] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "field", keyLookup[i] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "condition", keyCondition[i] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "name2", keyStream2[i] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "name", keyStream[ i ] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "field", keyLookup[ i ] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "condition", keyCondition[ i ] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "name2", keyStream2[ i ] ) );
       retval.append( "        </key>" + Const.CR );
     }
 
     for ( int i = 0; i < updateLookup.length; i++ ) {
       retval.append( "      <value>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", updateLookup[i] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "rename", updateStream[i] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "name", updateLookup[ i ] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "rename", updateStream[ i ] ) );
       retval.append( "        </value>" + Const.CR );
     }
 
@@ -493,7 +504,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     if ( ignoreFlagField != null && ignoreFlagField.length() > 0 ) {
       ValueMetaInterface v = new ValueMetaBoolean( ignoreFlagField );
       v.setOrigin( name );
@@ -504,8 +515,8 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -534,7 +545,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
             remarks.add( cr );
 
             for ( int i = 0; i < keyLookup.length; i++ ) {
-              String lufield = keyLookup[i];
+              String lufield = keyLookup[ i ];
 
               ValueMetaInterface v = r.searchValueMeta( lufield );
               if ( v == null ) {
@@ -563,7 +574,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
             error_message = "";
 
             for ( int i = 0; i < updateLookup.length; i++ ) {
-              String lufield = updateLookup[i];
+              String lufield = updateLookup[ i ];
 
               ValueMetaInterface v = r.searchValueMeta( lufield );
               if ( v == null ) {
@@ -604,7 +615,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
           boolean error_found = false;
 
           for ( int i = 0; i < keyStream.length; i++ ) {
-            ValueMetaInterface v = prev.searchValueMeta( keyStream[i] );
+            ValueMetaInterface v = prev.searchValueMeta( keyStream[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
@@ -612,12 +623,12 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
                   BaseMessages.getString( PKG, "UpdateMeta.CheckResult.MissingFieldsInInput" ) + Const.CR;
               }
               error_found = true;
-              error_message += "\t\t" + keyStream[i] + Const.CR;
+              error_message += "\t\t" + keyStream[ i ] + Const.CR;
             }
           }
           for ( int i = 0; i < keyStream2.length; i++ ) {
-            if ( keyStream2[i] != null && keyStream2[i].length() > 0 ) {
-              ValueMetaInterface v = prev.searchValueMeta( keyStream2[i] );
+            if ( keyStream2[ i ] != null && keyStream2[ i ].length() > 0 ) {
+              ValueMetaInterface v = prev.searchValueMeta( keyStream2[ i ] );
               if ( v == null ) {
                 if ( first ) {
                   first = false;
@@ -625,7 +636,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
                     BaseMessages.getString( PKG, "UpdateMeta.CheckResult.MissingFieldsInInput2" ) + Const.CR;
                 }
                 error_found = true;
-                error_message += "\t\t" + keyStream[i] + Const.CR;
+                error_message += "\t\t" + keyStream[ i ] + Const.CR;
               }
             }
           }
@@ -644,7 +655,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
           error_message = "";
 
           for ( int i = 0; i < updateStream.length; i++ ) {
-            String lufield = updateStream[i];
+            String lufield = updateStream[ i ];
 
             ValueMetaInterface v = prev.searchValueMeta( lufield );
             if ( v == null ) {
@@ -700,14 +711,14 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public SQLStatement getSQLStatements( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-    IMetaStore metaStore ) throws HopStepException  {
+                                        IMetaStore metaStore ) throws HopStepException {
     SQLStatement retval = new SQLStatement( stepMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
       if ( prev != null && prev.size() > 0 ) {
         // Copy the row
         RowMetaInterface tableFields = RowMetaUtils.getRowMetaForUpdate( prev, keyLookup, keyStream,
-            updateLookup, updateStream );
+          updateLookup, updateStream );
         if ( !Utils.isEmpty( tableName ) ) {
           String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
 
@@ -726,9 +737,9 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
             String[] idx_fields = null;
 
             if ( keyLookup != null && keyLookup.length > 0 ) {
-              idx_fields = new String[keyLookup.length];
+              idx_fields = new String[ keyLookup.length ];
               for ( int i = 0; i < keyLookup.length; i++ ) {
-                idx_fields[i] = keyLookup[i];
+                idx_fields[ i ] = keyLookup[ i ];
               }
             } else {
               retval.setError( BaseMessages.getString( PKG, "UpdateMeta.CheckResult.MissingKeyFields" ) );
@@ -768,30 +779,30 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
-    IMetaStore metaStore ) throws HopStepException {
+                             RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
+                             IMetaStore metaStore ) throws HopStepException {
     if ( prev != null ) {
       // Lookup: we do a lookup on the natural keys
       for ( int i = 0; i < keyLookup.length; i++ ) {
-        ValueMetaInterface v = prev.searchValueMeta( keyStream[i] );
+        ValueMetaInterface v = prev.searchValueMeta( keyStream[ i ] );
 
         DatabaseImpact ii =
           new DatabaseImpact(
             DatabaseImpact.TYPE_IMPACT_READ, transMeta.getName(), stepMeta.getName(), databaseMeta
-              .getDatabaseName(), tableName, keyLookup[i], keyStream[i],
+            .getDatabaseName(), tableName, keyLookup[ i ], keyStream[ i ],
             v != null ? v.getOrigin() : "?", "", "Type = " + v.toStringMeta() );
         impact.add( ii );
       }
 
       // Update fields : read/write
       for ( int i = 0; i < updateLookup.length; i++ ) {
-        ValueMetaInterface v = prev.searchValueMeta( updateStream[i] );
+        ValueMetaInterface v = prev.searchValueMeta( updateStream[ i ] );
 
         DatabaseImpact ii =
           new DatabaseImpact(
             DatabaseImpact.TYPE_IMPACT_UPDATE, transMeta.getName(), stepMeta.getName(), databaseMeta
-              .getDatabaseName(), tableName, updateLookup[i], updateStream[i], v != null
-              ? v.getOrigin() : "?", "", "Type = " + v.toStringMeta() );
+            .getDatabaseName(), tableName, updateLookup[ i ], updateStream[ i ], v != null
+            ? v.getOrigin() : "?", "", "Type = " + v.toStringMeta() );
         impact.add( ii );
       }
     }
@@ -799,7 +810,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new Update( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -825,8 +836,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param schemaName
-   *          the schemaName to set
+   * @param schemaName the schemaName to set
    */
   public void setSchemaName( String schemaName ) {
     this.schemaName = schemaName;
@@ -845,8 +855,7 @@ public class UpdateMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param useBatchUpdate
-   *          the useBatchUpdate to set
+   * @param useBatchUpdate the useBatchUpdate to set
    */
   public void setUseBatchUpdate( boolean useBatchUpdate ) {
     this.useBatchUpdate = useBatchUpdate;

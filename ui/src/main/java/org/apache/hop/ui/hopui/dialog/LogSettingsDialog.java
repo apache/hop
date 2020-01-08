@@ -22,6 +22,14 @@
 
 package org.apache.hop.ui.hopui.dialog;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.logging.DefaultLogLevel;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ShellAdapter;
@@ -36,14 +44,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.logging.DefaultLogLevel;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class LogSettingsDialog extends Dialog {
   private static Class<?> PKG = LogSettingsDialog.class; // for i18n purposes, needed by Translator2!!
@@ -88,7 +88,7 @@ public class LogSettingsDialog extends Dialog {
 
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "LogSettingsDialog.Dialog.LoggingParameters.Title" ) ); // Set logging
-                                                                                                        // parameters:
+    // parameters:
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
@@ -205,7 +205,7 @@ public class LogSettingsDialog extends Dialog {
 
   private void ok() {
     int idx = wLoglevel.getSelectionIndex();
-    DefaultLogLevel.setLogLevel( LogLevel.values()[idx] );
+    DefaultLogLevel.setLogLevel( LogLevel.values()[ idx ] );
 
     /*
      * String filter = wFilter.getText(); if (Utils.isEmpty(filter)) { LogWriter.getInstance().setFilter(null); // clear

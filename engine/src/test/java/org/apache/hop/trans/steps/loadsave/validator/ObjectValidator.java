@@ -22,15 +22,15 @@
 
 package org.apache.hop.trans.steps.loadsave.validator;
 
+import org.apache.hop.trans.steps.loadsave.getter.Getter;
+import org.apache.hop.trans.steps.loadsave.setter.Setter;
+import org.apache.test.util.JavaBeanManipulator;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.hop.trans.steps.loadsave.getter.Getter;
-import org.apache.hop.trans.steps.loadsave.setter.Setter;
-import org.apache.test.util.JavaBeanManipulator;
 
 public class ObjectValidator<T> implements FieldLoadSaveValidator<T> {
   private final FieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory;
@@ -39,7 +39,7 @@ public class ObjectValidator<T> implements FieldLoadSaveValidator<T> {
   private final List<String> fieldNames;
 
   public ObjectValidator( FieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory, Class<T> clazz,
-      List<String> fieldNames, Map<String, String> getterMap, Map<String, String> setterMap ) {
+                          List<String> fieldNames, Map<String, String> getterMap, Map<String, String> setterMap ) {
     this.fieldLoadSaveValidatorFactory = fieldLoadSaveValidatorFactory;
     manipulator = new JavaBeanManipulator<T>( clazz, fieldNames, getterMap, setterMap );
     this.clazz = clazz;
@@ -47,9 +47,9 @@ public class ObjectValidator<T> implements FieldLoadSaveValidator<T> {
   }
 
   public ObjectValidator( FieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory, Class<T> clazz,
-      List<String> fieldNames ) {
+                          List<String> fieldNames ) {
     this( fieldLoadSaveValidatorFactory, clazz, fieldNames, new HashMap<String, String>(),
-        new HashMap<String, String>() );
+      new HashMap<String, String>() );
   }
 
   @SuppressWarnings( { "rawtypes", "unchecked" } )
@@ -60,7 +60,7 @@ public class ObjectValidator<T> implements FieldLoadSaveValidator<T> {
       for ( String attribute : fieldNames ) {
         Setter setter = manipulator.getSetter( attribute );
         setter.set( object, fieldLoadSaveValidatorFactory.createValidator( manipulator.getGetter( attribute ) )
-            .getTestObject() );
+          .getTestObject() );
       }
       return object;
     } catch ( Exception e ) {

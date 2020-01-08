@@ -22,9 +22,33 @@
 
 package org.apache.hop.job.entries.unzip;
 
+import org.apache.commons.vfs2.AllFileSelector;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSelectInfo;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.FileType;
+import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.Job;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.JobEntryBase;
+import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.AbstractFileValidator;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
+import org.apache.hop.job.entry.validator.ValidatorContext;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.w3c.dom.Node;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,42 +60,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.vfs2.AllFileSelector;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSelectInfo;
-import org.apache.commons.vfs2.FileSystemException;
-import org.apache.commons.vfs2.FileType;
-import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.util.StringUtil;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.Job;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.job.entry.validator.ValidatorContext;
-
-import org.apache.hop.metastore.api.IMetaStore;
-import org.w3c.dom.Node;
-
 /**
  * This defines a 'unzip' job entry. Its main use would be to unzip files in a directory
  *
  * @author Samatar Hassan
  * @since 25-09-2007
- *
  */
 
 public class JobEntryUnZip extends JobEntryBase implements Cloneable, JobEntryInterface {
@@ -116,9 +109,9 @@ public class JobEntryUnZip extends JobEntryBase implements Cloneable, JobEntryIn
   public static final int IF_FILE_EXISTS_OVERWRITE_ZIP_SMALL_EQUAL = 9;
 
   public static final String[] typeIfFileExistsCode = /* WARNING: DO NOT TRANSLATE THIS. */
-  {
-    "SKIP", "OVERWRITE", "UNIQ", "FAIL", "OVERWRITE_DIFF_SIZE", "OVERWRITE_EQUAL_SIZE", "OVERWRITE_ZIP_BIG",
-    "OVERWRITE_ZIP_BIG_EQUAL", "OVERWRITE_ZIP_BIG_SMALL", "OVERWRITE_ZIP_BIG_SMALL_EQUAL", };
+    {
+      "SKIP", "OVERWRITE", "UNIQ", "FAIL", "OVERWRITE_DIFF_SIZE", "OVERWRITE_EQUAL_SIZE", "OVERWRITE_ZIP_BIG",
+      "OVERWRITE_ZIP_BIG_EQUAL", "OVERWRITE_ZIP_BIG_SMALL", "OVERWRITE_ZIP_BIG_SMALL_EQUAL", };
 
   public static final String[] typeIfFileExistsDesc = {
     BaseMessages.getString( PKG, "JobUnZip.Skip.Label" ),
@@ -205,10 +198,10 @@ public class JobEntryUnZip extends JobEntryBase implements Cloneable, JobEntryIn
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       zipFilename = XMLHandler.getTagValue( entrynode, "zipfilename" );
       afterunzip = Const.toInt( XMLHandler.getTagValue( entrynode, "afterunzip" ), -1 );
 
@@ -324,7 +317,7 @@ public class JobEntryUnZip extends JobEntryBase implements Cloneable, JobEntryIn
       // movetodirectory must be provided
       if ( afterunzip == 2 ) {
         if ( Utils.isEmpty( movetodirectory ) ) {
-          log.logError(  BaseMessages.getString( PKG, "JobUnZip.MoveToDirectoryEmpty.Label" ) );
+          log.logError( BaseMessages.getString( PKG, "JobUnZip.MoveToDirectoryEmpty.Label" ) );
           exitjobentry = true;
         } else {
           movetodir = HopVFS.getFileObject( realMovetodirectory, this );
@@ -379,7 +372,7 @@ public class JobEntryUnZip extends JobEntryBase implements Cloneable, JobEntryIn
       } else {
         fileObject = HopVFS.getFileObject( realFilenameSource, this );
         if ( !fileObject.exists() ) {
-          log.logError(  BaseMessages.getString( PKG, "JobUnZip.ZipFile.NotExists.Label", realFilenameSource ) );
+          log.logError( BaseMessages.getString( PKG, "JobUnZip.ZipFile.NotExists.Label", realFilenameSource ) );
           return result;
         }
 
@@ -439,8 +432,8 @@ public class JobEntryUnZip extends JobEntryBase implements Cloneable, JobEntryIn
   }
 
   private boolean processOneFile( Result result, Job parentJob, FileObject fileObject, String realTargetdirectory,
-    String realWildcard, String realWildcardExclude, FileObject movetodir, String realMovetodirectory,
-    String realWildcardSource ) {
+                                  String realWildcard, String realWildcardExclude, FileObject movetodir, String realMovetodirectory,
+                                  String realWildcardSource ) {
     boolean retval = false;
 
     try {
@@ -466,10 +459,10 @@ public class JobEntryUnZip extends JobEntryBase implements Cloneable, JobEntryIn
             return false;
           }
           // Get only file!
-          if ( !children[i].getType().equals( FileType.FOLDER ) ) {
+          if ( !children[ i ].getType().equals( FileType.FOLDER ) ) {
             boolean unzip = true;
 
-            String filename = children[i].getName().getPath();
+            String filename = children[ i ].getName().getPath();
 
             Pattern patternSource = null;
 
@@ -484,7 +477,7 @@ public class JobEntryUnZip extends JobEntryBase implements Cloneable, JobEntryIn
             }
             if ( unzip ) {
               if ( !unzipFile(
-                children[i], realTargetdirectory, realWildcard, realWildcardExclude, result, parentJob,
+                children[ i ], realTargetdirectory, realWildcard, realWildcardExclude, result, parentJob,
                 movetodir, realMovetodirectory ) ) {
                 updateErrors();
               } else {
@@ -509,7 +502,7 @@ public class JobEntryUnZip extends JobEntryBase implements Cloneable, JobEntryIn
   }
 
   private boolean unzipFile( FileObject sourceFileObject, String realTargetdirectory, String realWildcard,
-    String realWildcardExclude, Result result, Job parentJob, FileObject movetodir, String realMovetodirectory ) {
+                             String realWildcardExclude, Result result, Job parentJob, FileObject movetodir, String realMovetodirectory ) {
     boolean retval = false;
     String unzipToFolder = realTargetdirectory;
     try {
@@ -668,7 +661,7 @@ public class JobEntryUnZip extends JobEntryBase implements Cloneable, JobEntryIn
                   os = HopVFS.getOutputStream( newFileObject, false );
 
                   if ( is != null ) {
-                    byte[] buff = new byte[2048];
+                    byte[] buff = new byte[ 2048 ];
                     int len;
 
                     while ( ( len = is.read( buff ) ) > 0 ) {
@@ -730,7 +723,7 @@ public class JobEntryUnZip extends JobEntryBase implements Cloneable, JobEntryIn
     } catch ( Exception e ) {
       updateErrors();
       log.logError( BaseMessages.getString(
-          PKG, "JobUnZip.ErrorUnzip.Label", sourceFileObject.toString(), e.getMessage() ), e );
+        PKG, "JobUnZip.ErrorUnzip.Label", sourceFileObject.toString(), e.getMessage() ), e );
     }
 
     return retval;
@@ -969,7 +962,7 @@ public class JobEntryUnZip extends JobEntryBase implements Cloneable, JobEntryIn
 
   public static final int getIfFileExistsInt( String desc ) {
     for ( int i = 0; i < typeIfFileExistsCode.length; i++ ) {
-      if ( typeIfFileExistsCode[i].equalsIgnoreCase( desc ) ) {
+      if ( typeIfFileExistsCode[ i ].equalsIgnoreCase( desc ) ) {
         return i;
       }
     }
@@ -980,7 +973,7 @@ public class JobEntryUnZip extends JobEntryBase implements Cloneable, JobEntryIn
     if ( i < 0 || i >= typeIfFileExistsCode.length ) {
       return null;
     }
-    return typeIfFileExistsCode[i];
+    return typeIfFileExistsCode[ i ];
   }
 
   /**
@@ -991,8 +984,7 @@ public class JobEntryUnZip extends JobEntryBase implements Cloneable, JobEntryIn
   }
 
   /**
-   * @param setIfFileExist
-   *          The iffileexist to set.
+   * @param setIfFileExist The iffileexist to set.
    */
   public void setIfFileExists( int iffileexist ) {
     this.iffileexist = iffileexist;
@@ -1151,9 +1143,7 @@ public class JobEntryUnZip extends JobEntryBase implements Cloneable, JobEntryIn
   }
 
   /**
-   * @param string
-   *          the filename from
-   *
+   * @param string the filename from
    * @return the calculated target filename
    */
   protected String getTargetFilename( FileObject file ) throws FileSystemException {
@@ -1225,22 +1215,22 @@ public class JobEntryUnZip extends JobEntryBase implements Cloneable, JobEntryIn
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     ValidatorContext ctx1 = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx1, getVariables() );
     AndValidator.putValidators( ctx1, JobEntryValidatorUtils.notBlankValidator(),
-        JobEntryValidatorUtils.fileDoesNotExistValidator() );
+      JobEntryValidatorUtils.fileDoesNotExistValidator() );
 
     JobEntryValidatorUtils.andValidator().validate( this, "zipFilename", remarks, ctx1 );
 
     if ( 2 == afterunzip ) {
       // setting says to move
       JobEntryValidatorUtils.andValidator().validate( this, "moveToDirectory", remarks,
-          AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     }
 
     JobEntryValidatorUtils.andValidator().validate( this, "sourceDirectory", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
 
   }
 

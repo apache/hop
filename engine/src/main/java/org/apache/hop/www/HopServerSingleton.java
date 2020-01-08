@@ -22,16 +22,8 @@
 
 package org.apache.hop.www;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
@@ -42,9 +34,17 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
 import org.apache.hop.trans.Trans;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HopServerSingleton {
 
@@ -61,7 +61,7 @@ public class HopServerSingleton {
   private List<SlaveServerDetection> detections;
   private SocketRepository socketRepository;
 
-  private HopServerSingleton(SlaveServerConfig config ) throws HopException {
+  private HopServerSingleton( SlaveServerConfig config ) throws HopException {
     HopEnvironment.init();
     HopLogStore.init( config.getMaxLogLines(), config.getMaxLogTimeoutMinutes() );
 
@@ -119,7 +119,7 @@ public class HopServerSingleton {
   }
 
   public static void installPurgeTimer( final SlaveServerConfig config, final LogChannelInterface log,
-    final TransformationMap transformationMap, final JobMap jobMap ) {
+                                        final TransformationMap transformationMap, final JobMap jobMap ) {
 
     final int objectTimeout;
     String systemTimeout = EnvUtil.getSystemProperty( Const.HOP_CARTE_OBJECT_TIMEOUT_MINUTES, null );
@@ -286,7 +286,7 @@ public class HopServerSingleton {
     HopServerSingleton.slaveServerConfig = slaveServerConfig;
   }
 
-  public static void setHopServer(HopServer hopServer) {
+  public static void setHopServer( HopServer hopServer ) {
     HopServerSingleton.hopServer = hopServer;
   }
 

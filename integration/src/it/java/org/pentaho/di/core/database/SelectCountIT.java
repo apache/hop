@@ -22,29 +22,29 @@
 
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertTrue;
-
+import org.apache.hop.core.HopEnvironment;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.apache.hop.core.HopEnvironment;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the value returned from org.apache.hop.core.database.DatabaseInterface.getSelectCountStatement for the database
  * the interface is fronting.
- *
+ * <p>
  * As this release, Hive uses the following to select the number of rows:
- *
+ * <p>
  * SELECT COUNT(1) FROM ....
- *
+ * <p>
  * All other databases use:
- *
+ * <p>
  * SELECT COUNT(*) FROM ....
  */
 public class SelectCountIT {
 
   /**
-     *
-     */
+   *
+   */
   private static final String NonHiveSelect = "select count(*) from ";
   private static final String TableName = "NON_EXISTANT";
 

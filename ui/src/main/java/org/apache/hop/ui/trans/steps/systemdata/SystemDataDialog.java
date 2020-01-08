@@ -22,6 +22,26 @@
 
 package org.apache.hop.ui.trans.steps.systemdata;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPreviewFactory;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.systemdata.SystemDataMeta;
+import org.apache.hop.trans.steps.systemdata.SystemDataTypes;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -40,26 +60,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPreviewFactory;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.systemdata.SystemDataMeta;
-import org.apache.hop.trans.steps.systemdata.SystemDataTypes;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class SystemDataDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = SystemDataMeta.class; // for i18n purposes, needed by Translator2!!
@@ -140,21 +140,21 @@ public class SystemDataDialog extends BaseStepDialog implements StepDialogInterf
     final int FieldsCols = 2;
     final int FieldsRows = input.getFieldName().length;
 
-    final String[] functionDesc = new String[SystemDataTypes.values().length - 1];
+    final String[] functionDesc = new String[ SystemDataTypes.values().length - 1 ];
     for ( int i = 1; i < SystemDataTypes.values().length; i++ ) {
-      functionDesc[i - 1] = SystemDataTypes.values()[i].getDescription();
+      functionDesc[ i - 1 ] = SystemDataTypes.values()[ i ].getDescription();
     }
 
-    ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
-    colinf[0] = new ColumnInfo(
+    ColumnInfo[] colinf = new ColumnInfo[ FieldsCols ];
+    colinf[ 0 ] = new ColumnInfo(
       BaseMessages.getString( PKG, "SystemDataDialog.NameColumn.Column" ),
       ColumnInfo.COLUMN_TYPE_TEXT,
       false );
-    colinf[1] = new ColumnInfo(
+    colinf[ 1 ] = new ColumnInfo(
       BaseMessages.getString( PKG, "SystemDataDialog.TypeColumn.Column" ),
       ColumnInfo.COLUMN_TYPE_TEXT,
       false );
-    colinf[1].setSelectionAdapter( new SelectionAdapter() {
+    colinf[ 1 ].setSelectionAdapter( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         EnterSelectionDialog esd = new EnterSelectionDialog( shell, functionDesc,
           BaseMessages.getString( PKG, "SystemDataDialog.SelectInfoType.DialogTitle" ),
@@ -248,8 +248,8 @@ public class SystemDataDialog extends BaseStepDialog implements StepDialogInterf
 
     for ( int i = 0; i < input.getFieldName().length; i++ ) {
       TableItem item = wFields.table.getItem( i );
-      String name = input.getFieldName()[i];
-      String type = input.getFieldType()[i].getDescription();
+      String name = input.getFieldName()[ i ];
+      String type = input.getFieldType()[ i ].getDescription();
 
       if ( name != null ) {
         item.setText( 1, name );
@@ -282,7 +282,7 @@ public class SystemDataDialog extends BaseStepDialog implements StepDialogInterf
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "SystemDataDialog.ErrorParsingData.DialogTitle" ), BaseMessages
-          .getString( PKG, "SystemDataDialog.ErrorParsingData.DialogMessage" ), e );
+        .getString( PKG, "SystemDataDialog.ErrorParsingData.DialogMessage" ), e );
     }
     dispose();
   }
@@ -296,8 +296,8 @@ public class SystemDataDialog extends BaseStepDialog implements StepDialogInterf
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < count; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      in.getFieldName()[i] = item.getText( 1 );
-      in.getFieldType()[i] = SystemDataTypes.getTypeFromString( item.getText( 2 ) );
+      in.getFieldName()[ i ] = item.getText( 1 );
+      in.getFieldType()[ i ] = SystemDataTypes.getTypeFromString( item.getText( 2 ) );
     }
   }
 
@@ -339,7 +339,7 @@ public class SystemDataDialog extends BaseStepDialog implements StepDialogInterf
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
               shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta( wStepname
-                .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
+              .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
           prd.open();
 
         }
@@ -347,7 +347,7 @@ public class SystemDataDialog extends BaseStepDialog implements StepDialogInterf
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "SystemDataDialog.ErrorPreviewingData.DialogTitle" ), BaseMessages
-          .getString( PKG, "SystemDataDialog.ErrorPreviewingData.DialogMessage" ), e );
+        .getString( PKG, "SystemDataDialog.ErrorPreviewingData.DialogMessage" ), e );
     }
   }
 }

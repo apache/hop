@@ -22,11 +22,11 @@
 
 package org.apache.hop.trans.steps.fileinput.text;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.apache.hop.core.playlist.FilePlayList;
 import org.apache.hop.trans.steps.file.BaseFileInputStepData;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author Matt

@@ -67,8 +67,7 @@ public abstract class BasePartitioner implements Partitioner {
   /**
    * Sets the nr partitions.
    *
-   * @param nrPartitions
-   *          the new nr partitions
+   * @param nrPartitions the new nr partitions
    */
   public void setNrPartitions( int nrPartitions ) {
     this.nrPartitions = nrPartitions;
@@ -77,10 +76,8 @@ public abstract class BasePartitioner implements Partitioner {
   /**
    * Inits the.
    *
-   * @param rowMeta
-   *          the row meta
-   * @throws HopException
-   *           the kettle exception
+   * @param rowMeta the row meta
+   * @throws HopException the kettle exception
    */
   public void init( RowMetaInterface rowMeta ) throws HopException {
 

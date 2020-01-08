@@ -22,14 +22,6 @@
 
 package org.apache.hop.trans.steps.execsqlrow;
 
-import static org.junit.Assert.fail;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
@@ -54,11 +46,19 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.injector.InjectorMeta;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import static org.junit.Assert.fail;
 
 /**
  * Test class for database lookup. H2 is used as database in memory to get an easy playground for database tests. H2
  * does not support all SQL features but it should proof enough for most of our tests.
- *
+ * <p>
  * Still to do: - cache testing. - Do not pass rows functionality/eat rows on failed lookup - Fail on multiple rows -
  * Order by - Different comparators
  *
@@ -91,7 +91,7 @@ public class ExecSQLRowIT {
     ValueMetaInterface[] valuesMeta = { new ValueMetaInteger( "ID" ) };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -113,12 +113,11 @@ public class ExecSQLRowIT {
   /**
    * Insert data in the source table.
    *
-   * @param db
-   *          database to use.
+   * @param db database to use.
    */
   private static void createData( Database db ) throws Exception {
     for ( int idx = 0; idx < insertStatement.length; idx++ ) {
-      db.execStatement( insertStatement[idx] );
+      db.execStatement( insertStatement[ idx ] );
     }
   }
 
@@ -128,7 +127,7 @@ public class ExecSQLRowIT {
     ValueMetaInterface[] valuesMeta = { new ValueMetaString( "SQL" ) };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -159,7 +158,7 @@ public class ExecSQLRowIT {
     ValueMetaInterface[] valuesMeta = { new ValueMetaString( "SQL", 30, 0 ) };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -205,9 +204,9 @@ public class ExecSQLRowIT {
       if ( rm1.size() != rm2.size() ) {
         fail( "row nr " + idx + " is not equal" );
       }
-      int[] fields = new int[r1.length];
+      int[] fields = new int[ r1.length ];
       for ( int ydx = 0; ydx < r1.length; ydx++ ) {
-        fields[ydx] = ydx;
+        fields[ ydx ] = ydx;
       }
       try {
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {
@@ -233,7 +232,7 @@ public class ExecSQLRowIT {
 
     // Add the database connections
     for ( int i = 0; i < databasesXML.length; i++ ) {
-      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[i] );
+      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[ i ] );
       transMeta.addDatabase( databaseMeta );
     }
     DatabaseMeta dbInfo = transMeta.findDatabase( "db" );
@@ -260,7 +259,7 @@ public class ExecSQLRowIT {
 
     // Add the database connections
     for ( int i = 0; i < databasesXML.length; i++ ) {
-      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[i] );
+      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[ i ] );
       transMeta.addDatabase( databaseMeta );
     }
 
@@ -338,7 +337,7 @@ public class ExecSQLRowIT {
 
     // Add the database connections
     for ( int i = 0; i < databasesXML.length; i++ ) {
-      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[i] );
+      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[ i ] );
       transMeta.addDatabase( databaseMeta );
     }
 
@@ -416,7 +415,7 @@ public class ExecSQLRowIT {
 
     // Add the database connections
     for ( int i = 0; i < databasesXML.length; i++ ) {
-      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[i] );
+      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[ i ] );
       transMeta.addDatabase( databaseMeta );
     }
 
@@ -495,7 +494,7 @@ public class ExecSQLRowIT {
 
     // Add the database connections
     for ( int i = 0; i < databasesXML.length; i++ ) {
-      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[i] );
+      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[ i ] );
       transMeta.addDatabase( databaseMeta );
     }
 

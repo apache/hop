@@ -21,14 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.trans;
 
-import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
@@ -45,6 +37,8 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 import org.apache.hop.trans.step.StepIOMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaChangeListenerInterface;
@@ -56,7 +50,13 @@ import org.apache.hop.trans.steps.textfileoutput.TextFileOutputMeta;
 import org.apache.hop.trans.steps.userdefinedjavaclass.InfoStepDefinition;
 import org.apache.hop.trans.steps.userdefinedjavaclass.UserDefinedJavaClassDef;
 import org.apache.hop.trans.steps.userdefinedjavaclass.UserDefinedJavaClassMeta;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -92,7 +92,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith ( PowerMockRunner.class )
+@RunWith( PowerMockRunner.class )
 public class TransMetaTest {
   public static final String STEP_NAME = "Any step name";
 
@@ -715,7 +715,7 @@ public class TransMetaTest {
   }
 
   @Test
-  public void findPreviousStepsNullMeta( ) {
+  public void findPreviousStepsNullMeta() {
     TransMeta transMeta = new TransMeta( new Variables() );
     List<StepMeta> result = transMeta.findPreviousSteps( null, false );
 
@@ -771,21 +771,21 @@ public class TransMetaTest {
   }
 
   @Test
-  public void testSetInternalEntryCurrentDirectoryWithFilename( ) {
-    TransMeta transMetaTest = new TransMeta(  );
+  public void testSetInternalEntryCurrentDirectoryWithFilename() {
+    TransMeta transMetaTest = new TransMeta();
     transMetaTest.setFilename( "hasFilename" );
     transMetaTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
     transMetaTest.setVariable( Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
     transMetaTest.setInternalEntryCurrentDirectory();
 
-    assertEquals( "file:///C:/SomeFilenameDirectory",  transMetaTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY )  );
+    assertEquals( "file:///C:/SomeFilenameDirectory", transMetaTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
 
   }
 
 
   @Test
-  public void testSetInternalEntryCurrentDirectoryWithoutFilenameOrRepository( ) {
-    TransMeta transMetaTest = new TransMeta(  );
+  public void testSetInternalEntryCurrentDirectoryWithoutFilenameOrRepository() {
+    TransMeta transMetaTest = new TransMeta();
     transMetaTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
     transMetaTest.setVariable( Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
     transMetaTest.setInternalEntryCurrentDirectory();

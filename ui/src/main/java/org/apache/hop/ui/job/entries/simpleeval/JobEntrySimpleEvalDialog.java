@@ -22,6 +22,20 @@
 
 package org.apache.hop.ui.job.entries.simpleeval;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.simpleeval.JobEntrySimpleEval;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -45,20 +59,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.simpleeval.JobEntrySimpleEval;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * This dialog allows you to edit the XML valid job entry settings.
@@ -684,7 +684,7 @@ public class JobEntrySimpleEvalDialog extends JobEntryDialog implements JobEntry
     boolean compareValue =
       valueTypeString
         || ( !valueTypeString && JobEntrySimpleEval.getSuccessNumberConditionByDesc( wSuccessNumberCondition
-          .getText() ) != JobEntrySimpleEval.SUCCESS_NUMBER_CONDITION_BETWEEN );
+        .getText() ) != JobEntrySimpleEval.SUCCESS_NUMBER_CONDITION_BETWEEN );
     wlCompareValue.setVisible( !successWhenSet && compareValue && !valueTypeBoolean );
     wCompareValue.setVisible( !successWhenSet && compareValue && !valueTypeBoolean );
     wlMinValue.setVisible( !successWhenSet && !compareValue && !valueTypeBoolean );

@@ -42,7 +42,6 @@ import org.apache.hop.trans.step.StepMetaInterface;
  *
  * @author Samatar
  * @since 03-Juin-2009
- *
  */
 
 public class FileLocked extends BaseStep implements StepInterface {
@@ -52,7 +51,7 @@ public class FileLocked extends BaseStep implements StepInterface {
   private FileLockedData data;
 
   public FileLocked( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                     Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -121,7 +120,7 @@ public class FileLocked extends BaseStep implements StepInterface {
 
       // add file locked
       putRow( data.outputRowMeta, RowDataUtil.addValueData( r, data.NrPrevFields, FileLocked ) ); // copy row to output
-                                                                                                  // rowset(s);
+      // rowset(s);
 
       if ( isRowLevel() ) {
         logRowlevel( BaseMessages.getString( PKG, "FileLocked.LineNumber", getLinesRead()

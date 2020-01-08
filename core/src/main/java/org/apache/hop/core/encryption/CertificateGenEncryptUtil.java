@@ -22,6 +22,16 @@
 
 package org.apache.hop.core.encryption;
 
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.SimpleLoggingObject;
+
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyFactory;
@@ -33,17 +43,6 @@ import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
-
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.logging.LoggingObjectType;
-import org.apache.hop.core.logging.SimpleLoggingObject;
-
 public class CertificateGenEncryptUtil {
 
   public static final int KEY_SIZE = 1024;
@@ -51,7 +50,7 @@ public class CertificateGenEncryptUtil {
   public static final String SINGLE_KEY_ALGORITHM = "AES";
   public static final String TRANSMISSION_CIPHER_PARAMS = "RSA/ECB/PKCS1Padding";
   private static final LoggingObjectInterface loggingObject = new SimpleLoggingObject(
-      "Certificate Encryption Utility", LoggingObjectType.GENERAL, null );
+    "Certificate Encryption Utility", LoggingObjectType.GENERAL, null );
   private static final LogChannel log = new LogChannel( loggingObject );
 
   public static KeyPair generateKeyPair() {

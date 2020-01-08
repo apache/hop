@@ -22,24 +22,19 @@
 
 package org.apache.hop.trans.steps.combinationlookup;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.Step;
-import org.apache.hop.core.injection.AfterInjection;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.ProvidesModelerMeta;
 import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.RowMeta;
@@ -47,11 +42,11 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -60,8 +55,11 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 /*
  * Created on 14-may-2003
@@ -81,8 +79,6 @@ public class CombinationLookupMeta extends BaseStepMeta implements StepMetaInter
    * Default cache size: 0 will cache everything
    */
   public static final int DEFAULT_CACHE_SIZE = 9999;
-
-  private List<? extends SharedObjectInterface> databases;
 
   /**
    * what's the lookup schema?

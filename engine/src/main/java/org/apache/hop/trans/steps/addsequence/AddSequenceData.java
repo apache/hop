@@ -65,8 +65,7 @@ public class AddSequenceData extends BaseStepData implements StepDataInterface {
   }
 
   /**
-   * @param db
-   *          The db to set.
+   * @param db The db to set.
    */
   public void setDb( Database db ) {
     this.db = db;
@@ -80,8 +79,7 @@ public class AddSequenceData extends BaseStepData implements StepDataInterface {
   }
 
   /**
-   * @param lookup
-   *          the lookup string usually "@@"+the name of the sequence.
+   * @param lookup the lookup string usually "@@"+the name of the sequence.
    */
   public void setLookup( String lookup ) {
     this.lookup = lookup;

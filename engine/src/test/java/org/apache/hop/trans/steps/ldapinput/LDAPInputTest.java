@@ -22,18 +22,18 @@
 
 package org.apache.hop.trans.steps.ldapinput;
 
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.trans.steps.mock.StepMockHelper;
 
 /**
  * Tests LDAP Input Step
@@ -79,7 +79,7 @@ public class LDAPInputTest {
       new LDAPInputField( "role" )
     };
     int sortedField = 1;
-    fields[sortedField].setSortedKey( true );
+    fields[ sortedField ].setSortedKey( true );
     when( meta.getInputFields() ).thenReturn( fields );
 
     //Mock LDAP Connection
@@ -95,8 +95,8 @@ public class LDAPInputTest {
 
       //Verify
       assertEquals( "Field not marked as sorted", 1, data.connection.getSortingAttributes().size() );
-      assertEquals( "Field not marked as sorted", data.attrReturned[sortedField], data.connection.getSortingAttributes().get( 0 ) );
-      assertNotNull( data.attrReturned[sortedField] );
+      assertEquals( "Field not marked as sorted", data.attrReturned[ sortedField ], data.connection.getSortingAttributes().get( 0 ) );
+      assertNotNull( data.attrReturned[ sortedField ] );
     } finally {
       LdapMockProtocol.cleanup();
     }

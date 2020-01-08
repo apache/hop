@@ -33,19 +33,19 @@
 
 package org.apache.hop.ui.trans.steps.userdefinedjavaclass;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Vector;
-
+import org.apache.hop.ui.core.gui.GUIResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.LineStyleEvent;
 import org.eclipse.swt.custom.LineStyleListener;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
-import org.apache.hop.ui.core.gui.GUIResource;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Vector;
 
 class UserDefinedJavaClassHighlight implements LineStyleListener {
   JavaScanner scanner = new JavaScanner();
@@ -77,21 +77,21 @@ class UserDefinedJavaClassHighlight implements LineStyleListener {
     if ( type < 0 || type >= tokenColors.length ) {
       return null;
     }
-    return colors[tokenColors[type]];
+    return colors[ tokenColors[ type ] ];
   }
 
   boolean inBlockComment( int start, int end ) {
     for ( int i = 0; i < blockComments.size(); i++ ) {
       int[] offsets = blockComments.elementAt( i );
       // start of comment in the line
-      if ( ( offsets[0] >= start ) && ( offsets[0] <= end ) ) {
+      if ( ( offsets[ 0 ] >= start ) && ( offsets[ 0 ] <= end ) ) {
         return true;
       }
       // end of comment in the line
-      if ( ( offsets[1] >= start ) && ( offsets[1] <= end ) ) {
+      if ( ( offsets[ 1 ] >= start ) && ( offsets[ 1 ] <= end ) ) {
         return true;
       }
-      if ( ( offsets[0] <= start ) && ( offsets[1] >= end ) ) {
+      if ( ( offsets[ 0 ] <= start ) && ( offsets[ 1 ] >= end ) ) {
         return true;
       }
     }
@@ -106,15 +106,15 @@ class UserDefinedJavaClassHighlight implements LineStyleListener {
       GUIResource.getInstance().getColor( 127, 0, 85 ), // blue
       GUIResource.getInstance().getColor( 255, 102, 0 ) // Hop Functions / Orange
     };
-    tokenColors = new int[MAXIMUM_TOKEN];
-    tokenColors[WORD] = 0;
-    tokenColors[WHITE] = 0;
-    tokenColors[KEY] = 3;
-    tokenColors[COMMENT] = 1;
-    tokenColors[STRING] = 2;
-    tokenColors[OTHER] = 0;
-    tokenColors[NUMBER] = 0;
-    tokenColors[FUNCTIONS] = 4;
+    tokenColors = new int[ MAXIMUM_TOKEN ];
+    tokenColors[ WORD ] = 0;
+    tokenColors[ WHITE ] = 0;
+    tokenColors[ KEY ] = 3;
+    tokenColors[ COMMENT ] = 1;
+    tokenColors[ STRING ] = 2;
+    tokenColors[ OTHER ] = 0;
+    tokenColors[ NUMBER ] = 0;
+    tokenColors[ FUNCTIONS ] = 4;
   }
 
   /**
@@ -127,8 +127,8 @@ class UserDefinedJavaClassHighlight implements LineStyleListener {
     StyleRange lastStyle;
 
     if ( inBlockComment( event.lineOffset, event.lineOffset + event.lineText.length() ) ) {
-      styles.addElement( new StyleRange( event.lineOffset, event.lineText.length() + 4, colors[2], null ) );
-      event.styles = new StyleRange[styles.size()];
+      styles.addElement( new StyleRange( event.lineOffset, event.lineText.length() + 4, colors[ 2 ], null ) );
+      event.styles = new StyleRange[ styles.size() ];
       styles.copyInto( event.styles );
       return;
     }
@@ -152,7 +152,7 @@ class UserDefinedJavaClassHighlight implements LineStyleListener {
           }
         } else {
           Color color = getColor( token );
-          if ( color != colors[0] ) { // hardcoded default foreground color, black
+          if ( color != colors[ 0 ] ) { // hardcoded default foreground color, black
             StyleRange style =
               new StyleRange( scanner.getStartOffset() + event.lineOffset, scanner.getLength(), color, null );
             if ( token == KEY ) {
@@ -173,7 +173,7 @@ class UserDefinedJavaClassHighlight implements LineStyleListener {
       }
       token = scanner.nextToken();
     }
-    event.styles = new StyleRange[styles.size()];
+    event.styles = new StyleRange[ styles.size() ];
     styles.copyInto( event.styles );
   }
 
@@ -183,7 +183,7 @@ class UserDefinedJavaClassHighlight implements LineStyleListener {
     int ch;
     boolean blkComment = false;
     int cnt = 0;
-    int[] offsets = new int[2];
+    int[] offsets = new int[ 2 ];
     boolean done = false;
 
     try {
@@ -191,7 +191,7 @@ class UserDefinedJavaClassHighlight implements LineStyleListener {
         switch ( ch = buffer.read() ) {
           case -1: {
             if ( blkComment ) {
-              offsets[1] = cnt;
+              offsets[ 1 ] = cnt;
               blockComments.addElement( offsets );
             }
             done = true;
@@ -200,8 +200,8 @@ class UserDefinedJavaClassHighlight implements LineStyleListener {
           case '/': {
             ch = buffer.read();
             if ( ( ch == '*' ) && ( !blkComment ) ) {
-              offsets = new int[2];
-              offsets[0] = cnt;
+              offsets = new int[ 2 ];
+              offsets[ 0 ] = cnt;
               blkComment = true;
               cnt++;
             } else {
@@ -216,7 +216,7 @@ class UserDefinedJavaClassHighlight implements LineStyleListener {
               cnt++;
               if ( ch == '/' ) {
                 blkComment = false;
-                offsets[1] = cnt;
+                offsets[ 1 ] = cnt;
                 blockComments.addElement( offsets );
               }
             }
@@ -269,7 +269,7 @@ class UserDefinedJavaClassHighlight implements LineStyleListener {
       fgKeys = new Hashtable<String, Integer>();
       Integer k = Integer.valueOf( KEY );
       for ( int i = 0; i < JAVA_KEYWORDS.length; i++ ) {
-        fgKeys.put( JAVA_KEYWORDS[i], k );
+        fgKeys.put( JAVA_KEYWORDS[ i ], k );
       }
     }
 
@@ -277,7 +277,7 @@ class UserDefinedJavaClassHighlight implements LineStyleListener {
       kfKeys = new Hashtable<String, Integer>();
       Integer k = Integer.valueOf( FUNCTIONS );
       for ( int i = 0; i < UDJC_FUNCTIONS.length; i++ ) {
-        kfKeys.put( UDJC_FUNCTIONS[i], k );
+        kfKeys.put( UDJC_FUNCTIONS[ i ], k );
       }
     }
 
@@ -313,7 +313,7 @@ class UserDefinedJavaClassHighlight implements LineStyleListener {
             }
             return OTHER;
           case '\'': // char const
-            for ( ;; ) {
+            for ( ; ; ) {
               c = read();
               switch ( c ) {
                 case '\'':
@@ -330,7 +330,7 @@ class UserDefinedJavaClassHighlight implements LineStyleListener {
             }
 
           case '"': // string
-            for ( ;; ) {
+            for ( ; ; ) {
               c = read();
               switch ( c ) {
                 case '"':

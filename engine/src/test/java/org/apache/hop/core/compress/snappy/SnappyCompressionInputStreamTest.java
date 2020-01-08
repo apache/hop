@@ -22,27 +22,27 @@
 
 package org.apache.hop.core.compress.snappy;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
+import org.apache.hop.core.compress.CompressionPluginType;
+import org.apache.hop.core.compress.CompressionProvider;
+import org.apache.hop.core.compress.CompressionProviderFactory;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.compress.CompressionPluginType;
-import org.apache.hop.core.compress.CompressionProvider;
-import org.apache.hop.core.compress.CompressionProviderFactory;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.xerial.snappy.SnappyInputStream;
 import org.xerial.snappy.SnappyOutputStream;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class SnappyCompressionInputStreamTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -98,7 +98,7 @@ public class SnappyCompressionInputStreamTest {
 
   @Test
   public void testRead() throws IOException {
-    assertEquals( inStream.available(), inStream.read( new byte[100], 0, inStream.available() ) );
+    assertEquals( inStream.available(), inStream.read( new byte[ 100 ], 0, inStream.available() ) );
   }
 
   private SnappyInputStream createSnappyInputStream() throws IOException {

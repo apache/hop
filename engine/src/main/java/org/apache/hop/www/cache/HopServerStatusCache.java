@@ -24,9 +24,9 @@ package org.apache.hop.www.cache;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FileUtils;
-import org.hibernate.cache.CacheException;
 import org.apache.hop.core.Const;
 import org.hibernate.cache.Cache;
+import org.hibernate.cache.CacheException;
 
 import java.io.File;
 import java.nio.file.Files;

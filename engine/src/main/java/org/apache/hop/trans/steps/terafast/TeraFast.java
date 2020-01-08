@@ -22,17 +22,6 @@
 
 package org.apache.hop.trans.steps.terafast;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -54,9 +43,19 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 /**
  * @author <a href="mailto:michael.gugerell@aschauer-edv.at">Michael Gugerell(asc145)</a>
- *
  */
 public class TeraFast extends AbstractStep implements StepInterface {
 
@@ -81,19 +80,14 @@ public class TeraFast extends AbstractStep implements StepInterface {
   /**
    * Constructor.
    *
-   * @param stepMeta
-   *          the stepMeta.
-   * @param stepDataInterface
-   *          the stepDataInterface.
-   * @param copyNr
-   *          the copyNr.
-   * @param transMeta
-   *          the transMeta.
-   * @param trans
-   *          the trans.
+   * @param stepMeta          the stepMeta.
+   * @param stepDataInterface the stepDataInterface.
+   * @param copyNr            the copyNr.
+   * @param transMeta         the transMeta.
+   * @param trans             the trans.
    */
   public TeraFast( final StepMeta stepMeta, final StepDataInterface stepDataInterface, final int copyNr,
-    final TransMeta transMeta, final Trans trans ) {
+                   final TransMeta transMeta, final Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -101,9 +95,7 @@ public class TeraFast extends AbstractStep implements StepInterface {
    * Create the command line for a fastload process depending on the meta information supplied.
    *
    * @return The string to execute.
-   *
-   * @throws HopException
-   *           Upon any exception
+   * @throws HopException Upon any exception
    */
   public String createCommandLine() throws HopException {
     if ( StringUtils.isBlank( this.meta.getFastloadPath().getValue() ) ) {
@@ -143,7 +135,7 @@ public class TeraFast extends AbstractStep implements StepInterface {
    * {@inheritDoc}
    *
    * @see org.apache.hop.trans.step.BaseStep#init(org.apache.hop.trans.step.StepMetaInterface,
-   *      org.apache.hop.trans.step.StepDataInterface)
+   * org.apache.hop.trans.step.StepDataInterface)
    */
   @Override
   public boolean init( final StepMetaInterface smi, final StepDataInterface sdi ) {
@@ -166,7 +158,7 @@ public class TeraFast extends AbstractStep implements StepInterface {
    * {@inheritDoc}
    *
    * @see org.apache.hop.trans.step.BaseStep#processRow(org.apache.hop.trans.step.StepMetaInterface,
-   *      org.apache.hop.trans.step.StepDataInterface)
+   * org.apache.hop.trans.step.StepDataInterface)
    */
   @Override
   public boolean processRow( final StepMetaInterface smi, final StepDataInterface sdi ) throws HopException {
@@ -177,8 +169,8 @@ public class TeraFast extends AbstractStep implements StepInterface {
     if ( row == null ) {
 
       /* In case we have no data, we need to ensure that the printstream was ever initialized. It will if there is
-      *  data. So we check for a null printstream, then we close the dataFile and execute only if it existed.
-      */
+       *  data. So we check for a null printstream, then we close the dataFile and execute only if it existed.
+       */
       if ( this.dataFilePrintStream != null ) {
         this.dataFilePrintStream.close();
         IOUtils.closeQuietly( this.dataFile );
@@ -238,13 +230,9 @@ public class TeraFast extends AbstractStep implements StepInterface {
   /**
    * Write a single row to the temporary data file.
    *
-   * @param rowMetaInterface
-   *          describe the row of data
-   *
-   * @param row
-   *          row entries
-   * @throws HopException
-   *           ...
+   * @param rowMetaInterface describe the row of data
+   * @param row              row entries
+   * @throws HopException ...
    */
   @SuppressWarnings( "ArrayToString" )
   public void writeToDataFile( RowMetaInterface rowMetaInterface, Object[] row ) throws HopException {
@@ -252,11 +240,11 @@ public class TeraFast extends AbstractStep implements StepInterface {
     ValueMetaInterface valueMeta = null;
 
     for ( int i = 0; i < row.length; i++ ) {
-      if ( row[i] == null ) {
+      if ( row[ i ] == null ) {
         break; // no more rows
       }
       valueMeta = rowMetaInterface.getValueMeta( i );
-      if ( row[i] != null ) {
+      if ( row[ i ] != null ) {
         switch ( valueMeta.getType() ) {
           case ValueMetaInterface.TYPE_STRING:
             String s = rowMetaInterface.getString( row, i );
@@ -316,8 +304,7 @@ public class TeraFast extends AbstractStep implements StepInterface {
   /**
    * Execute fastload.
    *
-   * @throws HopException
-   *           ...
+   * @throws HopException ...
    */
   public void execute() throws HopException {
     if ( this.meta.getTruncateTable().getValue() ) {
@@ -339,8 +326,7 @@ public class TeraFast extends AbstractStep implements StepInterface {
   /**
    * Start fastload command line tool and initialize streams.
    *
-   * @throws HopException
-   *           ...
+   * @throws HopException ...
    */
   private void startFastLoad() throws HopException {
     final String command = this.createCommandLine();
@@ -360,8 +346,7 @@ public class TeraFast extends AbstractStep implements StepInterface {
   /**
    * Invoke loading with control file.
    *
-   * @throws HopException
-   *           ...
+   * @throws HopException ...
    */
   private void invokeLoadingControlFile() throws HopException {
     File controlFile = null;
@@ -388,8 +373,7 @@ public class TeraFast extends AbstractStep implements StepInterface {
   /**
    * Invoke loading with loading commands.
    *
-   * @throws HopException
-   *           ...
+   * @throws HopException ...
    */
   private void invokeLoadingCommand() throws HopException {
     final FastloadControlBuilder builder = new FastloadControlBuilder();
@@ -428,7 +412,7 @@ public class TeraFast extends AbstractStep implements StepInterface {
    * {@inheritDoc}
    *
    * @see org.apache.hop.trans.step.BaseStep#dispose(org.apache.hop.trans.step.StepMetaInterface,
-   *      org.apache.hop.trans.step.StepDataInterface)
+   * org.apache.hop.trans.step.StepDataInterface)
    */
   @Override
   public void dispose( final StepMetaInterface smi, final StepDataInterface sdi ) {
@@ -462,11 +446,9 @@ public class TeraFast extends AbstractStep implements StepInterface {
   }
 
   /**
-   * @param fileName
-   *          the filename to resolve. may contain Hop Environment variables.
+   * @param fileName the filename to resolve. may contain Hop Environment variables.
    * @return the data file name.
-   * @throws IOException
-   *           ...
+   * @throws IOException ...
    */
   private String resolveFileName( final String fileName ) throws HopException {
     final FileObject fileObject = HopVFS.getFileObject( environmentSubstitute( fileName ) );

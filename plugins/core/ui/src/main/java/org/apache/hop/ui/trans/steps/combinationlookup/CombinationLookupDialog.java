@@ -22,15 +22,32 @@
 
 package org.apache.hop.ui.trans.steps.combinationlookup;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.annotations.PluginDialog;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.combinationlookup.CombinationLookupMeta;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.database.dialog.SQLEditor;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.TableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -56,29 +73,12 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.PluginDialog;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.SQLStatement;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.combinationlookup.CombinationLookupMeta;
-import org.apache.hop.ui.core.database.dialog.SQLEditor;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.TableItemInsertListener;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @PluginDialog( id = "CombinationLookup", pluginType = PluginDialog.PluginType.STEP, image = "CMB.svg",
   documentationUrl = "http://wiki.pentaho.com/display/EAI/Combination+lookup-update" )
@@ -219,12 +219,12 @@ public class CombinationLookupDialog extends BaseStepDialog implements StepDialo
     // Connection line
     wConnection = addConnectionLine( shell, wStepname, input.getDatabaseMeta(), lsMod );
     wConnection.addSelectionListener( lsSelection );
-    wConnection.addModifyListener( e-> {
-        // We have new content: change ci connection:
-        ci = transMeta.findDatabase( wConnection.getText() );
-        setAutoincUse();
-        setSequence();
-        input.setChanged();
+    wConnection.addModifyListener( e -> {
+      // We have new content: change ci connection:
+      ci = transMeta.findDatabase( wConnection.getText() );
+      setAutoincUse();
+      setSequence();
+      input.setChanged();
     } );
 
     // Schema line...
@@ -967,7 +967,7 @@ public class CombinationLookupDialog extends BaseStepDialog implements StepDialo
 
   private void getTableName() {
     String connectionName = wConnection.getText();
-    if ( StringUtils.isEmpty(connectionName)) {
+    if ( StringUtils.isEmpty( connectionName ) ) {
       return;
     }
     DatabaseMeta databaseMeta = transMeta.findDatabase( connectionName );

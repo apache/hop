@@ -28,7 +28,6 @@ import org.apache.hop.core.gui.GUISizeInterface;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.core.xml.XMLInterface;
-
 import org.w3c.dom.Node;
 
 /**
@@ -36,7 +35,6 @@ import org.w3c.dom.Node;
  *
  * @author Matt
  * @since 28-11-2003
- *
  */
 public class NotePadMeta implements Cloneable, XMLInterface, GUIPositionInterface, GUISizeInterface {
   public static final String XML_TAG = "notepad";
@@ -102,9 +100,9 @@ public class NotePadMeta implements Cloneable, XMLInterface, GUIPositionInterfac
   }
 
   public NotePadMeta( String n, int xl, int yl, int w, int h, String fontname, int fontsize, boolean fontbold,
-    boolean fontitalic, int fontColorRed, int fontColorGreen, int fontColorBlue, int backGrounColorRed,
-    int backGrounColorGreen, int backGrounColorBlue, int borderColorRed, int borderColorGreen,
-    int borderColorBlue, boolean drawshadow ) {
+                      boolean fontitalic, int fontColorRed, int fontColorGreen, int fontColorBlue, int backGrounColorRed,
+                      int backGrounColorGreen, int backGrounColorBlue, int borderColorRed, int borderColorGreen,
+                      int borderColorBlue, boolean drawshadow ) {
     this.note = n;
     this.location = new Point( xl, yl );
     this.width = w;
@@ -196,32 +194,28 @@ public class NotePadMeta implements Cloneable, XMLInterface, GUIPositionInterfac
   }
 
   /**
-   * @param note
-   *          The note to set.
+   * @param note The note to set.
    */
   public void setNote( String note ) {
     this.note = note;
   }
 
   /**
-   * @param red
-   *          the border red color.
+   * @param red the border red color.
    */
   public void setBorderColorRed( int red ) {
     this.bordercolorred = red;
   }
 
   /**
-   * @param green
-   *          the border color green.
+   * @param green the border color green.
    */
   public void setBorderColorGreen( int green ) {
     this.bordercolorgreen = green;
   }
 
   /**
-   * @param blue
-   *          the border blue color.
+   * @param blue the border blue color.
    */
   public void setBorderColorBlue( int blue ) {
     this.bordercolorblue = blue;
@@ -256,16 +250,14 @@ public class NotePadMeta implements Cloneable, XMLInterface, GUIPositionInterfac
   }
 
   /**
-   * @param green
-   *          the font color green.
+   * @param green the font color green.
    */
   public void setFontColorGreen( int green ) {
     this.fontcolorgreen = green;
   }
 
   /**
-   * @param blue
-   *          the font color blue.
+   * @param blue the font color blue.
    */
   public void setFontColorBlue( int blue ) {
     this.fontcolorblue = blue;
@@ -279,8 +271,7 @@ public class NotePadMeta implements Cloneable, XMLInterface, GUIPositionInterfac
   }
 
   /**
-   * @param selected
-   *          The selected to set.
+   * @param selected The selected to set.
    */
   public void setSelected( boolean selected ) {
     this.selected = selected;
@@ -294,8 +285,7 @@ public class NotePadMeta implements Cloneable, XMLInterface, GUIPositionInterfac
   }
 
   /**
-   * @param drawshadow
-   *          The drawshadow to set.
+   * @param drawshadow The drawshadow to set.
    */
   public void setDrawShadow( boolean drawshadow ) {
     this.drawshadow = drawshadow;
@@ -374,8 +364,7 @@ public class NotePadMeta implements Cloneable, XMLInterface, GUIPositionInterfac
   }
 
   /**
-   * @param height
-   *          the height to set
+   * @param height the height to set
    */
   public void setHeight( int height ) {
     this.height = height;
@@ -389,8 +378,7 @@ public class NotePadMeta implements Cloneable, XMLInterface, GUIPositionInterfac
   }
 
   /**
-   * @param width
-   *          the width to set
+   * @param width the width to set
    */
   public void setWidth( int width ) {
     this.width = width;
@@ -404,8 +392,7 @@ public class NotePadMeta implements Cloneable, XMLInterface, GUIPositionInterfac
   }
 
   /**
-   * @param fontname
-   *          The font name.
+   * @param fontname The font name.
    */
   public void setFontName( String fontname ) {
     this.fontname = fontname;
@@ -419,8 +406,7 @@ public class NotePadMeta implements Cloneable, XMLInterface, GUIPositionInterfac
   }
 
   /**
-   * @param fontbold
-   *          The font bold.
+   * @param fontbold The font bold.
    */
   public void setFontBold( boolean fontbold ) {
     this.fontbold = fontbold;
@@ -434,8 +420,7 @@ public class NotePadMeta implements Cloneable, XMLInterface, GUIPositionInterfac
   }
 
   /**
-   * @param fontitalic
-   *          The font italic.
+   * @param fontitalic The font italic.
    */
   public void setFontItalic( boolean fontitalic ) {
     this.fontitalic = fontitalic;
@@ -512,8 +497,7 @@ public class NotePadMeta implements Cloneable, XMLInterface, GUIPositionInterfac
   }
 
   /**
-   * @param fontsize
-   *          The font name.
+   * @param fontsize The font name.
    */
   public void setFontSize( int fontsize ) {
     this.fontsize = fontsize;

@@ -22,14 +22,10 @@
 
 package org.apache.hop.trans.steps.joinrows;
 
-import java.io.File;
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
@@ -39,7 +35,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -47,8 +43,10 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.io.File;
+import java.util.List;
 
 /*
  * Created on 02-jun-2003
@@ -65,14 +63,20 @@ public class JoinRowsMeta extends BaseStepMeta implements StepMetaInterface {
   @Injection( name = "MAX_CACHE_SIZE" )
   private int cacheSize;
 
-  /** Which step is providing the lookup data? */
+  /**
+   * Which step is providing the lookup data?
+   */
   private StepMeta mainStep;
 
-  /** Which step is providing the lookup data? */
+  /**
+   * Which step is providing the lookup data?
+   */
   @Injection( name = "MAIN_STEP" )
   private String mainStepname;
 
-  /** Optional condition to limit the join (where clause) */
+  /**
+   * Optional condition to limit the join (where clause)
+   */
   private Condition condition;
 
   /**
@@ -83,8 +87,7 @@ public class JoinRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param lookupFromStep
-   *          The lookupFromStep to set.
+   * @param lookupFromStep The lookupFromStep to set.
    */
   public void setMainStep( StepMeta lookupFromStep ) {
     this.mainStep = lookupFromStep;
@@ -98,16 +101,14 @@ public class JoinRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param lookupFromStepname
-   *          The lookupFromStepname to set.
+   * @param lookupFromStepname The lookupFromStepname to set.
    */
   public void setMainStepname( String lookupFromStepname ) {
     this.mainStepname = lookupFromStepname;
   }
 
   /**
-   * @param cacheSize
-   *          The cacheSize to set.
+   * @param cacheSize The cacheSize to set.
    */
   public void setCacheSize( int cacheSize ) {
     this.cacheSize = cacheSize;
@@ -128,8 +129,7 @@ public class JoinRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param directory
-   *          The directory to set.
+   * @param directory The directory to set.
    */
   public void setDirectory( String directory ) {
     this.directory = directory;
@@ -143,8 +143,7 @@ public class JoinRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param prefix
-   *          The prefix to set.
+   * @param prefix The prefix to set.
    */
   public void setPrefix( String prefix ) {
     this.prefix = prefix;
@@ -158,8 +157,7 @@ public class JoinRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param condition
-   *          The condition to set.
+   * @param condition The condition to set.
    */
   public void setCondition( Condition condition ) {
     this.condition = condition;
@@ -246,7 +244,7 @@ public class JoinRowsMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     if ( space instanceof TransMeta ) {
       TransMeta transMeta = (TransMeta) space;
       StepMeta[] steps = transMeta.getPrevSteps( transMeta.findStep( origin ) );
@@ -265,8 +263,8 @@ public class JoinRowsMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( prev != null && prev.size() > 0 ) {
@@ -283,7 +281,7 @@ public class JoinRowsMeta extends BaseStepMeta implements StepMetaInterface {
           cr =
             new CheckResult(
               CheckResultInterface.TYPE_RESULT_OK, "["
-                + realDirectory + BaseMessages.getString( PKG, "JoinRowsMeta.CheckResult.DirectoryExists" ),
+              + realDirectory + BaseMessages.getString( PKG, "JoinRowsMeta.CheckResult.DirectoryExists" ),
               stepMeta );
           remarks.add( cr );
         } else {
@@ -328,8 +326,7 @@ public class JoinRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param steps
-   *          optionally search the info step in a list of steps
+   * @param steps optionally search the info step in a list of steps
    */
   @Override
   public void searchInfoAndTargetSteps( List<StepMeta> steps ) {
@@ -338,7 +335,7 @@ public class JoinRowsMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new JoinRows( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

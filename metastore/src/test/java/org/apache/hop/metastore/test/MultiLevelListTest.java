@@ -17,10 +17,6 @@
 package org.apache.hop.metastore.test;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
@@ -30,6 +26,10 @@ import org.apache.hop.metastore.test.testclasses.my.Level2Element;
 import org.apache.hop.metastore.test.testclasses.my.Level3Element;
 import org.apache.hop.metastore.test.testclasses.my.Level4Element;
 import org.apache.hop.metastore.test.testclasses.my.MyOtherElement;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,8 +61,8 @@ public class MultiLevelListTest {
   public MetaStoreFactory<Level1Element> getMetaStoreFactory() {
 
     MetaStoreFactory<Level1Element>
-        factory =
-        new MetaStoreFactory( Level1Element.class, this.metaStore, "hop" );
+      factory =
+      new MetaStoreFactory( Level1Element.class, this.metaStore, "hop" );
     return factory;
   }
 

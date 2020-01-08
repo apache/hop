@@ -41,7 +41,7 @@ public class HopAttribute implements HopAttributeInterface {
    * @param type
    */
   public HopAttribute( String key, String xmlCode, String repCode, String description, String tooltip,
-    int type, HopAttributeInterface parent ) {
+                       int type, HopAttributeInterface parent ) {
     this.key = key;
     this.xmlCode = xmlCode;
     this.repCode = repCode;
@@ -69,8 +69,7 @@ public class HopAttribute implements HopAttributeInterface {
   }
 
   /**
-   * @param xmlCode
-   *          the xmlCode to set
+   * @param xmlCode the xmlCode to set
    */
   public void setXmlCode( String xmlCode ) {
     this.xmlCode = xmlCode;
@@ -85,8 +84,7 @@ public class HopAttribute implements HopAttributeInterface {
   }
 
   /**
-   * @param repCode
-   *          the repCode to set
+   * @param repCode the repCode to set
    */
   public void setRepCode( String repCode ) {
     this.repCode = repCode;
@@ -101,8 +99,7 @@ public class HopAttribute implements HopAttributeInterface {
   }
 
   /**
-   * @param description
-   *          the description to set
+   * @param description the description to set
    */
   public void setDescription( String description ) {
     this.description = description;
@@ -117,8 +114,7 @@ public class HopAttribute implements HopAttributeInterface {
   }
 
   /**
-   * @param tooltip
-   *          the tooltip to set
+   * @param tooltip the tooltip to set
    */
   public void setTooltip( String tooltip ) {
     this.tooltip = tooltip;
@@ -133,8 +129,7 @@ public class HopAttribute implements HopAttributeInterface {
   }
 
   /**
-   * @param type
-   *          the type to set
+   * @param type the type to set
    */
   public void setType( int type ) {
     this.type = type;
@@ -149,8 +144,7 @@ public class HopAttribute implements HopAttributeInterface {
   }
 
   /**
-   * @param parent
-   *          the parent to set
+   * @param parent the parent to set
    */
   public void setParent( HopAttributeInterface parent ) {
     this.parent = parent;

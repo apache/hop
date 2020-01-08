@@ -22,13 +22,23 @@
 
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.trans.TransMeta;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -41,23 +51,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.logging.LoggingObjectType;
-import org.apache.hop.core.logging.SimpleLoggingObject;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.trans.TransMeta;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * Try to test database functionality using a hypersonic database. This is just a small fraction of the functionality,
@@ -128,6 +128,7 @@ public class DatabaseIT {
   /**
    * Test that if for mysql variant if max rows more than fetch size
    * we do set fetch size
+   *
    * @throws SQLException
    */
   @Test
@@ -152,13 +153,13 @@ public class DatabaseIT {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    { new ValueMetaInteger( "ID" ),
-      new ValueMetaInteger( "DLR_CD" ), };
+      { new ValueMetaInteger( "ID" ),
+        new ValueMetaInteger( "DLR_CD" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      valuesMeta[i].setLength( 8 );
-      valuesMeta[i].setPrecision( 0 );
-      rm.addValueMeta( valuesMeta[i] );
+      valuesMeta[ i ].setLength( 8 );
+      valuesMeta[ i ].setPrecision( 0 );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     String createStatement = db.getCreateTableStatement( tableName, rm, null, false, null, true );
@@ -225,12 +226,12 @@ public class DatabaseIT {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    { new ValueMetaInteger( "ID" ), new ValueMetaInteger( "VALUE" ), };
+      { new ValueMetaInteger( "ID" ), new ValueMetaInteger( "VALUE" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      valuesMeta[i].setLength( 8 );
-      valuesMeta[i].setPrecision( 0 );
-      rm.addValueMeta( valuesMeta[i] );
+      valuesMeta[ i ].setLength( 8 );
+      valuesMeta[ i ].setPrecision( 0 );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     String createStatement = db.getCreateTableStatement( tableName, rm, null, false, null, true );
@@ -258,24 +259,24 @@ public class DatabaseIT {
     List<Callable<Connection>> tasks = new ArrayList<Callable<Connection>>();
     for ( int i = 0; i < COUNT_OF_STEPS_WITH_DATABASE; i++ ) {
       tasks.add(
-          new Callable<Connection>() {
-            @Override
-            public Connection call() throws Exception {
-              Database db = setupDatabase();
-              db.normalConnect( null );
-              return db.getConnection();
-            }
+        new Callable<Connection>() {
+          @Override
+          public Connection call() throws Exception {
+            Database db = setupDatabase();
+            db.normalConnect( null );
+            return db.getConnection();
           }
+        }
       );
       tasks.add(
-          new Callable<Connection>() {
-            @Override
-            public Connection call() throws Exception {
-              Database db2 = setupPoolingDatabaseWOConnect();
-              db2.normalConnect( null );
-              return db2.getConnection();
-            }
+        new Callable<Connection>() {
+          @Override
+          public Connection call() throws Exception {
+            Database db2 = setupPoolingDatabaseWOConnect();
+            db2.normalConnect( null );
+            return db2.getConnection();
           }
+        }
       );
     }
     List<Future<Connection>> futures = executorService.invokeAll( tasks );
@@ -287,25 +288,25 @@ public class DatabaseIT {
   public Database setupPoolingDatabaseWOConnect() throws Exception {
     // Create a new transformation...
     TransMeta transMeta = new TransMeta();
-    transMeta.setName( "transname"  );
+    transMeta.setName( "transname" );
     DatabaseMeta dbInfo = new DatabaseMeta(
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            + "<connection>\n"
-            + "<name>db_pool</name>\n"
-            + "<server>127.0.0.1</server>\n"
-            + "<type>H2</type>\n"
-            + "<access>Native</access>\n"
-            + "<database>mem:db</database>\n"
-            + "<port></port>\n"
-            + "<username>sa</username>\n"
-            + "<password></password>\n"
-            + "<attributes>\n"
-            + "<attribute><code>INITIAL_POOL_SIZE</code><attribute>5</attribute></attribute>\n"
-            + "<attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>\n"
-            + "<attribute><code>MAXIMUM_POOL_SIZE</code><attribute>10</attribute></attribute>\n"
-            + "<attribute><code>USE_POOLING</code><attribute>Y</attribute></attribute>\n"
-            + "</attributes>\n"
-            + "</connection>" );
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+        + "<connection>\n"
+        + "<name>db_pool</name>\n"
+        + "<server>127.0.0.1</server>\n"
+        + "<type>H2</type>\n"
+        + "<access>Native</access>\n"
+        + "<database>mem:db</database>\n"
+        + "<port></port>\n"
+        + "<username>sa</username>\n"
+        + "<password></password>\n"
+        + "<attributes>\n"
+        + "<attribute><code>INITIAL_POOL_SIZE</code><attribute>5</attribute></attribute>\n"
+        + "<attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>\n"
+        + "<attribute><code>MAXIMUM_POOL_SIZE</code><attribute>10</attribute></attribute>\n"
+        + "<attribute><code>USE_POOLING</code><attribute>Y</attribute></attribute>\n"
+        + "</attributes>\n"
+        + "</connection>" );
     // Add the database connections
     transMeta.addDatabase( dbInfo );
 
@@ -317,20 +318,20 @@ public class DatabaseIT {
 
     // Create a new transformation...
     TransMeta transMeta = new TransMeta();
-    transMeta.setName( "transname"  );
+    transMeta.setName( "transname" );
     // Add the database connections
     DatabaseMeta databaseMeta = new DatabaseMeta(
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-            + "<connection>"
-            + "<name>db</name>"
-            + "<server>127.0.0.1</server>"
-            + "<type>H2</type>"
-            + "<access>Native</access>"
-            + "<database>mem:db</database>"
-            + "<port></port>"
-            + "<username>sa</username>"
-            + "<password></password>"
-            + "</connection>" );
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+        + "<connection>"
+        + "<name>db</name>"
+        + "<server>127.0.0.1</server>"
+        + "<type>H2</type>"
+        + "<access>Native</access>"
+        + "<database>mem:db</database>"
+        + "<port></port>"
+        + "<username>sa</username>"
+        + "<password></password>"
+        + "</connection>" );
     transMeta.addDatabase( databaseMeta );
 
     Database database = new Database( transMeta, databaseMeta );
@@ -342,20 +343,20 @@ public class DatabaseIT {
 
     // Create a new transformation...
     TransMeta transMeta = new TransMeta();
-    transMeta.setName( "transname"  );
+    transMeta.setName( "transname" );
     // Add the database connections
     DatabaseMeta databaseMeta = new DatabaseMeta(
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-            + "<connection>"
-            + "<name>db2</name>"
-            + "<server>10.12.4.1</server>"
-            + "<type>H2</type>"
-            + "<access>Native</access>"
-            + "<database>mem:db2</database>"
-            + "<port></port>"
-            + "<username>sa</username>"
-            + "<password></password>"
-            + "</connection>" );
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+        + "<connection>"
+        + "<name>db2</name>"
+        + "<server>10.12.4.1</server>"
+        + "<type>H2</type>"
+        + "<access>Native</access>"
+        + "<database>mem:db2</database>"
+        + "<port></port>"
+        + "<username>sa</username>"
+        + "<password></password>"
+        + "</connection>" );
     transMeta.addDatabase( databaseMeta );
 
     Database database = new Database( transMeta, databaseMeta );

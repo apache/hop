@@ -59,7 +59,7 @@ public class ReplaceString extends BaseStep implements StepInterface {
   private ReplaceStringData data;
 
   public ReplaceString( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                        Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -83,7 +83,7 @@ public class ReplaceString extends BaseStep implements StepInterface {
 
   @VisibleForTesting
   static Pattern buildPattern( boolean literalParsing, boolean caseSensitive, boolean wholeWord,
-    String patternString, boolean isUnicode ) {
+                               String patternString, boolean isUnicode ) {
     int flags = 0;
     if ( literalParsing && !wholeWord ) {
       flags |= Pattern.LITERAL;
@@ -111,17 +111,17 @@ public class ReplaceString extends BaseStep implements StepInterface {
 
   private String getResolvedReplaceByString( int index, Object[] row ) throws HopException {
 
-    if ( data.setEmptyString[index] ) {
+    if ( data.setEmptyString[ index ] ) {
       // return empty string rather than null value
       return StringUtil.EMPTY_STRING;
     }
 
     // if there is something in the original replaceByString, then use it.
-    if ( data.replaceFieldIndex[index] == -1 ) {
-      return data.replaceByString[index];
+    if ( data.replaceFieldIndex[ index ] == -1 ) {
+      return data.replaceByString[ index ];
     }
 
-    return getInputRowMeta().getString( row, data.replaceFieldIndex[index] );
+    return getInputRowMeta().getString( row, data.replaceFieldIndex[ index ] );
   }
 
   synchronized Object[] getOneRow( RowMetaInterface rowMeta, Object[] row ) throws HopException {
@@ -132,18 +132,18 @@ public class ReplaceString extends BaseStep implements StepInterface {
     for ( int i = 0; i < data.numFields; i++ ) {
 
       RowMetaInterface currentRowMeta =
-          ( numFieldsAlreadyBeenTransformed.contains( data.inStreamNrs[i] ) ) ? data.outputRowMeta : getInputRowMeta();
+        ( numFieldsAlreadyBeenTransformed.contains( data.inStreamNrs[ i ] ) ) ? data.outputRowMeta : getInputRowMeta();
       String value =
-          replaceString( currentRowMeta.getString( rowData, data.inStreamNrs[i] ), data.patterns[i],
+        replaceString( currentRowMeta.getString( rowData, data.inStreamNrs[ i ] ), data.patterns[ i ],
           getResolvedReplaceByString( i, row ) );
 
-      if ( Utils.isEmpty( data.outStreamNrs[i] ) ) {
+      if ( Utils.isEmpty( data.outStreamNrs[ i ] ) ) {
         // update field value
-        rowData[data.inStreamNrs[i]] = value;
-        numFieldsAlreadyBeenTransformed.add( data.inStreamNrs[i] );
+        rowData[ data.inStreamNrs[ i ] ] = value;
+        numFieldsAlreadyBeenTransformed.add( data.inStreamNrs[ i ] );
       } else {
         // add new field value
-        rowData[data.inputFieldsNr + index++] = value;
+        rowData[ data.inputFieldsNr + index++ ] = value;
       }
     }
     return rowData;
@@ -169,48 +169,48 @@ public class ReplaceString extends BaseStep implements StepInterface {
       meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
       data.numFields = meta.getFieldInStream().length;
-      data.inStreamNrs = new int[data.numFields];
-      data.outStreamNrs = new String[data.numFields];
-      data.patterns = new Pattern[data.numFields];
-      data.replaceByString = new String[data.numFields];
-      data.setEmptyString = new boolean[data.numFields];
-      data.replaceFieldIndex = new int[data.numFields];
+      data.inStreamNrs = new int[ data.numFields ];
+      data.outStreamNrs = new String[ data.numFields ];
+      data.patterns = new Pattern[ data.numFields ];
+      data.replaceByString = new String[ data.numFields ];
+      data.setEmptyString = new boolean[ data.numFields ];
+      data.replaceFieldIndex = new int[ data.numFields ];
 
       for ( int i = 0; i < data.numFields; i++ ) {
-        data.inStreamNrs[i] = getInputRowMeta().indexOfValue( meta.getFieldInStream()[i] );
-        if ( data.inStreamNrs[i] < 0 ) {
+        data.inStreamNrs[ i ] = getInputRowMeta().indexOfValue( meta.getFieldInStream()[ i ] );
+        if ( data.inStreamNrs[ i ] < 0 ) {
           throw new HopStepException( BaseMessages.getString(
-            PKG, "ReplaceString.Exception.FieldRequired", meta.getFieldInStream()[i] ) );
+            PKG, "ReplaceString.Exception.FieldRequired", meta.getFieldInStream()[ i ] ) );
         }
 
         // check field type
-        if ( getInputRowMeta().getValueMeta( data.inStreamNrs[i] ).getType() != ValueMetaInterface.TYPE_STRING ) {
+        if ( getInputRowMeta().getValueMeta( data.inStreamNrs[ i ] ).getType() != ValueMetaInterface.TYPE_STRING ) {
           throw new HopStepException( BaseMessages.getString(
-            PKG, "ReplaceString.Exception.FieldTypeNotString", meta.getFieldInStream()[i] ) );
+            PKG, "ReplaceString.Exception.FieldTypeNotString", meta.getFieldInStream()[ i ] ) );
         }
 
-        data.outStreamNrs[i] = environmentSubstitute( meta.getFieldOutStream()[i] );
+        data.outStreamNrs[ i ] = environmentSubstitute( meta.getFieldOutStream()[ i ] );
 
-        data.patterns[i] =
+        data.patterns[ i ] =
           buildPattern(
-            meta.getUseRegEx()[i] != ReplaceStringMeta.USE_REGEX_YES,
-            meta.getCaseSensitive()[i] == ReplaceStringMeta.CASE_SENSITIVE_YES,
-            meta.getWholeWord()[i] == ReplaceStringMeta.WHOLE_WORD_YES, environmentSubstitute( meta
-              .getReplaceString()[i] ),
-            meta.isUnicode()[i] == ReplaceStringMeta.IS_UNICODE_YES );
+            meta.getUseRegEx()[ i ] != ReplaceStringMeta.USE_REGEX_YES,
+            meta.getCaseSensitive()[ i ] == ReplaceStringMeta.CASE_SENSITIVE_YES,
+            meta.getWholeWord()[ i ] == ReplaceStringMeta.WHOLE_WORD_YES, environmentSubstitute( meta
+              .getReplaceString()[ i ] ),
+            meta.isUnicode()[ i ] == ReplaceStringMeta.IS_UNICODE_YES );
 
-        String field = meta.getFieldReplaceByString()[i];
+        String field = meta.getFieldReplaceByString()[ i ];
         if ( !Utils.isEmpty( field ) ) {
-          data.replaceFieldIndex[i] = getInputRowMeta().indexOfValue( field );
-          if ( data.replaceFieldIndex[i] < 0 ) {
+          data.replaceFieldIndex[ i ] = getInputRowMeta().indexOfValue( field );
+          if ( data.replaceFieldIndex[ i ] < 0 ) {
             throw new HopStepException( BaseMessages.getString(
               PKG, "ReplaceString.Exception.FieldRequired", field ) );
           }
         } else {
-          data.replaceFieldIndex[i] = -1;
-          data.replaceByString[i] = environmentSubstitute( meta.getReplaceByString()[i] );
+          data.replaceFieldIndex[ i ] = -1;
+          data.replaceByString[ i ] = environmentSubstitute( meta.getReplaceByString()[ i ] );
         }
-        data.setEmptyString[i] = meta.isSetEmptyString()[i];
+        data.setEmptyString[ i ] = meta.isSetEmptyString()[ i ];
 
       }
     } // end if first

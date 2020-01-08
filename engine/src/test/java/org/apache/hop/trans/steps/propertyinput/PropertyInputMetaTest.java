@@ -21,22 +21,9 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.propertyinput;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
@@ -50,12 +37,24 @@ import org.apache.hop.trans.steps.loadsave.initializer.InitializerInterface;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 public class PropertyInputMetaTest implements InitializerInterface<StepMetaInterface> {
   Class<PropertyInputMeta> testMetaClass = PropertyInputMeta.class;
@@ -67,12 +66,12 @@ public class PropertyInputMetaTest implements InitializerInterface<StepMetaInter
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "encoding", "fileType", "includeFilename", "resetRowNumber", "resolvevaluevariable",
-            "filenameField", "includeRowNumber", "rowNumberField", "rowLimit", "filefield", "isaddresult",
-            "dynamicFilenameField", "includeIniSection", "iniSectionField", "section", "shortFileFieldName",
-            "pathFieldName", "hiddenFieldName", "lastModificationTimeFieldName", "uriNameFieldName", "rootUriNameFieldName",
-            "extensionFieldName", "sizeFieldName", "fileName", "fileMask", "excludeFileMask", "fileRequired",
-            "includeSubFolders", "inputFields" );
+      Arrays.asList( "encoding", "fileType", "includeFilename", "resetRowNumber", "resolvevaluevariable",
+        "filenameField", "includeRowNumber", "rowNumberField", "rowLimit", "filefield", "isaddresult",
+        "dynamicFilenameField", "includeIniSection", "iniSectionField", "section", "shortFileFieldName",
+        "pathFieldName", "hiddenFieldName", "lastModificationTimeFieldName", "uriNameFieldName", "rootUriNameFieldName",
+        "extensionFieldName", "sizeFieldName", "fileName", "fileMask", "excludeFileMask", "fileRequired",
+        "includeSubFolders", "inputFields" );
 
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
@@ -141,10 +140,10 @@ public class PropertyInputMetaTest implements InitializerInterface<StepMetaInter
       }
     };
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
     FieldLoadSaveValidator<PropertyInputField[]> pifArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<PropertyInputField>( new PropertyInputFieldLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<PropertyInputField>( new PropertyInputFieldLoadSaveValidator(), 5 );
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "fileName", stringArrayLoadSaveValidator );
@@ -157,8 +156,8 @@ public class PropertyInputMetaTest implements InitializerInterface<StepMetaInter
     // typeValidatorMap.put( int[].class.getCanonicalName(), new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator(), 1 ) );
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
-            getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class
@@ -176,6 +175,7 @@ public class PropertyInputMetaTest implements InitializerInterface<StepMetaInter
   //PropertyInputField
   public class PropertyInputFieldLoadSaveValidator implements FieldLoadSaveValidator<PropertyInputField> {
     final Random rand = new Random();
+
     @Override
     public PropertyInputField getTestObject() {
       PropertyInputField rtn = new PropertyInputField();
@@ -217,11 +217,11 @@ public class PropertyInputMetaTest implements InitializerInterface<StepMetaInter
     String key = "key";
     String testValue = "value-with-äöü";
     String testData = "[" + header + "]\r\n"
-            + key + "=" + testValue;
+      + key + "=" + testValue;
     String charsetEncode = "Windows-1252";
 
     InputStream inputStream = new ByteArrayInputStream( testData.getBytes(
-            Charset.forName( charsetEncode ) ) );
+      Charset.forName( charsetEncode ) ) );
     FileContent fileContent = Mockito.mock( FileContent.class );
     Mockito.when( fileObject.getContent() ).thenReturn( fileContent );
     Mockito.when( fileContent.getInputStream() ).thenReturn( inputStream );

@@ -22,10 +22,6 @@
 
 package org.apache.hop.ui.trans.dialog;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -37,6 +33,10 @@ import org.apache.hop.trans.debug.StepDebugMeta;
 import org.apache.hop.trans.debug.TransDebugMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.swt.widgets.Shell;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -79,6 +79,7 @@ public class TransPreviewProgressDialog {
 
   /**
    * Opens the progress dialog
+   *
    * @param showErrorDialogs dictates whether error dialogs should be shown when errors occur - can be set to false
    *                         to let the caller control error dialogs instead.
    * @return a {@link TransMeta}
@@ -138,7 +139,7 @@ public class TransPreviewProgressDialog {
     return transMeta;
   }
 
-  private void doPreview( final IProgressMonitor progressMonitor, final boolean showErrorDialogs  ) {
+  private void doPreview( final IProgressMonitor progressMonitor, final boolean showErrorDialogs ) {
     progressMonitor.beginTask(
       BaseMessages.getString( PKG, "TransPreviewProgressDialog.Monitor.BeginTask.Title" ), 100 );
 
@@ -170,10 +171,10 @@ public class TransPreviewProgressDialog {
     //
     transDebugMeta = new TransDebugMeta( transMeta );
     for ( int i = 0; i < previewStepNames.length; i++ ) {
-      StepMeta stepMeta = transMeta.findStep( previewStepNames[i] );
+      StepMeta stepMeta = transMeta.findStep( previewStepNames[ i ] );
       StepDebugMeta stepDebugMeta = new StepDebugMeta( stepMeta );
       stepDebugMeta.setReadingFirstRows( true );
-      stepDebugMeta.setRowCount( previewSize[i] );
+      stepDebugMeta.setRowCount( previewSize[ i ] );
       transDebugMeta.getStepDebugMetaMap().put( stepMeta, stepDebugMeta );
     }
 
@@ -255,8 +256,7 @@ public class TransPreviewProgressDialog {
   }
 
   /**
-   * @param stepname
-   *          the name of the step to get the preview rows for
+   * @param stepname the name of the step to get the preview rows for
    * @return A list of rows as the result of the preview run.
    */
   public List<Object[]> getPreviewRows( String stepname ) {
@@ -274,8 +274,7 @@ public class TransPreviewProgressDialog {
   }
 
   /**
-   * @param stepname
-   *          the name of the step to get the preview rows for
+   * @param stepname the name of the step to get the preview rows for
    * @return A description of the row (metadata)
    */
   public RowMetaInterface getPreviewRowsMeta( String stepname ) {
@@ -307,7 +306,6 @@ public class TransPreviewProgressDialog {
   }
 
   /**
-   *
    * @return The transformation object that executed the preview TransMeta
    */
   public Trans getTrans() {

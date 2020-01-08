@@ -24,11 +24,11 @@ package org.apache.hop.trans.steps.getfilesrowscount;
 
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
@@ -54,7 +54,7 @@ public class GetFilesRowsCount extends BaseStep implements StepInterface {
   // private static final int BUFFER_SIZE_INPUT_STREAM = 500;
 
   public GetFilesRowsCount( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,
-    TransMeta transMeta, Trans trans ) {
+                            TransMeta transMeta, Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -80,10 +80,10 @@ public class GetFilesRowsCount extends BaseStep implements StepInterface {
         data.rownr++;
       }
 
-      r[data.totalpreviousfields] = data.rownr;
+      r[ data.totalpreviousfields ] = data.rownr;
 
       if ( meta.includeCountFiles() ) {
-        r[data.totalpreviousfields + 1] = data.filenr;
+        r[ data.totalpreviousfields + 1 ] = data.filenr;
       }
 
       incrementLinesInput();
@@ -131,7 +131,7 @@ public class GetFilesRowsCount extends BaseStep implements StepInterface {
         data.fr = HopVFS.getInputStream( data.file );
         // Avoid method calls - see here:
         // http://java.sun.com/developer/technicalArticles/Programming/PerfTuning/
-        byte[] buf = new byte[8192]; // BufferedaInputStream default buffer size
+        byte[] buf = new byte[ 8192 ]; // BufferedaInputStream default buffer size
         int n;
         boolean prevCR = false;
         while ( ( n = data.fr.read( buf ) ) != -1 ) {
@@ -139,12 +139,12 @@ public class GetFilesRowsCount extends BaseStep implements StepInterface {
             data.foundData = true;
             if ( meta.getRowSeparatorFormat().equals( "CRLF" ) ) {
               // We need to check for CRLF
-              if ( buf[i] == '\r' || buf[i] == '\n' ) {
-                if ( buf[i] == '\r' ) {
+              if ( buf[ i ] == '\r' || buf[ i ] == '\n' ) {
+                if ( buf[ i ] == '\r' ) {
                   // we have a carriage return
                   // keep track of it..maybe we will have a line feed right after :-)
                   prevCR = true;
-                } else if ( buf[i] == '\n' ) {
+                } else if ( buf[ i ] == '\n' ) {
                   // we have a line feed
                   // let's see if we had previously a carriage return
                   if ( prevCR ) {
@@ -161,7 +161,7 @@ public class GetFilesRowsCount extends BaseStep implements StepInterface {
               }
 
             } else {
-              if ( buf[i] == data.separator ) {
+              if ( buf[ i ] == data.separator ) {
                 data.rownr++;
                 // Maybe we won't have data after
                 data.foundData = false;
@@ -352,8 +352,8 @@ public class GetFilesRowsCount extends BaseStep implements StepInterface {
           // Create the output row meta-data
           data.outputRowMeta = new RowMeta();
           meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore ); // get the
-                                                                                                        // metadata
-                                                                                                        // populated
+          // metadata
+          // populated
 
         } catch ( Exception e ) {
           logError( "Error initializing step: " + e.toString() );

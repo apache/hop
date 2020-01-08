@@ -21,15 +21,14 @@
  ******************************************************************************/
 package org.apache.hop.core.xml;
 
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
-
-import java.io.InputStream;
-
 import org.apache.commons.io.IOUtils;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import org.custommonkey.xmlunit.XMLUnit;
+import java.io.InputStream;
+
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 
 public class XMLFormatterTest {
 

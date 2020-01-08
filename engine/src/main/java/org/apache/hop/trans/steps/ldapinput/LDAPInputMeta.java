@@ -22,15 +22,10 @@
 
 package org.apache.hop.trans.steps.ldapinput;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -38,65 +33,97 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   private static Class<?> PKG = LDAPInputMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** Flag indicating that we use authentication for connection */
+  /**
+   * Flag indicating that we use authentication for connection
+   */
   private boolean useAuthentication;
 
-  /** Flag indicating that we use paging */
+  /**
+   * Flag indicating that we use paging
+   */
   private boolean usePaging;
 
-  /** page size */
+  /**
+   * page size
+   */
   private String pagesize;
 
-  /** Flag indicating that a row number field should be included in the output */
+  /**
+   * Flag indicating that a row number field should be included in the output
+   */
   private boolean includeRowNumber;
 
-  /** The name of the field in the output containing the row number */
+  /**
+   * The name of the field in the output containing the row number
+   */
   private String rowNumberField;
 
-  /** The maximum number or lines to read */
+  /**
+   * The maximum number or lines to read
+   */
   private int rowLimit;
 
-  /** The Host name */
+  /**
+   * The Host name
+   */
   private String Host;
 
-  /** The User name */
+  /**
+   * The User name
+   */
   private String userName;
 
-  /** The Password to use in LDAP authentication */
+  /**
+   * The Password to use in LDAP authentication
+   */
   private String password;
 
-  /** The Port */
+  /**
+   * The Port
+   */
   private String port;
 
-  /** The Filter string */
+  /**
+   * The Filter string
+   */
   private String filterString;
 
-  /** The Search Base */
+  /**
+   * The Search Base
+   */
   private String searchBase;
 
-  /** The fields to import... */
+  /**
+   * The fields to import...
+   */
   private LDAPInputField[] inputFields;
 
-  /** The Time limit **/
+  /**
+   * The Time limit
+   **/
   private int timeLimit;
 
-  /** Multi valued separator **/
+  /**
+   * Multi valued separator
+   **/
   private String multiValuedSeparator;
 
   private static final String YES = "Y";
@@ -107,7 +134,9 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   private boolean dynamicFilter;
   private String dynamicFilterFieldName;
 
-  /** Search scope */
+  /**
+   * Search scope
+   */
   private int searchScope;
 
   /**
@@ -123,10 +152,14 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
    */
   public static final String[] searchScopeCode = { "object", "onelevel", "subtree" };
 
-  /** Protocol **/
+  /**
+   * Protocol
+   **/
   private String protocol;
 
-  /** Trust store **/
+  /**
+   * Trust store
+   **/
   private boolean useCertificate;
   private String trustStorePath;
   private String trustStorePassword;
@@ -175,8 +208,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param value
-   *          the trustStorePassword to set.
+   * @param value the trustStorePassword to set.
    */
   public void setTrustStorePassword( String value ) {
     this.trustStorePassword = value;
@@ -191,8 +223,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param value
-   *          the trustStorePath to set.
+   * @param value the trustStorePath to set.
    */
   public void setTrustStorePath( String value ) {
     this.trustStorePath = value;
@@ -207,8 +238,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param value
-   *          the protocol to set.
+   * @param value the protocol to set.
    */
   public void setProtocol( String value ) {
     this.protocol = value;
@@ -250,8 +280,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param dynamicFilter
-   *          the dynamicFilter to set.
+   * @param dynamicFilter the dynamicFilter to set.
    */
   public void setDynamicFilter( boolean dynamicFilter ) {
     this.dynamicFilter = dynamicFilter;
@@ -279,8 +308,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param useAuthentication
-   *          The useAuthentication to set.
+   * @param useAuthentication The useAuthentication to set.
    */
   public void setUseAuthentication( boolean useAuthentication ) {
     this.useAuthentication = useAuthentication;
@@ -294,8 +322,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param usePaging
-   *          The usePaging to set.
+   * @param usePaging The usePaging to set.
    */
   public void setPaging( boolean usePaging ) {
     this.usePaging = usePaging;
@@ -309,8 +336,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param inputFields
-   *          The input fields to set.
+   * @param inputFields The input fields to set.
    */
   public void setInputFields( LDAPInputField[] inputFields ) {
     this.inputFields = inputFields;
@@ -324,8 +350,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param includeRowNumber
-   *          The includeRowNumber to set.
+   * @param includeRowNumber The includeRowNumber to set.
    */
   public void setIncludeRowNumber( boolean includeRowNumber ) {
     this.includeRowNumber = includeRowNumber;
@@ -340,8 +365,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param host
-   *          The host to set.
+   * @param host The host to set.
    */
   public void setHost( String host ) {
     this.Host = host;
@@ -355,16 +379,14 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param userName
-   *          The username to set.
+   * @param userName The username to set.
    */
   public void setUserName( String userName ) {
     this.userName = userName;
   }
 
   /**
-   * @param password
-   *          The password to set.
+   * @param password The password to set.
    */
   public void setPassword( String password ) {
     this.password = password;
@@ -386,8 +408,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param port
-   *          The port to set.
+   * @param port The port to set.
    */
   public void setPort( String port ) {
     this.port = port;
@@ -401,8 +422,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param filterString
-   *          The filter string to set.
+   * @param filterString The filter string to set.
    */
   public void setFilterString( String filterString ) {
     this.filterString = filterString;
@@ -416,8 +436,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param searchBase
-   *          The filter Search Base to set.
+   * @param searchBase The filter Search Base to set.
    */
   public void setSearchBase( String searchBase ) {
     this.searchBase = searchBase;
@@ -431,8 +450,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param timeLimit
-   *          The timeout time limit to set.
+   * @param timeLimit The timeout time limit to set.
    */
   public void setTimeLimit( int timeLimit ) {
     this.timeLimit = timeLimit;
@@ -446,8 +464,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param multiValuedSeparator
-   *          The multi-valued separator filed.
+   * @param multiValuedSeparator The multi-valued separator filed.
    */
   public void setMultiValuedSeparator( String multiValuedSeparator ) {
     this.multiValuedSeparator = multiValuedSeparator;
@@ -461,8 +478,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param pagesize
-   *          The pagesize.
+   * @param pagesize The pagesize.
    */
   public void setPageSize( String pagesize ) {
     this.pagesize = pagesize;
@@ -476,8 +492,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param rowLimit
-   *          The rowLimit to set.
+   * @param rowLimit The rowLimit to set.
    */
   public void setRowLimit( int rowLimit ) {
     this.rowLimit = rowLimit;
@@ -491,8 +506,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param rowNumberField
-   *          The rowNumberField to set.
+   * @param rowNumberField The rowNumberField to set.
    */
   public void setRowNumberField( String rowNumberField ) {
     this.rowNumberField = rowNumberField;
@@ -512,8 +526,8 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
     retval.allocate( nrFields );
 
     for ( int i = 0; i < nrFields; i++ ) {
-      if ( inputFields[i] != null ) {
-        retval.inputFields[i] = (LDAPInputField) inputFields[i].clone();
+      if ( inputFields[ i ] != null ) {
+        retval.inputFields[ i ] = (LDAPInputField) inputFields[ i ].clone();
       }
     }
 
@@ -544,21 +558,21 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < inputFields.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", inputFields[i].getName() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "attribute", inputFields[i].getAttribute() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "name", inputFields[ i ].getName() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "attribute", inputFields[ i ].getAttribute() ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( "attribute_fetch_as", inputFields[i].getFetchAttributeAsCode() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "sorted_key", inputFields[i].isSortedKey() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "type", inputFields[i].getTypeDesc() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "format", inputFields[i].getFormat() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "length", inputFields[i].getLength() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "precision", inputFields[i].getPrecision() ) );
+        XMLHandler.addTagValue( "attribute_fetch_as", inputFields[ i ].getFetchAttributeAsCode() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "sorted_key", inputFields[ i ].isSortedKey() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "type", inputFields[ i ].getTypeDesc() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "format", inputFields[ i ].getFormat() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "length", inputFields[ i ].getLength() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "precision", inputFields[ i ].getPrecision() ) );
       retval
-        .append( "        " ).append( XMLHandler.addTagValue( "currency", inputFields[i].getCurrencySymbol() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "decimal", inputFields[i].getDecimalSymbol() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "group", inputFields[i].getGroupSymbol() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "trim_type", inputFields[i].getTrimTypeCode() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "repeat", inputFields[i].isRepeated() ) );
+        .append( "        " ).append( XMLHandler.addTagValue( "currency", inputFields[ i ].getCurrencySymbol() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "decimal", inputFields[ i ].getDecimalSymbol() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "group", inputFields[ i ].getGroupSymbol() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "trim_type", inputFields[ i ].getTrimTypeCode() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "repeat", inputFields[ i ].isRepeated() ) );
 
       retval.append( "      </field>" ).append( Const.CR );
     }
@@ -586,9 +600,9 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
 
   private static String getSearchScopeCode( int i ) {
     if ( i < 0 || i >= searchScopeCode.length ) {
-      return searchScopeCode[0];
+      return searchScopeCode[ 0 ];
     }
-    return searchScopeCode[i];
+    return searchScopeCode[ i ];
   }
 
   private void readData( Node stepnode ) throws HopXMLException {
@@ -614,33 +628,33 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
 
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        inputFields[i] = new LDAPInputField();
+        inputFields[ i ] = new LDAPInputField();
 
-        inputFields[i].setName( XMLHandler.getTagValue( fnode, "name" ) );
-        inputFields[i].setAttribute( XMLHandler.getTagValue( fnode, "attribute" ) );
-        inputFields[i].setFetchAttributeAs( LDAPInputField.getFetchAttributeAsByCode( XMLHandler.getTagValue(
+        inputFields[ i ].setName( XMLHandler.getTagValue( fnode, "name" ) );
+        inputFields[ i ].setAttribute( XMLHandler.getTagValue( fnode, "attribute" ) );
+        inputFields[ i ].setFetchAttributeAs( LDAPInputField.getFetchAttributeAsByCode( XMLHandler.getTagValue(
           fnode, "attribute_fetch_as" ) ) );
         String sortedkey = XMLHandler.getTagValue( fnode, "sorted_key" );
         if ( sortedkey != null ) {
-          inputFields[i].setSortedKey( YES.equalsIgnoreCase( sortedkey ) );
+          inputFields[ i ].setSortedKey( YES.equalsIgnoreCase( sortedkey ) );
         } else {
-          inputFields[i].setSortedKey( false );
+          inputFields[ i ].setSortedKey( false );
         }
-        inputFields[i].setType( ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( fnode, "type" ) ) );
-        inputFields[i].setLength( Const.toInt( XMLHandler.getTagValue( fnode, "length" ), -1 ) );
-        inputFields[i].setPrecision( Const.toInt( XMLHandler.getTagValue( fnode, "precision" ), -1 ) );
+        inputFields[ i ].setType( ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( fnode, "type" ) ) );
+        inputFields[ i ].setLength( Const.toInt( XMLHandler.getTagValue( fnode, "length" ), -1 ) );
+        inputFields[ i ].setPrecision( Const.toInt( XMLHandler.getTagValue( fnode, "precision" ), -1 ) );
         String srepeat = XMLHandler.getTagValue( fnode, "repeat" );
         if ( srepeat != null ) {
-          inputFields[i].setRepeated( YES.equalsIgnoreCase( srepeat ) );
+          inputFields[ i ].setRepeated( YES.equalsIgnoreCase( srepeat ) );
         } else {
-          inputFields[i].setRepeated( false );
+          inputFields[ i ].setRepeated( false );
         }
-        inputFields[i].setTrimType( ValueMetaString.getTrimTypeByCode( XMLHandler.getTagValue( fnode, "trim_type" ) ) );
+        inputFields[ i ].setTrimType( ValueMetaString.getTrimTypeByCode( XMLHandler.getTagValue( fnode, "trim_type" ) ) );
 
-        inputFields[i].setFormat( XMLHandler.getTagValue( fnode, "format" ) );
-        inputFields[i].setCurrencySymbol( XMLHandler.getTagValue( fnode, "currency" ) );
-        inputFields[i].setDecimalSymbol( XMLHandler.getTagValue( fnode, "decimal" ) );
-        inputFields[i].setGroupSymbol( XMLHandler.getTagValue( fnode, "group" ) );
+        inputFields[ i ].setFormat( XMLHandler.getTagValue( fnode, "format" ) );
+        inputFields[ i ].setCurrencySymbol( XMLHandler.getTagValue( fnode, "currency" ) );
+        inputFields[ i ].setDecimalSymbol( XMLHandler.getTagValue( fnode, "decimal" ) );
+        inputFields[ i ].setGroupSymbol( XMLHandler.getTagValue( fnode, "group" ) );
 
       }
 
@@ -675,7 +689,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
     }
 
     for ( int i = 0; i < searchScopeCode.length; i++ ) {
-      if ( searchScopeCode[i].equalsIgnoreCase( tt ) ) {
+      if ( searchScopeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -684,7 +698,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
 
   public void allocate( int nrfields ) {
 
-    inputFields = new LDAPInputField[nrfields];
+    inputFields = new LDAPInputField[ nrfields ];
   }
 
   @Override
@@ -710,7 +724,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
     allocate( nrFields );
 
     for ( int i = 0; i < nrFields; i++ ) {
-      this.inputFields[i] = new LDAPInputField( "field" + ( i + 1 ) );
+      this.inputFields[ i ] = new LDAPInputField( "field" + ( i + 1 ) );
     }
 
     this.rowLimit = 0;
@@ -725,11 +739,11 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
 
   @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     int i;
     for ( i = 0; i < inputFields.length; i++ ) {
-      LDAPInputField field = inputFields[i];
+      LDAPInputField field = inputFields[ i ];
 
       int type = field.getType();
       if ( type == ValueMetaInterface.TYPE_NONE ) {
@@ -757,9 +771,9 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
 
   public static String getSearchScopeDesc( int i ) {
     if ( i < 0 || i >= searchScopeDesc.length ) {
-      return searchScopeDesc[0];
+      return searchScopeDesc[ 0 ];
     }
-    return searchScopeDesc[i];
+    return searchScopeDesc[ i ];
   }
 
   public static int getSearchScopeByDesc( String tt ) {
@@ -768,7 +782,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
     }
 
     for ( int i = 0; i < searchScopeDesc.length; i++ ) {
-      if ( searchScopeDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( searchScopeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -786,8 +800,8 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
 
     CheckResult cr;
 
@@ -880,7 +894,7 @@ public class LDAPInputMeta extends BaseStepMeta implements LdapMeta {
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new LDAPInput( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 

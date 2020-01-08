@@ -28,8 +28,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.extension.ExtensionPointPluginType;
 import org.apache.hop.core.gui.plugin.GuiElement;
-import org.apache.hop.core.gui.plugin.GuiElements;
-import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiPluginType;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.logging.ConsoleLoggingEventListener;
@@ -53,7 +51,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -147,6 +144,7 @@ public class HopClientEnvironment {
   /**
    * Look for GuiElement annotated fields in all the GuiPlugins.
    * Put them in the Gui registry
+   *
    * @throws HopException
    */
   public static void initGuiPlugins() throws HopException {
@@ -161,14 +159,14 @@ public class HopClientEnvironment {
         Class<?>[] typeClasses = guiPlugin.getClassMap().keySet().toArray( new Class<?>[ 0 ] );
         String mainClassname = guiPlugin.getClassMap().get( typeClasses[ 0 ] );
         Class<?> mainClass = classLoader.loadClass( mainClassname );
-        List<Field> fields = findDeclaredFields(mainClass);
+        List<Field> fields = findDeclaredFields( mainClass );
 
         for ( Field field : fields ) {
           GuiElement guiElement = field.getAnnotation( GuiElement.class );
           if ( guiElement != null ) {
             // Add the GUI Element to the registry...
             //
-            guiRegistry.addGuiElement(mainClassname, guiElement, field.getName(), field.getType());
+            guiRegistry.addGuiElement( mainClassname, guiElement, field.getName(), field.getType() );
           }
         }
       }
@@ -176,7 +174,7 @@ public class HopClientEnvironment {
       //
       guiRegistry.sortAllElements();
 
-    } catch(Exception e) {
+    } catch ( Exception e ) {
       throw new HopException( "Error looking for Elements in GUI Plugins ", e );
     }
   }
@@ -187,16 +185,16 @@ public class HopClientEnvironment {
    * @param parentClass
    * @return A unqiue list of fields.
    */
-  private static final List<Field> findDeclaredFields(Class<?> parentClass) {
-    Set<Field> fields = new HashSet<>(  );
+  private static final List<Field> findDeclaredFields( Class<?> parentClass ) {
+    Set<Field> fields = new HashSet<>();
 
-    for (Field field : parentClass.getDeclaredFields()) {
-      fields.add(field);
+    for ( Field field : parentClass.getDeclaredFields() ) {
+      fields.add( field );
     }
     Class<?> superClass = parentClass.getSuperclass();
-    while (superClass!=null) {
-      for (Field field : superClass.getDeclaredFields()) {
-        fields.add(field);
+    while ( superClass != null ) {
+      for ( Field field : superClass.getDeclaredFields() ) {
+        fields.add( field );
       }
 
       superClass = superClass.getSuperclass();

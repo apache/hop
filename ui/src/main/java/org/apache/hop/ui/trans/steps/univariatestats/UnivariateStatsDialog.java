@@ -22,13 +22,21 @@
 
 package org.apache.hop.ui.trans.steps.univariatestats;
 
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.univariatestats.UnivariateStatsMeta;
+import org.apache.hop.trans.steps.univariatestats.UnivariateStatsMetaFunction;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -47,21 +55,13 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.univariatestats.UnivariateStatsMeta;
-import org.apache.hop.trans.steps.univariatestats.UnivariateStatsMetaFunction;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The UI class for the UnivariateStats transform
@@ -73,7 +73,9 @@ public class UnivariateStatsDialog extends BaseStepDialog implements StepDialogI
 
   private static Class<?> PKG = UnivariateStatsMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** various UI bits and pieces for the dialog */
+  /**
+   * various UI bits and pieces for the dialog
+   */
   private Label m_wlStepname;
   private Text m_wStepname;
   private FormData m_fdlStepname;
@@ -312,9 +314,9 @@ public class UnivariateStatsDialog extends BaseStepDialog implements StepDialogI
   protected void setComboBoxes() {
     Set<String> keySet = m_inputFields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
     Const.sortStrings( fieldNames );
-    m_colinf[0].setComboValues( fieldNames );
+    m_colinf[ 0 ].setComboValues( fieldNames );
   }
 
   /**
@@ -324,7 +326,7 @@ public class UnivariateStatsDialog extends BaseStepDialog implements StepDialogI
 
     if ( m_currentMeta.getInputFieldMetaFunctions() != null ) {
       for ( int i = 0; i < m_currentMeta.getNumFieldsToProcess(); i++ ) {
-        UnivariateStatsMetaFunction fn = m_currentMeta.getInputFieldMetaFunctions()[i];
+        UnivariateStatsMetaFunction fn = m_currentMeta.getInputFieldMetaFunctions()[ i ];
 
         TableItem item = m_wFields.table.getItem( i );
 
@@ -396,7 +398,7 @@ public class UnivariateStatsDialog extends BaseStepDialog implements StepDialogI
       boolean interpolate = item.getText( 9 ).equalsIgnoreCase( "True" );
 
       //CHECKSTYLE:Indentation:OFF
-      m_currentMeta.getInputFieldMetaFunctions()[i] = new UnivariateStatsMetaFunction(
+      m_currentMeta.getInputFieldMetaFunctions()[ i ] = new UnivariateStatsMetaFunction(
         inputFieldName, n, mean, stdDev, min, max, median, percentile, interpolate );
     }
 

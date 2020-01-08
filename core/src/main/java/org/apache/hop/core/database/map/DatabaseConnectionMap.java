@@ -22,6 +22,10 @@
 
 package org.apache.hop.core.database.map;
 
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseTransactionListener;
+import org.apache.hop.core.util.Utils;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,10 +33,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseTransactionListener;
 
 /**
  * This class contains a map between on the one hand

@@ -22,25 +22,24 @@
 
 package org.apache.hop.trans.steps.groupby;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 import junit.framework.Assert;
-
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * PDI-10250 - "Group by" step - Minimum aggregation doesn't work
- * 
  */
 public class GroupByAggregationNullsTest {
 
@@ -55,7 +54,7 @@ public class GroupByAggregationNullsTest {
   public static void setUpBeforeClass() throws Exception {
     mockHelper = new StepMockHelper<GroupByMeta, GroupByData>( "Group By", GroupByMeta.class, GroupByData.class );
     when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        mockHelper.logChannelInterface );
+      mockHelper.logChannelInterface );
     when( mockHelper.trans.isRunning() ).thenReturn( true );
   }
 
@@ -83,55 +82,56 @@ public class GroupByAggregationNullsTest {
 
   /**
    * PDI-10250 - "Group by" step - Minimum aggregation doesn't work
-   * 
+   * <p>
    * HOP_AGGREGATION_MIN_NULL_IS_VALUED
-   * 
+   * <p>
    * Set this variable to Y to set the minimum to NULL if NULL is within an aggregate. Otherwise by default NULL is
    * ignored by the MIN aggregate and MIN is set to the minimum value that is not NULL. See also the variable
    * HOP_AGGREGATION_ALL_NULLS_ARE_ZERO.
-   * 
+   *
    * @throws HopValueException
    */
   @Test
   public void calcAggregateResultTestMin_1_Test() throws HopValueException {
     step.setMinNullIsValued( true );
     step.calcAggregate( new Object[] { null } );
-    Assert.assertNull( "Value is set", data.agg[0] );
+    Assert.assertNull( "Value is set", data.agg[ 0 ] );
   }
 
   @Test
   public void calcAggregateResultTestMin_2_Test() throws HopValueException {
     step.setMinNullIsValued( true );
     step.calcAggregate( new Object[] { null } );
-    Assert.assertNull( "Value is set", data.agg[0] );
+    Assert.assertNull( "Value is set", data.agg[ 0 ] );
   }
 
   @Test
   public void calcAggregateResultTestMin_5_Test() throws HopValueException {
     step.calcAggregate( new Object[] { null } );
-    Assert.assertEquals( "Value is NOT set", def, data.agg[0] );
+    Assert.assertEquals( "Value is NOT set", def, data.agg[ 0 ] );
   }
 
   @Test
   public void calcAggregateResultTestMin_3_Test() throws HopValueException {
     step.setMinNullIsValued( false );
     step.calcAggregate( new Object[] { null } );
-    Assert.assertEquals( "Value is NOT set", def, data.agg[0] );
+    Assert.assertEquals( "Value is NOT set", def, data.agg[ 0 ] );
   }
 
   //PDI-15648 - Minimum aggregation doesn't work when null value in first row
   @Test
   public void getMinAggregateResultFirstValIsNullTest() throws HopValueException {
-    data.agg[0] = null;
+    data.agg[ 0 ] = null;
     step.setMinNullIsValued( false );
     step.calcAggregate( new Object[] { null } );
     step.calcAggregate( new Object[] { 2 } );
-    Assert.assertEquals( "Min aggregation doesn't properly work if the first value is null", 2, data.agg[0] );
+    Assert.assertEquals( "Min aggregation doesn't properly work if the first value is null", 2, data.agg[ 0 ] );
   }
+
   /**
    * Set this variable to Y to return 0 when all values within an aggregate are NULL. Otherwise by default a NULL is
    * returned when all values are NULL.
-   * 
+   *
    * @throws HopValueException
    */
   @Test
@@ -139,23 +139,23 @@ public class GroupByAggregationNullsTest {
     // data.agg[0] is not null - this is the default behaviour
     step.setAllNullsAreZero( true );
     Object[] row = step.getAggregateResult();
-    Assert.assertEquals( "Default value is not corrupted", def, row[0] );
+    Assert.assertEquals( "Default value is not corrupted", def, row[ 0 ] );
   }
 
   @Test
   public void getAggregateResultTestMin_1_Test() throws HopValueException {
-    data.agg[0] = null;
+    data.agg[ 0 ] = null;
     step.setAllNullsAreZero( true );
     Object[] row = step.getAggregateResult();
-    Assert.assertEquals( "Returns 0 if aggregation is null", new Long( 0 ), row[0] );
+    Assert.assertEquals( "Returns 0 if aggregation is null", new Long( 0 ), row[ 0 ] );
   }
 
   @Test
   public void getAggregateResultTestMin_3_Test() throws HopValueException {
-    data.agg[0] = null;
+    data.agg[ 0 ] = null;
     step.setAllNullsAreZero( false );
     Object[] row = step.getAggregateResult();
-    Assert.assertNull( "Returns null if aggregation is null", row[0] );
+    Assert.assertNull( "Returns null if aggregation is null", row[ 0 ] );
   }
 
 }

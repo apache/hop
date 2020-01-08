@@ -22,19 +22,6 @@
 
 package org.apache.hop.trans.steps.sort;
 
-import static org.junit.Assert.fail;
-
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
-
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.TestUtilities;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
@@ -49,6 +36,19 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransTestFactory;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
+
+import static org.junit.Assert.fail;
 
 /**
  * Test class for the Sort step.
@@ -71,11 +71,11 @@ public class SortRowsIT {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    { new ValueMetaString( "KEY1" ),
-      new ValueMetaString( "KEY2" ), };
+      { new ValueMetaString( "KEY1" ),
+        new ValueMetaString( "KEY2" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -269,8 +269,8 @@ public class SortRowsIT {
     // add rows
     List<RowMetaAndData> inputList = createStringData();
     List<RowMetaAndData> ret =
-        TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, sortRowsStepname,
-            TransTestFactory.DUMMY_STEPNAME, inputList );
+      TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, sortRowsStepname,
+        TransTestFactory.DUMMY_STEPNAME, inputList );
 
     checkStringRows( ret, true );
   }
@@ -299,8 +299,8 @@ public class SortRowsIT {
     // add rows
     List<RowMetaAndData> inputList = createStringData();
     List<RowMetaAndData> ret =
-        TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, sortRowsStepname,
-            TransTestFactory.DUMMY_STEPNAME, inputList );
+      TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, sortRowsStepname,
+        TransTestFactory.DUMMY_STEPNAME, inputList );
 
     checkStringRows( ret, false );
   }
@@ -330,8 +330,8 @@ public class SortRowsIT {
     // add rows
     List<RowMetaAndData> inputList = createTimestampData();
     List<RowMetaAndData> ret =
-        TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, sortRowsStepname,
-            TransTestFactory.DUMMY_STEPNAME, inputList );
+      TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, sortRowsStepname,
+        TransTestFactory.DUMMY_STEPNAME, inputList );
 
     checkStringRows( ret, true );
   }
@@ -364,8 +364,8 @@ public class SortRowsIT {
     // add rows
     List<RowMetaAndData> inputList = Collections.emptyList();
     List<RowMetaAndData> ret =
-        TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, sortRowsStepname,
-            TransTestFactory.DUMMY_STEPNAME, inputList );
+      TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, sortRowsStepname,
+        TransTestFactory.DUMMY_STEPNAME, inputList );
 
     Assert.assertTrue( ret.isEmpty() );
   }
@@ -398,8 +398,8 @@ public class SortRowsIT {
     // add rows
     List<RowMetaAndData> inputList = this.createGlobalData();
     List<RowMetaAndData> ret =
-        TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, sortRowsStepname,
-            TransTestFactory.DUMMY_STEPNAME, inputList );
+      TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, sortRowsStepname,
+        TransTestFactory.DUMMY_STEPNAME, inputList );
 
     Assert.assertEquals( "All rows is processed", MAX_COUNT, ret.size() );
     this.checkGrouppingFieldSort( ret, false );
@@ -431,8 +431,8 @@ public class SortRowsIT {
     // add rows
     List<RowMetaAndData> inputList = this.createGlobalData();
     List<RowMetaAndData> ret =
-        TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, sortRowsStepname,
-            TransTestFactory.DUMMY_STEPNAME, inputList );
+      TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, sortRowsStepname,
+        TransTestFactory.DUMMY_STEPNAME, inputList );
 
     Assert.assertEquals( "All rows is processed", MAX_COUNT, ret.size() );
     this.checkGrouppingFieldSort( ret, true );
@@ -468,8 +468,8 @@ public class SortRowsIT {
     // add rows
     List<RowMetaAndData> inputList = this.createGlobalData();
     List<RowMetaAndData> ret =
-        TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, sortRowsStepname,
-            TransTestFactory.DUMMY_STEPNAME, inputList );
+      TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, sortRowsStepname,
+        TransTestFactory.DUMMY_STEPNAME, inputList );
     Assert.assertEquals( "All rows is processed", MAX_COUNT, ret.size() );
     this.checkStringSortCorrect( ret, caseSen, asc );
   }
@@ -503,8 +503,8 @@ public class SortRowsIT {
     // add rows
     List<RowMetaAndData> inputList = this.createGlobalData();
     List<RowMetaAndData> ret =
-        TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, sortRowsStepname,
-            TransTestFactory.DUMMY_STEPNAME, inputList );
+      TransTestFactory.executeTestTransformation( transMeta, TransTestFactory.INJECTOR_STEPNAME, sortRowsStepname,
+        TransTestFactory.DUMMY_STEPNAME, inputList );
     Assert.assertEquals( "All rows is processed", MAX_COUNT, ret.size() );
     this.checkStringSortCorrect( ret, caseSen, asc );
   }

@@ -22,15 +22,15 @@
 
 package org.apache.hop.job;
 
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.metastore.api.exceptions.MetaStoreException;
+import org.apache.hop.resource.ResourceUtil;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.resource.ResourceUtil;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

@@ -22,9 +22,6 @@
 
 package org.apache.hop.core;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.injection.InjectionTypeConverter;
@@ -34,6 +31,10 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaNone;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
 public class RowMetaAndData implements Cloneable {
   private RowMetaInterface rowMeta;
 
@@ -82,8 +83,7 @@ public class RowMetaAndData implements Cloneable {
   }
 
   /**
-   * @param data
-   *          the data to set
+   * @param data the data to set
    */
   public void setData( Object[] data ) {
     this.data = data;
@@ -97,8 +97,7 @@ public class RowMetaAndData implements Cloneable {
   }
 
   /**
-   * @param rowMeta
-   *          the rowMeta to set
+   * @param rowMeta the rowMeta to set
    */
   public void setRowMeta( RowMetaInterface rowMeta ) {
     this.rowMeta = rowMeta;

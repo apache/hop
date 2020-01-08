@@ -21,11 +21,17 @@
  ******************************************************************************/
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.sql.DatabaseMetaData;
 import java.sql.Date;
@@ -34,17 +40,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.row.value.ValueMetaDate;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.Variables;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 public class BaseDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
   BaseDatabaseMeta nativeMeta, odbcMeta;
@@ -158,7 +159,7 @@ public class BaseDatabaseMetaTest {
     assertEquals( "'15'", nativeMeta.getSQLValue( new ValueMetaString( "FOO" ), "15", null ) );
     assertEquals( "_", nativeMeta.getFieldnameProtector() );
     assertEquals( "_1ABC_123", nativeMeta.getSafeFieldname( "1ABC 123" ) );
-    BaseDatabaseMeta tmpSC = new ConcreteBaseDatabaseMeta( ) {
+    BaseDatabaseMeta tmpSC = new ConcreteBaseDatabaseMeta() {
       @Override
       public String[] getReservedWords() {
         return new String[] { "SELECT" };
@@ -197,7 +198,7 @@ public class BaseDatabaseMetaTest {
     assertEquals( "SELECT 1 FROM FOO", odbcMeta.getSQLTableExists( "FOO" ) );
     assertEquals( "SELECT FOO FROM BAR", odbcMeta.getSQLColumnExists( "FOO", "BAR" ) );
     assertEquals( "insert into \"FOO\".\"BAR\"(KEYFIELD, VERSIONFIELD) values (0, 1)",
-        nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "\"FOO\".\"BAR\"", "KEYFIELD", "VERSIONFIELD" ) );
+      nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "\"FOO\".\"BAR\"", "KEYFIELD", "VERSIONFIELD" ) );
     assertEquals( "select count(*) FROM FOO", nativeMeta.getSelectCountStatement( "FOO" ) );
     assertEquals( "COL9", nativeMeta.generateColumnAlias( 9, "FOO" ) );
     assertEquals( "[SELECT 1, INSERT INTO FOO VALUES(BAR), DELETE FROM BAR]", nativeMeta.parseStatements( "SELECT 1;INSERT INTO FOO VALUES(BAR);DELETE FROM BAR" ).toString() );
@@ -245,11 +246,11 @@ public class BaseDatabaseMetaTest {
     assertEquals( expectedOptionsMap, nativeMeta.getExtraOptions() );
     nativeMeta.setConnectSQL( "SELECT COUNT(*) FROM FOO" );
     assertEquals( "SELECT COUNT(*) FROM FOO", nativeMeta.getConnectSQL() );
-    PartitionDatabaseMeta[] clusterInfo = new PartitionDatabaseMeta[1];
+    PartitionDatabaseMeta[] clusterInfo = new PartitionDatabaseMeta[ 1 ];
     PartitionDatabaseMeta aClusterDef = new PartitionDatabaseMeta( "FOO", "BAR", "WIBBLE", "NATTIE" );
     aClusterDef.setUsername( "FOOUSER" );
     aClusterDef.setPassword( "BARPASSWORD" );
-    clusterInfo[0] = aClusterDef;
+    clusterInfo[ 0 ] = aClusterDef;
     // MB: Can't use arrayEquals because the PartitionDatabaseMeta doesn't have a toString. :(
     // assertArrayEquals( clusterInfo, gotPartitions );
 
@@ -277,7 +278,7 @@ public class BaseDatabaseMetaTest {
 
   @Test
   public void testCheckIndexExists() throws Exception {
-    Database db = Mockito.mock(  Database.class );
+    Database db = Mockito.mock( Database.class );
     ResultSet rs = Mockito.mock( ResultSet.class );
     DatabaseMetaData dmd = Mockito.mock( DatabaseMetaData.class );
     DatabaseMeta dm = Mockito.mock( DatabaseMeta.class );
@@ -302,7 +303,7 @@ public class BaseDatabaseMetaTest {
         }
       }
     } );
-    Mockito.when(  db.getDatabaseMeta() ).thenReturn( dm );
+    Mockito.when( db.getDatabaseMeta() ).thenReturn( dm );
     assertTrue( odbcMeta.checkIndexExists( db, "", "FOO", new String[] { "ROW1COL2", "ROW2COL2" } ) );
     assertFalse( odbcMeta.checkIndexExists( db, "", "FOO", new String[] { "ROW2COL2", "NOTTHERE" } ) );
     assertFalse( odbcMeta.checkIndexExists( db, "", "FOO", new String[] { "NOTTHERE", "ROW1COL2" } ) );

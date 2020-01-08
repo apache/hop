@@ -21,14 +21,13 @@
  ******************************************************************************/
 package org.apache.hop.job.entries.pgpverify;
 
-import java.util.Arrays;
-
-import java.util.List;
-import java.util.Map;
-
-import org.junit.ClassRule;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.ClassRule;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class JobEntryPGPVerifyTest extends JobEntryLoadSaveTestSupport<JobEntryPGPVerify> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -41,28 +40,28 @@ public class JobEntryPGPVerifyTest extends JobEntryLoadSaveTestSupport<JobEntryP
   @Override
   protected List<String> listCommonAttributes() {
     return Arrays.asList(
-        "gpglocation",
-        "filename",
-        "detachedfilename",
-        "useDetachedSignature" );
+      "gpglocation",
+      "filename",
+      "detachedfilename",
+      "useDetachedSignature" );
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-        "gpglocation", "getGPGLocation",
-        "filename", "getFilename",
-        "detachedfilename", "getDetachedfilename",
-        "useDetachedSignature", "useDetachedfilename" );
+      "gpglocation", "getGPGLocation",
+      "filename", "getFilename",
+      "detachedfilename", "getDetachedfilename",
+      "useDetachedSignature", "useDetachedfilename" );
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-        "gpglocation", "setGPGLocation",
-        "filename", "setFilename",
-        "detachedfilename", "setDetachedfilename",
-        "useDetachedSignature", "setUseDetachedfilename" );
+      "gpglocation", "setGPGLocation",
+      "filename", "setFilename",
+      "detachedfilename", "setDetachedfilename",
+      "useDetachedSignature", "setUseDetachedfilename" );
   }
 
 }

@@ -23,6 +23,32 @@
 package org.apache.hop.ui.trans.steps.simplemapping;
 
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.SourceToTargetMapping;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.mapping.MappingIODefinition;
+import org.apache.hop.trans.steps.mapping.MappingParameters;
+import org.apache.hop.trans.steps.mapping.MappingValueRename;
+import org.apache.hop.trans.steps.simplemapping.SimpleMappingMeta;
+import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.dialog.EnterMappingDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ColumnsResizer;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -45,33 +71,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.SourceToTargetMapping;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.mapping.MappingIODefinition;
-import org.apache.hop.trans.steps.mapping.MappingParameters;
-import org.apache.hop.trans.steps.mapping.MappingValueRename;
-import org.apache.hop.trans.steps.simplemapping.SimpleMappingMeta;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.dialog.EnterMappingDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ColumnsResizer;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopui.HopUi;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
 
 import java.io.IOException;
@@ -671,7 +670,7 @@ public class SimpleMappingDialog extends BaseStepDialog implements StepDialogInt
             //
             RowMetaInterface sourceRowMeta = getFieldsFromStep( true, input );
             BaseStepDialog.getFieldsFromPrevious(
-              sourceRowMeta, wFieldMappings, 1, new int[] { 1, }, new int[] { }, -1, -1, null );
+              sourceRowMeta, wFieldMappings, 1, new int[] { 1, }, new int[] {}, -1, -1, null );
           }
         } catch ( HopException e ) {
           new ErrorDialog( shell, BaseMessages.getString( PKG, "System.Dialog.Error.Title" ), BaseMessages

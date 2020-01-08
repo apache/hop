@@ -22,6 +22,12 @@
 
 package org.apache.hop.trans.steps.textfileoutput;
 
+import org.apache.hop.core.compress.CompressionOutputStream;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.trans.step.BaseStepData;
+import org.apache.hop.trans.step.StepDataInterface;
+
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -34,12 +40,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.hop.core.compress.CompressionOutputStream;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.trans.step.BaseStepData;
-import org.apache.hop.trans.step.StepDataInterface;
-
 /**
  * @author Matt
  * @since 22-jan-2005
@@ -48,14 +48,23 @@ public class TextFileOutputData extends BaseStepData implements StepDataInterfac
 
   interface IFileStreamsCollection {
     FileStream getStream( String filename );
+
     void closeOldestOpenFile( boolean removeFileFromCollection ) throws IOException;
+
     void flushOpenFiles( boolean closeAfterFlush ) throws IOException;
-    String getLastFileName(  );
-    FileStream getLastStream(  );
-    int getNumOpenFiles( );
+
+    String getLastFileName();
+
+    FileStream getLastStream();
+
+    int getNumOpenFiles();
+
     void closeFile( String filename ) throws IOException;
+
     void closeStream( OutputStream outputStream ) throws IOException;
-    int size( );
+
+    int size();
+
     void add( String filename, FileStream fileStreams );
   }
 
@@ -264,7 +273,7 @@ public class TextFileOutputData extends BaseStepData implements StepDataInterfac
     }
   }
 
-  public class FileStreamsMap implements IFileStreamsCollection  {
+  public class FileStreamsMap implements IFileStreamsCollection {
     private int numOpenFiles = 0;
     private TreeMap<String, FileStreamsCollectionEntry> fileNameMap = new TreeMap<>();
     private TreeMap<Long, FileStreamsCollectionEntry> indexMap = new TreeMap<>();

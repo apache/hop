@@ -37,9 +37,9 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.util.UUIDUtil;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.configuration.IHopFileSystemConfigBuilder;
 import org.apache.hop.core.vfs.configuration.HopFileSystemConfigBuilderFactory;
 import org.apache.hop.core.vfs.configuration.HopGenericFileSystemConfigBuilder;
+import org.apache.hop.core.vfs.configuration.IHopFileSystemConfigBuilder;
 import org.apache.hop.i18n.BaseMessages;
 
 import java.io.File;
@@ -180,7 +180,7 @@ public class HopVFS {
   }
 
   protected static boolean checkForScheme( String[] initialSchemes, boolean relativeFilename, String vfsFilename,
-                                         VariableSpace space, FileSystemOptions fsOptions )
+                                           VariableSpace space, FileSystemOptions fsOptions )
     throws IOException {
     for ( int i = 0; i < initialSchemes.length && relativeFilename; i++ ) {
       if ( vfsFilename.startsWith( initialSchemes[ i ] + ":" ) ) {
@@ -203,14 +203,14 @@ public class HopVFS {
   }
 
   private static FileSystemOptions buildFsOptions( VariableSpace varSpace, FileSystemOptions sourceOptions,
-      String vfsFilename, String scheme ) throws IOException {
+                                                   String vfsFilename, String scheme ) throws IOException {
     if ( varSpace == null || vfsFilename == null ) {
       // We cannot extract settings from a non-existant variable space
       return null;
     }
 
     IHopFileSystemConfigBuilder configBuilder =
-        HopFileSystemConfigBuilderFactory.getConfigBuilder( varSpace, scheme );
+      HopFileSystemConfigBuilderFactory.getConfigBuilder( varSpace, scheme );
 
     FileSystemOptions fsOptions = ( sourceOptions == null ) ? new FileSystemOptions() : sourceOptions;
 
@@ -235,10 +235,8 @@ public class HopVFS {
   /**
    * Read a text file (like an XML document). WARNING DO NOT USE FOR DATA FILES.
    *
-   * @param vfsFilename
-   *          the filename or URL to read from
-   * @param charSetName
-   *          the character set of the string (UTF-8, ISO8859-1, etc)
+   * @param vfsFilename the filename or URL to read from
+   * @param charSetName the character set of the string (UTF-8, ISO8859-1, etc)
    * @return The content of the file as a String
    * @throws IOException
    */
@@ -353,7 +351,7 @@ public class HopVFS {
   }
 
   public static OutputStream getOutputStream( String vfsFilename, VariableSpace space,
-      FileSystemOptions fsOptions, boolean append ) throws HopFileException {
+                                              FileSystemOptions fsOptions, boolean append ) throws HopFileException {
     try {
       FileObject fileObject = getFileObject( vfsFilename, space, fsOptions );
       return getOutputStream( fileObject, append );
@@ -429,7 +427,6 @@ public class HopVFS {
   }
 
   /**
-   *
    * @param prefix    - file name
    * @param suffix    - file extension
    * @param directory - directory where file will be created
@@ -466,7 +463,7 @@ public class HopVFS {
         // being
         // duplicated which would cause the sort to fail.
         String filename =
-            new StringBuilder( 50 ).append( directory ).append( '/' ).append( prefix ).append( '_' ).append(
+          new StringBuilder( 50 ).append( directory ).append( '/' ).append( prefix ).append( '_' ).append(
             UUIDUtil.getUUIDAsString() ).append( suffix ).toString();
         fileObject = getFileObject( filename, space );
       } while ( fileObject.exists() );
@@ -494,7 +491,7 @@ public class HopVFS {
    * @return a FileInputStream
    * @throws IOException
    * @deprecated because of API change in Apache VFS. As a workaround use FileObject.getName().getPathDecoded(); Then
-   *             use a regular File() object to create a File Input stream.
+   * use a regular File() object to create a File Input stream.
    */
   @Deprecated
   public static FileInputStream getFileInputStream( FileObject fileObject ) throws IOException {
@@ -511,6 +508,7 @@ public class HopVFS {
   /**
    * Check if filename starts with one of the known protocols like file: zip: ram: smb: jar: etc.
    * If yes, return true otherwise return false
+   *
    * @param vfsFileName
    * @return boolean
    */

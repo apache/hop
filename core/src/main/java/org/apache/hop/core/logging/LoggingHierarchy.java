@@ -26,7 +26,6 @@ package org.apache.hop.core.logging;
  * The logging hierarchy of a transformation or job
  *
  * @author matt
- *
  */
 public class LoggingHierarchy {
   private String rootChannelId; // from the xform or job
@@ -41,8 +40,7 @@ public class LoggingHierarchy {
   }
 
   /**
-   * @param rootChannelId
-   *          the rootChannelId to set
+   * @param rootChannelId the rootChannelId to set
    */
   public void setRootChannelId( String rootChannelId ) {
     this.rootChannelId = rootChannelId;
@@ -56,8 +54,7 @@ public class LoggingHierarchy {
   }
 
   /**
-   * @param batchId
-   *          the batchId to set
+   * @param batchId the batchId to set
    */
   public void setBatchId( long batchId ) {
     this.batchId = batchId;
@@ -71,8 +68,7 @@ public class LoggingHierarchy {
   }
 
   /**
-   * @param loggingObject
-   *          the loggingObject to set
+   * @param loggingObject the loggingObject to set
    */
   public void setLoggingObject( LoggingObjectInterface loggingObject ) {
     this.loggingObject = loggingObject;

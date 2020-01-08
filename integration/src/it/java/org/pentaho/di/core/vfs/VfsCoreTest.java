@@ -22,14 +22,13 @@
 
 package org.apache.hop.core.vfs;
 
+import junit.framework.TestCase;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-
-import junit.framework.TestCase;
-
-import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.Const;
 
 public class VfsCoreTest extends TestCase {
 

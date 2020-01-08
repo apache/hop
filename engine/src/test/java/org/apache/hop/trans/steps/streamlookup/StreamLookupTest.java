@@ -22,19 +22,7 @@
 
 package org.apache.hop.trans.steps.streamlookup;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import org.junit.After;
-import org.apache.hop.core.row.ValueMetaInterface;
 import junit.framework.Assert;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
@@ -42,15 +30,26 @@ import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.step.StepIOMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.errorhandling.Stream;
 import org.apache.hop.trans.step.errorhandling.StreamIcon;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test for StreamLookup step
@@ -78,8 +77,8 @@ public class StreamLookupTest {
 
   private void convertDataToBinary( Object[][] data ) {
     for ( int i = 0; i < data.length; i++ ) {
-      for ( int j = 0; j < data[i].length; j++ ) {
-        data[i][j] = ( (String) data[i][j] ).getBytes();
+      for ( int j = 0; j < data[ i ].length; j++ ) {
+        data[ i ][ j ] = ( (String) data[ i ][ j ] ).getBytes();
       }
     }
   }
@@ -187,8 +186,8 @@ public class StreamLookupTest {
         rowNumber++;
         // Verify output
         for ( int valueIndex = 0; valueIndex < rowMeta.size(); valueIndex++ ) {
-          String expectedValue = expectedOutput[valueIndex] + rowNumber;
-          Object actualValue = rowMeta.getValueMeta( valueIndex ).convertToNormalStorageType( rowData[valueIndex] );
+          String expectedValue = expectedOutput[ valueIndex ] + rowNumber;
+          Object actualValue = rowMeta.getValueMeta( valueIndex ).convertToNormalStorageType( rowData[ valueIndex ] );
           Assert.assertEquals( "Unexpected value at row " + rowNumber + " position " + valueIndex, expectedValue,
             actualValue );
         }

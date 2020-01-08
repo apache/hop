@@ -38,13 +38,13 @@ import javax.xml.parsers.SAXParserFactory;
 public class XMLParserFactoryProducer {
 
   private static final Log logger = LogFactory.getLog( XMLParserFactoryProducer.class );
+
   /**
    * Creates an instance of {@link DocumentBuilderFactory} class with enabled {@link XMLConstants#FEATURE_SECURE_PROCESSING} property.
    * Enabling this feature prevents from some XXE attacks (e.g. XML bomb)
    * See PPP-3506 for more details.
    *
    * @throws ParserConfigurationException if feature can't be enabled
-   *
    */
   public static DocumentBuilderFactory createSecureDocBuilderFactory() throws ParserConfigurationException {
     DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -59,14 +59,12 @@ public class XMLParserFactoryProducer {
    * Enabling this feature prevents from some XXE attacks (e.g. XML bomb)
    *
    * @throws ParserConfigurationException if a parser cannot
-   *     be created which satisfies the requested configuration.
-   *
-   * @throws SAXNotRecognizedException When the underlying XMLReader does
-   *            not recognize the property name.
-   *
-   * @throws SAXNotSupportedException When the underlying XMLReader
-   *            recognizes the property name but doesn't support the
-   *            property.
+   *                                      be created which satisfies the requested configuration.
+   * @throws SAXNotRecognizedException    When the underlying XMLReader does
+   *                                      not recognize the property name.
+   * @throws SAXNotSupportedException     When the underlying XMLReader
+   *                                      recognizes the property name but doesn't support the
+   *                                      property.
    */
   public static SAXParserFactory createSecureSAXParserFactory()
     throws SAXNotSupportedException, SAXNotRecognizedException, ParserConfigurationException {

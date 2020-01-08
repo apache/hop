@@ -31,7 +31,7 @@ public class GetFieldsDialogOperation {
   private List<String> paths;
 
   public GetFieldsDialogOperation( Shell shell, int width, int height, String filename, String title, List<String>
-          paths ) {
+    paths ) {
     this.shell = shell;
     this.width = width;
     this.height = height;

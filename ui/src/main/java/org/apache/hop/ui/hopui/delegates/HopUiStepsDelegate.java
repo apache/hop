@@ -22,15 +22,6 @@
 
 package org.apache.hop.ui.hopui.delegates;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.hop.ui.hopui.HopUi;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -49,7 +40,16 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.step.StepPartitioningMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.trans.step.StepErrorMetaDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HopUiStepsDelegate extends HopUiDelegate {
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
@@ -175,7 +175,7 @@ public class HopUiStepsDelegate extends HopUiDelegate {
       }
       new ErrorDialog(
         hopUi.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.UnableOpenDialog.Title" ), BaseMessages
-          .getString( PKG, "Spoon.Dialog.UnableOpenDialog.Message" ), e );
+        .getString( PKG, "Spoon.Dialog.UnableOpenDialog.Message" ), e );
     }
 
     if ( refresh ) {
@@ -196,15 +196,15 @@ public class HopUiStepsDelegate extends HopUiDelegate {
 
     // Hops belonging to the deleting steps are placed in a single transaction and removed.
     List<TransHopMeta> transHops = new ArrayList<>();
-    int[] hopIndexes = new int[transformation.nrTransHops()];
+    int[] hopIndexes = new int[ transformation.nrTransHops() ];
     int hopIndex = 0;
     for ( int i = transformation.nrTransHops() - 1; i >= 0; i-- ) {
       TransHopMeta hi = transformation.getTransHop( i );
       for ( int j = 0; j < steps.length && hopIndex < hopIndexes.length; j++ ) {
-        if ( hi.getFromStep().equals( steps[j] ) || hi.getToStep().equals( steps[j] ) ) {
+        if ( hi.getFromStep().equals( steps[ j ] ) || hi.getToStep().equals( steps[ j ] ) ) {
           int idx = transformation.indexOfTransHop( hi );
           transHops.add( (TransHopMeta) hi.clone() );
-          hopIndexes[hopIndex] = idx;
+          hopIndexes[ hopIndex ] = idx;
           transformation.removeTransHop( idx );
           hopUi.refreshTree();
           hopIndex++;
@@ -213,16 +213,16 @@ public class HopUiStepsDelegate extends HopUiDelegate {
       }
     }
     if ( !transHops.isEmpty() ) {
-      TransHopMeta[] hops = transHops.toArray( new TransHopMeta[transHops.size()] );
+      TransHopMeta[] hops = transHops.toArray( new TransHopMeta[ transHops.size() ] );
       hopUi.addUndoDelete( transformation, hops, hopIndexes );
     }
 
     // Deleting steps are placed all in a single transaction and removed.
-    int[] positions = new int[steps.length];
+    int[] positions = new int[ steps.length ];
     for ( int i = 0; i < steps.length; i++ ) {
-      int pos = transformation.indexOfStep( steps[i] );
+      int pos = transformation.indexOfStep( steps[ i ] );
       transformation.removeStep( pos );
-      positions[i] = pos;
+      positions[ i ] = pos;
     }
     hopUi.addUndoDelete( transformation, steps, positions );
 
@@ -241,14 +241,14 @@ public class HopUiStepsDelegate extends HopUiDelegate {
     PluginRegistry registry = PluginRegistry.getInstance();
     PluginInterface plugin = registry.getPlugin( StepPluginType.class, stepMeta );
     String dialogClassName = plugin.getClassMap().get( StepDialogInterface.class );
-    if (dialogClassName==null) {
+    if ( dialogClassName == null ) {
       // Calculate it from the base meta class...
       //
       dialogClassName = stepMeta.getDialogClassName();
     }
 
     if ( dialogClassName == null ) {
-      throw new HopException( "Unable to find dialog class for plugin '"+plugin.getIds()[0]+"' : "+plugin.getName() );
+      throw new HopException( "Unable to find dialog class for plugin '" + plugin.getIds()[ 0 ] + "' : " + plugin.getName() );
     }
 
     try {
@@ -264,7 +264,8 @@ public class HopUiStepsDelegate extends HopUiDelegate {
           log.logDebug( "Use of StepMetaInterface#getDialog is deprecated, use PluginDialog annotation instead." );
           return (StepDialogInterface) method.invoke( stepMeta, paramArgs );
         }
-      } catch ( Throwable ignored ) { }
+      } catch ( Throwable ignored ) {
+      }
 
       String errorTitle = BaseMessages.getString( PKG, "Spoon.Dialog.ErrorCreatingStepDialog.Title" );
       String errorMsg = BaseMessages.getString( PKG, "Spoon.Dialog.ErrorCreatingStepDialog.Message", dialogClassName );
@@ -274,7 +275,7 @@ public class HopUiStepsDelegate extends HopUiDelegate {
   }
 
   public StepDialogInterface getPartitionerDialog( StepMeta stepMeta, StepPartitioningMeta partitioningMeta,
-    TransMeta transMeta ) throws HopException {
+                                                   TransMeta transMeta ) throws HopException {
     Partitioner partitioner = partitioningMeta.getPartitioner();
     String dialogClassName = partitioner.getDialogClassName();
 
@@ -297,7 +298,8 @@ public class HopUiStepsDelegate extends HopUiDelegate {
           return (StepDialogInterface) method.invoke( stepMeta, new Object[] {
             hopUi.getShell(), stepMeta, transMeta } );
         }
-      } catch ( Throwable ignored ) { }
+      } catch ( Throwable ignored ) {
+      }
 
       throw new HopException( e );
     }

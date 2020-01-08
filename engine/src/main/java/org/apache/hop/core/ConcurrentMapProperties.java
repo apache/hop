@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.apache.hop.core;
 
+import org.apache.commons.collections.IteratorUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -40,8 +42,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-
-import org.apache.commons.collections.IteratorUtils;
 
 /**
  * Thread Safe version of Java Properties class.

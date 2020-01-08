@@ -21,9 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.core.reflection;
 
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -32,6 +29,9 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
 import org.apache.hop.trans.steps.filterrows.FilterRowsMeta;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,7 +92,7 @@ public class StringSearcherTest {
       aResult = stringList.get( i ).toString();
       if ( aResult.endsWith( "FilterRows (stepid)" ) ) {
         checkCount++;
-      } else  if ( aResult.endsWith( "Filter Rows (name)" ) ) {
+      } else if ( aResult.endsWith( "Filter Rows (name)" ) ) {
         checkCount++;
       }
       if ( checkCount == 2 ) {

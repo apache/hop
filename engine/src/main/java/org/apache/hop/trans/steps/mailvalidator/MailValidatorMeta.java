@@ -22,12 +22,8 @@
 
 package org.apache.hop.trans.steps.mailvalidator;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -38,7 +34,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -46,8 +42,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*
  * Created on 03-Juin-2008
@@ -57,7 +54,9 @@ import org.w3c.dom.Node;
 public class MailValidatorMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = MailValidatorMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** dynamic email address */
+  /**
+   * dynamic email address
+   */
   private String emailfield;
 
   private boolean ResultAsString;
@@ -94,9 +93,8 @@ public class MailValidatorMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
+   * @param emailfield The emailfield to set.
    * @deprecated use {@link #setEmailField(String)} instead
-   * @param emailfield
-   *          The emailfield to set.
    */
   @Deprecated
   public void setEmailfield( String emailfield ) {
@@ -115,24 +113,22 @@ public class MailValidatorMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param resultfieldname
-   *          The resultfieldname to set.
+   * @param resultfieldname The resultfieldname to set.
    */
   public void setResultFieldName( String resultfieldname ) {
     this.resultfieldname = resultfieldname;
   }
 
   /**
-   * @param emailValideMsg
-   *          The emailValideMsg to set.
+   * @param emailValideMsg The emailValideMsg to set.
    */
   public void setEmailValideMsg( String emailValideMsg ) {
     this.emailValideMsg = emailValideMsg;
   }
 
   /**
-   * @deprecated use {@link #getEmailValideMsg()} instead
    * @return Returns the emailValideMsg.
+   * @deprecated use {@link #getEmailValideMsg()} instead
    */
   @Deprecated
   public String getEMailValideMsg() {
@@ -144,8 +140,8 @@ public class MailValidatorMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @deprecated use {@link #getEmailNotValideMsg()} instead
    * @return Returns the emailNotValideMsg.
+   * @deprecated use {@link #getEmailNotValideMsg()} instead
    */
   @Deprecated
   public String getEMailNotValideMsg() {
@@ -164,8 +160,7 @@ public class MailValidatorMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param errorsFieldName
-   *          The errorsFieldName to set.
+   * @param errorsFieldName The errorsFieldName to set.
    */
   public void setErrorsField( String errorsFieldName ) {
     this.errorsFieldName = errorsFieldName;
@@ -179,8 +174,7 @@ public class MailValidatorMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param timeout
-   *          The timeout to set.
+   * @param timeout The timeout to set.
    */
   public void setTimeOut( String timeout ) {
     this.timeout = timeout;
@@ -194,16 +188,15 @@ public class MailValidatorMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param defaultSMTP
-   *          The defaultSMTP to set.
+   * @param defaultSMTP The defaultSMTP to set.
    */
   public void setDefaultSMTP( String defaultSMTP ) {
     this.defaultSMTP = defaultSMTP;
   }
 
   /**
-   * @deprecated use {@link #getEmailSender()} instead
    * @return Returns the emailSender.
+   * @deprecated use {@link #getEmailSender()} instead
    */
   @Deprecated
   public String geteMailSender() {
@@ -215,9 +208,8 @@ public class MailValidatorMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
+   * @param emailSender The emailSender to set.
    * @deprecated use {@link #setEmailSender(String)} instead
-   * @param emailSender
-   *          The emailSender to set.
    */
   @Deprecated
   public void seteMailSender( String emailSender ) {
@@ -236,16 +228,15 @@ public class MailValidatorMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param defaultSMTPField
-   *          The defaultSMTPField to set.
+   * @param defaultSMTPField The defaultSMTPField to set.
    */
   public void setDefaultSMTPField( String defaultSMTPField ) {
     this.defaultSMTPField = defaultSMTPField;
   }
 
   /**
-   * @deprecated use {@link #isDynamicDefaultSMTP()} instead
    * @return Returns the isdynamicDefaultSMTP.
+   * @deprecated use {@link #isDynamicDefaultSMTP()} instead
    */
   @Deprecated
   public boolean isdynamicDefaultSMTP() {
@@ -257,9 +248,8 @@ public class MailValidatorMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
+   * @param isdynamicDefaultSMTP The isdynamicDefaultSMTP to set.
    * @deprecated use {@link #setDynamicDefaultSMTP(boolean)} instead
-   * @param isdynamicDefaultSMTP
-   *          The isdynamicDefaultSMTP to set.
    */
   @Deprecated
   public void setdynamicDefaultSMTP( boolean isdynamicDefaultSMTP ) {
@@ -271,8 +261,7 @@ public class MailValidatorMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param emailNotValideMsg
-   *          The emailNotValideMsg to set.
+   * @param emailNotValideMsg The emailNotValideMsg to set.
    */
   public void setEmailNotValideMsg( String emailNotValideMsg ) {
     this.emailNotValideMsg = emailNotValideMsg;
@@ -319,7 +308,7 @@ public class MailValidatorMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     String realResultFieldName = space.environmentSubstitute( resultfieldname );
     if ( ResultAsString ) {
@@ -388,8 +377,8 @@ public class MailValidatorMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( Utils.isEmpty( resultfieldname ) ) {
@@ -504,7 +493,7 @@ public class MailValidatorMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new MailValidator( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

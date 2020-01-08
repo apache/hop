@@ -52,12 +52,12 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
 
   @GuiElement(
     id = "driverClass",
-    order="10",
+    order = "10",
     i18nPackage = "org.apache.hop.ui.core.database",
     label = "DatabaseDialog.label.DriverClass",
     type = GuiElementType.TEXT,
     variables = true,
-    parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
+    parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID )
   protected String driverClass;
 
   /**
@@ -125,8 +125,7 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   /**
-   * @param tableName
-   *          The table to be truncated.
+   * @param tableName The table to be truncated.
    * @return The SQL statement to truncate a table: remove all rows from it without a transaction
    */
   @Override
@@ -141,23 +140,17 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
    * Generates the SQL statement to add a column to the specified table For this generic type, i set it to the most
    * common possibility.
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
   public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                       String pk, boolean semicolon ) {
     if ( databaseDialect != null ) {
       return databaseDialect.getAddColumnStatement( tablename, v, tk, use_autoinc, pk, semicolon );
     }
@@ -168,23 +161,17 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
   public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                          String pk, boolean semicolon ) {
     if ( databaseDialect != null ) {
       return databaseDialect.getModifyColumnStatement( tablename, v, tk, use_autoinc, pk, semicolon );
     }
@@ -193,7 +180,7 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
 
   @Override
   public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-    boolean add_fieldname, boolean add_cr ) {
+                                    boolean add_fieldname, boolean add_cr ) {
 
     if ( databaseDialect != null ) {
       return databaseDialect.getFieldDefinition( v, tk, pk, use_autoinc, add_fieldname, add_cr );
@@ -279,7 +266,7 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
    * Most databases allow you to retrieve result metadata by preparing a SELECT statement.
    *
    * @return true if the database supports retrieval of query metadata from a prepared statement. False if the query
-   *         needs to be executed first.
+   * needs to be executed first.
    */
   @Override
   public boolean supportsPreparedStatementMetadataRetrieval() {
@@ -292,12 +279,9 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   /**
    * Get the SQL to insert a new empty unknown record in a dimension.
    *
-   * @param schemaTable
-   *          the schema-table name to insert into
-   * @param keyField
-   *          The key field
-   * @param versionField
-   *          the version field
+   * @param schemaTable  the schema-table name to insert into
+   * @param keyField     The key field
+   * @param versionField the version field
    * @return the SQL to insert the unknown record into the SCD.
    */
   @Override
@@ -521,7 +505,7 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
 
   @Override
   public String getSQLValue( ValueMetaInterface valueMeta, Object valueData, String dateFormat ) throws
-      HopValueException {
+    HopValueException {
     if ( databaseDialect != null ) {
       return databaseDialect.getSQLValue( valueMeta, valueData, dateFormat );
     }
@@ -530,7 +514,7 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
 
   @Override
   public ValueMetaInterface customizeValueFromSQLType( ValueMetaInterface v, java.sql.ResultSetMetaData rm, int index )
-      throws SQLException {
+    throws SQLException {
     if ( databaseDialect != null ) {
       return databaseDialect.customizeValueFromSQLType( v, rm, index );
     }
@@ -682,7 +666,7 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   @Override
-  public void setQuoteAllFields( boolean quoteAllFields  ) {
+  public void setQuoteAllFields( boolean quoteAllFields ) {
     if ( databaseDialect != null ) {
       databaseDialect.setQuoteAllFields( quoteAllFields );
     }
@@ -851,7 +835,7 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
 
   @Override
   public String getDropColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-      String pk, boolean semicolon ) {
+                                        String pk, boolean semicolon ) {
     if ( databaseDialect != null ) {
       return databaseDialect.getDropColumnStatement( tablename, v, tk, use_autoinc, pk, semicolon );
     }

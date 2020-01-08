@@ -22,12 +22,6 @@
 
 package org.apache.hop.trans.steps.streamlookup;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.hash.ByteArrayHashIndex;
@@ -37,26 +31,42 @@ import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author Matt
  * @since 24-jan-2005
  */
 public class StreamLookupData extends BaseStepData implements StepDataInterface {
-  /** used to store values in used to look up things */
+  /**
+   * used to store values in used to look up things
+   */
   public Map<RowMetaAndData, Object[]> look;
 
   public List<KeyValue> list;
 
-  /** nrs of keys-values in row. */
+  /**
+   * nrs of keys-values in row.
+   */
   public int[] keynrs;
 
-  /** The metadata we send out */
+  /**
+   * The metadata we send out
+   */
   public RowMetaInterface outputRowMeta;
 
-  /** default string converted to values... */
+  /**
+   * default string converted to values...
+   */
   public Object[] nullIf;
 
-  /** Flag to indicate that we have to read lookup values from the info step */
+  /**
+   * Flag to indicate that we have to read lookup values from the info step
+   */
   public boolean readLookupValues;
 
   /**
@@ -82,7 +92,9 @@ public class StreamLookupData extends BaseStepData implements StepDataInterface 
 
   public boolean metadataVerifiedIntegerPair;
 
-  /** See if we need to convert the keys to a native data type */
+  /**
+   * See if we need to convert the keys to a native data type
+   */
   public boolean[] convertKeysToNative;
 
   // Did we read rows from the lookup hop.

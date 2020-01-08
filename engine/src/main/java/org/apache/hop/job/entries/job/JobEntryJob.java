@@ -30,8 +30,6 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.SQLStatement;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -44,10 +42,8 @@ import org.apache.hop.core.parameters.DuplicateParamException;
 import org.apache.hop.core.parameters.NamedParams;
 import org.apache.hop.core.parameters.NamedParamsDefault;
 import org.apache.hop.core.util.CurrentDirectoryResolver;
-import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -60,13 +56,13 @@ import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.JobEntryRunConfigurableInterface;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.www.SlaveServerJobStatus;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import java.io.OutputStream;
@@ -84,7 +80,6 @@ import java.util.UUID;
  *
  * @author Matt
  * @since 01-10-2003, Rewritten on 18-06-2004
- *
  */
 public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInterface, JobEntryRunConfigurableInterface {
   private static Class<?> PKG = JobEntryJob.class; // for i18n purposes, needed by Translator2!!
@@ -129,8 +124,8 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   private Job job;
 
   private CurrentDirectoryChangedListener dirListener = new EntryCurrentDirectoryChangedListener(
-      this::getDirectory,
-      this::setDirectory );
+    this::getDirectory,
+    this::setDirectory );
 
   public JobEntryJob( String name ) {
     super( name, "" );
@@ -142,13 +137,13 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   }
 
   private void allocateArgs( int nrArgs ) {
-    arguments = new String[nrArgs];
+    arguments = new String[ nrArgs ];
   }
 
   private void allocateParams( int nrParameters ) {
-    parameters = new String[nrParameters];
-    parameterFieldNames = new String[nrParameters];
-    parameterValues = new String[nrParameters];
+    parameters = new String[ nrParameters ];
+    parameterFieldNames = new String[ nrParameters ];
+    parameterValues = new String[ nrParameters ];
   }
 
   @Override
@@ -174,8 +169,8 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   }
 
   /**
-   * @deprecated use getFilename() instead.
    * @return the filename
+   * @deprecated use getFilename() instead.
    */
   @Deprecated
   public String getFileName() {
@@ -209,7 +204,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   }
 
   public void setDirectories( String[] directories ) {
-    this.directory = directories[0];
+    this.directory = directories[ 0 ];
   }
 
   public boolean isPassingExport() {
@@ -282,7 +277,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
       for ( int i = 0; i < arguments.length; i++ ) {
         // This is a very very bad way of making an XML file, don't use it (or
         // copy it). Sven Boden
-        retval.append( "      " ).append( XMLHandler.addTagValue( "argument" + i, arguments[i] ) );
+        retval.append( "      " ).append( XMLHandler.addTagValue( "argument" + i, arguments[ i ] ) );
       }
     }
 
@@ -295,9 +290,9 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
         // This is a better way of making the XML file than the arguments.
         retval.append( "            " ).append( XMLHandler.openTag( "parameter" ) );
 
-        retval.append( "            " ).append( XMLHandler.addTagValue( "name", parameters[i] ) );
-        retval.append( "            " ).append( XMLHandler.addTagValue( "stream_name", parameterFieldNames[i] ) );
-        retval.append( "            " ).append( XMLHandler.addTagValue( "value", parameterValues[i] ) );
+        retval.append( "            " ).append( XMLHandler.addTagValue( "name", parameters[ i ] ) );
+        retval.append( "            " ).append( XMLHandler.addTagValue( "stream_name", parameterFieldNames[ i ] ) );
+        retval.append( "            " ).append( XMLHandler.addTagValue( "value", parameterValues[ i ] ) );
 
         retval.append( "            " ).append( XMLHandler.closeTag( "parameter" ) );
       }
@@ -309,10 +304,10 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   }
 
   @Override
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
 
       filename = XMLHandler.getTagValue( entrynode, "filename" );
       jobname = XMLHandler.getTagValue( entrynode, "jobname" );
@@ -353,7 +348,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
       // Read them all... This is a very BAD way to do it by the way. Sven
       // Boden.
       for ( int a = 0; a < argnr; a++ ) {
-        arguments[a] = XMLHandler.getTagValue( entrynode, "argument" + a );
+        arguments[ a ] = XMLHandler.getTagValue( entrynode, "argument" + a );
       }
 
       Node parametersNode = XMLHandler.getSubNode( entrynode, "parameters" );
@@ -367,9 +362,9 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
       for ( int i = 0; i < nrParameters; i++ ) {
         Node knode = XMLHandler.getSubNodeByNr( parametersNode, "parameter", i );
 
-        parameters[i] = XMLHandler.getTagValue( knode, "name" );
-        parameterFieldNames[i] = XMLHandler.getTagValue( knode, "stream_name" );
-        parameterValues[i] = XMLHandler.getTagValue( knode, "value" );
+        parameters[ i ] = XMLHandler.getTagValue( knode, "name" );
+        parameterFieldNames[ i ] = XMLHandler.getTagValue( knode, "stream_name" );
+        parameterValues[ i ] = XMLHandler.getTagValue( knode, "value" );
       }
     } catch ( HopXMLException xe ) {
       throw new HopXMLException( "Unable to load 'job' job entry from XML node", xe );
@@ -456,9 +451,9 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
       //
       String[] args = null;
       if ( args1 != null ) {
-        args = new String[args1.length];
+        args = new String[ args1.length ];
         for ( int idx = 0; idx < args1.length; idx++ ) {
-          args[idx] = environmentSubstitute( args1[idx] );
+          args[ idx ] = environmentSubstitute( args1[ idx ] );
         }
       }
 
@@ -490,7 +485,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
         if ( paramsFromPrevious ) {
           String[] parentParameters = parentJob.listParameters();
           for ( int idx = 0; idx < parentParameters.length; idx++ ) {
-            String par = parentParameters[idx];
+            String par = parentParameters[ idx ];
             String def = parentJob.getParameterDefault( par );
             String val = parentJob.getParameterValue( par );
             String des = parentJob.getParameterDescription( par );
@@ -504,32 +499,32 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
         //
         if ( parameters != null ) {
           for ( int idx = 0; idx < parameters.length; idx++ ) {
-            if ( !Utils.isEmpty( parameters[idx] ) ) {
+            if ( !Utils.isEmpty( parameters[ idx ] ) ) {
 
               // If it's not yet present in the parent job, add it...
               //
-              if ( Const.indexOfString( parameters[idx], namedParam.listParameters() ) < 0 ) {
+              if ( Const.indexOfString( parameters[ idx ], namedParam.listParameters() ) < 0 ) {
                 // We have a parameter
                 try {
-                  namedParam.addParameterDefinition( parameters[idx], "", "Job entry runtime" );
+                  namedParam.addParameterDefinition( parameters[ idx ], "", "Job entry runtime" );
                 } catch ( DuplicateParamException e ) {
                   // Should never happen
                   //
-                  logError( "Duplicate parameter definition for " + parameters[idx] );
+                  logError( "Duplicate parameter definition for " + parameters[ idx ] );
                 }
               }
 
-              if ( Utils.isEmpty( Const.trim( parameterFieldNames[idx] ) ) ) {
-                namedParam.setParameterValue( parameters[idx], Const.NVL(
-                  environmentSubstitute( parameterValues[idx] ), "" ) );
+              if ( Utils.isEmpty( Const.trim( parameterFieldNames[ idx ] ) ) ) {
+                namedParam.setParameterValue( parameters[ idx ], Const.NVL(
+                  environmentSubstitute( parameterValues[ idx ] ), "" ) );
               } else {
                 // something filled in, in the field column...
                 //
                 String value = "";
                 if ( resultRow != null ) {
-                  value = resultRow.getString( parameterFieldNames[idx], "" );
+                  value = resultRow.getString( parameterFieldNames[ idx ], "" );
                 }
-                namedParam.setParameterValue( parameters[idx], value );
+                namedParam.setParameterValue( parameters[ idx ], value );
               }
             }
           }
@@ -547,9 +542,9 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
 
             args = null;
             if ( resultRow != null ) {
-              args = new String[resultRow.size()];
+              args = new String[ resultRow.size() ];
               for ( int i = 0; i < resultRow.size(); i++ ) {
-                args[i] = resultRow.getString( i, null );
+                args[ i ] = resultRow.getString( i, null );
               }
             }
           } else {
@@ -563,19 +558,19 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
 
             if ( parameters != null ) {
               for ( int idx = 0; idx < parameters.length; idx++ ) {
-                if ( !Utils.isEmpty( parameters[idx] ) ) {
+                if ( !Utils.isEmpty( parameters[ idx ] ) ) {
                   // We have a parameter
-                  if ( Utils.isEmpty( Const.trim( parameterFieldNames[idx] ) ) ) {
-                    namedParam.setParameterValue( parameters[idx], Const.NVL(
-                      environmentSubstitute( parameterValues[idx] ), "" ) );
+                  if ( Utils.isEmpty( Const.trim( parameterFieldNames[ idx ] ) ) ) {
+                    namedParam.setParameterValue( parameters[ idx ], Const.NVL(
+                      environmentSubstitute( parameterValues[ idx ] ), "" ) );
                   } else {
                     String fieldValue = "";
 
                     if ( resultRow != null ) {
-                      fieldValue = resultRow.getString( parameterFieldNames[idx], "" );
+                      fieldValue = resultRow.getString( parameterFieldNames[ idx ], "" );
                     }
                     // Get the value from the input stream
-                    namedParam.setParameterValue( parameters[idx], Const.NVL( fieldValue, "" ) );
+                    namedParam.setParameterValue( parameters[ idx ], Const.NVL( fieldValue, "" ) );
                   }
                 }
               }
@@ -586,9 +581,9 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
             // Only put the first Row on the arguments
             args = null;
             if ( resultRow != null ) {
-              args = new String[resultRow.size()];
+              args = new String[ resultRow.size() ];
               for ( int i = 0; i < resultRow.size(); i++ ) {
-                args[i] = resultRow.getString( i, null );
+                args[ i ] = resultRow.getString( i, null );
               }
             }
           } else {
@@ -600,19 +595,19 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
 
             if ( parameters != null ) {
               for ( int idx = 0; idx < parameters.length; idx++ ) {
-                if ( !Utils.isEmpty( parameters[idx] ) ) {
+                if ( !Utils.isEmpty( parameters[ idx ] ) ) {
                   // We have a parameter
-                  if ( Utils.isEmpty( Const.trim( parameterFieldNames[idx] ) ) ) {
-                    namedParam.setParameterValue( parameters[idx], Const.NVL(
-                      environmentSubstitute( parameterValues[idx] ), "" ) );
+                  if ( Utils.isEmpty( Const.trim( parameterFieldNames[ idx ] ) ) ) {
+                    namedParam.setParameterValue( parameters[ idx ], Const.NVL(
+                      environmentSubstitute( parameterValues[ idx ] ), "" ) );
                   } else {
                     String fieldValue = "";
 
                     if ( resultRow != null ) {
-                      fieldValue = resultRow.getString( parameterFieldNames[idx], "" );
+                      fieldValue = resultRow.getString( parameterFieldNames[ idx ], "" );
                     }
                     // Get the value from the input stream
-                    namedParam.setParameterValue( parameters[idx], Const.NVL( fieldValue, "" ) );
+                    namedParam.setParameterValue( parameters[ idx ], Const.NVL( fieldValue, "" ) );
                   }
                 }
               }
@@ -634,12 +629,12 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
             List<Object> items = Arrays.asList( runConfiguration, false );
             try {
               ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint
-                      .RunConfigurationSelection.id, items );
+                .RunConfigurationSelection.id, items );
               if ( waitingToFinish && (Boolean) items.get( IS_PENTAHO ) ) {
                 String jobName = parentJob.getJobMeta().getName();
                 String name = jobMeta.getName();
                 logBasic( BaseMessages.getString( PKG, "JobJob.Log.InvalidRunConfigurationCombination", jobName,
-                        name, jobName ) );
+                  name, jobName ) );
               }
             } catch ( Exception ignored ) {
               // Ignored
@@ -699,20 +694,20 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
           for ( int idx = 0; idx < parameterNames.length; idx++ ) {
             // Grab the parameter value set in the job entry
             //
-            String thisValue = namedParam.getParameterValue( parameterNames[idx] );
+            String thisValue = namedParam.getParameterValue( parameterNames[ idx ] );
             if ( !Utils.isEmpty( thisValue ) ) {
               // Set the value as specified by the user in the job entry
               //
-              job.setParameterValue( parameterNames[idx], thisValue );
+              job.setParameterValue( parameterNames[ idx ], thisValue );
             } else {
               // See if the parameter had a value set in the parent job...
               // This value should pass down to the sub-job if that's what we
               // opted to do.
               //
               if ( isPassingAllParameters() ) {
-                String parentValue = parentJob.getParameterValue( parameterNames[idx] );
+                String parentValue = parentJob.getParameterValue( parameterNames[ idx ] );
                 if ( !Utils.isEmpty( parentValue ) ) {
-                  job.setParameterValue( parameterNames[idx], parentValue );
+                  job.setParameterValue( parameterNames[ idx ], parentValue );
                 }
               }
             }
@@ -785,7 +780,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
           //
           JobExecutionConfiguration jobExecutionConfiguration = new JobExecutionConfiguration();
           jobExecutionConfiguration.setPreviousResult( result.lightClone() ); // lightClone() because rows are
-                                                                              // overwritten in next line.
+          // overwritten in next line.
           jobExecutionConfiguration.getPreviousResult().setRows( sourceRows );
           jobExecutionConfiguration.setArgumentStrings( args );
           jobExecutionConfiguration.setVariables( this );
@@ -838,7 +833,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
                 + remoteSlaveServer + "] to verify the status of job [" + jobMeta.getName() + "]", e1 );
               oneResult.setNrErrors( 1L );
               break; // Stop looking too, chances are too low the server will
-                     // come back on-line
+              // come back on-line
             }
 
             // sleep for 1 second
@@ -897,7 +892,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
                 + remoteSlaveServer + "] to stop job [" + jobMeta.getName() + "]", e1 );
               oneResult.setNrErrors( 1L );
               break; // Stop looking too, chances are too low the server will
-                     // come back on-line
+              // come back on-line
             }
           }
 
@@ -1007,12 +1002,9 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   /**
    * Make sure that we are not loading jobs recursively...
    *
-   * @param parentJob
-   *          the parent job
-   * @param jobMeta
-   *          the job metadata
-   * @throws HopException
-   *           in case both jobs are loaded from the same source
+   * @param parentJob the parent job
+   * @param jobMeta   the job metadata
+   * @throws HopException in case both jobs are loaded from the same source
    */
   private void verifyRecursiveExecution( Job parentJob, JobMeta jobMeta ) throws HopException {
 
@@ -1108,8 +1100,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   }
 
   /**
-   * @param runEveryResultRow
-   *          The runEveryResultRow to set.
+   * @param runEveryResultRow The runEveryResultRow to set.
    */
   public void setExecPerRow( boolean runEveryResultRow ) {
     this.execPerRow = runEveryResultRow;
@@ -1132,22 +1123,16 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
    * resource naming interface allows the object to name appropriately without worrying about those parts of the
    * implementation specific details.
    *
-   * @param space
-   *          The variable space to resolve (environment) variables with.
-   * @param definitions
-   *          The map containing the filenames and content
-   * @param namingInterface
-   *          The resource naming interface allows the object to be named appropriately
-   * @param metaStore
-   *          the metaStore to load external metadata from
-   *
+   * @param space           The variable space to resolve (environment) variables with.
+   * @param definitions     The map containing the filenames and content
+   * @param namingInterface The resource naming interface allows the object to be named appropriately
+   * @param metaStore       the metaStore to load external metadata from
    * @return The filename for this object. (also contained in the definitions map)
-   * @throws HopException
-   *           in case something goes wrong during the export
+   * @throws HopException in case something goes wrong during the export
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException {
+                                 ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException {
     // Try to load the transformation from repository or file.
     // Modify this recursively too...
     //
@@ -1183,22 +1168,22 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     if ( setLogfile ) {
       JobEntryValidatorUtils.andValidator().validate( this, "logfile", remarks,
-          AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     }
 
     if ( null != directory ) {
       // if from repo
       JobEntryValidatorUtils.andValidator().validate( this, "directory", remarks,
-          AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
+        AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
       JobEntryValidatorUtils.andValidator().validate( this, "jobName", remarks,
-          AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     } else {
       // else from xml file
       JobEntryValidatorUtils.andValidator().validate( this, "filename", remarks,
-          AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     }
   }
 
@@ -1214,8 +1199,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   }
 
   /**
-   * @param remoteSlaveServerName
-   *          the remoteSlaveServer to set
+   * @param remoteSlaveServerName the remoteSlaveServer to set
    */
   public void setRemoteSlaveServerName( String remoteSlaveServerName ) {
     this.remoteSlaveServerName = remoteSlaveServerName;
@@ -1229,8 +1213,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   }
 
   /**
-   * @param waitingToFinish
-   *          the waitingToFinish to set
+   * @param waitingToFinish the waitingToFinish to set
    */
   public void setWaitingToFinish( boolean waitingToFinish ) {
     this.waitingToFinish = waitingToFinish;
@@ -1244,8 +1227,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   }
 
   /**
-   * @param followingAbortRemotely
-   *          the followingAbortRemotely to set
+   * @param followingAbortRemotely the followingAbortRemotely to set
    */
   public void setFollowingAbortRemotely( boolean followingAbortRemotely ) {
     this.followingAbortRemotely = followingAbortRemotely;
@@ -1263,8 +1245,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   }
 
   /**
-   * @param passingAllParameters
-   *          the passingAllParameters to set
+   * @param passingAllParameters the passingAllParameters to set
    */
   public void setPassingAllParameters( boolean passingAllParameters ) {
     this.passingAllParameters = passingAllParameters;
@@ -1273,7 +1254,6 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   public Job getJob() {
     return job;
   }
-
 
 
   private boolean isJobDefined() {
@@ -1296,12 +1276,9 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   /**
    * Load the referenced object
    *
-   * @param index
-   *          the referenced object index to load (in case there are multiple references)
-   * @param metaStore
-   *          the metaStore
-   * @param space
-   *          the variable space to use
+   * @param index     the referenced object index to load (in case there are multiple references)
+   * @param metaStore the metaStore
+   * @param space     the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
@@ -1325,7 +1302,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
     if ( previous != null ) {
       previous.removeCurrentDirectoryChangedListener( this.dirListener );
     }
-    if ( parentJobMeta !=  null ) {
+    if ( parentJobMeta != null ) {
       parentJobMeta.addCurrentDirectoryChangedListener( this.dirListener );
     }
   }

@@ -25,7 +25,7 @@ import junit.framework.TestCase;
 public class MetaStoreKeyMapTest extends TestCase {
 
   public void testGet() throws Exception {
-    String [] keys = MetaStoreKeyMap.get( "host_name" );
+    String[] keys = MetaStoreKeyMap.get( "host_name" );
     assertEquals( keys[ 0 ], "hostname" );
     keys = MetaStoreKeyMap.get( "" );
     assertEquals( keys.length, 0 );

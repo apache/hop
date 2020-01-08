@@ -22,14 +22,6 @@
 
 package org.apache.hop.trans.steps.mergerows;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Iterator;
-
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
@@ -38,9 +30,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.StepPluginType;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMeta;
 import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.trans.RowProducer;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.trans.RowStepCollector;
 import org.apache.hop.trans.Trans;
@@ -50,6 +40,13 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
 import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class MergeRowsIT {
 
@@ -78,7 +75,7 @@ public class MergeRowsIT {
         ValueMetaFactory.createValueMeta( flagField, ValueMetaInterface.TYPE_STRING )
       };
       for ( int i = 0; i < valuesMeta.length; i++ ) {
-        rm.addValueMeta( valuesMeta[i] );
+        rm.addValueMeta( valuesMeta[ i ] );
       }
     } catch ( Exception ex ) {
       return null;
@@ -86,7 +83,7 @@ public class MergeRowsIT {
     return rm;
   }
 
-  public List<RowMetaAndData> createResultData(Object[] values) {
+  public List<RowMetaAndData> createResultData( Object[] values ) {
     List<RowMetaAndData> list = new ArrayList<RowMetaAndData>();
 
     RowMetaInterface rm = createResultRowMetaInterface();
@@ -98,8 +95,8 @@ public class MergeRowsIT {
   }
 
   /**
-   *  Check the 2 lists comparing the rows in order.
-   *  If they are not the same fail the test.
+   * Check the 2 lists comparing the rows in order.
+   * If they are not the same fail the test.
    */
   public void checkRows( List<RowMetaAndData> rows1, List<RowMetaAndData> rows2 ) {
     int idx = 1;
@@ -119,9 +116,9 @@ public class MergeRowsIT {
       if ( rm1.size() != rm2.size() ) {
         fail( "row size of row at " + idx + " is not equal (" + rm1.size() + "," + rm2.size() + ")" );
       }
-      int[] fields = new int[1];
+      int[] fields = new int[ 1 ];
       for ( int ydx = 0; ydx < rm1.size(); ydx++ ) {
-        fields[0] = ydx;
+        fields[ 0 ] = ydx;
         try {
           if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {
             fail( "row nr " + idx + " is not equal at field nr "
@@ -170,7 +167,7 @@ public class MergeRowsIT {
     infoStream.setStepMeta( transMeta.findStep( stepName ) );
   }
 
-  void testOneRow(String transName, String[] referenceValues, String[] comparisonValues, Object[] goldenImageRowValues) throws Exception {
+  void testOneRow( String transName, String[] referenceValues, String[] comparisonValues, Object[] goldenImageRowValues ) throws Exception {
     HopEnvironment.init();
 
     // Create a new transformation...
@@ -186,8 +183,8 @@ public class MergeRowsIT {
     StepMeta mergeRowsStep = new StepMeta( mergeRowsStepPid, mergeRowsStepName, mergeRowsMeta );
     transMeta.addStep( mergeRowsStep );
 
-    mergeRowsMeta.setKeyFields( new String[]{ keyField } );
-    mergeRowsMeta.setValueFields( new String[]{ compareField } );
+    mergeRowsMeta.setKeyFields( new String[] { keyField } );
+    mergeRowsMeta.setValueFields( new String[] { compareField } );
     mergeRowsMeta.setFlagField( flagField );
 
     List<StreamInterface> infoStreams = mergeRowsMeta.getStepIOMeta().getInfoStreams();
@@ -233,40 +230,40 @@ public class MergeRowsIT {
   public void testMergeRowsIdentical() throws Exception {
     //if not in backwards compatible mode, use the comparison values when values are "identical"
     System.setProperty( Const.HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL, "N" );
-    String[] refs = new String[]{ "key", "compareValue1", "extraValue1" };
-    String[] comp = new String[]{ "key", "compareValue1", "extraValue2" };
-    Object[] gold = new Object[]{ "key", "compareValue1", "extraValue2", "identical" };
-    testOneRow("testMergeRowsIdentical", refs, comp, gold);
+    String[] refs = new String[] { "key", "compareValue1", "extraValue1" };
+    String[] comp = new String[] { "key", "compareValue1", "extraValue2" };
+    Object[] gold = new Object[] { "key", "compareValue1", "extraValue2", "identical" };
+    testOneRow( "testMergeRowsIdentical", refs, comp, gold );
   }
 
   @Test
   public void testMergeRowsIdenticalPDI736Compatible() throws Exception {
     //if not in backwards compatible mode, use the reference values when values are "identical"
     System.setProperty( Const.HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL, "Y" );
-    String[] refs = new String[]{ "key", "compareValue1", "extraValue1" };
-    String[] comp = new String[]{ "key", "compareValue1", "extraValue2" };
-    Object[] gold = new Object[]{ "key", "compareValue1", "extraValue1", "identical" };
-    testOneRow("testMergeRowsIdenticalPDI736Compatible", refs, comp, gold);
+    String[] refs = new String[] { "key", "compareValue1", "extraValue1" };
+    String[] comp = new String[] { "key", "compareValue1", "extraValue2" };
+    Object[] gold = new Object[] { "key", "compareValue1", "extraValue1", "identical" };
+    testOneRow( "testMergeRowsIdenticalPDI736Compatible", refs, comp, gold );
   }
 
   @Test
   public void testMergeRowsChanged() throws Exception {
     //regardless of backwards compatible mode, use the comparison values when values are "changed"
     System.setProperty( Const.HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL, "N" );
-    String[] refs = new String[]{ "key", "compareValue1", "extraValue1" };
-    String[] comp = new String[]{ "key", "this value changed", "extraValue2" };
-    Object[] gold = new Object[]{ "key", "this value changed", "extraValue2", "changed" };
-    testOneRow("testMergeRowsChanged", refs, comp, gold);
+    String[] refs = new String[] { "key", "compareValue1", "extraValue1" };
+    String[] comp = new String[] { "key", "this value changed", "extraValue2" };
+    Object[] gold = new Object[] { "key", "this value changed", "extraValue2", "changed" };
+    testOneRow( "testMergeRowsChanged", refs, comp, gold );
   }
 
   @Test
   public void testMergeRowsChangedPDI736Compatible() throws Exception {
     //regardless of backwards compatible mode, use the comparison values when values are "changed"
     System.setProperty( Const.HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL, "Y" );
-    String[] refs = new String[]{ "key", "compareValue1", "extraValue1" };
-    String[] comp = new String[]{ "key", "this value changed", "extraValue2" };
-    Object[] gold = new Object[]{ "key", "this value changed", "extraValue2", "changed" };
-    testOneRow("testMergeRowsChangedPDI736Compatible", refs, comp, gold);
+    String[] refs = new String[] { "key", "compareValue1", "extraValue1" };
+    String[] comp = new String[] { "key", "this value changed", "extraValue2" };
+    Object[] gold = new Object[] { "key", "this value changed", "extraValue2", "changed" };
+    testOneRow( "testMergeRowsChangedPDI736Compatible", refs, comp, gold );
   }
 
 }

@@ -65,18 +65,18 @@ import static org.apache.hop.core.util.serialization.StepMetaProps.STEP_TAG;
  * <p>
  * InjectionDeep not yet supported.
  */
-@XmlRootElement ( name = STEP_TAG )
+@XmlRootElement( name = STEP_TAG )
 public class StepMetaProps {
 
   static final String STEP_TAG = "step-props";
 
-  @XmlAttribute ( name = "secure" )
+  @XmlAttribute( name = "secure" )
   private List<String> secureFields;
 
   private StepMetaInterface stepMeta;
   private VariableSpace variableSpace = new Variables();
 
-  @SuppressWarnings ( "unused" )
+  @SuppressWarnings( "unused" )
   private StepMetaProps() {
   }
 
@@ -84,7 +84,7 @@ public class StepMetaProps {
     secureFields = sensitiveFields( smi.getClass() );
   }
 
-  @XmlElement ( name = "group" )
+  @XmlElement( name = "group" )
   private List<PropGroup> groups = new ArrayList<>();
 
   /**
@@ -181,7 +181,7 @@ public class StepMetaProps {
         prop.getGroupName() );
   }
 
-  @SuppressWarnings ( "unchecked" )
+  @SuppressWarnings( "unchecked" )
   private List<Object> getPropVal( StepMetaInterface stepMeta, BeanInjector injector,
                                    BeanInjectionInfo.Property prop ) {
     try {
@@ -272,9 +272,9 @@ public class StepMetaProps {
   private static class PropGroup {
     @XmlAttribute String name;
 
-    @XmlElement ( name = "property" ) List<Prop> props;
+    @XmlElement( name = "property" ) List<Prop> props;
 
-    @SuppressWarnings ( "unused" )
+    @SuppressWarnings( "unused" )
     public PropGroup() {
     } // needed for deserialization
 
@@ -296,9 +296,9 @@ public class StepMetaProps {
     @XmlAttribute String group;
     @XmlAttribute String name;
 
-    @XmlElement ( name = "value" ) List<Object> value = new ArrayList<>();
+    @XmlElement( name = "value" ) List<Object> value = new ArrayList<>();
 
-    @SuppressWarnings ( "unused" )
+    @SuppressWarnings( "unused" )
     public Prop() {
     } // needed for deserialization
 

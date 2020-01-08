@@ -24,14 +24,14 @@ package org.apache.hop.ui.hopui.tree;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeItem;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.widget.tree.TreeNode;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -216,9 +216,9 @@ public class TreeManager {
 
   private RootNode getRootTreeNodeByName( String name ) {
     return rootNodes.stream()
-            .filter( treeNode -> treeNode.getLabel().equalsIgnoreCase( name ) )
-            .findFirst()
-            .orElse( null );
+      .filter( treeNode -> treeNode.getLabel().equalsIgnoreCase( name ) )
+      .findFirst()
+      .orElse( null );
   }
 
   public String getNameByType( Class clazz ) {

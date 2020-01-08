@@ -22,15 +22,15 @@
 
 package org.apache.hop.trans.steps.tableoutput;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.trans.step.StepInjectionMetaEntry;
 import org.apache.hop.trans.step.StepInjectionUtil;
 import org.apache.hop.trans.step.StepMetaInjectionEntryInterface;
 import org.apache.hop.trans.step.StepMetaInjectionInterface;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This takes care of the external metadata injection into the TableOutputMeta class
@@ -42,29 +42,29 @@ public class TableOutputMetaInjection implements StepMetaInjectionInterface {
   public enum Entry implements StepMetaInjectionEntryInterface {
 
     TARGET_SCHEMA( ValueMetaInterface.TYPE_STRING, "The target schema" ),
-      TARGET_TABLE( ValueMetaInterface.TYPE_STRING, "The target table" ),
-      COMMIT_SIZE( ValueMetaInterface.TYPE_STRING, "The commit size" ),
-      TRUNCATE_TABLE( ValueMetaInterface.TYPE_STRING, "Truncate table? (Y/N)" ),
-      SPECIFY_DATABASE_FIELDS( ValueMetaInterface.TYPE_STRING, "Specify database fields? (Y/N)" ),
-      IGNORE_INSERT_ERRORS( ValueMetaInterface.TYPE_STRING, "Ignore insert errors? (Y/N)" ),
-      USE_BATCH_UPDATE( ValueMetaInterface.TYPE_STRING, "Use batch update for inserts? (Y/N)" ),
+    TARGET_TABLE( ValueMetaInterface.TYPE_STRING, "The target table" ),
+    COMMIT_SIZE( ValueMetaInterface.TYPE_STRING, "The commit size" ),
+    TRUNCATE_TABLE( ValueMetaInterface.TYPE_STRING, "Truncate table? (Y/N)" ),
+    SPECIFY_DATABASE_FIELDS( ValueMetaInterface.TYPE_STRING, "Specify database fields? (Y/N)" ),
+    IGNORE_INSERT_ERRORS( ValueMetaInterface.TYPE_STRING, "Ignore insert errors? (Y/N)" ),
+    USE_BATCH_UPDATE( ValueMetaInterface.TYPE_STRING, "Use batch update for inserts? (Y/N)" ),
 
-      PARTITION_OVER_TABLES( ValueMetaInterface.TYPE_STRING, "Partition data over tables? (Y/N)" ),
-      PARTITIONING_FIELD( ValueMetaInterface.TYPE_STRING, "Partitioning field" ),
-      PARTITION_DATA_PER( ValueMetaInterface.TYPE_STRING, "Partition data per (month/day)" ),
+    PARTITION_OVER_TABLES( ValueMetaInterface.TYPE_STRING, "Partition data over tables? (Y/N)" ),
+    PARTITIONING_FIELD( ValueMetaInterface.TYPE_STRING, "Partitioning field" ),
+    PARTITION_DATA_PER( ValueMetaInterface.TYPE_STRING, "Partition data per (month/day)" ),
 
-      TABLE_NAME_DEFINED_IN_FIELD( ValueMetaInterface.TYPE_STRING,
-        "Is the name of the table defined in a field? (Y/N)" ),
-      TABLE_NAME_FIELD( ValueMetaInterface.TYPE_STRING, "Field that contains the name of table" ),
-      STORE_TABLE_NAME( ValueMetaInterface.TYPE_STRING, "Store the tablename field? (Y/N)" ),
+    TABLE_NAME_DEFINED_IN_FIELD( ValueMetaInterface.TYPE_STRING,
+      "Is the name of the table defined in a field? (Y/N)" ),
+    TABLE_NAME_FIELD( ValueMetaInterface.TYPE_STRING, "Field that contains the name of table" ),
+    STORE_TABLE_NAME( ValueMetaInterface.TYPE_STRING, "Store the tablename field? (Y/N)" ),
 
-      RETURN_AUTO_GENERATED_KEY( ValueMetaInterface.TYPE_STRING, "Return auto-generated key? (Y/N)" ),
-      AUTO_GENERATED_KEY_FIELD( ValueMetaInterface.TYPE_STRING, "Name of auto-generated key field" ),
+    RETURN_AUTO_GENERATED_KEY( ValueMetaInterface.TYPE_STRING, "Return auto-generated key? (Y/N)" ),
+    AUTO_GENERATED_KEY_FIELD( ValueMetaInterface.TYPE_STRING, "Name of auto-generated key field" ),
 
-      DATABASE_FIELDS( ValueMetaInterface.TYPE_NONE, "The database fields" ),
-      DATABASE_FIELD( ValueMetaInterface.TYPE_NONE, "One database field" ),
-      DATABASE_FIELDNAME( ValueMetaInterface.TYPE_STRING, "Table field" ),
-      STREAM_FIELDNAME( ValueMetaInterface.TYPE_STRING, "Stream field" );
+    DATABASE_FIELDS( ValueMetaInterface.TYPE_NONE, "The database fields" ),
+    DATABASE_FIELD( ValueMetaInterface.TYPE_NONE, "One database field" ),
+    DATABASE_FIELDNAME( ValueMetaInterface.TYPE_STRING, "Table field" ),
+    STREAM_FIELDNAME( ValueMetaInterface.TYPE_STRING, "Stream field" );
 
     private int valueType;
     private String description;
@@ -236,8 +236,8 @@ public class TableOutputMetaInjection implements StepMetaInjectionInterface {
     // Pass the grid to the step metadata
     //
     if ( databaseFields.size() > 0 ) {
-      meta.setFieldDatabase( databaseFields.toArray( new String[databaseFields.size()] ) );
-      meta.setFieldStream( streamFields.toArray( new String[streamFields.size()] ) );
+      meta.setFieldDatabase( databaseFields.toArray( new String[ databaseFields.size() ] ) );
+      meta.setFieldStream( streamFields.toArray( new String[ streamFields.size() ] ) );
     }
   }
 
@@ -270,8 +270,8 @@ public class TableOutputMetaInjection implements StepMetaInjectionInterface {
     for ( int i = 0; i < meta.getFieldDatabase().length; i++ ) {
       StepInjectionMetaEntry fieldEntry = StepInjectionUtil.getEntry( Entry.DATABASE_FIELD );
       List<StepInjectionMetaEntry> details = fieldEntry.getDetails();
-      details.add( StepInjectionUtil.getEntry( Entry.DATABASE_FIELDNAME, meta.getFieldDatabase()[i] ) );
-      details.add( StepInjectionUtil.getEntry( Entry.STREAM_FIELDNAME, meta.getFieldStream()[i] ) );
+      details.add( StepInjectionUtil.getEntry( Entry.DATABASE_FIELDNAME, meta.getFieldDatabase()[ i ] ) );
+      details.add( StepInjectionUtil.getEntry( Entry.STREAM_FIELDNAME, meta.getFieldStream()[ i ] ) );
       fieldsEntry.getDetails().add( fieldEntry );
     }
 

@@ -22,27 +22,21 @@
 
 package org.apache.hop.trans.steps.excelwriter;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
@@ -53,8 +47,12 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInjectionInterface;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = ExcelWriterStepMeta.class; // for i18n purposes, needed by Translator2!!
@@ -68,9 +66,13 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
   public static final String ROW_WRITE_OVERWRITE = "overwrite";
   public static final String ROW_WRITE_PUSH_DOWN = "push";
 
-  /** The base name of the output file */
+  /**
+   * The base name of the output file
+   */
   private String fileName;
-  /** what to do if file exists **/
+  /**
+   * what to do if file exists
+   **/
   private String ifFileExists;
   private String ifSheetExists;
 
@@ -78,79 +80,121 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
   private boolean forceFormulaRecalculation = false;
   private boolean leaveExistingStylesUnchanged = false;
 
-  /** advanced line append options **/
+  /**
+   * advanced line append options
+   **/
   private int appendOffset = 0;
   private int appendEmpty = 0;
   private boolean appendOmitHeader = false;
 
-  /** how to write rows **/
+  /**
+   * how to write rows
+   **/
   private String rowWritingMethod;
 
-  /** where to start writing **/
+  /**
+   * where to start writing
+   **/
   private String startingCell;
 
-  /** The file extension in case of a generated filename */
+  /**
+   * The file extension in case of a generated filename
+   */
   private String extension;
 
-  /** The password to protect the sheet */
+  /**
+   * The password to protect the sheet
+   */
   private String password;
   private String protectedBy;
 
-  /** Add a header at the top of the file? */
+  /**
+   * Add a header at the top of the file?
+   */
   private boolean headerEnabled;
 
-  /** Add a footer at the bottom of the file? */
+  /**
+   * Add a footer at the bottom of the file?
+   */
   private boolean footerEnabled;
 
-  /** if this value is larger then 0, the text file is split up into parts of this number of lines */
+  /**
+   * if this value is larger then 0, the text file is split up into parts of this number of lines
+   */
   private int splitEvery;
 
-  /** Flag: add the stepnr in the filename */
+  /**
+   * Flag: add the stepnr in the filename
+   */
   private boolean stepNrInFilename;
 
-  /** Flag: add the date in the filename */
+  /**
+   * Flag: add the date in the filename
+   */
   private boolean dateInFilename;
 
-  /** Flag: add the filenames to result filenames */
+  /**
+   * Flag: add the filenames to result filenames
+   */
   private boolean addToResultFilenames;
 
-  /** Flag: protect the sheet */
+  /**
+   * Flag: protect the sheet
+   */
   private boolean protectsheet;
 
-  /** Flag: add the time in the filename */
+  /**
+   * Flag: add the time in the filename
+   */
   private boolean timeInFilename;
 
-  /** Flag: use a template */
+  /**
+   * Flag: use a template
+   */
   private boolean templateEnabled;
   private boolean templateSheetEnabled;
   private boolean templateSheetHidden;
 
-  /** the excel template */
+  /**
+   * the excel template
+   */
   private String templateFileName;
   private String templateSheetName;
 
-  /** the excel sheet name */
+  /**
+   * the excel sheet name
+   */
   private String sheetname;
 
   /* THE FIELD SPECIFICATIONS ... */
 
-  /** The output fields */
+  /**
+   * The output fields
+   */
   private ExcelWriterStepField[] outputFields;
 
-  /** Flag : appendLines lines? */
+  /**
+   * Flag : appendLines lines?
+   */
   private boolean appendLines;
 
-  /** Flag : Do not open new file when transformation start */
+  /**
+   * Flag : Do not open new file when transformation start
+   */
   private boolean doNotOpenNewFileInit;
 
   private boolean SpecifyFormat;
 
   private String date_time_format;
 
-  /** Flag : auto size columns? */
+  /**
+   * Flag : auto size columns?
+   */
   private boolean autosizecolums;
 
-  /** Do we need to stream data to handle very large files? */
+  /**
+   * Do we need to stream data to handle very large files?
+   */
   private boolean streamingData;
 
   public ExcelWriterStepMeta() {
@@ -181,8 +225,7 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param dateInFilename
-   *          The dateInFilename to set.
+   * @param dateInFilename The dateInFilename to set.
    */
   public void setDateInFilename( boolean dateInFilename ) {
     this.dateInFilename = dateInFilename;
@@ -244,8 +287,7 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param extension
-   *          The extension to set.
+   * @param extension The extension to set.
    */
   public void setExtension( String extension ) {
     this.extension = extension;
@@ -273,24 +315,21 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param sheetname
-   *          The sheet name.
+   * @param sheetname The sheet name.
    */
   public void setSheetname( String sheetname ) {
     this.sheetname = sheetname;
   }
 
   /**
-   * @param fileName
-   *          The fileName to set.
+   * @param fileName The fileName to set.
    */
   public void setFileName( String fileName ) {
     this.fileName = fileName;
   }
 
   /**
-   * @param password
-   *          teh passwoed to set.
+   * @param password teh passwoed to set.
    */
   public void setPassword( String password ) {
     this.password = password;
@@ -304,8 +343,7 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param footer
-   *          The footer to set.
+   * @param footer The footer to set.
    */
   public void setFooterEnabled( boolean footer ) {
     this.footerEnabled = footer;
@@ -319,8 +357,7 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param autosizecolums
-   *          The autosizecolums to set.
+   * @param autosizecolums The autosizecolums to set.
    */
   public void setAutoSizeColums( boolean autosizecolums ) {
     this.autosizecolums = autosizecolums;
@@ -334,8 +371,7 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param header
-   *          The header to set.
+   * @param header The header to set.
    */
   public void setHeaderEnabled( boolean header ) {
     this.headerEnabled = header;
@@ -372,16 +408,14 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param addtoresultfilenamesin
-   *          The addtoresultfilenames to set.
+   * @param addtoresultfilenamesin The addtoresultfilenames to set.
    */
   public void setAddToResultFiles( boolean addtoresultfilenamesin ) {
     this.addToResultFilenames = addtoresultfilenamesin;
   }
 
   /**
-   * @param splitEvery
-   *          The splitEvery to set.
+   * @param splitEvery The splitEvery to set.
    */
   public void setSplitEvery( int splitEvery ) {
     this.splitEvery = splitEvery >= 0 ? splitEvery : 0;
@@ -395,8 +429,7 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param stepNrInFilename
-   *          The stepNrInFilename to set.
+   * @param stepNrInFilename The stepNrInFilename to set.
    */
   public void setStepNrInFilename( boolean stepNrInFilename ) {
     this.stepNrInFilename = stepNrInFilename;
@@ -417,16 +450,14 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param timeInFilename
-   *          The timeInFilename to set.
+   * @param timeInFilename The timeInFilename to set.
    */
   public void setTimeInFilename( boolean timeInFilename ) {
     this.timeInFilename = timeInFilename;
   }
 
   /**
-   * @param protectsheet
-   *          the value to set.
+   * @param protectsheet the value to set.
    */
   public void setProtectSheet( boolean protectsheet ) {
     this.protectsheet = protectsheet;
@@ -440,8 +471,7 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param outputFields
-   *          The outputFields to set.
+   * @param outputFields The outputFields to set.
    */
   public void setOutputFields( ExcelWriterStepField[] outputFields ) {
     this.outputFields = outputFields;
@@ -455,8 +485,7 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param template
-   *          The template to set.
+   * @param template The template to set.
    */
   public void setTemplateEnabled( boolean template ) {
     this.templateEnabled = template;
@@ -478,8 +507,7 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param templateFileName
-   *          The templateFileName to set.
+   * @param templateFileName The templateFileName to set.
    */
   public void setTemplateFileName( String templateFileName ) {
     this.templateFileName = templateFileName;
@@ -501,8 +529,7 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param doNotOpenNewFileInit
-   *          The "do not open new file at init" flag to set.
+   * @param doNotOpenNewFileInit The "do not open new file at init" flag to set.
    */
   public void setDoNotOpenNewFileInit( boolean doNotOpenNewFileInit ) {
     this.doNotOpenNewFileInit = doNotOpenNewFileInit;
@@ -516,8 +543,7 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param append
-   *          The appendLines to set.
+   * @param append The appendLines to set.
    */
   public void setAppendLines( boolean append ) {
     this.appendLines = append;
@@ -553,7 +579,7 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   public void allocate( int nrfields ) {
-    outputFields = new ExcelWriterStepField[nrfields];
+    outputFields = new ExcelWriterStepField[ nrfields ];
   }
 
   @Override
@@ -564,7 +590,7 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
     retval.allocate( nrfields );
 
     for ( int i = 0; i < nrfields; i++ ) {
-      retval.outputFields[i] = (ExcelWriterStepField) outputFields[i].clone();
+      retval.outputFields[ i ] = (ExcelWriterStepField) outputFields[ i ].clone();
     }
 
     return retval;
@@ -632,18 +658,18 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
       for ( int i = 0; i < nrfields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        outputFields[i] = new ExcelWriterStepField();
-        outputFields[i].setName( XMLHandler.getTagValue( fnode, "name" ) );
-        outputFields[i].setType( XMLHandler.getTagValue( fnode, "type" ) );
-        outputFields[i].setFormat( XMLHandler.getTagValue( fnode, "format" ) );
-        outputFields[i].setTitle( XMLHandler.getTagValue( fnode, "title" ) );
-        outputFields[i].setTitleStyleCell( XMLHandler.getTagValue( fnode, "titleStyleCell" ) );
-        outputFields[i].setStyleCell( XMLHandler.getTagValue( fnode, "styleCell" ) );
-        outputFields[i].setCommentField( XMLHandler.getTagValue( fnode, "commentField" ) );
-        outputFields[i].setCommentAuthorField( XMLHandler.getTagValue( fnode, "commentAuthorField" ) );
-        outputFields[i].setFormula( XMLHandler.getTagValue( fnode, "formula" ) != null
+        outputFields[ i ] = new ExcelWriterStepField();
+        outputFields[ i ].setName( XMLHandler.getTagValue( fnode, "name" ) );
+        outputFields[ i ].setType( XMLHandler.getTagValue( fnode, "type" ) );
+        outputFields[ i ].setFormat( XMLHandler.getTagValue( fnode, "format" ) );
+        outputFields[ i ].setTitle( XMLHandler.getTagValue( fnode, "title" ) );
+        outputFields[ i ].setTitleStyleCell( XMLHandler.getTagValue( fnode, "titleStyleCell" ) );
+        outputFields[ i ].setStyleCell( XMLHandler.getTagValue( fnode, "styleCell" ) );
+        outputFields[ i ].setCommentField( XMLHandler.getTagValue( fnode, "commentField" ) );
+        outputFields[ i ].setCommentAuthorField( XMLHandler.getTagValue( fnode, "commentAuthorField" ) );
+        outputFields[ i ].setFormula( XMLHandler.getTagValue( fnode, "formula" ) != null
           && XMLHandler.getTagValue( fnode, "formula" ).equalsIgnoreCase( "Y" ) );
-        outputFields[i].setHyperlinkField( XMLHandler.getTagValue( fnode, "hyperlinkField" ) );
+        outputFields[ i ].setHyperlinkField( XMLHandler.getTagValue( fnode, "hyperlinkField" ) );
       }
 
     } catch ( Exception e ) {
@@ -719,17 +745,17 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
       nr++;
     }
 
-    String[] retval = new String[nr];
+    String[] retval = new String[ nr ];
 
     int i = 0;
     for ( int copy = 0; copy < copies; copy++ ) {
       for ( int split = 0; split < splits; split++ ) {
-        retval[i] = buildFilename( space, copy, split );
+        retval[ i ] = buildFilename( space, copy, split );
         i++;
       }
     }
     if ( i < nr ) {
-      retval[i] = "...";
+      retval[ i ] = "...";
     }
 
     return retval;
@@ -776,7 +802,7 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
 
   @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) {
+                         VariableSpace space, IMetaStore metaStore ) {
     if ( r == null ) {
       r = new RowMeta(); // give back values
     }
@@ -836,7 +862,7 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
 
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < outputFields.length; i++ ) {
-      ExcelWriterStepField field = outputFields[i];
+      ExcelWriterStepField field = outputFields[ i ];
 
       if ( field.getName() != null && field.getName().length() != 0 ) {
         retval.append( "      <field>" ).append( Const.CR );
@@ -861,8 +887,8 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     // Check output fields
@@ -877,9 +903,9 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
 
       // Starting from selected fields in ...
       for ( int i = 0; i < outputFields.length; i++ ) {
-        int idx = prev.indexOfValue( outputFields[i].getName() );
+        int idx = prev.indexOfValue( outputFields[ i ].getName() );
         if ( idx < 0 ) {
-          error_message += "\t\t" + outputFields[i].getName() + Const.CR;
+          error_message += "\t\t" + outputFields[ i ].getName() + Const.CR;
           error_found = true;
         }
       }
@@ -916,18 +942,15 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param space
-   *          the variable space to use
+   * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
-   *
+   * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
@@ -954,7 +977,7 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new ExcelWriterStep( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -971,8 +994,7 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
   }
 
   /**
-   * @param streamingData
-   *          the streamingData to set
+   * @param streamingData the streamingData to set
    */
   public void setStreamingData( boolean streamingData ) {
     this.streamingData = streamingData;

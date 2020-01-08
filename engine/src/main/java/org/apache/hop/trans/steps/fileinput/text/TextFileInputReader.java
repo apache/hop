@@ -22,9 +22,6 @@
 
 package org.apache.hop.trans.steps.fileinput.text;
 
-import java.io.BufferedInputStream;
-import java.io.InputStreamReader;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.compress.CompressionInputStream;
 import org.apache.hop.core.compress.CompressionProvider;
@@ -37,6 +34,9 @@ import org.apache.hop.trans.step.BaseStep;
 import org.apache.hop.trans.step.errorhandling.AbstractFileErrorHandler;
 import org.apache.hop.trans.steps.file.IBaseFileInputReader;
 import org.apache.hop.trans.steps.file.IBaseFileInputStepControl;
+
+import java.io.BufferedInputStream;
+import java.io.InputStreamReader;
 
 /**
  * Reader for one text file.
@@ -62,14 +62,14 @@ public class TextFileInputReader implements IBaseFileInputReader {
   protected long lineNumberInFile;
 
   public TextFileInputReader( IBaseFileInputStepControl step, TextFileInputMeta meta, TextFileInputData data,
-      FileObject file, LogChannelInterface log ) throws Exception {
+                              FileObject file, LogChannelInterface log ) throws Exception {
     this.step = step;
     this.meta = meta;
     this.data = data;
     this.log = log;
 
     CompressionProvider provider =
-        CompressionProviderFactory.getInstance().getCompressionProviderByName( meta.content.fileCompression );
+      CompressionProviderFactory.getInstance().getCompressionProviderByName( meta.content.fileCompression );
 
     if ( log.isDetailed() ) {
       log.logDetailed( "This is a compressed file being handled by the " + provider.getName() + " provider" );
@@ -113,8 +113,8 @@ public class TextFileInputReader implements IBaseFileInputReader {
     int bufferSize = 1;
     bufferSize += meta.content.header ? meta.content.nrHeaderLines : 0;
     bufferSize +=
-        meta.content.layoutPaged ? meta.content.nrLinesPerPage * ( Math.max( 0, meta.content.nrWraps ) + 1 ) : Math.max(
-            0, meta.content.nrWraps ); // it helps when we have wrapped input w/o header
+      meta.content.layoutPaged ? meta.content.nrLinesPerPage * ( Math.max( 0, meta.content.nrWraps ) + 1 ) : Math.max(
+        0, meta.content.nrWraps ); // it helps when we have wrapped input w/o header
 
     bufferSize += meta.content.footer ? meta.content.nrFooterLines : 0;
 
@@ -123,7 +123,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
       for ( int i = 0; i < meta.content.nrLinesDocHeader; i++ ) {
         // Just skip these...
         TextFileInputUtils.getLine( log, isr, data.encodingType, data.fileFormatType, data.lineStringBuilder ); // header
-                                                                                                                // and
+        // and
         // footer: not
         // wrapped
         lineNumberInFile++;
@@ -218,11 +218,11 @@ public class TextFileInputReader implements IBaseFileInputReader {
           lineInFile++;
           long useNumber = meta.content.rowNumberByFile ? lineInFile : step.getLinesWritten() + 1;
           r =
-              TextFileInputUtils.convertLineToRow( log, textLine, meta, data.currentPassThruFieldsRow,
-                  data.nrPassThruFields, data.outputRowMeta, data.convertRowMeta, data.filename, useNumber,
-                  data.separator, data.enclosure, data.escapeCharacter, data.dataErrorLineHandler,
-                  meta.additionalOutputFields, data.shortFilename, data.path, data.hidden,
-                  data.lastModificationDateTime, data.uriName, data.rootUriName, data.extension, data.size );
+            TextFileInputUtils.convertLineToRow( log, textLine, meta, data.currentPassThruFieldsRow,
+              data.nrPassThruFields, data.outputRowMeta, data.convertRowMeta, data.filename, useNumber,
+              data.separator, data.enclosure, data.escapeCharacter, data.dataErrorLineHandler,
+              meta.additionalOutputFields, data.shortFilename, data.path, data.hidden,
+              data.lastModificationDateTime, data.uriName, data.rootUriName, data.extension, data.size );
           if ( r != null ) {
             putrow = true;
           }
@@ -303,15 +303,15 @@ public class TextFileInputReader implements IBaseFileInputReader {
             }
           }
           if ( data.filePlayList.isProcessingNeeded( textLine.file, textLine.lineNumber,
-              AbstractFileErrorHandler.NO_PARTS ) ) {
+            AbstractFileErrorHandler.NO_PARTS ) ) {
             lineInFile++;
             long useNumber = meta.content.rowNumberByFile ? lineInFile : step.getLinesWritten() + 1;
             r =
-                TextFileInputUtils.convertLineToRow( log, textLine, meta, data.currentPassThruFieldsRow,
-                    data.nrPassThruFields, data.outputRowMeta, data.convertRowMeta, data.filename, useNumber,
-                    data.separator, data.enclosure, data.escapeCharacter, data.dataErrorLineHandler,
-                    meta.additionalOutputFields, data.shortFilename, data.path, data.hidden,
-                    data.lastModificationDateTime, data.uriName, data.rootUriName, data.extension, data.size );
+              TextFileInputUtils.convertLineToRow( log, textLine, meta, data.currentPassThruFieldsRow,
+                data.nrPassThruFields, data.outputRowMeta, data.convertRowMeta, data.filename, useNumber,
+                data.separator, data.enclosure, data.escapeCharacter, data.dataErrorLineHandler,
+                meta.additionalOutputFields, data.shortFilename, data.path, data.hidden,
+                data.lastModificationDateTime, data.uriName, data.rootUriName, data.extension, data.size );
             if ( r != null ) {
               if ( log.isRowLevel() ) {
                 log.logRowlevel( "Found data row: " + data.outputRowMeta.getString( r ) );
@@ -334,15 +334,15 @@ public class TextFileInputReader implements IBaseFileInputReader {
         } else {
           // int repnr = 0;
           for ( int i = 0; i < meta.inputFields.length; i++ ) {
-            if ( meta.inputFields[i].isRepeated() ) {
-              if ( r[i] == null ) {
+            if ( meta.inputFields[ i ].isRepeated() ) {
+              if ( r[ i ] == null ) {
                 // if it is empty: take the previous value!
 
-                r[i] = data.previous_row[i];
+                r[ i ] = data.previous_row[ i ];
               } else {
                 // not empty: change the previous_row entry!
 
-                data.previous_row[i] = r[i];
+                data.previous_row[ i ] = r[ i ];
               }
               // repnr++;
             }
@@ -409,12 +409,12 @@ public class TextFileInputReader implements IBaseFileInputReader {
       }
       step.setErrors( step.getErrors() + 1 );
     } // finally {
-      // This is for bug #5797 : it tries to assure that the file handle
-      // is actually freed/garbarge collected.
-      // XXX deinspanjer 2009-07-07: I'm stubbing this out. The bug was ancient and it is worth reevaluating
-      // to avoid the performance hit of a System GC on every file close
-      // System.gc();
-      // }
+    // This is for bug #5797 : it tries to assure that the file handle
+    // is actually freed/garbarge collected.
+    // XXX deinspanjer 2009-07-07: I'm stubbing this out. The bug was ancient and it is worth reevaluating
+    // to avoid the performance hit of a System GC on every file close
+    // System.gc();
+    // }
   }
 
   protected boolean tryToReadLine( boolean applyFilter ) throws HopFileException {
@@ -436,7 +436,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
 
         if ( !meta.content.noEmptyLines || line.length() != 0 ) {
           data.lineBuffer.add( new TextFileLine( line, lineNumberInFile++, data.file ) ); // Store it in the line
-                                                                                        // buffer...
+          // buffer...
         }
       }
     } else {
@@ -449,8 +449,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
    * Check if the line should be taken.
    *
    * @param line
-   * @param isFilterLastLine
-   *          (dummy input param, only set when return value is false)
+   * @param isFilterLastLine (dummy input param, only set when return value is false)
    * @return true when the line should be taken (when false, isFilterLastLine will be set)
    */
   private boolean checkFilterRow( String line, boolean isFilterLastLine ) {

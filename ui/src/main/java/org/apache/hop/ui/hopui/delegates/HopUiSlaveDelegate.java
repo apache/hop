@@ -22,30 +22,32 @@
 
 package org.apache.hop.ui.hopui.delegates;
 
-import java.util.List;
-
-import org.apache.hop.ui.hopui.HopUiSlave;
-import org.eclipse.swt.SWT;
 import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
 import org.apache.hop.trans.HasSlaveServersInterface;
 import org.apache.hop.ui.cluster.dialog.SlaveServerDialog;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopui.HopUiSlave;
 import org.apache.hop.ui.hopui.TabMapEntry;
 import org.apache.hop.ui.hopui.TabMapEntry.ObjectType;
-import org.apache.hop.ui.hopui.tree.provider.SlavesFolderProvider;
 import org.apache.xul.swt.tab.TabItem;
 import org.apache.xul.swt.tab.TabSet;
+import org.eclipse.swt.SWT;
 
-public class HopUiSlaveDelegate extends HopUiSharedObjectDelegate {
+import java.util.List;
+
+public class HopUiSlaveDelegate  {
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
+  private final HopUi hopUi;
+  private final DelegatingMetaStore metaStore;
 
   public HopUiSlaveDelegate( HopUi hopUi ) {
-    super( hopUi );
+    this.hopUi = hopUi;
+    this.metaStore = hopUi.getMetaStore();
   }
 
   public void addSpoonSlave( SlaveServer slaveServer ) {
@@ -82,7 +84,7 @@ public class HopUiSlaveDelegate extends HopUiSharedObjectDelegate {
     SlaveServer slaveServer = new SlaveServer();
 
     SlaveServerDialog dialog =
-        new SlaveServerDialog( hopUi.getShell(), slaveServer, hasSlaveServersInterface.getSlaveServers() );
+      new SlaveServerDialog( hopUi.getShell(), metaStore, slaveServer );
     if ( dialog.open() ) {
       slaveServer.verifyAndModifySlaveServerName( hasSlaveServersInterface.getSlaveServers(), null );
       hasSlaveServersInterface.getSlaveServers().add( slaveServer );
@@ -91,13 +93,11 @@ public class HopUiSlaveDelegate extends HopUiSharedObjectDelegate {
     }
   }
 
-  public boolean edit( SlaveServer slaveServer, List<SlaveServer> existingServers ) {
+  public boolean edit( SlaveServer slaveServer ) {
     String originalName = slaveServer.getName();
-    SlaveServerDialog dialog = new SlaveServerDialog( hopUi.getShell(), slaveServer, existingServers );
+    SlaveServerDialog dialog = new SlaveServerDialog( hopUi.getShell(), metaStore, slaveServer );
     if ( dialog.open() ) {
-      if ( sharedObjectSyncUtil != null ) {
-        sharedObjectSyncUtil.synchronizeSlaveServers( slaveServer, originalName );
-      }
+
       refreshTree();
       hopUi.refreshGraph();
       return true;
@@ -107,11 +107,11 @@ public class HopUiSlaveDelegate extends HopUiSharedObjectDelegate {
 
   private void showSaveErrorDialog( SlaveServer slaveServer, HopException e ) {
     new ErrorDialog(
-        hopUi.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ErrorSavingSlave.Title" ),
-        BaseMessages.getString( PKG, "Spoon.Dialog.ErrorSavingSlave.Message", slaveServer.getName() ), e );
+      hopUi.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ErrorSavingSlave.Title" ),
+      BaseMessages.getString( PKG, "Spoon.Dialog.ErrorSavingSlave.Message", slaveServer.getName() ), e );
   }
 
   private void refreshTree() {
-    hopUi.refreshTree( SlavesFolderProvider.STRING_SLAVES );
+    hopUi.refreshTree();
   }
 }

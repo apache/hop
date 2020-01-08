@@ -22,15 +22,7 @@
 
 package org.apache.hop.trans.steps.insertupdate;
 
-import static org.junit.Assert.assertArrayEquals;
-
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.After;
-import org.junit.Before;
+import junit.framework.TestCase;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
@@ -50,8 +42,15 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.injector.InjectorMeta;
+import org.junit.After;
+import org.junit.Before;
 
-import junit.framework.TestCase;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.assertArrayEquals;
 
 public class InsertUpdateIT extends TestCase {
 
@@ -93,14 +92,14 @@ public class InsertUpdateIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    {
-      new ValueMetaInteger( "ID", 8, 0 ),
-      new ValueMetaInteger( "CODE", 8, 0 ),
-      new ValueMetaString( "VALUE", 255, 0 ),
-      new ValueMetaInteger( "ROW_ORDER", 8, 0 ), };
+      {
+        new ValueMetaInteger( "ID", 8, 0 ),
+        new ValueMetaInteger( "CODE", 8, 0 ),
+        new ValueMetaString( "VALUE", 255, 0 ),
+        new ValueMetaInteger( "ROW_ORDER", 8, 0 ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
     return rm;
   }
@@ -111,33 +110,33 @@ public class InsertUpdateIT extends TestCase {
 
     // make sure to initialize the step
     if ( insupd.getKeyLookup() == null ) {
-      insupd.setKeyLookup( new String[0] );
-      insupd.setKeyCondition( new String[0] );
-      insupd.setKeyStream( new String[0] );
-      insupd.setKeyStream2( new String[0] );
+      insupd.setKeyLookup( new String[ 0 ] );
+      insupd.setKeyCondition( new String[ 0 ] );
+      insupd.setKeyStream( new String[ 0 ] );
+      insupd.setKeyStream2( new String[ 0 ] );
     }
 
     int newLength = insupd.getKeyLookup().length + 1;
 
     ArrayList<String> newKeyLookup = new ArrayList<String>( newLength );
     newKeyLookup.addAll( Arrays.asList( insupd.getKeyLookup() ) );
-    newKeyLookup.add( def[0] );
-    insupd.setKeyLookup( newKeyLookup.toArray( new String[0] ) );
+    newKeyLookup.add( def[ 0 ] );
+    insupd.setKeyLookup( newKeyLookup.toArray( new String[ 0 ] ) );
 
     ArrayList<String> newKeyCondition = new ArrayList<String>( newLength );
     newKeyCondition.addAll( Arrays.asList( insupd.getKeyCondition() ) );
-    newKeyCondition.add( def[1] );
-    insupd.setKeyCondition( newKeyCondition.toArray( new String[0] ) );
+    newKeyCondition.add( def[ 1 ] );
+    insupd.setKeyCondition( newKeyCondition.toArray( new String[ 0 ] ) );
 
     ArrayList<String> newKeyStream = new ArrayList<String>( newLength );
     newKeyStream.addAll( Arrays.asList( insupd.getKeyStream() ) );
-    newKeyStream.add( def[2] );
-    insupd.setKeyStream( newKeyStream.toArray( new String[0] ) );
+    newKeyStream.add( def[ 2 ] );
+    insupd.setKeyStream( newKeyStream.toArray( new String[ 0 ] ) );
 
     ArrayList<String> newKeyStream2 = new ArrayList<String>( newLength );
     newKeyStream2.addAll( Arrays.asList( insupd.getKeyStream2() ) );
-    newKeyStream2.add( def[3] );
-    insupd.setKeyStream2( newKeyStream2.toArray( new String[0] ) );
+    newKeyStream2.add( def[ 3 ] );
+    insupd.setKeyStream2( newKeyStream2.toArray( new String[ 0 ] ) );
 
   }
 
@@ -155,7 +154,7 @@ public class InsertUpdateIT extends TestCase {
 
     // Add the database connections
     for ( int i = 0; i < databasesXML.length; i++ ) {
-      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[i] );
+      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[ i ] );
       transMeta.addDatabase( databaseMeta );
     }
 
@@ -280,7 +279,7 @@ public class InsertUpdateIT extends TestCase {
       rows.add( rs.getString( "VALUE" ) );
     }
 
-    return rows.toArray( new String[0] );
+    return rows.toArray( new String[ 0 ] );
 
   }
 
@@ -293,7 +292,7 @@ public class InsertUpdateIT extends TestCase {
     // now the 1,null and 2,2 record should have been updated
     // the others got inserted
     String[] expected =
-    { "null_id_code", "null_id_code_insupd", "null_id", "null_id_insupd", "null_code_insupd", "updated" };
+      { "null_id_code", "null_id_code_insupd", "null_id", "null_id_insupd", "null_code_insupd", "updated" };
     assertArrayEquals( "Unexpected changes by insert/update step", expected, rows );
 
   }
@@ -307,9 +306,9 @@ public class InsertUpdateIT extends TestCase {
 
     // now the 2,2 record should have been updated
     String[] expected =
-    {
-      "null_id_code", "null_id_code_insupd", "null_id", "null_id_insupd", "null_code", "null_code_insupd",
-      "updated" };
+      {
+        "null_id_code", "null_id_code_insupd", "null_id", "null_id_insupd", "null_code", "null_code_insupd",
+        "updated" };
     assertArrayEquals( "Unexpected changes by insert/update step", expected, rows );
 
   }
@@ -350,7 +349,7 @@ public class InsertUpdateIT extends TestCase {
 
     // now [null,1], [2,2] records should have been updated, rest inserted
     String[] expected =
-    { "null_id_code", "null_id_code_insupd", "null_id_insupd", "null_code", "null_code_insupd", "updated" };
+      { "null_id_code", "null_id_code_insupd", "null_id_insupd", "null_code", "null_code_insupd", "updated" };
     assertArrayEquals( "Unexpected changes by insert/update step", expected, rows );
 
   }
@@ -389,9 +388,9 @@ public class InsertUpdateIT extends TestCase {
 
     // now [2,2] record should have been updated, rest is inserted
     String[] expected =
-    {
-      "null_id_code", "null_id_code_insupd", "null_id", "null_id_insupd", "null_code", "null_code_insupd",
-      "updated" };
+      {
+        "null_id_code", "null_id_code_insupd", "null_id", "null_id_insupd", "null_code", "null_code_insupd",
+        "updated" };
     assertArrayEquals( "Unexpected changes by insert/update step", expected, rows );
 
   }
@@ -406,7 +405,7 @@ public class InsertUpdateIT extends TestCase {
 
     // now [1,null], [2,2] records should have been updated, rest inserted
     String[] expected =
-    { "null_id_code", "null_id_code_insupd", "null_id", "null_id_insupd", "null_code_insupd", "updated" };
+      { "null_id_code", "null_id_code_insupd", "null_id", "null_id_insupd", "null_code_insupd", "updated" };
     assertArrayEquals( "Unexpected changes by insert/update step", expected, rows );
 
   }

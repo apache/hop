@@ -22,9 +22,9 @@
 
 package org.apache.hop.trans.steps.file;
 
-import java.io.Closeable;
-
 import org.apache.hop.core.exception.HopException;
+
+import java.io.Closeable;
 
 /**
  * Content-based reader for file.

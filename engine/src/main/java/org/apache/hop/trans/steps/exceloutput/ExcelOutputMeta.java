@@ -22,17 +22,10 @@
 
 package org.apache.hop.trans.steps.exceloutput;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
@@ -41,11 +34,12 @@ import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
@@ -55,8 +49,12 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Metadata of the Excel Output step.
@@ -270,97 +268,143 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   @Injection( name = "ROW_BACKGROUND_COLOR", group = "CUSTOM" )
   private int row_background_color;
 
-  /** The base name of the output file */
+  /**
+   * The base name of the output file
+   */
   @Injection( name = "FILENAME" )
   private String fileName;
 
-  /** The file extention in case of a generated filename */
+  /**
+   * The file extention in case of a generated filename
+   */
   @Injection( name = "EXTENSION" )
   private String extension;
 
-  /** The password to protect the sheet */
+  /**
+   * The password to protect the sheet
+   */
   @Injection( name = "PASSWORD", group = "CONTENT" )
   private String password;
 
-  /** Add a header at the top of the file? */
+  /**
+   * Add a header at the top of the file?
+   */
   @Injection( name = "HEADER_ENABLED", group = "CONTENT" )
   private boolean headerEnabled;
 
-  /** Add a footer at the bottom of the file? */
+  /**
+   * Add a footer at the bottom of the file?
+   */
   @Injection( name = "FOOTER_ENABLED", group = "CONTENT" )
   private boolean footerEnabled;
 
-  /** if this value is larger then 0, the text file is split up into parts of this number of lines */
+  /**
+   * if this value is larger then 0, the text file is split up into parts of this number of lines
+   */
   @Injection( name = "SPLIT_EVERY", group = "CONTENT" )
   private int splitEvery;
 
-  /** Flag: add the stepnr in the filename */
+  /**
+   * Flag: add the stepnr in the filename
+   */
   @Injection( name = "STEP_NR_IN_FILENAME" )
   private boolean stepNrInFilename;
 
-  /** Flag: add the date in the filename */
+  /**
+   * Flag: add the date in the filename
+   */
   @Injection( name = "DATE_IN_FILENAME" )
   private boolean dateInFilename;
 
-  /** Flag: add the filenames to result filenames */
+  /**
+   * Flag: add the filenames to result filenames
+   */
   @Injection( name = "FILENAME_TO_RESULT" )
   private boolean addToResultFilenames;
 
-  /** Flag: protect the sheet */
+  /**
+   * Flag: protect the sheet
+   */
   @Injection( name = "PROTECT", group = "CONTENT" )
   private boolean protectsheet;
 
-  /** Flag: add the time in the filename */
+  /**
+   * Flag: add the time in the filename
+   */
   @Injection( name = "TIME_IN_FILENAME" )
   private boolean timeInFilename;
 
-  /** Flag: use a template */
+  /**
+   * Flag: use a template
+   */
   @Injection( name = "TEMPLATE", group = "CONTENT" )
   private boolean templateEnabled;
 
-  /** the excel template */
+  /**
+   * the excel template
+   */
   @Injection( name = "TEMPLATE_FILENAME", group = "CONTENT" )
   private String templateFileName;
 
-  /** Flag: append when template */
+  /**
+   * Flag: append when template
+   */
   @Injection( name = "TEMPLATE_APPEND", group = "CONTENT" )
   private boolean templateAppend;
 
-  /** the excel sheet name */
+  /**
+   * the excel sheet name
+   */
   @Injection( name = "SHEET_NAME", group = "CONTENT" )
   private String sheetname;
 
-  /** Flag : use temporary files while writing? */
+  /**
+   * Flag : use temporary files while writing?
+   */
   @Injection( name = "USE_TEMPFILES", group = "CONTENT" )
   private boolean usetempfiles;
 
-  /** Temporary directory **/
+  /**
+   * Temporary directory
+   **/
   @Injection( name = "TEMPDIR", group = "CONTENT" )
   private String tempdirectory;
 
   /* THE FIELD SPECIFICATIONS ... */
 
-  /** The output fields */
+  /**
+   * The output fields
+   */
   @InjectionDeep
   private ExcelField[] outputFields;
 
-  /** The encoding to use for reading: null or empty string means system default encoding */
+  /**
+   * The encoding to use for reading: null or empty string means system default encoding
+   */
   @Injection( name = "ENCODING", group = "CONTENT" )
   private String encoding;
 
-  /** Calculated value ... */
+  /**
+   * Calculated value ...
+   */
   @Injection( name = "NEWLINE", group = "CONTENT" )
   private String newline;
 
-  /** Flag : append workbook? */
+  /**
+   * Flag : append workbook?
+   */
   @Injection( name = "APPEND", group = "CONTENT" )
   private boolean append;
 
-  /** Flag : Do not open new file when transformation start */
+  /**
+   * Flag : Do not open new file when transformation start
+   */
   @Injection( name = "DONT_OPEN_NEW_FILE" )
   private boolean doNotOpenNewFileInit;
 
-  /** Flag: create parent folder when necessary */
+  /**
+   * Flag: create parent folder when necessary
+   */
   @Injection( name = "CREATE_PARENT_FOLDER" )
   private boolean createparentfolder;
 
@@ -370,11 +414,15 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   @Injection( name = "DATE_FORMAT" )
   private String date_time_format;
 
-  /** Flag : auto size columns? */
+  /**
+   * Flag : auto size columns?
+   */
   @Injection( name = "AUTOSIZE_COLUMNS", group = "CONTENT" )
   private boolean autoSizeColumns;
 
-  /** Flag : write null field values as blank Excel cells? */
+  /**
+   * Flag : write null field values as blank Excel cells?
+   */
   @Injection( name = "NULL_AS_BLANK", group = "CONTENT" )
   private boolean nullIsBlank;
 
@@ -390,8 +438,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param createparentfolder
-   *          The createparentfolder to set.
+   * @param createparentfolder The createparentfolder to set.
    */
   public void setCreateParentFolder( boolean createparentfolder ) {
     this.createparentfolder = createparentfolder;
@@ -405,8 +452,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param dateInFilename
-   *          The dateInFilename to set.
+   * @param dateInFilename The dateInFilename to set.
    */
   public void setDateInFilename( boolean dateInFilename ) {
     this.dateInFilename = dateInFilename;
@@ -420,8 +466,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param extension
-   *          The extension to set.
+   * @param extension The extension to set.
    */
   public void setExtension( String extension ) {
     this.extension = extension;
@@ -449,24 +494,21 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param sheetname
-   *          The sheet name.
+   * @param sheetname The sheet name.
    */
   public void setSheetname( String sheetname ) {
     this.sheetname = sheetname;
   }
 
   /**
-   * @param fileName
-   *          The fileName to set.
+   * @param fileName The fileName to set.
    */
   public void setFileName( String fileName ) {
     this.fileName = fileName;
   }
 
   /**
-   * @param password
-   *          teh passwoed to set.
+   * @param password teh passwoed to set.
    */
   public void setPassword( String password ) {
     this.password = password;
@@ -480,8 +522,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param footer
-   *          The footer to set.
+   * @param footer The footer to set.
    */
   public void setFooterEnabled( boolean footer ) {
     this.footerEnabled = footer;
@@ -495,8 +536,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param autosizecolumns
-   *          The autosizecolumns to set.
+   * @param autosizecolumns The autosizecolumns to set.
    */
   public void setAutoSizeColumns( boolean autosizecolumns ) {
     this.autoSizeColumns = autosizecolumns;
@@ -512,8 +552,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param autosizecolums
-   *          The autosizecolums to set.
+   * @param autosizecolums The autosizecolums to set.
    * @deprecated due to typo
    */
   @Deprecated
@@ -537,8 +576,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param nullIsBlank
-   *          The boolean indicating whether or not to write null values as blank cells
+   * @param nullIsBlank The boolean indicating whether or not to write null values as blank cells
    */
   public void setNullIsBlank( boolean nullIsBlank ) {
     this.nullIsBlank = nullIsBlank;
@@ -552,8 +590,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param header
-   *          The header to set.
+   * @param header The header to set.
    */
   public void setHeaderEnabled( boolean header ) {
     this.headerEnabled = header;
@@ -583,8 +620,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param newline
-   *          The newline to set.
+   * @param newline The newline to set.
    */
   public void setNewline( String newline ) {
     this.newline = newline;
@@ -605,16 +641,14 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param addtoresultfilenamesin
-   *          The addtoresultfilenames to set.
+   * @param addtoresultfilenamesin The addtoresultfilenames to set.
    */
   public void setAddToResultFiles( boolean addtoresultfilenamesin ) {
     this.addToResultFilenames = addtoresultfilenamesin;
   }
 
   /**
-   * @param splitEvery
-   *          The splitEvery to set.
+   * @param splitEvery The splitEvery to set.
    */
   public void setSplitEvery( int splitEvery ) {
     this.splitEvery = splitEvery;
@@ -628,8 +662,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param stepNrInFilename
-   *          The stepNrInFilename to set.
+   * @param stepNrInFilename The stepNrInFilename to set.
    */
   public void setStepNrInFilename( boolean stepNrInFilename ) {
     this.stepNrInFilename = stepNrInFilename;
@@ -650,16 +683,14 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param timeInFilename
-   *          The timeInFilename to set.
+   * @param timeInFilename The timeInFilename to set.
    */
   public void setTimeInFilename( boolean timeInFilename ) {
     this.timeInFilename = timeInFilename;
   }
 
   /**
-   * @param protectsheet
-   *          the value to set.
+   * @param protectsheet the value to set.
    */
   public void setProtectSheet( boolean protectsheet ) {
     this.protectsheet = protectsheet;
@@ -673,8 +704,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param usetempfiles
-   *          The usetempfiles to set.
+   * @param usetempfiles The usetempfiles to set.
    */
   public void setUseTempFiles( boolean usetempfiles ) {
     this.usetempfiles = usetempfiles;
@@ -688,8 +718,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param outputFields
-   *          The outputFields to set.
+   * @param outputFields The outputFields to set.
    */
   public void setOutputFields( ExcelField[] outputFields ) {
     this.outputFields = outputFields;
@@ -703,8 +732,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param encoding
-   *          The desired encoding of output file, null or empty if the default system encoding needs to be used.
+   * @param encoding The desired encoding of output file, null or empty if the default system encoding needs to be used.
    */
   public void setEncoding( String encoding ) {
     this.encoding = encoding;
@@ -718,8 +746,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param template
-   *          The template to set.
+   * @param template The template to set.
    */
   public void setTemplateEnabled( boolean template ) {
     this.templateEnabled = template;
@@ -733,8 +760,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param templateAppend
-   *          The templateAppend to set.
+   * @param templateAppend The templateAppend to set.
    */
   public void setTemplateAppend( boolean templateAppend ) {
     this.templateAppend = templateAppend;
@@ -748,8 +774,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param templateFileName
-   *          The templateFileName to set.
+   * @param templateFileName The templateFileName to set.
    */
   public void setTemplateFileName( String templateFileName ) {
     this.templateFileName = templateFileName;
@@ -763,8 +788,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param doNotOpenNewFileInit
-   *          The "do not open new file at init" flag to set.
+   * @param doNotOpenNewFileInit The "do not open new file at init" flag to set.
    */
   public void setDoNotOpenNewFileInit( boolean doNotOpenNewFileInit ) {
     this.doNotOpenNewFileInit = doNotOpenNewFileInit;
@@ -778,8 +802,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param append
-   *          The append to set.
+   * @param append The append to set.
    */
   public void setAppend( boolean append ) {
     this.append = append;
@@ -791,7 +814,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrfields ) {
-    outputFields = new ExcelField[nrfields];
+    outputFields = new ExcelField[ nrfields ];
   }
 
   @Override
@@ -802,7 +825,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
     retval.allocate( nrfields );
 
     for ( int i = 0; i < nrfields; i++ ) {
-      retval.outputFields[i] = (ExcelField) outputFields[i].clone();
+      retval.outputFields[ i ] = (ExcelField) outputFields[ i ].clone();
     }
 
     return retval;
@@ -856,10 +879,10 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
       for ( int i = 0; i < nrfields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        outputFields[i] = new ExcelField();
-        outputFields[i].setName( XMLHandler.getTagValue( fnode, "name" ) );
-        outputFields[i].setType( XMLHandler.getTagValue( fnode, "type" ) );
-        outputFields[i].setFormat( XMLHandler.getTagValue( fnode, "format" ) );
+        outputFields[ i ] = new ExcelField();
+        outputFields[ i ].setName( XMLHandler.getTagValue( fnode, "name" ) );
+        outputFields[ i ].setType( XMLHandler.getTagValue( fnode, "type" ) );
+        outputFields[ i ].setFormat( XMLHandler.getTagValue( fnode, "format" ) );
       }
       Node customnode = XMLHandler.getSubNode( stepnode, "custom" );
       header_font_name =
@@ -958,11 +981,11 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( nrfields );
 
     for ( i = 0; i < nrfields; i++ ) {
-      outputFields[i] = new ExcelField();
+      outputFields[ i ] = new ExcelField();
 
-      outputFields[i].setName( "field" + i );
-      outputFields[i].setType( "Number" );
-      outputFields[i].setFormat( " 0,000,000.00;-0,000,000.00" );
+      outputFields[ i ].setName( "field" + i );
+      outputFields[ i ].setType( "Number" );
+      outputFields[ i ].setFormat( " 0,000,000.00;-0,000,000.00" );
     }
   }
 
@@ -983,17 +1006,17 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
       nr++;
     }
 
-    String[] retval = new String[nr];
+    String[] retval = new String[ nr ];
 
     int i = 0;
     for ( int copy = 0; copy < copies; copy++ ) {
       for ( int split = 0; split < splits; split++ ) {
-        retval[i] = buildFilename( space, copy, split );
+        retval[ i ] = buildFilename( space, copy, split );
         i++;
       }
     }
     if ( i < nr ) {
-      retval[i] = "...";
+      retval[ i ] = "...";
     }
 
     return retval;
@@ -1040,7 +1063,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) {
+                         VariableSpace space, IMetaStore metaStore ) {
     if ( r == null ) {
       r = new RowMeta(); // give back values
     }
@@ -1087,7 +1110,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
 
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < outputFields.length; i++ ) {
-      ExcelField field = outputFields[i];
+      ExcelField field = outputFields[ i ];
 
       if ( field.getName() != null && field.getName().length() != 0 ) {
         retval.append( "      <field>" ).append( Const.CR );
@@ -1127,43 +1150,43 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
 
   private static String getFontNameCode( int i ) {
     if ( i < 0 || i >= font_name_code.length ) {
-      return font_name_code[0];
+      return font_name_code[ 0 ];
     }
-    return font_name_code[i];
+    return font_name_code[ i ];
   }
 
   private static String getFontUnderlineCode( int i ) {
     if ( i < 0 || i >= font_underline_code.length ) {
-      return font_underline_code[0];
+      return font_underline_code[ 0 ];
     }
-    return font_underline_code[i];
+    return font_underline_code[ i ];
   }
 
   private static String getFontAlignmentCode( int i ) {
     if ( i < 0 || i >= font_alignment_code.length ) {
-      return font_alignment_code[0];
+      return font_alignment_code[ 0 ];
     }
-    return font_alignment_code[i];
+    return font_alignment_code[ i ];
   }
 
   private static String getFontOrientationCode( int i ) {
     if ( i < 0 || i >= font_orientation_code.length ) {
-      return font_orientation_code[0];
+      return font_orientation_code[ 0 ];
     }
-    return font_orientation_code[i];
+    return font_orientation_code[ i ];
   }
 
   private static String getFontColorCode( int i ) {
     if ( i < 0 || i >= font_color_code.length ) {
-      return font_color_code[0];
+      return font_color_code[ 0 ];
     }
-    return font_color_code[i];
+    return font_color_code[ i ];
   }
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     // Check output fields
@@ -1178,9 +1201,9 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
 
       // Starting from selected fields in ...
       for ( int i = 0; i < outputFields.length; i++ ) {
-        int idx = prev.indexOfValue( outputFields[i].getName() );
+        int idx = prev.indexOfValue( outputFields[ i ].getName() );
         if ( idx < 0 ) {
-          error_message += "\t\t" + outputFields[i].getName() + Const.CR;
+          error_message += "\t\t" + outputFields[ i ].getName() + Const.CR;
           error_found = true;
         }
       }
@@ -1216,18 +1239,15 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param space
-   *          the variable space to use
+   * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
-   *
+   * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
@@ -1245,7 +1265,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new ExcelOutput( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -1256,37 +1276,37 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
 
   public static String getFontNameDesc( int i ) {
     if ( i < 0 || i >= font_name_desc.length ) {
-      return font_name_desc[0];
+      return font_name_desc[ 0 ];
     }
-    return font_name_desc[i];
+    return font_name_desc[ i ];
   }
 
   public static String getFontUnderlineDesc( int i ) {
     if ( i < 0 || i >= font_underline_desc.length ) {
-      return font_underline_desc[0];
+      return font_underline_desc[ 0 ];
     }
-    return font_underline_desc[i];
+    return font_underline_desc[ i ];
   }
 
   public static String getFontOrientationDesc( int i ) {
     if ( i < 0 || i >= font_orientation_desc.length ) {
-      return font_orientation_desc[0];
+      return font_orientation_desc[ 0 ];
     }
-    return font_orientation_desc[i];
+    return font_orientation_desc[ i ];
   }
 
   public static String getFontColorDesc( int i ) {
     if ( i < 0 || i >= font_color_desc.length ) {
-      return font_color_desc[0];
+      return font_color_desc[ 0 ];
     }
-    return font_color_desc[i];
+    return font_color_desc[ i ];
   }
 
   public static String getFontAlignmentDesc( int i ) {
     if ( i < 0 || i >= font_alignment_desc.length ) {
-      return font_alignment_desc[0];
+      return font_alignment_desc[ 0 ];
     }
-    return font_alignment_desc[i];
+    return font_alignment_desc[ i ];
   }
 
   public int getHeaderFontName() {
@@ -1331,7 +1351,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     for ( int i = 0; i < font_name_desc.length; i++ ) {
-      if ( font_name_desc[i].equalsIgnoreCase( tt ) ) {
+      if ( font_name_desc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1345,7 +1365,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     for ( int i = 0; i < font_name_code.length; i++ ) {
-      if ( font_name_code[i].equalsIgnoreCase( tt ) ) {
+      if ( font_name_code[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1358,7 +1378,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     for ( int i = 0; i < font_underline_desc.length; i++ ) {
-      if ( font_underline_desc[i].equalsIgnoreCase( tt ) ) {
+      if ( font_underline_desc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1372,7 +1392,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     for ( int i = 0; i < font_orientation_desc.length; i++ ) {
-      if ( font_orientation_desc[i].equalsIgnoreCase( tt ) ) {
+      if ( font_orientation_desc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1386,7 +1406,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     for ( int i = 0; i < font_underline_code.length; i++ ) {
-      if ( font_underline_code[i].equalsIgnoreCase( tt ) ) {
+      if ( font_underline_code[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1399,7 +1419,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     for ( int i = 0; i < font_orientation_code.length; i++ ) {
-      if ( font_orientation_code[i].equalsIgnoreCase( tt ) ) {
+      if ( font_orientation_code[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1412,7 +1432,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     for ( int i = 0; i < font_color_desc.length; i++ ) {
-      if ( font_color_desc[i].equalsIgnoreCase( tt ) ) {
+      if ( font_color_desc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1426,7 +1446,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     for ( int i = 0; i < font_alignment_desc.length; i++ ) {
-      if ( font_alignment_desc[i].equalsIgnoreCase( tt ) ) {
+      if ( font_alignment_desc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1440,7 +1460,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     for ( int i = 0; i < font_alignment_code.length; i++ ) {
-      if ( font_alignment_code[i].equalsIgnoreCase( tt ) ) {
+      if ( font_alignment_code[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1453,7 +1473,7 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     for ( int i = 0; i < font_color_code.length; i++ ) {
-      if ( font_color_code[i].equalsIgnoreCase( tt ) ) {
+      if ( font_color_code[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }

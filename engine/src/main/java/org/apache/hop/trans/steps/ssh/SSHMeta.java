@@ -22,11 +22,9 @@
 
 package org.apache.hop.trans.steps.ssh;
 
-import java.util.List;
-
+import com.trilead.ssh2.Connection;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
@@ -40,7 +38,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -50,10 +48,9 @@ import org.apache.hop.trans.step.StepIOMetaInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
-import com.trilead.ssh2.Connection;
+import java.util.List;
 
 /*
  * Created on 03-Juin-2008
@@ -66,7 +63,9 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
 
   private String command;
   private boolean dynamicCommandField;
-  /** dynamic command fieldname */
+  /**
+   * dynamic command fieldname
+   */
   private String commandfieldname;
 
   private String serverName;
@@ -131,8 +130,7 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param serverName
-   *          The serverName to set.
+   * @param serverName The serverName to set.
    */
   public void setServerName( String serverName ) {
     this.serverName = serverName;
@@ -146,16 +144,14 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param userName
-   *          The userName to set.
+   * @param userName The userName to set.
    */
   public void setuserName( String userName ) {
     this.userName = userName;
   }
 
   /**
-   * @param password
-   *          The password to set.
+   * @param password The password to set.
    */
   public void setpassword( String password ) {
     this.password = password;
@@ -169,8 +165,7 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param commandfieldname
-   *          The commandfieldname to set.
+   * @param commandfieldname The commandfieldname to set.
    */
   public void setcommandfieldname( String commandfieldname ) {
     this.commandfieldname = commandfieldname;
@@ -184,8 +179,7 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param command
-   *          The commandfieldname to set.
+   * @param command The commandfieldname to set.
    */
   public void setCommand( String command ) {
     this.command = command;
@@ -199,8 +193,7 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param value
-   *          The dynamicCommandField to set.
+   * @param value The dynamicCommandField to set.
    */
   public void setDynamicCommand( boolean value ) {
     this.dynamicCommandField = value;
@@ -221,8 +214,7 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param port
-   *          The port to set.
+   * @param port The port to set.
    */
   public void setPort( String port ) {
     this.port = port;
@@ -240,8 +232,7 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param value
-   *          The keyFileName to set.
+   * @param value The keyFileName to set.
    */
   public void setKeyFileName( String value ) {
     this.keyFileName = value;
@@ -255,8 +246,7 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param value
-   *          The passPhrase to set.
+   * @param value The passPhrase to set.
    */
   public void setPassphrase( String value ) {
     this.passPhrase = value;
@@ -284,8 +274,7 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param value
-   *          The stdOutFieldName to set.
+   * @param value The stdOutFieldName to set.
    */
   public void setstdOutFieldName( String value ) {
     this.stdOutFieldName = value;
@@ -299,8 +288,7 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param value
-   *          The stdErrFieldName to set.
+   * @param value The stdErrFieldName to set.
    */
   public void setStdErrFieldName( String value ) {
     this.stdErrFieldName = value;
@@ -314,8 +302,7 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param value
-   *          The proxyHost to set.
+   * @param value The proxyHost to set.
    */
   public void setProxyHost( String value ) {
     this.proxyHost = value;
@@ -329,8 +316,7 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param value
-   *          The proxyPort to set.
+   * @param value The proxyPort to set.
    */
   public void setProxyPort( String value ) {
     this.proxyPort = value;
@@ -344,8 +330,7 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param value
-   *          The proxyUsername to set.
+   * @param value The proxyUsername to set.
    */
   public void setProxyUsername( String value ) {
     this.proxyUsername = value;
@@ -359,8 +344,7 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param value
-   *          The proxyPassword to set.
+   * @param value The proxyPassword to set.
    */
   public void setProxyPassword( String value ) {
     this.proxyPassword = value;
@@ -430,8 +414,8 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
 
     CheckResult cr;
     String error_message = "";
@@ -490,7 +474,7 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     if ( !isDynamicCommand() ) {
       row.clear();
@@ -510,7 +494,7 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new SSH( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -525,7 +509,6 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   *
    * @param serveur
    * @param port
    * @param username
@@ -545,15 +528,14 @@ public class SSHMeta extends BaseStepMeta implements StepMetaInterface {
    */
   @Deprecated
   public static Connection OpenConnection( String serveur, int port, String username, String password,
-    boolean useKey, String keyFilename, String passPhrase, int timeOut, VariableSpace space, String proxyhost,
-    int proxyport, String proxyusername, String proxypassword ) throws HopException {
+                                           boolean useKey, String keyFilename, String passPhrase, int timeOut, VariableSpace space, String proxyhost,
+                                           int proxyport, String proxyusername, String proxypassword ) throws HopException {
     return SSHData.OpenConnection( serveur, port, username, password, useKey, keyFilename, passPhrase, timeOut,
       space, proxyhost, proxyport, proxyusername, proxypassword );
   }
 
   /**
    * Returns the Input/Output metadata for this step.
-   *
    */
   @Override
   public StepIOMetaInterface getStepIOMeta() {

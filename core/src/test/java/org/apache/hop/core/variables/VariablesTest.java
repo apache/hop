@@ -22,6 +22,20 @@
 
 package org.apache.hop.core.variables;
 
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -32,20 +46,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaString;
 
 /**
  * Variables tests.
@@ -66,8 +66,7 @@ public class VariablesTest {
     final Variables variablesMock = mock( Variables.class );
     doCallRealMethod().when( variablesMock ).initializeVariablesFrom( any( VariableSpace.class ) );
 
-    @SuppressWarnings( "unchecked" )
-    final Map<String, String> propertiesMock = mock( Map.class );
+    @SuppressWarnings( "unchecked" ) final Map<String, String> propertiesMock = mock( Map.class );
     when( variablesMock.getProperties() ).thenReturn( propertiesMock );
 
     doAnswer( new Answer<Map<String, String>>() {
@@ -140,7 +139,7 @@ public class VariablesTest {
 
   @Test
   public void testFieldSubstitution() throws HopValueException {
-    Object[] rowData = new Object[]{ "DataOne", "DataTwo" };
+    Object[] rowData = new Object[] { "DataOne", "DataTwo" };
     RowMeta rm = new RowMeta();
     rm.addValueMeta( new ValueMetaString( "FieldOne" ) );
     rm.addValueMeta( new ValueMetaString( "FieldTwo" ) );
@@ -163,8 +162,8 @@ public class VariablesTest {
     assertEquals( "DataTwo", vars.environmentSubstitute( "${VarTwo}" ) );
     assertEquals( "DataTwoEnd", vars.environmentSubstitute( "${VarTwo}End" ) );
 
-    assertEquals( 0, vars.environmentSubstitute( new String[0] ).length );
-    assertArrayEquals( new String[]{ "DataOne", "TheDataOne" },
-      vars.environmentSubstitute( new String[]{ "${VarOne}", "The${VarOne}" } ) );
+    assertEquals( 0, vars.environmentSubstitute( new String[ 0 ] ).length );
+    assertArrayEquals( new String[] { "DataOne", "TheDataOne" },
+      vars.environmentSubstitute( new String[] { "${VarOne}", "The${VarOne}" } ) );
   }
 }

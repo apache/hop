@@ -22,12 +22,12 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.core.variables.VariableSpace;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.variables.VariableSpace;
 
 public class PasswordTextVar extends TextVar {
 
@@ -40,12 +40,12 @@ public class PasswordTextVar extends TextVar {
   }
 
   public PasswordTextVar( VariableSpace space, Composite composite, int flags,
-      GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface ) {
+                          GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface ) {
     super( space, composite, flags | SWT.PASSWORD, null, getCaretPositionInterface, insertTextInterface );
   }
 
   public PasswordTextVar( VariableSpace space, Composite composite, int flags, String toolTipText,
-      GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface ) {
+                          GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface ) {
     super( space, composite, flags | SWT.PASSWORD, toolTipText, getCaretPositionInterface, insertTextInterface );
   }
 

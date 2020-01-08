@@ -29,7 +29,6 @@ import org.apache.hop.core.Const;
  *
  * @author Matt
  * @since 9-12-2004
- *
  */
 public class HopVersionException extends Exception {
   public static final long serialVersionUID = 0x8D8EA0264F7A1C12L;
@@ -44,8 +43,7 @@ public class HopVersionException extends Exception {
   /**
    * Constructs a new throwable with the specified detail message.
    *
-   * @param message
-   *          - the detail message. The detail message is saved for later retrieval by the getMessage() method.
+   * @param message - the detail message. The detail message is saved for later retrieval by the getMessage() method.
    */
   public HopVersionException( String message ) {
     super( message );
@@ -55,9 +53,8 @@ public class HopVersionException extends Exception {
    * Constructs a new throwable with the specified cause and a detail message of (cause==null ? null : cause.toString())
    * (which typically contains the class and detail message of cause).
    *
-   * @param cause
-   *          the cause (which is saved for later retrieval by the getCause() method). (A null value is permitted, and
-   *          indicates that the cause is nonexistent or unknown.)
+   * @param cause the cause (which is saved for later retrieval by the getCause() method). (A null value is permitted, and
+   *              indicates that the cause is nonexistent or unknown.)
    */
   public HopVersionException( Throwable cause ) {
     super( cause );
@@ -66,11 +63,9 @@ public class HopVersionException extends Exception {
   /**
    * Constructs a new throwable with the specified detail message and cause.
    *
-   * @param message
-   *          the detail message (which is saved for later retrieval by the getMessage() method).
-   * @param cause
-   *          the cause (which is saved for later retrieval by the getCause() method). (A null value is permitted, and
-   *          indicates that the cause is nonexistent or unknown.)
+   * @param message the detail message (which is saved for later retrieval by the getMessage() method).
+   * @param cause   the cause (which is saved for later retrieval by the getCause() method). (A null value is permitted, and
+   *                indicates that the cause is nonexistent or unknown.)
    */
   public HopVersionException( String message, Throwable cause ) {
     super( message, cause );
@@ -95,8 +90,8 @@ public class HopVersionException extends Exception {
         for ( int i = ste.length - 1; i >= 0; i-- ) {
           retval +=
             " at "
-              + ste[i].getClassName() + "." + ste[i].getMethodName() + " (" + ste[i].getFileName() + ":"
-              + ste[i].getLineNumber() + ")" + Const.CR;
+              + ste[ i ].getClassName() + "." + ste[ i ].getMethodName() + " (" + ste[ i ].getFileName() + ":"
+              + ste[ i ].getLineNumber() + ")" + Const.CR;
         }
       }
     }

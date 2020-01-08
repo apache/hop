@@ -31,7 +31,6 @@ import java.util.Map;
  * running, finished) - The
  *
  * @author matt
- *
  */
 public class JobExecutionHistory {
   private Map<String, JobEntryExecutionResult> executionMap;
@@ -48,8 +47,7 @@ public class JobExecutionHistory {
   }
 
   /**
-   * @param executionMap
-   *          the executionMap to set
+   * @param executionMap the executionMap to set
    */
   public void setExecutionMap( Map<String, JobEntryExecutionResult> executionMap ) {
     this.executionMap = executionMap;

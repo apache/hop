@@ -26,7 +26,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
@@ -37,6 +36,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -56,7 +56,6 @@ import org.apache.hop.trans.step.errorhandling.StreamIcon;
 import org.apache.hop.trans.step.errorhandling.StreamInterface.StreamType;
 import org.apache.hop.trans.steps.mappinginput.MappingInputMeta;
 import org.apache.hop.trans.steps.mappingoutput.MappingOutputMeta;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -66,9 +65,8 @@ import java.util.List;
 /**
  * Meta-data for the Mapping step: contains name of the (sub-)transformation to execute
  *
- * @since 22-nov-2005
  * @author Matt
- *
+ * @since 22-nov-2005
  */
 
 public class MappingMeta extends StepWithMappingMeta implements StepMetaInterface,
@@ -232,7 +230,7 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
   }
 
   public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // First load some interesting data...
 
     // Then see which fields get added to the row.
@@ -261,8 +259,8 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
       List<String> subParams = Arrays.asList( mappingTransMeta.listParameters() );
 
       for ( int i = 0; i < mappingParameters.getVariable().length; i++ ) {
-        String name = mappingParameters.getVariable()[i];
-        String value = space.environmentSubstitute( mappingParameters.getInputField()[i] );
+        String name = mappingParameters.getVariable()[ i ];
+        String value = space.environmentSubstitute( mappingParameters.getInputField()[ i ] );
         if ( !Utils.isEmpty( name ) && !Utils.isEmpty( value ) ) {
           if ( subParams.contains( name ) ) {
             try {
@@ -317,8 +315,8 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
           throw new HopStepException( BaseMessages.getString(
             PKG, "MappingMeta.Exception.UnableToFindMetadataInfo", definition.getInputStepname() ) );
         }
-        if ( info[infoStepIndex] != null ) {
-          inputRowMeta = info[infoStepIndex].clone();
+        if ( info[ infoStepIndex ] != null ) {
+          inputRowMeta = info[ infoStepIndex ].clone();
         } else {
           inputRowMeta = null;
         }
@@ -442,7 +440,7 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
       return null;
     }
 
-    return targetSteps.toArray( new String[targetSteps.size()] );
+    return targetSteps.toArray( new String[ targetSteps.size() ] );
   }
 
 
@@ -453,8 +451,8 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -533,7 +531,7 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new Mapping( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -547,8 +545,7 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
   }
 
   /**
-   * @param inputMappings
-   *          the inputMappings to set
+   * @param inputMappings the inputMappings to set
    */
   public void setInputMappings( List<MappingIODefinition> inputMappings ) {
     this.inputMappings = inputMappings;
@@ -561,8 +558,7 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
   }
 
   /**
-   * @param outputMappings
-   *          the outputMappings to set
+   * @param outputMappings the outputMappings to set
    */
   public void setOutputMappings( List<MappingIODefinition> outputMappings ) {
     this.outputMappings = outputMappings;
@@ -576,8 +572,7 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
   }
 
   /**
-   * @param mappingParameters
-   *          the mappingParameters to set
+   * @param mappingParameters the mappingParameters to set
    */
   public void setMappingParameters( MappingParameters mappingParameters ) {
     this.mappingParameters = mappingParameters;
@@ -648,8 +643,7 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
   }
 
   /**
-   * @param allowingMultipleInputs
-   *          the allowingMultipleInputs to set
+   * @param allowingMultipleInputs the allowingMultipleInputs to set
    */
   public void setAllowingMultipleInputs( boolean allowingMultipleInputs ) {
     this.allowingMultipleInputs = allowingMultipleInputs;
@@ -663,8 +657,7 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
   }
 
   /**
-   * @param allowingMultipleOutputs
-   *          the allowingMultipleOutputs to set
+   * @param allowingMultipleOutputs the allowingMultipleOutputs to set
    */
   public void setAllowingMultipleOutputs( boolean allowingMultipleOutputs ) {
     this.allowingMultipleOutputs = allowingMultipleOutputs;
@@ -693,12 +686,9 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
   /**
    * Load the referenced object
    *
-   * @param index
-   *          the object index to load
-   * @param metaStore
-   *          the MetaStore to use
-   * @param space
-   *          the variable space to use
+   * @param index     the object index to load
+   * @param metaStore the MetaStore to use
+   * @param space     the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */

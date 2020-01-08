@@ -29,7 +29,6 @@ import java.util.List;
  * Contains the definition of which elements to scan in which XML files in which folder
  *
  * @author matt
- *
  */
 public class SourceCrawlerXMLFolder {
   private String folder;
@@ -46,7 +45,7 @@ public class SourceCrawlerXMLFolder {
    * @param elements
    */
   public SourceCrawlerXMLFolder( String folder, String wildcard, String keyPrefix,
-    List<SourceCrawlerXMLElement> elements, List<SourceCrawlerPackageException> packageExceptions ) {
+                                 List<SourceCrawlerXMLElement> elements, List<SourceCrawlerPackageException> packageExceptions ) {
     this.folder = folder;
     this.wildcard = wildcard;
     this.keyPrefix = keyPrefix;
@@ -72,8 +71,7 @@ public class SourceCrawlerXMLFolder {
   }
 
   /**
-   * @param folder
-   *          the folder to set
+   * @param folder the folder to set
    */
   public void setFolder( String folder ) {
     this.folder = folder;
@@ -87,8 +85,7 @@ public class SourceCrawlerXMLFolder {
   }
 
   /**
-   * @param wildcard
-   *          the wildcard to set
+   * @param wildcard the wildcard to set
    */
   public void setWildcard( String wildcard ) {
     this.wildcard = wildcard;
@@ -102,8 +99,7 @@ public class SourceCrawlerXMLFolder {
   }
 
   /**
-   * @param elements
-   *          the elements to set
+   * @param elements the elements to set
    */
   public void setElements( List<SourceCrawlerXMLElement> elements ) {
     this.elements = elements;
@@ -117,8 +113,7 @@ public class SourceCrawlerXMLFolder {
   }
 
   /**
-   * @param defaultPackage
-   *          the defaultPackage to set
+   * @param defaultPackage the defaultPackage to set
    */
   public void setDefaultPackage( String defaultPackage ) {
     this.defaultPackage = defaultPackage;
@@ -132,8 +127,7 @@ public class SourceCrawlerXMLFolder {
   }
 
   /**
-   * @param packageExceptions
-   *          the packageExceptions to set
+   * @param packageExceptions the packageExceptions to set
    */
   public void setPackageExceptions( List<SourceCrawlerPackageException> packageExceptions ) {
     this.packageExceptions = packageExceptions;
@@ -147,8 +141,7 @@ public class SourceCrawlerXMLFolder {
   }
 
   /**
-   * @param keyPrefix
-   *          the keyPrefix to set
+   * @param keyPrefix the keyPrefix to set
    */
   public void setKeyPrefix( String keyPrefix ) {
     this.keyPrefix = keyPrefix;

@@ -35,8 +35,8 @@ import org.apache.hop.core.row.ValueMetaInterface;
  */
 
 @DatabaseMetaPlugin(
-        type = "SYBASE",
-        typeDescription = "Sybase"
+  type = "SYBASE",
+  typeDescription = "Sybase"
 )
 @GuiPlugin( id = "GUI-SybaseDatabaseMeta" )
 public class SybaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
@@ -99,52 +99,40 @@ public class SybaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   /**
    * Generates the SQL statement to add a column to the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
   public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                       String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " ADD " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
   public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                          String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " MODIFY " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
   }
 
   @Override
   public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-    boolean add_fieldname, boolean add_cr ) {
+                                    boolean add_fieldname, boolean add_cr ) {
     String retval = "";
 
     String fieldname = v.getName();
@@ -229,12 +217,9 @@ public class SybaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   /**
    * Get the SQL to insert a new empty unknown record in a dimension.
    *
-   * @param schemaTable
-   *          the schema-table name to insert into
-   * @param keyField
-   *          The key field
-   * @param versionField
-   *          the version field
+   * @param schemaTable  the schema-table name to insert into
+   * @param keyField     The key field
+   * @param versionField the version field
    * @return the SQL to insert the unknown record into the SCD.
    */
   @Override
@@ -255,5 +240,7 @@ public class SybaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   }
 
   @Override
-  public boolean isSybaseVariant(){return true;}
+  public boolean isSybaseVariant() {
+    return true;
+  }
 }

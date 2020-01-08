@@ -22,6 +22,22 @@
 
 package org.apache.hop.ui.trans.steps.replacestring;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.replacestring.ReplaceStringMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.TableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -40,22 +56,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.replacestring.ReplaceStringMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.TableItemInsertListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -145,55 +145,55 @@ public class ReplaceStringDialog extends BaseStepDialog implements StepDialogInt
     int nrFieldCols = 10;
     int nrFieldRows = ( input.getFieldInStream() != null ? input.getFieldInStream().length : 1 );
 
-    ciKey = new ColumnInfo[nrFieldCols];
-    ciKey[0] =
+    ciKey = new ColumnInfo[ nrFieldCols ];
+    ciKey[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ReplaceStringDialog.ColumnInfo.InStreamField" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    ciKey[1] =
+    ciKey[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ReplaceStringDialog.ColumnInfo.OutStreamField" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    ciKey[2] =
+    ciKey[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ReplaceStringDialog.ColumnInfo.useRegEx" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, ReplaceStringMeta.useRegExDesc );
-    ciKey[3] =
+    ciKey[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ReplaceStringDialog.ColumnInfo.Replace" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    ciKey[4] =
+    ciKey[ 4 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ReplaceStringDialog.ColumnInfo.By" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    ciKey[5] =
+    ciKey[ 5 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ReplaceStringDialog.ColumnInfo.SetEmptyString" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] {
           BaseMessages.getString( PKG, "System.Combo.Yes" ), BaseMessages.getString( PKG, "System.Combo.No" ) } );
 
-    ciKey[6] =
+    ciKey[ 6 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ReplaceStringDialog.ColumnInfo.FieldReplaceBy" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
 
-    ciKey[7] =
+    ciKey[ 7 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ReplaceStringDialog.ColumnInfo.WholeWord" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, ReplaceStringMeta.wholeWordDesc );
-    ciKey[8] =
+    ciKey[ 8 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ReplaceStringDialog.ColumnInfo.CaseSensitive" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, ReplaceStringMeta.caseSensitiveDesc );
-    ciKey[9] =
+    ciKey[ 9 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "ReplaceStringDialog.ColumnInfo.IsUnicode" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, ReplaceStringMeta.isUnicodeDesc );
 
-    ciKey[1].setToolTip( BaseMessages.getString( PKG, "ReplaceStringDialog.ColumnInfo.OutStreamField.Tooltip" ) );
-    ciKey[1].setUsingVariables( true );
-    ciKey[3].setUsingVariables( true );
-    ciKey[4].setUsingVariables( true );
+    ciKey[ 1 ].setToolTip( BaseMessages.getString( PKG, "ReplaceStringDialog.ColumnInfo.OutStreamField.Tooltip" ) );
+    ciKey[ 1 ].setUsingVariables( true );
+    ciKey[ 3 ].setUsingVariables( true );
+    ciKey[ 4 ].setUsingVariables( true );
 
     wFields =
       new TableView(
@@ -309,11 +309,11 @@ public class ReplaceStringDialog extends BaseStepDialog implements StepDialogInt
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    ciKey[0].setComboValues( fieldNames );
-    ciKey[6].setComboValues( fieldNames );
+    ciKey[ 0 ].setComboValues( fieldNames );
+    ciKey[ 6 ].setComboValues( fieldNames );
   }
 
   /**
@@ -323,31 +323,31 @@ public class ReplaceStringDialog extends BaseStepDialog implements StepDialogInt
     if ( input.getFieldInStream() != null ) {
       for ( int i = 0; i < input.getFieldInStream().length; i++ ) {
         TableItem item = wFields.table.getItem( i );
-        if ( input.getFieldInStream()[i] != null ) {
-          item.setText( 1, input.getFieldInStream()[i] );
+        if ( input.getFieldInStream()[ i ] != null ) {
+          item.setText( 1, input.getFieldInStream()[ i ] );
         }
-        if ( input.getFieldOutStream()[i] != null ) {
-          item.setText( 2, input.getFieldOutStream()[i] );
+        if ( input.getFieldOutStream()[ i ] != null ) {
+          item.setText( 2, input.getFieldOutStream()[ i ] );
         }
-        item.setText( 3, ReplaceStringMeta.getUseRegExDesc( input.getUseRegEx()[i] ) );
-        if ( input.getReplaceString()[i] != null ) {
-          item.setText( 4, input.getReplaceString()[i] );
+        item.setText( 3, ReplaceStringMeta.getUseRegExDesc( input.getUseRegEx()[ i ] ) );
+        if ( input.getReplaceString()[ i ] != null ) {
+          item.setText( 4, input.getReplaceString()[ i ] );
         }
-        if ( input.getReplaceByString()[i] != null ) {
-          item.setText( 5, input.getReplaceByString()[i] );
+        if ( input.getReplaceByString()[ i ] != null ) {
+          item.setText( 5, input.getReplaceByString()[ i ] );
         }
         item
-          .setText( 6, input.isSetEmptyString()[i]
+          .setText( 6, input.isSetEmptyString()[ i ]
             ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString(
-              PKG, "System.Combo.No" ) );
+            PKG, "System.Combo.No" ) );
 
-        if ( input.getFieldReplaceByString()[i] != null ) {
-          item.setText( 7, input.getFieldReplaceByString()[i] );
+        if ( input.getFieldReplaceByString()[ i ] != null ) {
+          item.setText( 7, input.getFieldReplaceByString()[ i ] );
         }
 
-        item.setText( 8, ReplaceStringMeta.getWholeWordDesc( input.getWholeWord()[i] ) );
-        item.setText( 9, ReplaceStringMeta.getCaseSensitiveDesc( input.getCaseSensitive()[i] ) );
-        item.setText( 10, ReplaceStringMeta.getIsUnicodeDesc( input.isUnicode()[i] ) );
+        item.setText( 8, ReplaceStringMeta.getWholeWordDesc( input.getWholeWord()[ i ] ) );
+        item.setText( 9, ReplaceStringMeta.getCaseSensitiveDesc( input.getCaseSensitive()[ i ] ) );
+        item.setText( 10, ReplaceStringMeta.getIsUnicodeDesc( input.isUnicode()[ i ] ) );
       }
     }
 
@@ -375,25 +375,25 @@ public class ReplaceStringDialog extends BaseStepDialog implements StepDialogInt
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrkeys; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      inf.getFieldInStream()[i] = item.getText( 1 );
-      inf.getFieldOutStream()[i] = item.getText( 2 );
-      inf.getUseRegEx()[i] = ReplaceStringMeta.getUseRegExByDesc( item.getText( 3 ) );
-      inf.getReplaceString()[i] = item.getText( 4 );
-      inf.getReplaceByString()[i] = item.getText( 5 );
+      inf.getFieldInStream()[ i ] = item.getText( 1 );
+      inf.getFieldOutStream()[ i ] = item.getText( 2 );
+      inf.getUseRegEx()[ i ] = ReplaceStringMeta.getUseRegExByDesc( item.getText( 3 ) );
+      inf.getReplaceString()[ i ] = item.getText( 4 );
+      inf.getReplaceByString()[ i ] = item.getText( 5 );
 
-      inf.isSetEmptyString()[i] =
+      inf.isSetEmptyString()[ i ] =
         BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 6 ) );
-      if ( inf.isSetEmptyString()[i] ) {
-        inf.getReplaceByString()[i] = "";
+      if ( inf.isSetEmptyString()[ i ] ) {
+        inf.getReplaceByString()[ i ] = "";
       }
-      inf.getFieldReplaceByString()[i] = item.getText( 7 );
+      inf.getFieldReplaceByString()[ i ] = item.getText( 7 );
       if ( !Utils.isEmpty( item.getText( 7 ) ) ) {
-        inf.getReplaceByString()[i] = "";
+        inf.getReplaceByString()[ i ] = "";
       }
 
-      inf.getWholeWord()[i] = ReplaceStringMeta.getWholeWordByDesc( item.getText( 8 ) );
-      inf.getCaseSensitive()[i] = ReplaceStringMeta.getCaseSensitiveByDesc( item.getText( 9 ) );
-      inf.isUnicode()[i] = ReplaceStringMeta.getIsUnicodeByDesc( item.getText( 10 ) );
+      inf.getWholeWord()[ i ] = ReplaceStringMeta.getWholeWordByDesc( item.getText( 8 ) );
+      inf.getCaseSensitive()[ i ] = ReplaceStringMeta.getCaseSensitiveByDesc( item.getText( 9 ) );
+      inf.isUnicode()[ i ] = ReplaceStringMeta.getIsUnicodeByDesc( item.getText( 10 ) );
     }
 
     stepname = wStepname.getText(); // return value
@@ -434,7 +434,7 @@ public class ReplaceStringDialog extends BaseStepDialog implements StepDialogInt
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "ReplaceStringDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "ReplaceStringDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "ReplaceStringDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 }

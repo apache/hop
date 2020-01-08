@@ -22,23 +22,9 @@
 
 package org.apache.hop.job.entries.ftpsget;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
-import org.ftp4che.FTPConnection;
-import org.ftp4che.FTPConnectionFactory;
-import org.ftp4che.event.FTPEvent;
-import org.ftp4che.event.FTPListener;
-import org.ftp4che.exception.ConfigurationException;
-import org.ftp4che.util.ftpfile.FTPFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
@@ -48,8 +34,21 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entries.ftpsget.ftp4che.SecureDataFTPConnection;
+import org.ftp4che.FTPConnection;
+import org.ftp4che.FTPConnectionFactory;
+import org.ftp4che.event.FTPEvent;
+import org.ftp4che.event.FTPListener;
+import org.ftp4che.exception.ConfigurationException;
+import org.ftp4che.util.ftpfile.FTPFile;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 
 public class FTPSConnection implements FTPListener {
 
@@ -119,51 +118,42 @@ public class FTPSConnection implements FTPListener {
   }
 
   /**
-   *
    * this method is used to set the proxy host
    *
-   * @param proxyhost
-   *          true: proxy host
+   * @param proxyhost true: proxy host
    */
   public void setProxyHost( String proxyhost ) {
     this.proxyHost = proxyhost;
   }
 
   /**
-   *
    * this method is used to set the proxy port
    *
-   * @param proxyport
-   *          true: proxy port
+   * @param proxyport true: proxy port
    */
   public void setProxyPort( int proxyport ) {
     this.proxyPort = proxyport;
   }
 
   /**
-   *
    * this method is used to set the proxy username
    *
-   * @param username
-   *          true: proxy username
+   * @param username true: proxy username
    */
   public void setProxyUser( String username ) {
     this.proxyUser = username;
   }
 
   /**
-   *
    * this method is used to set the proxy password
    *
-   * @param password
-   *          true: proxy password
+   * @param password true: proxy password
    */
   public void setProxyPassword( String password ) {
     this.proxyPassword = password;
   }
 
   /**
-   *
    * this method is used to connect to a remote host
    *
    * @throws HopException
@@ -174,7 +164,7 @@ public class FTPSConnection implements FTPListener {
         FTPConnectionFactory.getInstance( getProperties(
           hostName, portNumber, userName, passWord, connectionType, timeOut, passiveMode ) );
       if ( connection.getConnectionType() == FTPConnection.IMPLICIT_SSL_WITH_CRYPTED_DATA_FTP_CONNECTION
-          || connection.getConnectionType() == FTPConnection.IMPLICIT_TLS_WITH_CRYPTED_DATA_FTP_CONNECTION ) {
+        || connection.getConnectionType() == FTPConnection.IMPLICIT_TLS_WITH_CRYPTED_DATA_FTP_CONNECTION ) {
         // need to upgrade to our custom connection to force crypted data channel
         connection = getSecureDataFTPConnection( connection, passWord, timeOut );
       }
@@ -193,7 +183,7 @@ public class FTPSConnection implements FTPListener {
   }
 
   private Properties getProperties( String hostname, int port, String username, String password,
-    int connectionType, int timeout, boolean passiveMode ) {
+                                    int connectionType, int timeout, boolean passiveMode ) {
     Properties pt = new Properties();
     pt.setProperty( "connection.host", hostname );
     pt.setProperty( "connection.port", String.valueOf( port ) );
@@ -221,35 +211,35 @@ public class FTPSConnection implements FTPListener {
 
   public static String getConnectionTypeDesc( String tt ) {
     if ( Utils.isEmpty( tt ) ) {
-      return connection_type_Desc[0];
+      return connection_type_Desc[ 0 ];
     }
     if ( tt.equalsIgnoreCase( connection_type_Code[ 1 ] ) ) {
-      return connection_type_Desc[1];
+      return connection_type_Desc[ 1 ];
     } else {
-      return connection_type_Desc[0];
+      return connection_type_Desc[ 0 ];
     }
   }
 
   public static String getConnectionTypeCode( String tt ) {
     if ( tt == null ) {
-      return connection_type_Code[0];
+      return connection_type_Code[ 0 ];
     }
-    if ( tt.equals( connection_type_Desc[1] ) ) {
-      return connection_type_Code[1];
+    if ( tt.equals( connection_type_Desc[ 1 ] ) ) {
+      return connection_type_Code[ 1 ];
     } else {
-      return connection_type_Code[0];
+      return connection_type_Code[ 0 ];
     }
   }
 
   public static String getConnectionTypeDesc( int i ) {
     if ( i < 0 || i >= connection_type_Desc.length ) {
-      return connection_type_Desc[0];
+      return connection_type_Desc[ 0 ];
     }
-    return connection_type_Desc[i];
+    return connection_type_Desc[ i ];
   }
 
   public static String getConnectionType( int i ) {
-    return connection_type_Code[i];
+    return connection_type_Code[ i ];
   }
 
   public static int getConnectionTypeByDesc( String tt ) {
@@ -258,7 +248,7 @@ public class FTPSConnection implements FTPListener {
     }
 
     for ( int i = 0; i < connection_type_Desc.length; i++ ) {
-      if ( connection_type_Desc[i].equalsIgnoreCase( tt ) ) {
+      if ( connection_type_Desc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -272,7 +262,7 @@ public class FTPSConnection implements FTPListener {
     }
 
     for ( int i = 0; i < connection_type_Code.length; i++ ) {
-      if ( connection_type_Code[i].equalsIgnoreCase( tt ) ) {
+      if ( connection_type_Code[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -281,18 +271,17 @@ public class FTPSConnection implements FTPListener {
 
   public static String getConnectionTypeCode( int i ) {
     if ( i < 0 || i >= connection_type_Code.length ) {
-      return connection_type_Code[0];
+      return connection_type_Code[ 0 ];
     }
-    return connection_type_Code[i];
+    return connection_type_Code[ i ];
   }
 
   /**
    * public void setBinaryMode(boolean type)
-   *
+   * <p>
    * this method is used to set the transfer type to binary
    *
-   * @param type
-   *          true: Binary
+   * @param type true: Binary
    * @throws HopException
    */
   public void setBinaryMode( boolean type ) throws HopException {
@@ -304,44 +293,36 @@ public class FTPSConnection implements FTPListener {
   }
 
   /**
-   *
    * this method is used to set the mode to passive
    *
-   * @param passivemode
-   *          true: passive mode
+   * @param passivemode true: passive mode
    */
   public void setPassiveMode( boolean passivemode ) {
     this.passiveMode = passivemode;
   }
 
   /**
-   *
    * this method is used to return the passive mode
    *
    * @return TRUE if we use passive mode
-   *
    */
   public boolean isPassiveMode() {
     return this.passiveMode;
   }
 
   /**
-   *
    * this method is used to set the timeout
    *
    * @param timeout
-   *
    */
   public void setTimeOut( int timeout ) {
     this.timeOut = timeout;
   }
 
   /**
-   *
    * this method is used to return the timeout
    *
    * @return timeout
-   *
    */
   public int getTimeOut() {
     return this.timeOut;
@@ -360,11 +341,9 @@ public class FTPSConnection implements FTPListener {
   }
 
   /**
-   *
    * this method is used to set the connection type
    *
-   * @param connectiontype
-   *          true: connection type
+   * @param connectiontype true: connection type
    */
   public void setConnectionType( int connectiontype ) {
     this.connectionType = connectiontype;
@@ -391,11 +370,9 @@ public class FTPSConnection implements FTPListener {
   }
 
   /**
-   *
    * this method change FTP working directory
    *
-   * @param directory
-   *          change the working directory
+   * @param directory change the working directory
    * @throws HopException
    */
   public void changeDirectory( String directory ) throws HopException {
@@ -407,11 +384,9 @@ public class FTPSConnection implements FTPListener {
   }
 
   /**
-   *
    * this method is used to create a directory in remote host
    *
-   * @param directory
-   *          directory name on remote host
+   * @param directory directory name on remote host
    * @throws HopException
    */
   public void createDirectory( String directory ) throws HopException {
@@ -463,13 +438,10 @@ public class FTPSConnection implements FTPListener {
   }
 
   /**
-   *
    * this method is used to upload a file to a remote host
    *
-   * @param localFileName
-   *          Local full filename
-   * @param shortFileName
-   *          Filename in remote host
+   * @param localFileName Local full filename
+   * @param shortFileName Filename in remote host
    * @throws HopException
    */
   public void uploadFile( String localFileName, String shortFileName ) throws HopException {
@@ -485,7 +457,7 @@ public class FTPSConnection implements FTPListener {
         try {
           file.close();
         } catch ( Exception e ) {
-           //we do not able to close file will log it
+          //we do not able to close file will log it
           logger.logDetailed( "Unable to close file file", e );
         }
       }
@@ -493,7 +465,6 @@ public class FTPSConnection implements FTPListener {
   }
 
   /**
-   *
    * this method is used to return filenames in working directory
    *
    * @return filenames
@@ -514,15 +485,13 @@ public class FTPSConnection implements FTPListener {
     } catch ( Exception e ) {
       throw new HopException( BaseMessages.getString( PKG, "JobFTPS.Error.RetrievingFilenames" ), e );
     }
-    return list == null ? null : list.toArray( new String[list.size()] );
+    return list == null ? null : list.toArray( new String[ list.size() ] );
   }
 
   /**
-   *
    * this method is used to delete a file in remote host
    *
-   * @param file
-   *          File on remote host to delete
+   * @param file File on remote host to delete
    * @throws HopException
    */
   public void deleteFile( FTPFile file ) throws HopException {
@@ -534,11 +503,9 @@ public class FTPSConnection implements FTPListener {
   }
 
   /**
-   *
    * this method is used to delete a file in remote host
    *
-   * @param filename
-   *          Name of file on remote host to delete
+   * @param filename Name of file on remote host to delete
    * @throws HopException
    */
   public void deleteFile( String filename ) throws HopException {
@@ -550,13 +517,10 @@ public class FTPSConnection implements FTPListener {
   }
 
   /**
-   *
    * this method is used to move a file to remote directory
    *
-   * @param fromFile
-   *          File on remote host to move
-   * @param targetFoldername
-   *          Target remote folder
+   * @param fromFile         File on remote host to move
+   * @param targetFoldername Target remote folder
    * @throws HopException
    */
   public void moveToFolder( FTPFile fromFile, String targetFoldername ) throws HopException {
@@ -569,11 +533,9 @@ public class FTPSConnection implements FTPListener {
   }
 
   /**
-   *
    * Checks if a directory exists
    *
    * @return true if the directory exists
-   *
    */
   public boolean isDirectoryExists( String directory ) {
     String currectDirectory = null;
@@ -600,13 +562,10 @@ public class FTPSConnection implements FTPListener {
   }
 
   /**
-   *
    * Checks if a file exists on remote host
    *
-   * @param filename
-   *          the name of the file to check
+   * @param filename the name of the file to check
    * @return true if the file exists
-   *
    */
   public boolean isFileExists( String filename ) {
     boolean retval = false;
@@ -622,7 +581,6 @@ public class FTPSConnection implements FTPListener {
   }
 
   /**
-   *
    * Returns the working directory
    *
    * @return working directory
@@ -633,9 +591,7 @@ public class FTPSConnection implements FTPListener {
   }
 
   /**
-   *
    * this method is used to disconnect the connection
-   *
    */
   public void disconnect() {
     if ( this.connection != null ) {

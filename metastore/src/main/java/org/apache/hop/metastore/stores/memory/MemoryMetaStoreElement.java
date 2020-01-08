@@ -17,14 +17,14 @@
 
 package org.apache.hop.metastore.stores.memory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.metastore.api.IMetaStoreElement;
 import org.apache.hop.metastore.api.IMetaStoreElementType;
 import org.apache.hop.metastore.api.security.IMetaStoreElementOwner;
 import org.apache.hop.metastore.api.security.MetaStoreOwnerPermissions;
 import org.apache.hop.metastore.stores.xml.XmlMetaStoreElementOwner;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MemoryMetaStoreElement extends MemoryMetaStoreAttribute implements IMetaStoreElement {
 
@@ -56,7 +56,7 @@ public class MemoryMetaStoreElement extends MemoryMetaStoreAttribute implements 
     }
     for ( MetaStoreOwnerPermissions ownerPermissions : element.getOwnerPermissionsList() ) {
       this.getOwnerPermissionsList().add(
-          new MetaStoreOwnerPermissions( ownerPermissions.getOwner(), ownerPermissions.getPermissions() ) );
+        new MetaStoreOwnerPermissions( ownerPermissions.getOwner(), ownerPermissions.getPermissions() ) );
     }
   }
 

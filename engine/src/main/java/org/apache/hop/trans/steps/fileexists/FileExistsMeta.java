@@ -22,12 +22,8 @@
 
 package org.apache.hop.trans.steps.fileexists;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -38,8 +34,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -47,8 +42,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*
  * Created on 03-Juin-2008
@@ -60,14 +56,18 @@ public class FileExistsMeta extends BaseStepMeta implements StepMetaInterface {
 
   private boolean addresultfilenames;
 
-  /** dynamic filename */
+  /**
+   * dynamic filename
+   */
   private String filenamefield;
 
   private String filetypefieldname;
 
   private boolean includefiletype;
 
-  /** function result: new value name */
+  /**
+   * function result: new value name
+   */
   private String resultfieldname;
 
   public FileExistsMeta() {
@@ -82,8 +82,7 @@ public class FileExistsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param filenamefield
-   *          The filenamefield to set.
+   * @param filenamefield The filenamefield to set.
    */
   public void setDynamicFilenameField( String filenamefield ) {
     this.filenamefield = filenamefield;
@@ -97,16 +96,14 @@ public class FileExistsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param resultfieldname
-   *          The resultfieldname to set.
+   * @param resultfieldname The resultfieldname to set.
    */
   public void setResultFieldName( String resultfieldname ) {
     this.resultfieldname = resultfieldname;
   }
 
   /**
-   * @param filetypefieldname
-   *          The filetypefieldname to set.
+   * @param filetypefieldname The filetypefieldname to set.
    */
   public void setFileTypeFieldName( String filetypefieldname ) {
     this.filetypefieldname = filetypefieldname;
@@ -153,7 +150,7 @@ public class FileExistsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Output fields (String)
     if ( !Utils.isEmpty( resultfieldname ) ) {
       ValueMetaInterface v =
@@ -195,8 +192,8 @@ public class FileExistsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -234,7 +231,7 @@ public class FileExistsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new FileExists( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

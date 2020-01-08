@@ -22,6 +22,17 @@
 
 package org.apache.hop.trans.steps.mailvalidator;
 
+import org.apache.commons.validator.GenericValidator;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -30,18 +41,6 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Hashtable;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-
-import org.apache.commons.validator.GenericValidator;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
 
 public class MailValidation {
 
@@ -122,10 +121,10 @@ public class MailValidation {
     while ( en.hasMore() ) {
       String x = (String) en.next();
       String[] f = x.split( " " );
-      if ( f[1].endsWith( "." ) ) {
-        f[1] = f[1].substring( 0, ( f[1].length() - 1 ) );
+      if ( f[ 1 ].endsWith( "." ) ) {
+        f[ 1 ] = f[ 1 ].substring( 0, ( f[ 1 ].length() - 1 ) );
       }
-      res.add( f[1] );
+      res.add( f[ 1 ] );
     }
     return res;
   }
@@ -133,19 +132,15 @@ public class MailValidation {
   /**
    * Validate an email address This code is from : http://www.rgagnon.com/javadetails/java-0452.html
    *
-   * @param email
-   *          address
-   * @param sender
-   *          email address
-   * @param default SMTP Server
-   * @param timeout
-   *          for socket connection
-   * @param deepCheck
-   *          (if we want to perform a SMTP check
+   * @param email     address
+   * @param sender    email address
+   * @param default   SMTP Server
+   * @param timeout   for socket connection
+   * @param deepCheck (if we want to perform a SMTP check
    * @return true or false
    */
   public static MailValidationResult isAddressValid( LogChannelInterface log, String address,
-    String senderAddress, String defaultSMTPServer, int timeout, boolean deepCheck ) {
+                                                     String senderAddress, String defaultSMTPServer, int timeout, boolean deepCheck ) {
 
     MailValidationResult result = new MailValidationResult();
 

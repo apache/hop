@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.core.logging;
 
-import static org.junit.Assert.assertEquals;
-
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -36,6 +34,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.assertEquals;
 
 public class MetricsRegistryTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
@@ -71,9 +71,11 @@ public class MetricsRegistryTest {
 
   private class ConcurrentPutIfAbsent implements Callable<Queue> {
     private String id;
+
     ConcurrentPutIfAbsent( String id ) {
       this.id = id;
     }
+
     @Override
     public Queue call() throws Exception {
       countDownLatch.await();

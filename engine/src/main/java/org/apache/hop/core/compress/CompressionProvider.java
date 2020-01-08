@@ -29,15 +29,13 @@ import java.io.OutputStream;
 /**
  * The CompressionProvider interface specifies the operations needed to interact with a stream whose data is compressed
  * on output and decompressed on input.
- *
  */
 public interface CompressionProvider {
 
   /**
    * Creates an input stream that decompresses data (according to the provider's implementation)
    *
-   * @param in
-   *          An existing input stream to wrap
+   * @param in An existing input stream to wrap
    * @return a CompressionInputStream object that decompresses incoming data
    * @throws IOException
    */
@@ -53,8 +51,7 @@ public interface CompressionProvider {
   /**
    * Creates an output stream that compresses data (according to the provider's implementation)
    *
-   * @param out
-   *          An existing output stream to wrap
+   * @param out An existing output stream to wrap
    * @return a CompressionOutputStream object that compresses outgoing data
    * @throws IOException
    */

@@ -23,8 +23,27 @@
 package org.apache.hop.ui.job.entries.columnsexist;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.columnsexist.JobEntryColumnsExist;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -44,25 +63,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.columnsexist.JobEntryColumnsExist;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * This dialog allows you to edit the Column Exists job entry settings. (select the connection and the table to be
@@ -276,8 +276,8 @@ public class JobEntryColumnsExistDialog extends JobEntryDialog implements JobEnt
       new ColumnInfo[] { new ColumnInfo( BaseMessages.getString(
         PKG, "JobEntryColumnsExist.Fields.Argument.Label" ), ColumnInfo.COLUMN_TYPE_TEXT, false ), };
 
-    colinf[0].setUsingVariables( true );
-    colinf[0].setToolTip( BaseMessages.getString( PKG, "JobEntryColumnsExist.Fields.Column" ) );
+    colinf[ 0 ].setUsingVariables( true );
+    colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "JobEntryColumnsExist.Fields.Column" ) );
 
     wFields =
       new TableView(
@@ -376,7 +376,7 @@ public class JobEntryColumnsExistDialog extends JobEntryDialog implements JobEnt
 
   private void getTableName() {
     String databaseName = wConnection.getText();
-    if ( StringUtils.isNotEmpty(databaseName) ) {
+    if ( StringUtils.isNotEmpty( databaseName ) ) {
       DatabaseMeta databaseMeta = jobMeta.findDatabase( databaseName );
       if ( databaseMeta != null ) {
         DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, jobMeta.getDatabases() );
@@ -416,8 +416,8 @@ public class JobEntryColumnsExistDialog extends JobEntryDialog implements JobEnt
     if ( jobEntry.getArguments() != null ) {
       for ( int i = 0; i < jobEntry.getArguments().length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.getArguments()[i] != null ) {
-          ti.setText( 1, jobEntry.getArguments()[i] );
+        if ( jobEntry.getArguments()[ i ] != null ) {
+          ti.setText( 1, jobEntry.getArguments()[ i ] );
         }
       }
       wFields.setRowNums();
@@ -455,12 +455,12 @@ public class JobEntryColumnsExistDialog extends JobEntryDialog implements JobEnt
         nr++;
       }
     }
-    String[] args = new String[nr];
+    String[] args = new String[ nr ];
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
-        args[nr] = arg;
+        args[ nr ] = arg;
         nr++;
       }
     }
@@ -489,7 +489,7 @@ public class JobEntryColumnsExistDialog extends JobEntryDialog implements JobEnt
 
             wFields.removeAll();
             for ( int i = 0; i < available.length; i++ ) {
-              wFields.add( available[i] );
+              wFields.add( available[ i ] );
             }
             wFields.removeEmptyRows();
             wFields.setRowNums();

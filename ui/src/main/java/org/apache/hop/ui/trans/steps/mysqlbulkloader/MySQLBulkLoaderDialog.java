@@ -22,15 +22,34 @@
 
 package org.apache.hop.ui.trans.steps.mysqlbulkloader;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.SourceToTargetMapping;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.steps.mysqlbulkloader.MySQLBulkLoaderMeta;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.database.dialog.SQLEditor;
+import org.apache.hop.ui.core.dialog.EnterMappingDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.TableItemInsertListener;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
@@ -54,31 +73,12 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.SQLStatement;
-import org.apache.hop.core.SourceToTargetMapping;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.trans.steps.mysqlbulkloader.MySQLBulkLoaderMeta;
-import org.apache.hop.ui.core.database.dialog.SQLEditor;
-import org.apache.hop.ui.core.dialog.EnterMappingDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.TableItemInsertListener;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Dialog class for the MySQL bulk loader step.
@@ -485,21 +485,21 @@ public class MySQLBulkLoaderDialog extends BaseStepDialog implements StepDialogI
     int UpInsCols = 3;
     int UpInsRows = ( input.getFieldTable() != null ? input.getFieldTable().length : 1 );
 
-    ciReturn = new ColumnInfo[UpInsCols];
-    ciReturn[0] =
+    ciReturn = new ColumnInfo[ UpInsCols ];
+    ciReturn[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "MySQLBulkLoaderDialog.ColumnInfo.TableField" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    ciReturn[1] =
+    ciReturn[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "MySQLBulkLoaderDialog.ColumnInfo.StreamField" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    ciReturn[2] =
+    ciReturn[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "MySQLBulkLoaderDialog.ColumnInfo.FormatOK" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, MySQLBulkLoaderMeta.getFieldFormatTypeDescriptions(), true );
 
-    tableFieldColumns.add( ciReturn[0] );
+    tableFieldColumns.add( ciReturn[ 0 ] );
     wReturn =
       new TableView(
         transMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
@@ -660,10 +660,10 @@ public class MySQLBulkLoaderDialog extends BaseStepDialog implements StepDialogI
       return;
     }
 
-    String[] inputNames = new String[sourceFields.size()];
+    String[] inputNames = new String[ sourceFields.size() ];
     for ( int i = 0; i < sourceFields.size(); i++ ) {
       ValueMetaInterface value = sourceFields.getValueMeta( i );
-      inputNames[i] = value.getName() + EnterMappingDialog.STRING_ORIGIN_SEPARATOR + value.getOrigin() + ")";
+      inputNames[ i ] = value.getName() + EnterMappingDialog.STRING_ORIGIN_SEPARATOR + value.getOrigin() + ")";
     }
 
     // Create the existing mapping list...
@@ -739,7 +739,7 @@ public class MySQLBulkLoaderDialog extends BaseStepDialog implements StepDialogI
         TableItem item = wReturn.table.getItem( i );
         item.setText( 2, sourceFields.getValueMeta( mapping.getSourcePosition() ).getName() );
         item.setText( 1, targetFields.getValueMeta( mapping.getTargetPosition() ).getName() );
-        item.setText( 3, MySQLBulkLoaderMeta.getFieldFormatTypeDescription( input.getFieldFormatType()[i] ) );
+        item.setText( 3, MySQLBulkLoaderMeta.getFieldFormatTypeDescription( input.getFieldFormatType()[ i ] ) );
       }
       wReturn.setRowNums();
       wReturn.optWidth( true );
@@ -766,13 +766,13 @@ public class MySQLBulkLoaderDialog extends BaseStepDialog implements StepDialogI
     if ( input.getFieldTable() != null ) {
       for ( int i = 0; i < input.getFieldTable().length; i++ ) {
         TableItem item = wReturn.table.getItem( i );
-        if ( input.getFieldTable()[i] != null ) {
-          item.setText( 1, input.getFieldTable()[i] );
+        if ( input.getFieldTable()[ i ] != null ) {
+          item.setText( 1, input.getFieldTable()[ i ] );
         }
-        if ( input.getFieldStream()[i] != null ) {
-          item.setText( 2, input.getFieldStream()[i] );
+        if ( input.getFieldStream()[ i ] != null ) {
+          item.setText( 2, input.getFieldStream()[ i ] );
         }
-        item.setText( 3, MySQLBulkLoaderMeta.getFieldFormatTypeDescription( input.getFieldFormatType()[i] ) );
+        item.setText( 3, MySQLBulkLoaderMeta.getFieldFormatTypeDescription( input.getFieldFormatType()[ i ] ) );
       }
     }
 
@@ -807,10 +807,10 @@ public class MySQLBulkLoaderDialog extends BaseStepDialog implements StepDialogI
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
     Const.sortStrings( fieldNames );
     // return fields
-    ciReturn[1].setComboValues( fieldNames );
+    ciReturn[ 1 ].setComboValues( fieldNames );
   }
 
   private void cancel() {
@@ -839,9 +839,9 @@ public class MySQLBulkLoaderDialog extends BaseStepDialog implements StepDialogI
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrfields; i++ ) {
       TableItem item = wReturn.getNonEmpty( i );
-      inf.getFieldTable()[i] = item.getText( 1 );
-      inf.getFieldStream()[i] = item.getText( 2 );
-      inf.getFieldFormatType()[i] = MySQLBulkLoaderMeta.getFieldFormatType( item.getText( 3 ) );
+      inf.getFieldTable()[ i ] = item.getText( 1 );
+      inf.getFieldStream()[ i ] = item.getText( 2 );
+      inf.getFieldFormatType()[ i ] = MySQLBulkLoaderMeta.getFieldFormatType( item.getText( 3 ) );
     }
 
     inf.setSchemaName( wSchema.getText() );
@@ -872,7 +872,7 @@ public class MySQLBulkLoaderDialog extends BaseStepDialog implements StepDialogI
 
   private void getTableName() {
     String connectionName = wConnection.getText();
-    if ( StringUtils.isEmpty(connectionName)) {
+    if ( StringUtils.isEmpty( connectionName ) ) {
       return;
     }
     DatabaseMeta databaseMeta = transMeta.findDatabase( connectionName );
@@ -954,7 +954,7 @@ public class MySQLBulkLoaderDialog extends BaseStepDialog implements StepDialogI
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "MySQLBulkLoaderDialog.CouldNotBuildSQL.DialogTitle" ), BaseMessages
-          .getString( PKG, "MySQLBulkLoaderDialog.CouldNotBuildSQL.DialogMessage" ), ke );
+        .getString( PKG, "MySQLBulkLoaderDialog.CouldNotBuildSQL.DialogMessage" ), ke );
     }
 
   }

@@ -22,22 +22,18 @@
 
 package org.apache.hop.job.entries.success;
 
-import java.util.List;
-
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * Job entry type to success a job.
@@ -69,10 +65,10 @@ public class JobEntrySuccess extends JobEntryBase implements Cloneable, JobEntry
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "JobEntrySuccess.Meta.UnableToLoadFromXML" ), e );
     }
@@ -82,8 +78,7 @@ public class JobEntrySuccess extends JobEntryBase implements Cloneable, JobEntry
    * Execute this job entry and return the result. In this case it means, just set the result boolean in the Result
    * class.
    *
-   * @param previousResult
-   *          The result of the previous execution
+   * @param previousResult The result of the previous execution
    * @return The Result of the execution.
    */
   public Result execute( Result previousResult, int nr ) {
@@ -104,7 +99,7 @@ public class JobEntrySuccess extends JobEntryBase implements Cloneable, JobEntry
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
 
   }
 

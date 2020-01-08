@@ -22,16 +22,12 @@
 
 package org.apache.hop.core.util;
 
-import java.util.prefs.Preferences;
-
-import org.apache.hop.core.exception.HopException;
-
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.prefs.Preferences;
 
 /**
  * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- *
  */
 public interface PluginProperty {
 
@@ -66,26 +62,22 @@ public interface PluginProperty {
   boolean evaluate();
 
   /**
-   * @param node
-   *          preferences node
+   * @param node preferences node
    */
   void saveToPreferences( final Preferences node );
 
   /**
-   * @param node
-   *          preferences node.
+   * @param node preferences node.
    */
   void readFromPreferences( final Preferences node );
 
   /**
-   * @param builder
-   *          builder to append to.
+   * @param builder builder to append to.
    */
   void appendXml( final StringBuilder builder );
 
   /**
-   * @param node
-   *          the node.
+   * @param node the node.
    */
   void loadXml( final Node node );
 

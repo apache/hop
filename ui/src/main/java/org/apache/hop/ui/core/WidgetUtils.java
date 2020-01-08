@@ -23,6 +23,12 @@
 package org.apache.hop.ui.core;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -32,12 +38,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Listener;
-import org.apache.hop.core.exception.HopStepException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.ui.core.widget.ComboVar;
 
 import java.util.List;
 
@@ -55,10 +55,11 @@ public abstract class WidgetUtils {
 
   /**
    * creates a ComboVar populated with fields from the previous step.
+   *
    * @param parentComposite - the composite in which the widget will be placed
-   * @param props - PropsUI props for L&F
-   * @param stepMeta - stepMeta of the current step
-   * @param formData - FormData to use for placement
+   * @param props           - PropsUI props for L&F
+   * @param stepMeta        - stepMeta of the current step
+   * @param formData        - FormData to use for placement
    */
   public static ComboVar createFieldDropDown(
     Composite parentComposite, PropsUI props, BaseStepMeta stepMeta, FormData formData ) {

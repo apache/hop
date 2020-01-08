@@ -22,17 +22,17 @@
 
 package org.apache.hop.core.vfs.configuration;
 
-import static org.junit.Assert.assertEquals;
+import org.apache.commons.vfs2.FileSystemOptions;
+import org.apache.commons.vfs2.provider.sftp.IdentityInfo;
+import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
+import org.apache.hop.core.Const;
+import org.junit.Test;
+import org.springframework.util.ReflectionUtils;
 
 import java.io.File;
 import java.lang.reflect.Method;
 
-import org.apache.commons.vfs2.FileSystemOptions;
-import org.apache.commons.vfs2.provider.sftp.IdentityInfo;
-import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
-import org.junit.Test;
-import org.apache.hop.core.Const;
-import org.springframework.util.ReflectionUtils;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Andrey Khayrutdinov
@@ -72,6 +72,6 @@ public class HopSftpFileSystemConfigBuilderTest {
     getOption.setAccessible( true );
     Object value = ReflectionUtils.invokeMethod( getOption, opts, builder.getConfigClass(), vfsInternalName );
     assertEquals( IdentityInfo[].class, value.getClass() );
-    assertEquals( tempFile.getAbsolutePath(), ( (IdentityInfo[]) value )[0].getPrivateKey().getAbsolutePath() );
+    assertEquals( tempFile.getAbsolutePath(), ( (IdentityInfo[]) value )[ 0 ].getPrivateKey().getAbsolutePath() );
   }
 }

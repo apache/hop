@@ -22,10 +22,37 @@
 
 package org.apache.hop.ui.trans.steps.propertyinput;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Iterator;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPreviewFactory;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.propertyinput.PropertyInputField;
+import org.apache.hop.trans.steps.propertyinput.PropertyInputMeta;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.ComponentSelectionListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -54,37 +81,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.ini4j.Wini;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPreviewFactory;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.propertyinput.PropertyInputField;
-import org.apache.hop.trans.steps.propertyinput.PropertyInputMeta;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.ComponentSelectionListener;
+
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class PropertyInputDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = PropertyInputMeta.class; // for i18n purposes, needed by Translator2!!
@@ -498,35 +498,35 @@ public class PropertyInputDialog extends BaseStepDialog implements StepDialogInt
     fdbShowFiles.bottom = new FormAttachment( 100, 0 );
     wbShowFiles.setLayoutData( fdbShowFiles );
 
-    ColumnInfo[] colinfo = new ColumnInfo[5];
-    colinfo[0] =
+    ColumnInfo[] colinfo = new ColumnInfo[ 5 ];
+    colinfo[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "PropertyInputDialog.Files.Filename.Column" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinfo[1] =
+    colinfo[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "PropertyInputDialog.Files.Wildcard.Column" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinfo[2] =
+    colinfo[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "PropertyInputDialog.Files.ExcludeWildcard.Column" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinfo[3] =
+    colinfo[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "PropertyInputDialog.Required.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         YES_NO_COMBO );
-    colinfo[4] =
+    colinfo[ 4 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "PropertyInputDialog.IncludeSubDirs.Column" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, YES_NO_COMBO );
 
-    colinfo[0].setUsingVariables( true );
-    colinfo[1].setUsingVariables( true );
-    colinfo[1].setToolTip( BaseMessages.getString( PKG, "PropertyInputDialog.Files.Wildcard.Tooltip" ) );
-    colinfo[2].setUsingVariables( true );
-    colinfo[2].setToolTip( BaseMessages.getString( PKG, "PropertyInputDialog.Files.ExcludeWildcard.Tooltip" ) );
-    colinfo[3].setToolTip( BaseMessages.getString( PKG, "PropertyInputDialog.Required.Tooltip" ) );
-    colinfo[4].setToolTip( BaseMessages.getString( PKG, "PropertyInputDialog.IncludeSubDirs.Tooltip" ) );
+    colinfo[ 0 ].setUsingVariables( true );
+    colinfo[ 1 ].setUsingVariables( true );
+    colinfo[ 1 ].setToolTip( BaseMessages.getString( PKG, "PropertyInputDialog.Files.Wildcard.Tooltip" ) );
+    colinfo[ 2 ].setUsingVariables( true );
+    colinfo[ 2 ].setToolTip( BaseMessages.getString( PKG, "PropertyInputDialog.Files.ExcludeWildcard.Tooltip" ) );
+    colinfo[ 3 ].setToolTip( BaseMessages.getString( PKG, "PropertyInputDialog.Required.Tooltip" ) );
+    colinfo[ 4 ].setToolTip( BaseMessages.getString( PKG, "PropertyInputDialog.IncludeSubDirs.Tooltip" ) );
 
     wFilenameList =
       new TableView(
@@ -966,14 +966,14 @@ public class PropertyInputDialog extends BaseStepDialog implements StepDialogInt
         new ColumnInfo(
           BaseMessages.getString( PKG, "PropertyInputDialog.FieldsTable.Repeat.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-            BaseMessages.getString( PKG, "System.Combo.Yes" ),
-            BaseMessages.getString( PKG, "System.Combo.No" ) }, true ),
+          BaseMessages.getString( PKG, "System.Combo.Yes" ),
+          BaseMessages.getString( PKG, "System.Combo.No" ) }, true ),
 
       };
 
-    colinf[0].setUsingVariables( true );
-    colinf[0].setToolTip( BaseMessages.getString( PKG, "PropertyInputDialog.FieldsTable.Name.Column.Tooltip" ) );
-    colinf[1]
+    colinf[ 0 ].setUsingVariables( true );
+    colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "PropertyInputDialog.FieldsTable.Name.Column.Tooltip" ) );
+    colinf[ 1 ]
       .setToolTip( BaseMessages.getString( PKG, "PropertyInputDialog.FieldsTable.Attribut.Column.Tooltip" ) );
     wFields =
       new TableView( transMeta, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
@@ -1063,7 +1063,7 @@ public class PropertyInputDialog extends BaseStepDialog implements StepDialogInt
       public void widgetSelected( SelectionEvent arg0 ) {
         wFilenameList.add( new String[] {
           wFilename.getText(), wFilemask.getText(), wExcludeFilemask.getText(),
-          PropertyInputMeta.RequiredFilesCode[0], PropertyInputMeta.RequiredFilesCode[0] } );
+          PropertyInputMeta.RequiredFilesCode[ 0 ], PropertyInputMeta.RequiredFilesCode[ 0 ] } );
         wFilename.setText( "" );
         wFilemask.setText( "" );
         wExcludeFilemask.setText( "" );
@@ -1093,9 +1093,9 @@ public class PropertyInputDialog extends BaseStepDialog implements StepDialogInt
         int idx = wFilenameList.getSelectionIndex();
         if ( idx >= 0 ) {
           String[] string = wFilenameList.getItem( idx );
-          wFilename.setText( string[0] );
-          wFilemask.setText( string[1] );
-          wExcludeFilemask.setText( string[2] );
+          wFilename.setText( string[ 0 ] );
+          wFilemask.setText( string[ 1 ] );
+          wExcludeFilemask.setText( string[ 2 ] );
           wFilenameList.remove( idx );
         }
         wFilenameList.removeEmptyRows();
@@ -1280,7 +1280,7 @@ public class PropertyInputDialog extends BaseStepDialog implements StepDialogInt
         r.getFieldNames();
 
         for ( int i = 0; i < r.getFieldNames().length; i++ ) {
-          wFilenameField.add( r.getFieldNames()[i] );
+          wFilenameField.add( r.getFieldNames()[ i ] );
 
         }
       }
@@ -1291,7 +1291,7 @@ public class PropertyInputDialog extends BaseStepDialog implements StepDialogInt
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "PropertyInputDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "PropertyInputDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "PropertyInputDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 
@@ -1394,8 +1394,7 @@ public class PropertyInputDialog extends BaseStepDialog implements StepDialogInt
   /**
    * Read the data from the TextFileInputMeta object and show it in this dialog.
    *
-   * @param in
-   *          The TextFileInputMeta object to obtain the data from.
+   * @param in The TextFileInputMeta object to obtain the data from.
    */
   public void getData( PropertyInputMeta in ) {
     if ( in.getFileName() != null ) {
@@ -1403,9 +1402,9 @@ public class PropertyInputDialog extends BaseStepDialog implements StepDialogInt
 
       for ( int i = 0; i < in.getFileName().length; i++ ) {
         wFilenameList.add( new String[] {
-          in.getFileName()[i], in.getFileMask()[i], in.getExcludeFileMask()[i],
-          in.getRequiredFilesDesc( in.getFileRequired()[i] ),
-          in.getRequiredFilesDesc( in.getIncludeSubFolders()[i] ) } );
+          in.getFileName()[ i ], in.getFileMask()[ i ], in.getExcludeFileMask()[ i ],
+          in.getRequiredFilesDesc( in.getFileRequired()[ i ] ),
+          in.getRequiredFilesDesc( in.getIncludeSubFolders()[ i ] ) } );
       }
       wFilenameList.removeEmptyRows();
       wFilenameList.setRowNums();
@@ -1444,7 +1443,7 @@ public class PropertyInputDialog extends BaseStepDialog implements StepDialogInt
       log.logDebug( BaseMessages.getString( PKG, "PropertyInputDialog.Log.GettingFieldsInfo" ) );
     }
     for ( int i = 0; i < in.getInputFields().length; i++ ) {
-      PropertyInputField field = in.getInputFields()[i];
+      PropertyInputField field = in.getInputFields()[ i ];
 
       if ( field != null ) {
         TableItem item = wFields.table.getItem( i );
@@ -1550,7 +1549,7 @@ public class PropertyInputDialog extends BaseStepDialog implements StepDialogInt
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "PropertyInputDialog.ErrorParsingData.DialogTitle" ), BaseMessages
-          .getString( PKG, "PropertyInputDialog.ErrorParsingData.DialogMessage" ), e );
+        .getString( PKG, "PropertyInputDialog.ErrorParsingData.DialogMessage" ), e );
     }
     dispose();
   }
@@ -1602,7 +1601,7 @@ public class PropertyInputDialog extends BaseStepDialog implements StepDialogInt
       field.setRepeated( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 11 ) ) );
 
       //CHECKSTYLE:Indentation:OFF
-      in.getInputFields()[i] = field;
+      in.getInputFields()[ i ] = field;
     }
     in.setShortFileNameField( wShortFileFieldName.getText() );
     in.setPathField( wPathFieldName.getText() );
@@ -1643,7 +1642,7 @@ public class PropertyInputDialog extends BaseStepDialog implements StepDialogInt
             EnterTextDialog etd =
               new EnterTextDialog(
                 shell, BaseMessages.getString( PKG, "System.Dialog.PreviewError.Title" ), BaseMessages
-                  .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
+                .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
             etd.setReadOnly();
             etd.open();
           }
@@ -1651,7 +1650,7 @@ public class PropertyInputDialog extends BaseStepDialog implements StepDialogInt
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
               shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta( wStepname
-                .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
+              .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
           prd.open();
 
         }
@@ -1678,10 +1677,10 @@ public class PropertyInputDialog extends BaseStepDialog implements StepDialogInt
           //
           wini = new Wini( HopVFS.getInputStream( fileInputList.getFile( 0 ) ) );
           Iterator<String> itSection = wini.keySet().iterator();
-          String[] sectionsList = new String[wini.keySet().size()];
+          String[] sectionsList = new String[ wini.keySet().size() ];
           int i = 0;
           while ( itSection.hasNext() ) {
-            sectionsList[i] = itSection.next().toString();
+            sectionsList[ i ] = itSection.next().toString();
             i++;
           }
           Const.sortStrings( sectionsList );

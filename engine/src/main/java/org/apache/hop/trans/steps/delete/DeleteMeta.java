@@ -22,12 +22,9 @@
 
 package org.apache.hop.trans.steps.delete;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -36,11 +33,11 @@ import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -49,8 +46,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * This class takes care of deleting values in a table using a certain condition and values for input.
@@ -61,28 +59,44 @@ import org.w3c.dom.Node;
 public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = DeleteMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** The target schema name */
+  /**
+   * The target schema name
+   */
   private String schemaName;
 
-  /** The lookup table name */
+  /**
+   * The lookup table name
+   */
   private String tableName;
 
-  /** database connection */
+  /**
+   * database connection
+   */
   private DatabaseMeta databaseMeta;
 
-  /** which field in input stream to compare with? */
+  /**
+   * which field in input stream to compare with?
+   */
   private String[] keyStream;
 
-  /** field in table */
+  /**
+   * field in table
+   */
   private String[] keyLookup;
 
-  /** Comparator: =, <>, BETWEEN, ... */
+  /**
+   * Comparator: =, <>, BETWEEN, ...
+   */
   private String[] keyCondition;
 
-  /** Extra field for between... */
+  /**
+   * Extra field for between...
+   */
   private String[] keyStream2;
 
-  /** Commit size for inserts/updates */
+  /**
+   * Commit size for inserts/updates
+   */
   private String commitSize;
 
   public DeleteMeta() {
@@ -118,9 +132,8 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param commitSize
-   *          The commitSize to set.
-   *          @deprecated use public void setCommitSize( String commitSize ) instead
+   * @param commitSize The commitSize to set.
+   * @deprecated use public void setCommitSize( String commitSize ) instead
    */
   @Deprecated
   public void setCommitSize( int commitSize ) {
@@ -128,8 +141,7 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param commitSize
-   *          The commitSize to set.
+   * @param commitSize The commitSize to set.
    */
   public void setCommitSize( String commitSize ) {
     this.commitSize = commitSize;
@@ -143,8 +155,7 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param database
-   *          The database to set.
+   * @param database The database to set.
    */
   public void setDatabaseMeta( DatabaseMeta database ) {
     this.databaseMeta = database;
@@ -158,8 +169,7 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param keyCondition
-   *          The keyCondition to set.
+   * @param keyCondition The keyCondition to set.
    */
   public void setKeyCondition( String[] keyCondition ) {
     this.keyCondition = keyCondition;
@@ -173,8 +183,7 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param keyLookup
-   *          The keyLookup to set.
+   * @param keyLookup The keyLookup to set.
    */
   public void setKeyLookup( String[] keyLookup ) {
     this.keyLookup = keyLookup;
@@ -188,8 +197,7 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param keyStream
-   *          The keyStream to set.
+   * @param keyStream The keyStream to set.
    */
   public void setKeyStream( String[] keyStream ) {
     this.keyStream = keyStream;
@@ -203,8 +211,7 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param keyStream2
-   *          The keyStream2 to set.
+   * @param keyStream2 The keyStream2 to set.
    */
   public void setKeyStream2( String[] keyStream2 ) {
     this.keyStream2 = keyStream2;
@@ -218,8 +225,7 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param tableName
-   *          The tableName to set.
+   * @param tableName The tableName to set.
    */
   public void setTableName( String tableName ) {
     this.tableName = tableName;
@@ -230,10 +236,10 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrkeys ) {
-    keyStream = new String[nrkeys];
-    keyLookup = new String[nrkeys];
-    keyCondition = new String[nrkeys];
-    keyStream2 = new String[nrkeys];
+    keyStream = new String[ nrkeys ];
+    keyLookup = new String[ nrkeys ];
+    keyCondition = new String[ nrkeys ];
+    keyStream2 = new String[ nrkeys ];
   }
 
   public Object clone() {
@@ -270,13 +276,13 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
       for ( int i = 0; i < nrkeys; i++ ) {
         Node knode = XMLHandler.getSubNodeByNr( lookup, "key", i );
 
-        keyStream[i] = XMLHandler.getTagValue( knode, "name" );
-        keyLookup[i] = XMLHandler.getTagValue( knode, "field" );
-        keyCondition[i] = XMLHandler.getTagValue( knode, "condition" );
-        if ( keyCondition[i] == null ) {
-          keyCondition[i] = "=";
+        keyStream[ i ] = XMLHandler.getTagValue( knode, "name" );
+        keyLookup[ i ] = XMLHandler.getTagValue( knode, "field" );
+        keyCondition[ i ] = XMLHandler.getTagValue( knode, "condition" );
+        if ( keyCondition[ i ] == null ) {
+          keyCondition[ i ] = "=";
         }
-        keyStream2[i] = XMLHandler.getTagValue( knode, "name2" );
+        keyStream2[ i ] = XMLHandler.getTagValue( knode, "name2" );
       }
 
     } catch ( Exception e ) {
@@ -302,7 +308,7 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
 
     retval
       .append( "    " ).append(
-        XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+      XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "commit", commitSize ) );
     retval.append( "    <lookup>" ).append( Const.CR );
     retval.append( "      " ).append( XMLHandler.addTagValue( "schema", schemaName ) );
@@ -310,10 +316,10 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
 
     for ( int i = 0; i < keyStream.length; i++ ) {
       retval.append( "      <key>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", keyStream[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field", keyLookup[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "condition", keyCondition[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name2", keyStream2[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "name", keyStream[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "field", keyLookup[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "condition", keyCondition[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "name2", keyStream2[ i ] ) );
       retval.append( "      </key>" ).append( Const.CR );
     }
 
@@ -323,13 +329,13 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Default: nothing changes to rowMeta
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -358,7 +364,7 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
             remarks.add( cr );
 
             for ( int i = 0; i < keyLookup.length; i++ ) {
-              String lufield = keyLookup[i];
+              String lufield = keyLookup[ i ];
 
               ValueMetaInterface v = r.searchValueMeta( lufield );
               if ( v == null ) {
@@ -392,7 +398,7 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
           cr =
             new CheckResult(
               CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
-                PKG, "DeleteMeta.CheckResult.ConnectedStepSuccessfully", String.valueOf( prev.size() ) ),
+              PKG, "DeleteMeta.CheckResult.ConnectedStepSuccessfully", String.valueOf( prev.size() ) ),
               stepMeta );
           remarks.add( cr );
 
@@ -401,19 +407,19 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
           boolean error_found = false;
 
           for ( int i = 0; i < keyStream.length; i++ ) {
-            ValueMetaInterface v = prev.searchValueMeta( keyStream[i] );
+            ValueMetaInterface v = prev.searchValueMeta( keyStream[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
                 error_message += BaseMessages.getString( PKG, "DeleteMeta.CheckResult.MissingFields" ) + Const.CR;
               }
               error_found = true;
-              error_message += "\t\t" + keyStream[i] + Const.CR;
+              error_message += "\t\t" + keyStream[ i ] + Const.CR;
             }
           }
           for ( int i = 0; i < keyStream2.length; i++ ) {
-            if ( keyStream2[i] != null && keyStream2[i].length() > 0 ) {
-              ValueMetaInterface v = prev.searchValueMeta( keyStream2[i] );
+            if ( keyStream2[ i ] != null && keyStream2[ i ].length() > 0 ) {
+              ValueMetaInterface v = prev.searchValueMeta( keyStream2[ i ] );
               if ( v == null ) {
                 if ( first ) {
                   first = false;
@@ -421,7 +427,7 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
                     BaseMessages.getString( PKG, "DeleteMeta.CheckResult.MissingFields2" ) + Const.CR;
                 }
                 error_found = true;
-                error_message += "\t\t" + keyStream[i] + Const.CR;
+                error_message += "\t\t" + keyStream[ i ] + Const.CR;
               }
             }
           }
@@ -471,7 +477,7 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public SQLStatement getSQLStatements( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-    IMetaStore metaStore ) {
+                                        IMetaStore metaStore ) {
     SQLStatement retval = new SQLStatement( stepMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
@@ -489,9 +495,9 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
             String[] idx_fields = null;
 
             if ( keyLookup != null && keyLookup.length > 0 ) {
-              idx_fields = new String[keyLookup.length];
+              idx_fields = new String[ keyLookup.length ];
               for ( int i = 0; i < keyLookup.length; i++ ) {
-                idx_fields[i] = keyLookup[i];
+                idx_fields[ i ] = keyLookup[ i ];
               }
             } else {
               retval.setError( BaseMessages.getString( PKG, "DeleteMeta.CheckResult.KeyFieldsRequired" ) );
@@ -529,17 +535,17 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
-    IMetaStore metaStore ) throws HopStepException {
+                             RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
+                             IMetaStore metaStore ) throws HopStepException {
     if ( prev != null ) {
       // Lookup: we do a lookup on the natural keys
       for ( int i = 0; i < keyLookup.length; i++ ) {
-        ValueMetaInterface v = prev.searchValueMeta( keyStream[i] );
+        ValueMetaInterface v = prev.searchValueMeta( keyStream[ i ] );
 
         DatabaseImpact ii =
           new DatabaseImpact(
             DatabaseImpact.TYPE_IMPACT_DELETE, transMeta.getName(), stepMeta.getName(), databaseMeta
-              .getDatabaseName(), tableName, keyLookup[i], keyStream[i],
+            .getDatabaseName(), tableName, keyLookup[ i ], keyStream[ i ],
             v != null ? v.getOrigin() : "?", "", "Type = " + v.toStringMeta() );
         impact.add( ii );
       }
@@ -547,7 +553,7 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new Delete( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -571,8 +577,7 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param schemaName
-   *          the schemaName to set
+   * @param schemaName the schemaName to set
    */
   public void setSchemaName( String schemaName ) {
     this.schemaName = schemaName;

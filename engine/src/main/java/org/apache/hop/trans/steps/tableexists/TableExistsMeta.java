@@ -22,12 +22,9 @@
 
 package org.apache.hop.trans.steps.tableexists;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -37,8 +34,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -46,8 +42,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*
  * Created on 03-Juin-2008
@@ -57,13 +54,19 @@ import org.w3c.dom.Node;
 public class TableExistsMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = TableExistsMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** database connection */
+  /**
+   * database connection
+   */
   private DatabaseMeta database;
 
-  /** dynamuc tablename */
+  /**
+   * dynamuc tablename
+   */
   private String tablenamefield;
 
-  /** function result: new value name */
+  /**
+   * function result: new value name
+   */
   private String resultfieldname;
 
   private String schemaname;
@@ -80,8 +83,7 @@ public class TableExistsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param database
-   *          The database to set.
+   * @param database The database to set.
    */
   public void setDatabase( DatabaseMeta database ) {
     this.database = database;
@@ -95,8 +97,7 @@ public class TableExistsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param tablenamefield
-   *          The tablenamefield to set.
+   * @param tablenamefield The tablenamefield to set.
    */
   public void setDynamicTablenameField( String tablenamefield ) {
     this.tablenamefield = tablenamefield;
@@ -110,8 +111,7 @@ public class TableExistsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param resultfieldname
-   *          The resultfieldname to set.
+   * @param resultfieldname The resultfieldname to set.
    */
   public void setResultFieldName( String resultfieldname ) {
     this.resultfieldname = resultfieldname;
@@ -142,7 +142,7 @@ public class TableExistsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Output field (String)
     if ( !Utils.isEmpty( resultfieldname ) ) {
       ValueMetaInterface v =
@@ -178,8 +178,8 @@ public class TableExistsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -222,7 +222,7 @@ public class TableExistsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new TableExists( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

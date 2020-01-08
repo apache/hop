@@ -22,26 +22,25 @@
 
 package org.apache.hop.trans.steps.ldapinput;
 
-import static junit.framework.Assert.assertEquals;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.variables.VariableSpace;
+import org.junit.Before;
+import org.junit.Test;
 
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.ldap.InitialLdapContext;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.ldap.InitialLdapContext;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.variables.VariableSpace;
+import static junit.framework.Assert.assertEquals;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class LdapProtocolIT {
   private LogChannelInterface mockLogChannelInterface;
@@ -54,7 +53,7 @@ public class LdapProtocolIT {
     public Hashtable<String, String> contextEnv = null;
 
     public TestableLdapProtocol( LogChannelInterface log, VariableSpace variableSpace, LdapMeta meta,
-      Collection<String> binaryAttributes ) {
+                                 Collection<String> binaryAttributes ) {
       super( log, variableSpace, meta, binaryAttributes );
     }
 

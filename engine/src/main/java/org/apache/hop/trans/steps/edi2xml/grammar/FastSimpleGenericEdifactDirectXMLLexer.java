@@ -285,7 +285,8 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     // RELEASE_CHARACTER ELEMENT_SEPARATOR ) | ( RELEASE_CHARACTER RELEASE_CHARACTER ) | ( RELEASE_CHARACTER
     // COMPLEX_ELEMENT_ITEM_SEPARATOR ) | ( RELEASE_CHARACTER SEGMENT_TERMINATOR ) )+
     int cnt1 = 0;
-    loop1: do {
+    loop1:
+    do {
       int alt1 = 6;
       int LA1_0 = input.LA( 1 );
 

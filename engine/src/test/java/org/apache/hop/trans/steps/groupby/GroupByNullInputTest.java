@@ -23,11 +23,6 @@
 package org.apache.hop.trans.steps.groupby;
 
 import junit.framework.Assert;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -35,6 +30,11 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 
@@ -115,7 +115,7 @@ public class GroupByNullInputTest {
     step.newAggregate( row1 );
     step.calcAggregate( row1 );
     Object[] aggregateResult = step.getAggregateResult();
-    Assert.assertNull( "Returns null if aggregation is null", aggregateResult[0] );
+    Assert.assertNull( "Returns null if aggregation is null", aggregateResult[ 0 ] );
   }
 
   @Test
@@ -128,7 +128,7 @@ public class GroupByNullInputTest {
     step.newAggregate( row1 );
     step.calcAggregate( row1 );
     Object[] aggregateResult = step.getAggregateResult();
-    Assert.assertNull( "Returns null if aggregation is null", aggregateResult[0] );
+    Assert.assertNull( "Returns null if aggregation is null", aggregateResult[ 0 ] );
   }
 
   @Test

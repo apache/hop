@@ -23,7 +23,6 @@
 package org.apache.hop.core.undo;
 
 import org.apache.hop.core.NotePadMeta;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobHopMeta;
@@ -33,7 +32,7 @@ import org.apache.hop.trans.step.StepMeta;
 
 /**
  * This class store undo and redo information...
- *
+ * <p>
  * Possible changes to a transformation:
  * <p>
  * step
@@ -44,7 +43,7 @@ import org.apache.hop.trans.step.StepMeta;
  * <p>
  * connection
  * <p>
- *
+ * <p>
  * Build an Undo/Redo class containing:
  * <p>
  * Type of change
@@ -56,7 +55,6 @@ import org.apache.hop.trans.step.StepMeta;
  *
  * @author Matt
  * @since 19-12-2003
- *
  */
 public class TransAction {
   private static Class<?> PKG = TransAction.class; // for i18n purposes, needed by Translator2!!
@@ -86,26 +84,6 @@ public class TransAction {
   public static final int TYPE_ACTION_NEW_TABLEITEM = 23;
   public static final int TYPE_ACTION_DELETE_TABLEITEM = 24;
   public static final int TYPE_ACTION_POSITION_TABLEITEM = 25;
-
-  public static final int TYPE_ACTION_CHANGE_TABLE = 26;
-  public static final int TYPE_ACTION_CHANGE_RELATIONSHIP = 27;
-  public static final int TYPE_ACTION_NEW_TABLE = 28;
-  public static final int TYPE_ACTION_NEW_RELATIONSHIP = 29;
-  public static final int TYPE_ACTION_DELETE_TABLE = 30;
-  public static final int TYPE_ACTION_DELETE_RELATIONSHIP = 31;
-  public static final int TYPE_ACTION_POSITION_TABLE = 32;
-
-  public static final int TYPE_ACTION_NEW_SLAVE = 33;
-  public static final int TYPE_ACTION_CHANGE_SLAVE = 34;
-  public static final int TYPE_ACTION_DELETE_SLAVE = 35;
-
-  public static final int TYPE_ACTION_NEW_CLUSTER = 36;
-  public static final int TYPE_ACTION_CHANGE_CLUSTER = 37;
-  public static final int TYPE_ACTION_DELETE_CLUSTER = 38;
-
-  public static final int TYPE_ACTION_NEW_PARTITION = 39;
-  public static final int TYPE_ACTION_CHANGE_PARTITION = 40;
-  public static final int TYPE_ACTION_DELETE_PARTITION = 41;
 
   public static final String[] desc_action = new String[] {
     "", BaseMessages.getString( PKG, "TransAction.label.ChangeStep" ),
@@ -157,22 +135,22 @@ public class TransAction {
     current = prev;
     current_index = idx;
 
-    if ( prev[0] instanceof StepMeta ) {
+    if ( prev[ 0 ] instanceof StepMeta ) {
       type = TYPE_ACTION_DELETE_STEP;
     }
-    if ( prev[0] instanceof TransHopMeta ) {
+    if ( prev[ 0 ] instanceof TransHopMeta ) {
       type = TYPE_ACTION_DELETE_HOP;
     }
-    if ( prev[0] instanceof NotePadMeta ) {
+    if ( prev[ 0 ] instanceof NotePadMeta ) {
       type = TYPE_ACTION_DELETE_NOTE;
     }
-    if ( prev[0] instanceof JobEntryCopy ) {
+    if ( prev[ 0 ] instanceof JobEntryCopy ) {
       type = TYPE_ACTION_DELETE_JOB_ENTRY;
     }
-    if ( prev[0] instanceof JobHopMeta ) {
+    if ( prev[ 0 ] instanceof JobHopMeta ) {
       type = TYPE_ACTION_DELETE_JOB_HOP;
     }
-    if ( prev[0] instanceof String[] ) {
+    if ( prev[ 0 ] instanceof String[] ) {
       type = TYPE_ACTION_DELETE_TABLEITEM;
     }
   }
@@ -183,22 +161,22 @@ public class TransAction {
     current_index = idx;
     previous_index = idx;
 
-    if ( prev[0] instanceof StepMeta ) {
+    if ( prev[ 0 ] instanceof StepMeta ) {
       type = TYPE_ACTION_CHANGE_STEP;
     }
-    if ( prev[0] instanceof TransHopMeta ) {
+    if ( prev[ 0 ] instanceof TransHopMeta ) {
       type = TYPE_ACTION_CHANGE_HOP;
     }
-    if ( prev[0] instanceof NotePadMeta ) {
+    if ( prev[ 0 ] instanceof NotePadMeta ) {
       type = TYPE_ACTION_CHANGE_NOTE;
     }
-    if ( prev[0] instanceof JobEntryCopy ) {
+    if ( prev[ 0 ] instanceof JobEntryCopy ) {
       type = TYPE_ACTION_CHANGE_JOB_ENTRY;
     }
-    if ( prev[0] instanceof JobHopMeta ) {
+    if ( prev[ 0 ] instanceof JobHopMeta ) {
       type = TYPE_ACTION_CHANGE_JOB_HOP;
     }
-    if ( prev[0] instanceof String[] ) {
+    if ( prev[ 0 ] instanceof String[] ) {
       type = TYPE_ACTION_CHANGE_TABLEITEM;
     }
   }
@@ -212,22 +190,22 @@ public class TransAction {
     current_index = position;
     previous = null;
 
-    if ( prev[0] instanceof StepMeta ) {
+    if ( prev[ 0 ] instanceof StepMeta ) {
       type = TYPE_ACTION_NEW_STEP;
     }
-    if ( prev[0] instanceof TransHopMeta ) {
+    if ( prev[ 0 ] instanceof TransHopMeta ) {
       type = TYPE_ACTION_NEW_HOP;
     }
-    if ( prev[0] instanceof NotePadMeta ) {
+    if ( prev[ 0 ] instanceof NotePadMeta ) {
       type = TYPE_ACTION_NEW_NOTE;
     }
-    if ( prev[0] instanceof JobEntryCopy ) {
+    if ( prev[ 0 ] instanceof JobEntryCopy ) {
       type = TYPE_ACTION_NEW_JOB_ENTRY;
     }
-    if ( prev[0] instanceof JobHopMeta ) {
+    if ( prev[ 0 ] instanceof JobHopMeta ) {
       type = TYPE_ACTION_NEW_JOB_HOP;
     }
-    if ( prev[0] instanceof String[] ) {
+    if ( prev[ 0 ] instanceof String[] ) {
       type = TYPE_ACTION_NEW_TABLEITEM;
     }
   }
@@ -237,17 +215,17 @@ public class TransAction {
       return;
     }
 
-    previous_location = new Point[prev.length];
-    current_location = new Point[curr.length];
+    previous_location = new Point[ prev.length ];
+    current_location = new Point[ curr.length ];
     current = obj;
     current_index = idx;
 
     for ( int i = 0; i < prev.length; i++ ) {
-      previous_location[i] = new Point( prev[i].x, prev[i].y );
-      current_location[i] = new Point( curr[i].x, curr[i].y );
+      previous_location[ i ] = new Point( prev[ i ].x, prev[ i ].y );
+      current_location[ i ] = new Point( curr[ i ].x, curr[ i ].y );
     }
 
-    Object fobj = obj[0];
+    Object fobj = obj[ 0 ];
     if ( fobj instanceof StepMeta ) {
       type = TYPE_ACTION_POSITION_STEP;
     }
@@ -301,8 +279,7 @@ public class TransAction {
   /**
    * Indicate that the next operations needs to be undone too.
    *
-   * @param nextAlso
-   *          The nextAlso to set.
+   * @param nextAlso The nextAlso to set.
    */
   public void setNextAlso( boolean nextAlso ) {
     this.nextAlso = nextAlso;
@@ -323,7 +300,7 @@ public class TransAction {
       return TransAction.class.getName();
     }
 
-    retval = desc_action[type];
+    retval = desc_action[ type ];
 
     if ( current != null && current.length > 1 ) {
       retval += " (x" + current.length + ")";

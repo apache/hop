@@ -29,7 +29,6 @@ import java.util.Map;
  * A class to manage breadcrumbing so that we know which document/tab/perspective opened a given document.
  *
  * @author jamesdixon
- *
  */
 public class BreadcrumbManager {
 

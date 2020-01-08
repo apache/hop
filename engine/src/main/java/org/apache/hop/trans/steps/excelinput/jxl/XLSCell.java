@@ -28,7 +28,6 @@ import jxl.CellType;
 import jxl.DateCell;
 import jxl.LabelCell;
 import jxl.NumberCell;
-
 import org.apache.hop.core.spreadsheet.KCell;
 import org.apache.hop.core.spreadsheet.KCellType;
 

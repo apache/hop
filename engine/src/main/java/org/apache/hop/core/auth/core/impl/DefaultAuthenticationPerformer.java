@@ -29,12 +29,12 @@ import org.apache.hop.core.auth.core.AuthenticationPerformer;
 import org.apache.hop.core.auth.core.AuthenticationProvider;
 
 public class DefaultAuthenticationPerformer<ReturnType, CreateArgType, T extends AuthenticationProvider> implements
-    AuthenticationPerformer<ReturnType, CreateArgType> {
+  AuthenticationPerformer<ReturnType, CreateArgType> {
   private final T provider;
   private final AuthenticationConsumerFactory<ReturnType, CreateArgType, T> authenticationConsumerFactory;
 
   public DefaultAuthenticationPerformer( T provider,
-      AuthenticationConsumerFactory<ReturnType, CreateArgType, T> authenticationConsumerFactory ) {
+                                         AuthenticationConsumerFactory<ReturnType, CreateArgType, T> authenticationConsumerFactory ) {
     this.provider = provider;
     this.authenticationConsumerFactory = authenticationConsumerFactory;
   }

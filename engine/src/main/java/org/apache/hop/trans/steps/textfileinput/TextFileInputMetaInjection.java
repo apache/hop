@@ -22,20 +22,20 @@
 
 package org.apache.hop.trans.steps.textfileinput;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.trans.step.StepInjectionMetaEntry;
 import org.apache.hop.trans.step.StepInjectionUtil;
 import org.apache.hop.trans.step.StepMetaInjectionEntryInterface;
 import org.apache.hop.trans.step.StepMetaInjectionInterface;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * This takes care of the external metadata injection into the TextFileInputMeta class
@@ -566,23 +566,23 @@ public class TextFileInputMetaInjection implements StepMetaInjectionInterface {
     // Only change a list when you need to, don't clear/reset existing content if you don't send new content.
     //
     if ( fields.size() > 0 ) {
-      meta.setInputFields( fields.toArray( new TextFileInputField[fields.size()] ) );
+      meta.setInputFields( fields.toArray( new TextFileInputField[ fields.size() ] ) );
     }
     if ( fileLines.size() > 0 ) {
       meta.allocateFiles( fileLines.size() );
       //CHECKSTYLE:Indentation:OFF
       for ( int i = 0; i < fileLines.size(); i++ ) {
         FileLine fileLine = fileLines.get( i );
-        meta.getFileName()[i] = fileLine.filename;
-        meta.getFileMask()[i] = fileLine.includeMask;
-        meta.getExludeFileMask()[i] = fileLine.excludeMask;
-        meta.getExludeFileMask()[i] = fileLine.excludeMask;
-        meta.getFileRequired()[i] = fileLine.required;
-        meta.getIncludeSubFolders()[i] = fileLine.includeSubfolders;
+        meta.getFileName()[ i ] = fileLine.filename;
+        meta.getFileMask()[ i ] = fileLine.includeMask;
+        meta.getExludeFileMask()[ i ] = fileLine.excludeMask;
+        meta.getExludeFileMask()[ i ] = fileLine.excludeMask;
+        meta.getFileRequired()[ i ] = fileLine.required;
+        meta.getIncludeSubFolders()[ i ] = fileLine.includeSubfolders;
       }
     }
     if ( filters.size() > 0 ) {
-      meta.setFilter( filters.toArray( new TextFileFilter[filters.size()] ) );
+      meta.setFilter( filters.toArray( new TextFileFilter[ filters.size() ] ) );
     }
 
   }

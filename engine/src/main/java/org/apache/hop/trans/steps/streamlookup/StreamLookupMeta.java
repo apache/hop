@@ -25,8 +25,6 @@ package org.apache.hop.trans.steps.streamlookup;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.AfterInjection;
@@ -38,7 +36,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -52,7 +50,6 @@ import org.apache.hop.trans.step.errorhandling.Stream;
 import org.apache.hop.trans.step.errorhandling.StreamIcon;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
 import org.apache.hop.trans.step.errorhandling.StreamInterface.StreamType;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -61,42 +58,62 @@ import java.util.List;
 public class StreamLookupMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = StreamLookupMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** fields in input streams with which we look up values */
+  /**
+   * fields in input streams with which we look up values
+   */
   @Injection( name = "KEY_STREAM" )
   private String[] keystream;
 
-  /** fields in lookup stream with which we look up values */
+  /**
+   * fields in lookup stream with which we look up values
+   */
   @Injection( name = "KEY_LOOKUP" )
   private String[] keylookup;
 
-  /** return these field values from lookup */
+  /**
+   * return these field values from lookup
+   */
   @Injection( name = "RETRIEVE_VALUE" )
   private String[] value;
 
-  /** rename to this after lookup */
+  /**
+   * rename to this after lookup
+   */
   @Injection( name = "RETRIEVE_VALUE_NAME" )
   private String[] valueName;
 
-  /** default value in case not found... */
+  /**
+   * default value in case not found...
+   */
   @Injection( name = "RETRIEVE_VALUE_DEFAULT" )
   private String[] valueDefault;
 
-  /** type of default value */
+  /**
+   * type of default value
+   */
   @Injection( name = "RETRIEVE_DEFAULT_TYPE" )
   private int[] valueDefaultType;
 
-  /** Indicate that the input is considered sorted! */
+  /**
+   * Indicate that the input is considered sorted!
+   */
   private boolean inputSorted;
 
-  /** Indicate that we need to preserve memory by serializing objects */
+  /**
+   * Indicate that we need to preserve memory by serializing objects
+   */
   @Injection( name = "PRESERVE_MEMORY" )
   private boolean memoryPreservationActive;
 
-  /** Indicate that we want to use a sorted list vs. a hashtable */
+  /**
+   * Indicate that we want to use a sorted list vs. a hashtable
+   */
   @Injection( name = "SORTED_LIST" )
   private boolean usingSortedList;
 
-  /** The content of the key and lookup is a single Integer (long) */
+  /**
+   * The content of the key and lookup is a single Integer (long)
+   */
   @Injection( name = "INTEGER_PAIR" )
   private boolean usingIntegerPair;
 
@@ -110,13 +127,13 @@ public class StreamLookupMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   public void allocate( int nrkeys, int nrvalues ) {
-    setKeystream( new String[nrkeys] );
-    setKeylookup( new String[nrkeys] );
+    setKeystream( new String[ nrkeys ] );
+    setKeylookup( new String[ nrkeys ] );
 
-    setValue( new String[nrvalues] );
-    setValueName( new String[nrvalues] );
-    setValueDefault( new String[nrvalues] );
-    setValueDefaultType( new int[nrvalues] );
+    setValue( new String[ nrvalues ] );
+    setValueName( new String[ nrvalues ] );
+    setValueDefault( new String[ nrvalues ] );
+    setValueDefaultType( new int[ nrvalues ] );
   }
 
   @Override
@@ -125,9 +142,9 @@ public class StreamLookupMeta extends BaseStepMeta implements StepMetaInterface 
     StepIOMetaInterface thisStepIO = getStepIOMeta();
     StepIOMetaInterface thatStepIO = retval.getStepIOMeta();
     if ( thisStepIO != null
-        && thisStepIO.getInfoStreams() != null
-        && thatStepIO != null
-        && thisStepIO.getInfoStreams() != null ) {
+      && thisStepIO.getInfoStreams() != null
+      && thatStepIO != null
+      && thisStepIO.getInfoStreams() != null ) {
       List<StreamInterface> thisInfoStream = thisStepIO.getInfoStreams();
       List<StreamInterface> thatInfoStream = thatStepIO.getInfoStreams();
       thatInfoStream.get( 0 ).setStreamType( thisInfoStream.get( 0 ).getStreamType() );
@@ -172,23 +189,23 @@ public class StreamLookupMeta extends BaseStepMeta implements StepMetaInterface 
       for ( int i = 0; i < nrkeys; i++ ) {
         Node knode = XMLHandler.getSubNodeByNr( lookup, "key", i );
         // CHECKSTYLE:Indentation:OFF
-        getKeystream()[i] = XMLHandler.getTagValue( knode, "name" );
-        getKeylookup()[i] = XMLHandler.getTagValue( knode, "field" );
+        getKeystream()[ i ] = XMLHandler.getTagValue( knode, "name" );
+        getKeylookup()[ i ] = XMLHandler.getTagValue( knode, "field" );
         // CHECKSTYLE:Indentation:ON
       }
 
       for ( int i = 0; i < nrvalues; i++ ) {
         Node vnode = XMLHandler.getSubNodeByNr( lookup, "value", i );
         // CHECKSTYLE:Indentation:OFF
-        getValue()[i] = XMLHandler.getTagValue( vnode, "name" );
-        getValueName()[i] = XMLHandler.getTagValue( vnode, "rename" );
-        if ( getValueName()[i] == null ) {
-          getValueName()[i] = getValue()[i]; // default: same name to return!
+        getValue()[ i ] = XMLHandler.getTagValue( vnode, "name" );
+        getValueName()[ i ] = XMLHandler.getTagValue( vnode, "rename" );
+        if ( getValueName()[ i ] == null ) {
+          getValueName()[ i ] = getValue()[ i ]; // default: same name to return!
         }
 
-        getValueDefault()[i] = XMLHandler.getTagValue( vnode, "default" );
+        getValueDefault()[ i ] = XMLHandler.getTagValue( vnode, "default" );
         dtype = XMLHandler.getTagValue( vnode, "type" );
-        getValueDefaultType()[i] = ValueMetaFactory.getIdForValueMeta( dtype );
+        getValueDefaultType()[ i ] = ValueMetaFactory.getIdForValueMeta( dtype );
         // CHECKSTYLE:Indentation:ON
       }
     } catch ( Exception e ) {
@@ -216,24 +233,24 @@ public class StreamLookupMeta extends BaseStepMeta implements StepMetaInterface 
 
   @Override
   public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
-    if ( info != null && info.length == 1 && info[0] != null ) {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+    if ( info != null && info.length == 1 && info[ 0 ] != null ) {
       for ( int i = 0; i < getValueName().length; i++ ) {
-        ValueMetaInterface v = info[0].searchValueMeta( getValue()[i] );
+        ValueMetaInterface v = info[ 0 ].searchValueMeta( getValue()[ i ] );
         if ( v != null ) {
           // Configuration error/missing resources...
-          v.setName( getValueName()[i] );
+          v.setName( getValueName()[ i ] );
           v.setOrigin( origin );
           row.addValueMeta( v );
         } else {
           throw new HopStepException( BaseMessages.getString( PKG,
-              "StreamLookupMeta.Exception.ReturnValueCanNotBeFound", getValue()[i] ) );
+            "StreamLookupMeta.Exception.ReturnValueCanNotBeFound", getValue()[ i ] ) );
         }
       }
     } else {
       for ( int i = 0; i < getValueName().length; i++ ) {
         try {
-          ValueMetaInterface v = ValueMetaFactory.createValueMeta( getValueName()[i], getValueDefaultType()[i] );
+          ValueMetaInterface v = ValueMetaFactory.createValueMeta( getValueName()[ i ], getValueDefaultType()[ i ] );
           v.setOrigin( origin );
           row.addValueMeta( v );
         } catch ( Exception e ) {
@@ -257,18 +274,18 @@ public class StreamLookupMeta extends BaseStepMeta implements StepMetaInterface 
     retval.append( "    <lookup>" ).append( Const.CR );
     for ( int i = 0; i < getKeystream().length; i++ ) {
       retval.append( "      <key>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", getKeystream()[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field", getKeylookup()[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "name", getKeystream()[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "field", getKeylookup()[ i ] ) );
       retval.append( "      </key>" ).append( Const.CR );
     }
 
     for ( int i = 0; i < getValue().length; i++ ) {
       retval.append( "      <value>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", getValue()[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "rename", getValueName()[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "default", getValueDefault()[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "name", getValue()[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "rename", getValueName()[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "default", getValueDefault()[ i ] ) );
       retval.append( "        " ).append(
-          XMLHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( getValueDefaultType()[i] ) ) );
+        XMLHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( getValueDefaultType()[ i ] ) ) );
       retval.append( "      </value>" ).append( Const.CR );
     }
     retval.append( "    </lookup>" ).append( Const.CR );
@@ -278,8 +295,8 @@ public class StreamLookupMeta extends BaseStepMeta implements StepMetaInterface 
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( prev != null && prev.size() > 0 ) {
@@ -423,7 +440,7 @@ public class StreamLookupMeta extends BaseStepMeta implements StepMetaInterface 
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new StreamLookup( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -470,8 +487,7 @@ public class StreamLookupMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param inputSorted
-   *          The inputSorted to set.
+   * @param inputSorted The inputSorted to set.
    */
   public void setInputSorted( boolean inputSorted ) {
     this.inputSorted = inputSorted;
@@ -485,8 +501,7 @@ public class StreamLookupMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param keylookup
-   *          The keylookup to set.
+   * @param keylookup The keylookup to set.
    */
   public void setKeylookup( String[] keylookup ) {
     this.keylookup = keylookup;
@@ -500,8 +515,7 @@ public class StreamLookupMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param keystream
-   *          The keystream to set.
+   * @param keystream The keystream to set.
    */
   public void setKeystream( String[] keystream ) {
     this.keystream = keystream;
@@ -515,8 +529,7 @@ public class StreamLookupMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param value
-   *          The value to set.
+   * @param value The value to set.
    */
   public void setValue( String[] value ) {
     this.value = value;
@@ -530,8 +543,7 @@ public class StreamLookupMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param valueDefault
-   *          The valueDefault to set.
+   * @param valueDefault The valueDefault to set.
    */
   public void setValueDefault( String[] valueDefault ) {
     this.valueDefault = valueDefault;
@@ -545,8 +557,7 @@ public class StreamLookupMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param valueDefaultType
-   *          The valueDefaultType to set.
+   * @param valueDefaultType The valueDefaultType to set.
    */
   public void setValueDefaultType( int[] valueDefaultType ) {
     this.valueDefaultType = valueDefaultType;
@@ -560,8 +571,7 @@ public class StreamLookupMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param valueName
-   *          The valueName to set.
+   * @param valueName The valueName to set.
    */
   public void setValueName( String[] valueName ) {
     this.valueName = valueName;
@@ -591,8 +601,7 @@ public class StreamLookupMeta extends BaseStepMeta implements StepMetaInterface 
   }
 
   /**
-   * @param usingIntegerPair
-   *          the usingIntegerPair to set
+   * @param usingIntegerPair the usingIntegerPair to set
    */
   public void setUsingIntegerPair( boolean usingIntegerPair ) {
     this.usingIntegerPair = usingIntegerPair;
@@ -613,7 +622,7 @@ public class StreamLookupMeta extends BaseStepMeta implements StepMetaInterface 
       int[] newValueDefaultType = new int[ nrFields ];
       System.arraycopy( valueDefaultType, 0, newValueDefaultType, 0, valueDefaultType.length );
       for ( int i = valueDefaultType.length; i < newValueDefaultType.length; i++ ) {
-        newValueDefaultType[i] = -1; //set a undefined value (<0). It will be correct processed in a handleNullIf method
+        newValueDefaultType[ i ] = -1; //set a undefined value (<0). It will be correct processed in a handleNullIf method
       }
       valueDefaultType = newValueDefaultType;
     }

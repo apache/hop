@@ -22,6 +22,18 @@
 
 package org.apache.hop.core.util;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaBoolean;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaString;
+
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -34,18 +46,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaBoolean;
-import org.apache.hop.core.row.value.ValueMetaDate;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.row.value.ValueMetaNumber;
-import org.apache.hop.core.row.value.ValueMetaString;
 
 /**
  * This class evaluates strings and extracts a data type. It allows you to criteria after which the analysis should be
@@ -68,18 +68,18 @@ public class StringEvaluator {
   private String[] numberFormats;
 
   private static final String[] DEFAULT_NUMBER_FORMATS = new String[]
-  {
-    "#,###,###.#",
-    "#.#",
-    "#",
-    "#.0",
-    "#.00",
-    "#.000",
-    "#.0000",
-    "#.00000",
-    "#.000000",
-    " #.0#"
-  };
+    {
+      "#,###,###.#",
+      "#.#",
+      "#",
+      "#.0",
+      "#.00",
+      "#.000",
+      "#.0000",
+      "#.00000",
+      "#.000000",
+      " #.0#"
+    };
 
   protected static final Pattern PRECISION_PATTERN = Pattern.compile( "[^0-9#]" );
 
@@ -141,7 +141,7 @@ public class StringEvaluator {
         if ( StringUtils.isEmpty( value ) ) {
           cmm.incrementNrNull();
         } else if ( !( "Y".equalsIgnoreCase( string ) || "N".equalsIgnoreCase( string ) || "TRUE".equalsIgnoreCase(
-            string ) || "FALSE".equalsIgnoreCase( string ) ) ) {
+          string ) || "FALSE".equalsIgnoreCase( string ) ) ) {
           evaluationResults.remove( cmm );
         } else {
           cmm.incrementSuccesses();
@@ -176,15 +176,15 @@ public class StringEvaluator {
             for ( char c : value.toCharArray() ) {
 
               boolean currencySymbolMatch = !String.valueOf( c ).equals( cmm.getConversionMeta().getCurrencySymbol() )
-                  && c != '('
-                  && c != ')';
+                && c != '('
+                && c != ')';
 
               if ( !Character.isDigit( c )
-                  && c != '.'
-                  && c != ','
-                  && !Character.isSpaceChar( c )
-                  && currencySymbolMatch
-                  && ( pos > 0 && ( c == '+' || c == '-' ) ) // allow + & - at the 1st position
+                && c != '.'
+                && c != ','
+                && !Character.isSpaceChar( c )
+                && currencySymbolMatch
+                && ( pos > 0 && ( c == '+' || c == '-' ) ) // allow + & - at the 1st position
               ) {
                 evaluationResults.remove( cmm );
                 stop = true;
@@ -194,7 +194,7 @@ public class StringEvaluator {
               // If the value contains a decimal or grouping symbol or some sort, it's not an integer
               //
               if ( ( c == '.' && cmm.getConversionMeta().isInteger() )
-                  || ( c == ',' && cmm.getConversionMeta().isInteger() ) ) {
+                || ( c == ',' && cmm.getConversionMeta().isInteger() ) ) {
                 evaluationResults.remove( cmm );
                 stop = true;
                 break;
@@ -349,10 +349,10 @@ public class StringEvaluator {
           @Override
           public int compare( StringEvaluationResult r1, StringEvaluationResult r2 ) {
             Integer length1 =
-                r1.getConversionMeta().getConversionMask() == null ? 0 : r1
+              r1.getConversionMeta().getConversionMask() == null ? 0 : r1
                 .getConversionMeta().getConversionMask().length();
             Integer length2 =
-                r2.getConversionMeta().getConversionMask() == null ? 0 : r2
+              r2.getConversionMeta().getConversionMask() == null ? 0 : r2
                 .getConversionMeta().getConversionMask().length();
             return length2.compareTo( length1 );
           }
@@ -363,10 +363,10 @@ public class StringEvaluator {
           @Override
           public int compare( StringEvaluationResult r1, StringEvaluationResult r2 ) {
             Integer length1 =
-                r1.getConversionMeta().getConversionMask() == null ? 0 : r1
+              r1.getConversionMeta().getConversionMask() == null ? 0 : r1
                 .getConversionMeta().getConversionMask().length();
             Integer length2 =
-                r2.getConversionMeta().getConversionMask() == null ? 0 : r2
+              r2.getConversionMeta().getConversionMask() == null ? 0 : r2
                 .getConversionMeta().getConversionMask().length();
             return length1.compareTo( length2 );
           }
@@ -518,7 +518,7 @@ public class StringEvaluator {
 
   /**
    * PDI-7736: Only list of successful evaluations returned.
-   * 
+   *
    * @return The list of string evaluation results
    */
   public List<StringEvaluationResult> getStringEvaluationResults() {
@@ -567,8 +567,8 @@ public class StringEvaluator {
         meta.setLength( length );
         meta.setPrecision( precision );
         return new StringEvaluationResult( meta );
-      } catch( HopPluginException e ) {
-        throw new RuntimeException( "Unable to create a new value '"+name+"' of type '"+type+"'", e );
+      } catch ( HopPluginException e ) {
+        throw new RuntimeException( "Unable to create a new value '" + name + "' of type '" + type + "'", e );
       }
     }
 

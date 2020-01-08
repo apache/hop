@@ -33,7 +33,6 @@ import java.lang.annotation.Target;
  * SpoonPerspective.
  *
  * @author nbaker
- *
  */
 
 @Documented

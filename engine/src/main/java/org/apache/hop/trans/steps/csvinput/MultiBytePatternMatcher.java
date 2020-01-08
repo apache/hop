@@ -27,7 +27,7 @@ public class MultiBytePatternMatcher implements PatternMatcherInterface {
   public boolean matchesPattern( byte[] source, int location, byte[] pattern ) {
     int start = location;
     for ( int i = 0; i < pattern.length; i++ ) {
-      if ( source[start + i] != pattern[i] ) {
+      if ( source[ start + i ] != pattern[ i ] ) {
         return false;
       }
     }

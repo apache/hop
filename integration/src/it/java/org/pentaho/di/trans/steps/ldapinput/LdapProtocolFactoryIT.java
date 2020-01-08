@@ -22,17 +22,17 @@
 
 package org.apache.hop.trans.steps.ldapinput;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.VariableSpace;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.List;
+
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.variables.VariableSpace;
 
 public class LdapProtocolFactoryIT {
   private LdapMeta mockLdapMeta;

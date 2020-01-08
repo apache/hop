@@ -22,18 +22,7 @@
 
 package org.apache.hop.trans.steps.textfileinput;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import junit.framework.TestCase;
 import org.apache.hop.TestFailedException;
 import org.apache.hop.TestUtilities;
 import org.apache.hop.core.HopEnvironment;
@@ -54,9 +43,19 @@ import org.apache.hop.trans.TransHopMeta;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.pentaho.reporting.libraries.base.util.CSVTokenizer;
 
-import junit.framework.TestCase;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * This class was a "copy and modification" of Hop's CsvInput1Test. I added comments as I was learning the
@@ -80,8 +79,7 @@ public class TextFileInputIT extends TestCase {
    * Write the file to be used as input (as a temporary file).
    *
    * @return Absolute file name/path of the created file.
-   * @throws IOException
-   *           UPON
+   * @throws IOException UPON
    */
   public String writeInputFile( int testNum ) throws IOException {
 
@@ -131,9 +129,9 @@ public class TextFileInputIT extends TestCase {
   public List<RowMetaAndData> createResultData1() {
     List<RowMetaAndData> list = new ArrayList<RowMetaAndData>();
     ValueMetaInterface[] valuesMeta =
-    { new ValueMetaInteger( "a" ), new ValueMetaString( "b" ),
-      new ValueMetaString( "c" ), new ValueMetaString( "d" ),
-      new ValueMetaString( "e" ), new ValueMetaString( "filename" ), };
+      { new ValueMetaInteger( "a" ), new ValueMetaString( "b" ),
+        new ValueMetaString( "c" ), new ValueMetaString( "d" ),
+        new ValueMetaString( "e" ), new ValueMetaString( "filename" ), };
     RowMetaInterface rm = createResultRowMetaInterface( valuesMeta );
 
     Object[] r1 = new Object[] { new Long( 1L ), "b1", "c1", "d1", "e1", "fileName" };
@@ -156,7 +154,7 @@ public class TextFileInputIT extends TestCase {
   public List<RowMetaAndData> createResultData2() {
     List<RowMetaAndData> list = new ArrayList<RowMetaAndData>();
     ValueMetaInterface[] valuesMeta =
-    { new ValueMetaInteger( "a", 15, -1 ), new ValueMetaInteger( "b", 15, -1 ) };
+      { new ValueMetaInteger( "a", 15, -1 ), new ValueMetaInteger( "b", 15, -1 ) };
 
     RowMetaInterface rm = createResultRowMetaInterface( valuesMeta );
 
@@ -179,7 +177,7 @@ public class TextFileInputIT extends TestCase {
 
     ValueMetaInterface[] valuesMeta = { new ValueMetaString( "filename" ), };
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rowMeta.addValueMeta( valuesMeta[i] );
+      rowMeta.addValueMeta( valuesMeta[ i ] );
     }
 
     return rowMeta;
@@ -209,7 +207,7 @@ public class TextFileInputIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -224,69 +222,69 @@ public class TextFileInputIT extends TestCase {
     StepMeta textFileInputStep = new StepMeta( textFileInputPid, testFileInputName, textFileInputMeta );
 
     // initialize the fields
-    TextFileInputField[] fields = new TextFileInputField[5];
+    TextFileInputField[] fields = new TextFileInputField[ 5 ];
     for ( int idx = 0; idx < fields.length; idx++ ) {
-      fields[idx] = new TextFileInputField();
+      fields[ idx ] = new TextFileInputField();
     }
 
     // populate the fields
     // it is important that the setPosition(int)
     // is invoked with the correct position as
     // we are testing the reading of a delimited file.
-    fields[0].setName( "a" );
-    fields[0].setType( ValueMetaInterface.TYPE_INTEGER );
-    fields[0].setFormat( "" );
-    fields[0].setLength( -1 );
-    fields[0].setPrecision( -1 );
-    fields[0].setCurrencySymbol( "" );
-    fields[0].setDecimalSymbol( "" );
-    fields[0].setGroupSymbol( "" );
-    fields[0].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
-    fields[0].setPosition( 1 );
+    fields[ 0 ].setName( "a" );
+    fields[ 0 ].setType( ValueMetaInterface.TYPE_INTEGER );
+    fields[ 0 ].setFormat( "" );
+    fields[ 0 ].setLength( -1 );
+    fields[ 0 ].setPrecision( -1 );
+    fields[ 0 ].setCurrencySymbol( "" );
+    fields[ 0 ].setDecimalSymbol( "" );
+    fields[ 0 ].setGroupSymbol( "" );
+    fields[ 0 ].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    fields[ 0 ].setPosition( 1 );
 
-    fields[1].setName( "b" );
-    fields[1].setType( ValueMetaInterface.TYPE_STRING );
-    fields[1].setFormat( "" );
-    fields[1].setLength( -1 );
-    fields[1].setPrecision( -1 );
-    fields[1].setCurrencySymbol( "" );
-    fields[1].setDecimalSymbol( "" );
-    fields[1].setGroupSymbol( "" );
-    fields[1].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
-    fields[1].setPosition( 2 );
+    fields[ 1 ].setName( "b" );
+    fields[ 1 ].setType( ValueMetaInterface.TYPE_STRING );
+    fields[ 1 ].setFormat( "" );
+    fields[ 1 ].setLength( -1 );
+    fields[ 1 ].setPrecision( -1 );
+    fields[ 1 ].setCurrencySymbol( "" );
+    fields[ 1 ].setDecimalSymbol( "" );
+    fields[ 1 ].setGroupSymbol( "" );
+    fields[ 1 ].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    fields[ 1 ].setPosition( 2 );
 
-    fields[2].setName( "c" );
-    fields[2].setType( ValueMetaInterface.TYPE_STRING );
-    fields[2].setFormat( "" );
-    fields[2].setLength( -1 );
-    fields[2].setPrecision( -1 );
-    fields[2].setCurrencySymbol( "" );
-    fields[2].setDecimalSymbol( "" );
-    fields[2].setGroupSymbol( "" );
-    fields[2].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
-    fields[2].setPosition( 3 );
+    fields[ 2 ].setName( "c" );
+    fields[ 2 ].setType( ValueMetaInterface.TYPE_STRING );
+    fields[ 2 ].setFormat( "" );
+    fields[ 2 ].setLength( -1 );
+    fields[ 2 ].setPrecision( -1 );
+    fields[ 2 ].setCurrencySymbol( "" );
+    fields[ 2 ].setDecimalSymbol( "" );
+    fields[ 2 ].setGroupSymbol( "" );
+    fields[ 2 ].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    fields[ 2 ].setPosition( 3 );
 
-    fields[3].setName( "d" );
-    fields[3].setType( ValueMetaInterface.TYPE_STRING );
-    fields[3].setFormat( "" );
-    fields[3].setLength( -1 );
-    fields[3].setPrecision( -1 );
-    fields[3].setCurrencySymbol( "" );
-    fields[3].setDecimalSymbol( "" );
-    fields[3].setGroupSymbol( "" );
-    fields[3].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
-    fields[3].setPosition( 4 );
+    fields[ 3 ].setName( "d" );
+    fields[ 3 ].setType( ValueMetaInterface.TYPE_STRING );
+    fields[ 3 ].setFormat( "" );
+    fields[ 3 ].setLength( -1 );
+    fields[ 3 ].setPrecision( -1 );
+    fields[ 3 ].setCurrencySymbol( "" );
+    fields[ 3 ].setDecimalSymbol( "" );
+    fields[ 3 ].setGroupSymbol( "" );
+    fields[ 3 ].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    fields[ 3 ].setPosition( 4 );
 
-    fields[4].setName( "e" );
-    fields[4].setType( ValueMetaInterface.TYPE_STRING );
-    fields[4].setFormat( "" );
-    fields[4].setLength( -1 );
-    fields[4].setPrecision( -1 );
-    fields[4].setCurrencySymbol( "" );
-    fields[4].setDecimalSymbol( "" );
-    fields[4].setGroupSymbol( "" );
-    fields[4].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
-    fields[4].setPosition( 5 );
+    fields[ 4 ].setName( "e" );
+    fields[ 4 ].setType( ValueMetaInterface.TYPE_STRING );
+    fields[ 4 ].setFormat( "" );
+    fields[ 4 ].setLength( -1 );
+    fields[ 4 ].setPrecision( -1 );
+    fields[ 4 ].setCurrencySymbol( "" );
+    fields[ 4 ].setDecimalSymbol( "" );
+    fields[ 4 ].setGroupSymbol( "" );
+    fields[ 4 ].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    fields[ 4 ].setPosition( 5 );
 
     // call this so that we allocate the arrays
     // for files, fields and filters.
@@ -331,36 +329,36 @@ public class TextFileInputIT extends TestCase {
     StepMeta textFileInputStep = new StepMeta( textFileInputPid, name, textFileInputMeta );
 
     // initialize the fields
-    TextFileInputField[] fields = new TextFileInputField[2];
+    TextFileInputField[] fields = new TextFileInputField[ 2 ];
     for ( int idx = 0; idx < fields.length; idx++ ) {
-      fields[idx] = new TextFileInputField();
+      fields[ idx ] = new TextFileInputField();
     }
 
     // populate the fields
     // it is important that the setPosition(int)
     // is invoked with the correct position as
     // we are testing the reading of a delimited file.
-    fields[0].setName( "a" );
-    fields[0].setType( ValueMetaInterface.TYPE_INTEGER );
-    fields[0].setFormat( "" );
-    fields[0].setLength( 15 );
-    fields[0].setPrecision( -1 );
-    fields[0].setCurrencySymbol( "" );
-    fields[0].setDecimalSymbol( "" );
-    fields[0].setGroupSymbol( "" );
-    fields[0].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
-    fields[0].setPosition( 1 );
+    fields[ 0 ].setName( "a" );
+    fields[ 0 ].setType( ValueMetaInterface.TYPE_INTEGER );
+    fields[ 0 ].setFormat( "" );
+    fields[ 0 ].setLength( 15 );
+    fields[ 0 ].setPrecision( -1 );
+    fields[ 0 ].setCurrencySymbol( "" );
+    fields[ 0 ].setDecimalSymbol( "" );
+    fields[ 0 ].setGroupSymbol( "" );
+    fields[ 0 ].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    fields[ 0 ].setPosition( 1 );
 
-    fields[1].setName( "b" );
-    fields[1].setType( ValueMetaInterface.TYPE_INTEGER );
-    fields[1].setFormat( "" );
-    fields[1].setLength( 15 );
-    fields[1].setPrecision( -1 );
-    fields[1].setCurrencySymbol( "" );
-    fields[1].setDecimalSymbol( "" );
-    fields[1].setGroupSymbol( "" );
-    fields[1].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
-    fields[1].setPosition( 2 );
+    fields[ 1 ].setName( "b" );
+    fields[ 1 ].setType( ValueMetaInterface.TYPE_INTEGER );
+    fields[ 1 ].setFormat( "" );
+    fields[ 1 ].setLength( 15 );
+    fields[ 1 ].setPrecision( -1 );
+    fields[ 1 ].setCurrencySymbol( "" );
+    fields[ 1 ].setDecimalSymbol( "" );
+    fields[ 1 ].setGroupSymbol( "" );
+    fields[ 1 ].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    fields[ 1 ].setPosition( 2 );
 
     // call this so that we allocate the arrays
     // for files, fields and filters.

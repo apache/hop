@@ -21,12 +21,12 @@
  ******************************************************************************/
 package org.apache.hop.core.util;
 
+import org.apache.commons.collections.BidiMap;
+import org.apache.commons.collections.bidimap.DualHashBidiMap;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import org.apache.commons.collections.BidiMap;
-import org.apache.commons.collections.bidimap.DualHashBidiMap;
 
 public class DateDetector {
 
@@ -152,10 +152,11 @@ public class DateDetector {
 
   // util class, hide constructor
   private DateDetector() {
-  };
+  }
+
+  ;
 
   /**
-   * 
    * @param dateFormat - date format for get regexp
    * @return regexp for given date format
    */
@@ -164,7 +165,6 @@ public class DateDetector {
   }
 
   /**
-   * 
    * @param dateFormat - date format for get regexp by locale
    * @return regexp for given date format
    */
@@ -176,14 +176,12 @@ public class DateDetector {
   }
 
   /**
-   * 
    * @param regex - regexp for parse date format from string
-   * <br>
-   * <b>NOTES:</b> if regex could be used for US and EU locale. 
-   * It returns europeans locale. For en_US locale please use
-   * 
-   *  {@link #getDateFormatByRegex( String regex, String locale ) }
-   *
+   *              <br>
+   *              <b>NOTES:</b> if regex could be used for US and EU locale.
+   *              It returns europeans locale. For en_US locale please use
+   *              <p>
+   *              {@link #getDateFormatByRegex(String regex, String locale) }
    * @return {@link java.lang.String} string wich represented Date Format
    */
   public static String getDateFormatByRegex( String regex ) {
@@ -191,9 +189,7 @@ public class DateDetector {
   }
 
   /**
-   * 
-   * @param regex
-   *          - regexp for parse date format from string by locale
+   * @param regex - regexp for parse date format from string by locale
    * @return {@link java.lang.String} string wich represented Date Format
    */
   public static String getDateFormatByRegex( String regex, String locale ) {
@@ -204,12 +200,9 @@ public class DateDetector {
   }
 
   /**
-   * 
-   * @param dateString
-   *          date string for parse
+   * @param dateString date string for parse
    * @return {@link java.util.Date} converted from dateString by detected format
-   * @throws ParseException
-   *           - if we can not detect date format for string or we can not parse date string
+   * @throws ParseException - if we can not detect date format for string or we can not parse date string
    */
   public static Date getDateFromString( String dateString ) throws ParseException {
     String dateFormat = detectDateFormat( dateString );
@@ -220,12 +213,9 @@ public class DateDetector {
   }
 
   /**
-   * 
-   * @param dateString
-   *          date string for parse
+   * @param dateString date string for parse
    * @return {@link java.util.Date} converted from dateString by detected format
-   * @throws ParseException
-   *           - if we can not detect date format for string or we can not parse date string
+   * @throws ParseException - if we can not detect date format for string or we can not parse date string
    */
   public static Date getDateFromString( String dateString, String locale ) throws ParseException {
     String dateFormat = detectDateFormat( dateString, locale );
@@ -236,14 +226,10 @@ public class DateDetector {
   }
 
   /**
-   * 
-   * @param dateString
-   *          date string for parse
-   * @param dateFormat
-   *          format which should be applied for string
+   * @param dateString date string for parse
+   * @param dateFormat format which should be applied for string
    * @return {@link java.util.Date} converted from dateString by format
-   * @throws ParseException
-   *           if we can not parse date string
+   * @throws ParseException if we can not parse date string
    */
   public static Date getDateFromStringByFormat( String dateString, String dateFormat ) throws ParseException {
     if ( dateFormat == null ) {
@@ -258,20 +244,15 @@ public class DateDetector {
   }
 
   /**
-   * 
-   * @param dateString
-   *          - date string for detect date format
+   * @param dateString - date string for detect date format
    * @return {@link java.lang.String} string which represented Date Format or null
-   * 
    */
   public static String detectDateFormat( String dateString ) {
     return detectDateFormat( dateString, null );
   }
 
   /**
-   * 
-   * @param dateString
-   *          - date string for detect date format
+   * @param dateString - date string for detect date format
    * @return {@link java.lang.String} string which represented Date Format or null
    */
   public static String detectDateFormat( String dateString, String locale ) {
@@ -289,13 +270,10 @@ public class DateDetector {
   /**
    * Finds a date format that matches the date value given. Will try the desiredKey format before attempting others. The
    * first to match is returned.
-   * 
-   * @param dateString
-   *          the literal value of the date (eg: "01/01/2001")
-   * @param locale
-   *          the locale in play
-   * @param desiredKey
-   *          the desired format (should be a valid key to DATE_FORMAT_TO_REGEXPS)
+   *
+   * @param dateString the literal value of the date (eg: "01/01/2001")
+   * @param locale     the locale in play
+   * @param desiredKey the desired format (should be a valid key to DATE_FORMAT_TO_REGEXPS)
    * @return The key to the format that matched or null if none found.
    */
   public static String detectDateFormatBiased( String dateString, String locale, String desiredKey ) {
@@ -319,7 +297,6 @@ public class DateDetector {
   }
 
   /**
-   * 
    * @param dateString - string for check
    * @param dateFormat - format for check
    * @return true if we can parse string by format without exception
@@ -347,7 +324,6 @@ public class DateDetector {
   }
 
   /**
-   * 
    * @param dateFormat - format which we will try to apply for string
    * @param dateString - string which contains date
    * @return true if we found that we know dateFormat and it applied for given string
@@ -361,16 +337,15 @@ public class DateDetector {
   }
 
   /**
-   * 
    * @param dateFormat - format which we will try to apply for string
    * @param dateString - string which contains date
-   * @param locale - locale for date format
+   * @param locale     - locale for date format
    * @return true if we found that we know dateFormat and it applied for given string
    */
   public static boolean isValidDateFormatToStringDate( String dateFormat, String dateString, String locale ) {
     String detectedDateFormat =
-        dateFormat != null ? detectDateFormatBiased( dateString, locale, dateFormat ) : detectDateFormat( dateString,
-            locale );
+      dateFormat != null ? detectDateFormatBiased( dateString, locale, dateFormat ) : detectDateFormat( dateString,
+        locale );
     if ( ( dateFormat != null ) && ( dateFormat.equals( detectedDateFormat ) ) ) {
       return true;
     }

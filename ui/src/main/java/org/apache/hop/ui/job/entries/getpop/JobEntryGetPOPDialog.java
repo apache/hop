@@ -23,12 +23,25 @@
 
 package org.apache.hop.ui.job.entries.getpop;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
-import javax.mail.Folder;
-
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.getpop.JobEntryGetPOP;
+import org.apache.hop.job.entries.getpop.MailConnection;
+import org.apache.hop.job.entries.getpop.MailConnectionMeta;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -57,24 +70,10 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.getpop.JobEntryGetPOP;
-import org.apache.hop.job.entries.getpop.MailConnection;
-import org.apache.hop.job.entries.getpop.MailConnectionMeta;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.PasswordTextVar;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import javax.mail.Folder;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 /**
  * This dialog allows you to edit the Get POP job entry settings.
@@ -1783,7 +1782,7 @@ public class JobEntryGetPOPDialog extends JobEntryDialog implements JobEntryDial
         mailConn =
           new MailConnection(
             LogChannel.UI, MailConnectionMeta.getProtocolFromString(
-              wProtocol.getText(), MailConnectionMeta.PROTOCOL_IMAP ), realserver, realport, realuser,
+            wProtocol.getText(), MailConnectionMeta.PROTOCOL_IMAP ), realserver, realport, realuser,
             realpass, wUseSSL.getSelection(), wUseProxy.getSelection(), realproxyuser );
         mailConn.connect();
 
@@ -1863,10 +1862,10 @@ public class JobEntryGetPOPDialog extends JobEntryDialog implements JobEntryDial
   private void conditionReceivedDate() {
     boolean activeReceivedDate =
       !( MailConnectionMeta.getConditionDateByDesc( wConditionOnReceivedDate.getText() )
-      == MailConnectionMeta.CONDITION_DATE_IGNORE );
+        == MailConnectionMeta.CONDITION_DATE_IGNORE );
     boolean useBetween =
       ( MailConnectionMeta.getConditionDateByDesc( wConditionOnReceivedDate.getText() )
-      == MailConnectionMeta.CONDITION_DATE_BETWEEN );
+        == MailConnectionMeta.CONDITION_DATE_BETWEEN );
     wlReadFrom.setVisible( activeReceivedDate );
     wReadFrom.setVisible( activeReceivedDate );
     open.setVisible( activeReceivedDate );

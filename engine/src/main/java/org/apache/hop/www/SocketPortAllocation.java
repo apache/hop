@@ -47,8 +47,8 @@ public class SocketPortAllocation {
    * @param sourceStepCopy
    */
   public SocketPortAllocation( int port, Date lastRequested, String clusterRunId, String transformationName,
-    String sourceSlaveName, String sourceStepName, String sourceStepCopy, String targetSlaveName,
-    String targetStepName, String targetStepCopy ) {
+                               String sourceSlaveName, String sourceStepName, String sourceStepCopy, String targetSlaveName,
+                               String targetStepName, String targetStepCopy ) {
     this.port = port;
     this.lastRequested = lastRequested;
     this.clusterRunId = clusterRunId;
@@ -71,8 +71,7 @@ public class SocketPortAllocation {
   }
 
   /**
-   * @param port
-   *          the port to set
+   * @param port the port to set
    */
   public void setPort( int port ) {
     this.port = port;
@@ -103,8 +102,7 @@ public class SocketPortAllocation {
   }
 
   /**
-   * @param lastRequested
-   *          the lastRequested to set
+   * @param lastRequested the lastRequested to set
    */
   public void setLastRequested( Date lastRequested ) {
     this.lastRequested = lastRequested;
@@ -118,8 +116,7 @@ public class SocketPortAllocation {
   }
 
   /**
-   * @param transformationName
-   *          the transformationName to set
+   * @param transformationName the transformationName to set
    */
   public void setTransformationName( String transformationName ) {
     this.transformationName = transformationName;
@@ -133,8 +130,7 @@ public class SocketPortAllocation {
   }
 
   /**
-   * @param allocated
-   *          the allocated to set
+   * @param allocated the allocated to set
    */
   public void setAllocated( boolean allocated ) {
     this.allocated = allocated;
@@ -148,8 +144,7 @@ public class SocketPortAllocation {
   }
 
   /**
-   * @param sourceStepName
-   *          the sourceStepName to set
+   * @param sourceStepName the sourceStepName to set
    */
   public void setSourceStepName( String sourceStepName ) {
     this.sourceStepName = sourceStepName;
@@ -163,8 +158,7 @@ public class SocketPortAllocation {
   }
 
   /**
-   * @param sourceStepCopy
-   *          the sourceStepCopy to set
+   * @param sourceStepCopy the sourceStepCopy to set
    */
   public void setSourceStepCopy( String sourceStepCopy ) {
     this.sourceStepCopy = sourceStepCopy;
@@ -178,8 +172,7 @@ public class SocketPortAllocation {
   }
 
   /**
-   * @param targetStepName
-   *          the targetStepName to set
+   * @param targetStepName the targetStepName to set
    */
   public void setTargetStepName( String targetStepName ) {
     this.targetStepName = targetStepName;
@@ -193,8 +186,7 @@ public class SocketPortAllocation {
   }
 
   /**
-   * @param targetStepCopy
-   *          the targetStepCopy to set
+   * @param targetStepCopy the targetStepCopy to set
    */
   public void setTargetStepCopy( String targetStepCopy ) {
     this.targetStepCopy = targetStepCopy;
@@ -208,8 +200,7 @@ public class SocketPortAllocation {
   }
 
   /**
-   * @param sourceSlaveName
-   *          the sourceSlaveName to set
+   * @param sourceSlaveName the sourceSlaveName to set
    */
   public void setSourceSlaveName( String sourceSlaveName ) {
     this.sourceSlaveName = sourceSlaveName;
@@ -223,8 +214,7 @@ public class SocketPortAllocation {
   }
 
   /**
-   * @param targetSlaveName
-   *          the targetSlaveName to set
+   * @param targetSlaveName the targetSlaveName to set
    */
   public void setTargetSlaveName( String targetSlaveName ) {
     this.targetSlaveName = targetSlaveName;
@@ -238,8 +228,7 @@ public class SocketPortAllocation {
   }
 
   /**
-   * @param clusterRunId
-   *          the carteObjectId to set
+   * @param clusterRunId the carteObjectId to set
    */
   public void setClusterRunId( String clusterRunId ) {
     this.clusterRunId = clusterRunId;

@@ -22,8 +22,8 @@
 
 package org.apache.hop.ui.hopui;
 
-import org.eclipse.swt.widgets.ScrollBar;
 import org.apache.hop.core.gui.ScrollBarInterface;
+import org.eclipse.swt.widgets.ScrollBar;
 
 public class SwtScrollBar implements ScrollBarInterface {
 

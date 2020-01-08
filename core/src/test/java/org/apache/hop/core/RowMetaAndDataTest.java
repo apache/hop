@@ -22,11 +22,6 @@
 
 package org.apache.hop.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.injection.DefaultInjectionTypeConverter;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -39,6 +34,11 @@ import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class RowMetaAndDataTest {
   RowMeta rowsMeta;
@@ -75,8 +75,8 @@ public class RowMetaAndDataTest {
     row.mergeRowMetaAndData( addRow, "originName" );
 
     assertEquals( 4, row.size() );
-    assertEquals( "text", row.getData()[0] );
-    assertEquals( "text1", row.getData()[3] );
+    assertEquals( "text", row.getData()[ 0 ] );
+    assertEquals( "text1", row.getData()[ 3 ] );
     assertEquals( "originName", row.getValueMeta( 3 ).getOrigin() );
   }
 

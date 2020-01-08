@@ -22,26 +22,10 @@
 
 package org.apache.hop.trans.steps.script;
 
-import java.math.BigDecimal;
-import java.net.URL;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-
-import javax.script.Bindings;
-import javax.script.Compilable;
-import javax.script.CompiledScript;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-
 import org.apache.hop.compatibility.Value;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopStepException;
@@ -50,10 +34,11 @@ import org.apache.hop.core.plugins.HopURLClassLoader;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -61,9 +46,21 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import javax.script.Bindings;
+import javax.script.Compilable;
+import javax.script.CompiledScript;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import java.math.BigDecimal;
+import java.net.URL;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 /*
  * Created on 2-jun-2003
@@ -102,8 +99,7 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param length
-   *          The length to set.
+   * @param length The length to set.
    */
   public void setLength( int[] length ) {
     this.length = length;
@@ -117,8 +113,7 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param fieldname
-   *          The name to set.
+   * @param fieldname The name to set.
    */
   public void setFieldname( String[] fieldname ) {
     this.fieldname = fieldname;
@@ -132,8 +127,7 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param precision
-   *          The precision to set.
+   * @param precision The precision to set.
    */
   public void setPrecision( int[] precision ) {
     this.precision = precision;
@@ -147,8 +141,7 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param rename
-   *          The rename to set.
+   * @param rename The rename to set.
    */
   public void setRename( String[] rename ) {
     this.rename = rename;
@@ -162,8 +155,7 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param type
-   *          The type to set.
+   * @param type The type to set.
    */
   public void setType( int[] type ) {
     this.type = type;
@@ -174,9 +166,9 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public String[] getJSScriptNames() {
-    String[] strJSNames = new String[jsScripts.length];
+    String[] strJSNames = new String[ jsScripts.length ];
     for ( int i = 0; i < jsScripts.length; i++ ) {
-      strJSNames[i] = jsScripts[i].getScriptName();
+      strJSNames[ i ] = jsScripts[ i ].getScriptName();
     }
     return strJSNames;
   }
@@ -194,12 +186,12 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrfields ) {
-    fieldname = new String[nrfields];
-    rename = new String[nrfields];
-    type = new int[nrfields];
-    length = new int[nrfields];
-    precision = new int[nrfields];
-    replace = new boolean[nrfields];
+    fieldname = new String[ nrfields ];
+    rename = new String[ nrfields ];
+    type = new int[ nrfields ];
+    length = new int[ nrfields ];
+    precision = new int[ nrfields ];
+    replace = new boolean[ nrfields ];
   }
 
   public Object clone() {
@@ -223,14 +215,14 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
     try {
       Node scripts = XMLHandler.getSubNode( stepnode, "jsScripts" );
       int nrscripts = XMLHandler.countNodes( scripts, "jsScript" );
-      jsScripts = new ScriptValuesScript[nrscripts];
+      jsScripts = new ScriptValuesScript[ nrscripts ];
       for ( int i = 0; i < nrscripts; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( scripts, "jsScript", i );
 
-        jsScripts[i] =
+        jsScripts[ i ] =
           new ScriptValuesScript(
             Integer.parseInt( XMLHandler.getTagValue( fnode, JSSCRIPT_TAG_TYPE ) ), XMLHandler.getTagValue(
-              fnode, JSSCRIPT_TAG_NAME ), XMLHandler.getTagValue( fnode, JSSCRIPT_TAG_SCRIPT ) );
+            fnode, JSSCRIPT_TAG_NAME ), XMLHandler.getTagValue( fnode, JSSCRIPT_TAG_SCRIPT ) );
       }
 
       Node fields = XMLHandler.getSubNode( stepnode, "fields" );
@@ -241,15 +233,15 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
       for ( int i = 0; i < nrfields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldname[i] = XMLHandler.getTagValue( fnode, "name" );
-        rename[i] = XMLHandler.getTagValue( fnode, "rename" );
-        type[i] = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( fnode, "type" ) );
+        fieldname[ i ] = XMLHandler.getTagValue( fnode, "name" );
+        rename[ i ] = XMLHandler.getTagValue( fnode, "rename" );
+        type[ i ] = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( fnode, "type" ) );
 
         String slen = XMLHandler.getTagValue( fnode, "length" );
         String sprc = XMLHandler.getTagValue( fnode, "precision" );
-        length[i] = Const.toInt( slen, -1 );
-        precision[i] = Const.toInt( sprc, -1 );
-        replace[i] = "Y".equalsIgnoreCase( XMLHandler.getTagValue( fnode, "replace" ) );
+        length[ i ] = Const.toInt( slen, -1 );
+        precision[ i ] = Const.toInt( sprc, -1 );
+        replace[ i ] = "Y".equalsIgnoreCase( XMLHandler.getTagValue( fnode, "replace" ) );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString(
@@ -258,8 +250,8 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void setDefault() {
-    jsScripts = new ScriptValuesScript[1];
-    jsScripts[0] =
+    jsScripts = new ScriptValuesScript[ 1 ];
+    jsScripts[ 0 ] =
       new ScriptValuesScript( ScriptValuesScript.TRANSFORM_SCRIPT, BaseMessages
         .getString( PKG, "Script.Script1" ), "//"
         + BaseMessages.getString( PKG, "Script.ScriptHere" ) + Const.CR + Const.CR );
@@ -268,51 +260,51 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( nrfields );
 
     for ( int i = 0; i < nrfields; i++ ) {
-      fieldname[i] = "newvalue";
-      rename[i] = "newvalue";
-      type[i] = ValueMetaInterface.TYPE_NUMBER;
-      length[i] = -1;
-      precision[i] = -1;
-      replace[i] = false;
+      fieldname[ i ] = "newvalue";
+      rename[ i ] = "newvalue";
+      type[ i ] = ValueMetaInterface.TYPE_NUMBER;
+      length[ i ] = -1;
+      precision[ i ] = -1;
+      replace[ i ] = false;
     }
   }
 
   public void getFields( RowMetaInterface row, String originStepname, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     for ( int i = 0; i < fieldname.length; i++ ) {
-      if ( !Utils.isEmpty( fieldname[i] ) ) {
+      if ( !Utils.isEmpty( fieldname[ i ] ) ) {
         String fieldName;
         int replaceIndex;
         int fieldType;
 
-        if ( replace[i] ) {
+        if ( replace[ i ] ) {
           // Look up the field to replace...
           //
-          if ( row.searchValueMeta( fieldname[i] ) == null && Utils.isEmpty( rename[i] ) ) {
+          if ( row.searchValueMeta( fieldname[ i ] ) == null && Utils.isEmpty( rename[ i ] ) ) {
             throw new HopStepException( BaseMessages.getString(
-              PKG, "ScriptMeta.Exception.FieldToReplaceNotFound", fieldname[i] ) );
+              PKG, "ScriptMeta.Exception.FieldToReplaceNotFound", fieldname[ i ] ) );
           }
-          replaceIndex = row.indexOfValue( rename[i] );
+          replaceIndex = row.indexOfValue( rename[ i ] );
 
           // Change the data type to match what's specified...
           //
-          fieldType = type[i];
-          fieldName = rename[i];
+          fieldType = type[ i ];
+          fieldName = rename[ i ];
         } else {
           replaceIndex = -1;
-          fieldType = type[i];
-          if ( rename[i] != null && rename[i].length() != 0 ) {
-            fieldName = rename[i];
+          fieldType = type[ i ];
+          if ( rename[ i ] != null && rename[ i ].length() != 0 ) {
+            fieldName = rename[ i ];
           } else {
-            fieldName = fieldname[i];
+            fieldName = fieldname[ i ];
           }
         }
         try {
           ValueMetaInterface v = ValueMetaFactory.createValueMeta( fieldName, fieldType );
-          v.setLength( length[i] );
-          v.setPrecision( precision[i] );
+          v.setLength( length[ i ] );
+          v.setPrecision( precision[ i ] );
           v.setOrigin( originStepname );
-          if ( replace[i] && replaceIndex >= 0 ) {
+          if ( replace[ i ] && replaceIndex >= 0 ) {
             row.setValueMeta( replaceIndex, v );
           } else {
             row.addValueMeta( v );
@@ -331,10 +323,10 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
     for ( int i = 0; i < jsScripts.length; i++ ) {
       retval.append( "      <jsScript>" );
       retval
-        .append( "        " ).append( XMLHandler.addTagValue( JSSCRIPT_TAG_TYPE, jsScripts[i].getScriptType() ) );
+        .append( "        " ).append( XMLHandler.addTagValue( JSSCRIPT_TAG_TYPE, jsScripts[ i ].getScriptType() ) );
       retval
-        .append( "        " ).append( XMLHandler.addTagValue( JSSCRIPT_TAG_NAME, jsScripts[i].getScriptName() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( JSSCRIPT_TAG_SCRIPT, jsScripts[i].getScript() ) );
+        .append( "        " ).append( XMLHandler.addTagValue( JSSCRIPT_TAG_NAME, jsScripts[ i ].getScriptName() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( JSSCRIPT_TAG_SCRIPT, jsScripts[ i ].getScript() ) );
       retval.append( "      </jsScript>" );
     }
     retval.append( "    </jsScripts>" );
@@ -342,13 +334,13 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "    <fields>" );
     for ( int i = 0; i < fieldname.length; i++ ) {
       retval.append( "      <field>" );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", fieldname[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "rename", rename[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "name", fieldname[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "rename", rename[ i ] ) );
       retval.append( "        " ).append( XMLHandler.addTagValue( "type",
-        ValueMetaFactory.getValueMetaName( type[i] ) ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "length", length[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "precision", precision[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "replace", replace[i] ) );
+        ValueMetaFactory.getValueMetaName( type[ i ] ) ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "length", length[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "precision", precision[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "replace", replace[ i ] ) );
       retval.append( "      </field>" );
     }
     retval.append( "    </fields>" );
@@ -357,8 +349,8 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     boolean error_found = false;
     String error_message = "";
     CheckResult cr;
@@ -381,15 +373,15 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
     // Building the Scripts
     if ( jsScripts.length > 0 ) {
       for ( int i = 0; i < jsScripts.length; i++ ) {
-        if ( jsScripts[i].isTransformScript() ) {
+        if ( jsScripts[ i ].isTransformScript() ) {
           // strActiveScriptName =jsScripts[i].getScriptName();
-          strActiveScript = jsScripts[i].getScript();
-        } else if ( jsScripts[i].isStartScript() ) {
-          strActiveStartScriptName = jsScripts[i].getScriptName();
-          strActiveStartScript = jsScripts[i].getScript();
-        } else if ( jsScripts[i].isEndScript() ) {
-          strActiveEndScriptName = jsScripts[i].getScriptName();
-          strActiveEndScript = jsScripts[i].getScript();
+          strActiveScript = jsScripts[ i ].getScript();
+        } else if ( jsScripts[ i ].isStartScript() ) {
+          strActiveStartScriptName = jsScripts[ i ].getScriptName();
+          strActiveStartScript = jsScripts[ i ].getScript();
+        } else if ( jsScripts[ i ].isEndScript() ) {
+          strActiveEndScriptName = jsScripts[ i ].getScriptName();
+          strActiveEndScript = jsScripts[ i ].getScript();
         }
       }
     }
@@ -402,7 +394,7 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
 
       // Adding the existing Scripts to the Context
       for ( int i = 0; i < getNumberOfJSScripts(); i++ ) {
-        jsscope.put( jsScripts[i].getScriptName(), jsScripts[i].getScript() );
+        jsscope.put( jsScripts[ i ].getScriptName(), jsScripts[ i ].getScript() );
       }
 
       // Modification for Additional Script parsing
@@ -410,7 +402,7 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
         if ( getAddClasses() != null ) {
           for ( int i = 0; i < getAddClasses().length; i++ ) {
             // TODO AKRETION ensure it works
-            jsscope.put( getAddClasses()[i].getJSName(), getAddClasses()[i].getAddObject() );
+            jsscope.put( getAddClasses()[ i ].getJSName(), getAddClasses()[ i ].getAddObject() );
             // Object jsOut = Context.javaToJS(getAddClasses()[i].getAddObject(), jsscope);
             // ScriptableObject.putProperty(jsscope, getAddClasses()[i].getJSName(), jsOut);
             // ScriptableObject.putProperty(jsscope, getAddClasses()[i].getJSName(), jsOut);
@@ -450,7 +442,7 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
         ScriptDummy dummyStep = new ScriptDummy( prev, transMeta.getStepFields( stepMeta ) );
         jsscope.put( "_step_", dummyStep );
 
-        Object[] row = new Object[prev.size()];
+        Object[] row = new Object[ prev.size() ];
         jsscope.put( "rowMeta", prev );
         for ( int i = 0; i < prev.size(); i++ ) {
           ValueMetaInterface valueMeta = prev.getValueMeta( i );
@@ -481,7 +473,7 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
             valueData = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, };
           }
 
-          row[i] = valueData;
+          row[ i ] = valueData;
 
           jsscope.put( valueMeta.getName(), valueData );
         }
@@ -559,7 +551,8 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
         // Checking End Script
         try {
           if ( strActiveEndScript != null && strActiveEndScript.length() > 0 ) {
-            /* Object endScript = */jscx.eval( strActiveEndScript, jsscope );
+            /* Object endScript = */
+            jscx.eval( strActiveEndScript, jsscope );
             error_message = "Found End Script. " + strActiveEndScriptName + " Processing OK";
             cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, error_message, stepMeta );
             remarks.add( cr );
@@ -619,18 +612,18 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
   public boolean getValue( Bindings scope, int i, Value res, StringBuilder message ) {
     boolean error_found = false;
 
-    if ( fieldname[i] != null && fieldname[i].length() > 0 ) {
-      res.setName( rename[i] );
-      res.setType( type[i] );
+    if ( fieldname[ i ] != null && fieldname[ i ].length() > 0 ) {
+      res.setName( rename[ i ] );
+      res.setType( type[ i ] );
 
       try {
 
-        Object result = scope.get( fieldname[i] );
+        Object result = scope.get( fieldname[ i ] );
         if ( result != null ) {
 
           String classname = result.getClass().getName();
 
-          switch ( type[i] ) {
+          switch ( type[ i ] ) {
             case ValueMetaInterface.TYPE_NUMBER:
               if ( classname.equalsIgnoreCase( "org.mozilla.javascript.Undefined" ) ) {
                 res.setNull();
@@ -718,13 +711,13 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
           res.setNull();
         }
       } catch ( Exception e ) {
-        message.append( BaseMessages.getString( PKG, "ScriptMeta.CheckResult.ErrorRetrievingValue", fieldname[i] )
+        message.append( BaseMessages.getString( PKG, "ScriptMeta.CheckResult.ErrorRetrievingValue", fieldname[ i ] )
           + " : " + e.toString() );
         error_found = true;
       }
-      res.setLength( length[i], precision[i] );
+      res.setLength( length[ i ], precision[ i ] );
 
-      message.append( BaseMessages.getString( PKG, "ScriptMeta.CheckResult.RetrievedValue", fieldname[i], res
+      message.append( BaseMessages.getString( PKG, "ScriptMeta.CheckResult.RetrievedValue", fieldname[ i ], res
         .toStringMeta() ) );
     } else {
       message.append( BaseMessages.getString( PKG, "ScriptMeta.CheckResult.ValueIsEmpty", String.valueOf( i ) ) );
@@ -735,7 +728,7 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new Script( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -752,7 +745,7 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
       Node stepnode = dom.getDocumentElement();
       Node libraries = XMLHandler.getSubNode( stepnode, "js_libraries" );
       int nbOfLibs = XMLHandler.countNodes( libraries, "js_lib" );
-      additionalClasses = new ScriptAddClasses[nbOfLibs];
+      additionalClasses = new ScriptAddClasses[ nbOfLibs ];
       for ( int i = 0; i < nbOfLibs; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( libraries, "js_lib", i );
         String strJarName = XMLHandler.getTagAttribute( fnode, "name" );
@@ -762,7 +755,7 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
         Class<?> addClass =
           LoadAdditionalClass( strActPath + "/plugins/steps/ScriptValues_mod/" + strJarName, strClassName );
         Object addObject = addClass.newInstance();
-        additionalClasses[i] = new ScriptAddClasses( addClass, addObject, strJSName );
+        additionalClasses[ i ] = new ScriptAddClasses( addClass, addObject, strJSName );
       }
     } catch ( Exception e ) {
       throw new HopException( BaseMessages.getString(
@@ -802,8 +795,7 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param replace
-   *          the replace to set
+   * @param replace the replace to set
    */
   public void setReplace( boolean[] replace ) {
     this.replace = replace;
@@ -819,13 +811,13 @@ public class ScriptMeta extends BaseStepMeta implements StepMetaInterface {
    */
   public static ScriptEngine createNewScriptEngine( String stepName ) {
     System.setProperty( "org.jruby.embed.localvariable.behavior", "persistent" ); // required for JRuby, transparent for
-                                                                                  // others
+    // others
     if ( Thread.currentThread().getContextClassLoader() == null ) {
       Thread.currentThread().setContextClassLoader( ScriptMeta.class.getClassLoader() );
     }
     ScriptEngineManager manager = new ScriptEngineManager();
     String[] strings = stepName.split( "\\." );
-    String extension = strings[strings.length > 0 ? 1 : 0]; // skip the script number extension
+    String extension = strings[ strings.length > 0 ? 1 : 0 ]; // skip the script number extension
     ScriptEngine scriptEngine = manager.getEngineByName( extension );
     if ( scriptEngine == null ) { // falls back to Javascript
       scriptEngine = manager.getEngineByName( "javascript" );

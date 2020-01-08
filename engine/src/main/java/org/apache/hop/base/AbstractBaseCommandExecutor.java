@@ -22,21 +22,18 @@
 
 package org.apache.hop.base;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopSecurityException;
-import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.MetaStoreConst;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
 import org.apache.hop.version.BuildVersion;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public abstract class AbstractBaseCommandExecutor {
 
@@ -91,15 +88,15 @@ public abstract class AbstractBaseCommandExecutor {
       int min = ( seconds / 60 );
       int rem = ( seconds % 60 );
       getLog().logMinimal( BaseMessages.getString( getPkgClazz(), processingEndAfterLongMsgTkn, String.valueOf( min ),
-                    String.valueOf( rem ), String.valueOf( seconds ) ) );
+        String.valueOf( rem ), String.valueOf( seconds ) ) );
     } else if ( seconds <= 60 * 60 * 24 ) {
       int rem;
       int hour = ( seconds / ( 60 * 60 ) );
       rem = ( seconds % ( 60 * 60 ) );
       int min = rem / 60;
       rem = rem % 60;
-      getLog().logMinimal( BaseMessages.getString(  getPkgClazz(), processingEndAfterLongerMsgTkn, String.valueOf( hour ),
-                    String.valueOf( min ), String.valueOf( rem ), String.valueOf( seconds ) ) );
+      getLog().logMinimal( BaseMessages.getString( getPkgClazz(), processingEndAfterLongerMsgTkn, String.valueOf( hour ),
+        String.valueOf( min ), String.valueOf( rem ), String.valueOf( seconds ) ) );
     } else {
       int rem;
       int days = ( seconds / ( 60 * 60 * 24 ) );
@@ -109,7 +106,7 @@ public abstract class AbstractBaseCommandExecutor {
       int min = rem / 60;
       rem = rem % 60;
       getLog().logMinimal( BaseMessages.getString( getPkgClazz(), processingEndAfterLongestMsgTkn, String.valueOf( days ),
-                    String.valueOf( hour ), String.valueOf( min ), String.valueOf( rem ), String.valueOf( seconds ) ) );
+        String.valueOf( hour ), String.valueOf( min ), String.valueOf( rem ), String.valueOf( seconds ) ) );
     }
 
     return seconds;
@@ -118,7 +115,7 @@ public abstract class AbstractBaseCommandExecutor {
   protected void printVersion( String kettleVersionMsgTkn ) {
     BuildVersion buildVersion = BuildVersion.getInstance();
     getLog().logBasic( BaseMessages.getString( getPkgClazz(), kettleVersionMsgTkn, buildVersion.getVersion(),
-            buildVersion.getRevision(), buildVersion.getBuildDate() ) );
+      buildVersion.getRevision(), buildVersion.getBuildDate() ) );
   }
 
   protected void printParameter( String name, String value, String defaultValue, String description ) {

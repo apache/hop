@@ -22,14 +22,14 @@
 
 package org.apache.hop.i18n;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.EnvUtil;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Properties;
-
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.EnvUtil;
 
 public class LanguageChoice {
   private static final String STRING_DEFAULT_LOCALE = "LocaleDefault";
@@ -62,8 +62,7 @@ public class LanguageChoice {
   }
 
   /**
-   * @param defaultLocale
-   *          The defaultLocale to set.
+   * @param defaultLocale The defaultLocale to set.
    */
   public void setDefaultLocale( Locale defaultLocale ) {
     this.defaultLocale = defaultLocale;

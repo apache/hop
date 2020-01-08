@@ -22,15 +22,6 @@
 
 package org.apache.hop.core.gui;
 
-import java.awt.image.BufferedImage;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.imageio.ImageIO;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.SwingUniversalImage;
 import org.apache.hop.core.SwingUniversalImageBitmap;
@@ -45,6 +36,14 @@ import org.apache.hop.core.plugins.StepPluginType;
 import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.core.svg.SvgSupport;
 import org.apache.hop.job.JobMeta;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SwingGUIResource {
   private static LogChannelInterface log = new LogChannel( "SwingGUIResource" );
@@ -77,7 +76,7 @@ public class SwingGUIResource {
         }
       } catch ( Exception e ) {
         log.logError( "Unable to load step icon image for plugin: "
-          + plugin.getName() + " (id=" + plugin.getIds()[0] + ")", e );
+          + plugin.getName() + " (id=" + plugin.getIds()[ 0 ] + ")", e );
       }
     }
 
@@ -89,7 +88,7 @@ public class SwingGUIResource {
 
     for ( PluginInterface plugin : PluginRegistry.getInstance().getPlugins( JobEntryPluginType.class ) ) {
       try {
-        if ( JobMeta.STRING_SPECIAL.equals( plugin.getIds()[0] ) ) {
+        if ( JobMeta.STRING_SPECIAL.equals( plugin.getIds()[ 0 ] ) ) {
           continue;
         }
 
@@ -99,10 +98,10 @@ public class SwingGUIResource {
             + plugin.getImageFile() + " for plugin: " + plugin );
         }
 
-        map.put( plugin.getIds()[0], image );
+        map.put( plugin.getIds()[ 0 ], image );
       } catch ( Exception e ) {
         log.logError( "Unable to load job entry icon image for plugin: "
-          + plugin.getName() + " (id=" + plugin.getIds()[0] + ")", e );
+          + plugin.getName() + " (id=" + plugin.getIds()[ 0 ] + ")", e );
       }
     }
 
@@ -180,7 +179,7 @@ public class SwingGUIResource {
         if ( inputStream != null ) {
           try {
             BufferedImage bitmap = ImageIO.read( inputStream );
-            
+
             image = new SwingUniversalImageBitmap( bitmap );
           } finally {
             IOUtils.closeQuietly( inputStream );

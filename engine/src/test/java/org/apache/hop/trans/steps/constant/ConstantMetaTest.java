@@ -22,15 +22,6 @@
 
 package org.apache.hop.trans.steps.constant;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -44,6 +35,15 @@ import org.apache.hop.trans.steps.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ConstantMetaTest implements InitializerInterface<ConstantMeta> {
   LoadSaveTester<ConstantMeta> loadSaveTester;
@@ -55,8 +55,8 @@ public class ConstantMetaTest implements InitializerInterface<ConstantMeta> {
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "currency", "decimal", "group", "value", "fieldName", "fieldType", "fieldFormat", "fieldLength",
-            "fieldPrecision", "setEmptyString" );
+      Arrays.asList( "currency", "decimal", "group", "value", "fieldName", "fieldType", "fieldFormat", "fieldLength",
+        "fieldPrecision", "setEmptyString" );
 
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
@@ -69,7 +69,7 @@ public class ConstantMetaTest implements InitializerInterface<ConstantMeta> {
       }
     };
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
     PrimitiveIntArrayLoadSaveValidator intArrayLoadSaveValidator = new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator(), 5 );
     PrimitiveBooleanArrayLoadSaveValidator booleanArrayLoadSaveValidator = new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 5 );

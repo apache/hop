@@ -22,19 +22,20 @@
 
 package org.apache.hop.trans.steps.filelocked;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
+import org.junit.ClassRule;
+import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
-
 public class FileLockedMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Test
   public void testStepMeta() throws HopException {
     List<String> attributes = Arrays.asList( "filenamefield", "resultfieldname", "addresultfilenames" );

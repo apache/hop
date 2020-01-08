@@ -21,18 +21,19 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.mysqlbulkloader;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class MySQLBulkLoaderMetaInjectionTest extends BaseMetadataInjectionTest<MySQLBulkLoaderMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Before
   public void setup() throws Exception {
     setup( new MySQLBulkLoaderMeta() );
@@ -97,26 +98,26 @@ public class MySQLBulkLoaderMetaInjectionTest extends BaseMetadataInjectionTest<
     } );
     check( "FIELD_TABLE", new StringGetter() {
       public String get() {
-        return meta.getFieldTable()[0];
+        return meta.getFieldTable()[ 0 ];
       }
     } );
     check( "FIELD_STREAM", new StringGetter() {
       public String get() {
-        return meta.getFieldStream()[0];
+        return meta.getFieldStream()[ 0 ];
       }
     } );
 
     ValueMetaInterface mftt = new ValueMetaString( "f" );
     injector.setProperty( meta, "FIELD_FORMAT", setValue( mftt, "OK" ), "f" );
-    assertEquals( 0, meta.getFieldFormatType()[0] );
+    assertEquals( 0, meta.getFieldFormatType()[ 0 ] );
     injector.setProperty( meta, "FIELD_FORMAT", setValue( mftt, "DATE" ), "f" );
-    assertEquals( 1, meta.getFieldFormatType()[0] );
+    assertEquals( 1, meta.getFieldFormatType()[ 0 ] );
     injector.setProperty( meta, "FIELD_FORMAT", setValue( mftt, "TIMESTAMP" ), "f" );
-    assertEquals( 2, meta.getFieldFormatType()[0] );
+    assertEquals( 2, meta.getFieldFormatType()[ 0 ] );
     injector.setProperty( meta, "FIELD_FORMAT", setValue( mftt, "NUMBER" ), "f" );
-    assertEquals( 3, meta.getFieldFormatType()[0] );
+    assertEquals( 3, meta.getFieldFormatType()[ 0 ] );
     injector.setProperty( meta, "FIELD_FORMAT", setValue( mftt, "STRING_ESC" ), "f" );
-    assertEquals( 4, meta.getFieldFormatType()[0] );
+    assertEquals( 4, meta.getFieldFormatType()[ 0 ] );
     skipPropertyTest( "FIELD_FORMAT" );
   }
 }

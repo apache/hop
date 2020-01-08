@@ -22,16 +22,15 @@
 
 package org.apache.hop.trans.steps.creditcardvalidator;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Samatar
  * @since 03-Juin-2008
- *
  */
 public class CreditCardVerifier {
   private static Class<?> PKG = CreditCardValidatorMeta.class; // for i18n purposes, needed by Translator2!!
@@ -74,11 +73,11 @@ public class CreditCardVerifier {
     BaseMessages.getString( PKG, "CreditCardValidator.Log.NotValidVoyager" ) };
 
   public static String getCardName( int id ) {
-    return ( id > -1 && id < cardNames.length ? cardNames[id] : null );
+    return ( id > -1 && id < cardNames.length ? cardNames[ id ] : null );
   }
 
   public static String getNotValidCardNames( int id ) {
-    return ( id > -1 && id < NotValidCardNames.length ? NotValidCardNames[id] : null );
+    return ( id > -1 && id < NotValidCardNames.length ? NotValidCardNames[ id ] : null );
   }
 
   public static ReturnIndicator CheckCC( String CardNumber ) {
@@ -128,9 +127,9 @@ public class CreditCardVerifier {
 
       int j = numberString.length();
 
-      String[] s1 = new String[j];
+      String[] s1 = new String[ j ];
       for ( int i = 0; i < j; i++ ) {
-        s1[i] = "" + numberString.charAt( i );
+        s1[ i ] = "" + numberString.charAt( i );
       }
 
       int checksum = 0;
@@ -139,14 +138,14 @@ public class CreditCardVerifier {
         int k = 0;
 
         if ( i > 0 ) {
-          k = Integer.valueOf( s1[i - 1] ).intValue() * 2;
+          k = Integer.valueOf( s1[ i - 1 ] ).intValue() * 2;
           if ( k > 9 ) {
             String s = "" + k;
             k = Integer.valueOf( s.substring( 0, 1 ) ).intValue() + Integer.valueOf( s.substring( 1 ) ).intValue();
           }
-          checksum += Integer.valueOf( s1[i] ).intValue() + k;
+          checksum += Integer.valueOf( s1[ i ] ).intValue() + k;
         } else {
-          checksum += Integer.valueOf( s1[0] ).intValue();
+          checksum += Integer.valueOf( s1[ 0 ] ).intValue();
         }
       }
       return ( ( checksum % 10 ) == 0 );

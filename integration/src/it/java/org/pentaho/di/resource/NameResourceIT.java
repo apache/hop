@@ -22,23 +22,22 @@
 
 package org.apache.hop.resource;
 
-import static org.junit.Assert.*;
-
 import org.apache.commons.vfs2.FileObject;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.resource.ResourceNamingInterface.FileNamingType;
 import org.apache.hop.trans.TransMeta;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Sean Flatley
- *
- *         For testing the ResourceNamingInterface.nameResource() methods.
- *
+ * <p>
+ * For testing the ResourceNamingInterface.nameResource() methods.
  */
 public class NameResourceIT {
 
@@ -134,11 +133,8 @@ public class NameResourceIT {
    * method.
    *
    * @param fileName
-   * @param pathOnly
-   *          Resolve the path - leave out the file name
-   * @throws Exception
-   *
-   *           Legacy: namingResource(String, String, String, FileNamingType) New: namingResource(FileObject, TransMeta)
+   * @param pathOnly Resolve the path - leave out the file name
+   * @throws Exception Legacy: namingResource(String, String, String, FileNamingType) New: namingResource(FileObject, TransMeta)
    */
   private void testNamingResourceLegacyAndNew( String fileName, String extension, String fileMask ) throws Exception {
 

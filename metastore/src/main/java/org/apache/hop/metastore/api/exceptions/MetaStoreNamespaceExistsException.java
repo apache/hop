@@ -19,9 +19,8 @@ package org.apache.hop.metastore.api.exceptions;
 
 /**
  * This exception is thrown in case a namespace is created in a metadata store when it already exists.
- * 
+ *
  * @author matt
- * 
  */
 
 public class MetaStoreNamespaceExistsException extends MetaStoreException {

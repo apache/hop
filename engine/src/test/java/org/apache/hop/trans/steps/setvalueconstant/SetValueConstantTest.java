@@ -23,17 +23,16 @@
 package org.apache.hop.trans.steps.setvalueconstant;
 
 import junit.framework.Assert;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collections;
 
 import static org.mockito.Matchers.any;
@@ -52,10 +51,10 @@ public class SetValueConstantTest {
   @Before
   public void setUp() {
     smh =
-        new StepMockHelper<SetValueConstantMeta, SetValueConstantData>( "SetValueConstant", SetValueConstantMeta.class,
-            SetValueConstantData.class );
+      new StepMockHelper<SetValueConstantMeta, SetValueConstantData>( "SetValueConstant", SetValueConstantMeta.class,
+        SetValueConstantData.class );
     when( smh.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        smh.logChannelInterface );
+      smh.logChannelInterface );
   }
 
   @After
@@ -95,6 +94,6 @@ public class SetValueConstantTest {
     Object[] row = new Object[] { null };
     m.invoke( step, new Object[] { row } );
 
-    Assert.assertEquals( "foo", valueMeta.getString( row[0] ) );
+    Assert.assertEquals( "foo", valueMeta.getString( row[ 0 ] ) );
   }
 }

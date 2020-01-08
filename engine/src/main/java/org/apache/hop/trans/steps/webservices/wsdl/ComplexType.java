@@ -22,14 +22,13 @@
 
 package org.apache.hop.trans.steps.webservices.wsdl;
 
+import org.w3c.dom.Element;
+
+import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.xml.namespace.QName;
-
-import org.w3c.dom.Element;
 
 /*
  This looks a little scary, but isn't so bad.  Pretty much all that needs to be done here is to
@@ -53,10 +52,8 @@ public final class ComplexType implements java.io.Serializable {
   /**
    * Create a new complex type for the specified element.
    *
-   * @param type
-   *          DOM element of the complex type.
-   * @param wsdlTypes
-   *          Namespace resolver instance.
+   * @param type      DOM element of the complex type.
+   * @param wsdlTypes Namespace resolver instance.
    */
   ComplexType( Element type, WsdlTypes wsdlTypes ) {
 
@@ -96,8 +93,7 @@ public final class ComplexType implements java.io.Serializable {
   /**
    * Given the name of an element contained within the complex type, get its xml type.
    *
-   * @param elementName
-   *          Name of element contained within complex type.
+   * @param elementName Name of element contained within complex type.
    * @return Xmltype of the element or null if element can not be found in the complex type.
    */
   public QName getElementType( String elementName ) {

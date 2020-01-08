@@ -22,20 +22,19 @@
 
 package org.apache.hop.trans.steps.mapping;
 
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.when;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.VariableSpace;
-
 import org.apache.hop.trans.StepWithMappingMeta;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.steps.StepMockUtil;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.when;
 
 public class MappingParametersTest {
 
@@ -59,7 +58,7 @@ public class MappingParametersTest {
 
   /**
    * PDI-3064 Test parent transformation overrides parameters for child transformation.
-   * 
+   *
    * @throws HopException
    */
   @Test
@@ -67,7 +66,7 @@ public class MappingParametersTest {
     MappingParameters param = Mockito.mock( MappingParameters.class );
     Mockito.when( param.getVariable() ).thenReturn( new String[] { "a", "b" } );
     Mockito.when( param.getInputField() ).thenReturn( new String[] { "11", "12" } );
-    Mockito.when(  param.isInheritingAllVariables() ).thenReturn( true );
+    Mockito.when( param.isInheritingAllVariables() ).thenReturn( true );
     when( transMeta.listParameters() ).thenReturn( new String[] { "a" } );
     StepWithMappingMeta
       .activateParams( trans, trans, step, transMeta.listParameters(), param.getVariable(), param.getInputField(), param.isInheritingAllVariables() );
@@ -79,7 +78,7 @@ public class MappingParametersTest {
 
   /**
    * Regression of PDI-3064 : keep correct 'inherit all variables' settings. This is a case for 'do not override'
-   * 
+   *
    * @throws HopException
    */
   @Test

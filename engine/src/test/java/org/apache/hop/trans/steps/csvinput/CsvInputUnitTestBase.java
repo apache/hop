@@ -22,10 +22,10 @@
 
 package org.apache.hop.trans.steps.csvinput;
 
-import org.junit.BeforeClass;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
+import org.junit.BeforeClass;
 
 import java.io.File;
 import java.io.IOException;

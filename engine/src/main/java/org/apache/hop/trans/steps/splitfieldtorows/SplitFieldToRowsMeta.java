@@ -22,24 +22,20 @@
 
 package org.apache.hop.trans.steps.splitfieldtorows;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -47,31 +43,46 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 public class SplitFieldToRowsMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = SplitFieldToRowsMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** Field to split */
+  /**
+   * Field to split
+   */
   private String splitField;
 
-  /** Split field based upon this delimiter. */
+  /**
+   * Split field based upon this delimiter.
+   */
   private String delimiter;
 
-  /** New name of the split field */
+  /**
+   * New name of the split field
+   */
   private String newFieldname;
 
-  /** Flag indicating that a row number field should be included in the output */
+  /**
+   * Flag indicating that a row number field should be included in the output
+   */
   private boolean includeRowNumber;
 
-  /** The name of the field in the output containing the row number */
+  /**
+   * The name of the field in the output containing the row number
+   */
   private String rowNumberField;
 
-  /** Flag indicating that we should reset RowNum for each file */
+  /**
+   * Flag indicating that we should reset RowNum for each file
+   */
   private boolean resetRowNumber;
 
-  /** Flag indicating that the delimiter is a regular expression */
+  /**
+   * Flag indicating that the delimiter is a regular expression
+   */
   private boolean isDelimiterRegex;
 
   public boolean isDelimiterRegex() {
@@ -94,8 +105,7 @@ public class SplitFieldToRowsMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   /**
-   * @param delimiter
-   *          The delimiter to set.
+   * @param delimiter The delimiter to set.
    */
   public void setDelimiter( String delimiter ) {
     this.delimiter = delimiter;
@@ -109,8 +119,7 @@ public class SplitFieldToRowsMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   /**
-   * @param splitField
-   *          The splitField to set.
+   * @param splitField The splitField to set.
    */
   public void setSplitField( String splitField ) {
     this.splitField = splitField;
@@ -146,7 +155,7 @@ public class SplitFieldToRowsMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     ValueMetaInterface v = new ValueMetaString( newFieldname );
     v.setOrigin( name );
@@ -176,8 +185,8 @@ public class SplitFieldToRowsMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     String error_message = "";
     CheckResult cr;
 
@@ -245,7 +254,7 @@ public class SplitFieldToRowsMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new SplitFieldToRows( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -261,8 +270,7 @@ public class SplitFieldToRowsMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   /**
-   * @param newFieldname
-   *          the newFieldname to set
+   * @param newFieldname the newFieldname to set
    */
   public void setNewFieldname( String newFieldname ) {
     this.newFieldname = newFieldname;
@@ -276,8 +284,7 @@ public class SplitFieldToRowsMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   /**
-   * @param rowNumberField
-   *          The rowNumberField to set.
+   * @param rowNumberField The rowNumberField to set.
    */
   public void setRowNumberField( String rowNumberField ) {
     this.rowNumberField = rowNumberField;
@@ -291,16 +298,14 @@ public class SplitFieldToRowsMeta extends BaseStepMeta implements StepMetaInterf
   }
 
   /**
-   * @param resetRowNumber
-   *          The resetRowNumber to set.
+   * @param resetRowNumber The resetRowNumber to set.
    */
   public void setResetRowNumber( boolean resetRowNumber ) {
     this.resetRowNumber = resetRowNumber;
   }
 
   /**
-   * @param includeRowNumber
-   *          The includeRowNumber to set.
+   * @param includeRowNumber The includeRowNumber to set.
    */
   public void setIncludeRowNumber( boolean includeRowNumber ) {
     this.includeRowNumber = includeRowNumber;

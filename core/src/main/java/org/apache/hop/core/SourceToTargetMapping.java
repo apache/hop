@@ -45,8 +45,7 @@ public class SourceToTargetMapping {
   }
 
   /**
-   * @param sourcePosition
-   *          The sourcePosition to set.
+   * @param sourcePosition The sourcePosition to set.
    */
   public void setSourcePosition( int sourcePosition ) {
     this.sourcePosition = sourcePosition;
@@ -60,19 +59,18 @@ public class SourceToTargetMapping {
   }
 
   /**
-   * @param targetPosition
-   *          The targetPosition to set.
+   * @param targetPosition The targetPosition to set.
    */
   public void setTargetPosition( int targetPosition ) {
     this.targetPosition = targetPosition;
   }
 
   public String getSourceString( String[] source ) {
-    return source[sourcePosition];
+    return source[ sourcePosition ];
   }
 
   public String getTargetString( String[] target ) {
-    return target[targetPosition];
+    return target[ targetPosition ];
   }
 
 }

@@ -31,17 +31,14 @@ import org.eclipse.swt.widgets.Display;
  *
  * @author Matt
  * @since 2006-06-15
- *
  */
 public class ManagedColor {
   private Color color;
   private boolean systemColor;
 
   /**
-   * @param color
-   *          The color
-   * @param systemColor
-   *          true if this is a system color and doesn't need to be disposed off
+   * @param color       The color
+   * @param systemColor true if this is a system color and doesn't need to be disposed off
    */
   public ManagedColor( Color color, boolean systemColor ) {
     this.color = color;
@@ -63,12 +60,9 @@ public class ManagedColor {
    * Create a new managed color by using the Red Green & Blue values.
    *
    * @param display
-   * @param r
-   *          Red composite
-   * @param g
-   *          Green composite
-   * @param b
-   *          Blue composite
+   * @param r       Red composite
+   * @param g       Green composite
+   * @param b       Blue composite
    */
   public ManagedColor( Display display, int r, int g, int b ) {
     this.color = new Color( display, r, g, b );
@@ -88,7 +82,6 @@ public class ManagedColor {
 
   /**
    * Free the managed resource if it hasn't already been done and if this is not a system color
-   *
    */
   public void dispose() {
     // System color and already disposed off colors don't need to be disposed!
@@ -105,16 +98,14 @@ public class ManagedColor {
   }
 
   /**
-   * @param color
-   *          the color to set
+   * @param color the color to set
    */
   public void setColor( Color color ) {
     this.color = color;
   }
 
   /**
-   * @param systemColor
-   *          the systemColor to set
+   * @param systemColor the systemColor to set
    */
   public void setSystemColor( boolean systemColor ) {
     this.systemColor = systemColor;

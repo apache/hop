@@ -25,9 +25,6 @@ package org.apache.hop.trans.steps.tableinput;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -35,16 +32,18 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.injection.Injection;
+import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -59,7 +58,6 @@ import org.apache.hop.trans.step.errorhandling.Stream;
 import org.apache.hop.trans.step.errorhandling.StreamIcon;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
 import org.apache.hop.trans.step.errorhandling.StreamInterface.StreamType;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -82,7 +80,9 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
   @Injection( name = "LIMIT" )
   private String rowLimit;
 
-  /** Should I execute once per row? */
+  /**
+   * Should I execute once per row?
+   */
   @Injection( name = "EXECUTE_FOR_EACH_ROW" )
   private boolean executeEachInputRow;
 
@@ -101,7 +101,7 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
     try {
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, connectionName );
     } catch ( HopXMLException e ) {
-      throw new RuntimeException( "Error loading conneciton '"+connectionName+"'", e );
+      throw new RuntimeException( "Error loading conneciton '" + connectionName + "'", e );
     }
   }
 
@@ -113,8 +113,7 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param oncePerRow
-   *          true if the step should be run per row
+   * @param oncePerRow true if the step should be run per row
    */
   public void setExecuteEachInputRow( boolean oncePerRow ) {
     this.executeEachInputRow = oncePerRow;
@@ -128,8 +127,7 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param database
-   *          The database to set.
+   * @param database The database to set.
    */
   public void setDatabaseMeta( DatabaseMeta database ) {
     this.databaseMeta = database;
@@ -143,8 +141,7 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param rowLimit
-   *          The rowLimit to set.
+   * @param rowLimit The rowLimit to set.
    */
   public void setRowLimit( String rowLimit ) {
     this.rowLimit = rowLimit;
@@ -158,8 +155,7 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param sql
-   *          The sql to set.
+   * @param sql The sql to set.
    */
   public void setSQL( String sql ) {
     this.sql = sql;
@@ -205,7 +201,7 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     if ( databaseMeta == null ) {
       return; // TODO: throw an exception here
     }
@@ -247,8 +243,8 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
         StreamInterface infoStream = getStepIOMeta().getInfoStreams().get( 0 );
         if ( !Utils.isEmpty( infoStream.getStepname() ) ) {
           param = true;
-          if ( info.length > 0 && info[0] != null ) {
-            paramRowMeta = info[0];
+          if ( info.length > 0 && info[ 0 ] != null ) {
+            paramRowMeta = info[ 0 ];
             paramData = RowDataUtil.allocateRowData( paramRowMeta.size() );
           }
         }
@@ -303,8 +299,8 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( databaseMeta != null ) {
@@ -347,7 +343,7 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
     if ( !Utils.isEmpty( infoStream.getStepname() ) ) {
       boolean found = false;
       for ( int i = 0; i < input.length; i++ ) {
-        if ( infoStream.getStepname().equalsIgnoreCase( input[i] ) ) {
+        if ( infoStream.getStepname().equalsIgnoreCase( input[ i ] ) ) {
           found = true;
         }
       }
@@ -388,8 +384,8 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
           cr =
             new CheckResult(
               CheckResultInterface.TYPE_RESULT_ERROR, "This step is receiving "
-                + info.size() + " but not the expected " + count
-                + " fields of input from the previous step.", stepMeta );
+              + info.size() + " but not the expected " + count
+              + " fields of input from the previous step.", stepMeta );
           remarks.add( cr );
         }
       } else {
@@ -415,8 +411,7 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param steps
-   *          optionally search the info step in a list of steps
+   * @param steps optionally search the info step in a list of steps
    */
   public void searchInfoAndTargetSteps( List<StepMeta> steps ) {
     List<StreamInterface> infoStreams = getStepIOMeta().getInfoStreams();
@@ -426,7 +421,7 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new TableInput( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -436,8 +431,8 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
-    IMetaStore metaStore ) throws HopStepException {
+                             RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
+                             IMetaStore metaStore ) throws HopStepException {
 
     // if ( stepMeta.getName().equalsIgnoreCase( "cdc_cust" ) ) {
     //   System.out.println( "HERE!" );
@@ -454,7 +449,7 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
         DatabaseImpact ii =
           new DatabaseImpact(
             DatabaseImpact.TYPE_IMPACT_READ, transMeta.getName(), stepMeta.getName(), databaseMeta
-              .getDatabaseName(), "", outvalue.getName(), outvalue.getName(), stepMeta.getName(), sql,
+            .getDatabaseName(), "", outvalue.getName(), outvalue.getName(), stepMeta.getName(), sql,
             "read from one or more database tables via SQL statement" );
         impact.add( ii );
 
@@ -478,8 +473,7 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param variableReplacementActive
-   *          The variableReplacementActive to set.
+   * @param variableReplacementActive The variableReplacementActive to set.
    */
   public void setVariableReplacementActive( boolean variableReplacementActive ) {
     this.variableReplacementActive = variableReplacementActive;
@@ -493,8 +487,7 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param lazyConversionActive
-   *          the lazyConversionActive to set
+   * @param lazyConversionActive the lazyConversionActive to set
    */
   public void setLazyConversionActive( boolean lazyConversionActive ) {
     this.lazyConversionActive = lazyConversionActive;
@@ -527,8 +520,7 @@ public class TableInputMeta extends BaseStepMeta implements StepMetaInterface {
   /**
    * For compatibility, wraps around the standard step IO metadata
    *
-   * @param stepMeta
-   *          The step where you read lookup data from
+   * @param stepMeta The step where you read lookup data from
    */
   public void setLookupFromStep( StepMeta stepMeta ) {
     getStepIOMeta().getInfoStreams().get( 0 ).setStepMeta( stepMeta );

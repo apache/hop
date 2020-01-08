@@ -22,8 +22,8 @@
 
 package org.apache.hop.ui.trans.step;
 
-import org.eclipse.swt.widgets.TableItem;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.eclipse.swt.widgets.TableItem;
 
 public interface TableItemInsertListener {
   public boolean tableItemInserted( TableItem tableItem, ValueMetaInterface v );

@@ -29,7 +29,6 @@ import org.apache.commons.vfs2.FileObject;
  *
  * @author matt
  * @since 2007-09-29
- *
  */
 
 public class KeyOccurrence implements Comparable<KeyOccurrence> {
@@ -83,21 +82,15 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
   }
 
   /**
-   * @param fileObject
-   *          The java source file
-   * @param messagesPackage
-   *          The location of the messages file, derived from "^import .*Messages;"
-   * @param row
-   *          The row on which the occurrence takes place
-   * @param column
-   *          The column on which the occurrence takes place
-   * @param key
-   *          The i18n key
-   * @param arguments
-   *          The arguments from the source code
+   * @param fileObject      The java source file
+   * @param messagesPackage The location of the messages file, derived from "^import .*Messages;"
+   * @param row             The row on which the occurrence takes place
+   * @param column          The column on which the occurrence takes place
+   * @param key             The i18n key
+   * @param arguments       The arguments from the source code
    */
   public KeyOccurrence( FileObject fileObject, String sourceFolder, String messagesPackage, int row, int column,
-    String key, String arguments, String sourceLine ) {
+                        String key, String arguments, String sourceLine ) {
     this();
     this.fileObject = fileObject;
     this.sourceFolder = sourceFolder;
@@ -144,8 +137,7 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
   }
 
   /**
-   * @param fileObject
-   *          The java source file
+   * @param fileObject The java source file
    */
   public void setFileObject( FileObject fileObject ) {
     this.fileObject = fileObject;
@@ -159,8 +151,7 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
   }
 
   /**
-   * @param messagesPackage
-   *          The location of the messages file
+   * @param messagesPackage The location of the messages file
    */
   public void setMessagesPackage( String messagesPackage ) {
     this.messagesPackage = messagesPackage;
@@ -182,8 +173,7 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
   }
 
   /**
-   * @param row
-   *          The row on which the occurrence takes place
+   * @param row The row on which the occurrence takes place
    */
   public void setRow( int row ) {
     this.row = row;
@@ -197,8 +187,7 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
   }
 
   /**
-   * @param column
-   *          The column on which the occurrence takes place
+   * @param column The column on which the occurrence takes place
    */
   public void setColumn( int column ) {
     this.column = column;
@@ -212,8 +201,7 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
   }
 
   /**
-   * @param key
-   *          The i18n key
+   * @param key The i18n key
    */
   public void setKey( String key ) {
     this.key = key;
@@ -227,8 +215,7 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
   }
 
   /**
-   * @param arguments
-   *          The arguments from the source code
+   * @param arguments The arguments from the source code
    */
   public void setArguments( String arguments ) {
     this.arguments = arguments;
@@ -242,8 +229,7 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
   }
 
   /**
-   * @param occurrences
-   *          The number of occurrences
+   * @param occurrences The number of occurrences
    */
   public void setOccurrences( int occurrences ) {
     this.occurrences = occurrences;
@@ -264,8 +250,7 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
   }
 
   /**
-   * @param sourceLine
-   *          the line of source code on which the key occurs.
+   * @param sourceLine the line of source code on which the key occurs.
    */
   public void setSourceLine( String sourceLine ) {
     this.sourceLine = sourceLine;

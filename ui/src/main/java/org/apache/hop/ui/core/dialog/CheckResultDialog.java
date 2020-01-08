@@ -22,8 +22,18 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import java.util.List;
-
+import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.CheckResultSourceInterface;
+import org.apache.hop.core.Const;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
@@ -39,25 +49,14 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.CheckResultSourceInterface;
-import org.apache.hop.core.Const;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.List;
 
 /**
  * Dialog to display the results of a verify operation.
  *
  * @author Matt
  * @since 19-06-2003
- *
  */
 
 public class CheckResultDialog extends Dialog {
@@ -135,16 +134,16 @@ public class CheckResultDialog extends Dialog {
     int FieldsCols = 3;
     int FieldsRows = 1;
 
-    ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
+    ColumnInfo[] colinf = new ColumnInfo[ FieldsCols ];
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "CheckResultDialog.Stepname.Label" ), ColumnInfo.COLUMN_TYPE_TEXT, false,
         true );
-    colinf[1] =
+    colinf[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "CheckResultDialog.Result.Label" ), ColumnInfo.COLUMN_TYPE_TEXT, false,
         true );
-    colinf[2] =
+    colinf[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "CheckResultDialog.Remark.Label" ), ColumnInfo.COLUMN_TYPE_TEXT, false,
         true );
@@ -308,21 +307,21 @@ public class CheckResultDialog extends Dialog {
       if ( i > 0 ) {
         message
           .append( "_______________________________________________________________________________" ).append(
-            Const.CR ).append( Const.CR );
+          Const.CR ).append( Const.CR );
       }
-      message.append( "[" ).append( item[i].getText( 2 ) ).append( "] " ).append( item[i].getText( 1 ) ).append(
+      message.append( "[" ).append( item[ i ].getText( 2 ) ).append( "] " ).append( item[ i ].getText( 1 ) ).append(
         Const.CR );
-      message.append( "  " ).append( item[i].getText( 3 ) ).append( Const.CR ).append( Const.CR );
+      message.append( "  " ).append( item[ i ].getText( 3 ) ).append( Const.CR ).append( Const.CR );
     }
 
     String subtitle =
       ( item.length != 1
         ? BaseMessages.getString( PKG, "CheckResultDialog.TextDialog.SubtitlePlural" ) : BaseMessages
-          .getString( PKG, "CheckResultDialog.TextDialog.Subtitle" ) );
+        .getString( PKG, "CheckResultDialog.TextDialog.Subtitle" ) );
     EnterTextDialog etd =
       new EnterTextDialog(
         shell, BaseMessages.getString( PKG, "CheckResultDialog.TextDialog.Title" ), subtitle, message
-          .toString() );
+        .toString() );
     etd.setReadOnly();
     etd.open();
   }

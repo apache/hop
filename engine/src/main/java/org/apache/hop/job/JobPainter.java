@@ -22,11 +22,6 @@
 
 package org.apache.hop.job;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -46,6 +41,11 @@ import org.apache.hop.core.gui.ScrollBarInterface;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.job.entry.JobEntryCopy;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
 
   private JobMeta jobMeta;
@@ -60,9 +60,9 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
   private List<JobEntryResult> jobEntryResults;
 
   public JobPainter( GCInterface gc, JobMeta jobMeta, Point area, ScrollBarInterface hori,
-    ScrollBarInterface vert, JobHopMeta candidate, Point drop_candidate, Rectangle selrect,
-    List<AreaOwner> areaOwners, List<JobEntryCopy> mouseOverEntries, int iconsize, int linewidth, int gridsize,
-    int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight ) {
+                     ScrollBarInterface vert, JobHopMeta candidate, Point drop_candidate, Rectangle selrect,
+                     List<AreaOwner> areaOwners, List<JobEntryCopy> mouseOverEntries, int iconsize, int linewidth, int gridsize,
+                     int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight ) {
     super(
       gc, jobMeta, area, hori, vert, drop_candidate, selrect, areaOwners, iconsize, linewidth, gridsize,
       shadowSize, antiAliasing, noteFontName, noteFontHeight );
@@ -156,7 +156,7 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
         Point start = real2screen( fr.x + iconsize / 2, fr.y + iconsize / 2 );
         Point end = real2screen( to.x, to.y );
         drawArrow( arrow, start.x, start.y, end.x, end.y, theta, calcArrowLength(), 1.2, null, startHopEntry,
-            endHopEntry == null ? endHopLocation : endHopEntry );
+          endHopEntry == null ? endHopLocation : endHopEntry );
       } else if ( endHopEntry != null && endHopLocation != null ) {
         Point fr = endHopLocation;
         Point to = endHopEntry.getLocation();
@@ -170,7 +170,7 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
         Point start = real2screen( fr.x, fr.y );
         Point end = real2screen( to.x + iconsize / 2, to.y + iconsize / 2 );
         drawArrow( arrow, start.x, start.y, end.x, end.y + iconsize / 2, theta, calcArrowLength(), 1.2, null,
-            startHopEntry == null ? endHopLocation : startHopEntry, endHopEntry );
+          startHopEntry == null ? endHopLocation : startHopEntry, endHopEntry );
       }
     }
 
@@ -238,7 +238,7 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
 
     if ( !shadow ) {
       areaOwners
-          .add( new AreaOwner( AreaType.JOB_ENTRY_ICON, x, y, iconsize, iconsize, offset, subject, jobEntryCopy ) );
+        .add( new AreaOwner( AreaType.JOB_ENTRY_ICON, x, y, iconsize, iconsize, offset, subject, jobEntryCopy ) );
     }
 
     if ( jobEntryCopy.isMissing() ) {
@@ -282,16 +282,16 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
       if ( jobEntryResult.isCheckpoint() ) {
         gc.drawImage( EImage.CHECKPOINT, iconX, iconY, magnification );
         areaOwners.add( new AreaOwner( AreaType.JOB_ENTRY_RESULT_CHECKPOINT, iconX, iconY, MINI_ICON_SIZE,
-            MINI_ICON_SIZE, offset, jobEntryCopy, jobEntryResult ) );
+          MINI_ICON_SIZE, offset, jobEntryCopy, jobEntryResult ) );
       } else {
         if ( result.getResult() ) {
           gc.drawImage( EImage.TRUE, iconX, iconY, magnification );
           areaOwners.add( new AreaOwner( AreaType.JOB_ENTRY_RESULT_SUCCESS, iconX, iconY, MINI_ICON_SIZE,
-              MINI_ICON_SIZE, offset, jobEntryCopy, jobEntryResult ) );
+            MINI_ICON_SIZE, offset, jobEntryCopy, jobEntryResult ) );
         } else {
           gc.drawImage( EImage.FALSE, iconX, iconY, magnification );
           areaOwners.add( new AreaOwner( AreaType.JOB_ENTRY_RESULT_FAILURE, iconX, iconY, MINI_ICON_SIZE,
-              MINI_ICON_SIZE, offset, jobEntryCopy, jobEntryResult ) );
+            MINI_ICON_SIZE, offset, jobEntryCopy, jobEntryResult ) );
         }
       }
     }
@@ -320,7 +320,7 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
 
       gc.setFont( EFont.SMALL );
       String trimmedName =
-          jobEntryCopy.getName().length() < 30 ? jobEntryCopy.getName() : jobEntryCopy.getName().substring( 0, 30 );
+        jobEntryCopy.getName().length() < 30 ? jobEntryCopy.getName() : jobEntryCopy.getName().substring( 0, 30 );
       Point nameExtent = gc.textExtent( trimmedName );
       nameExtent.y += 2 * MINI_ICON_MARGIN;
       nameExtent.x += 3 * MINI_ICON_MARGIN;
@@ -330,10 +330,10 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
       }
 
       int areaX =
-          translateToCurrentScale( x ) + translateToCurrentScale( iconsize ) / 2 - totalWidth / 2 + MINI_ICON_SKEW;
+        translateToCurrentScale( x ) + translateToCurrentScale( iconsize ) / 2 - totalWidth / 2 + MINI_ICON_SKEW;
       int areaY =
-          translateToCurrentScale( y ) + translateToCurrentScale( iconsize ) + MINI_ICON_DISTANCE
-              + BasePainter.CONTENT_MENU_INDENT;
+        translateToCurrentScale( y ) + translateToCurrentScale( iconsize ) + MINI_ICON_DISTANCE
+          + BasePainter.CONTENT_MENU_INDENT;
 
       gc.setForeground( EColor.CRYSTAL );
       gc.setBackground( EColor.CRYSTAL );
@@ -343,8 +343,8 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
       gc.setBackground( EColor.WHITE );
 
       gc.fillRoundRectangle( areaX, areaY + nameExtent.y, totalWidth, ( totalHeight - nameExtent.y ),
-          BasePainter.CORNER_RADIUS_5,
-          BasePainter.CORNER_RADIUS_5 );
+        BasePainter.CORNER_RADIUS_5,
+        BasePainter.CORNER_RADIUS_5 );
       gc.fillRectangle( areaX, areaY + nameExtent.y, totalWidth, ( totalHeight - nameExtent.y ) / 2 );
 
       gc.drawRoundRectangle( areaX, areaY, totalWidth, totalHeight, BasePainter.CORNER_RADIUS_5, BasePainter.CORNER_RADIUS_5 );
@@ -372,33 +372,33 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
       int yIcon = areaY + 5 + nameExtent.y;
 
       for ( int i = 0; i < miniIcons.length; i++ ) {
-        EImage miniIcon = miniIcons[i];
+        EImage miniIcon = miniIcons[ i ];
         Point bounds = gc.getImageBounds( miniIcon );
         boolean enabled = false;
         switch ( i ) {
           case 0: // INPUT
             enabled = !jobEntryCopy.isStart();
             areaOwners.add( new AreaOwner( AreaType.JOB_ENTRY_MINI_ICON_INPUT, translateTo1To1( xIcon ),
-                translateTo1To1( yIcon ), translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, jobMeta,
-                jobEntryCopy ) );
+              translateTo1To1( yIcon ), translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, jobMeta,
+              jobEntryCopy ) );
             break;
           case 1: // EDIT
             enabled = true;
             areaOwners.add( new AreaOwner( AreaType.JOB_ENTRY_MINI_ICON_EDIT, translateTo1To1( xIcon ),
-                translateTo1To1( yIcon ), translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, jobMeta,
-                jobEntryCopy ) );
+              translateTo1To1( yIcon ), translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, jobMeta,
+              jobEntryCopy ) );
             break;
           case 2: // Job entry context menu
             enabled = true;
             areaOwners.add( new AreaOwner( AreaType.JOB_ENTRY_MINI_ICON_CONTEXT, translateTo1To1( xIcon ),
-                translateTo1To1( yIcon ), translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, jobMeta,
-                jobEntryCopy ) );
+              translateTo1To1( yIcon ), translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, jobMeta,
+              jobEntryCopy ) );
             break;
           case 3: // OUTPUT
             enabled = true;
             areaOwners.add( new AreaOwner( AreaType.JOB_ENTRY_MINI_ICON_OUTPUT, translateTo1To1( xIcon ),
-                translateTo1To1( yIcon ), translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, jobMeta,
-                jobEntryCopy ) );
+              translateTo1To1( yIcon ), translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, jobMeta,
+              jobEntryCopy ) );
             break;
           default:
             break;
@@ -508,7 +508,7 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
 
   @Override
   protected void drawArrow( EImage arrow, int x1, int y1, int x2, int y2, double theta, int size, double factor,
-      JobHopMeta jobHop, Object startObject, Object endObject ) {
+                            JobHopMeta jobHop, Object startObject, Object endObject ) {
     int mx, my;
     int a, b, dist;
     double angle;
@@ -612,8 +612,7 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
   }
 
   /**
-   * @param mouseOverEntries
-   *          the mouseOverEntries to set
+   * @param mouseOverEntries the mouseOverEntries to set
    */
   public void setMouseOverEntries( List<JobEntryCopy> mouseOverEntries ) {
     this.mouseOverEntries = mouseOverEntries;
@@ -627,8 +626,7 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
   }
 
   /**
-   * @param entryLogMap
-   *          the entryLogMap to set
+   * @param entryLogMap the entryLogMap to set
    */
   public void setEntryLogMap( Map<JobEntryCopy, String> entryLogMap ) {
     this.entryLogMap = entryLogMap;
@@ -662,8 +660,7 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
   }
 
   /**
-   * @param jobEntryResults
-   *          Sets AND sorts the job entry results by name and number
+   * @param jobEntryResults Sets AND sorts the job entry results by name and number
    */
   public void setJobEntryResults( List<JobEntryResult> jobEntryResults ) {
     this.jobEntryResults = jobEntryResults;

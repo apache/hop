@@ -21,14 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.mysqlbulkloader;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
@@ -37,7 +29,14 @@ import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
-import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.Assert;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MySQLBulkLoaderMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -46,7 +45,7 @@ public class MySQLBulkLoaderMetaTest {
   public void testRoundTrip() throws HopException {
     List<String> attributes =
       Arrays.asList( /*"connection",*/ "schema", "table", "encoding", "delimiter", "enclosure",
-        "escape_char", "replace", "ignore", "local", "fifo_file_name",  "bulk_size",
+        "escape_char", "replace", "ignore", "local", "fifo_file_name", "bulk_size",
         "stream_name", "field_name", "field_format_ok" );
 
     Map<String, String> getterMap = new HashMap<String, String>();

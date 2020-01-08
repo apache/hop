@@ -22,16 +22,16 @@
 
 package org.apache.hop.trans.steps.changefileencoding;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
+import org.junit.ClassRule;
+import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 
 public class ChangeFileEncodingMetaTest {
   @ClassRule
@@ -40,8 +40,8 @@ public class ChangeFileEncodingMetaTest {
   @Test
   public void testRoundTrip() throws HopException {
     List<String> attributes =
-        Arrays.asList( "filenamefield", "targetfilenamefield", "sourceencoding", "targetencoding",
-          "addsourceresultfilenames", "addtargetresultfilenames", "createparentfolder" );
+      Arrays.asList( "filenamefield", "targetfilenamefield", "sourceencoding", "targetencoding",
+        "addsourceresultfilenames", "addtargetresultfilenames", "createparentfolder" );
 
     Map<String, String> getterMap = new HashMap<String, String>();
     getterMap.put( "filenamefield", "getDynamicFilenameField" );
@@ -62,7 +62,7 @@ public class ChangeFileEncodingMetaTest {
     setterMap.put( "createparentfolder", "setCreateParentFolder" );
 
     LoadSaveTester loadSaveTester =
-        new LoadSaveTester( ChangeFileEncodingMeta.class, attributes, getterMap, setterMap );
+      new LoadSaveTester( ChangeFileEncodingMeta.class, attributes, getterMap, setterMap );
     loadSaveTester.testSerialization();
   }
 }

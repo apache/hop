@@ -22,21 +22,20 @@
 
 package org.apache.hop.ui.core.widget;
 
-import java.util.Hashtable;
-import java.util.Map;
-
+import org.apache.hop.ui.core.ConstUI;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.apache.hop.ui.core.ConstUI;
+
+import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * This singleton class remembers whether or not a TreeItem is expanded. When the tree is refreshed, it remembers,
  * making for a better user experience.
  *
  * @author Matt
- *
  */
 public class TreeMemory {
   private static TreeMemory treeMemory;
@@ -83,7 +82,7 @@ public class TreeMemory {
         return false;
       }
       for ( int i = 0; i < path.length; i++ ) {
-        if ( !path[i].equals( entry.path[i] ) ) {
+        if ( !path[ i ].equals( entry.path[ i ] ) ) {
           return false;
         }
       }
@@ -97,7 +96,7 @@ public class TreeMemory {
         if ( i > 0 ) {
           string.append( "|" );
         }
-        string.append( path[i] );
+        string.append( path[ i ] );
       }
       string.append( ":" ).append( treeName ).append( "}" );
       return string.toString();
@@ -143,8 +142,7 @@ public class TreeMemory {
    * This method creates, adds and returns a tree listener that will keep track of the expanded/collapsed state of the
    * TreeItems. This state will then be stored in the TreeMemory singleton.
    *
-   * @param tree
-   *          The tree to add the listener to
+   * @param tree The tree to add the listener to
    * @return The created/added TreeListener
    */
   public static final TreeListener addTreeListener( final Tree tree, final String treeName ) {
@@ -171,13 +169,12 @@ public class TreeMemory {
   /**
    * Expand of collapse all TreeItems in the complete tree based on the values stored in memory.
    *
-   * @param tree
-   *          The tree to format.
+   * @param tree The tree to format.
    */
   public static void setExpandedFromMemory( Tree tree, String treeName ) {
     TreeItem[] items = tree.getItems();
     for ( int i = 0; i < items.length; i++ ) {
-      setExpandedFromMemory( tree, treeName, items[i] );
+      setExpandedFromMemory( tree, treeName, items[ i ] );
     }
   }
 
@@ -190,7 +187,7 @@ public class TreeMemory {
 
     TreeItem[] items = treeItem.getItems();
     for ( int i = 0; i < items.length; i++ ) {
-      setExpandedFromMemory( tree, treeName, items[i] );
+      setExpandedFromMemory( tree, treeName, items[ i ] );
     }
   }
 }

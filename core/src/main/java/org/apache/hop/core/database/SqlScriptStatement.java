@@ -58,8 +58,7 @@ public class SqlScriptStatement {
   }
 
   /**
-   * @param statement
-   *          the statement to set
+   * @param statement the statement to set
    */
   public void setStatement( String statement ) {
     this.statement = statement;
@@ -73,8 +72,7 @@ public class SqlScriptStatement {
   }
 
   /**
-   * @param fromIndex
-   *          the fromIndex to set
+   * @param fromIndex the fromIndex to set
    */
   public void setFromIndex( int fromIndex ) {
     this.fromIndex = fromIndex;
@@ -88,8 +86,7 @@ public class SqlScriptStatement {
   }
 
   /**
-   * @param toIndex
-   *          the toIndex to set
+   * @param toIndex the toIndex to set
    */
   public void setToIndex( int toIndex ) {
     this.toIndex = toIndex;
@@ -103,8 +100,7 @@ public class SqlScriptStatement {
   }
 
   /**
-   * @param query
-   *          the query to set
+   * @param query the query to set
    */
   public void setQuery( boolean query ) {
     this.query = query;
@@ -118,8 +114,7 @@ public class SqlScriptStatement {
   }
 
   /**
-   * @param ok
-   *          the ok to set
+   * @param ok the ok to set
    */
   public void setOk( boolean ok ) {
     this.ok = ok;
@@ -133,8 +128,7 @@ public class SqlScriptStatement {
   }
 
   /**
-   * @param loggingText
-   *          the loggingText to set
+   * @param loggingText the loggingText to set
    */
   public void setLoggingText( String loggingText ) {
     this.loggingText = loggingText;
@@ -148,8 +142,7 @@ public class SqlScriptStatement {
   }
 
   /**
-   * @param complete
-   *          the complete to set
+   * @param complete the complete to set
    */
   public void setComplete( boolean complete ) {
     this.complete = complete;

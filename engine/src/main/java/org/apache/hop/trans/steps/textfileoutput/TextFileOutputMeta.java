@@ -22,16 +22,10 @@
 
 package org.apache.hop.trans.steps.textfileoutput;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopStepException;
@@ -42,12 +36,13 @@ import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.AliasedFileObject;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
@@ -59,8 +54,11 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.file.BaseFileOutputMeta;
 import org.apache.hop.workarounds.ResolvableResource;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /*
  * Created on 4-apr-2003
@@ -78,23 +76,33 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
 
   public static final String[] formatMapperLineTerminator = new String[] { "DOS", "UNIX", "CR", "None" };
 
-  /** Whether to push the output into the output of a servlet with the executeTrans HopServer/DI-Server servlet */
+  /**
+   * Whether to push the output into the output of a servlet with the executeTrans HopServer/DI-Server servlet
+   */
   @Injection( name = "PASS_TO_SERVLET" )
   private boolean servletOutput;
 
-  /** Flag: create parent folder, default to true */
+  /**
+   * Flag: create parent folder, default to true
+   */
   @Injection( name = "CREATE_PARENT_FOLDER" )
   private boolean createparentfolder = true;
 
-  /** The separator to choose for the CSV file */
+  /**
+   * The separator to choose for the CSV file
+   */
   @Injection( name = "SEPARATOR" )
   private String separator;
 
-  /** The enclosure to use in case the separator is part of a field's value */
+  /**
+   * The enclosure to use in case the separator is part of a field's value
+   */
   @Injection( name = "ENCLOSURE" )
   private String enclosure;
 
-  /** Setting to allow the enclosure to be always surrounding a String value, even when there is no separator inside */
+  /**
+   * Setting to allow the enclosure to be always surrounding a String value, even when there is no separator inside
+   */
   @Injection( name = "FORCE_ENCLOSURE" )
   private boolean enclosureForced;
 
@@ -105,11 +113,15 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   @Injection( name = "DISABLE_ENCLOSURE_FIX" )
   private boolean disableEnclosureFix;
 
-  /** Add a header at the top of the file? */
+  /**
+   * Add a header at the top of the file?
+   */
   @Injection( name = "HEADER" )
   private boolean headerEnabled;
 
-  /** Add a footer at the bottom of the file? */
+  /**
+   * Add a footer at the bottom of the file?
+   */
   @Injection( name = "FOOTER" )
   private boolean footerEnabled;
 
@@ -120,33 +132,47 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
    */
   private String fileFormat;
 
-  /** if this value is larger then 0, the text file is split up into parts of this number of lines */
+  /**
+   * if this value is larger then 0, the text file is split up into parts of this number of lines
+   */
   @Injection( name = "SPLIT_EVERY" )
   private String splitEveryRows;
 
-  /** Flag to indicate the we want to append to the end of an existing file (if it exists) */
+  /**
+   * Flag to indicate the we want to append to the end of an existing file (if it exists)
+   */
   @Injection( name = "APPEND" )
   private boolean fileAppended;
 
-  /** Flag: pad fields to their specified length */
+  /**
+   * Flag: pad fields to their specified length
+   */
   @Injection( name = "RIGHT_PAD_FIELDS" )
   private boolean padded;
 
-  /** Flag: Fast dump data without field formatting */
+  /**
+   * Flag: Fast dump data without field formatting
+   */
   @Injection( name = "FAST_DATA_DUMP" )
   private boolean fastDump;
 
   /* THE FIELD SPECIFICATIONS ... */
 
-  /** The output fields */
+  /**
+   * The output fields
+   */
   @InjectionDeep
   private TextFileField[] outputFields;
 
-  /** The encoding to use for reading: null or empty string means system default encoding */
+  /**
+   * The encoding to use for reading: null or empty string means system default encoding
+   */
   @Injection( name = "ENCODING" )
   private String encoding;
 
-  /** The string to use for append to end line of the whole file: null or empty string means no line needed */
+  /**
+   * The string to use for append to end line of the whole file: null or empty string means no line needed
+   */
   @Injection( name = "ADD_ENDING_LINE" )
   private String endedLine;
 
@@ -158,15 +184,21 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   @Injection( name = "FILENAME_FIELD" )
   private String fileNameField;
 
-  /** Calculated value ... */
+  /**
+   * Calculated value ...
+   */
   @Injection( name = "NEW_LINE" )
   private String newline;
 
-  /** Flag: add the filenames to result filenames */
+  /**
+   * Flag: add the filenames to result filenames
+   */
   @Injection( name = "ADD_TO_RESULT" )
   private boolean addToResultFilenames;
 
-  /** Flag : Do not open new file when transformation start */
+  /**
+   * Flag : Do not open new file when transformation start
+   */
   @Injection( name = "DO_NOT_CREATE_FILE_AT_STARTUP" )
   private boolean doNotOpenNewFileInit;
 
@@ -183,8 +215,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   /**
-   * @param createparentfolder
-   *          The createparentfolder to set.
+   * @param createparentfolder The createparentfolder to set.
    */
   public void setCreateParentFolder( boolean createparentfolder ) {
     this.createparentfolder = createparentfolder;
@@ -198,8 +229,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   /**
-   * @param dateInFilename
-   *          The dateInFilename to set.
+   * @param dateInFilename The dateInFilename to set.
    */
   public void setDateInFilename( boolean dateInFilename ) {
     this.dateInFilename = dateInFilename;
@@ -213,8 +243,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   /**
-   * @param enclosure
-   *          The enclosure to set.
+   * @param enclosure The enclosure to set.
    */
   public void setEnclosure( String enclosure ) {
     this.enclosure = enclosure;
@@ -228,8 +257,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   /**
-   * @param enclosureForced
-   *          The enclosureForced to set.
+   * @param enclosureForced The enclosureForced to set.
    */
   public void setEnclosureForced( boolean enclosureForced ) {
     this.enclosureForced = enclosureForced;
@@ -243,8 +271,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   /**
-   * @param disableEnclosureFix
-   *          The enclosureFixDisabled to set.
+   * @param disableEnclosureFix The enclosureFixDisabled to set.
    */
   public void setEnclosureFixDisabled( boolean disableEnclosureFix ) {
     this.disableEnclosureFix = disableEnclosureFix;
@@ -258,8 +285,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   /**
-   * @param addtoresultfilenamesin
-   *          The addtoresultfilenames to set.
+   * @param addtoresultfilenamesin The addtoresultfilenames to set.
    */
   public void setAddToResultFiles( boolean addtoresultfilenamesin ) {
     this.addToResultFilenames = addtoresultfilenamesin;
@@ -273,8 +299,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   /**
-   * @param fileAppended
-   *          The fileAppended to set.
+   * @param fileAppended The fileAppended to set.
    */
   public void setFileAppended( boolean fileAppended ) {
     this.fileAppended = fileAppended;
@@ -288,8 +313,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   /**
-   * @param fileFormat
-   *          The fileFormat to set.
+   * @param fileFormat The fileFormat to set.
    */
   @Injection( name = "FORMAT" )
   public void setFileFormat( String fileFormat ) {
@@ -305,8 +329,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   /**
-   * @param footer
-   *          The footer to set.
+   * @param footer The footer to set.
    */
   public void setFooterEnabled( boolean footer ) {
     this.footerEnabled = footer;
@@ -320,8 +343,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   /**
-   * @param header
-   *          The header to set.
+   * @param header The header to set.
    */
   public void setHeaderEnabled( boolean header ) {
     this.headerEnabled = header;
@@ -335,8 +357,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   /**
-   * @param newline
-   *          The newline to set.
+   * @param newline The newline to set.
    */
   public void setNewline( String newline ) {
     this.newline = newline;
@@ -350,8 +371,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   /**
-   * @param padded
-   *          The padded to set.
+   * @param padded The padded to set.
    */
   public void setPadded( boolean padded ) {
     this.padded = padded;
@@ -365,8 +385,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   /**
-   * @param fastDump
-   *          The fastDump to set.
+   * @param fastDump The fastDump to set.
    */
   public void setFastDump( boolean fastDump ) {
     this.fastDump = fastDump;
@@ -380,8 +399,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   /**
-   * @param separator
-   *          The separator to set.
+   * @param separator The separator to set.
    */
   public void setSeparator( String separator ) {
     this.separator = separator;
@@ -395,16 +413,15 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   /**
-   * @param doNotOpenNewFileInit
-   *          The "do not open new file at init" flag to set.
+   * @param doNotOpenNewFileInit The "do not open new file at init" flag to set.
    */
   public void setDoNotOpenNewFileInit( boolean doNotOpenNewFileInit ) {
     this.doNotOpenNewFileInit = doNotOpenNewFileInit;
   }
 
   /**
-   * @deprecated use {@link #getSplitEvery(VariableSpace)} or {@link #getSplitEveryRows()}
    * @return Returns the splitEvery.
+   * @deprecated use {@link #getSplitEvery(VariableSpace)} or {@link #getSplitEveryRows()}
    */
   @Override
   public int getSplitEvery() {
@@ -442,33 +459,29 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   /**
+   * @param splitEvery The splitEvery to set.
    * @deprecated use {@link #setSplitEveryRows(String)}
-   * @param splitEvery
-   *          The splitEvery to set.
    */
   public void setSplitEvery( int splitEvery ) {
     splitEveryRows = Integer.toString( splitEvery );
   }
 
   /**
-   * @param stepNrInFilename
-   *          The stepNrInFilename to set.
+   * @param stepNrInFilename The stepNrInFilename to set.
    */
   public void setStepNrInFilename( boolean stepNrInFilename ) {
     this.stepNrInFilename = stepNrInFilename;
   }
 
   /**
-   * @param partNrInFilename
-   *          The partNrInFilename to set.
+   * @param partNrInFilename The partNrInFilename to set.
    */
   public void setPartNrInFilename( boolean partNrInFilename ) {
     this.partNrInFilename = partNrInFilename;
   }
 
   /**
-   * @param timeInFilename
-   *          The timeInFilename to set.
+   * @param timeInFilename The timeInFilename to set.
    */
   public void setTimeInFilename( boolean timeInFilename ) {
     this.timeInFilename = timeInFilename;
@@ -482,8 +495,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   /**
-   * @param outputFields
-   *          The outputFields to set.
+   * @param outputFields The outputFields to set.
    */
   public void setOutputFields( TextFileField[] outputFields ) {
     this.outputFields = outputFields;
@@ -497,8 +509,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   /**
-   * @param encoding
-   *          The desired encoding of output file, null or empty if the default system encoding needs to be used.
+   * @param encoding The desired encoding of output file, null or empty if the default system encoding needs to be used.
    */
   public void setEncoding( String encoding ) {
     this.encoding = encoding;
@@ -512,8 +523,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   /**
-   * @param endedLine
-   *          The desired last line in the output file, null or empty if nothing has to be added.
+   * @param endedLine The desired last line in the output file, null or empty if nothing has to be added.
    */
   public void setEndedLine( String endedLine ) {
     this.endedLine = endedLine;
@@ -527,8 +537,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   /**
-   * @param fileNameInField
-   *          Is the file name coded in a field?
+   * @param fileNameInField Is the file name coded in a field?
    */
   public void setFileNameInField( boolean fileNameInField ) {
     this.fileNameInField = fileNameInField;
@@ -542,8 +551,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   /**
-   * @param fileNameField
-   *          Name of the field that contains the file name
+   * @param fileNameField Name of the field that contains the file name
    */
   public void setFileNameField( String fileNameField ) {
     this.fileNameField = fileNameField;
@@ -555,7 +563,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
   }
 
   public void allocate( int nrfields ) {
-    outputFields = new TextFileField[nrfields];
+    outputFields = new TextFileField[ nrfields ];
   }
 
   @Override
@@ -566,7 +574,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
     retval.allocate( nrfields );
 
     for ( int i = 0; i < nrfields; i++ ) {
-      retval.outputFields[i] = (TextFileField) outputFields[i].clone();
+      retval.outputFields[ i ] = (TextFileField) outputFields[ i ].clone();
     }
 
     return retval;
@@ -597,7 +605,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
       // Default createparentfolder to true if the tag is missing
       String createParentFolderTagValue = XMLHandler.getTagValue( stepnode, "create_parent_folder" );
       createparentfolder =
-          ( createParentFolderTagValue == null ) ? true : "Y".equalsIgnoreCase( createParentFolderTagValue );
+        ( createParentFolderTagValue == null ) ? true : "Y".equalsIgnoreCase( createParentFolderTagValue );
 
       headerEnabled = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "header" ) );
       footerEnabled = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "footer" ) );
@@ -605,9 +613,9 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
       setFileCompression( XMLHandler.getTagValue( stepnode, "compression" ) );
       if ( getFileCompression() == null ) {
         if ( "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "file", "zipped" ) ) ) {
-          setFileCompression(  fileCompressionTypeCodes[FILE_COMPRESSION_TYPE_ZIP] );
+          setFileCompression( fileCompressionTypeCodes[ FILE_COMPRESSION_TYPE_ZIP ] );
         } else {
-          setFileCompression( fileCompressionTypeCodes[FILE_COMPRESSION_TYPE_NONE] );
+          setFileCompression( fileCompressionTypeCodes[ FILE_COMPRESSION_TYPE_NONE ] );
         }
       }
       encoding = XMLHandler.getTagValue( stepnode, "encoding" );
@@ -620,7 +628,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
       fileName = loadSource( stepnode, metastore );
       servletOutput = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "file", "servlet_output" ) );
       doNotOpenNewFileInit =
-          "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "file", "do_not_open_new_file_init" ) );
+        "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "file", "do_not_open_new_file_init" ) );
       extension = XMLHandler.getTagValue( stepnode, "file", "extention" );
       fileAppended = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "file", "append" ) );
       stepNrInFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "file", "split" ) );
@@ -654,17 +662,17 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
       for ( int i = 0; i < nrfields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        outputFields[i] = new TextFileField();
-        outputFields[i].setName( XMLHandler.getTagValue( fnode, "name" ) );
-        outputFields[i].setType( XMLHandler.getTagValue( fnode, "type" ) );
-        outputFields[i].setFormat( XMLHandler.getTagValue( fnode, "format" ) );
-        outputFields[i].setCurrencySymbol( XMLHandler.getTagValue( fnode, "currency" ) );
-        outputFields[i].setDecimalSymbol( XMLHandler.getTagValue( fnode, "decimal" ) );
-        outputFields[i].setGroupingSymbol( XMLHandler.getTagValue( fnode, "group" ) );
-        outputFields[i].setTrimType( ValueMetaString.getTrimTypeByCode( XMLHandler.getTagValue( fnode, "trim_type" ) ) );
-        outputFields[i].setNullString( XMLHandler.getTagValue( fnode, "nullif" ) );
-        outputFields[i].setLength( Const.toInt( XMLHandler.getTagValue( fnode, "length" ), -1 ) );
-        outputFields[i].setPrecision( Const.toInt( XMLHandler.getTagValue( fnode, "precision" ), -1 ) );
+        outputFields[ i ] = new TextFileField();
+        outputFields[ i ].setName( XMLHandler.getTagValue( fnode, "name" ) );
+        outputFields[ i ].setType( XMLHandler.getTagValue( fnode, "type" ) );
+        outputFields[ i ].setFormat( XMLHandler.getTagValue( fnode, "format" ) );
+        outputFields[ i ].setCurrencySymbol( XMLHandler.getTagValue( fnode, "currency" ) );
+        outputFields[ i ].setDecimalSymbol( XMLHandler.getTagValue( fnode, "decimal" ) );
+        outputFields[ i ].setGroupingSymbol( XMLHandler.getTagValue( fnode, "group" ) );
+        outputFields[ i ].setTrimType( ValueMetaString.getTrimTypeByCode( XMLHandler.getTagValue( fnode, "trim_type" ) ) );
+        outputFields[ i ].setNullString( XMLHandler.getTagValue( fnode, "nullif" ) );
+        outputFields[ i ].setLength( Const.toInt( XMLHandler.getTagValue( fnode, "length" ), -1 ) );
+        outputFields[ i ].setPrecision( Const.toInt( XMLHandler.getTagValue( fnode, "precision" ), -1 ) );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( "Unable to load step info from XML", e );
@@ -705,7 +713,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
     headerEnabled = true;
     footerEnabled = false;
     fileFormat = "DOS";
-    setFileCompression( fileCompressionTypeCodes[FILE_COMPRESSION_TYPE_NONE] );
+    setFileCompression( fileCompressionTypeCodes[ FILE_COMPRESSION_TYPE_NONE ] );
     fileName = "file";
     servletOutput = false;
     doNotOpenNewFileInit = false;
@@ -725,17 +733,17 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
     allocate( nrfields );
 
     for ( i = 0; i < nrfields; i++ ) {
-      outputFields[i] = new TextFileField();
+      outputFields[ i ] = new TextFileField();
 
-      outputFields[i].setName( "field" + i );
-      outputFields[i].setType( "Number" );
-      outputFields[i].setFormat( " 0,000,000.00;-0,000,000.00" );
-      outputFields[i].setCurrencySymbol( "" );
-      outputFields[i].setDecimalSymbol( "," );
-      outputFields[i].setGroupingSymbol( "." );
-      outputFields[i].setNullString( "" );
-      outputFields[i].setLength( -1 );
-      outputFields[i].setPrecision( -1 );
+      outputFields[ i ].setName( "field" + i );
+      outputFields[ i ].setType( "Number" );
+      outputFields[ i ].setFormat( " 0,000,000.00;-0,000,000.00" );
+      outputFields[ i ].setCurrencySymbol( "" );
+      outputFields[ i ].setDecimalSymbol( "," );
+      outputFields[ i ].setGroupingSymbol( "." );
+      outputFields[ i ].setNullString( "" );
+      outputFields[ i ].setLength( -1 );
+      outputFields[ i ].setPrecision( -1 );
     }
     fileAppended = false;
   }
@@ -755,13 +763,13 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // No values are added to the row in this type of step
     // However, in case of Fixed length records,
     // the field precisions and lengths are altered!
 
     for ( int i = 0; i < outputFields.length; i++ ) {
-      TextFileField field = outputFields[i];
+      TextFileField field = outputFields[ i ];
       ValueMetaInterface v = row.searchValueMeta( field.getName() );
       if ( v != null ) {
         v.setLength( field.getLength() );
@@ -808,7 +816,7 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
 
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < outputFields.length; i++ ) {
-      TextFileField field = outputFields[i];
+      TextFileField field = outputFields[ i ];
 
       if ( field.getName() != null && field.getName().length() != 0 ) {
         retval.append( "      <field>" ).append( Const.CR );
@@ -851,15 +859,15 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-      IMetaStore metaStore ) {
+                     String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     // Check output fields
     if ( prev != null && prev.size() > 0 ) {
       cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "TextFileOutputMeta.CheckResult.FieldsReceived", "" + prev.size() ), stepMeta );
+        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "TextFileOutputMeta.CheckResult.FieldsReceived", "" + prev.size() ), stepMeta );
       remarks.add( cr );
 
       String error_message = "";
@@ -867,9 +875,9 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
 
       // Starting from selected fields in ...
       for ( int i = 0; i < outputFields.length; i++ ) {
-        int idx = prev.indexOfValue( outputFields[i].getName() );
+        int idx = prev.indexOfValue( outputFields[ i ].getName() );
         if ( idx < 0 ) {
-          error_message += "\t\t" + outputFields[i].getName() + Const.CR;
+          error_message += "\t\t" + outputFields[ i ].getName() + Const.CR;
           error_found = true;
         }
       }
@@ -879,8 +887,8 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
         remarks.add( cr );
       } else {
         cr =
-            new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-                "TextFileOutputMeta.CheckResult.AllFieldsFound" ), stepMeta );
+          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+            "TextFileOutputMeta.CheckResult.AllFieldsFound" ), stepMeta );
         remarks.add( cr );
       }
     }
@@ -888,25 +896,25 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
     // See if we have input streams leading to this step!
     if ( input.length > 0 ) {
       cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "TextFileOutputMeta.CheckResult.ExpectedInputOk" ), stepMeta );
+        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "TextFileOutputMeta.CheckResult.ExpectedInputOk" ), stepMeta );
       remarks.add( cr );
     } else {
       cr =
-          new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "TextFileOutputMeta.CheckResult.ExpectedInputError" ), stepMeta );
+        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+          "TextFileOutputMeta.CheckResult.ExpectedInputError" ), stepMeta );
       remarks.add( cr );
     }
 
     cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_COMMENT, BaseMessages.getString( PKG,
-            "TextFileOutputMeta.CheckResult.FilesNotChecked" ), stepMeta );
+      new CheckResult( CheckResultInterface.TYPE_RESULT_COMMENT, BaseMessages.getString( PKG,
+        "TextFileOutputMeta.CheckResult.FilesNotChecked" ), stepMeta );
     remarks.add( cr );
   }
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta transMeta,
-      Trans trans ) {
+                                Trans trans ) {
     return new TextFileOutput( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -919,18 +927,15 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
    * Since the exported transformation that runs this will reside in a ZIP file, we can't reference files relatively. So
    * what this does is turn the name of the base path into an absolute path.
    *
-   * @param space
-   *          the variable space to use
+   * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
-   *
+   * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-      ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore )
+                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore )
     throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!

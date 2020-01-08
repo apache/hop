@@ -22,16 +22,15 @@
 
 package org.apache.hop.trans.steps.ifnull;
 
-import java.util.HashMap;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 
+import java.util.HashMap;
+
 /**
  * @author Samatar
  * @since 16-06-2008
- *
  */
 public class IfNullData extends BaseStepData implements StepDataInterface {
 

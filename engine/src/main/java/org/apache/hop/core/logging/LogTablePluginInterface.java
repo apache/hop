@@ -24,7 +24,6 @@ package org.apache.hop.core.logging;
 
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.trans.HasDatabasesInterface;
 
 public interface LogTablePluginInterface extends LogTableInterface {
 

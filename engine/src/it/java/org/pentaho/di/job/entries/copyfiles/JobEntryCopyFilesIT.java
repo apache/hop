@@ -22,14 +22,14 @@
 package org.apache.hop.job.entries.copyfiles;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -75,7 +75,7 @@ public class JobEntryCopyFilesIT {
     Files.createTempFile( source, "file", "" );
 
     Result result = entry.execute( new Result(), 0 );
-    assertTrue(  result.getResult() );
+    assertTrue( result.getResult() );
     assertEquals( 0, result.getNrErrors() );
   }
 
@@ -87,7 +87,7 @@ public class JobEntryCopyFilesIT {
     Files.createTempFile( subDirectory, "file", "" );
 
     Result result = entry.execute( new Result(), 0 );
-    assertTrue(  result.getResult() );
+    assertTrue( result.getResult() );
     assertEquals( 0, result.getNrErrors() );
   }
 
@@ -105,7 +105,7 @@ public class JobEntryCopyFilesIT {
     Result result = entry.execute( new Result(), 0 );
     long copyTime = file.lastModified();
 
-    assertTrue(  result.getResult() );
+    assertTrue( result.getResult() );
     assertEquals( 0, result.getNrErrors() );
     assertTrue( "File shouldn't be overwritten", createTime == copyTime );
   }
@@ -126,7 +126,7 @@ public class JobEntryCopyFilesIT {
     Result result = entry.execute( new Result(), 0 );
     long copyTime = file.lastModified();
 
-    assertTrue(  result.getResult() );
+    assertTrue( result.getResult() );
     assertEquals( 0, result.getNrErrors() );
     assertTrue( "File shouldn't be overwritten", createTime == copyTime );
   }

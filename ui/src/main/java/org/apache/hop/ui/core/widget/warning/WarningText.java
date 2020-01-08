@@ -22,9 +22,9 @@
 
 package org.apache.hop.ui.core.widget.warning;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.CheckBoxVar;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusListener;
@@ -39,9 +39,9 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.CheckBoxVar;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A Widget that combines a Text widget with a "Warning" image to the left. It's shown when there is a warning condition
@@ -121,8 +121,7 @@ public class WarningText extends Composite implements SupportsWarningInterface {
   }
 
   /**
-   * @param text
-   *          the text in the Text widget to set.
+   * @param text the text in the Text widget to set.
    */
   public void setText( String text ) {
     wText.setText( text );

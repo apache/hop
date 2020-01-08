@@ -22,6 +22,21 @@
 
 package org.apache.hop.ui.job.entries.dostounix;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.dostounix.JobEntryDosToUnix;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -48,21 +63,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.dostounix.JobEntryDosToUnix;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * This dialog allows you to edit the XML valid job entry settings.
@@ -443,10 +443,10 @@ public class JobEntryDosToUnixDialog extends JobEntryDialog implements JobEntryD
           BaseMessages.getString( PKG, "JobDosToUnix.Fields.ConversionType.Label" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, JobEntryDosToUnix.ConversionTypeDesc, false ), };
 
-    colinf[0].setUsingVariables( true );
-    colinf[0].setToolTip( BaseMessages.getString( PKG, "JobDosToUnix.Fields.SourceFileFolder.Tooltip" ) );
-    colinf[1].setUsingVariables( true );
-    colinf[1].setToolTip( BaseMessages.getString( PKG, "JobDosToUnix.Fields.Wildcard.Tooltip" ) );
+    colinf[ 0 ].setUsingVariables( true );
+    colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "JobDosToUnix.Fields.SourceFileFolder.Tooltip" ) );
+    colinf[ 1 ].setUsingVariables( true );
+    colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "JobDosToUnix.Fields.Wildcard.Tooltip" ) );
 
     wFields =
       new TableView(
@@ -492,8 +492,8 @@ public class JobEntryDosToUnixDialog extends JobEntryDialog implements JobEntryD
         int idx = wFields.getSelectionIndex();
         if ( idx >= 0 ) {
           String[] string = wFields.getItem( idx );
-          wSourceFileFolder.setText( string[0] );
-          wWildcard.setText( string[1] );
+          wSourceFileFolder.setText( string[ 0 ] );
+          wWildcard.setText( string[ 1 ] );
           wFields.remove( idx );
         }
         wFields.removeEmptyRows();
@@ -768,14 +768,14 @@ public class JobEntryDosToUnixDialog extends JobEntryDialog implements JobEntryD
     if ( jobEntry.source_filefolder != null ) {
       for ( int i = 0; i < jobEntry.source_filefolder.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.source_filefolder[i] != null ) {
-          ti.setText( 1, jobEntry.source_filefolder[i] );
+        if ( jobEntry.source_filefolder[ i ] != null ) {
+          ti.setText( 1, jobEntry.source_filefolder[ i ] );
         }
 
-        if ( jobEntry.wildcard[i] != null ) {
-          ti.setText( 2, jobEntry.wildcard[i] );
+        if ( jobEntry.wildcard[ i ] != null ) {
+          ti.setText( 2, jobEntry.wildcard[ i ] );
         }
-        ti.setText( 3, JobEntryDosToUnix.getConversionTypeDesc( jobEntry.conversionTypes[i] ) );
+        ti.setText( 3, JobEntryDosToUnix.getConversionTypeDesc( jobEntry.conversionTypes[ i ] ) );
       }
       wFields.setRowNums();
       wFields.optWidth( true );
@@ -865,17 +865,17 @@ public class JobEntryDosToUnixDialog extends JobEntryDialog implements JobEntryD
         nr++;
       }
     }
-    jobEntry.source_filefolder = new String[nr];
-    jobEntry.wildcard = new String[nr];
-    jobEntry.conversionTypes = new int[nr];
+    jobEntry.source_filefolder = new String[ nr ];
+    jobEntry.wildcard = new String[ nr ];
+    jobEntry.conversionTypes = new int[ nr ];
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
       String source = wFields.getNonEmpty( i ).getText( 1 );
       String wild = wFields.getNonEmpty( i ).getText( 2 );
       if ( source != null && source.length() != 0 ) {
-        jobEntry.source_filefolder[nr] = source;
-        jobEntry.wildcard[nr] = wild;
-        jobEntry.conversionTypes[nr] =
+        jobEntry.source_filefolder[ nr ] = source;
+        jobEntry.wildcard[ nr ] = wild;
+        jobEntry.conversionTypes[ nr ] =
           JobEntryDosToUnix.getConversionTypeByDesc( wFields.getNonEmpty( i ).getText( 3 ) );
         nr++;
       }

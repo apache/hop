@@ -23,13 +23,12 @@
 package org.apache.hop.trans.steps.update;
 
 import junit.framework.TestCase;
-
-import org.junit.Test;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.step.utils.RowMetaUtils;
+import org.junit.Test;
 
 public class UpdateSQLTest extends TestCase {
 
@@ -42,27 +41,27 @@ public class UpdateSQLTest extends TestCase {
     String[] updateStream = new String[] { "SurName", "Address", "ZIP" };
 
     RowMetaInterface prev = new RowMeta();
-    prev.addValueMeta( new ValueMetaString( keyStream[0] ) );
-    prev.addValueMeta( new ValueMetaString( updateStream[0] ) );
-    prev.addValueMeta( new ValueMetaString( updateStream[1] ) );
-    prev.addValueMeta( new ValueMetaString( updateStream[2] ) );
+    prev.addValueMeta( new ValueMetaString( keyStream[ 0 ] ) );
+    prev.addValueMeta( new ValueMetaString( updateStream[ 0 ] ) );
+    prev.addValueMeta( new ValueMetaString( updateStream[ 1 ] ) );
+    prev.addValueMeta( new ValueMetaString( updateStream[ 2 ] ) );
 
     try {
       RowMetaInterface result =
-          RowMetaUtils.getRowMetaForUpdate( prev, keyLookup, keyStream, updateLookup, updateStream );
+        RowMetaUtils.getRowMetaForUpdate( prev, keyLookup, keyStream, updateLookup, updateStream );
 
       ValueMetaInterface vmi = result.getValueMeta( 0 );
-      assertEquals( vmi.getName(), keyLookup[0] );
-      assertEquals( prev.getValueMeta( 0 ).getName(), keyStream[0] );
+      assertEquals( vmi.getName(), keyLookup[ 0 ] );
+      assertEquals( prev.getValueMeta( 0 ).getName(), keyStream[ 0 ] );
 
-      assertEquals( result.getValueMeta( 1 ).getName(), updateLookup[0] );
-      assertEquals( prev.getValueMeta( 1 ).getName(), updateStream[0] );
+      assertEquals( result.getValueMeta( 1 ).getName(), updateLookup[ 0 ] );
+      assertEquals( prev.getValueMeta( 1 ).getName(), updateStream[ 0 ] );
 
-      assertEquals( result.getValueMeta( 2 ).getName(), updateLookup[1] );
-      assertEquals( prev.getValueMeta( 2 ).getName(), updateStream[1] );
+      assertEquals( result.getValueMeta( 2 ).getName(), updateLookup[ 1 ] );
+      assertEquals( prev.getValueMeta( 2 ).getName(), updateStream[ 1 ] );
 
-      assertEquals( result.getValueMeta( 3 ).getName(), updateStream[2] );
-      assertEquals( prev.getValueMeta( 3 ).getName(), updateStream[2] );
+      assertEquals( result.getValueMeta( 3 ).getName(), updateStream[ 2 ] );
+      assertEquals( prev.getValueMeta( 3 ).getName(), updateStream[ 2 ] );
     } catch ( Exception ex ) {
       ex.printStackTrace();
       fail();

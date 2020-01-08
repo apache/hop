@@ -33,7 +33,9 @@ import org.apache.hop.i18n.BaseMessages;
  */
 public abstract class BaseStepData implements StepDataInterface {
 
-  /** The pkg used for i18n */
+  /**
+   * The pkg used for i18n
+   */
   private static Class<?> PKG = BaseStep.class; // for i18n purposes, needed by Translator2!!
 
   /**
@@ -41,44 +43,65 @@ public abstract class BaseStepData implements StepDataInterface {
    */
   public enum StepExecutionStatus {
 
-    /** The status empty. */
+    /**
+     * The status empty.
+     */
     STATUS_EMPTY( BaseMessages.getString( PKG, "BaseStep.status.Empty" ) ),
 
-      /** The status init. */
-      STATUS_INIT( BaseMessages.getString( PKG, "BaseStep.status.Init" ) ),
+    /**
+     * The status init.
+     */
+    STATUS_INIT( BaseMessages.getString( PKG, "BaseStep.status.Init" ) ),
 
-      /** The status running. */
-      STATUS_RUNNING( BaseMessages.getString( PKG, "BaseStep.status.Running" ) ),
+    /**
+     * The status running.
+     */
+    STATUS_RUNNING( BaseMessages.getString( PKG, "BaseStep.status.Running" ) ),
 
-      /** The status idle. */
-      STATUS_IDLE( BaseMessages.getString( PKG, "BaseStep.status.Idle" ) ),
+    /**
+     * The status idle.
+     */
+    STATUS_IDLE( BaseMessages.getString( PKG, "BaseStep.status.Idle" ) ),
 
-      /** The status finished. */
-      STATUS_FINISHED( BaseMessages.getString( PKG, "BaseStep.status.Finished" ) ),
+    /**
+     * The status finished.
+     */
+    STATUS_FINISHED( BaseMessages.getString( PKG, "BaseStep.status.Finished" ) ),
 
-      /** The status stopped. */
-      STATUS_STOPPED( BaseMessages.getString( PKG, "BaseStep.status.Stopped" ) ),
+    /**
+     * The status stopped.
+     */
+    STATUS_STOPPED( BaseMessages.getString( PKG, "BaseStep.status.Stopped" ) ),
 
-      /** The status disposed. */
-      STATUS_DISPOSED( BaseMessages.getString( PKG, "BaseStep.status.Disposed" ) ),
+    /**
+     * The status disposed.
+     */
+    STATUS_DISPOSED( BaseMessages.getString( PKG, "BaseStep.status.Disposed" ) ),
 
-      /** The status halted. */
-      STATUS_HALTED( BaseMessages.getString( PKG, "BaseStep.status.Halted" ) ),
+    /**
+     * The status halted.
+     */
+    STATUS_HALTED( BaseMessages.getString( PKG, "BaseStep.status.Halted" ) ),
 
-      /** The status paused. */
-      STATUS_PAUSED( BaseMessages.getString( PKG, "BaseStep.status.Paused" ) ),
+    /**
+     * The status paused.
+     */
+    STATUS_PAUSED( BaseMessages.getString( PKG, "BaseStep.status.Paused" ) ),
 
-      /** The status halting. */
-      STATUS_HALTING( BaseMessages.getString( PKG, "BaseStep.status.Halting" ) );
+    /**
+     * The status halting.
+     */
+    STATUS_HALTING( BaseMessages.getString( PKG, "BaseStep.status.Halting" ) );
 
-    /** The description. */
+    /**
+     * The description.
+     */
     private String description;
 
     /**
      * Instantiates a new step execution status.
      *
-     * @param description
-     *          the description
+     * @param description the description
      */
     private StepExecutionStatus( String description ) {
       this.description = description;
@@ -104,7 +127,9 @@ public abstract class BaseStepData implements StepDataInterface {
     }
   }
 
-  /** The status. */
+  /**
+   * The status.
+   */
   private StepExecutionStatus status;
 
   /**
@@ -117,8 +142,7 @@ public abstract class BaseStepData implements StepDataInterface {
   /**
    * Set the status of the step data.
    *
-   * @param status
-   *          the new status.
+   * @param status the new status.
    */
   @Override public void setStatus( StepExecutionStatus status ) {
     this.status = status;

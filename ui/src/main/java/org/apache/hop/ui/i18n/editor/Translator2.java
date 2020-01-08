@@ -22,17 +22,35 @@
 
 package org.apache.hop.ui.i18n.editor;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.dialog.EnterStringDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.i18n.KeyOccurrence;
+import org.apache.hop.ui.i18n.MessagesSourceCrawler;
+import org.apache.hop.ui.i18n.MessagesStore;
+import org.apache.hop.ui.i18n.SourceCrawlerPackageException;
+import org.apache.hop.ui.i18n.SourceCrawlerXMLElement;
+import org.apache.hop.ui.i18n.SourceCrawlerXMLFolder;
+import org.apache.hop.ui.i18n.TranslationsStore;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ModifyEvent;
@@ -55,45 +73,28 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.dialog.EnterStringDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.i18n.KeyOccurrence;
-import org.apache.hop.ui.i18n.MessagesSourceCrawler;
-import org.apache.hop.ui.i18n.MessagesStore;
-import org.apache.hop.ui.i18n.SourceCrawlerPackageException;
-import org.apache.hop.ui.i18n.SourceCrawlerXMLElement;
-import org.apache.hop.ui.i18n.SourceCrawlerXMLFolder;
-import org.apache.hop.ui.i18n.TranslationsStore;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Class to allow non-developers to edit translation messages files.
  *
  * @author matt
- *
  */
 public class Translator2 {
-  /** for i18n purposes, needed by Translator2! */
+  /**
+   * for i18n purposes, needed by Translator2!
+   */
   private static Class<?> PKG = Translator2.class;
 
   public static final String APP_NAME = BaseMessages.getString( PKG, "i18nDialog.ApplicationName" );
@@ -103,7 +104,9 @@ public class Translator2 {
   private LogChannelInterface log;
   private PropsUI props;
 
-  /** The crawler that can find and contain all the keys in the source code */
+  /**
+   * The crawler that can find and contain all the keys in the source code
+   */
   private MessagesSourceCrawler crawler;
 
   /**
@@ -188,7 +191,7 @@ public class Translator2 {
       Map<String, Integer> nrKeysPerFolder = new HashMap<String, Integer>();
 
       for ( String sourceFolder : rootDirectories ) {
-        folderKeyCounts.put( sourceFolder, new int[localeList.size()] );
+        folderKeyCounts.put( sourceFolder, new int[ localeList.size() ] );
       }
 
       for ( String sourceFolder : rootDirectories ) {
@@ -208,7 +211,7 @@ public class Translator2 {
               String value =
                 store.lookupKeyValue( locale, keyOccurrence.getMessagesPackage(), keyOccurrence.getKey() );
               if ( !Utils.isEmpty( value ) ) {
-                keyCounts[i]++;
+                keyCounts[ i ]++;
               }
               if ( locale.equals( referenceLocale ) ) {
                 nrKeys++;
@@ -232,28 +235,28 @@ public class Translator2 {
 
         int[] keyCounts = folderKeyCounts.get( sourceFolder );
 
-        String[] locales = localeList.toArray( new String[localeList.size()] );
+        String[] locales = localeList.toArray( new String[ localeList.size() ] );
         for ( int i = 0; i < locales.length; i++ ) {
           for ( int j = 0; j < locales.length - 1; j++ ) {
-            if ( keyCounts[j] < keyCounts[j + 1] ) {
-              int c = keyCounts[j];
-              keyCounts[j] = keyCounts[j + 1];
-              keyCounts[j + 1] = c;
+            if ( keyCounts[ j ] < keyCounts[ j + 1 ] ) {
+              int c = keyCounts[ j ];
+              keyCounts[ j ] = keyCounts[ j + 1 ];
+              keyCounts[ j + 1 ] = c;
 
-              String l = locales[j];
-              locales[j] = locales[j + 1];
-              locales[j + 1] = l;
+              String l = locales[ j ];
+              locales[ j ] = locales[ j + 1 ];
+              locales[ j + 1 ] = l;
             }
           }
         }
 
         for ( int i = 0; i < locales.length; i++ ) {
-          double donePct = 100 * (double) keyCounts[i] / nrKeys;
-          int missingKeys = nrKeys - keyCounts[i];
+          double donePct = 100 * (double) keyCounts[ i ] / nrKeys;
+          int missingKeys = nrKeys - keyCounts[ i ];
           String statusKeys =
             "# "
-              + nrFormat.format( i + 1 ) + " : " + locales[i] + " : " + pctFormat.format( donePct ) + "% "
-              + BaseMessages.getString( PKG, "i18n.Log.CompleteKeys", keyCounts[i] )
+              + nrFormat.format( i + 1 ) + " : " + locales[ i ] + " : " + pctFormat.format( donePct ) + "% "
+              + BaseMessages.getString( PKG, "i18n.Log.CompleteKeys", keyCounts[ i ] )
               + ( missingKeys != 0 ? BaseMessages.getString( PKG, "i18n.Log.MissingKeys", missingKeys ) : "" );
           System.out.println( statusKeys );
         }
@@ -297,10 +300,10 @@ public class Translator2 {
 
         Node phrasesNode = XMLHandler.getSubNode( configNode, "scan-phrases" );
         int nrPhrases = XMLHandler.countNodes( phrasesNode, "scan-phrase" );
-        scanPhrases = new String[nrPhrases];
+        scanPhrases = new String[ nrPhrases ];
         for ( int i = 0; i < nrPhrases; i++ ) {
           Node phraseNode = XMLHandler.getSubNodeByNr( phrasesNode, "scan-phrase", i );
-          scanPhrases[i] = XMLHandler.getNodeValue( phraseNode );
+          scanPhrases[ i ] = XMLHandler.getNodeValue( phraseNode );
         }
 
         Node rootsNode = XMLHandler.getSubNode( configNode, "source-directories" );
@@ -728,7 +731,7 @@ public class Translator2 {
         //
         if ( wTodo.getSelectionCount() == 1 ) {
 
-          String key = wTodo.getSelection()[0];
+          String key = wTodo.getSelection()[ 0 ];
 
           showKeySelection( key );
         }
@@ -868,7 +871,7 @@ public class Translator2 {
 
           try {
             ZipOutputStream out = new ZipOutputStream( new FileOutputStream( zipFilename ) );
-            byte[] buf = new byte[1024];
+            byte[] buf = new byte[ 1024 ];
             for ( MessagesStore messagesStore : messagesStores ) {
               FileInputStream in = new FileInputStream( messagesStore.getFilename() );
               out.putNextEntry( new ZipEntry( messagesStore.getFilename() ) );
@@ -935,7 +938,7 @@ public class Translator2 {
               if ( index >= 0 ) {
                 lastFoundKey = key;
                 wTodo.setSelection( index );
-                showKeySelection( wTodo.getSelection()[0] );
+                showKeySelection( wTodo.getSelection()[ 0 ] );
                 return;
               }
             }
@@ -990,11 +993,11 @@ public class Translator2 {
     wValue.setText( "" );
     wSource.setText( "" );
 
-    selectedLocale = wLocale.getSelectionCount() == 0 ? null : wLocale.getSelection()[0];
+    selectedLocale = wLocale.getSelectionCount() == 0 ? null : wLocale.getSelection()[ 0 ];
     selectedSourceFolder =
-      wPackages.table.getSelectionCount() == 0 ? null : wPackages.table.getSelection()[0].getText( 1 );
+      wPackages.table.getSelectionCount() == 0 ? null : wPackages.table.getSelection()[ 0 ].getText( 1 );
     selectedMessagesPackage =
-      wPackages.table.getSelectionCount() == 0 ? null : wPackages.table.getSelection()[0].getText( 2 );
+      wPackages.table.getSelectionCount() == 0 ? null : wPackages.table.getSelection()[ 0 ].getText( 2 );
     refreshPackages();
 
     // Only continue with a locale & a messages package, otherwise we won't
@@ -1005,16 +1008,16 @@ public class Translator2 {
       //
       java.util.List<KeyOccurrence> todo =
         getTodoList( selectedLocale, selectedMessagesPackage, selectedSourceFolder, false );
-      String[] todoItems = new String[todo.size()];
+      String[] todoItems = new String[ todo.size() ];
       for ( int i = 0; i < todoItems.length; i++ ) {
-        todoItems[i] = todo.get( i ).getKey();
+        todoItems[ i ] = todo.get( i ).getKey();
       }
       wTodo.setItems( todoItems );
     }
   }
 
   private java.util.List<KeyOccurrence> getTodoList( String locale, String messagesPackage, String sourceFolder,
-    boolean strict ) {
+                                                     boolean strict ) {
     // Get the list of keys that need a translation...
     //
     java.util.List<KeyOccurrence> keys = crawler.getOccurrencesForPackage( messagesPackage );
@@ -1057,7 +1060,7 @@ public class Translator2 {
 
             if ( todoIndex >= 0 && todoIndex < wTodo.getItemCount() ) {
               wTodo.setSelection( todoIndex );
-              showKeySelection( wTodo.getSelection()[0] );
+              showKeySelection( wTodo.getSelection()[ 0 ] );
             } else {
               refreshGrid();
             }
@@ -1133,7 +1136,7 @@ public class Translator2 {
   public void refreshLocale() {
     // OK, we have a distinct list of locale to work with...
     wLocale.removeAll();
-    wLocale.setItems( localeList.toArray( new String[localeList.size()] ) );
+    wLocale.setItems( localeList.toArray( new String[ localeList.size() ] ) );
   }
 
   public String toString() {
@@ -1151,8 +1154,8 @@ public class Translator2 {
 
     HopClientEnvironment.init();
 
-    String configFile = args[0];
-    String sourceFolder = args[1];
+    String configFile = args[ 0 ];
+    String sourceFolder = args[ 1 ];
 
     Display display = new Display();
     LogChannelInterface log = new LogChannel( APP_NAME );

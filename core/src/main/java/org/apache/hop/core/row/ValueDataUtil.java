@@ -22,19 +22,7 @@
 
 package org.apache.hop.core.row;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-import java.security.MessageDigest;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import java.util.zip.Adler32;
-import java.util.zip.CRC32;
-import java.util.zip.CheckedInputStream;
-
+import com.wcohen.ss.NeedlemanWunsch;
 import org.apache.commons.codec.language.DoubleMetaphone;
 import org.apache.commons.codec.language.Metaphone;
 import org.apache.commons.codec.language.RefinedSoundex;
@@ -54,7 +42,18 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLCheck;
 
-import com.wcohen.ss.NeedlemanWunsch;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+import java.security.MessageDigest;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.zip.Adler32;
+import java.util.zip.CRC32;
+import java.util.zip.CheckedInputStream;
 
 public class ValueDataUtil {
 
@@ -108,10 +107,10 @@ public class ValueDataUtil {
     } else if ( SYS_PROPERTY_ROUND_2_MODE_BACKWARD_COMPATIBILITY_VALUE.equalsIgnoreCase( rpaValue ) ) {
       round2Mode = ROUND_2_MODE_BACKWARD_COMPATIBILITY_VALUE;
       log.debug( "System property read: ROUND_2_MODE=" + SYS_PROPERTY_ROUND_2_MODE_BACKWARD_COMPATIBILITY_VALUE
-          + " (backward compatibility value)" );
+        + " (backward compatibility value)" );
     } else {
       log.warn( "Incorrect value of system property read: ROUND_2_MODE=" + rpaValue + ". Set to " + SYS_PROPERTY_ROUND_2_MODE_DEFAULT_VALUE
-          + " instead." );
+        + " instead." );
     }
     return round2Mode;
   }
@@ -142,8 +141,7 @@ public class ValueDataUtil {
    * Determines whether or not a character is considered a space. A character is considered a space in Hop if it is a
    * space, a tab, a newline or a cariage return.
    *
-   * @param c
-   *          The character to verify if it is a space.
+   * @param c The character to verify if it is a space.
    * @return true if the character is a space. false otherwise.
    * @deprecated Use {@link Const#isSpace(char)} instead
    */
@@ -155,8 +153,7 @@ public class ValueDataUtil {
   /**
    * Trims a string: removes the leading and trailing spaces of a String.
    *
-   * @param string
-   *          The string to trim
+   * @param string The string to trim
    * @return The trimmed string.
    * @deprecated Use {@link Const#trim(String)} instead
    */
@@ -171,7 +168,7 @@ public class ValueDataUtil {
    * required to transform s into t.
    */
   public static Long getLevenshtein_Distance( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB,
-    Object dataB ) {
+                                              Object dataB ) {
     if ( dataA == null || dataB == null ) {
       return null;
     }
@@ -184,7 +181,7 @@ public class ValueDataUtil {
    * required to transform s into t.
    */
   public static Long getDamerauLevenshtein_Distance( ValueMetaInterface metaA, Object dataA,
-    ValueMetaInterface metaB, Object dataB ) {
+                                                     ValueMetaInterface metaB, Object dataB ) {
     if ( dataA == null || dataB == null ) {
       return null;
     }
@@ -197,7 +194,7 @@ public class ValueDataUtil {
    * required to transform s into t.
    */
   public static Long getNeedlemanWunsch_Distance( ValueMetaInterface metaA, Object dataA,
-    ValueMetaInterface metaB, Object dataB ) {
+                                                  ValueMetaInterface metaB, Object dataB ) {
     if ( dataA == null || dataB == null ) {
       return null;
     }
@@ -209,7 +206,7 @@ public class ValueDataUtil {
    * and the target string (t).
    */
   public static Double getJaro_Similitude( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB,
-    Object dataB ) {
+                                           Object dataB ) {
     if ( dataA == null || dataB == null ) {
       return null;
     }
@@ -223,7 +220,7 @@ public class ValueDataUtil {
    * string (s) and the target string (t).
    */
   public static Double getJaroWinkler_Similitude( ValueMetaInterface metaA, Object dataA,
-    ValueMetaInterface metaB, Object dataB ) {
+                                                  ValueMetaInterface metaB, Object dataB ) {
     if ( dataA == null || dataB == null ) {
       return null;
     }
@@ -388,20 +385,15 @@ public class ValueDataUtil {
   }
 
   /**
-   *
-   * @param metaA
-   *   The ValueMetaInterface
-   * @param dataA
-   *   Filename
-   * @param type
-   *   Algorithm to be used when computing the checksum (MD5 or SHA-1)
-   * @param failIfNoFile
-   *   Indicates if the transformation should fail if no file is found
+   * @param metaA        The ValueMetaInterface
+   * @param dataA        Filename
+   * @param type         Algorithm to be used when computing the checksum (MD5 or SHA-1)
+   * @param failIfNoFile Indicates if the transformation should fail if no file is found
    * @return File's checksum
    * @throws HopFileNotFoundException
    */
   public static String createChecksum( ValueMetaInterface metaA, Object dataA, String type, boolean failIfNoFile )
-          throws HopFileNotFoundException {
+    throws HopFileNotFoundException {
     if ( dataA == null ) {
       return null;
     }
@@ -414,14 +406,14 @@ public class ValueDataUtil {
       throwsErrorOnFileNotFound( file );
       in = HopVFS.getInputStream( file );
       int bytes = in.available();
-      byte[] buffer = new byte[bytes];
+      byte[] buffer = new byte[ bytes ];
       in.read( buffer );
 
       StringBuffer md5HashBuff = new StringBuffer( 32 );
       byte[] b = MessageDigest.getInstance( type ).digest( buffer );
       int len = b.length;
       for ( int x = 0; x < len; x++ ) {
-        md5HashBuff.append( String.format( "%02x", b[x] ) );
+        md5HashBuff.append( String.format( "%02x", b[ x ] ) );
       }
 
       md5Hash = md5HashBuff.toString();
@@ -455,18 +447,14 @@ public class ValueDataUtil {
   }
 
   /**
-   *
-   * @param metaA
-   *   The ValueMetaInterface
-   * @param dataA
-   *   Filename
-   * @param failIfNoFile
-   *   Indicates if the transformation should fail if no file is found
+   * @param metaA        The ValueMetaInterface
+   * @param dataA        Filename
+   * @param failIfNoFile Indicates if the transformation should fail if no file is found
    * @return File's CRC32 checksum
    * @throws HopFileNotFoundException
    */
   public static Long checksumCRC32( ValueMetaInterface metaA, Object dataA, boolean failIfNoFile )
-          throws HopFileNotFoundException {
+    throws HopFileNotFoundException {
     long checksum = 0;
 
     if ( dataA == null ) {
@@ -482,7 +470,7 @@ public class ValueDataUtil {
 
       // Computer CRC32 checksum
       cis = new CheckedInputStream( HopVFS.getInputStream( file ), new CRC32() );
-      byte[] buf = new byte[128];
+      byte[] buf = new byte[ 128 ];
       int readSize = 0;
       do {
         readSize = cis.read( buf );
@@ -519,18 +507,14 @@ public class ValueDataUtil {
   }
 
   /**
-   *
-   * @param metaA
-   *   The ValueMetaInterface
-   * @param dataA
-   *   Filename
-   * @param failIfNoFile
-   *   Indicates if the transformation should fail if no file is found
+   * @param metaA        The ValueMetaInterface
+   * @param dataA        Filename
+   * @param failIfNoFile Indicates if the transformation should fail if no file is found
    * @return File's Adler32 checksum
    * @throws HopFileNotFoundException
    */
   public static Long checksumAdler32( ValueMetaInterface metaA, Object dataA, boolean failIfNoFile )
-          throws HopFileNotFoundException {
+    throws HopFileNotFoundException {
     long checksum = 0;
 
     if ( dataA == null ) {
@@ -547,7 +531,7 @@ public class ValueDataUtil {
       // Computer Adler-32 checksum
       cis = new CheckedInputStream( HopVFS.getInputStream( file ), new Adler32() );
 
-      byte[] buf = new byte[128];
+      byte[] buf = new byte[ 128 ];
       int readSize = 0;
       do {
         readSize = cis.read( buf );
@@ -626,7 +610,7 @@ public class ValueDataUtil {
   }
 
   public static Object plus3( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB,
-    ValueMetaInterface metaC, Object dataC ) throws HopValueException {
+                              ValueMetaInterface metaC, Object dataC ) throws HopValueException {
     if ( dataA == null || dataB == null || dataC == null ) {
       return null;
     }
@@ -682,19 +666,15 @@ public class ValueDataUtil {
   }
 
   /**
-   *
-   * @param metaA
-   *   The ValueMetaInterface
-   * @param dataA
-   *   Filename
-   * @param failIfNoFile
-   *   Indicates if the transformation should fail if no file is found
+   * @param metaA        The ValueMetaInterface
+   * @param dataA        Filename
+   * @param failIfNoFile Indicates if the transformation should fail if no file is found
    * @return File's content in binary
    * @throws HopValueException
    * @throws HopFileNotFoundException
    */
   public static byte[] loadFileContentInBinary( ValueMetaInterface metaA, Object dataA, boolean failIfNoFile )
-          throws HopValueException, HopFileNotFoundException {
+    throws HopValueException, HopFileNotFoundException {
     if ( dataA == null ) {
       return null;
     }
@@ -754,7 +734,7 @@ public class ValueDataUtil {
   }
 
   protected static Object multiplyNumeric( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB,
-    Object dataB ) throws HopValueException {
+                                           Object dataB ) throws HopValueException {
     switch ( metaA.getType() ) {
       case ValueMetaInterface.TYPE_NUMBER:
         return multiplyDoubles( metaA.getNumber( dataA ), metaB.getNumber( dataB ) );
@@ -805,7 +785,7 @@ public class ValueDataUtil {
   }
 
   protected static Object multiplyString( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB,
-    Object dataB ) throws HopValueException {
+                                          Object dataB ) throws HopValueException {
     StringBuffer s;
     String append = "";
     int n;
@@ -986,7 +966,7 @@ public class ValueDataUtil {
    * @throws HopValueException
    */
   public static Object combination1( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB,
-    Object dataB, ValueMetaInterface metaC, Object dataC ) throws HopValueException {
+                                     Object dataB, ValueMetaInterface metaC, Object dataC ) throws HopValueException {
     if ( dataA == null || dataB == null || dataC == null ) {
       return null;
     }
@@ -1046,10 +1026,8 @@ public class ValueDataUtil {
   /**
    * Rounding with no decimal places (using default rounding method ROUND_HALF_CEILING)
    *
-   * @param metaA
-   *          Metadata of value to round
-   * @param dataA
-   *          Value to round
+   * @param metaA Metadata of value to round
+   * @param dataA Value to round
    * @return The rounded value
    * @throws HopValueException
    */
@@ -1074,12 +1052,9 @@ public class ValueDataUtil {
   /**
    * Rounding with no decimal places with a given rounding method
    *
-   * @param metaA
-   *          Metadata of value to round
-   * @param dataA
-   *          Value to round
-   * @param roundingMode
-   *          The mode for rounding, e.g. java.math.BigDecimal.ROUND_HALF_EVEN
+   * @param metaA        Metadata of value to round
+   * @param dataA        Value to round
+   * @param roundingMode The mode for rounding, e.g. java.math.BigDecimal.ROUND_HALF_EVEN
    * @return The rounded value
    * @throws HopValueException
    */
@@ -1089,7 +1064,7 @@ public class ValueDataUtil {
     }
 
     switch ( metaA.getType() ) {
-    // Use overloaded Const.round(value, precision, mode)
+      // Use overloaded Const.round(value, precision, mode)
       case ValueMetaInterface.TYPE_NUMBER:
         return new Double( Const.round( metaA.getNumber( dataA ), 0, roundingMode ) );
       case ValueMetaInterface.TYPE_INTEGER:
@@ -1104,14 +1079,10 @@ public class ValueDataUtil {
   /**
    * Rounding with decimal places (using default rounding method ROUND_HALF_EVEN)
    *
-   * @param metaA
-   *          Metadata of value to round
-   * @param dataA
-   *          Value to round
-   * @param metaB
-   *          Metadata of decimal places
-   * @param dataB
-   *          decimal places
+   * @param metaA Metadata of value to round
+   * @param dataA Value to round
+   * @param metaB Metadata of decimal places
+   * @param dataB decimal places
    * @return The rounded value
    * @throws HopValueException
    */
@@ -1124,21 +1095,16 @@ public class ValueDataUtil {
   /**
    * Rounding with decimal places with a given rounding method
    *
-   * @param metaA
-   *          Metadata of value to round
-   * @param dataA
-   *          Value to round
-   * @param metaB
-   *          Metadata of decimal places
-   * @param dataB
-   *          decimal places
-   * @param roundingMode
-   *          roundingMode The mode for rounding, e.g. java.math.BigDecimal.ROUND_HALF_EVEN
+   * @param metaA        Metadata of value to round
+   * @param dataA        Value to round
+   * @param metaB        Metadata of decimal places
+   * @param dataB        decimal places
+   * @param roundingMode roundingMode The mode for rounding, e.g. java.math.BigDecimal.ROUND_HALF_EVEN
    * @return The rounded value
    * @throws HopValueException
    */
   public static Object round( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB,
-      int roundingMode ) throws HopValueException {
+                              int roundingMode ) throws HopValueException {
     if ( dataA == null || dataB == null ) {
       return null;
     }
@@ -1146,10 +1112,10 @@ public class ValueDataUtil {
     switch ( metaA.getType() ) {
       case ValueMetaInterface.TYPE_NUMBER:
         return new Double( Const.round( metaA.getNumber( dataA ).doubleValue(), metaB.getInteger( dataB ).intValue(),
-            roundingMode ) );
+          roundingMode ) );
       case ValueMetaInterface.TYPE_INTEGER:
         return new Long( Const.round( metaA.getInteger( dataA ).longValue(), metaB.getInteger( dataB ).intValue(),
-            roundingMode ) );
+          roundingMode ) );
       case ValueMetaInterface.TYPE_BIGNUMBER:
         return Const.round( metaA.getBigNumber( dataA ), metaB.getInteger( dataB ).intValue(), roundingMode );
       default:
@@ -1160,23 +1126,17 @@ public class ValueDataUtil {
   /**
    * Rounding with decimal places with a given rounding method
    *
-   * @param metaA
-   *          Metadata of value to round
-   * @param dataA
-   *          Value to round
-   * @param metaB
-   *          Metadata of decimal places
-   * @param dataB
-   *          decimal places
-   * @param metaC
-   *          Metadata of rounding mode
-   * @param dataC
-   *          rounding mode, e.g. java.math.BigDecimal.ROUND_HALF_EVEN
+   * @param metaA Metadata of value to round
+   * @param dataA Value to round
+   * @param metaB Metadata of decimal places
+   * @param dataB decimal places
+   * @param metaC Metadata of rounding mode
+   * @param dataC rounding mode, e.g. java.math.BigDecimal.ROUND_HALF_EVEN
    * @return The rounded value
    * @throws HopValueException
    */
   public static Object round( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB,
-      ValueMetaInterface metaC, Object dataC ) throws HopValueException {
+                              ValueMetaInterface metaC, Object dataC ) throws HopValueException {
     if ( dataA == null || dataB == null || dataC == null ) {
       return null;
     }
@@ -1244,11 +1204,9 @@ public class ValueDataUtil {
    * Returns the remainder (modulus) of A / B.
    *
    * @param metaA
-   * @param dataA
-   *          The dividend
+   * @param dataA The dividend
    * @param metaB
-   * @param dataB
-   *          The divisor
+   * @param dataB The divisor
    * @return The remainder
    * @throws HopValueException
    */
@@ -1265,7 +1223,7 @@ public class ValueDataUtil {
       case ValueMetaInterface.TYPE_BIGNUMBER:
         BigDecimal aValue = metaA.getBigNumber( dataA );
         BigDecimal bValue = metaA.getBigNumber( dataB );
-        BigDecimal result = aValue.remainder( bValue, new MathContext( getMaxPrecision( aValue, bValue ),  RoundingMode.HALF_EVEN ) );
+        BigDecimal result = aValue.remainder( bValue, new MathContext( getMaxPrecision( aValue, bValue ), RoundingMode.HALF_EVEN ) );
         return removeTrailingZeroFractionOrScale( result, result.scale() );
       default:
         throw new HopValueException( "The 'remainder' function only works on numeric data" );
@@ -1344,7 +1302,7 @@ public class ValueDataUtil {
   }
 
   public static Object addTimeToDate( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB,
-    Object dataB, ValueMetaInterface metaC, Object dataC ) throws HopValueException {
+                                      Object dataB, ValueMetaInterface metaC, Object dataC ) throws HopValueException {
     if ( dataA == null ) {
       return null;
     }
@@ -1429,19 +1387,16 @@ public class ValueDataUtil {
    * Returns the number of days that have elapsed between dataA and dataB.
    *
    * @param metaA
-   * @param dataA
-   *          The "end date"
+   * @param dataA      The "end date"
    * @param metaB
-   * @param dataB
-   *          The "start date"
-   * @param resultType
-   *          The "result type" (ms, s, mn, h, d)
+   * @param dataB      The "start date"
+   * @param resultType The "result type" (ms, s, mn, h, d)
    * @return Number of days
    * @throws HopValueException
    */
 
   public static Object DateDiff( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB, Object dataB,
-    String resultType ) throws HopValueException {
+                                 String resultType ) throws HopValueException {
 
     if ( dataA != null && dataB != null ) {
       Date startDate = metaB.getDate( dataB );
@@ -1477,7 +1432,7 @@ public class ValueDataUtil {
   }
 
   public static Object DateWorkingDiff( ValueMetaInterface metaA, Object dataA, ValueMetaInterface metaB,
-    Object dataB ) throws HopValueException {
+                                        Object dataB ) throws HopValueException {
     if ( dataA != null && dataB != null ) {
       Date fromDate = metaB.getDate( dataB );
       Date toDate = metaA.getDate( dataA );
@@ -1657,7 +1612,7 @@ public class ValueDataUtil {
   /**
    * Change a hexadecimal string into normal ASCII representation. E.g. if Value contains string "61" afterwards it
    * would contain value "a". If the hexadecimal string is of odd length a leading zero will be used.
-   *
+   * <p>
    * Note that only the low byte of a character will be processed, this is for binary transformations.
    *
    * @return Value itself
@@ -1671,7 +1626,7 @@ public class ValueDataUtil {
     String hexString = meta.getString( data );
 
     int len = hexString.length();
-    char[] chArray = new char[( len + 1 ) / 2];
+    char[] chArray = new char[ ( len + 1 ) / 2 ];
     boolean evenByte = true;
     int nextByte = 0;
 
@@ -1699,7 +1654,7 @@ public class ValueDataUtil {
         nextByte = ( nibble << 4 );
       } else {
         nextByte += nibble;
-        chArray[j] = (char) nextByte;
+        chArray[ j ] = (char) nextByte;
         j++;
       }
 
@@ -1711,7 +1666,7 @@ public class ValueDataUtil {
   /**
    * Change a string into its hexadecimal representation. E.g. if Value contains string "a" afterwards it would contain
    * value "0061".
-   *
+   * <p>
    * Note that transformations happen in groups of 4 hex characters, so the value of a characters is always in the range
    * 0-65535.
    *
@@ -1734,8 +1689,8 @@ public class ValueDataUtil {
     StringBuffer hexString = new StringBuffer( 2 * s.length );
 
     for ( int i = 0; i < s.length; i++ ) {
-      hexString.append( hexDigits[( s[i] & 0x00F0 ) >> 4] ); // hi nibble
-      hexString.append( hexDigits[s[i] & 0x000F] ); // lo nibble
+      hexString.append( hexDigits[ ( s[ i ] & 0x00F0 ) >> 4 ] ); // hi nibble
+      hexString.append( hexDigits[ s[ i ] & 0x000F ] ); // lo nibble
     }
 
     return hexString.toString();
@@ -1744,13 +1699,12 @@ public class ValueDataUtil {
   /**
    * Change a string into its hexadecimal representation. E.g. if Value contains string "a" afterwards it would contain
    * value "0061".
-   *
+   * <p>
    * Note that transformations happen in groups of 4 hex characters, so the value of a characters is always in the range
    * 0-65535.
    *
    * @return A string with Hex code
-   * @throws HopValueException
-   *           In case of a data conversion problem.
+   * @throws HopValueException In case of a data conversion problem.
    */
   public static String charToHexEncode( ValueMetaInterface meta, Object data ) throws HopValueException {
     final char[] hexDigits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
@@ -1765,10 +1719,10 @@ public class ValueDataUtil {
     StringBuffer hexString = new StringBuffer( 2 * s.length );
 
     for ( int i = 0; i < s.length; i++ ) {
-      hexString.append( hexDigits[( s[i] & 0xF000 ) >> 12] ); // hex 1
-      hexString.append( hexDigits[( s[i] & 0x0F00 ) >> 8] ); // hex 2
-      hexString.append( hexDigits[( s[i] & 0x00F0 ) >> 4] ); // hex 3
-      hexString.append( hexDigits[s[i] & 0x000F] ); // hex 4
+      hexString.append( hexDigits[ ( s[ i ] & 0xF000 ) >> 12 ] ); // hex 1
+      hexString.append( hexDigits[ ( s[ i ] & 0x0F00 ) >> 8 ] ); // hex 2
+      hexString.append( hexDigits[ ( s[ i ] & 0x00F0 ) >> 4 ] ); // hex 3
+      hexString.append( hexDigits[ s[ i ] & 0x000F ] ); // hex 4
     }
 
     return hexString.toString();
@@ -1777,7 +1731,7 @@ public class ValueDataUtil {
   /**
    * Change a hexadecimal string into normal ASCII representation. E.g. if Value contains string "61" afterwards it
    * would contain value "a". If the hexadecimal string is of a wrong length leading zeroes will be used.
-   *
+   * <p>
    * Note that transformations happen in groups of 4 hex characters, so the value of a characters is always in the range
    * 0-65535.
    *
@@ -1792,7 +1746,7 @@ public class ValueDataUtil {
     String hexString = meta.getString( data );
 
     int len = hexString.length();
-    char[] chArray = new char[( len + 3 ) / 4];
+    char[] chArray = new char[ ( len + 3 ) / 4 ];
     int charNr;
     int nextChar = 0;
 
@@ -1829,7 +1783,7 @@ public class ValueDataUtil {
       } else {
         // charNr == 1
         nextChar += nibble;
-        chArray[j] = (char) nextChar;
+        chArray[ j ] = (char) nextChar;
         charNr = 4;
         j++;
       }
@@ -1842,10 +1796,8 @@ public class ValueDataUtil {
    * Right pad a string: adds spaces to a string until a certain length. If the length is smaller then the limit
    * specified, the String is truncated.
    *
-   * @param ret
-   *          The string to pad
-   * @param limit
-   *          The desired length of the padded string.
+   * @param ret   The string to pad
+   * @param limit The desired length of the padded string.
    * @return The padded String.
    */
   public static final String rightPad( String ret, int limit ) {
@@ -1856,10 +1808,8 @@ public class ValueDataUtil {
    * Right pad a StringBuffer: adds spaces to a string until a certain length. If the length is smaller then the limit
    * specified, the String is truncated.
    *
-   * @param ret
-   *          The StringBuffer to pad
-   * @param limit
-   *          The desired length of the padded string.
+   * @param ret   The StringBuffer to pad
+   * @param limit The desired length of the padded string.
    * @return The padded String.
    */
   public static final String rightPad( StringBuffer ret, int limit ) {
@@ -1869,12 +1819,9 @@ public class ValueDataUtil {
   /**
    * Replace value occurances in a String with another value.
    *
-   * @param string
-   *          The original String.
-   * @param repl
-   *          The text to replace
-   * @param with
-   *          The new text bit
+   * @param string The original String.
+   * @param repl   The text to replace
+   * @param with   The new text bit
    * @return The resulting string with the text pieces replaced.
    */
   public static final String replace( String string, String repl, String with ) {
@@ -1891,12 +1838,9 @@ public class ValueDataUtil {
   /**
    * Alternate faster version of string replace using a stringbuffer as input.
    *
-   * @param str
-   *          The string where we want to replace in
-   * @param code
-   *          The code to search for
-   * @param repl
-   *          The replacement string for code
+   * @param str  The string where we want to replace in
+   * @param code The code to search for
+   * @param repl The replacement string for code
    */
   public static void replaceBuffer( StringBuffer str, String code, String repl ) {
     int clength = code.length();
@@ -1916,8 +1860,7 @@ public class ValueDataUtil {
   /**
    * Count the number of spaces to the left of a text. (leading)
    *
-   * @param field
-   *          The text to examine
+   * @param field The text to examine
    * @return The number of leading spaces found.
    */
   public static final int nrSpacesBefore( String field ) {
@@ -1932,8 +1875,7 @@ public class ValueDataUtil {
   /**
    * Count the number of spaces to the right of a text. (trailing)
    *
-   * @param field
-   *          The text to examine
+   * @param field The text to examine
    * @return The number of trailing spaces found.
    */
   public static final int nrSpacesAfter( String field ) {
@@ -1948,8 +1890,7 @@ public class ValueDataUtil {
   /**
    * Checks whether or not a String consists only of spaces.
    *
-   * @param str
-   *          The string to check
+   * @param str The string to check
    * @return true if the string has nothing but spaces.
    */
   public static final boolean onlySpaces( String str ) {
@@ -1964,10 +1905,8 @@ public class ValueDataUtil {
   /**
    * Checks an xml file is well formed.
    *
-   * @param metaA
-   *          The ValueMetaInterface
-   * @param dataA
-   *          The value (filename)
+   * @param metaA The ValueMetaInterface
+   * @param dataA The value (filename)
    * @return true if the file is well formed.
    * @deprecated Use {@link ValueDataUtil#isXMLFileWellFormed(ValueMetaInterface, Object, boolean)} instead
    */
@@ -1985,17 +1924,14 @@ public class ValueDataUtil {
   /**
    * Checks an xml file is well formed.
    *
-   * @param metaA
-   *          The ValueMetaInterface
-   * @param dataA
-   *          The value (filename)
-   * @param failIfNoFile
-   *          Indicates if the transformation should fail if no file is found
+   * @param metaA        The ValueMetaInterface
+   * @param dataA        The value (filename)
+   * @param failIfNoFile Indicates if the transformation should fail if no file is found
    * @return true if the file is well formed.
    * @throws HopFileNotFoundException
    */
   public static boolean isXMLFileWellFormed( ValueMetaInterface metaA, Object dataA, boolean failIfNoFile )
-          throws HopFileNotFoundException {
+    throws HopFileNotFoundException {
     if ( dataA == null ) {
       return false;
     }
@@ -2022,10 +1958,8 @@ public class ValueDataUtil {
   /**
    * Checks an xml string is well formed.
    *
-   * @param metaA
-   *          The ValueMetaInterface
-   * @param dataA
-   *          The value (filename)
+   * @param metaA The ValueMetaInterface
+   * @param dataA The value (filename)
    * @return true if the file is well formed.
    */
   public static boolean isXMLWellFormed( ValueMetaInterface metaA, Object dataA ) {
@@ -2043,10 +1977,8 @@ public class ValueDataUtil {
   /**
    * Get file encoding.
    *
-   * @param metaA
-   *          The ValueMetaInterface
-   * @param dataA
-   *          The value (filename)
+   * @param metaA The ValueMetaInterface
+   * @param dataA The value (filename)
    * @return file encoding.
    * @deprecated Use {@link ValueDataUtil#getFileEncoding(ValueMetaInterface, Object, boolean)} instead
    */
@@ -2064,18 +1996,15 @@ public class ValueDataUtil {
   /**
    * Get file encoding.
    *
-   * @param metaA
-   *          The ValueMetaInterface
-   * @param dataA
-   *          The value (filename)
-   * @param failIfNoFile
-   *          Indicates if the transformation should fail if no file is found
+   * @param metaA        The ValueMetaInterface
+   * @param dataA        The value (filename)
+   * @param failIfNoFile Indicates if the transformation should fail if no file is found
    * @return file encoding.
    * @throws HopFileNotFoundException
    * @throws HopValueException
    */
   public static String getFileEncoding( ValueMetaInterface metaA, Object dataA, boolean failIfNoFile )
-          throws HopValueException, HopFileNotFoundException {
+    throws HopValueException, HopFileNotFoundException {
     if ( dataA == null ) {
       return null;
     }
@@ -2100,8 +2029,8 @@ public class ValueDataUtil {
   }
 
   /**
-   *  Default utility method to get exact zero value according to ValueMetaInterface. Using
-   *  this utility method saves from ClassCastExceptions later.
+   * Default utility method to get exact zero value according to ValueMetaInterface. Using
+   * this utility method saves from ClassCastExceptions later.
    *
    * @param type
    * @return
@@ -2113,19 +2042,19 @@ public class ValueDataUtil {
     }
 
     switch ( type.getType() ) {
-      case ( ValueMetaInterface.TYPE_INTEGER ) : {
+      case ( ValueMetaInterface.TYPE_INTEGER ): {
         return new Long( 0 );
       }
-      case ( ValueMetaInterface.TYPE_NUMBER ) : {
+      case ( ValueMetaInterface.TYPE_NUMBER ): {
         return new Double( 0 );
       }
-      case ( ValueMetaInterface.TYPE_BIGNUMBER ) : {
+      case ( ValueMetaInterface.TYPE_BIGNUMBER ): {
         return new BigDecimal( 0 );
       }
-      case ( ValueMetaInterface.TYPE_STRING ) : {
+      case ( ValueMetaInterface.TYPE_STRING ): {
         return "";
       }
-      default : {
+      default: {
         throw new HopValueException( "get zero function undefined for data type: " + type.getType() );
       }
     }

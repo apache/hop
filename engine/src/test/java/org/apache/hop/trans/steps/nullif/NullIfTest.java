@@ -22,23 +22,7 @@
 
 package org.apache.hop.trans.steps.nullif;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
-
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import junit.framework.Assert;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.RowSet;
@@ -51,10 +35,25 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
 import org.apache.hop.trans.steps.nullif.NullIfMeta.Field;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for NullIf step
@@ -70,7 +69,7 @@ public class NullIfTest {
   public void setUp() {
     smh = new StepMockHelper<NullIfMeta, NullIfData>( "Field NullIf processor", NullIfMeta.class, NullIfData.class );
     when( smh.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        smh.logChannelInterface );
+      smh.logChannelInterface );
     when( smh.trans.isRunning() ).thenReturn( true );
   }
 
@@ -88,8 +87,8 @@ public class NullIfTest {
     Field[] fields = createArrayWithOneField( "nullable-field", "nullable-value" );
     doReturn( fields ).when( processRowMeta ).getFields();
     doCallRealMethod().when( processRowMeta ).getFields( any( RowMetaInterface.class ), anyString(),
-        any( RowMetaInterface[].class ), any( StepMeta.class ), any( VariableSpace.class ),
-        any( IMetaStore.class ) );
+      any( RowMetaInterface[].class ), any( StepMeta.class ), any( VariableSpace.class ),
+      any( IMetaStore.class ) );
 
     return processRowMeta;
   }
@@ -125,7 +124,7 @@ public class NullIfTest {
     Assert.assertEquals( "Output row is of an unexpected length", expectedRow.length, outputRowSet.getRowMeta().size() );
 
     for ( int i = 0; i < expectedRow.length; i++ ) {
-      Assert.assertEquals( "Unexpected output value at index " + i, expectedRow[i], actualRow[i] );
+      Assert.assertEquals( "Unexpected output value at index " + i, expectedRow[ i ], actualRow[ i ] );
     }
   }
 
@@ -156,15 +155,15 @@ public class NullIfTest {
 
   private NullIfMeta mockProcessRowMeta2() throws HopStepException {
     NullIfMeta processRowMeta = smh.processRowsStepMetaInterface;
-    Field[] fields = new Field[4];
-    fields[0] = createArrayWithOneField( "value1", "20150606" )[0];
-    fields[1] = createArrayWithOneField( "value2", "2015/06/06 00:00:00.000" )[0];
-    fields[2] = createArrayWithOneField( "value3", "20150606" )[0];
-    fields[3] = createArrayWithOneField( "value4", "2015/06/06 00:00:00.000" )[0];
+    Field[] fields = new Field[ 4 ];
+    fields[ 0 ] = createArrayWithOneField( "value1", "20150606" )[ 0 ];
+    fields[ 1 ] = createArrayWithOneField( "value2", "2015/06/06 00:00:00.000" )[ 0 ];
+    fields[ 2 ] = createArrayWithOneField( "value3", "20150606" )[ 0 ];
+    fields[ 3 ] = createArrayWithOneField( "value4", "2015/06/06 00:00:00.000" )[ 0 ];
     doReturn( fields ).when( processRowMeta ).getFields();
     doCallRealMethod().when( processRowMeta ).getFields( any( RowMetaInterface.class ), anyString(),
-        any( RowMetaInterface[].class ), any( StepMeta.class ), any( VariableSpace.class ),
-        any( IMetaStore.class ) );
+      any( RowMetaInterface[].class ), any( StepMeta.class ), any( VariableSpace.class ),
+      any( IMetaStore.class ) );
 
     return processRowMeta;
   }
@@ -204,7 +203,7 @@ public class NullIfTest {
     Assert.assertEquals( "Output row is of an unexpected length", expectedRow.length, outputRowSet.getRowMeta().size() );
 
     for ( int i = 0; i < expectedRow.length; i++ ) {
-      Assert.assertEquals( "Unexpected output value at index " + i, expectedRow[i], actualRow[i] );
+      Assert.assertEquals( "Unexpected output value at index " + i, expectedRow[ i ], actualRow[ i ] );
     }
   }
 }

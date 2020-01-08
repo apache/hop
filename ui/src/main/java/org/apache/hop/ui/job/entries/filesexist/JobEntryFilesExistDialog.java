@@ -22,6 +22,20 @@
 
 package org.apache.hop.ui.job.entries.filesexist;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.filesexist.JobEntryFilesExist;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -43,20 +57,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.filesexist.JobEntryFilesExist;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * This dialog allows you to edit the Files exist job entry settings.
@@ -286,8 +286,8 @@ public class JobEntryFilesExistDialog extends JobEntryDialog implements JobEntry
         BaseMessages.getString( PKG, "JobFilesExist.Fields.Argument.Label" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false ), };
 
-    colinf[0].setUsingVariables( true );
-    colinf[0].setToolTip( BaseMessages.getString( PKG, "JobFilesExist.Fields.Column" ) );
+    colinf[ 0 ].setUsingVariables( true );
+    colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "JobFilesExist.Fields.Column" ) );
 
     wFields =
       new TableView(
@@ -329,7 +329,7 @@ public class JobEntryFilesExistDialog extends JobEntryDialog implements JobEntry
         int idx = wFields.getSelectionIndex();
         if ( idx >= 0 ) {
           String[] string = wFields.getItem( idx );
-          wFilename.setText( string[0] );
+          wFilename.setText( string[ 0 ] );
           wFields.remove( idx );
         }
         wFields.removeEmptyRows();
@@ -417,8 +417,8 @@ public class JobEntryFilesExistDialog extends JobEntryDialog implements JobEntry
     if ( jobEntry.getArguments() != null ) {
       for ( int i = 0; i < jobEntry.getArguments().length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.getArguments()[i] != null ) {
-          ti.setText( 1, jobEntry.getArguments()[i] );
+        if ( jobEntry.getArguments()[ i ] != null ) {
+          ti.setText( 1, jobEntry.getArguments()[ i ] );
         }
       }
       wFields.setRowNums();
@@ -458,12 +458,12 @@ public class JobEntryFilesExistDialog extends JobEntryDialog implements JobEntry
         nr++;
       }
     }
-    String[] arguments = new String[nr];
+    String[] arguments = new String[ nr ];
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
-        arguments[nr] = arg;
+        arguments[ nr ] = arg;
         nr++;
       }
     }

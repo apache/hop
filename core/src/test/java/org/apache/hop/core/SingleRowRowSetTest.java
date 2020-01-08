@@ -21,13 +21,14 @@
  ******************************************************************************/
 package org.apache.hop.core;
 
+import org.apache.hop.core.row.RowMeta;
 import org.junit.Before;
 import org.junit.Test;
-import org.apache.hop.core.row.RowMeta;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 public class SingleRowRowSetTest {
   Object[] row;
@@ -36,7 +37,7 @@ public class SingleRowRowSetTest {
   @Before
   public void setup() {
     rowSet = new SingleRowRowSet();
-    row = new Object[]{};
+    row = new Object[] {};
   }
 
   @Test

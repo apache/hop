@@ -22,16 +22,13 @@
 
 package org.apache.hop.trans.steps.mapping;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.trans.step.StepMeta;
+import org.w3c.dom.Node;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.xml.XMLHandler;
-
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.w3c.dom.Node;
 
 /**
  * Helps to define the input or output specifications for the Mapping step.
@@ -39,7 +36,6 @@ import org.w3c.dom.Node;
  * @author matt
  * @version 3.0
  * @since 2007-07-26
- *
  */
 public class MappingIODefinition implements Cloneable {
 
@@ -75,13 +71,11 @@ public class MappingIODefinition implements Cloneable {
   }
 
   /**
-   * @param inputStepname
-   *          the name of the step to "connect" to. If no name is given, detect the source step automatically: use all
-   *          input steps for this mapping step.
-   * @param outputStepname
-   *          the name of the step in the mapping to accept the data from the input step. If no name is given, detect
-   *          the output step automatically: there can only be one MappingInput step in the mapping in this specific
-   *          case.
+   * @param inputStepname  the name of the step to "connect" to. If no name is given, detect the source step automatically: use all
+   *                       input steps for this mapping step.
+   * @param outputStepname the name of the step in the mapping to accept the data from the input step. If no name is given, detect
+   *                       the output step automatically: there can only be one MappingInput step in the mapping in this specific
+   *                       case.
    */
   public MappingIODefinition( String inputStepname, String outputStepname ) {
     this();
@@ -142,17 +136,16 @@ public class MappingIODefinition implements Cloneable {
     return xml.toString();
   }
 
-/**
+  /**
    * @return the stepname, the name of the step to "connect" to. If no step name is given, detect the Mapping
-   *         Input/Output step automatically.
+   * Input/Output step automatically.
    */
   public String getInputStepname() {
     return inputStepname;
   }
 
   /**
-   * @param inputStepname
-   *          the stepname to set
+   * @param inputStepname the stepname to set
    */
   public void setInputStepname( String inputStepname ) {
     this.inputStepname = inputStepname;
@@ -166,8 +159,7 @@ public class MappingIODefinition implements Cloneable {
   }
 
   /**
-   * @param description
-   *          the description to set
+   * @param description the description to set
    */
   public void setDescription( String description ) {
     this.description = description;
@@ -181,8 +173,7 @@ public class MappingIODefinition implements Cloneable {
   }
 
   /**
-   * @param outputStepname
-   *          the outputStepname to set
+   * @param outputStepname the outputStepname to set
    */
   public void setOutputStepname( String outputStepname ) {
     this.outputStepname = outputStepname;
@@ -196,8 +187,7 @@ public class MappingIODefinition implements Cloneable {
   }
 
   /**
-   * @param mainDataPath
-   *          true if this is the main data path for the mapping step.
+   * @param mainDataPath true if this is the main data path for the mapping step.
    */
   public void setMainDataPath( boolean mainDataPath ) {
     this.mainDataPath = mainDataPath;
@@ -211,8 +201,7 @@ public class MappingIODefinition implements Cloneable {
   }
 
   /**
-   * @param renamingOnOutput
-   *          the renamingOnOutput to set
+   * @param renamingOnOutput the renamingOnOutput to set
    */
   public void setRenamingOnOutput( boolean renamingOnOutput ) {
     this.renamingOnOutput = renamingOnOutput;
@@ -226,8 +215,7 @@ public class MappingIODefinition implements Cloneable {
   }
 
   /**
-   * @param valueRenames
-   *          the valueRenames to set
+   * @param valueRenames the valueRenames to set
    */
   public void setValueRenames( List<MappingValueRename> valueRenames ) {
     this.valueRenames = valueRenames;
@@ -241,8 +229,7 @@ public class MappingIODefinition implements Cloneable {
   }
 
   /**
-   * @param inputStep
-   *          the inputStep to set
+   * @param inputStep the inputStep to set
    */
   public void setInputStep( StepMeta inputStep ) {
     this.inputStep = inputStep;

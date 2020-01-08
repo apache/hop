@@ -22,11 +22,6 @@
 
 package org.apache.hop.trans;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -42,6 +37,11 @@ import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
 import org.apache.hop.trans.steps.injector.InjectorMeta;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 /**
  * We can use this factory to create transformations with a source and target step.<br>
  * The source step is an Injector step.<br>
@@ -49,7 +49,6 @@ import org.apache.hop.trans.steps.injector.InjectorMeta;
  * The middle step is the step specified.<br>
  *
  * @author Matt Casters (mcasters@pentaho.org)
- *
  */
 public class TransTestFactory {
   public static final String INJECTOR_STEPNAME = "injector";
@@ -64,11 +63,12 @@ public class TransTestFactory {
   static PluginRegistry registry = PluginRegistry.getInstance();
 
   public static TransMeta generateTestTransformation( VariableSpace parent, StepMetaInterface oneMeta,
-      String oneStepname ) {
+                                                      String oneStepname ) {
     return generateTestTransformation( parent, oneMeta, oneStepname, null );
   }
+
   public static TransMeta generateTestTransformation( VariableSpace parent, StepMetaInterface oneMeta,
-      String oneStepname, RowMetaInterface injectorRowMeta ) {
+                                                      String oneStepname, RowMetaInterface injectorRowMeta ) {
     TransMeta previewMeta = new TransMeta( parent );
 
     // First the injector step...
@@ -96,7 +96,7 @@ public class TransTestFactory {
   }
 
   public static TransMeta generateTestTransformationError( VariableSpace parent, StepMetaInterface oneMeta,
-      String oneStepname ) {
+                                                           String oneStepname ) {
     TransMeta previewMeta = new TransMeta( parent );
 
     if ( parent == null ) {
@@ -144,18 +144,19 @@ public class TransTestFactory {
   }
 
   public static List<RowMetaAndData> executeTestTransformation( TransMeta transMeta,
-      String testStepname, List<RowMetaAndData> inputData ) throws HopException {
+                                                                String testStepname, List<RowMetaAndData> inputData ) throws HopException {
     return executeTestTransformation( transMeta, INJECTOR_STEPNAME, testStepname, DUMMY_STEPNAME, inputData );
   }
 
   public static List<RowMetaAndData> executeTestTransformation( TransMeta transMeta, String injectorStepname,
-      String testStepname, String dummyStepname, List<RowMetaAndData> inputData ) throws HopException {
+                                                                String testStepname, String dummyStepname, List<RowMetaAndData> inputData ) throws HopException {
     return executeTestTransformation( transMeta, injectorStepname, testStepname,
       dummyStepname, inputData, null, null );
   }
+
   public static List<RowMetaAndData> executeTestTransformation( TransMeta transMeta, String injectorStepname,
-      String testStepname, String dummyStepname, List<RowMetaAndData> inputData,
-      VariableSpace runTimeVariables, VariableSpace runTimeParameters ) throws HopException {
+                                                                String testStepname, String dummyStepname, List<RowMetaAndData> inputData,
+                                                                VariableSpace runTimeVariables, VariableSpace runTimeParameters ) throws HopException {
     // Now execute the transformation...
     Trans trans = new Trans( transMeta );
 
@@ -211,14 +212,14 @@ public class TransTestFactory {
   }
 
   public static Map<String, RowStepCollector> executeTestTransformationError( TransMeta transMeta, String testStepname,
-      List<RowMetaAndData> inputData ) throws HopException {
+                                                                              List<RowMetaAndData> inputData ) throws HopException {
     return executeTestTransformationError( transMeta, INJECTOR_STEPNAME, testStepname, DUMMY_STEPNAME, ERROR_STEPNAME,
-        inputData );
+      inputData );
   }
 
   public static Map<String, RowStepCollector> executeTestTransformationError( TransMeta transMeta,
-      String injectorStepname, String testStepname, String dummyStepname, String errorStepName,
-      List<RowMetaAndData> inputData ) throws HopException {
+                                                                              String injectorStepname, String testStepname, String dummyStepname, String errorStepName,
+                                                                              List<RowMetaAndData> inputData ) throws HopException {
     // Now execute the transformation...
     Trans trans = new Trans( transMeta );
 
@@ -284,16 +285,16 @@ public class TransTestFactory {
 
     // Sets output fields for cases when no rows are sent to the test step, but metadata is still needed
     if ( outputRowMeta != null && outputRowMeta.size() > 0 ) {
-      String[] fieldName = new String[outputRowMeta.size()];
-      int[] fieldLength = new int[outputRowMeta.size()];
-      int[] fieldPrecision = new int[outputRowMeta.size()];
-      int[] fieldType = new int[outputRowMeta.size()];
+      String[] fieldName = new String[ outputRowMeta.size() ];
+      int[] fieldLength = new int[ outputRowMeta.size() ];
+      int[] fieldPrecision = new int[ outputRowMeta.size() ];
+      int[] fieldType = new int[ outputRowMeta.size() ];
       for ( int i = 0; i < outputRowMeta.size(); i++ ) {
         ValueMetaInterface field = outputRowMeta.getValueMeta( i );
-        fieldName[i] = field.getName();
-        fieldLength[i] = field.getLength();
-        fieldPrecision[i] = field.getPrecision();
-        fieldType[i] = field.getType();
+        fieldName[ i ] = field.getName();
+        fieldLength[ i ] = field.getLength();
+        fieldPrecision[ i ] = field.getPrecision();
+        fieldType[ i ] = field.getType();
       }
       zeroMeta.setFieldname( fieldName );
       zeroMeta.setLength( fieldLength );

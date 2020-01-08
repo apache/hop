@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.databasejoin;
 
-import java.sql.ResultSet;
-
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
@@ -39,6 +37,8 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.sql.ResultSet;
+
 /**
  * Use values from input streams to joins with values in a database. Freehand SQL can be used to do this.
  *
@@ -52,7 +52,7 @@ public class DatabaseJoin extends BaseStep implements StepInterface {
   private DatabaseJoinData data;
 
   public DatabaseJoin( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                       Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -70,23 +70,23 @@ public class DatabaseJoin extends BaseStep implements StepInterface {
         logDetailed( BaseMessages.getString( PKG, "DatabaseJoin.Log.CheckingRow" ) + rowMeta.getString( rowData ) );
       }
 
-      data.keynrs = new int[meta.getParameterField().length];
+      data.keynrs = new int[ meta.getParameterField().length ];
 
       for ( int i = 0; i < meta.getParameterField().length; i++ ) {
-        data.keynrs[i] = rowMeta.indexOfValue( meta.getParameterField()[i] );
-        if ( data.keynrs[i] < 0 ) {
+        data.keynrs[ i ] = rowMeta.indexOfValue( meta.getParameterField()[ i ] );
+        if ( data.keynrs[ i ] < 0 ) {
           throw new HopStepException( BaseMessages.getString( PKG, "DatabaseJoin.Exception.FieldNotFound", meta
-            .getParameterField()[i] ) );
+            .getParameterField()[ i ] ) );
         }
 
-        data.lookupRowMeta.addValueMeta( rowMeta.getValueMeta( data.keynrs[i] ).clone() );
+        data.lookupRowMeta.addValueMeta( rowMeta.getValueMeta( data.keynrs[ i ] ).clone() );
       }
     }
 
     // Construct the parameters row...
-    Object[] lookupRowData = new Object[data.lookupRowMeta.size()];
+    Object[] lookupRowData = new Object[ data.lookupRowMeta.size() ];
     for ( int i = 0; i < data.keynrs.length; i++ ) {
-      lookupRowData[i] = rowData[data.keynrs[i]];
+      lookupRowData[ i ] = rowData[ data.keynrs[ i ] ];
     }
 
     // Set the values on the prepared statement (for faster exec.)
@@ -106,7 +106,7 @@ public class DatabaseJoin extends BaseStep implements StepInterface {
       Object[] newRow = RowDataUtil.resizeArray( rowData, data.outputRowMeta.size() );
       int newIndex = rowMeta.size();
       for ( int i = 0; i < addMeta.size(); i++ ) {
-        newRow[newIndex++] = add[i];
+        newRow[ newIndex++ ] = add[ i ];
       }
       // we have to clone, otherwise we only get the last new value
       putRow( data.outputRowMeta, data.outputRowMeta.cloneRow( newRow ) );
@@ -128,12 +128,12 @@ public class DatabaseJoin extends BaseStep implements StepInterface {
       if ( data.notfound == null ) {
         // Just return null values for all values...
         //
-        data.notfound = new Object[data.db.getReturnRowMeta().size()];
+        data.notfound = new Object[ data.db.getReturnRowMeta().size() ];
       }
       Object[] newRow = RowDataUtil.resizeArray( rowData, data.outputRowMeta.size() );
       int newIndex = rowMeta.size();
       for ( int i = 0; i < data.notfound.length; i++ ) {
-        newRow[newIndex++] = data.notfound[i];
+        newRow[ newIndex++ ] = data.notfound[ i ];
       }
       putRow( data.outputRowMeta, newRow );
     }
@@ -187,11 +187,9 @@ public class DatabaseJoin extends BaseStep implements StepInterface {
   /**
    * Stop the running query
    * [PDI-17820] - In the Database Join step data.isCancelled is checked before synchronization and set after synchronization is completed.
-   *
+   * <p>
    * To cancel a prepared statement we need a valid database connection which we do not have if disposed has already been called
-   *
-   *
-   * */
+   */
   public synchronized void stopRunning( StepMetaInterface smi, StepDataInterface sdi ) throws HopException {
     if ( this.isStopped() || sdi.isDisposed() ) {
       return;

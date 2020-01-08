@@ -22,21 +22,17 @@
 
 package org.apache.hop.trans.steps.ldapoutput;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -45,45 +41,68 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.ldapinput.LdapMeta;
 import org.apache.hop.trans.steps.ldapinput.LdapProtocolFactory;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
   private static Class<?> PKG = LDAPOutputMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** Flag indicating that we use authentication for connection */
+  /**
+   * Flag indicating that we use authentication for connection
+   */
   private boolean useAuthentication;
 
-  /** The Host name */
+  /**
+   * The Host name
+   */
   private String Host;
 
-  /** The User name */
+  /**
+   * The User name
+   */
   private String userName;
 
-  /** The Password to use in LDAP authentication */
+  /**
+   * The Password to use in LDAP authentication
+   */
   private String password;
 
-  /** The Port */
+  /**
+   * The Port
+   */
   private String port;
 
-  /** The name of DN field */
+  /**
+   * The name of DN field
+   */
   private String dnFieldName;
 
   private boolean failIfNotExist;
 
-  /** Field value to update */
+  /**
+   * Field value to update
+   */
   private String[] updateLookup;
 
-  /** Stream name to update value with */
+  /**
+   * Stream name to update value with
+   */
   private String[] updateStream;
 
-  /** boolean indicating if field needs to be updated */
+  /**
+   * boolean indicating if field needs to be updated
+   */
   private Boolean[] update;
 
-  /** Operations type */
+  /**
+   * Operations type
+   */
   private String searchBase;
 
-  /** Multi valued separator **/
+  /**
+   * Multi valued separator
+   **/
   private String multiValuedSeparator;
 
   private int operationType;
@@ -162,10 +181,14 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
 
   public static final int DEREFALIASES_TYPE_FINDING = 3;
 
-  /** Protocol **/
+  /**
+   * Protocol
+   **/
   private String protocol;
 
-  /** Trust store **/
+  /**
+   * Trust store
+   **/
   private boolean useCertificate;
   private String trustStorePath;
   private String trustStorePassword;
@@ -211,8 +234,7 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param value
-   *          the trustStorePassword to set.
+   * @param value the trustStorePassword to set.
    */
   public void setTrustStorePassword( String value ) {
     this.trustStorePassword = value;
@@ -226,8 +248,7 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param value
-   *          the trustStorePath to set.
+   * @param value the trustStorePath to set.
    */
   public void setTrustStorePath( String value ) {
     this.trustStorePath = value;
@@ -241,8 +262,7 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param value
-   *          the protocol to set.
+   * @param value the protocol to set.
    */
   public void setProtocol( String value ) {
     this.protocol = value;
@@ -274,7 +294,7 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
     }
 
     for ( int i = 0; i < operationTypeDesc.length; i++ ) {
-      if ( operationTypeDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( operationTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -288,7 +308,7 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
     }
 
     for ( int i = 0; i < referralTypeDesc.length; i++ ) {
-      if ( referralTypeDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( referralTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -302,7 +322,7 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
     }
 
     for ( int i = 0; i < derefAliasesTypeDesc.length; i++ ) {
-      if ( derefAliasesTypeDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( derefAliasesTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -316,7 +336,7 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
     }
 
     for ( int i = 0; i < operationTypeCode.length; i++ ) {
-      if ( operationTypeCode[i].equalsIgnoreCase( tt ) ) {
+      if ( operationTypeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -329,7 +349,7 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
     }
 
     for ( int i = 0; i < referralTypeCode.length; i++ ) {
-      if ( referralTypeCode[i].equalsIgnoreCase( tt ) ) {
+      if ( referralTypeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -342,7 +362,7 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
     }
 
     for ( int i = 0; i < derefAliasesTypeCode.length; i++ ) {
-      if ( derefAliasesTypeCode[i].equalsIgnoreCase( tt ) ) {
+      if ( derefAliasesTypeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -363,23 +383,23 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
 
   public static String getOperationTypeDesc( int i ) {
     if ( i < 0 || i >= operationTypeDesc.length ) {
-      return operationTypeDesc[0];
+      return operationTypeDesc[ 0 ];
     }
-    return operationTypeDesc[i];
+    return operationTypeDesc[ i ];
   }
 
   public static String getReferralTypeDesc( int i ) {
     if ( i < 0 || i >= referralTypeDesc.length ) {
-      return referralTypeDesc[0];
+      return referralTypeDesc[ 0 ];
     }
-    return referralTypeDesc[i];
+    return referralTypeDesc[ i ];
   }
 
   public static String getDerefAliasesTypeDesc( int i ) {
     if ( i < 0 || i >= derefAliasesTypeDesc.length ) {
-      return derefAliasesTypeDesc[0];
+      return derefAliasesTypeDesc[ 0 ];
     }
-    return derefAliasesTypeDesc[i];
+    return derefAliasesTypeDesc[ i ];
   }
 
   /**
@@ -390,8 +410,7 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param updateStream
-   *          The updateStream to set.
+   * @param updateStream The updateStream to set.
    */
   public void setUpdateStream( String[] updateStream ) {
     this.updateStream = updateStream;
@@ -405,8 +424,7 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param updateLookup
-   *          The updateLookup to set.
+   * @param updateLookup The updateLookup to set.
    */
   public void setUpdateLookup( String[] updateLookup ) {
     this.updateLookup = updateLookup;
@@ -429,8 +447,7 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param useAuthentication
-   *          The useAuthentication to set.
+   * @param useAuthentication The useAuthentication to set.
    */
   public void setUseAuthentication( boolean useAuthentication ) {
     this.useAuthentication = useAuthentication;
@@ -444,8 +461,7 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param host
-   *          The host to set.
+   * @param host The host to set.
    */
   public void setHost( String host ) {
     this.Host = host;
@@ -459,16 +475,14 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param userName
-   *          The username to set.
+   * @param userName The username to set.
    */
   public void setUserName( String userName ) {
     this.userName = userName;
   }
 
   /**
-   * @param password
-   *          The password to set.
+   * @param password The password to set.
    */
   public void setPassword( String password ) {
     this.password = password;
@@ -497,8 +511,7 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param port
-   *          The port to set.
+   * @param port The port to set.
    */
   public void setPort( String port ) {
     this.port = port;
@@ -512,8 +525,7 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param failIfNotExist
-   *          The failIfNotExist to set.
+   * @param failIfNotExist The failIfNotExist to set.
    */
   public void setFailIfNotExist( boolean failIfNotExist ) {
     this.failIfNotExist = failIfNotExist;
@@ -536,8 +548,7 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param value
-   *          The deleteRDN filed.
+   * @param value The deleteRDN filed.
    */
   public void setDeleteRDN( boolean value ) {
     this.deleteRDN = value;
@@ -551,8 +562,7 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param value
-   *          The newDnFieldName filed.
+   * @param value The newDnFieldName filed.
    */
   public void setNewDnFieldName( String value ) {
     this.newDnFieldName = value;
@@ -566,8 +576,7 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param value
-   *          The oldDnFieldName filed.
+   * @param value The oldDnFieldName filed.
    */
   public void setOldDnFieldName( String value ) {
     this.oldDnFieldName = value;
@@ -581,8 +590,7 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param searchBase
-   *          The searchBase filed.
+   * @param searchBase The searchBase filed.
    */
   public void setSearchBaseDN( String searchBase ) {
     this.searchBase = searchBase;
@@ -596,8 +604,7 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   /**
-   * @param multiValuedSeparator
-   *          The multi-valued separator filed.
+   * @param multiValuedSeparator The multi-valued separator filed.
    */
   public void setMultiValuedSeparator( String multiValuedSeparator ) {
     this.multiValuedSeparator = multiValuedSeparator;
@@ -611,30 +618,30 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   public void allocate( int nrvalues ) {
-    updateLookup = new String[nrvalues];
-    updateStream = new String[nrvalues];
-    update = new Boolean[nrvalues];
+    updateLookup = new String[ nrvalues ];
+    updateStream = new String[ nrvalues ];
+    update = new Boolean[ nrvalues ];
   }
 
   private static String getOperationTypeCode( int i ) {
     if ( i < 0 || i >= operationTypeCode.length ) {
-      return operationTypeCode[0];
+      return operationTypeCode[ 0 ];
     }
-    return operationTypeCode[i];
+    return operationTypeCode[ i ];
   }
 
   public static String getReferralTypeCode( int i ) {
     if ( i < 0 || i >= referralTypeCode.length ) {
-      return referralTypeCode[0];
+      return referralTypeCode[ 0 ];
     }
-    return referralTypeCode[i];
+    return referralTypeCode[ i ];
   }
 
   public static String getDerefAliasesCode( int i ) {
     if ( i < 0 || i >= derefAliasesTypeCode.length ) {
-      return derefAliasesTypeCode[0];
+      return derefAliasesTypeCode[ 0 ];
     }
-    return derefAliasesTypeCode[i];
+    return derefAliasesTypeCode[ i ];
   }
 
   public String getXML() {
@@ -664,9 +671,9 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
 
     for ( int i = 0; i < updateLookup.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", updateLookup[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field", updateStream[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "update", update[i].booleanValue() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "name", updateLookup[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "field", updateStream[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "update", update[ i ].booleanValue() ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
 
@@ -713,20 +720,20 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        updateLookup[i] = XMLHandler.getTagValue( fnode, "name" );
-        updateStream[i] = XMLHandler.getTagValue( fnode, "field" );
-        if ( updateStream[i] == null ) {
-          updateStream[i] = updateLookup[i]; // default: the same name!
+        updateLookup[ i ] = XMLHandler.getTagValue( fnode, "name" );
+        updateStream[ i ] = XMLHandler.getTagValue( fnode, "field" );
+        if ( updateStream[ i ] == null ) {
+          updateStream[ i ] = updateLookup[ i ]; // default: the same name!
         }
         String updateValue = XMLHandler.getTagValue( fnode, "update" );
         if ( updateValue == null ) {
           // default TRUE
-          update[i] = Boolean.TRUE;
+          update[ i ] = Boolean.TRUE;
         } else {
           if ( updateValue.equalsIgnoreCase( "Y" ) ) {
-            update[i] = Boolean.TRUE;
+            update[ i ] = Boolean.TRUE;
           } else {
-            update[i] = Boolean.FALSE;
+            update[ i ] = Boolean.FALSE;
           }
         }
       }
@@ -761,9 +768,9 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
     allocate( nrFields );
 
     for ( int i = 0; i < nrFields; i++ ) {
-      updateLookup[i] = "name" + ( i + 1 );
-      updateStream[i] = "field" + ( i + 1 );
-      update[i] = Boolean.TRUE;
+      updateLookup[ i ] = "name" + ( i + 1 );
+      updateStream[ i ] = "field" + ( i + 1 );
+      update[ i ] = Boolean.TRUE;
     }
     operationType = OPERATION_TYPE_INSERT;
     referralType = REFERRAL_TYPE_FOLLOW;
@@ -776,8 +783,8 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
 
     CheckResult cr;
 
@@ -819,7 +826,7 @@ public class LDAPOutputMeta extends BaseStepMeta implements LdapMeta {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new LDAPOutput( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 

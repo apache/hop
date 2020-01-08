@@ -22,11 +22,8 @@
 
 package org.apache.hop.ui.core.widget;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.ui.hopui.HopUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
@@ -34,7 +31,10 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.apache.hop.core.exception.HopException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 //import org.eclipse.swt.internal.cocoa.NSWindow;
 

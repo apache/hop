@@ -21,16 +21,9 @@
  ******************************************************************************/
 package org.apache.hop.base;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.NotePadMeta;
-import org.apache.hop.core.Props;
 import org.apache.hop.core.changed.ChangedFlagInterface;
 import org.apache.hop.core.changed.HopObserver;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.listeners.ContentChangedListener;
@@ -40,8 +33,6 @@ import org.apache.hop.core.listeners.NameChangedListener;
 import org.apache.hop.core.logging.ChannelLogTable;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObjectType;
-import org.apache.hop.core.osgi.api.MetastoreLocatorOsgi;
-import org.apache.hop.core.osgi.api.NamedClusterServiceOsgi;
 import org.apache.hop.core.parameters.NamedParams;
 import org.apache.hop.core.parameters.NamedParamsDefault;
 import org.apache.hop.core.plugins.DatabasePluginType;
@@ -51,11 +42,12 @@ import org.apache.hop.core.undo.TransAction;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-
-import org.apache.hop.shared.SharedObjects;
 import org.apache.hop.trans.step.StepMeta;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -74,11 +66,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -220,24 +209,6 @@ public class AbstractMetaTest {
   }
 
   @Test
-  public void testAddOrReplaceSlaveServer() throws Exception {
-    // meta.addOrReplaceSlaveServer() right now will fail with an NPE
-    assertNull( meta.getSlaveServers() );
-    List<SlaveServer> slaveServers = new ArrayList<>();
-    meta.setSlaveServers( slaveServers );
-    assertNotNull( meta.getSlaveServers() );
-    SlaveServer slaveServer = mock( SlaveServer.class );
-    meta.addOrReplaceSlaveServer( slaveServer );
-    assertFalse( meta.getSlaveServers().isEmpty() );
-    meta.addOrReplaceSlaveServer( slaveServer );
-    assertEquals( 1, meta.getSlaveServerNames().length );
-    assertNull( meta.findSlaveServer( null ) );
-    assertNull( meta.findSlaveServer( "" ) );
-    when( slaveServer.getName() ).thenReturn( "ss1" );
-    assertEquals( slaveServer, meta.findSlaveServer( "ss1" ) );
-  }
-
-  @Test
   public void testAddRemoveViewUndo() throws Exception {
     // addUndo() right now will fail with an NPE
     assertEquals( 0, meta.getUndoSize() );
@@ -254,11 +225,11 @@ public class AbstractMetaTest {
     assertNull( meta.nextUndo() );
     StepMeta fromMeta = mock( StepMeta.class );
     StepMeta toMeta = mock( StepMeta.class );
-    Object[] from = new Object[]{ fromMeta };
-    Object[] to = new Object[]{ toMeta };
-    int[] pos = new int[0];
-    Point[] prev = new Point[0];
-    Point[] curr = new Point[0];
+    Object[] from = new Object[] { fromMeta };
+    Object[] to = new Object[] { toMeta };
+    int[] pos = new int[ 0 ];
+    Point[] prev = new Point[ 0 ];
+    Point[] curr = new Point[ 0 ];
 
     meta.addUndo( from, to, pos, prev, curr, AbstractMeta.TYPE_UNDO_NEW, false );
     assertNotNull( meta.viewThisUndo() );
@@ -363,7 +334,7 @@ public class AbstractMetaTest {
     assertNull( meta.getVariable( "var1" ) );
     VariableSpace vars = mock( VariableSpace.class );
     when( vars.getVariable( "var1" ) ).thenReturn( "x" );
-    when( vars.listVariables() ).thenReturn( new String[]{ "var1" } );
+    when( vars.listVariables() ).thenReturn( new String[] { "var1" } );
     meta.copyVariablesFrom( vars );
     assertEquals( "x", meta.getVariable( "var1", "y" ) );
   }
@@ -377,7 +348,7 @@ public class AbstractMetaTest {
 
     meta.environmentSubstitute( "${param}" );
     verify( vars, times( 1 ) ).environmentSubstitute( "${param}" );
-    String[] params = new String[]{ "${param}" };
+    String[] params = new String[] { "${param}" };
     meta.environmentSubstitute( params );
     verify( vars, times( 1 ) ).environmentSubstitute( params );
   }
@@ -390,7 +361,7 @@ public class AbstractMetaTest {
     meta.setInternalHopVariables( vars );
 
     RowMetaInterface rowMeta = mock( RowMetaInterface.class );
-    Object[] data = new Object[0];
+    Object[] data = new Object[ 0 ];
     meta.fieldSubstitute( "?{param}", rowMeta, data );
     verify( vars, times( 1 ) ).fieldSubstitute( "?{param}", rowMeta, data );
   }
@@ -455,24 +426,6 @@ public class AbstractMetaTest {
     assertEquals( LogLevel.BASIC, meta.getLogLevel() );
     meta.setLogLevel( LogLevel.DEBUG );
     assertEquals( LogLevel.DEBUG, meta.getLogLevel() );
-  }
-
-  @Test
-  public void testGetSetSharedObjectsFile() throws Exception {
-    assertNull( meta.getSharedObjectsFile() );
-    meta.setSharedObjectsFile( "mySharedObjects" );
-    assertEquals( "mySharedObjects", meta.getSharedObjectsFile() );
-  }
-
-  @Test
-  public void testGetSetSharedObjects() throws Exception {
-    SharedObjects sharedObjects = mock( SharedObjects.class );
-    meta.setSharedObjects( sharedObjects );
-    assertEquals( sharedObjects, meta.getSharedObjects() );
-    meta.setSharedObjects( null );
-    AbstractMeta spyMeta = spy( meta );
-    doThrow( HopException.class ).when( spyMeta ).environmentSubstitute( anyString() );
-    assertNull( spyMeta.getSharedObjects() );
   }
 
   @Test
@@ -553,11 +506,6 @@ public class AbstractMetaTest {
   }
 
   @Test
-  public void testGetEmbeddedMetaStore() {
-    assertNotNull( meta.getEmbeddedMetaStore() );
-  }
-
-  @Test
   public void testGetBooleanValueOfVariable() {
     assertFalse( meta.getBooleanValueOfVariable( null, false ) );
     assertTrue( meta.getBooleanValueOfVariable( "", true ) );
@@ -572,13 +520,13 @@ public class AbstractMetaTest {
     meta.initializeVariablesFrom( null );
     VariableSpace parent = mock( VariableSpace.class );
     when( parent.getVariable( "var1" ) ).thenReturn( "x" );
-    when( parent.listVariables() ).thenReturn( new String[]{ "var1" } );
+    when( parent.listVariables() ).thenReturn( new String[] { "var1" } );
     meta.initializeVariablesFrom( parent );
     assertEquals( "x", meta.getVariable( "var1" ) );
     assertNotNull( meta.listVariables() );
     VariableSpace newVars = mock( VariableSpace.class );
     when( newVars.getVariable( "var2" ) ).thenReturn( "y" );
-    when( newVars.listVariables() ).thenReturn( new String[]{ "var2" } );
+    when( newVars.listVariables() ).thenReturn( new String[] { "var2" } );
     meta.shareVariablesWith( newVars );
     assertEquals( "y", meta.getVariable( "var2" ) );
     Map<String, String> props = new HashMap<>();
@@ -606,18 +554,10 @@ public class AbstractMetaTest {
   }
 
   @Test
-  public void testGetSetNamedClusterServiceOsgi() throws Exception {
-    assertNull( meta.getNamedClusterServiceOsgi() );
-    NamedClusterServiceOsgi mockNamedClusterOsgi = mock( NamedClusterServiceOsgi.class );
-    meta.setNamedClusterServiceOsgi( mockNamedClusterOsgi );
-    assertEquals( mockNamedClusterOsgi, meta.getNamedClusterServiceOsgi() );
-  }
-
-  @Test
   public void testMultithreadHammeringOfListener() throws Exception {
 
     CountDownLatch latch = new CountDownLatch( 3 );
-    AbstractMetaListenerThread th1 = new AbstractMetaListenerThread( meta, 2000, latch); // do 2k random add/delete/fire
+    AbstractMetaListenerThread th1 = new AbstractMetaListenerThread( meta, 2000, latch ); // do 2k random add/delete/fire
     AbstractMetaListenerThread th2 = new AbstractMetaListenerThread( meta, 2000, latch ); // do 2k random add/delete/fire
     AbstractMetaListenerThread th3 = new AbstractMetaListenerThread( meta, 2000, latch ); // do 2k random add/delete/fire
 
@@ -671,21 +611,17 @@ public class AbstractMetaTest {
 
     @Override
     public String[] getFilterNames() {
-      return new String[0];
+      return new String[ 0 ];
     }
 
     @Override
     public String[] getFilterExtensions() {
-      return new String[0];
+      return new String[ 0 ];
     }
 
     @Override
     public String getDefaultExtension() {
       return null;
-    }
-
-    @Override
-    public void saveSharedObjects() throws HopException {
     }
 
     @Override
@@ -719,14 +655,13 @@ public class AbstractMetaTest {
   }
 
 
-
   private class AbstractMetaListenerThread implements Runnable {
     AbstractMeta metaToWork;
     int times;
     CountDownLatch whenDone;
     String message;
 
-    AbstractMetaListenerThread ( AbstractMeta aMeta, int times, CountDownLatch latch ) {
+    AbstractMetaListenerThread( AbstractMeta aMeta, int times, CountDownLatch latch ) {
       this.metaToWork = aMeta;
       this.times = times;
       this.whenDone = latch;
@@ -735,7 +670,7 @@ public class AbstractMetaTest {
     @Override public void run() {
       for ( int i = 0; i < times; i++ ) {
         int randomNum = ThreadLocalRandom.current().nextInt( 0, 3 );
-        switch( randomNum ) {
+        switch ( randomNum ) {
           case 0: {
             try {
               metaToWork.addFilenameChangedListener( mock( FilenameChangedListener.class ) );

@@ -22,16 +22,16 @@
 
 package org.apache.test.util;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.hop.trans.steps.loadsave.getter.FieldGetter;
 import org.apache.hop.trans.steps.loadsave.getter.Getter;
 import org.apache.hop.trans.steps.loadsave.getter.MethodGetter;
 import org.apache.hop.trans.steps.loadsave.setter.FieldSetter;
 import org.apache.hop.trans.steps.loadsave.setter.MethodSetter;
 import org.apache.hop.trans.steps.loadsave.setter.Setter;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class JavaBeanManipulator<T> {
   private final Class<? extends T> clazz;
@@ -41,7 +41,7 @@ public class JavaBeanManipulator<T> {
   private final Map<String, Setter<?>> setterMethodMap;
 
   public JavaBeanManipulator( Class<? extends T> clazz, List<String> attributes, Map<String, String> getterMap,
-      Map<String, String> setterMap ) {
+                              Map<String, String> setterMap ) {
     this.clazz = clazz;
     this.getterMap = new HashMap<String, String>( getterMap );
     this.setterMap = new HashMap<String, String>( setterMap );
@@ -102,8 +102,8 @@ public class JavaBeanManipulator<T> {
         } else {
           try {
             setter =
-                new MethodSetter( clazz.getMethod( getPrefixedName( "set", attribute ), getterMethodMap.get( attribute )
-                    .getType() ) );
+              new MethodSetter( clazz.getMethod( getPrefixedName( "set", attribute ), getterMethodMap.get( attribute )
+                .getType() ) );
           } catch ( NoSuchMethodException e ) {
             setter = new FieldSetter( clazz.getField( attribute ) );
           }

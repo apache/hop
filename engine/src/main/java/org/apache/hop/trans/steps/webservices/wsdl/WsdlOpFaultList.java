@@ -22,16 +22,15 @@
 
 package org.apache.hop.trans.steps.webservices.wsdl;
 
-import java.util.ArrayList;
-import java.util.Map;
+import org.apache.hop.core.exception.HopStepException;
+import org.w3c.dom.Element;
 
 import javax.wsdl.Fault;
 import javax.wsdl.Message;
 import javax.wsdl.Part;
 import javax.xml.namespace.QName;
-
-import org.apache.hop.core.exception.HopStepException;
-import org.w3c.dom.Element;
+import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * WsdlOpFaultList represents the list of parameters for a WSDL operaton.
@@ -45,8 +44,7 @@ public final class WsdlOpFaultList extends ArrayList<WsdlOpFault> {
   /**
    * Constructor.
    *
-   * @param wsdlTypes
-   *          Type information from the WSDL.
+   * @param wsdlTypes Type information from the WSDL.
    */
   protected WsdlOpFaultList( WsdlTypes wsdlTypes ) {
     _wsdlTypes = wsdlTypes;
@@ -55,8 +53,7 @@ public final class WsdlOpFaultList extends ArrayList<WsdlOpFault> {
   /**
    * Add a fault to this list.
    *
-   * @param fault
-   *          Fault to add.
+   * @param fault Fault to add.
    * @return true if this collection was modified as a result of this call.
    */
   protected boolean add( Fault fault ) throws HopStepException {
@@ -66,8 +63,7 @@ public final class WsdlOpFaultList extends ArrayList<WsdlOpFault> {
   /**
    * Create a WsdlOpFault from the Fault.
    *
-   * @param fault
-   *          Fault to process.
+   * @param fault Fault to process.
    * @return WsdlOpFault Result of processing.
    */
   @SuppressWarnings( "unchecked" )

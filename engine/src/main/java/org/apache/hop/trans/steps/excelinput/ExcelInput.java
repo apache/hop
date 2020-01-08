@@ -22,13 +22,7 @@
 
 package org.apache.hop.trans.steps.excelinput;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
-
 import org.apache.commons.vfs2.FileObject;
-import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowSet;
@@ -58,6 +52,12 @@ import org.apache.hop.trans.step.errorhandling.CompositeFileErrorHandler;
 import org.apache.hop.trans.step.errorhandling.FileErrorHandler;
 import org.apache.hop.trans.step.errorhandling.FileErrorHandlerContentLineNumber;
 import org.apache.hop.trans.step.errorhandling.FileErrorHandlerMissingFiles;
+import org.apache.poi.openxml4j.util.ZipSecureFile;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  * This class reads data from one or more Microsoft Excel files.
@@ -86,7 +86,7 @@ public class ExcelInput extends BaseStep implements StepInterface {
    */
 
   private Object[] fillRow( int startcolumn, ExcelInputRow excelInputRow ) throws HopException {
-    Object[] r = new Object[data.outputRowMeta.size()];
+    Object[] r = new Object[ data.outputRowMeta.size() ];
 
     // Keep track whether or not we handled an error for this line yet.
     boolean errorHandled = false;
@@ -95,12 +95,12 @@ public class ExcelInput extends BaseStep implements StepInterface {
     KCell cell = null;
 
     for ( int i = startcolumn; i < excelInputRow.cells.length && i - startcolumn < meta.getField().length; i++ ) {
-      cell = excelInputRow.cells[i];
+      cell = excelInputRow.cells[ i ];
 
       int rowcolumn = i - startcolumn;
 
       if ( cell == null ) {
-        r[rowcolumn] = null;
+        r[ rowcolumn ] = null;
         continue;
       }
 
@@ -131,19 +131,19 @@ public class ExcelInput extends BaseStep implements StepInterface {
 
       KCellType cellType = cell.getType();
       if ( KCellType.BOOLEAN == cellType || KCellType.BOOLEAN_FORMULA == cellType ) {
-        r[rowcolumn] = cell.getValue();
+        r[ rowcolumn ] = cell.getValue();
         sourceMeta = data.valueMetaBoolean;
       } else {
         if ( KCellType.DATE.equals( cellType ) || KCellType.DATE_FORMULA.equals( cellType ) ) {
           Date date = (Date) cell.getValue();
           long time = date.getTime();
           int offset = TimeZone.getDefault().getOffset( time );
-          r[rowcolumn] = new Date( time - offset );
+          r[ rowcolumn ] = new Date( time - offset );
           sourceMeta = data.valueMetaDate;
         } else {
           if ( KCellType.LABEL == cellType || KCellType.STRING_FORMULA == cellType ) {
             String string = (String) cell.getValue();
-            switch ( meta.getField()[rowcolumn].getTrimType() ) {
+            switch ( meta.getField()[ rowcolumn ].getTrimType() ) {
               case ExcelInputMeta.TYPE_TRIM_LEFT:
                 string = Const.ltrim( string );
                 break;
@@ -156,11 +156,11 @@ public class ExcelInput extends BaseStep implements StepInterface {
               default:
                 break;
             }
-            r[rowcolumn] = string;
+            r[ rowcolumn ] = string;
             sourceMeta = data.valueMetaString;
           } else {
             if ( KCellType.NUMBER == cellType || KCellType.NUMBER_FORMULA == cellType ) {
-              r[rowcolumn] = cell.getValue();
+              r[ rowcolumn ] = cell.getValue();
               sourceMeta = data.valueMetaNumber;
             } else {
               if ( log.isDetailed() ) {
@@ -168,20 +168,20 @@ public class ExcelInput extends BaseStep implements StepInterface {
                 logDetailed( BaseMessages.getString( PKG, "ExcelInput.Log.UnknownType", ( ( ct != null ) ? ct
                   .toString() : "null" ), cell.getContents() ) );
               }
-              r[rowcolumn] = null;
+              r[ rowcolumn ] = null;
             }
           }
         }
       }
 
-      ExcelInputField field = meta.getField()[rowcolumn];
+      ExcelInputField field = meta.getField()[ rowcolumn ];
 
       // Change to the appropriate type if needed...
       //
       try {
         // Null stays null folks.
         //
-        if ( sourceMeta != null && sourceMeta.getType() != targetMeta.getType() && r[rowcolumn] != null ) {
+        if ( sourceMeta != null && sourceMeta.getType() != targetMeta.getType() && r[ rowcolumn ] != null ) {
           ValueMetaInterface sourceMetaCopy = sourceMeta.clone();
           sourceMetaCopy.setConversionMask( field.getFormat() );
           sourceMetaCopy.setGroupingSymbol( field.getGroupSymbol() );
@@ -199,21 +199,21 @@ public class ExcelInput extends BaseStep implements StepInterface {
                   //
                   ValueMetaInterface valueMetaNumber = new ValueMetaNumber( "num" );
                   valueMetaNumber.setConversionMask( "#" );
-                  Object string = sourceMetaCopy.convertData( valueMetaNumber, r[rowcolumn] );
+                  Object string = sourceMetaCopy.convertData( valueMetaNumber, r[ rowcolumn ] );
 
                   // String to date with mask...
                   //
-                  r[rowcolumn] = targetMeta.convertData( sourceMetaCopy, string );
+                  r[ rowcolumn ] = targetMeta.convertData( sourceMetaCopy, string );
                   break;
                 default:
-                  r[rowcolumn] = targetMeta.convertData( sourceMetaCopy, r[rowcolumn] );
+                  r[ rowcolumn ] = targetMeta.convertData( sourceMetaCopy, r[ rowcolumn ] );
                   break;
               }
               break;
             // Use case: we find a date: convert it using the supplied format to String...
             //
             default:
-              r[rowcolumn] = targetMeta.convertData( sourceMetaCopy, r[rowcolumn] );
+              r[ rowcolumn ] = targetMeta.convertData( sourceMetaCopy, r[ rowcolumn ] );
           }
         }
       } catch ( HopException ex ) {
@@ -234,7 +234,7 @@ public class ExcelInput extends BaseStep implements StepInterface {
         if ( meta.isErrorLineSkipped() ) {
           return null;
         } else {
-          r[rowcolumn] = null;
+          r[ rowcolumn ] = null;
         }
       }
     }
@@ -243,65 +243,65 @@ public class ExcelInput extends BaseStep implements StepInterface {
 
     // Do we need to include the filename?
     if ( !Utils.isEmpty( meta.getFileField() ) ) {
-      r[rowIndex] = data.filename;
+      r[ rowIndex ] = data.filename;
       rowIndex++;
     }
 
     // Do we need to include the sheetname?
     if ( !Utils.isEmpty( meta.getSheetField() ) ) {
-      r[rowIndex] = excelInputRow.sheetName;
+      r[ rowIndex ] = excelInputRow.sheetName;
       rowIndex++;
     }
 
     // Do we need to include the sheet rownumber?
     if ( !Utils.isEmpty( meta.getSheetRowNumberField() ) ) {
-      r[rowIndex] = new Long( data.rownr );
+      r[ rowIndex ] = new Long( data.rownr );
       rowIndex++;
     }
 
     // Do we need to include the rownumber?
     if ( !Utils.isEmpty( meta.getRowNumberField() ) ) {
-      r[rowIndex] = new Long( getLinesWritten() + 1 );
+      r[ rowIndex ] = new Long( getLinesWritten() + 1 );
       rowIndex++;
     }
     // Possibly add short filename...
     if ( !Utils.isEmpty( meta.getShortFileNameField() ) ) {
-      r[rowIndex] = data.shortFilename;
+      r[ rowIndex ] = data.shortFilename;
       rowIndex++;
     }
     // Add Extension
     if ( !Utils.isEmpty( meta.getExtensionField() ) ) {
-      r[rowIndex] = data.extension;
+      r[ rowIndex ] = data.extension;
       rowIndex++;
     }
     // add path
     if ( !Utils.isEmpty( meta.getPathField() ) ) {
-      r[rowIndex] = data.path;
+      r[ rowIndex ] = data.path;
       rowIndex++;
     }
     // Add Size
     if ( !Utils.isEmpty( meta.getSizeField() ) ) {
-      r[rowIndex] = new Long( data.size );
+      r[ rowIndex ] = new Long( data.size );
       rowIndex++;
     }
     // add Hidden
     if ( !Utils.isEmpty( meta.isHiddenField() ) ) {
-      r[rowIndex] = new Boolean( data.hidden );
+      r[ rowIndex ] = new Boolean( data.hidden );
       rowIndex++;
     }
     // Add modification date
     if ( !Utils.isEmpty( meta.getLastModificationDateField() ) ) {
-      r[rowIndex] = data.lastModificationDateTime;
+      r[ rowIndex ] = data.lastModificationDateTime;
       rowIndex++;
     }
     // Add Uri
     if ( !Utils.isEmpty( meta.getUriField() ) ) {
-      r[rowIndex] = data.uriName;
+      r[ rowIndex ] = data.uriName;
       rowIndex++;
     }
     // Add RootUri
     if ( !Utils.isEmpty( meta.getRootUriField() ) ) {
-      r[rowIndex] = data.rootUriName;
+      r[ rowIndex ] = data.rootUriName;
       rowIndex++;
     }
 
@@ -431,11 +431,11 @@ public class ExcelInput extends BaseStep implements StepInterface {
       if ( data.previousRow != null ) {
         for ( int i = 0; i < meta.getField().length; i++ ) {
           ValueMetaInterface valueMeta = data.outputRowMeta.getValueMeta( i );
-          Object valueData = r[i];
+          Object valueData = r[ i ];
 
-          if ( valueMeta.isNull( valueData ) && meta.getField()[i].isRepeated() ) {
+          if ( valueMeta.isNull( valueData ) && meta.getField()[ i ].isRepeated() ) {
             // Take the value from the previous row.
-            r[i] = data.previousRow[i];
+            r[ i ] = data.previousRow[ i ];
           }
         }
       }
@@ -553,11 +553,11 @@ public class ExcelInput extends BaseStep implements StepInterface {
         //
         if ( meta.readAllSheets() ) {
           data.sheetNames = data.workbook.getSheetNames();
-          data.startColumn = new int[data.sheetNames.length];
-          data.startRow = new int[data.sheetNames.length];
+          data.startColumn = new int[ data.sheetNames.length ];
+          data.startRow = new int[ data.sheetNames.length ];
           for ( int i = 0; i < data.sheetNames.length; i++ ) {
-            data.startColumn[i] = data.defaultStartColumn;
-            data.startRow[i] = data.defaultStartRow;
+            data.startColumn[ i ] = data.defaultStartColumn;
+            data.startRow[ i ] = data.defaultStartRow;
           }
         }
       }
@@ -570,12 +570,12 @@ public class ExcelInput extends BaseStep implements StepInterface {
           .getString( PKG, "ExcelInput.Log.GetSheet", "" + data.filenr + "." + data.sheetnr ) );
       }
 
-      String sheetName = data.sheetNames[data.sheetnr];
+      String sheetName = data.sheetNames[ data.sheetnr ];
       KSheet sheet = data.workbook.getSheet( sheetName );
       if ( sheet != null ) {
         // at what row do we continue reading?
         if ( data.rownr < 0 ) {
-          data.rownr = data.startRow[data.sheetnr];
+          data.rownr = data.startRow[ data.sheetnr ];
 
           // Add an extra row if we have a header row to skip...
           if ( meta.startsWithHeader() ) {
@@ -583,7 +583,7 @@ public class ExcelInput extends BaseStep implements StepInterface {
           }
         }
         // Start at the specified column
-        data.colnr = data.startColumn[data.sheetnr];
+        data.colnr = data.startColumn[ data.sheetnr ];
 
         // Build a new row and fill in the data from the sheet...
         try {
@@ -672,7 +672,7 @@ public class ExcelInput extends BaseStep implements StepInterface {
 
     boolean isEmpty = true;
     for ( int i = 0; i < line.length && isEmpty; i++ ) {
-      if ( line[i] != null && !Utils.isEmpty( line[i].getContents() ) ) {
+      if ( line[ i ] != null && !Utils.isEmpty( line[ i ].getContents() ) ) {
         isEmpty = false;
       }
     }
@@ -798,27 +798,27 @@ public class ExcelInput extends BaseStep implements StepInterface {
         // Determine the maximum sheet name length...
         data.maxsheetlength = -1;
         if ( !meta.readAllSheets() ) {
-          data.sheetNames = new String[meta.getSheetName().length];
-          data.startColumn = new int[meta.getSheetName().length];
-          data.startRow = new int[meta.getSheetName().length];
+          data.sheetNames = new String[ meta.getSheetName().length ];
+          data.startColumn = new int[ meta.getSheetName().length ];
+          data.startRow = new int[ meta.getSheetName().length ];
           for ( int i = 0; i < meta.getSheetName().length; i++ ) {
-            data.sheetNames[i] = meta.getSheetName()[i];
-            data.startColumn[i] = meta.getStartColumn()[i];
-            data.startRow[i] = meta.getStartRow()[i];
+            data.sheetNames[ i ] = meta.getSheetName()[ i ];
+            data.startColumn[ i ] = meta.getStartColumn()[ i ];
+            data.startRow[ i ] = meta.getStartRow()[ i ];
 
-            if ( meta.getSheetName()[i].length() > data.maxsheetlength ) {
-              data.maxsheetlength = meta.getSheetName()[i].length();
+            if ( meta.getSheetName()[ i ].length() > data.maxsheetlength ) {
+              data.maxsheetlength = meta.getSheetName()[ i ].length();
             }
           }
         } else {
           // Allocated at open file time: we want ALL sheets.
           if ( meta.getStartRow().length == 1 ) {
-            data.defaultStartRow = meta.getStartRow()[0];
+            data.defaultStartRow = meta.getStartRow()[ 0 ];
           } else {
             data.defaultStartRow = 0;
           }
           if ( meta.getStartColumn().length == 1 ) {
-            data.defaultStartColumn = meta.getStartColumn()[0];
+            data.defaultStartColumn = meta.getStartColumn()[ 0 ];
           } else {
             data.defaultStartColumn = 0;
           }

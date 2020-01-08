@@ -33,6 +33,16 @@
 
 package org.apache.hop.ui.trans.steps.tableinput;
 
+import org.apache.hop.core.database.SqlScriptStatement;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.LineStyleEvent;
+import org.eclipse.swt.custom.LineStyleListener;
+import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Color;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -40,16 +50,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.LineStyleEvent;
-import org.eclipse.swt.custom.LineStyleListener;
-import org.eclipse.swt.custom.StyleRange;
-import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.graphics.Color;
-import org.apache.hop.core.database.SqlScriptStatement;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.ui.core.gui.GUIResource;
 
 public class SQLValuesHighlight implements LineStyleListener {
   JavaScanner scanner = new JavaScanner();
@@ -91,21 +91,21 @@ public class SQLValuesHighlight implements LineStyleListener {
     if ( type < 0 || type >= tokenColors.length ) {
       return null;
     }
-    return colors[tokenColors[type]];
+    return colors[ tokenColors[ type ] ];
   }
 
   boolean inBlockComment( int start, int end ) {
     for ( int i = 0; i < blockComments.size(); i++ ) {
       int[] offsets = blockComments.elementAt( i );
       // start of comment in the line
-      if ( ( offsets[0] >= start ) && ( offsets[0] <= end ) ) {
+      if ( ( offsets[ 0 ] >= start ) && ( offsets[ 0 ] <= end ) ) {
         return true;
       }
       // end of comment in the line
-      if ( ( offsets[1] >= start ) && ( offsets[1] <= end ) ) {
+      if ( ( offsets[ 1 ] >= start ) && ( offsets[ 1 ] <= end ) ) {
         return true;
       }
-      if ( ( offsets[0] <= start ) && ( offsets[1] >= end ) ) {
+      if ( ( offsets[ 0 ] <= start ) && ( offsets[ 1 ] >= end ) ) {
         return true;
       }
     }
@@ -121,15 +121,15 @@ public class SQLValuesHighlight implements LineStyleListener {
       GUIResource.getInstance().getColor( 255, 0, 255 ) // SQL Functions / Rose
 
     };
-    tokenColors = new int[MAXIMUM_TOKEN];
-    tokenColors[WORD] = 0;
-    tokenColors[WHITE] = 0;
-    tokenColors[KEY] = 3;
-    tokenColors[COMMENT] = 2;
-    tokenColors[STRING] = 1;
-    tokenColors[OTHER] = 0;
-    tokenColors[NUMBER] = 0;
-    tokenColors[FUNCTIONS] = 4;
+    tokenColors = new int[ MAXIMUM_TOKEN ];
+    tokenColors[ WORD ] = 0;
+    tokenColors[ WHITE ] = 0;
+    tokenColors[ KEY ] = 3;
+    tokenColors[ COMMENT ] = 2;
+    tokenColors[ STRING ] = 1;
+    tokenColors[ OTHER ] = 0;
+    tokenColors[ NUMBER ] = 0;
+    tokenColors[ FUNCTIONS ] = 4;
   }
 
   /**
@@ -142,8 +142,8 @@ public class SQLValuesHighlight implements LineStyleListener {
     StyleRange lastStyle;
 
     if ( inBlockComment( event.lineOffset, event.lineOffset + event.lineText.length() ) ) {
-      styles.addElement( new StyleRange( event.lineOffset, event.lineText.length() + 4, colors[1], null ) );
-      event.styles = new StyleRange[styles.size()];
+      styles.addElement( new StyleRange( event.lineOffset, event.lineText.length() + 4, colors[ 1 ], null ) );
+      event.styles = new StyleRange[ styles.size() ];
       styles.copyInto( event.styles );
       return;
     }
@@ -167,7 +167,7 @@ public class SQLValuesHighlight implements LineStyleListener {
           }
         } else {
           Color color = getColor( token );
-          if ( color != colors[0] ) { // hardcoded default foreground color, black
+          if ( color != colors[ 0 ] ) { // hardcoded default foreground color, black
             StyleRange style =
               new StyleRange( scanner.getStartOffset() + event.lineOffset, scanner.getLength(), color, null );
             // if ( token == KEY ) {
@@ -215,7 +215,7 @@ public class SQLValuesHighlight implements LineStyleListener {
       }
     }
 
-    event.styles = new StyleRange[styles.size()];
+    event.styles = new StyleRange[ styles.size() ];
     styles.copyInto( event.styles );
   }
 
@@ -225,7 +225,7 @@ public class SQLValuesHighlight implements LineStyleListener {
     int ch;
     boolean blkComment = false;
     int cnt = 0;
-    int[] offsets = new int[2];
+    int[] offsets = new int[ 2 ];
     boolean done = false;
 
     try {
@@ -233,7 +233,7 @@ public class SQLValuesHighlight implements LineStyleListener {
         switch ( ch = buffer.read() ) {
           case -1: {
             if ( blkComment ) {
-              offsets[1] = cnt;
+              offsets[ 1 ] = cnt;
               blockComments.addElement( offsets );
             }
             done = true;
@@ -242,8 +242,8 @@ public class SQLValuesHighlight implements LineStyleListener {
           case '/': {
             ch = buffer.read();
             if ( ( ch == '*' ) && ( !blkComment ) ) {
-              offsets = new int[2];
-              offsets[0] = cnt;
+              offsets = new int[ 2 ];
+              offsets[ 0 ] = cnt;
               blkComment = true;
               cnt++;
             } else {
@@ -258,7 +258,7 @@ public class SQLValuesHighlight implements LineStyleListener {
               cnt++;
               if ( ch == '/' ) {
                 blkComment = false;
-                offsets[1] = cnt;
+                offsets[ 1 ] = cnt;
                 blockComments.addElement( offsets );
               }
             }
@@ -357,7 +357,7 @@ public class SQLValuesHighlight implements LineStyleListener {
       fgKeys = new Hashtable<String, Integer>();
       Integer k = new Integer( KEY );
       for ( int i = 0; i < fgKeywords.length; i++ ) {
-        fgKeys.put( fgKeywords[i], k );
+        fgKeys.put( fgKeywords[ i ], k );
       }
     }
 
@@ -373,7 +373,7 @@ public class SQLValuesHighlight implements LineStyleListener {
       kfKeys = new Hashtable<String, Integer>();
       Integer k = new Integer( FUNCTIONS );
       for ( int i = 0; i < kfKeywords.length; i++ ) {
-        kfKeys.put( kfKeywords[i], k );
+        kfKeys.put( kfKeywords[ i ], k );
       }
     }
 
@@ -423,7 +423,7 @@ public class SQLValuesHighlight implements LineStyleListener {
             }
             return OTHER;
           case '\'': // char const
-            for ( ;; ) {
+            for ( ; ; ) {
               c = read();
               switch ( c ) {
                 case '\'':
@@ -440,7 +440,7 @@ public class SQLValuesHighlight implements LineStyleListener {
             }
 
           case '"': // string
-            for ( ;; ) {
+            for ( ; ; ) {
               c = read();
               switch ( c ) {
                 case '"':
@@ -532,8 +532,7 @@ public class SQLValuesHighlight implements LineStyleListener {
   }
 
   /**
-   * @param scriptStatements
-   *          the scriptStatements to set
+   * @param scriptStatements the scriptStatements to set
    */
   public void setScriptStatements( List<SqlScriptStatement> scriptStatements ) {
     this.scriptStatements = scriptStatements;

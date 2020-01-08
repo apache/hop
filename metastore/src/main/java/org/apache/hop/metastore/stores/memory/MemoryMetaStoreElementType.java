@@ -51,9 +51,8 @@ public class MemoryMetaStoreElementType extends BaseElementType {
 
   /**
    * Copy data from another meta store persistence type...
-   * 
-   * @param elementType
-   *          The type to copy over.
+   *
+   * @param elementType The type to copy over.
    */
   public MemoryMetaStoreElementType( IMetaStoreElementType elementType ) {
     this( elementType.getNamespace() );

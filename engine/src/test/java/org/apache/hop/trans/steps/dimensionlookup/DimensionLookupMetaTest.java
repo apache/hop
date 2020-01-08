@@ -22,33 +22,7 @@
 
 package org.apache.hop.trans.steps.dimensionlookup;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-
-import org.apache.commons.lang.StringUtils;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -59,12 +33,9 @@ import org.apache.hop.core.logging.LogChannelInterfaceFactory;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 import org.apache.hop.trans.steps.loadsave.initializer.InitializerInterface;
@@ -75,7 +46,29 @@ import org.apache.hop.trans.steps.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.NonZeroIntLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 public class DimensionLookupMetaTest implements InitializerInterface<StepMetaInterface> {
   LoadSaveTester loadSaveTester;
@@ -91,10 +84,10 @@ public class DimensionLookupMetaTest implements InitializerInterface<StepMetaInt
   @Before
   public void setUpLoadSave() throws Exception {
     List<String> attributes =
-        Arrays.asList( "schemaName", "tableName", "update", "dateField", "dateFrom", "dateTo", "keyField", "keyRename",
-            "autoIncrement", "versionField", "commitSize", "useBatchUpdate", "minYear", "maxYear", "techKeyCreation",
-            "cacheSize", "usingStartDateAlternative", "startDateAlternative", "startDateFieldName", "preloadingCache", "keyStream",
-            "keyLookup", "fieldStream", "fieldLookup", "fieldUpdate", "databaseMeta", "sequenceName" );
+      Arrays.asList( "schemaName", "tableName", "update", "dateField", "dateFrom", "dateTo", "keyField", "keyRename",
+        "autoIncrement", "versionField", "commitSize", "useBatchUpdate", "minYear", "maxYear", "techKeyCreation",
+        "cacheSize", "usingStartDateAlternative", "startDateAlternative", "startDateFieldName", "preloadingCache", "keyStream",
+        "keyLookup", "fieldStream", "fieldLookup", "fieldUpdate", "databaseMeta", "sequenceName" );
 
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
@@ -104,7 +97,7 @@ public class DimensionLookupMetaTest implements InitializerInterface<StepMetaInt
     Map<String, String> setterMap = new HashMap<String, String>();
 
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "keyStream", stringArrayLoadSaveValidator );
@@ -117,7 +110,7 @@ public class DimensionLookupMetaTest implements InitializerInterface<StepMetaInt
     // the test which made it a bit difficult to track down.
     // MB - 5/2016
     attrValidatorMap.put( "fieldUpdate", new FieldUpdateIntArrayLoadSaveValidator( new NonZeroIntLoadSaveValidator(
-        DimensionLookupMeta.typeDesc.length ), 5 ) );
+      DimensionLookupMeta.typeDesc.length ), 5 ) );
     attrValidatorMap.put( "databaseMeta", new DatabaseMetaLoadSaveValidator() );
     attrValidatorMap.put( "startDateAlternative", new IntLoadSaveValidator( DimensionLookupMeta.getStartDateAlternativeCodes().length ) );
     attrValidatorMap.put( "sequenceName", new SequenceNameLoadSaveValidator() );
@@ -125,8 +118,8 @@ public class DimensionLookupMetaTest implements InitializerInterface<StepMetaInt
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
-            getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class
@@ -158,7 +151,7 @@ public class DimensionLookupMetaTest implements InitializerInterface<StepMetaInt
     LogChannelInterface logChannelInterface = mock( LogChannelInterface.class );
     HopLogStore.setLogChannelInterfaceFactory( logChannelInterfaceFactory );
     when( logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        logChannelInterface );
+      logChannelInterface );
   }
 
   @Test
@@ -183,7 +176,7 @@ public class DimensionLookupMetaTest implements InitializerInterface<StepMetaInt
       meta.getFields( row, "DimensionLookupMetaTest", new RowMeta[] { row }, null, null, null );
     } catch ( Throwable e ) {
       Assert.assertTrue( e.getMessage().contains(
-          BaseMessages.getString( DimensionLookupMeta.class, "DimensionLookupMeta.Error.NoTechnicalKeySpecified" ) ) );
+        BaseMessages.getString( DimensionLookupMeta.class, "DimensionLookupMeta.Error.NoTechnicalKeySpecified" ) ) );
     }
   }
 
@@ -204,9 +197,9 @@ public class DimensionLookupMetaTest implements InitializerInterface<StepMetaInt
       }
     };
     dimensionLookupMeta.setFieldLookup( new String[] { "f1", "f2", "f3" } );
-    dimensionLookupMeta.setKeyLookup( new String[] {"k1"} );
+    dimensionLookupMeta.setKeyLookup( new String[] { "k1" } );
     dimensionLookupMeta.setFieldStream( new String[] { "s4", "s5", "s6" } );
-    dimensionLookupMeta.setKeyStream( new String[] {"ks1"} );
+    dimensionLookupMeta.setKeyStream( new String[] { "ks1" } );
     dimensionLookupMeta.setSchemaName( "aSchema" );
     dimensionLookupMeta.setTableName( "aDimTable" );
 
@@ -236,6 +229,7 @@ public class DimensionLookupMetaTest implements InitializerInterface<StepMetaInt
   // MB - 5/2016
   public class SequenceNameLoadSaveValidator implements FieldLoadSaveValidator<String> {
     final Random rand = new Random();
+
     @Override
     public String getTestObject() {
       DimensionLookupMeta dlm = holdTestingMeta.get(); // get the currently-being tested meta

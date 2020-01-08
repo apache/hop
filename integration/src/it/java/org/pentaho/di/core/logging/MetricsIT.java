@@ -22,12 +22,6 @@
 
 package org.apache.hop.core.logging;
 
-import java.util.Deque;
-import java.util.List;
-import java.util.Queue;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.metrics.MetricsDuration;
 import org.apache.hop.core.metrics.MetricsSnapshotInterface;
@@ -35,6 +29,11 @@ import org.apache.hop.core.metrics.MetricsSnapshotType;
 import org.apache.hop.core.metrics.MetricsUtil;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.util.List;
+import java.util.Queue;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

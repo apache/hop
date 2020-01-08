@@ -22,16 +22,16 @@
 
 package org.apache.hop.trans.steps.symmetriccrypto.symmetricalgorithm;
 
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Symmetric algorithm
@@ -49,14 +49,15 @@ public class SymmetricCrypto {
 
   private SecretKeySpec secretKeySpec;
 
-  /** Encryption/ decryption scheme **/
+  /**
+   * Encryption/ decryption scheme
+   **/
   private String scheme;
 
   /**
    * Construct a new Symetric SymmetricCrypto trans
    *
-   * @param inf
-   *          The Database Connection Info to construct the connection with.
+   * @param inf The Database Connection Info to construct the connection with.
    */
   public SymmetricCrypto( SymmetricCryptoMeta meta ) throws CryptoException {
     this.meta = meta;
@@ -74,8 +75,7 @@ public class SymmetricCrypto {
   /**
    * Construct a new Symetric SymmetricCrypto trans
    *
-   * @param inf
-   *          The Database Connection Info to construct the connection with.
+   * @param inf The Database Connection Info to construct the connection with.
    */
   public SymmetricCrypto( SymmetricCryptoMeta meta, String xform ) throws CryptoException {
     this.meta = meta;
@@ -130,7 +130,7 @@ public class SymmetricCrypto {
       if ( !file.exists() ) {
         throw new CryptoException( BaseMessages.getString( PKG, "SymmetricCrypto.CanNotFindFile", file.getName() ) );
       }
-      byte[] KeyBytes = new byte[(int) file.getContent().getSize()];
+      byte[] KeyBytes = new byte[ (int) file.getContent().getSize() ];
 
       setSecretKey( KeyBytes );
 

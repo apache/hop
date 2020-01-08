@@ -22,10 +22,6 @@
 
 package org.apache.hop.trans.steps.syslog;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
@@ -35,6 +31,10 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -56,7 +56,7 @@ public class SyslogMessageConcurrentTest {
   private StepMockHelper<SyslogMessageMeta, SyslogMessageData> stepMockHelper;
 
   @Before
-   public void setUp() throws Exception {
+  public void setUp() throws Exception {
     numOfErrors = new AtomicInteger( 0 );
     countDownLatch = new CountDownLatch( 1 );
     stepMockHelper = new StepMockHelper<SyslogMessageMeta, SyslogMessageData>( "SYSLOG_MESSAGE TEST", SyslogMessageMeta.class,
@@ -75,7 +75,7 @@ public class SyslogMessageConcurrentTest {
   }
 
   @Test
-   public void concurrentSyslogMessageTest() throws Exception {
+  public void concurrentSyslogMessageTest() throws Exception {
     SyslogMessageTask syslogMessage = null;
     ExecutorService service = Executors.newFixedThreadPool( numOfTasks );
     for ( int i = 0; i < numOfTasks; i++ ) {
@@ -120,12 +120,12 @@ public class SyslogMessageConcurrentTest {
     public void putRow( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
       Assert.assertNotNull( row );
       Assert.assertTrue( row.length == 1 );
-      Assert.assertEquals( testMessage, row[0] );
+      Assert.assertEquals( testMessage, row[ 0 ] );
     }
 
     @Override
-     public Object[] getRow() throws HopException {
-      return new Object[]{ testMessage };
+    public Object[] getRow() throws HopException {
+      return new Object[] { testMessage };
     }
   }
 
@@ -135,7 +135,7 @@ public class SyslogMessageConcurrentTest {
     when( inputRowMeta.indexOfValue( any() ) ).thenReturn( 0 );
     when( inputRowMeta.getString( any(), eq( 0 ) ) ).thenReturn( testMessage );
     SyslogMessageTask syslogMessage = new SyslogMessageTask( stepMockHelper.stepMeta, data, 0, stepMockHelper.transMeta,
-             stepMockHelper.trans, stepMockHelper.processRowsStepMetaInterface );
+      stepMockHelper.trans, stepMockHelper.processRowsStepMetaInterface );
     syslogMessage.init( stepMockHelper.processRowsStepMetaInterface, data );
     syslogMessage.setInputRowMeta( inputRowMeta );
     return syslogMessage;

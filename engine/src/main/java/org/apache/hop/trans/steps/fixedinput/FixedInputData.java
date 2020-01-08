@@ -22,19 +22,18 @@
 
 package org.apache.hop.trans.steps.fixedinput;
 
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.trans.step.BaseStepData;
+import org.apache.hop.trans.step.StepDataInterface;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.trans.step.BaseStepData;
-import org.apache.hop.trans.step.StepDataInterface;
-
 /**
  * @author Matt
  * @since 24-jan-2005
- *
  */
 public class FixedInputData extends BaseStepData implements StepDataInterface {
 
@@ -83,11 +82,11 @@ public class FixedInputData extends BaseStepData implements StepDataInterface {
       loadPoint = bufferSize; // 4
     }
     int newSize = bufferSize + preferredBufferSize;
-    byte[] newByteBuffer = new byte[newSize];
+    byte[] newByteBuffer = new byte[ newSize ];
 
     // copy over the old data...
     for ( int i = 0; i < bufferSize; i++ ) {
-      newByteBuffer[i] = byteBuffer[i + startBuffer];
+      newByteBuffer[ i ] = byteBuffer[ i + startBuffer ];
     }
 
     // replace the old byte buffer...

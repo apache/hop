@@ -22,6 +22,8 @@
 
 package org.apache.hop.ui.hopui;
 
+import org.apache.hop.i18n.BaseMessages;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,11 +32,9 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import org.apache.hop.i18n.BaseMessages;
-
 /**
  * Static class wrapping Spoon's BaseMessages class and Look and Feel bundle.
- *
+ * <p>
  * This wrapper is required for XUL portions of Spoon as the XUL system internationalizes via ResourceBundles.
  *
  * @author nbaker
@@ -53,6 +53,7 @@ public class XulHopUiResourceBundle extends ResourceBundle {
 
   // If the requested key isn't found in the configured bundle, we fallback to the LAF bundle.
   private static ResourceBundle lafBundle;
+
   static {
     URL url = null;
     try {

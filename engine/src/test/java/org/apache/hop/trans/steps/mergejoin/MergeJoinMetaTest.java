@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.mergejoin;
 
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -37,6 +35,8 @@ import org.apache.hop.trans.step.errorhandling.StreamInterface;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidatorFactory;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -85,9 +85,9 @@ public class MergeJoinMetaTest {
       public MergeJoinMeta getTestObject() {
         return new MergeJoinMeta() {
           {
-            setJoinType( join_types[0] );
-            setKeyFields1( new String[]{ "field1", "field2" } );
-            setKeyFields2( new String[]{ "field1", "field3" } );
+            setJoinType( join_types[ 0 ] );
+            setKeyFields1( new String[] { "field1", "field2" } );
+            setKeyFields2( new String[] { "field1", "field3" } );
           }
         };
       }
@@ -132,7 +132,7 @@ public class MergeJoinMetaTest {
     StepMeta stepMeta = new StepMeta( "Merge", meta );
 
     meta.getFields( outputRowMeta, "Merge Join",
-      new RowMetaInterface[]{ inputRow1, inputRow2 }, stepMeta, new Variables(), null );
+      new RowMetaInterface[] { inputRow1, inputRow2 }, stepMeta, new Variables(), null );
 
     assertNotNull( outputRowMeta );
     assertFalse( outputRowMeta.isEmpty() );

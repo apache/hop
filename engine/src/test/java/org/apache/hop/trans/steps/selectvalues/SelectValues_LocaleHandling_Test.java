@@ -22,11 +22,6 @@
 
 package org.apache.hop.trans.steps.selectvalues;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -37,12 +32,17 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.steps.StepMockUtil;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
 import org.apache.hop.trans.steps.selectvalues.SelectValuesMeta.SelectField;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import java.util.Collections;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -121,8 +121,8 @@ public class SelectValues_LocaleHandling_Test {
 
     SelectValuesMeta stepMeta = new SelectValuesMeta();
     stepMeta.allocate( 1, 0, 1 );
-    stepMeta.getSelectFields()[0] = new SelectField();
-    stepMeta.getSelectFields()[0].setName( "field" );
+    stepMeta.getSelectFields()[ 0 ] = new SelectField();
+    stepMeta.getSelectFields()[ 0 ].setName( "field" );
     stepMeta.getMeta()[ 0 ] =
       new SelectMetadataChange( stepMeta, "field", null, ValueMetaInterface.TYPE_STRING, -2, -2,
         ValueMetaInterface.STORAGE_TYPE_NORMAL, "ww", false, locale, null, false, null, null, null );

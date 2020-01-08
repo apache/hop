@@ -44,7 +44,6 @@ import org.apache.hop.trans.step.StepMetaInterface;
  *
  * @author Samatar
  * @since 03-Juin-2008
- *
  */
 
 public class ProcessFiles extends BaseStep implements StepInterface {
@@ -54,7 +53,7 @@ public class ProcessFiles extends BaseStep implements StepInterface {
   private ProcessFilesData data;
 
   public ProcessFiles( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                       Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 

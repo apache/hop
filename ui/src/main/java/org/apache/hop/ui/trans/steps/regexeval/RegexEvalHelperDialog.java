@@ -22,9 +22,17 @@
 
 package org.apache.hop.ui.trans.steps.regexeval;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.steps.regexeval.RegexEvalMeta;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -47,17 +55,9 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.steps.regexeval.RegexEvalMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.StyledTextComp;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Dialog to test a regular expression
@@ -126,16 +126,13 @@ public class RegexEvalHelperDialog extends Dialog {
   /**
    * Dialog to allow someone to test regular expression
    *
-   * @param parent
-   *          The parent shell to use
-   * @param RegexScript
-   *          The expression to test
-   * @param RegexOptions
-   *          Any extended options for the regular expression
+   * @param parent                   The parent shell to use
+   * @param RegexScript              The expression to test
+   * @param RegexOptions             Any extended options for the regular expression
    * @param canonicalEqualityFlagSet
    */
   public RegexEvalHelperDialog( Shell parent, TransMeta transmeta, String RegexScript, String RegexOptions,
-    boolean canonicalEqualityFlagSet ) {
+                                boolean canonicalEqualityFlagSet ) {
     super( parent, SWT.NONE );
     props = PropsUI.getInstance();
     this.regexscript = RegexScript;

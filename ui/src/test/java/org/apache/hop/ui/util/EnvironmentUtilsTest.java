@@ -22,21 +22,21 @@
 
 package org.apache.hop.ui.util;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.Mockito;
-import java.io.BufferedReader;
-import java.io.IOException;
-
 public class EnvironmentUtilsTest {
 
   @Test
-  public void isUnSupportedBrowserEnvironmentTest( ) {
+  public void isUnSupportedBrowserEnvironmentTest() {
     EnvironmentUtilsMock mock = new EnvironmentUtilsMock( Case.UBUNTU_16 );
     assertFalse( mock.getMockedInstance().isUnsupportedBrowserEnvironment() );
     mock = new EnvironmentUtilsMock( Case.MAC_OS_X );
@@ -50,7 +50,7 @@ public class EnvironmentUtilsTest {
   }
 
   @Test
-  public void isWebkitUnavailableTest( ) {
+  public void isWebkitUnavailableTest() {
     EnvironmentUtilsMock mock = new EnvironmentUtilsMock( Case.UBUNTU_16 );
     assertFalse( mock.getMockedInstance().isWebkitUnavailable() );
     mock = new EnvironmentUtilsMock( Case.UBUNTU_14 );
@@ -64,7 +64,7 @@ public class EnvironmentUtilsTest {
   }
 
   @Test
-  public void getBrowserName( ) {
+  public void getBrowserName() {
     EnvironmentUtilsMock mock = new EnvironmentUtilsMock( Case.UBUNTU_16 );
     Assert.assertEquals( mock.getMockedInstance().getBrowserName(), "Midori" );
     mock = new EnvironmentUtilsMock( Case.UBUNTU_14 );
@@ -157,13 +157,13 @@ public class EnvironmentUtilsTest {
 
     @Override
     protected int getSupportedVersion( String property ) {
-      if ( property.contains("min.mac.browser.supported") ) {
+      if ( property.contains( "min.mac.browser.supported" ) ) {
         return 601;
-      } else if ( property.contains("min.windows.browser.supported") ) {
+      } else if ( property.contains( "min.windows.browser.supported" ) ) {
         return 11;
-      } else if ( property.contains("min.ubuntu.os.distribution.supported") ) {
+      } else if ( property.contains( "min.ubuntu.os.distribution.supported" ) ) {
         return 15;
-      } else if ( property.contains("max.ubuntu.os.distribution.supported") ) {
+      } else if ( property.contains( "max.ubuntu.os.distribution.supported" ) ) {
         return 16;
       }
       return 0;

@@ -22,11 +22,11 @@
 
 package org.apache.hop.core.svg;
 
-import java.io.InputStream;
-
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.w3c.dom.Document;
+
+import java.io.InputStream;
 
 /**
  * Class for base SVG images processing.

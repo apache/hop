@@ -22,9 +22,9 @@
 
 package org.apache.hop.core;
 
-import java.util.concurrent.TimeUnit;
-
 import org.apache.hop.core.row.RowMetaInterface;
+
+import java.util.concurrent.TimeUnit;
 
 public interface RowSet {
 
@@ -32,10 +32,8 @@ public interface RowSet {
    * Offer a row of data to this rowset providing for the description (metadata) of the row. If the buffer is full, wait
    * (block) for a small period of time.
    *
-   * @param rowMeta
-   *          The description of the row data
-   * @param rowData
-   *          the row of data
+   * @param rowMeta The description of the row data
+   * @param rowData the row of data
    * @return true if the row was successfully added to the rowset and false if this buffer was full.
    */
   public abstract boolean putRow( RowMetaInterface rowMeta, Object[] rowData );
@@ -44,14 +42,10 @@ public interface RowSet {
    * Offer a row of data to this rowset providing for the description (metadata) of the row. If the buffer is full, wait
    * (block) for a period of time defined in this call.
    *
-   * @param rowMeta
-   *          The description of the row data
-   * @param rowData
-   *          the row of data
-   * @param time
-   *          The number of units of time
-   * @param tu
-   *          The unit of time to use
+   * @param rowMeta The description of the row data
+   * @param rowData the row of data
+   * @param time    The number of units of time
+   * @param tu      The unit of time to use
    * @return true if the row was successfully added to the rowset and false if this buffer was full.
    */
   public abstract boolean putRowWait( RowMetaInterface rowMeta, Object[] rowData, long time, TimeUnit tu );
@@ -111,7 +105,6 @@ public interface RowSet {
   public abstract String getName();
 
   /**
-   *
    * @return Return the size (or max capacity) of the RowSet
    */
   public abstract int size();
@@ -119,7 +112,6 @@ public interface RowSet {
   /**
    * This method is used only in Trans.java when created RowSet at line 333. Don't need any synchronization on this
    * method
-   *
    */
   public abstract void setThreadNameFromToCopy( String from, int from_copy, String to, int to_copy );
 
@@ -129,8 +121,7 @@ public interface RowSet {
   public abstract RowMetaInterface getRowMeta();
 
   /**
-   * @param rowMeta
-   *          the rowMeta to set
+   * @param rowMeta the rowMeta to set
    */
   public abstract void setRowMeta( RowMetaInterface rowMeta );
 
@@ -140,8 +131,7 @@ public interface RowSet {
   public abstract String getRemoteSlaveServerName();
 
   /**
-   * @param remoteSlaveServerName
-   *          the remote slave server to set
+   * @param remoteSlaveServerName the remote slave server to set
    */
   public abstract void setRemoteSlaveServerName( String remoteSlaveServerName );
 

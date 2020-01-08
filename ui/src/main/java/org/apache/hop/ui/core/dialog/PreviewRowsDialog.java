@@ -22,9 +22,23 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
@@ -39,23 +53,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Displays an ArrayList of rows in a TableView.
@@ -127,12 +127,12 @@ public class PreviewRowsDialog {
   private List<DialogClosedListener> dialogClosedListeners;
 
   public PreviewRowsDialog( Shell parent, VariableSpace space, int style, String stepName,
-    RowMetaInterface rowMeta, List<Object[]> rowBuffer ) {
+                            RowMetaInterface rowMeta, List<Object[]> rowBuffer ) {
     this( parent, space, style, stepName, rowMeta, rowBuffer, null );
   }
 
   public PreviewRowsDialog( Shell parent, VariableSpace space, int style, String stepName,
-    RowMetaInterface rowMeta, List<Object[]> rowBuffer, String loggingText ) {
+                            RowMetaInterface rowMeta, List<Object[]> rowBuffer, String loggingText ) {
     this.stepname = stepName;
     this.buffer = rowBuffer;
     this.loggingText = loggingText;
@@ -244,7 +244,7 @@ public class PreviewRowsDialog {
     // Position the buttons...
     //
     BaseStepDialog
-      .positionBottomButtons( shell, buttons.toArray( new Button[buttons.size()] ), Const.MARGIN, null );
+      .positionBottomButtons( shell, buttons.toArray( new Button[ buttons.size() ] ), Const.MARGIN, null );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
@@ -304,12 +304,12 @@ public class PreviewRowsDialog {
     }
 
     // ColumnInfo[] colinf = new ColumnInfo[rowMeta==null ? 0 : rowMeta.size()];
-    ColumnInfo[] colinf = new ColumnInfo[rowMeta.size()];
+    ColumnInfo[] colinf = new ColumnInfo[ rowMeta.size() ];
     for ( int i = 0; i < rowMeta.size(); i++ ) {
       ValueMetaInterface v = rowMeta.getValueMeta( i );
-      colinf[i] = new ColumnInfo( v.getName(), ColumnInfo.COLUMN_TYPE_TEXT, v.isNumeric() );
-      colinf[i].setToolTip( v.toStringMeta() );
-      colinf[i].setValueMeta( v );
+      colinf[ i ] = new ColumnInfo( v.getName(), ColumnInfo.COLUMN_TYPE_TEXT, v.isNumeric() );
+      colinf[ i ].setToolTip( v.toStringMeta() );
+      colinf[ i ].setValueMeta( v );
     }
 
     wFields =
@@ -387,7 +387,7 @@ public class PreviewRowsDialog {
       ValueMetaInterface v = rowMeta.getValueMeta( c );
       String show;
       try {
-        show = v.getString( row[c] );
+        show = v.getString( row[ c ] );
         if ( v.isBinary() && show != null && show.length() > MAX_BINARY_STRING_PREVIEW_SIZE ) {
           // We want to limit the size of the strings during preview to keep all SWT widgets happy.
           //
@@ -434,7 +434,7 @@ public class PreviewRowsDialog {
       EnterTextDialog etd =
         new EnterTextDialog(
           shell, BaseMessages.getString( PKG, "PreviewRowsDialog.ShowLogging.Title" ), BaseMessages.getString(
-            PKG, "PreviewRowsDialog.ShowLogging.Message" ), loggingText );
+          PKG, "PreviewRowsDialog.ShowLogging.Message" ), loggingText );
       etd.open();
     }
   }
@@ -498,8 +498,7 @@ public class PreviewRowsDialog {
   }
 
   /**
-   * @param proposingToGetMoreRows
-   *          Set to true if you want to display a button asking for more preview rows.
+   * @param proposingToGetMoreRows Set to true if you want to display a button asking for more preview rows.
    */
   public void setProposingToGetMoreRows( boolean proposingToGetMoreRows ) {
     this.proposingToGetMoreRows = proposingToGetMoreRows;
@@ -520,8 +519,7 @@ public class PreviewRowsDialog {
   }
 
   /**
-   * @param proposingToStop
-   *          the proposingToStop to set
+   * @param proposingToStop the proposingToStop to set
    */
   public void setProposingToStop( boolean proposingToStop ) {
     this.proposingToStop = proposingToStop;

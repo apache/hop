@@ -22,11 +22,7 @@
 
 package org.apache.hop.trans;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -44,6 +40,7 @@ import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.gui.ScrollBarInterface;
 import org.apache.hop.core.injection.bean.BeanInjectionInfo;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.trans.step.BaseStepData.StepExecutionStatus;
@@ -55,6 +52,9 @@ import org.apache.hop.trans.step.StepPartitioningMeta;
 import org.apache.hop.trans.step.StepStatus;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
 import org.apache.hop.trans.step.errorhandling.StreamInterface.StreamType;
+
+import java.util.List;
+import java.util.Map;
 
 public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
 
@@ -82,13 +82,13 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
   private boolean slowStepIndicatorEnabled;
 
   public static final String[] magnificationDescriptions =
-      new String[] { "  200% ", "  150% ", "  100% ", "  75% ", "  50% ", "  25% " };
+    new String[] { "  200% ", "  150% ", "  100% ", "  75% ", "  50% ", "  25% " };
 
   public TransPainter( GCInterface gc, TransMeta transMeta, Point area, ScrollBarInterface hori,
-    ScrollBarInterface vert, TransHopMeta candidate, Point drop_candidate, Rectangle selrect,
-    List<AreaOwner> areaOwners, List<StepMeta> mouseOverSteps, int iconsize, int linewidth, int gridsize,
-    int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight, Trans trans,
-    boolean slowStepIndicatorEnabled ) {
+                       ScrollBarInterface vert, TransHopMeta candidate, Point drop_candidate, Rectangle selrect,
+                       List<AreaOwner> areaOwners, List<StepMeta> mouseOverSteps, int iconsize, int linewidth, int gridsize,
+                       int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight, Trans trans,
+                       boolean slowStepIndicatorEnabled ) {
     super(
       gc, transMeta, area, hori, vert, drop_candidate, selrect, areaOwners, iconsize, linewidth, gridsize,
       shadowSize, antiAliasing, noteFontName, noteFontHeight );
@@ -105,9 +105,9 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
   }
 
   public TransPainter( GCInterface gc, TransMeta transMeta, Point area, ScrollBarInterface hori,
-    ScrollBarInterface vert, TransHopMeta candidate, Point drop_candidate, Rectangle selrect,
-    List<AreaOwner> areaOwners, List<StepMeta> mouseOverSteps, int iconsize, int linewidth, int gridsize,
-    int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight ) {
+                       ScrollBarInterface vert, TransHopMeta candidate, Point drop_candidate, Rectangle selrect,
+                       List<AreaOwner> areaOwners, List<StepMeta> mouseOverSteps, int iconsize, int linewidth, int gridsize,
+                       int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight ) {
 
     this(
       gc, transMeta, area, hori, vert, candidate, drop_candidate, selrect, areaOwners, mouseOverSteps, iconsize,
@@ -116,20 +116,20 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
 
   private static String[] getPeekTitles() {
     String[] titles =
-    {
+      {
 
-      BaseMessages.getString( PKG, "PeekMetric.Column.Copynr" ),
-      BaseMessages.getString( PKG, "PeekMetric.Column.Read" ),
-      BaseMessages.getString( PKG, "PeekMetric.Column.Written" ),
-      BaseMessages.getString( PKG, "PeekMetric.Column.Input" ),
-      BaseMessages.getString( PKG, "PeekMetric.Column.Output" ),
-      BaseMessages.getString( PKG, "PeekMetric.Column.Updated" ),
-      BaseMessages.getString( PKG, "PeekMetric.Column.Rejected" ),
-      BaseMessages.getString( PKG, "PeekMetric.Column.Errors" ),
-      BaseMessages.getString( PKG, "PeekMetric.Column.Active" ),
-      BaseMessages.getString( PKG, "PeekMetric.Column.Time" ),
-      BaseMessages.getString( PKG, "PeekMetric.Column.Speed" ),
-      BaseMessages.getString( PKG, "PeekMetric.Column.PriorityBufferSizes" ) };
+        BaseMessages.getString( PKG, "PeekMetric.Column.Copynr" ),
+        BaseMessages.getString( PKG, "PeekMetric.Column.Read" ),
+        BaseMessages.getString( PKG, "PeekMetric.Column.Written" ),
+        BaseMessages.getString( PKG, "PeekMetric.Column.Input" ),
+        BaseMessages.getString( PKG, "PeekMetric.Column.Output" ),
+        BaseMessages.getString( PKG, "PeekMetric.Column.Updated" ),
+        BaseMessages.getString( PKG, "PeekMetric.Column.Rejected" ),
+        BaseMessages.getString( PKG, "PeekMetric.Column.Errors" ),
+        BaseMessages.getString( PKG, "PeekMetric.Column.Active" ),
+        BaseMessages.getString( PKG, "PeekMetric.Column.Time" ),
+        BaseMessages.getString( PKG, "PeekMetric.Column.Speed" ),
+        BaseMessages.getString( PKG, "PeekMetric.Column.PriorityBufferSizes" ) };
     return titles;
   }
 
@@ -211,7 +211,7 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
         Point start = real2screen( fr.x + iconsize / 2, fr.y + iconsize / 2 );
         Point end = real2screen( to.x, to.y );
         drawArrow( arrow, start.x, start.y, end.x, end.y, theta, calcArrowLength(), 1.2, null, startHopStep,
-            endHopStep == null ? endHopLocation : endHopStep );
+          endHopStep == null ? endHopLocation : endHopStep );
       } else if ( endHopStep != null && endHopLocation != null ) {
         Point fr = endHopLocation;
         Point to = endHopStep.getLocation();
@@ -225,7 +225,7 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
         Point start = real2screen( fr.x, fr.y );
         Point end = real2screen( to.x + iconsize / 2, to.y + iconsize / 2 );
         drawArrow( arrow, start.x, start.y, end.x, end.y, theta, calcArrowLength(), 1.2, null, startHopStep == null
-            ? endHopLocation : startHopStep, endHopStep );
+          ? endHopLocation : startHopStep, endHopStep );
       }
 
     }
@@ -472,7 +472,7 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
             } else {
               gc.setBackground( EColor.LIGHTGRAY );
             }
-            gc.drawText( titles[i], rowX, rowY );
+            gc.drawText( titles[ i ], rowX, rowY );
             rowY += rowHeight;
           }
 
@@ -494,7 +494,7 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
               } else {
                 gc.setBackground( EColor.LIGHTGRAY );
               }
-              drawTextRightAligned( fields[i], rowX, rowY );
+              drawTextRightAligned( fields[ i ], rowX, rowY );
               rowY += rowHeight;
             }
 
@@ -744,7 +744,7 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
       gc.setAlpha( 192 );
       gc.setBackground( 216, 230, 241 );
       gc.fillRoundRectangle( namePosition.x - 8, namePosition.y - 2, gc.textExtent( name ).x + 15, 25,
-          BasePainter.CORNER_RADIUS_5 + 15, BasePainter.CORNER_RADIUS_5 + 15 );
+        BasePainter.CORNER_RADIUS_5 + 15, BasePainter.CORNER_RADIUS_5 + 15 );
       gc.setAlpha( tmpAlpha );
     }
 
@@ -781,11 +781,11 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
         Point clusterTextExtent = gc.textExtent( clusterMessage );
         gc.drawText( copies, x - textExtent.x + 1, y - textExtent.y - clusterTextExtent.y + 1, false );
         areaOwners.add( new AreaOwner( AreaType.STEP_COPIES_TEXT, x - textExtent.x + 1, y - textExtent.y
-            - clusterTextExtent.y + 1, textExtent.x, textExtent.y, offset, transMeta, stepMeta ) );
+          - clusterTextExtent.y + 1, textExtent.x, textExtent.y, offset, transMeta, stepMeta ) );
       } else {
         gc.drawText( copies, x - textExtent.x + 1, y - textExtent.y + 1, false );
         areaOwners.add( new AreaOwner( AreaType.STEP_COPIES_TEXT, x - textExtent.x + 1, y - textExtent.y + 1, textExtent.x,
-            textExtent.y, offset, transMeta, stepMeta ) );
+          textExtent.y, offset, transMeta, stepMeta ) );
       }
     }
 
@@ -814,8 +814,8 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
 
       StepMetaInterface stepMetaInterface = stepMeta.getStepMetaInterface();
       boolean mdiSupport =
-          stepMetaInterface.getStepMetaInjectionInterface() != null || BeanInjectionInfo.isInjectionSupported(
-              stepMetaInterface.getClass() );
+        stepMetaInterface.getStepMetaInjectionInterface() != null || BeanInjectionInfo.isInjectionSupported(
+          stepMetaInterface.getClass() );
 
       EImage[] miniIcons;
       if ( mdiSupport ) {
@@ -849,7 +849,7 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
       }
 
       int areaX = translateToCurrentScale( x ) + translateToCurrentScale( iconsize ) / 2 - totalWidth / 2 + MINI_ICON_SKEW;
-      int areaY = translateToCurrentScale( y ) + translateToCurrentScale( iconsize ) + MINI_ICON_DISTANCE  + BasePainter.CONTENT_MENU_INDENT;
+      int areaY = translateToCurrentScale( y ) + translateToCurrentScale( iconsize ) + MINI_ICON_DISTANCE + BasePainter.CONTENT_MENU_INDENT;
 
       gc.setForeground( EColor.CRYSTAL );
       gc.setBackground( EColor.CRYSTAL );
@@ -859,7 +859,7 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
       gc.setBackground( EColor.WHITE );
 
       gc.fillRoundRectangle( areaX, areaY + nameExtent.y, totalWidth, ( totalHeight - nameExtent.y ),
-          BasePainter.CORNER_RADIUS_5, BasePainter.CORNER_RADIUS_5 );
+        BasePainter.CORNER_RADIUS_5, BasePainter.CORNER_RADIUS_5 );
       gc.fillRectangle( areaX, areaY + nameExtent.y, totalWidth, ( totalHeight - nameExtent.y ) / 2 );
 
       gc.drawRoundRectangle( areaX, areaY, totalWidth, totalHeight, BasePainter.CORNER_RADIUS_5, BasePainter.CORNER_RADIUS_5 );
@@ -873,7 +873,7 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
 
       gc.setFont( EFont.GRAPH );
       areaOwners.add( new AreaOwner( AreaType.MINI_ICONS_BALLOON, translateTo1To1( areaX ), translateTo1To1( areaY ),
-          translateTo1To1( totalWidth ), translateTo1To1( totalHeight ), offset, stepMeta, ioMeta ) );
+        translateTo1To1( totalWidth ), translateTo1To1( totalHeight ), offset, stepMeta, ioMeta ) );
 
       gc.fillPolygon( new int[] {
         areaX + totalWidth / 2 - MINI_ICON_TRIANGLE_BASE / 2 + 1, areaY + 2,
@@ -888,38 +888,38 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
       int yIcon = areaY + 5 + nameExtent.y;
 
       for ( int i = 0; i < miniIcons.length; i++ ) {
-        EImage miniIcon = miniIcons[i];
+        EImage miniIcon = miniIcons[ i ];
         Point bounds = gc.getImageBounds( miniIcon );
         boolean enabled = false;
         switch ( i ) {
           case 0: // INPUT
             enabled = ioMeta.isInputAcceptor() || ioMeta.isInputDynamic();
             areaOwners.add( new AreaOwner( AreaType.STEP_INPUT_HOP_ICON, translateTo1To1( xIcon ),
-                translateTo1To1( yIcon ), translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, stepMeta,
-                ioMeta ) );
+              translateTo1To1( yIcon ), translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, stepMeta,
+              ioMeta ) );
             break;
           case 1: // EDIT
             enabled = true;
             areaOwners.add( new AreaOwner( AreaType.STEP_EDIT_ICON, translateTo1To1( xIcon ), translateTo1To1( yIcon ),
-                translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, stepMeta, ioMeta ) );
+              translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, stepMeta, ioMeta ) );
             break;
           case 2: // STEP_MENU
             enabled = true;
             areaOwners.add( new AreaOwner( AreaType.STEP_MENU_ICON, translateTo1To1( xIcon ), translateTo1To1( yIcon ),
-                translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, stepMeta, ioMeta ) );
+              translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, stepMeta, ioMeta ) );
             break;
           case 3: // OUTPUT
             enabled = ioMeta.isOutputProducer() || ioMeta.isOutputDynamic();
             areaOwners.add( new AreaOwner( AreaType.STEP_OUTPUT_HOP_ICON, translateTo1To1( xIcon ),
-                translateTo1To1( yIcon ), translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, stepMeta,
-                ioMeta ) );
+              translateTo1To1( yIcon ), translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, stepMeta,
+              ioMeta ) );
             break;
           case 4: // INJECT
             enabled = mdiSupport;
             StepMetaInterface mdiObject = mdiSupport ? stepMetaInterface : null;
             areaOwners.add( new AreaOwner( AreaType.STEP_INJECT_ICON, translateTo1To1( xIcon ),
-                translateTo1To1( yIcon ), translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, stepMeta,
-                mdiObject ) );
+              translateTo1To1( yIcon ), translateTo1To1( bounds.x ), translateTo1To1( bounds.y ), offset, stepMeta,
+              mdiObject ) );
             break;
           default:
             break;
@@ -1071,7 +1071,7 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
 
   @Override
   protected void drawArrow( EImage arrow, int x1, int y1, int x2, int y2, double theta, int size, double factor,
-      TransHopMeta transHop, Object startObject, Object endObject ) {
+                            TransHopMeta transHop, Object startObject, Object endObject ) {
     int mx, my;
     int a, b, dist;
     double angle;
@@ -1241,40 +1241,35 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
   }
 
   /**
-   * @param stepLogMap
-   *          the stepLogMap to set
+   * @param stepLogMap the stepLogMap to set
    */
   public void setStepLogMap( Map<StepMeta, String> stepLogMap ) {
     this.stepLogMap = stepLogMap;
   }
 
   /**
-   * @param startHopStep
-   *          the startHopStep to set
+   * @param startHopStep the startHopStep to set
    */
   public void setStartHopStep( StepMeta startHopStep ) {
     this.startHopStep = startHopStep;
   }
 
   /**
-   * @param endHopLocation
-   *          the endHopLocation to set
+   * @param endHopLocation the endHopLocation to set
    */
   public void setEndHopLocation( Point endHopLocation ) {
     this.endHopLocation = endHopLocation;
   }
 
   /**
-   * @param noInputStep
-   *          the noInputStep to set
+   * @param noInputStep the noInputStep to set
    */
   public void setNoInputStep( StepMeta noInputStep ) {
     this.noInputStep = noInputStep;
   }
 
   /**
-   * @param endHopStep
-   *          the endHopStep to set
+   * @param endHopStep the endHopStep to set
    */
   public void setEndHopStep( StepMeta endHopStep ) {
     this.endHopStep = endHopStep;
@@ -1296,8 +1291,7 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
   }
 
   /**
-   * @param showTargetStreamsStep
-   *          the showTargetStreamsStep to set
+   * @param showTargetStreamsStep the showTargetStreamsStep to set
    */
   public void setShowTargetStreamsStep( StepMeta showTargetStreamsStep ) {
     this.showTargetStreamsStep = showTargetStreamsStep;

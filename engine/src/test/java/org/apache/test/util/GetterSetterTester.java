@@ -22,12 +22,12 @@
 
 package org.apache.test.util;
 
+import org.apache.hop.trans.steps.loadsave.setter.Setter;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.apache.hop.trans.steps.loadsave.setter.Setter;
 
 public class GetterSetterTester<T> {
   private final Map<String, ObjectTester<?>> objectTesterMap;
@@ -48,7 +48,7 @@ public class GetterSetterTester<T> {
 
   public void test( Object objectUnderTest ) {
     JavaBeanManipulator<T> manipulator =
-        new JavaBeanManipulator<T>( clazz, new ArrayList<String>( objectTesterMap.keySet() ), getterMap, setterMap );
+      new JavaBeanManipulator<T>( clazz, new ArrayList<String>( objectTesterMap.keySet() ), getterMap, setterMap );
     for ( Entry<String, ObjectTester<?>> entry : objectTesterMap.entrySet() ) {
       String attribute = entry.getKey();
       @SuppressWarnings( "unchecked" )

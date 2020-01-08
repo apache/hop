@@ -22,6 +22,12 @@
 
 package org.apache.hop.core.database;
 
+import org.apache.hop.core.ProgressMonitorListener;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -29,12 +35,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.ProgressMonitorListener;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.i18n.BaseMessages;
 
 /**
  * Contains the schema's, catalogs, tables, views, synonyms, etc we can find in the databases...
@@ -74,8 +74,7 @@ public class DatabaseMetaInformation {
   }
 
   /**
-   * @param catalogs
-   *          The catalogs to set.
+   * @param catalogs The catalogs to set.
    */
   public void setCatalogs( Catalog[] catalogs ) {
     this.catalogs = catalogs;
@@ -89,8 +88,7 @@ public class DatabaseMetaInformation {
   }
 
   /**
-   * @param value
-   *          The DatabaseMeta to set.
+   * @param value The DatabaseMeta to set.
    */
   public void setDbInfo( DatabaseMeta value ) {
     this.databaseMeta = value;
@@ -104,8 +102,7 @@ public class DatabaseMetaInformation {
   }
 
   /**
-   * @param schemas
-   *          The schemas to set.
+   * @param schemas The schemas to set.
    */
   public void setSchemas( Schema[] schemas ) {
     this.schemas = schemas;
@@ -119,8 +116,7 @@ public class DatabaseMetaInformation {
   }
 
   /**
-   * @param tables
-   *          The tables to set.
+   * @param tables The tables to set.
    */
   public void setTables( String[] tables ) {
     this.tables = tables;
@@ -134,16 +130,14 @@ public class DatabaseMetaInformation {
   }
 
   /**
-   * @param views
-   *          The views to set.
+   * @param views The views to set.
    */
   public void setViews( String[] views ) {
     this.views = views;
   }
 
   /**
-   * @param synonyms
-   *          The synonyms to set.
+   * @param synonyms The synonyms to set.
    */
   public void setSynonyms( String[] synonyms ) {
     this.synonyms = synonyms;
@@ -164,8 +158,7 @@ public class DatabaseMetaInformation {
   }
 
   /**
-   * @param procedures
-   *          The procedures to set.
+   * @param procedures The procedures to set.
    */
   public void setProcedures( String[] procedures ) {
     this.procedures = procedures;
@@ -221,7 +214,7 @@ public class DatabaseMetaInformation {
           String catsFilterCommaList = connectionExtraOptions.get( catalogFilterKey );
           String[] catsFilterArray = catsFilterCommaList.split( "," );
           for ( int i = 0; i < catsFilterArray.length; i++ ) {
-            catalogList.add( new Catalog( catsFilterArray[i].trim() ) );
+            catalogList.add( new Catalog( catsFilterArray[ i ].trim() ) );
           }
         }
         if ( catalogList.size() == 0 ) {
@@ -270,11 +263,11 @@ public class DatabaseMetaInformation {
 
           // Save the list of tables in the catalog (can be empty)
           //
-          catalog.setItems( catalogTables.toArray( new String[catalogTables.size()] ) );
+          catalog.setItems( catalogTables.toArray( new String[ catalogTables.size() ] ) );
         }
 
         // Save for later...
-        setCatalogs( catalogList.toArray( new Catalog[catalogList.size()] ) );
+        setCatalogs( catalogList.toArray( new Catalog[ catalogList.size() ] ) );
       }
       if ( monitor != null ) {
         monitor.worked( 1 );
@@ -294,7 +287,7 @@ public class DatabaseMetaInformation {
             String schemasFilterCommaList = connectionExtraOptions.get( schemaFilterKey );
             String[] schemasFilterArray = schemasFilterCommaList.split( "," );
             for ( int i = 0; i < schemasFilterArray.length; i++ ) {
-              schemaList.add( new Schema( schemasFilterArray[i].trim() ) );
+              schemaList.add( new Schema( schemasFilterArray[ i ].trim() ) );
             }
           }
           if ( schemaList.size() == 0 ) {
@@ -343,7 +336,7 @@ public class DatabaseMetaInformation {
               // Just ignore it!
             }
 
-            schema.setItems( schemaTables.toArray( new String[schemaTables.size()] ) );
+            schema.setItems( schemaTables.toArray( new String[ schemaTables.size() ] ) );
           }
         } catch ( Exception e ) {
           // LogWriter.getInstance().logError(getClass().getName(), BaseMessages.getString(PKG,
@@ -351,7 +344,7 @@ public class DatabaseMetaInformation {
         }
 
         // Save for later...
-        setSchemas( schemaList.toArray( new Schema[schemaList.size()] ) );
+        setSchemas( schemaList.toArray( new Schema[ schemaList.size() ] ) );
       }
       if ( monitor != null ) {
         monitor.worked( 1 );

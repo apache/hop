@@ -22,27 +22,13 @@
 
 package org.apache.hop.trans.steps.replacestring;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
@@ -52,8 +38,21 @@ import org.apache.hop.trans.steps.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveIntegerArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
-import org.apache.hop.trans.steps.mock.StepMockHelper;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.junit.Assert;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ReplaceStringMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -156,8 +155,8 @@ public class ReplaceStringMetaTest {
     // String Arrays
     replaceString.setFieldInStream( new String[] { "field1", "field2", "field3", "field4", "field5" } );
     replaceString.setFieldOutStream( new String[] { "outField1", "outField2", "outField3" } );
-    replaceString.setReplaceString( new String[] { "rep1", "rep 2", "rep 3" }  );
-    replaceString.setReplaceByString( new String[] { "by1", "by 2" }  );
+    replaceString.setReplaceString( new String[] { "rep1", "rep 2", "rep 3" } );
+    replaceString.setReplaceByString( new String[] { "by1", "by 2" } );
     replaceString.setFieldReplaceByString( new String[] { "fieldby1", "fieldby2", "fieldby3", "fieldby4" } );
 
     // Other arrays
@@ -193,9 +192,9 @@ public class ReplaceStringMetaTest {
     Assert.assertEquals( "", replaceString.getReplaceByString()[ 3 ] );
     Assert.assertEquals( "", replaceString.getFieldReplaceByString()[ 4 ] );
 
-    Assert.assertEquals( "outField1", replaceString.getFieldOutStream()[0] );
-    Assert.assertEquals( 1, replaceString.getWholeWord()[0] );
-    Assert.assertEquals( true, replaceString.isSetEmptyString()[0] );
+    Assert.assertEquals( "outField1", replaceString.getFieldOutStream()[ 0 ] );
+    Assert.assertEquals( 1, replaceString.getWholeWord()[ 0 ] );
+    Assert.assertEquals( true, replaceString.isSetEmptyString()[ 0 ] );
   }
 
 }

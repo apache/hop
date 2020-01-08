@@ -22,12 +22,12 @@
 
 package org.apache.hop.core.metrics;
 
-import java.util.Date;
-
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.logging.MetricsInterface;
 import org.apache.hop.core.util.StringUtil;
+
+import java.util.Date;
 
 public class MetricsSnapshot implements MetricsSnapshotInterface {
 
@@ -42,10 +42,8 @@ public class MetricsSnapshot implements MetricsSnapshotInterface {
    * Create a new metrics snapshot
    *
    * @param type
-   * @param metric
-   *          the metric to use (ex. Connect to database)
-   * @param subject
-   *          the name of the metric subject (ex. the name of the database we're connecting to)
+   * @param metric       the metric to use (ex. Connect to database)
+   * @param subject      the name of the metric subject (ex. the name of the database we're connecting to)
    * @param logChannelId
    */
   public MetricsSnapshot( MetricsSnapshotType type, MetricsInterface metric, String subject, String logChannelId ) {
@@ -70,19 +68,14 @@ public class MetricsSnapshot implements MetricsSnapshotInterface {
   /**
    * Create a snapshot metric with a value.
    *
-   * @param type
-   *          The type. For metrics with a value it is usually MIN, MAX, SUM, COUNT, ...
-   * @param metric
-   *          The metric to use
-   * @param subject
-   *          The subject
-   * @param value
-   *          The value
-   * @param logChannelId
-   *          The logging channel to reference.
+   * @param type         The type. For metrics with a value it is usually MIN, MAX, SUM, COUNT, ...
+   * @param metric       The metric to use
+   * @param subject      The subject
+   * @param value        The value
+   * @param logChannelId The logging channel to reference.
    */
   public MetricsSnapshot( MetricsSnapshotType type, MetricsInterface metric, String subject, long value,
-    String logChannelId ) {
+                          String logChannelId ) {
     this( type, metric, subject, logChannelId );
     this.value = value;
   }
@@ -90,14 +83,10 @@ public class MetricsSnapshot implements MetricsSnapshotInterface {
   /**
    * Create a snapshot metric with a value.
    *
-   * @param type
-   *          The type. For metrics with a value it is usually MIN, MAX, SUM, COUNT, ...
-   * @param description
-   *          The description
-   * @param value
-   *          The value
-   * @param logChannelId
-   *          The logging channel to reference.
+   * @param type         The type. For metrics with a value it is usually MIN, MAX, SUM, COUNT, ...
+   * @param description  The description
+   * @param value        The value
+   * @param logChannelId The logging channel to reference.
    */
   public MetricsSnapshot( MetricsSnapshotType type, MetricsInterface metric, long value, String logChannelId ) {
     this( type, metric, null, value, logChannelId );
@@ -144,8 +133,7 @@ public class MetricsSnapshot implements MetricsSnapshotInterface {
   }
 
   /**
-   * @param date
-   *          the date to set
+   * @param date the date to set
    */
   @Override
   public void setDate( Date date ) {
@@ -160,8 +148,7 @@ public class MetricsSnapshot implements MetricsSnapshotInterface {
   }
 
   /**
-   * @param type
-   *          the type to set
+   * @param type the type to set
    */
   public void setType( MetricsSnapshotType type ) {
     this.type = type;
@@ -176,8 +163,7 @@ public class MetricsSnapshot implements MetricsSnapshotInterface {
   }
 
   /**
-   * @param subject
-   *          the subject to set
+   * @param subject the subject to set
    */
   public void setSubject( String subject ) {
     this.subject = subject;
@@ -192,8 +178,7 @@ public class MetricsSnapshot implements MetricsSnapshotInterface {
   }
 
   /**
-   * @param value
-   *          the value to set
+   * @param value the value to set
    */
   @Override
   public void setValue( Long value ) {
@@ -209,8 +194,7 @@ public class MetricsSnapshot implements MetricsSnapshotInterface {
   }
 
   /**
-   * @param logChannelId
-   *          the logChannelId to set
+   * @param logChannelId the logChannelId to set
    */
   public void setLogChannelId( String logChannelId ) {
     this.logChannelId = logChannelId;
@@ -225,8 +209,7 @@ public class MetricsSnapshot implements MetricsSnapshotInterface {
   }
 
   /**
-   * @param metric
-   *          the metric to set
+   * @param metric the metric to set
    */
   public void setMetric( MetricsInterface metric ) {
     this.metric = metric;

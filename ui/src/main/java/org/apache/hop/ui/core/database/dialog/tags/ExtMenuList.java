@@ -22,15 +22,15 @@
 
 package org.apache.hop.ui.core.database.dialog.tags;
 
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.ui.core.widget.ComboVar;
 import org.pentaho.ui.xul.XulComponent;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.containers.XulTree;

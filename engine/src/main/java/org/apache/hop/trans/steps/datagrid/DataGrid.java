@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.datagrid;
 
-import java.util.List;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
@@ -38,6 +36,8 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.util.List;
+
 /**
  * Generates a number of (empty or the same) rows
  *
@@ -51,7 +51,7 @@ public class DataGrid extends BaseStep implements StepInterface {
   private DataGridData data;
 
   public DataGrid( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                   Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
 
     meta = (DataGridMeta) getStepMeta().getStepMetaInterface();

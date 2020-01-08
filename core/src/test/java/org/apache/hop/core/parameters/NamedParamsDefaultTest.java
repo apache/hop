@@ -104,7 +104,7 @@ public class NamedParamsDefaultTest {
   @Test
   public void testCopyParametersFromWithException() throws Exception {
     NamedParams namedParams2 = mock( NamedParams.class );
-    when( namedParams2.listParameters() ).thenReturn( new String[]{ "key" } );
+    when( namedParams2.listParameters() ).thenReturn( new String[] { "key" } );
     when( namedParams2.getParameterDescription( anyString() ) ).thenThrow( UnknownParamException.class );
     when( namedParams2.getParameterDefault( anyString() ) ).thenThrow( UnknownParamException.class );
 
@@ -144,7 +144,7 @@ public class NamedParamsDefaultTest {
 
     namedParamsTest.mergeParametersWith( namedParamsMerge, false );
 
-    assertEquals( 6,  namedParamsTest.listParameters().length );
+    assertEquals( 6, namedParamsTest.listParameters().length );
     assertEquals( "def3", namedParamsTest.getParameterDefault( "key3" ) );
     assertEquals( "desc3", namedParamsTest.getParameterDescription( "key3" ) );
     assertEquals( "val3", namedParamsTest.getParameterValue( "key3" ) );

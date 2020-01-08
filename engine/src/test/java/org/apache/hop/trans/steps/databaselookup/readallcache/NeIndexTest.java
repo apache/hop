@@ -22,14 +22,15 @@
 
 package org.apache.hop.trans.steps.databaselookup.readallcache;
 
+import org.apache.hop.core.row.ValueMetaInterface;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.apache.hop.core.row.ValueMetaInterface;
 
 import java.util.BitSet;
 import java.util.List;
 
 import static org.junit.Assert.fail;
+
 /**
  * @author Andrey Khayrutdinov
  */

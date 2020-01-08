@@ -22,11 +22,11 @@
 
 package org.apache.hop.ui.core.widget;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionListener;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionListener;
 
 import java.util.function.Supplier;
 
@@ -35,7 +35,6 @@ import java.util.function.Supplier;
  *
  * @author Matt
  * @since 27-05-2003
- *
  */
 public class ColumnInfo {
   public static final int COLUMN_TYPE_NONE = 0;
@@ -78,10 +77,8 @@ public class ColumnInfo {
   /**
    * Creates a column info class for use with the TableView class.
    *
-   * @param colname
-   *          The column name
-   * @param coltype
-   *          The column type (see: COLUMN_TYPE_...)
+   * @param colname The column name
+   * @param coltype The column type (see: COLUMN_TYPE_...)
    */
   public ColumnInfo( String colname, int coltype ) {
     name = colname;
@@ -99,12 +96,9 @@ public class ColumnInfo {
    * Creates a column info class for use with the TableView class. The type of column info to be created is :
    * COLUMN_TYPE_CCOMBO
    *
-   * @param colname
-   *          The column name
-   * @param coltype
-   *          The column type (see: COLUMN_TYPE_...)
-   * @param combo
-   *          The choices in the combo box
+   * @param colname The column name
+   * @param coltype The column type (see: COLUMN_TYPE_...)
+   * @param combo   The choices in the combo box
    */
   public ColumnInfo( String colname, int coltype, String[] combo ) {
     this( colname, coltype );
@@ -120,13 +114,10 @@ public class ColumnInfo {
   /**
    * Creates a column info class for use with the TableView class.
    *
-   * @param colname
-   *          The column name
-   * @param coltype
-   *          The column type (see: COLUMN_TYPE_...)
-   * @param numeric
-   *          true if the column type is numeric. Use setValueType() to specify the type of numeric:
-   *          ValueMetaInterface.TYPE_INTEGER is the default.
+   * @param colname The column name
+   * @param coltype The column type (see: COLUMN_TYPE_...)
+   * @param numeric true if the column type is numeric. Use setValueType() to specify the type of numeric:
+   *                ValueMetaInterface.TYPE_INTEGER is the default.
    */
   public ColumnInfo( String colname, int coltype, boolean numeric ) {
     this( colname, coltype );
@@ -147,14 +138,10 @@ public class ColumnInfo {
    * Creates a column info class for use with the TableView class. The type of column info to be created is :
    * COLUMN_TYPE_CCOMBO
    *
-   * @param colname
-   *          The column name
-   * @param coltype
-   *          The column type (see: COLUMN_TYPE_...)
-   * @param combo
-   *          The choices in the combo box
-   * @param ro
-   *          true if the column is read-only (you can't type in the combo box, you CAN make a choice)
+   * @param colname The column name
+   * @param coltype The column type (see: COLUMN_TYPE_...)
+   * @param combo   The choices in the combo box
+   * @param ro      true if the column is read-only (you can't type in the combo box, you CAN make a choice)
    */
   public ColumnInfo( String colname, int coltype, String[] combo, boolean ro ) {
     this( colname, coltype, combo );
@@ -164,15 +151,11 @@ public class ColumnInfo {
   /**
    * Creates a column info class for use with the TableView class.
    *
-   * @param colname
-   *          The column name
-   * @param coltype
-   *          The column type (see: COLUMN_TYPE_...)
-   * @param num
-   *          true if the column type is numeric. Use setValueType() to specify the type of numeric:
-   *          ValueMetaInterface.TYPE_INTEGER is the default.
-   * @param ro
-   *          true if the column is read-only.
+   * @param colname The column name
+   * @param coltype The column type (see: COLUMN_TYPE_...)
+   * @param num     true if the column type is numeric. Use setValueType() to specify the type of numeric:
+   *                ValueMetaInterface.TYPE_INTEGER is the default.
+   * @param ro      true if the column is read-only.
    */
   public ColumnInfo( String colname, int coltype, boolean num, boolean ro ) {
     this( colname, coltype, num );
@@ -182,18 +165,12 @@ public class ColumnInfo {
   /**
    * Creates a column info class for use with the TableView class.
    *
-   * @param colname
-   *          The column name
-   * @param coltype
-   *          The column type (see: COLUMN_TYPE_...)
-   * @param num
-   *          true if the column type is numeric. Use setValueType() to specify the type of numeric:
-   *          ValueMetaInterface.TYPE_INTEGER is the default.
-   * @param ro
-   *          true if the column is read-only.
-   *
-   * @param width
-   *          The column width
+   * @param colname The column name
+   * @param coltype The column type (see: COLUMN_TYPE_...)
+   * @param num     true if the column type is numeric. Use setValueType() to specify the type of numeric:
+   *                ValueMetaInterface.TYPE_INTEGER is the default.
+   * @param ro      true if the column is read-only.
+   * @param width   The column width
    */
   public ColumnInfo( String colname, int coltype, boolean num, boolean ro, int width ) {
     this( colname, coltype, num );
@@ -205,12 +182,9 @@ public class ColumnInfo {
    * Creates a column info class for use with the TableView class. The type of column info to be created is :
    * COLUMN_TYPE_FORMAT
    *
-   * @param colname
-   *          The column name
-   * @param coltype
-   *          The column type (see: COLUMN_TYPE_...)
-   * @param fieldTypeColumn
-   *          The column that contains the field type (for use when filtering the format combo dropdown)
+   * @param colname         The column name
+   * @param coltype         The column type (see: COLUMN_TYPE_...)
+   * @param fieldTypeColumn The column that contains the field type (for use when filtering the format combo dropdown)
    */
   public ColumnInfo( String colname, int coltype, int fieldTypeColumn ) {
     this( colname, coltype );
@@ -267,8 +241,7 @@ public class ColumnInfo {
   }
 
   /**
-   * @param numeric
-   *          the numeric to set
+   * @param numeric the numeric to set
    */
   public void setNumeric( boolean numeric ) {
     this.numeric = numeric;
@@ -318,8 +291,7 @@ public class ColumnInfo {
   }
 
   /**
-   * @param valueMeta
-   *          the valueMeta to set
+   * @param valueMeta the valueMeta to set
    */
   public void setValueMeta( ValueMetaInterface valueMeta ) {
     this.valueMeta = valueMeta;
@@ -333,8 +305,7 @@ public class ColumnInfo {
   }
 
   /**
-   * @param usingVariables
-   *          the usingVariables to set
+   * @param usingVariables the usingVariables to set
    */
   public void setUsingVariables( boolean usingVariables ) {
     this.usingVariables = usingVariables;
@@ -348,8 +319,7 @@ public class ColumnInfo {
   }
 
   /**
-   * @param password
-   *          the password to set
+   * @param password the password to set
    */
   public void setPasswordField( boolean password ) {
     this.passwordField = password;
@@ -371,8 +341,7 @@ public class ColumnInfo {
   }
 
   /**
-   * @param comboValuesSelectionListener
-   *          the comboValuesSelectionListener to set
+   * @param comboValuesSelectionListener the comboValuesSelectionListener to set
    */
   public void setComboValuesSelectionListener( ComboValuesSelectionListener comboValuesSelectionListener ) {
     this.comboValuesSelectionListener = comboValuesSelectionListener;
@@ -386,8 +355,7 @@ public class ColumnInfo {
   }
 
   /**
-   * @param disabledListener
-   *          the disabledListener to set
+   * @param disabledListener the disabledListener to set
    */
   public void setDisabledListener( FieldDisabledListener disabledListener ) {
     this.disabledListener = disabledListener;

@@ -22,24 +22,6 @@
 
 package org.apache.hop.trans.steps.databaselookup;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.RowSet;
@@ -55,11 +37,29 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for DatabaseLookup step
@@ -84,10 +84,10 @@ public class PDI5436Test {
   @Before
   public void setUp() {
     smh =
-        new StepMockHelper<DatabaseLookupMeta, DatabaseLookupData>( "Database Lookup", DatabaseLookupMeta.class,
-            DatabaseLookupData.class );
+      new StepMockHelper<DatabaseLookupMeta, DatabaseLookupData>( "Database Lookup", DatabaseLookupMeta.class,
+        DatabaseLookupData.class );
     when( smh.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        smh.logChannelInterface );
+      smh.logChannelInterface );
     when( smh.trans.isRunning() ).thenReturn( true );
   }
 
@@ -122,8 +122,8 @@ public class PDI5436Test {
     doReturn( new String[] { "=" } ).when( stepMeta ).getKeyCondition();
 
     doCallRealMethod().when( stepMeta ).getFields( any( RowMetaInterface.class ), anyString(),
-        any( RowMetaInterface[].class ), any( StepMeta.class ), any( VariableSpace.class ),
-        any( IMetaStore.class ) );
+      any( RowMetaInterface[].class ), any( StepMeta.class ), any( VariableSpace.class ),
+      any( IMetaStore.class ) );
     doReturn( new String[] { "value" } ).when( stepMeta ).getReturnValueNewName();
     doReturn( new int[] { ValueMetaInterface.TYPE_STRING } ).when( stepMeta ).getReturnValueDefaultType();
     doReturn( true ).when( stepMeta ).isCached();
@@ -134,7 +134,7 @@ public class PDI5436Test {
     doReturn( new String[] { "value" } ).when( stepMeta ).getReturnValueField();
     doReturn( new String[] { "" } ).when( stepMeta ).getReturnValueDefault();
     doReturn( new int[] { ValueMetaInterface.TYPE_STRING } ).when( stepMeta ).getReturnValueDefaultType();
-    when( stepMeta.getStreamKeyField2() ).thenReturn( new String[]{ "a", "b", "c" } );
+    when( stepMeta.getStreamKeyField2() ).thenReturn( new String[] { "a", "b", "c" } );
 
     return stepMeta;
   }
@@ -148,7 +148,7 @@ public class PDI5436Test {
     doReturn( databaseRowMeta ).when( databaseMock ).getTableFields( anyString() );
     doReturn( databaseRowMeta ).when( databaseMock ).getTableFieldsMeta( anyString(), anyString() );
     doReturn( Arrays.asList( new Object[][] { { "1", "value" } } ) ).when( databaseMock ).getRows( anyString(),
-        anyInt() );
+      anyInt() );
     doReturn( databaseRowMeta ).when( databaseMock ).getReturnRowMeta();
 
     return databaseMock;
@@ -157,7 +157,7 @@ public class PDI5436Test {
   @Test
   public void testCacheAllTable() throws HopException {
     DatabaseLookup stepSpy =
-        spy( new DatabaseLookup( smh.stepMeta, smh.stepDataInterface, 0, smh.transMeta, smh.trans ) );
+      spy( new DatabaseLookup( smh.stepMeta, smh.stepDataInterface, 0, smh.transMeta, smh.trans ) );
 
     Database database = mockDatabase();
     doReturn( database ).when( stepSpy ).getDatabase( any( DatabaseMeta.class ) );
@@ -172,6 +172,6 @@ public class PDI5436Test {
 
     Assert.assertTrue( "Step init failed", stepSpy.init( meta, data ) );
     Assert.assertTrue( "Error processing row", stepSpy.processRow( meta, data ) );
-    Assert.assertEquals( "Cache lookup failed", "value", outputRowSet.getRow()[2] );
+    Assert.assertEquals( "Cache lookup failed", "value", outputRowSet.getRow()[ 2 ] );
   }
 }

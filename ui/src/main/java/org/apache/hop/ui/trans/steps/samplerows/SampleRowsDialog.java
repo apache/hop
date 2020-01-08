@@ -22,6 +22,15 @@
 
 package org.apache.hop.ui.trans.steps.samplerows;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.samplerows.SampleRowsMeta;
+import org.apache.hop.ui.core.widget.LabelTextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -39,15 +48,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.samplerows.SampleRowsMeta;
-import org.apache.hop.ui.core.widget.LabelTextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class SampleRowsDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = SampleRowsMeta.class; // for i18n purposes, needed by Translator2!!
@@ -110,7 +110,7 @@ public class SampleRowsDialog extends BaseStepDialog implements StepDialogInterf
     wLinesRange =
       new LabelTextVar(
         transMeta, shell, BaseMessages.getString( PKG, "SampleRowsDialog.LinesRange.Label" ), BaseMessages
-          .getString( PKG, "SampleRowsDialog.LinesRange.Tooltip" ) );
+        .getString( PKG, "SampleRowsDialog.LinesRange.Tooltip" ) );
     props.setLook( wLinesRange );
     wLinesRange.addModifyListener( lsMod );
     fdLinesRange = new FormData();

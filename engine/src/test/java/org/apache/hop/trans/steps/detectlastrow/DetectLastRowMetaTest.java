@@ -22,14 +22,6 @@
 
 package org.apache.hop.trans.steps.detectlastrow;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowMeta;
@@ -38,6 +30,14 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.TransMeta.TransformationType;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class DetectLastRowMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -80,6 +80,6 @@ public class DetectLastRowMetaTest {
   public void testSupportedTransformationTypes() {
     DetectLastRowMeta meta = new DetectLastRowMeta();
     assertEquals( 1, meta.getSupportedTransformationTypes().length );
-    assertEquals( TransformationType.Normal, meta.getSupportedTransformationTypes()[0] );
+    assertEquals( TransformationType.Normal, meta.getSupportedTransformationTypes()[ 0 ] );
   }
 }

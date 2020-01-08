@@ -22,6 +22,7 @@
 
 package org.apache.hop.job.entries.ftpsput;
 
+import org.apache.hop.job.entries.ftpsget.FTPSConnection;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -29,7 +30,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
-import org.apache.hop.job.entries.ftpsget.FTPSConnection;
 
 public class JobEntryFTPSPUTTest {
 
@@ -51,6 +51,7 @@ public class JobEntryFTPSPUTTest {
 
   /**
    * PDI-6868, attempt to set binary mode is after the connection.connect() succeeded.
+   *
    * @throws Exception
    */
   @Test

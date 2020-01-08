@@ -22,14 +22,7 @@
 
 package org.apache.hop.trans.steps.constant;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import java.sql.Timestamp;
-
 import junit.framework.TestCase;
-
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
@@ -39,7 +32,6 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-
 import org.apache.hop.trans.RowStepCollector;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransHopMeta;
@@ -47,6 +39,11 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Test class for the Constant step.
@@ -59,28 +56,28 @@ public class ConstantIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
     try {
       ValueMetaInterface[] valuesMeta =
-      {
-        ValueMetaFactory.createValueMeta( "boolean1", ValueMetaInterface.TYPE_BOOLEAN ),
-        ValueMetaFactory.createValueMeta( "boolean2", ValueMetaInterface.TYPE_BOOLEAN ),
-        ValueMetaFactory.createValueMeta( "boolean3", ValueMetaInterface.TYPE_BOOLEAN ),
-        ValueMetaFactory.createValueMeta( "boolean4", ValueMetaInterface.TYPE_BOOLEAN ),
-        ValueMetaFactory.createValueMeta( "boolean5", ValueMetaInterface.TYPE_BOOLEAN ),
-        ValueMetaFactory.createValueMeta( "boolean6", ValueMetaInterface.TYPE_BOOLEAN ),
-        ValueMetaFactory.createValueMeta( "boolean7", ValueMetaInterface.TYPE_BOOLEAN ),
-        ValueMetaFactory.createValueMeta( "string1", ValueMetaInterface.TYPE_STRING ),
-        ValueMetaFactory.createValueMeta( "string2", ValueMetaInterface.TYPE_STRING ),
-        ValueMetaFactory.createValueMeta( "string3", ValueMetaInterface.TYPE_STRING ),
-        ValueMetaFactory.createValueMeta( "integer1", ValueMetaInterface.TYPE_INTEGER ),
-        ValueMetaFactory.createValueMeta( "integer2", ValueMetaInterface.TYPE_INTEGER ),
-        ValueMetaFactory.createValueMeta( "integer3", ValueMetaInterface.TYPE_INTEGER ),
-        ValueMetaFactory.createValueMeta( "integer4", ValueMetaInterface.TYPE_INTEGER ),
-        ValueMetaFactory.createValueMeta( "number1", ValueMetaInterface.TYPE_NUMBER ),
-        ValueMetaFactory.createValueMeta( "number2", ValueMetaInterface.TYPE_NUMBER ),
-        ValueMetaFactory.createValueMeta( "number3", ValueMetaInterface.TYPE_NUMBER ),
-        ValueMetaFactory.createValueMeta( "number4", ValueMetaInterface.TYPE_NUMBER ),
-        ValueMetaFactory.createValueMeta( "timestamp1", ValueMetaInterface.TYPE_TIMESTAMP ) };
+        {
+          ValueMetaFactory.createValueMeta( "boolean1", ValueMetaInterface.TYPE_BOOLEAN ),
+          ValueMetaFactory.createValueMeta( "boolean2", ValueMetaInterface.TYPE_BOOLEAN ),
+          ValueMetaFactory.createValueMeta( "boolean3", ValueMetaInterface.TYPE_BOOLEAN ),
+          ValueMetaFactory.createValueMeta( "boolean4", ValueMetaInterface.TYPE_BOOLEAN ),
+          ValueMetaFactory.createValueMeta( "boolean5", ValueMetaInterface.TYPE_BOOLEAN ),
+          ValueMetaFactory.createValueMeta( "boolean6", ValueMetaInterface.TYPE_BOOLEAN ),
+          ValueMetaFactory.createValueMeta( "boolean7", ValueMetaInterface.TYPE_BOOLEAN ),
+          ValueMetaFactory.createValueMeta( "string1", ValueMetaInterface.TYPE_STRING ),
+          ValueMetaFactory.createValueMeta( "string2", ValueMetaInterface.TYPE_STRING ),
+          ValueMetaFactory.createValueMeta( "string3", ValueMetaInterface.TYPE_STRING ),
+          ValueMetaFactory.createValueMeta( "integer1", ValueMetaInterface.TYPE_INTEGER ),
+          ValueMetaFactory.createValueMeta( "integer2", ValueMetaInterface.TYPE_INTEGER ),
+          ValueMetaFactory.createValueMeta( "integer3", ValueMetaInterface.TYPE_INTEGER ),
+          ValueMetaFactory.createValueMeta( "integer4", ValueMetaInterface.TYPE_INTEGER ),
+          ValueMetaFactory.createValueMeta( "number1", ValueMetaInterface.TYPE_NUMBER ),
+          ValueMetaFactory.createValueMeta( "number2", ValueMetaInterface.TYPE_NUMBER ),
+          ValueMetaFactory.createValueMeta( "number3", ValueMetaInterface.TYPE_NUMBER ),
+          ValueMetaFactory.createValueMeta( "number4", ValueMetaInterface.TYPE_NUMBER ),
+          ValueMetaFactory.createValueMeta( "timestamp1", ValueMetaInterface.TYPE_TIMESTAMP ) };
       for ( int i = 0; i < valuesMeta.length; i++ ) {
-        rm.addValueMeta( valuesMeta[i] );
+        rm.addValueMeta( valuesMeta[ i ] );
       }
     } catch ( Exception ex ) {
       return null;
@@ -126,9 +123,9 @@ public class ConstantIT extends TestCase {
       if ( rm1.size() != rm2.size() ) {
         fail( "row nr " + idx + " is not equal" );
       }
-      int[] fields = new int[rm1.size()];
+      int[] fields = new int[ rm1.size() ];
       for ( int ydx = 0; ydx < rm1.size(); ydx++ ) {
-        fields[ydx] = ydx;
+        fields[ ydx ] = ydx;
       }
       try {
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {
@@ -196,19 +193,19 @@ public class ConstantIT extends TestCase {
     ConstantMeta cnst1 = new ConstantMeta();
 
     String[] fieldName1 =
-    {
-      "boolean1", "boolean2", "boolean3", "boolean4", "boolean5", "boolean6", "boolean7", "string1",
-      "string2", "string3", "integer1", "integer2", "integer3", "integer4", "number1", "number2", "number3",
-      "number4", "timestamp1" };
+      {
+        "boolean1", "boolean2", "boolean3", "boolean4", "boolean5", "boolean6", "boolean7", "string1",
+        "string2", "string3", "integer1", "integer2", "integer3", "integer4", "number1", "number2", "number3",
+        "number4", "timestamp1" };
     String[] type1 =
-    {
-      "boolean", "Boolean", "bOOLEAN", "BOOLEAN", "boolean", "boolean", "boolean", "string", "string",
-      "String", "integer", "integer", "integer", "integer", "number", "number", "number", "number",
-      "timestamp" };
+      {
+        "boolean", "Boolean", "bOOLEAN", "BOOLEAN", "boolean", "boolean", "boolean", "string", "string",
+        "String", "integer", "integer", "integer", "integer", "number", "number", "number", "number",
+        "timestamp" };
     String[] value1 =
-    {
-      "Y", "T", "a", "TRUE", "0", "9", "", "AAAAAAAAAAAAAA", "   ", "", "-100", "0", "212", "", "-100.2",
-      "0.0", "212.23", "", "1970-01-01 00:00:00.000" };
+      {
+        "Y", "T", "a", "TRUE", "0", "9", "", "AAAAAAAAAAAAAA", "   ", "", "-100", "0", "212", "", "-100.2",
+        "0.0", "212.23", "", "1970-01-01 00:00:00.000" };
     String[] fieldFormat1 = { "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" };
     String[] group1 = { "", "", "", "", "", "", "", "", "", "", "", "", "", "", ",", ",", ",", ",", "" };
     String[] decimal1 = { "", "", "", "", "", "", "", "", "", "", "", "", "", "", ".", ".", ".", ".", "" };
@@ -216,9 +213,9 @@ public class ConstantIT extends TestCase {
     int[] intDummies1 = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
     boolean[] setEmptystring =
-    {
-      false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-      false, false, false, false, false };
+      {
+        false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+        false, false, false, false, false };
 
     cnst1.setFieldName( fieldName1 );
     cnst1.setFieldType( type1 );

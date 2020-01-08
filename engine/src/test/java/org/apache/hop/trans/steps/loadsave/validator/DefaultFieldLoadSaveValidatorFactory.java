@@ -22,6 +22,9 @@
 
 package org.apache.hop.trans.steps.loadsave.validator;
 
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.trans.steps.loadsave.getter.Getter;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Date;
@@ -29,9 +32,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.trans.steps.loadsave.getter.Getter;
 
 public class DefaultFieldLoadSaveValidatorFactory implements FieldLoadSaveValidatorFactory {
 
@@ -70,7 +70,7 @@ public class DefaultFieldLoadSaveValidatorFactory implements FieldLoadSaveValida
   }
 
   public DefaultFieldLoadSaveValidatorFactory( Map<Getter<?>, FieldLoadSaveValidator<?>> map,
-      Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
+                                               Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
     this();
     getterMap.putAll( map );
     typeMap.putAll( fieldLoadSaveValidatorTypeMap );

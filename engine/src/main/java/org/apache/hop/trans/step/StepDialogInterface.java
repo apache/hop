@@ -41,8 +41,7 @@ public interface StepDialogInterface {
   String open();
 
   /**
-   * @param metaStore
-   *          The MetaStore to pass
+   * @param metaStore The MetaStore to pass
    */
   void setMetaStore( IMetaStore metaStore );
 }

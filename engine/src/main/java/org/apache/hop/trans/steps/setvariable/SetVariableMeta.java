@@ -22,20 +22,15 @@
 
 package org.apache.hop.trans.steps.setvariable;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -43,12 +38,13 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * Sets environment variables based on content in certain fields of a single input row.
- *
+ * <p>
  * Created on 27-apr-2006
  */
 public class SetVariableMeta extends BaseStepMeta implements StepMetaInterface {
@@ -83,16 +79,14 @@ public class SetVariableMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param fieldName
-   *          The fieldName to set.
+   * @param fieldName The fieldName to set.
    */
   public void setFieldName( String[] fieldName ) {
     this.fieldName = fieldName;
   }
 
   /**
-   * @param fieldValue
-   *          The fieldValue to set.
+   * @param fieldValue The fieldValue to set.
    */
   public void setVariableName( String[] fieldValue ) {
     this.variableName = fieldValue;
@@ -120,44 +114,40 @@ public class SetVariableMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param defaultValue
-   *          The defaultValue to set.
+   * @param defaultValue The defaultValue to set.
    */
   public void setDefaultValue( String[] defaultValue ) {
     this.defaultValue = defaultValue;
   }
 
   /**
-   * @param variableType
-   *          The variable type, see also VARIABLE_TYPE_...
+   * @param variableType The variable type, see also VARIABLE_TYPE_...
    * @return the variable type code for this variable type
    */
   public static final String getVariableTypeCode( int variableType ) {
-    return variableTypeCode[variableType];
+    return variableTypeCode[ variableType ];
   }
 
   /**
-   * @param variableType
-   *          The variable type, see also VARIABLE_TYPE_...
+   * @param variableType The variable type, see also VARIABLE_TYPE_...
    * @return the variable type description for this variable type
    */
   public static final String getVariableTypeDescription( int variableType ) {
-    return variableTypeDesc[variableType];
+    return variableTypeDesc[ variableType ];
   }
 
   /**
-   * @param variableType
-   *          The code or description of the variable type
+   * @param variableType The code or description of the variable type
    * @return The variable type
    */
   public static final int getVariableType( String variableType ) {
     for ( int i = 0; i < variableTypeCode.length; i++ ) {
-      if ( variableTypeCode[i].equalsIgnoreCase( variableType ) ) {
+      if ( variableTypeCode[ i ].equalsIgnoreCase( variableType ) ) {
         return i;
       }
     }
     for ( int i = 0; i < variableTypeDesc.length; i++ ) {
-      if ( variableTypeDesc[i].equalsIgnoreCase( variableType ) ) {
+      if ( variableTypeDesc[ i ].equalsIgnoreCase( variableType ) ) {
         return i;
       }
     }
@@ -165,8 +155,7 @@ public class SetVariableMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param localVariable
-   *          The localVariable to set.
+   * @param localVariable The localVariable to set.
    */
   public void setVariableType( int[] localVariable ) {
     this.variableType = localVariable;
@@ -181,10 +170,10 @@ public class SetVariableMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int count ) {
-    fieldName = new String[count];
-    variableName = new String[count];
-    variableType = new int[count];
-    defaultValue = new String[count];
+    fieldName = new String[ count ];
+    variableName = new String[ count ];
+    variableType = new int[ count ];
+    defaultValue = new String[ count ];
   }
 
   public Object clone() {
@@ -211,10 +200,10 @@ public class SetVariableMeta extends BaseStepMeta implements StepMetaInterface {
       for ( int i = 0; i < count; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldName[i] = XMLHandler.getTagValue( fnode, "field_name" );
-        variableName[i] = XMLHandler.getTagValue( fnode, "variable_name" );
-        variableType[i] = getVariableType( XMLHandler.getTagValue( fnode, "variable_type" ) );
-        defaultValue[i] = XMLHandler.getTagValue( fnode, "default_value" );
+        fieldName[ i ] = XMLHandler.getTagValue( fnode, "field_name" );
+        variableName[ i ] = XMLHandler.getTagValue( fnode, "variable_name" );
+        variableType[ i ] = getVariableType( XMLHandler.getTagValue( fnode, "variable_type" ) );
+        defaultValue[ i ] = XMLHandler.getTagValue( fnode, "default_value" );
       }
 
       // Default to "N" for backward compatibility
@@ -232,10 +221,10 @@ public class SetVariableMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( count );
 
     for ( int i = 0; i < count; i++ ) {
-      fieldName[i] = "field" + i;
-      variableName[i] = "";
-      variableType[i] = VARIABLE_TYPE_JVM;
-      defaultValue[i] = "";
+      fieldName[ i ] = "field" + i;
+      variableName[ i ] = "";
+      variableType[ i ] = VARIABLE_TYPE_JVM;
+      defaultValue[ i ] = "";
     }
 
     usingFormatting = true;
@@ -248,11 +237,11 @@ public class SetVariableMeta extends BaseStepMeta implements StepMetaInterface {
 
     for ( int i = 0; i < fieldName.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field_name", fieldName[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "variable_name", variableName[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "field_name", fieldName[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "variable_name", variableName[ i ] ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( "variable_type", getVariableTypeCode( variableType[i] ) ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "default_value", defaultValue[i] ) );
+        XMLHandler.addTagValue( "variable_type", getVariableTypeCode( variableType[ i ] ) ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "default_value", defaultValue[ i ] ) );
       retval.append( "        </field>" ).append( Const.CR );
     }
     retval.append( "      </fields>" ).append( Const.CR );
@@ -263,8 +252,8 @@ public class SetVariableMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -293,7 +282,7 @@ public class SetVariableMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new SetVariable( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -309,8 +298,7 @@ public class SetVariableMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param usingFormatting
-   *          the usingFormatting to set
+   * @param usingFormatting the usingFormatting to set
    */
   public void setUsingFormatting( boolean usingFormatting ) {
     this.usingFormatting = usingFormatting;

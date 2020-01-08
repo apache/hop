@@ -38,13 +38,13 @@ package org.apache.hop.trans.steps.orabulkloader;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
@@ -122,7 +122,7 @@ public class OraBulkLoader extends BaseStep implements StepInterface {
   }
 
   public OraBulkLoader( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                        Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -191,9 +191,7 @@ public class OraBulkLoader extends BaseStep implements StepInterface {
   /**
    * Get the contents of the control file as specified in the meta object
    *
-   * @param meta
-   *          the meta object to model the control file after
-   *
+   * @param meta the meta object to model the control file after
    * @return a string containing the control file contents
    */
   public String getControlFileContents( OraBulkLoaderMeta meta, RowMetaInterface rm, Object[] r ) throws HopException {
@@ -244,10 +242,10 @@ public class OraBulkLoader extends BaseStep implements StepInterface {
     }
     contents
       .append( "INTO TABLE " ).append(
-        dm.getQuotedSchemaTableCombination(
-          environmentSubstitute( meta.getSchemaName() ), environmentSubstitute( meta.getTableName() ) ) )
+      dm.getQuotedSchemaTableCombination(
+        environmentSubstitute( meta.getSchemaName() ), environmentSubstitute( meta.getTableName() ) ) )
       .append( Const.CR ).append( loadAction ).append( Const.CR ).append(
-        "FIELDS TERMINATED BY ',' ENCLOSED BY '\"'" ).append( Const.CR ).append( "(" );
+      "FIELDS TERMINATED BY ',' ENCLOSED BY '\"'" ).append( Const.CR ).append( "(" );
 
     String[] streamFields = meta.getFieldStream();
     String[] tableFields = meta.getFieldTable();
@@ -261,11 +259,11 @@ public class OraBulkLoader extends BaseStep implements StepInterface {
       if ( i != 0 ) {
         contents.append( ", " ).append( Const.CR );
       }
-      contents.append( dm.quoteField( tableFields[i] ) );
+      contents.append( dm.quoteField( tableFields[ i ] ) );
 
-      int pos = rm.indexOfValue( streamFields[i] );
+      int pos = rm.indexOfValue( streamFields[ i ] );
       if ( pos < 0 ) {
-        throw new HopException( "Could not find field " + streamFields[i] + " in stream" );
+        throw new HopException( "Could not find field " + streamFields[ i ] + " in stream" );
       }
       ValueMetaInterface v = rm.getValueMeta( pos );
       switch ( v.getType() ) {
@@ -281,9 +279,9 @@ public class OraBulkLoader extends BaseStep implements StepInterface {
         case ValueMetaInterface.TYPE_BIGNUMBER:
           break;
         case ValueMetaInterface.TYPE_DATE:
-          if ( OraBulkLoaderMeta.DATE_MASK_DATE.equals( dateMask[i] ) ) {
+          if ( OraBulkLoaderMeta.DATE_MASK_DATE.equals( dateMask[ i ] ) ) {
             contents.append( " DATE 'yyyy-mm-dd'" );
-          } else if ( OraBulkLoaderMeta.DATE_MASK_DATETIME.equals( dateMask[i] ) ) {
+          } else if ( OraBulkLoaderMeta.DATE_MASK_DATETIME.equals( dateMask[ i ] ) ) {
             contents.append( " TIMESTAMP 'yyyy-mm-dd hh24:mi:ss.ff'" );
           } else {
             // If not specified the default is date.
@@ -309,7 +307,7 @@ public class OraBulkLoader extends BaseStep implements StepInterface {
    * Create a control file.
    *
    * @param filename path to control file
-   * @param meta step meta
+   * @param meta     step meta
    * @throws HopException
    */
   public void createControlFile( String filename, Object[] row, OraBulkLoaderMeta meta ) throws HopException {
@@ -338,15 +336,10 @@ public class OraBulkLoader extends BaseStep implements StepInterface {
   /**
    * Create the command line for an sqlldr process depending on the meta information supplied.
    *
-   * @param meta
-   *          The meta data to create the command line from
-   * @param password
-   *          Use the real password or not
-   *
+   * @param meta     The meta data to create the command line from
+   * @param password Use the real password or not
    * @return The string to execute.
-   *
-   * @throws HopException
-   *           Upon any exception
+   * @throws HopException Upon any exception
    */
   public String createCommandLine( OraBulkLoaderMeta meta, boolean password ) throws HopException {
     StringBuilder sb = new StringBuilder( 300 );
@@ -662,6 +655,7 @@ public class OraBulkLoader extends BaseStep implements StepInterface {
       }
     }
   }
+
   @VisibleForTesting
   String getFilename( FileObject fileObject ) {
     return HopVFS.getFilename( fileObject );

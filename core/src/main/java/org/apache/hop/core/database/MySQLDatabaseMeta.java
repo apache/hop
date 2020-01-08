@@ -23,7 +23,6 @@
 package org.apache.hop.core.database;
 
 import com.google.common.collect.Sets;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiElement;
@@ -35,7 +34,6 @@ import org.apache.hop.i18n.BaseMessages;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSetMetaData;
-
 import java.util.Set;
 
 /**
@@ -52,7 +50,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   private static final Class<?> PKG = MySQLDatabaseMeta.class;
 
   @GuiElement(
-    id="resultStreaming",
+    id = "resultStreaming",
     order = "10",
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.CHECKBOX,
@@ -68,7 +66,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
    */
   public boolean isResultStreaming() {
     String streaming = getAttributes().getProperty( ATTRIBUTE_USE_RESULT_STREAMING );
-    return "Y".equalsIgnoreCase(streaming);
+    return "Y".equalsIgnoreCase( streaming );
   }
 
   /**
@@ -102,8 +100,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   /**
    * Returns the minimal SQL to launch in order to determine the layout of the resultset for a given database table
    *
-   * @param tableName
-   *   The name of the table to determine the layout for
+   * @param tableName The name of the table to determine the layout for
    * @return The SQL to launch.
    */
   @Override public String getSQLQueryFields( String tableName ) {
@@ -193,49 +190,37 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   /**
    * Generates the SQL statement to add a column to the specified table
    *
-   * @param tablename
-   *   The table to add
-   * @param v
-   *   The column defined as a value
-   * @param tk
-   *   the name of the technical key field
-   * @param use_autoinc
-   *   whether or not this field uses auto increment
-   * @param pk
-   *   the name of the primary key field
-   * @param semicolon
-   *   whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                                 String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " ADD " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tablename
-   *   The table to add
-   * @param v
-   *   The column defined as a value
-   * @param tk
-   *   the name of the technical key field
-   * @param use_autoinc
-   *   whether or not this field uses auto increment
-   * @param pk
-   *   the name of the primary key field
-   * @param semicolon
-   *   whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk,
-    boolean use_autoinc, String pk, boolean semicolon ) {
+                                                    boolean use_autoinc, String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " MODIFY " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
   }
 
   @Override public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-    boolean add_fieldname, boolean add_cr ) {
+                                              boolean add_fieldname, boolean add_cr ) {
     String retval = "";
 
     String fieldname = v.getName();
@@ -385,8 +370,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   }
 
   /**
-   * @param tableNames
-   *   The names of the tables to lock
+   * @param tableNames The names of the tables to lock
    * @return The SQL command to lock database tables for write purposes.
    */
   @Override public String getSQLLockTables( String[] tableNames ) {
@@ -395,7 +379,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
       if ( i > 0 ) {
         sql += ", ";
       }
-      sql += tableNames[i] + " WRITE";
+      sql += tableNames[ i ] + " WRITE";
     }
     sql += ";" + Const.CR;
 
@@ -403,8 +387,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   }
 
   /**
-   * @param tableName
-   *   The name of the table to unlock
+   * @param tableName The name of the table to unlock
    * @return The SQL command to unlock a database table.
    */
   @Override public String getSQLUnlockTables( String[] tableName ) {
@@ -439,16 +422,13 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   /**
    * Get the SQL to insert a new empty unknown record in a dimension.
    *
-   * @param schemaTable
-   *   the schema-table name to insert into
-   * @param keyField
-   *   The key field
-   * @param versionField
-   *   the version field
+   * @param schemaTable  the schema-table name to insert into
+   * @param keyField     The key field
+   * @param versionField the version field
    * @return the SQL to insert the unknown record into the SCD.
    */
   @Override public String getSQLInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField,
-    String versionField ) {
+                                                                  String versionField ) {
     return "insert into " + schemaTable + "(" + keyField + ", " + versionField + ") values (1, 1)";
   }
 

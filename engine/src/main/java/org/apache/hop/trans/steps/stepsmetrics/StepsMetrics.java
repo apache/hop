@@ -22,16 +22,11 @@
 
 package org.apache.hop.trans.steps.stepsmetrics;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -41,6 +36,11 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Ouptu step metrics
@@ -58,7 +58,7 @@ public class StepsMetrics extends BaseStep implements StepInterface {
   public HashSet<StepInterface> stepInterfaces;
 
   public StepsMetrics( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                       Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -94,25 +94,25 @@ public class StepsMetrics extends BaseStep implements StepInterface {
       data.stepInterfaces = new ConcurrentHashMap<Integer, StepInterface>();
       for ( int i = 0; i < stepnrs; i++ ) {
         // We can not get metrics from current step
-        if ( stepnames[i].equals( getStepname() ) ) {
-          throw new HopException( "You can not get metrics for the current step [" + stepnames[i] + "]!" );
+        if ( stepnames[ i ].equals( getStepname() ) ) {
+          throw new HopException( "You can not get metrics for the current step [" + stepnames[ i ] + "]!" );
         }
         if ( targetSteps != null ) {
           // We can not metrics from the target steps
           for ( int j = 0; j < targetSteps.length; j++ ) {
-            if ( stepnames[i].equals( targetSteps[j] ) ) {
-              throw new HopException( "You can not get metrics for the target step [" + targetSteps[j] + "]!" );
+            if ( stepnames[ i ].equals( targetSteps[ j ] ) ) {
+              throw new HopException( "You can not get metrics for the target step [" + targetSteps[ j ] + "]!" );
             }
           }
         }
 
-        int CopyNr = Const.toInt( meta.getStepCopyNr()[i], 0 );
-        StepInterface si = getTrans().getStepInterface( stepnames[i], CopyNr );
+        int CopyNr = Const.toInt( meta.getStepCopyNr()[ i ], 0 );
+        StepInterface si = getTrans().getStepInterface( stepnames[ i ], CopyNr );
         if ( si != null ) {
-          data.stepInterfaces.put( i, getDispatcher().findBaseSteps( stepnames[i] ).get( CopyNr ) );
+          data.stepInterfaces.put( i, getDispatcher().findBaseSteps( stepnames[ i ] ).get( CopyNr ) );
         } else {
-          if ( meta.getStepRequired()[i].equals( StepsMetricsMeta.YES ) ) {
-            throw new HopException( "We cannot get step [" + stepnames[i] + "] CopyNr=" + CopyNr + "!" );
+          if ( meta.getStepRequired()[ i ].equals( StepsMetricsMeta.YES ) ) {
+            throw new HopException( "We cannot get step [" + stepnames[ i ] + "] CopyNr=" + CopyNr + "!" );
           }
         }
       }
@@ -149,31 +149,31 @@ public class StepsMetrics extends BaseStep implements StepInterface {
           // step finished
           // output step metrics
           if ( !Utils.isEmpty( data.realstepnamefield ) ) {
-            rowData[index++] = step.getStepname();
+            rowData[ index++ ] = step.getStepname();
           }
           if ( !Utils.isEmpty( data.realstepidfield ) ) {
-            rowData[index++] = step.getStepID();
+            rowData[ index++ ] = step.getStepID();
           }
           if ( !Utils.isEmpty( data.realsteplinesinputfield ) ) {
-            rowData[index++] = step.getLinesInput();
+            rowData[ index++ ] = step.getLinesInput();
           }
           if ( !Utils.isEmpty( data.realsteplinesoutputfield ) ) {
-            rowData[index++] = step.getLinesOutput();
+            rowData[ index++ ] = step.getLinesOutput();
           }
           if ( !Utils.isEmpty( data.realsteplinesreadfield ) ) {
-            rowData[index++] = step.getLinesRead();
+            rowData[ index++ ] = step.getLinesRead();
           }
           if ( !Utils.isEmpty( data.realsteplinesupdatedfield ) ) {
-            rowData[index++] = step.getLinesUpdated();
+            rowData[ index++ ] = step.getLinesUpdated();
           }
           if ( !Utils.isEmpty( data.realsteplineswrittentfield ) ) {
-            rowData[index++] = step.getLinesWritten();
+            rowData[ index++ ] = step.getLinesWritten();
           }
           if ( !Utils.isEmpty( data.realsteplineserrorsfield ) ) {
-            rowData[index++] = step.getLinesRejected();
+            rowData[ index++ ] = step.getLinesRejected();
           }
           if ( !Utils.isEmpty( data.realstepsecondsfield ) ) {
-            rowData[index++] = step.getRuntime();
+            rowData[ index++ ] = step.getRuntime();
           }
 
           // Send row to the buffer

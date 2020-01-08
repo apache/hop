@@ -22,10 +22,10 @@
 
 package org.apache.hop.core.variables;
 
-import java.util.Map;
-
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowMetaInterface;
+
+import java.util.Map;
 
 /**
  * Interface to implement variable sensitive objects.
@@ -36,11 +36,10 @@ public interface VariableSpace {
   /**
    * Initialize variable space using the defaults, copy over the variables from the parent (using copyVariablesFrom()),
    * after this the "injected" variables should be inserted (injectVariables()).
-   *
+   * <p>
    * The parent is set as parent variable space.
    *
-   * @param parent
-   *          the parent to start from, or null if root.
+   * @param parent the parent to start from, or null if root.
    */
   void initializeVariablesFrom( VariableSpace parent );
 
@@ -48,8 +47,7 @@ public interface VariableSpace {
    * Copy the variables from another space, without initializing with the defaults. This does not affect any parent
    * relationship.
    *
-   * @param space
-   *          the space to copy the variables from.
+   * @param space the space to copy the variables from.
    */
   void copyVariablesFrom( VariableSpace space );
 
@@ -57,8 +55,7 @@ public interface VariableSpace {
    * Share a variable space from another variable space. This means that the object should take over the space used as
    * argument.
    *
-   * @param space
-   *          Variable space to be shared.
+   * @param space Variable space to be shared.
    */
   void shareVariablesWith( VariableSpace space );
 
@@ -72,28 +69,23 @@ public interface VariableSpace {
   /**
    * Set the parent variable space
    *
-   * @param parent
-   *          The parent variable space to set
+   * @param parent The parent variable space to set
    */
   void setParentVariableSpace( VariableSpace parent );
 
   /**
    * Sets a variable in the Hop Variables list.
    *
-   * @param variableName
-   *          The name of the variable to set
-   * @param variableValue
-   *          The value of the variable to set. If the variableValue is null, the variable is cleared from the list.
+   * @param variableName  The name of the variable to set
+   * @param variableValue The value of the variable to set. If the variableValue is null, the variable is cleared from the list.
    */
   void setVariable( String variableName, String variableValue );
 
   /**
    * Get the value of a variable with a default in case the variable is not found.
    *
-   * @param variableName
-   *          The name of the variable
-   * @param defaultValue
-   *          The default value in case the variable could not be found
+   * @param variableName The name of the variable
+   * @param defaultValue The default value in case the variable could not be found
    * @return the String value of a variable
    */
   String getVariable( String variableName, String defaultValue );
@@ -101,8 +93,7 @@ public interface VariableSpace {
   /**
    * Get the value of a variable.
    *
-   * @param variableName
-   *          The name of the variable
+   * @param variableName The name of the variable
    * @return the String value of a variable or null in case the variable could not be found.
    */
   String getVariable( String variableName );
@@ -112,13 +103,10 @@ public interface VariableSpace {
    * name is not specified, this method simply returns the default value. If not, it convert the variable value to a
    * boolean. "Y", "YES" and "TRUE" all convert to true. (case insensitive)
    *
-   * @see also static method ValueMeta.convertStringToBoolean()
-   *
-   * @param variableName
-   *          The variable to look up.
-   * @param defaultValue
-   *          The default value to return.
+   * @param variableName The variable to look up.
+   * @param defaultValue The default value to return.
    * @return
+   * @see also static method ValueMeta.convertStringToBoolean()
    */
   boolean getBooleanValueOfVariable( String variableName, boolean defaultValue );
 
@@ -132,20 +120,17 @@ public interface VariableSpace {
   /**
    * Substitute the string using the current variable space.
    *
-   * @param aString
-   *          The string to substitute.
-   *
+   * @param aString The string to substitute.
    * @return The substituted string.
    */
   String environmentSubstitute( String aString );
 
   /**
    * Replaces environment variables in an array of strings.
-   *
+   * <p>
    * See also: environmentSubstitute(String string)
    *
-   * @param string
-   *          The array of strings that wants its variables to be replaced.
+   * @param string The array of strings that wants its variables to be replaced.
    * @return the array with the environment variables replaced.
    */
   public String[] environmentSubstitute( String[] string );
@@ -155,8 +140,7 @@ public interface VariableSpace {
    * VariableSpace is initialized (or upon calling this method if the space is already initialized). After injecting the
    * link of the properties object should be removed.
    *
-   * @param prop
-   *          Properties object containing key-value pairs.
+   * @param prop Properties object containing key-value pairs.
    */
   void injectVariables( Map<String, String> prop );
 
@@ -165,16 +149,11 @@ public interface VariableSpace {
    * retrieved from the specified row. Please note that the getString() method is used to convert to a String, for all
    * values in the row.
    *
-   * @param aString
-   *          the string on which to apply the substitution.
-   * @param rowMeta
-   *          The row metadata to use.
-   * @param rowData
-   *          The row data to use
-   *
+   * @param aString the string on which to apply the substitution.
+   * @param rowMeta The row metadata to use.
+   * @param rowData The row data to use
    * @return the string with the substitution applied.
-   * @throws HopValueException
-   *           In case there is a String conversion error
+   * @throws HopValueException In case there is a String conversion error
    */
   public String fieldSubstitute( String aString, RowMetaInterface rowMeta, Object[] rowData ) throws HopValueException;
 }

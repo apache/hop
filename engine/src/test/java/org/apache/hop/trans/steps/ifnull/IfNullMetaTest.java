@@ -21,18 +21,7 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.ifnull;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.ifnull.IfNullMeta.Fields;
@@ -43,6 +32,17 @@ import org.apache.hop.trans.steps.loadsave.validator.BooleanLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class IfNullMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -52,8 +52,8 @@ public class IfNullMetaTest {
   @Before
   public void setUp() throws Exception {
     List<String> attributes =
-        Arrays.asList( "fields", "valueTypes", "selectFields", "selectValuesType", "replaceAllByValue",
-            "replaceAllMask", "setEmptyStringAll" );
+      Arrays.asList( "fields", "valueTypes", "selectFields", "selectValuesType", "replaceAllByValue",
+        "replaceAllMask", "setEmptyStringAll" );
 
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
@@ -79,7 +79,7 @@ public class IfNullMetaTest {
       }
     };
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 3 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 3 );
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "fieldName", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "replaceValue", stringArrayLoadSaveValidator );
@@ -90,7 +90,7 @@ public class IfNullMetaTest {
 
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     typeValidatorMap.put( boolean[].class.getCanonicalName(), new PrimitiveBooleanArrayLoadSaveValidator(
-        new BooleanLoadSaveValidator(), 3 ) );
+      new BooleanLoadSaveValidator(), 3 ) );
 
     Fields field = new Fields();
     field.setFieldName( "fieldName" );
@@ -98,7 +98,7 @@ public class IfNullMetaTest {
     field.setReplaceMask( "replaceMask" );
     field.setEmptyString( true );
     typeValidatorMap.put( Fields[].class.getCanonicalName(), new ArrayLoadSaveValidator<Fields>(
-        new FieldsLoadSaveValidator( field ), 3 ) );
+      new FieldsLoadSaveValidator( field ), 3 ) );
 
     ValueTypes type = new ValueTypes();
     type.setTypeName( "typeName" );
@@ -106,10 +106,10 @@ public class IfNullMetaTest {
     type.setTypereplaceMask( "typereplaceMask" );
     type.setTypeEmptyString( true );
     typeValidatorMap.put( ValueTypes[].class.getCanonicalName(), new ArrayLoadSaveValidator<ValueTypes>(
-        new ValueTypesLoadSaveValidator( type ), 3 ) );
+      new ValueTypesLoadSaveValidator( type ), 3 ) );
 
     loadSaveTester =
-        new LoadSaveTester( IfNullMeta.class, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
+      new LoadSaveTester( IfNullMeta.class, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
   }
 
   @Test

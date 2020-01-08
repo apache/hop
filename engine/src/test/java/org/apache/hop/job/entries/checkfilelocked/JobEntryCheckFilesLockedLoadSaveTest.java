@@ -22,16 +22,16 @@
 package org.apache.hop.job.entries.checkfilelocked;
 
 
-import org.junit.ClassRule;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-
-import java.util.List;
+import org.junit.ClassRule;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class JobEntryCheckFilesLockedLoadSaveTest extends JobEntryLoadSaveTestSupport<JobEntryCheckFilesLocked> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Override protected Class<JobEntryCheckFilesLocked> getJobEntryClass() {
     return JobEntryCheckFilesLocked.class;
   }

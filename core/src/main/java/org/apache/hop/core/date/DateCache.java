@@ -33,7 +33,6 @@ import java.util.Map;
 
 /**
  * @deprecated This class is not used within PDI
- *
  */
 @Deprecated
 public class DateCache {

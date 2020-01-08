@@ -22,15 +22,14 @@
 
 package org.apache.hop.trans.steps.numberrange;
 
-import java.util.List;
-
 import org.apache.hop.core.exception.HopException;
+
+import java.util.List;
 
 /**
  * This class assigns numbers into ranges
  *
  * @author ronny.roeller@fredhopper.com
- *
  */
 public class NumberRangeSet {
 

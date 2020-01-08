@@ -21,18 +21,7 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.ldapinput;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -43,6 +32,17 @@ import org.apache.hop.trans.steps.loadsave.initializer.InitializerInterface;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.IntLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 public class LDAPInputMetaTest implements InitializerInterface<StepMetaInterface> {
   LoadSaveTester loadSaveTester;
@@ -54,10 +54,10 @@ public class LDAPInputMetaTest implements InitializerInterface<StepMetaInterface
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "useAuthentication", "paging", "pageSize", "includeRowNumber", "rowNumberField", "rowLimit", "Host", "userName",
-            "password", "port", "filterString", "searchBase", "timeLimit", "multiValuedSeparator", "dynamicSearch", "dynamicSearchFieldName",
-            "dynamicFilter", "dynamicFilterFieldName", "searchScope", "protocol", "useCertificate", "trustStorePath", "trustStorePassword",
-            "trustAllCertificates", "inputFields" );
+      Arrays.asList( "useAuthentication", "paging", "pageSize", "includeRowNumber", "rowNumberField", "rowLimit", "Host", "userName",
+        "password", "port", "filterString", "searchBase", "timeLimit", "multiValuedSeparator", "dynamicSearch", "dynamicSearchFieldName",
+        "dynamicFilter", "dynamicFilterFieldName", "searchScope", "protocol", "useCertificate", "trustStorePath", "trustStorePassword",
+        "trustAllCertificates", "inputFields" );
 
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
@@ -70,14 +70,14 @@ public class LDAPInputMetaTest implements InitializerInterface<StepMetaInterface
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "inputFields",
-        new ArrayLoadSaveValidator<LDAPInputField>( new LDAPInputFieldLoadSaveValidator(), 5 ) );
+      new ArrayLoadSaveValidator<LDAPInputField>( new LDAPInputFieldLoadSaveValidator(), 5 ) );
     attrValidatorMap.put( "searchScope", new IntLoadSaveValidator( LDAPInputMeta.searchScopeCode.length ) );
 
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
-            getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class
@@ -96,6 +96,7 @@ public class LDAPInputMetaTest implements InitializerInterface<StepMetaInterface
 
   public class LDAPInputFieldLoadSaveValidator implements FieldLoadSaveValidator<LDAPInputField> {
     final Random rand = new Random();
+
     @Override
     public LDAPInputField getTestObject() {
       LDAPInputField rtn = new LDAPInputField();
@@ -122,20 +123,20 @@ public class LDAPInputMetaTest implements InitializerInterface<StepMetaInterface
       }
       LDAPInputField another = (LDAPInputField) actual;
       return new EqualsBuilder()
-          .append( testObject.getName(), another.getName() )
-          .append( testObject.getAttribute(), another.getAttribute() )
-          .append( testObject.getReturnType(), another.getReturnType() )
-          .append( testObject.getType(), another.getType() )
-          .append( testObject.getLength(), another.getLength() )
-          .append( testObject.getFormat(), another.getFormat() )
-          .append( testObject.getTrimType(), another.getTrimType() )
-          .append( testObject.getPrecision(), another.getPrecision() )
-          .append( testObject.getCurrencySymbol(), another.getCurrencySymbol() )
-          .append( testObject.getDecimalSymbol(), another.getDecimalSymbol() )
-          .append( testObject.getGroupSymbol(), another.getGroupSymbol() )
-          .append( testObject.isRepeated(), another.isRepeated() )
-          .append( testObject.isSortedKey(), another.isSortedKey() )
-      .isEquals();
+        .append( testObject.getName(), another.getName() )
+        .append( testObject.getAttribute(), another.getAttribute() )
+        .append( testObject.getReturnType(), another.getReturnType() )
+        .append( testObject.getType(), another.getType() )
+        .append( testObject.getLength(), another.getLength() )
+        .append( testObject.getFormat(), another.getFormat() )
+        .append( testObject.getTrimType(), another.getTrimType() )
+        .append( testObject.getPrecision(), another.getPrecision() )
+        .append( testObject.getCurrencySymbol(), another.getCurrencySymbol() )
+        .append( testObject.getDecimalSymbol(), another.getDecimalSymbol() )
+        .append( testObject.getGroupSymbol(), another.getGroupSymbol() )
+        .append( testObject.isRepeated(), another.isRepeated() )
+        .append( testObject.isSortedKey(), another.isSortedKey() )
+        .isEquals();
     }
   }
 }

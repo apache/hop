@@ -22,20 +22,16 @@
 
 package org.apache.hop.trans.steps.blockuntilstepsfinish;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMeta.TransformationType;
@@ -44,8 +40,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*
  * Created on 30-06-2008
@@ -55,7 +52,9 @@ import org.w3c.dom.Node;
 public class BlockUntilStepsFinishMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = BlockUntilStepsFinishMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** by which steps to display? */
+  /**
+   * by which steps to display?
+   */
   private String[] stepName;
   private String[] stepCopyNr;
 
@@ -79,8 +78,8 @@ public class BlockUntilStepsFinishMeta extends BaseStepMeta implements StepMetaI
   }
 
   public void allocate( int nrfields ) {
-    stepName = new String[nrfields];
-    stepCopyNr = new String[nrfields];
+    stepName = new String[ nrfields ];
+    stepCopyNr = new String[ nrfields ];
   }
 
   /**
@@ -98,23 +97,21 @@ public class BlockUntilStepsFinishMeta extends BaseStepMeta implements StepMetaI
   }
 
   /**
-   * @param stepName
-   *          The stepName to set.
+   * @param stepName The stepName to set.
    */
   public void setStepName( String[] stepName ) {
     this.stepName = stepName;
   }
 
   /**
-   * @param stepCopyNr
-   *          The stepCopyNr to set.
+   * @param stepCopyNr The stepCopyNr to set.
    */
   public void setStepCopyNr( String[] stepCopyNr ) {
     this.stepCopyNr = stepCopyNr;
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
   }
 
@@ -127,8 +124,8 @@ public class BlockUntilStepsFinishMeta extends BaseStepMeta implements StepMetaI
 
       for ( int i = 0; i < nrsteps; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( steps, "step", i );
-        stepName[i] = XMLHandler.getTagValue( fnode, "name" );
-        stepCopyNr[i] = XMLHandler.getTagValue( fnode, "CopyNr" );
+        stepName[ i ] = XMLHandler.getTagValue( fnode, "name" );
+        stepCopyNr[ i ] = XMLHandler.getTagValue( fnode, "CopyNr" );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( "Unable to load step info from XML", e );
@@ -141,8 +138,8 @@ public class BlockUntilStepsFinishMeta extends BaseStepMeta implements StepMetaI
     retval.append( "    <steps>" + Const.CR );
     for ( int i = 0; i < stepName.length; i++ ) {
       retval.append( "      <step>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", stepName[i] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "CopyNr", stepCopyNr[i] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "name", stepName[ i ] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "CopyNr", stepCopyNr[ i ] ) );
 
       retval.append( "        </step>" + Const.CR );
     }
@@ -157,14 +154,14 @@ public class BlockUntilStepsFinishMeta extends BaseStepMeta implements StepMetaI
     allocate( nrsteps );
 
     for ( int i = 0; i < nrsteps; i++ ) {
-      stepName[i] = "step" + i;
-      stepCopyNr[i] = "CopyNr" + i;
+      stepName[ i ] = "step" + i;
+      stepCopyNr[ i ] = "CopyNr" + i;
     }
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( prev == null || prev.size() == 0 ) {
@@ -200,7 +197,7 @@ public class BlockUntilStepsFinishMeta extends BaseStepMeta implements StepMetaI
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new BlockUntilStepsFinish( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 

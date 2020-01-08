@@ -22,15 +22,14 @@
 
 package org.apache.hop.trans.steps.mail;
 
-import java.util.HashSet;
-import java.util.Properties;
-
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMultipart;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMultipart;
+import java.util.HashSet;
+import java.util.Properties;
 
 /**
  * Send mail step. based on Mail job entry

@@ -51,7 +51,7 @@ public class SetValueConstant extends BaseStep implements StepInterface {
   private SetValueConstantData data;
 
   public SetValueConstant( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                           Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -84,21 +84,21 @@ public class SetValueConstant extends BaseStep implements StepInterface {
       List<SetValueConstantMeta.Field> fields = meta.getFields();
       int size = fields.size();
       if ( !Utils.isEmpty( fields ) ) {
-        data.setFieldnrs( new int[size] );
-        data.setRealReplaceByValues( new String[size] );
+        data.setFieldnrs( new int[ size ] );
+        data.setRealReplaceByValues( new String[ size ] );
         for ( int i = 0; i < size; i++ ) {
           // Check if this field was specified only one time
           final SetValueConstantMeta.Field check = fields.get( i );
           for ( SetValueConstantMeta.Field field : fields ) {
             if ( field.getFieldName() != null && field != check && field.getFieldName().equalsIgnoreCase( check.getFieldName() ) ) {
               throw new HopException( BaseMessages.getString( PKG, "SetValueConstant.Log"
-                      + ".FieldSpecifiedMoreThatOne", check.getFieldName() ) );
+                + ".FieldSpecifiedMoreThatOne", check.getFieldName() ) );
             }
           }
 
-          data.getFieldnrs()[i] = data.getOutputRowMeta().indexOfValue( meta.getField( i ).getFieldName() );
+          data.getFieldnrs()[ i ] = data.getOutputRowMeta().indexOfValue( meta.getField( i ).getFieldName() );
 
-          if ( data.getFieldnrs()[i] < 0 ) {
+          if ( data.getFieldnrs()[ i ] < 0 ) {
             logError( BaseMessages.getString( PKG, "SetValueConstant.Log.CanNotFindField", meta.getField( i ).getFieldName() ) );
             throw new HopException( BaseMessages.getString( PKG, "SetValueConstant.Log.CanNotFindField", meta
               .getField( i ).getFieldName() ) );
@@ -106,13 +106,13 @@ public class SetValueConstant extends BaseStep implements StepInterface {
 
           if ( meta.getField( i ).isEmptyString() ) {
             // Just set empty string
-            data.getRealReplaceByValues()[i] = StringUtil.EMPTY_STRING;
+            data.getRealReplaceByValues()[ i ] = StringUtil.EMPTY_STRING;
           } else {
             // set specified value
             if ( meta.isUseVars() ) {
-              data.getRealReplaceByValues()[i] = environmentSubstitute( meta.getField( i ).getReplaceValue() );
+              data.getRealReplaceByValues()[ i ] = environmentSubstitute( meta.getField( i ).getReplaceValue() );
             } else {
-              data.getRealReplaceByValues()[i] = meta.getField( i ).getReplaceValue();
+              data.getRealReplaceByValues()[ i ] = meta.getField( i ).getReplaceValue();
             }
           }
         }
@@ -147,15 +147,15 @@ public class SetValueConstant extends BaseStep implements StepInterface {
     for ( int i = 0; i < data.getFieldnr(); i++ ) {
       // DO CONVERSION OF THE DEFAULT VALUE ...
       // Entered by user
-      ValueMetaInterface targetValueMeta = data.getOutputRowMeta().getValueMeta( data.getFieldnrs()[i] );
-      ValueMetaInterface sourceValueMeta = data.getConvertRowMeta().getValueMeta( data.getFieldnrs()[i] );
+      ValueMetaInterface targetValueMeta = data.getOutputRowMeta().getValueMeta( data.getFieldnrs()[ i ] );
+      ValueMetaInterface sourceValueMeta = data.getConvertRowMeta().getValueMeta( data.getFieldnrs()[ i ] );
 
       if ( !Utils.isEmpty( meta.getField( i ).getReplaceMask() ) ) {
         sourceValueMeta.setConversionMask( meta.getField( i ).getReplaceMask() );
       }
 
       sourceValueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
-      r[data.getFieldnrs()[i]] = targetValueMeta.convertData( sourceValueMeta, data.getRealReplaceByValues()[i] );
+      r[ data.getFieldnrs()[ i ] ] = targetValueMeta.convertData( sourceValueMeta, data.getRealReplaceByValues()[ i ] );
       targetValueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
     }
   }

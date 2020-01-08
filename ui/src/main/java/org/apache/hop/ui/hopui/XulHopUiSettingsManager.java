@@ -22,10 +22,10 @@
 
 package org.apache.hop.ui.hopui;
 
-import java.io.IOException;
-
 import org.apache.hop.ui.core.PropsUI;
 import org.pentaho.ui.xul.XulSettingsManager;
+
+import java.io.IOException;
 
 public class XulHopUiSettingsManager implements XulSettingsManager {
   private static XulHopUiSettingsManager instance = new XulHopUiSettingsManager();

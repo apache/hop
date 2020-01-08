@@ -23,10 +23,7 @@
 package org.apache.hop.trans.steps.mapping;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XMLHandler;
-
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 /**
@@ -37,7 +34,6 @@ import org.w3c.dom.Node;
  * @author matt
  * @version 3.0
  * @since 2007-06-27
- *
  */
 public class MappingParameters implements Cloneable {
 
@@ -45,13 +41,19 @@ public class MappingParameters implements Cloneable {
 
   private static final String XML_VARIABLES_TAG = "variablemapping";
 
-  /** The name of the variable to set in the sub-transformation */
+  /**
+   * The name of the variable to set in the sub-transformation
+   */
   private String[] variable;
 
-  /** This is a simple String with optionally variables in them **/
+  /**
+   * This is a simple String with optionally variables in them
+   **/
   private String[] input;
 
-  /** This flag causes the sub-transformation to inherit all variables from the parent */
+  /**
+   * This flag causes the sub-transformation to inherit all variables from the parent
+   */
   private boolean inheritingAllVariables;
 
   public MappingParameters() {
@@ -75,14 +77,14 @@ public class MappingParameters implements Cloneable {
   public MappingParameters( Node paramNode ) {
 
     int nrVariables = XMLHandler.countNodes( paramNode, XML_VARIABLES_TAG );
-    variable = new String[nrVariables];
-    input = new String[nrVariables];
+    variable = new String[ nrVariables ];
+    input = new String[ nrVariables ];
 
     for ( int i = 0; i < variable.length; i++ ) {
       Node variableMappingNode = XMLHandler.getSubNodeByNr( paramNode, XML_VARIABLES_TAG, i );
 
-      variable[i] = XMLHandler.getTagValue( variableMappingNode, "variable" );
-      input[i] = XMLHandler.getTagValue( variableMappingNode, "input" );
+      variable[ i ] = XMLHandler.getTagValue( variableMappingNode, "variable" );
+      input[ i ] = XMLHandler.getTagValue( variableMappingNode, "input" );
     }
 
     inheritingAllVariables = "Y".equalsIgnoreCase( XMLHandler.getTagValue( paramNode, "inherit_all_vars" ) );
@@ -95,8 +97,8 @@ public class MappingParameters implements Cloneable {
 
     for ( int i = 0; i < variable.length; i++ ) {
       xml.append( "       " ).append( XMLHandler.openTag( XML_VARIABLES_TAG ) );
-      xml.append( XMLHandler.addTagValue( "variable", variable[i], false ) );
-      xml.append( XMLHandler.addTagValue( "input", input[i], false ) );
+      xml.append( XMLHandler.addTagValue( "variable", variable[ i ], false ) );
+      xml.append( XMLHandler.addTagValue( "input", input[ i ], false ) );
       xml.append( XMLHandler.closeTag( XML_VARIABLES_TAG ) ).append( Const.CR );
     }
     xml.append( "    " ).append( XMLHandler.addTagValue( "inherit_all_vars", inheritingAllVariables ) );
@@ -113,8 +115,7 @@ public class MappingParameters implements Cloneable {
   }
 
   /**
-   * @param inputField
-   *          the inputField to set
+   * @param inputField the inputField to set
    */
   public void setInputField( String[] inputField ) {
     this.input = inputField;
@@ -128,8 +129,7 @@ public class MappingParameters implements Cloneable {
   }
 
   /**
-   * @param variable
-   *          the variable to set
+   * @param variable the variable to set
    */
   public void setVariable( String[] variable ) {
     this.variable = variable;
@@ -143,8 +143,7 @@ public class MappingParameters implements Cloneable {
   }
 
   /**
-   * @param inheritingAllVariables
-   *          the inheritingAllVariables to set
+   * @param inheritingAllVariables the inheritingAllVariables to set
    */
   public void setInheritingAllVariables( boolean inheritingAllVariables ) {
     this.inheritingAllVariables = inheritingAllVariables;

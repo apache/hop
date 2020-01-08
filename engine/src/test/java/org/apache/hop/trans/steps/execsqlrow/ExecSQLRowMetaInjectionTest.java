@@ -22,21 +22,14 @@
 
 package org.apache.hop.trans.steps.execsqlrow;
 
-import org.apache.hop.metastore.persist.MetaStoreFactory;
-import org.apache.hop.metastore.util.HopDefaults;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ExecSQLRowMetaInjectionTest extends BaseMetadataInjectionTest<ExecSQLRowMeta> {
 
@@ -98,9 +91,9 @@ public class ExecSQLRowMetaInjectionTest extends BaseMetadataInjectionTest<ExecS
 
     skipPropertyTest( "CONNECTION_NAME" );
 
-    DatabaseMeta dbMeta = new DatabaseMeta("testDBMeta", "MySQL", "Native", "localhost", "test", "3306", "user", "password");
+    DatabaseMeta dbMeta = new DatabaseMeta( "testDBMeta", "MySQL", "Native", "localhost", "test", "3306", "user", "password" );
     DatabaseMeta.createFactory( metaStore ).saveElement( dbMeta );
-    meta.setMetaStore(metaStore);
+    meta.setMetaStore( metaStore );
 
     ValueMetaInterface valueMeta = new ValueMetaString( "DBMETA" );
     injector.setProperty( meta, "CONNECTION_NAME", setValue( valueMeta, "testDBMeta" ), "DBMETA" );

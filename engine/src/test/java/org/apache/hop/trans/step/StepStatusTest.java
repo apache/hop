@@ -32,6 +32,6 @@ public class StepStatusTest {
     StepStatus status = new StepStatus();
     status.setStatusDescription( "Empty" );
     String[] overrides = status.getTransLogFields( "Override" );
-    assertEquals( "Override", overrides[10] );
+    assertEquals( "Override", overrides[ 10 ] );
   }
 }

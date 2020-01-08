@@ -23,13 +23,13 @@
 package org.apache.hop.ui.xul;
 
 import org.apache.commons.io.IOUtils;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.SwtUniversalImageSvg;
 import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.core.svg.SvgSupport;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.pentaho.ui.xul.XulDomContainer;
 
 import java.io.IOException;
@@ -63,9 +63,9 @@ public class HopImageUtil {
         SvgImage svg = SvgSupport.loadSvgImage( in );
         SwtUniversalImage image = new SwtUniversalImageSvg( svg );
 
-        Image[] result = new Image[IMAGE_SIZES.length];
+        Image[] result = new Image[ IMAGE_SIZES.length ];
         for ( int i = 0; i < IMAGE_SIZES.length; i++ ) {
-          result[i] = image.getAsBitmapForSize( d, IMAGE_SIZES[i], IMAGE_SIZES[i] );
+          result[ i ] = image.getAsBitmapForSize( d, IMAGE_SIZES[ i ], IMAGE_SIZES[ i ] );
         }
         return result;
       } catch ( Throwable ignored ) {

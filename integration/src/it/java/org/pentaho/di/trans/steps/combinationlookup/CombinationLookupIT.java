@@ -22,15 +22,8 @@
 
 package org.apache.hop.trans.steps.combinationlookup;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
-import java.sql.ResultSet;
-
+import junit.framework.TestCase;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Assert;
-import org.junit.Before;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.SQLStatement;
@@ -44,14 +37,20 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransHopMeta;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.tableinput.TableInputMeta;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.junit.Assert;
+import org.junit.Before;
 
-import junit.framework.TestCase;
+import java.sql.ResultSet;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * Test class for combination lookup/update. HSQL is used as database in memory to get an easy playground for database
@@ -101,14 +100,14 @@ public class CombinationLookupIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    {
-      new ValueMetaInteger( "ID", 8, 0 ),
-      new ValueMetaString( "DLR_CD", 8, 0 ),
-      new ValueMetaString( "DLR_NM", 30, 0 ),
-      new ValueMetaString( "DLR_DESC", 30, 0 ), };
+      {
+        new ValueMetaInteger( "ID", 8, 0 ),
+        new ValueMetaString( "DLR_CD", 8, 0 ),
+        new ValueMetaString( "DLR_NM", 30, 0 ),
+        new ValueMetaString( "DLR_DESC", 30, 0 ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -118,14 +117,14 @@ public class CombinationLookupIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    {
-      new ValueMetaInteger( "ORDNO", 8, 0 ),
-      new ValueMetaString( "DLR_CD", 8, 0 ),
-      new ValueMetaString( "DLR_NM", 30, 0 ),
-      new ValueMetaString( "DLR_DESC", 30, 0 ), };
+      {
+        new ValueMetaInteger( "ORDNO", 8, 0 ),
+        new ValueMetaString( "DLR_CD", 8, 0 ),
+        new ValueMetaString( "DLR_NM", 30, 0 ),
+        new ValueMetaString( "DLR_DESC", 30, 0 ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -155,26 +154,24 @@ public class CombinationLookupIT extends TestCase {
   /**
    * Insert data in the source table.
    *
-   * @param db
-   *          database to use.
+   * @param db database to use.
    */
   private void createData( Database db ) throws Exception {
     for ( int idx = 0; idx < insertStatement.length; idx++ ) {
-      db.execStatement( insertStatement[idx] );
+      db.execStatement( insertStatement[ idx ] );
     }
   }
 
   /**
    * Check the results in the target dimension table.
    *
-   * @param db
-   *          database to use.
+   * @param db database to use.
    */
   public void checkResults( Database db ) throws Exception {
     String query = "SELECT ID, DLR_CD, DLR_NM, DLR_DESC FROM " + target_table + " ORDER BY ID";
 
     String[] correctResults =
-    { "1|BE010001|null|null", "2|BE010002|null|null", "3|DE010003|null|null", "4|DE010004|null|null", };
+      { "1|BE010001|null|null", "2|BE010002|null|null", "3|DE010003|null|null", "4|DE010004|null|null", };
 
     ResultSet rs = db.openQuery( query );
     int idx = 0;
@@ -187,7 +184,7 @@ public class CombinationLookupIT extends TestCase {
       if ( idx > correctResults.length ) {
         fail( "more rows returned than expected" );
       }
-      if ( !result.equals( correctResults[idx] ) ) {
+      if ( !result.equals( correctResults[ idx ] ) ) {
         fail( "row " + ( idx + 1 ) + " is different than expected" );
       }
       idx++;
@@ -203,7 +200,7 @@ public class CombinationLookupIT extends TestCase {
     String schemaTable = "default.tableName";
     String technicalKeyField = "technicalKeyField";
 
-    DatabaseMeta databaseMeta = spy( new DatabaseMeta( databasesXML[0] ) {
+    DatabaseMeta databaseMeta = spy( new DatabaseMeta( databasesXML[ 0 ] ) {
       @Override
       public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc ) {
         return "someValue";
@@ -227,7 +224,7 @@ public class CombinationLookupIT extends TestCase {
     IMetaStore metaStore = mock( IMetaStore.class );
 
     SQLStatement sqlStatement =
-        clm.getSQLStatements( new TransMeta(), stepMeta, rowMetaInterface, repository, metaStore );
+      clm.getSQLStatements( new TransMeta(), stepMeta, rowMetaInterface, repository, metaStore );
 
     String sql = sqlStatement.getSQL();
     Assert.assertTrue( StringUtils.countMatches( sql, schemaTable ) == 3 );
@@ -245,7 +242,7 @@ public class CombinationLookupIT extends TestCase {
 
     // Add the database connections
     for ( int i = 0; i < databasesXML.length; i++ ) {
-      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[i] );
+      DatabaseMeta databaseMeta = new DatabaseMeta( databasesXML[ i ] );
       transMeta.addDatabase( databaseMeta );
     }
 

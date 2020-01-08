@@ -22,20 +22,18 @@
 
 package org.apache.hop.ui.hopui.dialog;
 
-import java.lang.reflect.InvocationTargetException;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.operation.IRunnableWithProgress;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
- *
- *
  * @author Matt
  * @since 10-mrt-2005
  */
@@ -61,16 +59,16 @@ public class SearchFieldsProgressDialog implements IRunnableWithProgress {
       if ( before ) {
         monitor.beginTask( BaseMessages.getString(
           PKG, "SearchFieldsProgressDialog.Dialog.SearchInputFields.Message" ), size ); // Searching
-                                                                                        // for
-                                                                                        // input
-                                                                                        // fields...
+        // for
+        // input
+        // fields...
         fields = transMeta.getPrevStepFields( stepInfo, new ProgressMonitorAdapter( monitor ) );
       } else {
         monitor.beginTask( BaseMessages.getString(
           PKG, "SearchFieldsProgressDialog.Dialog.SearchOutputFields.Message" ), size ); // Searching
-                                                                                         // for
-                                                                                         // output
-                                                                                         // fields...
+        // for
+        // output
+        // fields...
         fields = transMeta.getStepFields( stepInfo, new ProgressMonitorAdapter( monitor ) );
       }
     } catch ( HopStepException kse ) {
@@ -89,8 +87,7 @@ public class SearchFieldsProgressDialog implements IRunnableWithProgress {
   }
 
   /**
-   * @param before
-   *          The before to set.
+   * @param before The before to set.
    */
   public void setBefore( boolean before ) {
     this.before = before;
@@ -104,8 +101,7 @@ public class SearchFieldsProgressDialog implements IRunnableWithProgress {
   }
 
   /**
-   * @param fields
-   *          The fields to set.
+   * @param fields The fields to set.
    */
   public void setFields( RowMetaInterface fields ) {
     this.fields = fields;
@@ -119,8 +115,7 @@ public class SearchFieldsProgressDialog implements IRunnableWithProgress {
   }
 
   /**
-   * @param stepInfo
-   *          The stepInfo to set.
+   * @param stepInfo The stepInfo to set.
    */
   public void setStepInfo( StepMeta stepInfo ) {
     this.stepInfo = stepInfo;
@@ -134,8 +129,7 @@ public class SearchFieldsProgressDialog implements IRunnableWithProgress {
   }
 
   /**
-   * @param transMeta
-   *          The transMeta to set.
+   * @param transMeta The transMeta to set.
    */
   public void setTransMeta( TransMeta transMeta ) {
     this.transMeta = transMeta;

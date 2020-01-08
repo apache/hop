@@ -22,11 +22,10 @@
 
 package org.apache.hop.trans.steps.numberrange;
 
-import java.util.Arrays;
-
+import junit.framework.TestCase;
 import org.apache.hop.core.exception.HopException;
 
-import junit.framework.TestCase;
+import java.util.Arrays;
 
 public class NumberRangeSetIT extends TestCase {
 

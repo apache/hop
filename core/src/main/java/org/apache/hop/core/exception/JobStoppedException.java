@@ -27,7 +27,6 @@ package org.apache.hop.core.exception;
  *
  * @author Nick Hudak
  * @since 2-13-2014
- *
  */
 public class JobStoppedException extends HopJobException {
   public static final long serialVersionUID = 3307875569693837831L;
@@ -42,8 +41,7 @@ public class JobStoppedException extends HopJobException {
   /**
    * Constructs a new throwable with the specified detail message.
    *
-   * @param message
-   *          - the detail message. The detail message is saved for later retrieval by the getMessage() method.
+   * @param message - the detail message. The detail message is saved for later retrieval by the getMessage() method.
    */
   public JobStoppedException( String message ) {
     super( message );
@@ -53,9 +51,8 @@ public class JobStoppedException extends HopJobException {
    * Constructs a new throwable with the specified cause and a detail message of (cause==null ? null : cause.toString())
    * (which typically contains the class and detail message of cause).
    *
-   * @param cause
-   *          the cause (which is saved for later retrieval by the getCause() method). (A null value is permitted, and
-   *          indicates that the cause is nonexistent or unknown.)
+   * @param cause the cause (which is saved for later retrieval by the getCause() method). (A null value is permitted, and
+   *              indicates that the cause is nonexistent or unknown.)
    */
   public JobStoppedException( Throwable cause ) {
     super( cause );
@@ -64,11 +61,9 @@ public class JobStoppedException extends HopJobException {
   /**
    * Constructs a new throwable with the specified detail message and cause.
    *
-   * @param message
-   *          the detail message (which is saved for later retrieval by the getMessage() method).
-   * @param cause
-   *          the cause (which is saved for later retrieval by the getCause() method). (A null value is permitted, and
-   *          indicates that the cause is nonexistent or unknown.)
+   * @param message the detail message (which is saved for later retrieval by the getMessage() method).
+   * @param cause   the cause (which is saved for later retrieval by the getCause() method). (A null value is permitted, and
+   *                indicates that the cause is nonexistent or unknown.)
    */
   public JobStoppedException( String message, Throwable cause ) {
     super( message, cause );

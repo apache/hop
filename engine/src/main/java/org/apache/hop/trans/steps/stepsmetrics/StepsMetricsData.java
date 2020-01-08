@@ -22,23 +22,24 @@
 
 package org.apache.hop.trans.steps.stepsmetrics;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * @author Samatar
  * @since 16-06-2008
- *
  */
 public class StepsMetricsData extends BaseStepData implements StepDataInterface {
 
   boolean continueLoop;
   public ConcurrentHashMap<Integer, StepInterface> stepInterfaces;
-  /** The metadata we send out */
+  /**
+   * The metadata we send out
+   */
   public RowMetaInterface outputRowMeta;
 
   public String realstepnamefield;

@@ -22,13 +22,6 @@
 
 package org.apache.hop.trans.steps.webservices;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -39,22 +32,26 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.utils.TestUtils;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -128,7 +125,7 @@ public class WebServiceMetaTest {
     field3.setWsName( "field3WS" );
     field3.setXsdType( "string" );
     webServiceMeta.setFieldsOut( Arrays.asList( field1, field2, field3 ) );
-    webServiceMeta.getFields( rmi, "idk", new RowMetaInterface[]{ rmi2 }, nextStep, new Variables(), metastore );
+    webServiceMeta.getFields( rmi, "idk", new RowMetaInterface[] { rmi2 }, nextStep, new Variables(), metastore );
     verify( rmi ).addValueMeta( argThat( matchValueMetaString( "field1" ) ) );
     verify( rmi ).addValueMeta( argThat( matchValueMetaString( "field2" ) ) );
     verify( rmi ).addValueMeta( argThat( matchValueMetaString( "field3" ) ) );
@@ -166,7 +163,7 @@ public class WebServiceMetaTest {
     webServiceMeta.setInFieldArgumentName( "ifan" );
     when( prev.size() ).thenReturn( 2 );
     webServiceMeta.check(
-      remarks, transMeta, stepMeta, prev, new String[]{}, null, info, new Variables(), metastore );
+      remarks, transMeta, stepMeta, prev, new String[] {}, null, info, new Variables(), metastore );
     assertEquals( 2, remarks.size() );
     assertEquals( "Step is connected to previous one, receiving 2 fields", remarks.get( 0 ).getText() );
     assertEquals( "No input received from other steps!", remarks.get( 1 ).getText() );

@@ -22,16 +22,15 @@
 
 package org.apache.hop.ui.core.database.dialog;
 
-import java.util.Collections;
-import java.util.List;
-
 import junit.framework.Assert;
-
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.eclipse.swt.widgets.Shell;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.database.DatabaseMeta;
+
+import java.util.Collections;
+import java.util.List;
 
 public class XulDatabaseExplorerControllerIT {
 
@@ -63,7 +62,7 @@ public class XulDatabaseExplorerControllerIT {
 
     // this error is caused runtime exception on error dialog show
     Assert.assertEquals( "For reflective calls we have ability to ask for status directly", UiPostActionStatus.ERROR,
-        actual );
+      actual );
   }
 
 }

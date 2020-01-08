@@ -22,12 +22,12 @@
 
 package org.apache.hop.ui.core;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TreeItem;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.pentaho.ui.xul.containers.XulMenupopup;
 
 /**
@@ -36,7 +36,6 @@ import org.pentaho.ui.xul.containers.XulMenupopup;
  *
  * @author Matt
  * @since 07-05-2003
- *
  */
 public class ConstUI {
   /**
@@ -140,8 +139,7 @@ public class ConstUI {
   /**
    * Determine the level of where the TreeItem is position in a tree.
    *
-   * @param ti
-   *          The TreeItem
+   * @param ti The TreeItem
    * @return The level of the item in the tree
    */
   public static final int getTreeLevel( TreeItem ti ) {
@@ -158,20 +156,19 @@ public class ConstUI {
   /**
    * Get an array of strings containing the path from the given TreeItem to the parent.
    *
-   * @param ti
-   *          The TreeItem to look at
+   * @param ti The TreeItem to look at
    * @return An array of string describing the path to the TreeItem.
    */
   public static final String[] getTreeStrings( TreeItem ti ) {
     int nrlevels = getTreeLevel( ti ) + 1;
-    String[] retval = new String[nrlevels];
+    String[] retval = new String[ nrlevels ];
     int level = 0;
 
-    retval[nrlevels - 1] = ti.getText();
+    retval[ nrlevels - 1 ] = ti.getText();
     TreeItem parent = ti.getParentItem();
     while ( parent != null ) {
       level++;
-      retval[nrlevels - level - 1] = parent.getText();
+      retval[ nrlevels - level - 1 ] = parent.getText();
       parent = parent.getParentItem();
     }
 
@@ -181,10 +178,8 @@ public class ConstUI {
   /**
    * Return the tree path seperated by Const.FILE_SEPARATOR, starting from a certain depth in the tree.
    *
-   * @param ti
-   *          The TreeItem to get the path for
-   * @param from
-   *          The depth to start at, use 0 to get the complete tree.
+   * @param ti   The TreeItem to get the path for
+   * @param from The depth to start at, use 0 to get the complete tree.
    * @return The tree path.
    */
   public static final String getTreePath( TreeItem ti, int from ) {
@@ -197,8 +192,8 @@ public class ConstUI {
     String retval = "";
 
     for ( int i = from; i < path.length; i++ ) {
-      if ( !path[i].equalsIgnoreCase( Const.FILE_SEPARATOR ) ) {
-        retval += Const.FILE_SEPARATOR + path[i];
+      if ( !path[ i ].equalsIgnoreCase( Const.FILE_SEPARATOR ) ) {
+        retval += Const.FILE_SEPARATOR + path[ i ];
       }
     }
 
@@ -208,8 +203,7 @@ public class ConstUI {
   /**
    * Flips the TreeItem from expanded to not expanded or vice-versa.
    *
-   * @param ti
-   *          The TreeItem to flip.
+   * @param ti The TreeItem to flip.
    */
   public static final void flipExpanded( TreeItem ti ) {
     ti.setExpanded( !ti.getExpanded() );
@@ -222,12 +216,9 @@ public class ConstUI {
   /**
    * Finds a TreeItem with a certain label (name) in a (part of a) tree.
    *
-   * @param parent
-   *          The TreeItem where we start looking.
-   * @param parentName
-   *          The name of the parent to match as well (null=not used)
-   * @param name
-   *          The name or item label to look for.
+   * @param parent     The TreeItem where we start looking.
+   * @param parentName The name of the parent to match as well (null=not used)
+   * @param name       The name or item label to look for.
    * @return The TreeItem if the label was found, null if nothing was found.
    */
   public static final TreeItem findTreeItem( TreeItem parent, String parentName, String name ) {
@@ -251,7 +242,7 @@ public class ConstUI {
 
     TreeItem[] ti = parent.getItems();
     for ( int i = 0; i < ti.length; i++ ) {
-      TreeItem child = findTreeItem( parent, ti[i], parentName, name );
+      TreeItem child = findTreeItem( parent, ti[ i ], parentName, name );
       if ( child != null ) {
         return child;
       }

@@ -22,10 +22,7 @@
 
 package org.apache.hop.core.auth.kerberos;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import com.sun.security.auth.module.Krb5LoginModule;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -38,8 +35,10 @@ import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-
-import com.sun.security.auth.module.Krb5LoginModule;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class KerberosUtil {
   /**
@@ -82,7 +81,7 @@ public class KerberosUtil {
   private static final Map<String, String> LOGIN_CONFIG_OPTS_KERBEROS_USER = getLoginConfigOptsKerberosUser();
 
   private static final Map<String, String> LOGIN_CONFIG_OPTS_KERBEROS_USER_NOPASS =
-      getLoginConfigOptsKerberosNoPassword();
+    getLoginConfigOptsKerberosNoPassword();
 
   private static Map<String, String> createLoginConfigBaseMap() {
     Map<String, String> result = new HashMap<String, String>();
@@ -136,7 +135,7 @@ public class KerberosUtil {
 
     // Create the configuration and from them, a new login context
     AppConfigurationEntry config =
-        new AppConfigurationEntry( Krb5LoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, keytabConfig );
+      new AppConfigurationEntry( Krb5LoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, keytabConfig );
     AppConfigurationEntry[] configEntries = new AppConfigurationEntry[] { config };
     Subject subject = new Subject();
     return new LoginContext( KERBEROS_APP_NAME, subject, null, new PentahoLoginConfiguration( configEntries ) );
@@ -146,8 +145,8 @@ public class KerberosUtil {
     Map<String, String> opts = new HashMap<String, String>( LOGIN_CONFIG_OPTS_KERBEROS_USER );
     opts.put( "principal", principal );
     AppConfigurationEntry[] appConfigurationEntries =
-        new AppConfigurationEntry[] { new AppConfigurationEntry( Krb5LoginModule.class.getName(),
-            LoginModuleControlFlag.REQUIRED, opts ) };
+      new AppConfigurationEntry[] { new AppConfigurationEntry( Krb5LoginModule.class.getName(),
+        LoginModuleControlFlag.REQUIRED, opts ) };
     return new LoginContext( KERBEROS_APP_NAME, new Subject(), new CallbackHandler() {
 
       @Override
@@ -169,9 +168,9 @@ public class KerberosUtil {
     Map<String, String> opts = new HashMap<String, String>( LOGIN_CONFIG_OPTS_KERBEROS_USER_NOPASS );
     opts.put( "principal", principal );
     AppConfigurationEntry[] appConfigurationEntries =
-        new AppConfigurationEntry[] { new AppConfigurationEntry( Krb5LoginModule.class.getName(),
-            LoginModuleControlFlag.REQUIRED, opts ) };
+      new AppConfigurationEntry[] { new AppConfigurationEntry( Krb5LoginModule.class.getName(),
+        LoginModuleControlFlag.REQUIRED, opts ) };
     return new LoginContext( KERBEROS_APP_NAME, new Subject(), null, new PentahoLoginConfiguration(
-        appConfigurationEntries ) );
+      appConfigurationEntries ) );
   }
 }

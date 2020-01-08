@@ -34,7 +34,6 @@ import org.apache.hop.trans.steps.mapping.MappingValueRename;
  * columns mainly.
  *
  * @author matt
- *
  */
 public class RowOutputDataMapper extends RowAdapter {
 
@@ -45,7 +44,7 @@ public class RowOutputDataMapper extends RowAdapter {
   private PutRowInterface putRowInterface;
 
   public RowOutputDataMapper( MappingIODefinition inputDefinition, MappingIODefinition outputDefinition,
-    PutRowInterface putRowInterface ) {
+                              PutRowInterface putRowInterface ) {
     this.inputDefinition = inputDefinition;
     this.outputDefinition = outputDefinition;
     this.putRowInterface = putRowInterface;

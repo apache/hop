@@ -38,11 +38,9 @@ public class XmlMetaStoreElementOwner implements IMetaStoreElementOwner {
 
   /**
    * Load an element owner from an XML node
-   * 
-   * @param elementNode
-   *          The node to load the element owner data from
-   * @throws MetaStoreException
-   *           In case there was an error loading the data, if data was incomplete, ...
+   *
+   * @param elementNode The node to load the element owner data from
+   * @throws MetaStoreException In case there was an error loading the data, if data was incomplete, ...
    */
   public XmlMetaStoreElementOwner( Node elementNode ) throws MetaStoreException {
 
@@ -58,7 +56,7 @@ public class XmlMetaStoreElementOwner implements IMetaStoreElementOwner {
           type = MetaStoreElementOwnerType.getOwnerType( typeString );
         } catch ( Exception ex ) {
           throw new MetaStoreException( "Unable to convert owner type [" + typeString
-              + "] to one of USER, ROLE or SYSTEM_ROLE", ex );
+            + "] to one of USER, ROLE or SYSTEM_ROLE", ex );
         }
       }
     }

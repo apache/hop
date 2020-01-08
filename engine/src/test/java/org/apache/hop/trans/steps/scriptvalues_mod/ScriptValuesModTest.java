@@ -22,9 +22,6 @@
 
 package org.apache.hop.trans.steps.scriptvalues_mod;
 
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -33,6 +30,9 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.TransTestingUtil;
 import org.apache.hop.trans.steps.StepMockUtil;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 

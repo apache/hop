@@ -22,10 +22,9 @@
 
 package org.apache.hop.cluster;
 
+import org.apache.hop.www.SlaveServerDetection;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.apache.hop.www.SlaveServerDetection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,9 +33,9 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.never;
 
 public class ClusterSchemaTest {
 

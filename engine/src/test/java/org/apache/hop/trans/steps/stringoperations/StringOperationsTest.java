@@ -22,16 +22,7 @@
 
 package org.apache.hop.trans.steps.stringoperations;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import junit.framework.Assert;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
@@ -41,6 +32,14 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for StringOperations step
@@ -54,10 +53,10 @@ public class StringOperationsTest {
   @Before
   public void setup() throws Exception {
     smh =
-        new StepMockHelper<StringOperationsMeta, StringOperationsData>( "StringOperations", StringOperationsMeta.class,
-            StringOperationsData.class );
+      new StepMockHelper<StringOperationsMeta, StringOperationsData>( "StringOperations", StringOperationsMeta.class,
+        StringOperationsData.class );
     when( smh.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        smh.logChannelInterface );
+      smh.logChannelInterface );
     when( smh.trans.isRunning() ).thenReturn( true );
   }
 
@@ -107,7 +106,7 @@ public class StringOperationsTest {
         Object[] row = outputRowSet.getRow();
         if ( expectedRow.length == outputRowSet.getRowMeta().size() ) {
           for ( int j = 0; j < expectedRow.length; j++ ) {
-            if ( !expectedRow[j].equals( outputRowSet.getRowMeta().getString( row, j ) ) ) {
+            if ( !expectedRow[ j ].equals( outputRowSet.getRowMeta().getString( row, j ) ) ) {
               return false;
             }
           }

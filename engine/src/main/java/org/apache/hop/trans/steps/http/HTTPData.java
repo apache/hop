@@ -22,10 +22,10 @@
 
 package org.apache.hop.trans.steps.http;
 
-import org.apache.http.NameValuePair;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+import org.apache.http.NameValuePair;
 
 /**
  * @author Matt

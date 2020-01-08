@@ -30,35 +30,35 @@ import org.apache.hop.core.row.ValueMetaInterface;
 public class RowMetaUtils {
 
   public static RowMetaInterface getRowMetaForUpdate( RowMetaInterface prev, String[] keyLookup, String[] keyStream,
-      String[] updateLookup, String[] updateStream ) throws HopStepException {
+                                                      String[] updateLookup, String[] updateStream ) throws HopStepException {
     RowMetaInterface tableFields = new RowMeta();
 
     // Now change the field names
     // the key fields
     if ( keyLookup != null ) {
       for ( int i = 0; i < keyLookup.length; i++ ) {
-        ValueMetaInterface v = prev.searchValueMeta( keyStream[i] );
+        ValueMetaInterface v = prev.searchValueMeta( keyStream[ i ] );
         if ( v != null ) {
           ValueMetaInterface tableField = v.clone();
-          tableField.setName( keyLookup[i] );
+          tableField.setName( keyLookup[ i ] );
           tableFields.addValueMeta( tableField );
         } else {
-          throw new HopStepException( "Unable to find field [" + keyStream[i] + "] in the input rows" );
+          throw new HopStepException( "Unable to find field [" + keyStream[ i ] + "] in the input rows" );
         }
       }
     }
     // the lookup fields
     for ( int i = 0; i < updateLookup.length; i++ ) {
-      ValueMetaInterface v = prev.searchValueMeta( updateStream[i] );
+      ValueMetaInterface v = prev.searchValueMeta( updateStream[ i ] );
       if ( v != null ) {
-        ValueMetaInterface vk = tableFields.searchValueMeta( updateLookup[i] );
+        ValueMetaInterface vk = tableFields.searchValueMeta( updateLookup[ i ] );
         if ( vk == null ) { // do not add again when already added as key fields
           ValueMetaInterface tableField = v.clone();
-          tableField.setName( updateLookup[i] );
+          tableField.setName( updateLookup[ i ] );
           tableFields.addValueMeta( tableField );
         }
       } else {
-        throw new HopStepException( "Unable to find field [" + updateStream[i] + "] in the input rows" );
+        throw new HopStepException( "Unable to find field [" + updateStream[ i ] + "] in the input rows" );
       }
     }
     return tableFields;

@@ -29,7 +29,6 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
-
 import org.w3c.dom.Node;
 
 public class ModPartitioner extends BasePartitioner {
@@ -73,7 +72,7 @@ public class ModPartitioner extends BasePartitioner {
     long value;
 
     ValueMetaInterface valueMeta = rowMeta.getValueMeta( partitionColumnIndex );
-    Object valueData = row[partitionColumnIndex];
+    Object valueData = row[ partitionColumnIndex ];
 
     switch ( valueMeta.getType() ) {
       case ValueMetaInterface.TYPE_INTEGER:

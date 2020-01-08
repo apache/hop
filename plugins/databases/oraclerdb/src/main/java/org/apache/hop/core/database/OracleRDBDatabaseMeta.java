@@ -35,10 +35,10 @@ import org.apache.hop.core.row.ValueMetaInterface;
  * @since 27-jul-2006
  */
 @DatabaseMetaPlugin(
-        type = "ORACLERDB",
-        typeDescription = "Oracle RDB"
+  type = "ORACLERDB",
+  typeDescription = "Oracle RDB"
 )
-@GuiPlugin( id="GUI-OracleDatabaseMeta" )
+@GuiPlugin( id = "GUI-OracleDatabaseMeta" )
 public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
@@ -65,8 +65,7 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseI
   /**
    * Returns the minimal SQL to launch in order to determine the layout of the resultset for a given database table
    *
-   * @param tableName
-   *          The name of the table to determine the layout for
+   * @param tableName The name of the table to determine the layout for
    * @return The SQL to launch.
    */
   @Override
@@ -127,8 +126,7 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseI
   /**
    * Check if a sequence exists.
    *
-   * @param sequenceName
-   *          The sequence to check
+   * @param sequenceName The sequence to check
    * @return The SQL to get the name of the sequence back from the databases data dictionary
    */
   @Override
@@ -139,8 +137,7 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseI
   /**
    * Get the current value of a database sequence
    *
-   * @param sequenceName
-   *          The sequence to check
+   * @param sequenceName The sequence to check
    * @return The current value of a database sequence
    */
   @Override
@@ -151,8 +148,7 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseI
   /**
    * Get the SQL to get the next value of a sequence. (Oracle only)
    *
-   * @param sequenceName
-   *          The sequence name
+   * @param sequenceName The sequence name
    * @return the SQL to get the next value of a sequence. (Oracle only)
    */
   @Override
@@ -179,23 +175,17 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseI
   /**
    * Generates the SQL statement to add a column to the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
   public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                       String pk, boolean semicolon ) {
     return "ALTER TABLE "
       + tablename + " ADD ( " + getFieldDefinition( v, tk, pk, use_autoinc, true, false ) + " ) ";
   }
@@ -203,53 +193,41 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseI
   /**
    * Generates the SQL statement to drop a column from the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to drop a column from the specified table
    */
   @Override
   public String getDropColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                        String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " DROP ( " + v.getName() + " ) " + Const.CR;
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
   public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                          String pk, boolean semicolon ) {
     return "ALTER TABLE "
       + tablename + " MODIFY (" + getFieldDefinition( v, tk, pk, use_autoinc, true, false ) + " )";
   }
 
   @Override
   public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-    boolean add_fieldname, boolean add_cr ) {
+                                    boolean add_fieldname, boolean add_cr ) {
     StringBuilder retval = new StringBuilder( 128 );
 
     String fieldname = v.getName();
@@ -332,7 +310,7 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseI
   public String getSQLLockTables( String[] tableNames ) {
     StringBuilder sql = new StringBuilder( 128 );
     for ( int i = 0; i < tableNames.length; i++ ) {
-      sql.append( "LOCK TABLE " ).append( tableNames[i] ).append( " IN EXCLUSIVE MODE;" ).append( Const.CR );
+      sql.append( "LOCK TABLE " ).append( tableNames[ i ] ).append( " IN EXCLUSIVE MODE;" ).append( Const.CR );
     }
     return sql.toString();
   }

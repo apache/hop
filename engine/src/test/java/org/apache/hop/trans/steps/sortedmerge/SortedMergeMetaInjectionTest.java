@@ -22,11 +22,11 @@
 
 package org.apache.hop.trans.steps.sortedmerge;
 
+import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 public class SortedMergeMetaInjectionTest extends BaseMetadataInjectionTest<SortedMergeMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -40,12 +40,12 @@ public class SortedMergeMetaInjectionTest extends BaseMetadataInjectionTest<Sort
   public void test() throws Exception {
     check( "FIELD_NAME", new StringGetter() {
       public String get() {
-        return meta.getFieldName()[0];
+        return meta.getFieldName()[ 0 ];
       }
     } );
     check( "ASCENDING", new BooleanGetter() {
       public boolean get() {
-        return meta.getAscending()[0];
+        return meta.getAscending()[ 0 ];
       }
     } );
   }

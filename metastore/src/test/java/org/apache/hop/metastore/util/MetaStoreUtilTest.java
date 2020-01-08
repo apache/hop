@@ -17,13 +17,13 @@
 
 package org.apache.hop.metastore.util;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.IMetaStoreAttribute;
 import org.apache.hop.metastore.api.IMetaStoreElement;
 import org.apache.hop.metastore.api.IMetaStoreElementType;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +31,14 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class MetaStoreUtilTest {
   private MetaStoreUtil metaStoreUtil;

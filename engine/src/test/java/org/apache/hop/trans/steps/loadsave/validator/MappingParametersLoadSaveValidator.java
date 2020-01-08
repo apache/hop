@@ -21,13 +21,14 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.loadsave.validator;
 
+import org.apache.hop.trans.steps.mapping.MappingParameters;
+
 import java.util.Random;
 import java.util.UUID;
 
-import org.apache.hop.trans.steps.mapping.MappingParameters;
-
 public class MappingParametersLoadSaveValidator implements FieldLoadSaveValidator<MappingParameters> {
   final Random rand = new Random();
+
   @Override
   public MappingParameters getTestObject() {
     MappingParameters rtn = new MappingParameters();

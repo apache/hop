@@ -21,19 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.ui.hopui.trans;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doCallRealMethod;
-
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.Assert;
-
-import org.eclipse.swt.events.MouseEvent;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.trans.TransHopMeta;
@@ -41,9 +28,21 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepErrorMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.ui.hopui.HopUi;
+import org.eclipse.swt.events.MouseEvent;
+import org.junit.Assert;
+import org.junit.Test;
 import org.pentaho.ui.xul.components.XulMenuitem;
 import org.pentaho.ui.xul.containers.XulMenu;
 import org.pentaho.ui.xul.dom.Document;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class TransGraphTest {
   private static final boolean TRUE_RESULT = true;

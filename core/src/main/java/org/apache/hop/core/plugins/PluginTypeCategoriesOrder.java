@@ -33,7 +33,6 @@ import java.lang.annotation.Target;
  * located.
  *
  * @author nbaker
- *
  */
 @Retention( RetentionPolicy.RUNTIME )
 @Target( ElementType.TYPE )

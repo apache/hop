@@ -23,9 +23,6 @@
 package org.apache.hop.trans.steps.jobexecutor;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
@@ -34,6 +31,9 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.trans.steps.StepMockUtil;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 

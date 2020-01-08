@@ -22,15 +22,6 @@
 
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -40,6 +31,15 @@ import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class AS400DatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
@@ -59,7 +59,7 @@ public class AS400DatabaseMetaTest {
   @Test
   public void testSettings() throws Exception {
     int[] aTypes =
-        new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
+      new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
     assertArrayEquals( aTypes, nativeMeta.getAccessTypeList() );
     assertEquals( "com.ibm.as400.access.AS400JDBCDriver", nativeMeta.getDriverClass() );
     assertEquals( 65536, nativeMeta.getMaxTextFieldLength() );
@@ -114,10 +114,10 @@ public class AS400DatabaseMetaTest {
   public void testSQLStatements() {
     assertEquals( "DELETE FROM FOO", nativeMeta.getTruncateTableStatement( "FOO" ) );
     assertEquals( "ALTER TABLE FOO ADD BAR VARCHAR(100)", nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR",
-        100, 0 ), "", false, "", false ) );
+      100, 0 ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ALTER COLUMN BAR SET TIMESTAMP", nativeMeta.getModifyColumnStatement( "FOO",
-        new ValueMetaTimestamp( "BAR" ), "", false, "", false ) ); // Fixed: http://jira.pentaho.com/browse/PDI-15570
+      new ValueMetaTimestamp( "BAR" ), "", false, "", false ) ); // Fixed: http://jira.pentaho.com/browse/PDI-15570
 
     assertEquals( "SELECT SEQNAME FROM SYSCAT.SEQUENCES", nativeMeta.getSQLListOfSequences() );
     assertEquals( "SELECT * FROM SYSCAT.SEQUENCES WHERE SEQNAME = 'FOO'", nativeMeta.getSQLSequenceExists( "FOO" ) );
@@ -128,39 +128,39 @@ public class AS400DatabaseMetaTest {
   @Test
   public void testGetFieldDefinition() {
     assertEquals( "FOO TIMESTAMP",
-        nativeMeta.getFieldDefinition( new ValueMetaDate( "FOO" ), "", "", false, true, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaDate( "FOO" ), "", "", false, true, false ) );
     assertEquals( "TIMESTAMP",
-        nativeMeta.getFieldDefinition( new ValueMetaTimestamp( "FOO" ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaTimestamp( "FOO" ), "", "", false, false, false ) );
     assertEquals( "CHAR(1)",
-        nativeMeta.getFieldDefinition( new ValueMetaBoolean( "FOO" ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaBoolean( "FOO" ), "", "", false, false, false ) );
 
     assertEquals( "DOUBLE",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO" ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO" ), "", "", false, false, false ) );
     assertEquals( "DECIMAL(5)",
-        nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 5, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 5, 0 ), "", "", false, false, false ) );
     assertEquals( "DECIMAL(5, 3)",
-        nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 5, 3 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 5, 3 ), "", "", false, false, false ) );
 
     assertEquals( "DECIMAL",
-        nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 0, 3 ), "", "", false, false, false ) ); // This is a bug
+      nativeMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 0, 3 ), "", "", false, false, false ) ); // This is a bug
 
     assertEquals( "CLOB",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", DatabaseMeta.CLOB_LENGTH + 1, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", DatabaseMeta.CLOB_LENGTH + 1, 0 ), "", "", false, false, false ) );
 
     assertEquals( String.format( "VARCHAR(%d)", ( nativeMeta.getMaxVARCHARLength() - 1 ) ),
-        nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", nativeMeta.getMaxVARCHARLength() - 1, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", nativeMeta.getMaxVARCHARLength() - 1, 0 ), "", "", false, false, false ) );
 
     assertEquals( "CLOB",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", nativeMeta.getMaxVARCHARLength() + 1, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", nativeMeta.getMaxVARCHARLength() + 1, 0 ), "", "", false, false, false ) );
 
     assertEquals( "CLOB",
-        nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", DatabaseMeta.CLOB_LENGTH - 1, 0 ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", DatabaseMeta.CLOB_LENGTH - 1, 0 ), "", "", false, false, false ) );
 
     assertEquals( " UNKNOWN",
-        nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, false ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, false ) );
 
     assertEquals( " UNKNOWN" + System.getProperty( "line.separator" ),
-        nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, true ) );
+      nativeMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, true ) );
 
   }
 

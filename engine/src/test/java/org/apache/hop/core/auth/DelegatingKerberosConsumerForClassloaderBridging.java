@@ -26,12 +26,12 @@ import org.apache.hop.core.auth.core.AuthenticationConsumer;
 import org.apache.hop.core.auth.core.AuthenticationConsumptionException;
 
 public class DelegatingKerberosConsumerForClassloaderBridging implements
-    AuthenticationConsumer<Object, KerberosAuthenticationProviderProxyInterface> {
+  AuthenticationConsumer<Object, KerberosAuthenticationProviderProxyInterface> {
 
   private AuthenticationConsumer<Object, KerberosAuthenticationProviderProxyInterface> delegate;
 
   public DelegatingKerberosConsumerForClassloaderBridging(
-      AuthenticationConsumer<Object, KerberosAuthenticationProviderProxyInterface> delegate ) {
+    AuthenticationConsumer<Object, KerberosAuthenticationProviderProxyInterface> delegate ) {
     this.delegate = delegate;
   }
 

@@ -23,8 +23,8 @@
 package org.apache.hop.trans.steps.syslog;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entries.syslog.SyslogDefs;
 import org.apache.hop.trans.Trans;
@@ -44,7 +44,6 @@ import org.productivity.java.syslog4j.impl.net.udp.UDPNetSyslogConfig;
  *
  * @author Samatar
  * @since 03-Juin-2008
- *
  */
 
 public class SyslogMessage extends BaseStep implements StepInterface {
@@ -54,7 +53,7 @@ public class SyslogMessage extends BaseStep implements StepInterface {
   private SyslogMessageData data;
 
   public SyslogMessage( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
+                        Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -80,7 +79,7 @@ public class SyslogMessage extends BaseStep implements StepInterface {
       if ( data.indexOfMessageFieldName < 0 ) {
         // The field is unreachable !
         throw new HopException( BaseMessages.getString( PKG, "SyslogMessage.Exception.CouldnotFindField", meta
-            .getMessageFieldName() ) );
+          .getMessageFieldName() ) );
       }
 
     }
@@ -95,7 +94,7 @@ public class SyslogMessage extends BaseStep implements StepInterface {
 
       // Send message
       SyslogDefs.sendMessage( data.syslog, SyslogDefs.getPriority( meta.getPriority() ), message,
-          meta.isAddTimestamp(), data.datePattern, meta.isAddHostName() );
+        meta.isAddTimestamp(), data.datePattern, meta.isAddHostName() );
 
       putRow( getInputRowMeta(), r ); // copy row to output rowset(s);
 

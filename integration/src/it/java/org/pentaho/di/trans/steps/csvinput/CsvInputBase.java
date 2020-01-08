@@ -22,10 +22,7 @@
 
 package org.apache.hop.trans.steps.csvinput;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
+import junit.framework.TestCase;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
@@ -46,7 +43,9 @@ import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
 import org.apache.hop.trans.steps.injector.InjectorMeta;
 import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
 
-import junit.framework.TestCase;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public abstract class CsvInputBase extends TestCase {
 
@@ -56,7 +55,7 @@ public abstract class CsvInputBase extends TestCase {
     ValueMetaInterface[] valuesMeta = { new ValueMetaString( "filename" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -77,13 +76,10 @@ public abstract class CsvInputBase extends TestCase {
   /**
    * Check the 2 lists comparing the rows in order. If they are not the same fail the test.
    *
-   * @param rows1
-   *          set 1 of rows to compare
-   * @param rows2
-   *          set 2 of rows to compare
-   * @param fileNameColumn
-   *          Number of the column containing the filename. This is only checked for being non-null (some systems maybe
-   *          canonize names differently than we input).
+   * @param rows1          set 1 of rows to compare
+   * @param rows2          set 2 of rows to compare
+   * @param fileNameColumn Number of the column containing the filename. This is only checked for being non-null (some systems maybe
+   *                       canonize names differently than we input).
    */
   public void checkRows( List<RowMetaAndData> rows1, List<RowMetaAndData> rows2, int fileNameColumn ) {
     int idx = 1;
@@ -103,12 +99,12 @@ public abstract class CsvInputBase extends TestCase {
       if ( rm1.size() != rm2.size() ) {
         fail( "row nr " + idx + " is not equal" );
       }
-      int[] fields = new int[r1.length];
+      int[] fields = new int[ r1.length ];
       for ( int ydx = 0; ydx < r1.length; ydx++ ) {
-        fields[ydx] = ydx;
+        fields[ ydx ] = ydx;
       }
       try {
-        r1[fileNameColumn] = r2[fileNameColumn];
+        r1[ fileNameColumn ] = r2[ fileNameColumn ];
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {
           fail( "row nr " + idx + " is not equal" );
         }
@@ -121,7 +117,7 @@ public abstract class CsvInputBase extends TestCase {
   }
 
   protected Trans createAndTestTrans( PluginRegistry registry, TransMeta transMeta, StepMeta injectorStep,
-    StepMeta csvInputStep, String fileName, int numRows ) throws HopException {
+                                      StepMeta csvInputStep, String fileName, int numRows ) throws HopException {
     TransHopMeta hi = new TransHopMeta( injectorStep, csvInputStep );
     transMeta.addTransHop( hi );
 
@@ -171,7 +167,7 @@ public abstract class CsvInputBase extends TestCase {
   }
 
   public StepMeta createCsvInputStep( TransMeta transMeta, PluginRegistry registry, String enclosure,
-    boolean headerPresent ) {
+                                      boolean headerPresent ) {
     //
     // Create a Csv Input step
     //

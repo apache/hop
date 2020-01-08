@@ -26,7 +26,7 @@ import org.apache.hop.core.auth.core.AuthenticationConsumer;
 import org.apache.hop.core.auth.core.AuthenticationConsumptionException;
 
 public class DelegatingKerberosConsumer implements
-    AuthenticationConsumer<Object, KerberosAuthenticationProvider> {
+  AuthenticationConsumer<Object, KerberosAuthenticationProvider> {
   private AuthenticationConsumer<Object, KerberosAuthenticationProvider> delegate;
 
   public DelegatingKerberosConsumer( AuthenticationConsumer<Object, KerberosAuthenticationProvider> delegate ) {

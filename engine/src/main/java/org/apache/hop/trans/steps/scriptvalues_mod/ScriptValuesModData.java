@@ -22,18 +22,17 @@
 
 package org.apache.hop.trans.steps.scriptvalues_mod;
 
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Script;
-import org.mozilla.javascript.Scriptable;
 import org.apache.hop.compatibility.Value;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Script;
+import org.mozilla.javascript.Scriptable;
 
 /**
  * @author Matt
  * @since 24-jan-2005
- *
  */
 public class ScriptValuesModData extends BaseStepData implements StepDataInterface {
   public Context cx;

@@ -22,15 +22,30 @@
 
 package org.apache.hop.ui.trans.steps.selectvalues;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.SourceToTargetMapping;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.steps.selectvalues.SelectMetadataChange;
+import org.apache.hop.trans.steps.selectvalues.SelectValuesMeta;
+import org.apache.hop.ui.core.dialog.EnterMappingDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -54,30 +69,15 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.SourceToTargetMapping;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.trans.steps.selectvalues.SelectMetadataChange;
-import org.apache.hop.trans.steps.selectvalues.SelectValuesMeta;
-import org.apache.hop.ui.core.dialog.EnterMappingDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Dialog for the Select Values step.
@@ -241,26 +241,26 @@ public class SelectValuesDialog extends BaseStepDialog implements StepDialogInte
     final int fieldsCols = 4;
     final int fieldsRows = input.getSelectFields().length;
 
-    ColumnInfo[] colinf = new ColumnInfo[fieldsCols];
-    colinf[0] =
+    ColumnInfo[] colinf = new ColumnInfo[ fieldsCols ];
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SelectValuesDialog.ColumnInfo.Fieldname" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { BaseMessages.getString(
-          PKG, "SelectValuesDialog.ColumnInfo.Loading" ) }, false );
-    colinf[1] =
+        PKG, "SelectValuesDialog.ColumnInfo.Loading" ) }, false );
+    colinf[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SelectValuesDialog.ColumnInfo.RenameTo" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    colinf[2] =
+    colinf[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SelectValuesDialog.ColumnInfo.Length" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    colinf[3] =
+    colinf[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SelectValuesDialog.ColumnInfo.Precision" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
 
-    fieldColumns.add( colinf[0] );
+    fieldColumns.add( colinf[ 0 ] );
     wFields =
       new TableView(
         transMeta, wSelectComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, fieldsRows, lsMod, props );
@@ -333,13 +333,13 @@ public class SelectValuesDialog extends BaseStepDialog implements StepDialogInte
     final int RemoveCols = 1;
     final int RemoveRows = input.getDeleteName().length;
 
-    ColumnInfo[] colrem = new ColumnInfo[RemoveCols];
-    colrem[0] =
+    ColumnInfo[] colrem = new ColumnInfo[ RemoveCols ];
+    colrem[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SelectValuesDialog.ColumnInfo.Fieldname" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { BaseMessages.getString(
-          PKG, "SelectValuesDialog.ColumnInfo.Loading" ) }, false );
-    fieldColumns.add( colrem[0] );
+        PKG, "SelectValuesDialog.ColumnInfo.Loading" ) }, false );
+    fieldColumns.add( colrem[ 0 ] );
     wRemove =
       new TableView(
         transMeta, wRemoveComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colrem, RemoveRows, lsMod, props );
@@ -403,7 +403,7 @@ public class SelectValuesDialog extends BaseStepDialog implements StepDialogInte
         new ColumnInfo(
           BaseMessages.getString( PKG, "SelectValuesDialog.ColumnInfo.Fieldname" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { BaseMessages.getString(
-            PKG, "SelectValuesDialog.ColumnInfo.Loading" ) }, false ),
+          PKG, "SelectValuesDialog.ColumnInfo.Loading" ) }, false ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "SelectValuesDialog.ColumnInfo.Renameto" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false ),
@@ -436,7 +436,7 @@ public class SelectValuesDialog extends BaseStepDialog implements StepDialogInte
         new ColumnInfo(
           BaseMessages.getString( PKG, "SelectValuesDialog.ColumnInfo.LenientStringToNumber" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-            BaseMessages.getString( PKG, "System.Combo.Yes" ), BaseMessages.getString( PKG, "System.Combo.No" ), } ),
+          BaseMessages.getString( PKG, "System.Combo.Yes" ), BaseMessages.getString( PKG, "System.Combo.No" ), } ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "SelectValuesDialog.ColumnInfo.Encoding" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, getCharsets(), false ),
@@ -449,8 +449,8 @@ public class SelectValuesDialog extends BaseStepDialog implements StepDialogInte
         new ColumnInfo(
           BaseMessages.getString( PKG, "SelectValuesDialog.ColumnInfo.Currency" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false ), };
-    colmeta[5].setToolTip( BaseMessages.getString( PKG, "SelectValuesDialog.ColumnInfo.Storage.Tooltip" ) );
-    fieldColumns.add( colmeta[0] );
+    colmeta[ 5 ].setToolTip( BaseMessages.getString( PKG, "SelectValuesDialog.ColumnInfo.Storage.Tooltip" ) );
+    fieldColumns.add( colmeta[ 0 ] );
     wMeta =
       new TableView(
         transMeta, wMetaComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colmeta, MetaRows, lsMod, props );
@@ -583,7 +583,7 @@ public class SelectValuesDialog extends BaseStepDialog implements StepDialogInte
           String msg = BaseMessages.getString( PKG, "SelectValuesDialog.DoMapping.UnableToFindInput" );
           logError( msg );
         }
-        String[] prevStepFieldNames = prevFields != null ? prevFields.getFieldNames() : new String[0];
+        String[] prevStepFieldNames = prevFields != null ? prevFields.getFieldNames() : new String[ 0 ];
         Arrays.sort( prevStepFieldNames );
         bPreviousFieldsLoaded = true;
         for ( int i = 0; i < fieldColumns.size(); i++ ) {
@@ -607,17 +607,17 @@ public class SelectValuesDialog extends BaseStepDialog implements StepDialogInte
     if ( input.getSelectFields() != null && input.getSelectFields().length > 0 ) {
       for ( int i = 0; i < input.getSelectFields().length; i++ ) {
         TableItem item = wFields.table.getItem( i );
-        if ( input.getSelectFields()[i].getName() != null ) {
-          item.setText( 1, input.getSelectFields()[i].getName() );
+        if ( input.getSelectFields()[ i ].getName() != null ) {
+          item.setText( 1, input.getSelectFields()[ i ].getName() );
         }
-        if ( input.getSelectFields()[i].getRename() != null && !input.getSelectFields()[i].getRename().equals( input
-            .getSelectFields()[i].getName() ) ) {
-          item.setText( 2, input.getSelectFields()[i].getRename() );
+        if ( input.getSelectFields()[ i ].getRename() != null && !input.getSelectFields()[ i ].getRename().equals( input
+          .getSelectFields()[ i ].getName() ) ) {
+          item.setText( 2, input.getSelectFields()[ i ].getRename() );
         }
-        item.setText( 3, input.getSelectFields()[i].getLength() < 0 ? "" : "" + input.getSelectFields()[i]
-            .getLength() );
-        item.setText( 4, input.getSelectFields()[i].getPrecision() < 0 ? "" : "" + input.getSelectFields()[i]
-            .getPrecision() );
+        item.setText( 3, input.getSelectFields()[ i ].getLength() < 0 ? "" : "" + input.getSelectFields()[ i ]
+          .getLength() );
+        item.setText( 4, input.getSelectFields()[ i ].getPrecision() < 0 ? "" : "" + input.getSelectFields()[ i ]
+          .getPrecision() );
       }
       wFields.setRowNums();
       wFields.optWidth( true );
@@ -631,8 +631,8 @@ public class SelectValuesDialog extends BaseStepDialog implements StepDialogInte
     if ( input.getDeleteName() != null && input.getDeleteName().length > 0 ) {
       for ( int i = 0; i < input.getDeleteName().length; i++ ) {
         TableItem item = wRemove.table.getItem( i );
-        if ( input.getDeleteName()[i] != null ) {
-          item.setText( 1, input.getDeleteName()[i] );
+        if ( input.getDeleteName()[ i ] != null ) {
+          item.setText( 1, input.getDeleteName()[ i ] );
         }
       }
       wRemove.setRowNums();
@@ -645,7 +645,7 @@ public class SelectValuesDialog extends BaseStepDialog implements StepDialogInte
      */
     if ( !Utils.isEmpty( input.getMeta() ) ) {
       for ( int i = 0; i < input.getMeta().length; i++ ) {
-        SelectMetadataChange change = input.getMeta()[i];
+        SelectMetadataChange change = input.getMeta()[ i ];
 
         TableItem item = wMeta.table.getItem( i );
         int index = 1;
@@ -664,7 +664,7 @@ public class SelectValuesDialog extends BaseStepDialog implements StepDialogInte
         item
           .setText( index++, change.isDateFormatLenient()
             ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString(
-              PKG, "System.Combo.No" ) );
+            PKG, "System.Combo.No" ) );
         item
           .setText( index++, change.getDateFormatLocale() == null ? "" : change.getDateFormatLocale().toString() );
         item.setText( index++, change.getDateFormatTimeZone() == null ? "" : change
@@ -672,7 +672,7 @@ public class SelectValuesDialog extends BaseStepDialog implements StepDialogInte
         item
           .setText( index++, change.isLenientStringToNumber()
             ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString(
-              PKG, "System.Combo.No" ) );
+            PKG, "System.Combo.No" ) );
         item.setText( index++, Const.NVL( change.getEncoding(), "" ) );
         item.setText( index++, Const.NVL( change.getDecimalSymbol(), "" ) );
         item.setText( index++, Const.NVL( change.getGroupingSymbol(), "" ) );
@@ -690,10 +690,10 @@ public class SelectValuesDialog extends BaseStepDialog implements StepDialogInte
   private String[] getCharsets() {
     if ( charsets == null ) {
       Collection<Charset> charsetCol = Charset.availableCharsets().values();
-      charsets = new String[charsetCol.size()];
+      charsets = new String[ charsetCol.size() ];
       int i = 0;
       for ( Charset charset : charsetCol ) {
-        charsets[i++] = charset.displayName();
+        charsets[ i++ ] = charset.displayName();
       }
     }
     return charsets;
@@ -723,31 +723,31 @@ public class SelectValuesDialog extends BaseStepDialog implements StepDialogInte
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrfields; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      input.getSelectFields()[i].setName( item.getText( 1 ) );
-      input.getSelectFields()[i].setRename( item.getText( 2 ) );
-      if ( input.getSelectFields()[i].getRename() == null || input.getSelectFields()[i].getName().length() == 0 ) {
-        input.getSelectFields()[i].setRename( input.getSelectFields()[i].getName() );
+      input.getSelectFields()[ i ].setName( item.getText( 1 ) );
+      input.getSelectFields()[ i ].setRename( item.getText( 2 ) );
+      if ( input.getSelectFields()[ i ].getRename() == null || input.getSelectFields()[ i ].getName().length() == 0 ) {
+        input.getSelectFields()[ i ].setRename( input.getSelectFields()[ i ].getName() );
       }
-      input.getSelectFields()[i].setLength( Const.toInt( item.getText( 3 ), -2 ) );
-      input.getSelectFields()[i].setPrecision( Const.toInt( item.getText( 4 ), -2 ) );
+      input.getSelectFields()[ i ].setLength( Const.toInt( item.getText( 3 ), -2 ) );
+      input.getSelectFields()[ i ].setPrecision( Const.toInt( item.getText( 4 ), -2 ) );
 
-      if ( input.getSelectFields()[i].getLength() < -2 ) {
-        input.getSelectFields()[i].setLength( -2 );
+      if ( input.getSelectFields()[ i ].getLength() < -2 ) {
+        input.getSelectFields()[ i ].setLength( -2 );
       }
-      if ( input.getSelectFields()[i].getPrecision() < -2 ) {
-        input.getSelectFields()[i].setPrecision( -2 );
+      if ( input.getSelectFields()[ i ].getPrecision() < -2 ) {
+        input.getSelectFields()[ i ].setPrecision( -2 );
       }
     }
     input.setSelectingAndSortingUnspecifiedFields( wUnspecified.getSelection() );
 
     for ( int i = 0; i < nrremove; i++ ) {
       TableItem item = wRemove.getNonEmpty( i );
-      input.getDeleteName()[i] = item.getText( 1 );
+      input.getDeleteName()[ i ] = item.getText( 1 );
     }
 
     for ( int i = 0; i < nrmeta; i++ ) {
       SelectMetadataChange change = new SelectMetadataChange( input );
-      input.getMeta()[i] = change;
+      input.getMeta()[ i ] = change;
 
       TableItem item = wMeta.getNonEmpty( i );
 
@@ -809,7 +809,7 @@ public class SelectValuesDialog extends BaseStepDialog implements StepDialogInte
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "SelectValuesDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "SelectValuesDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "SelectValuesDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 
@@ -828,7 +828,7 @@ public class SelectValuesDialog extends BaseStepDialog implements StepDialogInte
       for ( int i = 0; i < wRemove.getItemCount(); i++ ) {
         String[] columns = wRemove.getItem( i );
         for ( int a = 0; a < columns.length; a++ ) {
-          if ( columns[a].length() > 0 ) {
+          if ( columns[ a ].length() > 0 ) {
             MessageDialog.openError( shell, BaseMessages.getString(
               PKG, "SelectValuesDialog.DoMapping.NoDeletOrMetaTitle" ), BaseMessages.getString(
               PKG, "SelectValuesDialog.DoMapping.NoDeletOrMeta" ) );
@@ -839,7 +839,7 @@ public class SelectValuesDialog extends BaseStepDialog implements StepDialogInte
       for ( int i = 0; i < wMeta.getItemCount(); i++ ) {
         String[] columns = wMeta.getItem( i );
         for ( int a = 0; a < columns.length; a++ ) {
-          String col = columns[a];
+          String col = columns[ a ];
           if ( col.length() > 0 ) {
             MessageDialog.openError( shell, BaseMessages.getString(
               PKG, "SelectValuesDialog.DoMapping.NoDeletOrMetaTitle" ), BaseMessages.getString(
@@ -869,29 +869,29 @@ public class SelectValuesDialog extends BaseStepDialog implements StepDialogInte
       nextStepRequiredFields = new RowMeta();
     }
 
-    String[] inputNames = new String[prevFields.size()];
+    String[] inputNames = new String[ prevFields.size() ];
     for ( int i = 0; i < prevFields.size(); i++ ) {
       ValueMetaInterface value = prevFields.getValueMeta( i );
-      inputNames[i] = value.getName() + EnterMappingDialog.STRING_ORIGIN_SEPARATOR + value.getOrigin() + ")";
+      inputNames[ i ] = value.getName() + EnterMappingDialog.STRING_ORIGIN_SEPARATOR + value.getOrigin() + ")";
     }
 
-    String[] outputNames = new String[nextStepRequiredFields.size()];
+    String[] outputNames = new String[ nextStepRequiredFields.size() ];
     for ( int i = 0; i < nextStepRequiredFields.size(); i++ ) {
-      outputNames[i] = nextStepRequiredFields.getValueMeta( i ).getName();
+      outputNames[ i ] = nextStepRequiredFields.getValueMeta( i ).getName();
     }
 
-    String[] selectName = new String[wFields.getItemCount()];
-    String[] selectRename = new String[wFields.getItemCount()];
+    String[] selectName = new String[ wFields.getItemCount() ];
+    String[] selectRename = new String[ wFields.getItemCount() ];
     for ( int i = 0; i < wFields.getItemCount(); i++ ) {
-      selectName[i] = wFields.getItem( i, 1 );
-      selectRename[i] = wFields.getItem( i, 2 );
+      selectName[ i ] = wFields.getItem( i, 1 );
+      selectRename[ i ] = wFields.getItem( i, 2 );
     }
 
     List<SourceToTargetMapping> mappings = new ArrayList<SourceToTargetMapping>();
     StringBuilder missingFields = new StringBuilder();
     for ( int i = 0; i < selectName.length; i++ ) {
-      String valueName = selectName[i];
-      String valueRename = selectRename[i];
+      String valueName = selectName[ i ];
+      String valueRename = selectRename[ i ];
       int inIndex = prevFields.indexOfValue( valueName );
       if ( inIndex < 0 ) {
         missingFields.append( Const.CR + "   " + valueName + " --> " + valueRename );
@@ -932,7 +932,7 @@ public class SelectValuesDialog extends BaseStepDialog implements StepDialogInte
         SourceToTargetMapping mapping = mappings.get( i );
         TableItem item = wFields.table.getItem( i );
         item.setText( 1, prevFields.getValueMeta( mapping.getSourcePosition() ).getName() );
-        item.setText( 2, outputNames[mapping.getTargetPosition()] );
+        item.setText( 2, outputNames[ mapping.getTargetPosition() ] );
       }
       wFields.setRowNums();
       wFields.optWidth( true );
@@ -951,7 +951,7 @@ public class SelectValuesDialog extends BaseStepDialog implements StepDialogInte
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
 

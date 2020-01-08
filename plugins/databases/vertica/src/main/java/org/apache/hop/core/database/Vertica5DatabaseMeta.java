@@ -22,27 +22,27 @@
 
 package org.apache.hop.core.database;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 /**
  * Vertica Analytic Database version 5 and later (changed driver class name)
  *
  * @author DEinspanjer
- * @since 2009-03-16
  * @author Matt
- * @since May-2008
  * @author Jens
+ * @since 2009-03-16
+ * @since May-2008
  * @since Aug-2012
  */
 @DatabaseMetaPlugin(
-        type = "VERTICA5",
-        typeDescription = "Vertica 5"
+  type = "VERTICA5",
+  typeDescription = "Vertica 5"
 )
 @GuiPlugin( id = "GUI-Vertica5DatabaseMeta" )
 public class Vertica5DatabaseMeta extends VerticaDatabaseMeta {
@@ -62,12 +62,9 @@ public class Vertica5DatabaseMeta extends VerticaDatabaseMeta {
   /**
    * This method allows a database dialect to convert database specific data types to Hop data types.
    *
-   * @param rs
-   *          The result set to use
-   * @param val
-   *          The description of the value to retrieve
-   * @param index
-   *          the index on which we need to retrieve the value, 0-based.
+   * @param rs    The result set to use
+   * @param val   The description of the value to retrieve
+   * @param index the index on which we need to retrieve the value, 0-based.
    * @return The correctly converted Hop data type corresponding to the valueMeta description.
    * @throws HopDatabaseException
    */

@@ -22,24 +22,23 @@
 
 package org.apache.hop.trans.steps.exceloutput;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-
 import junit.framework.Assert;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * Test for case using template file
@@ -54,10 +53,10 @@ public class ExcelOutputTemplateTest {
   public static void setUp() throws HopException {
     HopEnvironment.init();
     helper =
-        new StepMockHelper<ExcelOutputMeta, ExcelOutputData>( "ExcelOutputTest", ExcelOutputMeta.class,
-            ExcelOutputData.class );
+      new StepMockHelper<ExcelOutputMeta, ExcelOutputData>( "ExcelOutputTest", ExcelOutputMeta.class,
+        ExcelOutputData.class );
     when( helper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        helper.logChannelInterface );
+      helper.logChannelInterface );
     when( helper.trans.isRunning() ).thenReturn( true );
   }
 
@@ -69,7 +68,7 @@ public class ExcelOutputTemplateTest {
   @Test
   public void testExceptionClosingWorkbook() throws Exception {
     ExcelOutput excelOutput =
-        new ExcelOutput( helper.stepMeta, helper.stepDataInterface, 0, helper.transMeta, helper.trans );
+      new ExcelOutput( helper.stepMeta, helper.stepDataInterface, 0, helper.transMeta, helper.trans );
     ExcelOutputMeta meta = createStepMeta();
     excelOutput.init( meta, helper.initStepDataInterface );
     Assert.assertEquals( "Step init error.", 0, excelOutput.getErrors() );

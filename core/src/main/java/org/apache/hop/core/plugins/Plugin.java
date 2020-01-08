@@ -22,20 +22,19 @@
 
 package org.apache.hop.core.plugins;
 
+import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.hop.core.Const;
+
 import java.net.URL;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang.builder.CompareToBuilder;
-import org.apache.hop.core.Const;
 
 /**
  * This describes the plugin itself, the IDs it listens too, what libraries (jar files) it uses, the names, the i18n
  * details, etc.
  *
  * @author matt
- *
  */
 public class Plugin implements PluginInterface, Comparable<Plugin> {
 
@@ -147,7 +146,6 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
   }
 
   /**
-   *
    * @param ids
    * @param pluginType
    * @param mainType
@@ -179,7 +177,6 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
   }
 
   /**
-   *
    * @param ids
    * @param pluginType
    * @param mainType
@@ -209,7 +206,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
 
   @Override
   public String toString() {
-    return ids[0] + "/" + name + "{" + pluginType + "}";
+    return ids[ 0 ] + "/" + name + "{" + pluginType + "}";
   }
 
   @Override
@@ -219,7 +216,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
 
   @Override
   public int hashCode() {
-    return ids[0].hashCode();
+    return ids[ 0 ].hashCode();
   }
 
   @Override
@@ -245,8 +242,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
   }
 
   /**
-   * @param category
-   *          the category to set
+   * @param category the category to set
    */
   public void setCategory( String category ) {
     this.category = category;
@@ -261,8 +257,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
   }
 
   /**
-   * @param name
-   *          the name to set
+   * @param name the name to set
    */
   public void setName( String name ) {
     this.name = name;
@@ -277,8 +272,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
   }
 
   /**
-   * @param description
-   *          the description to set
+   * @param description the description to set
    */
   public void setDescription( String description ) {
     this.description = description;
@@ -293,8 +287,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
   }
 
   /**
-   * @param ids
-   *          the ids to set
+   * @param ids the ids to set
    */
   public void setIds( String[] ids ) {
     this.ids = ids;
@@ -309,8 +302,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
   }
 
   /**
-   * @param pluginType
-   *          the pluginType to set
+   * @param pluginType the pluginType to set
    */
   public void setPluginType( Class<? extends PluginTypeInterface> pluginType ) {
     this.pluginType = pluginType;
@@ -325,8 +317,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
   }
 
   /**
-   * @param imageFile
-   *          the imageFile to set
+   * @param imageFile the imageFile to set
    */
   @Override
   public void setImageFile( String imageFile ) {
@@ -342,8 +333,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
   }
 
   /**
-   * @param separateClassLoaderNeeded
-   *          the separateClassLoaderNeeded to set
+   * @param separateClassLoaderNeeded the separateClassLoaderNeeded to set
    */
   public void setSaperateClassLoaderNeeded( boolean separateClassLoaderNeeded ) {
     this.separateClassLoaderNeeded = separateClassLoaderNeeded;
@@ -358,8 +348,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
   }
 
   /**
-   * @param nativePlugin
-   *          the nativePlugin to set
+   * @param nativePlugin the nativePlugin to set
    */
   public void setNativePlugin( boolean nativePlugin ) {
     this.nativePlugin = nativePlugin;
@@ -374,8 +363,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
   }
 
   /**
-   * @param classMap
-   *          the classMap to set
+   * @param classMap the classMap to set
    */
   public void setClassMap( Map<Class<?>, String> classMap ) {
     this.classMap = classMap;
@@ -390,8 +378,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
   }
 
   /**
-   * @param libraries
-   *          the libraries to set
+   * @param libraries the libraries to set
    */
   public void setLibraries( List<String> libraries ) {
     this.libraries = libraries;
@@ -406,8 +393,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
   }
 
   /**
-   * @param errorHelpFile
-   *          the errorHelpFile to set
+   * @param errorHelpFile the errorHelpFile to set
    */
   @Override
   public void setErrorHelpFile( String errorHelpFile ) {
@@ -433,8 +419,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
   }
 
   /**
-   * @param documentationUrl
-   *          the documentationUrl to set
+   * @param documentationUrl the documentationUrl to set
    */
   @Override
   public void setDocumentationUrl( String documentationUrl ) {
@@ -450,8 +435,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
   }
 
   /**
-   * @param casesUrl
-   *          the casesUrl to set
+   * @param casesUrl the casesUrl to set
    */
   @Override
   public void setCasesUrl( String casesUrl ) {
@@ -467,8 +451,7 @@ public class Plugin implements PluginInterface, Comparable<Plugin> {
   }
 
   /**
-   * @param forumUrl
-   *          the forum URL to set
+   * @param forumUrl the forum URL to set
    */
   @Override
   public void setForumUrl( String forumUrl ) {

@@ -22,6 +22,30 @@
 
 package org.apache.hop.ui.trans.steps.rssinput;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPreviewFactory;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.rssinput.RssInputField;
+import org.apache.hop.trans.steps.rssinput.RssInputMeta;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.ComponentSelectionListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -48,30 +72,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPreviewFactory;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.rssinput.RssInputField;
-import org.apache.hop.trans.steps.rssinput.RssInputMeta;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.ComponentSelectionListener;
 
 public class RssInputDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = RssInputMeta.class; // for i18n purposes, needed by Translator2!!
@@ -284,11 +284,11 @@ public class RssInputDialog extends BaseStepDialog implements StepDialogInterfac
     fdlUrlList.top = new FormAttachment( GroupUrlField, margin );
     wlUrlList.setLayoutData( fdlUrlList );
 
-    ColumnInfo[] colinfo = new ColumnInfo[1];
-    colinfo[0] =
+    ColumnInfo[] colinfo = new ColumnInfo[ 1 ];
+    colinfo[ 0 ] =
       new ColumnInfo( BaseMessages.getString( PKG, "RssInputDialog.Url" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinfo[0].setUsingVariables( true );
-    colinfo[0].setToolTip( BaseMessages.getString( PKG, "RssInputDialog.Url.Tooltip" ) );
+    colinfo[ 0 ].setUsingVariables( true );
+    colinfo[ 0 ].setToolTip( BaseMessages.getString( PKG, "RssInputDialog.Url.Tooltip" ) );
 
     wUrlList =
       new TableView(
@@ -497,12 +497,12 @@ public class RssInputDialog extends BaseStepDialog implements StepDialogInterfac
     String[] dats = Const.getDateFormats();
     String[] nums = Const.getNumberFormats();
     int totsize = dats.length + nums.length;
-    String[] formats = new String[totsize];
+    String[] formats = new String[ totsize ];
     for ( int x = 0; x < dats.length; x++ ) {
-      formats[x] = dats[x];
+      formats[ x ] = dats[ x ];
     }
     for ( int x = 0; x < nums.length; x++ ) {
-      formats[dats.length + x] = nums[x];
+      formats[ dats.length + x ] = nums[ x ];
     }
 
     ColumnInfo[] colinf =
@@ -540,10 +540,10 @@ public class RssInputDialog extends BaseStepDialog implements StepDialogInterfac
 
       };
 
-    colinf[0].setUsingVariables( true );
-    colinf[0].setToolTip( BaseMessages.getString( PKG, "RssInputDialog.Field.Name.Tooltip" ) );
-    colinf[1].setUsingVariables( true );
-    colinf[1].setToolTip( BaseMessages.getString( PKG, "RssInputDialog.Field.Column.Tooltip" ) );
+    colinf[ 0 ].setUsingVariables( true );
+    colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "RssInputDialog.Field.Name.Tooltip" ) );
+    colinf[ 1 ].setUsingVariables( true );
+    colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "RssInputDialog.Field.Column.Tooltip" ) );
 
     wFields =
       new TableView( transMeta, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
@@ -689,7 +689,7 @@ public class RssInputDialog extends BaseStepDialog implements StepDialogInterfac
         r.getFieldNames();
 
         for ( int i = 0; i < r.getFieldNames().length; i++ ) {
-          wUrlField.add( r.getFieldNames()[i] );
+          wUrlField.add( r.getFieldNames()[ i ] );
 
         }
       }
@@ -697,7 +697,7 @@ public class RssInputDialog extends BaseStepDialog implements StepDialogInterfac
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "RssInputDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "RssInputDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "RssInputDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 
@@ -743,7 +743,7 @@ public class RssInputDialog extends BaseStepDialog implements StepDialogInterfac
     } catch ( Exception e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "RssInputDialog.ErrorGettingFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "getXMLDataDialog.ErrorGettingFields.DialogMessage" ), e );
+        .getString( PKG, "getXMLDataDialog.ErrorGettingFields.DialogMessage" ), e );
     }
   }
 
@@ -760,8 +760,7 @@ public class RssInputDialog extends BaseStepDialog implements StepDialogInterfac
   /**
    * Read the data from the TextFileInputMeta object and show it in this dialog.
    *
-   * @param in
-   *          The TextFileInputMeta object to obtain the data from.
+   * @param in The TextFileInputMeta object to obtain the data from.
    */
   public void getData( RssInputMeta in ) {
     if ( in.getReadFrom() != null ) {
@@ -771,7 +770,7 @@ public class RssInputDialog extends BaseStepDialog implements StepDialogInterfac
     if ( in.getUrl() != null ) {
       wUrlList.removeAll();
       for ( int i = 0; i < in.getUrl().length; i++ ) {
-        wUrlList.add( new String[] { in.getUrl()[i] } );
+        wUrlList.add( new String[] { in.getUrl()[ i ] } );
       }
       wUrlList.removeEmptyRows();
       wUrlList.setRowNums();
@@ -799,7 +798,7 @@ public class RssInputDialog extends BaseStepDialog implements StepDialogInterfac
       logDebug( BaseMessages.getString( PKG, "RssInputDialog.Log.GettingFieldsInfo" ) );
     }
     for ( int i = 0; i < in.getInputFields().length; i++ ) {
-      RssInputField field = in.getInputFields()[i];
+      RssInputField field = in.getInputFields()[ i ];
 
       if ( field != null ) {
         TableItem item = wFields.table.getItem( i );
@@ -880,7 +879,7 @@ public class RssInputDialog extends BaseStepDialog implements StepDialogInterfac
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "RssInputDialog.ErrorParsingData.DialogTitle" ), BaseMessages
-          .getString( PKG, "RssInputDialog.ErrorParsingData.DialogMessage" ), e );
+        .getString( PKG, "RssInputDialog.ErrorParsingData.DialogMessage" ), e );
     }
     dispose();
   }
@@ -926,7 +925,7 @@ public class RssInputDialog extends BaseStepDialog implements StepDialogInterfac
       field.setRepeated( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 11 ) ) );
 
       //CHECKSTYLE:Indentation:OFF
-      in.getInputFields()[i] = field;
+      in.getInputFields()[ i ] = field;
     }
   }
 
@@ -976,7 +975,7 @@ public class RssInputDialog extends BaseStepDialog implements StepDialogInterfac
             EnterTextDialog etd =
               new EnterTextDialog(
                 shell, BaseMessages.getString( PKG, "System.Dialog.PreviewError.Title" ), BaseMessages
-                  .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
+                .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
             etd.setReadOnly();
             etd.open();
           }
@@ -984,7 +983,7 @@ public class RssInputDialog extends BaseStepDialog implements StepDialogInterfac
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
               shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta( wStepname
-                .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
+              .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
           prd.open();
 
         }
@@ -992,7 +991,7 @@ public class RssInputDialog extends BaseStepDialog implements StepDialogInterfac
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "RssInputDialog.ErrorPreviewingData.DialogTitle" ), BaseMessages
-          .getString( PKG, "RssInputDialog.ErrorPreviewingData.DialogMessage" ), e );
+        .getString( PKG, "RssInputDialog.ErrorPreviewingData.DialogMessage" ), e );
     }
   }
 }

@@ -24,18 +24,11 @@ package org.apache.hop.ui.hopui;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.job.JobEntryJob;
-import org.apache.hop.job.entries.trans.JobEntryTrans;
-import org.apache.hop.job.entry.JobEntryCopy;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 
 public class JobFileListenerTest {
@@ -68,8 +61,8 @@ public class JobFileListenerTest {
     String[] names = jobFileListener.getFileTypeDisplayNames( null );
     assertNotNull( names );
     assertEquals( 2, names.length );
-    assertEquals( "Jobs", names[0] );
-    assertEquals( "XML", names[1] );
+    assertEquals( "Jobs", names[ 0 ] );
+    assertEquals( "XML", names[ 1 ] );
   }
 
   @Test
@@ -82,7 +75,7 @@ public class JobFileListenerTest {
     String[] extensions = jobFileListener.getSupportedExtensions();
     assertNotNull( extensions );
     assertEquals( 2, extensions.length );
-    assertEquals( "kjb", extensions[0] );
-    assertEquals( "xml", extensions[1] );
+    assertEquals( "kjb", extensions[ 0 ] );
+    assertEquals( "xml", extensions[ 1 ] );
   }
 }

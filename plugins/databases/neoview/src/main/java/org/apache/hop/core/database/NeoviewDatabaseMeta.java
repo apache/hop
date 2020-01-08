@@ -22,16 +22,16 @@
 
 package org.apache.hop.core.database;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.plugins.DatabaseMetaPlugin;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
+
 import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import org.apache.hop.core.Const;
-import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.plugins.DatabaseMetaPlugin;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.row.ValueMetaInterface;
 
 /**
  * Contains HP Neoview specific information through static final members
@@ -40,10 +40,10 @@ import org.apache.hop.core.row.ValueMetaInterface;
  * @since 2008-04-18
  */
 @DatabaseMetaPlugin(
-        type = "NEOVIEW",
-        typeDescription = "Neoview"
+  type = "NEOVIEW",
+  typeDescription = "Neoview"
 )
-@GuiPlugin( id="GUI-NeoviewDatabaseMeta" )
+@GuiPlugin( id = "GUI-NeoviewDatabaseMeta" )
 public class NeoviewDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   @Override
   public int[] getAccessTypeList() {
@@ -79,8 +79,7 @@ public class NeoviewDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   /**
    * Returns the minimal SQL to launch in order to determine the layout of the resultset for a given database table
    *
-   * @param tableName
-   *          The name of the table to determine the layout for
+   * @param tableName The name of the table to determine the layout for
    * @return The SQL to launch.
    */
   @Override
@@ -158,23 +157,17 @@ public class NeoviewDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   /**
    * Generates the SQL statement to add a column to the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
   public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                       String pk, boolean semicolon ) {
     return "ALTER TABLE "
       + tablename + " ADD ( " + getFieldDefinition( v, tk, pk, use_autoinc, true, false ) + " ) ";
   }
@@ -182,52 +175,40 @@ public class NeoviewDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   /**
    * Generates the SQL statement to drop a column from the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to drop a column from the specified table
    */
   @Override
   public String getDropColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                        String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " DROP ( " + v.getName() + " ) " + Const.CR;
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
   public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                          String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " MODIFY " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
   }
 
   @Override
   public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-    boolean add_fieldname, boolean add_cr ) {
+                                    boolean add_fieldname, boolean add_cr ) {
     String retval = "";
 
     String fieldname = v.getName();
@@ -364,7 +345,7 @@ public class NeoviewDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   public String getSQLLockTables( String[] tableNames ) {
     StringBuilder sql = new StringBuilder( 128 );
     for ( int i = 0; i < tableNames.length; i++ ) {
-      sql.append( "LOCK TABLE " ).append( tableNames[i] ).append( " IN EXCLUSIVE MODE;" ).append( Const.CR );
+      sql.append( "LOCK TABLE " ).append( tableNames[ i ] ).append( " IN EXCLUSIVE MODE;" ).append( Const.CR );
     }
     return sql.toString();
   }
@@ -400,12 +381,9 @@ public class NeoviewDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   /**
    * This method allows a database dialect to convert database specific data types to Hop data types.
    *
-   * @param resultSet
-   *          The result set to use
-   * @param valueMeta
-   *          The description of the value to retrieve
-   * @param index
-   *          the index on which we need to retrieve the value, 0-based.
+   * @param resultSet The result set to use
+   * @param valueMeta The description of the value to retrieve
+   * @param index     the index on which we need to retrieve the value, 0-based.
    * @return The correctly converted Hop data type corresponding to the valueMeta description.
    * @throws HopDatabaseException
    */
@@ -452,7 +430,7 @@ public class NeoviewDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
             // Neoview can not handle getDate / getTimestamp for a Time column
             data = rs.getTime( i + 1 );
             break; // Time is a subclass of java.util.Date, the default date
-                   // will be 1970-01-01
+            // will be 1970-01-01
           } else if ( val.getPrecision() != 1 && supportsTimeStampToDateConversion() ) {
             data = rs.getTimestamp( i + 1 );
             break; // Timestamp extends java.util.Date
@@ -475,6 +453,8 @@ public class NeoviewDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   @Override
-  public boolean isNeoviewVariant(){return true;}
+  public boolean isNeoviewVariant() {
+    return true;
+  }
 
 }

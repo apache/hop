@@ -24,20 +24,18 @@ package org.apache.hop.core.database.util;
 
 import com.mysql.jdbc.MysqlDataTruncation;
 import com.mysql.jdbc.PacketTooBigException;
+import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.MySQLDatabaseMeta;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.logging.LogTableCoreInterface;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mariadb.jdbc.internal.stream.MaxAllowedPacketException;
 
 import static org.junit.Assert.assertEquals;
-
-import org.apache.hop.core.database.DatabaseInterface;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.logging.LogTableCoreInterface;
-
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DatabaseLogExceptionFactoryTest {
 
@@ -102,8 +100,8 @@ public class DatabaseLogExceptionFactoryTest {
     when( databaseMeta.getDatabaseInterface() ).thenReturn( databaseInterface );
 
     LogExceptionBehaviourInterface
-            exceptionStrategy =
-            DatabaseLogExceptionFactory.getExceptionStrategy( logTable, new HopDatabaseException( e ) );
+      exceptionStrategy =
+      DatabaseLogExceptionFactory.getExceptionStrategy( logTable, new HopDatabaseException( e ) );
     String strategyName = exceptionStrategy.getClass().getName();
     assertEquals( SUPPRESSABLE_WITH_SHORT_MESSAGE, strategyName );
   }
@@ -121,8 +119,8 @@ public class DatabaseLogExceptionFactoryTest {
     when( databaseMeta.getDatabaseInterface() ).thenReturn( databaseInterface );
 
     LogExceptionBehaviourInterface
-            exceptionStrategy =
-            DatabaseLogExceptionFactory.getExceptionStrategy( logTable, new HopDatabaseException( e ) );
+      exceptionStrategy =
+      DatabaseLogExceptionFactory.getExceptionStrategy( logTable, new HopDatabaseException( e ) );
     String strategyName = exceptionStrategy.getClass().getName();
     assertEquals( SUPPRESSABLE_WITH_SHORT_MESSAGE, strategyName );
   }
@@ -141,8 +139,8 @@ public class DatabaseLogExceptionFactoryTest {
     when( databaseMeta.getDatabaseInterface() ).thenReturn( databaseInterface );
 
     LogExceptionBehaviourInterface
-            exceptionStrategy =
-            DatabaseLogExceptionFactory.getExceptionStrategy( logTable, new HopDatabaseException( e ) );
+      exceptionStrategy =
+      DatabaseLogExceptionFactory.getExceptionStrategy( logTable, new HopDatabaseException( e ) );
     String strategyName = exceptionStrategy.getClass().getName();
     assertEquals( THROWABLE, strategyName );
   }

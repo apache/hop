@@ -22,16 +22,6 @@
 
 package org.apache.hop.trans.steps.orabulkloader;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -41,6 +31,16 @@ import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.DatabaseMetaLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 public class OraBulkLoaderMetaTest {
   Class<OraBulkLoaderMeta> testMetaClass = OraBulkLoaderMeta.class;
@@ -52,10 +52,10 @@ public class OraBulkLoaderMetaTest {
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "schemaName", "tableName", "sqlldr", "controlFile", "dataFile", "logFile", "badFile",
-            "discardFile", "commitSize", "bindSize", "readSize", "maxErrors", "loadMethod", "loadAction",
-            "encoding", "characterSetName", "directPath", "eraseFiles", "dbNameOverride", "failOnWarning",
-            "failOnError", "parallel", "altRecordTerm", "fieldTable", "fieldStream", "dateMask", "databaseMeta" );
+      Arrays.asList( "schemaName", "tableName", "sqlldr", "controlFile", "dataFile", "logFile", "badFile",
+        "discardFile", "commitSize", "bindSize", "readSize", "maxErrors", "loadMethod", "loadAction",
+        "encoding", "characterSetName", "directPath", "eraseFiles", "dbNameOverride", "failOnWarning",
+        "failOnError", "parallel", "altRecordTerm", "fieldTable", "fieldStream", "dateMask", "databaseMeta" );
 
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
@@ -120,9 +120,9 @@ public class OraBulkLoaderMetaTest {
       }
     };
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
     FieldLoadSaveValidator<String[]> datemaskArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new DateMaskLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<String>( new DateMaskLoadSaveValidator(), 5 );
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "fieldTable", stringArrayLoadSaveValidator );
@@ -134,7 +134,7 @@ public class OraBulkLoaderMetaTest {
     // typeValidatorMap.put( int[].class.getCanonicalName(), new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator(), 1 ) );
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
+      new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
   }
 
   @Test

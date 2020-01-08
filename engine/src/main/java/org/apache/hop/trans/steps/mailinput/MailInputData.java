@@ -22,19 +22,17 @@
 
 package org.apache.hop.trans.steps.mailinput;
 
-import java.util.Iterator;
-
-import javax.mail.Message;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.job.entries.getpop.MailConnection;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 
+import javax.mail.Message;
+import java.util.Iterator;
+
 /**
  * @author Matt
  * @since 24-jan-2005
- *
  */
 public class MailInputData extends BaseStepData implements StepDataInterface {
   public RowMetaInterface inputRowMeta;

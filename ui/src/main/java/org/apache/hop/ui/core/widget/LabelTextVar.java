@@ -22,6 +22,9 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.ui.core.PropsUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -32,16 +35,12 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.ui.core.PropsUI;
 
 /**
  * Adds a line of text with a label and a variable to a composite (like a dialog shell)
  *
  * @author Matt
  * @since 17-may-2006
- *
  */
 public class LabelTextVar extends Composite {
   private static final PropsUI props = PropsUI.getInstance();
@@ -60,8 +59,9 @@ public class LabelTextVar extends Composite {
   public LabelTextVar( VariableSpace space, Composite composite, int flags, String labelText, String toolTipText ) {
     this( space, composite, flags, labelText, toolTipText, false );
   }
+
   public LabelTextVar( VariableSpace space, Composite composite, int flags, String labelText, String toolTipText,
-      boolean passwordField ) {
+                       boolean passwordField ) {
     super( composite, SWT.NONE );
     props.setLook( this );
 

@@ -31,7 +31,6 @@ import org.apache.hop.laf.LAFFactory;
  * and feel (LAF)
  *
  * @author dhushon
- *
  */
 public class BaseMessages implements LAFChangeListener<MessageHandler> {
   static BaseMessages instance = null;
@@ -91,9 +90,9 @@ public class BaseMessages implements LAFChangeListener<MessageHandler> {
   }
 
   public static String getString( Class<?> packageClass, String key, Object... parameters ) {
-    String[] strings = new String[parameters.length];
+    String[] strings = new String[ parameters.length ];
     for ( int i = 0; i < strings.length; i++ ) {
-      strings[i] = parameters[i] != null ? parameters[i].toString() : "";
+      strings[ i ] = parameters[ i ] != null ? parameters[ i ].toString() : "";
     }
     return getString( packageClass, key, strings );
   }

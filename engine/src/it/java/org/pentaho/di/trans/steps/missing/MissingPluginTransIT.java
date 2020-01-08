@@ -22,13 +22,13 @@
 
 package org.apache.hop.trans.steps.missing;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -53,7 +53,7 @@ public class MissingPluginTransIT {
   @Test
   public void testForPluginMissingStep() throws Exception {
     InputStream is = new FileInputStream(
-        new File( this.getClass().getResource( "missing_plugin_trans.ktr" ).getFile() ) );
+      new File( this.getClass().getResource( "missing_plugin_trans.ktr" ).getFile() ) );
     TransMeta transMeta = new TransMeta( is, null, false, null, null );
     Trans trans = new Trans( transMeta );
     LogChannelInterface log = mock( LogChannelInterface.class );

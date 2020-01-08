@@ -21,9 +21,17 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.calculator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
+import org.apache.hop.trans.steps.loadsave.initializer.InitializerInterface;
+import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
+import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,17 +41,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
-import org.apache.hop.trans.steps.loadsave.initializer.InitializerInterface;
-import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class CalculatorMetaTest implements InitializerInterface<CalculatorMeta> {
 
@@ -104,6 +104,7 @@ public class CalculatorMetaTest implements InitializerInterface<CalculatorMeta> 
 
   public class CalculatorMetaFunctionLoadSaveValidator implements FieldLoadSaveValidator<CalculatorMetaFunction> {
     final Random rand = new Random();
+
     @Override
     public CalculatorMetaFunction getTestObject() {
       CalculatorMetaFunction rtn = new CalculatorMetaFunction();
@@ -125,7 +126,7 @@ public class CalculatorMetaTest implements InitializerInterface<CalculatorMeta> 
 
     @Override
     public boolean validateTestObject( CalculatorMetaFunction testObject, Object actual ) {
-      if ( !( actual instanceof  CalculatorMetaFunction ) ) {
+      if ( !( actual instanceof CalculatorMetaFunction ) ) {
         return false;
       }
       CalculatorMetaFunction actualInput = (CalculatorMetaFunction) actual;

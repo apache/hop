@@ -22,17 +22,33 @@
 
 package org.apache.hop.ui.hopui.trans;
 
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogStatus;
+import org.apache.hop.core.logging.LogTableField;
+import org.apache.hop.core.logging.LogTableInterface;
+import org.apache.hop.core.row.ValueMeta;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopui.XulHopUiResourceBundle;
+import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
+import org.apache.hop.ui.hopui.delegates.HopUiDelegate;
+import org.apache.hop.ui.xul.HopXulLoader;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -50,35 +66,19 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogStatus;
-import org.apache.hop.core.logging.LogTableField;
-import org.apache.hop.core.logging.LogTableInterface;
-import org.apache.hop.core.row.ValueMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.hopui.XulHopUiResourceBundle;
-import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
-import org.apache.hop.ui.hopui.delegates.HopUiDelegate;
-import org.apache.hop.ui.xul.HopXulLoader;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.components.XulToolbarbutton;
 import org.pentaho.ui.xul.containers.XulToolbar;
 import org.pentaho.ui.xul.impl.XulEventHandler;
+
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandler {
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!! $NON-NLS-1$
@@ -108,10 +108,8 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
   }
 
   /**
-   * @param hopUi
-   *          Spoon instance
-   * @param transGraph
-   *          TransGraph instance
+   * @param hopUi      Spoon instance
+   * @param transGraph TransGraph instance
    */
   public TransHistoryDelegate( HopUi hopUi, TransGraph transGraph ) {
     super( hopUi );
@@ -195,9 +193,9 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
     fdTabFolder.bottom = new FormAttachment( 100, 0 );
     tabFolder.setLayoutData( fdTabFolder );
 
-    models = new TransHistoryLogTab[transMeta.getLogTables().size()];
+    models = new TransHistoryLogTab[ transMeta.getLogTables().size() ];
     for ( int i = 0; i < models.length; i++ ) {
-      models[i] = new TransHistoryLogTab( tabFolder, transMeta.getLogTables().get( i ) );
+      models[ i ] = new TransHistoryLogTab( tabFolder, transMeta.getLogTables().get( i ) );
     }
   }
 
@@ -240,7 +238,7 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
    * Better ask confirmation
    */
   private void clearLogTable( int index ) {
-    TransHistoryLogTab model = models[index];
+    TransHistoryLogTab model = models[ index ];
     LogTableInterface logTable = model.logTable;
 
     if ( logTable.isDefined() ) {
@@ -275,12 +273,12 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
    * Public for XUL.
    */
   public void replayHistory() {
-    TransHistoryLogTab model = models[tabFolder.getSelectionIndex()];
+    TransHistoryLogTab model = models[ tabFolder.getSelectionIndex() ];
 
     int idx = model.logDisplayTableView.getSelectionIndex();
     if ( idx >= 0 ) {
       String[] fields = model.logDisplayTableView.getItem( idx );
-      String dateString = fields[13];
+      String dateString = fields[ 13 ];
       Date replayDate = XMLHandler.stringToDate( dateString );
       hopUi.executeTransformation( transGraph.getManagedObject(), true, false, false, false, false, replayDate, false,
         hopUi.getTransExecutionConfiguration().getLogLevel() );
@@ -312,7 +310,7 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
           @Override
           public void run() {
             setQueryInProgress( true );
-            TransHistoryLogTab model = models[index];
+            TransHistoryLogTab model = models[ index ];
             model.setLogTable( transMeta.getLogTables().get( index ) );
           }
         } );
@@ -340,8 +338,7 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
   /**
    * Don't allow more queries until this one finishes.
    *
-   * @param inProgress
-   *          is query in progress
+   * @param inProgress is query in progress
    */
   private void setQueryInProgress( final boolean inProgress ) {
     refreshButton.setDisabled( inProgress );
@@ -352,7 +349,7 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
   private boolean getHistoryData( final int index, final Mode mode ) {
     final int BATCH_SIZE = Props.getInstance().getLinesInHistoryFetchSize();
     boolean moreRows = false;
-    TransHistoryLogTab model = models[index];
+    TransHistoryLogTab model = models[ index ];
     LogTableInterface logTable = model.logTable;
     // See if there is a transformation loaded that has a connection table specified.
     //
@@ -463,6 +460,7 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
 
   /**
    * Maps UI columns to DB columns
+   *
    * @return {@link Map} with the mapping between UI column names and index of the corresponding DB column
    */
   @VisibleForTesting
@@ -483,8 +481,9 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
 
   /**
    * Returns the {@link ValueMetaInterface} for a specified log table field
+   *
    * @param columns The list of UI columns
-   * @param field The field to look for
+   * @param field   The field to look for
    * @return The {@link ValueMetaInterface} for the specified field
    */
   @VisibleForTesting
@@ -497,7 +496,7 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
   }
 
   private void displayHistoryData( final int index ) {
-    TransHistoryLogTab model = models[index];
+    TransHistoryLogTab model = models[ index ];
 
     if ( model.logDisplayTableView == null || model.logDisplayTableView.isDisposed() ) {
       return;
@@ -523,7 +522,7 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
         TableItem item = new TableItem( model.logDisplayTableView.table, SWT.NONE );
 
         for ( int c = 0; c < colinf.length; c++ ) {
-          ColumnInfo column = colinf[c];
+          ColumnInfo column = colinf[ c ];
 
           ValueMetaInterface valueMeta = column.getValueMeta();
           String string = null;
@@ -541,7 +540,7 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
         LogStatus status = null;
 
         if ( errorsField != null ) {
-          ValueMetaInterface  valueMeta = getValueMetaForColumn( colinf, errorsField );
+          ValueMetaInterface valueMeta = getValueMetaForColumn( colinf, errorsField );
           try {
             errors = valueMeta.getInteger( rowData[ map.get( valueMeta.getName() ) ] );
           } catch ( HopValueException e ) {
@@ -549,7 +548,7 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
           }
         }
         if ( statusField != null ) {
-          ValueMetaInterface  valueMeta = getValueMetaForColumn( colinf, statusField );
+          ValueMetaInterface valueMeta = getValueMetaForColumn( colinf, statusField );
           String statusString = null;
           try {
             statusString = valueMeta.getString( rowData[ map.get( valueMeta.getName() ) ] );
@@ -582,7 +581,7 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
   }
 
   private void showLogEntry() {
-    TransHistoryLogTab model = models[tabFolder.getSelectionIndex()];
+    TransHistoryLogTab model = models[ tabFolder.getSelectionIndex() ];
 
     Text text = model.logDisplayText;
 
@@ -615,7 +614,7 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
       if ( logField != null ) {
         int index = model.logTableFields.indexOf( logField );
         if ( index >= 0 ) {
-          String logText = row[index].toString();
+          String logText = row[ index ].toString();
 
           text.setText( Const.NVL( logText, "" ) );
 
@@ -833,7 +832,7 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
       }
 
       TableView tableView = new TableView( transMeta, parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE,
-        columnList.toArray( new ColumnInfo[columnList.size()] ), 1,
+        columnList.toArray( new ColumnInfo[ columnList.size() ] ), 1,
         true, // readonly!
         null, hopUi.props );
 

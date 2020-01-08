@@ -22,8 +22,29 @@
 
 package org.apache.hop.ui.trans.steps.validator;
 
-import java.util.ArrayList;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.errorhandling.StreamInterface;
+import org.apache.hop.trans.steps.validator.Validation;
+import org.apache.hop.trans.steps.validator.ValidatorMeta;
+import org.apache.hop.ui.core.dialog.EnterStringDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.warning.SimpleWarningMessage;
+import org.apache.hop.ui.core.widget.warning.SupportsWarningInterface;
+import org.apache.hop.ui.core.widget.warning.TextVarWarning;
+import org.apache.hop.ui.core.widget.warning.WarningInterface;
+import org.apache.hop.ui.core.widget.warning.WarningMessageInterface;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -53,29 +74,8 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopStepException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.errorhandling.StreamInterface;
-import org.apache.hop.trans.steps.validator.Validation;
-import org.apache.hop.trans.steps.validator.ValidatorMeta;
-import org.apache.hop.ui.core.dialog.EnterStringDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.warning.SimpleWarningMessage;
-import org.apache.hop.ui.core.widget.warning.SupportsWarningInterface;
-import org.apache.hop.ui.core.widget.warning.TextVarWarning;
-import org.apache.hop.ui.core.widget.warning.WarningInterface;
-import org.apache.hop.ui.core.widget.warning.WarningMessageInterface;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.ArrayList;
 
 public class ValidatorDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = ValidatorMeta.class; // for i18n purposes, needed by Translator2!!
@@ -253,7 +253,7 @@ public class ValidatorDialog extends BaseStepDialog implements StepDialogInterfa
     props.setLook( wValidationsList );
     wValidationsList.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent event ) {
-        showSelectedValidatorField( wValidationsList.getSelection()[0] );
+        showSelectedValidatorField( wValidationsList.getSelection()[ 0 ] );
       }
     } );
 
@@ -1314,7 +1314,7 @@ public class ValidatorDialog extends BaseStepDialog implements StepDialogInterfa
       busy.dispose();
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "ValidatorDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "ValidatorDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "ValidatorDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 }

@@ -22,11 +22,6 @@
 
 package org.apache.hop.trans.steps.cubeinput;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.net.SocketTimeoutException;
-import java.util.zip.GZIPInputStream;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopEOFException;
@@ -43,6 +38,11 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.util.zip.GZIPInputStream;
+
 public class CubeInput extends BaseStep implements StepInterface {
   private static Class<?> PKG = CubeInputMeta.class; // for i18n purposes, needed by Translator2!!
 
@@ -51,7 +51,7 @@ public class CubeInput extends BaseStep implements StepInterface {
   private int realRowLimit;
 
   public CubeInput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                    Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 

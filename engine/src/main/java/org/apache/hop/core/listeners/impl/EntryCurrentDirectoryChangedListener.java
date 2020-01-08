@@ -22,15 +22,14 @@
 
 package org.apache.hop.core.listeners.impl;
 
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
+import com.google.common.base.Objects;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.listeners.CurrentDirectoryChangedListener;
 import org.apache.hop.core.variables.Variables;
 
-import com.google.common.base.Objects;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Updates directory references referencing {@link Const#INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY}
@@ -39,6 +38,7 @@ public class EntryCurrentDirectoryChangedListener implements CurrentDirectoryCha
 
   public interface PathReference {
     String getPath();
+
     void setPath( String path );
   }
 
@@ -49,8 +49,8 @@ public class EntryCurrentDirectoryChangedListener implements CurrentDirectoryCha
   }
 
   public EntryCurrentDirectoryChangedListener(
-      Supplier<String> pathGetter,
-      Consumer<String> pathSetter ) {
+    Supplier<String> pathGetter,
+    Consumer<String> pathSetter ) {
     this( new PathReference() {
 
       @Override

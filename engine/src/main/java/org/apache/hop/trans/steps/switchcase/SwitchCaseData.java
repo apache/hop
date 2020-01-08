@@ -22,19 +22,18 @@
 
 package org.apache.hop.trans.steps.switchcase;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author Matt
  * @since 24-jan-2005
- *
  */
 public class SwitchCaseData extends BaseStepData implements StepDataInterface {
 

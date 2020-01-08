@@ -22,11 +22,6 @@
 
 package org.apache.hop.trans.steps.parallelgzipcsv;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
@@ -45,6 +40,11 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.GZIPInputStream;
+
 /**
  * Read a simple CSV file Just output Strings found in the file...
  *
@@ -58,7 +58,7 @@ public class ParGzipCsvInput extends BaseStep implements StepInterface {
   private ParGzipCsvInputData data;
 
   public ParGzipCsvInput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                          Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -250,7 +250,7 @@ public class ParGzipCsvInput extends BaseStep implements StepInterface {
       row = getRow(); // Grab another row...
     }
 
-    data.filenames = filenames.toArray( new String[filenames.size()] );
+    data.filenames = filenames.toArray( new String[ filenames.size() ] );
 
     logBasic( BaseMessages.getString( PKG, "ParGzipCsvInput.Log.ReadingFromNrFiles", Integer
       .toString( data.filenames.length ) ) );
@@ -278,12 +278,12 @@ public class ParGzipCsvInput extends BaseStep implements StepInterface {
 
       // Open the next one...
       //
-      logBasic( "Opening file #" + data.filenr + " : " + data.filenames[data.filenr] );
-      FileObject fileObject = HopVFS.getFileObject( data.filenames[data.filenr], getTransMeta() );
+      logBasic( "Opening file #" + data.filenr + " : " + data.filenames[ data.filenr ] );
+      FileObject fileObject = HopVFS.getFileObject( data.filenames[ data.filenr ], getTransMeta() );
       data.fis = HopVFS.getInputStream( fileObject );
 
       if ( meta.isLazyConversionActive() ) {
-        data.binaryFilename = data.filenames[data.filenr].getBytes();
+        data.binaryFilename = data.filenames[ data.filenr ].getBytes();
       }
 
       data.gzis = new GZIPInputStream( data.fis, data.bufferSize );
@@ -402,8 +402,7 @@ public class ParGzipCsvInput extends BaseStep implements StepInterface {
    * Resize the buffer if there is not enough room.
    *
    * @return false if everything is OK, true if there is a problem and we should stop.
-   * @throws IOException
-   *           in case there is a I/O problem (read error)
+   * @throws IOException in case there is a I/O problem (read error)
    */
   private boolean checkBufferSize() throws HopException {
     if ( data.endBuffer >= data.maxBuffer ) {
@@ -422,8 +421,7 @@ public class ParGzipCsvInput extends BaseStep implements StepInterface {
   /**
    * Read a single row of data from the file...
    *
-   * @param doConversions
-   *          if you want to do conversions, set to false for the header row.
+   * @param doConversions if you want to do conversions, set to false for the header row.
    * @return a row of data...
    * @throws HopException
    */
@@ -484,9 +482,9 @@ public class ParGzipCsvInput extends BaseStep implements StepInterface {
           // If we find the first char, we might find others as well ;-)
           // Single byte delimiters only for now.
           //
-          if ( data.byteBuffer[data.endBuffer] == data.delimiter[0] ) {
+          if ( data.byteBuffer[ data.endBuffer ] == data.delimiter[ 0 ] ) {
             delimiterFound = true;
-          } else if ( data.byteBuffer[data.endBuffer] == '\n' || data.byteBuffer[data.endBuffer] == '\r' ) {
+          } else if ( data.byteBuffer[ data.endBuffer ] == '\n' || data.byteBuffer[ data.endBuffer ] == '\r' ) {
             // Perhaps we found a new line?
             // "\n\r".getBytes()
             //
@@ -496,7 +494,7 @@ public class ParGzipCsvInput extends BaseStep implements StepInterface {
 
             if ( !checkBufferSize() ) {
               // re-check for double delimiters...
-              if ( data.byteBuffer[data.endBuffer] == '\n' || data.byteBuffer[data.endBuffer] == '\r' ) {
+              if ( data.byteBuffer[ data.endBuffer ] == '\n' || data.byteBuffer[ data.endBuffer ] == '\r' ) {
                 data.endBuffer++;
                 data.totalBytesRead++;
                 newLines = 2;
@@ -507,7 +505,7 @@ public class ParGzipCsvInput extends BaseStep implements StepInterface {
 
             newLineFound = true;
             delimiterFound = true;
-          } else if ( data.enclosure != null && data.byteBuffer[data.endBuffer] == data.enclosure[0] ) {
+          } else if ( data.enclosure != null && data.byteBuffer[ data.endBuffer ] == data.enclosure[ 0 ] ) {
             // Perhaps we need to skip over an enclosed part?
             // We always expect exactly one enclosure character
             // If we find the enclosure doubled, we consider it escaped.
@@ -523,7 +521,7 @@ public class ParGzipCsvInput extends BaseStep implements StepInterface {
                 break;
               }
 
-              keepGoing = data.byteBuffer[data.endBuffer] != data.enclosure[0];
+              keepGoing = data.byteBuffer[ data.endBuffer ] != data.enclosure[ 0 ];
               if ( !keepGoing ) {
                 // We found an enclosure character.
                 // Read another byte...
@@ -537,7 +535,7 @@ public class ParGzipCsvInput extends BaseStep implements StepInterface {
                 // If this character is also an enclosure, we can consider the enclosure "escaped".
                 // As such, if this is an enclosure, we keep going...
                 //
-                keepGoing = data.byteBuffer[data.endBuffer] == data.enclosure[0];
+                keepGoing = data.byteBuffer[ data.endBuffer ] == data.enclosure[ 0 ];
                 if ( keepGoing ) {
                   escapedEnclosureFound++;
                 }
@@ -590,7 +588,7 @@ public class ParGzipCsvInput extends BaseStep implements StepInterface {
           length = 0;
         }
 
-        byte[] field = new byte[length];
+        byte[] field = new byte[ length ];
         System.arraycopy( data.byteBuffer, data.startBuffer, field, 0, length );
 
         // Did we have any escaped characters in there?
@@ -604,17 +602,17 @@ public class ParGzipCsvInput extends BaseStep implements StepInterface {
 
         if ( doConversions ) {
           if ( meta.isLazyConversionActive() ) {
-            outputRowData[outputIndex++] = field;
+            outputRowData[ outputIndex++ ] = field;
           } else {
             // We're not lazy so we convert the data right here and now.
             // The convert object uses binary storage as such we just have to ask the native type from it.
             // That will do the actual conversion.
             //
             ValueMetaInterface sourceValueMeta = data.convertRowMeta.getValueMeta( outputIndex );
-            outputRowData[outputIndex++] = sourceValueMeta.convertBinaryStringToNativeType( field );
+            outputRowData[ outputIndex++ ] = sourceValueMeta.convertBinaryStringToNativeType( field );
           }
         } else {
-          outputRowData[outputIndex++] = null; // nothing for the header, no conversions here.
+          outputRowData[ outputIndex++ ] = null; // nothing for the header, no conversions here.
         }
 
         // if (outputRowData[0]!=null && (outputRowData[0] instanceof Long) &&
@@ -646,10 +644,10 @@ public class ParGzipCsvInput extends BaseStep implements StepInterface {
           // fields. (imagine that)
           // In that particular case we want to use the same logic we use above (refactored a bit) to skip these fields.
 
-        } while ( data.byteBuffer[data.endBuffer] != '\n' && data.byteBuffer[data.endBuffer] != '\r' );
+        } while ( data.byteBuffer[ data.endBuffer ] != '\n' && data.byteBuffer[ data.endBuffer ] != '\r' );
 
         if ( !checkBufferSize() ) {
-          while ( data.byteBuffer[data.endBuffer] == '\n' || data.byteBuffer[data.endBuffer] == '\r' ) {
+          while ( data.byteBuffer[ data.endBuffer ] == '\n' || data.byteBuffer[ data.endBuffer ] == '\r' ) {
             data.endBuffer++;
             data.totalBytesRead++;
             if ( checkBufferSize() ) {
@@ -666,14 +664,14 @@ public class ParGzipCsvInput extends BaseStep implements StepInterface {
       //
       if ( meta.isIncludingFilename() && !Utils.isEmpty( meta.getFilenameField() ) ) {
         if ( meta.isLazyConversionActive() ) {
-          outputRowData[data.filenameFieldIndex] = data.binaryFilename;
+          outputRowData[ data.filenameFieldIndex ] = data.binaryFilename;
         } else {
-          outputRowData[data.filenameFieldIndex] = data.filenames[data.filenr - 1];
+          outputRowData[ data.filenameFieldIndex ] = data.filenames[ data.filenr - 1 ];
         }
       }
 
       if ( data.isAddingRowNumber ) {
-        outputRowData[data.rownumFieldIndex] = new Long( data.rowNumber++ );
+        outputRowData[ data.rownumFieldIndex ] = new Long( data.rowNumber++ );
       }
 
       incrementLinesInput();
@@ -745,7 +743,7 @@ public class ParGzipCsvInput extends BaseStep implements StepInterface {
         data.fis.close();
       }
     } catch ( IOException e ) {
-      throw new HopException( "Unable to close file '" + data.filenames[data.filenr - 1], e );
+      throw new HopException( "Unable to close file '" + data.filenames[ data.filenr - 1 ], e );
     }
   }
 

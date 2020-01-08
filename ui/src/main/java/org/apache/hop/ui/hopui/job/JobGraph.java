@@ -23,21 +23,72 @@
 
 package org.apache.hop.ui.hopui.job;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.EngineMetaInterface;
+import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.dnd.DragAndDropContainer;
+import org.apache.hop.core.dnd.XMLTransfer;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.gui.AreaOwner;
+import org.apache.hop.core.gui.AreaOwner.AreaType;
+import org.apache.hop.core.gui.GCInterface;
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.gui.Redrawable;
+import org.apache.hop.core.gui.SnapAllignDistribute;
+import org.apache.hop.core.logging.HasLogChannelInterface;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.LogParentProvidedInterface;
+import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.Job;
+import org.apache.hop.job.JobAdapter;
+import org.apache.hop.job.JobEntryListener;
+import org.apache.hop.job.JobEntryResult;
+import org.apache.hop.job.JobExecutionConfiguration;
+import org.apache.hop.job.JobHopMeta;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.JobPainter;
+import org.apache.hop.job.entries.job.JobEntryJob;
+import org.apache.hop.job.entries.trans.JobEntryTrans;
+import org.apache.hop.job.entry.JobEntryCopy;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPainter;
+import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.CheckBoxToolTip;
+import org.apache.hop.ui.core.widget.CheckBoxToolTipListener;
+import org.apache.hop.ui.hopui.AbstractGraph;
 import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.hopui.HopUiPluginManager;
+import org.apache.hop.ui.hopui.SWTGC;
+import org.apache.hop.ui.hopui.SwtScrollBar;
+import org.apache.hop.ui.hopui.TabItemInterface;
+import org.apache.hop.ui.hopui.TabMapEntry;
+import org.apache.hop.ui.hopui.TabMapEntry.ObjectType;
+import org.apache.hop.ui.hopui.XulHopUiResourceBundle;
+import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
+import org.apache.hop.ui.hopui.dialog.NotePadDialog;
+import org.apache.hop.ui.hopui.trans.DelayListener;
+import org.apache.hop.ui.hopui.trans.DelayTimer;
+import org.apache.hop.ui.hopui.trans.TransGraph;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.xul.HopXulLoader;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
@@ -90,71 +141,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Widget;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.EngineMetaInterface;
-import org.apache.hop.core.NotePadMeta;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.dnd.DragAndDropContainer;
-import org.apache.hop.core.dnd.XMLTransfer;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.gui.AreaOwner;
-import org.apache.hop.core.gui.AreaOwner.AreaType;
-import org.apache.hop.core.gui.GCInterface;
-import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.Redrawable;
-import org.apache.hop.core.gui.SnapAllignDistribute;
-import org.apache.hop.core.logging.HasLogChannelInterface;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.logging.LogParentProvidedInterface;
-import org.apache.hop.core.logging.LoggingObjectType;
-import org.apache.hop.core.logging.SimpleLoggingObject;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.Job;
-import org.apache.hop.job.JobAdapter;
-import org.apache.hop.job.JobEntryListener;
-import org.apache.hop.job.JobEntryResult;
-import org.apache.hop.job.JobExecutionConfiguration;
-import org.apache.hop.job.JobHopMeta;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.JobPainter;
-import org.apache.hop.job.entries.job.JobEntryJob;
-import org.apache.hop.job.entries.trans.JobEntryTrans;
-import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.shared.SharedObjects;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPainter;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.CheckBoxToolTip;
-import org.apache.hop.ui.core.widget.CheckBoxToolTipListener;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.hopui.AbstractGraph;
-import org.apache.hop.ui.hopui.SWTGC;
-import org.apache.hop.ui.hopui.SwtScrollBar;
-import org.apache.hop.ui.hopui.TabItemInterface;
-import org.apache.hop.ui.hopui.TabMapEntry;
-import org.apache.hop.ui.hopui.TabMapEntry.ObjectType;
-import org.apache.hop.ui.hopui.XulHopUiResourceBundle;
-import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
-import org.apache.hop.ui.hopui.dialog.NotePadDialog;
-import org.apache.hop.ui.hopui.trans.DelayListener;
-import org.apache.hop.ui.hopui.trans.DelayTimer;
-import org.apache.hop.ui.hopui.trans.TransGraph;
-import org.apache.hop.ui.xul.HopXulLoader;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.components.XulMenuitem;
@@ -167,11 +153,23 @@ import org.pentaho.ui.xul.impl.XulEventHandler;
 import org.pentaho.ui.xul.jface.tags.JfaceMenuitem;
 import org.pentaho.ui.xul.jface.tags.JfaceMenupopup;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+
 /**
  * Handles the display of Jobs in Spoon, in a graphical form.
  *
  * @author Matt Created on 17-may-2003
- *
  */
 public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawable, TabItemInterface,
   LogParentProvidedInterface, MouseListener, MouseMoveListener, MouseTrackListener, MouseWheelListener,
@@ -281,7 +279,9 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
 
   private List<JobEntryCopy> mouseOverEntries;
 
-  /** A map that keeps track of which log line was written by which job entry */
+  /**
+   * A map that keeps track of which log line was written by which job entry
+   */
   private Map<JobEntryCopy, String> entryLogMap;
 
   private Map<JobEntryCopy, DelayTimer> delayTimers;
@@ -383,7 +383,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
       log.logError( Const.getStackTracker( t ) );
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "JobGraph.Exception.ErrorReadingXULFile.Title" ), BaseMessages
-          .getString( PKG, "JobGraph.Exception.ErrorReadingXULFile.Message", HopUi.XUL_FILE_MENUS ),
+        .getString( PKG, "JobGraph.Exception.ErrorReadingXULFile.Message", HopUi.XUL_FILE_MENUS ),
         new Exception( t ) );
     }
 
@@ -563,7 +563,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
         } catch ( Exception e ) {
           new ErrorDialog(
             shell, BaseMessages.getString( PKG, "JobGraph.Dialog.ErrorDroppingObject.Message" ), BaseMessages
-              .getString( PKG, "JobGraph.Dialog.ErrorDroppingObject.Title" ), e );
+            .getString( PKG, "JobGraph.Dialog.ErrorDroppingObject.Title" ), e );
         }
       }
 
@@ -583,7 +583,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
     final Timer timer = new Timer( "JobGraph.setControlStates Timer: " + getMeta().getName() );
     TimerTask timerTask = new TimerTask() {
       public void run() {
-      setControlStates();
+        setControlStates();
       }
     };
     timer.schedule( timerTask, 2000, 1000 );
@@ -858,14 +858,14 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
                 int[] indexes = jobMeta.getNoteIndexes( selectedNotes );
 
                 addUndoPosition(
-                  selectedNotes.toArray( new NotePadMeta[selectedNotes.size()] ), indexes,
+                  selectedNotes.toArray( new NotePadMeta[ selectedNotes.size() ] ), indexes,
                   previous_note_locations, jobMeta.getSelectedNoteLocations(), also );
                 also = selectedEntries != null && selectedEntries.size() > 0;
               }
               if ( selectedEntries != null && selectedEntries.size() > 0 && previous_step_locations != null ) {
                 int[] indexes = jobMeta.getEntryIndexes( selectedEntries );
                 addUndoPosition(
-                  selectedEntries.toArray( new JobEntryCopy[selectedEntries.size()] ), indexes,
+                  selectedEntries.toArray( new JobEntryCopy[ selectedEntries.size() ] ), indexes,
                   previous_step_locations, jobMeta.getSelectedLocations(), also );
               }
             }
@@ -971,14 +971,14 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
                 if ( selectedNotes != null && selectedNotes.size() > 0 && previous_note_locations != null ) {
                   int[] indexes = jobMeta.getNoteIndexes( selectedNotes );
                   addUndoPosition(
-                    selectedNotes.toArray( new NotePadMeta[selectedNotes.size()] ), indexes,
+                    selectedNotes.toArray( new NotePadMeta[ selectedNotes.size() ] ), indexes,
                     previous_note_locations, jobMeta.getSelectedNoteLocations(), also );
                   also = selectedEntries != null && selectedEntries.size() > 0;
                 }
                 if ( selectedEntries != null && selectedEntries.size() > 0 && previous_step_locations != null ) {
                   int[] indexes = jobMeta.getEntryIndexes( selectedEntries );
                   addUndoPosition(
-                    selectedEntries.toArray( new JobEntryCopy[selectedEntries.size()] ), indexes,
+                    selectedEntries.toArray( new JobEntryCopy[ selectedEntries.size() ] ), indexes,
                     previous_step_locations, jobMeta.getSelectedLocations(), also );
                 }
               }
@@ -1131,7 +1131,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
       endHopLocation = new Point( real.x, real.y );
       if ( jobEntryCopy != null
         && ( ( startHopEntry != null && !startHopEntry.equals( jobEntryCopy ) ) || ( endHopEntry != null && !endHopEntry
-          .equals( jobEntryCopy ) ) ) ) {
+        .equals( jobEntryCopy ) ) ) ) {
         if ( hop_candidate == null ) {
           // See if the step accepts input. If not, we can't create a new hop...
           //
@@ -1599,7 +1599,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
       return;
     }
 
-    JobEntryCopy[] jobEntries = copies.toArray( new JobEntryCopy[copies.size()] );
+    JobEntryCopy[] jobEntries = copies.toArray( new JobEntryCopy[ copies.size() ] );
     hopUi.deleteJobEntryCopies( jobMeta, jobEntries );
   }
 
@@ -1654,8 +1654,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
    *
    * @param x
    * @param y
-   * @param exclude
-   *          the step to exclude from the hops (from or to location). Specify null if no step is to be excluded.
+   * @param exclude the step to exclude from the hops (from or to location). Specify null if no step is to be excluded.
    * @return the transformation hop on the specified location, otherwise: null
    */
   private JobHopMeta findHop( int x, int y, JobEntryCopy exclude ) {
@@ -1873,7 +1872,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
         if ( !Utils.isEmpty( referencedObjects ) ) {
           for ( int i = 0; i < referencedObjects.length; i++ ) {
             final int index = i;
-            String referencedObject = referencedObjects[i];
+            String referencedObject = referencedObjects[ i ];
             Action action = new Action( referencedObject, Action.AS_DROP_DOWN_MENU ) {
               public void run() {
                 loadReferencedObject( jobEntry, index );
@@ -1882,7 +1881,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
             JfaceMenuitem child =
               new JfaceMenuitem( null, launchMenu, xulDomContainer, referencedObject, i, action );
             child.setLabel( referencedObject );
-            child.setDisabled( !enabledObjects[i] );
+            child.setDisabled( !enabledObjects[ i ] );
           }
         }
 
@@ -2042,11 +2041,11 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
     NotePadMeta n = dd.open();
     if ( n != null ) {
       NotePadMeta npi =
-          new NotePadMeta( n.getNote(), lastclick.x, lastclick.y, ConstUI.NOTE_MIN_SIZE, ConstUI.NOTE_MIN_SIZE, n
-            .getFontName(), n.getFontSize(), n.isFontBold(), n.isFontItalic(), n.getFontColorRed(), n
-            .getFontColorGreen(), n.getFontColorBlue(), n.getBackGroundColorRed(), n.getBackGroundColorGreen(), n
-            .getBackGroundColorBlue(), n.getBorderColorRed(), n.getBorderColorGreen(), n.getBorderColorBlue(), n
-            .isDrawShadow() );
+        new NotePadMeta( n.getNote(), lastclick.x, lastclick.y, ConstUI.NOTE_MIN_SIZE, ConstUI.NOTE_MIN_SIZE, n
+          .getFontName(), n.getFontSize(), n.isFontBold(), n.isFontItalic(), n.getFontColorRed(), n
+          .getFontColorGreen(), n.getFontColorBlue(), n.getBackGroundColorRed(), n.getBackGroundColorGreen(), n
+          .getBackGroundColorBlue(), n.getBorderColorRed(), n.getBorderColorGreen(), n.getBorderColorBlue(), n
+          .isDrawShadow() );
       jobMeta.addNote( npi );
       hopUi.addUndoNew( jobMeta, new NotePadMeta[] { npi }, new int[] { jobMeta.indexOfNote( npi ) } );
       redraw();
@@ -2184,7 +2183,6 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
 
   /**
    * This method enables or disables all the hops between the selected Entries.
-   *
    **/
   public void enableHopsBetweenSelectedEntries( boolean enabled ) {
     List<JobEntryCopy> list = jobMeta.getSelectedEntries();
@@ -2249,19 +2247,19 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
   private Set<JobEntryCopy> enableDisableNextHops( JobEntryCopy from, boolean enabled, Set<JobEntryCopy> checkedEntries ) {
     checkedEntries.add( from );
     jobMeta.getJobhops().stream()
-            .filter( hop -> from.equals( hop.getFromEntry() ) )
-            .forEach( hop -> {
-              if ( hop.isEnabled() != enabled ) {
-                JobHopMeta before = (JobHopMeta) hop.clone();
-                hop.setEnabled( enabled );
-                JobHopMeta after = (JobHopMeta) hop.clone();
-                hopUi.addUndoChange( jobMeta, new JobHopMeta[]{ before }, new JobHopMeta[]{ after }, new int[]{ jobMeta
-                        .indexOfJobHop( hop ) } );
-              }
-              if ( !checkedEntries.contains( hop.getToEntry() ) ) {
-                enableDisableNextHops( hop.getToEntry(), enabled, checkedEntries );
-              }
-            } );
+      .filter( hop -> from.equals( hop.getFromEntry() ) )
+      .forEach( hop -> {
+        if ( hop.isEnabled() != enabled ) {
+          JobHopMeta before = (JobHopMeta) hop.clone();
+          hop.setEnabled( enabled );
+          JobHopMeta after = (JobHopMeta) hop.clone();
+          hopUi.addUndoChange( jobMeta, new JobHopMeta[] { before }, new JobHopMeta[] { after }, new int[] { jobMeta
+            .indexOfJobHop( hop ) } );
+        }
+        if ( !checkedEntries.contains( hop.getToEntry() ) ) {
+          enableDisableNextHops( hop.getToEntry(), enabled, checkedEntries );
+        }
+      } );
     return checkedEntries;
   }
 
@@ -2271,7 +2269,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
     }
 
     canvas.setToolTipText( "-" ); // Some stupid bug in GTK+ causes a phantom tool tip to pop up, even if the tip is
-                                  // null
+    // null
     canvas.setToolTipText( null );
 
     Image tipImage = null;
@@ -2444,7 +2442,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
       tip.append( BaseMessages.getString( PKG, "TransGraph.Dialog.HopInfo.Status" ) ).append( " " );
       tip.append( ( hi.isEnabled()
         ? BaseMessages.getString( PKG, "JobGraph.Dialog.HopInfo.Enable" ) : BaseMessages.getString(
-          PKG, "JobGraph.Dialog.HopInfo.Disable" ) ) );
+        PKG, "JobGraph.Dialog.HopInfo.Disable" ) ) );
       if ( hi.isUnconditional() ) {
         tipImage = GUIResource.getInstance().getImageUnconditionalHop();
       } else {
@@ -2564,21 +2562,21 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
 
       TransMeta launchTransMeta = null;
 
-        // See if this file is already loaded...
-        //
-        String exactFilename = jobMeta.environmentSubstitute( entry.getFilename() );
-        if ( Utils.isEmpty( exactFilename ) ) {
-          throw new Exception( BaseMessages.getString( PKG, "JobGraph.Exception.NoFilenameSpecified" ) );
-        }
+      // See if this file is already loaded...
+      //
+      String exactFilename = jobMeta.environmentSubstitute( entry.getFilename() );
+      if ( Utils.isEmpty( exactFilename ) ) {
+        throw new Exception( BaseMessages.getString( PKG, "JobGraph.Exception.NoFilenameSpecified" ) );
+      }
 
-        // Open the file or create a new one!
-        //
-        if ( HopVFS.fileExists( exactFilename ) ) {
-          launchTransMeta = new TransMeta( exactFilename );
-        } else {
-          launchTransMeta = new TransMeta();
-        }
-        launchTransMeta.setFilename( exactFilename );
+      // Open the file or create a new one!
+      //
+      if ( HopVFS.fileExists( exactFilename ) ) {
+        launchTransMeta = new TransMeta( exactFilename );
+      } else {
+        launchTransMeta = new TransMeta();
+      }
+      launchTransMeta.setFilename( exactFilename );
 
       // If we didn't find a valid transformation, stop here...
       //
@@ -2624,21 +2622,21 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
 
       JobMeta launchJobMeta = null;
 
-          // See if this file is already loaded...
-          //
-          String exactFilename = jobMeta.environmentSubstitute( entry.getFilename() );
-          if ( Utils.isEmpty( exactFilename ) ) {
-            throw new Exception( BaseMessages.getString( PKG, "JobGraph.Exception.NoFilenameSpecified" ) );
-          }
+      // See if this file is already loaded...
+      //
+      String exactFilename = jobMeta.environmentSubstitute( entry.getFilename() );
+      if ( Utils.isEmpty( exactFilename ) ) {
+        throw new Exception( BaseMessages.getString( PKG, "JobGraph.Exception.NoFilenameSpecified" ) );
+      }
 
-          // Open the file or create a new one!
-          //
-          if ( HopVFS.fileExists( exactFilename ) ) {
-            launchJobMeta = new JobMeta( jobMeta, exactFilename, hopUi.metaStore );
-          } else {
-            launchJobMeta = new JobMeta();
-          }
-          launchJobMeta.setFilename( exactFilename );
+      // Open the file or create a new one!
+      //
+      if ( HopVFS.fileExists( exactFilename ) ) {
+        launchJobMeta = new JobMeta( jobMeta, exactFilename, hopUi.metaStore );
+      } else {
+        launchJobMeta = new JobMeta();
+      }
+      launchJobMeta.setFilename( exactFilename );
 
 
       // If we didn't find a valid job, stop here...
@@ -2759,15 +2757,15 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
     GCInterface gc = new SWTGC( device, new Point( x, y ), iconsize );
 
     int gridSize =
-        PropsUI.getInstance().isShowCanvasGridEnabled() ? PropsUI.getInstance().getCanvasGridSize() : 1;
+      PropsUI.getInstance().isShowCanvasGridEnabled() ? PropsUI.getInstance().getCanvasGridSize() : 1;
 
     JobPainter jobPainter =
       new JobPainter(
         gc, jobMeta, new Point( x, y ), new SwtScrollBar( hori ), new SwtScrollBar( vert ), hop_candidate,
         drop_candidate, selectionRegion, areaOwners, mouseOverEntries, PropsUI.getInstance().getIconSize(),
         PropsUI.getInstance().getLineWidth(), gridSize, PropsUI
-          .getInstance().getShadowSize(), PropsUI.getInstance().isAntiAliasingEnabled(), PropsUI
-          .getInstance().getNoteFont().getName(), PropsUI.getInstance().getNoteFont().getHeight() );
+        .getInstance().getShadowSize(), PropsUI.getInstance().isAntiAliasingEnabled(), PropsUI
+        .getInstance().getNoteFont().getName(), PropsUI.getInstance().getNoteFont().getHeight() );
 
     jobPainter.setMagnification( magnificationFactor );
     jobPainter.setEntryLogMap( entryLogMap );
@@ -2855,10 +2853,10 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
 
   protected void drawArrow( GC gc, int[] line ) {
     int mx, my;
-    int x1 = line[0] + offset.x;
-    int y1 = line[1] + offset.y;
-    int x2 = line[2] + offset.x;
-    int y2 = line[3] + offset.y;
+    int x1 = line[ 0 ] + offset.x;
+    int y1 = line[ 1 ] + offset.y;
+    int x2 = line[ 2 ] + offset.x;
+    int y2 = line[ 3 ] + offset.y;
     int x3;
     int y3;
     int x4;
@@ -2923,10 +2921,10 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
   }
 
   protected boolean pointOnThinLine( int x, int y, int[] line ) {
-    int x1 = line[0];
-    int y1 = line[1];
-    int x2 = line[2];
-    int y2 = line[3];
+    int x1 = line[ 0 ];
+    int y1 = line[ 1 ];
+    int x2 = line[ 2 ];
+    int y2 = line[ 3 ];
 
     // Not in the square formed by these 2 points: ignore!
     //CHECKSTYLE:LineLength:OFF
@@ -3052,11 +3050,10 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
   }
 
   /**
+   * @param jobMeta the jobMeta to set
    * @return the jobMeta / public JobMeta getJobMeta() { return jobMeta; }
-   *
-   *         /**
-   * @param jobMeta
-   *          the jobMeta to set
+   * <p>
+   * /**
    */
   public void setJobMeta( JobMeta jobMeta ) {
     this.jobMeta = jobMeta;
@@ -3092,32 +3089,19 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
 
     JobDialog jd = new JobDialog( hopUi.getShell(), SWT.NONE, jobMeta );
     jd.setDirectoryChangeAllowed( allowDirectoryChange );
-    JobMeta ji = jd.open();
-
-    // In this case, load shared objects
-    //
-    if ( jd.isSharedObjectsFileChanged() ) {
-      try {
-        SharedObjects sharedObjects = jobMeta.readSharedObjects();
-        hopUi.sharedObjectsFileMap.put( sharedObjects.getFilename(), sharedObjects );
-      } catch ( Exception e ) {
-        new ErrorDialog( hopUi.getShell(),
-          BaseMessages.getString( PKG, "Spoon.Dialog.ErrorReadingSharedObjects.Title" ),
-          BaseMessages.getString( PKG, "Spoon.Dialog.ErrorReadingSharedObjects.Message", hopUi.delegates.tabs.makeTabName( jobMeta, true ) ), e );
-      }
-    }
+    JobMeta newJobMeta = jd.open();
 
     // If we added properties, add them to the variables too, so that they appear in the CTRL-SPACE variable completion.
     //
     hopUi.setParametersAsVariablesInUI( jobMeta, jobMeta );
 
-    if ( jd.isSharedObjectsFileChanged() || ji != null ) {
+    if (newJobMeta != null ) {
       hopUi.refreshTree();
       hopUi.delegates.tabs.renameTabs(); // cheap operation, might as will do it anyway
     }
 
     hopUi.setShellText();
-    return ji != null;
+    return newJobMeta != null;
   }
 
   /**
@@ -3128,8 +3112,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
   }
 
   /**
-   * @param lastMove
-   *          the lastMove to set
+   * @param lastMove the lastMove to set
    */
   public void setLastMove( Point lastMove ) {
     this.lastMove = lastMove;
@@ -3424,7 +3407,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
           } catch ( HopException e ) {
             new ErrorDialog(
               shell, BaseMessages.getString( PKG, "JobLog.Dialog.CanNotOpenJob.Title" ), BaseMessages.getString(
-                PKG, "JobLog.Dialog.CanNotOpenJob.Message" ), e );
+              PKG, "JobLog.Dialog.CanNotOpenJob.Message" ), e );
             job = null;
           }
         } else {
@@ -3471,7 +3454,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
       }
 
       public void afterExecution( Job job, JobEntryCopy jobEntryCopy, JobEntryInterface jobEntryInterface,
-        Result result ) {
+                                  Result result ) {
         asyncRedraw();
       }
     };
@@ -3561,16 +3544,14 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
   }
 
   /**
-   * @param refreshListeners
-   *          the refresh listeners to set
+   * @param refreshListeners the refresh listeners to set
    */
   public void setRefreshListeners( List<RefreshListener> refreshListeners ) {
     this.refreshListeners = refreshListeners;
   }
 
   /**
-   * @param refreshListener
-   *          the job refresh listener to add
+   * @param refreshListener the job refresh listener to add
    */
   public void addRefreshListener( RefreshListener refreshListener ) {
     refreshListeners.add( refreshListener );
@@ -3659,10 +3640,10 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
         MessageDialogWithToggle md =
           new MessageDialogWithToggle(
             shell, BaseMessages.getString( PKG, "JobLog.Dialog.SaveChangedFile.Title" ), null, BaseMessages
-              .getString( PKG, "JobLog.Dialog.SaveChangedFile.Message" )
-              + Const.CR
-              + BaseMessages.getString( PKG, "JobLog.Dialog.SaveChangedFile.Message2" )
-              + Const.CR,
+            .getString( PKG, "JobLog.Dialog.SaveChangedFile.Message" )
+            + Const.CR
+            + BaseMessages.getString( PKG, "JobLog.Dialog.SaveChangedFile.Message2" )
+            + Const.CR,
             MessageDialog.QUESTION,
             new String[] {
               BaseMessages.getString( PKG, "System.Button.Yes" ),

@@ -20,16 +20,15 @@
 
 package org.apache.hop.trans.steps.ifnull;
 
-import java.io.File;
-import java.util.List;
-
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.trans.steps.ifnull.IfNullMeta.ValueTypes;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.trans.steps.ifnull.IfNullMeta.ValueTypes;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.io.File;
+import java.util.List;
 
 
 public class PDI_11319Test {
@@ -61,8 +60,8 @@ public class PDI_11319Test {
     ValueTypes[] actual = meta.getValueTypes();
     Assert.assertEquals( expected.length, actual.length );
     for ( int i = 0; i < expected.length; i++ ) {
-      Assert.assertEquals( "Set empty string value type works incorrectly", expected[i], actual[i]
-          .isSetTypeEmptyString() );
+      Assert.assertEquals( "Set empty string value type works incorrectly", expected[ i ], actual[ i ]
+        .isSetTypeEmptyString() );
     }
   }
 
@@ -79,8 +78,8 @@ public class PDI_11319Test {
     ValueTypes[] actual = meta.getValueTypes();
     Assert.assertEquals( expected.length, actual.length );
     for ( int i = 0; i < expected.length; i++ ) {
-      Assert.assertEquals( "Set empty string value type works incorrectly", expected[i], actual[i]
-          .isSetTypeEmptyString() );
+      Assert.assertEquals( "Set empty string value type works incorrectly", expected[ i ], actual[ i ]
+        .isSetTypeEmptyString() );
     }
   }
 

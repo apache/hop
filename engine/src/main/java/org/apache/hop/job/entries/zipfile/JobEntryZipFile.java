@@ -22,10 +22,37 @@
 
 package org.apache.hop.job.entries.zipfile;
 
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSelectInfo;
+import org.apache.commons.vfs2.FileSelector;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.FileType;
+import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.Job;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.JobEntryBase;
+import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.AbstractFileValidator;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.FileDoesNotExistValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
+import org.apache.hop.job.entry.validator.ValidatorContext;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.workarounds.BufferedOutputStreamWithCloseDetection;
+import org.w3c.dom.Node;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,45 +72,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSelectInfo;
-import org.apache.commons.vfs2.FileSelector;
-import org.apache.commons.vfs2.FileSystemException;
-import org.apache.commons.vfs2.FileType;
-import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.util.StringUtil;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.Job;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.job.entry.validator.ValidatorContext;
-
-import org.apache.hop.workarounds.BufferedOutputStreamWithCloseDetection;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.w3c.dom.Node;
-
 /**
  * This defines a 'zip file' job entry. Its main use would be to zip files in a directory and process zipped files
  * (deleted or move).
  *
  * @author Samatar Hassan
  * @since 27-02-2007
- *
  */
 public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntryInterface {
   private static final Class<?> PKG = JobEntryZipFile.class; // for i18n purposes, needed by Translator2!!
@@ -167,10 +161,10 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       zipFilename = XMLHandler.getTagValue( entrynode, "zipfilename" );
       compressionRate = Const.toInt( XMLHandler.getTagValue( entrynode, "compressionrate" ), -1 );
       ifZipFileExists = Const.toInt( XMLHandler.getTagValue( entrynode, "ifzipfileexists" ), -1 );
@@ -234,8 +228,8 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
   }
 
   public boolean processRowFile( Job parentJob, Result result, String realZipfilename, String realWildcard,
-    String realWildcardExclude, String realSourceDirectoryOrFile, String realMovetodirectory,
-    boolean createparentfolder ) {
+                                 String realWildcardExclude, String realSourceDirectoryOrFile, String realMovetodirectory,
+                                 boolean createparentfolder ) {
     boolean Fileexists = false;
     File tempFile = null;
     File fileZip;
@@ -401,7 +395,7 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
             }
 
             // Prepare Zip File
-            buffer = new byte[18024];
+            buffer = new byte[ 18024 ];
             dest = HopVFS.getOutputStream( localrealZipfilename, this, false );
             buff = new BufferedOutputStreamWithCloseDetection( dest );
             out = new ZipOutputStream( buff );
@@ -453,7 +447,7 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
               out.setLevel( Deflater.BEST_SPEED );
             }
             // Specify Zipped files (After that we will move,delete them...)
-            FileObject[] zippedFiles = new FileObject[fileList.length];
+            FileObject[] zippedFiles = new FileObject[ fileList.length ];
             int fileNum = 0;
 
             // Get the files in the list...
@@ -468,9 +462,9 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
                 //
                 String filename;
                 if ( includingSubFolders ) {
-                  filename = fileList[i].getName().getPath();
+                  filename = fileList[ i ].getName().getPath();
                 } else {
-                  filename = fileList[i].getName().getBaseName();
+                  filename = fileList[ i ].getName().getBaseName();
                 }
                 if ( pattern != null ) {
                   // Matches the base name of the file (backward compatible!)
@@ -486,7 +480,7 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
               }
 
               // Get processing File
-              String targetFilename = HopVFS.getFilename( fileList[i] );
+              String targetFilename = HopVFS.getFilename( fileList[ i ] );
               if ( sourceFileOrFolder.getType().equals( FileType.FILE ) ) {
                 targetFilename = localSourceFilename;
               }
@@ -498,7 +492,7 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
                 // We can add the file to the Zip Archive
                 if ( log.isDebug() ) {
                   logDebug( BaseMessages.getString( PKG, "JobZipFiles.Add_FilesToZip1.Label" )
-                    + fileList[i] + BaseMessages.getString( PKG, "JobZipFiles.Add_FilesToZip2.Label" )
+                    + fileList[ i ] + BaseMessages.getString( PKG, "JobZipFiles.Add_FilesToZip2.Label" )
                     + localSourceFilename + BaseMessages.getString( PKG, "JobZipFiles.Add_FilesToZip3.Label" ) );
                 }
 
@@ -508,7 +502,7 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
                 // Add ZIP entry to output stream.
                 //
                 String relativeName;
-                String fullName = fileList[i].getName().getPath();
+                String fullName = fileList[ i ].getName().getPath();
                 String basePath = sourceFileOrFolder.getName().getPath();
                 if ( isSourceDirectory ) {
                   if ( fullName.startsWith( basePath ) ) {
@@ -520,7 +514,7 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
                   int depth = determineDepth( environmentSubstitute( storedSourcePathDepth ) );
                   relativeName = determineZipfilenameForDepth( fullName, depth );
                 } else {
-                  relativeName = fileList[i].getName().getBaseName();
+                  relativeName = fileList[ i ].getName().getBaseName();
                 }
                 out.putNextEntry( new ZipEntry( relativeName ) );
 
@@ -535,7 +529,7 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
                 in.close();
 
                 // Get Zipped File
-                zippedFiles[fileNum] = fileList[i];
+                zippedFiles[ fileNum ] = fileList[ i ];
                 fileNum = fileNum + 1;
               }
             }
@@ -556,9 +550,9 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
             if ( afterZip == 1 || afterZip == 2 ) {
               // iterate through the array of Zipped files
               for ( int i = 0; i < zippedFiles.length; i++ ) {
-                if ( zippedFiles[i] != null ) {
+                if ( zippedFiles[ i ] != null ) {
                   // Delete, Move File
-                  FileObject fileObjectd = zippedFiles[i];
+                  FileObject fileObjectd = zippedFiles[ i ];
                   if ( !isSourceDirectory ) {
                     fileObjectd = HopVFS.getFileObject( localSourceFilename, this );
                   }
@@ -570,14 +564,14 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
                     if ( !deleted ) {
                       resultat = false;
                       logError( BaseMessages.getString( PKG, "JobZipFiles.Cant_Delete_File1.Label" )
-                        + localSourceFilename + Const.FILE_SEPARATOR + zippedFiles[i]
+                        + localSourceFilename + Const.FILE_SEPARATOR + zippedFiles[ i ]
                         + BaseMessages.getString( PKG, "JobZipFiles.Cant_Delete_File2.Label" ) );
 
                     }
                     // File deleted
                     if ( log.isDebug() ) {
                       logDebug( BaseMessages.getString( PKG, "JobZipFiles.File_Deleted1.Label" )
-                        + localSourceFilename + Const.FILE_SEPARATOR + zippedFiles[i]
+                        + localSourceFilename + Const.FILE_SEPARATOR + zippedFiles[ i ]
                         + BaseMessages.getString( PKG, "JobZipFiles.File_Deleted2.Label" ) );
                     }
                   } else if ( afterZip == 2 ) {
@@ -590,7 +584,7 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
                       fileObjectd.moveTo( fileObjectm );
                     } catch ( IOException e ) {
                       logError( BaseMessages.getString( PKG, "JobZipFiles.Cant_Move_File1.Label" )
-                        + zippedFiles[i] + BaseMessages.getString( PKG, "JobZipFiles.Cant_Move_File2.Label" )
+                        + zippedFiles[ i ] + BaseMessages.getString( PKG, "JobZipFiles.Cant_Move_File2.Label" )
                         + e.getMessage() );
                       resultat = false;
                     } finally {
@@ -607,7 +601,7 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
                     // File moved
                     if ( log.isDebug() ) {
                       logDebug( BaseMessages.getString( PKG, "JobZipFiles.File_Moved1.Label" )
-                        + zippedFiles[i] + BaseMessages.getString( PKG, "JobZipFiles.File_Moved2.Label" ) );
+                        + zippedFiles[ i ] + BaseMessages.getString( PKG, "JobZipFiles.File_Moved2.Label" ) );
                     }
                   }
                 }
@@ -691,11 +685,9 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
   /**
    * Get the requested part of the filename
    *
-   * @param filename
-   *          the filename (full) (/path/to/a/file.txt)
-   * @param depth
-   *          the depth to get. 0 means: the complete filename, 1: the name only (file.txt), 2: one folder (a/file.txt)
-   *          3: two folders (to/a/file.txt) and so on.
+   * @param filename the filename (full) (/path/to/a/file.txt)
+   * @param depth    the depth to get. 0 means: the complete filename, 1: the name only (file.txt), 2: one folder (a/file.txt)
+   *                 3: two folders (to/a/file.txt) and so on.
    * @return the requested part of the file name up to a certain depth
    * @throws HopFileException
    */
@@ -740,7 +732,7 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
   private boolean checkContainsFile( String realSourceDirectoryOrFile, FileObject[] filelist, boolean isDirectory ) throws FileSystemException {
     boolean retval = false;
     for ( int i = 0; i < filelist.length; i++ ) {
-      FileObject file = filelist[i];
+      FileObject file = filelist[ i ];
       if ( ( file.exists() && file.getType().equals( FileType.FILE ) ) ) {
         retval = true;
       }
@@ -897,7 +889,7 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
   }
 
   public String getFullFilename( String filename, boolean add_date, boolean add_time, boolean specify_format,
-    String datetime_folder ) {
+                                 String datetime_folder ) {
     String retval;
     if ( Utils.isEmpty( filename ) ) {
       return null;
@@ -1047,7 +1039,7 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     ValidatorContext ctx1 = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx1, getVariables() );
     AndValidator.putValidators( ctx1, JobEntryValidatorUtils.notBlankValidator(), JobEntryValidatorUtils.fileDoesNotExistValidator() );
@@ -1074,8 +1066,7 @@ public class JobEntryZipFile extends JobEntryBase implements Cloneable, JobEntry
   }
 
   /**
-   * @param includesSubFolders
-   *          Set to true if the search for files to zip in a folder needs to include sub-folders
+   * @param includesSubFolders Set to true if the search for files to zip in a folder needs to include sub-folders
    */
   public void setIncludingSubFolders( boolean includesSubFolders ) {
     this.includingSubFolders = includesSubFolders;

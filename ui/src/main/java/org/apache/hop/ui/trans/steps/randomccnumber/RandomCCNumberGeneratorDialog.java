@@ -22,6 +22,25 @@
 
 package org.apache.hop.ui.trans.steps.randomccnumber;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPreviewFactory;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.randomccnumber.RandomCCNumberGeneratorMeta;
+import org.apache.hop.trans.steps.randomccnumber.RandomCreditCardNumberGenerator;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -41,25 +60,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPreviewFactory;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.randomccnumber.RandomCCNumberGeneratorMeta;
-import org.apache.hop.trans.steps.randomccnumber.RandomCreditCardNumberGenerator;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class RandomCCNumberGeneratorDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = RandomCCNumberGeneratorMeta.class; // for i18n purposes, needed by Translator2!!
@@ -232,22 +232,22 @@ public class RandomCCNumberGeneratorDialog extends BaseStepDialog implements Ste
     final int FieldsCols = 3;
     final int FieldsRows = input.getFieldCCType().length;
 
-    ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
+    ColumnInfo[] colinf = new ColumnInfo[ FieldsCols ];
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "RandomCCNumberGeneratorDialog.CCTypeColumn.Column" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, RandomCreditCardNumberGenerator.cardTypes );
-    colinf[0].setReadOnly( true );
-    colinf[1] =
+    colinf[ 0 ].setReadOnly( true );
+    colinf[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "RandomCCNumberGeneratorDialog.CCLengthColumn.Column" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinf[1].setUsingVariables( true );
-    colinf[2] =
+    colinf[ 1 ].setUsingVariables( true );
+    colinf[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "RandomCCNumberGeneratorDialog.CCSizeColumn.Column" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinf[2].setUsingVariables( true );
+    colinf[ 2 ].setUsingVariables( true );
 
     wFields =
       new TableView(
@@ -328,9 +328,9 @@ public class RandomCCNumberGeneratorDialog extends BaseStepDialog implements Ste
 
     for ( int i = 0; i < input.getFieldCCType().length; i++ ) {
       TableItem item = wFields.table.getItem( i );
-      String type = input.getFieldCCType()[i];
-      String len = input.getFieldCCLength()[i];
-      String size = input.getFieldCCSize()[i];
+      String type = input.getFieldCCType()[ i ];
+      String len = input.getFieldCCLength()[ i ];
+      String size = input.getFieldCCSize()[ i ];
 
       if ( type != null ) {
         item.setText( 1, type );
@@ -388,9 +388,9 @@ public class RandomCCNumberGeneratorDialog extends BaseStepDialog implements Ste
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < count; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      in.getFieldCCType()[i] = item.getText( 1 );
-      in.getFieldCCLength()[i] = item.getText( 2 );
-      in.getFieldCCSize()[i] = item.getText( 3 );
+      in.getFieldCCType()[ i ] = item.getText( 1 );
+      in.getFieldCCLength()[ i ] = item.getText( 2 );
+      in.getFieldCCSize()[ i ] = item.getText( 3 );
     }
     in.setCardNumberFieldName( wCCNumberField.getText() );
     in.setCardTypeFieldName( wCCTypeField.getText() );
@@ -425,7 +425,7 @@ public class RandomCCNumberGeneratorDialog extends BaseStepDialog implements Ste
             EnterTextDialog etd =
               new EnterTextDialog(
                 shell, BaseMessages.getString( PKG, "System.Dialog.PreviewError.Title" ), BaseMessages
-                  .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
+                .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
             etd.setReadOnly();
             etd.open();
           }
@@ -433,7 +433,7 @@ public class RandomCCNumberGeneratorDialog extends BaseStepDialog implements Ste
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
               shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta( wStepname
-                .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
+              .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
           prd.open();
 
         }

@@ -29,7 +29,6 @@ import org.apache.hop.core.exception.HopFileException;
  * Describes a possible location for a plugin
  *
  * @author matt
- *
  */
 public interface PluginFolderInterface {
 
@@ -52,8 +51,7 @@ public interface PluginFolderInterface {
    * Find all the jar files in this plugin folder
    *
    * @return The jar files
-   * @throws HopFileException
-   *           In case there is a problem reading
+   * @throws HopFileException In case there is a problem reading
    */
   public FileObject[] findJarFiles() throws HopFileException;
 

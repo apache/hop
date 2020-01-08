@@ -22,12 +22,18 @@
 
 package org.apache.hop.ui.trans.steps.javafilter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.errorhandling.StreamInterface;
+import org.apache.hop.trans.steps.javafilter.JavaFilterMeta;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -47,18 +53,12 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.errorhandling.StreamInterface;
-import org.apache.hop.trans.steps.javafilter.JavaFilterMeta;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.StyledTextComp;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class JavaFilterDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = JavaFilterMeta.class; // for i18n purposes, needed by Translator2!!
@@ -302,11 +302,11 @@ public class JavaFilterDialog extends BaseStepDialog implements StepDialogInterf
         Set<String> keySet = fields.keySet();
         List<String> entries = new ArrayList<String>( keySet );
 
-        String[] fieldNames = entries.toArray( new String[entries.size()] );
+        String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
         Const.sortStrings( fieldNames );
 
-        colinf[5].setComboValues( fieldNames );
+        colinf[ 5 ].setComboValues( fieldNames );
       }
     } );
 

@@ -22,16 +22,27 @@
 
 package org.apache.hop.ui.trans.steps.sql;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.sql.ExecSQLMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.hopui.job.JobGraph;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.steps.tableinput.SQLValuesHighlight;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
@@ -57,24 +68,12 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.sql.ExecSQLMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.StyledTextComp;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.hopui.job.JobGraph;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.steps.tableinput.SQLValuesHighlight;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class ExecSQLDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = ExecSQLMeta.class; // for i18n purposes, needed by Translator2!!
@@ -505,7 +504,7 @@ public class ExecSQLDialog extends BaseStepDialog implements StepDialogInterface
     fdlPosition.left = new FormAttachment( 0, 0 );
     fdlPosition.right = new FormAttachment( 100, 0 );
     fdlPosition.bottom = new FormAttachment( wEachRow, -2 * margin ); // 2 times since we deal with bottom instead of
-                                                                      // top
+    // top
     wlPosition.setLayoutData( fdlPosition );
 
     // Finally, the SQL editor takes up all other space between the position and the SQL label
@@ -653,10 +652,10 @@ public class ExecSQLDialog extends BaseStepDialog implements StepDialogInterface
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    colinf[0].setComboValues( fieldNames );
+    colinf[ 0 ].setComboValues( fieldNames );
   }
 
   /**
@@ -689,8 +688,8 @@ public class ExecSQLDialog extends BaseStepDialog implements StepDialogInterface
 
     for ( int i = 0; i < input.getArguments().length; i++ ) {
       TableItem item = wFields.table.getItem( i );
-      if ( input.getArguments()[i] != null ) {
-        item.setText( 1, input.getArguments()[i] );
+      if ( input.getArguments()[ i ] != null ) {
+        item.setText( 1, input.getArguments()[ i ] );
       }
     }
     wSetParams.setSelection( input.isParams() );
@@ -747,7 +746,7 @@ public class ExecSQLDialog extends BaseStepDialog implements StepDialogInterface
     for ( int i = 0; i < nrargs; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
       //CHECKSTYLE:Indentation:OFF
-      input.getArguments()[i] = item.getText( 1 );
+      input.getArguments()[ i ] = item.getText( 1 );
     }
 
     if ( input.getDatabaseMeta() == null ) {
@@ -769,7 +768,7 @@ public class ExecSQLDialog extends BaseStepDialog implements StepDialogInterface
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "ExecSQLDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "ExecSQLDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "ExecSQLDialog.FailedToGetFields.DialogMessage" ), ke );
     }
 
   }

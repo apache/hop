@@ -22,17 +22,14 @@
 
 package org.apache.hop.trans.steps.mapping;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogTableField;
 import org.apache.hop.core.logging.TransLogTable;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.SingleThreadedTransExecutor;
 import org.apache.hop.trans.StepWithMappingMeta;
@@ -50,6 +47,9 @@ import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.TransStepUtil;
 import org.apache.hop.trans.steps.mappinginput.MappingInput;
 import org.apache.hop.trans.steps.mappingoutput.MappingOutput;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Execute a mapping: a re-usuable transformation
@@ -96,15 +96,15 @@ public class Mapping extends BaseStep implements StepInterface {
               if ( mappingInputs.length == 1 ) {
                 // Simple case: only one input mapping. Move the RowSet over
                 //
-                mappingInputs[0].addRowSetToInputRowSets( rowSet );
+                mappingInputs[ 0 ].addRowSetToInputRowSets( rowSet );
               } else {
                 // Difficult to see what's going on here.
                 // TODO: figure out where this RowSet needs to go and where it
                 // comes from.
                 //
                 throw new HopException(
-                    "Unsupported situation detected where more than one Mapping Input step needs to be handled.  "
-                        + "To solve it, insert a dummy step before the mapping step." );
+                  "Unsupported situation detected where more than one Mapping Input step needs to be handled.  "
+                    + "To solve it, insert a dummy step before the mapping step." );
               }
             }
             clearInputRowSets();
@@ -127,15 +127,15 @@ public class Mapping extends BaseStep implements StepInterface {
               if ( mappingInputs.length == 1 ) {
                 // Simple case: only one input mapping. Move the remote step over
                 //
-                mappingInputs[0].getRemoteInputSteps().add( remoteStep );
+                mappingInputs[ 0 ].getRemoteInputSteps().add( remoteStep );
               } else {
                 // TODO: figure out where this remote step needs to go and where
                 // it comes from.
                 //
                 throw new HopException(
-                    "Unsupported situation detected where a remote input step is expecting data "
-                        + "to end up in a particular Mapping Input step of a sub-transformation.  "
-                        + "To solve it, insert a dummy step before the mapping." );
+                  "Unsupported situation detected where a remote input step is expecting data "
+                    + "to end up in a particular Mapping Input step of a sub-transformation.  "
+                    + "To solve it, insert a dummy step before the mapping." );
               }
             }
             getRemoteInputSteps().clear();
@@ -152,15 +152,15 @@ public class Mapping extends BaseStep implements StepInterface {
               if ( mappingOutputs.length == 1 ) {
                 // Simple case: only one output mapping. Move the RowSet over
                 //
-                mappingOutputs[0].addRowSetToOutputRowSets( rowSet );
+                mappingOutputs[ 0 ].addRowSetToOutputRowSets( rowSet );
               } else {
                 // Difficult to see what's going on here.
                 // TODO: figure out where this RowSet needs to go and where it
                 // comes from.
                 //
                 throw new HopException(
-                    "Unsupported situation detected where more than one Mapping Output step needs to be handled.  "
-                        + "To solve it, insert a dummy step after the mapping step." );
+                  "Unsupported situation detected where more than one Mapping Output step needs to be handled.  "
+                    + "To solve it, insert a dummy step after the mapping step." );
               }
             }
             clearOutputRowSets();
@@ -183,15 +183,15 @@ public class Mapping extends BaseStep implements StepInterface {
               if ( mappingOutputs.length == 1 ) {
                 // Simple case: only one output mapping. Move the remote step over
                 //
-                mappingOutputs[0].getRemoteOutputSteps().add( remoteStep );
+                mappingOutputs[ 0 ].getRemoteOutputSteps().add( remoteStep );
               } else {
                 // TODO: figure out where this remote step needs to go and where
                 // it comes from.
                 //
                 throw new HopException(
-                    "Unsupported situation detected where a remote output step is expecting data "
-                        + "to end up in a particular Mapping Output step of a sub-transformation.  "
-                        + "To solve it, insert a dummy step after the mapping." );
+                  "Unsupported situation detected where a remote output step is expecting data "
+                    + "to end up in a particular Mapping Output step of a sub-transformation.  "
+                    + "To solve it, insert a dummy step after the mapping." );
               }
             }
             getRemoteOutputSteps().clear();
@@ -227,7 +227,7 @@ public class Mapping extends BaseStep implements StepInterface {
 
           if ( mappingInputs.length > 1 || mappingOutputs.length > 1 ) {
             throw new HopException(
-                "Multiple input or output steps are not supported for a single threaded mapping." );
+              "Multiple input or output steps are not supported for a single threaded mapping." );
           }
 
           // Object[] row = getRow();
@@ -242,7 +242,7 @@ public class Mapping extends BaseStep implements StepInterface {
           // }
 
           if ( ( log != null ) && log.isDebug() ) {
-            List<RowSet> mappingInputRowSets = mappingInputs[0].getInputRowSets();
+            List<RowSet> mappingInputRowSets = mappingInputs[ 0 ].getInputRowSets();
             log.logDebug( "# of input buffers: " + mappingInputRowSets.size() );
             if ( mappingInputRowSets.size() > 0 ) {
               log.logDebug( "Input buffer 0 size: " + mappingInputRowSets.get( 0 ).size() );
@@ -261,8 +261,8 @@ public class Mapping extends BaseStep implements StepInterface {
 
         default:
           throw new HopException( "Transformation type '"
-              + getData().mappingTransMeta.getTransformationType().getDescription()
-              + "' is an unsupported transformation type for a mapping" );
+            + getData().mappingTransMeta.getTransformationType().getDescription()
+            + "' is an unsupported transformation type for a mapping" );
       }
     } catch ( Throwable t ) {
       // Some unexpected situation occurred.
@@ -292,12 +292,12 @@ public class Mapping extends BaseStep implements StepInterface {
       mappingData.getMappingTrans().prepareExecution( getTrans().getArguments() );
     } catch ( HopException e ) {
       throw new HopException( BaseMessages.getString( PKG, "Mapping.Exception.UnableToPrepareExecutionOfMapping" ),
-          e );
+        e );
     }
 
     // Extra optional work to do for alternative execution engines...
     //
-    switch (  mappingData.mappingTransMeta.getTransformationType() ) {
+    switch ( mappingData.mappingTransMeta.getTransformationType() ) {
       case Normal:
       case SerialSingleThreaded:
         break;
@@ -306,7 +306,7 @@ public class Mapping extends BaseStep implements StepInterface {
         mappingData.singleThreadedTransExcecutor = new SingleThreadedTransExecutor( mappingData.getMappingTrans() );
         if ( !mappingData.singleThreadedTransExcecutor.init() ) {
           throw new HopException( BaseMessages.getString( PKG,
-              "Mapping.Exception.UnableToInitSingleThreadedTransformation" ) );
+            "Mapping.Exception.UnableToInitSingleThreadedTransformation" ) );
         }
         break;
       default:
@@ -319,12 +319,12 @@ public class Mapping extends BaseStep implements StepInterface {
     MappingInput[] mappingInputs = mappingData.getMappingTrans().findMappingInput();
     LogTableField readField = mappingData.mappingTransMeta.getTransLogTable().findField( TransLogTable.ID.LINES_READ );
     if ( readField.getSubject() == null && mappingInputs != null && mappingInputs.length >= 1 ) {
-      readField.setSubject( mappingInputs[0].getStepMeta() );
+      readField.setSubject( mappingInputs[ 0 ].getStepMeta() );
     }
     MappingOutput[] mappingOutputs = mappingData.getMappingTrans().findMappingOutput();
     LogTableField writeField = mappingData.mappingTransMeta.getTransLogTable().findField( TransLogTable.ID.LINES_WRITTEN );
     if ( writeField.getSubject() == null && mappingOutputs != null && mappingOutputs.length >= 1 ) {
-      writeField.setSubject( mappingOutputs[0].getStepMeta() );
+      writeField.setSubject( mappingOutputs[ 0 ].getStepMeta() );
     }
 
     // Before we add rowsets and all, we should note that the mapping step did
@@ -347,7 +347,7 @@ public class Mapping extends BaseStep implements StepInterface {
         StepInterface sourceStep = getTrans().findRunThread( inputDefinition.getInputStepname() );
         if ( sourceStep == null ) {
           throw new HopException( BaseMessages.getString( PKG, "MappingDialog.Exception.StepNameNotFound",
-              inputDefinition.getInputStepname() ) );
+            inputDefinition.getInputStepname() ) );
         }
         sourceSteps = new StepInterface[] { sourceStep, };
       } else {
@@ -364,9 +364,9 @@ public class Mapping extends BaseStep implements StepInterface {
         // The origin is the previous step
         // The target is the Mapping Input step.
         //
-        sourceSteps = new StepInterface[prevSteps.size()];
+        sourceSteps = new StepInterface[ prevSteps.size() ];
         for ( int s = 0; s < sourceSteps.length; s++ ) {
-          sourceSteps[s] = getTrans().findRunThread( prevSteps.get( s ).getName() );
+          sourceSteps[ s ] = getTrans().findRunThread( prevSteps.get( s ).getName() );
         }
       }
 
@@ -379,25 +379,25 @@ public class Mapping extends BaseStep implements StepInterface {
 
         if ( mappingInputSteps.length == 0 ) {
           throw new HopException( BaseMessages
-              .getString( PKG, "MappingDialog.Exception.OneMappingInputStepRequired" ) );
+            .getString( PKG, "MappingDialog.Exception.OneMappingInputStepRequired" ) );
         }
         if ( mappingInputSteps.length > 1 ) {
           throw new HopException( BaseMessages.getString( PKG,
-              "MappingDialog.Exception.OnlyOneMappingInputStepAllowed", "" + mappingInputSteps.length ) );
+            "MappingDialog.Exception.OnlyOneMappingInputStepAllowed", "" + mappingInputSteps.length ) );
         }
 
-        mappingInputTarget = mappingInputSteps[0];
+        mappingInputTarget = mappingInputSteps[ 0 ];
       } else {
         // A target step was specified. See if we can find it...
         for ( int s = 0; s < mappingInputSteps.length && mappingInputTarget == null; s++ ) {
-          if ( mappingInputSteps[s].getStepname().equals( inputDefinition.getOutputStepname() ) ) {
-            mappingInputTarget = mappingInputSteps[s];
+          if ( mappingInputSteps[ s ].getStepname().equals( inputDefinition.getOutputStepname() ) ) {
+            mappingInputTarget = mappingInputSteps[ s ];
           }
         }
         // If we still didn't find it it's a drag.
         if ( mappingInputTarget == null ) {
           throw new HopException( BaseMessages.getString( PKG, "MappingDialog.Exception.StepNameNotFound",
-              inputDefinition.getOutputStepname() ) );
+            inputDefinition.getOutputStepname() ) );
         }
       }
 
@@ -426,7 +426,7 @@ public class Mapping extends BaseStep implements StepInterface {
       // What step are we reading from here?
       //
       MappingOutput mappingOutputSource =
-          (MappingOutput) mappingData.getMappingTrans().findRunThread( outputDefinition.getInputStepname() );
+        (MappingOutput) mappingData.getMappingTrans().findRunThread( outputDefinition.getInputStepname() );
       if ( mappingOutputSource == null ) {
         // No source step was specified: we're reading from a single Mapping
         // Output step.
@@ -436,14 +436,14 @@ public class Mapping extends BaseStep implements StepInterface {
 
         if ( mappingOutputSteps.length == 0 ) {
           throw new HopException( BaseMessages.getString( PKG,
-              "MappingDialog.Exception.OneMappingOutputStepRequired" ) );
+            "MappingDialog.Exception.OneMappingOutputStepRequired" ) );
         }
         if ( mappingOutputSteps.length > 1 ) {
           throw new HopException( BaseMessages.getString( PKG,
-              "MappingDialog.Exception.OnlyOneMappingOutputStepAllowed", "" + mappingOutputSteps.length ) );
+            "MappingDialog.Exception.OnlyOneMappingOutputStepAllowed", "" + mappingOutputSteps.length ) );
         }
 
-        mappingOutputSource = mappingOutputSteps[0];
+        mappingOutputSource = mappingOutputSteps[ 0 ];
       }
 
       // To what steps in this transformation are we writing to?
@@ -454,7 +454,7 @@ public class Mapping extends BaseStep implements StepInterface {
       // Also explain the mapping output steps how to rename the values back...
       //
       mappingOutputSource
-          .setConnectorSteps( targetSteps, getData().inputRenameList, outputDefinition.getValueRenames() );
+        .setConnectorSteps( targetSteps, getData().inputRenameList, outputDefinition.getValueRenames() );
 
       // Is this mapping copying or distributing?
       // Make sure the mapping output step mimics this behavior:
@@ -566,7 +566,7 @@ public class Mapping extends BaseStep implements StepInterface {
       // Pass the repository down to the metadata object...
       //
       mappingData.mappingTransMeta = MappingMeta.loadMappingMeta( meta,
-          meta.getMetaStore(), this, meta.getMappingParameters().isInheritingAllVariables() );
+        meta.getMetaStore(), this, meta.getMappingParameters().isInheritingAllVariables() );
 
       if ( data.mappingTransMeta == null ) {
         // Do we have a mapping at all?

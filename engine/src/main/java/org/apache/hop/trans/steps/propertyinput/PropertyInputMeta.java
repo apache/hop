@@ -22,15 +22,10 @@
 
 package org.apache.hop.trans.steps.propertyinput;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
@@ -42,11 +37,12 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
@@ -56,8 +52,10 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
+import java.util.Map;
 
 public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = PropertyInputMeta.class; // for i18n purposes, needed by Translator2!!
@@ -86,61 +84,95 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
 
   private String fileType;
 
-  /** Array of filenames */
+  /**
+   * Array of filenames
+   */
   private String[] fileName;
 
-  /** Wildcard or filemask (regular expression) */
+  /**
+   * Wildcard or filemask (regular expression)
+   */
   private String[] fileMask;
 
-  /** Wildcard or filemask to exclude (regular expression) */
+  /**
+   * Wildcard or filemask to exclude (regular expression)
+   */
   private String[] excludeFileMask;
 
-  /** Flag indicating that we should include the filename in the output */
+  /**
+   * Flag indicating that we should include the filename in the output
+   */
   private boolean includeFilename;
 
-  /** Array of boolean values as string, indicating if a file is required. */
+  /**
+   * Array of boolean values as string, indicating if a file is required.
+   */
   private String[] fileRequired;
 
-  /** Array of boolean values as string, indicating if we need to fetch sub folders. */
+  /**
+   * Array of boolean values as string, indicating if we need to fetch sub folders.
+   */
   private String[] includeSubFolders;
 
-  /** Flag indicating that we should reset RowNum for each file */
+  /**
+   * Flag indicating that we should reset RowNum for each file
+   */
   private boolean resetRowNumber;
 
-  /** Flag do variable substitution for value */
+  /**
+   * Flag do variable substitution for value
+   */
   private boolean resolvevaluevariable;
 
-  /** The name of the field in the output containing the filename */
+  /**
+   * The name of the field in the output containing the filename
+   */
   private String filenameField;
 
-  /** Flag indicating that a row number field should be included in the output */
+  /**
+   * Flag indicating that a row number field should be included in the output
+   */
   private boolean includeRowNumber;
 
-  /** The name of the field in the output containing the row number */
+  /**
+   * The name of the field in the output containing the row number
+   */
   private String rowNumberField;
 
-  /** The maximum number or lines to read */
+  /**
+   * The maximum number or lines to read
+   */
   private long rowLimit;
 
-  /** The fields to import... */
+  /**
+   * The fields to import...
+   */
   private PropertyInputField[] inputFields;
 
-  /** file name from previous fields **/
+  /**
+   * file name from previous fields
+   **/
   private boolean filefield;
 
   private boolean isaddresult;
 
   private String dynamicFilenameField;
 
-  /** Flag indicating that a INI file section field should be included in the output */
+  /**
+   * Flag indicating that a INI file section field should be included in the output
+   */
   private boolean includeIniSection;
 
-  /** The name of the field in the output containing the INI file section */
+  /**
+   * The name of the field in the output containing the INI file section
+   */
   private String iniSectionField;
 
   private String section;
 
-  /** Additional fields **/
+  /**
+   * Additional fields
+   **/
   private String shortFileFieldName;
   private String pathFieldName;
   private String hiddenFieldName;
@@ -162,8 +194,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param field
-   *          The extensionFieldName to set.
+   * @param field The extensionFieldName to set.
    */
   public void setExtensionField( String field ) {
     extensionFieldName = field;
@@ -177,8 +208,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param field
-   *          The sizeFieldName to set.
+   * @param field The sizeFieldName to set.
    */
   public void setSizeField( String field ) {
     sizeFieldName = field;
@@ -192,8 +222,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param field
-   *          The shortFileFieldName to set.
+   * @param field The shortFileFieldName to set.
    */
   public void setShortFileNameField( String field ) {
     shortFileFieldName = field;
@@ -207,8 +236,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param field
-   *          The pathFieldName to set.
+   * @param field The pathFieldName to set.
    */
   public void setPathField( String field ) {
     this.pathFieldName = field;
@@ -222,8 +250,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param field
-   *          The hiddenFieldName to set.
+   * @param field The hiddenFieldName to set.
    */
   public void setIsHiddenField( String field ) {
     hiddenFieldName = field;
@@ -237,8 +264,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param field
-   *          The lastModificationTimeFieldName to set.
+   * @param field The lastModificationTimeFieldName to set.
    */
   public void setLastModificationDateField( String field ) {
     lastModificationTimeFieldName = field;
@@ -252,8 +278,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param field
-   *          The uriNameFieldName to set.
+   * @param field The uriNameFieldName to set.
    */
   public void setUriField( String field ) {
     uriNameFieldName = field;
@@ -267,8 +292,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param field
-   *          The rootUriNameFieldName to set.
+   * @param field The rootUriNameFieldName to set.
    */
   public void setRootUriField( String field ) {
     rootUriNameFieldName = field;
@@ -282,8 +306,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param inputFields
-   *          The input fields to set.
+   * @param inputFields The input fields to set.
    */
   public void setInputFields( PropertyInputField[] inputFields ) {
     this.inputFields = inputFields;
@@ -297,8 +320,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param fileMask
-   *          The fileMask to set.
+   * @param fileMask The fileMask to set.
    */
   public void setFileMask( String[] fileMask ) {
     this.fileMask = fileMask;
@@ -328,8 +350,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param excludeFileMask
-   *          The excludeFileMask to set.
+   * @param excludeFileMask The excludeFileMask to set.
    */
   public void setExcludeFileMask( String[] excludeFileMask ) {
     this.excludeFileMask = excludeFileMask;
@@ -341,7 +362,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
 
   public void setFileRequired( String[] fileRequiredin ) {
     for ( int i = 0; i < fileRequiredin.length; i++ ) {
-      this.fileRequired[i] = getRequiredFilesCode( fileRequiredin[i] );
+      this.fileRequired[ i ] = getRequiredFilesCode( fileRequiredin[ i ] );
     }
   }
 
@@ -351,35 +372,34 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
 
   public void setIncludeSubFolders( String[] includeSubFoldersin ) {
     for ( int i = 0; i < includeSubFoldersin.length; i++ ) {
-      this.includeSubFolders[i] = getRequiredFilesCode( includeSubFoldersin[i] );
+      this.includeSubFolders[ i ] = getRequiredFilesCode( includeSubFoldersin[ i ] );
     }
   }
 
   public String getRequiredFilesCode( String tt ) {
     if ( tt == null ) {
-      return RequiredFilesCode[0];
+      return RequiredFilesCode[ 0 ];
     }
-    if ( tt.equals( RequiredFilesDesc[1] ) ) {
-      return RequiredFilesCode[1];
+    if ( tt.equals( RequiredFilesDesc[ 1 ] ) ) {
+      return RequiredFilesCode[ 1 ];
     } else {
-      return RequiredFilesCode[0];
+      return RequiredFilesCode[ 0 ];
     }
   }
 
   public String getRequiredFilesDesc( String tt ) {
     if ( tt == null ) {
-      return RequiredFilesDesc[0];
+      return RequiredFilesDesc[ 0 ];
     }
-    if ( tt.equals( RequiredFilesCode[1] ) ) {
-      return RequiredFilesDesc[1];
+    if ( tt.equals( RequiredFilesCode[ 1 ] ) ) {
+      return RequiredFilesDesc[ 1 ];
     } else {
-      return RequiredFilesDesc[0];
+      return RequiredFilesDesc[ 0 ];
     }
   }
 
   /**
-   * @param fileName
-   *          The fileName to set.
+   * @param fileName The fileName to set.
    */
   public void setFileName( String[] fileName ) {
     this.fileName = fileName;
@@ -400,16 +420,14 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param dynamicFilenameField
-   *          the dynamically defined filename field (to read from previous steps)
+   * @param dynamicFilenameField the dynamically defined filename field (to read from previous steps)
    */
   public void setDynamicFilenameField( String dynamicFilenameField ) {
     this.dynamicFilenameField = dynamicFilenameField;
   }
 
   /**
-   * @param filenameField
-   *          The filenameField to set.
+   * @param filenameField The filenameField to set.
    */
   public void setFilenameField( String filenameField ) {
     this.filenameField = filenameField;
@@ -423,8 +441,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param includeFilename
-   *          The includeFilename to set.
+   * @param includeFilename The includeFilename to set.
    */
   public void setIncludeFilename( boolean includeFilename ) {
     this.includeFilename = includeFilename;
@@ -432,9 +449,9 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
 
   public static String getFileTypeCode( int i ) {
     if ( i < 0 || i >= fileTypeCode.length ) {
-      return fileTypeCode[0];
+      return fileTypeCode[ 0 ];
     }
-    return fileTypeCode[i];
+    return fileTypeCode[ i ];
   }
 
   public static int getFileTypeByDesc( String tt ) {
@@ -443,7 +460,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
     }
 
     for ( int i = 0; i < fileTypeDesc.length; i++ ) {
-      if ( fileTypeDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( fileTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -457,7 +474,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
     }
 
     for ( int i = 0; i < fileTypeCode.length; i++ ) {
-      if ( fileTypeCode[i].equalsIgnoreCase( tt ) ) {
+      if ( fileTypeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -466,9 +483,9 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
 
   public static String getFileTypeDesc( int i ) {
     if ( i < 0 || i >= fileTypeDesc.length ) {
-      return fileTypeDesc[0];
+      return fileTypeDesc[ 0 ];
     }
-    return fileTypeDesc[i];
+    return fileTypeDesc[ i ];
   }
 
   public void setFileType( String filetype ) {
@@ -480,8 +497,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param includeIniSection
-   *          The includeIniSection to set.
+   * @param includeIniSection The includeIniSection to set.
    */
   public void setIncludeIniSection( boolean includeIniSection ) {
     this.includeIniSection = includeIniSection;
@@ -495,8 +511,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param encoding
-   *          The encoding to set.
+   * @param encoding The encoding to set.
    */
   public void setEncoding( String encoding ) {
     this.encoding = encoding;
@@ -510,8 +525,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param iniSectionField
-   *          The iniSectionField to set.
+   * @param iniSectionField The iniSectionField to set.
    */
   public void setINISectionField( String iniSectionField ) {
     this.iniSectionField = iniSectionField;
@@ -525,8 +539,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param section
-   *          The section to set.
+   * @param section The section to set.
    */
   public void setSection( String section ) {
     this.section = section;
@@ -554,8 +567,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param filefield
-   *          The filefield to set.
+   * @param filefield The filefield to set.
    */
   public void setFileField( boolean filefield ) {
     this.filefield = filefield;
@@ -569,16 +581,14 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param includeRowNumber
-   *          The includeRowNumber to set.
+   * @param includeRowNumber The includeRowNumber to set.
    */
   public void setIncludeRowNumber( boolean includeRowNumber ) {
     this.includeRowNumber = includeRowNumber;
   }
 
   /**
-   * @param isaddresult
-   *          The isaddresult to set.
+   * @param isaddresult The isaddresult to set.
    */
   public void setAddResultFile( boolean isaddresult ) {
     this.isaddresult = isaddresult;
@@ -592,16 +602,14 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param resetRowNumber
-   *          The resetRowNumber to set.
+   * @param resetRowNumber The resetRowNumber to set.
    */
   public void setResetRowNumber( boolean resetRowNumber ) {
     this.resetRowNumber = resetRowNumber;
   }
 
   /**
-   * @param resolvevaluevariable
-   *          The resolvevaluevariable to set.
+   * @param resolvevaluevariable The resolvevaluevariable to set.
    */
   public void setResolveValueVariable( boolean resolvevaluevariable ) {
     this.resolvevaluevariable = resolvevaluevariable;
@@ -622,8 +630,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param rowLimit
-   *          The rowLimit to set.
+   * @param rowLimit The rowLimit to set.
    */
   public void setRowLimit( long rowLimit ) {
     this.rowLimit = rowLimit;
@@ -637,8 +644,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param rowNumberField
-   *          The rowNumberField to set.
+   * @param rowNumberField The rowNumberField to set.
    */
   public void setRowNumberField( String rowNumberField ) {
     this.rowNumberField = rowNumberField;
@@ -659,8 +665,8 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
     System.arraycopy( fileRequired, 0, retval.fileRequired, 0, nrFiles );
     System.arraycopy( includeSubFolders, 0, retval.includeSubFolders, 0, nrFiles );
     for ( int i = 0; i < nrFields; i++ ) {
-      if ( inputFields[i] != null ) {
-        retval.inputFields[i] = (PropertyInputField) inputFields[i].clone();
+      if ( inputFields[ i ] != null ) {
+        retval.inputFields[ i ] = (PropertyInputField) inputFields[ i ].clone();
       }
     }
 
@@ -685,11 +691,11 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
     retval.append( "    " ).append( XMLHandler.addTagValue( "section", section ) );
     retval.append( "    <file>" ).append( Const.CR );
     for ( int i = 0; i < fileName.length; i++ ) {
-      retval.append( "      " ).append( XMLHandler.addTagValue( "name", fileName[i] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "exclude_filemask", excludeFileMask[i] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "filemask", fileMask[i] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "file_required", fileRequired[i] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", includeSubFolders[i] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "name", fileName[ i ] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "exclude_filemask", excludeFileMask[ i ] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "filemask", fileMask[ i ] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "file_required", fileRequired[ i ] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", includeSubFolders[ i ] ) );
     }
     retval.append( "    </file>" ).append( Const.CR );
 
@@ -699,18 +705,18 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < inputFields.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", inputFields[i].getName() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "column", inputFields[i].getColumnCode() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "type", inputFields[i].getTypeDesc() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "format", inputFields[i].getFormat() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "length", inputFields[i].getLength() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "precision", inputFields[i].getPrecision() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "name", inputFields[ i ].getName() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "column", inputFields[ i ].getColumnCode() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "type", inputFields[ i ].getTypeDesc() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "format", inputFields[ i ].getFormat() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "length", inputFields[ i ].getLength() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "precision", inputFields[ i ].getPrecision() ) );
       retval
-        .append( "        " ).append( XMLHandler.addTagValue( "currency", inputFields[i].getCurrencySymbol() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "decimal", inputFields[i].getDecimalSymbol() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "group", inputFields[i].getGroupSymbol() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "trim_type", inputFields[i].getTrimTypeCode() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "repeat", inputFields[i].isRepeated() ) );
+        .append( "        " ).append( XMLHandler.addTagValue( "currency", inputFields[ i ].getCurrencySymbol() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "decimal", inputFields[ i ].getDecimalSymbol() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "group", inputFields[ i ].getGroupSymbol() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "trim_type", inputFields[ i ].getTrimTypeCode() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "repeat", inputFields[ i ].isRepeated() ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
     retval.append( "    </fields>" ).append( Const.CR );
@@ -762,35 +768,35 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
         Node excludefilemasknode = XMLHandler.getSubNodeByNr( filenode, "exclude_filemask", i );
         Node fileRequirednode = XMLHandler.getSubNodeByNr( filenode, "file_required", i );
         Node includeSubFoldersnode = XMLHandler.getSubNodeByNr( filenode, "include_subfolders", i );
-        fileName[i] = XMLHandler.getNodeValue( filenamenode );
-        fileMask[i] = XMLHandler.getNodeValue( filemasknode );
-        excludeFileMask[i] = XMLHandler.getNodeValue( excludefilemasknode );
-        fileRequired[i] = XMLHandler.getNodeValue( fileRequirednode );
-        includeSubFolders[i] = XMLHandler.getNodeValue( includeSubFoldersnode );
+        fileName[ i ] = XMLHandler.getNodeValue( filenamenode );
+        fileMask[ i ] = XMLHandler.getNodeValue( filemasknode );
+        excludeFileMask[ i ] = XMLHandler.getNodeValue( excludefilemasknode );
+        fileRequired[ i ] = XMLHandler.getNodeValue( fileRequirednode );
+        includeSubFolders[ i ] = XMLHandler.getNodeValue( includeSubFoldersnode );
       }
 
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        inputFields[i] = new PropertyInputField();
+        inputFields[ i ] = new PropertyInputField();
 
-        inputFields[i].setName( XMLHandler.getTagValue( fnode, "name" ) );
-        inputFields[i].setColumn( getColumnByCode( XMLHandler.getTagValue( fnode, "column" ) ) );
-        inputFields[i].setType( ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( fnode, "type" ) ) );
-        inputFields[i].setLength( Const.toInt( XMLHandler.getTagValue( fnode, "length" ), -1 ) );
-        inputFields[i].setPrecision( Const.toInt( XMLHandler.getTagValue( fnode, "precision" ), -1 ) );
+        inputFields[ i ].setName( XMLHandler.getTagValue( fnode, "name" ) );
+        inputFields[ i ].setColumn( getColumnByCode( XMLHandler.getTagValue( fnode, "column" ) ) );
+        inputFields[ i ].setType( ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( fnode, "type" ) ) );
+        inputFields[ i ].setLength( Const.toInt( XMLHandler.getTagValue( fnode, "length" ), -1 ) );
+        inputFields[ i ].setPrecision( Const.toInt( XMLHandler.getTagValue( fnode, "precision" ), -1 ) );
         String srepeat = XMLHandler.getTagValue( fnode, "repeat" );
-        inputFields[i].setTrimType( getTrimTypeByCode( XMLHandler.getTagValue( fnode, "trim_type" ) ) );
+        inputFields[ i ].setTrimType( getTrimTypeByCode( XMLHandler.getTagValue( fnode, "trim_type" ) ) );
 
         if ( srepeat != null ) {
-          inputFields[i].setRepeated( YES.equalsIgnoreCase( srepeat ) );
+          inputFields[ i ].setRepeated( YES.equalsIgnoreCase( srepeat ) );
         } else {
-          inputFields[i].setRepeated( false );
+          inputFields[ i ].setRepeated( false );
         }
 
-        inputFields[i].setFormat( XMLHandler.getTagValue( fnode, "format" ) );
-        inputFields[i].setCurrencySymbol( XMLHandler.getTagValue( fnode, "currency" ) );
-        inputFields[i].setDecimalSymbol( XMLHandler.getTagValue( fnode, "decimal" ) );
-        inputFields[i].setGroupSymbol( XMLHandler.getTagValue( fnode, "group" ) );
+        inputFields[ i ].setFormat( XMLHandler.getTagValue( fnode, "format" ) );
+        inputFields[ i ].setCurrencySymbol( XMLHandler.getTagValue( fnode, "currency" ) );
+        inputFields[ i ].setDecimalSymbol( XMLHandler.getTagValue( fnode, "decimal" ) );
+        inputFields[ i ].setGroupSymbol( XMLHandler.getTagValue( fnode, "group" ) );
 
       }
 
@@ -811,12 +817,12 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void allocate( int nrfiles, int nrfields ) {
-    fileName = new String[nrfiles];
-    fileMask = new String[nrfiles];
-    excludeFileMask = new String[nrfiles];
-    fileRequired = new String[nrfiles];
-    includeSubFolders = new String[nrfiles];
-    inputFields = new PropertyInputField[nrfields];
+    fileName = new String[ nrfiles ];
+    fileMask = new String[ nrfiles ];
+    excludeFileMask = new String[ nrfiles ];
+    fileRequired = new String[ nrfiles ];
+    includeSubFolders = new String[ nrfiles ];
+    inputFields = new PropertyInputField[ nrfields ];
   }
 
   public void setDefault() {
@@ -829,7 +835,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
     extensionFieldName = null;
     sizeFieldName = null;
 
-    fileType = fileTypeCode[0];
+    fileType = fileTypeCode[ 0 ];
     section = "";
     encoding = DEFAULT_ENCODING;
     includeIniSection = false;
@@ -849,26 +855,26 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
     allocate( nrFiles, nrFields );
 
     for ( int i = 0; i < nrFiles; i++ ) {
-      fileName[i] = "filename" + ( i + 1 );
-      fileMask[i] = "";
-      excludeFileMask[i] = "";
-      fileRequired[i] = RequiredFilesCode[0];
-      includeSubFolders[i] = RequiredFilesCode[0];
+      fileName[ i ] = "filename" + ( i + 1 );
+      fileMask[ i ] = "";
+      excludeFileMask[ i ] = "";
+      fileRequired[ i ] = RequiredFilesCode[ 0 ];
+      includeSubFolders[ i ] = RequiredFilesCode[ 0 ];
     }
 
     for ( int i = 0; i < nrFields; i++ ) {
-      inputFields[i] = new PropertyInputField( "field" + ( i + 1 ) );
+      inputFields[ i ] = new PropertyInputField( "field" + ( i + 1 ) );
     }
 
     rowLimit = 0;
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     int i;
     for ( i = 0; i < inputFields.length; i++ ) {
-      PropertyInputField field = inputFields[i];
+      PropertyInputField field = inputFields[ i ];
 
       int type = field.getType();
       if ( type == ValueMetaInterface.TYPE_NONE ) {
@@ -973,7 +979,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   public static final int getTrimTypeByCode( String tt ) {
     if ( tt != null ) {
       for ( int i = 0; i < type_trim_code.length; i++ ) {
-        if ( type_trim_code[i].equalsIgnoreCase( tt ) ) {
+        if ( type_trim_code[ i ].equalsIgnoreCase( tt ) ) {
           return i;
         }
       }
@@ -984,7 +990,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   public static final int getColumnByCode( String tt ) {
     if ( tt != null ) {
       for ( int i = 0; i < column_code.length; i++ ) {
-        if ( column_code[i].equalsIgnoreCase( tt ) ) {
+        if ( column_code[ i ].equalsIgnoreCase( tt ) ) {
           return i;
         }
       }
@@ -993,18 +999,18 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public FileInputList getFiles( VariableSpace space ) {
-    String[] required = new String[fileName.length];
-    boolean[] subdirs = new boolean[fileName.length]; // boolean arrays are defaulted to false.
+    String[] required = new String[ fileName.length ];
+    boolean[] subdirs = new boolean[ fileName.length ]; // boolean arrays are defaulted to false.
     for ( int i = 0; i < required.length; i++ ) {
-      required[i] = "Y";
+      required[ i ] = "Y";
     }
     return FileInputList.createFileList( space, fileName, fileMask, excludeFileMask, required, subdirs );
 
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
 
     CheckResult cr;
 
@@ -1038,7 +1044,7 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new PropertyInput( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -1056,19 +1062,15 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param space
-   *          the variable space to use
+   * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param repository
-   *          The repository to optionally load other resources from (to be converted to XML)
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
-   *
+   * @param repository              The repository to optionally load other resources from (to be converted to XML)
+   * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
@@ -1076,8 +1078,8 @@ public class PropertyInputMeta extends BaseStepMeta implements StepMetaInterface
       //
       if ( !filefield ) {
         for ( int i = 0; i < fileName.length; i++ ) {
-          FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( fileName[i] ), space );
-          fileName[i] = resourceNamingInterface.nameResource( fileObject, space, Utils.isEmpty( fileMask[i] ) );
+          FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( fileName[ i ] ), space );
+          fileName[ i ] = resourceNamingInterface.nameResource( fileObject, space, Utils.isEmpty( fileMask[ i ] ) );
         }
       }
       return null;

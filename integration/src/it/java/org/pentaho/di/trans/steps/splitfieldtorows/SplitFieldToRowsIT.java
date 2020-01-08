@@ -22,13 +22,6 @@
 
 package org.apache.hop.trans.steps.splitfieldtorows;
 
-import static org.junit.Assert.fail;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Test;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -39,6 +32,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.trans.RowProducer;
 import org.apache.hop.trans.RowStepCollector;
 import org.apache.hop.trans.Trans;
@@ -48,10 +42,16 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
 import org.apache.hop.trans.steps.injector.InjectorMeta;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.fail;
 
 /**
  * Test class for the SplitFieldToRows step.
- *
+ * <p>
  * The expected results were obtained by running the "Split field To Rows" Hop step with Spoon 4.3.0.
  *
  * @author Sean Flatley
@@ -70,7 +70,7 @@ public class SplitFieldToRowsIT {
     RowMetaInterface rowMeta = new RowMeta();
     ValueMetaInterface[] valuesMeta = { new ValueMetaString( FIELD_TO_SPLIT_NAME ) };
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rowMeta.addValueMeta( valuesMeta[i] );
+      rowMeta.addValueMeta( valuesMeta[ i ] );
     }
     return rowMeta;
   }
@@ -101,7 +101,7 @@ public class SplitFieldToRowsIT {
    * @throws Exception
    */
   private void test( String testName, String stringToSplit, boolean isDelimiterRegex, String delimiter,
-      String delimiterVariableValue, String[] expectedResult ) {
+                     String delimiterVariableValue, String[] expectedResult ) {
     List<RowMetaAndData> result = splitFieldToRows( testName, stringToSplit, isDelimiterRegex, delimiter, delimiterVariableValue );
     assertDataEquals( expectedResult, result );
   }
@@ -109,7 +109,7 @@ public class SplitFieldToRowsIT {
   /**
    * Splits the "stringToSplit" with the passed "delimiter". The "delimiter" is assumed by this method to be a Hop
    * variable. The parameter "delimiterVariableValue" should contain the variables value.
-   *
+   * <p>
    * The "isDelimiterRegex" parameter will process the use regex for pattern matching if true.
    *
    * @param testName
@@ -121,7 +121,7 @@ public class SplitFieldToRowsIT {
    * @throws Exception
    */
   private List<RowMetaAndData> splitFieldToRows( String testName, String stringToSplit, boolean isDelimiterRegex,
-      String delimiter, String delimiterVariableValue ) {
+                                                 String delimiter, String delimiterVariableValue ) {
     RowStepCollector rc = new RowStepCollector();
     try {
       HopEnvironment.init();
@@ -203,14 +203,13 @@ public class SplitFieldToRowsIT {
    *
    * @param expectedData
    * @param result
-
    */
   private void assertDataEquals( String[] expectedData, List<RowMetaAndData> result ) {
     for ( int i = 0; i < expectedData.length; i++ ) {
       try {
         String resultElement = result.get( i ).getString( "NewFieldName", "String" );
-        if ( !expectedData[i].equals( resultElement ) ) {
-          fail("Expected element does not match result element");
+        if ( !expectedData[ i ].equals( resultElement ) ) {
+          fail( "Expected element does not match result element" );
         }
       } catch ( ArrayIndexOutOfBoundsException aiobe ) {
         fail( aiobe.getMessage() );
@@ -221,6 +220,7 @@ public class SplitFieldToRowsIT {
   }
 
   // Non regex tests
+
   /**
    * Test: Non regex, delimiter = ";"
    */

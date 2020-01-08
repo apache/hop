@@ -22,13 +22,6 @@
 
 package org.apache.hop.trans.steps.monetdbbulkloader;
 
-import static org.junit.Assert.fail;
-
-import java.util.ArrayList;
-
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -37,6 +30,13 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransTestFactory;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import java.util.ArrayList;
+
+import static org.junit.Assert.fail;
 
 public class MonetDBBulkLoaderIT {
 

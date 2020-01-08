@@ -22,8 +22,6 @@
 
 package org.apache.hop.core.gui.plugin;
 
-import com.sun.org.apache.xpath.internal.objects.XNull;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -34,7 +32,6 @@ import java.lang.annotation.Target;
  * This annotation signals to the plugin system that the class is a GUI plugin.
  *
  * @author matt
- *
  */
 @Documented
 @Retention( RetentionPolicy.RUNTIME )

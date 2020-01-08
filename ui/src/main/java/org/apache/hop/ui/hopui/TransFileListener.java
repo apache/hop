@@ -22,11 +22,6 @@
 
 package org.apache.hop.ui.hopui;
 
-import java.util.Date;
-import java.util.Locale;
-
-import org.eclipse.jface.dialogs.MessageDialogWithToggle;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.EngineMetaInterface;
 import org.apache.hop.core.LastUsedFile;
 import org.apache.hop.core.exception.HopException;
@@ -37,13 +32,13 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.jobexecutor.JobExecutorMeta;
-import org.apache.hop.trans.steps.transexecutor.TransExecutorMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.trans.steps.missing.MissingTransDialog;
 import org.w3c.dom.Node;
+
+import java.util.Date;
+import java.util.Locale;
 
 public class TransFileListener implements FileListener {
 
@@ -82,7 +77,6 @@ public class TransFileListener implements FileListener {
 
       transMeta.setFilename( fname );
       hopUi.addTransGraph( transMeta );
-      hopUi.sharedObjectsFileMap.put( transMeta.getSharedObjects().getFilename(), transMeta.getSharedObjects() );
 
       // Call extension point(s) now that the file has been opened
       ExtensionPointHandler.callExtensionPoint( hopUi.getLog(), HopExtensionPoint.TransAfterOpen.id, transMeta );
@@ -150,7 +144,7 @@ public class TransFileListener implements FileListener {
   }
 
   public String[] getFileTypeDisplayNames( Locale locale ) {
-    return new String[]{ "Transformations", "XML" };
+    return new String[] { "Transformations", "XML" };
   }
 
   public String getRootNodeName() {
@@ -158,7 +152,7 @@ public class TransFileListener implements FileListener {
   }
 
   public String[] getSupportedExtensions() {
-    return new String[]{ "ktr", "xml" };
+    return new String[] { "ktr", "xml" };
   }
 
 }

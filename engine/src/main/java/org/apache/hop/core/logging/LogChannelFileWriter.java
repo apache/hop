@@ -22,20 +22,19 @@
 
 package org.apache.hop.core.logging;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.vfs.HopVFS;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This class takes care of polling the central log store for new log messages belonging to a certain log channel ID
  * (and children). The log lines will be written to a logging file.
  *
  * @author matt
- *
  */
 public class LogChannelFileWriter {
   private String logChannelId;
@@ -54,17 +53,11 @@ public class LogChannelFileWriter {
   /**
    * Create a new log channel file writer
    *
-   * @param logChannelId
-   *          The log channel (+children) to write to the log file
-   * @param logFile
-   *          The logging file to write to
-   * @param appending
-   *          set to true if you want to append to an existing file
-   * @param pollingInterval
-   *          The polling interval in milliseconds.
-   *
-   * @throws HopException
-   *           in case the specified log file can't be created.
+   * @param logChannelId    The log channel (+children) to write to the log file
+   * @param logFile         The logging file to write to
+   * @param appending       set to true if you want to append to an existing file
+   * @param pollingInterval The polling interval in milliseconds.
+   * @throws HopException in case the specified log file can't be created.
    */
   public LogChannelFileWriter( String logChannelId, FileObject logFile, boolean appending, int pollingInterval ) throws HopException {
     this.logChannelId = logChannelId;
@@ -88,15 +81,10 @@ public class LogChannelFileWriter {
   /**
    * Create a new log channel file writer
    *
-   * @param logChannelId
-   *          The log channel (+children) to write to the log file
-   * @param logFile
-   *          The logging file to write to
-   * @param appending
-   *          set to true if you want to append to an existing file
-   *
-   * @throws HopException
-   *           in case the specified log file can't be created.
+   * @param logChannelId The log channel (+children) to write to the log file
+   * @param logFile      The logging file to write to
+   * @param appending    set to true if you want to append to an existing file
+   * @throws HopException in case the specified log file can't be created.
    */
   public LogChannelFileWriter( String logChannelId, FileObject logFile, boolean appending ) throws HopException {
     this( logChannelId, logFile, appending, 1000 );
@@ -180,8 +168,7 @@ public class LogChannelFileWriter {
   }
 
   /**
-   * @param logChannelId
-   *          the logChannelId to set
+   * @param logChannelId the logChannelId to set
    */
   public void setLogChannelId( String logChannelId ) {
     this.logChannelId = logChannelId;
@@ -195,8 +182,7 @@ public class LogChannelFileWriter {
   }
 
   /**
-   * @param logFile
-   *          the logFile to set
+   * @param logFile the logFile to set
    */
   public void setLogFile( FileObject logFile ) {
     this.logFile = logFile;
@@ -210,8 +196,7 @@ public class LogChannelFileWriter {
   }
 
   /**
-   * @param appending
-   *          the appending to set
+   * @param appending the appending to set
    */
   public void setAppending( boolean appending ) {
     this.appending = appending;
@@ -225,8 +210,7 @@ public class LogChannelFileWriter {
   }
 
   /**
-   * @param pollingInterval
-   *          the pollingInterval to set
+   * @param pollingInterval the pollingInterval to set
    */
   public void setPollingInterval( int pollingInterval ) {
     this.pollingInterval = pollingInterval;

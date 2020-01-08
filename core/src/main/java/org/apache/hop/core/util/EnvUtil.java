@@ -47,8 +47,7 @@ public class EnvUtil {
   /**
    * Returns the properties from the users kettle home directory.
    *
-   * @param fileName
-   *          the relative name of the properties file in the users kettle directory.
+   * @param fileName the relative name of the properties file in the users kettle directory.
    * @return the map of properties.
    */
   public static Properties readProperties( final String fileName ) throws HopException {
@@ -81,8 +80,7 @@ public class EnvUtil {
   /**
    * Adds the kettle properties the the global system properties.
    *
-   * @throws HopException
-   *           in case the properties file can't be read.
+   * @throws HopException in case the properties file can't be read.
    */
   public static void environmentInit() throws HopException {
     // Workaround for a Mac OS/X Leopard issue where getContextClassLoader() is returning
@@ -184,7 +182,6 @@ public class EnvUtil {
    * used in 1.4
    *
    * @return Properties containing the environment. You're not meant to change any value in the returned Properties!
-   *
    */
   @SuppressWarnings( { "unchecked" } )
   private static final Properties getEnv() {
@@ -216,7 +213,7 @@ public class EnvUtil {
 
   /**
    * @return an array of strings, made up of all the environment variables available in the VM, format var=value. To be
-   *         used for Runtime.exec(cmd, envp)
+   * used for Runtime.exec(cmd, envp)
    */
   public static final String[] getEnvironmentVariablesForRuntimeExec() {
     Properties sysprops = new Properties();
@@ -224,13 +221,13 @@ public class EnvUtil {
     sysprops.putAll( System.getProperties() );
     addInternalVariables( sysprops );
 
-    String[] envp = new String[sysprops.size()];
+    String[] envp = new String[ sysprops.size() ];
     List<Object> list = new ArrayList<Object>( sysprops.keySet() );
     for ( int i = 0; i < list.size(); i++ ) {
       String var = (String) list.get( i );
       String val = sysprops.getProperty( var );
 
-      envp[i] = var + "=" + val;
+      envp[ i ] = var + "=" + val;
     }
 
     return envp;
@@ -240,12 +237,10 @@ public class EnvUtil {
    * This method is written especially for weird JVM's like IBM's on AIX and OS/400. On these platforms, we notice that
    * environment variables have an extra double quote around it... This is messing up the ability to specify things.
    *
-   * @param key
-   *          The key, the name of the environment variable to return
-   * @param def
-   *          The default value to return in case the key can't be found
+   * @param key The key, the name of the environment variable to return
+   * @param def The default value to return in case the key can't be found
    * @return The value of a System environment variable in the java virtual machine. If the key is not present, the
-   *         variable is not defined and the default value is returned.
+   * variable is not defined and the default value is returned.
    */
   public static final String getSystemPropertyStripQuotes( String key, String def ) {
     String value = System.getProperty( key, def );
@@ -258,12 +253,10 @@ public class EnvUtil {
   /**
    * This method is written especially for weird JVM's like
    *
-   * @param key
-   *          The key, the name of the environment variable to return
-   * @param def
-   *          The default value to return in case the key can't be found
+   * @param key The key, the name of the environment variable to return
+   * @param def The default value to return in case the key can't be found
    * @return The value of a System environment variable in the java virtual machine. If the key is not present, the
-   *         variable is not defined and the default value is returned.
+   * variable is not defined and the default value is returned.
    */
   public static final String getSystemProperty( String key, String def ) {
     String value = System.getProperty( key, def );
@@ -271,20 +264,18 @@ public class EnvUtil {
   }
 
   /**
-   * @param key
-   *          The key, the name of the environment variable to return
+   * @param key The key, the name of the environment variable to return
    * @return The value of a System environment variable in the java virtual machine. If the key is not present, the
-   *         variable is not defined and null returned.
+   * variable is not defined and null returned.
    */
   public static final String getSystemProperty( String key ) {
     return getSystemProperty( key, null );
   }
 
   /**
-   * @param key
-   *          The key, the name of the environment variable to clear
+   * @param key The key, the name of the environment variable to clear
    * @return The value of a System environment variable in the java virtual machine. If the key is not present, the
-   *         variable is not defined and null returned.
+   * variable is not defined and null returned.
    */
   public static final String clearSystemProperty( String key ) {
     return System.clearProperty( key );
@@ -292,7 +283,7 @@ public class EnvUtil {
 
   /**
    * Returns an available java.util.Locale object for the given localeCode.
-   *
+   * <p>
    * The localeCode code can be case insensitive, if it is available the method will find it and return it.
    *
    * @param localeCode
@@ -331,9 +322,9 @@ public class EnvUtil {
 
   public static String[] getLocaleList() {
     Locale[] locales = Locale.getAvailableLocales();
-    String[] strings = new String[locales.length];
+    String[] strings = new String[ locales.length ];
     for ( int i = 0; i < strings.length; i++ ) {
-      strings[i] = locales[i].toString();
+      strings[ i ] = locales[ i ].toString();
     }
     Arrays.sort( strings );
     return strings;

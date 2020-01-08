@@ -22,14 +22,6 @@
 
 package org.apache.hop.ui.trans.dialog;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -43,6 +35,14 @@ import org.apache.hop.ui.core.dialog.ConfigurationDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopui.HopUi;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +52,7 @@ public class TransExecutionConfigurationDialog extends ConfigurationDialog {
   private static Class<?> PKG = TransExecutionConfigurationDialog.class; // for i18n purposes, needed by Translator2!!
 
   public TransExecutionConfigurationDialog( Shell parent, TransExecutionConfiguration configuration,
-    TransMeta transMeta ) {
+                                            TransMeta transMeta ) {
     super( parent, configuration, transMeta );
   }
 
@@ -82,7 +82,7 @@ public class TransExecutionConfigurationDialog extends ConfigurationDialog {
     wGatherMetrics = new Button( gDetails, SWT.CHECK );
     wGatherMetrics.setText( BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.GatherMetrics.Label" ) );
     wGatherMetrics.setToolTipText( BaseMessages.getString( PKG,
-        "TransExecutionConfigurationDialog.GatherMetrics.Tooltip" ) );
+      "TransExecutionConfigurationDialog.GatherMetrics.Tooltip" ) );
     props.setLook( wGatherMetrics );
     FormData fdGatherMetrics = new FormData();
     fdGatherMetrics.top = new FormAttachment( wSafeMode, 7 );
@@ -118,7 +118,7 @@ public class TransExecutionConfigurationDialog extends ConfigurationDialog {
     parametersSectionLayout( PKG, "TransExecutionConfigurationDialog" );
 
     String docUrl =
-        Const.getDocUrl( BaseMessages.getString( HopUi.class, "Spoon.TransExecutionConfigurationDialog.Help" ) );
+      Const.getDocUrl( BaseMessages.getString( HopUi.class, "Spoon.TransExecutionConfigurationDialog.Help" ) );
     String docTitle = BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.docTitle" );
     String docHeader = BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.docHeader" );
     buttonsSectionLayout( PKG, "TransExecutionConfigurationDialog", docTitle, docUrl, docHeader );
@@ -185,7 +185,7 @@ public class TransExecutionConfigurationDialog extends ConfigurationDialog {
 
       configuration.setSafeModeEnabled( wSafeMode.getSelection() );
       configuration.setClearingLog( wClearLog.getSelection() );
-      configuration.setLogLevel( LogLevel.values()[wLogLevel.getSelectionIndex()] );
+      configuration.setLogLevel( LogLevel.values()[ wLogLevel.getSelectionIndex() ] );
       configuration.setGatheringMetrics( wGatherMetrics.getSelection() );
 
       // The lower part of the dialog...

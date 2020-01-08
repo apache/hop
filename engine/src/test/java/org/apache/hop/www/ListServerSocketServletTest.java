@@ -72,7 +72,7 @@ public class ListServerSocketServletTest {
       }
 
       @Override
-      public void setWriteListener(WriteListener writeListener) {
+      public void setWriteListener( WriteListener writeListener ) {
 
       }
 

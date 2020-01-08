@@ -26,13 +26,13 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.compatibility.Row;
 import org.apache.hop.compatibility.Value;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopEOFException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.w3c.dom.Node;
 
@@ -658,7 +658,7 @@ public class RowMeta implements RowMetaInterface {
 
       for ( int i = 0; i < size(); i++ ) {
         String valueName = getValueMeta( i ).getName();
-        retval[i] = valueName == null ? "" : valueName;
+        retval[ i ] = valueName == null ? "" : valueName;
       }
 
       return retval;
@@ -1259,8 +1259,7 @@ public class RowMeta implements RowMetaInterface {
 
   @VisibleForTesting
   static class RowMetaCache {
-    @VisibleForTesting
-    final Map<String, Integer> mapping;
+    @VisibleForTesting final Map<String, Integer> mapping;
 
     RowMetaCache() {
       this( new ConcurrentHashMap<String, Integer>() );

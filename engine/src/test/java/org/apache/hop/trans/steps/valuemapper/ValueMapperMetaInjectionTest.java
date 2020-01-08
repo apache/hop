@@ -22,14 +22,15 @@
 
 package org.apache.hop.trans.steps.valuemapper;
 
+import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 public class ValueMapperMetaInjectionTest extends BaseMetadataInjectionTest<ValueMapperMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Before
   public void setup() throws Exception {
     setup( new ValueMapperMeta() );
@@ -54,12 +55,12 @@ public class ValueMapperMetaInjectionTest extends BaseMetadataInjectionTest<Valu
     } );
     check( "SOURCE", new StringGetter() {
       public String get() {
-        return meta.getSourceValue()[0];
+        return meta.getSourceValue()[ 0 ];
       }
     } );
     check( "TARGET", new StringGetter() {
       public String get() {
-        return meta.getTargetValue()[0];
+        return meta.getTargetValue()[ 0 ];
       }
     } );
   }

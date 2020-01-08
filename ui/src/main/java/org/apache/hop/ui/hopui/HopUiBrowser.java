@@ -22,8 +22,12 @@
 
 package org.apache.hop.ui.hopui;
 
-import java.util.ResourceBundle;
-
+import org.apache.hop.core.EngineMetaInterface;
+import org.apache.hop.core.Props;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.i18n.GlobalMessages;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.xul.HopXulLoader;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.browser.Browser;
@@ -36,12 +40,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
-import org.apache.hop.core.EngineMetaInterface;
-import org.apache.hop.core.Props;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.i18n.GlobalMessages;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.xul.HopXulLoader;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulLoader;
 import org.pentaho.ui.xul.components.XulTextbox;
@@ -49,12 +47,13 @@ import org.pentaho.ui.xul.components.XulToolbarbutton;
 import org.pentaho.ui.xul.containers.XulToolbar;
 import org.pentaho.ui.xul.impl.XulEventHandler;
 
+import java.util.ResourceBundle;
+
 /**
  * This class handles the display of help information like the welcome page and JDBC info in an embedded browser.
  *
  * @author Matt
  * @since November 2006
- *
  */
 
 public class HopUiBrowser implements TabItemInterface, XulEventHandler {
@@ -191,7 +190,7 @@ public class HopUiBrowser implements TabItemInterface, XulEventHandler {
       e.printStackTrace();
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Title" ), BaseMessages
-          .getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Message", XUL_FILE_BROWSER_TOOLBAR ), e );
+        .getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Message", XUL_FILE_BROWSER_TOOLBAR ), e );
     }
   }
 
@@ -229,8 +228,7 @@ public class HopUiBrowser implements TabItemInterface, XulEventHandler {
   }
 
   /**
-   * @param hopUi
-   *          the spoon to set
+   * @param hopUi the spoon to set
    */
   public void setHopUi( HopUi hopUi ) {
     this.hopUi = hopUi;
@@ -264,8 +262,7 @@ public class HopUiBrowser implements TabItemInterface, XulEventHandler {
   }
 
   /**
-   * @param composite
-   *          the composite to set
+   * @param composite the composite to set
    */
   public void setComposite( Composite composite ) {
     this.composite = composite;

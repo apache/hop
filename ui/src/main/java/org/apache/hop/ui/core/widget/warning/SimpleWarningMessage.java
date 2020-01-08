@@ -44,8 +44,7 @@ public class SimpleWarningMessage implements WarningMessageInterface {
   }
 
   /**
-   * @param warningMessage
-   *          the warningMessage to set
+   * @param warningMessage the warningMessage to set
    */
   public void setWarningMessage( String warningMessage ) {
     this.warningMessage = warningMessage;
@@ -59,8 +58,7 @@ public class SimpleWarningMessage implements WarningMessageInterface {
   }
 
   /**
-   * @param warning
-   *          the warning to set
+   * @param warning the warning to set
    */
   public void setWarning( boolean warning ) {
     this.warning = warning;

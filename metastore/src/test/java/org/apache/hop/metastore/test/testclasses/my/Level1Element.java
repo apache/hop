@@ -27,18 +27,18 @@ import java.util.List;
  */
 
 @MetaStoreElementType(
-    name = "Level1Element",
-    description = "My Level 1 Element" )
+  name = "Level1Element",
+  description = "My Level 1 Element" )
 public class Level1Element extends ArrayList {
 
   @MetaStoreAttribute
   private String name;
 
   @MetaStoreAttribute
-  private List<MyOtherElement> otherElements = new ArrayList<MyOtherElement>(  );
+  private List<MyOtherElement> otherElements = new ArrayList<MyOtherElement>();
 
   @MetaStoreAttribute
-  private List<Level2Element> level2Elements = new ArrayList<Level2Element>(  );
+  private List<Level2Element> level2Elements = new ArrayList<Level2Element>();
 
   public String getName() {
     return name;

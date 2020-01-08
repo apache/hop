@@ -22,16 +22,15 @@
 
 package org.apache.hop.trans.steps.validator;
 
-import java.util.regex.Pattern;
-
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 
+import java.util.regex.Pattern;
+
 /**
  * @author Matt
  * @since 11-jan-2007
- *
  */
 public class ValidatorData extends BaseStepData implements StepDataInterface {
   public int[] fieldIndexes;

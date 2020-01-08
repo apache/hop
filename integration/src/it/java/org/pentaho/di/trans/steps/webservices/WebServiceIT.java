@@ -22,14 +22,9 @@
 
 package org.apache.hop.trans.steps.webservices;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.net.InetSocketAddress;
-import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -38,6 +33,7 @@ import org.apache.hop.core.plugins.StepPluginType;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.RowProducer;
 import org.apache.hop.trans.RowStepCollector;
 import org.apache.hop.trans.Trans;
@@ -48,13 +44,15 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
 import org.apache.hop.trans.steps.injector.InjectorMeta;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.net.InetSocketAddress;
+import java.util.List;
 
 /**
  * User: Dzmitry Stsiapanau Date: 2/12/14 Time: 5:15 PM

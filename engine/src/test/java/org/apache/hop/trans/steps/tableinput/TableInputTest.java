@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.tableinput;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.trans.Trans;
@@ -31,6 +29,8 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.step.StepPartitioningMeta;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

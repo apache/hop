@@ -22,6 +22,21 @@
 
 package org.apache.hop.ui.job.entries.pgpencryptfiles;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.pgpencryptfiles.JobEntryPGPEncryptFiles;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -48,21 +63,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.pgpencryptfiles.JobEntryPGPEncryptFiles;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * This dialog allows you to edit the Move Files job entry settings.
@@ -240,7 +240,7 @@ public class JobEntryPGPEncryptFilesDialog extends JobEntryDialog implements Job
   private FormData fdlasciiMode, fdasciiMode;
 
   public JobEntryPGPEncryptFilesDialog( Shell parent, JobEntryInterface jobEntryInt,
-    JobMeta jobMeta ) {
+                                        JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryPGPEncryptFiles) jobEntryInt;
 
@@ -694,14 +694,14 @@ public class JobEntryPGPEncryptFilesDialog extends JobEntryDialog implements Job
           BaseMessages.getString( PKG, "JobPGPEncryptFiles.Fields.DestinationFileFolder.Label" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false ), };
 
-    colinf[0].setUsingVariables( true );
-    colinf[1].setUsingVariables( true );
-    colinf[1].setToolTip( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Fields.SourceFileFolder.Tooltip" ) );
-    colinf[2].setUsingVariables( true );
-    colinf[2].setToolTip( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Fields.Wildcard.Tooltip" ) );
-    colinf[3].setUsingVariables( true );
-    colinf[3].setToolTip( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Fields.UserID.Tooltip" ) );
-    colinf[4]
+    colinf[ 0 ].setUsingVariables( true );
+    colinf[ 1 ].setUsingVariables( true );
+    colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Fields.SourceFileFolder.Tooltip" ) );
+    colinf[ 2 ].setUsingVariables( true );
+    colinf[ 2 ].setToolTip( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Fields.Wildcard.Tooltip" ) );
+    colinf[ 3 ].setUsingVariables( true );
+    colinf[ 3 ].setToolTip( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Fields.UserID.Tooltip" ) );
+    colinf[ 4 ]
       .setToolTip( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Fields.DestinationFileFolder.Tooltip" ) );
 
     wFields =
@@ -722,7 +722,7 @@ public class JobEntryPGPEncryptFilesDialog extends JobEntryDialog implements Job
       @Override
       public void widgetSelected( SelectionEvent arg0 ) {
         wFields.add( new String[] {
-          JobEntryPGPEncryptFiles.actionTypeDesc[0], wSourceFileFolder.getText(), wWildcard.getText(), null,
+          JobEntryPGPEncryptFiles.actionTypeDesc[ 0 ], wSourceFileFolder.getText(), wWildcard.getText(), null,
           wDestinationFileFolder.getText() } );
         wSourceFileFolder.setText( "" );
         wDestinationFileFolder.setText( "" );
@@ -753,9 +753,9 @@ public class JobEntryPGPEncryptFilesDialog extends JobEntryDialog implements Job
         int idx = wFields.getSelectionIndex();
         if ( idx >= 0 ) {
           String[] string = wFields.getItem( idx );
-          wSourceFileFolder.setText( string[0] );
-          wDestinationFileFolder.setText( string[1] );
-          wWildcard.setText( string[2] );
+          wSourceFileFolder.setText( string[ 0 ] );
+          wDestinationFileFolder.setText( string[ 1 ] );
+          wWildcard.setText( string[ 2 ] );
           wFields.remove( idx );
         }
         wFields.removeEmptyRows();
@@ -981,7 +981,7 @@ public class JobEntryPGPEncryptFilesDialog extends JobEntryDialog implements Job
     // Prepare a list of possible DateTimeFormats...
     String[] dats = Const.getDateFormats();
     for ( int x = 0; x < dats.length; x++ ) {
-      wDateTimeFormat.add( dats[x] );
+      wDateTimeFormat.add( dats[ x ] );
     }
 
     // Add Date before extension?
@@ -1242,7 +1242,7 @@ public class JobEntryPGPEncryptFilesDialog extends JobEntryDialog implements Job
     wMovedDateTimeFormat.setLayoutData( fdMovedDateTimeFormat );
 
     for ( int x = 0; x < dats.length; x++ ) {
-      wMovedDateTimeFormat.add( dats[x] );
+      wMovedDateTimeFormat.add( dats[ x ] );
     }
 
     // Add Date before extension?
@@ -1661,19 +1661,19 @@ public class JobEntryPGPEncryptFilesDialog extends JobEntryDialog implements Job
     if ( jobEntry.source_filefolder != null ) {
       for ( int i = 0; i < jobEntry.source_filefolder.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        ti.setText( 1, JobEntryPGPEncryptFiles.getActionTypeDesc( jobEntry.action_type[i] ) );
-        if ( jobEntry.source_filefolder[i] != null ) {
-          ti.setText( 2, jobEntry.source_filefolder[i] );
+        ti.setText( 1, JobEntryPGPEncryptFiles.getActionTypeDesc( jobEntry.action_type[ i ] ) );
+        if ( jobEntry.source_filefolder[ i ] != null ) {
+          ti.setText( 2, jobEntry.source_filefolder[ i ] );
         }
-        if ( jobEntry.wildcard[i] != null ) {
-          ti.setText( 3, jobEntry.wildcard[i] );
+        if ( jobEntry.wildcard[ i ] != null ) {
+          ti.setText( 3, jobEntry.wildcard[ i ] );
         }
-        if ( jobEntry.userid[i] != null ) {
-          ti.setText( 4, jobEntry.userid[i] );
+        if ( jobEntry.userid[ i ] != null ) {
+          ti.setText( 4, jobEntry.userid[ i ] );
         }
 
-        if ( jobEntry.destination_filefolder[i] != null ) {
-          ti.setText( 5, jobEntry.destination_filefolder[i] );
+        if ( jobEntry.destination_filefolder[ i ] != null ) {
+          ti.setText( 5, jobEntry.destination_filefolder[ i ] );
         }
       }
       wFields.setRowNums();
@@ -1854,11 +1854,11 @@ public class JobEntryPGPEncryptFilesDialog extends JobEntryDialog implements Job
         nr++;
       }
     }
-    jobEntry.action_type = new int[nr];
-    jobEntry.source_filefolder = new String[nr];
-    jobEntry.userid = new String[nr];
-    jobEntry.destination_filefolder = new String[nr];
-    jobEntry.wildcard = new String[nr];
+    jobEntry.action_type = new int[ nr ];
+    jobEntry.source_filefolder = new String[ nr ];
+    jobEntry.userid = new String[ nr ];
+    jobEntry.destination_filefolder = new String[ nr ];
+    jobEntry.wildcard = new String[ nr ];
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
       String action = wFields.getNonEmpty( i ).getText( 1 );
@@ -1868,11 +1868,11 @@ public class JobEntryPGPEncryptFilesDialog extends JobEntryDialog implements Job
       String dest = wFields.getNonEmpty( i ).getText( 5 );
 
       if ( source != null && source.length() != 0 ) {
-        jobEntry.action_type[nr] = JobEntryPGPEncryptFiles.getActionTypeByDesc( action );
-        jobEntry.source_filefolder[nr] = source;
-        jobEntry.wildcard[nr] = wild;
-        jobEntry.userid[nr] = userid;
-        jobEntry.destination_filefolder[nr] = dest;
+        jobEntry.action_type[ nr ] = JobEntryPGPEncryptFiles.getActionTypeByDesc( action );
+        jobEntry.source_filefolder[ nr ] = source;
+        jobEntry.wildcard[ nr ] = wild;
+        jobEntry.userid[ nr ] = userid;
+        jobEntry.destination_filefolder[ nr ] = dest;
         nr++;
       }
     }

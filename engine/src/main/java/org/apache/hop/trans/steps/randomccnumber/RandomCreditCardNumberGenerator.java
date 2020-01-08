@@ -39,12 +39,12 @@
 
 package org.apache.hop.trans.steps.randomccnumber;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.i18n.BaseMessages;
+
 import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
-
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.i18n.BaseMessages;
 
 public class RandomCreditCardNumberGenerator {
   /*
@@ -132,7 +132,7 @@ public class RandomCreditCardNumberGenerator {
     }
 
     for ( int i = 0; i < cardTypes.length; i++ ) {
-      if ( cardTypes[i].equalsIgnoreCase( typeName ) ) {
+      if ( cardTypes[ i ].equalsIgnoreCase( typeName ) ) {
         return i;
       }
     }
@@ -140,7 +140,7 @@ public class RandomCreditCardNumberGenerator {
   }
 
   public static String getCardName( int id ) {
-    return ( id > -1 && id < cardTypes.length ? cardTypes[id] : null );
+    return ( id > -1 && id < cardTypes.length ? cardTypes[ id ] : null );
   }
 
   private static String strrev( String str ) {
@@ -183,10 +183,10 @@ public class RandomCreditCardNumberGenerator {
     int sum = 0;
     int pos = 0;
 
-    Integer[] reversedCCnumber = reversedCCnumberList.toArray( new Integer[reversedCCnumberList.size()] );
+    Integer[] reversedCCnumber = reversedCCnumberList.toArray( new Integer[ reversedCCnumberList.size() ] );
     while ( pos < length - 1 ) {
 
-      int odd = reversedCCnumber[pos] * 2;
+      int odd = reversedCCnumber[ pos ] * 2;
       if ( odd > 9 ) {
         odd -= 9;
       }
@@ -194,7 +194,7 @@ public class RandomCreditCardNumberGenerator {
       sum += odd;
 
       if ( pos != ( length - 2 ) ) {
-        sum += reversedCCnumber[pos + 1];
+        sum += reversedCCnumber[ pos + 1 ];
       }
       pos += 2;
     }
@@ -213,11 +213,11 @@ public class RandomCreditCardNumberGenerator {
     Stack<String> result = new Stack<String>();
     for ( int i = 0; i < howMany; i++ ) {
       int randomArrayIndex = (int) Math.floor( Math.random() * prefixList.length );
-      String ccnumber = prefixList[randomArrayIndex];
+      String ccnumber = prefixList[ randomArrayIndex ];
       result.push( completed_number( ccnumber, length ) );
     }
 
-    return result.toArray( new String[result.size()] );
+    return result.toArray( new String[ result.size() ] );
   }
 
   private static void checkLength( int cardType, int size, int[] lengths ) throws HopException {
@@ -225,7 +225,7 @@ public class RandomCreditCardNumberGenerator {
       return;
     }
     for ( int i = 0; i < lengths.length; i++ ) {
-      if ( size == lengths[i] ) {
+      if ( size == lengths[ i ] ) {
         // The size is supported for the card type
         return;
       }

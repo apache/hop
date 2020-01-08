@@ -22,10 +22,10 @@
 
 package org.apache.hop.core;
 
+import org.apache.hop.core.row.RowMetaInterface;
+
 import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.hop.core.row.RowMetaInterface;
 
 /**
  * A simplified rowset for steps for single threaded execution. This row set has no limited size.

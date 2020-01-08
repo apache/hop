@@ -21,22 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.simplemapping;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.doReturn;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
@@ -48,10 +32,25 @@ import org.apache.hop.trans.steps.mapping.MappingIODefinition;
 import org.apache.hop.trans.steps.mappinginput.MappingInput;
 import org.apache.hop.trans.steps.mappingoutput.MappingOutput;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Tatsiana_Kasiankova
- * 
  */
 public class SimpleMappingTest {
 
@@ -69,10 +68,10 @@ public class SimpleMappingTest {
   @Before
   public void setup() throws Exception {
     stepMockHelper =
-        new StepMockHelper<SimpleMappingMeta, SimpleMappingData>( "SIMPLE_MAPPING_TEST", SimpleMappingMeta.class,
-            SimpleMappingData.class );
+      new StepMockHelper<SimpleMappingMeta, SimpleMappingData>( "SIMPLE_MAPPING_TEST", SimpleMappingMeta.class,
+        SimpleMappingData.class );
     when( stepMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        stepMockHelper.logChannelInterface );
+      stepMockHelper.logChannelInterface );
     when( stepMockHelper.trans.isRunning() ).thenReturn( true );
 
     // Mock for MappingInput
@@ -86,7 +85,7 @@ public class SimpleMappingTest {
     // Mock for RowDataInputMapper
     RowDataInputMapper rdInputMpMock = mock( RowDataInputMapper.class );
     RowMetaInterface rwMetaInMock = mock( RowMeta.class );
-    doReturn( Boolean.TRUE ).when( rdInputMpMock ).putRow( rwMetaInMock, new Object[] { } );
+    doReturn( Boolean.TRUE ).when( rdInputMpMock ).putRow( rwMetaInMock, new Object[] {} );
 
     // Mock for RowProducer
     RowProducer rProducerMock = mock( RowProducer.class );
@@ -116,8 +115,8 @@ public class SimpleMappingTest {
   public void testStepSetUpAsWasStarted_AtProcessingFirstRow() throws HopException {
 
     smp =
-        new SimpleMapping( stepMockHelper.stepMeta, stepMockHelper.stepDataInterface, 0, stepMockHelper.transMeta,
-            stepMockHelper.trans );
+      new SimpleMapping( stepMockHelper.stepMeta, stepMockHelper.stepDataInterface, 0, stepMockHelper.transMeta,
+        stepMockHelper.trans );
     smp.init( stepMockHelper.initStepMetaInterface, stepMockHelper.initStepDataInterface );
     smp.addRowSetToInputRowSets( stepMockHelper.getMockInputRowSet( new Object[] {} ) );
     assertTrue( "The step is processing in first", smp.first );
@@ -140,8 +139,8 @@ public class SimpleMappingTest {
     simpleMpData.wasStarted = true;
 
     smp =
-        new SimpleMapping( stepMockHelper.stepMeta, stepMockHelper.stepDataInterface, 0, stepMockHelper.transMeta,
-            stepMockHelper.trans );
+      new SimpleMapping( stepMockHelper.stepMeta, stepMockHelper.stepDataInterface, 0, stepMockHelper.transMeta,
+        stepMockHelper.trans );
     smp.init( stepMockHelper.initStepMetaInterface, simpleMpData );
 
     smp.dispose( stepMockHelper.processRowsStepMetaInterface, simpleMpData );
@@ -182,8 +181,8 @@ public class SimpleMappingTest {
     smp = new SimpleMapping( stepMockHelper.stepMeta, stepMockHelper.stepDataInterface, 0, stepMockHelper.transMeta,
       stepMockHelper.trans );
     smp.init( stepMockHelper.initStepMetaInterface, simpleMpData );
-    smp.addRowSetToInputRowSets( stepMockHelper.getMockInputRowSet( new Object[] { } ) );
-    smp.addRowSetToInputRowSets( stepMockHelper.getMockInputRowSet( new Object[] { } ) );
+    smp.addRowSetToInputRowSets( stepMockHelper.getMockInputRowSet( new Object[] {} ) );
+    smp.addRowSetToInputRowSets( stepMockHelper.getMockInputRowSet( new Object[] {} ) );
 
     assertTrue(
       smp.processRow( stepMockHelper.processRowsStepMetaInterface, stepMockHelper.processRowsStepDataInterface ) );
@@ -209,8 +208,8 @@ public class SimpleMappingTest {
     simpleMpData.wasStarted = true;
 
     smp =
-            new SimpleMapping( stepMockHelper.stepMeta, stepMockHelper.stepDataInterface, 0, stepMockHelper.transMeta,
-                    stepMockHelper.trans );
+      new SimpleMapping( stepMockHelper.stepMeta, stepMockHelper.stepDataInterface, 0, stepMockHelper.transMeta,
+        stepMockHelper.trans );
     smp.init( stepMockHelper.initStepMetaInterface, simpleMpData );
 
     smp.dispose( stepMockHelper.processRowsStepMetaInterface, simpleMpData );

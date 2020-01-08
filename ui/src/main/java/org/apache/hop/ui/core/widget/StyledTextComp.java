@@ -22,6 +22,11 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.FormDataBuilder;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ExtendedModifyEvent;
@@ -59,11 +64,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.FormDataBuilder;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -478,6 +478,7 @@ public class StyledTextComp extends Composite {
 
   /**
    * Returns the {@link Image} that the {@link StyledText} is decorated with.
+   *
    * @return the {@link Image} that the {@link StyledText} is decorated with.
    */
   public Image getImage() {

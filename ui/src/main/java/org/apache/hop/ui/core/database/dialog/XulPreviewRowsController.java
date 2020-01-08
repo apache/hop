@@ -22,13 +22,10 @@
 
 package org.apache.hop.ui.core.database.dialog;
 
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.eclipse.swt.widgets.Shell;
 import org.pentaho.ui.xul.binding.Binding;
 import org.pentaho.ui.xul.binding.Binding.Type;
 import org.pentaho.ui.xul.binding.BindingFactory;
@@ -40,6 +37,9 @@ import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 import org.pentaho.ui.xul.swt.tags.SwtTreeCell;
 import org.pentaho.ui.xul.swt.tags.SwtTreeCol;
 import org.pentaho.ui.xul.swt.tags.SwtTreeCols;
+
+import java.util.Iterator;
+import java.util.List;
 
 public class XulPreviewRowsController extends AbstractXulEventHandler {
 
@@ -55,7 +55,7 @@ public class XulPreviewRowsController extends AbstractXulEventHandler {
   private static Log logger = LogFactory.getLog( XulStepFieldsController.class );
 
   public XulPreviewRowsController( Shell aShell, DatabaseMeta aDatabaseMeta, String aSchema, String aTable,
-    int aLimit ) {
+                                   int aLimit ) {
     this.shell = aShell;
     this.databaseMeta = aDatabaseMeta;
     this.schema = aSchema;
@@ -101,7 +101,7 @@ public class XulPreviewRowsController extends AbstractXulEventHandler {
       theRow = thePreviewTable.getRootChildren().addNewRow();
       theRowCount++;
       for ( int i = 0; i < theObj.length; i++ ) {
-        theValue = theObj[i];
+        theValue = theObj[ i ];
         theCell = new SwtTreeCell( null );
         theCell.setLabel( theValue == null ? "" : theValue.toString() );
         theRow.addCell( theCell );
@@ -115,7 +115,7 @@ public class XulPreviewRowsController extends AbstractXulEventHandler {
     for ( int i = 0; i < theFieldNames.length; i++ ) {
       theColumn = new SwtTreeCol( null, null, null, null );
       theColumn.setWidth( 100 );
-      theColumn.setLabel( theFieldNames[i] );
+      theColumn.setLabel( theFieldNames[ i ] );
       theColumns.addColumn( theColumn );
     }
     thePreviewTable.setColumns( theColumns );

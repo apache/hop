@@ -22,18 +22,17 @@
 
 package org.apache.hop.www;
 
-import java.io.IOException;
-import java.io.PrintStream;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.xml.XMLHandler;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintStream;
 
 public class NextSequenceValueServlet extends BaseHttpServlet implements HopServerPluginInterface {
   private static final long serialVersionUID = 3634806745372015720L;
@@ -56,86 +55,86 @@ public class NextSequenceValueServlet extends BaseHttpServlet implements HopServ
   }
 
   /**
-<div id="mindtouch">
-    <h1>/hop/nextSequence</h1>
-    <a name="GET"></a>
-    <h2>GET</h2>
-    <p>Increments specified pre-configured sequence.
-  Method is used for reserving a number of IDs and incrementing a sequence pre-configured in HopServer server configuration
-  by specified amount. If no increment value provided 10000 is used by default.</p>
-
-    <p><b>Example Request:</b><br />
-    <pre function="syntax.xml">
-    GET /hop/nextSequence?name=test_seq
-    </pre>
-
-    </p>
-    <h3>Parameters</h3>
-    <table class="pentaho-table">
-    <tbody>
-    <tr>
-      <th>name</th>
-      <th>description</th>
-      <th>type</th>
-    </tr>
-    <tr>
-    <td>name</td>
-    <td>name of the sequence specified in HopServer configuration file.</td>
-    <td>query</td>
-    </tr>
-    <tr>
-    <td>increment</td>
-    <td>(optional) parameter used for incrementing sequence. If no parameter specified
-  10000 is used by default.</td>
-    <td>integer, optional</td>
-    </tr>
-    </tbody>
-    </table>
-
-  <h3>Response Body</h3>
-
-  <table class="pentaho-table">
-    <tbody>
-      <tr>
-        <td align="right">text:</td>
-        <td>HTML</td>
-      </tr>
-      <tr>
-        <td align="right">media types:</td>
-        <td>text/xml</td>
-      </tr>
-    </tbody>
-  </table>
-    <p>Response XML containing sequence value and the increment value used.</p>
-
-    <p><b>Example Response:</b></p>
-  <pre function="syntax.xml">
-  <seq><value>570000</value><increment>10000</increment></seq>
-  </pre>
-
-    <h3>Status Codes</h3>
-    <table class="pentaho-table">
-  <tbody>
-    <tr>
-      <th>code</th>
-      <th>description</th>
-    </tr>
-    <tr>
-      <td>200</td>
-      <td>Request was processed.</td>
-    </tr>
-    <tr>
-      <td>404</td>
-      <td>If the sequence was not found or error occurred during allocation</td>
-    </tr>
-    <tr>
-      <td>500</td>
-      <td>Internal server error occurs during request processing.</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-  */
+   * <div id="mindtouch">
+   * <h1>/hop/nextSequence</h1>
+   * <a name="GET"></a>
+   * <h2>GET</h2>
+   * <p>Increments specified pre-configured sequence.
+   * Method is used for reserving a number of IDs and incrementing a sequence pre-configured in HopServer server configuration
+   * by specified amount. If no increment value provided 10000 is used by default.</p>
+   *
+   * <p><b>Example Request:</b><br />
+   * <pre function="syntax.xml">
+   * GET /hop/nextSequence?name=test_seq
+   * </pre>
+   *
+   * </p>
+   * <h3>Parameters</h3>
+   * <table class="pentaho-table">
+   * <tbody>
+   * <tr>
+   * <th>name</th>
+   * <th>description</th>
+   * <th>type</th>
+   * </tr>
+   * <tr>
+   * <td>name</td>
+   * <td>name of the sequence specified in HopServer configuration file.</td>
+   * <td>query</td>
+   * </tr>
+   * <tr>
+   * <td>increment</td>
+   * <td>(optional) parameter used for incrementing sequence. If no parameter specified
+   * 10000 is used by default.</td>
+   * <td>integer, optional</td>
+   * </tr>
+   * </tbody>
+   * </table>
+   *
+   * <h3>Response Body</h3>
+   *
+   * <table class="pentaho-table">
+   * <tbody>
+   * <tr>
+   * <td align="right">text:</td>
+   * <td>HTML</td>
+   * </tr>
+   * <tr>
+   * <td align="right">media types:</td>
+   * <td>text/xml</td>
+   * </tr>
+   * </tbody>
+   * </table>
+   * <p>Response XML containing sequence value and the increment value used.</p>
+   *
+   * <p><b>Example Response:</b></p>
+   * <pre function="syntax.xml">
+   * <seq><value>570000</value><increment>10000</increment></seq>
+   * </pre>
+   *
+   * <h3>Status Codes</h3>
+   * <table class="pentaho-table">
+   * <tbody>
+   * <tr>
+   * <th>code</th>
+   * <th>description</th>
+   * </tr>
+   * <tr>
+   * <td>200</td>
+   * <td>Request was processed.</td>
+   * </tr>
+   * <tr>
+   * <td>404</td>
+   * <td>If the sequence was not found or error occurred during allocation</td>
+   * </tr>
+   * <tr>
+   * <td>500</td>
+   * <td>Internal server error occurs during request processing.</td>
+   * </tr>
+   * </tbody>
+   * </table>
+   * </div>
+   */
   public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
     IOException {
     if ( isJettyMode() && !request.getContextPath().startsWith( CONTEXT_PATH ) ) {

@@ -22,9 +22,12 @@
 
 package org.apache.hop.ui.trans.steps.fileinput.text;
 
-import java.util.List;
-import java.util.Vector;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.TextFileInputFieldInterface;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.steps.fileinput.text.TextFileInputMeta;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.widget.TableDraw;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -33,12 +36,9 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.gui.TextFileInputFieldInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.steps.fileinput.text.TextFileInputMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.widget.TableDraw;
+
+import java.util.List;
+import java.util.Vector;
 
 public class TextFileImportWizardPage1 extends WizardPage { // implements Listener
   private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator2!!
@@ -51,7 +51,7 @@ public class TextFileImportWizardPage1 extends WizardPage { // implements Listen
   private Vector<TextFileInputFieldInterface> fields;
 
   public TextFileImportWizardPage1( String arg, PropsUI props, List<String> rows,
-      Vector<TextFileInputFieldInterface> fields ) {
+                                    Vector<TextFileInputFieldInterface> fields ) {
     super( arg );
     this.props = props;
     this.rows = rows;

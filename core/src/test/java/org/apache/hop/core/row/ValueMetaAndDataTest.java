@@ -22,11 +22,6 @@
 
 package org.apache.hop.core.row;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
@@ -37,6 +32,11 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -114,7 +114,7 @@ public class ValueMetaAndDataTest {
     assertEquals( "BooleanName", result.getValueMeta().getName() );
     assertEquals( Boolean.TRUE, result.getValueData() );
 
-    byte[] testBytes = new byte[50];
+    byte[] testBytes = new byte[ 50 ];
     new Random().nextBytes( testBytes );
     result = new ValueMetaAndData( "BinaryName", testBytes );
     assertNotNull( result );
@@ -170,6 +170,6 @@ public class ValueMetaAndDataTest {
 
     valueMetaAndData.loadXML( node );
     Assert.assertEquals( valueMetaAndData.getValueData(),
-            new SimpleDateFormat( ValueMetaBase.COMPATIBLE_DATE_FORMAT_PATTERN ).parse( testData ) );
+      new SimpleDateFormat( ValueMetaBase.COMPATIBLE_DATE_FORMAT_PATTERN ).parse( testData ) );
   }
 }

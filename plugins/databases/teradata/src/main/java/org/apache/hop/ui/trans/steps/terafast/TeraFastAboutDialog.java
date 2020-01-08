@@ -22,6 +22,8 @@
 
 package org.apache.hop.ui.trans.steps.terafast;
 
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.steps.terafast.TeraFastMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -36,12 +38,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.steps.terafast.TeraFastMeta;
 
 /**
  * @author <a href="mailto:michael.gugerell@aschauer-edv.at">Michael Gugerell(asc145)</a>
- *
  */
 public class TeraFastAboutDialog {
 
@@ -54,9 +53,7 @@ public class TeraFastAboutDialog {
   private Label iconLabel;
 
   /**
-   *
-   * @param shell
-   *          the shell.
+   * @param shell the shell.
    */
   public TeraFastAboutDialog( final Shell shell ) {
     this.dialog = new Shell( shell, SWT.BORDER | SWT.CLOSE | SWT.APPLICATION_MODAL | SWT.SHEET );

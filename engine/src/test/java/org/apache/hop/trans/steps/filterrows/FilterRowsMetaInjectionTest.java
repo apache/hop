@@ -22,12 +22,12 @@
 
 package org.apache.hop.trans.steps.filterrows;
 
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 public class FilterRowsMetaInjectionTest extends BaseMetadataInjectionTest<FilterRowsMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

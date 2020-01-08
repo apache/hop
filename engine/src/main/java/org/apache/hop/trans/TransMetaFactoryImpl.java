@@ -29,7 +29,7 @@ import org.w3c.dom.Node;
 public class TransMetaFactoryImpl implements TransMetaFactory {
 
   @Override
-  public TransMeta create( Node transnode  ) throws HopXMLException, HopMissingPluginsException {
+  public TransMeta create( Node transnode ) throws HopXMLException, HopMissingPluginsException {
     return new TransMeta( transnode );
   }
 }

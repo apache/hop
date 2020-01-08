@@ -49,8 +49,7 @@ public class RandomValueMetaFunction {
   }
 
   /**
-   * @param code
-   *          the code to set
+   * @param code the code to set
    */
   public void setCode( String code ) {
     this.code = code;
@@ -64,8 +63,7 @@ public class RandomValueMetaFunction {
   }
 
   /**
-   * @param description
-   *          the description to set
+   * @param description the description to set
    */
   public void setDescription( String description ) {
     this.description = description;
@@ -79,8 +77,7 @@ public class RandomValueMetaFunction {
   }
 
   /**
-   * @param type
-   *          the type to set
+   * @param type the type to set
    */
   public void setType( int type ) {
     this.type = type;

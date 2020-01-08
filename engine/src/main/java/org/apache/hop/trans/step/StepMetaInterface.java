@@ -22,20 +22,15 @@
 
 package org.apache.hop.trans.step;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.Counter;
 import org.apache.hop.core.SQLStatement;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.resource.ResourceReference;
@@ -44,8 +39,10 @@ import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMeta.TransformationType;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * This interface allows custom steps to talk to Hop. The StepMetaInterface is the main Java interface that a plugin
@@ -157,8 +154,8 @@ import org.w3c.dom.Node;
  * Fields goes into deeper detail on ValueMetaInterface.
  * </ul>
  *
- * @since 4-aug-2004
  * @author Matt
+ * @since 4-aug-2004
  */
 
 public interface StepMetaInterface {
@@ -170,42 +167,31 @@ public interface StepMetaInterface {
   /**
    * Gets the fields.
    *
-   * @param inputRowMeta
-   *          the input row meta that is modified in this method to reflect the output row metadata of the step
-   * @param name
-   *          Name of the step to use as input for the origin field in the values
-   * @param info
-   *          Fields used as extra lookup information
-   * @param nextStep
-   *          the next step that is targeted
-   * @param space
-   *          the space The variable space to use to replace variables
-   * @param metaStore
-   *          the MetaStore to use to load additional external data or metadata impacting the output fields
-   * @throws HopStepException
-   *           the kettle step exception
+   * @param inputRowMeta the input row meta that is modified in this method to reflect the output row metadata of the step
+   * @param name         Name of the step to use as input for the origin field in the values
+   * @param info         Fields used as extra lookup information
+   * @param nextStep     the next step that is targeted
+   * @param space        the space The variable space to use to replace variables
+   * @param metaStore    the MetaStore to use to load additional external data or metadata impacting the output fields
+   * @throws HopStepException the kettle step exception
    */
   void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException;
+                  VariableSpace space, IMetaStore metaStore ) throws HopStepException;
 
   /**
    * Get the XML that represents the values in this step
    *
    * @return the XML that represents the metadata in this step
-   * @throws HopException
-   *           in case there is a conversion or XML encoding error
+   * @throws HopException in case there is a conversion or XML encoding error
    */
   String getXML() throws HopException;
 
-   /**
+  /**
    * Load the values for this step from an XML Node
    *
-   * @param stepnode
-   *          the Node to get the info from
-   * @param metaStore
-   *          the metastore to optionally load external reference metadata from
-   * @throws HopXMLException
-   *           When an unexpected XML error occurred. (malformed etc.)
+   * @param stepnode  the Node to get the info from
+   * @param metaStore the metastore to optionally load external reference metadata from
+   * @throws HopXMLException When an unexpected XML error occurred. (malformed etc.)
    */
   void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException;
 
@@ -213,26 +199,18 @@ public interface StepMetaInterface {
   /**
    * Checks the settings of this step and puts the findings in a remarks List.
    *
-   * @param remarks
-   *          The list to put the remarks in @see org.apache.hop.core.CheckResult
-   * @param stepMeta
-   *          The stepMeta to help checking
-   * @param prev
-   *          The fields coming from the previous step
-   * @param input
-   *          The input step names
-   * @param output
-   *          The output step names
-   * @param info
-   *          The fields that are used as information by the step
-   * @param space
-   *          the variable space to resolve variable expressions with
-   * @param metaStore
-   *          the MetaStore to use to load additional external data or metadata impacting the output fields
+   * @param remarks   The list to put the remarks in @see org.apache.hop.core.CheckResult
+   * @param stepMeta  The stepMeta to help checking
+   * @param prev      The fields coming from the previous step
+   * @param input     The input step names
+   * @param output    The output step names
+   * @param info      The fields that are used as information by the step
+   * @param space     the variable space to resolve variable expressions with
+   * @param metaStore the MetaStore to use to load additional external data or metadata impacting the output fields
    */
   void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore );
+              RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+              IMetaStore metaStore );
 
   /**
    * Make an exact copy of this step, make sure to explicitly copy Collections etc.
@@ -263,20 +241,15 @@ public interface StepMetaInterface {
   /**
    * Get the executing step, needed by Trans to launch a step.
    *
-   * @param stepMeta
-   *          The step info
-   * @param stepDataInterface
-   *          the step data interface linked to this step. Here the step can store temporary data, database connections,
-   *          etc.
-   * @param copyNr
-   *          The copy nr to get
-   * @param transMeta
-   *          The transformation info
-   * @param trans
-   *          The launching transformation
+   * @param stepMeta          The step info
+   * @param stepDataInterface the step data interface linked to this step. Here the step can store temporary data, database connections,
+   *                          etc.
+   * @param copyNr            The copy nr to get
+   * @param transMeta         The transformation info
+   * @param trans             The launching transformation
    */
   StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,
-    TransMeta transMeta, Trans trans );
+                         TransMeta transMeta, Trans trans );
 
   /**
    * Get a new instance of the appropriate data class. This data class implements the StepDataInterface. It basically
@@ -289,44 +262,32 @@ public interface StepMetaInterface {
   /**
    * Each step must be able to report on the impact it has on a database, table field, etc.
    *
-   * @param impact
-   *          The list of impacts @see org.apache.hop.transMeta.DatabaseImpact
-   * @param transMeta
-   *          The transformation information
-   * @param stepMeta
-   *          The step information
-   * @param prev
-   *          The fields entering this step
-   * @param input
-   *          The previous step names
-   * @param output
-   *          The output step names
-   * @param info
-   *          The fields used as information by this step
-   * @param metaStore
-   *          the MetaStore to use to load additional external data or metadata impacting the output fields
+   * @param impact    The list of impacts @see org.apache.hop.transMeta.DatabaseImpact
+   * @param transMeta The transformation information
+   * @param stepMeta  The step information
+   * @param prev      The fields entering this step
+   * @param input     The previous step names
+   * @param output    The output step names
+   * @param info      The fields used as information by this step
+   * @param metaStore the MetaStore to use to load additional external data or metadata impacting the output fields
    */
   void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, IMetaStore metaStore ) throws HopStepException;
+                      RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, IMetaStore metaStore ) throws HopStepException;
 
   /**
    * Standard method to return an SQLStatement object with SQL statements that the step needs in order to work
    * correctly. This can mean "create table", "create index" statements but also "alter table ... add/drop/modify"
    * statements.
    *
+   * @param transMeta TransInfo object containing the complete transformation
+   * @param stepMeta  StepMeta object containing the complete step
+   * @param prev      Row containing meta-data for the input fields (no data)
+   * @param metaStore the MetaStore to use to load additional external data or metadata impacting the output fields
    * @return The SQL Statements for this step. If nothing has to be done, the SQLStatement.getSQL() == null. @see
-   *         SQLStatement
-   * @param transMeta
-   *          TransInfo object containing the complete transformation
-   * @param stepMeta
-   *          StepMeta object containing the complete step
-   * @param prev
-   *          Row containing meta-data for the input fields (no data)
-   * @param metaStore
-   *          the MetaStore to use to load additional external data or metadata impacting the output fields
+   * SQLStatement
    */
   SQLStatement getSQLStatements( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-    IMetaStore metaStore ) throws HopStepException;
+                                 IMetaStore metaStore ) throws HopStepException;
 
   /**
    * Call this to cancel trailing database queries (too long running, etc)
@@ -338,7 +299,7 @@ public interface StepMetaInterface {
    * launching a transformation. You can also use this to specify certain Environment variable values.
    *
    * @return A Map of argument values. (name and optionally a default value) Put 10 values in the map for the possible
-   *         10 arguments.
+   * 10 arguments.
    */
   Map<String, String> getUsedArguments();
 
@@ -348,11 +309,9 @@ public interface StepMetaInterface {
    * are required for a step. This allows us to automate certain tasks like the mapping to pre-defined tables. The Table
    * Output step in this case will output the fields in the target table using this method.
    *
-   * @param space
-   *          the variable space to reference
+   * @param space the variable space to reference
    * @return the required fields for this steps metadata.
-   * @throws HopException
-   *           in case the required fields can't be determined.
+   * @throws HopException in case the required fields can't be determined.
    */
   RowMetaInterface getRequiredFields( VariableSpace space ) throws HopException;
 
@@ -366,35 +325,30 @@ public interface StepMetaInterface {
    *
    * @param transMeta
    * @param stepMeta
-   *
    * @return a list of all the resource dependencies that the step is depending on
    */
   List<ResourceReference> getResourceDependencies( TransMeta transMeta, StepMeta stepMeta );
 
   /**
-   * @param space
-   *          the variable space to use
+   * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
-   *
+   * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException;
+                          ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException;
 
   /**
    * @return The StepMeta object to which this metadata class belongs. With this, we can see to which transformation
-   *         metadata (etc) this metadata pertains to. (hierarchy)
+   * metadata (etc) this metadata pertains to. (hierarchy)
    */
   StepMeta getParentStepMeta();
 
   /**
    * Provide original lineage for this metadata object
    *
-   * @param parentStepMeta
-   *          the parent step metadata container object
+   * @param parentStepMeta the parent step metadata container object
    */
   void setParentStepMeta( StepMeta parentStepMeta );
 
@@ -405,15 +359,14 @@ public interface StepMetaInterface {
 
   /**
    * @return The list of optional input streams. It allows the user to select f rom a list of possible actions like
-   *         "New target step"
+   * "New target step"
    */
   List<StreamInterface> getOptionalStreams();
 
   /**
    * When an optional stream is selected, this method is called to handled the ETL metadata implications of that.
    *
-   * @param stream
-   *          The optional stream to handle.
+   * @param stream The optional stream to handle.
    */
   void handleStreamSelection( StreamInterface stream );
 
@@ -426,14 +379,13 @@ public interface StepMetaInterface {
   /**
    * Change step names into step objects to allow them to be name-changed etc.
    *
-   * @param steps
-   *          the steps to reference
+   * @param steps the steps to reference
    */
   void searchInfoAndTargetSteps( List<StepMeta> steps );
 
   /**
    * @return Optional interface that allows an external program to inject step metadata in a standardized fasion. This
-   *         method will return null if the interface is not available for this step.
+   * method will return null if the interface is not available for this step.
    * @deprecated Use annotation-based injection instead
    */
   @Deprecated
@@ -474,12 +426,9 @@ public interface StepMetaInterface {
   /**
    * Load the referenced object
    *
-   * @param index
-   *          the referenced object index to load (in case there are multiple references)
-   * @param metaStore
-   *          the MetaStore to use
-   * @param space
-   *          the variable space to use
+   * @param index     the referenced object index to load (in case there are multiple references)
+   * @param metaStore the MetaStore to use
+   * @param space     the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
@@ -487,6 +436,7 @@ public interface StepMetaInterface {
 
   /**
    * Action remove hop exiting this step
+   *
    * @return step was changed
    */
   default boolean cleanAfterHopFromRemove() {
@@ -529,9 +479,10 @@ public interface StepMetaInterface {
 
   /**
    * Allows for someone to fetch the related TransMeta object. Returns null if not found (or not implemented)
-   * @param stepMeta StepMetaInterface object
+   *
+   * @param stepMeta  StepMetaInterface object
    * @param metastore metastore object
-   * @param space VariableSpace
+   * @param space     VariableSpace
    * @return the associated TransMeta object, or null if not found (or not implemented)
    * @throws HopException should something go wrong
    */
@@ -542,15 +493,14 @@ public interface StepMetaInterface {
   /**
    * This returns the expected name for the dialog that edits a job entry. The expected name is in the org.apache.hop.ui
    * tree and has a class name that is the name of the job entry with 'Dialog' added to the end.
-   *
+   * <p>
    * e.g. if the job entry is org.apache.hop.job.entries.zipfile.JobEntryZipFile the dialog would be
    * org.apache.hop.ui.job.entries.zipfile.JobEntryZipFileDialog
-   *
+   * <p>
    * If the dialog class for a job entry does not match this pattern it should override this method and return the
    * appropriate class name
    *
    * @return full class name of the dialog
-   *
    */
   public String getDialogClassName();
 }

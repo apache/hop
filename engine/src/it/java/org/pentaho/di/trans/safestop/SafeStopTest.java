@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.trans.safestop;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -31,6 +29,8 @@ import org.apache.hop.core.plugins.StepPluginType;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 

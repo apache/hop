@@ -22,17 +22,17 @@
 
 package org.apache.hop.trans.steps.csvinput;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.util.List;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.steps.textfileinput.EncodingType;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.util.List;
 
 /**
  * @author Matt
@@ -104,7 +104,7 @@ public class CsvInputData extends BaseStepData implements StepDataInterface {
     //
     bufferSize = endBuffer - startBuffer;
     int newSize = bufferSize + preferredBufferSize;
-    byte[] newByteBuffer = new byte[newSize + 100];
+    byte[] newByteBuffer = new byte[ newSize + 100 ];
 
     // copy over the old data...
     System.arraycopy( byteBuffer, startBuffer, newByteBuffer, 0, bufferSize );
@@ -139,7 +139,7 @@ public class CsvInputData extends BaseStepData implements StepDataInterface {
       // Make sure we have room in the target byte buffer array
       //
       if ( byteBuffer.length < bufferSize ) {
-        byte[] newByteBuffer = new byte[bufferSize];
+        byte[] newByteBuffer = new byte[ bufferSize ];
         System.arraycopy( byteBuffer, 0, newByteBuffer, 0, byteBuffer.length );
         byteBuffer = newByteBuffer;
       }
@@ -165,8 +165,7 @@ public class CsvInputData extends BaseStepData implements StepDataInterface {
    * Resize the buffer if there is not enough room.
    *
    * @return false if everything is OK, true if there is a problem and we should stop.
-   * @throws IOException
-   *           in case there is a I/O problem (read error)
+   * @throws IOException in case there is a I/O problem (read error)
    */
   boolean resizeBufferIfNeeded() throws IOException {
     if ( endOfBuffer() ) {
@@ -194,8 +193,7 @@ public class CsvInputData extends BaseStepData implements StepDataInterface {
    * true.<br>
    *
    * @return true if we reached the end of the byte buffer.
-   * @throws IOException
-   *           In case we get an error reading from the input file.
+   * @throws IOException In case we get an error reading from the input file.
    */
   boolean moveEndBufferPointer() throws IOException {
     return moveEndBufferPointer( true );
@@ -229,11 +227,11 @@ public class CsvInputData extends BaseStepData implements StepDataInterface {
    * @return the byte array with escaped enclosures escaped.
    */
   byte[] removeEscapedEnclosures( byte[] field, int nrEnclosuresFound ) {
-    byte[] result = new byte[field.length - nrEnclosuresFound];
+    byte[] result = new byte[ field.length - nrEnclosuresFound ];
     int resultIndex = 0;
     for ( int i = 0; i < field.length; i++ ) {
-      result[resultIndex++] = field[i];
-      if ( field[i] == enclosure[0] && i + 1 < field.length && field[i + 1] == enclosure[0] ) {
+      result[ resultIndex++ ] = field[ i ];
+      if ( field[ i ] == enclosure[ 0 ] && i + 1 < field.length && field[ i + 1 ] == enclosure[ 0 ] ) {
         // Skip the escaped enclosure after adding the first one
         i++;
       }
@@ -260,7 +258,7 @@ public class CsvInputData extends BaseStepData implements StepDataInterface {
       length = 0;
     }
 
-    byte[] field = new byte[length];
+    byte[] field = new byte[ length ];
     System.arraycopy( byteBuffer, fieldStart, field, 0, length );
 
     return field;
@@ -275,7 +273,7 @@ public class CsvInputData extends BaseStepData implements StepDataInterface {
         fis.close();
       }
     } catch ( IOException e ) {
-      throw new HopException( "Unable to close file channel for file '" + filenames[filenr - 1], e );
+      throw new HopException( "Unable to close file channel for file '" + filenames[ filenr - 1 ], e );
     }
   }
 
@@ -292,7 +290,7 @@ public class CsvInputData extends BaseStepData implements StepDataInterface {
   }
 
   boolean isCarriageReturn() {
-    return encodingType.isReturn( byteBuffer[endBuffer] );
+    return encodingType.isReturn( byteBuffer[ endBuffer ] );
   }
 
   boolean newLineFound() {

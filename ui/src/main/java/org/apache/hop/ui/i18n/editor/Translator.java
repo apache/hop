@@ -22,14 +22,20 @@
 
 package org.apache.hop.ui.i18n.editor;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Properties;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.dialog.EnterListDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -48,20 +54,14 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.dialog.EnterListDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Hashtable;
+import java.util.Properties;
+import java.util.Set;
 
 public class Translator {
   public static final String APP_NAME = "Pentaho Translator";
@@ -120,7 +120,7 @@ public class Translator {
       File[] entries = file.listFiles();
 
       for ( int i = 0; i < entries.length; i++ ) {
-        File entry = entries[i];
+        File entry = entries[ i ];
         if ( entry.isDirectory() ) {
           if ( !entry.getName().startsWith( ".svn" ) ) {
             readFiles( directory + "/" + entry.getName() );
@@ -375,7 +375,7 @@ public class Translator {
         wGrid.table.clearAll();
 
         for ( int i = 0; i < wList.getSelectionCount(); i++ ) {
-          String dir = wList.getSelection()[i];
+          String dir = wList.getSelection()[ i ];
 
           // Loop over the files and see if it belongs to this directory
           for ( String filename : files.keySet() ) {
@@ -491,16 +491,16 @@ public class Translator {
     for ( int x = 0; x < languages.length; x++ ) {
       // The properties file:
       String propfile =
-        ROOT + "/" + dir + "/" + MESSAGES_DIR + "/" + MESSAGES_PREFIX + "_" + languages[x] + EXTENSION;
+        ROOT + "/" + dir + "/" + MESSAGES_DIR + "/" + MESSAGES_PREFIX + "_" + languages[ x ] + EXTENSION;
       String add = null;
       Properties p = files.get( propfile );
       if ( p == null ) {
-        add = languages[x] + " : missing file";
+        add = languages[ x ] + " : missing file";
       } else {
         // OK, is the key present?
         String pkey = p.getProperty( entry );
         if ( pkey == null ) {
-          add = languages[x] + " : missing key";
+          add = languages[ x ] + " : missing key";
         }
       }
 
@@ -518,9 +518,9 @@ public class Translator {
       available = "All keys are present in the selected " + languages.length + " locale: ";
       for ( int a = 0; a < languages.length; a++ ) {
         if ( a == 0 ) {
-          available += languages[a];
+          available += languages[ a ];
         } else {
-          available += ", " + languages[a];
+          available += ", " + languages[ a ];
         }
       }
     }
@@ -591,18 +591,18 @@ public class Translator {
 
   public String[] getAvailableLocale() {
     Set<String> set = locales.keySet();
-    return set.toArray( new String[set.size()] );
+    return set.toArray( new String[ set.size() ] );
   }
 
   public String[] getSelectedLocale() {
     ArrayList<String> selection = new ArrayList<String>();
     String[] locs = getAvailableLocale();
     for ( int i = 0; i < locs.length; i++ ) {
-      if ( ( locales.get( locs[i] ) ).booleanValue() ) {
-        selection.add( locs[i] );
+      if ( ( locales.get( locs[ i ] ) ).booleanValue() ) {
+        selection.add( locs[ i ] );
       }
     }
-    return selection.toArray( new String[selection.size()] );
+    return selection.toArray( new String[ selection.size() ] );
   }
 
   public void selectLocales() {
@@ -611,10 +611,10 @@ public class Translator {
     String[] selection = eld.open();
     if ( selection != null ) {
       for ( int i = 0; i < available.length; i++ ) {
-        locales.put( available[i], Boolean.FALSE );
+        locales.put( available[ i ], Boolean.FALSE );
       }
       for ( int i = 0; i < selection.length; i++ ) {
-        locales.put( selection[i], Boolean.TRUE );
+        locales.put( selection[ i ], Boolean.TRUE );
       }
     }
   }

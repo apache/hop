@@ -40,7 +40,6 @@ import org.apache.hop.trans.steps.tableinput.TableInputMeta;
  * Helper class to generate profiling transformations...
  *
  * @author Matt Casters (mcasters@pentaho.org)
- *
  */
 public class TransProfileFactory {
   public static final String RESULT_STEP_NAME = "calc stats";
@@ -51,10 +50,8 @@ public class TransProfileFactory {
   private RowMetaInterface tableLayout;
 
   /**
-   *
    * @param databaseMeta
-   * @param schemaTable
-   *          the properly quoted schema-table combination
+   * @param schemaTable  the properly quoted schema-table combination
    */
   public TransProfileFactory( DatabaseMeta databaseMeta, String schemaTable ) {
     this.databaseMeta = databaseMeta;
@@ -143,9 +140,9 @@ public class TransProfileFactory {
         //CHECKSTYLE:Indentation:OFF
         //CHECKSTYLE:LineLength:OFF
         for ( int c = 0; c < numericCalculations.length; c++ ) {
-          statsMeta.getAggregateField()[calcIndex] = valueMeta.getName() + "(" + GroupByMeta.getTypeDesc( numericCalculations[c] ) + ")";
-          statsMeta.getSubjectField()[calcIndex] = valueMeta.getName();
-          statsMeta.getAggregateType()[calcIndex] = numericCalculations[c];
+          statsMeta.getAggregateField()[ calcIndex ] = valueMeta.getName() + "(" + GroupByMeta.getTypeDesc( numericCalculations[ c ] ) + ")";
+          statsMeta.getSubjectField()[ calcIndex ] = valueMeta.getName();
+          statsMeta.getAggregateType()[ calcIndex ] = numericCalculations[ c ];
           calcIndex++;
         }
       }
@@ -156,9 +153,9 @@ public class TransProfileFactory {
         //CHECKSTYLE:Indentation:OFF
         //CHECKSTYLE:LineLength:OFF
         for ( int c = 0; c < stringCalculations.length; c++ ) {
-          statsMeta.getAggregateField()[calcIndex] = valueMeta.getName() + "(" + GroupByMeta.getTypeDesc( stringCalculations[c] ) + ")";
-          statsMeta.getSubjectField()[calcIndex] = valueMeta.getName();
-          statsMeta.getAggregateType()[calcIndex] = stringCalculations[c];
+          statsMeta.getAggregateField()[ calcIndex ] = valueMeta.getName() + "(" + GroupByMeta.getTypeDesc( stringCalculations[ c ] ) + ")";
+          statsMeta.getSubjectField()[ calcIndex ] = valueMeta.getName();
+          statsMeta.getAggregateType()[ calcIndex ] = stringCalculations[ c ];
           calcIndex++;
         }
       }
@@ -167,10 +164,10 @@ public class TransProfileFactory {
       //
       if ( valueMeta.isDate() ) {
         for ( int c = 0; c < dateCalculations.length; c++ ) {
-          statsMeta.getAggregateField()[calcIndex] =
-            valueMeta.getName() + "(" + GroupByMeta.getTypeDesc( dateCalculations[c] ) + ")";
-          statsMeta.getSubjectField()[calcIndex] = valueMeta.getName();
-          statsMeta.getAggregateType()[calcIndex] = dateCalculations[c];
+          statsMeta.getAggregateField()[ calcIndex ] =
+            valueMeta.getName() + "(" + GroupByMeta.getTypeDesc( dateCalculations[ c ] ) + ")";
+          statsMeta.getSubjectField()[ calcIndex ] = valueMeta.getName();
+          statsMeta.getAggregateType()[ calcIndex ] = dateCalculations[ c ];
           calcIndex++;
         }
       }
@@ -179,10 +176,10 @@ public class TransProfileFactory {
       //
       if ( valueMeta.isBoolean() ) {
         for ( int c = 0; c < booleanCalculations.length; c++ ) {
-          statsMeta.getAggregateField()[calcIndex] =
-            valueMeta.getName() + "(" + GroupByMeta.getTypeDesc( booleanCalculations[c] ) + ")";
-          statsMeta.getSubjectField()[calcIndex] = valueMeta.getName();
-          statsMeta.getAggregateType()[calcIndex] = booleanCalculations[c];
+          statsMeta.getAggregateField()[ calcIndex ] =
+            valueMeta.getName() + "(" + GroupByMeta.getTypeDesc( booleanCalculations[ c ] ) + ")";
+          statsMeta.getSubjectField()[ calcIndex ] = valueMeta.getName();
+          statsMeta.getAggregateType()[ calcIndex ] = booleanCalculations[ c ];
           calcIndex++;
         }
       }

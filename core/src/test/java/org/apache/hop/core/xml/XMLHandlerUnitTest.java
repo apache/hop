@@ -22,16 +22,15 @@
 
 package org.apache.hop.core.xml;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXParseException;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+
 import javax.xml.parsers.DocumentBuilder;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -135,7 +134,7 @@ public class XMLHandlerUnitTest {
   @Test
   public void addTagValueBigDecimal() {
     BigDecimal input = new BigDecimal( "1234567890123456789.01" );
-    assertEquals( "<bigdec>1234567890123456789.01</bigdec>" + cr, XMLHandler.addTagValue( "bigdec",  input ) );
+    assertEquals( "<bigdec>1234567890123456789.01</bigdec>" + cr, XMLHandler.addTagValue( "bigdec", input ) );
     assertEquals( "<bigdec>1234567890123456789.01</bigdec>" + cr, XMLHandler.addTagValue( "bigdec", input, true ) );
     assertEquals( "<bigdec>1234567890123456789.01</bigdec>", XMLHandler.addTagValue( "bigdec", input, false ) );
   }

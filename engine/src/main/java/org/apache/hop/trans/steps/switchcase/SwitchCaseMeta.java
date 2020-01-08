@@ -25,8 +25,6 @@ package org.apache.hop.trans.steps.switchcase;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
@@ -38,7 +36,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -53,7 +51,6 @@ import org.apache.hop.trans.step.errorhandling.StreamIcon;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
 import org.apache.hop.trans.step.errorhandling.StreamInterface.StreamType;
 import org.apache.hop.trans.steps.fieldsplitter.DataTypeConverter;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -70,35 +67,53 @@ public class SwitchCaseMeta extends BaseStepMeta implements StepMetaInterface {
   private static final String XML_TAG_CASE_VALUES = "cases";
   private static final String XML_TAG_CASE_VALUE = "case";
 
-  /** The field to switch over */
+  /**
+   * The field to switch over
+   */
   @Injection( name = "FIELD_NAME" )
   private String fieldname;
 
-  /** The case value type to help parse numeric and date-time data */
+  /**
+   * The case value type to help parse numeric and date-time data
+   */
   @Injection( name = "VALUE_TYPE", converter = DataTypeConverter.class )
   private int caseValueType;
-  /** The case value format to help parse numeric and date-time data */
+  /**
+   * The case value format to help parse numeric and date-time data
+   */
   @Injection( name = "VALUE_FORMAT" )
   private String caseValueFormat;
-  /** The decimal symbol to help parse numeric data */
+  /**
+   * The decimal symbol to help parse numeric data
+   */
   @Injection( name = "VALUE_DECIMAL" )
   private String caseValueDecimal;
-  /** The grouping symbol to help parse numeric data */
+  /**
+   * The grouping symbol to help parse numeric data
+   */
   @Injection( name = "VALUE_GROUP" )
   private String caseValueGroup;
 
-  /** The targets to switch over */
+  /**
+   * The targets to switch over
+   */
   @InjectionDeep( prefix = "SWITCH_CASE_TARGET" )
   private List<SwitchCaseTarget> caseTargets;
 
-  /** The default target step name (only used during serialization) */
+  /**
+   * The default target step name (only used during serialization)
+   */
   @Injection( name = "DEFAULT_TARGET_STEP_NAME" )
   private String defaultTargetStepname;
 
-  /** The default target step */
+  /**
+   * The default target step
+   */
   private StepMeta defaultTargetStep;
 
-  /** True if the comparison is a String.contains instead of equals */
+  /**
+   * True if the comparison is a String.contains instead of equals
+   */
   @Injection( name = "CONTAINS" )
   private boolean isContains;
 
@@ -114,7 +129,7 @@ public class SwitchCaseMeta extends BaseStepMeta implements StepMetaInterface {
     caseTargets = new ArrayList<SwitchCaseTarget>();
   }
 
-  public Object clone()  {
+  public Object clone() {
     SwitchCaseMeta retval = (SwitchCaseMeta) super.clone();
     retval.allocate();
     try {
@@ -140,7 +155,7 @@ public class SwitchCaseMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( XMLHandler.addTagValue( "case_value_decimal", caseValueDecimal ) );
     retval.append( XMLHandler.addTagValue( "case_value_group", caseValueGroup ) );
     retval.append( XMLHandler.addTagValue( "default_target_step",
-      defaultTargetStep != null ?  defaultTargetStep.getName() : defaultTargetStepname
+      defaultTargetStep != null ? defaultTargetStep.getName() : defaultTargetStepname
     ) );
 
     retval.append( XMLHandler.openTag( XML_TAG_CASE_VALUES ) );
@@ -191,13 +206,13 @@ public class SwitchCaseMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Default: nothing changes to rowMeta
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     StepIOMetaInterface ioMeta = getStepIOMeta();
@@ -209,7 +224,7 @@ public class SwitchCaseMeta extends BaseStepMeta implements StepMetaInterface {
         cr =
           new CheckResult(
             CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
-              PKG, "SwitchCaseMeta.CheckResult.TargetStepInvalid", "false", target.caseTargetStepname ),
+            PKG, "SwitchCaseMeta.CheckResult.TargetStepInvalid", "false", target.caseTargetStepname ),
             stepMeta );
         remarks.add( cr );
       }
@@ -241,7 +256,7 @@ public class SwitchCaseMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new SwitchCase( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -257,8 +272,7 @@ public class SwitchCaseMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param fieldname
-   *          the fieldname to set
+   * @param fieldname the fieldname to set
    */
   public void setFieldname( String fieldname ) {
     this.fieldname = fieldname;
@@ -272,8 +286,7 @@ public class SwitchCaseMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param caseValueFormat
-   *          the caseValueFormat to set
+   * @param caseValueFormat the caseValueFormat to set
    */
   public void setCaseValueFormat( String caseValueFormat ) {
     this.caseValueFormat = caseValueFormat;
@@ -287,8 +300,7 @@ public class SwitchCaseMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param caseValueDecimal
-   *          the caseValueDecimal to set
+   * @param caseValueDecimal the caseValueDecimal to set
    */
   public void setCaseValueDecimal( String caseValueDecimal ) {
     this.caseValueDecimal = caseValueDecimal;
@@ -302,8 +314,7 @@ public class SwitchCaseMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param caseValueGroup
-   *          the caseValueGroup to set
+   * @param caseValueGroup the caseValueGroup to set
    */
   public void setCaseValueGroup( String caseValueGroup ) {
     this.caseValueGroup = caseValueGroup;
@@ -317,8 +328,7 @@ public class SwitchCaseMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param caseValueType
-   *          the caseValueType to set
+   * @param caseValueType the caseValueType to set
    */
   public void setCaseValueType( int caseValueType ) {
     this.caseValueType = caseValueType;
@@ -332,8 +342,7 @@ public class SwitchCaseMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param defaultTargetStepname
-   *          the defaultTargetStepname to set
+   * @param defaultTargetStepname the defaultTargetStepname to set
    */
   public void setDefaultTargetStepname( String defaultTargetStepname ) {
     this.defaultTargetStepname = defaultTargetStepname;
@@ -347,8 +356,7 @@ public class SwitchCaseMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param defaultTargetStep
-   *          the defaultTargetStep to set
+   * @param defaultTargetStep the defaultTargetStep to set
    */
   public void setDefaultTargetStep( StepMeta defaultTargetStep ) {
     this.defaultTargetStep = defaultTargetStep;
@@ -461,8 +469,7 @@ public class SwitchCaseMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param caseTargets
-   *          the caseTargets to set
+   * @param caseTargets the caseTargets to set
    */
   public void setCaseTargets( List<SwitchCaseTarget> caseTargets ) {
     this.caseTargets = caseTargets;

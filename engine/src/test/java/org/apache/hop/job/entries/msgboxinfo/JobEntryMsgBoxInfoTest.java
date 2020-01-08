@@ -21,14 +21,13 @@
  ******************************************************************************/
 package org.apache.hop.job.entries.msgboxinfo;
 
-import java.util.Arrays;
-
-import java.util.List;
-import java.util.Map;
-
-import org.junit.ClassRule;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.ClassRule;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class JobEntryMsgBoxInfoTest extends JobEntryLoadSaveTestSupport<JobEntryMsgBoxInfo> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -41,22 +40,22 @@ public class JobEntryMsgBoxInfoTest extends JobEntryLoadSaveTestSupport<JobEntry
   @Override
   protected List<String> listCommonAttributes() {
     return Arrays.asList(
-        "bodymessage",
-        "titremessage" );
+      "bodymessage",
+      "titremessage" );
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-        "bodymessage", "getBodyMessage",
-        "titremessage", "getTitleMessage" );
+      "bodymessage", "getBodyMessage",
+      "titremessage", "getTitleMessage" );
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-        "bodymessage", "setBodyMessage",
-        "titremessage", "setTitleMessage" );
+      "bodymessage", "setBodyMessage",
+      "titremessage", "setTitleMessage" );
   }
 
 }

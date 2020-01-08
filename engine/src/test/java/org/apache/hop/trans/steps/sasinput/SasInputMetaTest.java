@@ -21,17 +21,7 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.sasinput;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -39,6 +29,16 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.ListLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 public class SasInputMetaTest {
   LoadSaveTester loadSaveTester;
@@ -50,18 +50,18 @@ public class SasInputMetaTest {
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "acceptingField", "outputFields" );
+      Arrays.asList( "acceptingField", "outputFields" );
 
     Map<String, String> gsMap = new HashMap<String, String>();
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "outputFields",
-        new ListLoadSaveValidator<SasInputField>( new SasInputFieldLoadSaveValidator(), 5 ) );
+      new ListLoadSaveValidator<SasInputField>( new SasInputFieldLoadSaveValidator(), 5 ) );
 
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, gsMap, gsMap, attrValidatorMap, typeValidatorMap );
+      new LoadSaveTester( testMetaClass, attributes, gsMap, gsMap, attrValidatorMap, typeValidatorMap );
   }
 
   @Test
@@ -71,6 +71,7 @@ public class SasInputMetaTest {
 
   public class SasInputFieldLoadSaveValidator implements FieldLoadSaveValidator<SasInputField> {
     final Random rand = new Random();
+
     @Override
     public SasInputField getTestObject() {
       SasInputField rtn = new SasInputField();
@@ -102,7 +103,7 @@ public class SasInputMetaTest {
         .append( testObject.getConversionMask(), another.getConversionMask() )
         .append( testObject.getGroupingSymbol(), another.getGroupingSymbol() )
         .append( testObject.getLength(), another.getLength() )
-      .isEquals();
+        .isEquals();
     }
   }
 

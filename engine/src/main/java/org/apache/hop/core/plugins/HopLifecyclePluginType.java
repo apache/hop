@@ -22,13 +22,13 @@
 
 package org.apache.hop.core.plugins;
 
-import java.lang.annotation.Annotation;
-import java.util.Map;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopLifecyclePlugin;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.lifecycle.HopLifecycleListener;
+
+import java.lang.annotation.Annotation;
+import java.util.Map;
 
 /**
  * Defines a Hop Environment lifecycle plugin type. These plugins are invoked at Hop Environment initialization

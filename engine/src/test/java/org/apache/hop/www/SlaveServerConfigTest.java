@@ -21,28 +21,27 @@
  ******************************************************************************/
 package org.apache.hop.www;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.xml.XMLHandler;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.xml.XMLHandler;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
 /**
  * @author Tatsiana_Kasiankova
- *
  */
 public class SlaveServerConfigTest {
 
@@ -86,13 +85,13 @@ public class SlaveServerConfigTest {
     slServerConfig.setUpJettyOptions( configNode );
 
     assertTrue( "Expected containing jetty option " + EXPECTED_ACCEPTORS_KEY, System.getProperties().containsKey(
-        EXPECTED_ACCEPTORS_KEY ) );
+      EXPECTED_ACCEPTORS_KEY ) );
     assertEquals( EXPECTED_ACCEPTORS_VALUE, System.getProperty( EXPECTED_ACCEPTORS_KEY ) );
     assertTrue( "Expected containing jetty option " + EXPECTED_ACCEPT_QUEUE_SIZE_KEY, System.getProperties()
-        .containsKey( EXPECTED_ACCEPT_QUEUE_SIZE_KEY ) );
+      .containsKey( EXPECTED_ACCEPT_QUEUE_SIZE_KEY ) );
     assertEquals( EXPECTED_ACCEPT_QUEUE_SIZE_VALUE, System.getProperty( EXPECTED_ACCEPT_QUEUE_SIZE_KEY ) );
     assertTrue( "Expected containing jetty option " + EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY, System.getProperties()
-        .containsKey( EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY ) );
+      .containsKey( EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY ) );
     assertEquals( EXPECTED_LOW_RES_MAX_IDLE_TIME_VALUE, System.getProperty( EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY ) );
   }
 
@@ -103,11 +102,11 @@ public class SlaveServerConfigTest {
     slServerConfig.setUpJettyOptions( configNode );
 
     assertFalse( "There should not be any jetty option but it is here:  " + EXPECTED_ACCEPTORS_KEY, System
-        .getProperties().containsKey( EXPECTED_ACCEPTORS_KEY ) );
+      .getProperties().containsKey( EXPECTED_ACCEPTORS_KEY ) );
     assertFalse( "There should not be any jetty option but it is here:  " + EXPECTED_ACCEPT_QUEUE_SIZE_KEY, System
-        .getProperties().containsKey( EXPECTED_ACCEPT_QUEUE_SIZE_KEY ) );
+      .getProperties().containsKey( EXPECTED_ACCEPT_QUEUE_SIZE_KEY ) );
     assertFalse( "There should not be any jetty option but it is here:  " + EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY, System
-        .getProperties().containsKey( EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY ) );
+      .getProperties().containsKey( EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY ) );
   }
 
   @Test
@@ -117,11 +116,11 @@ public class SlaveServerConfigTest {
     slServerConfig.setUpJettyOptions( configNode );
 
     assertFalse( "There should not be any jetty option but it is here:  " + EXPECTED_ACCEPTORS_KEY, System
-        .getProperties().containsKey( EXPECTED_ACCEPTORS_KEY ) );
+      .getProperties().containsKey( EXPECTED_ACCEPTORS_KEY ) );
     assertFalse( "There should not be any jetty option but it is here:  " + EXPECTED_ACCEPT_QUEUE_SIZE_KEY, System
-        .getProperties().containsKey( EXPECTED_ACCEPT_QUEUE_SIZE_KEY ) );
+      .getProperties().containsKey( EXPECTED_ACCEPT_QUEUE_SIZE_KEY ) );
     assertFalse( "There should not be any jetty option but it is here:  " + EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY, System
-        .getProperties().containsKey( EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY ) );
+      .getProperties().containsKey( EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY ) );
   }
 
   @Test
@@ -133,7 +132,7 @@ public class SlaveServerConfigTest {
     assertNotNull( parseJettyOptions );
     assertEquals( 1, parseJettyOptions.size() );
     assertTrue( "Expected containing key=" + EXPECTED_ACCEPTORS_KEY, parseJettyOptions
-        .containsKey( EXPECTED_ACCEPTORS_KEY ) );
+      .containsKey( EXPECTED_ACCEPTORS_KEY ) );
     assertEquals( EXPECTED_ACCEPTORS_VALUE, parseJettyOptions.get( EXPECTED_ACCEPTORS_KEY ) );
   }
 
@@ -146,7 +145,7 @@ public class SlaveServerConfigTest {
     assertNotNull( parseJettyOptions );
     assertEquals( 1, parseJettyOptions.size() );
     assertTrue( "Expected containing key=" + EXPECTED_ACCEPT_QUEUE_SIZE_KEY, parseJettyOptions
-        .containsKey( EXPECTED_ACCEPT_QUEUE_SIZE_KEY ) );
+      .containsKey( EXPECTED_ACCEPT_QUEUE_SIZE_KEY ) );
     assertEquals( EXPECTED_ACCEPT_QUEUE_SIZE_VALUE, parseJettyOptions.get( EXPECTED_ACCEPT_QUEUE_SIZE_KEY ) );
   }
 
@@ -159,7 +158,7 @@ public class SlaveServerConfigTest {
     assertNotNull( parseJettyOptions );
     assertEquals( 1, parseJettyOptions.size() );
     assertTrue( "Expected containing key=" + EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY, parseJettyOptions
-        .containsKey( EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY ) );
+      .containsKey( EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY ) );
     assertEquals( EXPECTED_LOW_RES_MAX_IDLE_TIME_VALUE, parseJettyOptions.get( EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY ) );
   }
 
@@ -172,13 +171,13 @@ public class SlaveServerConfigTest {
     assertNotNull( parseJettyOptions );
     assertEquals( 3, parseJettyOptions.size() );
     assertTrue( "Expected containing key=" + EXPECTED_ACCEPTORS_KEY, parseJettyOptions
-        .containsKey( EXPECTED_ACCEPTORS_KEY ) );
+      .containsKey( EXPECTED_ACCEPTORS_KEY ) );
     assertEquals( EXPECTED_ACCEPTORS_VALUE, parseJettyOptions.get( EXPECTED_ACCEPTORS_KEY ) );
     assertTrue( "Expected containing key=" + EXPECTED_ACCEPT_QUEUE_SIZE_KEY, parseJettyOptions
-        .containsKey( EXPECTED_ACCEPT_QUEUE_SIZE_KEY ) );
+      .containsKey( EXPECTED_ACCEPT_QUEUE_SIZE_KEY ) );
     assertEquals( EXPECTED_ACCEPT_QUEUE_SIZE_VALUE, parseJettyOptions.get( EXPECTED_ACCEPT_QUEUE_SIZE_KEY ) );
     assertTrue( "Expected containing key=" + EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY, parseJettyOptions
-        .containsKey( EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY ) );
+      .containsKey( EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY ) );
     assertEquals( EXPECTED_LOW_RES_MAX_IDLE_TIME_VALUE, parseJettyOptions.get( EXPECTED_LOW_RES_MAX_IDLE_TIME_KEY ) );
   }
 
@@ -254,7 +253,7 @@ public class SlaveServerConfigTest {
       xml.append( "</" + XML_TAG_JETTY_OPTIONS + ">" ).append( Const.CR );
     }
     xml.append( "</" + XML_TAG_SLAVE_CONFIG + ">" ).append( Const.CR );
-//    System.out.println( xml.toString() );
+    //    System.out.println( xml.toString() );
     return xml.toString();
   }
 

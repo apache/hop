@@ -22,6 +22,14 @@
 
 package org.apache.hop.trans.steps.propertyinput;
 
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.trans.step.BaseStepData;
+import org.apache.hop.trans.step.StepDataInterface;
+import org.ini4j.Profile.Section;
+import org.ini4j.Wini;
+
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.text.DateFormatSymbols;
@@ -33,14 +41,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
-
-import org.apache.commons.vfs2.FileObject;
-import org.ini4j.Profile.Section;
-import org.ini4j.Wini;
-import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.trans.step.BaseStepData;
-import org.apache.hop.trans.step.StepDataInterface;
 
 /**
  * @author Samatar Hassan

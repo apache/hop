@@ -38,7 +38,7 @@ import java.util.Date;
  * This class is intended to facilitate any needed conversions of a ValueMetaInterface field from one type to another.
  * It was initially implemented for Orc storage in the pentaho-hadoop-shims project.  This class is added here because
  * the converstions are not dependendant on orc in any way.
- *
+ * <p>
  * Created by tkafalas on 12/8/2017.
  */
 public class ValueMetaConverter implements Serializable, IValueMetaConverter {

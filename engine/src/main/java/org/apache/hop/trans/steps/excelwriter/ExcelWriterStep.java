@@ -22,11 +22,24 @@
 
 package org.apache.hop.trans.steps.excelwriter;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStep;
+import org.apache.hop.trans.step.StepDataInterface;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.workarounds.BufferedOutputStreamWithCloseDetection;
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -50,23 +63,10 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStep;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.workarounds.BufferedOutputStreamWithCloseDetection;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
 
 @SuppressWarnings( "deprecation" )
 public class ExcelWriterStep extends BaseStep implements StepInterface {
@@ -228,7 +228,7 @@ public class ExcelWriterStep extends BaseStep implements StepInterface {
   }
 
   private void closeOutputFile() throws HopException {
-    try ( BufferedOutputStreamWithCloseDetection out =  new BufferedOutputStreamWithCloseDetection( HopVFS.getOutputStream( data.file, false ) ) ) {
+    try ( BufferedOutputStreamWithCloseDetection out = new BufferedOutputStreamWithCloseDetection( HopVFS.getOutputStream( data.file, false ) ) ) {
       // may have to write a footer here
       if ( meta.isFooterEnabled() ) {
         writeHeader();
@@ -237,7 +237,7 @@ public class ExcelWriterStep extends BaseStep implements StepInterface {
       if ( meta.isAutoSizeColums() ) {
 
         // track all columns for autosizing if using streaming worksheet
-        if (  data.sheet instanceof SXSSFSheet ) {
+        if ( data.sheet instanceof SXSSFSheet ) {
           ( (SXSSFSheet) data.sheet ).trackAllColumnsForAutoSizing();
         }
 
@@ -376,7 +376,7 @@ public class ExcelWriterStep extends BaseStep implements StepInterface {
 
   //VisibleForTesting
   void writeField( Object v, ValueMetaInterface vMeta, ExcelWriterStepField excelField, Row xlsRow,
-    int posX, Object[] row, int fieldNr, boolean isTitle ) throws HopException {
+                   int posX, Object[] row, int fieldNr, boolean isTitle ) throws HopException {
     try {
       boolean cellExisted = true;
       // get the cell
@@ -483,7 +483,7 @@ public class ExcelWriterStep extends BaseStep implements StepInterface {
         String comment = data.inputRowMeta.getValueMeta( data.commentfieldnrs[ fieldNr ] ).getString( row[ data.commentfieldnrs[ fieldNr ] ] );
         if ( !Utils.isEmpty( comment ) ) {
           String author = data.commentauthorfieldnrs[ fieldNr ] >= 0
-              ? data.inputRowMeta.getValueMeta( data.commentauthorfieldnrs[ fieldNr ] ).getString( row[ data.commentauthorfieldnrs[ fieldNr ] ] ) : "Hop PDI";
+            ? data.inputRowMeta.getValueMeta( data.commentauthorfieldnrs[ fieldNr ] ).getString( row[ data.commentauthorfieldnrs[ fieldNr ] ] ) : "Hop PDI";
           cell.setCellComment( createCellComment( author, comment ) );
         }
       }

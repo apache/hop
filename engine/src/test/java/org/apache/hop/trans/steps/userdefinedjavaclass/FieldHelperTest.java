@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.userdefinedjavaclass;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -38,6 +36,8 @@ import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaSerializable;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -247,10 +247,10 @@ public class FieldHelperTest {
     doReturn( v ).when( row ).searchValueMeta( anyString() );
     doReturn( 0 ).when( row ).indexOfValue( anyString() );
 
-    Object[] data = new Object[1];
+    Object[] data = new Object[ 1 ];
     new FieldHelper( row, "Name" ).setValue( data, "Hitachi Vantara" );
 
-    assertEquals( "Hitachi Vantara", data[0] );
+    assertEquals( "Hitachi Vantara", data[ 0 ] );
   }
 
   @Test
@@ -261,10 +261,10 @@ public class FieldHelperTest {
     doReturn( v ).when( row ).searchValueMeta( anyString() );
     doReturn( 0 ).when( row ).indexOfValue( anyString() );
 
-    Object[] data = new Object[1];
+    Object[] data = new Object[ 1 ];
     new FieldHelper( row, "IP" ).setValue( data, InetAddress.getLoopbackAddress() );
 
-    assertEquals( InetAddress.getLoopbackAddress(), data[0] );
+    assertEquals( InetAddress.getLoopbackAddress(), data[ 0 ] );
   }
 
   @Test
@@ -275,9 +275,9 @@ public class FieldHelperTest {
     doReturn( v ).when( row ).searchValueMeta( anyString() );
     doReturn( 0 ).when( row ).indexOfValue( anyString() );
 
-    Object[] data = new Object[1];
+    Object[] data = new Object[ 1 ];
     new FieldHelper( row, "Data" ).setValue( data, new byte[] { 0, 1, 2 } );
 
-    assertArrayEquals( new byte[] { 0, 1, 2 }, (byte[]) data[0] );
+    assertArrayEquals( new byte[] { 0, 1, 2 }, (byte[]) data[ 0 ] );
   }
 }

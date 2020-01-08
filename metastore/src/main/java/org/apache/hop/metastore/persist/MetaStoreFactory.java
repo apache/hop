@@ -5,10 +5,6 @@ import org.apache.hop.metastore.api.IMetaStoreAttribute;
 import org.apache.hop.metastore.api.IMetaStoreElement;
 import org.apache.hop.metastore.api.IMetaStoreElementType;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.persist.IMetaStoreObjectFactory;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
-import org.apache.hop.metastore.persist.MetaStoreElementType;
-import org.apache.hop.metastore.persist.MetaStoreKeyMap;
 import org.apache.hop.metastore.util.MetaStoreUtil;
 
 import java.lang.reflect.Field;
@@ -65,7 +61,8 @@ public class MetaStoreFactory<T> {
     filenameListMap.put( filenameListKey, filenameList );
   }
 
-  /** Load an element from the metastore, straight into the appropriate class
+  /**
+   * Load an element from the metastore, straight into the appropriate class
    */
   public T loadElement( String name ) throws MetaStoreException {
 
@@ -73,7 +70,7 @@ public class MetaStoreFactory<T> {
       throw new MetaStoreException( "You need to specify the name of an element to load" );
     }
 
-    if (!metaStore.namespaceExists( namespace )) {
+    if ( !metaStore.namespaceExists( namespace ) ) {
       return null;
     }
 
@@ -91,7 +88,19 @@ public class MetaStoreFactory<T> {
     return loadElement( element );
   }
 
-  /** Load an element from the metastore, straight into the appropriate class
+  /**
+   * See if the element with the given name exists
+   *
+   * @param name The element to look up
+   * @return true if the element exists, false if it doesn't.
+   * @throws MetaStoreException TODO: optimize this in IMetaStore itself by adding an elementExists() option there.  This is faster than actually trying to load the whole element.
+   */
+  public boolean elementExists( String name ) throws MetaStoreException {
+    return loadElement( name ) != null;
+  }
+
+  /**
+   * Load an element from the metastore, straight into the appropriate class
    */
   private T loadElement( IMetaStoreElement element ) throws MetaStoreException {
     T object;
@@ -116,16 +125,16 @@ public class MetaStoreFactory<T> {
    * @param parentClass
    * @return A unqiue list of fields.
    */
-  private List<Field> findDeclaredFields(Class<?> parentClass) {
-    Set<Field> fields = new HashSet<>(  );
+  private List<Field> findDeclaredFields( Class<?> parentClass ) {
+    Set<Field> fields = new HashSet<>();
 
-    for (Field field : parentClass.getDeclaredFields()) {
-      fields.add(field);
+    for ( Field field : parentClass.getDeclaredFields() ) {
+      fields.add( field );
     }
     Class<?> superClass = parentClass.getSuperclass();
-    while (superClass!=null) {
-      for (Field field : superClass.getDeclaredFields()) {
-        fields.add(field);
+    while ( superClass != null ) {
+      for ( Field field : superClass.getDeclaredFields() ) {
+        fields.add( field );
       }
 
       superClass = superClass.getSuperclass();
@@ -139,7 +148,7 @@ public class MetaStoreFactory<T> {
 
     // Which are the attributes to load?
     //
-    List<Field> fields = findDeclaredFields(parentClass);
+    List<Field> fields = findDeclaredFields( parentClass );
     for ( Field field : fields ) {
       MetaStoreAttribute attributeAnnotation = field.getAnnotation( MetaStoreAttribute.class );
       if ( attributeAnnotation != null ) {
@@ -284,6 +293,7 @@ public class MetaStoreFactory<T> {
 
   /**
    * Save contextual information about an object from an object factory
+   *
    * @param parentElement
    * @param context
    * @throws MetaStoreException
@@ -482,7 +492,8 @@ public class MetaStoreFactory<T> {
       if ( list == null ) {
         // No reference list, developer didn't provide a list!
         //
-        throw new MetaStoreException( "Unable to find reference list for named objects with key '" + attributeAnnotation.filenameListKey() + "', name reference '" + filename + "' can not be looked up" );
+        throw new MetaStoreException(
+          "Unable to find reference list for named objects with key '" + attributeAnnotation.filenameListKey() + "', name reference '" + filename + "' can not be looked up" );
       }
 
       for ( Object object : list ) {
@@ -720,6 +731,7 @@ public class MetaStoreFactory<T> {
 
   /**
    * Save a name reference and save the referenced object in the specified target element
+   *
    * @param parentClass
    * @param targetElement
    * @param parentObject
@@ -811,7 +823,7 @@ public class MetaStoreFactory<T> {
 
     // Return empty list in case the namespace doesn't exist
     //
-    if (!metaStore.namespaceExists( namespace )) {
+    if ( !metaStore.namespaceExists( namespace ) ) {
       return Collections.emptyList();
     }
 
@@ -832,6 +844,7 @@ public class MetaStoreFactory<T> {
 
   /**
    * Remove an element with a specific name from the metastore
+   *
    * @param name The name of the element to delete
    * @throws MetaStoreException In case either the element type or the element to delete doesn't exists
    */
@@ -860,7 +873,7 @@ public class MetaStoreFactory<T> {
 
     // Return empty list in case the namespace doesn't exist
     //
-    if (!metaStore.namespaceExists( namespace )) {
+    if ( !metaStore.namespaceExists( namespace ) ) {
       return names;
     }
 
@@ -935,12 +948,13 @@ public class MetaStoreFactory<T> {
 
   /**
    * Set an attribute value in the specified object
+   *
    * @param parentClass The parent object class
-   * @param object The object to modify
-   * @param fieldName The field to modify
-   * @param setterName The setter method name
-   * @param valueClass The class value
-   * @param value The value to set
+   * @param object      The object to modify
+   * @param fieldName   The field to modify
+   * @param setterName  The setter method name
+   * @param valueClass  The class value
+   * @param value       The value to set
    * @throws MetaStoreException
    */
   private void setAttributeValue( Class<?> parentClass, Object object, String fieldName, String setterName, Class<?> valueClass, Object value ) throws MetaStoreException {

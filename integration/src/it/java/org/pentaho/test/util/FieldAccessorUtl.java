@@ -22,20 +22,19 @@
 
 package org.pentaho.test.util;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-
 import junit.framework.Assert;
-
 import org.apache.hop.core.row.ValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 public class FieldAccessorUtl {
 
   private static final boolean ValueMetaBase_EMPTY_STRING_AND_NULL_ARE_DIFFERENT =
-      ValueMetaBase.EMPTY_STRING_AND_NULL_ARE_DIFFERENT;
+    ValueMetaBase.EMPTY_STRING_AND_NULL_ARE_DIFFERENT;
   private static final boolean ValueMeta_EMPTY_STRING_AND_NULL_ARE_DIFFERENT =
-      ValueMeta.EMPTY_STRING_AND_NULL_ARE_DIFFERENT;
+    ValueMeta.EMPTY_STRING_AND_NULL_ARE_DIFFERENT;
 
   public static void ensureBooleanStaticFieldVal( Field f, boolean newValue ) throws NoSuchFieldException,
     SecurityException, IllegalArgumentException, IllegalAccessException {
@@ -83,15 +82,15 @@ public class FieldAccessorUtl {
       throw new RuntimeException( e );
     }
     Assert.assertEquals( "ValueMetaBase.EMPTY_STRING_AND_NULL_ARE_DIFFERENT", newValue,
-        ValueMetaBase.EMPTY_STRING_AND_NULL_ARE_DIFFERENT.booleanValue() );
+      ValueMetaBase.EMPTY_STRING_AND_NULL_ARE_DIFFERENT.booleanValue() );
     Assert.assertEquals( "ValueMeta.EMPTY_STRING_AND_NULL_ARE_DIFFERENT", newValue,
-        ValueMeta.EMPTY_STRING_AND_NULL_ARE_DIFFERENT );
+      ValueMeta.EMPTY_STRING_AND_NULL_ARE_DIFFERENT );
   }
 
   public static void resetEmptyStringIsNotNull() throws NoSuchFieldException, IllegalAccessException {
     ensureBooleanStaticFieldVal( ValueMetaBase.class.getField( "EMPTY_STRING_AND_NULL_ARE_DIFFERENT" ),
-        ValueMetaBase_EMPTY_STRING_AND_NULL_ARE_DIFFERENT );
+      ValueMetaBase_EMPTY_STRING_AND_NULL_ARE_DIFFERENT );
     ensureBooleanStaticFieldVal( ValueMeta.class.getField( "EMPTY_STRING_AND_NULL_ARE_DIFFERENT" ),
-        ValueMeta_EMPTY_STRING_AND_NULL_ARE_DIFFERENT );
+      ValueMeta_EMPTY_STRING_AND_NULL_ARE_DIFFERENT );
   }
 }

@@ -22,9 +22,31 @@
 
 package org.apache.hop.ui.trans.steps.loadfileinput;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.TransPreviewFactory;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.loadfileinput.LoadFileInputField;
+import org.apache.hop.trans.steps.loadfileinput.LoadFileInputMeta;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -52,31 +74,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.TransPreviewFactory;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.loadfileinput.LoadFileInputField;
-import org.apache.hop.trans.steps.loadfileinput.LoadFileInputMeta;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 
 public class LoadFileInputDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = LoadFileInputMeta.class; // for i18n purposes, needed by Translator2!!
@@ -460,36 +460,36 @@ public class LoadFileInputDialog extends BaseStepDialog implements StepDialogInt
     fdbShowFiles.bottom = new FormAttachment( 100, 0 );
     wbShowFiles.setLayoutData( fdbShowFiles );
 
-    ColumnInfo[] colinfo = new ColumnInfo[5];
-    colinfo[0] =
+    ColumnInfo[] colinfo = new ColumnInfo[ 5 ];
+    colinfo[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "LoadFileInputDialog.Files.Filename.Column" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinfo[1] =
+    colinfo[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "LoadFileInputDialog.Files.Wildcard.Column" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinfo[2] =
+    colinfo[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "LoadFileInputDialog.Files.ExcludeWildcard.Column" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
 
-    colinfo[0].setUsingVariables( true );
-    colinfo[1].setUsingVariables( true );
-    colinfo[1].setToolTip( BaseMessages.getString( PKG, "LoadFileInputDialog.Files.Wildcard.Tooltip" ) );
-    colinfo[2].setUsingVariables( true );
-    colinfo[2].setToolTip( BaseMessages.getString( PKG, "LoadFileInputDialog.Files.ExcludeWildcard.Tooltip" ) );
+    colinfo[ 0 ].setUsingVariables( true );
+    colinfo[ 1 ].setUsingVariables( true );
+    colinfo[ 1 ].setToolTip( BaseMessages.getString( PKG, "LoadFileInputDialog.Files.Wildcard.Tooltip" ) );
+    colinfo[ 2 ].setUsingVariables( true );
+    colinfo[ 2 ].setToolTip( BaseMessages.getString( PKG, "LoadFileInputDialog.Files.ExcludeWildcard.Tooltip" ) );
 
-    colinfo[3] =
+    colinfo[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "LoadFileInputDialog.Required.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         YES_NO_COMBO );
-    colinfo[3].setToolTip( BaseMessages.getString( PKG, "LoadFileInputDialog.Required.Tooltip" ) );
-    colinfo[4] =
+    colinfo[ 3 ].setToolTip( BaseMessages.getString( PKG, "LoadFileInputDialog.Required.Tooltip" ) );
+    colinfo[ 4 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "LoadFileInputDialog.IncludeSubDirs.Column" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, YES_NO_COMBO );
-    colinfo[4].setToolTip( BaseMessages.getString( PKG, "LoadFileInputDialog.IncludeSubDirs.Tooltip" ) );
+    colinfo[ 4 ].setToolTip( BaseMessages.getString( PKG, "LoadFileInputDialog.IncludeSubDirs.Tooltip" ) );
 
     wFilenameList =
       new TableView( transMeta, wFileComp, SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER, colinfo, 2, lsMod, props );
@@ -844,23 +844,23 @@ public class LoadFileInputDialog extends BaseStepDialog implements StepDialogInt
         new ColumnInfo(
           BaseMessages.getString( PKG, "LoadFileInputDialog.FieldsTable.Repeat.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-            BaseMessages.getString( PKG, "System.Combo.Yes" ),
-            BaseMessages.getString( PKG, "System.Combo.No" ) }, true ),
+          BaseMessages.getString( PKG, "System.Combo.Yes" ),
+          BaseMessages.getString( PKG, "System.Combo.No" ) }, true ),
 
       };
 
-    colinf[0].setUsingVariables( true );
-    colinf[0].setToolTip( BaseMessages.getString( PKG, "LoadFileInputDialog.FieldsTable.Name.Column.Tooltip" ) );
-    colinfo[2] =
+    colinf[ 0 ].setUsingVariables( true );
+    colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "LoadFileInputDialog.FieldsTable.Name.Column.Tooltip" ) );
+    colinfo[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "LoadFileInputDialog.Required.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         YES_NO_COMBO );
-    colinfo[2].setToolTip( BaseMessages.getString( PKG, "LoadFileInputDialog.Required.Tooltip" ) );
-    colinfo[3] =
+    colinfo[ 2 ].setToolTip( BaseMessages.getString( PKG, "LoadFileInputDialog.Required.Tooltip" ) );
+    colinfo[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "LoadFileInputDialog.IncludeSubDirs.Column" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, YES_NO_COMBO );
-    colinfo[3].setToolTip( BaseMessages.getString( PKG, "LoadFileInputDialog.IncludeSubDirs.Tooltip" ) );
+    colinfo[ 3 ].setToolTip( BaseMessages.getString( PKG, "LoadFileInputDialog.IncludeSubDirs.Tooltip" ) );
 
     wFields =
       new TableView( transMeta, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
@@ -945,7 +945,7 @@ public class LoadFileInputDialog extends BaseStepDialog implements StepDialogInt
       public void widgetSelected( SelectionEvent arg0 ) {
         wFilenameList.add( new String[] {
           wFilename.getText(), wFilemask.getText(), wExcludeFilemask.getText(),
-          LoadFileInputMeta.RequiredFilesCode[0], LoadFileInputMeta.RequiredFilesCode[0] } );
+          LoadFileInputMeta.RequiredFilesCode[ 0 ], LoadFileInputMeta.RequiredFilesCode[ 0 ] } );
         wFilename.setText( "" );
         wFilemask.setText( "" );
         wExcludeFilemask.setText( "" );
@@ -973,9 +973,9 @@ public class LoadFileInputDialog extends BaseStepDialog implements StepDialogInt
         int idx = wFilenameList.getSelectionIndex();
         if ( idx >= 0 ) {
           String[] string = wFilenameList.getItem( idx );
-          wFilename.setText( string[0] );
-          wFilemask.setText( string[1] );
-          wExcludeFilemask.setText( string[2] );
+          wFilename.setText( string[ 0 ] );
+          wFilemask.setText( string[ 1 ] );
+          wExcludeFilemask.setText( string[ 2 ] );
           wFilenameList.remove( idx );
         }
         wFilenameList.removeEmptyRows();
@@ -1179,13 +1179,13 @@ public class LoadFileInputDialog extends BaseStepDialog implements StepDialogInt
     }
 
     TableItem item = new TableItem( wFields.table, SWT.NONE );
-    item.setText( 1, LoadFileInputField.ElementTypeDesc[0] );
-    item.setText( 2, LoadFileInputField.ElementTypeDesc[0] );
+    item.setText( 1, LoadFileInputField.ElementTypeDesc[ 0 ] );
+    item.setText( 2, LoadFileInputField.ElementTypeDesc[ 0 ] );
     item.setText( 3, "String" );
     // file size
     item = new TableItem( wFields.table, SWT.NONE );
-    item.setText( 1, LoadFileInputField.ElementTypeDesc[1] );
-    item.setText( 2, LoadFileInputField.ElementTypeDesc[1] );
+    item.setText( 1, LoadFileInputField.ElementTypeDesc[ 1 ] );
+    item.setText( 2, LoadFileInputField.ElementTypeDesc[ 1 ] );
     item.setText( 3, "Integer" );
 
     wFields.removeEmptyRows();
@@ -1208,10 +1208,10 @@ public class LoadFileInputDialog extends BaseStepDialog implements StepDialogInt
       if ( !Utils.isEmpty( encoding ) ) {
         wEncoding.setText( encoding );
       } /*
-         * else { // Now select the default! String defEncoding = Const.getEnvironmentVariable("file.encoding",
-         * "UTF-8"); int idx = Const.indexOfString(defEncoding, wEncoding.getItems() ); if (idx>=0) wEncoding.select(
-         * idx ); }
-         */
+       * else { // Now select the default! String defEncoding = Const.getEnvironmentVariable("file.encoding",
+       * "UTF-8"); int idx = Const.indexOfString(defEncoding, wEncoding.getItems() ); if (idx>=0) wEncoding.select(
+       * idx ); }
+       */
     }
   }
 
@@ -1228,8 +1228,7 @@ public class LoadFileInputDialog extends BaseStepDialog implements StepDialogInt
   /**
    * Read the data from the TextFileInputMeta object and show it in this dialog.
    *
-   * @param in
-   *          The TextFileInputMeta object to obtain the data from.
+   * @param in The TextFileInputMeta object to obtain the data from.
    */
   public void getData( LoadFileInputMeta in ) {
     if ( in.getFileName() != null ) {
@@ -1237,9 +1236,9 @@ public class LoadFileInputDialog extends BaseStepDialog implements StepDialogInt
 
       for ( int i = 0; i < in.getFileName().length; i++ ) {
         wFilenameList.add( new String[] {
-          in.getFileName()[i], in.getFileMask()[i], in.getExludeFileMask()[i],
-          in.getRequiredFilesDesc( in.getFileRequired()[i] ),
-          in.getRequiredFilesDesc( in.getIncludeSubFolders()[i] ) } );
+          in.getFileName()[ i ], in.getFileMask()[ i ], in.getExludeFileMask()[ i ],
+          in.getRequiredFilesDesc( in.getFileRequired()[ i ] ),
+          in.getRequiredFilesDesc( in.getIncludeSubFolders()[ i ] ) } );
       }
 
       wFilenameList.removeEmptyRows();
@@ -1271,7 +1270,7 @@ public class LoadFileInputDialog extends BaseStepDialog implements StepDialogInt
       logDebug( BaseMessages.getString( PKG, "LoadFileInputDialog.Log.GettingFieldsInfo" ) );
     }
     for ( int i = 0; i < in.getInputFields().length; i++ ) {
-      LoadFileInputField field = in.getInputFields()[i];
+      LoadFileInputField field = in.getInputFields()[ i ];
 
       if ( field != null ) {
         TableItem item = wFields.table.getItem( i );
@@ -1369,7 +1368,7 @@ public class LoadFileInputDialog extends BaseStepDialog implements StepDialogInt
     } catch ( HopException e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "LoadFileInputDialog.ErrorParsingData.DialogTitle" ), BaseMessages
-          .getString( PKG, "LoadFileInputDialog.ErrorParsingData.DialogMessage" ), e );
+        .getString( PKG, "LoadFileInputDialog.ErrorParsingData.DialogMessage" ), e );
     }
     dispose();
   }
@@ -1397,11 +1396,11 @@ public class LoadFileInputDialog extends BaseStepDialog implements StepDialogInt
     if ( wFilenameInField.getSelection() ) {
       in.allocate( 0, nrFields );
 
-      in.setFileName( new String[0] );
-      in.setFileMask( new String[0] );
-      in.setExcludeFileMask( new String[0] );
-      in.setFileRequired( new String[0] );
-      in.setIncludeSubFolders( new String[0] );
+      in.setFileName( new String[ 0 ] );
+      in.setFileMask( new String[ 0 ] );
+      in.setExcludeFileMask( new String[ 0 ] );
+      in.setFileRequired( new String[ 0 ] );
+      in.setIncludeSubFolders( new String[ 0 ] );
     } else {
       in.allocate( wFilenameList.getItemCount(), nrFields );
 
@@ -1430,7 +1429,7 @@ public class LoadFileInputDialog extends BaseStepDialog implements StepDialogInt
       field.setRepeated( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 11 ) ) );
 
       //CHECKSTYLE:Indentation:OFF
-      in.getInputFields()[i] = field;
+      in.getInputFields()[ i ] = field;
     }
     in.setShortFileNameField( wShortFileFieldName.getText() );
     in.setPathField( wPathFieldName.getText() );
@@ -1470,7 +1469,7 @@ public class LoadFileInputDialog extends BaseStepDialog implements StepDialogInt
             EnterTextDialog etd =
               new EnterTextDialog(
                 shell, BaseMessages.getString( PKG, "System.Dialog.PreviewError.Title" ), BaseMessages
-                  .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
+                .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
             etd.setReadOnly();
             etd.open();
           }
@@ -1478,7 +1477,7 @@ public class LoadFileInputDialog extends BaseStepDialog implements StepDialogInt
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
               shell, transMeta, SWT.NONE, wStepname.getText(), progressDialog.getPreviewRowsMeta( wStepname
-                .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
+              .getText() ), progressDialog.getPreviewRows( wStepname.getText() ), loggingText );
           prd.open();
 
         }

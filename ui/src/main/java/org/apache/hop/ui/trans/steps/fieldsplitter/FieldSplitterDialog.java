@@ -22,6 +22,22 @@
 
 package org.apache.hop.ui.trans.steps.fieldsplitter;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.fieldsplitter.FieldSplitterMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusListener;
@@ -43,22 +59,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.fieldsplitter.FieldSplitterMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class FieldSplitterDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = FieldSplitterMeta.class; // for i18n purposes, needed by Translator2!!
@@ -355,39 +355,39 @@ public class FieldSplitterDialog extends BaseStepDialog implements StepDialogInt
 
     for ( int i = 0; i < input.getFieldName().length; i++ ) {
       final TableItem ti = wFields.table.getItem( i );
-      if ( input.getFieldName()[i] != null ) {
-        ti.setText( 1, input.getFieldName()[i] );
+      if ( input.getFieldName()[ i ] != null ) {
+        ti.setText( 1, input.getFieldName()[ i ] );
       }
-      if ( input.getFieldID()[i] != null ) {
-        ti.setText( 2, input.getFieldID()[i] );
+      if ( input.getFieldID()[ i ] != null ) {
+        ti.setText( 2, input.getFieldID()[ i ] );
       }
-      ti.setText( 3, input.getFieldRemoveID()[i] ? "Y" : "N" );
-      ti.setText( 4, ValueMetaFactory.getValueMetaName( input.getFieldType()[i] ) );
-      if ( input.getFieldLength()[i] >= 0 ) {
-        ti.setText( 5, "" + input.getFieldLength()[i] );
+      ti.setText( 3, input.getFieldRemoveID()[ i ] ? "Y" : "N" );
+      ti.setText( 4, ValueMetaFactory.getValueMetaName( input.getFieldType()[ i ] ) );
+      if ( input.getFieldLength()[ i ] >= 0 ) {
+        ti.setText( 5, "" + input.getFieldLength()[ i ] );
       }
-      if ( input.getFieldPrecision()[i] >= 0 ) {
-        ti.setText( 6, "" + input.getFieldPrecision()[i] );
+      if ( input.getFieldPrecision()[ i ] >= 0 ) {
+        ti.setText( 6, "" + input.getFieldPrecision()[ i ] );
       }
-      if ( input.getFieldFormat()[i] != null ) {
-        ti.setText( 7, input.getFieldFormat()[i] );
+      if ( input.getFieldFormat()[ i ] != null ) {
+        ti.setText( 7, input.getFieldFormat()[ i ] );
       }
-      if ( input.getFieldGroup()[i] != null ) {
-        ti.setText( 8, input.getFieldGroup()[i] );
+      if ( input.getFieldGroup()[ i ] != null ) {
+        ti.setText( 8, input.getFieldGroup()[ i ] );
       }
-      if ( input.getFieldDecimal()[i] != null ) {
-        ti.setText( 9, input.getFieldDecimal()[i] );
+      if ( input.getFieldDecimal()[ i ] != null ) {
+        ti.setText( 9, input.getFieldDecimal()[ i ] );
       }
-      if ( input.getFieldCurrency()[i] != null ) {
-        ti.setText( 10, input.getFieldCurrency()[i] );
+      if ( input.getFieldCurrency()[ i ] != null ) {
+        ti.setText( 10, input.getFieldCurrency()[ i ] );
       }
-      if ( input.getFieldNullIf()[i] != null ) {
-        ti.setText( 11, input.getFieldNullIf()[i] );
+      if ( input.getFieldNullIf()[ i ] != null ) {
+        ti.setText( 11, input.getFieldNullIf()[ i ] );
       }
-      if ( input.getFieldIfNull()[i] != null ) {
-        ti.setText( 12, input.getFieldIfNull()[i] );
+      if ( input.getFieldIfNull()[ i ] != null ) {
+        ti.setText( 12, input.getFieldIfNull()[ i ] );
       }
-      ti.setText( 13, ValueMetaString.getTrimTypeDesc( input.getFieldTrimType()[i] ) );
+      ti.setText( 13, ValueMetaString.getTrimTypeDesc( input.getFieldTrimType()[ i ] ) );
     }
     wFields.setRowNums();
     wFields.optWidth( true );
@@ -421,19 +421,19 @@ public class FieldSplitterDialog extends BaseStepDialog implements StepDialogInt
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < input.getFieldName().length; i++ ) {
       final TableItem ti = wFields.getNonEmpty( i );
-      input.getFieldName()[i] = ti.getText( 1 );
-      input.getFieldID()[i] = ti.getText( 2 );
-      input.getFieldRemoveID()[i] = "Y".equalsIgnoreCase( ti.getText( 3 ) );
-      input.getFieldType()[i] = ValueMetaFactory.getIdForValueMeta( ti.getText( 4 ) );
-      input.getFieldLength()[i] = Const.toInt( ti.getText( 5 ), -1 );
-      input.getFieldPrecision()[i] = Const.toInt( ti.getText( 6 ), -1 );
-      input.getFieldFormat()[i] = ti.getText( 7 );
-      input.getFieldGroup()[i] = ti.getText( 8 );
-      input.getFieldDecimal()[i] = ti.getText( 9 );
-      input.getFieldCurrency()[i] = ti.getText( 10 );
-      input.getFieldNullIf()[i] = ti.getText( 11 );
-      input.getFieldIfNull()[i] = ti.getText( 12 );
-      input.getFieldTrimType()[i] = ValueMetaString.getTrimTypeByDesc( ti.getText( 13 ) );
+      input.getFieldName()[ i ] = ti.getText( 1 );
+      input.getFieldID()[ i ] = ti.getText( 2 );
+      input.getFieldRemoveID()[ i ] = "Y".equalsIgnoreCase( ti.getText( 3 ) );
+      input.getFieldType()[ i ] = ValueMetaFactory.getIdForValueMeta( ti.getText( 4 ) );
+      input.getFieldLength()[ i ] = Const.toInt( ti.getText( 5 ), -1 );
+      input.getFieldPrecision()[ i ] = Const.toInt( ti.getText( 6 ), -1 );
+      input.getFieldFormat()[ i ] = ti.getText( 7 );
+      input.getFieldGroup()[ i ] = ti.getText( 8 );
+      input.getFieldDecimal()[ i ] = ti.getText( 9 );
+      input.getFieldCurrency()[ i ] = ti.getText( 10 );
+      input.getFieldNullIf()[ i ] = ti.getText( 11 );
+      input.getFieldIfNull()[ i ] = ti.getText( 12 );
+      input.getFieldTrimType()[ i ] = ValueMetaString.getTrimTypeByDesc( ti.getText( 13 ) );
     }
 
     dispose();

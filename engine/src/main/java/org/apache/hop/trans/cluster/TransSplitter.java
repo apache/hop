@@ -66,7 +66,6 @@ import java.util.UUID;
  * servers in the clusters used.
  *
  * @author Matt
- *
  */
 public class TransSplitter {
   private static Class<?> PKG = TransMeta.class;
@@ -123,7 +122,7 @@ public class TransSplitter {
     //
     String transXML = transMeta.getXML();
     this.originalTransformation =
-        transMetaFactory.create( XMLHandler.getSubNode( XMLHandler.loadXMLString( transXML ), TransMeta.XML_TAG ) );
+      transMetaFactory.create( XMLHandler.getSubNode( XMLHandler.loadXMLString( transXML ), TransMeta.XML_TAG ) );
     this.originalTransformation.shareVariablesWith( transMeta );
     this.originalTransformation.copyParametersFrom( transMeta );
 
@@ -156,8 +155,7 @@ public class TransSplitter {
   }
 
   /**
-   * @param originalTransformation
-   *          the originalTransformation to set
+   * @param originalTransformation the originalTransformation to set
    */
   public void setOriginalTransformation( TransMeta originalTransformation ) {
     this.originalTransformation = originalTransformation;
@@ -211,19 +209,19 @@ public class TransSplitter {
   }
 
   private String getWriterName( ClusterSchema clusterSchema, SlaveServer sourceSlaveServer, String sourceStepname,
-    int sourceStepCopy, SlaveServer targetSlaveServer, String targetStepName, int targetStepCopy ) throws Exception {
+                                int sourceStepCopy, SlaveServer targetSlaveServer, String targetStepName, int targetStepCopy ) throws Exception {
     return "Writer : "
       + getPort(
-        clusterSchema, sourceSlaveServer, sourceStepname, sourceStepCopy, targetSlaveServer, targetStepName,
-        targetStepCopy );
+      clusterSchema, sourceSlaveServer, sourceStepname, sourceStepCopy, targetSlaveServer, targetStepName,
+      targetStepCopy );
   }
 
   private String getReaderName( ClusterSchema clusterSchema, SlaveServer sourceSlaveServer, String sourceStepname,
-    int sourceStepCopy, SlaveServer targetSlaveServer, String targetStepName, int targetStepCopy ) throws Exception {
+                                int sourceStepCopy, SlaveServer targetSlaveServer, String targetStepName, int targetStepCopy ) throws Exception {
     return "Reader : "
       + getPort(
-        clusterSchema, sourceSlaveServer, sourceStepname, sourceStepCopy, targetSlaveServer, targetStepName,
-        targetStepCopy );
+      clusterSchema, sourceSlaveServer, sourceStepname, sourceStepCopy, targetSlaveServer, targetStepName,
+      targetStepCopy );
   }
 
   private String getSlaveTransName( String transName, ClusterSchema clusterSchema, SlaveServer slaveServer ) {
@@ -232,17 +230,15 @@ public class TransSplitter {
 
   /**
    * Get the port for the given cluster schema, slave server and step.
-   *
+   * <p>
    * If a port was allocated, that is returned, otherwise a new one is allocated. We need to verify that the port wasn't
    * already used on the same host with perhaps several HopServer instances on it. In order
    *
-   * @param clusterSchema
-   *          The cluster schema to use
-   *
+   * @param clusterSchema The cluster schema to use
    * @return the port to use for that step/slaveserver/cluster combination
    */
   private int getPort( ClusterSchema clusterSchema, SlaveServer sourceSlave, String sourceStepName,
-    int sourceStepCopy, SlaveServer targetSlave, String targetStepName, int targetStepCopy ) throws Exception {
+                       int sourceStepCopy, SlaveServer targetSlave, String targetStepName, int targetStepCopy ) throws Exception {
     SlaveServer masterSlave = clusterSchema.findMaster();
 
     String portCacheKey =
@@ -268,7 +264,7 @@ public class TransSplitter {
   }
 
   public String createPortCacheKey( SlaveServer sourceSlave, String sourceStepName, int sourceStepCopy,
-    SlaveServer targetSlave, String targetStepName, int targetStepCopy ) {
+                                    SlaveServer targetSlave, String targetStepName, int targetStepCopy ) {
     return clusteredRunId
       + "/" + sourceSlave.getHostname() + sourceSlave.getName() + "/" + sourceStepName + "." + sourceStepCopy
       + " - " + targetSlave.getName() + "/" + targetStepName + "." + targetStepCopy;
@@ -277,14 +273,12 @@ public class TransSplitter {
   /**
    * Create or get a slave transformation for the specified cluster & slave server
    *
-   * @param clusterSchema
-   *          the cluster schema to reference
-   * @param slaveServer
-   *          the slave server to reference
+   * @param clusterSchema the cluster schema to reference
+   * @param slaveServer   the slave server to reference
    * @return
    */
   private TransMeta getSlaveTransformation( ClusterSchema clusterSchema,
-      SlaveServer slaveServer ) throws HopException {
+                                            SlaveServer slaveServer ) throws HopException {
     TransMeta slave = slaveTransMap.get( slaveServer );
     if ( slave == null ) {
       slave = getOriginalCopy( true, clusterSchema, slaveServer );
@@ -294,7 +288,7 @@ public class TransSplitter {
   }
 
   private TransMeta getOriginalCopy( boolean isSlaveTrans, ClusterSchema clusterSchema,
-      SlaveServer slaveServer ) throws HopException {
+                                     SlaveServer slaveServer ) throws HopException {
     TransMeta transMeta = new TransMeta();
     transMeta.setSlaveTransformation( true );
 
@@ -308,7 +302,7 @@ public class TransSplitter {
 
       // add the slave partitioning schema's here.
       for ( int i = 0; i < referenceSteps.length; i++ ) {
-        StepMeta stepMeta = referenceSteps[i];
+        StepMeta stepMeta = referenceSteps[ i ];
         verifySlavePartitioningConfiguration( transMeta, stepMeta, clusterSchema, slaveServer );
       }
     } else {
@@ -318,12 +312,6 @@ public class TransSplitter {
         new NotePadMeta( "This is a generated master transformation.\nIt will be run on server: "
           + getMasterServer(), 0, 0, -1, -1 );
       transMeta.addNote( masterNote );
-    }
-
-    // Copy the cluster schemas
-    //
-    for ( ClusterSchema schema : originalTransformation.getClusterSchemas() ) {
-      transMeta.getClusterSchemas().add( schema.clone() );
     }
 
     // Feedback
@@ -346,7 +334,7 @@ public class TransSplitter {
   }
 
   private void verifySlavePartitioningConfiguration( TransMeta slave, StepMeta stepMeta,
-    ClusterSchema clusterSchema, SlaveServer slaveServer ) {
+                                                     ClusterSchema clusterSchema, SlaveServer slaveServer ) {
     Map<StepMeta, String> stepPartitionFlag = slaveStepPartitionFlag.get( slave );
     if ( stepPartitionFlag == null ) {
       stepPartitionFlag = new Hashtable<StepMeta, String>();
@@ -407,7 +395,6 @@ public class TransSplitter {
 
   /**
    * @return the slaveTransMap : the mapping between a slaveServer and the transformation
-   *
    */
   public Map<SlaveServer, TransMeta> getSlaveTransMap() {
     return slaveTransMap;
@@ -415,18 +402,18 @@ public class TransSplitter {
 
   public TransMeta[] getSlaves() {
     Collection<TransMeta> collection = slaveTransMap.values();
-    return collection.toArray( new TransMeta[collection.size()] );
+    return collection.toArray( new TransMeta[ collection.size() ] );
   }
 
   public SlaveServer[] getSlaveTargets() {
     Set<SlaveServer> set = slaveTransMap.keySet();
-    return set.toArray( new SlaveServer[set.size()] );
+    return set.toArray( new SlaveServer[ set.size() ] );
   }
 
   public SlaveServer getMasterServer() throws HopException {
     StepMeta[] steps = originalTransformation.getStepsArray();
     for ( int i = 0; i < steps.length; i++ ) {
-      ClusterSchema clusterSchema = steps[i].getClusterSchema();
+      ClusterSchema clusterSchema = steps[ i ].getClusterSchema();
       if ( clusterSchema != null ) {
         return clusterSchema.findMaster();
       }
@@ -471,7 +458,7 @@ public class TransSplitter {
       }
 
       for ( int r = 0; r < referenceSteps.length; r++ ) {
-        StepMeta referenceStep = referenceSteps[r];
+        StepMeta referenceStep = referenceSteps[ r ];
         List<StepMeta> prevSteps = originalTransformation.findPreviousSteps( referenceStep );
         int nrPreviousSteps = prevSteps.size();
         for ( int p = 0; p < nrPreviousSteps; p++ ) {
@@ -556,7 +543,7 @@ public class TransSplitter {
                   if ( masterStep.getCopies() != 1 && masterStep.getCopies() != nrOfSourceCopies ) {
                     // this case might be handled correctly later
                     String message = BaseMessages.getString( PKG, "TransSplitter.Clustering.CopyNumberStep", nrSlavesNodes,
-                        previousStep.getName(), masterStep.getName() );
+                      previousStep.getName(), masterStep.getName() );
                     throw new HopException( message );
                   }
 
@@ -582,10 +569,10 @@ public class TransSplitter {
                     RemoteStep remoteMasterStep =
                       new RemoteStep(
                         sourceSlaveServer.getHostname(), masterSlaveServer.getHostname(), Integer
-                          .toString( port ), slaveStep.getName(), sourceCopyNr, masterStep.getName(),
+                        .toString( port ), slaveStep.getName(), sourceCopyNr, masterStep.getName(),
                         masterStepCopyNr, sourceSlaveServer.getName(), masterSlaveServer.getName(),
                         socketsBufferSize, compressingSocketStreams, originalTransformation
-                          .getStepFields( previousStep ) );
+                        .getStepFields( previousStep ) );
                     remoteMasterStep.setEncryptingStreams( encrypt );
                     remoteMasterStep.setKey( transformationKey );
                     masterStep.getRemoteInputSteps().add( remoteMasterStep );
@@ -593,10 +580,10 @@ public class TransSplitter {
                     RemoteStep remoteSlaveStep =
                       new RemoteStep(
                         sourceSlaveServer.getHostname(), masterSlaveServer.getHostname(), Integer
-                          .toString( port ), slaveStep.getName(), sourceCopyNr, masterStep.getName(),
+                        .toString( port ), slaveStep.getName(), sourceCopyNr, masterStep.getName(),
                         masterStepCopyNr, sourceSlaveServer.getName(), masterSlaveServer.getName(),
                         socketsBufferSize, compressingSocketStreams, originalTransformation
-                          .getStepFields( previousStep ) );
+                        .getStepFields( previousStep ) );
                     remoteSlaveStep.setEncryptingStreams( encrypt );
                     remoteSlaveStep.setKey( transformationKey );
                     slaveStep.getRemoteOutputSteps().add( remoteSlaveStep );
@@ -728,10 +715,10 @@ public class TransSplitter {
                     RemoteStep remoteMasterStep =
                       new RemoteStep(
                         masterSlaveServer.getHostname(), targetSlaveServer.getHostname(), Integer
-                          .toString( port ), sourceStep.getName(), masterStepCopyNr,
+                        .toString( port ), sourceStep.getName(), masterStepCopyNr,
                         referenceStep.getName(), targetCopyNr, masterSlaveServer.getName(), targetSlaveServer
-                          .getName(), socketsBufferSize, compressingSocketStreams, originalTransformation
-                          .getStepFields( previousStep ) );
+                        .getName(), socketsBufferSize, compressingSocketStreams, originalTransformation
+                        .getStepFields( previousStep ) );
                     remoteMasterStep.setEncryptingStreams( encrypt );
                     remoteMasterStep.setKey( transformationKey );
                     sourceStep.getRemoteOutputSteps().add( remoteMasterStep );
@@ -739,10 +726,10 @@ public class TransSplitter {
                     RemoteStep remoteSlaveStep =
                       new RemoteStep(
                         masterSlaveServer.getHostname(), targetSlaveServer.getHostname(), Integer
-                          .toString( port ), sourceStep.getName(), masterStepCopyNr,
+                        .toString( port ), sourceStep.getName(), masterStepCopyNr,
                         referenceStep.getName(), targetCopyNr, masterSlaveServer.getName(), targetSlaveServer
-                          .getName(), socketsBufferSize, compressingSocketStreams, originalTransformation
-                          .getStepFields( previousStep ) );
+                        .getName(), socketsBufferSize, compressingSocketStreams, originalTransformation
+                        .getStepFields( previousStep ) );
                     remoteSlaveStep.setEncryptingStreams( encrypt );
                     remoteSlaveStep.setKey( transformationKey );
                     targetStep.getRemoteInputSteps().add( remoteSlaveStep );
@@ -862,7 +849,7 @@ public class TransSplitter {
                     slaveTransMeta.addOrReplacePartitionSchema( partitionSchema );
                   } else if ( ( !previousStep.isPartitioned() && referenceStep.isPartitioned() )
                     || ( previousStep.isPartitioned() && referenceStep.isPartitioned() && !sourceStepPartitioningMeta
-                      .equals( targetStep.getStepPartitioningMeta() ) ) ) {
+                    .equals( targetStep.getStepPartitioningMeta() ) ) ) {
 
                     // Case 2: both source and target are partitioned on a different partition schema.
                     // Case 3: source is not partitioned, target is partitioned.
@@ -942,9 +929,9 @@ public class TransSplitter {
                               RemoteStep remoteOutputStep =
                                 new RemoteStep(
                                   targetSlaveServer.getHostname(), sourceSlaveServer.getHostname(), Integer
-                                    .toString( outPort ), sourceStep.getName(), sourceCopyNr, targetStep
-                                    .getName(), targetCopyNr, targetSlaveServer.getName(), sourceSlaveServer
-                                    .getName(), socketsBufferSize, compressingSocketStreams,
+                                  .toString( outPort ), sourceStep.getName(), sourceCopyNr, targetStep
+                                  .getName(), targetCopyNr, targetSlaveServer.getName(), sourceSlaveServer
+                                  .getName(), socketsBufferSize, compressingSocketStreams,
                                   originalTransformation.getStepFields( previousStep ) );
                               remoteOutputStep.setEncryptingStreams( encrypt );
                               remoteOutputStep.setKey( transformationKey );
@@ -960,9 +947,9 @@ public class TransSplitter {
                               RemoteStep remoteInputStep =
                                 new RemoteStep(
                                   sourceSlaveServer.getHostname(), targetSlaveServer.getHostname(), Integer
-                                    .toString( inPort ), sourceStep.getName(), sourceCopyNr, targetStep
-                                    .getName(), targetCopyNr, sourceSlaveServer.getName(), targetSlaveServer
-                                    .getName(), socketsBufferSize, compressingSocketStreams,
+                                  .toString( inPort ), sourceStep.getName(), sourceCopyNr, targetStep
+                                  .getName(), targetCopyNr, sourceSlaveServer.getName(), targetSlaveServer
+                                  .getName(), socketsBufferSize, compressingSocketStreams,
                                   originalTransformation.getStepFields( previousStep ) );
                               remoteInputStep.setEncryptingStreams( encrypt );
                               remoteInputStep.setKey( transformationKey );
@@ -1087,14 +1074,14 @@ public class TransSplitter {
       // This block of code, this loop, checks the informational steps. (yellow hops).
       //
       for ( int i = 0; i < referenceSteps.length; i++ ) {
-        StepMeta originalStep = referenceSteps[i];
+        StepMeta originalStep = referenceSteps[ i ];
 
         // Also take care of the info steps...
         // For example: StreamLookup, Table Input, etc.
         //
         StepMeta[] infoSteps = originalTransformation.getInfoStep( originalStep );
         for ( int p = 0; infoSteps != null && p < infoSteps.length; p++ ) {
-          StepMeta infoStep = infoSteps[p];
+          StepMeta infoStep = infoSteps[ p ];
           if ( infoStep != null ) {
             if ( !originalStep.isClustered() ) {
               if ( !infoStep.isClustered() ) {
@@ -1195,12 +1182,12 @@ public class TransSplitter {
                       String[] infoStepNames =
                         masterTargetStep.getStepMetaInterface().getStepIOMeta().getInfoStepnames();
                       if ( infoStepNames != null ) {
-                        StepMeta[] is = new StepMeta[infoStepNames.length];
+                        StepMeta[] is = new StepMeta[ infoStepNames.length ];
                         for ( int n = 0; n < infoStepNames.length; n++ ) {
-                          is[n] = slave.findStep( infoStepNames[n] ); // OK, info steps moved to the slave steps
-                          if ( infoStepNames[n].equals( infoStep.getName() ) ) {
+                          is[ n ] = slave.findStep( infoStepNames[ n ] ); // OK, info steps moved to the slave steps
+                          if ( infoStepNames[ n ].equals( infoStep.getName() ) ) {
                             // We want to replace this one with the reader step: that's where we source from now
-                            infoSteps[n] = readerStep;
+                            infoSteps[ n ] = readerStep;
                           }
                         }
                         masterTargetStep.getStepMetaInterface().getStepIOMeta().setInfoSteps( infoSteps );
@@ -1230,8 +1217,8 @@ public class TransSplitter {
                     SocketWriterMeta socketWriterMeta = new SocketWriterMeta();
                     socketWriterMeta.setPort( ""
                       + getPort(
-                        clusterSchema, masterSlaveServer, infoStep.getName(), 0, targetSlaveServer,
-                        originalStep.getName(), 0 ) );
+                      clusterSchema, masterSlaveServer, infoStep.getName(), 0, targetSlaveServer,
+                      originalStep.getName(), 0 ) );
                     socketWriterMeta.setBufferSize( clusterSchema.getSocketsBufferSize() );
                     socketWriterMeta.setFlushInterval( clusterSchema.getSocketsFlushInterval() );
                     socketWriterMeta.setCompressed( clusterSchema.isSocketsCompressed() );
@@ -1264,8 +1251,8 @@ public class TransSplitter {
                     socketReaderMeta.setHostname( masterSlaveServer.getHostname() );
                     socketReaderMeta.setPort( ""
                       + getPort(
-                        clusterSchema, masterSlaveServer, infoStep.getName(), 0, targetSlaveServer,
-                        originalStep.getName(), 0 ) );
+                      clusterSchema, masterSlaveServer, infoStep.getName(), 0, targetSlaveServer,
+                      originalStep.getName(), 0 ) );
                     socketReaderMeta.setBufferSize( clusterSchema.getSocketsBufferSize() );
                     socketReaderMeta.setCompressed( clusterSchema.isSocketsCompressed() );
 
@@ -1293,12 +1280,12 @@ public class TransSplitter {
                     //
                     String[] infoStepNames = slaveStep.getStepMetaInterface().getStepIOMeta().getInfoStepnames();
                     if ( infoStepNames != null ) {
-                      StepMeta[] is = new StepMeta[infoStepNames.length];
+                      StepMeta[] is = new StepMeta[ infoStepNames.length ];
                       for ( int n = 0; n < infoStepNames.length; n++ ) {
-                        is[n] = slave.findStep( infoStepNames[n] ); // OK, info steps moved to the slave steps
-                        if ( infoStepNames[n].equals( infoStep.getName() ) ) {
+                        is[ n ] = slave.findStep( infoStepNames[ n ] ); // OK, info steps moved to the slave steps
+                        if ( infoStepNames[ n ].equals( infoStep.getName() ) ) {
                           // We want to replace this one with the reader step: that's where we source from now
-                          infoSteps[n] = readerStep;
+                          infoSteps[ n ] = readerStep;
                         }
                       }
                       slaveStep.getStepMetaInterface().getStepIOMeta().setInfoSteps( infoSteps );
@@ -1320,13 +1307,13 @@ public class TransSplitter {
                     StepMeta slaveStep = slave.findStep( originalStep.getName() );
                     String[] infoStepNames = slaveStep.getStepMetaInterface().getStepIOMeta().getInfoStepnames();
                     if ( infoStepNames != null ) {
-                      StepMeta[] is = new StepMeta[infoStepNames.length];
+                      StepMeta[] is = new StepMeta[ infoStepNames.length ];
                       for ( int n = 0; n < infoStepNames.length; n++ ) {
-                        is[n] = slave.findStep( infoStepNames[n] ); // OK, info steps moved to the slave steps
+                        is[ n ] = slave.findStep( infoStepNames[ n ] ); // OK, info steps moved to the slave steps
 
                         // Hang on... is there a hop to the previous step?
-                        if ( slave.findTransHop( is[n], slaveStep ) == null ) {
-                          TransHopMeta infoHop = new TransHopMeta( is[n], slaveStep );
+                        if ( slave.findTransHop( is[ n ], slaveStep ) == null ) {
+                          TransHopMeta infoHop = new TransHopMeta( is[ n ], slaveStep );
                           slave.addTransHop( infoHop );
                         }
                       }
@@ -1393,10 +1380,8 @@ public class TransSplitter {
    * If a step is clustered and partitioned, we need to look in the partitioning map for the specified slave server.<br>
    * That is because the number of copies can vary over the slaves. (5 partitions over 3 slaves for example)
    *
-   * @param slaveServer
-   *          the slave server
-   * @param step
-   *          the reference step
+   * @param slaveServer the slave server
+   * @param step        the reference step
    * @return the number of step copies that we run.
    */
   private int determineNrOfStepCopies( SlaveServer slaveServer, StepMeta step ) {
@@ -1438,8 +1423,7 @@ public class TransSplitter {
    * Create a copy of a step from the original transformation for use in the a slave transformation. If the step is
    * partitioned, the partitioning will be changed to "schemaName (slave)"
    *
-   * @param stepMeta
-   *          The step to copy / clone.
+   * @param stepMeta The step to copy / clone.
    * @return a copy of the specified step for use in a slave transformation.
    */
   private StepMeta addSlaveCopy( TransMeta transMeta, StepMeta stepMeta, SlaveServer slaveServer ) {
@@ -1469,7 +1453,7 @@ public class TransSplitter {
 
   private void findUsedOriginalSteps() {
     List<StepMeta> transHopSteps = originalTransformation.getTransHopSteps( false );
-    referenceSteps = transHopSteps.toArray( new StepMeta[transHopSteps.size()] );
+    referenceSteps = transHopSteps.toArray( new StepMeta[ transHopSteps.size() ] );
   }
 
   /**
@@ -1482,7 +1466,7 @@ public class TransSplitter {
     slaveServerPartitionsMap = new Hashtable<SlaveServer, Map<PartitionSchema, List<String>>>();
 
     for ( int i = 0; i < referenceSteps.length; i++ ) {
-      StepMeta stepMeta = referenceSteps[i];
+      StepMeta stepMeta = referenceSteps[ i ];
       StepPartitioningMeta stepPartitioningMeta = stepMeta.getStepPartitioningMeta();
 
       if ( stepPartitioningMeta == null ) {

@@ -22,12 +22,12 @@
 
 package org.apache.hop.job.entries.eval;
 
-import org.junit.ClassRule;
 import org.apache.hop.core.Const;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.HashMap;

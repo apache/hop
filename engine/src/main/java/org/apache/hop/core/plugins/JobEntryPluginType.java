@@ -22,10 +22,6 @@
 
 package org.apache.hop.core.plugins;
 
-import java.lang.annotation.Annotation;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.JobEntry;
@@ -38,11 +34,14 @@ import org.apache.hop.job.entry.JobEntryInterface;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import java.lang.annotation.Annotation;
+import java.util.List;
+import java.util.Map;
+
 /**
  * This plugin type handles the job entries.
  *
  * @author matt
- *
  */
 
 @PluginTypeCategoriesOrder(

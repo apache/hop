@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.getvariable;
 
-import java.util.List;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
@@ -36,6 +34,8 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.util.List;
+
 /**
  * Get information from the System or the supervising transformation.
  *
@@ -47,7 +47,7 @@ public class GetVariable extends BaseStep implements StepInterface {
   private GetVariableData data;
 
   public GetVariable( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                      Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -89,24 +89,24 @@ public class GetVariable extends BaseStep implements StepInterface {
       // be those cases where performance is required.
       //
       int fieldsLength = meta.getFieldDefinitions().length;
-      data.extraData = new Object[fieldsLength];
+      data.extraData = new Object[ fieldsLength ];
       for ( int i = 0; i < fieldsLength; i++ ) {
-        String newValue = environmentSubstitute( meta.getFieldDefinitions()[i].getVariableString() );
+        String newValue = environmentSubstitute( meta.getFieldDefinitions()[ i ].getVariableString() );
         if ( log.isDetailed() ) {
-          logDetailed( "field [" + meta.getFieldDefinitions()[i].getFieldName() + "] has value [" + newValue + "]" );
+          logDetailed( "field [" + meta.getFieldDefinitions()[ i ].getFieldName() + "] has value [" + newValue + "]" );
         }
 
         // Convert the data to the desired data type...
         //
         ValueMetaInterface targetMeta = data.outputRowMeta.getValueMeta( data.inputRowMeta.size() + i );
         ValueMetaInterface sourceMeta = data.conversionMeta.getValueMeta( data.inputRowMeta.size() + i ); // String type
-                                                                                                          // +
-                                                                                                          // conversion
-                                                                                                          // masks,
-                                                                                                          // symbols,
-                                                                                                          // trim type,
-                                                                                                          // etc
-        data.extraData[i] = targetMeta.convertData( sourceMeta, newValue );
+        // +
+        // conversion
+        // masks,
+        // symbols,
+        // trim type,
+        // etc
+        data.extraData[ i ] = targetMeta.convertData( sourceMeta, newValue );
       }
     }
 

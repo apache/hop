@@ -22,24 +22,24 @@
 
 package org.apache.hop.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.util.Calendar;
-import java.util.Date;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.File;
+import java.util.Calendar;
+import java.util.Date;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class ResultFileTest {
 
@@ -69,7 +69,7 @@ public class ResultFileTest {
     assertEquals( "myOriginParent", resultFile.getOriginParent() );
     assertTrue( "ResultFile timestamp is created in the expected window",
       timeBeforeFile.compareTo( resultFile.getTimestamp() ) <= 0
-      && timeAfterFile.compareTo( resultFile.getTimestamp() ) >= 0 );
+        && timeAfterFile.compareTo( resultFile.getTimestamp() ) >= 0 );
 
     tempFile.delete();
     tempDir.delete();

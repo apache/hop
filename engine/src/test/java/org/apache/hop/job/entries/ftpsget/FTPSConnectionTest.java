@@ -22,22 +22,10 @@
 
 package org.apache.hop.job.entries.ftpsget;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.job.entries.ftpsget.ftp4che.SecureDataFTPConnection;
 import org.ftp4che.FTPConnection;
 import org.ftp4che.commands.Command;
 import org.ftp4che.exception.AuthenticationNotSupportedException;
@@ -49,18 +37,30 @@ import org.ftp4che.io.SocketProvider;
 import org.ftp4che.reply.Reply;
 import org.ftp4che.util.ftpfile.FTPFileFactory;
 import org.junit.Test;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.job.entries.ftpsget.ftp4che.SecureDataFTPConnection;
+
+import java.io.IOException;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 public class FTPSConnectionTest {
 
   @Test
   public void testEnforceProtP() throws Exception {
     FTPSTestConnection connection = spy(
-        new FTPSTestConnection(
-          FTPSConnection.CONNECTION_TYPE_FTP_IMPLICIT_TLS_WITH_CRYPTED,
-          "the.perfect.host", 2010, "warwickw", "julia", null ) );
+      new FTPSTestConnection(
+        FTPSConnection.CONNECTION_TYPE_FTP_IMPLICIT_TLS_WITH_CRYPTED,
+        "the.perfect.host", 2010, "warwickw", "julia", null ) );
     connection.replies.put( "PWD", new Reply( Arrays.asList( "257 \"/la\" is current directory" ) ) );
     connection.connect();
     connection.getFileNames();
@@ -70,7 +70,7 @@ public class FTPSConnectionTest {
 
   @Test
   public void testEnforceProtPOnPut() throws Exception {
-    FileObject file = HopVFS.createTempFile( "FTPSConnectionTest_testEnforceProtPOnPut", HopVFS.Suffix.TMP);
+    FileObject file = HopVFS.createTempFile( "FTPSConnectionTest_testEnforceProtPOnPut", HopVFS.Suffix.TMP );
     file.createFile();
     try {
       FTPSTestConnection connection = spy(
@@ -93,7 +93,7 @@ public class FTPSConnectionTest {
     public Map<String, Reply> replies = new HashMap<>();
 
     public FTPSTestConnection( int connectionType, String hostname, int port, String username, String password,
-        VariableSpace nameSpace ) {
+                               VariableSpace nameSpace ) {
       super( connectionType, hostname, port, username, password, nameSpace );
     }
 

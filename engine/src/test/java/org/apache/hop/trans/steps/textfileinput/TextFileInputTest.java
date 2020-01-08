@@ -22,21 +22,7 @@
 
 package org.apache.hop.trans.steps.textfileinput;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.commons.io.IOUtils;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
@@ -53,6 +39,20 @@ import org.apache.hop.trans.TransTestingUtil;
 import org.apache.hop.trans.step.errorhandling.FileErrorHandler;
 import org.apache.hop.trans.steps.StepMockUtil;
 import org.apache.hop.utils.TestUtils;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @deprecated replaced by implementation in the ...steps.fileinput.text package
@@ -291,13 +291,13 @@ public class TextFileInputTest {
 
     ValueMetaInterface valueMetaWithError = Mockito.mock( ValueMetaInterface.class );
     Mockito.doThrow( new HopValueException( "Error converting" ) ).when( valueMetaWithError ).convertDataFromString( Mockito.anyString(),
-            Mockito.any( ValueMetaInterface.class ),  Mockito.anyString(), Mockito.anyString(), Mockito.anyInt() );
+      Mockito.any( ValueMetaInterface.class ), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt() );
     Mockito.doReturn( valueMetaWithError ).when( outputRowMeta ).getValueMeta( Mockito.anyInt() );
 
     //it should run without NPE
-    TextFileInput.convertLineToRow( log, textFileLine, info, new  Object[3], 1, outputRowMeta,
-            Mockito.mock( RowMetaInterface.class ), null, 1L, ";", null, "/", Mockito.mock( FileErrorHandler.class ),
-            false, false, false, false, false, false, false, false, null, null, false,  new Date(), null, null, null, 1L );
+    TextFileInput.convertLineToRow( log, textFileLine, info, new Object[ 3 ], 1, outputRowMeta,
+      Mockito.mock( RowMetaInterface.class ), null, 1L, ";", null, "/", Mockito.mock( FileErrorHandler.class ),
+      false, false, false, false, false, false, false, false, null, null, false, new Date(), null, null, null, 1L );
   }
 
 }

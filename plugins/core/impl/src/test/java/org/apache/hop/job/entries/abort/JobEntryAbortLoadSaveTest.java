@@ -21,9 +21,9 @@
  ******************************************************************************/
 package org.apache.hop.job.entries.abort;
 
-import org.junit.ClassRule;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.ClassRule;
 
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +31,7 @@ import java.util.Map;
 
 public class JobEntryAbortLoadSaveTest extends JobEntryLoadSaveTestSupport<JobEntryAbort> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Override
   protected Class<JobEntryAbort> getJobEntryClass() {
     return JobEntryAbort.class;

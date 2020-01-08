@@ -30,13 +30,13 @@ public class EngineMetaUtils {
 
   /**
    * Validates if {@code engineMetaInterface} is Job or Transformation.
-   * 
+   *
    * @param engineMetaInterface
    * @return true if engineMetaInterface instance is Job or Transformation, otherwise false.
    */
   public static boolean isJobOrTransformation( EngineMetaInterface engineMetaInterface ) {
 
-    return ( engineMetaInterface instanceof TransMeta ) || (engineMetaInterface instanceof JobMeta );
+    return ( engineMetaInterface instanceof TransMeta ) || ( engineMetaInterface instanceof JobMeta );
   }
 
 }

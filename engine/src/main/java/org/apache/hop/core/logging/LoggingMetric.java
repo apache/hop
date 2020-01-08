@@ -28,7 +28,6 @@ import org.apache.hop.core.metrics.MetricsSnapshotInterface;
  * Just a small wrapper class to allow us to pass a few extra details along with a metrics snapshot (like the batch id)
  *
  * @author matt
- *
  */
 public class LoggingMetric {
   private long batchId;
@@ -51,8 +50,7 @@ public class LoggingMetric {
   }
 
   /**
-   * @param batchId
-   *          the batchId to set
+   * @param batchId the batchId to set
    */
   public void setBatchId( long batchId ) {
     this.batchId = batchId;
@@ -66,8 +64,7 @@ public class LoggingMetric {
   }
 
   /**
-   * @param snapshot
-   *          the snapshot to set
+   * @param snapshot the snapshot to set
    */
   public void setSnapshot( MetricsSnapshotInterface snapshot ) {
     this.snapshot = snapshot;

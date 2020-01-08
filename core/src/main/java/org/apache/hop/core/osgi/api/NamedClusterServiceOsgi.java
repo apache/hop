@@ -126,6 +126,7 @@ public interface NamedClusterServiceOsgi {
   /**
    * If the metastore object temporary and should not be kept active indefinitely, this method will release all
    * resources associated with the metastore.
+   *
    * @param metastore the IMetaStore being disposed.
    */
   void close( IMetaStore metastore );

@@ -22,22 +22,18 @@
 
 package org.apache.hop.trans.steps.singlethreader;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -50,20 +46,21 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Meta-data for the Mapping step: contains name of the (sub-)transformation to execute
  *
- * @since 22-nov-2005
  * @author Matt
- *
+ * @since 22-nov-2005
  */
 
 public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaInterface, ISubTransAwareMeta {
 
-  private static Class<?>  PKG = SingleThreaderMeta.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = SingleThreaderMeta.class; // for i18n purposes, needed by Translator2!!
 
   private String batchSize;
   private String batchTime;
@@ -105,8 +102,8 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
       for ( int i = 0; i < nrParameters; i++ ) {
         Node knode = XMLHandler.getSubNodeByNr( parametersNode, "parameter", i );
 
-        parameters[i] = XMLHandler.getTagValue( knode, "name" );
-        parameterValues[i] = XMLHandler.getTagValue( knode, "value" );
+        parameters[ i ] = XMLHandler.getTagValue( knode, "name" );
+        parameterValues[ i ] = XMLHandler.getTagValue( knode, "value" );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString(
@@ -115,8 +112,8 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
   }
 
   public void allocate( int nrParameters ) {
-    parameters = new String[nrParameters];
-    parameterValues = new String[nrParameters];
+    parameters = new String[ nrParameters ];
+    parameterValues = new String[ nrParameters ];
   }
 
   public Object clone() {
@@ -148,8 +145,8 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
         // This is a better way of making the XML file than the arguments.
         retval.append( "            " ).append( XMLHandler.openTag( "parameter" ) );
 
-        retval.append( "            " ).append( XMLHandler.addTagValue( "name", parameters[i] ) );
-        retval.append( "            " ).append( XMLHandler.addTagValue( "value", parameterValues[i] ) );
+        retval.append( "            " ).append( XMLHandler.addTagValue( "name", parameters[ i ] ) );
+        retval.append( "            " ).append( XMLHandler.addTagValue( "value", parameterValues[ i ] ) );
 
         retval.append( "            " ).append( XMLHandler.closeTag( "parameter" ) );
       }
@@ -164,12 +161,12 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
 
     passingAllParameters = true;
 
-    parameters = new String[0];
-    parameterValues = new String[0];
+    parameters = new String[ 0 ];
+    parameterValues = new String[ 0 ];
   }
 
   public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     // First load some interesting data...
     //
@@ -200,13 +197,13 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
   }
 
   public static final synchronized TransMeta loadSingleThreadedTransMeta( SingleThreaderMeta mappingMeta,
-                                                                          VariableSpace space, boolean passingAllParameters  ) throws HopException {
+                                                                          VariableSpace space, boolean passingAllParameters ) throws HopException {
     return loadMappingMeta( mappingMeta, null, space, passingAllParameters );
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -236,7 +233,7 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new SingleThreader( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -272,8 +269,7 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
   }
 
   /**
-   * @param batchSize
-   *          the batchSize to set
+   * @param batchSize the batchSize to set
    */
   public void setBatchSize( String batchSize ) {
     this.batchSize = batchSize;
@@ -287,8 +283,7 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
   }
 
   /**
-   * @param injectStep
-   *          the injectStep to set
+   * @param injectStep the injectStep to set
    */
   public void setInjectStep( String injectStep ) {
     this.injectStep = injectStep;
@@ -302,8 +297,7 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
   }
 
   /**
-   * @param retrieveStep
-   *          the retrieveStep to set
+   * @param retrieveStep the retrieveStep to set
    */
   public void setRetrieveStep( String retrieveStep ) {
     this.retrieveStep = retrieveStep;
@@ -317,8 +311,7 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
   }
 
   /**
-   * @param passingAllParameters
-   *          the passingAllParameters to set
+   * @param passingAllParameters the passingAllParameters to set
    */
   public void setPassingAllParameters( boolean passingAllParameters ) {
     this.passingAllParameters = passingAllParameters;
@@ -332,8 +325,7 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
   }
 
   /**
-   * @param parameters
-   *          the parameters to set
+   * @param parameters the parameters to set
    */
   public void setParameters( String[] parameters ) {
     this.parameters = parameters;
@@ -347,8 +339,7 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
   }
 
   /**
-   * @param parameterValues
-   *          the parameterValues to set
+   * @param parameterValues the parameterValues to set
    */
   public void setParameterValues( String[] parameterValues ) {
     this.parameterValues = parameterValues;
@@ -362,8 +353,7 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
   }
 
   /**
-   * @param batchTime
-   *          the batchTime to set
+   * @param batchTime the batchTime to set
    */
   public void setBatchTime( String batchTime ) {
     this.batchTime = batchTime;
@@ -387,10 +377,8 @@ public class SingleThreaderMeta extends StepWithMappingMeta implements StepMetaI
   /**
    * Load the referenced object
    *
-   * @param index
-   *          the object index to load
-   * @param space
-   *          the variable space to use
+   * @param index the object index to load
+   * @param space the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */

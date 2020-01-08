@@ -26,7 +26,6 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopValueException;
@@ -40,7 +39,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -54,7 +53,6 @@ import org.apache.hop.trans.step.errorhandling.Stream;
 import org.apache.hop.trans.step.errorhandling.StreamIcon;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
 import org.apache.hop.trans.step.errorhandling.StreamInterface.StreamType;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -94,8 +92,7 @@ public class FilterRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param condition
-   *          The condition to set.
+   * @param condition The condition to set.
    */
   public void setCondition( Condition condition ) {
     this.condition = condition;
@@ -208,12 +205,12 @@ public class FilterRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Clear the sortedDescending flag on fields used within the condition - otherwise the comparisons will be
     // inverted!!
     String[] conditionField = condition.getUsedFields();
     for ( int i = 0; i < conditionField.length; i++ ) {
-      int idx = rowMeta.indexOfValue( conditionField[i] );
+      int idx = rowMeta.indexOfValue( conditionField[ i ] );
       if ( idx >= 0 ) {
         ValueMetaInterface valueMeta = rowMeta.getValueMeta( idx );
         valueMeta.setSortedDescending( false );
@@ -222,8 +219,8 @@ public class FilterRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -300,7 +297,7 @@ public class FilterRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new FilterRows( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -334,8 +331,7 @@ public class FilterRowsMeta extends BaseStepMeta implements StepMetaInterface {
   /**
    * When an optional stream is selected, this method is called to handled the ETL metadata implications of that.
    *
-   * @param stream
-   *          The optional stream to handle.
+   * @param stream The optional stream to handle.
    */
   public void handleStreamSelection( StreamInterface stream ) {
     // This step targets another step.
@@ -369,23 +365,24 @@ public class FilterRowsMeta extends BaseStepMeta implements StepMetaInterface {
 
   /**
    * Get non-existing referenced input fields
+   *
    * @param condition
    * @param prev
    * @return
    */
   public List<String> getOrphanFields( Condition condition, RowMetaInterface prev ) {
-    List<String> orphans = new ArrayList<String>(  );
+    List<String> orphans = new ArrayList<String>();
     if ( condition == null || prev == null ) {
       return orphans;
     }
     String[] key = condition.getUsedFields();
     for ( int i = 0; i < key.length; i++ ) {
-      if ( Utils.isEmpty( key[i] ) ) {
+      if ( Utils.isEmpty( key[ i ] ) ) {
         continue;
       }
-      ValueMetaInterface v = prev.searchValueMeta( key[i] );
+      ValueMetaInterface v = prev.searchValueMeta( key[ i ] );
       if ( v == null ) {
-        orphans.add( key[i] );
+        orphans.add( key[ i ] );
       }
     }
     return orphans;
@@ -428,7 +425,7 @@ public class FilterRowsMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Injection( name = "CONDITION" )
   public void setConditionXML( String conditionXML ) {
-    try  {
+    try {
       this.condition = new Condition( conditionXML );
     } catch ( HopXMLException e ) {
       log.logError( e.getMessage() );

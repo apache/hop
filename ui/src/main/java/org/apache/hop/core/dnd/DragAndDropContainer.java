@@ -22,8 +22,6 @@
 
 package org.apache.hop.core.dnd;
 
-import java.io.UnsupportedEncodingException;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXMLException;
@@ -32,13 +30,14 @@ import org.apache.hop.core.xml.XMLInterface;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import java.io.UnsupportedEncodingException;
+
 /**
  * This class contains code to help you drag data from one part of a GUI to another by using XML as an intermediate
  * step.
  *
  * @author matt
  * @since 2006-04-16
- *
  */
 public class DragAndDropContainer implements XMLInterface {
   public static final int TYPE_STEP = 1;
@@ -69,10 +68,8 @@ public class DragAndDropContainer implements XMLInterface {
   /**
    * Create a new DragAndDropContainer
    *
-   * @param type
-   *          The type of drag&drop to perform
-   * @param data
-   *          The data in the form of a String
+   * @param type The type of drag&drop to perform
+   * @param data The data in the form of a String
    */
   public DragAndDropContainer( int type, String data ) {
     this( type, data, null );
@@ -81,12 +78,9 @@ public class DragAndDropContainer implements XMLInterface {
   /**
    * Create a new DragAndDropContainer
    *
-   * @param type
-   *          The type of drag&drop to perform
-   * @param data
-   *          The data in the form of a String
-   * @param id
-   *          The id of the step in the form of a String
+   * @param type The type of drag&drop to perform
+   * @param data The data in the form of a String
+   * @param id   The id of the step in the form of a String
    */
   public DragAndDropContainer( int type, String data, String id ) {
     this.type = type;
@@ -123,12 +117,12 @@ public class DragAndDropContainer implements XMLInterface {
       return null;
     }
 
-    return typeCodes[type];
+    return typeCodes[ type ];
   }
 
   public static final int getType( String typeCode ) {
     for ( int i = 1; i < typeCodes.length; i++ ) {
-      if ( typeCodes[i].equals( typeCode ) ) {
+      if ( typeCodes[ i ].equals( typeCode ) ) {
         return i;
       }
     }
@@ -160,8 +154,7 @@ public class DragAndDropContainer implements XMLInterface {
   /**
    * Construct a Drag and drop container from an XML String
    *
-   * @param xml
-   *          The XML string to convert from
+   * @param xml The XML string to convert from
    */
   public DragAndDropContainer( String xml ) throws HopXMLException {
     try {

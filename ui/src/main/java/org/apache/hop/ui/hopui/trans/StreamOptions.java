@@ -22,10 +22,10 @@
 
 package org.apache.hop.ui.hopui.trans;
 
-import java.util.List;
-
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
+
+import java.util.List;
 
 public class StreamOptions {
   private List<StreamInterface> options;
@@ -48,8 +48,7 @@ public class StreamOptions {
   }
 
   /**
-   * @param options
-   *          the options to set
+   * @param options the options to set
    */
   public void setOptions( List<StreamInterface> options ) {
     this.options = options;
@@ -63,8 +62,7 @@ public class StreamOptions {
   }
 
   /**
-   * @param location
-   *          the location to set
+   * @param location the location to set
    */
   public void setLocation( Point location ) {
     this.location = location;

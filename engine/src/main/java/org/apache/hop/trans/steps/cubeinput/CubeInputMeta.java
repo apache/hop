@@ -22,18 +22,10 @@
 
 package org.apache.hop.trans.steps.cubeinput;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.GZIPInputStream;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopStepException;
@@ -44,7 +36,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
@@ -54,8 +46,14 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
 /*
  * Created on 2-jun-2003
@@ -84,16 +82,14 @@ public class CubeInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param filename
-   *          The filename to set.
+   * @param filename The filename to set.
    */
   public void setFilename( String filename ) {
     this.filename = filename;
   }
 
   /**
-   * @param rowLimit
-   *          The rowLimit to set.
+   * @param rowLimit The rowLimit to set.
    */
   @Deprecated
   public void setRowLimit( int rowLimit ) {
@@ -101,8 +97,7 @@ public class CubeInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param rowLimit
-   *          The rowLimit to set.
+   * @param rowLimit The rowLimit to set.
    */
   public void setRowLimit( String rowLimit ) {
     this.rowLimit = rowLimit;
@@ -123,8 +118,7 @@ public class CubeInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param addfilenameresult
-   *          The addfilenameresult to set.
+   * @param addfilenameresult The addfilenameresult to set.
    */
   public void setAddResultFile( boolean addfilenameresult ) {
     this.addfilenameresult = addfilenameresult;
@@ -221,13 +215,10 @@ public class CubeInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param space
-   *          the variable space to use
+   * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
-   *
+   * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,

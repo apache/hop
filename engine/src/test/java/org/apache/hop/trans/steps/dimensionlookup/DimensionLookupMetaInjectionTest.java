@@ -22,15 +22,15 @@
 
 package org.apache.hop.trans.steps.dimensionlookup;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 public class DimensionLookupMetaInjectionTest extends BaseMetadataInjectionTest<DimensionLookupMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -63,13 +63,13 @@ public class DimensionLookupMetaInjectionTest extends BaseMetadataInjectionTest<
     check( "KEY_STREAM_FIELDNAME", new StringGetter() {
       @Override
       public String get() {
-        return meta.getKeyStream()[0];
+        return meta.getKeyStream()[ 0 ];
       }
     } );
     check( "KEY_DATABASE_FIELDNAME", new StringGetter() {
       @Override
       public String get() {
-        return meta.getKeyLookup()[0];
+        return meta.getKeyLookup()[ 0 ];
       }
     } );
     check( "STREAM_DATE_FIELD", new StringGetter() {
@@ -93,13 +93,13 @@ public class DimensionLookupMetaInjectionTest extends BaseMetadataInjectionTest<
     check( "STREAM_FIELDNAME", new StringGetter() {
       @Override
       public String get() {
-        return meta.getFieldStream()[0];
+        return meta.getFieldStream()[ 0 ];
       }
     } );
     check( "DATABASE_FIELDNAME", new StringGetter() {
       @Override
       public String get() {
-        return meta.getFieldLookup()[0];
+        return meta.getFieldLookup()[ 0 ];
       }
     } );
     check( "TECHNICAL_KEY_FIELD", new StringGetter() {
@@ -182,14 +182,14 @@ public class DimensionLookupMetaInjectionTest extends BaseMetadataInjectionTest<
 
     ValueMetaInterface mftt = new ValueMetaString( "f" );
     injector.setProperty( meta, "ALTERNATIVE_START_OPTION", setValue( mftt, DimensionLookupMeta
-        .getStartDateAlternativeCode( 0 ) ), "f" );
+      .getStartDateAlternativeCode( 0 ) ), "f" );
     Assert.assertEquals( 0, meta.getStartDateAlternative() );
 
     String[] valueMetaNames = ValueMetaFactory.getValueMetaNames();
     checkStringToInt( "TYPE_OF_RETURN_FIELD", new IntGetter() {
       @Override
       public int get() {
-        return meta.getReturnType()[0];
+        return meta.getReturnType()[ 0 ];
       }
     }, valueMetaNames, getTypeCodes( valueMetaNames ) );
 

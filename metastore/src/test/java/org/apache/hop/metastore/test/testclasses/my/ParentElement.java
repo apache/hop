@@ -21,8 +21,8 @@ import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
 
 @MetaStoreElementType(
-    name = "ParentElement",
-    description = "ParentElement" )
+  name = "ParentElement",
+  description = "ParentElement" )
 public class ParentElement {
 
   @MetaStoreAttribute

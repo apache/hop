@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.step;
 
-import java.util.List;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannelInterface;
@@ -32,9 +30,13 @@ import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.logging.Metrics;
 import org.apache.hop.i18n.BaseMessages;
 
+import java.util.List;
+
 public class RunThread implements Runnable {
 
-  /** for i18n purposes, needed byTranslator2!! */
+  /**
+   * for i18n purposes, needed byTranslator2!!
+   */
   private static Class<?> PKG = BaseStep.class;
 
   private StepInterface step;

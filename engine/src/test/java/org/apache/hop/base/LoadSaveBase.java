@@ -26,9 +26,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
-import org.apache.hop.metastore.util.HopDefaults;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
 import org.apache.hop.trans.step.StepMeta;
@@ -86,10 +84,10 @@ public abstract class LoadSaveBase<T> {
   }
 
   public LoadSaveBase( Class<T> clazz,
-      List<String> commonAttributes, List<String> xmlAttributes, List<String> repoAttributes,
-      Map<String, String> getterMap, Map<String, String> setterMap,
-      Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-      Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
+                       List<String> commonAttributes, List<String> xmlAttributes, List<String> repoAttributes,
+                       Map<String, String> getterMap, Map<String, String> setterMap,
+                       Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
+                       Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
     this( clazz, commonAttributes, xmlAttributes, repoAttributes, getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap, null );
   }
@@ -99,6 +97,7 @@ public abstract class LoadSaveBase<T> {
       new HashMap<String, String>(), new HashMap<String, String>(),
       new HashMap<String, FieldLoadSaveValidator<?>>(), new HashMap<String, FieldLoadSaveValidator<?>>() );
   }
+
   public T createMeta() {
     try {
       T meta = clazz.newInstance();
@@ -116,7 +115,7 @@ public abstract class LoadSaveBase<T> {
 
   @SuppressWarnings( { "unchecked" } )
   protected Map<String, FieldLoadSaveValidator<?>> createValidatorMapAndInvokeSetters( List<String> attributes,
-                                                                             T metaToSave ) {
+                                                                                       T metaToSave ) {
     Map<String, FieldLoadSaveValidator<?>> validatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     metaStore = new MemoryMetaStore();
     for ( String attribute : attributes ) {
@@ -142,7 +141,7 @@ public abstract class LoadSaveBase<T> {
   }
 
   protected void validateLoadedMeta( List<String> attributes, Map<String, FieldLoadSaveValidator<?>> validatorMap,
-                           T metaSaved, T metaLoaded ) {
+                                     T metaSaved, T metaLoaded ) {
     for ( String attribute : attributes ) {
       try {
         Getter<?> getterMethod = manipulator.getGetter( attribute );

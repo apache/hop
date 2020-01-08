@@ -33,14 +33,14 @@ public class DefaultAuthenticationPerformerFactory implements AuthenticationPerf
   @SuppressWarnings( { "rawtypes", "unchecked" } )
   @Override
   public <ReturnType, CreateArgType, ConsumedType> AuthenticationPerformer<ReturnType, CreateArgType> create(
-      AuthenticationProvider authenticationProvider,
-      AuthenticationConsumerFactory<ReturnType, CreateArgType, ConsumedType> authenticationConsumerFactory ) {
+    AuthenticationProvider authenticationProvider,
+    AuthenticationConsumerFactory<ReturnType, CreateArgType, ConsumedType> authenticationConsumerFactory ) {
     if ( authenticationConsumerFactory.getConsumedType().isInstance( authenticationProvider ) ) {
       return new DefaultAuthenticationPerformer( authenticationProvider, authenticationConsumerFactory );
     } else if ( AuthenticationConsumerInvocationHandler.isCompatible( authenticationConsumerFactory.getConsumedType(),
-            authenticationProvider ) ) {
+      authenticationProvider ) ) {
       return new ClassloaderBridgingAuthenticationPerformer<ReturnType, CreateArgType, ConsumedType>(
-          authenticationProvider, authenticationConsumerFactory );
+        authenticationProvider, authenticationConsumerFactory );
     }
     return null;
   }

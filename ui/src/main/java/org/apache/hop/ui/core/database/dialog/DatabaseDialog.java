@@ -22,28 +22,24 @@
 
 package org.apache.hop.ui.core.database.dialog;
 
-import java.util.List;
-
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.database.DatabaseMetaDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.i18n.BaseMessages;
 
 /**
- *
  * Dialog that allows you to edit the settings of a database connection.
  *
- * @see <code>DatabaseMeta</code>
  * @author Matt
+ * @see <code>DatabaseMeta</code>
  * @since 18-05-2003
- *
  */
 public class DatabaseDialog extends DatabaseMetaDialog {
   private static Class<?> PKG = DatabaseDialog.class; // for i18n purposes, needed by Translator2!!
 
   public DatabaseDialog( Shell parent ) {
-    super( parent, new DatabaseMeta(  ) );
+    super( parent, new DatabaseMeta() );
   }
 
   public DatabaseDialog( Shell parent, DatabaseMeta databaseMeta ) {

@@ -23,7 +23,6 @@
 package org.apache.hop.trans.steps.execsqlrow;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
@@ -32,6 +31,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -54,7 +54,7 @@ public class ExecSQLRow extends BaseStep implements StepInterface {
   private ExecSQLRowData data;
 
   public ExecSQLRow( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                     Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -222,7 +222,9 @@ public class ExecSQLRow extends BaseStep implements StepInterface {
     super.dispose( smi, sdi );
   }
 
-  /** Stop the running query */
+  /**
+   * Stop the running query
+   */
   @Override
   public void stopRunning( StepMetaInterface smi, StepDataInterface sdi ) throws HopException {
     meta = (ExecSQLRowMeta) smi;

@@ -22,9 +22,9 @@
 
 package org.apache.hop.core.exception;
 
-import java.util.List;
-
 import org.apache.hop.core.row.ValueMetaInterface;
+
+import java.util.List;
 
 public class HopConversionException extends HopException {
 
@@ -47,17 +47,13 @@ public class HopConversionException extends HopException {
   /**
    * Constructs a new throwable with the specified detail message and cause.
    *
-   * @param message
-   *          the detail message (which is saved for later retrieval by the getMessage() method).
-   * @param causes
-   *          the causes of the conversion errors
-   * @param fields
-   *          the failing fields
-   * @param rowData
-   *          the row with the failed fields set to null.
+   * @param message the detail message (which is saved for later retrieval by the getMessage() method).
+   * @param causes  the causes of the conversion errors
+   * @param fields  the failing fields
+   * @param rowData the row with the failed fields set to null.
    */
   public HopConversionException( String message, List<Exception> causes, List<ValueMetaInterface> fields,
-    Object[] rowData ) {
+                                 Object[] rowData ) {
     super( message );
     this.causes = causes;
     this.fields = fields;
@@ -72,8 +68,7 @@ public class HopConversionException extends HopException {
   }
 
   /**
-   * @param causes
-   *          the causes to set
+   * @param causes the causes to set
    */
   public void setCauses( List<Exception> causes ) {
     this.causes = causes;
@@ -87,8 +82,7 @@ public class HopConversionException extends HopException {
   }
 
   /**
-   * @param fields
-   *          the fields to set
+   * @param fields the fields to set
    */
   public void setFields( List<ValueMetaInterface> fields ) {
     this.fields = fields;
@@ -102,8 +96,7 @@ public class HopConversionException extends HopException {
   }
 
   /**
-   * @param rowData
-   *          the rowData to set
+   * @param rowData the rowData to set
    */
   public void setRowData( Object[] rowData ) {
     this.rowData = rowData;

@@ -23,10 +23,10 @@
 package org.apache.hop.www;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.hop.core.logging.LogChannelInterface;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.apache.hop.core.logging.LogChannelInterface;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -61,7 +61,7 @@ public class BaseHopServerPluginTest {
 
   @Before
   public void before() {
-    baseHopServerPlugin = spy(new BaseHopServerPlugin() {
+    baseHopServerPlugin = spy( new BaseHopServerPlugin() {
       @Override
       public void handleRequest( CarteRequest request ) throws IOException {
       }
@@ -79,7 +79,7 @@ public class BaseHopServerPluginTest {
   public void testDoGet() throws Exception {
     baseHopServerPlugin.doGet( req, resp );
     // doGet should delegate to .service
-    verify(baseHopServerPlugin).service( req, resp );
+    verify( baseHopServerPlugin ).service( req, resp );
   }
 
   @Test
@@ -91,7 +91,7 @@ public class BaseHopServerPluginTest {
     baseHopServerPlugin.service( req, resp );
 
     verify( log ).logDebug( baseHopServerPlugin.getService() );
-    verify(baseHopServerPlugin).handleRequest( carteReqCaptor.capture() );
+    verify( baseHopServerPlugin ).handleRequest( carteReqCaptor.capture() );
 
     HopServerRequestHandler.CarteRequest carteRequest = carteReqCaptor.getValue();
 

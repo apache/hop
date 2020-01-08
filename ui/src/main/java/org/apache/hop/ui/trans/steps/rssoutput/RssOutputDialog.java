@@ -22,10 +22,24 @@
 
 package org.apache.hop.ui.trans.steps.rssoutput;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.rssoutput.RssOutputMeta;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.TableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -53,24 +67,10 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopStepException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.rssoutput.RssOutputMeta;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.TableItemInsertListener;
+
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RssOutputDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = RssOutputMeta.class; // for i18n purposes, needed by Translator2!!
@@ -1020,15 +1020,15 @@ public class RssOutputDialog extends BaseStepDialog implements StepDialogInterfa
     int nrChannelCols = 2;
     int nrChannelRows = ( input.getChannelCustomFields() != null ? input.getChannelCustomFields().length : 1 );
 
-    ColumnInfo[] ciChannel = new ColumnInfo[nrChannelCols];
-    ciChannel[0] =
+    ColumnInfo[] ciChannel = new ColumnInfo[ nrChannelCols ];
+    ciChannel[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "RssOutputDialog.ColumnInfo.Tag" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    ciChannel[1] =
+    ciChannel[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "RssOutputDialog.ColumnInfo.Field" ), ColumnInfo.COLUMN_TYPE_CCOMBO );
-    ciChannel[0].setUsingVariables( true );
-    ciChannel[1].setComboValues( fieldNames );
+    ciChannel[ 0 ].setUsingVariables( true );
+    ciChannel[ 1 ].setComboValues( fieldNames );
     wChannelCustom =
       new TableView( transMeta, wCustomComp, SWT.BORDER
         | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciChannel, nrChannelRows, lsMod, props );
@@ -1066,14 +1066,14 @@ public class RssOutputDialog extends BaseStepDialog implements StepDialogInterfa
     int UpInsCols = 2;
     int UpInsRows = ( input.getItemCustomFields() != null ? input.getItemCustomFields().length : 1 );
 
-    ColumnInfo[] ciItem = new ColumnInfo[UpInsCols];
-    ciItem[0] =
+    ColumnInfo[] ciItem = new ColumnInfo[ UpInsCols ];
+    ciItem[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "RssOutputDialog.ColumnInfo.Tag" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    ciItem[1] =
+    ciItem[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "RssOutputDialog.ColumnInfo.Field" ), ColumnInfo.COLUMN_TYPE_CCOMBO );
-    ciItem[1].setComboValues( fieldNames );
+    ciItem[ 1 ].setComboValues( fieldNames );
     wItemCustom =
       new TableView( transMeta, wCustomComp, SWT.BORDER
         | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciItem, UpInsRows, lsMod, props );
@@ -1131,17 +1131,17 @@ public class RssOutputDialog extends BaseStepDialog implements StepDialogInterfa
 
     int nrRows = ( input.getNameSpaces() != null ? input.getNameSpaces().length : 1 );
 
-    ColumnInfo[] ciNameSpace = new ColumnInfo[2];
-    ciNameSpace[0] =
+    ColumnInfo[] ciNameSpace = new ColumnInfo[ 2 ];
+    ciNameSpace[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "RssOutputDialog.ColumnInfo.NameSpace.Title" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
-    ciNameSpace[1] =
+    ciNameSpace[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "RssOutputDialog.ColumnInfo.NameSpace" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    ciNameSpace[0].setUsingVariables( true );
-    ciNameSpace[1].setUsingVariables( true );
+    ciNameSpace[ 0 ].setUsingVariables( true );
+    ciNameSpace[ 1 ].setUsingVariables( true );
     wNameSpaceCustom =
       new TableView( transMeta, wCustomNameSpaceComp, SWT.BORDER
         | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciNameSpace, nrRows, lsMod, props );
@@ -1723,7 +1723,7 @@ public class RssOutputDialog extends BaseStepDialog implements StepDialogInterfa
       } catch ( HopException ke ) {
         new ErrorDialog(
           shell, BaseMessages.getString( PKG, "RssOutputDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-            .getString( PKG, "RssOutputDialog.FailedToGetFields.DialogMessage" ), ke );
+          .getString( PKG, "RssOutputDialog.FailedToGetFields.DialogMessage" ), ke );
       }
       gotPreviousFields = true;
     }
@@ -1743,7 +1743,7 @@ public class RssOutputDialog extends BaseStepDialog implements StepDialogInterfa
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "RssOutputDialog.UnableToGetFieldsError.DialogTitle" ), BaseMessages
-          .getString( PKG, "RssOutputDialog.UnableToGetFieldsError.DialogMessage" ), ke );
+        .getString( PKG, "RssOutputDialog.UnableToGetFieldsError.DialogMessage" ), ke );
     }
   }
 
@@ -1851,11 +1851,11 @@ public class RssOutputDialog extends BaseStepDialog implements StepDialogInterfa
     if ( input.getChannelCustomFields() != null ) {
       for ( int i = 0; i < input.getChannelCustomFields().length; i++ ) {
         TableItem item = wChannelCustom.table.getItem( i );
-        if ( input.getChannelCustomTags()[i] != null ) {
-          item.setText( 1, input.getChannelCustomTags()[i] );
+        if ( input.getChannelCustomTags()[ i ] != null ) {
+          item.setText( 1, input.getChannelCustomTags()[ i ] );
         }
-        if ( input.getChannelCustomFields()[i] != null ) {
-          item.setText( 2, input.getChannelCustomFields()[i] );
+        if ( input.getChannelCustomFields()[ i ] != null ) {
+          item.setText( 2, input.getChannelCustomFields()[ i ] );
         }
       }
     }
@@ -1865,11 +1865,11 @@ public class RssOutputDialog extends BaseStepDialog implements StepDialogInterfa
     if ( input.getItemCustomFields() != null ) {
       for ( int i = 0; i < input.getItemCustomFields().length; i++ ) {
         TableItem item = wItemCustom.table.getItem( i );
-        if ( input.getItemCustomTags()[i] != null ) {
-          item.setText( 1, input.getItemCustomTags()[i] );
+        if ( input.getItemCustomTags()[ i ] != null ) {
+          item.setText( 1, input.getItemCustomTags()[ i ] );
         }
-        if ( input.getItemCustomFields()[i] != null ) {
-          item.setText( 2, input.getItemCustomFields()[i] );
+        if ( input.getItemCustomFields()[ i ] != null ) {
+          item.setText( 2, input.getItemCustomFields()[ i ] );
         }
       }
     }
@@ -1879,11 +1879,11 @@ public class RssOutputDialog extends BaseStepDialog implements StepDialogInterfa
     if ( input.getNameSpaces() != null ) {
       for ( int i = 0; i < input.getNameSpaces().length; i++ ) {
         TableItem item = wNameSpaceCustom.table.getItem( i );
-        if ( input.getNameSpacesTitle()[i] != null ) {
-          item.setText( 1, input.getNameSpacesTitle()[i] );
+        if ( input.getNameSpacesTitle()[ i ] != null ) {
+          item.setText( 1, input.getNameSpacesTitle()[ i ] );
         }
-        if ( input.getNameSpaces()[i] != null ) {
-          item.setText( 2, input.getNameSpaces()[i] );
+        if ( input.getNameSpaces()[ i ] != null ) {
+          item.setText( 2, input.getNameSpaces()[ i ] );
         }
       }
     }
@@ -1951,8 +1951,8 @@ public class RssOutputDialog extends BaseStepDialog implements StepDialogInterfa
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrchannelfields; i++ ) {
       TableItem item = wChannelCustom.getNonEmpty( i );
-      info.getChannelCustomTags()[i] = item.getText( 1 );
-      info.getChannelCustomFields()[i] = item.getText( 2 );
+      info.getChannelCustomTags()[ i ] = item.getText( 1 );
+      info.getChannelCustomFields()[ i ] = item.getText( 2 );
     }
 
     // Custom item fields
@@ -1961,8 +1961,8 @@ public class RssOutputDialog extends BaseStepDialog implements StepDialogInterfa
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nritemfields; i++ ) {
       TableItem item = wItemCustom.getNonEmpty( i );
-      info.getItemCustomTags()[i] = item.getText( 1 );
-      info.getItemCustomFields()[i] = item.getText( 2 );
+      info.getItemCustomTags()[ i ] = item.getText( 1 );
+      info.getItemCustomFields()[ i ] = item.getText( 2 );
     }
 
     // Add Namespaces ?
@@ -1971,8 +1971,8 @@ public class RssOutputDialog extends BaseStepDialog implements StepDialogInterfa
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrnamespaces; i++ ) {
       TableItem item = wNameSpaceCustom.getNonEmpty( i );
-      info.getNameSpacesTitle()[i] = item.getText( 1 );
-      info.getNameSpaces()[i] = item.getText( 2 );
+      info.getNameSpacesTitle()[ i ] = item.getText( 1 );
+      info.getNameSpaces()[ i ] = item.getText( 2 );
     }
   }
 

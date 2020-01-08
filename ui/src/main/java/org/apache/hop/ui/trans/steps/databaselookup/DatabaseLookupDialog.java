@@ -22,13 +22,30 @@
 
 package org.apache.hop.ui.trans.steps.databaselookup;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.databaselookup.DatabaseLookupMeta;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.TableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -49,27 +66,10 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.databaselookup.DatabaseLookupMeta;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.TableItemInsertListener;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class DatabaseLookupDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = DatabaseLookupMeta.class; // for i18n purposes, needed by Translator2!!
@@ -341,26 +341,26 @@ public class DatabaseLookupDialog extends BaseStepDialog implements StepDialogIn
     int nrKeyCols = 4;
     int nrKeyRows = ( input.getStreamKeyField1() != null ? input.getStreamKeyField1().length : 1 );
 
-    ColumnInfo[] ciKey = new ColumnInfo[nrKeyCols];
-    ciKey[0] =
+    ColumnInfo[] ciKey = new ColumnInfo[ nrKeyCols ];
+    ciKey[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "DatabaseLookupDialog.ColumnInfo.Tablefield" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    ciKey[1] =
+    ciKey[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "DatabaseLookupDialog.ColumnInfo.Comparator" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, DatabaseLookupMeta.conditionStrings );
-    ciKey[2] =
+    ciKey[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "DatabaseLookupDialog.ColumnInfo.Field1" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    ciKey[3] =
+    ciKey[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "DatabaseLookupDialog.ColumnInfo.Field2" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    tableFieldColumns.add( ciKey[0] );
-    fieldColumns.add( ciKey[2] );
-    fieldColumns.add( ciKey[3] );
+    tableFieldColumns.add( ciKey[ 0 ] );
+    fieldColumns.add( ciKey[ 2 ] );
+    fieldColumns.add( ciKey[ 3 ] );
     wKey =
       new TableView(
         transMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
@@ -385,24 +385,24 @@ public class DatabaseLookupDialog extends BaseStepDialog implements StepDialogIn
     int UpInsCols = 4;
     int UpInsRows = ( input.getReturnValueField() != null ? input.getReturnValueField().length : 1 );
 
-    ColumnInfo[] ciReturn = new ColumnInfo[UpInsCols];
-    ciReturn[0] =
+    ColumnInfo[] ciReturn = new ColumnInfo[ UpInsCols ];
+    ciReturn[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "DatabaseLookupDialog.ColumnInfo.Field" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] {}, false );
-    ciReturn[1] =
+    ciReturn[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "DatabaseLookupDialog.ColumnInfo.Newname" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    ciReturn[2] =
+    ciReturn[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "DatabaseLookupDialog.ColumnInfo.Default" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    ciReturn[3] =
+    ciReturn[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "DatabaseLookupDialog.ColumnInfo.Type" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         ValueMetaFactory.getValueMetaNames() );
-    tableFieldColumns.add( ciReturn[0] );
+    tableFieldColumns.add( ciReturn[ 0 ] );
 
     wReturn =
       new TableView(
@@ -657,17 +657,17 @@ public class DatabaseLookupDialog extends BaseStepDialog implements StepDialogIn
     if ( input.getStreamKeyField1() != null ) {
       for ( int i = 0; i < input.getStreamKeyField1().length; i++ ) {
         TableItem item = wKey.table.getItem( i );
-        if ( input.getTableKeyField()[i] != null ) {
-          item.setText( 1, input.getTableKeyField()[i] );
+        if ( input.getTableKeyField()[ i ] != null ) {
+          item.setText( 1, input.getTableKeyField()[ i ] );
         }
-        if ( input.getKeyCondition()[i] != null ) {
-          item.setText( 2, input.getKeyCondition()[i] );
+        if ( input.getKeyCondition()[ i ] != null ) {
+          item.setText( 2, input.getKeyCondition()[ i ] );
         }
-        if ( input.getStreamKeyField1()[i] != null ) {
-          item.setText( 3, input.getStreamKeyField1()[i] );
+        if ( input.getStreamKeyField1()[ i ] != null ) {
+          item.setText( 3, input.getStreamKeyField1()[ i ] );
         }
-        if ( input.getStreamKeyField2()[i] != null ) {
-          item.setText( 4, input.getStreamKeyField2()[i] );
+        if ( input.getStreamKeyField2()[ i ] != null ) {
+          item.setText( 4, input.getStreamKeyField2()[ i ] );
         }
       }
     }
@@ -675,18 +675,18 @@ public class DatabaseLookupDialog extends BaseStepDialog implements StepDialogIn
     if ( input.getReturnValueField() != null ) {
       for ( int i = 0; i < input.getReturnValueField().length; i++ ) {
         TableItem item = wReturn.table.getItem( i );
-        if ( input.getReturnValueField()[i] != null ) {
-          item.setText( 1, input.getReturnValueField()[i] );
+        if ( input.getReturnValueField()[ i ] != null ) {
+          item.setText( 1, input.getReturnValueField()[ i ] );
         }
-        if ( input.getReturnValueNewName()[i] != null
-          && !input.getReturnValueNewName()[i].equals( input.getReturnValueField()[i] ) ) {
-          item.setText( 2, input.getReturnValueNewName()[i] );
+        if ( input.getReturnValueNewName()[ i ] != null
+          && !input.getReturnValueNewName()[ i ].equals( input.getReturnValueField()[ i ] ) ) {
+          item.setText( 2, input.getReturnValueNewName()[ i ] );
         }
 
-        if ( input.getReturnValueDefault()[i] != null ) {
-          item.setText( 3, input.getReturnValueDefault()[i] );
+        if ( input.getReturnValueDefault()[ i ] != null ) {
+          item.setText( 3, input.getReturnValueDefault()[ i ] );
         }
-        item.setText( 4, ValueMetaFactory.getValueMetaName( input.getReturnValueDefaultType()[i] ) );
+        item.setText( 4, ValueMetaFactory.getValueMetaName( input.getReturnValueDefaultType()[ i ] ) );
       }
     }
 
@@ -740,27 +740,27 @@ public class DatabaseLookupDialog extends BaseStepDialog implements StepDialogIn
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrkeys; i++ ) {
       TableItem item = wKey.getNonEmpty( i );
-      input.getTableKeyField()[i] = item.getText( 1 );
-      input.getKeyCondition()[i] = item.getText( 2 );
-      input.getStreamKeyField1()[i] = item.getText( 3 );
-      input.getStreamKeyField2()[i] = item.getText( 4 );
+      input.getTableKeyField()[ i ] = item.getText( 1 );
+      input.getKeyCondition()[ i ] = item.getText( 2 );
+      input.getStreamKeyField1()[ i ] = item.getText( 3 );
+      input.getStreamKeyField2()[ i ] = item.getText( 4 );
     }
 
     logDebug( BaseMessages.getString( PKG, "DatabaseLookupDialog.Log.FoundFields", String.valueOf( nrfields ) ) );
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrfields; i++ ) {
       TableItem item = wReturn.getNonEmpty( i );
-      input.getReturnValueField()[i] = item.getText( 1 );
-      input.getReturnValueNewName()[i] = item.getText( 2 );
-      if ( input.getReturnValueNewName()[i] == null || input.getReturnValueNewName()[i].length() == 0 ) {
-        input.getReturnValueNewName()[i] = input.getReturnValueField()[i];
+      input.getReturnValueField()[ i ] = item.getText( 1 );
+      input.getReturnValueNewName()[ i ] = item.getText( 2 );
+      if ( input.getReturnValueNewName()[ i ] == null || input.getReturnValueNewName()[ i ].length() == 0 ) {
+        input.getReturnValueNewName()[ i ] = input.getReturnValueField()[ i ];
       }
 
-      input.getReturnValueDefault()[i] = item.getText( 3 );
-      input.getReturnValueDefaultType()[i] = ValueMetaFactory.getIdForValueMeta( item.getText( 4 ) );
+      input.getReturnValueDefault()[ i ] = item.getText( 3 );
+      input.getReturnValueDefaultType()[ i ] = ValueMetaFactory.getIdForValueMeta( item.getText( 4 ) );
 
-      if ( input.getReturnValueDefaultType()[i] < 0 ) {
-        input.getReturnValueDefaultType()[i] = ValueMetaInterface.TYPE_STRING;
+      if ( input.getReturnValueDefaultType()[ i ] < 0 ) {
+        input.getReturnValueDefaultType()[ i ] = ValueMetaInterface.TYPE_STRING;
       }
     }
 
@@ -785,7 +785,7 @@ public class DatabaseLookupDialog extends BaseStepDialog implements StepDialogIn
 
   private void getTableName() {
     String connectionName = wConnection.getText();
-    if ( StringUtils.isEmpty(connectionName)) {
+    if ( StringUtils.isEmpty( connectionName ) ) {
       return;
     }
     DatabaseMeta databaseMeta = transMeta.findDatabase( connectionName );
@@ -824,7 +824,7 @@ public class DatabaseLookupDialog extends BaseStepDialog implements StepDialogIn
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "DatabaseLookupDialog.GetFieldsFailed.DialogTitle" ), BaseMessages
-          .getString( PKG, "DatabaseLookupDialog.GetFieldsFailed.DialogMessage" ), ke );
+        .getString( PKG, "DatabaseLookupDialog.GetFieldsFailed.DialogMessage" ), ke );
     }
 
   }

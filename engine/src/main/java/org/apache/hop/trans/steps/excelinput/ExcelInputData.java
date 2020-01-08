@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.excelinput;
 
-import java.util.Date;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.playlist.FilePlayList;
@@ -38,6 +36,8 @@ import org.apache.hop.core.spreadsheet.KWorkbook;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.errorhandling.FileErrorHandler;
+
+import java.util.Date;
 
 /**
  * @author Matt

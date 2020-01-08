@@ -30,8 +30,8 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * @see BaseHopServerPlugin
  * @author nhudak
+ * @see BaseHopServerPlugin
  */
 public interface HopServerRequestHandler {
   void handleRequest( CarteRequest request ) throws IOException;

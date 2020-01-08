@@ -22,8 +22,22 @@
 
 package org.apache.hop.ui.job.entries.sftp;
 
-import java.net.InetAddress;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.sftp.JobEntrySFTP;
+import org.apache.hop.job.entries.sftp.SFTPClient;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.LabelTextVar;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -49,22 +63,8 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.sftp.JobEntrySFTP;
-import org.apache.hop.job.entries.sftp.SFTPClient;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.LabelTextVar;
-import org.apache.hop.ui.core.widget.PasswordTextVar;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.net.InetAddress;
 
 /**
  * This dialog allows you to edit the SFTP job entry settings.
@@ -463,7 +463,7 @@ public class JobEntrySFTPDialog extends JobEntryDialog implements JobEntryDialog
     wkeyfilePass =
       new LabelTextVar(
         jobMeta, wServerSettings, BaseMessages.getString( PKG, "JobSFTP.keyfilePass.Label" ), BaseMessages
-          .getString( PKG, "JobSFTP.keyfilePass.Tooltip" ), true );
+        .getString( PKG, "JobSFTP.keyfilePass.Tooltip" ), true );
     props.setLook( wkeyfilePass );
     wkeyfilePass.addModifyListener( lsMod );
     fdkeyfilePass = new FormData();
@@ -501,7 +501,7 @@ public class JobEntrySFTPDialog extends JobEntryDialog implements JobEntryDialog
     wProxyHost =
       new LabelTextVar(
         jobMeta, wServerSettings, BaseMessages.getString( PKG, "JobSFTP.ProxyHost.Label" ), BaseMessages
-          .getString( PKG, "JobSFTP.ProxyHost.Tooltip" ) );
+        .getString( PKG, "JobSFTP.ProxyHost.Tooltip" ) );
     props.setLook( wProxyHost );
     wProxyHost.addModifyListener( lsMod );
     fdProxyHost = new FormData();
@@ -514,7 +514,7 @@ public class JobEntrySFTPDialog extends JobEntryDialog implements JobEntryDialog
     wProxyPort =
       new LabelTextVar(
         jobMeta, wServerSettings, BaseMessages.getString( PKG, "JobSFTP.ProxyPort.Label" ), BaseMessages
-          .getString( PKG, "JobSFTP.ProxyPort.Tooltip" ) );
+        .getString( PKG, "JobSFTP.ProxyPort.Tooltip" ) );
     props.setLook( wProxyPort );
     wProxyPort.addModifyListener( lsMod );
     fdProxyPort = new FormData();
@@ -527,7 +527,7 @@ public class JobEntrySFTPDialog extends JobEntryDialog implements JobEntryDialog
     wProxyUsername =
       new LabelTextVar(
         jobMeta, wServerSettings, BaseMessages.getString( PKG, "JobSFTP.ProxyUsername.Label" ), BaseMessages
-          .getString( PKG, "JobSFTP.ProxyUsername.Tooltip" ) );
+        .getString( PKG, "JobSFTP.ProxyUsername.Tooltip" ) );
     props.setLook( wProxyUsername );
     wProxyUsername.addModifyListener( lsMod );
     fdProxyUsername = new FormData();
@@ -540,7 +540,7 @@ public class JobEntrySFTPDialog extends JobEntryDialog implements JobEntryDialog
     wProxyPassword =
       new LabelTextVar(
         jobMeta, wServerSettings, BaseMessages.getString( PKG, "JobSFTP.ProxyPassword.Label" ), BaseMessages
-          .getString( PKG, "JobSFTP.ProxyPassword.Tooltip" ), true );
+        .getString( PKG, "JobSFTP.ProxyPassword.Tooltip" ), true );
     props.setLook( wProxyPassword );
     wProxyPassword.addModifyListener( lsMod );
     fdProxyPasswd = new FormData();
@@ -1114,13 +1114,13 @@ public class JobEntrySFTPDialog extends JobEntryDialog implements JobEntryDialog
     if ( wProxyType.getText().equals( SFTPClient.PROXY_TYPE_HTTP ) ) {
       if ( Utils.isEmpty( wProxyPort.getText() )
         || ( !Utils.isEmpty( wProxyPort.getText() ) && wProxyPort.getText().equals(
-          SFTPClient.SOCKS5_DEFAULT_PORT ) ) ) {
+        SFTPClient.SOCKS5_DEFAULT_PORT ) ) ) {
         wProxyPort.setText( SFTPClient.HTTP_DEFAULT_PORT );
       }
     } else {
       if ( Utils.isEmpty( wProxyPort.getText() )
         || ( !Utils.isEmpty( wProxyPort.getText() ) && wProxyPort
-          .getText().equals( SFTPClient.HTTP_DEFAULT_PORT ) ) ) {
+        .getText().equals( SFTPClient.HTTP_DEFAULT_PORT ) ) ) {
         wProxyPort.setText( SFTPClient.SOCKS5_DEFAULT_PORT );
       }
     }

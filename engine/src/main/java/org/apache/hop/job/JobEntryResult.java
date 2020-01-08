@@ -22,11 +22,11 @@
 
 package org.apache.hop.job;
 
-import java.util.Comparator;
-import java.util.Date;
-
 import org.apache.hop.core.Result;
 import org.apache.hop.job.entry.JobEntryCopy;
+
+import java.util.Comparator;
+import java.util.Date;
 
 /**
  * This class holds the result of a job entry after it was executed. Things we want to keep track of are:
@@ -63,15 +63,12 @@ public class JobEntryResult implements Cloneable, Comparator<JobEntryResult>, Co
   /**
    * Creates a new job entry result...
    *
-   * @param result
-   *          the result of the job entry
-   * @param comment
-   *          an optional comment
-   * @param jobEntry
-   *          the job entry for which this is the result.
+   * @param result   the result of the job entry
+   * @param comment  an optional comment
+   * @param jobEntry the job entry for which this is the result.
    */
   public JobEntryResult( Result result, String logChannelId, String comment, String reason, String jobEntryName,
-    int jobEntryNr, String jobEntryFilename ) {
+                         int jobEntryNr, String jobEntryFilename ) {
     this();
     if ( result != null ) {
       // lightClone doesn't bother cloning all the rows.
@@ -90,12 +87,11 @@ public class JobEntryResult implements Cloneable, Comparator<JobEntryResult>, Co
   }
 
   /**
-   * @deprecated use {@link #JobEntryResult(Result, String, String, String, String, int, String)}
-   *
    * @param result
    * @param comment
    * @param reason
    * @param copy
+   * @deprecated use {@link #JobEntryResult(Result, String, String, String, String, int, String)}
    */
   @Deprecated
   public JobEntryResult( Result result, String comment, String reason, JobEntryCopy copy ) {
@@ -121,8 +117,7 @@ public class JobEntryResult implements Cloneable, Comparator<JobEntryResult>, Co
   }
 
   /**
-   * @param result
-   *          The result to set.
+   * @param result The result to set.
    */
   public void setResult( Result result ) {
     this.result = result;
@@ -143,8 +138,7 @@ public class JobEntryResult implements Cloneable, Comparator<JobEntryResult>, Co
   }
 
   /**
-   * @param comment
-   *          The comment to set.
+   * @param comment The comment to set.
    */
   public void setComment( String comment ) {
     this.comment = comment;
@@ -158,8 +152,7 @@ public class JobEntryResult implements Cloneable, Comparator<JobEntryResult>, Co
   }
 
   /**
-   * @param reason
-   *          The reason to set.
+   * @param reason The reason to set.
    */
   public void setReason( String reason ) {
     this.reason = reason;
@@ -173,8 +166,7 @@ public class JobEntryResult implements Cloneable, Comparator<JobEntryResult>, Co
   }
 
   /**
-   * @param logDate
-   *          The logDate to set.
+   * @param logDate The logDate to set.
    */
   public void setLogDate( Date logDate ) {
     this.logDate = logDate;
@@ -188,8 +180,7 @@ public class JobEntryResult implements Cloneable, Comparator<JobEntryResult>, Co
   }
 
   /**
-   * @param jobEntryName
-   *          the jobEntryName to set
+   * @param jobEntryName the jobEntryName to set
    */
   public void setJobEntryName( String jobEntryName ) {
     this.jobEntryName = jobEntryName;
@@ -203,8 +194,7 @@ public class JobEntryResult implements Cloneable, Comparator<JobEntryResult>, Co
   }
 
   /**
-   * @param jobEntryFilename
-   *          the jobEntryFilename to set
+   * @param jobEntryFilename the jobEntryFilename to set
    */
   public void setJobEntryFilename( String jobEntryFilename ) {
     this.jobEntryFilename = jobEntryFilename;
@@ -218,8 +208,7 @@ public class JobEntryResult implements Cloneable, Comparator<JobEntryResult>, Co
   }
 
   /**
-   * @param jobEntryNr
-   *          the jobEntryNr to set
+   * @param jobEntryNr the jobEntryNr to set
    */
   public void setJobEntryNr( int jobEntryNr ) {
     this.jobEntryNr = jobEntryNr;
@@ -270,8 +259,7 @@ public class JobEntryResult implements Cloneable, Comparator<JobEntryResult>, Co
   }
 
   /**
-   * @param checkpoint
-   *          the checkpoint to set
+   * @param checkpoint the checkpoint to set
    */
   public void setCheckpoint( boolean checkpoint ) {
     this.checkpoint = checkpoint;

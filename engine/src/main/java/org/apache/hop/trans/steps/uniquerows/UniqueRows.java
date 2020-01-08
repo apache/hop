@@ -48,7 +48,7 @@ public class UniqueRows extends BaseStep implements StepInterface {
   private UniqueRowsData data;
 
   public UniqueRows( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                     Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
 
     meta = (UniqueRowsMeta) getStepMeta().getStepMetaInterface();
@@ -82,25 +82,25 @@ public class UniqueRows extends BaseStep implements StepInterface {
       data.previous = data.inputRowMeta.cloneRow( r ); // copy the row
 
       // Cache lookup of fields
-      data.fieldnrs = new int[meta.getCompareFields().length];
+      data.fieldnrs = new int[ meta.getCompareFields().length ];
 
       for ( int i = 0; i < meta.getCompareFields().length; i++ ) {
-        data.fieldnrs[i] = getInputRowMeta().indexOfValue( meta.getCompareFields()[i] );
-        if ( data.fieldnrs[i] < 0 ) {
+        data.fieldnrs[ i ] = getInputRowMeta().indexOfValue( meta.getCompareFields()[ i ] );
+        if ( data.fieldnrs[ i ] < 0 ) {
           logError( BaseMessages.getString(
-            PKG, "UniqueRows.Log.CouldNotFindFieldInRow", meta.getCompareFields()[i] ) );
+            PKG, "UniqueRows.Log.CouldNotFindFieldInRow", meta.getCompareFields()[ i ] ) );
           setErrors( 1 );
           stopAll();
           return false;
         }
         // Change the case insensitive flag...
         //
-        data.compareRowMeta.getValueMeta( data.fieldnrs[i] ).setCaseInsensitive( meta.getCaseInsensitive()[i] );
+        data.compareRowMeta.getValueMeta( data.fieldnrs[ i ] ).setCaseInsensitive( meta.getCaseInsensitive()[ i ] );
 
         if ( data.sendDuplicateRows ) {
           data.compareFields =
-            data.compareFields == null ? meta.getCompareFields()[i] : data.compareFields
-              + "," + meta.getCompareFields()[i];
+            data.compareFields == null ? meta.getCompareFields()[ i ] : data.compareFields
+              + "," + meta.getCompareFields()[ i ];
         }
       }
       if ( data.sendDuplicateRows && !Utils.isEmpty( meta.getErrorDescription() ) ) {
@@ -125,7 +125,7 @@ public class UniqueRows extends BaseStep implements StepInterface {
     if ( !isEqual ) {
       Object[] outputRow = addCounter( data.outputRowMeta, data.previous, data.counter );
       putRow( data.outputRowMeta, outputRow ); // copy row to possible alternate
-                                               // rowset(s).
+      // rowset(s).
       data.previous = data.inputRowMeta.cloneRow( r );
       data.counter = 1;
     } else {

@@ -22,14 +22,6 @@
 
 package org.apache.hop.trans.steps.memgroupby;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
@@ -44,6 +36,14 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransTestFactory;
 import org.apache.hop.trans.steps.groupby.GroupByMeta;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MemoryGroupByIntIT {
 
@@ -76,19 +76,19 @@ public class MemoryGroupByIntIT {
     List<RowMetaAndData> list = new ArrayList<RowMetaAndData>();
     RowMetaInterface rm = getTestRowMeta();
 
-    Object[] row = new Object[4];
+    Object[] row = new Object[ 4 ];
     List<Integer> nullsList = Arrays.asList( nulls );
 
     for ( int i = 0; i < count; i++ ) {
       if ( nullsList.contains( i ) ) {
         for ( int j = 0; j < row.length; j++ ) {
-          row[j] = null;
+          row[ j ] = null;
         }
       } else {
-        row[0] = "";
-        row[1] = 1L;
-        row[2] = 2.0;
-        row[3] = new BigDecimal( 3 );
+        row[ 0 ] = "";
+        row[ 1 ] = 1L;
+        row[ 2 ] = 2.0;
+        row[ 3 ] = new BigDecimal( 3 );
       }
       list.add( new RowMetaAndData( rm, row ) );
     }
@@ -103,9 +103,9 @@ public class MemoryGroupByIntIT {
   @Test
   public void testMemoryGroupByNoInputData() throws HopException {
     MemoryGroupByMeta meta = new MemoryGroupByMeta();
-    meta.setSubjectField( new String[]{ KEY2 } );
-    meta.setAggregateField( new String[]{ OUT1 } );
-    meta.setGroupField( new String[]{ KEY1 } );
+    meta.setSubjectField( new String[] { KEY2 } );
+    meta.setAggregateField( new String[] { OUT1 } );
+    meta.setGroupField( new String[] { KEY1 } );
     meta.setAggregateType( new int[] { GroupByMeta.TYPE_GROUP_CONCAT_COMMA } );
 
     TransMeta transMeta = TransTestFactory.generateTestTransformation( null, meta, stepName, getTestRowMeta() );
@@ -129,9 +129,9 @@ public class MemoryGroupByIntIT {
   @Test
   public void testMemoryGroupByAlwaysReturnARow() throws HopException {
     MemoryGroupByMeta meta = new MemoryGroupByMeta();
-    meta.setSubjectField( new String[]{ KEY2 } );
-    meta.setAggregateField( new String[]{ OUT1 } );
-    meta.setGroupField( new String[]{ KEY1 } );
+    meta.setSubjectField( new String[] { KEY2 } );
+    meta.setAggregateField( new String[] { OUT1 } );
+    meta.setGroupField( new String[] { KEY1 } );
     meta.setAggregateType( new int[] { GroupByMeta.TYPE_GROUP_CONCAT_COMMA } );
     meta.setAlwaysGivingBackOneRow( true );
 
@@ -187,7 +187,7 @@ public class MemoryGroupByIntIT {
 
     vmi = rmd.getValueMeta( 1 );
     Assert.assertEquals( "The next value is first aggregation", OUT1, vmi.getName() );
-    Assert.assertEquals( "Since it was null String output will be empty string", "", rmd.getData()[1] );
+    Assert.assertEquals( "Since it was null String output will be empty string", "", rmd.getData()[ 1 ] );
 
     vmi = rmd.getValueMeta( 2 );
     Assert.assertEquals( "Third field is second output field", OUT2, vmi.getName() );
@@ -199,7 +199,7 @@ public class MemoryGroupByIntIT {
 
     vmi = rmd.getValueMeta( 3 );
     Assert.assertEquals( "4 is 3 output field", OUT3, vmi.getName() );
-    Assert.assertEquals( "And since it was null it become correct 0", 0.0, rmd.getData()[3] );
+    Assert.assertEquals( "And since it was null it become correct 0", 0.0, rmd.getData()[ 3 ] );
 
     // TODO fix Memory Group By. Waiting for clarification.
     /*vmi = rmd.getValueMeta( 4 );

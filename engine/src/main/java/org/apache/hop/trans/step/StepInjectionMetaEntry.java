@@ -22,16 +22,15 @@
 
 package org.apache.hop.trans.step;
 
+import org.apache.hop.core.row.value.ValueMetaFactory;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.hop.core.row.value.ValueMetaFactory;
 
 /**
  * This is a single metadata attribute for step metadata injection.
  *
  * @author matt
- *
  */
 public class StepInjectionMetaEntry implements Cloneable {
   private String key;
@@ -90,8 +89,7 @@ public class StepInjectionMetaEntry implements Cloneable {
   }
 
   /**
-   * @param key
-   *          the key to set
+   * @param key the key to set
    */
   public void setKey( String key ) {
     this.key = key;
@@ -105,8 +103,7 @@ public class StepInjectionMetaEntry implements Cloneable {
   }
 
   /**
-   * @param value
-   *          the value to set
+   * @param value the value to set
    */
   public void setValue( Object value ) {
     this.value = value;
@@ -120,8 +117,7 @@ public class StepInjectionMetaEntry implements Cloneable {
   }
 
   /**
-   * @param description
-   *          the description to set
+   * @param description the description to set
    */
   public void setDescription( String description ) {
     this.description = description;
@@ -129,15 +125,14 @@ public class StepInjectionMetaEntry implements Cloneable {
 
   /**
    * @return the valueType This is the data type (see ValueMetaInterface) of the value. If the value is NONE (0) this is
-   *         a list of values.
+   * a list of values.
    */
   public int getValueType() {
     return valueType;
   }
 
   /**
-   * @param valueType
-   *          the valueType to set
+   * @param valueType the valueType to set
    */
   public void setValueType( int valueType ) {
     this.valueType = valueType;
@@ -145,18 +140,17 @@ public class StepInjectionMetaEntry implements Cloneable {
 
   /**
    * @return the details : In case the data type of this entry is NONE (0) you can specify a list of entries. For
-   *         example, for a step with a list of entries (filenames, fields, keys, etc) you can specify the list of
-   *         metadata entries with this list.
+   * example, for a step with a list of entries (filenames, fields, keys, etc) you can specify the list of
+   * metadata entries with this list.
    */
   public List<StepInjectionMetaEntry> getDetails() {
     return details;
   }
 
   /**
-   * @param details
-   *          the details to set. In case the data type of this entry is NONE (0) you can specify a list of entries. For
-   *          example, for a step with a list of entries (filenames, fields, keys, etc) you can specify the list of
-   *          metadata entries with this list.
+   * @param details the details to set. In case the data type of this entry is NONE (0) you can specify a list of entries. For
+   *                example, for a step with a list of entries (filenames, fields, keys, etc) you can specify the list of
+   *                metadata entries with this list.
    */
   public void setDetails( List<StepInjectionMetaEntry> details ) {
     this.details = details;

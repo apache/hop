@@ -59,7 +59,7 @@ import java.sql.Statement;
 
 /**
  * Performs a bulk load to a postgres table.
- *
+ * <p>
  * Based on (copied from) Sven Boden's Oracle Bulk Loader step
  *
  * @author matt
@@ -74,7 +74,7 @@ public class PGBulkLoader extends BaseStep implements StepInterface {
   private PGCopyOutputStream pgCopyOut;
 
   public PGBulkLoader( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                       Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -83,7 +83,7 @@ public class PGBulkLoader extends BaseStep implements StepInterface {
    *
    * @return a string containing the control file contents
    */
-  public String getCopyCommand( ) throws HopException {
+  public String getCopyCommand() throws HopException {
     DatabaseMeta dm = meta.getDatabaseMeta();
 
     StringBuilder contents = new StringBuilder( 500 );
@@ -118,7 +118,7 @@ public class PGBulkLoader extends BaseStep implements StepInterface {
       if ( i != 0 ) {
         contents.append( ", " );
       }
-      contents.append( dm.quoteField( tableFields[i] ) );
+      contents.append( dm.quoteField( tableFields[ i ] ) );
     }
 
     contents.append( " ) " );
@@ -128,7 +128,7 @@ public class PGBulkLoader extends BaseStep implements StepInterface {
 
     // The "FORMAT" clause
     contents.append( " WITH CSV DELIMITER AS '" ).append( environmentSubstitute( meta.getDelimiter() ) )
-        .append( "' QUOTE AS '" ).append(
+      .append( "' QUOTE AS '" ).append(
       environmentSubstitute( meta.getEnclosure() ) ).append( "'" );
     contents.append( ";" ).append( Const.CR );
 
@@ -250,9 +250,9 @@ public class PGBulkLoader extends BaseStep implements StepInterface {
 
         // Cache field indexes.
         //
-        data.keynrs = new int[meta.getFieldStream().length];
+        data.keynrs = new int[ meta.getFieldStream().length ];
         for ( int i = 0; i < data.keynrs.length; i++ ) {
-          data.keynrs[i] = getInputRowMeta().indexOfValue( meta.getFieldStream()[i] );
+          data.keynrs[ i ] = getInputRowMeta().indexOfValue( meta.getFieldStream()[ i ] );
         }
 
         // execute the copy statement... pgCopyOut is setup there
@@ -294,9 +294,9 @@ public class PGBulkLoader extends BaseStep implements StepInterface {
           pgCopyOut.write( data.separator );
         }
 
-        int index = data.keynrs[i];
+        int index = data.keynrs[ i ];
         ValueMetaInterface valueMeta = rowMeta.getValueMeta( index );
-        Object valueData = r[index];
+        Object valueData = r[ index ];
 
         if ( valueData != null ) {
           switch ( valueMeta.getType() ) {
@@ -321,9 +321,9 @@ public class PGBulkLoader extends BaseStep implements StepInterface {
             case ValueMetaInterface.TYPE_DATE:
               // Format the date in the right format.
               //
-              switch ( data.dateFormatChoices[i] ) {
-              // Pass the data along in the format chosen by the user OR in binary format...
-              //
+              switch ( data.dateFormatChoices[ i ] ) {
+                // Pass the data along in the format chosen by the user OR in binary format...
+                //
                 case PGBulkLoaderMeta.NR_DATE_MASK_PASS_THROUGH:
                   if ( valueMeta.isStorageBinaryString() ) {
                     pgCopyOut.write( (byte[]) valueData );
@@ -360,9 +360,9 @@ public class PGBulkLoader extends BaseStep implements StepInterface {
             case ValueMetaInterface.TYPE_TIMESTAMP:
               // Format the date in the right format.
               //
-              switch ( data.dateFormatChoices[i] ) {
-              // Pass the data along in the format chosen by the user OR in binary format...
-              //
+              switch ( data.dateFormatChoices[ i ] ) {
+                // Pass the data along in the format chosen by the user OR in binary format...
+                //
                 case PGBulkLoaderMeta.NR_DATE_MASK_PASS_THROUGH:
                   if ( valueMeta.isStorageBinaryString() ) {
                     pgCopyOut.write( (byte[]) valueData );
@@ -471,16 +471,16 @@ public class PGBulkLoader extends BaseStep implements StepInterface {
       }
       data.newline = Const.CR.getBytes();
 
-      data.dateFormatChoices = new int[meta.getFieldStream().length];
+      data.dateFormatChoices = new int[ meta.getFieldStream().length ];
       for ( int i = 0; i < data.dateFormatChoices.length; i++ ) {
-        if ( Utils.isEmpty( meta.getDateMask()[i] ) ) {
-          data.dateFormatChoices[i] = PGBulkLoaderMeta.NR_DATE_MASK_PASS_THROUGH;
-        } else if ( meta.getDateMask()[i].equalsIgnoreCase( PGBulkLoaderMeta.DATE_MASK_DATE ) ) {
-          data.dateFormatChoices[i] = PGBulkLoaderMeta.NR_DATE_MASK_DATE;
-        } else if ( meta.getDateMask()[i].equalsIgnoreCase( PGBulkLoaderMeta.DATE_MASK_DATETIME ) ) {
-          data.dateFormatChoices[i] = PGBulkLoaderMeta.NR_DATE_MASK_DATETIME;
+        if ( Utils.isEmpty( meta.getDateMask()[ i ] ) ) {
+          data.dateFormatChoices[ i ] = PGBulkLoaderMeta.NR_DATE_MASK_PASS_THROUGH;
+        } else if ( meta.getDateMask()[ i ].equalsIgnoreCase( PGBulkLoaderMeta.DATE_MASK_DATE ) ) {
+          data.dateFormatChoices[ i ] = PGBulkLoaderMeta.NR_DATE_MASK_DATE;
+        } else if ( meta.getDateMask()[ i ].equalsIgnoreCase( PGBulkLoaderMeta.DATE_MASK_DATETIME ) ) {
+          data.dateFormatChoices[ i ] = PGBulkLoaderMeta.NR_DATE_MASK_DATETIME;
         } else { // The default : just pass it along...
-          data.dateFormatChoices[i] = PGBulkLoaderMeta.NR_DATE_MASK_PASS_THROUGH;
+          data.dateFormatChoices[ i ] = PGBulkLoaderMeta.NR_DATE_MASK_PASS_THROUGH;
         }
 
       }

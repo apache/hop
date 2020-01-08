@@ -22,17 +22,16 @@
 
 package org.apache.hop.trans.steps.socketwriter;
 
+import org.apache.hop.trans.step.BaseStepData;
+import org.apache.hop.trans.step.StepDataInterface;
+
 import java.io.DataOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import org.apache.hop.trans.step.BaseStepData;
-import org.apache.hop.trans.step.StepDataInterface;
-
 /**
  * @author Matt
  * @since 27-nov-2006
- *
  */
 public class SocketWriterData extends BaseStepData implements StepDataInterface {
   public DataOutputStream outputStream;

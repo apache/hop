@@ -22,19 +22,7 @@
 
 package org.apache.hop.trans.steps.groupby;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.vfs2.FileSystemException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
@@ -48,10 +36,22 @@ import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -64,7 +64,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class GroupByTest  {
+public class GroupByTest {
   private StepMockHelper<GroupByMeta, GroupByData> mockHelper;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
@@ -133,11 +133,11 @@ public class GroupByTest  {
 
     GroupByMeta meta = new GroupByMeta();
     meta.allocate( 1, 8 );
-    meta.setGroupField( new String[]{ "group_by_field" } );
-    meta.setAggregateField( new String[]{
+    meta.setGroupField( new String[] { "group_by_field" } );
+    meta.setAggregateField( new String[] {
       "perc_field", "stddev_field", "median_field", "count_distinct_field",
       "count_any_field", "count_all_field", "concat_comma_field", "concat_custom_field" } );
-    meta.setSubjectField( new String[]{
+    meta.setSubjectField( new String[] {
       "raw_integer", "raw_integer", "raw_integer", "raw_integer",
       "raw_integer", "raw_integer", "raw_string", "raw_string" } );
     meta.setAggregateType( new int[] {
@@ -205,7 +205,7 @@ public class GroupByTest  {
     groupByData.inputRowMeta = inputRowMetaMock;
 
     GroupBy groupBySpy = Mockito.spy(
-        new GroupBy( mockHelper.stepMeta, groupByData, 0, mockHelper.transMeta, mockHelper.trans ) );
+      new GroupBy( mockHelper.stepMeta, groupByData, 0, mockHelper.transMeta, mockHelper.trans ) );
 
     GroupByMeta groupByMetaMock = mock( GroupByMeta.class );
     when( groupByMetaMock.getPrefix() ).thenReturn( "group-by-test-temp-file-" );

@@ -22,10 +22,10 @@
 
 package org.apache.hop.job.entries.missing;
 
-import org.junit.Test;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopJobException;
 import org.apache.hop.core.logging.LogChannel;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;

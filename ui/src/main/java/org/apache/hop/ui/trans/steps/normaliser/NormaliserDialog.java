@@ -22,12 +22,20 @@
 
 package org.apache.hop.ui.trans.steps.normaliser;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.normaliser.NormaliserMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -46,20 +54,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.normaliser.NormaliserMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class NormaliserDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = NormaliserMeta.class; // for i18n purposes, needed by Translator2!!
@@ -173,15 +173,15 @@ public class NormaliserDialog extends BaseStepDialog implements StepDialogInterf
     final int fieldsCols = 3;
     final int fieldsRows = input.getNormaliserFields().length;
 
-    colinf = new ColumnInfo[fieldsCols];
-    colinf[0] =
+    colinf = new ColumnInfo[ fieldsCols ];
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "NormaliserDialog.ColumnInfo.Fieldname" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] { "" }, false );
-    colinf[1] =
+    colinf[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "NormaliserDialog.ColumnInfo.Type" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinf[2] =
+    colinf[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "NormaliserDialog.ColumnInfo.NewField" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
@@ -281,10 +281,10 @@ public class NormaliserDialog extends BaseStepDialog implements StepDialogInterf
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    colinf[0].setComboValues( fieldNames );
+    colinf[ 0 ].setComboValues( fieldNames );
   }
 
   public void getData() {
@@ -294,14 +294,14 @@ public class NormaliserDialog extends BaseStepDialog implements StepDialogInterf
 
     for ( int i = 0; i < input.getNormaliserFields().length; i++ ) {
       TableItem item = wFields.table.getItem( i );
-      if ( input.getNormaliserFields()[i].getName() != null ) {
-        item.setText( NAME_INDEX, input.getNormaliserFields()[i].getName() );
+      if ( input.getNormaliserFields()[ i ].getName() != null ) {
+        item.setText( NAME_INDEX, input.getNormaliserFields()[ i ].getName() );
       }
-      if ( input.getNormaliserFields()[i].getValue() != null ) {
-        item.setText( VALUE_INDEX, input.getNormaliserFields()[i].getValue() );
+      if ( input.getNormaliserFields()[ i ].getValue() != null ) {
+        item.setText( VALUE_INDEX, input.getNormaliserFields()[ i ].getValue() );
       }
-      if ( input.getNormaliserFields()[i].getNorm() != null ) {
-        item.setText( NORM_INDEX, input.getNormaliserFields()[i].getNorm() );
+      if ( input.getNormaliserFields()[ i ].getNorm() != null ) {
+        item.setText( NORM_INDEX, input.getNormaliserFields()[ i ].getNorm() );
       }
     }
 
@@ -336,9 +336,9 @@ public class NormaliserDialog extends BaseStepDialog implements StepDialogInterf
     //CHECKSTYLE:Indentation:OFF
     for ( i = 0; i < nrfields; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      input.getNormaliserFields()[i].setName( item.getText( NAME_INDEX ) );
-      input.getNormaliserFields()[i].setValue( item.getText( VALUE_INDEX ) );
-      input.getNormaliserFields()[i].setNorm( item.getText( NORM_INDEX ) );
+      input.getNormaliserFields()[ i ].setName( item.getText( NAME_INDEX ) );
+      input.getNormaliserFields()[ i ].setValue( item.getText( VALUE_INDEX ) );
+      input.getNormaliserFields()[ i ].setNorm( item.getText( NORM_INDEX ) );
     }
 
     dispose();
@@ -353,7 +353,7 @@ public class NormaliserDialog extends BaseStepDialog implements StepDialogInterf
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "NormaliserDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "NormaliserDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "NormaliserDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 }

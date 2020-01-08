@@ -32,7 +32,6 @@ import java.lang.annotation.Target;
  * This annotation signals to the plugin system that the class is a Hop extension point.
  *
  * @author matt
- *
  */
 @Documented
 @Retention( RetentionPolicy.RUNTIME )

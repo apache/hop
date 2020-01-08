@@ -22,9 +22,9 @@
 
 package org.apache.hop.concurrency;
 
+import org.apache.hop.core.BlockingRowSet;
 import org.junit.Assert;
 import org.junit.Test;
-import org.apache.hop.core.BlockingRowSet;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -38,32 +38,31 @@ import java.util.regex.Pattern;
 /**
  * We have a {@link org.apache.hop.core.BaseRowSet} with a bunch of attributes (originStepName, originStepCopy,
  * destinationStepName,destinationStepCopy and others).
- *
+ * <p>
  * The goal of this test is to verify that attributes from one BaseRowSet doesn't mix with attributes of
  * another BaseRowSet in concurrent environment when executing
  * {@link org.apache.hop.core.BaseRowSet#setThreadNameFromToCopy(String, int, String, int)}.
- *
+ * <p>
  * We have a {@link BlockingRowSet} that will be share across {@link Mutator} and {@link Getter}
  * We take {@link BlockingRowSet} here because {@link org.apache.hop.core.BaseRowSet} has a package level visibility
  * and is not reachable from this package (and this package is designed collects all concurrent tests and concurrent
  * framework runner)
- *
+ * <p>
  * {@link Mutator} generates consistent blockingRowSet's. By consistence the following is meant:
  * Each blockingRowSet has it's id (random int) and all his fields are named in pattern:
  * - SOME_STRING + blockingRowSetId (in case it is a string)
  * - blockingRowSetIs (in case it is a number)
- *
+ * <p>
  * Then mutator mutates blockingRowSet by calling:
  * {@link org.apache.hop.core.BaseRowSet#setThreadNameFromToCopy(String, int, String, int)}.
  * where all inputs have the same id.
- *
+ * <p>
  * It is expected that shared blockingRowSet will always be in consistent state (all his fields will end
  * with the same id).
- *
+ * <p>
  * And that's exactly what {@link Getter} does:
- *
+ * <p>
  * It calls toString method of shared blockingRowSet and verifies it's consistency.
- *
  */
 public class BaseRowSetConcurrentTest {
   private static final int MUTATE_CIRCLES = 100;
@@ -137,11 +136,10 @@ public class BaseRowSetConcurrentTest {
     /**
      * Goal of this method is to extract all numbers (that are expected to be ids) from
      * a string and populate it into a set.
-     *
+     * <p>
      * Example:
      * input -> 123-124
      * output -> set with values "123", "124" in it.
-     *
      */
     Set<String> extractIds( String string ) {
       Set<String> ids = new HashSet<>();

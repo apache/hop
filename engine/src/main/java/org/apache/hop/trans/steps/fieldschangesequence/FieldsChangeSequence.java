@@ -49,7 +49,7 @@ public class FieldsChangeSequence extends BaseStep implements StepInterface {
   private FieldsChangeSequenceData data;
 
   public FieldsChangeSequence( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,
-    TransMeta transMeta, Trans trans ) {
+                               TransMeta transMeta, Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -74,27 +74,27 @@ public class FieldsChangeSequence extends BaseStep implements StepInterface {
 
       if ( meta.getFieldName() == null || meta.getFieldName().length > 0 ) {
         data.fieldnr = meta.getFieldName().length;
-        data.fieldnrs = new int[data.fieldnr];
-        data.previousValues = new Object[data.fieldnr];
-        data.fieldnrsMeta = new ValueMetaInterface[data.fieldnr];
+        data.fieldnrs = new int[ data.fieldnr ];
+        data.previousValues = new Object[ data.fieldnr ];
+        data.fieldnrsMeta = new ValueMetaInterface[ data.fieldnr ];
         for ( int i = 0; i < data.fieldnr; i++ ) {
-          data.fieldnrs[i] = data.previousMeta.indexOfValue( meta.getFieldName()[i] );
-          if ( data.fieldnrs[i] < 0 ) {
+          data.fieldnrs[ i ] = data.previousMeta.indexOfValue( meta.getFieldName()[ i ] );
+          if ( data.fieldnrs[ i ] < 0 ) {
             logError( BaseMessages.getString(
-              PKG, "FieldsChangeSequence.Log.CanNotFindField", meta.getFieldName()[i] ) );
+              PKG, "FieldsChangeSequence.Log.CanNotFindField", meta.getFieldName()[ i ] ) );
             throw new HopException( BaseMessages.getString(
-              PKG, "FieldsChangeSequence.Log.CanNotFindField", meta.getFieldName()[i] ) );
+              PKG, "FieldsChangeSequence.Log.CanNotFindField", meta.getFieldName()[ i ] ) );
           }
-          data.fieldnrsMeta[i] = data.previousMeta.getValueMeta( data.fieldnrs[i] );
+          data.fieldnrsMeta[ i ] = data.previousMeta.getValueMeta( data.fieldnrs[ i ] );
         }
       } else {
         data.fieldnr = data.previousMeta.size();
-        data.fieldnrs = new int[data.fieldnr];
-        data.previousValues = new Object[data.fieldnr];
-        data.fieldnrsMeta = new ValueMetaInterface[data.fieldnr];
+        data.fieldnrs = new int[ data.fieldnr ];
+        data.previousValues = new Object[ data.fieldnr ];
+        data.fieldnrsMeta = new ValueMetaInterface[ data.fieldnr ];
         for ( int i = 0; i < data.previousMeta.size(); i++ ) {
-          data.fieldnrs[i] = i;
-          data.fieldnrsMeta[i] = data.previousMeta.getValueMeta( i );
+          data.fieldnrs[ i ] = i;
+          data.fieldnrsMeta[ i ] = data.previousMeta.getValueMeta( i );
         }
       }
 
@@ -109,11 +109,11 @@ public class FieldsChangeSequence extends BaseStep implements StepInterface {
       // Loop through fields
       for ( int i = 0; i < data.fieldnr; i++ ) {
         if ( !first ) {
-          if ( data.fieldnrsMeta[i].compare( data.previousValues[i], r[data.fieldnrs[i]] ) != 0 ) {
+          if ( data.fieldnrsMeta[ i ].compare( data.previousValues[ i ], r[ data.fieldnrs[ i ] ] ) != 0 ) {
             change = true;
           }
         }
-        data.previousValues[i] = r[data.fieldnrs[i]];
+        data.previousValues[ i ] = r[ data.fieldnrs[ i ] ];
       }
       if ( first ) {
         first = false;

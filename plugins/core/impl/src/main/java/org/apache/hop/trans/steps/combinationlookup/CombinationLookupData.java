@@ -22,14 +22,14 @@
 
 package org.apache.hop.trans.steps.combinationlookup;
 
-import java.sql.PreparedStatement;
-import java.util.Map;
-
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import java.sql.PreparedStatement;
+import java.util.Map;
 
 /**
  * @author Matt

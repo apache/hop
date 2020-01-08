@@ -22,6 +22,22 @@
 
 package org.apache.hop.ui.job.entries.shell;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.shell.JobEntryShell;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -47,29 +63,12 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.shell.JobEntryShell;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * Dialog that allows you to enter the settings for a Shell job entry.
  *
  * @author Matt
  * @since 19-06-2003
- *
  */
 public class JobEntryShellDialog extends JobEntryDialog implements JobEntryDialogInterface {
   private static Class<?> PKG = JobEntryShell.class; // for i18n purposes, needed by Translator2!!
@@ -563,11 +562,11 @@ public class JobEntryShellDialog extends JobEntryDialog implements JobEntryDialo
     int rows = jobEntry.arguments == null ? 1 : ( jobEntry.arguments.length == 0 ? 0 : jobEntry.arguments.length );
     final int FieldsRows = rows;
 
-    ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
+    ColumnInfo[] colinf = new ColumnInfo[ FieldsCols ];
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "JobShell.Fields.Argument.Label" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinf[0].setUsingVariables( true );
+    colinf[ 0 ].setUsingVariables( true );
 
     wFields =
       new TableView(
@@ -785,8 +784,8 @@ public class JobEntryShellDialog extends JobEntryDialog implements JobEntryDialo
     if ( jobEntry.arguments != null ) {
       for ( int i = 0; i < jobEntry.arguments.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.arguments[i] != null ) {
-          ti.setText( 1, jobEntry.arguments[i] );
+        if ( jobEntry.arguments[ i ] != null ) {
+          ti.setText( 1, jobEntry.arguments[ i ] );
         }
       }
       wFields.setRowNums();
@@ -841,12 +840,12 @@ public class JobEntryShellDialog extends JobEntryDialog implements JobEntryDialo
         nr++;
       }
     }
-    jobEntry.arguments = new String[nr];
+    jobEntry.arguments = new String[ nr ];
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
-        jobEntry.arguments[nr] = arg;
+        jobEntry.arguments[ nr ] = arg;
         nr++;
       }
     }
@@ -854,7 +853,7 @@ public class JobEntryShellDialog extends JobEntryDialog implements JobEntryDialo
     jobEntry.logfile = wLogfile.getText();
     jobEntry.logext = wLogext.getText();
     if ( wLoglevel.getSelectionIndex() >= 0 ) {
-      jobEntry.logFileLevel = LogLevel.values()[wLoglevel.getSelectionIndex()];
+      jobEntry.logFileLevel = LogLevel.values()[ wLoglevel.getSelectionIndex() ];
     } else {
       jobEntry.logFileLevel = LogLevel.BASIC;
     }

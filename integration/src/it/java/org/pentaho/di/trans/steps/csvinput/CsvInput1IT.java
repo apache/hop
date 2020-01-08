@@ -22,13 +22,6 @@
 
 package org.apache.hop.trans.steps.csvinput;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -40,11 +33,18 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
+import org.junit.Test;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Regression test case for PDI JIRA-1317: a csv input step with less columns in certain rows than the number of columns
  * defined in the step.
- *
+ * <p>
  * In the original problem (in v3.1-M2) this caused the filename column to be in the wrong places.
  *
  * @author Sven Boden
@@ -55,8 +55,7 @@ public class CsvInput1IT extends CsvInputBase {
    * Write the file to be used as input (as a temporary file).
    *
    * @return Absolute file name/path of the created file.
-   * @throws IOException
-   *           UPON
+   * @throws IOException UPON
    */
   public String writeInputFile() throws IOException {
 
@@ -82,13 +81,13 @@ public class CsvInput1IT extends CsvInputBase {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    {
-      new ValueMetaInteger( "a" ), new ValueMetaString( "b" ),
-      new ValueMetaString( "c" ), new ValueMetaString( "d" ),
-      new ValueMetaString( "e" ), new ValueMetaString( "filename" ), };
+      {
+        new ValueMetaInteger( "a" ), new ValueMetaString( "b" ),
+        new ValueMetaString( "c" ), new ValueMetaString( "d" ),
+        new ValueMetaString( "e" ), new ValueMetaString( "filename" ), };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -118,61 +117,61 @@ public class CsvInput1IT extends CsvInputBase {
 
   @Override
   protected TextFileInputField[] createTextFileInputFields() {
-    TextFileInputField[] fields = new TextFileInputField[5];
+    TextFileInputField[] fields = new TextFileInputField[ 5 ];
 
     for ( int idx = 0; idx < fields.length; idx++ ) {
-      fields[idx] = new TextFileInputField();
+      fields[ idx ] = new TextFileInputField();
     }
 
-    fields[0].setName( "a" );
-    fields[0].setType( ValueMetaInterface.TYPE_INTEGER );
-    fields[0].setFormat( "" );
-    fields[0].setLength( -1 );
-    fields[0].setPrecision( -1 );
-    fields[0].setCurrencySymbol( "" );
-    fields[0].setDecimalSymbol( "" );
-    fields[0].setGroupSymbol( "" );
-    fields[0].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    fields[ 0 ].setName( "a" );
+    fields[ 0 ].setType( ValueMetaInterface.TYPE_INTEGER );
+    fields[ 0 ].setFormat( "" );
+    fields[ 0 ].setLength( -1 );
+    fields[ 0 ].setPrecision( -1 );
+    fields[ 0 ].setCurrencySymbol( "" );
+    fields[ 0 ].setDecimalSymbol( "" );
+    fields[ 0 ].setGroupSymbol( "" );
+    fields[ 0 ].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
 
-    fields[1].setName( "b" );
-    fields[1].setType( ValueMetaInterface.TYPE_STRING );
-    fields[1].setFormat( "" );
-    fields[1].setLength( -1 );
-    fields[1].setPrecision( -1 );
-    fields[1].setCurrencySymbol( "" );
-    fields[1].setDecimalSymbol( "" );
-    fields[1].setGroupSymbol( "" );
-    fields[1].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    fields[ 1 ].setName( "b" );
+    fields[ 1 ].setType( ValueMetaInterface.TYPE_STRING );
+    fields[ 1 ].setFormat( "" );
+    fields[ 1 ].setLength( -1 );
+    fields[ 1 ].setPrecision( -1 );
+    fields[ 1 ].setCurrencySymbol( "" );
+    fields[ 1 ].setDecimalSymbol( "" );
+    fields[ 1 ].setGroupSymbol( "" );
+    fields[ 1 ].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
 
-    fields[2].setName( "c" );
-    fields[2].setType( ValueMetaInterface.TYPE_STRING );
-    fields[2].setFormat( "" );
-    fields[2].setLength( -1 );
-    fields[2].setPrecision( -1 );
-    fields[2].setCurrencySymbol( "" );
-    fields[2].setDecimalSymbol( "" );
-    fields[2].setGroupSymbol( "" );
-    fields[2].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    fields[ 2 ].setName( "c" );
+    fields[ 2 ].setType( ValueMetaInterface.TYPE_STRING );
+    fields[ 2 ].setFormat( "" );
+    fields[ 2 ].setLength( -1 );
+    fields[ 2 ].setPrecision( -1 );
+    fields[ 2 ].setCurrencySymbol( "" );
+    fields[ 2 ].setDecimalSymbol( "" );
+    fields[ 2 ].setGroupSymbol( "" );
+    fields[ 2 ].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
 
-    fields[3].setName( "d" );
-    fields[3].setType( ValueMetaInterface.TYPE_STRING );
-    fields[3].setFormat( "" );
-    fields[3].setLength( -1 );
-    fields[3].setPrecision( -1 );
-    fields[3].setCurrencySymbol( "" );
-    fields[3].setDecimalSymbol( "" );
-    fields[3].setGroupSymbol( "" );
-    fields[3].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    fields[ 3 ].setName( "d" );
+    fields[ 3 ].setType( ValueMetaInterface.TYPE_STRING );
+    fields[ 3 ].setFormat( "" );
+    fields[ 3 ].setLength( -1 );
+    fields[ 3 ].setPrecision( -1 );
+    fields[ 3 ].setCurrencySymbol( "" );
+    fields[ 3 ].setDecimalSymbol( "" );
+    fields[ 3 ].setGroupSymbol( "" );
+    fields[ 3 ].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
 
-    fields[4].setName( "e" );
-    fields[4].setType( ValueMetaInterface.TYPE_STRING );
-    fields[4].setFormat( "" );
-    fields[4].setLength( -1 );
-    fields[4].setPrecision( -1 );
-    fields[4].setCurrencySymbol( "" );
-    fields[4].setDecimalSymbol( "" );
-    fields[4].setGroupSymbol( "" );
-    fields[4].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
+    fields[ 4 ].setName( "e" );
+    fields[ 4 ].setType( ValueMetaInterface.TYPE_STRING );
+    fields[ 4 ].setFormat( "" );
+    fields[ 4 ].setLength( -1 );
+    fields[ 4 ].setPrecision( -1 );
+    fields[ 4 ].setCurrencySymbol( "" );
+    fields[ 4 ].setDecimalSymbol( "" );
+    fields[ 4 ].setGroupSymbol( "" );
+    fields[ 4 ].setTrimType( ValueMetaInterface.TRIM_TYPE_NONE );
 
     return fields;
   }
@@ -180,8 +179,7 @@ public class CsvInput1IT extends CsvInputBase {
   /**
    * Test case for Get XML Data step, very simple example.
    *
-   * @throws Exception
-   *           Upon any exception
+   * @throws Exception Upon any exception
    */
   @Test
   public void testCSVInput1() throws Exception {

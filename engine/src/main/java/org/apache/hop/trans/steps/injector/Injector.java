@@ -42,7 +42,7 @@ public class Injector extends BaseStep implements StepInterface {
   private static Class<?> PKG = InjectorMeta.class; // for i18n purposes, needed by Translator2!!
 
   public Injector( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                   Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 

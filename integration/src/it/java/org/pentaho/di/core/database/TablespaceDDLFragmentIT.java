@@ -23,11 +23,10 @@
 package org.apache.hop.core.database;
 
 import junit.framework.TestCase;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.trans.TransMeta;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class TablespaceDDLFragmentIT extends TestCase {
 

@@ -22,13 +22,13 @@
 
 package org.apache.hop.trans.steps.mysqlbulkloader;
 
-import java.io.OutputStream;
-
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.StreamLogger;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import java.io.OutputStream;
 
 /**
  * Stores data for the MySQL bulk load step.

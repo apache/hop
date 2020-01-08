@@ -22,21 +22,20 @@
 
 package org.apache.hop.core;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.xml.XMLHandler;
 import org.w3c.dom.Node;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Describes the result of the execution of a Transformation or a Job. The information available includes the following:
@@ -56,7 +55,7 @@ import org.w3c.dom.Node;
  * <li>Whether the transformation was stopped</li>
  * <li>Logging information (channel ID and text)</li>
  * </p>
- *
+ * <p>
  * After execution of a job or transformation, the Result can be evaluated.
  *
  * @author Matt
@@ -65,67 +64,109 @@ import org.w3c.dom.Node;
 @XmlRootElement
 public class Result implements Cloneable {
 
-  /** A constant specifying the tag value for the XML node of the result object */
+  /**
+   * A constant specifying the tag value for the XML node of the result object
+   */
   public static final String XML_TAG = "result";
 
-  /** A constant specifying the tag value for the XML node for result files entry */
+  /**
+   * A constant specifying the tag value for the XML node for result files entry
+   */
   public static final String XML_FILES_TAG = "result-file";
 
-  /** A constant specifying the tag value for the XML node for the result file entry */
+  /**
+   * A constant specifying the tag value for the XML node for the result file entry
+   */
   public static final String XML_FILE_TAG = "result-file";
 
-  /** A constant specifying the tag value for the XML node for the result rows entry */
+  /**
+   * A constant specifying the tag value for the XML node for the result rows entry
+   */
   public static final String XML_ROWS_TAG = "result-rows";
 
-  /** The number of errors during the transformation or job */
+  /**
+   * The number of errors during the transformation or job
+   */
   private long nrErrors;
 
-  /** The number of lines input. */
+  /**
+   * The number of lines input.
+   */
   private long nrLinesInput;
 
-  /** The number of lines output. */
+  /**
+   * The number of lines output.
+   */
   private long nrLinesOutput;
 
-  /** The number of lines updated. */
+  /**
+   * The number of lines updated.
+   */
   private long nrLinesUpdated;
 
-  /** The number of lines read. */
+  /**
+   * The number of lines read.
+   */
   private long nrLinesRead;
 
-  /** The number of lines written. */
+  /**
+   * The number of lines written.
+   */
   private long nrLinesWritten;
 
-  /** The number of lines deleted. */
+  /**
+   * The number of lines deleted.
+   */
   private long nrLinesDeleted;
 
-  /** The number of files retrieved. */
+  /**
+   * The number of files retrieved.
+   */
   private long nrFilesRetrieved;
 
-  /** The result of the job or transformation, true if successful, false otherwise. */
+  /**
+   * The result of the job or transformation, true if successful, false otherwise.
+   */
   private boolean result;
 
-  /** The entry number. */
+  /**
+   * The entry number.
+   */
   private long entryNr;
 
-  /** The exit status. */
+  /**
+   * The exit status.
+   */
   private int exitStatus;
 
-  /** The rows. */
+  /**
+   * The rows.
+   */
   private List<RowMetaAndData> rows;
 
-  /** The result files. */
+  /**
+   * The result files.
+   */
   private Map<String, ResultFile> resultFiles;
 
-  /** Whether the job or transformation was stopped. */
+  /**
+   * Whether the job or transformation was stopped.
+   */
   public boolean stopped;
 
-  /** The number of lines rejected. */
+  /**
+   * The number of lines rejected.
+   */
   private long nrLinesRejected;
 
-  /** The log channel id. */
+  /**
+   * The log channel id.
+   */
   private String logChannelId;
 
-  /** The log text. */
+  /**
+   * The log text.
+   */
   private String logText;
 
   /**
@@ -166,8 +207,7 @@ public class Result implements Cloneable {
   /**
    * Instantiates a new Result object, setting default values for all members and the entry number
    *
-   * @param nr
-   *          the entry number for the Result
+   * @param nr the entry number for the Result
    */
   public Result( int nr ) {
     this();
@@ -202,10 +242,9 @@ public class Result implements Cloneable {
   /**
    * Clones the Result, including rows and files. To perform a clone without rows, use lightClone()
    *
+   * @return A clone of the Result object
    * @see java.lang.Object#clone()
    * @see Result#lightClone
-   *
-   * @return A clone of the Result object
    */
   @Override
   public Result clone() {
@@ -240,8 +279,7 @@ public class Result implements Cloneable {
    * Creates a string containing the read/write throughput. Throughput in this case is defined as two measures, number
    * of lines read or written and number of lines read/written per second.
    *
-   * @param seconds
-   *          the number of seconds with which to determine the read/write throughput
+   * @param seconds the number of seconds with which to determine the read/write throughput
    * @return a string containing the read write throughput measures with labelling text
    */
   public String getReadWriteThroughput( int seconds ) {
@@ -292,8 +330,7 @@ public class Result implements Cloneable {
   /**
    * Sets the number of files retrieved to the specified value
    *
-   * @param filesRetrieved
-   *          The number of files retrieved to set.
+   * @param filesRetrieved The number of files retrieved to set.
    */
   public void setNrFilesRetrieved( long filesRetrieved ) {
     this.nrFilesRetrieved = filesRetrieved;
@@ -311,8 +348,7 @@ public class Result implements Cloneable {
   /**
    * Sets the entry number to the specified value
    *
-   * @param entryNr
-   *          The entry number to set.
+   * @param entryNr The entry number to set.
    */
   public void setEntryNr( long entryNr ) {
     this.entryNr = entryNr;
@@ -330,8 +366,7 @@ public class Result implements Cloneable {
   /**
    * Sets the exit status value to the specified value
    *
-   * @param exitStatus
-   *          The exit status to set.
+   * @param exitStatus The exit status to set.
    */
   public void setExitStatus( int exitStatus ) {
     this.exitStatus = exitStatus;
@@ -349,8 +384,7 @@ public class Result implements Cloneable {
   /**
    * Sets the number of errors that occurred during execution of this transformation or job
    *
-   * @param nrErrors
-   *          The number of errors to set
+   * @param nrErrors The number of errors to set
    */
   public void setNrErrors( long nrErrors ) {
     this.nrErrors = nrErrors;
@@ -368,8 +402,7 @@ public class Result implements Cloneable {
   /**
    * Sets the number of lines input during execution of this transformation or job
    *
-   * @param nrLinesInput
-   *          The number of lines input to set.
+   * @param nrLinesInput The number of lines input to set.
    */
   public void setNrLinesInput( long nrLinesInput ) {
     this.nrLinesInput = nrLinesInput;
@@ -387,8 +420,7 @@ public class Result implements Cloneable {
   /**
    * Sets the number of lines output during execution of this transformation or job
    *
-   * @param nrLinesOutput
-   *          The number of lines output to set
+   * @param nrLinesOutput The number of lines output to set
    */
   public void setNrLinesOutput( long nrLinesOutput ) {
     this.nrLinesOutput = nrLinesOutput;
@@ -406,8 +438,7 @@ public class Result implements Cloneable {
   /**
    * Sets the number of lines read during execution of this transformation or job
    *
-   * @param nrLinesRead
-   *          The number of lines read to set.
+   * @param nrLinesRead The number of lines read to set.
    */
   public void setNrLinesRead( long nrLinesRead ) {
     this.nrLinesRead = nrLinesRead;
@@ -425,8 +456,7 @@ public class Result implements Cloneable {
   /**
    * Sets the number of lines updated during execution of this transformation or job
    *
-   * @param nrLinesUpdated
-   *          The number of lines updated to set.
+   * @param nrLinesUpdated The number of lines updated to set.
    */
   public void setNrLinesUpdated( long nrLinesUpdated ) {
     this.nrLinesUpdated = nrLinesUpdated;
@@ -444,8 +474,7 @@ public class Result implements Cloneable {
   /**
    * Sets the number of lines written during execution of this transformation or job
    *
-   * @param nrLinesWritten
-   *          The number of lines written to set.
+   * @param nrLinesWritten The number of lines written to set.
    */
   public void setNrLinesWritten( long nrLinesWritten ) {
     this.nrLinesWritten = nrLinesWritten;
@@ -463,8 +492,7 @@ public class Result implements Cloneable {
   /**
    * Sets the number of lines deleted during execution of this transformation or job
    *
-   * @param nrLinesDeleted
-   *          The number of lines deleted to set.
+   * @param nrLinesDeleted The number of lines deleted to set.
    */
   public void setNrLinesDeleted( long nrLinesDeleted ) {
     this.nrLinesDeleted = nrLinesDeleted;
@@ -483,8 +511,7 @@ public class Result implements Cloneable {
    * Sets the result of the transformation or job. A value of true should indicate a successful execution, a value of
    * false should indicate an error condition.
    *
-   * @param result
-   *          The boolean result to set.
+   * @param result The boolean result to set.
    */
   public void setResult( boolean result ) {
     this.result = result;
@@ -504,8 +531,7 @@ public class Result implements Cloneable {
   /**
    * Sets the resulting rowset from the job or transformation execution
    *
-   * @param rows
-   *          The List of rows to set.
+   * @param rows The List of rows to set.
    */
   public void setRows( List<RowMetaAndData> rows ) {
     this.rows = rows;
@@ -523,8 +549,7 @@ public class Result implements Cloneable {
   /**
    * Sets whether the transformation or job was stopped before completion
    *
-   * @param stopped
-   *          true if the transformation or job was stopped, false otherwise
+   * @param stopped true if the transformation or job was stopped, false otherwise
    */
   public void setStopped( boolean stopped ) {
     this.stopped = stopped;
@@ -549,8 +574,7 @@ public class Result implements Cloneable {
   /**
    * Add the numbers of lines from a different result to this result
    *
-   * @param res
-   *          The Result object from which to add
+   * @param res The Result object from which to add
    */
   public void add( Result res ) {
     nrLinesInput += res.getNrLinesInput();
@@ -647,10 +671,8 @@ public class Result implements Cloneable {
   /**
    * Instantiates a new Result object from a DOM node
    *
-   * @param node
-   *          the DOM root node representing the desired Result
-   * @throws HopException
-   *           if any errors occur during instantiation
+   * @param node the DOM root node representing the desired Result
+   * @throws HopException if any errors occur during instantiation
    */
   public Result( Node node ) throws HopException {
     this();
@@ -712,9 +734,8 @@ public class Result implements Cloneable {
   /**
    * Returns the result files as a Map with the filename as key and the ResultFile object as value
    *
-   * @see org.apache.hop.core.ResultFile
-   *
    * @return a Map with String as key and ResultFile as value.
+   * @see org.apache.hop.core.ResultFile
    */
   public Map<String, ResultFile> getResultFiles() {
     return resultFiles;
@@ -723,8 +744,8 @@ public class Result implements Cloneable {
   /**
    * Returns the result files as a List of type ResultFile
    *
-   * @see org.apache.hop.core.ResultFile
    * @return a list of type ResultFile containing this Result's ResultFile objects
+   * @see org.apache.hop.core.ResultFile
    */
   public List<ResultFile> getResultFilesList() {
     return new ArrayList<ResultFile>( resultFiles.values() );
@@ -733,10 +754,8 @@ public class Result implements Cloneable {
   /**
    * Sets the result files for this Result to the specified Map of ResultFile objects
    *
+   * @param usedFiles The Map of result files to set. This is a Map with the filename as key and ResultFile object as value
    * @see org.apache.hop.core.ResultFile
-   *
-   * @param usedFiles
-   *          The Map of result files to set. This is a Map with the filename as key and ResultFile object as value
    */
   public void setResultFiles( Map<String, ResultFile> usedFiles ) {
     this.resultFiles = usedFiles;
@@ -754,8 +773,7 @@ public class Result implements Cloneable {
   /**
    * Sets the number of lines rejected during execution of this transformation or job
    *
-   * @param nrLinesRejected
-   *          the number of lines rejected to set
+   * @param nrLinesRejected the number of lines rejected to set
    */
   public void setNrLinesRejected( long nrLinesRejected ) {
     this.nrLinesRejected = nrLinesRejected;
@@ -773,8 +791,7 @@ public class Result implements Cloneable {
   /**
    * Sets the log channel id of the object that was executed (trans, job, job entry, etc)
    *
-   * @param logChannelId
-   *          the logChannelId to set
+   * @param logChannelId the logChannelId to set
    */
   public void setLogChannelId( String logChannelId ) {
     this.logChannelId = logChannelId;
@@ -783,8 +800,7 @@ public class Result implements Cloneable {
   /**
    * Increases the number of lines read by the specified value
    *
-   * @param incr
-   *          the amount to increment
+   * @param incr the amount to increment
    */
   public void increaseLinesRead( long incr ) {
     nrLinesRead += incr;
@@ -793,8 +809,7 @@ public class Result implements Cloneable {
   /**
    * Increases the number of lines written by the specified value
    *
-   * @param incr
-   *          the amount to increment
+   * @param incr the amount to increment
    */
   public void increaseLinesWritten( long incr ) {
     nrLinesWritten += incr;
@@ -803,8 +818,7 @@ public class Result implements Cloneable {
   /**
    * Increases the number of lines input by the specified value
    *
-   * @param incr
-   *          the amount to increment
+   * @param incr the amount to increment
    */
   public void increaseLinesInput( long incr ) {
     nrLinesInput += incr;
@@ -813,8 +827,7 @@ public class Result implements Cloneable {
   /**
    * Increases the number of lines output by the specified value
    *
-   * @param incr
-   *          the amount to increment
+   * @param incr the amount to increment
    */
   public void increaseLinesOutput( long incr ) {
     nrLinesOutput += incr;
@@ -823,8 +836,7 @@ public class Result implements Cloneable {
   /**
    * Increases the number of lines updated by the specified value
    *
-   * @param incr
-   *          the amount to increment
+   * @param incr the amount to increment
    */
   public void increaseLinesUpdated( long incr ) {
     nrLinesUpdated += incr;
@@ -833,8 +845,7 @@ public class Result implements Cloneable {
   /**
    * Increases the number of lines deleted by the specified value
    *
-   * @param incr
-   *          the amount to increment
+   * @param incr the amount to increment
    */
   public void increaseLinesDeleted( long incr ) {
     nrLinesDeleted += incr;
@@ -843,8 +854,7 @@ public class Result implements Cloneable {
   /**
    * Increases the number of lines rejected by the specified value
    *
-   * @param incr
-   *          the amount to increment
+   * @param incr the amount to increment
    */
   public void increaseLinesRejected( long incr ) {
     nrLinesRejected += incr;
@@ -853,8 +863,7 @@ public class Result implements Cloneable {
   /**
    * Increases the number of errors by the specified value
    *
-   * @param incr
-   *          the amount to increment
+   * @param incr the amount to increment
    */
   public void increaseErrors( long incr ) {
     nrErrors += incr;
@@ -872,8 +881,7 @@ public class Result implements Cloneable {
   /**
    * Sets the logging text to the specified String
    *
-   * @param logText
-   *          the logText to set
+   * @param logText the logText to set
    */
   public void setLogText( String logText ) {
     this.logText = logText;

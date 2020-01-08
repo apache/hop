@@ -22,12 +22,12 @@
 
 package org.apache.hop.resource;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.variables.VariableSpace;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SimpleResourceNaming implements ResourceNamingInterface {
 
@@ -35,7 +35,7 @@ public class SimpleResourceNaming implements ResourceNamingInterface {
 
   /**
    * The fileSystemPrefix would be appropriate for something like:
-   *
+   * <p>
    * zip://somefile.zip! or somefilesystem://export/folder/
    */
   private String fileSystemPrefix;
@@ -135,17 +135,14 @@ public class SimpleResourceNaming implements ResourceNamingInterface {
   /**
    * We have a data file and we need to create a reference to this (relative/absolute) path name. The cleanest way to do
    * this is by calculating the absolute filename. Then we put the path to the file in a parameter that we remember.
-   *
+   * <p>
    * FILE_LOCATION_01, FILE_LOCATION_02, etc.
-   *
+   * <p>
    * We keep a unique list of parameters this way.
    *
-   * @param prefix
-   *          the name of the file (foo.csv)
-   * @param originalFilePath
-   *          directory in which the file lives (file://path/to/foo/bar/)
-   * @param extension
-   *          ignored (null)
+   * @param prefix           the name of the file (foo.csv)
+   * @param originalFilePath directory in which the file lives (file://path/to/foo/bar/)
+   * @param extension        ignored (null)
    * @return the new filename including the created parameter...
    */
   private String handleDataFile( String prefix, String originalFilePath, String extension ) {
@@ -222,10 +219,8 @@ public class SimpleResourceNaming implements ResourceNamingInterface {
    * This method turns a friendly name which could contain all manner of invalid characters for a file name into one
    * that's more conducive to being a file name.
    *
-   * @param name
-   *          The name to fix up.
-   * @param extension
-   *          the requested extension to see if we don't end up with 2 extensions (export of XML to XML)
+   * @param name      The name to fix up.
+   * @param extension the requested extension to see if we don't end up with 2 extensions (export of XML to XML)
    * @return
    */
   protected String fixFileName( String name, String extension ) {
@@ -278,8 +273,7 @@ public class SimpleResourceNaming implements ResourceNamingInterface {
   }
 
   /**
-   * @param directoryMap
-   *          the directoryMap to set
+   * @param directoryMap the directoryMap to set
    */
   public void setDirectoryMap( Map<String, String> directoryMap ) {
     this.directoryMap = directoryMap;

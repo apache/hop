@@ -22,11 +22,11 @@
 
 package org.apache.hop.trans.steps.uniquerowsbyhashset;
 
-import java.util.HashSet;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import java.util.HashSet;
 
 public class UniqueRowsByHashSetData extends BaseStepData implements StepDataInterface {
   public RowMetaInterface outputRowMeta;

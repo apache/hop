@@ -22,13 +22,29 @@
 
 package org.apache.hop.ui.trans.steps.dbproc;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.dbproc.DBProcMeta;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.TableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -50,28 +66,12 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.dbproc.DBProcMeta;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.TableItemInsertListener;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class DBProcDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = DBProcMeta.class; // for i18n purposes, needed by Translator2!!
@@ -279,7 +279,7 @@ public class DBProcDialog extends BaseStepDialog implements StepDialogInterface 
     props.setLook( wResultType );
     String[] types = ValueMetaFactory.getValueMetaNames();
     for ( int x = 0; x < types.length; x++ ) {
-      wResultType.add( types[x] );
+      wResultType.add( types[ x ] );
     }
     wResultType.select( 0 );
     wResultType.addModifyListener( lsMod );
@@ -300,16 +300,16 @@ public class DBProcDialog extends BaseStepDialog implements StepDialogInterface 
     final int FieldsCols = 3;
     final int FieldsRows = input.getArgument().length;
 
-    colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
+    colinf = new ColumnInfo[ FieldsCols ];
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "DBProcDialog.ColumnInfo.Name" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] { "" }, false );
-    colinf[1] =
+    colinf[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "DBProcDialog.ColumnInfo.Direction" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] { "IN", "OUT", "INOUT" } );
-    colinf[2] =
+    colinf[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "DBProcDialog.ColumnInfo.Type" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         ValueMetaFactory.getValueMetaNames() );
@@ -430,10 +430,10 @@ public class DBProcDialog extends BaseStepDialog implements StepDialogInterface 
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    colinf[0].setComboValues( fieldNames );
+    colinf[ 0 ].setComboValues( fieldNames );
   }
 
   /**
@@ -446,13 +446,13 @@ public class DBProcDialog extends BaseStepDialog implements StepDialogInterface 
     if ( input.getArgument() != null ) {
       for ( i = 0; i < input.getArgument().length; i++ ) {
         TableItem item = wFields.table.getItem( i );
-        if ( input.getArgument()[i] != null ) {
-          item.setText( 1, input.getArgument()[i] );
+        if ( input.getArgument()[ i ] != null ) {
+          item.setText( 1, input.getArgument()[ i ] );
         }
-        if ( input.getArgumentDirection()[i] != null ) {
-          item.setText( 2, input.getArgumentDirection()[i] );
+        if ( input.getArgumentDirection()[ i ] != null ) {
+          item.setText( 2, input.getArgumentDirection()[ i ] );
         }
-        item.setText( 3, ValueMetaFactory.getValueMetaName( input.getArgumentType()[i] ) );
+        item.setText( 3, ValueMetaFactory.getValueMetaName( input.getArgumentType()[ i ] ) );
       }
     }
 
@@ -497,9 +497,9 @@ public class DBProcDialog extends BaseStepDialog implements StepDialogInterface 
     //CHECKSTYLE:Indentation:OFF
     for ( i = 0; i < nrargs; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      input.getArgument()[i] = item.getText( 1 );
-      input.getArgumentDirection()[i] = item.getText( 2 );
-      input.getArgumentType()[i] = ValueMetaFactory.getIdForValueMeta( item.getText( 3 ) );
+      input.getArgument()[ i ] = item.getText( 1 );
+      input.getArgumentDirection()[ i ] = item.getText( 2 );
+      input.getArgumentType()[ i ] = ValueMetaFactory.getIdForValueMeta( item.getText( 3 ) );
     }
 
     input.setDatabase( transMeta.findDatabase( wConnection.getText() ) );
@@ -535,7 +535,7 @@ public class DBProcDialog extends BaseStepDialog implements StepDialogInterface 
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "DBProcDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "DBProcDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "DBProcDialog.FailedToGetFields.DialogMessage" ), ke );
     }
 
   }

@@ -22,22 +22,6 @@
 
 package org.apache.hop.ui.hopui.trans;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.ResourceBundle;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.logging.HopLogStore;
@@ -52,11 +36,27 @@ import org.apache.hop.ui.hopui.XulHopUiResourceBundle;
 import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
 import org.apache.hop.ui.hopui.delegates.HopUiDelegate;
 import org.apache.hop.ui.xul.HopXulLoader;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulLoader;
 import org.pentaho.ui.xul.components.XulToolbarbutton;
 import org.pentaho.ui.xul.containers.XulToolbar;
 import org.pentaho.ui.xul.impl.XulEventHandler;
+
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 public class TransLogDelegate extends HopUiDelegate implements XulEventHandler {
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
@@ -242,9 +242,9 @@ public class TransLogDelegate extends HopUiDelegate implements XulEventHandler {
     }
 
     if ( err.size() > 0 ) {
-      String[] err_lines = new String[err.size()];
+      String[] err_lines = new String[ err.size() ];
       for ( i = 0; i < err_lines.length; i++ ) {
-        err_lines[i] = err.get( i );
+        err_lines[ i ] = err.get( i );
       }
 
       EnterSelectionDialog esd = new EnterSelectionDialog( transGraph.getShell(), err_lines,

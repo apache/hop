@@ -24,7 +24,6 @@ package org.apache.hop.core.lifecycle;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -55,7 +54,7 @@ public class HopLifecycleSupport {
       LifecycleSupport.loadPlugins( HopLifecyclePluginType.class, HopLifecycleListener.class );
     kettleLifecycleListeners = new ConcurrentHashMap<HopLifecycleListener, Boolean>();
 
-    for ( HopLifecycleListener kll: listeners ) {
+    for ( HopLifecycleListener kll : listeners ) {
       kettleLifecycleListeners.put( kll, false );
     }
 
@@ -97,8 +96,7 @@ public class HopLifecycleSupport {
    * Execute all known listener's {@link #onEnvironmentInit()} methods. If an invocation throws a
    * {@link LifecycleException} is severe this method will re-throw the exception.
    *
-   * @throws LifecycleException
-   *           if any listener throws a severe Lifecycle Exception or any {@link Throwable}.
+   * @throws LifecycleException if any listener throws a severe Lifecycle Exception or any {@link Throwable}.
    */
   public void onEnvironmentInit() throws HopException {
     // Execute only once

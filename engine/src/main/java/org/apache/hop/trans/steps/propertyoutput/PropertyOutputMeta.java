@@ -22,26 +22,20 @@
 
 package org.apache.hop.trans.steps.propertyoutput;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
@@ -51,8 +45,12 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Output rows to Properties file and create a file.
@@ -69,7 +67,9 @@ public class PropertyOutputMeta extends BaseStepMeta implements StepMetaInterfac
 
   private boolean addToResult;
 
-  /** The base name of the output file */
+  /**
+   * The base name of the output file
+   */
   private String fileName;
 
   /* Specification if file name is in field */
@@ -78,28 +78,44 @@ public class PropertyOutputMeta extends BaseStepMeta implements StepMetaInterfac
 
   private String fileNameField;
 
-  /** The file extention in case of a generated filename */
+  /**
+   * The file extention in case of a generated filename
+   */
   private String extension;
 
-  /** Flag: add the stepnr in the filename */
+  /**
+   * Flag: add the stepnr in the filename
+   */
   private boolean stepNrInFilename;
 
-  /** Flag: add the partition number in the filename */
+  /**
+   * Flag: add the partition number in the filename
+   */
   private boolean partNrInFilename;
 
-  /** Flag: add the date in the filename */
+  /**
+   * Flag: add the date in the filename
+   */
   private boolean dateInFilename;
 
-  /** Flag: add the time in the filename */
+  /**
+   * Flag: add the time in the filename
+   */
   private boolean timeInFilename;
 
-  /** Flag: create parent folder if needed */
+  /**
+   * Flag: create parent folder if needed
+   */
   private boolean createparentfolder;
 
-  /** Comment to add in file */
+  /**
+   * Comment to add in file
+   */
   private String comment;
 
-  /** Flag append in file **/
+  /**
+   * Flag append in file
+   **/
   private boolean append;
 
   @Override
@@ -123,8 +139,7 @@ public class PropertyOutputMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param extension
-   *          The extension to set.
+   * @param extension The extension to set.
    */
   public void setExtension( String extension ) {
     this.extension = extension;
@@ -145,8 +160,7 @@ public class PropertyOutputMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param fileNameInField
-   *          Is the file name coded in a field?
+   * @param fileNameInField Is the file name coded in a field?
    */
   public void setFileNameInField( boolean fileNameInField ) {
     this.fileNameInField = fileNameInField;
@@ -160,8 +174,7 @@ public class PropertyOutputMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param fileNameField
-   *          Name of the field that contains the file name
+   * @param fileNameField Name of the field that contains the file name
    */
   public void setFileNameField( String fileNameField ) {
     this.fileNameField = fileNameField;
@@ -175,8 +188,7 @@ public class PropertyOutputMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param stepNrInFilename
-   *          The stepNrInFilename to set.
+   * @param stepNrInFilename The stepNrInFilename to set.
    */
   public void setStepNrInFilename( boolean stepNrInFilename ) {
     this.stepNrInFilename = stepNrInFilename;
@@ -197,32 +209,29 @@ public class PropertyOutputMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param dateInFilename
-   *          The dateInFilename to set.
+   * @param dateInFilename The dateInFilename to set.
    */
   public void setDateInFilename( boolean dateInFilename ) {
     this.dateInFilename = dateInFilename;
   }
 
   /**
-   * @param timeInFilename
-   *          The timeInFilename to set.
+   * @param timeInFilename The timeInFilename to set.
    */
   public void setTimeInFilename( boolean timeInFilename ) {
     this.timeInFilename = timeInFilename;
   }
 
   /**
-   * @param fileName
-   *          The fileName to set.
+   * @param fileName The fileName to set.
    */
   public void setFileName( String fileName ) {
     this.fileName = fileName;
   }
 
   /**
-   * @deprecated use {@link #isAddToResult()}
    * @return Returns the Add to result filesname flag.
+   * @deprecated use {@link #isAddToResult()}
    */
   @Deprecated
   public boolean addToResult() {
@@ -234,8 +243,7 @@ public class PropertyOutputMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param addToResult
-   *          The Add file to result to set.
+   * @param addToResult The Add file to result to set.
    */
   public void setAddToResult( boolean addToResult ) {
     this.addToResult = addToResult;
@@ -249,8 +257,7 @@ public class PropertyOutputMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param createparentfolder
-   *          The create parent folder flag to set.
+   * @param createparentfolder The create parent folder flag to set.
    */
   public void setCreateParentFolder( boolean createparentfolder ) {
     this.createparentfolder = createparentfolder;
@@ -264,8 +271,7 @@ public class PropertyOutputMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param append
-   *          The append to set.
+   * @param append The append to set.
    */
   public void setAppend( boolean append ) {
     this.append = append;
@@ -296,19 +302,19 @@ public class PropertyOutputMeta extends BaseStepMeta implements StepMetaInterfac
       nr++;
     }
 
-    String[] retval = new String[nr];
+    String[] retval = new String[ nr ];
 
     int i = 0;
     for ( int copy = 0; copy < copies; copy++ ) {
       for ( int part = 0; part < parts; part++ ) {
 
-        retval[i] = buildFilename( space, copy );
+        retval[ i ] = buildFilename( space, copy );
         i++;
 
       }
     }
     if ( i < nr ) {
-      retval[i] = "...";
+      retval[ i ] = "...";
     }
 
     return retval;
@@ -412,8 +418,8 @@ public class PropertyOutputMeta extends BaseStepMeta implements StepMetaInterfac
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
 
     CheckResult cr;
     // Now see what we can find as previous step...
@@ -507,16 +513,14 @@ public class PropertyOutputMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   /**
-   * @param KeyField
-   *          the keyfield to set
+   * @param KeyField the keyfield to set
    */
   public void setKeyField( String KeyField ) {
     this.keyfield = KeyField;
   }
 
   /**
-   * @param valuefield
-   *          the valuefield to set
+   * @param valuefield the valuefield to set
    */
   public void setValueField( String valuefield ) {
     this.valuefield = valuefield;
@@ -524,7 +528,7 @@ public class PropertyOutputMeta extends BaseStepMeta implements StepMetaInterfac
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new PropertyOutput( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -539,18 +543,15 @@ public class PropertyOutputMeta extends BaseStepMeta implements StepMetaInterfac
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param space
-   *          the variable space to use
+   * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
-   *
+   * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

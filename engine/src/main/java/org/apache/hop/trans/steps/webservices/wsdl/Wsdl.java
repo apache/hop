@@ -22,14 +22,13 @@
 
 package org.apache.hop.trans.steps.webservices.wsdl;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import org.apache.hop.core.HTTPProtocol;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.http.auth.AuthenticationException;
+import org.w3c.dom.Document;
 
 import javax.wsdl.Binding;
 import javax.wsdl.Definition;
@@ -43,14 +42,14 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLLocator;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
-
-import org.apache.http.auth.AuthenticationException;
-import org.apache.hop.core.HTTPProtocol;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopStepException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.xml.XMLHandler;
-import org.w3c.dom.Document;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Wsdl abstraction.
@@ -67,12 +66,9 @@ public final class Wsdl implements java.io.Serializable {
   /**
    * Loads and parses the specified WSDL file.
    *
-   * @param wsdlURI
-   *          URI of a WSDL file.
-   * @param serviceQName
-   *          Name of the service in the WSDL, if null default to first service in WSDL.
-   * @param portName
-   *          The service port name, if null default to first port in service.
+   * @param wsdlURI      URI of a WSDL file.
+   * @param serviceQName Name of the service in the WSDL, if null default to first service in WSDL.
+   * @param portName     The service port name, if null default to first port in service.
    */
   public Wsdl( URI wsdlURI, QName serviceQName, String portName ) throws AuthenticationException {
     this( wsdlURI, serviceQName, portName, null, null );
@@ -139,12 +135,9 @@ public final class Wsdl implements java.io.Serializable {
   /**
    * Loads and parses the specified WSDL file.
    *
-   * @param wsdlLocator
-   *          A javax.wsdl.WSDLLocator instance.
-   * @param serviceQName
-   *          Name of the service in the WSDL.
-   * @param portName
-   *          The service port name.
+   * @param wsdlLocator  A javax.wsdl.WSDLLocator instance.
+   * @param serviceQName Name of the service in the WSDL.
+   * @param portName     The service port name.
    */
   public Wsdl( WSDLLocator wsdlLocator, QName serviceQName, String portName ) throws AuthenticationException {
     this( wsdlLocator, serviceQName, portName, null, null );
@@ -191,8 +184,7 @@ public final class Wsdl implements java.io.Serializable {
   /**
    * Find the specified operation in the WSDL definition.
    *
-   * @param operationName
-   *          Name of operation to find.
+   * @param operationName Name of operation to find.
    * @return A WsdlOperation instance, null if operation can not be found in WSDL.
    */
   public WsdlOperation getOperation( String operationName ) throws HopStepException {
@@ -291,10 +283,8 @@ public final class Wsdl implements java.io.Serializable {
   /**
    * Change the port of the service.
    *
-   * @param portName
-   *          The new port name.
-   * @throws IllegalArgumentException
-   *           if port name is not defined in WSDL.
+   * @param portName The new port name.
+   * @throws IllegalArgumentException if port name is not defined in WSDL.
    */
   public void setPort( QName portName ) {
 
@@ -311,8 +301,7 @@ public final class Wsdl implements java.io.Serializable {
    * Get a WSDLReader.
    *
    * @return WSDLReader.
-   * @throws WSDLException
-   *           on error.
+   * @throws WSDLException on error.
    */
   private WSDLReader getReader() throws WSDLException {
 
@@ -328,15 +317,11 @@ public final class Wsdl implements java.io.Serializable {
   /**
    * Load and parse the WSDL file using the wsdlLocator.
    *
-   * @param wsdlLocator
-   *          A WSDLLocator instance.
-   * @param username
-   *          to use for authentication
-   * @param password
-   *          to use for authentication
+   * @param wsdlLocator A WSDLLocator instance.
+   * @param username    to use for authentication
+   * @param password    to use for authentication
    * @return wsdl Definition.
-   * @throws WSDLException
-   *           on error.
+   * @throws WSDLException on error.
    */
   private Definition parse( WSDLLocator wsdlLocator, String username, String password ) throws WSDLException,
     HopException, AuthenticationException {
@@ -354,15 +339,11 @@ public final class Wsdl implements java.io.Serializable {
   /**
    * Load and parse the WSDL file at the specified URI.
    *
-   * @param wsdlURI
-   *          URI of the WSDL file.
-   * @param username
-   *          to use for authentication
-   * @param password
-   *          to use for authentication
+   * @param wsdlURI  URI of the WSDL file.
+   * @param username to use for authentication
+   * @param password to use for authentication
    * @return wsdl Definition
-   * @throws WSDLException
-   *           on error.
+   * @throws WSDLException on error.
    */
   private Definition parse( URI wsdlURI, String username, String password ) throws WSDLException, HopException,
     AuthenticationException {

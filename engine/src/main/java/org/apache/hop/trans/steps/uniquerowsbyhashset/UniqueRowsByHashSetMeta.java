@@ -22,19 +22,15 @@
 
 package org.apache.hop.trans.steps.uniquerowsbyhashset;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -42,16 +38,21 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 public class UniqueRowsByHashSetMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = UniqueRowsByHashSetMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** Whether to compare strictly by hash value or to store the row values for strict equality checking */
+  /**
+   * Whether to compare strictly by hash value or to store the row values for strict equality checking
+   */
   private boolean storeValues;
 
-  /** The fields to compare for duplicates, null means all */
+  /**
+   * The fields to compare for duplicates, null means all
+   */
   private String[] compareFields;
 
   private boolean rejectDuplicateRow;
@@ -62,8 +63,7 @@ public class UniqueRowsByHashSetMeta extends BaseStepMeta implements StepMetaInt
   }
 
   /**
-   * @param compareField
-   *          The compareField to set.
+   * @param compareField The compareField to set.
    */
   public void setCompareFields( String[] compareField ) {
     this.compareFields = compareField;
@@ -85,12 +85,11 @@ public class UniqueRowsByHashSetMeta extends BaseStepMeta implements StepMetaInt
   }
 
   public void allocate( int nrfields ) {
-    compareFields = new String[nrfields];
+    compareFields = new String[ nrfields ];
   }
 
   /**
-   * @param rejectDuplicateRow
-   *          The rejectDuplicateRow to set.
+   * @param rejectDuplicateRow The rejectDuplicateRow to set.
    */
   public void setRejectDuplicateRow( boolean rejectDuplicateRow ) {
     this.rejectDuplicateRow = rejectDuplicateRow;
@@ -104,8 +103,7 @@ public class UniqueRowsByHashSetMeta extends BaseStepMeta implements StepMetaInt
   }
 
   /**
-   * @param errorDescription
-   *          The errorDescription to set.
+   * @param errorDescription The errorDescription to set.
    */
   public void setErrorDescription( String errorDescription ) {
     this.errorDescription = errorDescription;
@@ -147,7 +145,7 @@ public class UniqueRowsByHashSetMeta extends BaseStepMeta implements StepMetaInt
       for ( int i = 0; i < nrfields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        compareFields[i] = XMLHandler.getTagValue( fnode, "name" );
+        compareFields[ i ] = XMLHandler.getTagValue( fnode, "name" );
       }
 
     } catch ( Exception e ) {
@@ -164,12 +162,12 @@ public class UniqueRowsByHashSetMeta extends BaseStepMeta implements StepMetaInt
     allocate( nrfields );
 
     for ( int i = 0; i < nrfields; i++ ) {
-      compareFields[i] = "field" + i;
+      compareFields[ i ] = "field" + i;
     }
   }
 
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
   }
 
   public String getXML() {
@@ -181,7 +179,7 @@ public class UniqueRowsByHashSetMeta extends BaseStepMeta implements StepMetaInt
     retval.append( "    <fields>" );
     for ( int i = 0; i < compareFields.length; i++ ) {
       retval.append( "      <field>" );
-      retval.append( "        " + XMLHandler.addTagValue( "name", compareFields[i] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "name", compareFields[ i ] ) );
       retval.append( "        </field>" );
     }
     retval.append( "      </fields>" );
@@ -190,8 +188,8 @@ public class UniqueRowsByHashSetMeta extends BaseStepMeta implements StepMetaInt
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( input.length > 0 ) {
@@ -208,7 +206,7 @@ public class UniqueRowsByHashSetMeta extends BaseStepMeta implements StepMetaInt
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new UniqueRowsByHashSet( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

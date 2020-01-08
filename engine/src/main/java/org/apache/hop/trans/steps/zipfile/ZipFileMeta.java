@@ -22,20 +22,16 @@
 
 package org.apache.hop.trans.steps.zipfile;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -43,8 +39,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*
  * Created on 03-Juin-2008
@@ -54,7 +51,9 @@ import org.w3c.dom.Node;
 public class ZipFileMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = ZipFileMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** dynamic filename */
+  /**
+   * dynamic filename
+   */
   private String sourcefilenamefield;
   private String targetfilenamefield;
   private String baseFolderField;
@@ -67,7 +66,9 @@ public class ZipFileMeta extends BaseStepMeta implements StepMetaInterface {
 
   private boolean keepsourcefolder;
 
-  /** Operations type */
+  /**
+   * Operations type
+   */
   private int operationType;
 
   /**
@@ -101,8 +102,7 @@ public class ZipFileMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param sourcefilenamefield
-   *          The sourcefilenamefield to set.
+   * @param sourcefilenamefield The sourcefilenamefield to set.
    */
   public void setDynamicSourceFileNameField( String sourcefilenamefield ) {
     this.sourcefilenamefield = sourcefilenamefield;
@@ -116,8 +116,7 @@ public class ZipFileMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param baseFolderField
-   *          The baseFolderField to set.
+   * @param baseFolderField The baseFolderField to set.
    */
   public void setBaseFolderField( String baseFolderField ) {
     this.baseFolderField = baseFolderField;
@@ -131,8 +130,7 @@ public class ZipFileMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param movetofolderfield
-   *          The movetofolderfield to set.
+   * @param movetofolderfield The movetofolderfield to set.
    */
   public void setMoveToFolderField( String movetofolderfield ) {
     this.movetofolderfield = movetofolderfield;
@@ -146,8 +144,7 @@ public class ZipFileMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param targetfilenamefield
-   *          The targetfilenamefield to set.
+   * @param targetfilenamefield The targetfilenamefield to set.
    */
   public void setDynamicTargetFileNameField( String targetfilenamefield ) {
     this.targetfilenamefield = targetfilenamefield;
@@ -205,9 +202,9 @@ public class ZipFileMeta extends BaseStepMeta implements StepMetaInterface {
 
   private static String getOperationTypeCode( int i ) {
     if ( i < 0 || i >= operationTypeCode.length ) {
-      return operationTypeCode[0];
+      return operationTypeCode[ 0 ];
     }
-    return operationTypeCode[i];
+    return operationTypeCode[ i ];
   }
 
   public String getXML() {
@@ -244,8 +241,8 @@ public class ZipFileMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -276,7 +273,7 @@ public class ZipFileMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new ZipFile( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -298,7 +295,7 @@ public class ZipFileMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     for ( int i = 0; i < operationTypeDesc.length; i++ ) {
-      if ( operationTypeDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( operationTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -312,9 +309,9 @@ public class ZipFileMeta extends BaseStepMeta implements StepMetaInterface {
 
   public static String getOperationTypeDesc( int i ) {
     if ( i < 0 || i >= operationTypeDesc.length ) {
-      return operationTypeDesc[0];
+      return operationTypeDesc[ 0 ];
     }
-    return operationTypeDesc[i];
+    return operationTypeDesc[ i ];
   }
 
   private static int getOperationTypeByCode( String tt ) {
@@ -323,7 +320,7 @@ public class ZipFileMeta extends BaseStepMeta implements StepMetaInterface {
     }
 
     for ( int i = 0; i < operationTypeCode.length; i++ ) {
-      if ( operationTypeCode[i].equalsIgnoreCase( tt ) ) {
+      if ( operationTypeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }

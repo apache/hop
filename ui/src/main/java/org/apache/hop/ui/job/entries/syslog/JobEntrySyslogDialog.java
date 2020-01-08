@@ -22,8 +22,23 @@
 
 package org.apache.hop.ui.job.entries.syslog;
 
-import java.net.InetAddress;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.syslog.JobEntrySyslog;
+import org.apache.hop.job.entries.syslog.SyslogDefs;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.LabelText;
+import org.apache.hop.ui.core.widget.LabelTextVar;
+import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -46,25 +61,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.syslog.JobEntrySyslog;
-import org.apache.hop.job.entries.syslog.SyslogDefs;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.LabelText;
-import org.apache.hop.ui.core.widget.LabelTextVar;
-import org.apache.hop.ui.core.widget.StyledTextComp;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.snmp4j.UserTarget;
 import org.snmp4j.smi.UdpAddress;
+
+import java.net.InetAddress;
 
 /**
  * This dialog allows you to edit the Syslog job entry settings.
@@ -230,7 +230,7 @@ public class JobEntrySyslogDialog extends JobEntryDialog implements JobEntryDial
     wServerName =
       new LabelTextVar(
         jobMeta, wServerSettings, BaseMessages.getString( PKG, "JobEntrySyslog.Server.Label" ), BaseMessages
-          .getString( PKG, "JobEntrySyslog.Server.Tooltip" ) );
+        .getString( PKG, "JobEntrySyslog.Server.Tooltip" ) );
     props.setLook( wServerName );
     wServerName.addModifyListener( lsMod );
     fdServerName = new FormData();
@@ -243,7 +243,7 @@ public class JobEntrySyslogDialog extends JobEntryDialog implements JobEntryDial
     wPort =
       new LabelTextVar(
         jobMeta, wServerSettings, BaseMessages.getString( PKG, "JobEntrySyslog.Port.Label" ), BaseMessages
-          .getString( PKG, "JobEntrySyslog.Port.Tooltip" ) );
+        .getString( PKG, "JobEntrySyslog.Port.Tooltip" ) );
     props.setLook( wPort );
     wPort.addModifyListener( lsMod );
     fdPort = new FormData();

@@ -42,7 +42,6 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
  *
  * @author Yury_Bakhmutski
  * @since 06-23-2017
- *
  */
 public class HttpClientManager {
   private static final int CONNECTIONS_PER_ROUTE = 100;

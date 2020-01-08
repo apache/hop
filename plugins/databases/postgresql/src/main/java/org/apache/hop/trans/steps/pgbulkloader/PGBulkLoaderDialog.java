@@ -377,23 +377,23 @@ public class PGBulkLoaderDialog extends BaseStepDialog implements StepDialogInte
     int UpInsCols = 3;
     int UpInsRows = ( input.getFieldTable() != null ? input.getFieldTable().length : 1 );
 
-    ciReturn = new ColumnInfo[UpInsCols];
-    ciReturn[0] =
+    ciReturn = new ColumnInfo[ UpInsCols ];
+    ciReturn[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "PGBulkLoaderDialog.ColumnInfo.TableField" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    ciReturn[1] =
+    ciReturn[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "PGBulkLoaderDialog.ColumnInfo.StreamField" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    ciReturn[2] =
+    ciReturn[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "PGBulkLoaderDialog.ColumnInfo.DateMask" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-          "", BaseMessages.getString( PKG, "PGBulkLoaderDialog.PassThrough.Label" ),
-          BaseMessages.getString( PKG, "PGBulkLoaderDialog.DateMask.Label" ),
-          BaseMessages.getString( PKG, "PGBulkLoaderDialog.DateTimeMask.Label" ) }, true );
-    tableFieldColumns.add( ciReturn[0] );
+        "", BaseMessages.getString( PKG, "PGBulkLoaderDialog.PassThrough.Label" ),
+        BaseMessages.getString( PKG, "PGBulkLoaderDialog.DateMask.Label" ),
+        BaseMessages.getString( PKG, "PGBulkLoaderDialog.DateTimeMask.Label" ) }, true );
+    tableFieldColumns.add( ciReturn[ 0 ] );
     wReturn =
       new TableView(
         transMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
@@ -530,13 +530,13 @@ public class PGBulkLoaderDialog extends BaseStepDialog implements StepDialogInte
     if ( input.getFieldTable() != null ) {
       for ( int i = 0; i < input.getFieldTable().length; i++ ) {
         TableItem item = wReturn.table.getItem( i );
-        if ( input.getFieldTable()[i] != null ) {
-          item.setText( 1, input.getFieldTable()[i] );
+        if ( input.getFieldTable()[ i ] != null ) {
+          item.setText( 1, input.getFieldTable()[ i ] );
         }
-        if ( input.getFieldStream()[i] != null ) {
-          item.setText( 2, input.getFieldStream()[i] );
+        if ( input.getFieldStream()[ i ] != null ) {
+          item.setText( 2, input.getFieldStream()[ i ] );
         }
-        String dateMask = input.getDateMask()[i];
+        String dateMask = input.getDateMask()[ i ];
         if ( dateMask != null ) {
           if ( PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH.equals( dateMask ) ) {
             item.setText( 3, BaseMessages.getString( PKG, "PGBulkLoaderDialog.PassThrough.Label" ) );
@@ -601,10 +601,10 @@ public class PGBulkLoaderDialog extends BaseStepDialog implements StepDialogInte
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
     Const.sortStrings( fieldNames );
     // return fields
-    ciReturn[1].setComboValues( fieldNames );
+    ciReturn[ 1 ].setComboValues( fieldNames );
 
   }
 
@@ -640,10 +640,10 @@ public class PGBulkLoaderDialog extends BaseStepDialog implements StepDialogInte
       return;
     }
 
-    String[] inputNames = new String[sourceFields.size()];
+    String[] inputNames = new String[ sourceFields.size() ];
     for ( int i = 0; i < sourceFields.size(); i++ ) {
       ValueMetaInterface value = sourceFields.getValueMeta( i );
-      inputNames[i] = value.getName() + EnterMappingDialog.STRING_ORIGIN_SEPARATOR + value.getOrigin() + ")";
+      inputNames[ i ] = value.getName() + EnterMappingDialog.STRING_ORIGIN_SEPARATOR + value.getOrigin() + ")";
     }
 
     // Create the existing mapping list...
@@ -742,17 +742,17 @@ public class PGBulkLoaderDialog extends BaseStepDialog implements StepDialogInte
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrfields; i++ ) {
       TableItem item = wReturn.getNonEmpty( i );
-      inf.getFieldTable()[i] = item.getText( 1 );
-      inf.getFieldStream()[i] = item.getText( 2 );
+      inf.getFieldTable()[ i ] = item.getText( 1 );
+      inf.getFieldStream()[ i ] = item.getText( 2 );
       if ( BaseMessages.getString( PKG, "PGBulkLoaderDialog.PassThrough.Label" ).equals( item.getText( 3 ) ) ) {
-        inf.getDateMask()[i] = PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH;
+        inf.getDateMask()[ i ] = PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH;
       } else if ( BaseMessages.getString( PKG, "PGBulkLoaderDialog.DateMask.Label" ).equals( item.getText( 3 ) ) ) {
-        inf.getDateMask()[i] = PGBulkLoaderMeta.DATE_MASK_DATE;
+        inf.getDateMask()[ i ] = PGBulkLoaderMeta.DATE_MASK_DATE;
       } else if ( BaseMessages
         .getString( PKG, "PGBulkLoaderDialog.DateTimeMask.Label" ).equals( item.getText( 3 ) ) ) {
-        inf.getDateMask()[i] = PGBulkLoaderMeta.DATE_MASK_DATETIME;
+        inf.getDateMask()[ i ] = PGBulkLoaderMeta.DATE_MASK_DATETIME;
       } else {
-        inf.getDateMask()[i] = "";
+        inf.getDateMask()[ i ] = "";
       }
     }
 
@@ -799,7 +799,7 @@ public class PGBulkLoaderDialog extends BaseStepDialog implements StepDialogInte
 
   private void getTableName() {
     String connectionName = wConnection.getText();
-    if ( StringUtils.isEmpty(connectionName)) {
+    if ( StringUtils.isEmpty( connectionName ) ) {
       return;
     }
     DatabaseMeta databaseMeta = transMeta.findDatabase( connectionName );
@@ -840,7 +840,7 @@ public class PGBulkLoaderDialog extends BaseStepDialog implements StepDialogInte
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "PGBulkLoaderDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "PGBulkLoaderDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "PGBulkLoaderDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 
@@ -878,7 +878,7 @@ public class PGBulkLoaderDialog extends BaseStepDialog implements StepDialogInte
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "PGBulkLoaderDialog.CouldNotBuildSQL.DialogTitle" ), BaseMessages
-          .getString( PKG, "PGBulkLoaderDialog.CouldNotBuildSQL.DialogMessage" ), ke );
+        .getString( PKG, "PGBulkLoaderDialog.CouldNotBuildSQL.DialogMessage" ), ke );
     }
 
   }

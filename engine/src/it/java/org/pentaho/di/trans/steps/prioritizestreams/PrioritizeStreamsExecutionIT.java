@@ -22,9 +22,23 @@
 
 package org.apache.hop.trans.steps.prioritizestreams;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.apache.hop.core.BlockingRowSet;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.RowSet;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.trans.step.StepDataInterface;
+import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,23 +51,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.apache.hop.core.BlockingRowSet;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.RowSet;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.steps.mock.StepMockHelper;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith( Parameterized.class )
 public class PrioritizeStreamsExecutionIT {
@@ -73,10 +73,10 @@ public class PrioritizeStreamsExecutionIT {
   @BeforeClass
   public static void setup() {
     stepMockHelper =
-        new StepMockHelper<PrioritizeStreamsMeta, StepDataInterface>( "Priority Streams Test",
-            PrioritizeStreamsMeta.class, StepDataInterface.class );
+      new StepMockHelper<PrioritizeStreamsMeta, StepDataInterface>( "Priority Streams Test",
+        PrioritizeStreamsMeta.class, StepDataInterface.class );
     when( stepMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        stepMockHelper.logChannelInterface );
+      stepMockHelper.logChannelInterface );
     when( stepMockHelper.trans.isRunning() ).thenReturn( true );
     meta = mock( PrioritizeStreamsMeta.class );
   }
@@ -118,9 +118,9 @@ public class PrioritizeStreamsExecutionIT {
   @Parameterized.Parameters
   public static Collection<Object[]> primeNumbers() {
     TestData[] td = TestData.values();
-    Object[][] ret = new Object[td.length][1];
+    Object[][] ret = new Object[ td.length ][ 1 ];
     for ( int i = 0; i < ret.length; i++ ) {
-      ret[i] = new Object[] { td[i] };
+      ret[ i ] = new Object[] { td[ i ] };
     }
     return Arrays.asList( ret );
   }
@@ -128,7 +128,7 @@ public class PrioritizeStreamsExecutionIT {
   /**
    * Test that priority streams step does respect input streams priority and input streams delay with their put row
    * method.
-   *
+   * <p>
    * Please pay attention, this test is based on concurrent execution environment,
    * so put input rowset delay should correlate with HOP_ROWSET_GET_TIMEOUT value.
    *
@@ -190,7 +190,7 @@ public class PrioritizeStreamsExecutionIT {
       }
     }
 
-    retData.currentRowSet = retData.rowSets[0];
+    retData.currentRowSet = retData.rowSets[ 0 ];
 
     retData.stepnr = 0;
     retData.stepnrs = 3;
@@ -211,7 +211,6 @@ public class PrioritizeStreamsExecutionIT {
    * input stream. Pay attention to HOP_ROWSET_GET_TIMEOUT value. Default
    * value can be too small - and empty (even not started to fill) rowset will
    * be treated as empty (returns 'null' for offer method call on blocking queue).
-   *
    */
   private class InputProducer implements Runnable {
 
@@ -254,7 +253,7 @@ public class PrioritizeStreamsExecutionIT {
 
     public PrioritizeStreamsInner( StepMockHelper<PrioritizeStreamsMeta, StepDataInterface> stepMockHelper ) {
       super( stepMockHelper.stepMeta, stepMockHelper.stepDataInterface, 0, stepMockHelper.transMeta,
-          stepMockHelper.trans );
+        stepMockHelper.trans );
     }
 
     @Override
@@ -271,7 +270,7 @@ public class PrioritizeStreamsExecutionIT {
       StringBuilder sb = new StringBuilder();
       Iterator<Object[]> it = output.iterator();
       while ( it.hasNext() ) {
-        String val = String.class.cast( it.next()[0] );
+        String val = String.class.cast( it.next()[ 0 ] );
         sb.append( val );
       }
       return sb.toString();

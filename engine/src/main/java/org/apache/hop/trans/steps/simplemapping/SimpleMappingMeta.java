@@ -26,16 +26,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -55,7 +54,6 @@ import org.apache.hop.trans.steps.mapping.MappingParameters;
 import org.apache.hop.trans.steps.mapping.MappingValueRename;
 import org.apache.hop.trans.steps.mappinginput.MappingInputMeta;
 import org.apache.hop.trans.steps.mappingoutput.MappingOutputMeta;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -64,9 +62,8 @@ import java.util.List;
 /**
  * Meta-data for the Mapping step: contains name of the (sub-)transformation to execute
  *
- * @since 22-nov-2005
  * @author Matt
- *
+ * @since 22-nov-2005
  */
 
 public class SimpleMappingMeta extends StepWithMappingMeta implements StepMetaInterface, ISubTransAwareMeta {
@@ -168,7 +165,7 @@ public class SimpleMappingMeta extends StepWithMappingMeta implements StepMetaIn
   }
 
   public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // First load some interesting data...
 
     // Then see which fields get added to the row.
@@ -273,10 +270,9 @@ public class SimpleMappingMeta extends StepWithMappingMeta implements StepMetaIn
   }
 
 
-
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -305,7 +301,7 @@ public class SimpleMappingMeta extends StepWithMappingMeta implements StepMetaIn
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new SimpleMapping( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -321,8 +317,7 @@ public class SimpleMappingMeta extends StepWithMappingMeta implements StepMetaIn
   }
 
   /**
-   * @param mappingParameters
-   *          the mappingParameters to set
+   * @param mappingParameters the mappingParameters to set
    */
   public void setMappingParameters( MappingParameters mappingParameters ) {
     this.mappingParameters = mappingParameters;
@@ -389,12 +384,9 @@ public class SimpleMappingMeta extends StepWithMappingMeta implements StepMetaIn
   /**
    * Load the referenced object
    *
-   * @param index
-   *          the object index to load
-   * @param metaStore
-   *          the MetaStore to use
-   * @param space
-   *          the variable space to use
+   * @param index     the object index to load
+   * @param metaStore the MetaStore to use
+   * @param space     the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */

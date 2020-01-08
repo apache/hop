@@ -22,10 +22,10 @@
 
 package org.apache.hop.ui.hopui.delegates;
 
-import java.lang.reflect.Constructor;
-
-import org.apache.hop.ui.hopui.InstanceCreationException;
 import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopui.InstanceCreationException;
+
+import java.lang.reflect.Constructor;
 
 public class HopUiDelegateRegistry {
 

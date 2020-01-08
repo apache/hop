@@ -22,9 +22,6 @@
 
 package org.apache.hop.job.entries.tableexists;
 
-import java.util.List;
-
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.database.Database;
@@ -40,19 +37,19 @@ import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * This defines a table exists job entry.
  *
  * @author Matt
  * @since 05-11-2003
- *
  */
 public class JobEntryTableExists extends JobEntryBase implements Cloneable, JobEntryInterface {
   private static Class<?> PKG = JobEntryTableExists.class; // for i18n purposes, needed by Translator2!!
@@ -90,10 +87,10 @@ public class JobEntryTableExists extends JobEntryBase implements Cloneable, JobE
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
 
       tablename = XMLHandler.getTagValue( entrynode, "tablename" );
       schemaname = XMLHandler.getTagValue( entrynode, "schemaname" );
@@ -194,9 +191,9 @@ public class JobEntryTableExists extends JobEntryBase implements Cloneable, JobE
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "tablename", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
   }
 
 }

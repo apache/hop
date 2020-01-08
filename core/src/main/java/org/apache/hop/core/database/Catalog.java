@@ -49,8 +49,7 @@ public class Catalog {
   }
 
   /**
-   * @param catalogName
-   *          The catalogName to set.
+   * @param catalogName The catalogName to set.
    */
   public void setCatalogName( String catalogName ) {
     this.catalogName = catalogName;
@@ -64,8 +63,7 @@ public class Catalog {
   }
 
   /**
-   * @param items
-   *          The items to set.
+   * @param items The items to set.
    */
   public void setItems( String[] items ) {
     this.items = items;

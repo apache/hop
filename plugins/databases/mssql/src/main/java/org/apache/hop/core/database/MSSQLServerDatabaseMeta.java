@@ -22,8 +22,6 @@
 
 package org.apache.hop.core.database;
 
-import java.sql.ResultSet;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiElement;
@@ -32,6 +30,8 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 
+import java.sql.ResultSet;
+
 /**
  * Contains MySQL specific information through static final members
  *
@@ -39,14 +39,14 @@ import org.apache.hop.core.row.ValueMetaInterface;
  * @since 11-mrt-2005
  */
 @DatabaseMetaPlugin(
-        type = "MSSQL",
-        typeDescription = "MS SQL Server"
+  type = "MSSQL",
+  typeDescription = "MS SQL Server"
 )
-@GuiPlugin( id="GUI-MSSQLServerDatabaseMeta" )
+@GuiPlugin( id = "GUI-MSSQLServerDatabaseMeta" )
 public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
 
   @GuiElement(
-    id="usingDoubleDigit",
+    id = "usingDoubleDigit",
     order = "20",
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.CHECKBOX,
@@ -62,7 +62,7 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements Databas
    */
   public boolean isUsingDoubleDigit() {
     String flag = getAttributes().getProperty( ATTRIBUTE_MSSQL_DOUBLE_DECIMAL_SEPARATOR );
-    return "Y".equalsIgnoreCase(flag);
+    return "Y".equalsIgnoreCase( flag );
   }
 
   /**
@@ -160,16 +160,15 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements Databas
   }
 
   /**
-   * @param tableNames
-   *          The names of the tables to lock
+   * @param tableNames The names of the tables to lock
    * @return The SQL command to lock database tables for write purposes. null is returned in case locking is not
-   *         supported on the target database. null is the default value
+   * supported on the target database. null is the default value
    */
   @Override
   public String getSQLLockTables( String[] tableNames ) {
     StringBuilder sql = new StringBuilder( 128 );
     for ( int i = 0; i < tableNames.length; i++ ) {
-      sql.append( "SELECT top 0 * FROM " ).append( tableNames[i] ).append( " WITH (UPDLOCK, HOLDLOCK);" ).append(
+      sql.append( "SELECT top 0 * FROM " ).append( tableNames[ i ] ).append( " WITH (UPDLOCK, HOLDLOCK);" ).append(
         Const.CR );
     }
     return sql.toString();
@@ -178,46 +177,34 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements Databas
   /**
    * Generates the SQL statement to add a column to the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
   public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                       String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " ADD " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
   public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                          String pk, boolean semicolon ) {
     return "ALTER TABLE "
       + tablename + " ALTER COLUMN " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
   }
@@ -225,29 +212,23 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements Databas
   /**
    * Generates the SQL statement to drop a column from the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to drop a column from the specified table
    */
   @Override
   public String getDropColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                        String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " DROP COLUMN " + v.getName() + Const.CR;
   }
 
   @Override
   public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-    boolean add_fieldname, boolean add_cr ) {
+                                    boolean add_fieldname, boolean add_cr ) {
     String retval = "";
 
     String fieldname = v.getName();
@@ -402,8 +383,7 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements Databas
   /**
    * Verifies on the specified database connection if an index exists on the fields with the specified name.
    *
-   * @param database
-   *          a connected database
+   * @param database   a connected database
    * @param schemaName
    * @param tableName
    * @param idxFields
@@ -415,9 +395,9 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements Databas
 
     String tablename = database.getDatabaseMeta().getQuotedSchemaTableCombination( schemaName, tableName );
 
-    boolean[] exists = new boolean[idxFields.length];
+    boolean[] exists = new boolean[ idxFields.length ];
     for ( int i = 0; i < exists.length; i++ ) {
-      exists[i] = false;
+      exists[ i ] = false;
     }
 
     try {
@@ -441,7 +421,7 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements Databas
             String column = database.getReturnRowMeta().getString( row, "column_name", "" );
             int idx = Const.indexOfString( column, idxFields );
             if ( idx >= 0 ) {
-              exists[idx] = true;
+              exists[ idx ] = true;
             }
 
             row = database.getRow( res );
@@ -458,7 +438,7 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements Databas
       // See if all the fields are indexed...
       boolean all = true;
       for ( int i = 0; i < exists.length && all; i++ ) {
-        if ( !exists[i] ) {
+        if ( !exists[ i ] ) {
           all = false;
         }
       }
@@ -482,12 +462,9 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements Databas
   /**
    * Get the SQL to insert a new empty unknown record in a dimension.
    *
-   * @param schemaTable
-   *          the schema-table name to insert into
-   * @param keyField
-   *          The key field
-   * @param versionField
-   *          the version field
+   * @param schemaTable  the schema-table name to insert into
+   * @param keyField     The key field
+   * @param versionField the version field
    * @return the SQL to insert the unknown record into the SCD.
    */
   @Override
@@ -539,7 +516,7 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements Databas
 
   @Override
   public Long getNextBatchIdUsingLockTables( DatabaseMeta dbm, Database ldb, String schemaName, String tableName,
-    String fieldName ) throws HopDatabaseException {
+                                             String fieldName ) throws HopDatabaseException {
     Long rtn = null;
     // Make sure we lock that table to avoid concurrency issues
     ldb.lockTables( new String[] { dbm.getQuotedSchemaTableCombination( schemaName, tableName ), } );
@@ -567,6 +544,8 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements Databas
   }
 
   @Override
-  public boolean isMSSQLServerVariant() { return true; }
+  public boolean isMSSQLServerVariant() {
+    return true;
+  }
 
 }

@@ -22,6 +22,8 @@
 
 package org.apache.hop.ui.hopui;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.ui.hopui.trans.TransGraph;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.SashForm;
@@ -33,8 +35,6 @@ import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Control;
-import org.apache.hop.core.Const;
-import org.apache.hop.ui.hopui.trans.TransGraph;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -53,9 +53,9 @@ public final class ExpandedContentManager {
 
   /**
    * isBrowserVisible
-   * 
+   *
    * @return a boolean that represents that the web browser is the topmost control of the active TransGraph. If browser
-   *         hasn't been created it will return false.
+   * hasn't been created it will return false.
    */
   public static boolean isVisible() {
     return isVisible( spoonInstance().getActiveTransGraph() );
@@ -63,15 +63,14 @@ public final class ExpandedContentManager {
 
   /**
    * isBrowserVisible( TransGraph graph )
-   * 
-   * @param graph
-   *          a TransGraph object that is being interrogated to see if the web browser is the topmost control
+   *
+   * @param graph a TransGraph object that is being interrogated to see if the web browser is the topmost control
    * @return true if the web browser is the topmost control of the graph
    */
   public static boolean isVisible( TransGraph graph ) {
     if ( graph != null ) {
       if ( graph.getChildren().length > 0 ) {
-        return graph.getChildren()[0] instanceof Browser;
+        return graph.getChildren()[ 0 ] instanceof Browser;
       }
     }
     return false;
@@ -79,7 +78,7 @@ public final class ExpandedContentManager {
 
   /**
    * createExpandedContent
-   * 
+   * <p>
    * creates a web browser for the current TransGraph
    */
   public static void createExpandedContent( String url ) {
@@ -88,13 +87,11 @@ public final class ExpandedContentManager {
 
   /**
    * createExpandedContent( TransGraph parent )
-   * 
+   * <p>
    * Create a web browser for the TransGraph argument.
-   * 
-   * @param parent
-   *          a TransGraph that will be the parent of the web browser.
-   * @param url
-   *          The content to open and expand
+   *
+   * @param parent a TransGraph that will be the parent of the web browser.
+   * @param url    The content to open and expand
    */
   public static void createExpandedContent( TransGraph parent, String url ) {
     if ( parent == null ) {
@@ -108,12 +105,12 @@ public final class ExpandedContentManager {
           int state = keyEvent.stateMask, key = keyEvent.keyCode;
 
           boolean copyContent = state == SWT.CTRL && key == SWT.F6,
-              arrowNavigation = ( state == SWT.COMMAND || state == SWT.ALT )
-                  && ( key == SWT.ARROW_LEFT || key == SWT.ARROW_RIGHT ),
-              backslashNavigation = ( state == SWT.SHIFT && key == SWT.BS ),
-              reloadContent = state == SWT.CTRL && ( key == SWT.F5 || key == 114 /* r key */ ) || key == SWT.F5,
-              zoomContent = state == SWT.CTRL && ( key == SWT.KEYPAD_ADD || key == SWT.KEYPAD_SUBTRACT
-                  || key == 61 /* + key */ || key == 45 /* - key */ );
+            arrowNavigation = ( state == SWT.COMMAND || state == SWT.ALT )
+              && ( key == SWT.ARROW_LEFT || key == SWT.ARROW_RIGHT ),
+            backslashNavigation = ( state == SWT.SHIFT && key == SWT.BS ),
+            reloadContent = state == SWT.CTRL && ( key == SWT.F5 || key == 114 /* r key */ ) || key == SWT.F5,
+            zoomContent = state == SWT.CTRL && ( key == SWT.KEYPAD_ADD || key == SWT.KEYPAD_SUBTRACT
+              || key == 61 /* + key */ || key == 45 /* - key */ );
 
           if ( copyContent ) {
             Browser thisBrowser = (Browser) keyEvent.getSource();
@@ -136,7 +133,7 @@ public final class ExpandedContentManager {
 
   /**
    * showTransformationBrowser
-   * 
+   * <p>
    * Creates and shows the web browser for the active TransGraph
    */
   public static void showExpandedContent() {
@@ -145,10 +142,9 @@ public final class ExpandedContentManager {
 
   /**
    * showExpandedContent( TransGraph graph )
-   * 
-   * @param graph
-   *          TransGraph to create the web browser for. If the wev browser hasn't been created this will create one.
-   *          Else it will just bring the web browser associated to this TransGraph to the top.
+   *
+   * @param graph TransGraph to create the web browser for. If the wev browser hasn't been created this will create one.
+   *              Else it will just bring the web browser associated to this TransGraph to the top.
    */
   public static void showExpandedContent( TransGraph graph ) {
     if ( graph == null ) {
@@ -171,9 +167,8 @@ public final class ExpandedContentManager {
 
   /**
    * getExpandedContentForTransGraph
-   * 
-   * @param graph
-   *          a TransGraph object that will be interrogated for a web browser
+   *
+   * @param graph a TransGraph object that will be interrogated for a web browser
    * @return a web browser that is associated with the TransGraph or null if it has yet to be created.
    */
   public static Browser getExpandedContentForTransGraph( TransGraph graph ) {
@@ -187,7 +182,7 @@ public final class ExpandedContentManager {
 
   /**
    * hideExpandedContent
-   * 
+   * <p>
    * hides the web browser associated with the active TransGraph
    */
   public static void hideExpandedContent() {
@@ -196,7 +191,7 @@ public final class ExpandedContentManager {
 
   /**
    * closeExpandedContent
-   *
+   * <p>
    * closes the web browser associated with the active TransGraph
    */
   public static void closeExpandedContent() {
@@ -205,9 +200,8 @@ public final class ExpandedContentManager {
 
   /**
    * hideExpandedContent( TransGraph graph )
-   * 
-   * @param graph
-   *          the TransGraph whose web browser will be hidden
+   *
+   * @param graph the TransGraph whose web browser will be hidden
    */
   public static void hideExpandedContent( TransGraph graph ) {
     doToExpandedContent( graph, browser -> {
@@ -223,8 +217,7 @@ public final class ExpandedContentManager {
   /**
    * closeExpandedContent( TransGraph graph )
    *
-   * @param graph
-   *          the TransGraph whose web browser will be closed
+   * @param graph the TransGraph whose web browser will be closed
    */
   public static void closeExpandedContent( TransGraph graph ) {
     doToExpandedContent( graph, Browser::close );
@@ -233,8 +226,7 @@ public final class ExpandedContentManager {
   /**
    * doToExpandedContent( TransGraph graph )
    *
-   * @param graph
-   *          the TransGraph whose web browser will be hidden
+   * @param graph         the TransGraph whose web browser will be hidden
    * @param browserAction Consumer for acting on the browser
    */
   private static void doToExpandedContent( TransGraph graph, Consumer<Browser> browserAction ) {
@@ -254,18 +246,17 @@ public final class ExpandedContentManager {
 
   /**
    * maximizeBrowser
-   * 
-   * @param browser
-   *          the browser object to maximize. We try to take up as much of the Spoon window as possible.
+   *
+   * @param browser the browser object to maximize. We try to take up as much of the Spoon window as possible.
    */
   private static void maximizeExpandedContent( Browser browser ) {
     SashForm sash = (SashForm) spoonInstance().getDesignParent();
     int[] weights = sash.getWeights();
-    int[] savedSashWeights = new int[weights.length];
+    int[] savedSashWeights = new int[ weights.length ];
     System.arraycopy( weights, 0, savedSashWeights, 0, weights.length );
     spoonInstance().getTabSet().getSelected().setSashWeights( savedSashWeights );
-    weights[0] = 0;
-    weights[1] = 1000;
+    weights[ 0 ] = 0;
+    weights[ 1 ] = 1000;
     sash.setWeights( weights );
     FormData formData = new FormData();
     formData.top = new FormAttachment( 0, 0 );

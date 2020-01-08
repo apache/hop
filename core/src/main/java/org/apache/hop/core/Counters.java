@@ -29,7 +29,6 @@ import java.util.Hashtable;
  *
  * @author Matt
  * @since 17-apr-2005
- *
  */
 public class Counters {
   private static Counters counters = null;

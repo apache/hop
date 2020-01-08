@@ -24,11 +24,11 @@ package org.apache.hop.trans.steps.symmetriccrypto.symmetriccryptotrans;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -46,7 +46,6 @@ import org.apache.hop.trans.steps.symmetriccrypto.symmetricalgorithm.SymmetricCr
  *
  * @author Samatar
  * @since 5-apr-2003
- *
  */
 public class SymmetricCryptoTrans extends BaseStep implements StepInterface {
   private static Class<?> PKG = SymmetricCryptoTransMeta.class; // for i18n purposes, needed by Translator2!!
@@ -55,7 +54,7 @@ public class SymmetricCryptoTrans extends BaseStep implements StepInterface {
   private SymmetricCryptoTransData data;
 
   public SymmetricCryptoTrans( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,
-    TransMeta transMeta, Trans trans ) {
+                               TransMeta transMeta, Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 

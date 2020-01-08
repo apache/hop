@@ -21,16 +21,17 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.loadsave.validator;
 
+import org.apache.hop.trans.steps.mapping.MappingIODefinition;
+import org.apache.hop.trans.steps.mapping.MappingValueRename;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-import org.apache.hop.trans.steps.mapping.MappingIODefinition;
-import org.apache.hop.trans.steps.mapping.MappingValueRename;
-
 public class MappingIODefinitionLoadSaveValidator implements FieldLoadSaveValidator<MappingIODefinition> {
   final Random rand = new Random();
+
   @Override
   public MappingIODefinition getTestObject() {
     MappingIODefinition rtn = new MappingIODefinition();

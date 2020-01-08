@@ -22,14 +22,14 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.commons.lang.ClassUtils;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.eclipse.swt.widgets.Display;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-
-import org.apache.commons.lang.ClassUtils;
-import org.eclipse.swt.widgets.Display;
-import org.apache.hop.core.logging.LogChannelInterface;
 
 public class DisplayInvocationHandler<T> implements InvocationHandler {
   private final Display display;
@@ -44,10 +44,10 @@ public class DisplayInvocationHandler<T> implements InvocationHandler {
 
   @SuppressWarnings( "unchecked" )
   public static <T> T forObject( Class<T> iface, T delegate, Display display, LogChannelInterface log,
-      boolean asyncForVoid ) {
+                                 boolean asyncForVoid ) {
     return (T) Proxy.newProxyInstance( delegate.getClass().getClassLoader(), (Class<?>[]) ClassUtils.getAllInterfaces(
-        delegate.getClass() ).toArray( new Class<?>[] {} ), new DisplayInvocationHandler<T>( display, delegate, log,
-          asyncForVoid ) );
+      delegate.getClass() ).toArray( new Class<?>[] {} ), new DisplayInvocationHandler<T>( display, delegate, log,
+      asyncForVoid ) );
   }
 
   public DisplayInvocationHandler( Display display, T delegate, LogChannelInterface log, boolean asyncForVoid ) {

@@ -21,9 +21,8 @@ import java.util.List;
 
 /**
  * This exception is thrown in case a data type is created in a metadata store when it already exists.
- * 
+ *
  * @author matt
- * 
  */
 
 public class MetaStoreDependenciesExistsException extends MetaStoreException {

@@ -22,12 +22,12 @@
 
 package org.apache.hop.core.compress;
 
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import org.apache.hop.core.plugins.PluginInterface;
-import org.apache.hop.core.plugins.PluginRegistry;
 
 public class CompressionProviderFactory implements CompressionProviderFactoryInterface {
 
@@ -95,7 +95,7 @@ public class CompressionProviderFactory implements CompressionProviderFactoryInt
         }
       }
     }
-    return providerNames.toArray( new String[providerNames.size()] );
+    return providerNames.toArray( new String[ providerNames.size() ] );
   }
 
   @Override

@@ -22,18 +22,16 @@
 
 package org.apache.hop.core.encryption;
 
+import com.google.common.annotations.VisibleForTesting;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.hop.core.util.Utils;
-
-import com.google.common.annotations.VisibleForTesting;
-
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.util.StringUtil;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.EnvUtil;
 
 /**
  * This class handles basic encryption of passwords in Hop. Note that it's not really encryption, it's more
@@ -41,7 +39,6 @@ import org.apache.hop.core.util.EnvUtil;
  *
  * @author Matt
  * @since 17-12-2003
- *
  */
 public class HopTwoWayPasswordEncoder implements TwoWayPasswordEncoderInterface {
   private static final HopTwoWayPasswordEncoder instance = new HopTwoWayPasswordEncoder();
@@ -164,8 +161,7 @@ public class HopTwoWayPasswordEncoder implements TwoWayPasswordEncoderInterface 
   /**
    * Encrypt the password, but only if the password doesn't contain any variables.
    *
-   * @param password
-   *          The password to encrypt
+   * @param password The password to encrypt
    * @return The encrypted password or the
    */
   protected final String encryptPasswordIfNotUsingVariablesInternal( String password ) {
@@ -185,8 +181,7 @@ public class HopTwoWayPasswordEncoder implements TwoWayPasswordEncoderInterface 
   /**
    * Decrypts a password if it contains the prefix "Encrypted "
    *
-   * @param password
-   *          The encrypted password
+   * @param password The encrypted password
    * @return The decrypted password or the original value if the password doesn't start with "Encrypted "
    */
   protected final String decryptPasswordOptionallyEncryptedInternal( String password ) {
@@ -202,8 +197,7 @@ public class HopTwoWayPasswordEncoder implements TwoWayPasswordEncoderInterface 
   /**
    * Encrypt the password, but only if the password doesn't contain any variables.
    *
-   * @param password
-   *          The password to encrypt
+   * @param password The password to encrypt
    * @return The encrypted password or the
    * @deprecated - Use the instance method through Encr instead of this directly
    */
@@ -214,8 +208,7 @@ public class HopTwoWayPasswordEncoder implements TwoWayPasswordEncoderInterface 
   /**
    * Decrypts a password if it contains the prefix "Encrypted "
    *
-   * @param password
-   *          The encrypted password
+   * @param password The encrypted password
    * @return The decrypted password or the original value if the password doesn't start with "Encrypted "
    * @deprecated - Use the instance method through Encr instead of this directly
    */
@@ -225,6 +218,7 @@ public class HopTwoWayPasswordEncoder implements TwoWayPasswordEncoderInterface 
 
   /**
    * Deprecared - use the instance method instead
+   *
    * @param password
    * @return encrypted password
    * @deprecated - use the instance method through Encr instead of this directly
@@ -235,6 +229,7 @@ public class HopTwoWayPasswordEncoder implements TwoWayPasswordEncoderInterface 
 
   /**
    * Deprecated - use Encr instead of this directly
+   *
    * @param encrypted
    * @return decrypted password
    * @deprecated
@@ -242,7 +237,6 @@ public class HopTwoWayPasswordEncoder implements TwoWayPasswordEncoderInterface 
   public static final String decryptPassword( String encrypted ) {
     return getInstance().decryptPasswordInternal( encrypted );
   }
-
 
 
 }

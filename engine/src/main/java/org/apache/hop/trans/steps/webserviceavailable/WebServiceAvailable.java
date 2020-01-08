@@ -22,14 +22,10 @@
 
 package org.apache.hop.trans.steps.webserviceavailable;
 
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -39,12 +35,15 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+
 /**
  * Check if a webservice is available *
  *
  * @author Samatar
  * @since 03-01-2010
- *
  */
 
 public class WebServiceAvailable extends BaseStep implements StepInterface {
@@ -54,7 +53,7 @@ public class WebServiceAvailable extends BaseStep implements StepInterface {
   private WebServiceAvailableData data;
 
   public WebServiceAvailable( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,
-    TransMeta transMeta, Trans trans ) {
+                              TransMeta transMeta, Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -134,8 +133,8 @@ public class WebServiceAvailable extends BaseStep implements StepInterface {
 
       // addwebservice available to the row
       putRow( data.outputRowMeta, RowDataUtil.addValueData( r, data.NrPrevFields, WebServiceAvailable ) ); // copy row
-                                                                                                           // to output
-                                                                                                           // rowset(s);
+      // to output
+      // rowset(s);
 
       if ( isRowLevel() ) {
         logRowlevel( BaseMessages.getString( PKG, "FileExists.LineNumber", getLinesRead()

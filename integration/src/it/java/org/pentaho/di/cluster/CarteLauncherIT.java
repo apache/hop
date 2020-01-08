@@ -22,9 +22,10 @@
 
 package org.apache.hop.cluster;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
 import org.apache.hop.core.HopEnvironment;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class CarteLauncherIT {
 

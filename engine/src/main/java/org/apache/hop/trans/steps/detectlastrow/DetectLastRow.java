@@ -50,7 +50,7 @@ public class DetectLastRow extends BaseStep implements StepInterface {
   private Object[] previousRow;
 
   public DetectLastRow( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                        Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 

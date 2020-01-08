@@ -22,11 +22,11 @@
 
 package org.apache.hop.core.logging;
 
+import org.apache.hop.core.metrics.MetricsSnapshotType;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.hop.core.metrics.MetricsSnapshotType;
 
 public class Metrics implements MetricsInterface {
 

@@ -30,70 +30,49 @@ package org.apache.hop.core.parameters;
 public interface NamedParams {
   /**
    * Add a parameter definition to this set.
-   *
+   * <p>
    * TODO: default, throw exception
    *
-   * @param key
-   *          Name of the parameter.
-   * @param defValue
-   *          default value.
-   * @param description
-   *          Description of the parameter.
-   *
-   * @throws DuplicateParamException
-   *           Upon duplicate parameter definitions
+   * @param key         Name of the parameter.
+   * @param defValue    default value.
+   * @param description Description of the parameter.
+   * @throws DuplicateParamException Upon duplicate parameter definitions
    */
   void addParameterDefinition( String key, String defValue, String description ) throws DuplicateParamException;
 
   /**
    * Set the value of a parameter.
    *
-   * @param key
-   *          key to set value of
-   * @param value
-   *          value to set it to.
-   *
-   * @throws UnknownParamException
-   *           Parameter 'key' is unknown.
+   * @param key   key to set value of
+   * @param value value to set it to.
+   * @throws UnknownParamException Parameter 'key' is unknown.
    */
   void setParameterValue( String key, String value ) throws UnknownParamException;
 
   /**
    * Get the value of a parameter.
    *
-   * @param key
-   *          Key to get value for.
-   *
+   * @param key Key to get value for.
    * @return value of parameter key.
-   *
-   * @throws UnknownParamException
-   *           Parameter 'key' is unknown.
+   * @throws UnknownParamException Parameter 'key' is unknown.
    */
   String getParameterValue( String key ) throws UnknownParamException;
 
   /**
    * Get the description of a parameter.
    *
-   * @param key
-   *          Key to get value for.
-   *
+   * @param key Key to get value for.
    * @return description of parameter key.
-   *
-   * @throws UnknownParamException
-   *           Parameter 'key' is unknown.
+   * @throws UnknownParamException Parameter 'key' is unknown.
    */
   String getParameterDescription( String key ) throws UnknownParamException;
 
   /**
    * Get the default value of a parameter.
    *
-   * @param key
-   *          Key to get value for.
-   *
+   * @param key Key to get value for.
    * @return default value for parameter key.
-   *
-   * @throws UnknownParamException
-   *           Parameter 'key' is unknown.
+   * @throws UnknownParamException Parameter 'key' is unknown.
    */
   String getParameterDefault( String key ) throws UnknownParamException;
 
@@ -112,18 +91,15 @@ public interface NamedParams {
   /**
    * Copy params to these named parameters (clearing out first).
    *
-   * @param params
-   *          the parameters to copy from.
+   * @param params the parameters to copy from.
    */
   void copyParametersFrom( NamedParams params );
 
   /**
    * Merge the given named parameters with current ones.
    *
-   * @param params
-   *          the parameters to merge with.
-   * @param replace
-   *          replace if exists
+   * @param params  the parameters to merge with.
+   * @param replace replace if exists
    */
   default void mergeParametersWith( NamedParams params, boolean replace ) {
   }

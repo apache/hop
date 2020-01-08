@@ -22,23 +22,6 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import java.util.List;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.database.Database;
@@ -55,13 +38,29 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+
+import java.util.List;
 
 /**
  * Dialog to display the results of an SQL generation operation.
  *
  * @author Matt
  * @since 19-06-2003
- *
  */
 public class SQLStatementsDialog extends Dialog {
   private static Class<?> PKG = SQLStatementsDialog.class; // for i18n purposes, needed by Translator2!!
@@ -118,20 +117,20 @@ public class SQLStatementsDialog extends Dialog {
     int FieldsCols = 4;
     int FieldsRows = stats.size();
 
-    ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
+    ColumnInfo[] colinf = new ColumnInfo[ FieldsCols ];
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SQLStatementDialog.TableCol.Stepname" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false, true );
-    colinf[1] =
+    colinf[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SQLStatementDialog.TableCol.Connection" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false, true );
-    colinf[2] =
+    colinf[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SQLStatementDialog.TableCol.SQL" ), ColumnInfo.COLUMN_TYPE_TEXT, false,
         true );
-    colinf[3] =
+    colinf[ 3 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "SQLStatementDialog.TableCol.Error" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false, true );
@@ -271,14 +270,14 @@ public class SQLStatementsDialog extends Dialog {
 
     // None selected: don't waste users time: select them all!
     if ( idx.length == 0 ) {
-      idx = new int[stats.size()];
+      idx = new int[ stats.size() ];
       for ( int i = 0; i < stats.size(); i++ ) {
-        idx[i] = i;
+        idx[ i ] = i;
       }
     }
 
     for ( int i = 0; i < idx.length; i++ ) {
-      SQLStatement stat = stats.get( idx[i] );
+      SQLStatement stat = stats.get( idx[ i ] );
       DatabaseMeta di = stat.getDatabase();
       if ( i > 0 ) {
         sql
@@ -306,7 +305,7 @@ public class SQLStatementsDialog extends Dialog {
     EnterTextDialog etd =
       new EnterTextDialog(
         shell, BaseMessages.getString( PKG, "SQLStatementDialog.ViewSQL.Title" ), BaseMessages.getString(
-          PKG, "SQLStatementDialog.ViewSQL.Message" ), sql, true );
+        PKG, "SQLStatementDialog.ViewSQL.Message" ), sql, true );
     etd.setReadOnly();
     etd.open();
   }
@@ -316,15 +315,15 @@ public class SQLStatementsDialog extends Dialog {
 
     // None selected: don't waste users time: select them all!
     if ( idx.length == 0 ) {
-      idx = new int[stats.size()];
+      idx = new int[ stats.size() ];
       for ( int i = 0; i < stats.size(); i++ ) {
-        idx[i] = i;
+        idx[ i ] = i;
       }
     }
 
     int errors = 0;
     for ( int i = 0; i < idx.length; i++ ) {
-      SQLStatement stat = stats.get( idx[i] );
+      SQLStatement stat = stats.get( idx[ i ] );
       if ( stat.hasError() ) {
         errors++;
       }
@@ -332,7 +331,7 @@ public class SQLStatementsDialog extends Dialog {
 
     if ( errors == 0 ) {
       for ( int i = 0; i < idx.length; i++ ) {
-        SQLStatement stat = stats.get( idx[i] );
+        SQLStatement stat = stats.get( idx[ i ] );
         DatabaseMeta di = stat.getDatabase();
         if ( di != null && !stat.hasError() ) {
           Database db = new Database( loggingObject, di );
@@ -344,12 +343,12 @@ public class SQLStatementsDialog extends Dialog {
               errors++;
               new ErrorDialog(
                 shell, BaseMessages.getString( PKG, "SQLStatementDialog.Error.Title" ), BaseMessages.getString(
-                  PKG, "SQLStatementDialog.Error.CouldNotExec", stat.getSQL() ), dbe );
+                PKG, "SQLStatementDialog.Error.CouldNotExec", stat.getSQL() ), dbe );
             }
           } catch ( HopDatabaseException dbe ) {
             new ErrorDialog(
               shell, BaseMessages.getString( PKG, "SQLStatementDialog.Error.Title" ), BaseMessages.getString(
-                PKG, "SQLStatementDialog.Error.CouldNotConnect", ( di == null ? "" : di.getName() ) ), dbe );
+              PKG, "SQLStatementDialog.Error.CouldNotConnect", ( di == null ? "" : di.getName() ) ), dbe );
           } finally {
             db.disconnect();
           }

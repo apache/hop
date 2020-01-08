@@ -22,14 +22,14 @@
 
 package org.apache.hop.ui.hopui.dialog;
 
-import java.util.Iterator;
-import java.util.List;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.i18n.BaseMessages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.Const;
-import org.apache.hop.i18n.BaseMessages;
+
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Displays the delete message box to confirm deletes of multiple steps or job entries
@@ -51,12 +51,9 @@ public class DeleteMessageBox extends MessageBox {
   /**
    * Creates a message box to confirm the deletion of the items
    *
-   * @param shell
-   *          the shell which will be the parent of the new instance
-   * @param text
-   *          the title for the dialog
-   * @param stepList
-   *          the text list of proposed steps to be deleted
+   * @param shell    the shell which will be the parent of the new instance
+   * @param text     the title for the dialog
+   * @param stepList the text list of proposed steps to be deleted
    */
   public DeleteMessageBox( Shell shell, String text, List<String> stepList ) {
     super( shell, SWT.YES | SWT.NO | SWT.ICON_WARNING );

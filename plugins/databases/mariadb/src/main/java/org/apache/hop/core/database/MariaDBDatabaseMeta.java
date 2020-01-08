@@ -21,23 +21,22 @@
  ******************************************************************************/
 package org.apache.hop.core.database;
 
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSetMetaData;
-
-import java.util.Set;
-
 import com.google.common.collect.Sets;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.i18n.BaseMessages;
+
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSetMetaData;
+import java.util.Set;
+
 @DatabaseMetaPlugin(
-        type = "MARIADB",
-        typeDescription = "MariaDB"
+  type = "MARIADB",
+  typeDescription = "MariaDB"
 )
-@GuiPlugin( id="GUI-MariaDBDatabaseMeta" )
+@GuiPlugin( id = "GUI-MariaDBDatabaseMeta" )
 public class MariaDBDatabaseMeta extends MySQLDatabaseMeta {
   private static final Class<?> PKG = MariaDBDatabaseMeta.class;
 

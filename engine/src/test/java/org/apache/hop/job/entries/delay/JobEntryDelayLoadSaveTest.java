@@ -21,15 +21,16 @@
  ******************************************************************************/
 package org.apache.hop.job.entries.delay;
 
-import org.junit.ClassRule;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.ClassRule;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class JobEntryDelayLoadSaveTest extends JobEntryLoadSaveTestSupport<JobEntryDelay> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Override protected Class<JobEntryDelay> getJobEntryClass() {
     return JobEntryDelay.class;
   }

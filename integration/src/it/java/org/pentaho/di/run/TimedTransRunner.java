@@ -22,20 +22,20 @@
 
 package org.apache.hop.run;
 
-import java.text.DecimalFormat;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.RowListener;
 import org.apache.hop.trans.step.StepInterface;
+
+import java.text.DecimalFormat;
 
 public class TimedTransRunner {
   private String filename;
@@ -148,8 +148,7 @@ public class TimedTransRunner {
   }
 
   /**
-   * @param filename
-   *          the filename to set
+   * @param filename the filename to set
    */
   public void setFilename( String filename ) {
     this.filename = filename;
@@ -163,8 +162,7 @@ public class TimedTransRunner {
   }
 
   /**
-   * @param logLevel
-   *          the logLevel to set
+   * @param logLevel the logLevel to set
    */
   public void setLogLevel( LogLevel logLevel ) {
     this.logLevel = logLevel;
@@ -178,8 +176,7 @@ public class TimedTransRunner {
   }
 
   /**
-   * @param records
-   *          the records to set
+   * @param records the records to set
    */
   public void setRecords( long records ) {
     this.records = records;
@@ -193,8 +190,7 @@ public class TimedTransRunner {
   }
 
   /**
-   * @param result
-   *          the result to set
+   * @param result the result to set
    */
   public void setNewResult( Result result ) {
     this.result = result;
@@ -213,8 +209,7 @@ public class TimedTransRunner {
   }
 
   /**
-   * @param transMeta
-   *          the transMeta to set
+   * @param transMeta the transMeta to set
    */
   public void setTransMeta( TransMeta transMeta ) {
     this.transMeta = transMeta;
@@ -228,8 +223,7 @@ public class TimedTransRunner {
   }
 
   /**
-   * @param runTime
-   *          the run time to set
+   * @param runTime the run time to set
    */
   public void setNewRunTime( double runTime ) {
     this.runTime = runTime;
@@ -243,8 +237,7 @@ public class TimedTransRunner {
   }
 
   /**
-   * @param speed
-   *          the speed to set
+   * @param speed the speed to set
    */
   public void setSpeed( double speed ) {
     this.speed = speed;
@@ -258,8 +251,7 @@ public class TimedTransRunner {
   }
 
   /**
-   * @param targetDatabaseMeta
-   *          the targetDatabaseMeta to set
+   * @param targetDatabaseMeta the targetDatabaseMeta to set
    */
   public void setTargetDatabaseMeta( DatabaseMeta targetDatabaseMeta ) {
     this.targetDatabaseMeta = targetDatabaseMeta;

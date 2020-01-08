@@ -22,19 +22,18 @@
 
 package org.apache.hop.trans.debug;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.StepMeta;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class is used to define debugging meta data for a certain step. Basically it defines for which condition a
  * break-point becomes active.
  *
  * @author Matt
- *
  */
 public class StepDebugMeta {
 
@@ -76,8 +75,7 @@ public class StepDebugMeta {
   }
 
   /**
-   * @param stepMeta
-   *          the stepMeta to set
+   * @param stepMeta the stepMeta to set
    */
   public void setStepMeta( StepMeta stepMeta ) {
     this.stepMeta = stepMeta;
@@ -91,8 +89,7 @@ public class StepDebugMeta {
   }
 
   /**
-   * @param condition
-   *          the condition to set
+   * @param condition the condition to set
    */
   public void setCondition( Condition condition ) {
     this.condition = condition;
@@ -101,8 +98,7 @@ public class StepDebugMeta {
   /**
    * Add a break-point listener to the debug information. The listener will be called whenever a condition is hit
    *
-   * @param breakPointListener
-   *          the break point listener to add
+   * @param breakPointListener the break point listener to add
    */
   public void addBreakPointListener( BreakPointListener breakPointListener ) {
     breakPointListers.add( breakPointListener );
@@ -111,8 +107,7 @@ public class StepDebugMeta {
   /**
    * Remove a break-point listener from the debug information.
    *
-   * @param breakPointListener
-   *          the break point listener to remove
+   * @param breakPointListener the break point listener to remove
    */
   public void removeBreakPointListener( BreakPointListener breakPointListener ) {
     breakPointListers.remove( breakPointListener );
@@ -133,8 +128,7 @@ public class StepDebugMeta {
   }
 
   /**
-   * @param rowCount
-   *          the rowCount to set
+   * @param rowCount the rowCount to set
    */
   public void setRowCount( int rowCount ) {
     this.rowCount = rowCount;
@@ -148,8 +142,7 @@ public class StepDebugMeta {
   }
 
   /**
-   * @param readingFirstRows
-   *          the readingFirstRows to set
+   * @param readingFirstRows the readingFirstRows to set
    */
   public void setReadingFirstRows( boolean readingFirstRows ) {
     this.readingFirstRows = readingFirstRows;
@@ -163,8 +156,7 @@ public class StepDebugMeta {
   }
 
   /**
-   * @param pausingOnBreakPoint
-   *          the pausingOnBreakPoint to set
+   * @param pausingOnBreakPoint the pausingOnBreakPoint to set
    */
   public void setPausingOnBreakPoint( boolean pausingOnBreakPoint ) {
     this.pausingOnBreakPoint = pausingOnBreakPoint;
@@ -178,8 +170,7 @@ public class StepDebugMeta {
   }
 
   /**
-   * @param rowBufferMeta
-   *          the rowBufferMeta to set
+   * @param rowBufferMeta the rowBufferMeta to set
    */
   public void setRowBufferMeta( RowMetaInterface rowBufferMeta ) {
     this.rowBufferMeta = rowBufferMeta;
@@ -193,8 +184,7 @@ public class StepDebugMeta {
   }
 
   /**
-   * @param rowBuffer
-   *          the rowBuffer to set
+   * @param rowBuffer the rowBuffer to set
    */
   public void setRowBuffer( List<Object[]> rowBuffer ) {
     this.rowBuffer = rowBuffer;
@@ -208,8 +198,7 @@ public class StepDebugMeta {
   }
 
   /**
-   * @param numberOfHits
-   *          the number of times the break-point listeners got called
+   * @param numberOfHits the number of times the break-point listeners got called
    */
   public void setNumberOfHits( int numberOfHits ) {
     this.numberOfHits = numberOfHits;

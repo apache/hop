@@ -22,9 +22,17 @@
 
 package org.apache.hop.core.compress.gzip;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.apache.hop.core.compress.CompressionPluginType;
+import org.apache.hop.core.compress.CompressionProvider;
+import org.apache.hop.core.compress.CompressionProviderFactory;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -32,17 +40,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.apache.hop.core.compress.CompressionPluginType;
-import org.apache.hop.core.compress.CompressionProvider;
-import org.apache.hop.core.compress.CompressionProviderFactory;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class GZIPCompressionInputStreamTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -102,7 +102,7 @@ public class GZIPCompressionInputStreamTest {
   public void testRead() throws IOException {
     inStream = new GZIPCompressionInputStream( createGZIPInputStream(), provider ) {
     };
-    inStream.read( new byte[100], 0, inStream.available() );
+    inStream.read( new byte[ 100 ], 0, inStream.available() );
   }
 
   protected InputStream createGZIPInputStream() throws IOException {

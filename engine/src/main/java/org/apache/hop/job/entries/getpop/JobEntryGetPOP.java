@@ -22,32 +22,16 @@
 
 package org.apache.hop.job.entries.getpop;
 
-import org.apache.hop.job.entry.validator.AbstractFileValidator;
-import org.apache.hop.job.entry.validator.AndValidator;
-import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import javax.mail.Flags.Flag;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
@@ -55,20 +39,29 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.validator.AbstractFileValidator;
+import org.apache.hop.job.entry.validator.AndValidator;
+import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import javax.mail.Flags.Flag;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * This defines an get pop job entry.
  *
  * @author Samatar
  * @since 01-03-2007
- *
  */
 
 public class JobEntryGetPOP extends JobEntryBase implements Cloneable, JobEntryInterface {
@@ -240,10 +233,10 @@ public class JobEntryGetPOP extends JobEntryBase implements Cloneable, JobEntryI
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       servername = XMLHandler.getTagValue( entrynode, "servername" );
       username = XMLHandler.getTagValue( entrynode, "username" );
       password = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( entrynode, "password" ) );
@@ -601,8 +594,7 @@ public class JobEntryGetPOP extends JobEntryBase implements Cloneable, JobEntryI
   }
 
   /**
-   * @param delete
-   *          The delete to set.
+   * @param delete The delete to set.
    */
   public void setDelete( boolean delete ) {
     this.delete = delete;
@@ -640,8 +632,7 @@ public class JobEntryGetPOP extends JobEntryBase implements Cloneable, JobEntryI
   }
 
   /**
-   * @param usessl
-   *          The usessl to set.
+   * @param usessl The usessl to set.
    */
   public void setUseSSL( boolean usessl ) {
     this.usessl = usessl;
@@ -698,8 +689,7 @@ public class JobEntryGetPOP extends JobEntryBase implements Cloneable, JobEntryI
   }
 
   /**
-   * @param password
-   *          The password to set.
+   * @param password The password to set.
    */
   public void setPassword( String password ) {
     this.password = password;
@@ -888,7 +878,7 @@ public class JobEntryGetPOP extends JobEntryBase implements Cloneable, JobEntryI
         } else {
           for ( int i = 0; i < subfolders.length; i++ ) {
             fetchOneFolder(
-              mailConn, usePOP3, subfolders[i], realOutputFolder, targetAttachmentFolder, realMoveToIMAPFolder,
+              mailConn, usePOP3, subfolders[ i ], realOutputFolder, targetAttachmentFolder, realMoveToIMAPFolder,
               realFilenamePattern, nbrmailtoretrieve, df );
           }
         }
@@ -932,8 +922,8 @@ public class JobEntryGetPOP extends JobEntryBase implements Cloneable, JobEntryI
   }
 
   void fetchOneFolder( MailConnection mailConn, boolean usePOP3, String realIMAPFolder,
-    String realOutputFolder, String targetAttachmentFolder, String realMoveToIMAPFolder,
-    String realFilenamePattern, int nbrmailtoretrieve, SimpleDateFormat df ) throws HopException {
+                       String realOutputFolder, String targetAttachmentFolder, String realMoveToIMAPFolder,
+                       String realFilenamePattern, int nbrmailtoretrieve, SimpleDateFormat df ) throws HopException {
     try {
       // if it is not pop3 and we have non-default imap folder...
       if ( !usePOP3 && !Utils.isEmpty( realIMAPFolder ) ) {
@@ -1009,7 +999,7 @@ public class JobEntryGetPOP extends JobEntryBase implements Cloneable, JobEntryI
               mailConn.fetchNext();
               int messagenumber = mailConn.getMessage().getMessageNumber();
               boolean okPOP3 = usePOP3 ? true : false; // (mailConn.getMessagesCounter()<nbrmailtoretrieve &&
-                                                       // retrievemails==2)||(retrievemails!=2):false;
+              // retrievemails==2)||(retrievemails!=2):false;
               boolean okIMAP = !usePOP3;
 
               if ( okPOP3 || okIMAP ) {
@@ -1026,7 +1016,7 @@ public class JobEntryGetPOP extends JobEntryBase implements Cloneable, JobEntryI
                   logDebug( BaseMessages.getString( PKG, "JobGetMailsFromPOP.ContentType.Label", mailConn
                     .getMessage().getContentType() ) );
                   logDebug( BaseMessages.getString( PKG, "JobGetMailsFromPOP.EmailFrom.Label", Const.NVL( mailConn
-                    .getMessage().getFrom()[0].toString(), "" ) ) );
+                    .getMessage().getFrom()[ 0 ].toString(), "" ) ) );
                   logDebug( BaseMessages.getString( PKG, "JobGetMailsFromPOP.EmailSubject.Label", Const.NVL(
                     mailConn.getMessage().getSubject(), "" ) ) );
                 }
@@ -1151,22 +1141,22 @@ public class JobEntryGetPOP extends JobEntryBase implements Cloneable, JobEntryI
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "serverName", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "userName", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "password", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
 
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, JobEntryValidatorUtils.notBlankValidator(),
-        JobEntryValidatorUtils.fileExistsValidator() );
+      JobEntryValidatorUtils.fileExistsValidator() );
     JobEntryValidatorUtils.andValidator().validate( this, "outputDirectory", remarks, ctx );
 
     JobEntryValidatorUtils.andValidator().validate( this, "SSLPort", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.integerValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.integerValidator() ) );
   }
 
   public List<ResourceReference> getResourceDependencies( JobMeta jobMeta ) {

@@ -33,7 +33,6 @@ import java.util.List;
 
 /**
  * This class represents the job entry dialog fragment type.
- *
  */
 @PluginMainClassType( JobEntryDialogInterface.class )
 @PluginAnnotationType( PluginDialog.class )
@@ -84,7 +83,7 @@ public class JobEntryDialogFragmentType extends BaseFragmentType implements Plug
 
   @Override
   public void handlePluginAnnotation( Class<?> clazz, java.lang.annotation.Annotation annotation,
-    List<String> libraries, boolean nativePluginType, URL pluginFolder ) throws HopPluginException {
+                                      List<String> libraries, boolean nativePluginType, URL pluginFolder ) throws HopPluginException {
     if ( ( (PluginDialog) annotation ).pluginType() == PluginDialog.PluginType.JOBENTRY ) {
       super.handlePluginAnnotation( clazz, annotation, libraries, nativePluginType, pluginFolder );
     }

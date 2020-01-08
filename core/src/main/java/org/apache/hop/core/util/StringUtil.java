@@ -22,6 +22,10 @@
 
 package org.apache.hop.core.util;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.RowMetaInterface;
+
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
@@ -33,10 +37,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.RowMetaInterface;
 
 /**
  * A collection of utilities to manipulate strings.
@@ -91,14 +91,10 @@ public class StringUtil {
    * Substitutes variables in <code>aString</code>. Variable names are delimited by open and close strings. The values
    * are retrieved from the given map.
    *
-   * @param aString
-   *          the string on which to apply the substitution.
-   * @param variablesValues
-   *          a map containing the variable values. The keys are the variable names, the values are the variable values.
-   * @param open
-   *          the open delimiter for variables.
-   * @param close
-   *          the close delimiter for variables.
+   * @param aString         the string on which to apply the substitution.
+   * @param variablesValues a map containing the variable values. The keys are the variable names, the values are the variable values.
+   * @param open            the open delimiter for variables.
+   * @param close           the close delimiter for variables.
    * @return the string with the substitution applied.
    */
   public static String substitute( String aString, Map<String, String> variablesValues, String open, String close ) {
@@ -109,20 +105,15 @@ public class StringUtil {
    * Substitutes variables in <code>aString</code>. Variable names are delimited by open and close strings. The values
    * are retrieved from the given map.
    *
-   * @param aString
-   *          the string on which to apply the substitution.
-   * @param variablesValues
-   *          a map containg the variable values. The keys are the variable names, the values are the variable values.
-   * @param open
-   *          the open delimiter for variables.
-   * @param close
-   *          the close delimiter for variables.
-   * @param recursion
-   *          the number of recursion (internal counter to avoid endless loops)
+   * @param aString         the string on which to apply the substitution.
+   * @param variablesValues a map containg the variable values. The keys are the variable names, the values are the variable values.
+   * @param open            the open delimiter for variables.
+   * @param close           the close delimiter for variables.
+   * @param recursion       the number of recursion (internal counter to avoid endless loops)
    * @return the string with the substitution applied.
    */
   public static String substitute( String aString, Map<String, String> variablesValues, String open, String close,
-    int recursion ) {
+                                   int recursion ) {
     if ( aString == null ) {
       return null;
     }
@@ -176,8 +167,7 @@ public class StringUtil {
    * string. Format is $[01] or $[6F,FF,00,1F] Example:
    * "This is a hex encoded six digits number 123456 in this string: $[31,32,33,34,35,36]"
    *
-   * @param aString
-   *          the string on which to apply the substitution.
+   * @param aString the string on which to apply the substitution.
    * @return the string with the substitution applied.
    */
   public static String substituteHex( String aString ) {
@@ -199,14 +189,14 @@ public class StringUtil {
         String hexString = rest.substring( i + HEX_OPEN.length(), j );
         String[] hexStringArray = hexString.split( "," );
         int hexInt;
-        byte[] hexByte = new byte[1];
+        byte[] hexByte = new byte[ 1 ];
         for ( int pos = 0; pos < hexStringArray.length; pos++ ) {
           try {
-            hexInt = Integer.parseInt( hexStringArray[pos], 16 );
+            hexInt = Integer.parseInt( hexStringArray[ pos ], 16 );
           } catch ( NumberFormatException e ) {
             hexInt = 0; // in case we get an invalid hex value, ignore: we can not log here
           }
-          hexByte[0] = (byte) hexInt;
+          hexByte[ 0 ] = (byte) hexInt;
           buffer.append( new String( hexByte ) );
         }
         rest = rest.substring( j + HEX_CLOSE.length() );
@@ -225,14 +215,12 @@ public class StringUtil {
   /**
    * Substitutes variables in <code>aString</code> with the environment values in the system properties
    *
-   * @param aString
-   *          the string on which to apply the substitution.
-   * @param systemProperties
-   *          the system properties to use
+   * @param aString          the string on which to apply the substitution.
+   * @param systemProperties the system properties to use
    * @return the string with the substitution applied.
    */
   public static final synchronized String environmentSubstitute( String aString,
-    Map<String, String> systemProperties ) {
+                                                                 Map<String, String> systemProperties ) {
     Map<String, String> sysMap = new HashMap<String, String>();
     synchronized ( sysMap ) {
       sysMap.putAll( Collections.synchronizedMap( systemProperties ) );
@@ -248,10 +236,8 @@ public class StringUtil {
    * Substitutes variables in <code>aString</code>. Variables are of the form "${<variable name>}", following the Unix
    * scripting convention. The values are retrieved from the given map.
    *
-   * @param aString
-   *          the string on which to apply the substitution.
-   * @param variables
-   *          a map containg the variable values. The keys are the variable names, the values are the variable values.
+   * @param aString   the string on which to apply the substitution.
+   * @param variables a map containg the variable values. The keys are the variable names, the values are the variable values.
    * @return the string with the substitution applied.
    */
   public static String substituteUnix( String aString, Map<String, String> variables ) {
@@ -262,10 +248,8 @@ public class StringUtil {
    * Substitutes variables in <code>aString</code>. Variables are of the form "%%<variable name>%%", following the
    * Windows convention. The values are retrieved from the given map.
    *
-   * @param aString
-   *          the string on which to apply the substitution.
-   * @param variables
-   *          a map containg the variable values. The keys are the variable names, the values are the variable values.
+   * @param aString   the string on which to apply the substitution.
+   * @param variables a map containg the variable values. The keys are the variable names, the values are the variable values.
    * @return the string with the substitution applied.
    */
   public static String substituteWindows( String aString, Map<String, String> variables ) {
@@ -277,16 +261,11 @@ public class StringUtil {
    * retrieved from the specified row. Please note that the getString() method is used to convert to a String, for all
    * values in the row.
    *
-   * @param aString
-   *          the string on which to apply the substitution.
-   * @param rowMeta
-   *          The row metadata to use.
-   * @param rowData
-   *          The row data to use
-   *
+   * @param aString the string on which to apply the substitution.
+   * @param rowMeta The row metadata to use.
+   * @param rowData The row data to use
    * @return the string with the substitution applied.
-   * @throws HopValueException
-   *           In case there is a String conversion error
+   * @throws HopValueException In case there is a String conversion error
    */
   public static String substituteField( String aString, RowMetaInterface rowMeta, Object[] rowData ) throws HopValueException {
     Map<String, String> variables = new HashMap<String, String>();
@@ -299,19 +278,14 @@ public class StringUtil {
   /**
    * Search the string and report back on the variables used
    *
-   * @param aString
-   *          The string to search
-   * @param open
-   *          the open or "start of variable" characters ${ or %%
-   * @param close
-   *          the close or "end of variable" characters } or %%
-   * @param list
-   *          the list of variables to add to
-   * @param includeSystemVariables
-   *          also check for system variables.
+   * @param aString                The string to search
+   * @param open                   the open or "start of variable" characters ${ or %%
+   * @param close                  the close or "end of variable" characters } or %%
+   * @param list                   the list of variables to add to
+   * @param includeSystemVariables also check for system variables.
    */
   public static void getUsedVariables( String aString, String open, String close, List<String> list,
-    boolean includeSystemVariables ) {
+                                       boolean includeSystemVariables ) {
     if ( aString == null ) {
       return;
     }
@@ -435,8 +409,7 @@ public class StringUtil {
   /**
    * Check if the string supplied is empty. A String is empty when it is null or when the length is 0
    *
-   * @param string
-   *          The string to check
+   * @param string The string to check
    * @return true if the string supplied is empty
    */
   public static final boolean isEmpty( String string ) {
@@ -446,8 +419,7 @@ public class StringUtil {
   /**
    * Check if the StringBuilder supplied is empty. A StringBuilder is empty when it is null or when the length is 0
    *
-   * @param string
-   *          The StringBuilder to check
+   * @param string The StringBuilder to check
    * @return true if the StringBuilder supplied is empty
    */
   public static final boolean isEmpty( StringBuilder string ) {
@@ -479,8 +451,7 @@ public class StringUtil {
   /**
    * Giving back a date/time string in the format following the rule from the most to the least significant
    *
-   * @param date
-   *          the date to convert
+   * @param date the date to convert
    * @return a string in the form yyyddMM_hhmmss
    */
   public static String getFormattedDateTime( Date date ) {
@@ -490,10 +461,8 @@ public class StringUtil {
   /**
    * Giving back a date/time string in the format following the rule from the most to the least significant
    *
-   * @param date
-   *          the date to convert
-   * @param milliseconds
-   *          true when milliseconds should be added
+   * @param date         the date to convert
+   * @param milliseconds true when milliseconds should be added
    * @return a string in the form yyyddMM_hhmmssSSS (milliseconds will be optional)
    */
   public static String getFormattedDateTime( Date date, boolean milliseconds ) {
@@ -520,8 +489,7 @@ public class StringUtil {
    * Giving back the actual time as a date/time string in the format following the rule from the most to the least
    * significant
    *
-   * @param milliseconds
-   *          true when milliseconds should be added
+   * @param milliseconds true when milliseconds should be added
    * @return a string in the form yyyddMM_hhmmssSSS (milliseconds will be optional)
    */
   public static String getFormattedDateTimeNow( boolean milliseconds ) {
@@ -564,8 +532,7 @@ public class StringUtil {
   /**
    * remove specification from variable
    *
-   * @param variable
-   *          the variable to look for, with the $ or % variable specification.
+   * @param variable the variable to look for, with the $ or % variable specification.
    * @return the variable name
    */
   public static final String getVariableName( String variable ) {
@@ -584,8 +551,7 @@ public class StringUtil {
   }
 
   /**
-   * @param variable
-   *          the variable to look for, with the $ or % variable specification.
+   * @param variable the variable to look for, with the $ or % variable specification.
    * @return true if the input is a variable, false otherwise
    */
   public static boolean isVariable( String variable ) {
@@ -594,8 +560,8 @@ public class StringUtil {
     }
     variable = variable.trim();
     return variable.startsWith( UNIX_OPEN ) && variable.endsWith( UNIX_CLOSE )
-        || variable.startsWith( WINDOWS_OPEN ) && variable.endsWith( WINDOWS_CLOSE )
-        || variable.startsWith( HEX_OPEN ) && variable.endsWith( HEX_CLOSE );
+      || variable.startsWith( WINDOWS_OPEN ) && variable.endsWith( WINDOWS_CLOSE )
+      || variable.startsWith( HEX_OPEN ) && variable.endsWith( HEX_CLOSE );
   }
 
   /**
@@ -618,7 +584,7 @@ public class StringUtil {
    * Removes all instances of the specified character from the start of the given {@link String}.
    *
    * @param source the {@link String} to trim
-   * @param c the character to remove from the {@link String}
+   * @param c      the character to remove from the {@link String}
    * @return a new string with all instances of the specified character removed from the start
    */
   public static String trimStart( final String source, char c ) {
@@ -640,7 +606,7 @@ public class StringUtil {
    * Removes all instances of the specified character from the end of the given {@link String}.
    *
    * @param source the {@link String} to trim
-   * @param c the character to remove from the {@link String}
+   * @param c      the character to remove from the {@link String}
    * @return a new string with all instances of the specified character removed from the end
    */
   public static String trimEnd( final String source, char c ) {

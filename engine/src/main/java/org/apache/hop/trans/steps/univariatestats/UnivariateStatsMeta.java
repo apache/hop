@@ -23,15 +23,9 @@
 
 package org.apache.hop.trans.steps.univariatestats;
 
-import java.text.NumberFormat;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -39,7 +33,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -47,8 +41,11 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Contains the meta-data for the UnivariateStats step: calculates predefined univariate statistics
@@ -92,8 +89,7 @@ public class UnivariateStatsMeta extends BaseStepMeta implements StepMetaInterfa
   /**
    * Set the stats to be computed for the input fields
    *
-   * @param mf
-   *          an array of <code>UnivariateStatsMetaFunction</code>s
+   * @param mf an array of <code>UnivariateStatsMetaFunction</code>s
    */
   public void setInputFieldMetaFunctions( UnivariateStatsMetaFunction[] mf ) {
     m_stats = mf;
@@ -102,20 +98,17 @@ public class UnivariateStatsMeta extends BaseStepMeta implements StepMetaInterfa
   /**
    * Allocate space for stats to compute
    *
-   * @param nrStats
-   *          the number of UnivariateStatsMetaFunctions to allocate
+   * @param nrStats the number of UnivariateStatsMetaFunctions to allocate
    */
   public void allocate( int nrStats ) {
-    m_stats = new UnivariateStatsMetaFunction[nrStats];
+    m_stats = new UnivariateStatsMetaFunction[ nrStats ];
   }
 
   /**
    * Loads the meta data for this (configured) step from XML.
    *
-   * @param stepnode
-   *          the step to load
-   * @exception HopXMLException
-   *              if an error occurs
+   * @param stepnode the step to load
+   * @throws HopXMLException if an error occurs
    */
   @Override
   public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
@@ -125,7 +118,7 @@ public class UnivariateStatsMeta extends BaseStepMeta implements StepMetaInterfa
     allocate( nrStats );
     for ( int i = 0; i < nrStats; i++ ) {
       Node statnode = XMLHandler.getSubNodeByNr( stepnode, UnivariateStatsMetaFunction.XML_TAG, i );
-      m_stats[i] = new UnivariateStatsMetaFunction( statnode );
+      m_stats[ i ] = new UnivariateStatsMetaFunction( statnode );
     }
   }
 
@@ -140,7 +133,7 @@ public class UnivariateStatsMeta extends BaseStepMeta implements StepMetaInterfa
 
     if ( m_stats != null ) {
       for ( int i = 0; i < m_stats.length; i++ ) {
-        retval.append( "       " ).append( m_stats[i].getXML() ).append( Const.CR );
+        retval.append( "       " ).append( m_stats[ i ].getXML() ).append( Const.CR );
       }
     }
     return retval.toString();
@@ -149,8 +142,7 @@ public class UnivariateStatsMeta extends BaseStepMeta implements StepMetaInterfa
   /**
    * Check for equality
    *
-   * @param obj
-   *          an <code>Object</code> to compare with
+   * @param obj an <code>Object</code> to compare with
    * @return true if equal to the supplied object
    */
   @Override
@@ -180,7 +172,7 @@ public class UnivariateStatsMeta extends BaseStepMeta implements StepMetaInterfa
       retval.allocate( m_stats.length );
       for ( int i = 0; i < m_stats.length; i++ ) {
         // CHECKSTYLE:Indentation:OFF
-        retval.getInputFieldMetaFunctions()[i] = (UnivariateStatsMetaFunction) m_stats[i].clone();
+        retval.getInputFieldMetaFunctions()[ i ] = (UnivariateStatsMetaFunction) m_stats[ i ].clone();
       }
     } else {
       retval.allocate( 0 );
@@ -193,21 +185,21 @@ public class UnivariateStatsMeta extends BaseStepMeta implements StepMetaInterfa
    */
   @Override
   public void setDefault() {
-    m_stats = new UnivariateStatsMetaFunction[0];
+    m_stats = new UnivariateStatsMetaFunction[ 0 ];
   }
 
   @Override
   public void getFields( RowMetaInterface row, String origin, RowMetaInterface[] info, StepMeta nextStep,
-      VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     row.clear();
     for ( int i = 0; i < m_stats.length; i++ ) {
-      UnivariateStatsMetaFunction fn = m_stats[i];
+      UnivariateStatsMetaFunction fn = m_stats[ i ];
 
       ValueMetaInterface[] vmis = getValueMetas( fn, origin );
 
       for ( int j = 0; j < vmis.length; j++ ) {
-        row.addValueMeta( vmis[j] );
+        row.addValueMeta( vmis[ j ] );
       }
     }
   }
@@ -216,50 +208,48 @@ public class UnivariateStatsMeta extends BaseStepMeta implements StepMetaInterfa
    * Returns an array of ValueMetaInterface that contains the meta data for each value computed by the supplied
    * UnivariateStatsMetaFunction
    *
-   * @param fn
-   *          the <code>UnivariateStatsMetaFunction</code> to construct meta data for
-   * @param origin
-   *          the origin
+   * @param fn     the <code>UnivariateStatsMetaFunction</code> to construct meta data for
+   * @param origin the origin
    * @return an array of meta data
    */
   private ValueMetaInterface[] getValueMetas( UnivariateStatsMetaFunction fn, String origin ) {
 
-    ValueMetaInterface[] v = new ValueMetaInterface[fn.numberOfMetricsRequested()];
+    ValueMetaInterface[] v = new ValueMetaInterface[ fn.numberOfMetricsRequested() ];
 
     int index = 0;
     if ( fn.getCalcN() ) {
-      v[index] = new ValueMetaNumber( fn.getSourceFieldName() + "(N)" );
-      v[index].setOrigin( origin );
+      v[ index ] = new ValueMetaNumber( fn.getSourceFieldName() + "(N)" );
+      v[ index ].setOrigin( origin );
       index++;
     }
 
     if ( fn.getCalcMean() ) {
-      v[index] = new ValueMetaNumber( fn.getSourceFieldName() + "(mean)" );
-      v[index].setOrigin( origin );
+      v[ index ] = new ValueMetaNumber( fn.getSourceFieldName() + "(mean)" );
+      v[ index ].setOrigin( origin );
       index++;
     }
 
     if ( fn.getCalcStdDev() ) {
-      v[index] = new ValueMetaNumber( fn.getSourceFieldName() + "(stdDev)" );
-      v[index].setOrigin( origin );
+      v[ index ] = new ValueMetaNumber( fn.getSourceFieldName() + "(stdDev)" );
+      v[ index ].setOrigin( origin );
       index++;
     }
 
     if ( fn.getCalcMin() ) {
-      v[index] = new ValueMetaNumber( fn.getSourceFieldName() + "(min)" );
-      v[index].setOrigin( origin );
+      v[ index ] = new ValueMetaNumber( fn.getSourceFieldName() + "(min)" );
+      v[ index ].setOrigin( origin );
       index++;
     }
 
     if ( fn.getCalcMax() ) {
-      v[index] = new ValueMetaNumber( fn.getSourceFieldName() + "(max)" );
-      v[index].setOrigin( origin );
+      v[ index ] = new ValueMetaNumber( fn.getSourceFieldName() + "(max)" );
+      v[ index ].setOrigin( origin );
       index++;
     }
 
     if ( fn.getCalcMedian() ) {
-      v[index] = new ValueMetaNumber( fn.getSourceFieldName() + "(median)" );
-      v[index].setOrigin( origin );
+      v[ index ] = new ValueMetaNumber( fn.getSourceFieldName() + "(median)" );
+      v[ index ].setOrigin( origin );
       index++;
     }
 
@@ -269,8 +259,8 @@ public class UnivariateStatsMeta extends BaseStepMeta implements StepMetaInterfa
       NumberFormat pF = NumberFormat.getInstance();
       pF.setMaximumFractionDigits( 2 );
       String res = pF.format( percent * 100 );
-      v[index] = new ValueMetaNumber( fn.getSourceFieldName() + "(" + res + "th percentile)" );
-      v[index].setOrigin( origin );
+      v[ index ] = new ValueMetaNumber( fn.getSourceFieldName() + "(" + res + "th percentile)" );
+      v[ index ].setOrigin( origin );
       index++;
     }
     return v;
@@ -279,25 +269,18 @@ public class UnivariateStatsMeta extends BaseStepMeta implements StepMetaInterfa
   /**
    * Check the settings of this step and put findings in a remarks list.
    *
-   * @param remarks
-   *          the list to put the remarks in. see <code>org.apache.hop.core.CheckResult</code>
-   * @param transmeta
-   *          the transform meta data
-   * @param stepMeta
-   *          the step meta data
-   * @param prev
-   *          the fields coming from a previous step
-   * @param input
-   *          the input step names
-   * @param output
-   *          the output step names
-   * @param info
-   *          the fields that are used as information by the step
+   * @param remarks   the list to put the remarks in. see <code>org.apache.hop.core.CheckResult</code>
+   * @param transmeta the transform meta data
+   * @param stepMeta  the step meta data
+   * @param prev      the fields coming from a previous step
+   * @param input     the input step names
+   * @param output    the output step names
+   * @param info      the fields that are used as information by the step
    */
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transmeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-      IMetaStore metaStore ) {
+                     String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
 
     CheckResult cr;
 
@@ -306,8 +289,8 @@ public class UnivariateStatsMeta extends BaseStepMeta implements StepMetaInterfa
       remarks.add( cr );
     } else {
       cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, "Step is connected to previous one, receiving " + prev.size()
-              + " fields", stepMeta );
+        new CheckResult( CheckResult.TYPE_RESULT_OK, "Step is connected to previous one, receiving " + prev.size()
+          + " fields", stepMeta );
       remarks.add( cr );
     }
 
@@ -324,22 +307,17 @@ public class UnivariateStatsMeta extends BaseStepMeta implements StepMetaInterfa
   /**
    * Get the executing step, needed by Trans to launch a step.
    *
-   * @param stepMeta
-   *          the step info
-   * @param stepDataInterface
-   *          the step data interface linked to this step. Here the step can store temporary data, database connections,
-   *          etc.
-   * @param cnr
-   *          the copy number to get.
-   * @param tr
-   *          the transformation info.
-   * @param trans
-   *          the launching transformation
+   * @param stepMeta          the step info
+   * @param stepDataInterface the step data interface linked to this step. Here the step can store temporary data, database connections,
+   *                          etc.
+   * @param cnr               the copy number to get.
+   * @param tr                the transformation info.
+   * @param trans             the launching transformation
    * @return a <code>StepInterface</code> value
    */
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-      Trans trans ) {
+                                Trans trans ) {
     return new UnivariateStats( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 

@@ -25,7 +25,6 @@ package org.apache.hop.trans.steps.execprocess;
 /**
  * @author Samatar
  * @since 03-Juin-2008
- *
  */
 public class ProcessResult {
   private String outputStream;

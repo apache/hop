@@ -22,16 +22,14 @@
 
 package org.apache.hop.trans;
 
-import java.util.concurrent.TimeUnit;
-
 import junit.framework.TestCase;
-
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.row.RowMetaInterface;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Tests for RowProducer
- *
  */
 public class RowProducerIT extends TestCase {
 
@@ -74,8 +72,7 @@ public class RowProducerIT extends TestCase {
      * Create a blocking row set that requires {@code attempts} calls to
      * {@link #putRowWait(RowMetaInterface, Object[], long, TimeUnit)} before actually adding the row.
      *
-     * @param attempts
-     *          Number of calls required to actually put a row.
+     * @param attempts Number of calls required to actually put a row.
      */
     public MockBlockingRowSet( int attempts ) {
       this.reqdAttempts = attempts;

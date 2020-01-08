@@ -21,20 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -44,6 +30,19 @@ import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class MSAccessDatabaseMetaTest {
   private MSAccessDatabaseMeta odbcMeta;
@@ -57,12 +56,12 @@ public class MSAccessDatabaseMetaTest {
   @Test
   public void testSettings() throws Exception {
     assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_ODBC },
-        odbcMeta.getAccessTypeList() );
+      odbcMeta.getAccessTypeList() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertTrue( odbcMeta.supportsAutoInc() );
     assertEquals( 1, odbcMeta.getNotFoundTK( true ) );
     assertEquals( 0, odbcMeta.getNotFoundTK( false ) );
-    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL(  "IGNORED", "IGNORED", "FOO" ) );
+    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "IGNORED", "IGNORED", "FOO" ) );
     assertFalse( odbcMeta.isFetchSizeSupported() );
     assertFalse( odbcMeta.supportsBitmapIndex() );
     assertFalse( odbcMeta.supportsSynonyms() );
@@ -111,85 +110,85 @@ public class MSAccessDatabaseMetaTest {
   @Test
   public void testSQLStatements() {
     assertEquals( "DELETE FROM FOO",
-        odbcMeta.getTruncateTableStatement( "FOO" ) );
+      odbcMeta.getTruncateTableStatement( "FOO" ) );
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR TEXT(15)",
-        odbcMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
+      odbcMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO DROP COLUMN BAR" + System.getProperty( "line.separator" ),
-        odbcMeta.getDropColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
+      odbcMeta.getDropColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ALTER COLUMN BAR TEXT(15)",
-        odbcMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
+      odbcMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
 
     assertEquals( "insert into FOO(FOOVERSION) values (1)",
-        odbcMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
+      odbcMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
 
   }
 
   @Test
   public void testGetFieldDefinition() {
     assertEquals( "FOO DATETIME",
-        odbcMeta.getFieldDefinition( new ValueMetaDate( "FOO" ), "", "", false, true, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaDate( "FOO" ), "", "", false, true, false ) );
     assertEquals( "DATETIME",
-        odbcMeta.getFieldDefinition( new ValueMetaTimestamp( "FOO" ), "", "", false, false, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaTimestamp( "FOO" ), "", "", false, false, false ) );
 
     assertFalse( odbcMeta.supportsBooleanDataType() );
     assertEquals( "CHAR(1)",
-        odbcMeta.getFieldDefinition( new ValueMetaBoolean( "FOO" ), "", "", false, false, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaBoolean( "FOO" ), "", "", false, false, false ) );
     odbcMeta.setSupportsBooleanDataType( true );
     assertEquals( "BIT",
-        odbcMeta.getFieldDefinition( new ValueMetaBoolean( "FOO" ), "", "", false, false, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaBoolean( "FOO" ), "", "", false, false, false ) );
     odbcMeta.setSupportsBooleanDataType( false );
 
     // Key field Stuff
     assertEquals( "COUNTER PRIMARY KEY",
-        odbcMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 8, 0 ), "", "FOO", true, false, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 8, 0 ), "", "FOO", true, false, false ) );
     assertEquals( "LONG PRIMARY KEY",
-        odbcMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 10, 0 ), "FOO", "", false, false, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 10, 0 ), "FOO", "", false, false, false ) );
     assertEquals( "LONG PRIMARY KEY",
-        odbcMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 8, 0 ), "", "FOO", false, false, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 8, 0 ), "", "FOO", false, false, false ) );
 
     // Integer types
     assertEquals( "INTEGER",
-        odbcMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 4, 0 ), "", "", false, false, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaInteger( "FOO", 4, 0 ), "", "", false, false, false ) );
     assertEquals( "LONG",
-        odbcMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 6, 0 ), "", "", false, false, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 6, 0 ), "", "", false, false, false ) );
     assertEquals( "LONG",
-        odbcMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 9, 0 ), "", "", false, false, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaNumber( "FOO", 9, 0 ), "", "", false, false, false ) );
     assertEquals( "DOUBLE",
-        odbcMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 10, 0 ), "", "", false, false, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 10, 0 ), "", "", false, false, false ) );
 
     // Number Types ( as written, precision != 0 )
 
     assertEquals( "DOUBLE",
-        odbcMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 10, 1 ), "", "", false, false, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 10, 1 ), "", "", false, false, false ) );
     assertEquals( "DOUBLE",
-        odbcMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 3, 1 ), "", "", false, false, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 3, 1 ), "", "", false, false, false ) );
     assertEquals( "DOUBLE",
-        odbcMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 3, -5 ), "", "", false, false, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", 3, -5 ), "", "", false, false, false ) );
     assertEquals( "DOUBLE",
-        odbcMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", -3, -5 ), "", "", false, false, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaBigNumber( "FOO", -3, -5 ), "", "", false, false, false ) );
 
     // String Types
     assertEquals( "TEXT(255)",
-        odbcMeta.getFieldDefinition( new ValueMetaString( "FOO", 255, 0 ), "", "", false, false, false ) ); // Likely a bug - the maxTextFieldLength is set to 65536 - so this limitation is likely wrong
+      odbcMeta.getFieldDefinition( new ValueMetaString( "FOO", 255, 0 ), "", "", false, false, false ) ); // Likely a bug - the maxTextFieldLength is set to 65536 - so this limitation is likely wrong
     assertEquals( "TEXT(1)",
-        odbcMeta.getFieldDefinition( new ValueMetaString( "FOO", 1, 0 ), "", "", false, false, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaString( "FOO", 1, 0 ), "", "", false, false, false ) );
     assertEquals( "MEMO",
-        odbcMeta.getFieldDefinition( new ValueMetaString( "FOO", 256, 0 ), "", "", false, false, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaString( "FOO", 256, 0 ), "", "", false, false, false ) );
     assertEquals( "TEXT",
-        odbcMeta.getFieldDefinition( new ValueMetaString( "FOO", 0, 0 ), "", "", false, false, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaString( "FOO", 0, 0 ), "", "", false, false, false ) );
     assertEquals( "TEXT",
-        odbcMeta.getFieldDefinition( new ValueMetaString( "FOO" ), "", "", false, false, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaString( "FOO" ), "", "", false, false, false ) );
 
     // Other Types
     assertEquals( " LONGBINARY",
-        odbcMeta.getFieldDefinition( new ValueMetaBinary( "FOO", 200, 1 ), "", "", false, false, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaBinary( "FOO", 200, 1 ), "", "", false, false, false ) );
 
     // Unknowns
     assertEquals( " UNKNOWN",
-        odbcMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, false ) );
+      odbcMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, false ) );
     assertEquals( " UNKNOWN" + System.getProperty( "line.separator" ),
-        odbcMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, true ) );
+      odbcMeta.getFieldDefinition( new ValueMetaInternetAddress( "FOO" ), "", "", false, false, true ) );
 
   }
 
@@ -197,7 +196,7 @@ public class MSAccessDatabaseMetaTest {
 
   @Test
   public void testCheckIndexExists() throws Exception {
-    Database db = Mockito.mock(  Database.class );
+    Database db = Mockito.mock( Database.class );
     ResultSet rs = Mockito.mock( ResultSet.class );
     DatabaseMetaData dmd = Mockito.mock( DatabaseMetaData.class );
     DatabaseMeta dm = Mockito.mock( DatabaseMeta.class );
@@ -222,7 +221,7 @@ public class MSAccessDatabaseMetaTest {
         }
       }
     } );
-    Mockito.when(  db.getDatabaseMeta() ).thenReturn( dm );
+    Mockito.when( db.getDatabaseMeta() ).thenReturn( dm );
     assertTrue( odbcMeta.checkIndexExists( db, "", "FOO", new String[] { "ROW1COL2", "ROW2COL2" } ) );
     assertFalse( odbcMeta.checkIndexExists( db, "", "FOO", new String[] { "ROW2COL2", "NOTTHERE" } ) );
     assertFalse( odbcMeta.checkIndexExists( db, "", "FOO", new String[] { "NOTTHERE", "ROW1COL2" } ) );

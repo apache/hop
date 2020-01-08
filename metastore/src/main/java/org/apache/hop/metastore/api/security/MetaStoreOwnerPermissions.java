@@ -17,9 +17,6 @@
 
 package org.apache.hop.metastore.api.security;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.stores.xml.XmlMetaStoreElementOwner;
 import org.apache.hop.metastore.stores.xml.XmlUtil;
@@ -27,6 +24,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MetaStoreOwnerPermissions {
 
@@ -84,7 +84,7 @@ public class MetaStoreOwnerPermissions {
               permissions.add( MetaStoreObjectPermission.valueOf( permissionString ) );
             } catch ( Exception e ) {
               throw new MetaStoreException( "Unable to recognize permission '" + permissionString
-                  + "' as one of CREATE, READ, UPDATE or DELETE", e );
+                + "' as one of CREATE, READ, UPDATE or DELETE", e );
             }
           }
         }

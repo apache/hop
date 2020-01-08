@@ -22,6 +22,9 @@
 
 package org.apache.hop.ui.trans.step.common;
 
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.FormDataBuilder;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -29,9 +32,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.FormDataBuilder;
-import org.apache.hop.ui.core.dialog.BaseDialog;
 
 /**
  * A dialog with options to (re)load all fields, or only add new ones. Upon submitting the dialog, the "Sample data"

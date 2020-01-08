@@ -22,17 +22,16 @@
 
 package org.apache.hop.www;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
+import org.junit.Test;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
-import org.junit.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for GetRootServlet class
@@ -46,7 +45,7 @@ public class GetRootServletTest {
     GetRootServlet servlet = new GetRootServlet();
     servlet.setJettyMode( true );
     HttpServletRequest request =
-        when( mock( HttpServletRequest.class ).getRequestURI() ).thenReturn( "/wrong_path" ).getMock();
+      when( mock( HttpServletRequest.class ).getRequestURI() ).thenReturn( "/wrong_path" ).getMock();
     HttpServletResponse response = mock( HttpServletResponse.class );
     servlet.doGet( request, response );
     verify( response ).sendError( HttpServletResponse.SC_NOT_FOUND );

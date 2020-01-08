@@ -22,9 +22,9 @@
 
 package org.apache.hop.trans.steps.loadsave.validator;
 
-import java.lang.reflect.Type;
-
 import org.apache.hop.trans.steps.loadsave.getter.Getter;
+
+import java.lang.reflect.Type;
 
 public interface FieldLoadSaveValidatorFactory {
   public <T> FieldLoadSaveValidator<T> createValidator( Getter<T> getterMethod );

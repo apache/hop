@@ -22,8 +22,35 @@
 
 package org.apache.hop.job.entries.ftpdelete;
 
+import com.enterprisedt.net.ftp.FTPClient;
+import com.enterprisedt.net.ftp.FTPConnectMode;
+import com.enterprisedt.net.ftp.FTPException;
+import com.trilead.ssh2.Connection;
+import com.trilead.ssh2.HTTPProxyData;
+import com.trilead.ssh2.SFTPv3Client;
+import com.trilead.ssh2.SFTPv3DirectoryEntry;
+import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.ftpsget.FTPSConnection;
+import org.apache.hop.job.entries.sftp.SFTPClient;
+import org.apache.hop.job.entry.JobEntryBase;
+import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.resource.ResourceEntry;
+import org.apache.hop.resource.ResourceEntry.ResourceType;
+import org.apache.hop.resource.ResourceReference;
+import org.w3c.dom.Node;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -34,46 +61,11 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.ftpsget.FTPSConnection;
-import org.apache.hop.job.entries.sftp.SFTPClient;
-import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
-
-import org.apache.hop.resource.ResourceEntry;
-import org.apache.hop.resource.ResourceEntry.ResourceType;
-import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.w3c.dom.Node;
-
-import com.enterprisedt.net.ftp.FTPClient;
-import com.enterprisedt.net.ftp.FTPConnectMode;
-import com.enterprisedt.net.ftp.FTPException;
-import com.trilead.ssh2.Connection;
-import com.trilead.ssh2.HTTPProxyData;
-import com.trilead.ssh2.SFTPv3Client;
-import com.trilead.ssh2.SFTPv3DirectoryEntry;
-
 /**
  * This defines an FTP job entry.
  *
  * @author Matt
  * @since 05-11-2003
- *
  */
 public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEntryInterface {
   private static Class<?> PKG = JobEntryFTPDelete.class; // for i18n purposes, needed by Translator2!!
@@ -227,10 +219,10 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
 
       protocol = XMLHandler.getTagValue( entrynode, "protocol" );
       port = XMLHandler.getTagValue( entrynode, "port" );
@@ -291,8 +283,7 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
   }
 
   /**
-   * @param publickey
-   *          The publicpublickey to set.
+   * @param publickey The publicpublickey to set.
    */
   public void setUsePublicKey( boolean publickey ) {
     this.publicpublickey = publickey;
@@ -306,8 +297,7 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
   }
 
   /**
-   * @param keyfilename
-   *          The key filename to set.
+   * @param keyfilename The key filename to set.
    */
   public void setKeyFilename( String keyfilename ) {
     this.keyFilename = keyfilename;
@@ -321,8 +311,7 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
   }
 
   /**
-   * @param keyFilePass
-   *          The key file pass to set.
+   * @param keyFilePass The key file pass to set.
    */
   public void setKeyFilePass( String keyFilePass ) {
     this.keyFilePass = keyFilePass;
@@ -343,8 +332,7 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
   }
 
   /**
-   * @param type
-   *          the connectionType to set
+   * @param type the connectionType to set
    */
   public void setFTPSConnectionType( int type ) {
     FTPSConnectionType = type;
@@ -374,8 +362,7 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
   }
 
   /**
-   * @param directory
-   *          The directory to set.
+   * @param directory The directory to set.
    */
   public void setFtpDirectory( String directory ) {
     this.ftpDirectory = directory;
@@ -389,8 +376,7 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
   }
 
   /**
-   * @param password
-   *          The password to set.
+   * @param password The password to set.
    */
   public void setPassword( String password ) {
     this.password = password;
@@ -404,8 +390,7 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
   }
 
   /**
-   * @param serverName
-   *          The serverName to set.
+   * @param serverName The serverName to set.
    */
   public void setServerName( String serverName ) {
     this.serverName = serverName;
@@ -427,8 +412,7 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
   }
 
   /**
-   * @param userName
-   *          The userName to set.
+   * @param userName The userName to set.
    */
   public void setUserName( String userName ) {
     this.userName = userName;
@@ -442,16 +426,14 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
   }
 
   /**
-   * @param wildcard
-   *          The wildcard to set.
+   * @param wildcard The wildcard to set.
    */
   public void setWildcard( String wildcard ) {
     this.wildcard = wildcard;
   }
 
   /**
-   * @param timeout
-   *          The timeout to set.
+   * @param timeout The timeout to set.
    */
   public void setTimeout( int timeout ) {
     this.timeout = timeout;
@@ -472,8 +454,7 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
   }
 
   /**
-   * @param proxyHost
-   *          The hostname of the proxy.
+   * @param proxyHost The hostname of the proxy.
    */
   public void setProxyHost( String proxyHost ) {
     this.proxyHost = proxyHost;
@@ -495,8 +476,7 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
   }
 
   /**
-   * @param proxyPassword
-   *          The password which is used to authenticate at the proxy.
+   * @param proxyPassword The password which is used to authenticate at the proxy.
    */
   public void setProxyPassword( String proxyPassword ) {
     this.proxyPassword = proxyPassword;
@@ -510,8 +490,7 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
   }
 
   /**
-   * @param port
-   *          The port of the ftp.
+   * @param port The port of the ftp.
    */
   public void setPort( String port ) {
     this.port = port;
@@ -525,8 +504,7 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
   }
 
   /**
-   * @param proxyPort
-   *          The port of the ftp-proxy.
+   * @param proxyPort The port of the ftp-proxy.
    */
   public void setProxyPort( String proxyPort ) {
     this.proxyPort = proxyPort;
@@ -540,14 +518,14 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
   }
 
   /**
-   * @param proxyUsername
-   *          The username which is used to authenticate at the proxy.
+   * @param proxyUsername The username which is used to authenticate at the proxy.
    */
   public void setProxyUsername( String proxyUsername ) {
     this.proxyUsername = proxyUsername;
   }
 
-  /** Needed for the Vector coming from sshclient.ls() *
+  /**
+   * Needed for the Vector coming from sshclient.ls() *
    */
   @SuppressWarnings( "unchecked" )
   public Result execute( Result previousResult, int nr ) {
@@ -634,8 +612,8 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
         if ( filelist.length == 1 ) {
           String translatedWildcard = environmentSubstitute( wildcard );
           if ( !Utils.isEmpty( translatedWildcard ) ) {
-            if ( filelist[0].startsWith( translatedWildcard ) ) {
-              throw new FTPException( filelist[0] );
+            if ( filelist[ 0 ].startsWith( translatedWildcard ) ) {
+              throw new FTPException( filelist[ 0 ] );
             }
 
           }
@@ -682,7 +660,7 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
           }
 
           // Now that we have the correct count, create and fill in the array
-          filelist = new String[fileCount];
+          filelist = new String[ fileCount ];
           iterator = vfilelist.iterator();
           int i = 0;
           while ( iterator.hasNext() ) {
@@ -691,7 +669,7 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
             if ( dirEntry != null
               && !dirEntry.filename.equals( "." ) && !dirEntry.filename.equals( ".." )
               && !isDirectory( sshclient, sourceFolder + dirEntry.filename ) ) {
-              filelist[i] = dirEntry.filename;
+              filelist[ i ] = dirEntry.filename;
               i++;
             }
           }
@@ -740,18 +718,18 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
         boolean getIt = false;
 
         if ( isDebug() ) {
-          logDebug( BaseMessages.getString( PKG, "JobEntryFTPDelete.AnalysingFile", filelist[i] ) );
+          logDebug( BaseMessages.getString( PKG, "JobEntryFTPDelete.AnalysingFile", filelist[ i ] ) );
         }
 
         try {
           // First see if the file matches the regular expression!
           if ( copyprevious ) {
-            if ( list_previous_files.contains( filelist[i] ) ) {
+            if ( list_previous_files.contains( filelist[ i ] ) ) {
               getIt = true;
             }
           } else {
             if ( pattern != null ) {
-              Matcher matcher = pattern.matcher( filelist[i] );
+              Matcher matcher = pattern.matcher( filelist[ i ] );
               getIt = matcher.matches();
             }
           }
@@ -759,18 +737,18 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
           if ( getIt ) {
             // Delete file
             if ( protocol.equals( PROTOCOL_FTP ) ) {
-              ftpclient.delete( filelist[i] );
+              ftpclient.delete( filelist[ i ] );
             }
             if ( protocol.equals( PROTOCOL_FTPS ) ) {
               // System.out.println( "---------------" + filelist[i] );
-              ftpsclient.deleteFile( filelist[i] );
+              ftpsclient.deleteFile( filelist[ i ] );
             } else if ( protocol.equals( PROTOCOL_SFTP ) ) {
-              sftpclient.delete( filelist[i] );
+              sftpclient.delete( filelist[ i ] );
             } else if ( protocol.equals( PROTOCOL_SSH ) ) {
-              sshclient.rm( sourceFolder + filelist[i] );
+              sshclient.rm( sourceFolder + filelist[ i ] );
             }
             if ( isDetailed() ) {
-              logDetailed( "JobEntryFTPDelete.RemotefileDeleted", filelist[i] );
+              logDetailed( "JobEntryFTPDelete.RemotefileDeleted", filelist[ i ] );
             }
             updateDeletedFiles();
           }
@@ -848,8 +826,8 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
   }
 
   private void SSHConnect( String realservername, String realserverpassword, int realserverport,
-    String realUsername, String realPassword, String realproxyhost, String realproxyusername,
-    String realproxypassword, int realproxyport, String realkeyFilename, String realkeyPass ) throws Exception {
+                           String realUsername, String realPassword, String realproxyhost, String realproxyusername,
+                           String realproxypassword, int realproxyport, String realkeyFilename, String realkeyPass ) throws Exception {
 
     /* Create a connection instance */
 
@@ -894,7 +872,7 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
   }
 
   private void SFTPConnect( String realservername, String realusername, int realport, String realpassword,
-    String realFTPDirectory ) throws Exception {
+                            String realFTPDirectory ) throws Exception {
     // Create sftp client to host ...
     sftpclient = new SFTPClient( InetAddress.getByName( realservername ), realport, realusername );
 
@@ -912,7 +890,7 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
   }
 
   private void FTPSConnect( String realservername, String realusername, int realport, String realpassword,
-    String realFTPDirectory, int realtimeout ) throws Exception {
+                            String realFTPDirectory, int realtimeout ) throws Exception {
     // Create ftps client to host ...
     ftpsclient =
       new FTPSConnection( getFTPSConnectionType(), realservername, realport, realusername, realpassword );
@@ -975,8 +953,8 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
   }
 
   private void FTPConnect( String realServername, String realusername, String realpassword, int realport,
-    String realFtpDirectory, String realProxyhost, String realproxyusername, String realproxypassword,
-    int realproxyport, int realtimeout ) throws Exception {
+                           String realFtpDirectory, String realProxyhost, String realproxyusername, String realproxypassword,
+                           int realproxyport, int realtimeout ) throws Exception {
 
     // Create ftp client to host:port ...
     ftpclient = new FTPClient();
@@ -1072,19 +1050,18 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
   }
 
   /**
-   * @param activeConnection
-   *          the activeConnection to set
+   * @param activeConnection the activeConnection to set
    */
   public void setActiveConnection( boolean activeConnection ) {
     this.activeConnection = activeConnection;
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "serverName", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate(
       this, "targetDirectory", remarks, AndValidator.putValidators(
-          JobEntryValidatorUtils.notBlankValidator(), JobEntryValidatorUtils.fileExistsValidator() ) );
+        JobEntryValidatorUtils.notBlankValidator(), JobEntryValidatorUtils.fileExistsValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "userName", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     JobEntryValidatorUtils.andValidator().validate( this, "password", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
   }

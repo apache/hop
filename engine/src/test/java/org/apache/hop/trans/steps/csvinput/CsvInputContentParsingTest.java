@@ -22,11 +22,11 @@
 
 package org.apache.hop.trans.steps.csvinput;
 
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class CsvInputContentParsingTest extends BaseCsvParsingTest {
     init( "default.csv" );
 
     setFields( new TextFileInputField( "Field 1", -1, -1 ), new TextFileInputField( "Field 2", -1, -1 ),
-        new TextFileInputField( "Field 3", -1, -1 ) );
+      new TextFileInputField( "Field 3", -1, -1 ) );
 
     process();
 
@@ -52,7 +52,7 @@ public class CsvInputContentParsingTest extends BaseCsvParsingTest {
     init( "column_name_with_spaces.csv" );
 
     setFields( new TextFileInputField( "Field 1", -1, -1 ), new TextFileInputField( "Field 2", -1, -1 ),
-        new TextFileInputField( "Field 3", -1, -1 ) );
+      new TextFileInputField( "Field 3", -1, -1 ) );
 
     process();
 
@@ -65,12 +65,12 @@ public class CsvInputContentParsingTest extends BaseCsvParsingTest {
     init( "semicolon.csv" );
 
     setFields( new TextFileInputField( "Field 1", -1, -1 ), new TextFileInputField( "Field 2", -1, -1 ),
-        new TextFileInputField( "Field 3", -1, -1 ) );
+      new TextFileInputField( "Field 3", -1, -1 ) );
 
     process();
 
     check( new Object[][] { { "first", "1", "1.1" }, { "second", "2", "2.2" }, { "third", "3", "3.3" }, {
-        "\u043d\u0435-\u043b\u0430\u0446\u0456\u043d\u043a\u0430(non-latin)", "4", "4" } } );
+      "\u043d\u0435-\u043b\u0430\u0446\u0456\u043d\u043a\u0430(non-latin)", "4", "4" } } );
   }
 
   @Test
@@ -79,12 +79,12 @@ public class CsvInputContentParsingTest extends BaseCsvParsingTest {
     init( "multi_delim.csv" );
 
     setFields( new TextFileInputField( "Field 1", -1, -1 ), new TextFileInputField( "Field 2", -1, -1 ),
-        new TextFileInputField( "Field 3", -1, -1 ) );
+      new TextFileInputField( "Field 3", -1, -1 ) );
 
     process();
 
     check( new Object[][] { { "first", "1", "1.1" }, { "second", "2", "2.2" }, { "third", "3", "3.3" }, {
-        "\u043d\u0435-\u043b\u0430\u0446\u0456\u043d\u043a\u0430(non-latin)", "4", "4" } } );
+      "\u043d\u0435-\u043b\u0430\u0446\u0456\u043d\u043a\u0430(non-latin)", "4", "4" } } );
   }
 
   @Test
@@ -114,15 +114,15 @@ public class CsvInputContentParsingTest extends BaseCsvParsingTest {
 
     check( new Object[][] {
       { "111", "a\nbc", "あいう", "さしす", null },
-      { "222", "def", "かきく", "たちつ", null},
+      { "222", "def", "かきく", "たちつ", null },
       { "333", "", "かきく", "たちつ", null },
       { "444", "", "", null, null },
       { "555", "かきく", "", null, null },
-      { "666", "かきく", null, null, null},
-      { },
+      { "666", "かきく", null, null, null },
+      {},
       { "777", "", null, null, null },
       { "888", "かきく", null, null, null },
-      { },
+      {},
       { "999", "123", "123", "123", "132" } }
     );
   }

@@ -21,9 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.normaliser;
 
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -35,13 +32,16 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransTestFactory;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertArrayEquals;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class NormaliserTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -52,36 +52,36 @@ public class NormaliserTest {
   }
 
   private NormaliserMeta.NormaliserField[] getTestNormaliserFieldsWiki() {
-    NormaliserMeta.NormaliserField[] rtn = new NormaliserMeta.NormaliserField[6];
-    rtn[0] = new NormaliserMeta.NormaliserField();
-    rtn[0].setName( "pr_sl" );
-    rtn[0].setNorm( "Product Sales" );
-    rtn[0].setValue( "Product1" ); // Type
+    NormaliserMeta.NormaliserField[] rtn = new NormaliserMeta.NormaliserField[ 6 ];
+    rtn[ 0 ] = new NormaliserMeta.NormaliserField();
+    rtn[ 0 ].setName( "pr_sl" );
+    rtn[ 0 ].setNorm( "Product Sales" );
+    rtn[ 0 ].setValue( "Product1" ); // Type
 
-    rtn[1] = new NormaliserMeta.NormaliserField();
-    rtn[1].setName( "pr1_nr" );
-    rtn[1].setNorm( "Product Number" );
-    rtn[1].setValue( "Product1" );
+    rtn[ 1 ] = new NormaliserMeta.NormaliserField();
+    rtn[ 1 ].setName( "pr1_nr" );
+    rtn[ 1 ].setNorm( "Product Number" );
+    rtn[ 1 ].setValue( "Product1" );
 
-    rtn[2] = new NormaliserMeta.NormaliserField();
-    rtn[2].setName( "pr2_sl" );
-    rtn[2].setNorm( "Product Sales" );
-    rtn[2].setValue( "Product2" );
+    rtn[ 2 ] = new NormaliserMeta.NormaliserField();
+    rtn[ 2 ].setName( "pr2_sl" );
+    rtn[ 2 ].setNorm( "Product Sales" );
+    rtn[ 2 ].setValue( "Product2" );
 
-    rtn[3] = new NormaliserMeta.NormaliserField();
-    rtn[3].setName( "pr2_nr" );
-    rtn[3].setNorm( "Product Number" );
-    rtn[3].setValue( "Product2" );
+    rtn[ 3 ] = new NormaliserMeta.NormaliserField();
+    rtn[ 3 ].setName( "pr2_nr" );
+    rtn[ 3 ].setNorm( "Product Number" );
+    rtn[ 3 ].setValue( "Product2" );
 
-    rtn[4] = new NormaliserMeta.NormaliserField();
-    rtn[4].setName( "pr3_sl" );
-    rtn[4].setNorm( "Product Sales" );
-    rtn[4].setValue( "Product3" );
+    rtn[ 4 ] = new NormaliserMeta.NormaliserField();
+    rtn[ 4 ].setName( "pr3_sl" );
+    rtn[ 4 ].setNorm( "Product Sales" );
+    rtn[ 4 ].setValue( "Product3" );
 
-    rtn[5] = new NormaliserMeta.NormaliserField();
-    rtn[5].setName( "pr3_nr" );
-    rtn[5].setNorm( "Product Number" );
-    rtn[5].setValue( "Product3" );
+    rtn[ 5 ] = new NormaliserMeta.NormaliserField();
+    rtn[ 5 ].setName( "pr3_nr" );
+    rtn[ 5 ].setNorm( "Product Number" );
+    rtn[ 5 ].setValue( "Product3" );
 
     return rtn;
   }
@@ -94,25 +94,25 @@ public class NormaliserTest {
     rm.addValueMeta( new ValueMetaString( "Type" ) );
     rm.addValueMeta( new ValueMetaInteger( "Product Sales" ) );
     rm.addValueMeta( new ValueMetaInteger( "Product Number" ) );
-    Object[] row = new Object[4];
-    row[0] = theDate;
-    row[1] = "Product1";
-    row[2] = 100;
-    row[3] = 5;
+    Object[] row = new Object[ 4 ];
+    row[ 0 ] = theDate;
+    row[ 1 ] = "Product1";
+    row[ 2 ] = 100;
+    row[ 3 ] = 5;
     list.add( new RowMetaAndData( rm, row ) );
 
-    row = new Object[4];
-    row[0] = theDate;
-    row[1] = "Product2";
-    row[2] = 250;
-    row[3] = 10;
+    row = new Object[ 4 ];
+    row[ 0 ] = theDate;
+    row[ 1 ] = "Product2";
+    row[ 2 ] = 250;
+    row[ 3 ] = 10;
     list.add( new RowMetaAndData( rm, row ) );
 
-    row = new Object[4];
-    row[0] = theDate;
-    row[1] = "Product3";
-    row[2] = 150;
-    row[3] = 4;
+    row = new Object[ 4 ];
+    row[ 0 ] = theDate;
+    row[ 1 ] = "Product3";
+    row[ 2 ] = 150;
+    row[ 3 ] = 4;
     list.add( new RowMetaAndData( rm, row ) );
     return list;
   }
@@ -120,22 +120,22 @@ public class NormaliserTest {
 
   private List<RowMetaAndData> getWikiInputRowMetaAndData() {
     List<RowMetaAndData> list = new ArrayList<>();
-    Object[] row = new Object[7];
+    Object[] row = new Object[ 7 ];
     RowMetaInterface rm = new RowMeta();
     rm.addValueMeta( new ValueMetaDate( "DATE" ) );
-    row[0] = new Date( 103, 01, 01 );
+    row[ 0 ] = new Date( 103, 01, 01 );
     rm.addValueMeta( new ValueMetaInteger( "PR1_NR" ) );
-    row[1] = 5;
+    row[ 1 ] = 5;
     rm.addValueMeta( new ValueMetaInteger( "PR_SL" ) );
-    row[2] = 100;
+    row[ 2 ] = 100;
     rm.addValueMeta( new ValueMetaInteger( "PR2_NR" ) );
-    row[3] = 10;
+    row[ 3 ] = 10;
     rm.addValueMeta( new ValueMetaInteger( "PR2_SL" ) );
-    row[4] = 250;
+    row[ 4 ] = 250;
     rm.addValueMeta( new ValueMetaInteger( "PR3_NR" ) );
-    row[5] = 4;
+    row[ 5 ] = 4;
     rm.addValueMeta( new ValueMetaInteger( "PR3_SL" ) );
-    row[6] = 150;
+    row[ 6 ] = 150;
     list.add( new RowMetaAndData( rm, row ) );
     return list;
   }

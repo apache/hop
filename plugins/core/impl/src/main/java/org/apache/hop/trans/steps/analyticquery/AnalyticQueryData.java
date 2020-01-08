@@ -22,16 +22,15 @@
 
 package org.apache.hop.trans.steps.analyticquery;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 /**
  * @author ngoodman
  * @since 27-jan-2009
- *
  */
 public class AnalyticQueryData extends BaseStepData implements StepDataInterface {
   // Grouped Field Indexes (faster than looking up by strings)

@@ -22,23 +22,36 @@
 
 package org.apache.hop.core.row.value;
 
-import org.apache.hop.core.database.*;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.SQLiteDatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.*;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.HopLoggingEvent;
+import org.apache.hop.core.logging.HopLoggingEventListener;
 import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.mockito.Spy;
 
-import java.sql.*;
-import java.util.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 public class SQLiteValueMetaBaseTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
@@ -71,7 +84,7 @@ public class SQLiteValueMetaBaseTest {
     listener = new StoreLoggingEventListener();
     HopLogStore.getAppender().addLoggingEventListener( listener );
 
-    valueMetaBase = new ValueMetaBase( );
+    valueMetaBase = new ValueMetaBase();
     dbMeta = spy( new DatabaseMeta() );
     resultSet = mock( ResultSet.class );
   }

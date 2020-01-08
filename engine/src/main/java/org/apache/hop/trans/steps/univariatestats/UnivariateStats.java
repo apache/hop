@@ -22,9 +22,6 @@
 
 package org.apache.hop.trans.steps.univariatestats;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowMeta;
@@ -38,6 +35,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Calculate univariate statistics based on one column of the input data.
@@ -82,7 +82,7 @@ public class UnivariateStats extends BaseStep implements StepInterface {
    * @return a <code>boolean</code> value
    * @throws HopException if an error occurs
    */
-  @SuppressWarnings ( { "unchecked" } )
+  @SuppressWarnings( { "unchecked" } )
   public boolean processRow( StepMetaInterface smi, StepDataInterface sdi ) throws HopException {
 
     m_meta = (UnivariateStatsMeta) smi;

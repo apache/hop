@@ -22,12 +22,6 @@
 
 package org.apache.hop.ui.trans.steps.userdefinedjavaclass;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.xml.XMLHandler;
@@ -35,6 +29,12 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.steps.userdefinedjavaclass.UserDefinedJavaClass;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class UserDefinedJavaClassCodeSnippits {
   private static Class<?> PKG = UserDefinedJavaClass.class;

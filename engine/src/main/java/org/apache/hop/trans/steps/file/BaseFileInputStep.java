@@ -61,7 +61,7 @@ import java.util.Map;
  * @author Alexander Buloichik
  */
 public abstract class BaseFileInputStep<M extends BaseFileInputMeta<?, ?, ?>, D extends BaseFileInputStepData> extends
-    BaseStep implements IBaseFileInputStepControl {
+  BaseStep implements IBaseFileInputStepControl {
   private static Class<?> PKG = BaseFileInputStep.class; // for i18n purposes, needed by Translator2!!
 
   protected M meta;
@@ -79,7 +79,7 @@ public abstract class BaseFileInputStep<M extends BaseFileInputMeta<?, ?, ?>, D 
   protected abstract IBaseFileInputReader createReader( M meta, D data, FileObject file ) throws Exception;
 
   public BaseFileInputStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
+                            Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -108,7 +108,7 @@ public abstract class BaseFileInputStep<M extends BaseFileInputMeta<?, ?, ?>, D 
     Map<String, ResultFile> resultFiles = ( previousResult != null ) ? previousResult.getResultFiles() : null;
 
     if ( ( previousResult == null || resultFiles == null || resultFiles.size() == 0 ) && data.files
-        .nrOfMissingFiles() > 0 && !meta.inputFiles.acceptingFilenames && !meta.errorHandling.errorIgnored ) {
+      .nrOfMissingFiles() > 0 && !meta.inputFiles.acceptingFilenames && !meta.errorHandling.errorIgnored ) {
       logError( BaseMessages.getString( PKG, "BaseFileInputStep.Log.Error.NoFilesSpecified" ) );
       return false;
     }
@@ -119,7 +119,7 @@ public abstract class BaseFileInputStep<M extends BaseFileInputMeta<?, ?, ?>, D 
       String nr = getVariable( Const.INTERNAL_VARIABLE_SLAVE_SERVER_NUMBER );
       if ( log.isDetailed() ) {
         logDetailed( "Running on slave server #" + nr
-            + " : assuming that each slave reads a dedicated part of the same file(s)." );
+          + " : assuming that each slave reads a dedicated part of the same file(s)." );
       }
     }
 
@@ -128,7 +128,7 @@ public abstract class BaseFileInputStep<M extends BaseFileInputMeta<?, ?, ?>, D 
 
   /**
    * Open next VFS file for processing.
-   *
+   * <p>
    * This method will support different parallelization methods later.
    */
   protected boolean openNextFile() {
@@ -153,7 +153,7 @@ public abstract class BaseFileInputStep<M extends BaseFileInputMeta<?, ?, ?>, D 
       //
       if ( meta.inputFiles.isaddresult ) {
         ResultFile resultFile =
-            new ResultFile( ResultFile.FILE_TYPE_GENERAL, data.file, getTransMeta().getName(), toString() );
+          new ResultFile( ResultFile.FILE_TYPE_GENERAL, data.file, getTransMeta().getName(), toString() );
         resultFile.setComment( "File was read by an Text File input step" );
         addResultFile( resultFile );
       }
@@ -247,11 +247,11 @@ public abstract class BaseFileInputStep<M extends BaseFileInputMeta<?, ?, ?>, D 
     data.convertRowMeta = data.outputRowMeta.cloneToType( ValueMetaInterface.TYPE_STRING );
 
     BaseFileInputStepUtils.handleMissingFiles( data.files, log, meta.errorHandling.errorIgnored,
-        data.dataErrorLineHandler );
+      data.dataErrorLineHandler );
 
     // Count the number of repeat fields...
     for ( int i = 0; i < meta.inputFields.length; i++ ) {
-      if ( meta.inputFields[i].isRepeated() ) {
+      if ( meta.inputFields[ i ].isRepeated() ) {
         data.nr_repeats++;
       }
     }
@@ -264,20 +264,20 @@ public abstract class BaseFileInputStep<M extends BaseFileInputMeta<?, ?, ?>, D 
 
   /**
    * Initialize error handling.
-   *
+   * <p>
    * TODO: should we set charset for error files from content meta ? What about case for automatic charset ?
    */
   private void initErrorHandling() {
     List<FileErrorHandler> dataErrorLineHandlers = new ArrayList<FileErrorHandler>( 2 );
     if ( meta.errorHandling.lineNumberFilesDestinationDirectory != null ) {
       dataErrorLineHandlers.add( new FileErrorHandlerContentLineNumber( getTrans().getCurrentDate(),
-          environmentSubstitute( meta.errorHandling.lineNumberFilesDestinationDirectory ),
-          meta.errorHandling.lineNumberFilesExtension, meta.getEncoding(), this ) );
+        environmentSubstitute( meta.errorHandling.lineNumberFilesDestinationDirectory ),
+        meta.errorHandling.lineNumberFilesExtension, meta.getEncoding(), this ) );
     }
     if ( meta.errorHandling.errorFilesDestinationDirectory != null ) {
       dataErrorLineHandlers.add( new FileErrorHandlerMissingFiles( getTrans().getCurrentDate(), environmentSubstitute(
-          meta.errorHandling.errorFilesDestinationDirectory ), meta.errorHandling.errorFilesExtension, meta
-              .getEncoding(), this ) );
+        meta.errorHandling.errorFilesDestinationDirectory ), meta.errorHandling.errorFilesExtension, meta
+        .getEncoding(), this ) );
     }
     data.dataErrorLineHandler = new CompositeFileErrorHandler( dataErrorLineHandlers );
   }
@@ -370,15 +370,13 @@ public abstract class BaseFileInputStep<M extends BaseFileInputMeta<?, ?, ?>, D 
   }
 
   /**
-   *
-   * @param errorMsg
-   *          Message to send to rejected row if enabled
+   * @param errorMsg Message to send to rejected row if enabled
    * @return If should stop processing after having problems with a file
    */
   public boolean failAfterBadFile( String errorMsg ) {
 
     if ( getStepMeta().isDoingErrorHandling() && data.filename != null && !data.rejectedFiles.containsKey(
-        data.filename ) ) {
+      data.filename ) ) {
       data.rejectedFiles.put( data.filename, true );
       rejectCurrentFile( errorMsg );
     }
@@ -389,24 +387,23 @@ public abstract class BaseFileInputStep<M extends BaseFileInputMeta<?, ?, ?>, D 
   /**
    * Send file name and/or error message to error output
    *
-   * @param errorMsg
-   *          Message to send to rejected row if enabled
+   * @param errorMsg Message to send to rejected row if enabled
    */
   private void rejectCurrentFile( String errorMsg ) {
     if ( StringUtils.isNotBlank( meta.errorHandling.fileErrorField ) || StringUtils.isNotBlank(
-        meta.errorHandling.fileErrorMessageField ) ) {
+      meta.errorHandling.fileErrorMessageField ) ) {
       RowMetaInterface rowMeta = getInputRowMeta();
       if ( rowMeta == null ) {
         rowMeta = new RowMeta();
       }
 
       int errorFileIndex =
-          ( StringUtils.isBlank( meta.errorHandling.fileErrorField ) ) ? -1 : BaseFileInputStepUtils.addValueMeta(
-              getStepname(), rowMeta, this.environmentSubstitute( meta.errorHandling.fileErrorField ) );
+        ( StringUtils.isBlank( meta.errorHandling.fileErrorField ) ) ? -1 : BaseFileInputStepUtils.addValueMeta(
+          getStepname(), rowMeta, this.environmentSubstitute( meta.errorHandling.fileErrorField ) );
 
       int errorMessageIndex =
-          StringUtils.isBlank( meta.errorHandling.fileErrorMessageField ) ? -1 : BaseFileInputStepUtils.addValueMeta(
-              getStepname(), rowMeta, this.environmentSubstitute( meta.errorHandling.fileErrorMessageField ) );
+        StringUtils.isBlank( meta.errorHandling.fileErrorMessageField ) ? -1 : BaseFileInputStepUtils.addValueMeta(
+          getStepname(), rowMeta, this.environmentSubstitute( meta.errorHandling.fileErrorMessageField ) );
 
       try {
         Object[] rowData = getRow();
@@ -415,10 +412,10 @@ public abstract class BaseFileInputStep<M extends BaseFileInputMeta<?, ?, ?>, D 
         }
 
         if ( errorFileIndex >= 0 ) {
-          rowData[errorFileIndex] = data.filename;
+          rowData[ errorFileIndex ] = data.filename;
         }
         if ( errorMessageIndex >= 0 ) {
-          rowData[errorMessageIndex] = errorMsg;
+          rowData[ errorMessageIndex ] = errorMsg;
         }
 
         putError( rowMeta, rowData, getErrors(), data.filename, null, "ERROR_CODE" );

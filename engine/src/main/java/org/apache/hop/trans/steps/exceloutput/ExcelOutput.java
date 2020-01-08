@@ -22,32 +22,31 @@
 
 package org.apache.hop.trans.steps.exceloutput;
 
-import java.awt.Dimension;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.Locale;
-
 import jxl.Cell;
 import jxl.Sheet;
-
+import jxl.Workbook;
+import jxl.WorkbookSettings;
+import jxl.biff.StringHelper;
+import jxl.format.CellFormat;
+import jxl.format.Colour;
+import jxl.format.UnderlineStyle;
 import jxl.read.biff.BiffException;
 import jxl.write.DateFormat;
 import jxl.write.DateFormats;
-import jxl.write.Label;
-import jxl.write.WritableCellFormat;
 import jxl.write.DateTime;
+import jxl.write.Label;
 import jxl.write.NumberFormat;
+import jxl.write.WritableCellFormat;
 import jxl.write.WritableFont;
+import jxl.write.WritableFont.FontName;
 import jxl.write.WritableImage;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
@@ -58,13 +57,12 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
-import jxl.Workbook;
-import jxl.WorkbookSettings;
-import jxl.biff.StringHelper;
-import jxl.format.CellFormat;
-import jxl.format.Colour;
-import jxl.format.UnderlineStyle;
-import jxl.write.WritableFont.FontName;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.Locale;
 
 /**
  * Converts input rows to excel cells and then writes this information to one or more files.
@@ -96,9 +94,9 @@ public class ExcelOutput extends BaseStep implements StepInterface {
 
       if ( meta.isAutoSizeColumns() ) {
         if ( meta.getOutputFields() != null && meta.getOutputFields().length > 0 ) {
-          data.fieldsWidth = new int[meta.getOutputFields().length];
+          data.fieldsWidth = new int[ meta.getOutputFields().length ];
         } else {
-          data.fieldsWidth = new int[data.previousMeta.size()];
+          data.fieldsWidth = new int[ data.previousMeta.size() ];
         }
       }
 
@@ -169,11 +167,11 @@ public class ExcelOutput extends BaseStep implements StepInterface {
       if ( first ) {
         first = false;
 
-        data.fieldnrs = new int[meta.getOutputFields().length];
+        data.fieldnrs = new int[ meta.getOutputFields().length ];
         for ( int i = 0; i < meta.getOutputFields().length; i++ ) {
-          data.fieldnrs[i] = data.previousMeta.indexOfValue( meta.getOutputFields()[i].getName() );
-          if ( data.fieldnrs[i] < 0 ) {
-            logError( "Field [" + meta.getOutputFields()[i].getName() + "] couldn't be found in the input stream!" );
+          data.fieldnrs[ i ] = data.previousMeta.indexOfValue( meta.getOutputFields()[ i ].getName() );
+          if ( data.fieldnrs[ i ] < 0 ) {
+            logError( "Field [" + meta.getOutputFields()[ i ].getName() + "] couldn't be found in the input stream!" );
             setErrors( 1 );
             stopAll();
             return false;
@@ -186,7 +184,7 @@ public class ExcelOutput extends BaseStep implements StepInterface {
          * Write all values in stream to text file.
          */
         for ( int i = 0; i < data.previousMeta.size(); i++ ) {
-          v = r[i];
+          v = r[ i ];
           if ( !writeField( v, data.previousMeta.getValueMeta( i ), null, i ) ) {
             return false;
           }
@@ -201,9 +199,9 @@ public class ExcelOutput extends BaseStep implements StepInterface {
          * Only write the fields specified!
          */
         for ( int i = 0; i < meta.getOutputFields().length; i++ ) {
-          v = r[data.fieldnrs[i]];
+          v = r[ data.fieldnrs[ i ] ];
 
-          if ( !writeField( v, data.previousMeta.getValueMeta( data.fieldnrs[i] ), meta.getOutputFields()[i], i ) ) {
+          if ( !writeField( v, data.previousMeta.getValueMeta( data.fieldnrs[ i ] ), meta.getOutputFields()[ i ], i ) ) {
             return false;
           }
         }
@@ -270,14 +268,10 @@ public class ExcelOutput extends BaseStep implements StepInterface {
   /**
    * Write a value to Excel, increasing data.positionX with one afterwards.
    *
-   * @param v
-   *          The value to write
-   * @param vMeta
-   *          The valueMeta to write
-   * @param excelField
-   *          the field information (if any, otherwise : null)
-   * @param column
-   *          the excel column for getting the template format
+   * @param v          The value to write
+   * @param vMeta      The valueMeta to write
+   * @param excelField the field information (if any, otherwise : null)
+   * @param column     the excel column for getting the template format
    * @return <code>true</code> if write succeeded
    */
   private boolean writeField( Object v, ValueMetaInterface vMeta, ExcelField excelField, int column ) {
@@ -287,20 +281,15 @@ public class ExcelOutput extends BaseStep implements StepInterface {
   /**
    * Write a value to Excel, increasing data.positionX with one afterwards.
    *
-   * @param v
-   *          The value to write
-   * @param vMeta
-   *          The valueMeta to write
-   * @param excelField
-   *          the field information (if any, otherwise : null)
-   * @param column
-   *          the excel column for getting the template format
-   * @param isHeader
-   *          true if this is part of the header/footer
+   * @param v          The value to write
+   * @param vMeta      The valueMeta to write
+   * @param excelField the field information (if any, otherwise : null)
+   * @param column     the excel column for getting the template format
+   * @param isHeader   true if this is part of the header/footer
    * @return <code>true</code> if write succeeded
    */
   private boolean writeField( Object v, ValueMetaInterface vMeta, ExcelField excelField, int column,
-    boolean isHeader ) {
+                              boolean isHeader ) {
     try {
       String hashName = vMeta.getName();
       if ( isHeader ) {
@@ -329,8 +318,8 @@ public class ExcelOutput extends BaseStep implements StepInterface {
         if ( !isHeader && v != null ) {
           vlen = v.toString().trim().length();
         }
-        if ( vlen > 0 && vlen > data.fieldsWidth[column] ) {
-          data.fieldsWidth[column] = vlen + 1;
+        if ( vlen > 0 && vlen > data.fieldsWidth[ column ] ) {
+          data.fieldsWidth[ column ] = vlen + 1;
         }
       }
 
@@ -452,14 +441,14 @@ public class ExcelOutput extends BaseStep implements StepInterface {
       // If we have fields specified: list them in this order!
       if ( meta.getOutputFields() != null && meta.getOutputFields().length > 0 ) {
         for ( int i = 0; i < meta.getOutputFields().length; i++ ) {
-          String fieldName = meta.getOutputFields()[i].getName();
+          String fieldName = meta.getOutputFields()[ i ].getName();
           ValueMetaInterface vMeta = new ValueMetaString( fieldName );
           writeField( fieldName, vMeta, null, i, true );
         }
       } else {
         if ( data.previousMeta != null ) { // Just put all field names in the header/footer
           for ( int i = 0; i < data.previousMeta.size(); i++ ) {
-            String fieldName = data.previousMeta.getFieldNames()[i];
+            String fieldName = data.previousMeta.getFieldNames()[ i ];
             ValueMetaInterface vMeta = new ValueMetaString( fieldName );
             writeField( fieldName, vMeta, null, i, true );
           }
@@ -607,7 +596,7 @@ public class ExcelOutput extends BaseStep implements StepInterface {
   }
 
   private boolean isTemplateContained( Workbook templateWorkbook, File targetFile )
-       throws IOException, BiffException {
+    throws IOException, BiffException {
     Workbook targetFileWorkbook = Workbook.getWorkbook( targetFile );
     int templateWorkbookNumberOfSheets = templateWorkbook.getNumberOfSheets();
     int targetWorkbookNumberOfSheets = targetFileWorkbook.getNumberOfSheets();
@@ -635,8 +624,8 @@ public class ExcelOutput extends BaseStep implements StepInterface {
           return false;
         }
         for ( int currentCellNumber = 0; currentCellNumber < templateWorkbookSheetRow.length; currentCellNumber++ ) {
-          Cell templateWorksheetCell = templateWorkbookSheetRow[currentCellNumber];
-          Cell targetWorksheetCell = targetWorkbookSheetRow[currentCellNumber];
+          Cell templateWorksheetCell = templateWorkbookSheetRow[ currentCellNumber ];
+          Cell targetWorksheetCell = targetWorkbookSheetRow[ currentCellNumber ];
           if ( !templateWorksheetCell.getContents().equals( targetWorksheetCell.getContents() ) ) {
             return false;
           }
@@ -659,7 +648,7 @@ public class ExcelOutput extends BaseStep implements StepInterface {
             // auto resize columns
             int nrfields = data.fieldsWidth.length;
             for ( int i = 0; i < nrfields; i++ ) {
-              data.sheet.setColumnView( i, data.fieldsWidth[i] );
+              data.sheet.setColumnView( i, data.fieldsWidth[ i ] );
             }
           }
           data.fieldsWidth = null;
@@ -744,7 +733,7 @@ public class ExcelOutput extends BaseStep implements StepInterface {
     try {
       if ( meta.isAddToResultFiles() ) {
         // Add this to the result file names...
-        ResultFile resultFile =  new ResultFile( ResultFile.FILE_TYPE_GENERAL, data.file, getTransMeta().getName(), getStepname() );
+        ResultFile resultFile = new ResultFile( ResultFile.FILE_TYPE_GENERAL, data.file, getTransMeta().getName(), getStepname() );
         resultFile.setComment( "This file was created with an Excel output step by Pentaho Data Integration" );
         addResultFile( resultFile );
       }
@@ -820,7 +809,7 @@ public class ExcelOutput extends BaseStep implements StepInterface {
         data.headerImageWidth = m.getWidth() * 0.016;
         data.headerImageHeight = m.getHeight() * 0.0625;
 
-        byte[] imageData = new byte[(int) imageFile.getContent().getSize()];
+        byte[] imageData = new byte[ (int) imageFile.getContent().getSize() ];
         imageStream = HopVFS.getInputStream( imageFile );
         imageStream.read( imageData );
 
@@ -849,6 +838,7 @@ public class ExcelOutput extends BaseStep implements StepInterface {
       data.rowFontBackgoundColour = ExcelFontMap.getColour( meta.getRowBackGroundColor(), null );
     }
   }
+
   /*
    * Returns the writeAccess, re-encoded if necessary
    * fixes http://jira.pentaho.com/browse/PDI-14022
@@ -858,7 +848,7 @@ public class ExcelOutput extends BaseStep implements StepInterface {
     if ( writeAccess == null || writeAccess.length() == 0 ) {
       return writeAccess;
     }
-    byte[] data = new byte[112];
+    byte[] data = new byte[ 112 ];
     try {
       // jxl reads writeAccess with "UnicodeLittle" encoding, but will try to write later with "file.encoding"
       // this throws an ArrayIndexOutOfBoundsException in *nix systems

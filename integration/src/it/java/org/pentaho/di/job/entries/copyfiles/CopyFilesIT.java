@@ -22,15 +22,15 @@
 
 package org.apache.hop.job.entries.copyfiles;
 
-import static org.junit.Assert.*;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.TestUtilities;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.job.Job;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class CopyFilesIT {
 

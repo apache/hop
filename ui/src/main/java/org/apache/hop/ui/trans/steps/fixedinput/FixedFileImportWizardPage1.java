@@ -22,8 +22,11 @@
 
 package org.apache.hop.ui.trans.steps.fixedinput;
 
-import java.util.List;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.steps.fixedinput.FixedFileInputField;
+import org.apache.hop.trans.steps.fixedinput.FixedInputMeta;
+import org.apache.hop.ui.core.PropsUI;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -32,11 +35,8 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.apache.hop.core.Const;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.steps.fixedinput.FixedFileInputField;
-import org.apache.hop.trans.steps.fixedinput.FixedInputMeta;
-import org.apache.hop.ui.core.PropsUI;
+
+import java.util.List;
 
 public class FixedFileImportWizardPage1 extends WizardPage { // implements Listener
   private static Class<?> PKG = FixedInputMeta.class; // for i18n purposes, needed by Translator2!!

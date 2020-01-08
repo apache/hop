@@ -52,8 +52,7 @@ public class DefaultLogLevel {
   }
 
   /**
-   * @param logLevel
-   *          Set the default log level for this application
+   * @param logLevel Set the default log level for this application
    */
   public static void setLogLevel( LogLevel logLevel ) {
     DefaultLogLevel instance = getInstance();

@@ -22,11 +22,11 @@
 
 package org.apache.hop.trans.steps.cubeinput;
 
-import org.junit.Before;
-import org.junit.Ignore;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.trans.steps.file.BaseFileField;
 import org.apache.hop.trans.steps.fileinput.BaseParsingTest;
+import org.junit.Before;
+import org.junit.Ignore;
 
 /**
  * Base class for all Cube Input step tests.
@@ -70,8 +70,8 @@ public class BaseCubeInputParsingTest extends BaseParsingTest<CubeInputMeta, Cub
   @Override
   protected void check( Object[][] expected ) throws Exception {
     for ( int r = 0; r < expected.length; r++ ) {
-      for ( int c = 0; c < expected[r].length; c++ ) {
-        expected[r][c] = expected[r][c].toString().getBytes( "UTF-8" );
+      for ( int c = 0; c < expected[ r ].length; c++ ) {
+        expected[ r ][ c ] = expected[ r ][ c ].toString().getBytes( "UTF-8" );
       }
     }
     super.check( expected );

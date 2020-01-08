@@ -30,7 +30,6 @@ import org.apache.hop.trans.step.StepDataInterface;
 /**
  * @author Samatar
  * @since 03-Juin-2008
- *
  */
 public class ZipFileData extends BaseStepData implements StepDataInterface {
   public RowMetaInterface outputRowMeta;

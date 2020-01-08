@@ -20,14 +20,14 @@
 
 package org.apache.hop.trans.steps.excelinput;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.spreadsheet.KCell;
 import org.apache.hop.core.spreadsheet.KWorkbook;
 import org.apache.hop.trans.steps.excelinput.ods.OdfSheet;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class OdfSheetTest {
 
@@ -37,11 +37,11 @@ public class OdfSheetTest {
   @Before
   public void init() throws HopException {
     ods341 =
-        WorkbookFactory.getWorkbook( SpreadSheetType.ODS, this.getClass().getResource( "files/sample-3.4.1.ods" )
-            .getPath(), null );
+      WorkbookFactory.getWorkbook( SpreadSheetType.ODS, this.getClass().getResource( "files/sample-3.4.1.ods" )
+        .getPath(), null );
     ods24 =
-        WorkbookFactory.getWorkbook( SpreadSheetType.ODS, this.getClass().getResource( "files/sample-2.4.ods" )
-            .getPath(), null );
+      WorkbookFactory.getWorkbook( SpreadSheetType.ODS, this.getClass().getResource( "files/sample-2.4.ods" )
+        .getPath(), null );
   }
 
   @Test
@@ -58,9 +58,9 @@ public class OdfSheetTest {
     checkCellCount( (OdfSheet) ods341.getSheet( sameRowWidthSheet ), 15, "Cell count mismatch for ODF v3.4.1" );
     checkCellCount( (OdfSheet) ods24.getSheet( sameRowWidthSheet ), 1, "Cell count mismatch for ODF v2.4" );
     checkCellCount( (OdfSheet) ods341.getSheet( diffRowWidthSheet ), new int[] { 15, 15, 12 },
-        "Cell count mismatch for ODF v3.4.1" );
+      "Cell count mismatch for ODF v3.4.1" );
     checkCellCount( (OdfSheet) ods24.getSheet( diffRowWidthSheet ), new int[] { 3, 2 },
-        "Cell count mismatch for ODF v2.4" );
+      "Cell count mismatch for ODF v2.4" );
 
   }
 
@@ -82,7 +82,7 @@ public class OdfSheetTest {
     assertEquals( "Row count mismatch", expected.length, rowNo );
     for ( int i = 0; i < rowNo; i++ ) {
       KCell[] row = sheet.getRow( i );
-      assertEquals( failMsg + "; Row content: " + rowToString( row ), expected[i], row.length );
+      assertEquals( failMsg + "; Row content: " + rowToString( row ), expected[ i ], row.length );
     }
   }
 
@@ -90,9 +90,9 @@ public class OdfSheetTest {
     if ( row == null || row.length == 0 ) {
       return "";
     }
-    String result = cellToStr( row[0] );
+    String result = cellToStr( row[ 0 ] );
     for ( int j = 1; j < row.length; j++ ) {
-      result += "," + cellToStr( row[j] );
+      result += "," + cellToStr( row[ j ] );
     }
     return result;
   }

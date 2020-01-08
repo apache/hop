@@ -89,7 +89,7 @@ public class LoggingBuffer {
    * @return
    */
   public List<HopLoggingEvent> getLogBufferFromTo( List<String> channelId, boolean includeGeneral, int from,
-                                                      int to ) {
+                                                   int to ) {
     lock.readLock().lock();
     try {
       Stream<BufferLine> bufferStream = buffer.stream().filter( line -> line.getNr() > from && line.getNr() <= to );
@@ -113,7 +113,7 @@ public class LoggingBuffer {
    * @return
    */
   public List<HopLoggingEvent> getLogBufferFromTo( String parentLogChannelId, boolean includeGeneral, int from,
-                                                      int to ) {
+                                                   int to ) {
 
     // Typically, the log channel id is the one from the transformation or job running currently.
     // However, we also want to see the details of the steps etc.
@@ -245,7 +245,7 @@ public class LoggingBuffer {
   /**
    * We should not expose iterator out of the class.
    * Looks like it's only used in tests.
-   *
+   * <p>
    * Marked deprecated for now.
    * TODO: To be made package-level in future.
    */
@@ -266,7 +266,7 @@ public class LoggingBuffer {
       buffer.forEach( line -> {
         LogMessage message = (LogMessage) line.getEvent().getMessage();
         buf.append( message.getLogChannelId() ).append( "\t" )
-                .append( message.getSubject() ).append( "\n" );
+          .append( message.getSubject() ).append( "\n" );
       } );
       return buf.toString();
     } finally {

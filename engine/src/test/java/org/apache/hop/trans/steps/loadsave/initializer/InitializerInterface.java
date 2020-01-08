@@ -27,14 +27,13 @@ public interface InitializerInterface<T> {
   /**
    * Perform in-place modifications to the stepMeta before
    * FieldLoadSaveValidator classes are called on the stepMeta
-   * 
+   *
+   * @param stepMeta The stepMeta class
    * @deprecated The stepMeta class should be updated so that
    * developers can instantiate the stepMeta, and immediately
    * call setter methods.  Commonly, this is used for steps
    * that define an allocate method, which pre-populate
    * empty arrays
-   * 
-   * @param stepMeta The stepMeta class
    */
   @Deprecated
   public void modify( T object );

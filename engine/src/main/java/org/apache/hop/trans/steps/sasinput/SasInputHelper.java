@@ -22,17 +22,17 @@
 
 package org.apache.hop.trans.steps.sasinput;
 
-import java.io.File;
-
-import org.eobjects.sassy.SasColumnType;
-import org.eobjects.sassy.SasReader;
-import org.eobjects.sassy.SasReaderCallback;
-import org.eobjects.sassy.SasReaderException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.eobjects.sassy.SasColumnType;
+import org.eobjects.sassy.SasReader;
+import org.eobjects.sassy.SasReaderCallback;
+import org.eobjects.sassy.SasReaderException;
+
+import java.io.File;
 
 /**
  * This file helps us to read a SAS7BAT file
@@ -49,8 +49,7 @@ public class SasInputHelper {
   private SasReader sasReader;
 
   /**
-   * @param filename
-   *          The SAS7BAT filename
+   * @param filename The SAS7BAT filename
    */
   public SasInputHelper( final String filename ) throws HopException {
     this.filename = filename;

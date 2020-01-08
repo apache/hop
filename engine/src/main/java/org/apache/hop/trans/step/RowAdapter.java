@@ -44,7 +44,7 @@ public class RowAdapter implements RowListener {
    * Empty method implementing the RowListener.errorRowWrittenEvent interface method
    *
    * @see org.apache.hop.trans.step.RowListener#errorRowWrittenEvent(org.apache.hop.core.row.RowMetaInterface,
-   *      java.lang.Object[])
+   * java.lang.Object[])
    */
   public void errorRowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
   }
@@ -53,7 +53,7 @@ public class RowAdapter implements RowListener {
    * Empty method implementing the RowListener.rowReadEvent interface method
    *
    * @see org.apache.hop.trans.step.RowListener#rowReadEvent(org.apache.hop.core.row.RowMetaInterface,
-   *      java.lang.Object[])
+   * java.lang.Object[])
    */
   public void rowReadEvent( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
   }
@@ -62,7 +62,7 @@ public class RowAdapter implements RowListener {
    * Empty method implementing the RowListener.rowWrittenEvent interface method
    *
    * @see org.apache.hop.trans.step.RowListener#rowWrittenEvent(org.apache.hop.core.row.RowMetaInterface,
-   *      java.lang.Object[])
+   * java.lang.Object[])
    */
   public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
   }

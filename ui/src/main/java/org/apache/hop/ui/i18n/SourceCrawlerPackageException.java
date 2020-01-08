@@ -43,8 +43,7 @@ public class SourceCrawlerPackageException {
   }
 
   /**
-   * @param startsWith
-   *          the startsWith to set
+   * @param startsWith the startsWith to set
    */
   public void setStartsWith( String startsWith ) {
     this.startsWith = startsWith;
@@ -58,8 +57,7 @@ public class SourceCrawlerPackageException {
   }
 
   /**
-   * @param packageName
-   *          the packageName to set
+   * @param packageName the packageName to set
    */
   public void setPackageName( String packageName ) {
     this.packageName = packageName;

@@ -22,6 +22,26 @@
 
 package org.apache.hop.ui.trans.steps.sasinput;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.sasinput.SasInputField;
+import org.apache.hop.trans.steps.sasinput.SasInputHelper;
+import org.apache.hop.trans.steps.sasinput.SasInputMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboValuesSelectionListener;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -44,30 +64,10 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopStepException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.sasinput.SasInputField;
-import org.apache.hop.trans.steps.sasinput.SasInputHelper;
-import org.apache.hop.trans.steps.sasinput.SasInputMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ComboValuesSelectionListener;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class SasInputDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = SasInputMeta.class; // for i18n purposes, needed
-                                                    // by Translator2!!
+  // by Translator2!!
 
   private CCombo wAccField;
 
@@ -220,7 +220,7 @@ public class SasInputDialog extends BaseStepDialog implements StepDialogInterfac
           BaseMessages.getString( PKG, "SASInputDialog.OutputFieldColumn.TrimType" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaString.trimTypeDesc ), };
 
-    colinf[3].setComboValuesSelectionListener( new ComboValuesSelectionListener() {
+    colinf[ 3 ].setComboValuesSelectionListener( new ComboValuesSelectionListener() {
 
       public String[] getComboValues( TableItem tableItem, int rowNr, int colNr ) {
         String[] comboValues = new String[] {};

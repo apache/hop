@@ -21,34 +21,33 @@
  ******************************************************************************/
 package org.apache.hop.job.entries.getpop;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-
-import javax.activation.DataHandler;
-import javax.activation.FileDataSource;
-import javax.mail.Message;
-import javax.mail.Flags.Flag;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.MessagingException;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.Job;
+import org.apache.hop.utils.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.Job;
-import org.apache.hop.utils.TestUtils;
+
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
+import javax.mail.Flags.Flag;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMultipart;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class JobEntryGetPOPTest {
 
@@ -97,7 +96,7 @@ public class JobEntryGetPOPTest {
 
   /**
    * PDI-10942 - Job get emails JobEntry does not mark emails as 'read' when load emails content.
-   *
+   * <p>
    * Test that we always open remote folder in rw mode, and after email attachment is loaded email is marked as read.
    * Set for openFolder rw mode if this is pop3.
    *
@@ -107,14 +106,14 @@ public class JobEntryGetPOPTest {
   @Test
   public void testFetchOneFolderModePop3() throws HopException, MessagingException {
     entry.fetchOneFolder( mailConn, true, "junitImapFolder", "junitRealOutputFolder", "junitTargetAttachmentFolder",
-        "junitRealMoveToIMAPFolder", "junitRealFilenamePattern", 0, Mockito.mock( SimpleDateFormat.class ) );
+      "junitRealMoveToIMAPFolder", "junitRealFilenamePattern", 0, Mockito.mock( SimpleDateFormat.class ) );
     Mockito.verify( mailConn ).openFolder( true );
     Mockito.verify( message ).setFlag( Flag.SEEN, true );
   }
 
   /**
    * PDI-10942 - Job get emails JobEntry does not mark emails as 'read' when load emails content.
-   *
+   * <p>
    * Test that we always open remote folder in rw mode, and after email attachment is loaded email is marked as read.
    * protocol IMAP and default remote folder is overridden
    *
@@ -124,14 +123,14 @@ public class JobEntryGetPOPTest {
   @Test
   public void testFetchOneFolderModeIMAPWithNonDefFolder() throws HopException, MessagingException {
     entry.fetchOneFolder( mailConn, false, "junitImapFolder", "junitRealOutputFolder", "junitTargetAttachmentFolder",
-        "junitRealMoveToIMAPFolder", "junitRealFilenamePattern", 0, Mockito.mock( SimpleDateFormat.class ) );
+      "junitRealMoveToIMAPFolder", "junitRealFilenamePattern", 0, Mockito.mock( SimpleDateFormat.class ) );
     Mockito.verify( mailConn ).openFolder( "junitImapFolder", true );
     Mockito.verify( message ).setFlag( Flag.SEEN, true );
   }
 
   /**
    * PDI-10942 - Job get emails JobEntry does not mark emails as 'read' when load emails content.
-   *
+   * <p>
    * Test that we always open remote folder in rw mode, and after email attachment is loaded email is marked as read.
    * protocol IMAP and default remote folder is NOT overridden
    *
@@ -141,14 +140,14 @@ public class JobEntryGetPOPTest {
   @Test
   public void testFetchOneFolderModeIMAPWithIsDefFolder() throws HopException, MessagingException {
     entry.fetchOneFolder( mailConn, false, null, "junitRealOutputFolder", "junitTargetAttachmentFolder",
-            "junitRealMoveToIMAPFolder", "junitRealFilenamePattern", 0, Mockito.mock( SimpleDateFormat.class ) );
+      "junitRealMoveToIMAPFolder", "junitRealFilenamePattern", 0, Mockito.mock( SimpleDateFormat.class ) );
     Mockito.verify( mailConn ).openFolder( true );
     Mockito.verify( message ).setFlag( Flag.SEEN, true );
   }
 
   /**
    * PDI-11943 - Get Mail Job Entry: Attachments folder not created
-   *
+   * <p>
    * Test that the Attachments folder is created when the entry is
    * configured to save attachments and messages in the same folder
    *
@@ -180,7 +179,7 @@ public class JobEntryGetPOPTest {
 
   /**
    * PDI-11943 - Get Mail Job Entry: Attachments folder not created
-   *
+   * <p>
    * Test that the Attachments folder is created when the entry is
    * configured to save attachments and messages in different folders
    *
@@ -213,7 +212,7 @@ public class JobEntryGetPOPTest {
 
   /**
    * PDI-11943 - Get Mail Job Entry: Attachments folder not created
-   *
+   * <p>
    * Test that the Attachments folder is not created when the entry is
    * configured to not create folders
    *
@@ -241,7 +240,7 @@ public class JobEntryGetPOPTest {
         assertTrue( "Output Folder should not be created",
           BaseMessages.getString( JobEntryGetPOP.class,
             "JobGetMailsFromPOP.Error.OutputFolderNotExist", outputDir.getAbsolutePath() ).equals(
-              Const.trim( e.getMessage() ) ) );
+            Const.trim( e.getMessage() ) ) );
       } else {
         fail( "Output Folder should not have been created: " + e.getLocalizedMessage() );
       }
@@ -254,7 +253,7 @@ public class JobEntryGetPOPTest {
         assertTrue( "Output Folder should not be created",
           BaseMessages.getString( JobEntryGetPOP.class,
             "JobGetMailsFromPOP.Error.AttachmentFolderNotExist", attachmentsDir.getAbsolutePath() ).equals(
-              Const.trim( e.getMessage() ) ) );
+            Const.trim( e.getMessage() ) ) );
       } else {
         fail( "Attachments Folder should not have been created: " + e.getLocalizedMessage() );
       }
@@ -263,7 +262,7 @@ public class JobEntryGetPOPTest {
 
   /**
    * PDI-14305 - Get Mails (POP3/IMAP) Not substituting environment variables for target directories
-   *
+   * <p>
    * Test that environment variables are appropriately substituted when creating output and attachment folders
    */
   @Test
@@ -291,15 +290,15 @@ public class JobEntryGetPOPTest {
 
     // directly test environment substitute functions
     assertTrue( "Error in Direct substitute test for output directory",
-            outputDir.toString().equals( entry.getRealOutputDirectory() ) );
+      outputDir.toString().equals( entry.getRealOutputDirectory() ) );
     assertTrue( "Error in Direct substitute test for  attachment directory",
-            attachmentDir.toString().equals( entry.getRealAttachmentFolder() ) );
+      attachmentDir.toString().equals( entry.getRealAttachmentFolder() ) );
 
     // test environment substitute for output dir via createOutputDirectory method
     try {
       String outputRes = entry.createOutputDirectory( JobEntryGetPOP.FOLDER_OUTPUT );
       assertTrue( "Variables not working in createOutputDirectory: output directory",
-              outputRes.equals( outputDir.toString() ) );
+        outputRes.equals( outputDir.toString() ) );
     } catch ( Exception e ) {
       fail( "Unexpected exception when calling createOutputDirectory for output directory" );
 
@@ -309,13 +308,13 @@ public class JobEntryGetPOPTest {
     try {
       String attachOutputRes = entry.createOutputDirectory( JobEntryGetPOP.FOLDER_ATTACHMENTS );
       assertTrue( "Variables not working in createOutputDirectory: attachment with options false",
-              attachOutputRes.equals( outputDir.toString() ) );
+        attachOutputRes.equals( outputDir.toString() ) );
       // set options that trigger alternate path for FOLDER_ATTACHMENTS option
       entry.setSaveAttachment( true );
       entry.setDifferentFolderForAttachment( true );
       String attachRes = entry.createOutputDirectory( JobEntryGetPOP.FOLDER_ATTACHMENTS );
       assertTrue( "Variables not working in createOutputDirectory: attachment with options true",
-              attachRes.equals( outputDir.toString() ) );
+        attachRes.equals( outputDir.toString() ) );
     } catch ( Exception e ) {
       fail( "Unexpected exception when calling createOutputDirectory for attachment directory" );
     }

@@ -21,11 +21,11 @@
  ******************************************************************************/
 package org.apache.hop.trans;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.StepInterface;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
@@ -57,7 +57,7 @@ public class RowProducerTest {
     rowSet = mock( RowSet.class );
     rowProducer = new RowProducer( stepInterface, rowSet );
     rowMeta = mock( RowMetaInterface.class );
-    rowData = new Object[]{};
+    rowData = new Object[] {};
   }
 
   @Test

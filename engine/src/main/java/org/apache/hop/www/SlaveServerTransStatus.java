@@ -22,23 +22,23 @@
 
 package org.apache.hop.www;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.hop.cluster.HttpUtil;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepStatus;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class SlaveServerTransStatus {
   public static final String XML_TAG = "transstatus";
@@ -184,8 +184,7 @@ public class SlaveServerTransStatus {
   }
 
   /**
-   * @param statusDescription
-   *          the statusDescription to set
+   * @param statusDescription the statusDescription to set
    */
   public void setStatusDescription( String statusDescription ) {
     this.statusDescription = statusDescription;
@@ -199,8 +198,7 @@ public class SlaveServerTransStatus {
   }
 
   /**
-   * @param transName
-   *          the transName to set
+   * @param transName the transName to set
    */
   public void setTransName( String transName ) {
     this.transName = transName;
@@ -214,8 +212,7 @@ public class SlaveServerTransStatus {
   }
 
   /**
-   * @param errorDescription
-   *          the errorDescription to set
+   * @param errorDescription the errorDescription to set
    */
   public void setErrorDescription( String errorDescription ) {
     this.errorDescription = errorDescription;
@@ -229,8 +226,7 @@ public class SlaveServerTransStatus {
   }
 
   /**
-   * @param stepStatusList
-   *          the stepStatusList to set
+   * @param stepStatusList the stepStatusList to set
    */
   public void setStepStatusList( List<StepStatus> stepStatusList ) {
     this.stepStatusList = stepStatusList;
@@ -244,8 +240,7 @@ public class SlaveServerTransStatus {
   }
 
   /**
-   * @param loggingString
-   *          the loggingString to set
+   * @param loggingString the loggingString to set
    */
   public void setLoggingString( String loggingString ) {
     this.loggingString = loggingString;
@@ -285,11 +280,11 @@ public class SlaveServerTransStatus {
     for ( StepStatus stepStatus : stepStatusList ) {
 
       result.setNrErrors( result.getNrErrors() + stepStatus.getErrors() + ( result.isStopped() ? 1 : 0 ) ); // If the
-                                                                                                            // remote
-                                                                                                            // trans is
-                                                                                                            // stopped,
-                                                                                                            // count as
-                                                                                                            // an error
+      // remote
+      // trans is
+      // stopped,
+      // count as
+      // an error
 
       if ( stepStatus.getStepname().equals( transMeta.getTransLogTable().getStepnameRead() ) ) {
         result.increaseLinesRead( stepStatus.getLinesRead() );
@@ -327,8 +322,7 @@ public class SlaveServerTransStatus {
   }
 
   /**
-   * @param result
-   *          the result to set
+   * @param result the result to set
    */
   public void setResult( Result result ) {
     this.result = result;
@@ -342,8 +336,7 @@ public class SlaveServerTransStatus {
   }
 
   /**
-   * @param paused
-   *          the paused to set
+   * @param paused the paused to set
    */
   public void setPaused( boolean paused ) {
     this.paused = paused;
@@ -357,8 +350,7 @@ public class SlaveServerTransStatus {
   }
 
   /**
-   * @param lastLoggingLineNr
-   *          the lastLoggingLineNr to set
+   * @param lastLoggingLineNr the lastLoggingLineNr to set
    */
   public void setLastLoggingLineNr( int lastLoggingLineNr ) {
     this.lastLoggingLineNr = lastLoggingLineNr;
@@ -372,8 +364,7 @@ public class SlaveServerTransStatus {
   }
 
   /**
-   * @param firstLoggingLineNr
-   *          the firstLoggingLineNr to set
+   * @param firstLoggingLineNr the firstLoggingLineNr to set
    */
   public void setFirstLoggingLineNr( int firstLoggingLineNr ) {
     this.firstLoggingLineNr = firstLoggingLineNr;
@@ -401,8 +392,7 @@ public class SlaveServerTransStatus {
   }
 
   /**
-   * @param id
-   *          the id to set
+   * @param id the id to set
    */
   public void setId( String id ) {
     this.id = id;

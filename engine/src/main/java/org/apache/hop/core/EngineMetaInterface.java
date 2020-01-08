@@ -22,9 +22,9 @@
 
 package org.apache.hop.core;
 
-import java.util.Date;
-
 import org.apache.hop.core.exception.HopException;
+
+import java.util.Date;
 
 public interface EngineMetaInterface {
 
@@ -37,9 +37,10 @@ public interface EngineMetaInterface {
 
   /**
    * Set the name of the engine metadata object
+   *
    * @param name
    */
-  public void setName(String name);
+  public void setName( String name );
 
   /**
    * Gets the name.
@@ -62,8 +63,7 @@ public interface EngineMetaInterface {
    * Gets the XML representation.
    *
    * @return the XML representation of this transformation
-   * @throws HopException
-   *           if any errors occur during generation of the XML
+   * @throws HopException if any errors occur during generation of the XML
    * @see org.apache.hop.core.xml.XMLInterface#getXML()
    */
 
@@ -105,8 +105,7 @@ public interface EngineMetaInterface {
   /**
    * Sets the date the transformation was created.
    *
-   * @param date
-   *          The creation date to set
+   * @param date The creation date to set
    */
   void setCreatedDate( Date date );
 
@@ -127,8 +126,7 @@ public interface EngineMetaInterface {
   /**
    * Sets the user by whom this was created.
    *
-   * @param createduser
-   *          The user to set
+   * @param createduser The user to set
    */
   void setCreatedUser( String createduser );
 
@@ -142,16 +140,14 @@ public interface EngineMetaInterface {
   /**
    * Sets the date this was modified.
    *
-   * @param date
-   *          The modified date to set
+   * @param date The modified date to set
    */
   void setModifiedDate( Date date );
 
   /**
    * Sets the user who last modified this.
    *
-   * @param user
-   *          The user name to set
+   * @param user The user name to set
    */
   void setModifiedUser( String user );
 
@@ -168,12 +164,6 @@ public interface EngineMetaInterface {
    * @return the filename
    */
   String getFilename();
-
-  /**
-   * Saves shared objects, including databases, steps, partition schemas, slave servers, and cluster schemas, to a file.
-   *
-   */
-  void saveSharedObjects() throws HopException;
 
   /**
    * Sets the internal kettle variables.

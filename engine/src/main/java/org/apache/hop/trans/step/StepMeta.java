@@ -22,12 +22,6 @@
 
 package org.apache.hop.trans.step;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hop.base.BaseMeta;
 import org.apache.hop.cluster.ClusterSchema;
@@ -35,9 +29,7 @@ import org.apache.hop.core.AttributesInterface;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.CheckResultSourceInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.Counter;
 import org.apache.hop.core.attributes.AttributesUtil;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginLoaderException;
 import org.apache.hop.core.exception.HopXMLException;
@@ -48,34 +40,36 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.StepPluginType;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceExportInterface;
 import org.apache.hop.resource.ResourceHolderInterface;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.shared.SharedObjectBase;
-import org.apache.hop.shared.SharedObjectInterface;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
 import org.apache.hop.trans.steps.missing.MissingTrans;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class contains everything that is needed to define a step.
  *
- * @since 27-mei-2003
  * @author Matt
- *
+ * @since 27-mei-2003
  */
-public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<StepMeta>, GUIPositionInterface,
-    SharedObjectInterface, CheckResultSourceInterface, ResourceExportInterface, ResourceHolderInterface,
-    AttributesInterface, BaseMeta {
+public class StepMeta implements
+  Cloneable, Comparable<StepMeta>, GUIPositionInterface,
+  CheckResultSourceInterface, ResourceExportInterface, ResourceHolderInterface,
+  AttributesInterface, BaseMeta {
   private static Class<?> PKG = StepMeta.class; // for i18n purposes, needed by Translator2!!
 
   public static final String XML_TAG = "step";
@@ -135,10 +129,14 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
   // So here we go, let's create List members for the remote input and output step
   //
 
-  /** These are the remote input steps to read from, one per host:port combination */
+  /**
+   * These are the remote input steps to read from, one per host:port combination
+   */
   private List<RemoteStep> remoteInputSteps;
 
-  /** These are the remote output steps to write to, one per host:port combination */
+  /**
+   * These are the remote output steps to write to, one per host:port combination
+   */
   private List<RemoteStep> remoteOutputSteps;
 
   private TransMeta parentTransMeta;
@@ -148,13 +146,10 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
   protected Map<String, Map<String, String>> attributesMap;
 
   /**
-   * @param stepid
-   *          The ID of the step: this is derived information, you can also use the constructor without stepid. This
-   *          constructor will be deprecated soon.
-   * @param stepname
-   *          The name of the new step
-   * @param stepMetaInterface
-   *          The step metadata interface to use (TextFileInputMeta, etc)
+   * @param stepid            The ID of the step: this is derived information, you can also use the constructor without stepid. This
+   *                          constructor will be deprecated soon.
+   * @param stepname          The name of the new step
+   * @param stepMetaInterface The step metadata interface to use (TextFileInputMeta, etc)
    */
   public StepMeta( String stepid, String stepname, StepMetaInterface stepMetaInterface ) {
     this( stepname, stepMetaInterface );
@@ -164,10 +159,8 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
   }
 
   /**
-   * @param stepname
-   *          The name of the new step
-   * @param stepMetaInterface
-   *          The step metadata interface to use (TextFileInputMeta, etc)
+   * @param stepname          The name of the new step
+   * @param stepMetaInterface The step metadata interface to use (TextFileInputMeta, etc)
    */
   public StepMeta( String stepname, StepMetaInterface stepMetaInterface ) {
     if ( stepMetaInterface != null ) {
@@ -199,7 +192,6 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
     this( (String) null, (String) null, (StepMetaInterface) null );
   }
 
-  @Override
   public String getXML() throws HopException {
     return getXML( true );
   }
@@ -213,13 +205,13 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
     retval.append( "    " ).append( XMLHandler.addTagValue( "description", description ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "distribute", distributes ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "custom_distribution", rowDistribution == null ? null
-        : rowDistribution.getCode() ) );
+      : rowDistribution.getCode() ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "copies", copiesString ) );
 
     retval.append( stepPartitioningMeta.getXML() );
     if ( targetStepPartitioningMeta != null ) {
       retval.append( XMLHandler.openTag( "target_step_partitioning" ) ).append( targetStepPartitioningMeta.getXML() )
-          .append( XMLHandler.closeTag( "target_step_partitioning" ) );
+        .append( XMLHandler.closeTag( "target_step_partitioning" ) );
     }
 
     if ( includeInterface ) {
@@ -229,7 +221,7 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
     retval.append( AttributesUtil.getAttributesXml( attributesMap ) );
 
     retval.append( "    " ).append( XMLHandler.addTagValue( "cluster_schema", clusterSchema == null ? ""
-        : clusterSchema.getName() ) );
+      : clusterSchema.getName() ) );
 
     retval.append( "    " ).append( XMLHandler.openTag( "remotesteps" ) ).append( Const.CR );
     // Output the remote input steps
@@ -264,11 +256,8 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
   /**
    * Read the step data from XML
    *
-   * @param stepnode
-   *          The XML step node.
-   * @param metaStore
-   *          The IMetaStore.
-   *
+   * @param stepnode  The XML step node.
+   * @param metaStore The IMetaStore.
    */
   public StepMeta( Node stepnode, IMetaStore metaStore ) throws HopXMLException,
     HopPluginLoaderException {
@@ -290,7 +279,7 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
       }
       if ( this.stepMetaInterface != null ) {
         if ( sp != null ) {
-          stepid = sp.getIds()[0]; // revert to the default in case we loaded an alternate version
+          stepid = sp.getIds()[ 0 ]; // revert to the default in case we loaded an alternate version
         }
 
         // Load the specifics from XML...
@@ -315,8 +304,8 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
         //
         String rowDistributionCode = XMLHandler.getTagValue( stepnode, "custom_distribution" );
         rowDistribution =
-            PluginRegistry.getInstance().loadClass( RowDistributionPluginType.class, rowDistributionCode,
-                RowDistributionInterface.class );
+          PluginRegistry.getInstance().loadClass( RowDistributionPluginType.class, rowDistributionCode,
+            RowDistributionInterface.class );
 
         // Handle GUI information: location & drawstep?
         String xloc, yloc;
@@ -370,15 +359,14 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
       throw e;
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "StepMeta.Exception.UnableToLoadStepInfo" ) + e
-          .toString(), e );
+        .toString(), e );
     }
   }
 
   /**
    * Resolves the name of the cluster loaded from XML/Repository to the correct clusterSchema object
    *
-   * @param clusterSchemas
-   *          The list of clusterSchemas to reference.
+   * @param clusterSchemas The list of clusterSchemas to reference.
    */
   public void setClusterSchemaAfterLoading( List<ClusterSchema> clusterSchemas ) {
     if ( clusterSchemaName == null ) {
@@ -426,8 +414,7 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
   /**
    * Sets the draw attribute of the step so that it will be drawn on the canvas.
    *
-   * @param draw
-   *          True if you want the step to show itself on the canvas, False if you don't.
+   * @param draw True if you want the step to show itself on the canvas, False if you don't.
    */
   public void setDraw( boolean draw ) {
     drawstep = draw;
@@ -437,8 +424,7 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
   /**
    * Sets the number of parallel copies that this step will be launched with.
    *
-   * @param c
-   *          The number of copies.
+   * @param c The number of copies.
    */
   public void setCopies( int c ) {
     setChanged();
@@ -700,9 +686,9 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
     return location;
   }
 
-    @SuppressWarnings( "deprecation" )
+  @SuppressWarnings( "deprecation" )
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, RowMetaInterface prev, String[] input,
-      String[] output, RowMetaInterface info, VariableSpace space, IMetaStore metaStore ) {
+                     String[] output, RowMetaInterface info, VariableSpace space, IMetaStore metaStore ) {
     stepMetaInterface.check( remarks, transMeta, this, prev, input, output, info, space, metaStore );
   }
 
@@ -736,8 +722,7 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
   }
 
   /**
-   * @param stepPartitioningMeta
-   *          the stepPartitioningMeta to set
+   * @param stepPartitioningMeta the stepPartitioningMeta to set
    */
   public void setStepPartitioningMeta( StepPartitioningMeta stepPartitioningMeta ) {
     this.stepPartitioningMeta = stepPartitioningMeta;
@@ -751,8 +736,7 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
   }
 
   /**
-   * @param clusterSchema
-   *          the clusterSchema to set
+   * @param clusterSchema the clusterSchema to set
    */
   public void setClusterSchema( ClusterSchema clusterSchema ) {
     this.clusterSchema = clusterSchema;
@@ -766,8 +750,7 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
   }
 
   /**
-   * @param distributes
-   *          the distributes to set
+   * @param distributes the distributes to set
    */
   public void setDistributes( boolean distributes ) {
     if ( this.distributes != distributes ) {
@@ -785,8 +768,7 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
   }
 
   /**
-   * @param stepErrorMeta
-   *          the error handling metadata for this step
+   * @param stepErrorMeta the error handling metadata for this step
    */
   public void setStepErrorMeta( StepErrorMeta stepErrorMeta ) {
     this.stepErrorMeta = stepErrorMeta;
@@ -796,10 +778,8 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
   /**
    * Find a step with its name in a given ArrayList of steps
    *
-   * @param steps
-   *          The List of steps to search
-   * @param stepname
-   *          The name of the step
+   * @param steps    The List of steps to search
+   * @param stepname The name of the step
    * @return The step if it was found, null if nothing was found
    */
   public static final StepMeta findStep( List<StepMeta> steps, String stepname ) {
@@ -824,7 +804,7 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
    */
   public boolean isDoingErrorHandling() {
     return stepMetaInterface.supportsErrorHandling() && stepErrorMeta != null && stepErrorMeta.getTargetStep() != null
-        && stepErrorMeta.isEnabled();
+      && stepErrorMeta.isEnabled();
   }
 
   public boolean isSendingErrorRowsToStep( StepMeta targetStep ) {
@@ -879,8 +859,8 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
   @Override
   @SuppressWarnings( "deprecation" )
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-      ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore )
-        throws HopException {
+                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore )
+    throws HopException {
 
     // Compatibility with previous release...
     //
@@ -904,8 +884,7 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
   }
 
   /**
-   * @param remoteInputSteps
-   *          the remoteInputSteps to set
+   * @param remoteInputSteps the remoteInputSteps to set
    */
   public void setRemoteInputSteps( List<RemoteStep> remoteInputSteps ) {
     this.remoteInputSteps = remoteInputSteps;
@@ -919,8 +898,7 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
   }
 
   /**
-   * @param remoteOutputSteps
-   *          the remoteOutputSteps to set
+   * @param remoteOutputSteps the remoteOutputSteps to set
    */
   public void setRemoteOutputSteps( List<RemoteStep> remoteOutputSteps ) {
     this.remoteOutputSteps = remoteOutputSteps;
@@ -934,8 +912,7 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
   }
 
   /**
-   * @param targetStepPartitioningMeta
-   *          the targetStepPartitioningMeta to set
+   * @param targetStepPartitioningMeta the targetStepPartitioningMeta to set
    */
   public void setTargetStepPartitioningMeta( StepPartitioningMeta targetStepPartitioningMeta ) {
     this.targetStepPartitioningMeta = targetStepPartitioningMeta;
@@ -996,8 +973,7 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
   }
 
   /**
-   * @param copiesString
-   *          the copiesString to set
+   * @param copiesString the copiesString to set
    */
   public void setCopiesString( String copiesString ) {
     this.copiesString = copiesString;
@@ -1049,7 +1025,7 @@ public class StepMeta extends SharedObjectBase implements Cloneable, Comparable<
       BaseMessages.getString( PKG, "BaseStep.Category.Deprecated" ) );
     for ( PluginInterface p : deprecatedSteps ) {
       String[] ids = p.getIds();
-      if ( !ArrayUtils.isEmpty( ids ) && ids[0].equals( this.stepid ) ) {
+      if ( !ArrayUtils.isEmpty( ids ) && ids[ 0 ].equals( this.stepid ) ) {
         this.isDeprecated = true;
         this.suggestion = registry.findPluginWithId( StepPluginType.class, this.stepid ) != null
           ? registry.findPluginWithId( StepPluginType.class, this.stepid ).getSuggestion() : "";

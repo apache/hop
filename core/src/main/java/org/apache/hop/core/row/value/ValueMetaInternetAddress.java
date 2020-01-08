@@ -88,7 +88,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
           case STORAGE_TYPE_BINARY_STRING:
             return (InetAddress) convertBinaryStringToNativeType( (byte[]) object );
           case STORAGE_TYPE_INDEXED:
-            return (InetAddress) index[( (Integer) object )];
+            return (InetAddress) index[ ( (Integer) object ) ];
           default:
             throw new HopValueException( toString() + " : Unknown storage type " + storageType + " specified." );
         }
@@ -99,7 +99,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
           case STORAGE_TYPE_BINARY_STRING:
             return convertStringToInternetAddress( (String) convertBinaryStringToNativeType( (byte[]) object ) );
           case STORAGE_TYPE_INDEXED:
-            return convertStringToInternetAddress( (String) index[( (Integer) object ).intValue()] );
+            return convertStringToInternetAddress( (String) index[ ( (Integer) object ).intValue() ] );
           default:
             throw new HopValueException( toString() + " : Unknown storage type " + storageType + " specified." );
         }
@@ -110,7 +110,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
           case STORAGE_TYPE_BINARY_STRING:
             return convertNumberToInternetAddress( (Double) convertBinaryStringToNativeType( (byte[]) object ) );
           case STORAGE_TYPE_INDEXED:
-            return convertNumberToInternetAddress( (Double) index[( (Integer) object ).intValue()] );
+            return convertNumberToInternetAddress( (Double) index[ ( (Integer) object ).intValue() ] );
           default:
             throw new HopValueException( toString() + " : Unknown storage type " + storageType + " specified." );
         }
@@ -121,7 +121,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
           case STORAGE_TYPE_BINARY_STRING:
             return convertIntegerToInternetAddress( (Long) convertBinaryStringToNativeType( (byte[]) object ) );
           case STORAGE_TYPE_INDEXED:
-            return convertIntegerToInternetAddress( (Long) index[( (Integer) object ).intValue()] );
+            return convertIntegerToInternetAddress( (Long) index[ ( (Integer) object ).intValue() ] );
           default:
             throw new HopValueException( toString() + " : Unknown storage type " + storageType + " specified." );
         }
@@ -132,7 +132,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
           case STORAGE_TYPE_BINARY_STRING:
             return convertBigNumberToInternetAddress( (BigDecimal) convertBinaryStringToNativeType( (byte[]) object ) );
           case STORAGE_TYPE_INDEXED:
-            return convertBigNumberToInternetAddress( (BigDecimal) index[( (Integer) object ).intValue()] );
+            return convertBigNumberToInternetAddress( (BigDecimal) index[ ( (Integer) object ).intValue() ] );
           default:
             throw new HopValueException( toString() + " : Unknown storage type " + storageType + " specified." );
         }
@@ -172,7 +172,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
     }
 
     for ( int i = 0; i < addr.length; i++ ) {
-      total += ( addr[i] & 0xFF ) * ( (long) Math.pow( 256, ( addr.length - 1 - i ) ) );
+      total += ( addr[ i ] & 0xFF ) * ( (long) Math.pow( 256, ( addr.length - 1 - i ) ) );
     }
 
     return total;
@@ -231,7 +231,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
           convertStringToInternetAddress( convertBinaryStringToString( (byte[]) object ) ) ) );
       case STORAGE_TYPE_INDEXED:
         return convertStringToBinaryString(
-          convertInternetAddressToString( (InetAddress) index[( (Integer) object )] ) );
+          convertInternetAddressToString( (InetAddress) index[ ( (Integer) object ) ] ) );
       default:
         throw new HopValueException( toString() + " : Unknown storage type " + storageType + " specified." );
     }
@@ -260,14 +260,14 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
 
     byte[] addr;
     if ( l >= Math.pow( 256, 4 ) ) {
-      addr = new byte[16];
+      addr = new byte[ 16 ];
     } else {
-      addr = new byte[4];
+      addr = new byte[ 4 ];
     }
 
     for ( int i = 0; i < addr.length; i++ ) {
       long mask = 0xFF << ( i * 8 );
-      addr[addr.length - 1 - i] = (byte) ( ( l & mask ) >> ( 8 * i ) );
+      addr[ addr.length - 1 - i ] = (byte) ( ( l & mask ) >> ( 8 * i ) );
     }
 
     try {
@@ -305,7 +305,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
 
   @Override
   public Object convertDataFromString( String pol, ValueMetaInterface convertMeta, String nullIf, String ifNull,
-    int trim_type ) throws HopValueException {
+                                       int trim_type ) throws HopValueException {
     // null handling and conversion of value to null
     //
     String null_value = nullIf;
@@ -421,13 +421,10 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
   /**
    * Convert the specified data to the data type specified in this object.
    *
-   * @param meta2
-   *          the metadata of the object to be converted
-   * @param data2
-   *          the data of the object to be converted
+   * @param meta2 the metadata of the object to be converted
+   * @param data2 the data of the object to be converted
    * @return the object in the data type of this value metadata object
-   * @throws HopValueException
-   *           in case there is a data conversion error
+   * @throws HopValueException in case there is a data conversion error
    */
   @Override
   public Object convertData( ValueMetaInterface meta2, Object data2 ) throws HopValueException {
@@ -484,7 +481,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
 
   @Override
   public ValueMetaInterface getValueFromSQLType( DatabaseMeta databaseMeta, String name, ResultSetMetaData rm,
-    int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException {
+                                                 int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException {
 
     try {
       int type = rm.getColumnType( index );
@@ -523,7 +520,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
 
   @Override
   public void setPreparedStatementValue( DatabaseMeta databaseMeta, PreparedStatement preparedStatement,
-    int index, Object data ) throws HopDatabaseException {
+                                         int index, Object data ) throws HopDatabaseException {
 
     try {
 
@@ -538,7 +535,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
 
   @Override
   public String getDatabaseColumnTypeDefinition( DatabaseInterface databaseInterface, String tk, String pk,
-    boolean use_autoinc, boolean add_fieldname, boolean add_cr ) {
+                                                 boolean use_autoinc, boolean add_fieldname, boolean add_cr ) {
 
     String retval = null;
     if ( databaseInterface.isPostgresVariant() ) {

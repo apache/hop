@@ -22,11 +22,11 @@
 
 package org.apache.hop.ui.trans.dialog;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.trans.TransMeta;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.trans.TransMeta;
 
 public interface TransDialogPluginInterface {
   public void addTab( TransMeta transMeta, Shell shell, CTabFolder tabFolder );

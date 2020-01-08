@@ -22,18 +22,18 @@
 
 package org.apache.hop.core.plugins;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.gui.GUIOption;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.gui.GUIOption;
-
 /**
  * Plugins of this type can extend to capabilities of the PluginRegistry
- *
+ * <p>
  * User: nbaker Date: 3/14/11
  */
 @PluginMainClassType( PluginRegistryExtension.class )

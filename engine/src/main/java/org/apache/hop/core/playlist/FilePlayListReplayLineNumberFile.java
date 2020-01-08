@@ -22,21 +22,21 @@
 
 package org.apache.hop.core.playlist;
 
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.vfs.HopVFS;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.vfs.HopVFS;
-
 class FilePlayListReplayLineNumberFile extends FilePlayListReplayFile {
   Set<Long> lineNumbers = new HashSet<Long>();
 
   public FilePlayListReplayLineNumberFile( FileObject lineNumberFile, String encoding, FileObject processingFile,
-    String filePart ) throws HopException {
+                                           String filePart ) throws HopException {
     super( processingFile, filePart );
     initialize( lineNumberFile, encoding );
   }

@@ -22,10 +22,7 @@
 
 package org.apache.hop.trans.steps.addsequence;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
+import junit.framework.TestCase;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
@@ -42,11 +39,13 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
 
-import junit.framework.TestCase;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Test class for the Add sequence step.
- *
+ * <p>
  * TODO: - Test steps using the same counter (harder to test because of concurrency issues).
  *
  * @author Sven Boden
@@ -56,14 +55,14 @@ public class AddSequenceIT extends TestCase {
     RowMetaInterface rm = new RowMeta();
 
     ValueMetaInterface[] valuesMeta =
-    {
-      new ValueMetaInteger( "counter" ),
-      new ValueMetaInteger( "valuename" ),
-      new ValueMetaInteger( "valuename_1" ),
-      new ValueMetaInteger( "valuename_2" ) };
+      {
+        new ValueMetaInteger( "counter" ),
+        new ValueMetaInteger( "valuename" ),
+        new ValueMetaInteger( "valuename_1" ),
+        new ValueMetaInteger( "valuename_2" ) };
 
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
 
     return rm;
@@ -120,9 +119,9 @@ public class AddSequenceIT extends TestCase {
       if ( rm1.size() != rm2.size() ) {
         fail( "row nr " + idx + " is not equal" );
       }
-      int[] fields = new int[rm1.size()];
+      int[] fields = new int[ rm1.size() ];
       for ( int ydx = 0; ydx < rm1.size(); ydx++ ) {
-        fields[ydx] = ydx;
+        fields[ ydx ] = ydx;
       }
       try {
         if ( rm1.getRowMeta().compare( r1, r2, fields ) != 0 ) {

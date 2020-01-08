@@ -22,34 +22,28 @@
 
 package org.apache.hop.core.util;
 
-import java.util.prefs.Preferences;
-
 import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.FunctorException;
 import org.apache.hop.core.exception.HopException;
-
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.prefs.Preferences;
 
 /**
  * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- *
  */
 public final class PluginPropertyHandler {
 
   /**
    * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
-   *
    */
   public abstract static class AbstractHandler implements Closure {
     /**
      * {@inheritDoc}
      *
+     * @throws IllegalArgumentException if property is null.
+     * @throws FunctorException         if HopException in handle thrown.
      * @see org.apache.commons.collections.Closure#execute(java.lang.Object)
-     * @throws IllegalArgumentException
-     *           if property is null.
-     * @throws FunctorException
-     *           if HopException in handle thrown.
      */
     public final void execute( final Object property ) throws IllegalArgumentException, FunctorException {
       Assert.assertNotNull( property, "Plugin property cannot be null" );
@@ -63,18 +57,16 @@ public final class PluginPropertyHandler {
     /**
      * Handle property.
      *
-     * @param property
-     *          property.
-     * @throws HopException
-     *           ...
+     * @param property property.
+     * @throws HopException ...
      */
     protected abstract void handle( final PluginProperty property ) throws HopException;
   }
 
   /**
    * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
-   *
-   *         Fail/throws HopException.
+   * <p>
+   * Fail/throws HopException.
    */
   public static class Fail extends AbstractHandler {
 
@@ -97,7 +89,6 @@ public final class PluginPropertyHandler {
 
   /**
    * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
-   *
    */
   public static class AppendXml extends AbstractHandler {
 
@@ -119,7 +110,6 @@ public final class PluginPropertyHandler {
 
   /**
    * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
-   *
    */
   public static class LoadXml extends AbstractHandler {
 
@@ -128,10 +118,8 @@ public final class PluginPropertyHandler {
     /**
      * Constructor.
      *
-     * @param node
-     *          node to set.
-     * @throws IllegalArgumentException
-     *           if node is null.
+     * @param node node to set.
+     * @throws IllegalArgumentException if node is null.
      */
     public LoadXml( final Node node ) throws IllegalArgumentException {
       super();
@@ -148,7 +136,6 @@ public final class PluginPropertyHandler {
 
   /**
    * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
-   *
    */
   public static class SaveToPreferences extends AbstractHandler {
 
@@ -157,10 +144,8 @@ public final class PluginPropertyHandler {
     /**
      * Constructor.
      *
-     * @param node
-     *          node to set.
-     * @throws IllegalArgumentException
-     *           if node is null.
+     * @param node node to set.
+     * @throws IllegalArgumentException if node is null.
      */
     public SaveToPreferences( final Preferences node ) throws IllegalArgumentException {
       super();
@@ -177,7 +162,6 @@ public final class PluginPropertyHandler {
 
   /**
    * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
-   *
    */
   public static class ReadFromPreferences extends AbstractHandler {
 
@@ -186,10 +170,8 @@ public final class PluginPropertyHandler {
     /**
      * Constructor.
      *
-     * @param node
-     *          node to set.
-     * @throws IllegalArgumentException
-     *           if node is null.
+     * @param node node to set.
+     * @throws IllegalArgumentException if node is null.
      */
     public ReadFromPreferences( final Preferences node ) throws IllegalArgumentException {
       super();
@@ -205,21 +187,17 @@ public final class PluginPropertyHandler {
   }
 
   /**
-   * @param properties
-   *          properties to test.
-   * @throws IllegalArgumentException
-   *           if properties is null.
+   * @param properties properties to test.
+   * @throws IllegalArgumentException if properties is null.
    */
   public static void assertProperties( final KeyValueSet properties ) throws IllegalArgumentException {
     Assert.assertNotNull( properties, "Properties cannot be null" );
   }
 
   /**
-   * @param properties
-   *          properties
+   * @param properties properties
    * @return XML String
-   * @throws IllegalArgumentException
-   *           if properties is null
+   * @throws IllegalArgumentException if properties is null
    */
   public static String toXml( final KeyValueSet properties ) throws IllegalArgumentException {
     assertProperties( properties );
@@ -229,14 +207,10 @@ public final class PluginPropertyHandler {
   }
 
   /**
-   * @param properties
-   *          properties.
-   * @param handler
-   *          handler.
-   * @throws HopException
-   *           ...
-   * @throws IllegalArgumentException
-   *           if properties is null.
+   * @param properties properties.
+   * @param handler    handler.
+   * @throws HopException             ...
+   * @throws IllegalArgumentException if properties is null.
    */
   public static void walk( final KeyValueSet properties, final Closure handler ) throws HopException,
     IllegalArgumentException {

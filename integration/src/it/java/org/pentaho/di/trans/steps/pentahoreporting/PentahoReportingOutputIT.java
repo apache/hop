@@ -21,18 +21,17 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.pentahoreporting;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.datagrid.DataGridMeta;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.File;
-import java.util.Arrays;
 
 import static java.util.Arrays.asList;
 
@@ -54,7 +53,7 @@ public class PentahoReportingOutputIT {
     transMeta = new TransMeta( "src/it/resources/org.apache.hop/trans/steps/pentahoreporting/pdi-13434.ktr" );
   }
 
-  private void runTransformation(PentahoReportingOutputMeta.ProcessorType processorType) throws Exception {
+  private void runTransformation( PentahoReportingOutputMeta.ProcessorType processorType ) throws Exception {
     File tmp = File.createTempFile( "PentahoReportingOutputTest", "PentahoReportingOutputTest" );
     tmp.deleteOnExit();
 

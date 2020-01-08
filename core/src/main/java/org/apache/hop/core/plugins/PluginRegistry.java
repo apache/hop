@@ -204,11 +204,11 @@ public class PluginRegistry {
   }
 
   public void registerPlugin( Class<? extends PluginTypeInterface> pluginType, PluginInterface plugin )
-      throws HopPluginException {
+    throws HopPluginException {
     boolean changed = false; // Is this an add or an update?
     lock.writeLock().lock();
     try {
-      if ( plugin.getIds()[0] == null ) {
+      if ( plugin.getIds()[ 0 ] == null ) {
         throw new HopPluginException( "Not a valid id specified in plugin :" + plugin );
       }
 
@@ -282,7 +282,7 @@ public class PluginRegistry {
    * Get a plugin from the registry
    *
    * @param pluginType The type of plugin to look for
-   * @param id             The ID to scan for
+   * @param id         The ID to scan for
    * @return the plugin or null if nothing was found.
    */
   public PluginInterface getPlugin( Class<? extends PluginTypeInterface> pluginType, String id ) {
@@ -305,7 +305,7 @@ public class PluginRegistry {
    * @return An unmodifiable list of plugins that belong to the specified type and category.
    */
   public <T extends PluginTypeInterface> List<PluginInterface> getPluginsByCategory( Class<T> pluginType,
-      String pluginCategory ) {
+                                                                                     String pluginCategory ) {
     List<PluginInterface> plugins = getPlugins( pluginType ).stream()
       .filter( plugin -> plugin.getCategory() != null && plugin.getCategory().equals( pluginCategory ) )
       .collect( Collectors.toList() );
@@ -318,7 +318,7 @@ public class PluginRegistry {
    *
    * @param pluginType The plugin type to search categories for.
    * @return The list of categories for this plugin type. The list can be modified (sorted etc) but will not impact the
-   *         registry in any way.
+   * registry in any way.
    */
   public List<String> getCategories( Class<? extends PluginTypeInterface> pluginType ) {
     lock.readLock().lock();
@@ -350,7 +350,7 @@ public class PluginRegistry {
    * @throws HopPluginException
    */
   public <T> T loadClass( Class<? extends PluginTypeInterface> pluginType, Object object, Class<T> classType )
-      throws HopPluginException {
+    throws HopPluginException {
     PluginInterface plugin = getPlugin( pluginType, object );
     if ( plugin == null ) {
       return null;
@@ -368,7 +368,7 @@ public class PluginRegistry {
    * @throws HopPluginException
    */
   public <T> T loadClass( Class<? extends PluginTypeInterface> pluginType, String pluginId, Class<T> classType )
-      throws HopPluginException {
+    throws HopPluginException {
     PluginInterface plugin = getPlugin( pluginType, pluginId );
     if ( plugin == null ) {
       return null;
@@ -379,10 +379,10 @@ public class PluginRegistry {
   private HopURLClassLoader createClassLoader( PluginInterface plugin ) throws MalformedURLException,
     UnsupportedEncodingException {
     List<String> jarFiles = plugin.getLibraries();
-    URL[] urls = new URL[jarFiles.size()];
+    URL[] urls = new URL[ jarFiles.size() ];
     for ( int i = 0; i < jarFiles.size(); i++ ) {
       File jarfile = new File( jarFiles.get( i ) );
-      urls[i] = new URL( URLDecoder.decode( jarfile.toURI().toURL().toString(), "UTF-8" ) );
+      urls[ i ] = new URL( URLDecoder.decode( jarfile.toURI().toURL().toString(), "UTF-8" ) );
     }
     ClassLoader classLoader = getClass().getClassLoader();
     String[] patterns = parentClassloaderPatternMap.get( plugin );
@@ -446,15 +446,15 @@ public class PluginRegistry {
   public <T> T loadClass( PluginInterface plugin, Class<T> pluginClass ) throws HopPluginException {
     if ( plugin == null ) {
       throw new HopPluginException( BaseMessages.getString(
-          PKG, "PluginRegistry.RuntimeError.NoValidStepOrPlugin.PLUGINREGISTRY001" ) );
+        PKG, "PluginRegistry.RuntimeError.NoValidStepOrPlugin.PLUGINREGISTRY001" ) );
     }
 
     if ( plugin instanceof ClassLoadingPluginInterface ) {
       T aClass = ( (ClassLoadingPluginInterface) plugin ).loadClass( pluginClass );
       if ( aClass == null ) {
         throw new HopPluginClassMapException( BaseMessages
-            .getString( PKG, "PluginRegistry.RuntimeError.NoValidClassRequested.PLUGINREGISTRY002", plugin.getName(),
-                pluginClass.getName() ) );
+          .getString( PKG, "PluginRegistry.RuntimeError.NoValidClassRequested.PLUGINREGISTRY002", plugin.getName(),
+            pluginClass.getName() ) );
       } else {
         return aClass;
       }
@@ -473,8 +473,8 @@ public class PluginRegistry {
           }
         }
         throw new HopPluginClassMapException( BaseMessages.getString( PKG,
-            "PluginRegistry.RuntimeError.NoValidClassRequested.PLUGINREGISTRY002", plugin.getName(),
-            pluginClass.getName() ) );
+          "PluginRegistry.RuntimeError.NoValidClassRequested.PLUGINREGISTRY002", plugin.getName(),
+          pluginClass.getName() ) );
       }
 
       try {
@@ -491,17 +491,17 @@ public class PluginRegistry {
         return cl.newInstance();
       } catch ( ClassNotFoundException e ) {
         throw new HopPluginException( BaseMessages.getString(
-            PKG, "PluginRegistry.RuntimeError.ClassNotFound.PLUGINREGISTRY003" ), e );
+          PKG, "PluginRegistry.RuntimeError.ClassNotFound.PLUGINREGISTRY003" ), e );
       } catch ( InstantiationException e ) {
         throw new HopPluginException( BaseMessages.getString(
-            PKG, "PluginRegistry.RuntimeError.UnableToInstantiateClass.PLUGINREGISTRY004" ), e );
+          PKG, "PluginRegistry.RuntimeError.UnableToInstantiateClass.PLUGINREGISTRY004" ), e );
       } catch ( IllegalAccessException e ) {
         throw new HopPluginException( BaseMessages.getString(
-            PKG, "PluginRegistry.RuntimeError.IllegalAccessToClass.PLUGINREGISTRY005" ), e );
+          PKG, "PluginRegistry.RuntimeError.IllegalAccessToClass.PLUGINREGISTRY005" ), e );
       } catch ( Throwable e ) {
         e.printStackTrace();
         throw new HopPluginException( BaseMessages.getString(
-            PKG, "PluginRegistry.RuntimeError.UnExpectedErrorLoadingClass.PLUGINREGISTRY007" ), e );
+          PKG, "PluginRegistry.RuntimeError.UnExpectedErrorLoadingClass.PLUGINREGISTRY007" ), e );
       }
     }
   }
@@ -617,31 +617,31 @@ public class PluginRegistry {
             //
             pluginType.handlePluginAnnotation( clazz, annotation, new ArrayList<>(), true, null );
             LogChannel.GENERAL.logBasic( "Plugin class "
-                + className + " registered for plugin type '" + pluginType.getName() + "'" );
+              + className + " registered for plugin type '" + pluginType.getName() + "'" );
           } else {
             if ( HopLogStore.isInitialized() && LogChannel.GENERAL.isDebug() ) {
               LogChannel.GENERAL.logDebug( "Plugin class "
-                  + className + " doesn't contain annotation for plugin type '" + pluginType.getName() + "'" );
+                + className + " doesn't contain annotation for plugin type '" + pluginType.getName() + "'" );
             }
           }
         } else {
           if ( HopLogStore.isInitialized() && LogChannel.GENERAL.isDebug() ) {
             LogChannel.GENERAL.logDebug( "Plugin class "
-                + className + " doesn't contain valid class for plugin type '" + pluginType.getName() + "'" );
+              + className + " doesn't contain valid class for plugin type '" + pluginType.getName() + "'" );
           }
         }
       } catch ( Exception e ) {
         if ( HopLogStore.isInitialized() ) {
           LogChannel.GENERAL.logError( "Error registring plugin class from HOP_PLUGIN_CLASSES: "
-              + className + Const.CR + Const.getStackTracker( e ) );
+            + className + Const.CR + Const.getStackTracker( e ) );
         }
       }
     }
 
     if ( LogChannel.GENERAL.isDetailed() ) {
       LogChannel.GENERAL.logDetailed( "Registered "
-          + getPlugins( pluginType.getClass() ).size() + " plugins of type '" + pluginType.getName() + "' in "
-          + ( System.currentTimeMillis() - startScan ) + "ms." );
+        + getPlugins( pluginType.getClass() ).size() + " plugins of type '" + pluginType.getName() + "' in "
+        + ( System.currentTimeMillis() - startScan ) + "ms." );
     }
 
   }
@@ -666,7 +666,7 @@ public class PluginRegistry {
    * @param pluginType  the type of plugin
    * @param pluginClass The class to look for
    * @return The ID of the plugin to which this class belongs (checks the plugin class maps) or null if nothing was
-   *         found.
+   * found.
    */
   public String getPluginId( Class<? extends PluginTypeInterface> pluginType, Object pluginClass ) {
     String className = pluginClass.getClass().getName();
@@ -677,7 +677,7 @@ public class PluginRegistry {
       .orElse( null );
 
     if ( plugin != null ) {
-      return plugin.getIds()[0];
+      return plugin.getIds()[ 0 ];
     }
 
     return extensions.stream()
@@ -724,7 +724,7 @@ public class PluginRegistry {
    * @return The plugin with the specified description or null if nothing was found.
    */
   public PluginInterface findPluginWithDescription( Class<? extends PluginTypeInterface> pluginType,
-      String pluginDescription ) {
+                                                    String pluginDescription ) {
     return getPlugins( pluginType ).stream()
       .filter( plugin -> plugin.getDescription().equals( pluginDescription ) )
       .findFirst()
@@ -735,7 +735,7 @@ public class PluginRegistry {
    * Find the plugin ID based on the name of the plugin
    *
    * @param pluginType the type of plugin
-   * @param pluginId The name to look for
+   * @param pluginId   The name to look for
    * @return The plugin with the specified name or null if nothing was found.
    */
   public PluginInterface findPluginWithId( Class<? extends PluginTypeInterface> pluginType, String pluginId ) {
@@ -779,21 +779,21 @@ public class PluginRegistry {
    * @throws HopPluginException
    */
   public RowBuffer getPluginInformation( Class<? extends PluginTypeInterface> pluginType )
-      throws HopPluginException {
+    throws HopPluginException {
     RowBuffer rowBuffer = new RowBuffer( getPluginInformationRowMeta() );
     for ( PluginInterface plugin : getPlugins( pluginType ) ) {
 
-      Object[] row = new Object[getPluginInformationRowMeta().size()];
+      Object[] row = new Object[ getPluginInformationRowMeta().size() ];
       int rowIndex = 0;
 
-      row[rowIndex++] = getPluginType( plugin.getPluginType() ).getName();
-      row[rowIndex++] = plugin.getIds()[0];
-      row[rowIndex++] = plugin.getName();
-      row[rowIndex++] = Const.NVL( plugin.getDescription(), "" );
-      row[rowIndex++] = Utils.isEmpty( plugin.getLibraries() ) ? "" : plugin.getLibraries().toString();
-      row[rowIndex++] = Const.NVL( plugin.getImageFile(), "" );
-      row[rowIndex++] = plugin.getClassMap().values().toString();
-      row[rowIndex] = Const.NVL( plugin.getCategory(), "" );
+      row[ rowIndex++ ] = getPluginType( plugin.getPluginType() ).getName();
+      row[ rowIndex++ ] = plugin.getIds()[ 0 ];
+      row[ rowIndex++ ] = plugin.getName();
+      row[ rowIndex++ ] = Const.NVL( plugin.getDescription(), "" );
+      row[ rowIndex++ ] = Utils.isEmpty( plugin.getLibraries() ) ? "" : plugin.getLibraries().toString();
+      row[ rowIndex++ ] = Const.NVL( plugin.getImageFile(), "" );
+      row[ rowIndex++ ] = plugin.getClassMap().values().toString();
+      row[ rowIndex ] = Const.NVL( plugin.getCategory(), "" );
 
       rowBuffer.getBuffer().add( row );
     }
@@ -813,7 +813,7 @@ public class PluginRegistry {
     try {
       if ( plugin.isNativePlugin() ) {
         return (T) Class.forName( className );
-      } else if (( plugin instanceof ClassLoadingPluginInterface ) && ( (ClassLoadingPluginInterface) plugin ).getClassLoader()!=null) {
+      } else if ( ( plugin instanceof ClassLoadingPluginInterface ) && ( (ClassLoadingPluginInterface) plugin ).getClassLoader() != null ) {
         return (T) ( (ClassLoadingPluginInterface) plugin ).getClassLoader().loadClass( className );
       } else {
         URLClassLoader ucl;
@@ -868,14 +868,14 @@ public class PluginRegistry {
    * @param plugin the plugin to use
    * @return The class loader
    * @throws HopPluginException In case there was a problem
-   *                               <p/>
-   *                               getClassLoader();
+   *                            <p/>
+   *                            getClassLoader();
    */
   public ClassLoader getClassLoader( PluginInterface plugin ) throws HopPluginException {
 
     if ( plugin == null ) {
       throw new HopPluginException( BaseMessages.getString(
-          PKG, "PluginRegistry.RuntimeError.NoValidStepOrPlugin.PLUGINREGISTRY001" ) );
+        PKG, "PluginRegistry.RuntimeError.NoValidStepOrPlugin.PLUGINREGISTRY001" ) );
     }
 
     try {
@@ -958,11 +958,11 @@ public class PluginRegistry {
       }
     } catch ( MalformedURLException e ) {
       throw new HopPluginException( BaseMessages.getString(
-          PKG, "PluginRegistry.RuntimeError.MalformedURL.PLUGINREGISTRY006" ), e );
+        PKG, "PluginRegistry.RuntimeError.MalformedURL.PLUGINREGISTRY006" ), e );
     } catch ( Throwable e ) {
       e.printStackTrace();
       throw new HopPluginException( BaseMessages.getString(
-          PKG, "PluginRegistry.RuntimeError.UnExpectedCreatingClassLoader.PLUGINREGISTRY008" ), e );
+        PKG, "PluginRegistry.RuntimeError.UnExpectedCreatingClassLoader.PLUGINREGISTRY008" ), e );
     }
   }
 
@@ -995,14 +995,14 @@ public class PluginRegistry {
   }
 
   public PluginTypeInterface getPluginType( Class<? extends PluginTypeInterface> pluginTypeClass )
-      throws HopPluginException {
+    throws HopPluginException {
     try {
       // All these plugin type interfaces are singletons...
       // So we should call a static getInstance() method...
       //
-      Method method = pluginTypeClass.getMethod( "getInstance", new Class<?>[0] );
+      Method method = pluginTypeClass.getMethod( "getInstance", new Class<?>[ 0 ] );
 
-      return (PluginTypeInterface) method.invoke( null, new Object[0] );
+      return (PluginTypeInterface) method.invoke( null, new Object[ 0 ] );
     } catch ( Exception e ) {
       throw new HopPluginException( "Unable to get instance of plugin type: " + pluginTypeClass.getName(), e );
     }
@@ -1066,9 +1066,9 @@ public class PluginRegistry {
   }
 
   public PluginInterface findPluginWithId( Class<? extends PluginTypeInterface> pluginType, String pluginId, boolean waitForPluginToBeAvailable ) {
-    PluginInterface pluginInterface = findPluginWithId(  pluginType,  pluginId );
+    PluginInterface pluginInterface = findPluginWithId( pluginType, pluginId );
     return waitForPluginToBeAvailable && pluginInterface == null
-      ? waitForPluginToBeAvailable( pluginType,  pluginId, WAIT_FOR_PLUGIN_TO_BE_AVAILABLE_LIMIT )
+      ? waitForPluginToBeAvailable( pluginType, pluginId, WAIT_FOR_PLUGIN_TO_BE_AVAILABLE_LIMIT )
       : pluginInterface;
   }
 
@@ -1083,33 +1083,34 @@ public class PluginRegistry {
       return null;
     }
     PluginInterface pluginInterface = findPluginWithId( pluginType, pluginId );
-    return  waitLimit <= 0 && pluginInterface == null
+    return waitLimit <= 0 && pluginInterface == null
       ? null
       : pluginInterface != null
-        ? pluginInterface
-        : waitForPluginToBeAvailable( pluginType, pluginId, waitLimit );
+      ? pluginInterface
+      : waitForPluginToBeAvailable( pluginType, pluginId, waitLimit );
   }
 
   /**
    * Try to register the given annotated class, present in the classpath, as a plugin
+   *
    * @param pluginClassName The name of the class to register
    * @param pluginTypeClass The type of plugin to register
    * @param annotationClass The type of annotation to consider
    */
-  public void registerPluginClass(String pluginClassName, Class<? extends PluginTypeInterface> pluginTypeClass, Class<? extends Annotation> annotationClass ) throws HopPluginException {
+  public void registerPluginClass( String pluginClassName, Class<? extends PluginTypeInterface> pluginTypeClass, Class<? extends Annotation> annotationClass ) throws HopPluginException {
     PluginTypeInterface pluginType = getPluginType( pluginTypeClass );
     try {
       Class<?> pluginClass = Class.forName( pluginClassName );
       Annotation annotation = pluginClass.getAnnotation( annotationClass );
-      if (annotation==null) {
-        throw new HopPluginException( "The requested annotation '"+annotationClass.getName()+" couldn't be found in the plugin class" );
+      if ( annotation == null ) {
+        throw new HopPluginException( "The requested annotation '" + annotationClass.getName() + " couldn't be found in the plugin class" );
       }
 
       // Register the plugin using the metadata in the annotation
       //
       pluginType.handlePluginAnnotation( pluginClass, annotation, new ArrayList<String>(), true, null );
-    } catch(ClassNotFoundException e) {
-      throw new HopPluginException( "Sorry, the plugin class you want to register '"+pluginClassName+"' can't be found in the classpath", e );
+    } catch ( ClassNotFoundException e ) {
+      throw new HopPluginException( "Sorry, the plugin class you want to register '" + pluginClassName + "' can't be found in the classpath", e );
     }
   }
 
@@ -1117,15 +1118,15 @@ public class PluginRegistry {
    * Try to find the plugin ID using the main class of the plugin.
    *
    * @param pluginTypeClass The plugin type
-   * @param className The main classname to search for
+   * @param className       The main classname to search for
    * @return The plugin ID or null if nothing was found.
    */
   public String findPluginIdWithMainClassName( Class<? extends PluginTypeInterface> pluginTypeClass, String className ) {
     List<PluginInterface> plugins = getPlugins( pluginTypeClass );
-    for (PluginInterface plugin : plugins) {
+    for ( PluginInterface plugin : plugins ) {
       String mainClassName = plugin.getClassMap().get( plugin.getMainType() );
-      if (mainClassName!=null && mainClassName.equals( className )) {
-        return plugin.getIds()[0];
+      if ( mainClassName != null && mainClassName.equals( className ) ) {
+        return plugin.getIds()[ 0 ];
       }
     }
     return null;

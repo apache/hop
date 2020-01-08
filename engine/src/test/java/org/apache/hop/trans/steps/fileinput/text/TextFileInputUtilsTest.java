@@ -22,12 +22,12 @@
 
 package org.apache.hop.trans.steps.fileinput.text;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.trans.steps.file.BaseFileField;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 public class TextFileInputUtilsTest {
   @Test

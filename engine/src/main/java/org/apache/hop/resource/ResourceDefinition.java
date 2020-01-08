@@ -46,8 +46,7 @@ public class ResourceDefinition {
   }
 
   /**
-   * @param filename
-   *          the filename to set
+   * @param filename the filename to set
    */
   public void setFilename( String filename ) {
     this.filename = filename;
@@ -61,8 +60,7 @@ public class ResourceDefinition {
   }
 
   /**
-   * @param content
-   *          the content to set
+   * @param content the content to set
    */
   public void setContent( String content ) {
     this.content = content;
@@ -76,8 +74,7 @@ public class ResourceDefinition {
   }
 
   /**
-   * @param origin
-   *          the origin of the resource as entered by the user. (optional)
+   * @param origin the origin of the resource as entered by the user. (optional)
    */
   public void setOrigin( String origin ) {
     this.origin = origin;

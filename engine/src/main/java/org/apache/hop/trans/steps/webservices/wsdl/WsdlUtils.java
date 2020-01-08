@@ -22,9 +22,8 @@
 
 package org.apache.hop.trans.steps.webservices.wsdl;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import com.ibm.wsdl.extensions.soap12.SOAP12BodyImpl;
+import org.apache.hop.core.exception.HopException;
 
 import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
@@ -42,10 +41,9 @@ import javax.wsdl.extensions.soap12.SOAP12Address;
 import javax.wsdl.extensions.soap12.SOAP12Binding;
 import javax.wsdl.extensions.soap12.SOAP12Header;
 import javax.wsdl.extensions.soap12.SOAP12Operation;
-
-import org.apache.hop.core.exception.HopException;
-
-import com.ibm.wsdl.extensions.soap12.SOAP12BodyImpl;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * Utilities for getting extensibility elements.
@@ -81,8 +79,7 @@ final class WsdlUtils {
   /**
    * Get the SOAP address location for the specified port.
    *
-   * @param p
-   *          A WSDL Port instance.
+   * @param p A WSDL Port instance.
    * @return The SOAP address URI.
    */
   protected static String getSOAPAddress( Port p ) {
@@ -99,8 +96,7 @@ final class WsdlUtils {
   /**
    * Get the SOAPBinding style for the specified WSDL Port.
    *
-   * @param binding
-   *          A WSDL Binding instance.
+   * @param binding A WSDL Binding instance.
    * @return String either 'document' or 'rpc', if not found in WSDL defaults to 'document'.
    */
   protected static String getSOAPBindingStyle( Binding binding ) throws HopException {
@@ -123,13 +119,10 @@ final class WsdlUtils {
   /**
    * Get the SOAP Use type for the specified operation.
    *
-   * @param binding
-   *          A WSDL Binding instance.
-   * @param operationName
-   *          The name of the operation.
+   * @param binding       A WSDL Binding instance.
+   * @param operationName The name of the operation.
    * @return Either 'literal' or 'encoded'.
-   * @throws RuntimeException
-   *           If the use type cannot be determined.
+   * @throws RuntimeException If the use type cannot be determined.
    */
   protected static String getSOAPBindingUse( Binding binding, String operationName ) {
 
@@ -173,8 +166,7 @@ final class WsdlUtils {
   /**
    * Get the Soap Action URI from the operation's soap:operation extensiblity element.
    *
-   * @param operation
-   *          A WSDL Operation.
+   * @param operation A WSDL Operation.
    * @return Soap action URI as string, null if not defined.
    */
   protected static String getSOAPAction( BindingOperation operation ) {
@@ -193,16 +185,13 @@ final class WsdlUtils {
    * Determine if this parameter has a parameter style of WRAPPED. It does if the <tt>name</tt> attribute of the part is
    * NOT the same as its operation name.
    *
-   * @param operationName
-   *          Name of the part's operation.
-   * @param outputParam
-   *          true if this is an output parameter.
-   * @param messagePartName
-   *          Name of the message part.
+   * @param operationName   Name of the part's operation.
+   * @param outputParam     true if this is an output parameter.
+   * @param messagePartName Name of the message part.
    * @return true if parameter style is wrapped.
    */
   protected static boolean isWrappedParameterStyle( String operationName, boolean outputParam,
-    String messagePartName ) {
+                                                    String messagePartName ) {
 
     if ( outputParam ) {
       if ( messagePartName.equals( operationName + "Response" ) ) {
@@ -219,10 +208,8 @@ final class WsdlUtils {
   /**
    * Build a HashSet of SOAP header names for the specified operation and binding.
    *
-   * @param binding
-   *          WSDL Binding instance.
-   * @param operationName
-   *          Name of the operation.
+   * @param binding       WSDL Binding instance.
+   * @param operationName Name of the operation.
    * @return HashSet of soap header names, empty set if no headers present.
    */
   protected static HashSet<String> getSOAPHeaders( Binding binding, String operationName ) {
@@ -259,15 +246,13 @@ final class WsdlUtils {
    * Find the specified extensibility element, if more than one with the specified name exists in the list, return the
    * first one found.
    *
-   * @param extensibleElement
-   *          WSDL type which extends ElementExtensible.
-   * @param elementType
-   *          Name of the extensiblity element to find.
+   * @param extensibleElement WSDL type which extends ElementExtensible.
+   * @param elementType       Name of the extensiblity element to find.
    * @return ExtensibilityElement The ExtensiblityElement, if not found return null.
    */
   @SuppressWarnings( "unchecked" )
   protected static ExtensibilityElement findExtensibilityElement( ElementExtensible extensibleElement,
-    String elementType ) {
+                                                                  String elementType ) {
 
     List<ExtensibilityElement> extensibilityElements = extensibleElement.getExtensibilityElements();
     if ( extensibilityElements != null ) {
@@ -283,15 +268,13 @@ final class WsdlUtils {
   /**
    * Find all of the extensibility elements with the specified name.
    *
-   * @param extensibleElement
-   *          WSDL type which extends ElementExtensible.
-   * @param elementType
-   *          Name of the extensibility element to find.
+   * @param extensibleElement WSDL type which extends ElementExtensible.
+   * @param elementType       Name of the extensibility element to find.
    * @return List of ExtensibilityElements, may be empty.
    */
   @SuppressWarnings( "unchecked" )
   protected static List<ExtensibilityElement> findExtensibilityElements( ElementExtensible extensibleElement,
-    String elementType ) {
+                                                                         String elementType ) {
 
     List<ExtensibilityElement> elements = new ArrayList<ExtensibilityElement>();
     List<ExtensibilityElement> extensibilityElements = extensibleElement.getExtensibilityElements();
@@ -307,7 +290,6 @@ final class WsdlUtils {
   }
 
   /**
-   *
    * @param port
    * @return
    */

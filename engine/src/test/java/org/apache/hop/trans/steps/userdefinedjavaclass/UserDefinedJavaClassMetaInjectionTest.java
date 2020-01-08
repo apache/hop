@@ -22,21 +22,21 @@
 
 package org.apache.hop.trans.steps.userdefinedjavaclass;
 
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 
 
-public class UserDefinedJavaClassMetaInjectionTest  extends BaseMetadataInjectionTest<UserDefinedJavaClassMeta> {
+public class UserDefinedJavaClassMetaInjectionTest extends BaseMetadataInjectionTest<UserDefinedJavaClassMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before

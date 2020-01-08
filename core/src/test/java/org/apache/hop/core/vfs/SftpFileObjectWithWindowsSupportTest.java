@@ -101,6 +101,7 @@ public class SftpFileObjectWithWindowsSupportTest {
       public PosixPermissions getPermissions( boolean checkIds ) {
         return posixPermissions;
       }
+
       @Override
       public FileType getType() {
         return FileType.FILE;
@@ -109,7 +110,7 @@ public class SftpFileObjectWithWindowsSupportTest {
   }
 
   private static FileObject getWindowsFileObject( boolean windowsReadable, boolean windowsWritable )
-      throws Exception {
+    throws Exception {
     GenericFileName fileName = mock( GenericFileName.class );
     doReturn( PATH ).when( fileName ).getPath();
     SftpFileSystemWindows sftpFileSystem = spy( new SftpFileSystemWindows( fileName, null, null ) );
@@ -135,6 +136,7 @@ public class SftpFileObjectWithWindowsSupportTest {
       public PosixPermissions getPermissions( boolean checkIds ) {
         return posixPermissions;
       }
+
       @Override
       public FileType getType() {
         return FileType.FILE;

@@ -22,13 +22,6 @@
 
 package org.apache.hop.trans.steps.normalizer;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
@@ -36,6 +29,13 @@ import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.normaliser.NormaliserMeta;
 import org.apache.hop.trans.steps.normaliser.NormaliserMeta.NormaliserField;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class NormalizerMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -50,14 +50,14 @@ public class NormalizerMetaTest {
     testField.setNorm( "TEST" );
 
     Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap =
-        new HashMap<String, FieldLoadSaveValidator<?>>();
+      new HashMap<String, FieldLoadSaveValidator<?>>();
     fieldLoadSaveValidatorTypeMap.put( NormaliserField[].class.getCanonicalName(),
-        new ArrayLoadSaveValidator<NormaliserField>( new NormaliserFieldLoadSaveValidator( testField ), 50 ) );
+      new ArrayLoadSaveValidator<NormaliserField>( new NormaliserFieldLoadSaveValidator( testField ), 50 ) );
 
     LoadSaveTester<NormaliserMeta> tester =
-        new LoadSaveTester<NormaliserMeta>( NormaliserMeta.class, attributes, new HashMap<String, String>(),
-            new HashMap<String, String>(), new HashMap<String, FieldLoadSaveValidator<?>>(),
-            fieldLoadSaveValidatorTypeMap );
+      new LoadSaveTester<NormaliserMeta>( NormaliserMeta.class, attributes, new HashMap<String, String>(),
+        new HashMap<String, String>(), new HashMap<String, FieldLoadSaveValidator<?>>(),
+        fieldLoadSaveValidatorTypeMap );
 
     tester.testSerialization();
   }

@@ -40,9 +40,9 @@ public class PrimitiveIntArrayLoadSaveValidator implements FieldLoadSaveValidato
   @Override
   public int[] getTestObject() {
     int max = elements == null ? new Random().nextInt( 100 ) + 50 : elements;
-    int[] result = new int[max];
+    int[] result = new int[ max ];
     for ( int i = 0; i < max; i++ ) {
-      result[i] = validator.getTestObject();
+      result[ i ] = validator.getTestObject();
     }
     return result;
   }
@@ -55,7 +55,7 @@ public class PrimitiveIntArrayLoadSaveValidator implements FieldLoadSaveValidato
         return false;
       }
       for ( int i = 0; i < original.length; i++ ) {
-        if ( !this.validator.validateTestObject( original[i], otherList[i] ) ) {
+        if ( !this.validator.validateTestObject( original[ i ], otherList[ i ] ) ) {
           return false;
         }
       }

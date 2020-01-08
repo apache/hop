@@ -52,7 +52,7 @@ public class XBaseInput extends BaseStep implements StepInterface {
   private XBaseInputData data;
 
   public XBaseInput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                     Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -135,12 +135,12 @@ public class XBaseInput extends BaseStep implements StepInterface {
 
     // Possibly add a filename...
     if ( meta.includeFilename() ) {
-      row[outputIndex++] = data.file_dbf.getName().getURI();
+      row[ outputIndex++ ] = data.file_dbf.getName().getURI();
     }
 
     // Possibly add a row number...
     if ( meta.isRowNrAdded() ) {
-      row[outputIndex++] = new Long( getLinesInput() );
+      row[ outputIndex++ ] = new Long( getLinesInput() );
     }
 
     putRow( data.outputRowMeta, row ); // fill the rowset(s). (wait for empty)

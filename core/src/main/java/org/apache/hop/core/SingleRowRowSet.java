@@ -22,9 +22,9 @@
 
 package org.apache.hop.core;
 
-import java.util.concurrent.TimeUnit;
-
 import org.apache.hop.core.row.RowMetaInterface;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * A simplified rowset for steps that always only need to only have a single row on input...

@@ -22,6 +22,15 @@
 
 package org.apache.hop.ui.trans.dialog;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -42,15 +51,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.Const;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransHopMeta;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class TransHopDialog extends Dialog {
   private static Class<?> PKG = TransDialog.class; // for i18n purposes, needed by Translator2!!
@@ -299,7 +299,7 @@ public class TransHopDialog extends Dialog {
     if ( input.getFromStep() == null || input.getToStep() == null ) {
       MessageBox mb = new MessageBox( shell, SWT.YES | SWT.ICON_WARNING );
       mb.setMessage( BaseMessages.getString( PKG, "TransHopDialog.StepDoesNotExist.DialogMessage", input.getFromStep() == null ? wFrom
-              .getText() : wTo.getText() ) );
+        .getText() : wTo.getText() ) );
       mb.setText( BaseMessages.getString( PKG, "TransHopDialog.StepDoesNotExist.DialogTitle" ) );
       mb.open();
     } else if ( input.getFromStep().equals( input.getToStep() ) ) {

@@ -22,25 +22,24 @@
 
 package org.apache.hop.trans.steps.ldapinput;
 
-import static junit.framework.Assert.assertEquals;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.Collection;
-import java.util.Hashtable;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.ldap.InitialLdapContext;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.trans.steps.ldapinput.store.CustomSocketFactory;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.ldap.InitialLdapContext;
+import java.util.Collection;
+import java.util.Hashtable;
+
+import static junit.framework.Assert.assertEquals;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class LdapSslProtocolIT {
   private LogChannelInterface mockLogChannelInterface;
@@ -59,7 +58,7 @@ public class LdapSslProtocolIT {
     public String trustStorePassword = null;
 
     public TestableLdapProtocol( LogChannelInterface log, VariableSpace variableSpace, LdapMeta meta,
-      Collection<String> binaryAttributes ) {
+                                 Collection<String> binaryAttributes ) {
       super( log, variableSpace, meta, binaryAttributes );
     }
 
@@ -71,7 +70,7 @@ public class LdapSslProtocolIT {
 
     @Override
     protected void configureSocketFactory( boolean trustAllCertificates, String trustStorePath,
-      String trustStorePassword ) throws HopException {
+                                           String trustStorePassword ) throws HopException {
       this.trustAllCertificates = trustAllCertificates;
       this.trustStorePath = trustStorePath;
       this.trustStorePassword = trustStorePassword;
@@ -249,7 +248,7 @@ public class LdapSslProtocolIT {
 
     HopClientEnvironment.init();
     TestableLdapProtocol testableLdapProtocol =
-            new TestableLdapProtocol( mockLogChannelInterface, mockVariableSpace, mockLdapMeta, null );
+      new TestableLdapProtocol( mockLogChannelInterface, mockVariableSpace, mockLdapMeta, null );
     testableLdapProtocol.connect( null, null );
     assertEquals( trustStorePathResolved, testableLdapProtocol.trustStorePath );
   }
@@ -279,7 +278,7 @@ public class LdapSslProtocolIT {
 
     HopClientEnvironment.init();
     TestableLdapProtocol testableLdapProtocol =
-            new TestableLdapProtocol( mockLogChannelInterface, mockVariableSpace, mockLdapMeta, null );
+      new TestableLdapProtocol( mockLogChannelInterface, mockVariableSpace, mockLdapMeta, null );
     testableLdapProtocol.connect( null, null );
     assertEquals( trustStorePasswordResolved, testableLdapProtocol.trustStorePassword );
   }
@@ -309,7 +308,7 @@ public class LdapSslProtocolIT {
 
     HopClientEnvironment.init();
     TestableLdapProtocol testableLdapProtocol =
-            new TestableLdapProtocol( mockLogChannelInterface, mockVariableSpace, mockLdapMeta, null );
+      new TestableLdapProtocol( mockLogChannelInterface, mockVariableSpace, mockLdapMeta, null );
     testableLdapProtocol.connect( null, null );
     assertEquals( "123456", testableLdapProtocol.trustStorePassword );
   }

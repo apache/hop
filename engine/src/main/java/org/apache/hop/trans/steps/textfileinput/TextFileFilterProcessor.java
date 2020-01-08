@@ -31,13 +31,14 @@ package org.apache.hop.trans.steps.textfileinput;
 @Deprecated
 public class TextFileFilterProcessor {
 
-  /** The filters to process */
+  /**
+   * The filters to process
+   */
   private TextFileFilter[] filters;
   private boolean stopProcessing;
 
   /**
-   * @param filters
-   *          The filters to process
+   * @param filters The filters to process
    */
   public TextFileFilterProcessor( TextFileFilter[] filters ) {
     this.filters = filters;
@@ -63,7 +64,7 @@ public class TextFileFilterProcessor {
     // is skipped if one of them is found
 
     for ( int f = 0; f < filters.length && filterOK; f++ ) {
-      TextFileFilter filter = filters[f];
+      TextFileFilter filter = filters[ f ];
       if ( filter.isFilterPositive() ) {
         positiveMode = true;
       }

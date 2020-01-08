@@ -24,13 +24,12 @@ package org.apache.hop.core.logging;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.StringUtil;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.core.util.StringUtil;
 
 public class LogMessage implements LogMessageInterface {
   private String logChannelId;
@@ -58,8 +57,7 @@ public class LogMessage implements LogMessageInterface {
    *
    * @param message
    * @param logChannelId
-   * @param level
-   *          the log level
+   * @param level        the log level
    */
   public LogMessage( String message, String logChannelId, LogLevel level ) {
     this.message = message;
@@ -170,7 +168,7 @@ public class LogMessage implements LogMessageInterface {
         try {
           MessageFormat.format( "{" + token + "}", arguments );
         } catch ( final IllegalArgumentException iar ) {
-          formatted = formatted.replaceAll( "\\{" + token + "\\}",  "\\'{'" + token + "\\'}'" );
+          formatted = formatted.replaceAll( "\\{" + token + "\\}", "\\'{'" + token + "\\'}'" );
         }
       }
       // now that we have escaped curly brackets in all invalid tokens, we can attempt to format the entire message
@@ -180,8 +178,7 @@ public class LogMessage implements LogMessageInterface {
   }
 
   /**
-   * @param message
-   *          the message to set
+   * @param message the message to set
    */
   @Deprecated
   public void setMessage( String message ) {
@@ -197,8 +194,7 @@ public class LogMessage implements LogMessageInterface {
   }
 
   /**
-   * @param subject
-   *          the subject to set
+   * @param subject the subject to set
    */
   @Deprecated
   public void setSubject( String subject ) {
@@ -214,8 +210,7 @@ public class LogMessage implements LogMessageInterface {
   }
 
   /**
-   * @param logChannelId
-   *          the logChannelId to set
+   * @param logChannelId the logChannelId to set
    */
   @Deprecated
   public void setLogChannelId( String logChannelId ) {
@@ -231,8 +226,7 @@ public class LogMessage implements LogMessageInterface {
   }
 
   /**
-   * @param arguments
-   *          the arguments to set
+   * @param arguments the arguments to set
    */
   @Deprecated
   public void setArguments( Object[] arguments ) {

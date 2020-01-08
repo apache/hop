@@ -22,13 +22,6 @@
 
 package org.apache.hop.core;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.regex.Pattern;
-
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -37,12 +30,18 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.core.xml.XMLInterface;
-
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * This class describes a condition in a general meaning.
- *
+ * <p>
  * A condition can either be
  * <p>
  * <p>
@@ -195,7 +194,7 @@ public class Condition implements Cloneable, XMLInterface {
   }
 
   public String getOperatorDesc() {
-    return Const.rightPad( operators[operator], 7 );
+    return Const.rightPad( operators[ operator ], 7 );
   }
 
   public static final int getOperator( String description ) {
@@ -204,7 +203,7 @@ public class Condition implements Cloneable, XMLInterface {
     }
 
     for ( int i = 1; i < operators.length; i++ ) {
-      if ( operators[i].equalsIgnoreCase( Const.trim( description ) ) ) {
+      if ( operators[ i ].equalsIgnoreCase( Const.trim( description ) ) ) {
         return i;
       }
     }
@@ -212,9 +211,9 @@ public class Condition implements Cloneable, XMLInterface {
   }
 
   public static final String[] getOperators() {
-    String[] retval = new String[operators.length - 1];
+    String[] retval = new String[ operators.length - 1 ];
     for ( int i = 1; i < operators.length; i++ ) {
-      retval[i - 1] = operators[i];
+      retval[ i - 1 ] = operators[ i ];
     }
     return retval;
   }
@@ -240,12 +239,12 @@ public class Condition implements Cloneable, XMLInterface {
   }
 
   public String getFunctionDesc() {
-    return functions[function];
+    return functions[ function ];
   }
 
   public static final int getFunction( String description ) {
     for ( int i = 1; i < functions.length; i++ ) {
-      if ( functions[i].equalsIgnoreCase( Const.trim( description ) ) ) {
+      if ( functions[ i ].equalsIgnoreCase( Const.trim( description ) ) ) {
         return i;
       }
     }
@@ -314,10 +313,8 @@ public class Condition implements Cloneable, XMLInterface {
   /**
    * Evaluate the condition...
    *
-   * @param rowMeta
-   *          the row metadata
-   * @param r
-   *          the row data
+   * @param rowMeta the row metadata
+   * @param r       the row data
    * @return true if the condition evaluates to true.
    **/
   public boolean evaluate( RowMetaInterface rowMeta, Object[] r ) {
@@ -352,7 +349,7 @@ public class Condition implements Cloneable, XMLInterface {
         Object field = null;
         if ( left_fieldnr >= 0 ) {
           fieldMeta = rowMeta.getValueMeta( left_fieldnr );
-          field = r[left_fieldnr];
+          field = r[ left_fieldnr ];
           // JIRA PDI-38
           // if (field==null)
           // {
@@ -368,7 +365,7 @@ public class Condition implements Cloneable, XMLInterface {
         Object field2 = right_exact != null ? right_exact.getValueData() : null;
         if ( field2 == null && right_fieldnr >= 0 ) {
           fieldMeta2 = rowMeta.getValueMeta( right_fieldnr );
-          field2 = r[right_fieldnr];
+          field2 = r[ right_fieldnr ];
           // JIRA PDI-38
           // if (field2==null)
           // {
@@ -441,7 +438,7 @@ public class Condition implements Cloneable, XMLInterface {
             if ( inList == null || right_fieldnr >= 0 ) {
               inList = Const.splitString( fieldMeta2.getString( field2 ), ';', true );
               for ( int i = 0; i < inList.length; i++ ) {
-                inList[i] = inList[i] == null ? null : inList[i].replace( "\\", "" );
+                inList[ i ] = inList[ i ] == null ? null : inList[ i ].replace( "\\", "" );
               }
               Arrays.sort( inList );
             }
@@ -828,11 +825,11 @@ public class Condition implements Cloneable, XMLInterface {
     Hashtable<String, String> fields = new Hashtable<String, String>();
     getUsedFields( fields );
 
-    String[] retval = new String[fields.size()];
+    String[] retval = new String[ fields.size() ];
     Enumeration<String> keys = fields.keys();
     int i = 0;
     while ( keys.hasMoreElements() ) {
-      retval[i] = keys.nextElement();
+      retval[ i ] = keys.nextElement();
       i++;
     }
 

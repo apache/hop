@@ -22,12 +22,11 @@
 
 package org.apache.hop.www.jaxrs;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.hop.trans.step.StepStatus;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.apache.hop.trans.step.StepStatus;
+import java.util.ArrayList;
+import java.util.List;
 
 @XmlRootElement
 public class TransformationStatus {

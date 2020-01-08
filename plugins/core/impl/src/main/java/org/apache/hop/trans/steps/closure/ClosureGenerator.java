@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.closure;
 
-import java.util.HashMap;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.i18n.BaseMessages;
@@ -34,6 +32,8 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.util.HashMap;
 
 /**
  * Reads information from a database table by using freehand SQL

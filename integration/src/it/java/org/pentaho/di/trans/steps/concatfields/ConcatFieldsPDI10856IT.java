@@ -22,12 +22,12 @@
 
 package org.apache.hop.trans.steps.concatfields;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class ConcatFieldsPDI10856IT {
 
@@ -45,6 +45,6 @@ public class ConcatFieldsPDI10856IT {
     trans.startThreads();
     trans.waitUntilFinished();
 
-    Assert.assertEquals(0, trans.getErrors());
+    Assert.assertEquals( 0, trans.getErrors() );
   }
 }

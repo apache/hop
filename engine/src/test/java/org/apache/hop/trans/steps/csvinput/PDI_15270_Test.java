@@ -22,11 +22,6 @@
 
 package org.apache.hop.trans.steps.csvinput;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.RowSet;
@@ -34,6 +29,11 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.steps.StepMockUtil;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
@@ -45,7 +45,7 @@ import static org.junit.Assert.assertNull;
 /**
  * Test class covers http://jira.pentaho.com/browse/PDI-15270 issue.
  * Csv data is taken from the attachment to the issue.
- *
+ * <p>
  * Created by Yury_Bakhmutski on 10/7/2016.
  */
 @RunWith( PowerMockRunner.class )
@@ -60,9 +60,9 @@ public class PDI_15270_Test extends CsvInputUnitTestBase {
   public void setUp() throws Exception {
     System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y" );
     stepMockHelper = StepMockUtil
-        .getStepMockHelper( CsvInputMeta.class, "Pdi15270Test" );
+      .getStepMockHelper( CsvInputMeta.class, "Pdi15270Test" );
     csvInput = new CsvInput( stepMockHelper.stepMeta, stepMockHelper.stepDataInterface, 0, stepMockHelper.transMeta,
-        stepMockHelper.trans );
+      stepMockHelper.trans );
   }
 
   @After
@@ -96,8 +96,8 @@ public class PDI_15270_Test extends CsvInputUnitTestBase {
     String field2 = "the";
     String field3 = "Piper's Son";
     content =
-        ENCLOSURE + field1 + ENCLOSURE + DELIMITER + ENCLOSURE + field2 + ENCLOSURE + DELIMITER + ENCLOSURE + field3
-            + ENCLOSURE;
+      ENCLOSURE + field1 + ENCLOSURE + DELIMITER + ENCLOSURE + field2 + ENCLOSURE + DELIMITER + ENCLOSURE + field3
+        + ENCLOSURE;
     expected = new String[] { field1, field2, field3 };
     doTest( content, expected );
   }
@@ -145,9 +145,9 @@ public class PDI_15270_Test extends CsvInputUnitTestBase {
 
     Object[] row = output.getRowImmediate();
     assertNotNull( row );
-    assertEquals( expected[0], row[0] );
-    assertEquals( expected[1], row[1] );
-    assertEquals( expected[2], row[2] );
+    assertEquals( expected[ 0 ], row[ 0 ] );
+    assertEquals( expected[ 1 ], row[ 1 ] );
+    assertEquals( expected[ 2 ], row[ 2 ] );
 
     assertNull( output.getRowImmediate() );
   }

@@ -21,14 +21,13 @@
  ******************************************************************************/
 package org.apache.hop.job.entries.webserviceavailable;
 
-import java.util.Arrays;
-
-import java.util.List;
-import java.util.Map;
-
-import org.junit.ClassRule;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.ClassRule;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class JobEntryWebServiceAvailableTest extends JobEntryLoadSaveTestSupport<JobEntryWebServiceAvailable> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -41,25 +40,25 @@ public class JobEntryWebServiceAvailableTest extends JobEntryLoadSaveTestSupport
   @Override
   protected List<String> listCommonAttributes() {
     return Arrays.asList(
-        "url",
-        "connectTimeOut",
-        "readTimeOut" );
+      "url",
+      "connectTimeOut",
+      "readTimeOut" );
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-        "url", "getURL",
-        "connectTimeOut", "getConnectTimeOut",
-        "readTimeOut", "getReadTimeOut" );
+      "url", "getURL",
+      "connectTimeOut", "getConnectTimeOut",
+      "readTimeOut", "getReadTimeOut" );
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-        "url", "setURL",
-        "connectTimeOut", "setConnectTimeOut",
-        "readTimeOut", "setReadTimeOut" );
+      "url", "setURL",
+      "connectTimeOut", "setConnectTimeOut",
+      "readTimeOut", "setReadTimeOut" );
   }
 
 }

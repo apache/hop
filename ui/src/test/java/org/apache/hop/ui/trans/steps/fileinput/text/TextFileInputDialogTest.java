@@ -22,26 +22,8 @@
 
 package org.apache.hop.ui.trans.steps.fileinput.text;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Field;
-import java.util.Collections;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.reflect.FieldUtils;
-import org.eclipse.swt.widgets.Shell;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Props;
@@ -64,6 +46,24 @@ import org.apache.hop.trans.steps.fileinput.text.TextFileInputData;
 import org.apache.hop.trans.steps.fileinput.text.TextFileInputMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.widget.TableView;
+import org.eclipse.swt.widgets.Shell;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Field;
+import java.util.Collections;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by jadametz on 9/9/15.
@@ -122,7 +122,7 @@ public class TextFileInputDialogTest {
 
     TextFileInputMeta meta = new TextFileInputMeta();
     meta.content.lineWrapped = false;
-    meta.inputFields = new BaseFileField[]{
+    meta.inputFields = new BaseFileField[] {
       new BaseFileField( "col1", -1, -1 ),
       new BaseFileField( "col2", -1, -1 )
     };
@@ -144,11 +144,12 @@ public class TextFileInputDialogTest {
     data.dataErrorLineHandler = mock( FileErrorHandler.class );
     data.fileFormatType = TextFileInputMeta.FILE_FORMAT_UNIX;
     data.separator = ",";
-    data.filterProcessor = new TextFileFilterProcessor( new TextFileFilter[0], new Variables() { } );
+    data.filterProcessor = new TextFileFilterProcessor( new TextFileFilter[ 0 ], new Variables() {
+    } );
     data.filePlayList = new FilePlayListAll();
 
     TextFileInputDialog dialog =
-        new TextFileInputDialog( mock( Shell.class ), meta, mock( TransMeta.class ), "TFIMinimalWidthTest" );
+      new TextFileInputDialog( mock( Shell.class ), meta, mock( TransMeta.class ), "TFIMinimalWidthTest" );
     TableView tv = mock( TableView.class );
     when( tv.nrNonEmpty() ).thenReturn( 0 );
 

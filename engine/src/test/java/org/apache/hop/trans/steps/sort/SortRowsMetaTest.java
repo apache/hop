@@ -22,19 +22,6 @@
 
 package org.apache.hop.trans.steps.sort;
 
-import java.text.Collator;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-
-import org.mockito.Mockito;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
@@ -45,13 +32,26 @@ import org.apache.hop.trans.steps.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
-import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.Assert;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.text.Collator;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 public class SortRowsMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   /**
    * Replaced previous testRep with load/save tester. Should cover http://jira.pentaho.com/browse/BACKLOG-377
+   *
    * @throws HopException
    */
   @Test

@@ -22,13 +22,13 @@
 
 package org.apache.test.util;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.apache.test.util.impl.CollectionObjectProvider;
 import org.apache.test.util.impl.DefaultObjectTester;
 import org.apache.test.util.impl.DotEqualsValidator;
 import org.apache.test.util.impl.EqualsEqualsValidator;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class ObjectTesterBuilder<T> {
   private Collection<T> objects;

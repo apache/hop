@@ -22,21 +22,9 @@
 
 package org.apache.hop.job.entries.eval;
 
-import org.apache.hop.job.entry.validator.AndValidator;
-import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import java.util.List;
-
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.Scriptable;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
@@ -45,9 +33,15 @@ import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
-
+import org.apache.hop.job.entry.validator.AndValidator;
+import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.Scriptable;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * Job entry type to evaluate the result of a previous job entry. It uses a piece of javascript to do this.
@@ -83,10 +77,10 @@ public class JobEntryEval extends JobEntryBase implements Cloneable, JobEntryInt
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       script = XMLHandler.getTagValue( entrynode, "script" );
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "JobEntryEval.UnableToLoadFromXml" ), e );
@@ -104,12 +98,9 @@ public class JobEntryEval extends JobEntryBase implements Cloneable, JobEntryInt
   /**
    * Evaluate the result of the execution of previous job entry.
    *
-   * @param result
-   *          The result to evaulate.
-   * @param prev_result
-   *          the previous result
-   * @param parentJob
-   *          the parent job
+   * @param result      The result to evaulate.
+   * @param prev_result the previous result
+   * @param parentJob   the parent job
    * @return The boolean result of the evaluation script.
    */
   public boolean evaluate( Result result, Job parentJob, Result prev_result ) {
@@ -179,8 +170,7 @@ public class JobEntryEval extends JobEntryBase implements Cloneable, JobEntryInt
    * Execute this job entry and return the result. In this case it means, just set the result boolean in the Result
    * class.
    *
-   * @param prev_result
-   *          The result of the previous execution
+   * @param prev_result The result of the previous execution
    * @return The Result of the execution.
    */
   public Result execute( Result prev_result, int nr ) {
@@ -203,7 +193,7 @@ public class JobEntryEval extends JobEntryBase implements Cloneable, JobEntryInt
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     JobEntryValidatorUtils.andValidator().validate( this, "script", remarks, AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
   }
 

@@ -22,12 +22,8 @@
 
 package org.apache.hop.trans.steps.delay;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -35,7 +31,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -43,8 +39,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*
  * Created on 27-06-2008
@@ -90,19 +87,19 @@ public class DelayMeta extends BaseStepMeta implements StepMetaInterface {
   public void setScaleTimeCode( int ScaleTimeIndex ) {
     switch ( ScaleTimeIndex ) {
       case 0:
-        scaletime = ScaleTimeCode[0]; // milliseconds
+        scaletime = ScaleTimeCode[ 0 ]; // milliseconds
         break;
       case 1:
-        scaletime = ScaleTimeCode[1]; // second
+        scaletime = ScaleTimeCode[ 1 ]; // second
         break;
       case 2:
-        scaletime = ScaleTimeCode[2]; // minutes
+        scaletime = ScaleTimeCode[ 2 ]; // minutes
         break;
       case 3:
-        scaletime = ScaleTimeCode[3]; // hours
+        scaletime = ScaleTimeCode[ 3 ]; // hours
         break;
       default:
-        scaletime = ScaleTimeCode[1]; // seconds
+        scaletime = ScaleTimeCode[ 1 ]; // seconds
         break;
     }
   }
@@ -112,13 +109,13 @@ public class DelayMeta extends BaseStepMeta implements StepMetaInterface {
     if ( scaletime == null ) {
       return retval;
     }
-    if ( scaletime.equals( ScaleTimeCode[0] ) ) {
+    if ( scaletime.equals( ScaleTimeCode[ 0 ] ) ) {
       retval = 0;
-    } else if ( scaletime.equals( ScaleTimeCode[1] ) ) {
+    } else if ( scaletime.equals( ScaleTimeCode[ 1 ] ) ) {
       retval = 1;
-    } else if ( scaletime.equals( ScaleTimeCode[2] ) ) {
+    } else if ( scaletime.equals( ScaleTimeCode[ 2 ] ) ) {
       retval = 2;
-    } else if ( scaletime.equals( ScaleTimeCode[3] ) ) {
+    } else if ( scaletime.equals( ScaleTimeCode[ 3 ] ) ) {
       retval = 3;
     }
 
@@ -131,7 +128,7 @@ public class DelayMeta extends BaseStepMeta implements StepMetaInterface {
       scaletime = XMLHandler.getTagValue( stepnode, "scaletime" );
       // set all unknown values to seconds
       setScaleTimeCode( getScaleTimeCode() ); // compatibility reasons for transformations before 3.1.1, see PDI-1850,
-                                              // PDI-1532
+      // PDI-1532
 
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "DelayMeta.Exception.UnableToReadStepInfo" ), e );
@@ -152,12 +149,12 @@ public class DelayMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -195,7 +192,7 @@ public class DelayMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new Delay( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 

@@ -22,15 +22,15 @@
 
 package org.apache.hop.trans.steps.dimensionlookup;
 
-import java.sql.PreparedStatement;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.hash.ByteArrayHashMap;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import java.sql.PreparedStatement;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Matt

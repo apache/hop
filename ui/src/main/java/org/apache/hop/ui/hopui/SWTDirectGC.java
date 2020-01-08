@@ -22,21 +22,6 @@
 
 package org.apache.hop.ui.hopui;
 
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.LineAttributes;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.graphics.Transform;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.gui.GCInterface;
 import org.apache.hop.core.gui.Point;
@@ -47,6 +32,21 @@ import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.util.ImageUtil;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.LineAttributes;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.Transform;
+
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * SWTGC draws on an Image. This class draws directly on an SWT GC. getImage() returns null as a consequence of not
@@ -153,8 +153,8 @@ public class SWTDirectGC implements GCInterface {
 
   public void drawImage( EImage image, int x, int y, float magnification ) {
     Image img =
-        getNativeImage( image ).getAsBitmapForSize( gc.getDevice(), Math.round( small_icon_size * magnification ),
-            Math.round( small_icon_size * magnification ) );
+      getNativeImage( image ).getAsBitmapForSize( gc.getDevice(), Math.round( small_icon_size * magnification ),
+        Math.round( small_icon_size * magnification ) );
     if ( img != null ) {
       Rectangle bounds = img.getBounds();
       gc.drawImage( img, 0, 0, bounds.width, bounds.height, x, y, small_icon_size, small_icon_size );
@@ -163,8 +163,8 @@ public class SWTDirectGC implements GCInterface {
 
   public void drawImage( EImage image, int x, int y, int width, int height, float magnification ) {
     Image img =
-        getNativeImage( image ).getAsBitmapForSize( gc.getDevice(), Math.round( width * magnification ),
-            Math.round( height * magnification ) );
+      getNativeImage( image ).getAsBitmapForSize( gc.getDevice(), Math.round( width * magnification ),
+        Math.round( height * magnification ) );
     if ( img != null ) {
       Rectangle bounds = img.getBounds();
       gc.drawImage( img, 0, 0, bounds.width, bounds.height, x, y, width, height );
@@ -174,8 +174,8 @@ public class SWTDirectGC implements GCInterface {
   @Override
   public void drawImage( EImage image, int x, int y, float magnification, double angle ) {
     Image img =
-        getNativeImage( image ).getAsBitmapForSize( gc.getDevice(), Math.round( small_icon_size * magnification ),
-            Math.round( small_icon_size * magnification ), angle );
+      getNativeImage( image ).getAsBitmapForSize( gc.getDevice(), Math.round( small_icon_size * magnification ),
+        Math.round( small_icon_size * magnification ), angle );
     if ( img != null ) {
       Rectangle bounds = img.getBounds();
       int hx = Math.round( bounds.width / magnification );
@@ -405,8 +405,8 @@ public class SWTDirectGC implements GCInterface {
   public void drawStepIcon( int x, int y, StepMeta stepMeta, float magnification ) {
     String steptype = stepMeta.getStepID();
     Image im =
-        images.get( steptype ).getAsBitmapForSize( gc.getDevice(), Math.round( iconsize * magnification ),
-            Math.round( iconsize * magnification ) );
+      images.get( steptype ).getAsBitmapForSize( gc.getDevice(), Math.round( iconsize * magnification ),
+        Math.round( iconsize * magnification ) );
     if ( im != null ) { // Draw the icon!
 
       org.eclipse.swt.graphics.Rectangle bounds = im.getBounds();

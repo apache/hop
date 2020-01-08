@@ -22,12 +22,9 @@
 
 package org.apache.hop.trans.steps.dynamicsqlrow;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -36,10 +33,11 @@ import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -48,21 +46,28 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 public class DynamicSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = DynamicSQLRowMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** database connection */
+  /**
+   * database connection
+   */
   private DatabaseMeta databaseMeta;
 
-  /** SQL Statement */
+  /**
+   * SQL Statement
+   */
   private String sql;
 
   private String sqlfieldname;
 
-  /** Number of rows to return (0=ALL) */
+  /**
+   * Number of rows to return (0=ALL)
+   */
   private int rowLimit;
 
   /**
@@ -86,8 +91,7 @@ public class DynamicSQLRowMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param database
-   *          The database to set.
+   * @param database The database to set.
    */
   public void setDatabaseMeta( DatabaseMeta database ) {
     this.databaseMeta = database;
@@ -101,8 +105,7 @@ public class DynamicSQLRowMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param outerJoin
-   *          The outerJoin to set.
+   * @param outerJoin The outerJoin to set.
    */
   public void setOuterJoin( boolean outerJoin ) {
     this.outerJoin = outerJoin;
@@ -116,8 +119,7 @@ public class DynamicSQLRowMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param replacevars
-   *          The replacevars to set.
+   * @param replacevars The replacevars to set.
    */
   public void setVariableReplace( boolean replacevars ) {
     this.replacevars = replacevars;
@@ -131,8 +133,7 @@ public class DynamicSQLRowMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param queryonlyonchange
-   *          The queryonlyonchange to set.
+   * @param queryonlyonchange The queryonlyonchange to set.
    */
   public void setQueryOnlyOnChange( boolean queryonlyonchange ) {
     this.queryonlyonchange = queryonlyonchange;
@@ -146,8 +147,7 @@ public class DynamicSQLRowMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param rowLimit
-   *          The rowLimit to set.
+   * @param rowLimit The rowLimit to set.
    */
   public void setRowLimit( int rowLimit ) {
     this.rowLimit = rowLimit;
@@ -161,8 +161,7 @@ public class DynamicSQLRowMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param sql
-   *          The sql to set.
+   * @param sql The sql to set.
    */
   public void setSql( String sql ) {
     this.sql = sql;
@@ -176,8 +175,7 @@ public class DynamicSQLRowMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param sqlfieldname
-   *          The sqlfieldname to set.
+   * @param sqlfieldname The sqlfieldname to set.
    */
   public void setSQLFieldName( String sqlfieldname ) {
     this.sqlfieldname = sqlfieldname;
@@ -222,7 +220,7 @@ public class DynamicSQLRowMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
 
     if ( databaseMeta == null ) {
       return;
@@ -286,8 +284,8 @@ public class DynamicSQLRowMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -362,7 +360,7 @@ public class DynamicSQLRowMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new DynamicSQLRow( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -371,8 +369,8 @@ public class DynamicSQLRowMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void analyseImpact( List<DatabaseImpact> impact, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
-    IMetaStore metaStore ) throws HopStepException {
+                             RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info,
+                             IMetaStore metaStore ) throws HopStepException {
 
     RowMetaInterface out = prev.clone();
     getFields( out, stepMeta.getName(), new RowMetaInterface[] { info, }, null, transMeta, metaStore );
@@ -382,7 +380,7 @@ public class DynamicSQLRowMeta extends BaseStepMeta implements StepMetaInterface
         DatabaseImpact di =
           new DatabaseImpact(
             DatabaseImpact.TYPE_IMPACT_READ, transMeta.getName(), stepMeta.getName(), databaseMeta
-              .getDatabaseName(), "", outvalue.getName(), outvalue.getName(), stepMeta.getName(), sql,
+            .getDatabaseName(), "", outvalue.getName(), outvalue.getName(), stepMeta.getName(), sql,
             BaseMessages.getString( PKG, "DynamicSQLRowMeta.DatabaseImpact.Title" ) );
         impact.add( di );
 

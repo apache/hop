@@ -22,6 +22,12 @@
 
 package org.apache.hop.lineage;
 
+import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepMeta;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -29,22 +35,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.hop.core.exception.HopStepException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepMeta;
-
 /**
  * This class will help calculate and contain the data lineage for all values in the transformation.<br>
  * What we will get is a List of ValueLineage objects for all the values steps in the transformation.<br>
  * Each of these ValueLineage objects contains a list of all the steps it passed through.<br>
  * As such, it's a hierarchical view of the transformation.<br>
- *
+ * <p>
  * This view will allow us to see immediately where a certain value is being manipulated.<br>
  *
  * @author matt
- *
  */
 public class TransDataLineage {
   private TransMeta transMeta;
@@ -74,8 +73,7 @@ public class TransDataLineage {
   }
 
   /**
-   * @param valueLineages
-   *          the valueLineages to set
+   * @param valueLineages the valueLineages to set
    */
   public void setValueLineages( List<ValueLineage> valueLineages ) {
     this.valueLineages = valueLineages;
@@ -84,9 +82,8 @@ public class TransDataLineage {
   /**
    * Using the transformation, we will calculate the data lineage for each field in each step.
    *
-   * @throws HopStepException
-   *           In case there is an exception calculating the lineage. This is usually caused by unavailable data sources
-   *           etc.
+   * @throws HopStepException In case there is an exception calculating the lineage. This is usually caused by unavailable data sources
+   *                          etc.
    */
   public void calculateLineage() throws HopStepException {
 
@@ -140,11 +137,9 @@ public class TransDataLineage {
   /**
    * Calculate the lineage for the specified step only...
    *
-   * @param stepMeta
-   *          The step to calculate the lineage for.
-   * @throws HopStepException
-   *           In case there is an exception calculating the lineage. This is usually caused by unavailable data sources
-   *           etc.
+   * @param stepMeta The step to calculate the lineage for.
+   * @throws HopStepException In case there is an exception calculating the lineage. This is usually caused by unavailable data sources
+   *                          etc.
    */
   private void calculateLineage( StepMeta stepMeta ) throws HopStepException {
     RowMetaInterface outputMeta = transMeta.getStepFields( stepMeta );
@@ -155,7 +150,8 @@ public class TransDataLineage {
 
       StepMeta originStepMeta = transMeta.findStep( valueMeta.getOrigin(), stepMeta );
       if ( originStepMeta != null ) {
-        /* List<StepMeta> list = */fieldStepsMap.get( originStepMeta );
+        /* List<StepMeta> list = */
+        fieldStepsMap.get( originStepMeta );
       }
     }
   }

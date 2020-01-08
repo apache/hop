@@ -32,7 +32,7 @@ import java.io.File;
 
 public class FileUtil {
   public static boolean createParentFolder( Class<?> PKG, String filename, boolean createParentFolder,
-    LogChannelInterface log, VariableSpace vs ) {
+                                            LogChannelInterface log, VariableSpace vs ) {
     // Check for parent folder
     FileObject parentfolder = null;
     boolean resultat = true;
@@ -81,7 +81,7 @@ public class FileUtil {
 
   /**
    * Tests whether this abstract pathname is absolute.
-   *
+   * <p>
    * The pathname is absolute if its prefix is "/", "\" and on Microsoft Windows systems,
    * a pathname is absolute if its prefix is a drive specifier followed by "\\", or if its prefix is "\\\\".
    */

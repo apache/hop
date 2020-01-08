@@ -22,16 +22,16 @@
 
 package org.apache.hop.trans.steps.scriptvalues_mod;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.job.Job;
 import org.apache.hop.trans.Trans;
+import org.junit.Assert;
+import org.junit.Test;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 public class ScriptValueAddFunctions_SetVariableScopeTest {
@@ -62,7 +62,7 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
 
   @Test
   public void setParentScopeVariable_NoParent() {
-    Trans trans = createTrans( );
+    Trans trans = createTrans();
 
     ScriptValuesAddedFunctions.setParentScopeVariable( trans, VARIABLE_NAME, VARIABLE_VALUE );
 
@@ -72,7 +72,7 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
 
   @Test
   public void setGrandParentScopeVariable_TwoLevelHierarchy() {
-    Trans parent = createTrans( );
+    Trans parent = createTrans();
     Trans child = createTrans( parent );
 
     ScriptValuesAddedFunctions.setGrandParentScopeVariable( child, VARIABLE_NAME, VARIABLE_VALUE );
@@ -112,7 +112,7 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
 
   @Test
   public void setGrandParentScopeVariable_NoParent() {
-    Trans trans = createTrans( );
+    Trans trans = createTrans();
 
     ScriptValuesAddedFunctions.setGrandParentScopeVariable( trans, VARIABLE_NAME, VARIABLE_VALUE );
 
@@ -121,7 +121,7 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
 
   @Test
   public void setRootScopeVariable_TwoLevelHierarchy() {
-    Trans parent = createTrans( );
+    Trans parent = createTrans();
     Trans child = createTrans( parent );
 
     ScriptValuesAddedFunctions.setRootScopeVariable( child, VARIABLE_NAME, VARIABLE_VALUE );
@@ -147,7 +147,7 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
 
   @Test
   public void setRootScopeVariable_NoParent() {
-    Trans trans = createTrans( );
+    Trans trans = createTrans();
 
     ScriptValuesAddedFunctions.setRootScopeVariable( trans, VARIABLE_NAME, VARIABLE_VALUE );
 
@@ -196,8 +196,6 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
   }
 
 
-
-
   private Trans createTrans( Trans parent ) {
     Trans trans = createTrans();
 
@@ -227,7 +225,7 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
   }
 
   private Job createJob() {
-    Job job = new Job(  );
+    Job job = new Job();
     job = spy( job );
 
     return job;

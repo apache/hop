@@ -22,22 +22,21 @@
 
 package org.apache.hop.trans.steps.webservices.wsdl;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.i18n.BaseMessages;
+import org.w3c.dom.Element;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Types;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.schema.Schema;
 import javax.xml.namespace.QName;
-
-import org.apache.hop.core.exception.HopStepException;
-import org.apache.hop.i18n.BaseMessages;
-import org.w3c.dom.Element;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 /**
  * WsdlTypes provides utilities for getting information about the &lt;types&gt; section of the WSDL.
@@ -56,8 +55,7 @@ public final class WsdlTypes implements Serializable {
   /**
    * Create a new for WsdlTypes instance for the specified WSDL definition.
    *
-   * @param wsdlDefinition
-   *          The WSDL definition.
+   * @param wsdlDefinition The WSDL definition.
    */
   @SuppressWarnings( "unchecked" )
   protected WsdlTypes( Definition wsdlDefinition ) {
@@ -72,11 +70,9 @@ public final class WsdlTypes implements Serializable {
   /**
    * Find a named &lt;element&gt; in the types section of the WSDL.
    *
-   * @param elementName
-   *          Name of element to find.
+   * @param elementName Name of element to find.
    * @return The element node.
-   * @throws HopStepException
-   *           If schema or element in schema can't be found for the given element name
+   * @throws HopStepException If schema or element in schema can't be found for the given element name
    */
   protected Element findNamedElement( QName elementName ) throws HopStepException {
 
@@ -108,8 +104,7 @@ public final class WsdlTypes implements Serializable {
   /**
    * Find a named &lt;complexType&gt; or &lt;simpleType&gt; in the types section of the WSDL.
    *
-   * @param typeName
-   *          Name of the type to find.
+   * @param typeName Name of the type to find.
    * @return null if type not found.
    */
   protected Element findNamedType( QName typeName ) {
@@ -159,8 +154,7 @@ public final class WsdlTypes implements Serializable {
    * Get the type qname for the type parameter. Resolve namespace references if present, if a namespace prefix is not
    * found the WSDL's target namespace will be used.
    *
-   * @param type
-   *          Name of type.
+   * @param type Name of type.
    * @return A QName for the type name.
    */
   protected QName getTypeQName( String type ) {
@@ -189,8 +183,7 @@ public final class WsdlTypes implements Serializable {
   /**
    * Determine if the namespace URI is element form qualifed.
    *
-   * @param namespaceURI
-   *          Namespace URI string.
+   * @param namespaceURI Namespace URI string.
    * @return true If element form is qualified.
    */
   public boolean isElementFormQualified( String namespaceURI ) {
@@ -223,8 +216,7 @@ public final class WsdlTypes implements Serializable {
   /**
    * Get the schema with the specified target namespace.
    *
-   * @param targetNamespace
-   *          target namespace of the schema to get.
+   * @param targetNamespace target namespace of the schema to get.
    * @return null if not found.
    */
   private Schema getSchema( String targetNamespace ) {

@@ -21,10 +21,10 @@
  ******************************************************************************/
 package org.apache.hop.core.injection.inheritance;
 
-import java.util.List;
-
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
+
+import java.util.List;
 
 public class MetaBeanParent<T extends MetaBeanParentItem, A> {
 

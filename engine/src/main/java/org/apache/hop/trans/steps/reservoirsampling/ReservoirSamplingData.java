@@ -22,20 +22,20 @@
 
 package org.apache.hop.trans.steps.reservoirsampling;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Holds temporary data (i.e. sampled rows). Implements the reservoir sampling algorithm "R" by Jeffrey Scott Vitter.
  * <p>
  * For more information see:<br>
  * <br>
- *
+ * <p>
  * Vitter, J. S. Random Sampling with a Reservoir. ACM Transactions on Mathematical Software, Vol. 11, No. 1, March
  * 1985. Pages 37-57.
  *
@@ -69,8 +69,7 @@ public class ReservoirSamplingData extends BaseStepData implements StepDataInter
   /**
    * Set the meta data for the output format
    *
-   * @param rmi
-   *          a <code>RowMetaInterface</code> value
+   * @param rmi a <code>RowMetaInterface</code> value
    */
   public void setOutputRowMeta( RowMetaInterface rmi ) {
     m_outputRowMeta = rmi;
@@ -97,10 +96,8 @@ public class ReservoirSamplingData extends BaseStepData implements StepDataInter
   /**
    * Initialize this data object
    *
-   * @param sampleSize
-   *          the number of rows to sample
-   * @param seed
-   *          the seed for the random number generator
+   * @param sampleSize the number of rows to sample
+   * @param seed       the seed for the random number generator
    */
   public void initialize( int sampleSize, int seed ) {
     m_k = sampleSize;
@@ -134,11 +131,9 @@ public class ReservoirSamplingData extends BaseStepData implements StepDataInter
   }
 
   /**
-   *
    * Set this component to sample, pass through or be disabled
    *
-   * @param state
-   *          member of PROC_MODE enumeration indicating the desired operational state
+   * @param state member of PROC_MODE enumeration indicating the desired operational state
    */
   public void setProcessingMode( PROC_MODE state ) {
     this.m_state = state;
@@ -147,9 +142,7 @@ public class ReservoirSamplingData extends BaseStepData implements StepDataInter
   /**
    * Here is where the action happens. Sampling is done using the "R" algorithm of Jeffrey Scott Vitter.
    *
-   * @param row
-   *          an incoming row
-   *
+   * @param row an incoming row
    */
   public void processRow( Object[] row ) {
     if ( m_currentRow < m_k ) {

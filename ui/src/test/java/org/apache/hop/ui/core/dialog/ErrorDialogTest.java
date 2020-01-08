@@ -22,9 +22,9 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.hop.core.exception.HopException;
 import org.apache.http.client.ClientProtocolException;
 import org.junit.Before;
-import org.apache.hop.core.exception.HopException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -35,7 +35,6 @@ import static org.mockito.Mockito.mock;
 
 
 public class ErrorDialogTest {
-
 
 
   @Before
@@ -74,14 +73,14 @@ public class ErrorDialogTest {
 
     Throwable cause = e.getCause();
 
-    assertEquals(  text.toString(), cause.getMessage().toString() );
+    assertEquals( text.toString(), cause.getMessage().toString() );
 
   }
 
   @Test
   public void setErrorTextWithCauseExceptionWithoutCauseMessage() {
     //cause without message
-    ClientProtocolException cpe = new ClientProtocolException(  );
+    ClientProtocolException cpe = new ClientProtocolException();
     Exception e = new HopException( "kettleMessage", cpe );
 
 
@@ -93,7 +92,7 @@ public class ErrorDialogTest {
 
     dialog.handleException( "argMessage", e, text, details );
 
-    assertEquals(  text.toString(), e.getMessage().toString() );
+    assertEquals( text.toString(), e.getMessage().toString() );
 
   }
 

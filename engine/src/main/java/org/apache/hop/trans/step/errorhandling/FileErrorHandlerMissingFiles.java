@@ -22,13 +22,13 @@
 
 package org.apache.hop.trans.step.errorhandling;
 
-import java.util.Date;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.step.BaseStep;
+
+import java.util.Date;
 
 public class FileErrorHandlerMissingFiles extends AbstractFileErrorHandler {
 
@@ -41,7 +41,7 @@ public class FileErrorHandlerMissingFiles extends AbstractFileErrorHandler {
     PKG, "FileErrorHandlerMissingFiles.FILE_WAS_NOT_ACCESSIBLE" );
 
   public FileErrorHandlerMissingFiles( Date date, String destinationDirectory, String fileExtension,
-    String encoding, BaseStep baseStep ) {
+                                       String encoding, BaseStep baseStep ) {
     super( date, destinationDirectory, fileExtension, encoding, baseStep );
   }
 

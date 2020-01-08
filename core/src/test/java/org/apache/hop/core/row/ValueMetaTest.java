@@ -22,25 +22,24 @@
 
 package org.apache.hop.core.row;
 
-import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
-
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.ClassRule;
+import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 
@@ -50,6 +49,7 @@ import static org.junit.Assert.fail;
 @SuppressWarnings( "deprecation" )
 public class ValueMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+
   /**
    * Compare to byte arrays for equality.
    *
@@ -64,7 +64,7 @@ public class ValueMetaTest {
 
     int idx = 0;
     while ( idx < b1.length ) {
-      if ( b1[idx] != b2[idx] ) {
+      if ( b1[ idx ] != b2[ idx ] ) {
         return false;
       }
       idx++;
@@ -80,25 +80,25 @@ public class ValueMetaTest {
 
     // No truncating or padding!!!
     byte[] b1 = val1.getBinary( "PDI123" );
-    assertTrue( byteCompare( b1, new byte[]{ 'P', 'D', 'I', '1', '2', '3' } ) );
+    assertTrue( byteCompare( b1, new byte[] { 'P', 'D', 'I', '1', '2', '3' } ) );
 
     byte[] b2 = val1.getBinary( "PDI" );
-    assertTrue( byteCompare( b2, new byte[]{ 'P', 'D', 'I' } ) );
+    assertTrue( byteCompare( b2, new byte[] { 'P', 'D', 'I' } ) );
 
     byte[] b3 = val1.getBinary( "PDI123456" );
-    assertTrue( byteCompare( b3, new byte[]{ 'P', 'D', 'I', '1', '2', '3', '4', '5', '6' } ) );
+    assertTrue( byteCompare( b3, new byte[] { 'P', 'D', 'I', '1', '2', '3', '4', '5', '6' } ) );
 
     ValueMeta val2 = new ValueMeta( "STR2", ValueMetaInterface.TYPE_STRING );
     val2.setLength( 1 );
 
     byte[] b4 = val2.getBinary( "PDI123" );
-    assertTrue( byteCompare( b4, new byte[]{ 'P', 'D', 'I', '1', '2', '3' } ) );
+    assertTrue( byteCompare( b4, new byte[] { 'P', 'D', 'I', '1', '2', '3' } ) );
 
     byte[] b5 = val2.getBinary( "PDI" );
-    assertTrue( byteCompare( b5, new byte[]{ 'P', 'D', 'I' } ) );
+    assertTrue( byteCompare( b5, new byte[] { 'P', 'D', 'I' } ) );
 
     byte[] b6 = val2.getBinary( "PDI123456" );
-    assertTrue( byteCompare( b6, new byte[]{ 'P', 'D', 'I', '1', '2', '3', '4', '5', '6' } ) );
+    assertTrue( byteCompare( b6, new byte[] { 'P', 'D', 'I', '1', '2', '3', '4', '5', '6' } ) );
   }
 
   @Test
@@ -191,16 +191,16 @@ public class ValueMetaTest {
     numValueMeta.setDecimalSymbol( "." );
     numValueMeta.setGroupingSymbol( "," );
 
-    String[] strings = new String[]{ "-128", "127" };
-    BigDecimal[] values = new BigDecimal[]{ new BigDecimal( "-128" ), new BigDecimal( "127" ) };
+    String[] strings = new String[] { "-128", "127" };
+    BigDecimal[] values = new BigDecimal[] { new BigDecimal( "-128" ), new BigDecimal( "127" ) };
 
     for ( int i = 0; i < values.length; i++ ) {
       ValueMetaInterface strValueMeta = new ValueMeta( "str", ValueMetaInterface.TYPE_STRING );
       strValueMeta.setConversionMetadata( numValueMeta );
 
-      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[i] );
+      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[ i ] );
 
-      assertEquals( values[i], stringToBigNumber );
+      assertEquals( values[ i ], stringToBigNumber );
     }
   }
 
@@ -209,23 +209,23 @@ public class ValueMetaTest {
     ValueMetaInterface numValueMeta = new ValueMeta( "i", ValueMetaInterface.TYPE_BIGNUMBER );
     numValueMeta.setDecimalSymbol( "." );
     numValueMeta.setGroupingSymbol( "," );
-    ((ValueMeta) numValueMeta).setBigNumberFormatting( false );
+    ( (ValueMeta) numValueMeta ).setBigNumberFormatting( false );
 
-    String[] input = new String[]{ "-128", "127" };
-    String[] strings = new String[]{ "-128.0", "127.0" };
-    BigDecimal[] values = new BigDecimal[]{ new BigDecimal( "-128" ), new BigDecimal( "127" ) };
+    String[] input = new String[] { "-128", "127" };
+    String[] strings = new String[] { "-128.0", "127.0" };
+    BigDecimal[] values = new BigDecimal[] { new BigDecimal( "-128" ), new BigDecimal( "127" ) };
 
     for ( int i = 0; i < values.length; i++ ) {
-      String bigNumberToString = numValueMeta.getString( values[i] );
+      String bigNumberToString = numValueMeta.getString( values[ i ] );
 
-      assertEquals( strings[i], bigNumberToString );
+      assertEquals( strings[ i ], bigNumberToString );
 
       ValueMetaInterface strValueMeta = new ValueMeta( "str", ValueMetaInterface.TYPE_STRING );
       strValueMeta.setConversionMetadata( numValueMeta );
 
-      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( input[i] );
+      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( input[ i ] );
 
-      assertEquals( values[i], stringToBigNumber );
+      assertEquals( values[ i ], stringToBigNumber );
     }
   }
 
@@ -235,16 +235,16 @@ public class ValueMetaTest {
     numValueMeta.setDecimalSymbol( "." );
     numValueMeta.setGroupingSymbol( "," );
 
-    String[] strings = new String[]{ "-32768", "32767" };
-    BigDecimal[] values = new BigDecimal[]{ new BigDecimal( "-32768" ), new BigDecimal( "32767" ) };
+    String[] strings = new String[] { "-32768", "32767" };
+    BigDecimal[] values = new BigDecimal[] { new BigDecimal( "-32768" ), new BigDecimal( "32767" ) };
 
     for ( int i = 0; i < values.length; i++ ) {
       ValueMetaInterface strValueMeta = new ValueMeta( "str", ValueMetaInterface.TYPE_STRING );
       strValueMeta.setConversionMetadata( numValueMeta );
 
-      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[i] );
+      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[ i ] );
 
-      assertEquals( values[i], stringToBigNumber );
+      assertEquals( values[ i ], stringToBigNumber );
     }
   }
 
@@ -253,23 +253,23 @@ public class ValueMetaTest {
     ValueMetaInterface numValueMeta = new ValueMeta( "i", ValueMetaInterface.TYPE_BIGNUMBER );
     numValueMeta.setDecimalSymbol( "." );
     numValueMeta.setGroupingSymbol( "," );
-    ((ValueMeta) numValueMeta).setBigNumberFormatting( false );
+    ( (ValueMeta) numValueMeta ).setBigNumberFormatting( false );
 
-    String[] inputs = new String[]{ "-32768", "32767" };
-    String[] strings = new String[]{ "-32768.0", "32767.0" };
-    BigDecimal[] values = new BigDecimal[]{ new BigDecimal( "-32768" ), new BigDecimal( "32767" ) };
+    String[] inputs = new String[] { "-32768", "32767" };
+    String[] strings = new String[] { "-32768.0", "32767.0" };
+    BigDecimal[] values = new BigDecimal[] { new BigDecimal( "-32768" ), new BigDecimal( "32767" ) };
 
     for ( int i = 0; i < values.length; i++ ) {
-      String bigNumberToString = numValueMeta.getString( values[i] );
+      String bigNumberToString = numValueMeta.getString( values[ i ] );
 
-      assertEquals( strings[i], bigNumberToString );
+      assertEquals( strings[ i ], bigNumberToString );
 
       ValueMetaInterface strValueMeta = new ValueMeta( "str", ValueMetaInterface.TYPE_STRING );
       strValueMeta.setConversionMetadata( numValueMeta );
 
-      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( inputs[i] );
+      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( inputs[ i ] );
 
-      assertEquals( values[i], stringToBigNumber );
+      assertEquals( values[ i ], stringToBigNumber );
     }
   }
 
@@ -279,16 +279,16 @@ public class ValueMetaTest {
     numValueMeta.setDecimalSymbol( "." );
     numValueMeta.setGroupingSymbol( "," );
 
-    String[] strings = new String[]{ "-2147483648", "2147483648" };
-    BigDecimal[] values = new BigDecimal[]{ new BigDecimal( "-2147483648" ), new BigDecimal( "2147483648" ) };
+    String[] strings = new String[] { "-2147483648", "2147483648" };
+    BigDecimal[] values = new BigDecimal[] { new BigDecimal( "-2147483648" ), new BigDecimal( "2147483648" ) };
 
     for ( int i = 0; i < values.length; i++ ) {
       ValueMetaInterface strValueMeta = new ValueMeta( "str", ValueMetaInterface.TYPE_STRING );
       strValueMeta.setConversionMetadata( numValueMeta );
 
-      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[i] );
+      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[ i ] );
 
-      assertEquals( values[i], stringToBigNumber );
+      assertEquals( values[ i ], stringToBigNumber );
     }
   }
 
@@ -297,23 +297,23 @@ public class ValueMetaTest {
     ValueMetaInterface numValueMeta = new ValueMeta( "i", ValueMetaInterface.TYPE_BIGNUMBER );
     numValueMeta.setDecimalSymbol( "." );
     numValueMeta.setGroupingSymbol( "," );
-    ((ValueMeta) numValueMeta).setBigNumberFormatting( false );
+    ( (ValueMeta) numValueMeta ).setBigNumberFormatting( false );
 
-    String[] inputs = new String[]{ "-2147483648", "2147483648" };
-    String[] strings = new String[]{ "-2147483648.0", "2147483648.0" };
-    BigDecimal[] values = new BigDecimal[]{ new BigDecimal( "-2147483648" ), new BigDecimal( "2147483648" ) };
+    String[] inputs = new String[] { "-2147483648", "2147483648" };
+    String[] strings = new String[] { "-2147483648.0", "2147483648.0" };
+    BigDecimal[] values = new BigDecimal[] { new BigDecimal( "-2147483648" ), new BigDecimal( "2147483648" ) };
 
     for ( int i = 0; i < values.length; i++ ) {
-      String bigNumberToString = numValueMeta.getString( values[i] );
+      String bigNumberToString = numValueMeta.getString( values[ i ] );
 
-      assertEquals( strings[i], bigNumberToString );
+      assertEquals( strings[ i ], bigNumberToString );
 
       ValueMetaInterface strValueMeta = new ValueMeta( "str", ValueMetaInterface.TYPE_STRING );
       strValueMeta.setConversionMetadata( numValueMeta );
 
-      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( inputs[i] );
+      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( inputs[ i ] );
 
-      assertEquals( values[i], stringToBigNumber );
+      assertEquals( values[ i ], stringToBigNumber );
     }
   }
 
@@ -323,16 +323,16 @@ public class ValueMetaTest {
     numValueMeta.setDecimalSymbol( "." );
     numValueMeta.setGroupingSymbol( "," );
 
-    String[] strings = new String[]{ "-9223372036854775808", "9223372036854775808" };
-    BigDecimal[] values = new BigDecimal[]{ new BigDecimal( "-9223372036854775808" ), new BigDecimal( "9223372036854775808" ) };
+    String[] strings = new String[] { "-9223372036854775808", "9223372036854775808" };
+    BigDecimal[] values = new BigDecimal[] { new BigDecimal( "-9223372036854775808" ), new BigDecimal( "9223372036854775808" ) };
 
     for ( int i = 0; i < values.length; i++ ) {
       ValueMetaInterface strValueMeta = new ValueMeta( "str", ValueMetaInterface.TYPE_STRING );
       strValueMeta.setConversionMetadata( numValueMeta );
 
-      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[i] );
+      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[ i ] );
 
-      assertEquals( values[i], stringToBigNumber );
+      assertEquals( values[ i ], stringToBigNumber );
     }
   }
 
@@ -341,23 +341,23 @@ public class ValueMetaTest {
     ValueMetaInterface numValueMeta = new ValueMeta( "i", ValueMetaInterface.TYPE_BIGNUMBER );
     numValueMeta.setDecimalSymbol( "." );
     numValueMeta.setGroupingSymbol( "," );
-    ((ValueMeta) numValueMeta).setBigNumberFormatting( false );
+    ( (ValueMeta) numValueMeta ).setBigNumberFormatting( false );
 
-    String[] inputs = new String[]{ "-9223372036854775808", "9223372036854775807" };
-    String[] strings = new String[]{ "-9223372036854775808.0", "9223372036854775807.0" };
-    BigDecimal[] values = new BigDecimal[]{ new BigDecimal( "-9223372036854775808" ), new BigDecimal( "9223372036854775807" ) };
+    String[] inputs = new String[] { "-9223372036854775808", "9223372036854775807" };
+    String[] strings = new String[] { "-9223372036854775808.0", "9223372036854775807.0" };
+    BigDecimal[] values = new BigDecimal[] { new BigDecimal( "-9223372036854775808" ), new BigDecimal( "9223372036854775807" ) };
 
     for ( int i = 0; i < values.length; i++ ) {
-      String bigNumberToString = numValueMeta.getString( values[i] );
+      String bigNumberToString = numValueMeta.getString( values[ i ] );
 
-      assertEquals( strings[i], bigNumberToString );
+      assertEquals( strings[ i ], bigNumberToString );
 
       ValueMetaInterface strValueMeta = new ValueMeta( "str", ValueMetaInterface.TYPE_STRING );
       strValueMeta.setConversionMetadata( numValueMeta );
 
-      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( inputs[i] );
+      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( inputs[ i ] );
 
-      assertEquals( values[i], stringToBigNumber );
+      assertEquals( values[ i ], stringToBigNumber );
     }
   }
 
@@ -367,16 +367,16 @@ public class ValueMetaTest {
     numValueMeta.setDecimalSymbol( "." );
     numValueMeta.setGroupingSymbol( "," );
 
-    String[] strings = new String[]{ "-1.4E-45", "3.4028235E38" };
-    BigDecimal[] values = new BigDecimal[]{ new BigDecimal( "-1.4E-45" ), new BigDecimal( "3.4028235E38" ) };
+    String[] strings = new String[] { "-1.4E-45", "3.4028235E38" };
+    BigDecimal[] values = new BigDecimal[] { new BigDecimal( "-1.4E-45" ), new BigDecimal( "3.4028235E38" ) };
 
     for ( int i = 0; i < values.length; i++ ) {
       ValueMetaInterface strValueMeta = new ValueMeta( "str", ValueMetaInterface.TYPE_STRING );
       strValueMeta.setConversionMetadata( numValueMeta );
 
-      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[i] );
+      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[ i ] );
 
-      assertEquals( values[i], stringToBigNumber );
+      assertEquals( values[ i ], stringToBigNumber );
     }
   }
 
@@ -385,19 +385,19 @@ public class ValueMetaTest {
     ValueMetaInterface numValueMeta = new ValueMeta( "i", ValueMetaInterface.TYPE_BIGNUMBER );
     numValueMeta.setDecimalSymbol( "." );
     numValueMeta.setGroupingSymbol( "," );
-    ((ValueMeta) numValueMeta).setBigNumberFormatting( false );
+    ( (ValueMeta) numValueMeta ).setBigNumberFormatting( false );
 
-    String[] strings = new String[]{ "-0.0000000000000000000000000000000000000000000014", "340282350000000000000000000000000000000.0" };
-    BigDecimal[] values = new BigDecimal[]{ new BigDecimal( "-0.0000000000000000000000000000000000000000000014" ), new BigDecimal( "340282350000000000000000000000000000000.0" ) };
+    String[] strings = new String[] { "-0.0000000000000000000000000000000000000000000014", "340282350000000000000000000000000000000.0" };
+    BigDecimal[] values = new BigDecimal[] { new BigDecimal( "-0.0000000000000000000000000000000000000000000014" ), new BigDecimal( "340282350000000000000000000000000000000.0" ) };
 
     for ( int i = 0; i < values.length; i++ ) {
 
       ValueMetaInterface strValueMeta = new ValueMeta( "str", ValueMetaInterface.TYPE_STRING );
       strValueMeta.setConversionMetadata( numValueMeta );
 
-      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[i] );
+      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[ i ] );
 
-      assertEquals( values[i], stringToBigNumber );
+      assertEquals( values[ i ], stringToBigNumber );
     }
   }
 
@@ -407,16 +407,16 @@ public class ValueMetaTest {
     numValueMeta.setDecimalSymbol( "." );
     numValueMeta.setGroupingSymbol( "," );
 
-    String[] strings = new String[]{ "4.9E-324", "1.7976931348623157E308" };
-    BigDecimal[] values = new BigDecimal[]{ new BigDecimal( "4.9E-324" ), new BigDecimal( "1.7976931348623157E308" ) };
+    String[] strings = new String[] { "4.9E-324", "1.7976931348623157E308" };
+    BigDecimal[] values = new BigDecimal[] { new BigDecimal( "4.9E-324" ), new BigDecimal( "1.7976931348623157E308" ) };
 
     for ( int i = 0; i < values.length; i++ ) {
       ValueMetaInterface strValueMeta = new ValueMeta( "str", ValueMetaInterface.TYPE_STRING );
       strValueMeta.setConversionMetadata( numValueMeta );
 
-      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[i] );
+      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[ i ] );
 
-      assertEquals( values[i], stringToBigNumber );
+      assertEquals( values[ i ], stringToBigNumber );
     }
   }
 
@@ -425,18 +425,18 @@ public class ValueMetaTest {
     ValueMetaInterface numValueMeta = new ValueMeta( "i", ValueMetaInterface.TYPE_BIGNUMBER );
     numValueMeta.setDecimalSymbol( "." );
     numValueMeta.setGroupingSymbol( "," );
-    ((ValueMeta) numValueMeta).setBigNumberFormatting( false );
+    ( (ValueMeta) numValueMeta ).setBigNumberFormatting( false );
 
-    String[] strings = new String[]{ "4.9E-324", "1.7976931348623157E308" };
-    BigDecimal[] values = new BigDecimal[]{ new BigDecimal( "4.9E-324" ), new BigDecimal( "1.7976931348623157E308" ) };
+    String[] strings = new String[] { "4.9E-324", "1.7976931348623157E308" };
+    BigDecimal[] values = new BigDecimal[] { new BigDecimal( "4.9E-324" ), new BigDecimal( "1.7976931348623157E308" ) };
 
     for ( int i = 0; i < values.length; i++ ) {
       ValueMetaInterface strValueMeta = new ValueMeta( "str", ValueMetaInterface.TYPE_STRING );
       strValueMeta.setConversionMetadata( numValueMeta );
 
-      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[i] );
+      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[ i ] );
 
-      assertEquals( values[i], stringToBigNumber );
+      assertEquals( values[ i ], stringToBigNumber );
     }
   }
 
@@ -446,20 +446,20 @@ public class ValueMetaTest {
     numValueMeta.setDecimalSymbol( "," );
     numValueMeta.setGroupingSymbol( "." );
 
-    String[] strings = new String[]{  "0,00000000000000000001", "-0,00000000000000000001" };
-    BigDecimal[] values = new BigDecimal[]{ new BigDecimal( "0.00000000000000000001" ), new BigDecimal( "-0.00000000000000000001" ) };
+    String[] strings = new String[] { "0,00000000000000000001", "-0,00000000000000000001" };
+    BigDecimal[] values = new BigDecimal[] { new BigDecimal( "0.00000000000000000001" ), new BigDecimal( "-0.00000000000000000001" ) };
 
     for ( int i = 0; i < values.length; i++ ) {
-      String bigNumberToString = numValueMeta.getString( values[i] );
+      String bigNumberToString = numValueMeta.getString( values[ i ] );
 
-      assertEquals( strings[i], bigNumberToString );
+      assertEquals( strings[ i ], bigNumberToString );
 
       ValueMetaInterface strValueMeta = new ValueMeta( "str", ValueMetaInterface.TYPE_STRING );
       strValueMeta.setConversionMetadata( numValueMeta );
 
-      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[i] );
+      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[ i ] );
 
-      assertEquals( values[i], stringToBigNumber );
+      assertEquals( values[ i ], stringToBigNumber );
     }
   }
 
@@ -468,22 +468,22 @@ public class ValueMetaTest {
     ValueMetaInterface numValueMeta = new ValueMeta( "i", ValueMetaInterface.TYPE_BIGNUMBER );
     numValueMeta.setDecimalSymbol( "," );
     numValueMeta.setGroupingSymbol( "." );
-    ((ValueMeta) numValueMeta).setBigNumberFormatting( false );
+    ( (ValueMeta) numValueMeta ).setBigNumberFormatting( false );
 
-    String[] strings = new String[]{  "0,00000000000000000001", "-0,00000000000000000001" };
-    BigDecimal[] values = new BigDecimal[]{ new BigDecimal( "0.00000000000000000001" ), new BigDecimal( "-0.00000000000000000001" ) };
+    String[] strings = new String[] { "0,00000000000000000001", "-0,00000000000000000001" };
+    BigDecimal[] values = new BigDecimal[] { new BigDecimal( "0.00000000000000000001" ), new BigDecimal( "-0.00000000000000000001" ) };
 
     for ( int i = 0; i < values.length; i++ ) {
-      String bigNumberToString = numValueMeta.getString( values[i] );
+      String bigNumberToString = numValueMeta.getString( values[ i ] );
 
-      assertEquals( strings[i], bigNumberToString );
+      assertEquals( strings[ i ], bigNumberToString );
 
       ValueMetaInterface strValueMeta = new ValueMeta( "str", ValueMetaInterface.TYPE_STRING );
       strValueMeta.setConversionMetadata( numValueMeta );
 
-      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[i] );
+      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[ i ] );
 
-      assertEquals( values[i].doubleValue(), stringToBigNumber.doubleValue(), 0 );
+      assertEquals( values[ i ].doubleValue(), stringToBigNumber.doubleValue(), 0 );
     }
   }
 
@@ -492,22 +492,22 @@ public class ValueMetaTest {
     ValueMetaInterface numValueMeta = new ValueMeta( "i", ValueMetaInterface.TYPE_BIGNUMBER );
     numValueMeta.setDecimalSymbol( "," );
     numValueMeta.setGroupingSymbol( "." );
-    ((ValueMeta) numValueMeta).setBigNumberFormatting( false );
+    ( (ValueMeta) numValueMeta ).setBigNumberFormatting( false );
 
-    String[] strings = new String[]{  "67789,135" };
-    BigDecimal[] values = new BigDecimal[]{ new BigDecimal( "67789.135" ) };
+    String[] strings = new String[] { "67789,135" };
+    BigDecimal[] values = new BigDecimal[] { new BigDecimal( "67789.135" ) };
 
     for ( int i = 0; i < values.length; i++ ) {
-      String bigNumberToString = numValueMeta.getString( values[i] );
+      String bigNumberToString = numValueMeta.getString( values[ i ] );
 
-      assertEquals( strings[i], bigNumberToString );
+      assertEquals( strings[ i ], bigNumberToString );
 
       ValueMetaInterface strValueMeta = new ValueMeta( "str", ValueMetaInterface.TYPE_STRING );
       strValueMeta.setConversionMetadata( numValueMeta );
 
-      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[i] );
+      BigDecimal stringToBigNumber = (BigDecimal) strValueMeta.convertDataUsingConversionMetaData( strings[ i ] );
 
-      assertEquals( values[i], stringToBigNumber );
+      assertEquals( values[ i ], stringToBigNumber );
     }
   }
 
@@ -842,7 +842,7 @@ public class ValueMetaTest {
 
   @Test
   public void testLazyConversionNullInteger() throws Exception {
-    byte[] data = new byte[0];
+    byte[] data = new byte[ 0 ];
     ValueMetaInterface intValueMeta = new ValueMeta( "i", ValueMetaInterface.TYPE_BOOLEAN );
     intValueMeta.setConversionMask( null );
     intValueMeta.setLength( 7 );
@@ -864,7 +864,7 @@ public class ValueMetaTest {
 
   @Test
   public void testLazyConversionNullNumber() throws Exception {
-    byte[] data = new byte[0];
+    byte[] data = new byte[ 0 ];
     ValueMetaInterface intValueMeta = new ValueMeta( "i", ValueMetaInterface.TYPE_NUMBER );
     intValueMeta.setConversionMask( null );
     intValueMeta.setLength( 7 );
@@ -1046,7 +1046,7 @@ public class ValueMetaTest {
     String[] valueMetaNames = ValueMetaFactory.getValueMetaNames();
 
     for ( int i = 0; i < valueMetaNames.length; i++ ) {
-      int vmId = ValueMetaFactory.getIdForValueMeta( valueMetaNames[i] );
+      int vmId = ValueMetaFactory.getIdForValueMeta( valueMetaNames[ i ] );
       ValueMeta vm = new ValueMeta( "", vmId );
       ValueMetaInterface vmi = ValueMetaFactory.createValueMeta( vmId );
       assertTrue( vm.getNativeDataTypeClass().equals( vmi.getNativeDataTypeClass() ) );

@@ -22,6 +22,24 @@
 
 package org.apache.hop.ui.trans.steps.denormaliser;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.denormaliser.DenormaliserMeta;
+import org.apache.hop.trans.steps.denormaliser.DenormaliserTargetField;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.TableItemInsertListener;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
@@ -46,24 +64,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.denormaliser.DenormaliserMeta;
-import org.apache.hop.trans.steps.denormaliser.DenormaliserTargetField;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.TableItemInsertListener;
 
 public class DenormaliserDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = DenormaliserMeta.class; // for i18n purposes, needed by Translator2!! $NON-NLS-1$
@@ -159,18 +159,18 @@ public class DenormaliserDialog extends BaseStepDialog implements StepDialogInte
     fdKeyField.top = new FormAttachment( wStepname, margin );
     fdKeyField.right = new FormAttachment( 100, 0 );
     wKeyField.setLayoutData( fdKeyField );
-//    wKeyField.addFocusListener( new FocusListener() {
-//      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
-//      }
-//
-//      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
-//        Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
-//        shell.setCursor( busy );
-//        getPreviousFieldNames();
-//        shell.setCursor( null );
-//        busy.dispose();
-//      }
-//    } );
+    //    wKeyField.addFocusListener( new FocusListener() {
+    //      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+    //      }
+    //
+    //      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+    //        Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
+    //        shell.setCursor( busy );
+    //        getPreviousFieldNames();
+    //        shell.setCursor( null );
+    //        busy.dispose();
+    //      }
+    //    } );
 
     wKeyField.addMouseListener( new MouseListener() {
       @Override public void mouseDoubleClick( MouseEvent e ) {
@@ -199,8 +199,8 @@ public class DenormaliserDialog extends BaseStepDialog implements StepDialogInte
     int nrKeyCols = 1;
     int nrKeyRows = ( input.getGroupField() != null ? input.getGroupField().length : 1 );
 
-    ColumnInfo[] ciKey = new ColumnInfo[nrKeyCols];
-    ciKey[0] =
+    ColumnInfo[] ciKey = new ColumnInfo[ nrKeyCols ];
+    ciKey[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "DenormaliserDialog.ColumnInfo.GroupField" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false );
@@ -274,8 +274,8 @@ public class DenormaliserDialog extends BaseStepDialog implements StepDialogInte
           BaseMessages.getString( PKG, "DenormaliserDialog.ColumnInfo.Aggregation" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, DenormaliserTargetField.typeAggrLongDesc, false ), };
 
-    ciTarget[ciTarget.length - 1].setToolTip( BaseMessages.getString( PKG, "DenormaliserDialog.CiTarget.Title" ) );
-    ciTarget[2].setUsingVariables( true );
+    ciTarget[ ciTarget.length - 1 ].setToolTip( BaseMessages.getString( PKG, "DenormaliserDialog.CiTarget.Title" ) );
+    ciTarget[ 2 ].setUsingVariables( true );
 
     wTarget =
       new TableView(
@@ -380,15 +380,15 @@ public class DenormaliserDialog extends BaseStepDialog implements StepDialogInte
     if ( input.getGroupField() != null ) {
       for ( int i = 0; i < input.getGroupField().length; i++ ) {
         TableItem item = wGroup.table.getItem( i );
-        if ( input.getGroupField()[i] != null ) {
-          item.setText( 1, input.getGroupField()[i] );
+        if ( input.getGroupField()[ i ] != null ) {
+          item.setText( 1, input.getGroupField()[ i ] );
         }
       }
     }
 
     if ( input.getDenormaliserTargetField() != null ) {
       for ( int i = 0; i < input.getDenormaliserTargetField().length; i++ ) {
-        DenormaliserTargetField field = input.getDenormaliserTargetField()[i];
+        DenormaliserTargetField field = input.getDenormaliserTargetField()[ i ];
 
         TableItem item = wTarget.table.getItem( i );
 
@@ -460,7 +460,7 @@ public class DenormaliserDialog extends BaseStepDialog implements StepDialogInte
     for ( int i = 0; i < sizegroup; i++ ) {
       TableItem item = wGroup.getNonEmpty( i );
       //CHECKSTYLE:Indentation:OFF
-      input.getGroupField()[i] = item.getText( 1 );
+      input.getGroupField()[ i ] = item.getText( 1 );
     }
 
     for ( int i = 0; i < nrfields; i++ ) {
@@ -481,7 +481,7 @@ public class DenormaliserDialog extends BaseStepDialog implements StepDialogInte
       field.setTargetAggregationType( item.getText( 12 ) );
 
       //CHECKSTYLE:Indentation:OFF
-      input.getDenormaliserTargetField()[i] = field;
+      input.getDenormaliserTargetField()[ i ] = field;
     }
 
     stepname = wStepname.getText();
@@ -516,7 +516,7 @@ public class DenormaliserDialog extends BaseStepDialog implements StepDialogInte
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "DenormaliserDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "DenormaliserDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "DenormaliserDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 
@@ -553,7 +553,7 @@ public class DenormaliserDialog extends BaseStepDialog implements StepDialogInte
     } catch ( HopException ke ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "DenormaliserDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "DenormaliserDialog.FailedToGetFields.DialogMessage" ), ke );
+        .getString( PKG, "DenormaliserDialog.FailedToGetFields.DialogMessage" ), ke );
     }
   }
 
@@ -568,7 +568,7 @@ public class DenormaliserDialog extends BaseStepDialog implements StepDialogInte
           r.getFieldNames();
 
           for ( int i = 0; i < r.getFieldNames().length; i++ ) {
-            wKeyField.add( r.getFieldNames()[i] );
+            wKeyField.add( r.getFieldNames()[ i ] );
           }
         }
         if ( keyValue != null ) {
@@ -581,7 +581,7 @@ public class DenormaliserDialog extends BaseStepDialog implements StepDialogInte
         }
         new ErrorDialog(
           shell, BaseMessages.getString( PKG, "DenormaliserDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-            .getString( PKG, "DenormaliserDialog.FailedToGetFields.DialogMessage" ), ke );
+          .getString( PKG, "DenormaliserDialog.FailedToGetFields.DialogMessage" ), ke );
       }
     }
   }

@@ -22,19 +22,18 @@
 
 package org.apache.hop.trans.steps.script;
 
-import javax.script.Bindings;
-import javax.script.CompiledScript;
-import javax.script.ScriptEngine;
-
 import org.apache.hop.compatibility.Value;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 
+import javax.script.Bindings;
+import javax.script.CompiledScript;
+import javax.script.ScriptEngine;
+
 /**
  * @author Matt
  * @since 24-jan-2005
- *
  */
 public class ScriptData extends BaseStepData implements StepDataInterface {
   public ScriptEngine cx;

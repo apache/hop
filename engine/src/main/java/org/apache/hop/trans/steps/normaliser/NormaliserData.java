@@ -22,17 +22,16 @@
 
 package org.apache.hop.trans.steps.normaliser;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author Matt
  * @since 24-jan-2005
- *
  */
 public class NormaliserData extends BaseStepData implements StepDataInterface {
   public List<String> type_occ;

@@ -22,46 +22,46 @@
 
 package org.apache.hop.ui.trans.steps.fileinput.text;
 
-import java.util.Arrays;
-
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.steps.fileinput.text.TextFileInputMeta;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.widget.GetCaretPositionInterface;
 import org.apache.hop.ui.core.widget.InsertTextInterface;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Text;
+
+import java.util.Arrays;
 
 public class VariableButtonListenerFactory {
   private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator2!!
 
   // Listen to the Variable... button
   public static final SelectionAdapter getSelectionAdapter( final Composite composite, final Text destination,
-      VariableSpace space ) {
+                                                            VariableSpace space ) {
     return getSelectionAdapter( composite, destination, null, null, space );
   }
 
   // Listen to the Variable... button
   public static final SelectionAdapter getSelectionAdapter( final Composite composite, final Text destination,
-      final GetCaretPositionInterface getCaretPositionInterface, final InsertTextInterface insertTextInterface,
-      final VariableSpace space ) {
+                                                            final GetCaretPositionInterface getCaretPositionInterface, final InsertTextInterface insertTextInterface,
+                                                            final VariableSpace space ) {
     return new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         String[] keys = space.listVariables();
         Arrays.sort( keys );
 
         int size = keys.length;
-        String[] key = new String[size];
-        String[] val = new String[size];
-        String[] str = new String[size];
+        String[] key = new String[ size ];
+        String[] val = new String[ size ];
+        String[] str = new String[ size ];
 
         for ( int i = 0; i < keys.length; i++ ) {
-          key[i] = keys[i];
-          val[i] = space.getVariable( key[i] );
-          str[i] = key[i] + "  [" + val[i] + "]";
+          key[ i ] = keys[ i ];
+          val[ i ] = space.getVariable( key[ i ] );
+          str[ i ] = key[ i ] + "  [" + val[ i ] + "]";
         }
 
         // Before focus is lost, we get the position of where the selected variable needs to be inserted.
@@ -71,12 +71,12 @@ public class VariableButtonListenerFactory {
         }
 
         EnterSelectionDialog esd =
-            new EnterSelectionDialog( composite.getShell(), str, BaseMessages.getString( PKG,
-                "System.Dialog.SelectEnvironmentVar.Title" ), BaseMessages.getString( PKG,
-                    "System.Dialog.SelectEnvironmentVar.Message" ) );
+          new EnterSelectionDialog( composite.getShell(), str, BaseMessages.getString( PKG,
+            "System.Dialog.SelectEnvironmentVar.Title" ), BaseMessages.getString( PKG,
+            "System.Dialog.SelectEnvironmentVar.Message" ) );
         if ( esd.open() != null ) {
           int nr = esd.getSelectionNr();
-          String var = "${" + key[nr] + "}";
+          String var = "${" + key[ nr ] + "}";
 
           if ( insertTextInterface == null ) {
             destination.insert( var );

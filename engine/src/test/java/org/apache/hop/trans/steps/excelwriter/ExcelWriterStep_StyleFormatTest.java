@@ -22,35 +22,33 @@
 
 package org.apache.hop.trans.steps.excelwriter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.math.BigDecimal;
-
-import org.apache.poi.ss.usermodel.BorderStyle;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.DataFormat;
-import org.apache.poi.ss.util.CellReference;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import org.apache.hop.core.RowSet;
-import org.apache.hop.core.row.value.ValueMetaBigNumber;
-import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.row.value.ValueMetaNumber;
-import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.row.value.ValueMetaBigNumber;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
-
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -82,7 +80,7 @@ public class ExcelWriterStep_StyleFormatTest {
       new StepMockHelper<ExcelWriterStepMeta, ExcelWriterStepData>(
         "Excel Writer Style Format Test", ExcelWriterStepMeta.class, ExcelWriterStepData.class );
     when( stepMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        stepMockHelper.logChannelInterface );
+      stepMockHelper.logChannelInterface );
     verify( stepMockHelper.logChannelInterface, never() ).logError( anyString() );
     verify( stepMockHelper.logChannelInterface, never() ).logError( anyString(), any( Object[].class ) );
     verify( stepMockHelper.logChannelInterface, never() ).logError( anyString(), (Throwable) anyObject() );
@@ -189,15 +187,15 @@ public class ExcelWriterStep_StyleFormatTest {
     //   2. No format, only style
     //   3. Format, and a different style without a format defined
     //   4. Format, and a different style with a different format defined but gets overridden
-    ExcelWriterStepField[] outputFields = new ExcelWriterStepField[4];
-    outputFields[0] = new ExcelWriterStepField( "col 1", ValueMetaFactory.getIdForValueMeta( "Integer" ), "0.00000" );
-    outputFields[0].setStyleCell( "" );
-    outputFields[1] = new ExcelWriterStepField( "col 2", ValueMetaFactory.getIdForValueMeta( "Number" ), "" );
-    outputFields[1].setStyleCell( "G1" );
-    outputFields[2] = new ExcelWriterStepField( "col 3", ValueMetaFactory.getIdForValueMeta( "BigNumber" ), "0.00000" );
-    outputFields[2].setStyleCell( "F1" );
-    outputFields[3] = new ExcelWriterStepField( "col 4", ValueMetaFactory.getIdForValueMeta( "Integer" ), "0.00000" );
-    outputFields[3].setStyleCell( "G1" );
+    ExcelWriterStepField[] outputFields = new ExcelWriterStepField[ 4 ];
+    outputFields[ 0 ] = new ExcelWriterStepField( "col 1", ValueMetaFactory.getIdForValueMeta( "Integer" ), "0.00000" );
+    outputFields[ 0 ].setStyleCell( "" );
+    outputFields[ 1 ] = new ExcelWriterStepField( "col 2", ValueMetaFactory.getIdForValueMeta( "Number" ), "" );
+    outputFields[ 1 ].setStyleCell( "G1" );
+    outputFields[ 2 ] = new ExcelWriterStepField( "col 3", ValueMetaFactory.getIdForValueMeta( "BigNumber" ), "0.00000" );
+    outputFields[ 2 ].setStyleCell( "F1" );
+    outputFields[ 3 ] = new ExcelWriterStepField( "col 4", ValueMetaFactory.getIdForValueMeta( "Integer" ), "0.00000" );
+    outputFields[ 3 ].setStyleCell( "G1" );
     stepMeta.setOutputFields( outputFields );
   }
 
@@ -221,13 +219,13 @@ public class ExcelWriterStep_StyleFormatTest {
     stepData.posY = stepData.startingRow;
 
     int numOfFields = stepData.inputRowMeta.size();
-    stepData.fieldnrs = new int[numOfFields];
-    stepData.linkfieldnrs = new int[numOfFields];
-    stepData.commentfieldnrs = new int[numOfFields];
+    stepData.fieldnrs = new int[ numOfFields ];
+    stepData.linkfieldnrs = new int[ numOfFields ];
+    stepData.commentfieldnrs = new int[ numOfFields ];
     for ( int i = 0; i < numOfFields; i++ ) {
-      stepData.fieldnrs[i] = i;
-      stepData.linkfieldnrs[i] = -1;
-      stepData.commentfieldnrs[i] = -1;
+      stepData.fieldnrs[ i ] = i;
+      stepData.linkfieldnrs[ i ] = -1;
+      stepData.commentfieldnrs[ i ] = -1;
     }
 
     // we avoid reading/writing Excel files, so ExcelWriterStep.prepareNextOutputFile() doesn't get executed
@@ -316,7 +314,7 @@ public class ExcelWriterStep_StyleFormatTest {
         new ValueMetaNumber( "col 4" )
       };
       for ( int i = 0; i < valuesMeta.length; i++ ) {
-        rm.addValueMeta( valuesMeta[i] );
+        rm.addValueMeta( valuesMeta[ i ] );
       }
     } catch ( Exception ex ) {
       return null;

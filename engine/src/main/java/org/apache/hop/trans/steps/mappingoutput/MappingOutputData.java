@@ -22,18 +22,17 @@
 
 package org.apache.hop.trans.steps.mappingoutput;
 
-import java.util.List;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.steps.mapping.MappingValueRename;
 
+import java.util.List;
+
 /**
  * @author Matt
  * @since 24-jan-2005
- *
  */
 public class MappingOutputData extends BaseStepData implements StepDataInterface {
 

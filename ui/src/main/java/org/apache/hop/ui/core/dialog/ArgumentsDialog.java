@@ -22,12 +22,18 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import org.apache.hop.ExecutionConfiguration;
+import org.apache.hop.base.AbstractMeta;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -42,18 +48,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.apache.hop.ExecutionConfiguration;
-import org.apache.hop.base.AbstractMeta;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.hopui.HopUi;
-import org.apache.hop.ui.util.HelpUtils;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ArgumentsDialog extends Dialog {
 
@@ -66,7 +66,7 @@ public class ArgumentsDialog extends Dialog {
 
   /**
    * Create the composite.
-   * 
+   *
    * @param parent
    * @param style
    */
@@ -83,17 +83,17 @@ public class ArgumentsDialog extends Dialog {
     shell.setText( BaseMessages.getString( PKG, "ArgumentsDialog.Arguments.Label" ) );
 
     ColumnInfo[] cArguments =
-    { new ColumnInfo( BaseMessages.getString( PKG, "ArgumentsDialog.ArgumentsColumn.Argument" ),
-            ColumnInfo.COLUMN_TYPE_TEXT, false, true, 180 ), // Argument name
-      new ColumnInfo( BaseMessages.getString( PKG, "ArgumentsDialog.ArgumentsColumn.Value" ),
-            ColumnInfo.COLUMN_TYPE_TEXT, false, false, 172 ), // Actual value
-    };
+      { new ColumnInfo( BaseMessages.getString( PKG, "ArgumentsDialog.ArgumentsColumn.Argument" ),
+        ColumnInfo.COLUMN_TYPE_TEXT, false, true, 180 ), // Argument name
+        new ColumnInfo( BaseMessages.getString( PKG, "ArgumentsDialog.ArgumentsColumn.Value" ),
+          ColumnInfo.COLUMN_TYPE_TEXT, false, false, 172 ), // Actual value
+      };
 
     int nrArguments = configuration.getArguments() != null ? configuration.getArguments().size() : 0;
 
     wArguments =
-        new TableView( abstractMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, cArguments, nrArguments, false,
-            null, props, false );
+      new TableView( abstractMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, cArguments, nrArguments, false,
+        null, props, false );
 
     FormData fd_argumentsTable = new FormData();
     fd_argumentsTable.top = new FormAttachment( 0, 15 );
@@ -164,7 +164,7 @@ public class ArgumentsDialog extends Dialog {
     Point dialogSize = shell.getSize();
 
     shell.setLocation( shellBounds.x + ( shellBounds.width - dialogSize.x ) / 2, shellBounds.y + ( shellBounds.height
-        - dialogSize.y ) / 2 );
+      - dialogSize.y ) / 2 );
 
     while ( !shell.isDisposed() ) {
       if ( !display.readAndDispatch() ) {

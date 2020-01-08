@@ -21,19 +21,23 @@
  ******************************************************************************/
 package org.apache.hop.core.util;
 
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 public class UtilsTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
@@ -90,7 +94,7 @@ public class UtilsTest {
     String password = "password";
     // is supposed the password stays the same
     assertSame( password, Utils.resolvePassword(
-        Variables.getADefaultVariableSpace(), password ).intern() );
+      Variables.getADefaultVariableSpace(), password ).intern() );
   }
 
   @Test
@@ -99,7 +103,7 @@ public class UtilsTest {
     // is supposed encrypted with Encr.bat util
     String encPassword = "Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde";
     assertSame( decPassword, Utils.resolvePassword(
-        Variables.getADefaultVariableSpace(), encPassword ).intern() );
+      Variables.getADefaultVariableSpace(), encPassword ).intern() );
   }
 
   @Test
@@ -107,7 +111,7 @@ public class UtilsTest {
     String password = null;
     // null is valid input parameter
     assertSame( password, Utils.resolvePassword(
-        Variables.getADefaultVariableSpace(), password ) );
+      Variables.getADefaultVariableSpace(), password ) );
   }
 
   @Test

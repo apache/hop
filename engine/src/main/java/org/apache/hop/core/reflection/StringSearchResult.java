@@ -97,8 +97,7 @@ public class StringSearchResult {
   }
 
   /**
-   * @param fieldName
-   *          The fieldName to set.
+   * @param fieldName The fieldName to set.
    */
   public void setFieldName( String fieldName ) {
     this.fieldName = fieldName;
@@ -112,8 +111,7 @@ public class StringSearchResult {
   }
 
   /**
-   * @param grandParentObject
-   *          the grandParentObject to set
+   * @param grandParentObject the grandParentObject to set
    */
   public void setGrandParentObject( Object grandParentObject ) {
     this.grandParentObject = grandParentObject;

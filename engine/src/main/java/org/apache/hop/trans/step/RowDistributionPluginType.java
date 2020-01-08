@@ -22,20 +22,19 @@
 
 package org.apache.hop.trans.step;
 
-import java.lang.annotation.Annotation;
-import java.util.Map;
-
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 import org.apache.hop.core.plugins.PluginTypeInterface;
 
+import java.lang.annotation.Annotation;
+import java.util.Map;
+
 /**
  * This class represents the row distribution plugin type.
  *
  * @author matt
- *
  */
 @PluginMainClassType( RowDistributionInterface.class )
 @PluginAnnotationType( RowDistributionPlugin.class )
@@ -66,7 +65,7 @@ public class RowDistributionPluginType extends BasePluginType implements PluginT
   }
 
   public String[] getNaturalCategoriesOrder() {
-    return new String[0];
+    return new String[ 0 ];
   }
 
   @Override

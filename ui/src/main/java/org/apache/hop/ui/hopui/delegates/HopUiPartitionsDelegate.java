@@ -22,66 +22,66 @@
 
 package org.apache.hop.ui.hopui.delegates;
 
-import java.util.List;
-
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.api.exceptions.MetaStoreException;
+import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.partition.dialog.PartitionSchemaDialog;
 import org.apache.hop.ui.hopui.HopUi;
-import org.apache.hop.ui.hopui.tree.provider.PartitionsFolderProvider;
+import org.apache.hop.ui.partition.dialog.PartitionSchemaDialog;
 
-public class HopUiPartitionsDelegate extends HopUiSharedObjectDelegate {
+import java.util.List;
+
+public class HopUiPartitionsDelegate {
+  private final HopUi hopUi;
+  private final DelegatingMetaStore metaStore;
+
   public HopUiPartitionsDelegate( HopUi hopUi ) {
-    super( hopUi );
+    this.hopUi = hopUi;
+    this.metaStore = hopUi.getMetaStore();
   }
 
   public void newPartitioningSchema( TransMeta transMeta ) {
     PartitionSchema partitionSchema = new PartitionSchema();
 
-    PartitionSchemaDialog dialog =
-        new PartitionSchemaDialog( hopUi.getShell(), partitionSchema, transMeta.getPartitionSchemas(), transMeta );
+    PartitionSchemaDialog dialog = new PartitionSchemaDialog( hopUi.getShell(), metaStore, partitionSchema, transMeta );
     if ( dialog.open() ) {
-      List<PartitionSchema> partitions = transMeta.getPartitionSchemas();
-      if ( isDuplicate( partitions, partitionSchema ) ) {
-        new ErrorDialog(
-          hopUi.getShell(), getMessage( "Spoon.Dialog.ErrorSavingPartition.Title" ), getMessage(
-          "Spoon.Dialog.ErrorSavingPartition.Message", partitionSchema.getName() ),
-          new HopException( getMessage( "Spoon.Dialog.ErrorSavingPartition.NotUnique" ) ) );
-        return;
+
+      try {
+        PartitionSchema.createFactory( metaStore ).saveElement( partitionSchema );
+      } catch ( MetaStoreException e ) {
+        new ErrorDialog( hopUi.getShell(), "Error", "Error adding partition schema to the metastore", e );
       }
-
-      partitions.add( partitionSchema );
-
       refreshTree();
     }
   }
 
   public void editPartitionSchema( TransMeta transMeta, PartitionSchema partitionSchema ) {
     String originalName = partitionSchema.getName();
-    PartitionSchemaDialog dialog =
-        new PartitionSchemaDialog( hopUi.getShell(), partitionSchema, transMeta.getPartitionSchemas(), transMeta );
+    PartitionSchemaDialog dialog = new PartitionSchemaDialog( hopUi.getShell(), metaStore, partitionSchema, transMeta );
     if ( dialog.open() ) {
+      try {
+        PartitionSchema.createFactory( metaStore ).saveElement( partitionSchema );
+      } catch ( MetaStoreException e ) {
+        new ErrorDialog( hopUi.getShell(), "Error", "Error saving partition schema in the metastore", e );
+      }
       refreshTree();
     }
   }
 
   public void delPartitionSchema( TransMeta transMeta, PartitionSchema partitionSchema ) {
-    int idx = transMeta.getPartitionSchemas().indexOf( partitionSchema );
-    transMeta.getPartitionSchemas().remove( idx );
+    try {
+      PartitionSchema.createFactory( metaStore ).deleteElement(  partitionSchema.getName() );
+    } catch ( MetaStoreException e ) {
+      new ErrorDialog( hopUi.getShell(), "Error", "Error deleting partition schema from the metastore", e );
+    }
 
     refreshTree();
   }
 
-  private void showSaveErrorDialog( PartitionSchema partitionSchema, HopException e ) {
-    new ErrorDialog( hopUi.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ErrorSavingPartition.Title" ),
-        BaseMessages.getString( PKG, "Spoon.Dialog.ErrorSavingPartition.Message", partitionSchema.getName() ), e );
-  }
-
   private void refreshTree() {
-    hopUi.refreshTree( PartitionsFolderProvider.STRING_PARTITIONS );
+    hopUi.refreshTree();
   }
 }

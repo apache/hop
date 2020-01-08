@@ -110,9 +110,9 @@ public class ScriptAddedFunctions {
   //
 
   public static String getDigitsOnly( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                      Object FunctionContext ) {
     if ( ArgList.length == 1 ) {
-      return Const.getDigitsOnly( (String) ArgList[0] ); // TODO AKRETION ensure
+      return Const.getDigitsOnly( (String) ArgList[ 0 ] ); // TODO AKRETION ensure
     } else {
       throw new RuntimeException( "The function call getDigitsOnly requires 1 argument." );
 
@@ -120,7 +120,7 @@ public class ScriptAddedFunctions {
   }
 
   public static boolean LuhnCheck( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                   Object FunctionContext ) {
 
     boolean returnCode = false;
 
@@ -131,7 +131,7 @@ public class ScriptAddedFunctions {
           int digit = 0;
           int addend = 0;
           boolean timesTwo = false;
-          String argstring = (String) ArgList[0];
+          String argstring = (String) ArgList[ 0 ];
 
           for ( int i = argstring.length() - 1; i >= 0; i-- ) {
             digit = Integer.parseInt( argstring.substring( i, i + 1 ) );
@@ -165,18 +165,18 @@ public class ScriptAddedFunctions {
   }
 
   public static int indexOf( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                             Object FunctionContext ) {
 
     int returnIndex = -1;
 
     if ( ArgList.length == 2 || ArgList.length == 3 ) {
       if ( !isNull( ArgList ) && !isUndefined( ArgList ) ) {
-        String string = (String) ArgList[0];
-        String subString = (String) ArgList[1];
+        String string = (String) ArgList[ 0 ];
+        String subString = (String) ArgList[ 1 ];
 
         int fromIndex = 0;
         if ( ArgList.length == 3 ) {
-          fromIndex = (int) Math.round( (Double) ArgList[2] );
+          fromIndex = (int) Math.round( (Double) ArgList[ 2 ] );
         }
         returnIndex = string.indexOf( subString, fromIndex );
       }
@@ -187,7 +187,7 @@ public class ScriptAddedFunctions {
   }
 
   public static Object getTransformationName( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                              Object FunctionContext ) {
     try {
       Object objTranName = actualObject.get( "_TransformationName_" );
       return objTranName;
@@ -197,13 +197,13 @@ public class ScriptAddedFunctions {
   }
 
   public static void appendToFile( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                   Object FunctionContext ) {
 
     if ( !isNull( ArgList ) && !isUndefined( ArgList ) ) {
       try {
-        FileOutputStream file = new FileOutputStream( (String) ArgList[0], true );
+        FileOutputStream file = new FileOutputStream( (String) ArgList[ 0 ], true );
         DataOutputStream out = new DataOutputStream( file );
-        out.writeBytes( (String) ArgList[1] );
+        out.writeBytes( (String) ArgList[ 1 ] );
         out.flush();
         out.close();
       } catch ( Exception er ) {
@@ -215,7 +215,7 @@ public class ScriptAddedFunctions {
   }
 
   public static Object getFiscalDate( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                      Object FunctionContext ) {
 
     if ( ArgList.length == 2 ) {
       try {
@@ -224,13 +224,13 @@ public class ScriptAddedFunctions {
         } else if ( isUndefined( ArgList ) ) {
           return undefinedValue;
         }
-        java.util.Date dIn = (java.util.Date) ArgList[0];
+        java.util.Date dIn = (java.util.Date) ArgList[ 0 ];
         Calendar startDate = Calendar.getInstance();
         Calendar fisStartDate = Calendar.getInstance();
         Calendar fisOffsetDate = Calendar.getInstance();
         startDate.setTime( dIn );
         Format dfFormatter = new SimpleDateFormat( "dd.MM.yyyy" );
-        String strOffsetDate = (String) ArgList[1] + String.valueOf( startDate.get( Calendar.YEAR ) );
+        String strOffsetDate = (String) ArgList[ 1 ] + String.valueOf( startDate.get( Calendar.YEAR ) );
         java.util.Date dOffset = (java.util.Date) dfFormatter.parseObject( strOffsetDate );
         fisOffsetDate.setTime( dOffset );
 
@@ -249,13 +249,13 @@ public class ScriptAddedFunctions {
   }
 
   public static double getProcessCount( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                        Object FunctionContext ) {
 
     if ( ArgList.length == 1 ) {
       try {
         Object scmO = actualObject.get( "_step_" );
         ScriptInterface scm = (ScriptInterface) scmO;
-        String strType = ( (String) ArgList[0] ).toLowerCase();
+        String strType = ( (String) ArgList[ 0 ] ).toLowerCase();
 
         if ( strType.equals( "i" ) ) {
           return scm.getLinesInput();
@@ -282,7 +282,7 @@ public class ScriptAddedFunctions {
   }
 
   public static void writeToLog( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                 Object FunctionContext ) {
 
     switch ( ArgList.length ) {
       case 1:
@@ -290,7 +290,7 @@ public class ScriptAddedFunctions {
           if ( !isNull( ArgList ) && !isUndefined( ArgList ) ) {
             Object scmO = actualObject.get( "_step_" );
             Script scm = (Script) scmO;
-            String strMessage = (String) ArgList[0];
+            String strMessage = (String) ArgList[ 0 ];
             scm.logDebug( strMessage );
           }
         } catch ( Exception e ) {
@@ -303,8 +303,8 @@ public class ScriptAddedFunctions {
             Object scmO = actualObject.get( "_step_" );
             Script scm = (Script) scmO;
 
-            String strType = ( (String) ArgList[0] ).toLowerCase();
-            String strMessage = (String) ArgList[1];
+            String strType = ( (String) ArgList[ 0 ] ).toLowerCase();
+            String strMessage = (String) ArgList[ 1 ];
             if ( strType.equals( "b" ) ) {
               scm.logBasic( strMessage );
             } else if ( strType.equals( "d" ) ) {
@@ -334,7 +334,7 @@ public class ScriptAddedFunctions {
 
   private static boolean isUndefined( Object[] ArgList, int[] iArrToCheck ) {
     for ( int i = 0; i < iArrToCheck.length; i++ ) {
-      if ( ArgList[iArrToCheck[i]].equals( undefinedValue ) ) {
+      if ( ArgList[ iArrToCheck[ i ] ].equals( undefinedValue ) ) {
         return true;
       }
     }
@@ -347,7 +347,7 @@ public class ScriptAddedFunctions {
 
   private static boolean isNull( Object[] ArgList ) {
     for ( int i = 0; i < ArgList.length; i++ ) {
-      if ( ArgList[i] == null || ArgList[i].equals( null ) ) {
+      if ( ArgList[ i ] == null || ArgList[ i ].equals( null ) ) {
         return true;
       }
     }
@@ -356,7 +356,7 @@ public class ScriptAddedFunctions {
 
   private static boolean isNull( Object[] ArgList, int[] iArrToCheck ) {
     for ( int i = 0; i < iArrToCheck.length; i++ ) {
-      if ( ArgList[iArrToCheck[i]] == null || ArgList[iArrToCheck[i]].equals( null ) ) {
+      if ( ArgList[ iArrToCheck[ i ] ] == null || ArgList[ iArrToCheck[ i ] ].equals( null ) ) {
         return true;
       }
     }
@@ -364,16 +364,16 @@ public class ScriptAddedFunctions {
   }
 
   public static Object abs( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                            Object FunctionContext ) {
 
     if ( ArgList.length == 1 ) {
       try {
-        if ( isNull( ArgList[0] ) ) {
+        if ( isNull( ArgList[ 0 ] ) ) {
           return new Double( Double.NaN );
-        } else if ( isUndefined( ArgList[0] ) ) {
+        } else if ( isUndefined( ArgList[ 0 ] ) ) {
           return undefinedValue;
         } else {
-          return new Double( Math.abs( (Double) ArgList[0] ) );
+          return new Double( Math.abs( (Double) ArgList[ 0 ] ) );
         }
       } catch ( Exception e ) {
         return null;
@@ -384,15 +384,15 @@ public class ScriptAddedFunctions {
   }
 
   public static Object ceil( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                             Object FunctionContext ) {
     if ( ArgList.length == 1 ) {
       try {
-        if ( isNull( ArgList[0] ) ) {
+        if ( isNull( ArgList[ 0 ] ) ) {
           return new Double( Double.NaN );
-        } else if ( isUndefined( ArgList[0] ) ) {
+        } else if ( isUndefined( ArgList[ 0 ] ) ) {
           return undefinedValue;
         } else {
-          return new Double( Math.ceil( (Double) ArgList[0] ) );
+          return new Double( Math.ceil( (Double) ArgList[ 0 ] ) );
         }
       } catch ( Exception e ) {
         return null;
@@ -403,15 +403,15 @@ public class ScriptAddedFunctions {
   }
 
   public static Object floor( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                              Object FunctionContext ) {
     if ( ArgList.length == 1 ) {
       try {
-        if ( isNull( ArgList[0] ) ) {
+        if ( isNull( ArgList[ 0 ] ) ) {
           return new Double( Double.NaN );
-        } else if ( isUndefined( ArgList[0] ) ) {
+        } else if ( isUndefined( ArgList[ 0 ] ) ) {
           return undefinedValue;
         } else {
-          return new Double( Math.floor( (Double) ArgList[0] ) );
+          return new Double( Math.floor( (Double) ArgList[ 0 ] ) );
         }
       } catch ( Exception e ) {
         return null;
@@ -423,16 +423,16 @@ public class ScriptAddedFunctions {
   }
 
   public static Object getDayNumber( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                     Object FunctionContext ) {
     if ( ArgList.length == 2 ) {
       try {
-        if ( isNull( ArgList[0] ) ) {
+        if ( isNull( ArgList[ 0 ] ) ) {
           return new Double( Double.NaN );
-        } else if ( isUndefined( ArgList[0] ) ) {
+        } else if ( isUndefined( ArgList[ 0 ] ) ) {
           return undefinedValue;
         } else {
-          java.util.Date dIn = (java.util.Date) ArgList[0];
-          String strType = ( (String) ArgList[1] ).toLowerCase();
+          java.util.Date dIn = (java.util.Date) ArgList[ 0 ];
+          String strType = ( (String) ArgList[ 1 ] ).toLowerCase();
           Calendar startDate = Calendar.getInstance();
           startDate.setTime( dIn );
           if ( strType.equals( "y" ) ) {
@@ -456,15 +456,15 @@ public class ScriptAddedFunctions {
   }
 
   public static Object isWorkingDay( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                     Object FunctionContext ) {
     if ( ArgList.length == 1 ) {
       try {
-        if ( isNull( ArgList[0] ) ) {
+        if ( isNull( ArgList[ 0 ] ) ) {
           return null;
-        } else if ( isUndefined( ArgList[0] ) ) {
+        } else if ( isUndefined( ArgList[ 0 ] ) ) {
           return undefinedValue;
         } else {
-          java.util.Date dIn = (java.util.Date) ArgList[0];
+          java.util.Date dIn = (java.util.Date) ArgList[ 0 ];
           Calendar startDate = Calendar.getInstance();
           startDate.setTime( dIn );
           if ( startDate.get( Calendar.DAY_OF_WEEK ) != Calendar.SATURDAY
@@ -483,15 +483,15 @@ public class ScriptAddedFunctions {
 
   @SuppressWarnings( "unused" )
   public static Object fireToDB( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                 Object FunctionContext ) {
 
     Object oRC = new Object();
     if ( ArgList.length == 2 ) {
       try {
         Object scmO = actualObject.get( "_step_" );
         Script scm = (Script) scmO;
-        String strDBName = (String) ArgList[0];
-        String strSQL = (String) ArgList[1];
+        String strDBName = (String) ArgList[ 0 ];
+        String strSQL = (String) ArgList[ 1 ];
         DatabaseMeta ci = DatabaseMeta.findDatabase( scm.getTransMeta().getDatabases(), strDBName );
         if ( ci == null ) {
           throw new RuntimeException( "Database connection not found: " + strDBName );
@@ -515,13 +515,13 @@ public class ScriptAddedFunctions {
           if ( rs != null ) {
             List<Object[]> list = new ArrayList<Object[]>();
             while ( rs.next() ) {
-              Object[] objRow = new Object[columnCount];
+              Object[] objRow = new Object[ columnCount ];
               for ( int i = 0; i < columnCount; i++ ) {
-                objRow[i] = rs.getObject( i + 1 );
+                objRow[ i ] = rs.getObject( i + 1 );
               }
               list.add( objRow );
             }
-            Object[][] resultArr = new Object[list.size()][];
+            Object[][] resultArr = new Object[ list.size() ][];
             list.toArray( resultArr );
             db.disconnect();
             return resultArr;
@@ -539,7 +539,7 @@ public class ScriptAddedFunctions {
   }
 
   public static Object dateDiff( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                 Object FunctionContext ) {
     if ( ArgList.length == 3 ) {
       try {
         if ( isNull( ArgList, new int[] { 0, 1, 2 } ) ) {
@@ -547,9 +547,9 @@ public class ScriptAddedFunctions {
         } else if ( isUndefined( ArgList, new int[] { 0, 1, 2 } ) ) {
           return undefinedValue;
         } else {
-          java.util.Date dIn1 = (java.util.Date) ArgList[0];
-          java.util.Date dIn2 = (java.util.Date) ArgList[1];
-          String strType = ( (String) ArgList[2] ).toLowerCase();
+          java.util.Date dIn1 = (java.util.Date) ArgList[ 0 ];
+          java.util.Date dIn2 = (java.util.Date) ArgList[ 1 ];
+          String strType = ( (String) ArgList[ 2 ] ).toLowerCase();
           int iRC = 0;
 
           Calendar startDate = Calendar.getInstance();
@@ -616,16 +616,16 @@ public class ScriptAddedFunctions {
   }
 
   public static Object getNextWorkingDay( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                          Object FunctionContext ) {
     // (Date dIn){
     if ( ArgList.length == 1 ) {
       try {
-        if ( isNull( ArgList[0] ) ) {
+        if ( isNull( ArgList[ 0 ] ) ) {
           return null;
-        } else if ( isUndefined( ArgList[0] ) ) {
+        } else if ( isUndefined( ArgList[ 0 ] ) ) {
           return undefinedValue;
         }
-        java.util.Date dIn = (java.util.Date) ArgList[0];
+        java.util.Date dIn = (java.util.Date) ArgList[ 0 ];
         Calendar startDate = Calendar.getInstance();
         startDate.setTime( dIn );
         startDate.add( Calendar.DATE, 1 );
@@ -643,7 +643,7 @@ public class ScriptAddedFunctions {
   }
 
   public static Object dateAdd( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                Object FunctionContext ) {
     if ( ArgList.length == 3 ) {
       try {
         if ( isNull( ArgList, new int[] { 0, 1, 2 } ) ) {
@@ -651,9 +651,9 @@ public class ScriptAddedFunctions {
         } else if ( isUndefined( ArgList, new int[] { 0, 1, 2 } ) ) {
           return undefinedValue;
         }
-        java.util.Date dIn = (java.util.Date) ArgList[0];
-        String strType = ( (String) ArgList[1] ).toLowerCase();
-        int iValue = (Integer) ArgList[2];
+        java.util.Date dIn = (java.util.Date) ArgList[ 0 ];
+        String strType = ( (String) ArgList[ 1 ] ).toLowerCase();
+        int iValue = (Integer) ArgList[ 2 ];
         Calendar cal = Calendar.getInstance();
         cal.setTime( dIn );
         if ( strType.equals( "y" ) ) {
@@ -690,7 +690,7 @@ public class ScriptAddedFunctions {
   }
 
   public static String fillString( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                   Object FunctionContext ) {
     if ( ArgList.length == 2 ) {
       try {
         if ( isNull( ArgList, new int[] { 0, 1 } ) ) {
@@ -698,14 +698,14 @@ public class ScriptAddedFunctions {
         } else if ( isUndefined( ArgList, new int[] { 0, 1 } ) ) {
           return (String) undefinedValue;
         }
-        String fillChar = (String) ArgList[0];
-        int count = (Integer) ArgList[1];
+        String fillChar = (String) ArgList[ 0 ];
+        int count = (Integer) ArgList[ 1 ];
         if ( fillChar.length() != 1 ) {
           throw new RuntimeException( "Please provide a valid Char to the fillString" );
         } else {
-          char[] chars = new char[count];
+          char[] chars = new char[ count ];
           while ( count > 0 ) {
-            chars[--count] = fillChar.charAt( 0 );
+            chars[ --count ] = fillChar.charAt( 0 );
           }
           return new String( chars );
         }
@@ -718,7 +718,7 @@ public class ScriptAddedFunctions {
   }
 
   public static Object isCodepage( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                   Object FunctionContext ) {
     boolean bRC = false;
     if ( ArgList.length == 2 ) {
       try {
@@ -727,8 +727,8 @@ public class ScriptAddedFunctions {
         } else if ( isUndefined( ArgList, new int[] { 0, 1 } ) ) {
           return undefinedValue;
         }
-        String strValueToCheck = (String) ArgList[0];
-        String strCodePage = (String) ArgList[1];
+        String strValueToCheck = (String) ArgList[ 0 ];
+        String strCodePage = (String) ArgList[ 1 ];
         byte[] bytearray = strValueToCheck.getBytes();
         CharsetDecoder d = Charset.forName( strCodePage ).newDecoder();
         CharBuffer r = d.decode( ByteBuffer.wrap( bytearray ) );
@@ -744,15 +744,15 @@ public class ScriptAddedFunctions {
   }
 
   public static String ltrim( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                              Object FunctionContext ) {
     try {
       if ( ArgList.length == 1 ) {
-        if ( isNull( ArgList[0] ) ) {
+        if ( isNull( ArgList[ 0 ] ) ) {
           return null;
-        } else if ( isUndefined( ArgList[0] ) ) {
+        } else if ( isUndefined( ArgList[ 0 ] ) ) {
           return (String) undefinedValue;
         }
-        String strValueToTrim = (String) ArgList[0];
+        String strValueToTrim = (String) ArgList[ 0 ];
         return strValueToTrim.replaceAll( "^\\s+", "" );
       } else {
         throw new RuntimeException( "The function call ltrim requires 1 argument." );
@@ -763,15 +763,15 @@ public class ScriptAddedFunctions {
   }
 
   public static String rtrim( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                              Object FunctionContext ) {
     try {
       if ( ArgList.length == 1 ) {
-        if ( isNull( ArgList[0] ) ) {
+        if ( isNull( ArgList[ 0 ] ) ) {
           return null;
-        } else if ( isUndefined( ArgList[0] ) ) {
+        } else if ( isUndefined( ArgList[ 0 ] ) ) {
           return (String) undefinedValue;
         }
-        String strValueToTrim = (String) ArgList[0];
+        String strValueToTrim = (String) ArgList[ 0 ];
         return strValueToTrim.replaceAll( "\\s+$", "" );
       } else {
         throw new RuntimeException( "The function call rtrim requires 1 argument." );
@@ -782,7 +782,7 @@ public class ScriptAddedFunctions {
   }
 
   public static String lpad( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                             Object FunctionContext ) {
 
     // (String valueToPad, String filler, int size) {
     try {
@@ -792,9 +792,9 @@ public class ScriptAddedFunctions {
         } else if ( isUndefined( ArgList, new int[] { 0, 1, 2 } ) ) {
           return (String) undefinedValue;
         }
-        String valueToPad = (String) ArgList[0];
-        String filler = (String) ArgList[1];
-        int size = (Integer) ArgList[2];
+        String valueToPad = (String) ArgList[ 0 ];
+        String filler = (String) ArgList[ 1 ];
+        int size = (Integer) ArgList[ 2 ];
 
         while ( valueToPad.length() < size ) {
           valueToPad = filler + valueToPad;
@@ -808,7 +808,7 @@ public class ScriptAddedFunctions {
   }
 
   public static String rpad( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                             Object FunctionContext ) {
     try {
       if ( ArgList.length == 3 ) {
         if ( isNull( ArgList, new int[] { 0, 1, 2 } ) ) {
@@ -816,9 +816,9 @@ public class ScriptAddedFunctions {
         } else if ( isUndefined( ArgList, new int[] { 0, 1, 2 } ) ) {
           return (String) undefinedValue;
         }
-        String valueToPad = (String) ArgList[0];
-        String filler = (String) ArgList[1];
-        int size = (Integer) ArgList[2];
+        String valueToPad = (String) ArgList[ 0 ];
+        String filler = (String) ArgList[ 1 ];
+        int size = (Integer) ArgList[ 2 ];
 
         while ( valueToPad.length() < size ) {
           valueToPad = valueToPad + filler;
@@ -832,15 +832,15 @@ public class ScriptAddedFunctions {
   }
 
   public static Object year( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                             Object FunctionContext ) {
     try {
       if ( ArgList.length == 1 ) {
-        if ( isNull( ArgList[0] ) ) {
+        if ( isNull( ArgList[ 0 ] ) ) {
           return new Double( Double.NaN );
-        } else if ( isUndefined( ArgList[0] ) ) {
+        } else if ( isUndefined( ArgList[ 0 ] ) ) {
           return undefinedValue;
         }
-        java.util.Date dArg1 = (java.util.Date) ArgList[0];
+        java.util.Date dArg1 = (java.util.Date) ArgList[ 0 ];
         Calendar cal = Calendar.getInstance();
         cal.setTime( dArg1 );
         return new Double( cal.get( Calendar.YEAR ) );
@@ -853,15 +853,15 @@ public class ScriptAddedFunctions {
   }
 
   public static Object month( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                              Object FunctionContext ) {
     try {
       if ( ArgList.length == 1 ) {
-        if ( isNull( ArgList[0] ) ) {
+        if ( isNull( ArgList[ 0 ] ) ) {
           return new Double( Double.NaN );
-        } else if ( isUndefined( ArgList[0] ) ) {
+        } else if ( isUndefined( ArgList[ 0 ] ) ) {
           return undefinedValue;
         }
-        java.util.Date dArg1 = (java.util.Date) ArgList[0];
+        java.util.Date dArg1 = (java.util.Date) ArgList[ 0 ];
         Calendar cal = Calendar.getInstance();
         cal.setTime( dArg1 );
         return new Double( cal.get( Calendar.MONTH ) );
@@ -875,15 +875,15 @@ public class ScriptAddedFunctions {
   }
 
   public static Object quarter( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                Object FunctionContext ) {
     try {
       if ( ArgList.length == 1 ) {
-        if ( isNull( ArgList[0] ) ) {
+        if ( isNull( ArgList[ 0 ] ) ) {
           return new Double( Double.NaN );
-        } else if ( isUndefined( ArgList[0] ) ) {
+        } else if ( isUndefined( ArgList[ 0 ] ) ) {
           return undefinedValue;
         }
-        java.util.Date dArg1 = (java.util.Date) ArgList[0];
+        java.util.Date dArg1 = (java.util.Date) ArgList[ 0 ];
         Calendar cal = Calendar.getInstance();
         cal.setTime( dArg1 );
 
@@ -907,15 +907,15 @@ public class ScriptAddedFunctions {
   }
 
   public static Object week( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                             Object FunctionContext ) {
     try {
       if ( ArgList.length == 1 ) {
-        if ( isNull( ArgList[0] ) ) {
+        if ( isNull( ArgList[ 0 ] ) ) {
           return new Double( Double.NaN );
-        } else if ( isUndefined( ArgList[0] ) ) {
+        } else if ( isUndefined( ArgList[ 0 ] ) ) {
           return undefinedValue;
         }
-        java.util.Date dArg1 = (java.util.Date) ArgList[0];
+        java.util.Date dArg1 = (java.util.Date) ArgList[ 0 ];
         Calendar cal = Calendar.getInstance();
         cal.setTime( dArg1 );
         return new Double( cal.get( Calendar.WEEK_OF_YEAR ) );
@@ -928,7 +928,7 @@ public class ScriptAddedFunctions {
   }
 
   public static Object str2RegExp( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                   Object FunctionContext ) {
     String[] strArr = null;
     if ( ArgList.length == 2 ) {
       try {
@@ -937,13 +937,13 @@ public class ScriptAddedFunctions {
         } else if ( isUndefined( ArgList, new int[] { 0, 1 } ) ) {
           return undefinedValue;
         }
-        String strToMatch = (String) ArgList[0];
-        Pattern p = Pattern.compile( (String) ArgList[1] );
+        String strToMatch = (String) ArgList[ 0 ];
+        Pattern p = Pattern.compile( (String) ArgList[ 1 ] );
         Matcher m = p.matcher( strToMatch );
         if ( m.matches() && m.groupCount() > 0 ) {
-          strArr = new String[m.groupCount()];
+          strArr = new String[ m.groupCount() ];
           for ( int i = 1; i <= m.groupCount(); i++ ) {
-            strArr[i - 1] = m.group( i );
+            strArr[ i - 1 ] = m.group( i );
           }
         }
       } catch ( Exception e ) {
@@ -956,10 +956,10 @@ public class ScriptAddedFunctions {
   }
 
   public static void touch( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                            Object FunctionContext ) {
     try {
-      if ( ArgList.length == 1 && !isNull( ArgList[0] ) && !isUndefined( ArgList[0] ) ) {
-        File file = new File( (String) ArgList[0] );
+      if ( ArgList.length == 1 && !isNull( ArgList[ 0 ] ) && !isUndefined( ArgList[ 0 ] ) ) {
+        File file = new File( (String) ArgList[ 0 ] );
         boolean success = file.createNewFile();
         if ( !success ) {
           file.setLastModified( System.currentTimeMillis() );
@@ -973,13 +973,13 @@ public class ScriptAddedFunctions {
   }
 
   public static Object fileExists( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                   Object FunctionContext ) {
     try {
-      if ( ArgList.length == 1 && !isNull( ArgList[0] ) && !isUndefined( ArgList[0] ) ) {
-        if ( ArgList[0].equals( null ) ) {
+      if ( ArgList.length == 1 && !isNull( ArgList[ 0 ] ) && !isUndefined( ArgList[ 0 ] ) ) {
+        if ( ArgList[ 0 ].equals( null ) ) {
           return null;
         }
-        File file = new File( (String) ArgList[0] );
+        File file = new File( (String) ArgList[ 0 ] );
         return Boolean.valueOf( file.isFile() );
       } else {
         throw new RuntimeException( "The function call fileExists requires 1 valid argument." );
@@ -990,7 +990,7 @@ public class ScriptAddedFunctions {
   }
 
   public static Object str2date( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                 Object FunctionContext ) {
     Object oRC = new Object();
     String sArg1 = "";
     String sArg2 = "";
@@ -1001,12 +1001,12 @@ public class ScriptAddedFunctions {
         throw new RuntimeException( "Please provide a valid string to the function call str2date." );
       case 1:
         try {
-          if ( isNull( ArgList[0] ) ) {
+          if ( isNull( ArgList[ 0 ] ) ) {
             return null;
-          } else if ( isUndefined( ArgList[0] ) ) {
+          } else if ( isUndefined( ArgList[ 0 ] ) ) {
             return undefinedValue;
           }
-          sArg1 = (String) ArgList[0];
+          sArg1 = (String) ArgList[ 0 ];
           Format dfFormatter = new SimpleDateFormat();
           oRC = dfFormatter.parseObject( sArg1 );
           // if(Double.isNaN(sArg1)) throw new RuntimeException("The first Argument must be a Number.");
@@ -1023,8 +1023,8 @@ public class ScriptAddedFunctions {
           } else if ( isUndefined( ArgList, new int[] { 0, 1 } ) ) {
             return undefinedValue;
           }
-          sArg1 = (String) ArgList[0];
-          sArg2 = (String) ArgList[1];
+          sArg1 = (String) ArgList[ 0 ];
+          sArg2 = (String) ArgList[ 1 ];
           Format dfFormatter = new SimpleDateFormat( sArg2 );
           oRC = dfFormatter.parseObject( sArg1 );
         } catch ( Exception e ) {
@@ -1039,10 +1039,10 @@ public class ScriptAddedFunctions {
           } else if ( isUndefined( ArgList, new int[] { 0, 1, 2 } ) ) {
             return undefinedValue;
           }
-          sArg1 = (String) ArgList[0];
+          sArg1 = (String) ArgList[ 0 ];
           Format dfFormatter;
-          sArg2 = (String) ArgList[1];
-          sArg3 = (String) ArgList[2];
+          sArg2 = (String) ArgList[ 1 ];
+          sArg3 = (String) ArgList[ 2 ];
           if ( sArg3.length() == 2 ) {
             Locale dfLocale = EnvUtil.createLocale( sArg3 );
             dfFormatter = new SimpleDateFormat( sArg2, dfLocale );
@@ -1062,11 +1062,11 @@ public class ScriptAddedFunctions {
           } else if ( isUndefined( ArgList, new int[] { 0, 1, 2, 3 } ) ) {
             return undefinedValue;
           }
-          sArg1 = (String) ArgList[0];
+          sArg1 = (String) ArgList[ 0 ];
           DateFormat dfFormatter;
-          sArg2 = (String) ArgList[1];
-          sArg3 = (String) ArgList[2];
-          sArg4 = (String) ArgList[3];
+          sArg2 = (String) ArgList[ 1 ];
+          sArg3 = (String) ArgList[ 2 ];
+          sArg4 = (String) ArgList[ 3 ];
 
           // If the timezone is not recognized, java will automatically
           // take GMT.
@@ -1092,7 +1092,7 @@ public class ScriptAddedFunctions {
   }
 
   public static Object date2str( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                 Object FunctionContext ) {
     Object oRC = new Object();
     switch ( ArgList.length ) {
       case 0:
@@ -1104,7 +1104,7 @@ public class ScriptAddedFunctions {
           } else if ( isUndefined( ArgList ) ) {
             return undefinedValue;
           }
-          java.util.Date dArg1 = (java.util.Date) ArgList[0];
+          java.util.Date dArg1 = (java.util.Date) ArgList[ 0 ];
           if ( dArg1.equals( null ) ) {
             return null;
           }
@@ -1121,8 +1121,8 @@ public class ScriptAddedFunctions {
           } else if ( isUndefined( ArgList, new int[] { 0, 1 } ) ) {
             return undefinedValue;
           }
-          java.util.Date dArg1 = (java.util.Date) ArgList[0];
-          String sArg2 = (String) ArgList[1];
+          java.util.Date dArg1 = (java.util.Date) ArgList[ 0 ];
+          String sArg2 = (String) ArgList[ 1 ];
           Format dfFormatter = new SimpleDateFormat( sArg2 );
           oRC = dfFormatter.format( dArg1 );
         } catch ( Exception e ) {
@@ -1136,10 +1136,10 @@ public class ScriptAddedFunctions {
           } else if ( isUndefined( ArgList, new int[] { 0, 1, 2 } ) ) {
             return undefinedValue;
           }
-          java.util.Date dArg1 = (java.util.Date) ArgList[0];
+          java.util.Date dArg1 = (java.util.Date) ArgList[ 0 ];
           DateFormat dfFormatter;
-          String sArg2 = (String) ArgList[1];
-          String sArg3 = (String) ArgList[2];
+          String sArg2 = (String) ArgList[ 1 ];
+          String sArg3 = (String) ArgList[ 2 ];
           if ( sArg3.length() == 2 ) {
             Locale dfLocale = EnvUtil.createLocale( sArg3.toLowerCase() );
             dfFormatter = new SimpleDateFormat( sArg2, dfLocale );
@@ -1158,11 +1158,11 @@ public class ScriptAddedFunctions {
           } else if ( isUndefined( ArgList, new int[] { 0, 1, 2, 3 } ) ) {
             return undefinedValue;
           }
-          java.util.Date dArg1 = (java.util.Date) ArgList[0];
+          java.util.Date dArg1 = (java.util.Date) ArgList[ 0 ];
           DateFormat dfFormatter;
-          String sArg2 = (String) ArgList[1];
-          String sArg3 = (String) ArgList[2];
-          String sArg4 = (String) ArgList[3];
+          String sArg2 = (String) ArgList[ 1 ];
+          String sArg3 = (String) ArgList[ 2 ];
+          String sArg4 = (String) ArgList[ 3 ];
 
           // If the timezone is not recognized, java will automatically
           // take GMT.
@@ -1187,7 +1187,7 @@ public class ScriptAddedFunctions {
   }
 
   public static Object isRegExp( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                 Object FunctionContext ) {
 
     if ( ArgList.length >= 2 ) {
       if ( isNull( ArgList, new int[] { 0, 1 } ) ) {
@@ -1195,9 +1195,9 @@ public class ScriptAddedFunctions {
       } else if ( isUndefined( ArgList, new int[] { 0, 1 } ) ) {
         return undefinedValue;
       }
-      String strToMatch = (String) ArgList[0];
+      String strToMatch = (String) ArgList[ 0 ];
       for ( int i = 1; i < ArgList.length; i++ ) {
-        Pattern p = Pattern.compile( (String) ArgList[i] );
+        Pattern p = Pattern.compile( (String) ArgList[ i ] );
         Matcher m = p.matcher( strToMatch );
         if ( m.matches() ) {
           return new Double( i );
@@ -1208,7 +1208,7 @@ public class ScriptAddedFunctions {
   }
 
   public static void sendMail( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                               Object FunctionContext ) {
 
     boolean debug = false;
 
@@ -1219,7 +1219,7 @@ public class ScriptAddedFunctions {
       try {
         // Set the host smtp address
         Properties props = new Properties();
-        props.put( "mail.smtp.host", ArgList[0] );
+        props.put( "mail.smtp.host", ArgList[ 0 ] );
 
         // create some properties and get the default Session
         Session session = Session.getDefaultInstance( props, null );
@@ -1229,15 +1229,15 @@ public class ScriptAddedFunctions {
         Message msg = new MimeMessage( session );
 
         // set the from and to address
-        InternetAddress addressFrom = new InternetAddress( (String) ArgList[1] );
+        InternetAddress addressFrom = new InternetAddress( (String) ArgList[ 1 ] );
         msg.setFrom( addressFrom );
 
         // Get Recipients
-        String[] strArrRecipients = ( (String) ArgList[2] ).split( "," );
+        String[] strArrRecipients = ( (String) ArgList[ 2 ] ).split( "," );
 
-        InternetAddress[] addressTo = new InternetAddress[strArrRecipients.length];
+        InternetAddress[] addressTo = new InternetAddress[ strArrRecipients.length ];
         for ( int i = 0; i < strArrRecipients.length; i++ ) {
-          addressTo[i] = new InternetAddress( strArrRecipients[i] );
+          addressTo[ i ] = new InternetAddress( strArrRecipients[ i ] );
         }
         msg.setRecipients( Message.RecipientType.TO, addressTo );
 
@@ -1245,8 +1245,8 @@ public class ScriptAddedFunctions {
         msg.addHeader( "MyHeaderName", "myHeaderValue" );
 
         // Setting the Subject and Content Type
-        msg.setSubject( (String) ArgList[3] );
-        msg.setContent( ArgList[4], "text/plain" );
+        msg.setSubject( (String) ArgList[ 3 ] );
+        msg.setContent( ArgList[ 4 ], "text/plain" );
         Transport.send( msg );
       } catch ( Exception e ) {
         throw new RuntimeException( "sendMail: " + e.toString() );
@@ -1257,16 +1257,16 @@ public class ScriptAddedFunctions {
   }
 
   public static String upper( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                              Object FunctionContext ) {
     String sRC = "";
     if ( ArgList.length == 1 ) {
       try {
-        if ( isNull( ArgList[0] ) ) {
+        if ( isNull( ArgList[ 0 ] ) ) {
           return null;
-        } else if ( isUndefined( ArgList[0] ) ) {
+        } else if ( isUndefined( ArgList[ 0 ] ) ) {
           return (String) undefinedValue;
         }
-        sRC = (String) ArgList[0];
+        sRC = (String) ArgList[ 0 ];
         sRC = sRC.toUpperCase();
       } catch ( Exception e ) {
         throw new RuntimeException( "The function call upper is not valid : " + e.getMessage() );
@@ -1278,16 +1278,16 @@ public class ScriptAddedFunctions {
   }
 
   public static String lower( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                              Object FunctionContext ) {
     String sRC = "";
     if ( ArgList.length == 1 ) {
       try {
-        if ( isNull( ArgList[0] ) ) {
+        if ( isNull( ArgList[ 0 ] ) ) {
           return null;
-        } else if ( isUndefined( ArgList[0] ) ) {
+        } else if ( isUndefined( ArgList[ 0 ] ) ) {
           return (String) undefinedValue;
         }
-        sRC = (String) ArgList[0];
+        sRC = (String) ArgList[ 0 ];
         sRC = sRC.toLowerCase();
       } catch ( Exception e ) {
         throw new RuntimeException( "The function call lower is not valid : " + e.getMessage() );
@@ -1300,19 +1300,19 @@ public class ScriptAddedFunctions {
 
   // Converts the given Numeric to a JScript String
   public static String num2str( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                Object FunctionContext ) {
     String sRC = "";
     switch ( ArgList.length ) {
       case 0:
         throw new RuntimeException( "The function call num2str requires at least 1 argument." );
       case 1:
         try {
-          if ( isNull( ArgList[0] ) ) {
+          if ( isNull( ArgList[ 0 ] ) ) {
             return null;
-          } else if ( isUndefined( ArgList[0] ) ) {
+          } else if ( isUndefined( ArgList[ 0 ] ) ) {
             return (String) undefinedValue;
           }
-          double sArg1 = (Double) ArgList[0];
+          double sArg1 = (Double) ArgList[ 0 ];
           if ( Double.isNaN( sArg1 ) ) {
             throw new RuntimeException( "The first Argument must be a Number." );
           }
@@ -1329,11 +1329,11 @@ public class ScriptAddedFunctions {
           } else if ( isUndefined( ArgList, new int[] { 0, 1 } ) ) {
             return (String) undefinedValue;
           }
-          double sArg1 = (Double) ArgList[0];
+          double sArg1 = (Double) ArgList[ 0 ];
           if ( Double.isNaN( sArg1 ) ) {
             throw new RuntimeException( "The first Argument must be a Number." );
           }
-          String sArg2 = (String) ArgList[1];
+          String sArg2 = (String) ArgList[ 1 ];
           DecimalFormat formatter = new DecimalFormat( sArg2 );
           sRC = formatter.format( sArg1 );
         } catch ( IllegalArgumentException e ) {
@@ -1347,12 +1347,12 @@ public class ScriptAddedFunctions {
           } else if ( isUndefined( ArgList, new int[] { 0, 1, 2 } ) ) {
             return (String) undefinedValue;
           }
-          double sArg1 = (Double) ArgList[0];
+          double sArg1 = (Double) ArgList[ 0 ];
           if ( Double.isNaN( sArg1 ) ) {
             throw new RuntimeException( "The first Argument must be a Number." );
           }
-          String sArg2 = (String) ArgList[1];
-          String sArg3 = (String) ArgList[2];
+          String sArg2 = (String) ArgList[ 1 ];
+          String sArg3 = (String) ArgList[ 2 ];
           if ( sArg3.length() == 2 ) {
             DecimalFormatSymbols dfs = new DecimalFormatSymbols( EnvUtil.createLocale( sArg3.toLowerCase() ) );
             DecimalFormat formatter = new DecimalFormat( sArg2, dfs );
@@ -1371,22 +1371,22 @@ public class ScriptAddedFunctions {
 
   // Converts the given String to a JScript Numeric
   public static Object str2num( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                Object FunctionContext ) {
     double dRC = 0.00;
     switch ( ArgList.length ) {
       case 0:
         throw new RuntimeException( "The function call str2num requires at least 1 argument." );
       case 1:
         try {
-          if ( isNull( ArgList[0] ) ) {
+          if ( isNull( ArgList[ 0 ] ) ) {
             return new Double( Double.NaN );
-          } else if ( isUndefined( ArgList[0] ) ) {
+          } else if ( isUndefined( ArgList[ 0 ] ) ) {
             return undefinedValue;
           }
-          if ( ArgList[0].equals( null ) ) {
+          if ( ArgList[ 0 ].equals( null ) ) {
             return null;
           }
-          String sArg1 = (String) ArgList[0];
+          String sArg1 = (String) ArgList[ 0 ];
           DecimalFormat formatter = new DecimalFormat();
           dRC = ( formatter.parse( Const.ltrim( sArg1 ) ) ).doubleValue();
         } catch ( Exception e ) {
@@ -1400,8 +1400,8 @@ public class ScriptAddedFunctions {
           } else if ( isUndefined( ArgList, new int[] { 0, 1 } ) ) {
             return undefinedValue;
           }
-          String sArg1 = (String) ArgList[0];
-          String sArg2 = (String) ArgList[1];
+          String sArg1 = (String) ArgList[ 0 ];
+          String sArg2 = (String) ArgList[ 1 ];
           if ( sArg1.equals( "null" ) || sArg2.equals( "null" ) ) {
             return null;
           }
@@ -1419,9 +1419,9 @@ public class ScriptAddedFunctions {
           } else if ( isUndefined( ArgList, new int[] { 0, 1, 2 } ) ) {
             return undefinedValue;
           }
-          String sArg1 = (String) ArgList[0];
-          String sArg2 = (String) ArgList[1];
-          String sArg3 = (String) ArgList[2];
+          String sArg1 = (String) ArgList[ 0 ];
+          String sArg2 = (String) ArgList[ 1 ];
+          String sArg3 = (String) ArgList[ 2 ];
           if ( sArg3.length() == 2 ) {
             DecimalFormatSymbols dfs = new DecimalFormatSymbols( EnvUtil.createLocale( sArg3.toLowerCase() ) );
             DecimalFormat formatter = new DecimalFormat( sArg2, dfs );
@@ -1439,16 +1439,16 @@ public class ScriptAddedFunctions {
   }
 
   public static Object isNum( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                              Object FunctionContext ) {
 
     if ( ArgList.length == 1 ) {
       try {
-        if ( isNull( ArgList[0] ) ) {
+        if ( isNull( ArgList[ 0 ] ) ) {
           return null;
-        } else if ( isUndefined( ArgList[0] ) ) {
+        } else if ( isUndefined( ArgList[ 0 ] ) ) {
           return undefinedValue;
         }
-        double sArg1 = (Double) ArgList[0];
+        double sArg1 = (Double) ArgList[ 0 ];
         if ( Double.isNaN( sArg1 ) ) {
           return Boolean.FALSE;
         } else {
@@ -1463,13 +1463,13 @@ public class ScriptAddedFunctions {
   }
 
   public static Object isDate( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                               Object FunctionContext ) {
 
     if ( ArgList.length == 1 ) {
       try {
-        if ( isNull( ArgList[0] ) ) {
+        if ( isNull( ArgList[ 0 ] ) ) {
           return null;
-        } else if ( isUndefined( ArgList[0] ) ) {
+        } else if ( isUndefined( ArgList[ 0 ] ) ) {
           return undefinedValue;
         }
         /* java.util.Date d = (java.util.Date) */
@@ -1483,7 +1483,7 @@ public class ScriptAddedFunctions {
   }
 
   public static Object decode( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                               Object FunctionContext ) {
     try {
       if ( ArgList.length >= 2 ) {
         if ( isNull( ArgList, new int[] { 0, 1 } ) ) {
@@ -1491,14 +1491,14 @@ public class ScriptAddedFunctions {
         } else if ( isUndefined( ArgList, new int[] { 0, 1 } ) ) {
           return undefinedValue;
         }
-        Object objToCompare = ArgList[0];
+        Object objToCompare = ArgList[ 0 ];
         for ( int i = 1; i < ArgList.length - 1; i = i + 2 ) {
-          if ( ArgList[i].equals( objToCompare ) ) {
-            return ArgList[i + 1];
+          if ( ArgList[ i ].equals( objToCompare ) ) {
+            return ArgList[ i + 1 ];
           }
         }
         if ( ArgList.length % 2 == 0 ) {
-          return ArgList[ArgList.length - 1];
+          return ArgList[ ArgList.length - 1 ];
         } else {
           return objToCompare;
         }
@@ -1511,7 +1511,7 @@ public class ScriptAddedFunctions {
   }
 
   public static String replace( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                Object FunctionContext ) {
     try {
       if ( ArgList.length >= 2 && ( ArgList.length - 1 ) % 2 == 0 ) {
         if ( isNull( ArgList, new int[] { 0, 1 } ) ) {
@@ -1519,9 +1519,9 @@ public class ScriptAddedFunctions {
         } else if ( isUndefined( ArgList, new int[] { 0, 1 } ) ) {
           return (String) undefinedValue;
         }
-        String objForReplace = (String) ArgList[0];
+        String objForReplace = (String) ArgList[ 0 ];
         for ( int i = 1; i < ArgList.length - 1; i = i + 2 ) {
-          objForReplace = objForReplace.replaceAll( (String) ArgList[i], (String) ArgList[i + 1] );
+          objForReplace = objForReplace.replaceAll( (String) ArgList[ i ], (String) ArgList[ i + 1 ] );
         }
         return objForReplace;
       } else {
@@ -1534,11 +1534,11 @@ public class ScriptAddedFunctions {
 
   // Implementation of the JS AlertBox
   public static String Alert( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                              Object FunctionContext ) {
 
     HopUiInterface spoon = HopUiFactory.getInstance();
     if ( ArgList.length == 1 && spoon != null ) {
-      String strMessage = (String) ArgList[0];
+      String strMessage = (String) ArgList[ 0 ];
       spoon.messageBox( strMessage, "Alert", false, Const.INFO );
     }
 
@@ -1547,13 +1547,13 @@ public class ScriptAddedFunctions {
 
   // Setting EnvironmentVar
   public static void setEnvironmentVar( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                        Object FunctionContext ) {
     String sArg1 = "";
     String sArg2 = "";
     if ( ArgList.length == 2 ) {
       try {
-        sArg1 = (String) ArgList[0];
-        sArg2 = (String) ArgList[1];
+        sArg1 = (String) ArgList[ 0 ];
+        sArg2 = (String) ArgList[ 1 ];
         System.setProperty( sArg1, sArg2 );
       } catch ( Exception e ) {
         throw new RuntimeException( e.toString() );
@@ -1565,11 +1565,11 @@ public class ScriptAddedFunctions {
 
   // Returning EnvironmentVar
   public static String getEnvironmentVar( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                          Object FunctionContext ) {
     String sRC = "";
     if ( ArgList.length == 1 ) {
       try {
-        String sArg1 = (String) ArgList[0];
+        String sArg1 = (String) ArgList[ 0 ];
         sRC = System.getProperty( sArg1, "" );
       } catch ( Exception e ) {
         sRC = "";
@@ -1581,16 +1581,16 @@ public class ScriptAddedFunctions {
   }
 
   public static String trim( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                             Object FunctionContext ) {
     String sRC = "";
     if ( ArgList.length == 1 ) {
       try {
-        if ( isNull( ArgList[0] ) ) {
+        if ( isNull( ArgList[ 0 ] ) ) {
           return null;
-        } else if ( isUndefined( ArgList[0] ) ) {
+        } else if ( isUndefined( ArgList[ 0 ] ) ) {
           return (String) undefinedValue;
         }
-        sRC = (String) ArgList[0];
+        sRC = (String) ArgList[ 0 ];
         sRC = Const.trim( sRC );
       } catch ( Exception e ) {
         throw new RuntimeException( "The function call trim is not valid : " + e.getMessage() );
@@ -1602,18 +1602,18 @@ public class ScriptAddedFunctions {
   }
 
   public static String substr( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                               Object FunctionContext ) {
     String sRC = "";
 
     if ( ArgList.length == 2 ) {
       try {
-        if ( isNull( ArgList[0] ) ) {
+        if ( isNull( ArgList[ 0 ] ) ) {
           return null;
-        } else if ( isUndefined( ArgList[0] ) ) {
+        } else if ( isUndefined( ArgList[ 0 ] ) ) {
           return (String) undefinedValue;
         }
-        sRC = (String) ArgList[0];
-        int from = (int) Math.round( (Double) ArgList[1] );
+        sRC = (String) ArgList[ 0 ];
+        int from = (int) Math.round( (Double) ArgList[ 1 ] );
         sRC = sRC.substring( from );
       } catch ( Exception e ) {
         throw new RuntimeException( "The function call substr is not valid : " + e.getMessage() );
@@ -1623,14 +1623,14 @@ public class ScriptAddedFunctions {
         int to;
         int strLen;
 
-        if ( isNull( ArgList[0] ) ) {
+        if ( isNull( ArgList[ 0 ] ) ) {
           return null;
-        } else if ( isUndefined( ArgList[0] ) ) {
+        } else if ( isUndefined( ArgList[ 0 ] ) ) {
           return (String) undefinedValue;
         }
-        sRC = (String) ArgList[0];
-        int from = (int) Math.round( (Double) ArgList[1] );
-        int len = (int) Math.round( (Double) ArgList[2] );
+        sRC = (String) ArgList[ 0 ];
+        int from = (int) Math.round( (Double) ArgList[ 1 ] );
+        int len = (int) Math.round( (Double) ArgList[ 2 ] );
 
         if ( from < 0 ) {
           throw new RuntimeException( "start smaller than 0" );
@@ -1656,17 +1656,17 @@ public class ScriptAddedFunctions {
 
   // Resolve an IP address
   public static String resolveIP( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                  Object FunctionContext ) {
     String sRC = "";
     if ( ArgList.length == 2 ) {
       try {
-        InetAddress addr = InetAddress.getByName( (String) ArgList[0] );
-        if ( ( (String) ArgList[1] ).equals( "IP" ) ) {
+        InetAddress addr = InetAddress.getByName( (String) ArgList[ 0 ] );
+        if ( ( (String) ArgList[ 1 ] ).equals( "IP" ) ) {
           sRC = addr.getHostName();
         } else {
           sRC = addr.getHostAddress();
         }
-        if ( sRC.equals( ArgList[0] ) ) {
+        if ( sRC.equals( ArgList[ 0 ] ) ) {
           sRC = "-";
         }
       } catch ( Exception e ) {
@@ -1681,18 +1681,18 @@ public class ScriptAddedFunctions {
 
   // Loading additional JS Files inside the JavaScriptCode
   public static void LoadScriptFile( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                     Object FunctionContext ) {
     for ( int i = 0; i < ArgList.length; i++ ) { // don't worry about "undefined" arguments
-      checkAndLoadJSFile( actualContext, actualObject, (String) ArgList[i] );
+      checkAndLoadJSFile( actualContext, actualObject, (String) ArgList[ i ] );
     }
   }
 
   // Adding the ScriptsItemTab to the actual running Context
   public static void LoadScriptFromTab( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                        Object FunctionContext ) {
     try {
       for ( int i = 0; i < ArgList.length; i++ ) { // don't worry about "undefined" arguments
-        String strToLoad = (String) ArgList[i];
+        String strToLoad = (String) ArgList[ i ];
         String strScript = actualObject.get( strToLoad ).toString();
         actualContext.eval( strScript, actualObject );
       }
@@ -1703,15 +1703,15 @@ public class ScriptAddedFunctions {
 
   // Print
   public static void print( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                            Object FunctionContext ) {
     for ( int i = 0; i < ArgList.length; i++ ) { // don't worry about "undefined" arguments
-      java.lang.System.out.print( (String) ArgList[i] );
+      java.lang.System.out.print( (String) ArgList[ i ] );
     }
   }
 
   // Prints Line to the actual System.out
   public static void println( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                              Object FunctionContext ) {
     print( actualContext, actualObject, ArgList, FunctionContext );
     java.lang.System.out.println();
   }
@@ -1757,7 +1757,7 @@ public class ScriptAddedFunctions {
 
   // Setting Variable
   public static void setVariable( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                  Object FunctionContext ) {
     String sArg1 = "";
     String sArg2 = "";
     String sArg3 = "";
@@ -1768,9 +1768,9 @@ public class ScriptAddedFunctions {
         if ( scmO instanceof ScriptInterface ) {
           ScriptInterface scm = (ScriptInterface) scmO;
 
-          sArg1 = (String) ArgList[0];
-          sArg2 = (String) ArgList[1];
-          sArg3 = (String) ArgList[2];
+          sArg1 = (String) ArgList[ 0 ];
+          sArg2 = (String) ArgList[ 1 ];
+          sArg3 = (String) ArgList[ 2 ];
 
           if ( "s".equals( sArg3 ) ) {
             // System wide properties
@@ -1832,7 +1832,7 @@ public class ScriptAddedFunctions {
 
   // Returning EnvironmentVar
   public static String getVariable( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                    Object FunctionContext ) {
     String sRC = "";
     String sArg1 = "";
     String sArg2 = "";
@@ -1844,12 +1844,12 @@ public class ScriptAddedFunctions {
         if ( scmO instanceof Script ) {
           Script scm = (Script) scmO;
 
-          sArg1 = (String) ArgList[0];
-          sArg2 = (String) ArgList[1];
+          sArg1 = (String) ArgList[ 0 ];
+          sArg2 = (String) ArgList[ 1 ];
           return scm.getVariable( sArg1, sArg2 );
         } else {
           // running via the Test button in a dialog
-          sArg2 = (String) ArgList[1];
+          sArg2 = (String) ArgList[ 1 ];
           return sArg2;
         }
       } catch ( Exception e ) {
@@ -1863,7 +1863,7 @@ public class ScriptAddedFunctions {
 
   // Return the output row metadata
   public static RowMetaInterface getOutputRowMeta( ScriptEngine actualContext, Bindings actualObject,
-    Object[] ArgList, Object FunctionContext ) {
+                                                   Object[] ArgList, Object FunctionContext ) {
     if ( ArgList.length == 0 ) {
       try {
         Object scmO = actualObject.get( "_step_" );
@@ -1885,7 +1885,7 @@ public class ScriptAddedFunctions {
 
   // Return the input row metadata
   public static RowMetaInterface getInputRowMeta( ScriptEngine actualContext, Bindings actualObject,
-    Object[] ArgList, Object FunctionContext ) {
+                                                  Object[] ArgList, Object FunctionContext ) {
     if ( ArgList.length == 0 ) {
       try {
         Object scmO = actualObject.get( "_step_" );
@@ -1907,10 +1907,10 @@ public class ScriptAddedFunctions {
 
   // Return the input row metadata
   public static Object[] createRowCopy( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                        Object FunctionContext ) {
     if ( ArgList.length == 1 ) {
       try {
-        int newSize = (int) Math.round( (Double) ArgList[0] );
+        int newSize = (int) Math.round( (Double) ArgList[ 0 ] );
 
         Object scmO = actualObject.get( "row" );
         Object[] row = (Object[]) scmO; // TODO AKRETION ensure
@@ -1928,10 +1928,10 @@ public class ScriptAddedFunctions {
   // put a row out to the next steps...
   //
   public static void putRow( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                             Object FunctionContext ) {
     if ( ArgList.length == 1 ) {
       try {
-        Object[] newRow = (Object[]) ArgList[0];
+        Object[] newRow = (Object[]) ArgList[ 0 ];
 
         Object scmO = actualObject.get( "_step_" );
         try {
@@ -1952,26 +1952,26 @@ public class ScriptAddedFunctions {
   }
 
   public static void deleteFile( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                 Object FunctionContext ) {
 
     try {
-      if ( ArgList.length == 1 && !isNull( ArgList[0] ) && !isUndefined( ArgList[0] ) ) {
+      if ( ArgList.length == 1 && !isNull( ArgList[ 0 ] ) && !isUndefined( ArgList[ 0 ] ) ) {
         // Object act = actualObject.get("_step_", actualObject);
         // ScriptValuesMod act = (ScriptValuesMod)Context.toType(scm_delete, ScriptValuesMod.class);
 
         FileObject fileObject = null;
 
         try {
-          fileObject = HopVFS.getFileObject( (String) ArgList[0] );
+          fileObject = HopVFS.getFileObject( (String) ArgList[ 0 ] );
           if ( fileObject.exists() ) {
             if ( fileObject.getType() == FileType.FILE ) {
               if ( !fileObject.delete() ) {
-                throw new RuntimeException( "We can not delete file [" + (String) ArgList[0] + "]!" );
+                throw new RuntimeException( "We can not delete file [" + (String) ArgList[ 0 ] + "]!" );
               }
             }
 
           } else {
-            throw new RuntimeException( "file [" + ArgList[0] + "] can not be found!" );
+            throw new RuntimeException( "file [" + ArgList[ 0 ] + "] can not be found!" );
           }
         } catch ( IOException e ) {
           throw new RuntimeException( "The function call deleteFile is not valid." );
@@ -1994,18 +1994,18 @@ public class ScriptAddedFunctions {
   }
 
   public static void createFolder( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                   Object FunctionContext ) {
 
     try {
-      if ( ArgList.length == 1 && !isNull( ArgList[0] ) && !isUndefined( ArgList[0] ) ) {
+      if ( ArgList.length == 1 && !isNull( ArgList[ 0 ] ) && !isUndefined( ArgList[ 0 ] ) ) {
         FileObject fileObject = null;
 
         try {
-          fileObject = HopVFS.getFileObject( (String) ArgList[0] );
+          fileObject = HopVFS.getFileObject( (String) ArgList[ 0 ] );
           if ( !fileObject.exists() ) {
             fileObject.createFolder();
           } else {
-            throw new RuntimeException( "folder [" + ArgList[0] + "] already exist!" );
+            throw new RuntimeException( "folder [" + ArgList[ 0 ] + "] already exist!" );
           }
         } catch ( IOException e ) {
           throw new RuntimeException( "The function call createFolder is not valid." );
@@ -2028,26 +2028,26 @@ public class ScriptAddedFunctions {
   }
 
   public static void copyFile( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                               Object FunctionContext ) {
 
     try {
       if ( ArgList.length == 3
-        && !isNull( ArgList[0] ) && !isNull( ArgList[1] ) && !isUndefined( ArgList[0] )
-        && !isUndefined( ArgList[1] ) ) {
+        && !isNull( ArgList[ 0 ] ) && !isNull( ArgList[ 1 ] ) && !isUndefined( ArgList[ 0 ] )
+        && !isUndefined( ArgList[ 1 ] ) ) {
         FileObject fileSource = null, fileDestination = null;
 
         try {
           // Source file to copy
-          fileSource = HopVFS.getFileObject( (String) ArgList[0] );
+          fileSource = HopVFS.getFileObject( (String) ArgList[ 0 ] );
           // Destination filename
-          fileDestination = HopVFS.getFileObject( (String) ArgList[1] );
+          fileDestination = HopVFS.getFileObject( (String) ArgList[ 1 ] );
           if ( fileSource.exists() ) {
             // Source file exists...
             if ( fileSource.getType() == FileType.FILE ) {
               // Great..source is a file ...
               boolean overwrite = false;
-              if ( !ArgList[1].equals( null ) ) {
-                overwrite = (Boolean) ArgList[2];
+              if ( !ArgList[ 1 ].equals( null ) ) {
+                overwrite = (Boolean) ArgList[ 2 ];
               }
               boolean destinationExists = fileDestination.exists();
               // Let's copy the file...
@@ -2057,7 +2057,7 @@ public class ScriptAddedFunctions {
 
             }
           } else {
-            throw new RuntimeException( "file to copy [" + ArgList[0] + "] can not be found!" );
+            throw new RuntimeException( "file to copy [" + ArgList[ 0 ] + "] can not be found!" );
           }
         } catch ( IOException e ) {
           throw new RuntimeException( "The function call copyFile throw an error : " + e.toString() );
@@ -2087,26 +2087,26 @@ public class ScriptAddedFunctions {
   }
 
   public static double getFileSize( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                    Object FunctionContext ) {
     try {
-      if ( ArgList.length == 1 && !isNull( ArgList[0] ) && !isUndefined( ArgList[0] ) ) {
-        if ( ArgList[0].equals( null ) ) {
+      if ( ArgList.length == 1 && !isNull( ArgList[ 0 ] ) && !isUndefined( ArgList[ 0 ] ) ) {
+        if ( ArgList[ 0 ].equals( null ) ) {
           return 0;
         }
         FileObject file = null;
 
         try {
           // Source file
-          file = HopVFS.getFileObject( (String) ArgList[0] );
+          file = HopVFS.getFileObject( (String) ArgList[ 0 ] );
           long filesize = 0;
           if ( file.exists() ) {
             if ( file.getType().equals( FileType.FILE ) ) {
               filesize = file.getContent().getSize();
             } else {
-              throw new RuntimeException( "[" + ArgList[0] + "] is not a file!" );
+              throw new RuntimeException( "[" + ArgList[ 0 ] + "] is not a file!" );
             }
           } else {
-            throw new RuntimeException( "file [" + ArgList[0] + "] can not be found!" );
+            throw new RuntimeException( "file [" + ArgList[ 0 ] + "] can not be found!" );
           }
           return filesize;
         } catch ( IOException e ) {
@@ -2130,26 +2130,26 @@ public class ScriptAddedFunctions {
   }
 
   public static boolean isFile( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                Object FunctionContext ) {
     try {
-      if ( ArgList.length == 1 && !isNull( ArgList[0] ) && !isUndefined( ArgList[0] ) ) {
-        if ( ArgList[0].equals( null ) ) {
+      if ( ArgList.length == 1 && !isNull( ArgList[ 0 ] ) && !isUndefined( ArgList[ 0 ] ) ) {
+        if ( ArgList[ 0 ].equals( null ) ) {
           return false;
         }
         FileObject file = null;
 
         try {
           // Source file
-          file = HopVFS.getFileObject( (String) ArgList[0] );
+          file = HopVFS.getFileObject( (String) ArgList[ 0 ] );
           boolean isafile = false;
           if ( file.exists() ) {
             if ( file.getType().equals( FileType.FILE ) ) {
               isafile = true;
             } else {
-              throw new RuntimeException( "[" + ArgList[0] + "] is not a file!" );
+              throw new RuntimeException( "[" + ArgList[ 0 ] + "] is not a file!" );
             }
           } else {
-            throw new RuntimeException( "file [" + ArgList[0] + "] can not be found!" );
+            throw new RuntimeException( "file [" + ArgList[ 0 ] + "] can not be found!" );
           }
           return isafile;
         } catch ( IOException e ) {
@@ -2173,26 +2173,26 @@ public class ScriptAddedFunctions {
   }
 
   public static boolean isFolder( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                  Object FunctionContext ) {
     try {
-      if ( ArgList.length == 1 && !isNull( ArgList[0] ) && !isUndefined( ArgList[0] ) ) {
-        if ( ArgList[0].equals( null ) ) {
+      if ( ArgList.length == 1 && !isNull( ArgList[ 0 ] ) && !isUndefined( ArgList[ 0 ] ) ) {
+        if ( ArgList[ 0 ].equals( null ) ) {
           return false;
         }
         FileObject file = null;
 
         try {
           // Source file
-          file = HopVFS.getFileObject( (String) ArgList[0] );
+          file = HopVFS.getFileObject( (String) ArgList[ 0 ] );
           boolean isafolder = false;
           if ( file.exists() ) {
             if ( file.getType().equals( FileType.FOLDER ) ) {
               isafolder = true;
             } else {
-              throw new RuntimeException( "[" + ArgList[0] + "] is not a folder!" );
+              throw new RuntimeException( "[" + ArgList[ 0 ] + "] is not a folder!" );
             }
           } else {
-            throw new RuntimeException( "folder [" + ArgList[0] + "] can not be found!" );
+            throw new RuntimeException( "folder [" + ArgList[ 0 ] + "] can not be found!" );
           }
           return isafolder;
         } catch ( IOException e ) {
@@ -2216,23 +2216,23 @@ public class ScriptAddedFunctions {
   }
 
   public static String getShortFilename( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                         Object FunctionContext ) {
     try {
-      if ( ArgList.length == 1 && !isNull( ArgList[0] ) && !isUndefined( ArgList[0] ) ) {
-        if ( ArgList[0].equals( null ) ) {
+      if ( ArgList.length == 1 && !isNull( ArgList[ 0 ] ) && !isUndefined( ArgList[ 0 ] ) ) {
+        if ( ArgList[ 0 ].equals( null ) ) {
           return null;
         }
         FileObject file = null;
 
         try {
           // Source file
-          file = HopVFS.getFileObject( (String) ArgList[0] );
+          file = HopVFS.getFileObject( (String) ArgList[ 0 ] );
           String Filename = null;
           if ( file.exists() ) {
             Filename = file.getName().getBaseName();
 
           } else {
-            throw new RuntimeException( "file [" + ArgList[0] + "] can not be found!" );
+            throw new RuntimeException( "file [" + ArgList[ 0 ] + "] can not be found!" );
           }
 
           return Filename;
@@ -2257,23 +2257,23 @@ public class ScriptAddedFunctions {
   }
 
   public static String getFileExtension( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                         Object FunctionContext ) {
     try {
-      if ( ArgList.length == 1 && !isNull( ArgList[0] ) && !isUndefined( ArgList[0] ) ) {
-        if ( ArgList[0].equals( null ) ) {
+      if ( ArgList.length == 1 && !isNull( ArgList[ 0 ] ) && !isUndefined( ArgList[ 0 ] ) ) {
+        if ( ArgList[ 0 ].equals( null ) ) {
           return null;
         }
         FileObject file = null;
 
         try {
           // Source file
-          file = HopVFS.getFileObject( (String) ArgList[0] );
+          file = HopVFS.getFileObject( (String) ArgList[ 0 ] );
           String Extension = null;
           if ( file.exists() ) {
             Extension = file.getName().getExtension();
 
           } else {
-            throw new RuntimeException( "file [" + ArgList[0] + "] can not be found!" );
+            throw new RuntimeException( "file [" + ArgList[ 0 ] + "] can not be found!" );
           }
 
           return Extension;
@@ -2298,23 +2298,23 @@ public class ScriptAddedFunctions {
   }
 
   public static String getParentFoldername( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                            Object FunctionContext ) {
     try {
-      if ( ArgList.length == 1 && !isNull( ArgList[0] ) && !isUndefined( ArgList[0] ) ) {
-        if ( ArgList[0].equals( null ) ) {
+      if ( ArgList.length == 1 && !isNull( ArgList[ 0 ] ) && !isUndefined( ArgList[ 0 ] ) ) {
+        if ( ArgList[ 0 ].equals( null ) ) {
           return null;
         }
         FileObject file = null;
 
         try {
           // Source file
-          file = HopVFS.getFileObject( (String) ArgList[0] );
+          file = HopVFS.getFileObject( (String) ArgList[ 0 ] );
           String foldername = null;
           if ( file.exists() ) {
             foldername = HopVFS.getFilename( file.getParent() );
 
           } else {
-            throw new RuntimeException( "file [" + ArgList[0] + "] can not be found!" );
+            throw new RuntimeException( "file [" + ArgList[ 0 ] + "] can not be found!" );
           }
 
           return foldername;
@@ -2339,18 +2339,18 @@ public class ScriptAddedFunctions {
   }
 
   public static String getLastModifiedTime( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                            Object FunctionContext ) {
     try {
-      if ( ArgList.length == 2 && !isNull( ArgList[0] ) && !isUndefined( ArgList[0] ) ) {
-        if ( ArgList[0].equals( null ) ) {
+      if ( ArgList.length == 2 && !isNull( ArgList[ 0 ] ) && !isUndefined( ArgList[ 0 ] ) ) {
+        if ( ArgList[ 0 ].equals( null ) ) {
           return null;
         }
         FileObject file = null;
 
         try {
           // Source file
-          file = HopVFS.getFileObject( (String) ArgList[0] );
-          String dateformat = (String) ArgList[1];
+          file = HopVFS.getFileObject( (String) ArgList[ 0 ] );
+          String dateformat = (String) ArgList[ 1 ];
           if ( isNull( dateformat ) ) {
             dateformat = "yyyy-MM-dd";
           }
@@ -2361,7 +2361,7 @@ public class ScriptAddedFunctions {
             lastmodifiedtime = dateFormat.format( lastmodifiedtimedate );
 
           } else {
-            throw new RuntimeException( "file [" + ArgList[0] + "] can not be found!" );
+            throw new RuntimeException( "file [" + ArgList[ 0 ] + "] can not be found!" );
           }
 
           return lastmodifiedtime;
@@ -2386,20 +2386,20 @@ public class ScriptAddedFunctions {
   }
 
   public static Object trunc( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                              Object FunctionContext ) {
     try {
       // 1 argument: normal truncation of numbers
       //
       if ( ArgList.length == 1 ) {
-        if ( isNull( ArgList[0] ) ) {
+        if ( isNull( ArgList[ 0 ] ) ) {
           return null;
-        } else if ( isUndefined( ArgList[0] ) ) {
+        } else if ( isUndefined( ArgList[ 0 ] ) ) {
           return undefinedValue;
         }
 
         // This is the truncation of a number...
         //
-        Double dArg1 = (Double) ArgList[0];
+        Double dArg1 = (Double) ArgList[ 0 ];
         return Double.valueOf( Math.floor( dArg1 ) );
 
       } else {
@@ -2412,13 +2412,13 @@ public class ScriptAddedFunctions {
 
   @SuppressWarnings( "fallthrough" )
   public static Object truncDate( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                                  Object FunctionContext ) {
     // 2 arguments: truncation of dates to a certain precision
     //
     if ( ArgList.length == 2 ) {
-      if ( isNull( ArgList[0] ) ) {
+      if ( isNull( ArgList[ 0 ] ) ) {
         return null;
-      } else if ( isUndefined( ArgList[0] ) ) {
+      } else if ( isUndefined( ArgList[ 0 ] ) ) {
         return undefinedValue;
       }
 
@@ -2428,8 +2428,8 @@ public class ScriptAddedFunctions {
       java.util.Date dArg1 = null;
       Integer level = null;
       try {
-        dArg1 = (java.util.Date) ArgList[0];
-        level = (Integer) ArgList[1];
+        dArg1 = (java.util.Date) ArgList[ 0 ];
+        level = (Integer) ArgList[ 1 ];
       } catch ( Exception e ) {
         throw new RuntimeException( e.toString() );
       }
@@ -2471,26 +2471,26 @@ public class ScriptAddedFunctions {
 
 
   public static void moveFile( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
-    Object FunctionContext ) {
+                               Object FunctionContext ) {
 
     try {
       if ( ArgList.length == 3
-        && !isNull( ArgList[0] ) && !isNull( ArgList[1] ) && !isUndefined( ArgList[0] )
-        && !isUndefined( ArgList[1] ) ) {
+        && !isNull( ArgList[ 0 ] ) && !isNull( ArgList[ 1 ] ) && !isUndefined( ArgList[ 0 ] )
+        && !isUndefined( ArgList[ 1 ] ) ) {
         FileObject fileSource = null, fileDestination = null;
 
         try {
           // Source file to move
-          fileSource = HopVFS.getFileObject( (String) ArgList[0] );
+          fileSource = HopVFS.getFileObject( (String) ArgList[ 0 ] );
           // Destination filename
-          fileDestination = HopVFS.getFileObject( (String) ArgList[1] );
+          fileDestination = HopVFS.getFileObject( (String) ArgList[ 1 ] );
           if ( fileSource.exists() ) {
             // Source file exists...
             if ( fileSource.getType() == FileType.FILE ) {
               // Great..source is a file ...
               boolean overwrite = false;
-              if ( !ArgList[1].equals( null ) ) {
-                overwrite = (Boolean) ArgList[2];
+              if ( !ArgList[ 1 ].equals( null ) ) {
+                overwrite = (Boolean) ArgList[ 2 ];
               }
               boolean destinationExists = fileDestination.exists();
               // Let's move the file...
@@ -2500,7 +2500,7 @@ public class ScriptAddedFunctions {
 
             }
           } else {
-            throw new RuntimeException( "file to move [" + ArgList[0] + "] can not be found!" );
+            throw new RuntimeException( "file to move [" + ArgList[ 0 ] + "] can not be found!" );
           }
         } catch ( IOException e ) {
           throw new RuntimeException( "The function call moveFile throw an error : " + e.toString() );

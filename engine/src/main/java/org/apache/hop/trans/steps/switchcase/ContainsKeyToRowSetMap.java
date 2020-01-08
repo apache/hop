@@ -22,10 +22,10 @@
 
 package org.apache.hop.trans.steps.switchcase;
 
+import org.apache.hop.core.RowSet;
+
 import java.util.ArrayList;
 import java.util.Set;
-
-import org.apache.hop.core.RowSet;
 
 public class ContainsKeyToRowSetMap extends KeyToRowSetMap {
   protected ArrayList<String> list = new ArrayList<String>();

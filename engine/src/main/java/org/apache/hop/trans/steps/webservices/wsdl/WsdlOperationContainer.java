@@ -22,10 +22,10 @@
 
 package org.apache.hop.trans.steps.webservices.wsdl;
 
+import org.apache.hop.trans.steps.webservices.wsdl.WsdlOpParameter.ParameterMode;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.hop.trans.steps.webservices.wsdl.WsdlOpParameter.ParameterMode;
 
 public class WsdlOperationContainer implements WsdlParamContainer {
 
@@ -49,7 +49,7 @@ public class WsdlOperationContainer implements WsdlParamContainer {
         paramsRet.add( param.getName().getLocalPart() );
       }
     }
-    return paramsRet.toArray( new String[paramsRet.size()] );
+    return paramsRet.toArray( new String[ paramsRet.size() ] );
   }
 
   public String getParamType( String paramName ) {

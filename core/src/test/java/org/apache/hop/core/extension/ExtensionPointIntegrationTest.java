@@ -27,16 +27,16 @@ import javassist.CtClass;
 import javassist.CtField;
 import javassist.CtNewMethod;
 import javassist.NotFoundException;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,7 +66,7 @@ public class ExtensionPointIntegrationTest {
     pool.insertClassPath( new ClassClassPath( ExtensionPointIntegrationTest.class ) );
     for ( HopExtensionPoint ep : HopExtensionPoint.values() ) {
       ExtensionPointPluginType.getInstance().registerCustom( createClassRuntime( ep ),
-          "custom", "id" + ep.id, ep.id, "no description", null );
+        "custom", "id" + ep.id, ep.id, "no description", null );
     }
 
     HopClientEnvironment.init();
@@ -90,14 +90,14 @@ public class ExtensionPointIntegrationTest {
     final HopExtensionPoint jobAfterOpen = HopExtensionPoint.JobAfterOpen;
     final ExtensionPointInterface int1 = ExtensionPointMap.getInstance().getTableValue( jobAfterOpen.id, "id" + jobAfterOpen.id );
     ExtensionPointPluginType.getInstance().registerCustom( createClassRuntime( jobAfterOpen, "Edited" ), "custom", "id"
-            + jobAfterOpen.id, jobAfterOpen.id,
-        "no description", null );
+        + jobAfterOpen.id, jobAfterOpen.id,
+      "no description", null );
     assertNotSame( int1, ExtensionPointMap.getInstance().getTableValue( jobAfterOpen.id, "id" + jobAfterOpen.id ) );
     assertEquals( HopExtensionPoint.values().length, ExtensionPointMap.getInstance().getNumberOfRows() );
 
     // check removal of extension point
     PluginRegistry.getInstance().removePlugin( ExtensionPointPluginType.class, PluginRegistry.getInstance().getPlugin(
-        ExtensionPointPluginType.class, "id" + jobAfterOpen.id ) );
+      ExtensionPointPluginType.class, "id" + jobAfterOpen.id ) );
     assertTrue( ExtensionPointMap.getInstance().getTableValue( jobAfterOpen.id, "id" + jobAfterOpen.id ) == null );
     assertEquals( HopExtensionPoint.values().length - 1, ExtensionPointMap.getInstance().getNumberOfRows() );
   }
@@ -109,21 +109,21 @@ public class ExtensionPointIntegrationTest {
   /**
    * Create ExtensionPointInterface subclass in runtime
    *
-   * @param ep extension point id
+   * @param ep       extension point id
    * @param addition addition to class name to avoid duplicate classes
    * @return class
    * @throws NotFoundException
    * @throws CannotCompileException
    */
   private static Class createClassRuntime( HopExtensionPoint ep, String addition )
-      throws NotFoundException, CannotCompileException {
+    throws NotFoundException, CannotCompileException {
     final CtClass ctClass = pool.makeClass( "Plugin" + ep.id + addition );
     ctClass.addInterface( pool.get( ExtensionPointInterface.class.getCanonicalName() ) );
     ctClass.addField( CtField.make( "public boolean " + EXECUTED_FIELD_NAME + ";", ctClass ) );
     ctClass.addMethod( CtNewMethod.make(
-        "public void callExtensionPoint( org.apache.hop.core.logging.LogChannelInterface log, Object object ) "
-            + "throws org.apache.hop.core.exception.HopException { " + EXECUTED_FIELD_NAME + " = true; }",
-        ctClass ) );
+      "public void callExtensionPoint( org.apache.hop.core.logging.LogChannelInterface log, Object object ) "
+        + "throws org.apache.hop.core.exception.HopException { " + EXECUTED_FIELD_NAME + " = true; }",
+      ctClass ) );
     return ctClass.toClass();
   }
 
@@ -163,10 +163,10 @@ public class ExtensionPointIntegrationTest {
   private static HopExtensionPoint getRandomHopExtensionPoint() {
     HopExtensionPoint[] kettleExtensionPoints = HopExtensionPoint.values();
     int randomInd = ThreadLocalRandom.current().nextInt( 0, kettleExtensionPoints.length );
-    return kettleExtensionPoints[randomInd];
+    return kettleExtensionPoints[ randomInd ];
   }
 
-  private static void assertConcurrent( final List<? extends Runnable> runnables )  throws InterruptedException {
+  private static void assertConcurrent( final List<? extends Runnable> runnables ) throws InterruptedException {
     final int numThreads = runnables.size();
     final List<Throwable> exceptions = Collections.synchronizedList( new ArrayList<>() );
     final ExecutorService threadPool = Executors.newFixedThreadPool( numThreads );

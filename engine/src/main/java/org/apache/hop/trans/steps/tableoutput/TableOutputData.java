@@ -22,6 +22,12 @@
 
 package org.apache.hop.trans.steps.tableoutput;
 
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.trans.step.BaseStepData;
+import org.apache.hop.trans.step.StepDataInterface;
+
 import java.sql.PreparedStatement;
 import java.sql.Savepoint;
 import java.text.SimpleDateFormat;
@@ -30,12 +36,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.trans.step.BaseStepData;
-import org.apache.hop.trans.step.StepDataInterface;
 
 /**
  * Storage class for table output step.
@@ -57,10 +57,14 @@ public class TableOutputData extends BaseStepData implements StepDataInterface {
 
   public int indexOfPartitioningField;
 
-  /** Cache of the data formatter object */
+  /**
+   * Cache of the data formatter object
+   */
   public SimpleDateFormat dateFormater;
 
-  /** Use batch mode or not? */
+  /**
+   * Use batch mode or not?
+   */
   public boolean batchMode;
   public int indexOfTableNameField;
 

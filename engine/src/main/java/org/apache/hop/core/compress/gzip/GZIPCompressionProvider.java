@@ -22,11 +22,11 @@
 
 package org.apache.hop.core.compress.gzip;
 
+import org.apache.hop.core.compress.CompressionProvider;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import org.apache.hop.core.compress.CompressionProvider;
 
 public class GZIPCompressionProvider implements CompressionProvider {
 

@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.append;
 
-import java.util.List;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRowException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -36,6 +34,8 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
+
+import java.util.List;
 
 /**
  * Read all rows from a hop until the end, and then read the rows from another hop.
@@ -50,7 +50,7 @@ public class Append extends BaseStep implements StepInterface {
   private AppendData data;
 
   public Append( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                 Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -111,7 +111,7 @@ public class Append extends BaseStep implements StepInterface {
   }
 
   /**
-   * @see StepInterface#init(org.apache.hop.trans.step.StepMetaInterface , org.apache.hop.trans.step.StepDataInterface)
+   * @see StepInterface#init(org.apache.hop.trans.step.StepMetaInterface, org.apache.hop.trans.step.StepDataInterface)
    */
   public boolean init( StepMetaInterface smi, StepDataInterface sdi ) {
     meta = (AppendMeta) smi;
@@ -151,14 +151,10 @@ public class Append extends BaseStep implements StepInterface {
   /**
    * Checks whether 2 template rows are compatible for the mergestep.
    *
-   * @param referenceRowMeta
-   *          Reference row
-   * @param compareRowMeta
-   *          Row to compare to
-   *
+   * @param referenceRowMeta Reference row
+   * @param compareRowMeta   Row to compare to
    * @return true when templates are compatible.
-   * @throws HopRowException
-   *           in case there is a compatibility error.
+   * @throws HopRowException in case there is a compatibility error.
    */
   protected void checkInputLayoutValid( RowMetaInterface referenceRowMeta, RowMetaInterface compareRowMeta ) throws HopRowException {
     if ( referenceRowMeta != null && compareRowMeta != null ) {

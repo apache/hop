@@ -22,16 +22,23 @@
 
 package org.apache.hop.core.util;
 
-import static org.junit.Assert.*;
-
-import java.util.*;
-
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test class for StringEvaluator functionality.
@@ -52,12 +59,12 @@ public class StringEvaluatorTest {
   public void setUp() throws HopException {
     HopClientEnvironment.init();
     evaluator = new StringEvaluator();
-    Locale.setDefault(Locale.US);
+    Locale.setDefault( Locale.US );
   }
 
   @AfterClass
-  public static void tearDown(){
-    Locale.setDefault(defaultLocale);
+  public static void tearDown() {
+    Locale.setDefault( defaultLocale );
   }
 
   /////////////////////////////////////
@@ -216,12 +223,13 @@ public class StringEvaluatorTest {
     assertTrue( evaluator.getAdvicedResult().getConversionMeta().isInteger() );
     assertTrue( mask.equals( evaluator.getAdvicedResult().getConversionMeta().getConversionMask() ) );
   }
+
   /////////////////////////////////////
   // currency types
   ////////////////////////////////////
   @Test
   public void testCurrency() {
-    testCurrencyBasic( "+123", "-123", "(123)"  );
+    testCurrencyBasic( "+123", "-123", "(123)" );
   }
 
   private void testCurrencyBasic( String... strings ) {
@@ -273,7 +281,7 @@ public class StringEvaluatorTest {
 
   @Test
   public void testDateArray() {
-    testDefaultDateFormat( "MM/dd/yyyy", "10/10/2000", "11/10/2000", "12/10/2000"  );
+    testDefaultDateFormat( "MM/dd/yyyy", "10/10/2000", "11/10/2000", "12/10/2000" );
   }
 
   @Test
@@ -307,7 +315,7 @@ public class StringEvaluatorTest {
     ArrayList<String> dateFormats = new ArrayList<String>();
     dateFormats.add( sampleFormat );
     StringEvaluator evaluator = new StringEvaluator( true, new ArrayList<String>(), dateFormats );
-    evaluator.evaluateString( "02/29/2000 00:00:00"  );
+    evaluator.evaluateString( "02/29/2000 00:00:00" );
     assertFalse( evaluator.getStringEvaluationResults().isEmpty() );
     assertTrue( evaluator.getAdvicedResult().getConversionMeta().isDate() );
     assertTrue( sampleFormat.equals( evaluator.getAdvicedResult().getConversionMeta().getConversionMask() ) );
@@ -321,7 +329,7 @@ public class StringEvaluatorTest {
     dateFormats.add( sampleLongFormat );
     dateFormats.add( sampleShortFormat );
     StringEvaluator evaluator = new StringEvaluator( true, new ArrayList<String>(), dateFormats );
-    evaluator.evaluateString( "02/29/20 00:00:00"  );
+    evaluator.evaluateString( "02/29/20 00:00:00" );
     assertFalse( evaluator.getStringEvaluationResults().isEmpty() );
     assertTrue( evaluator.getAdvicedResult().getConversionMeta().isDate() );
     assertFalse( sampleLongFormat.equals( evaluator.getAdvicedResult().getConversionMeta().getConversionMask() ) );

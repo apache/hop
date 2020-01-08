@@ -22,39 +22,6 @@
 
 package org.apache.hop.trans.steps.switchcase;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -64,15 +31,46 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class SwitchCaseTest {
 
@@ -146,14 +144,14 @@ public class SwitchCaseTest {
 
     // now - check the data is correct in every row set:
     assertEquals( "First row set contains only 3: ", true, isRowSetContainsValue(
-      rowSetOne, new Object[] { 3 }, new Object[] { } ) );
+      rowSetOne, new Object[] { 3 }, new Object[] {} ) );
     assertEquals( "Second row set contains only 3: ", true, isRowSetContainsValue(
-      rowSetTwo, new Object[] { 3 }, new Object[] { } ) );
+      rowSetTwo, new Object[] { 3 }, new Object[] {} ) );
 
     assertEquals( "First null row set contains only null: ", true, isRowSetContainsValue(
-      rowSetNullOne, new Object[] { null }, new Object[] { } ) );
+      rowSetNullOne, new Object[] { null }, new Object[] {} ) );
     assertEquals( "Second null row set contains only null: ", true, isRowSetContainsValue(
-      rowSetNullTwo, new Object[] { null }, new Object[] { } ) );
+      rowSetNullTwo, new Object[] { null }, new Object[] {} ) );
 
     assertEquals( "Default row set do not contains null or 3, but other", true, isRowSetContainsValue(
       def, new Object[] { 1, 2, 4, 5 }, new Object[] { 3, null } ) );
@@ -169,7 +167,7 @@ public class SwitchCaseTest {
 
     for ( int i = 0; i < rowSet.size(); i++ ) {
       Object[] row = rowSet.getRow();
-      Object val = row[0];
+      Object val = row[ 0 ];
       ok = yes.contains( val ) && !no.contains( val );
       if ( !ok ) {
         // this is not ok now
@@ -376,17 +374,17 @@ public class SwitchCaseTest {
       assertEquals( 0, rowSet.size() );
     }
 
-    assertNull( defaultRowSet.getRow()[0] );
+    assertNull( defaultRowSet.getRow()[ 0 ] );
   }
 
   @Test
   public void prepareObjectTypeBinaryTest_Equals() throws Exception {
-    assertEquals(  Arrays.hashCode(  new byte[] { 1, 2, 3 } ), SwitchCase.prepareObjectType( new byte[] { 1, 2, 3 } ) ) ;
+    assertEquals( Arrays.hashCode( new byte[] { 1, 2, 3 } ), SwitchCase.prepareObjectType( new byte[] { 1, 2, 3 } ) );
   }
 
   @Test
   public void prepareObjectTypeBinaryTest_NotEquals() throws Exception {
-    assertNotEquals(  Arrays.hashCode(  new byte[] { 1, 2, 4 } ), SwitchCase.prepareObjectType( new byte[] { 1, 2, 3 } ) ) ;
+    assertNotEquals( Arrays.hashCode( new byte[] { 1, 2, 4 } ), SwitchCase.prepareObjectType( new byte[] { 1, 2, 3 } ) );
   }
 
   @Test
@@ -394,27 +392,26 @@ public class SwitchCaseTest {
     byte[] given = null;
     byte[] expected = null;
 
-    assertEquals( expected, SwitchCase.prepareObjectType( given ) ) ;
+    assertEquals( expected, SwitchCase.prepareObjectType( given ) );
   }
 
   @Test
   public void prepareObjectTypeTest_Equals() throws Exception {
-    assertEquals(  "2", SwitchCase.prepareObjectType( "2" )  ) ;
+    assertEquals( "2", SwitchCase.prepareObjectType( "2" ) );
   }
 
   @Test
   public void prepareObjectTypeTest_NotEquals() throws Exception {
-    assertNotEquals(  "2", SwitchCase.prepareObjectType( "1" )  ) ;
+    assertNotEquals( "2", SwitchCase.prepareObjectType( "1" ) );
   }
 
   @Test
   public void prepareObjectTypeTest_Null() throws Exception {
-    assertEquals(  null, SwitchCase.prepareObjectType( null )  ) ;
+    assertEquals( null, SwitchCase.prepareObjectType( null ) );
   }
 
   /**
    * Switch case step ancestor with overridden methods to have ability to simulate normal transformation execution.
-   *
    */
   private static class SwitchCaseCustom extends SwitchCase {
 
@@ -439,7 +436,7 @@ public class SwitchCaseTest {
           @Override
           public Object answer( InvocationOnMock invocation ) throws Throwable {
             Object[] objArr = invocation.getArguments();
-            return ( objArr != null && objArr.length > 1 ) ? objArr[1] : null;
+            return ( objArr != null && objArr.length > 1 ) ? objArr[ 1 ] : null;
           }
         } );
       // same when call to convertDataFromString
@@ -449,7 +446,7 @@ public class SwitchCaseTest {
         new Answer<Object>() {
           public Object answer( InvocationOnMock invocation ) throws Throwable {
             Object[] objArr = invocation.getArguments();
-            return ( objArr != null && objArr.length > 1 ) ? objArr[0] : null;
+            return ( objArr != null && objArr.length > 1 ) ? objArr[ 0 ] : null;
           }
         } );
       // null-check
@@ -457,7 +454,7 @@ public class SwitchCaseTest {
         @Override
         public Object answer( InvocationOnMock invocation ) throws Throwable {
           Object[] objArr = invocation.getArguments();
-          Object obj = objArr[0];
+          Object obj = objArr[ 0 ];
           if ( obj == null ) {
             return true;
           }
@@ -498,14 +495,14 @@ public class SwitchCaseTest {
 
     /**
      * useful to see generated data as String
-     * 
+     *
      * @return
      */
     @SuppressWarnings( "unused" )
     public String getInputDataOverview() {
       StringBuilder sb = new StringBuilder();
       for ( Object[] row : input ) {
-        sb.append( row[0] + ", " );
+        sb.append( row[ 0 ] + ", " );
       }
       return sb.toString();
     }

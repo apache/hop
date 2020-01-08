@@ -22,10 +22,10 @@
 
 package org.apache.hop.trans.steps.ldapinput;
 
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.variables.VariableSpace;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.Collections;
 

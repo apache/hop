@@ -39,7 +39,6 @@ import org.apache.hop.trans.step.StepMeta;
  * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY}
  * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY}
  * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_JOB_FILENAME_NAME}
- *
  */
 public class CurrentDirectoryResolver {
 
@@ -48,13 +47,12 @@ public class CurrentDirectoryResolver {
 
   /**
    * The logic of this method:
-   * 
+   * <p>
    * We return the child var space with directory extracted from filename
    * if we do not have a filename we will return the child var space without updates
-   * 
-   * 
+   *
    * @param parentVariables - parent variable space which can be inherited
-   * @param filename - is file which we use at this moment
+   * @param filename        - is file which we use at this moment
    * @return new var space if inherit was set false or child var space with updated system variables
    */
   public VariableSpace resolveCurrentDirectory( VariableSpace parentVariables, String filename ) {

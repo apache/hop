@@ -89,7 +89,7 @@ public class PartitionSettings {
     PartitionSchema partitioningSchema = stepMeta.getStepPartitioningMeta().getPartitionSchema();
     int defaultSelectedSchemaIndex = 0;
     if ( partitioningSchema != null && partitioningSchema.getName() != null
-        && !schemaNames.isEmpty() ) {
+      && !schemaNames.isEmpty() ) {
       defaultSelectedSchemaIndex =
         Const.indexOfString( partitioningSchema.getName(), schemaNames );
     }

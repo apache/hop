@@ -33,7 +33,6 @@ import java.lang.annotation.Target;
  * in the form of a new tab.
  *
  * @author matt
- *
  */
 @Documented
 @Retention( RetentionPolicy.RUNTIME )

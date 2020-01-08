@@ -37,6 +37,7 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
       return UsernamePasswordAuthenticationProvider.class;
     }
   }
+
   private String id;
   private String username;
   private String password;

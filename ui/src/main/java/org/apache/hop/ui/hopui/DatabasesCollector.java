@@ -25,6 +25,7 @@ package org.apache.hop.ui.hopui;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

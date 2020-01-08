@@ -23,7 +23,6 @@
 package org.apache.hop.trans.steps.mapping;
 
 import junit.framework.TestCase;
-
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.database.DatabaseMeta;

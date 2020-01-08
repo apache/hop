@@ -22,8 +22,12 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import java.awt.Desktop;
-import java.net.URI;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.WindowProperty;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -32,21 +36,18 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.WindowProperty;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+
+import java.awt.*;
+import java.net.URI;
 
 /**
  * Dialog that shows a warning when the Browser Environment is not supported.
@@ -57,8 +58,8 @@ public class BrowserEnvironmentWarningDialog extends Dialog {
   private Shell shell;
   private PropsUI props;
   private Label warningIcon;
-  private Text  description;
-  private Link  link;
+  private Text description;
+  private Link link;
   private Button closeButton;
   private final int margin = Const.FORM_MARGIN * 3; //15
   private final int padding = margin * 2; //30
@@ -99,70 +100,70 @@ public class BrowserEnvironmentWarningDialog extends Dialog {
 
   private void showMacWarningDialog() {
     showWarningDialog(
-        BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Title" ),
-        BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Message.Mac" ),
-        BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.HelpLink" ),
-        EnvironmentCase.MAC_OS_X,
-        MAX_TEXT_WIDTH_MAC );
+      BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Title" ),
+      BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Message.Mac" ),
+      BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.HelpLink" ),
+      EnvironmentCase.MAC_OS_X,
+      MAX_TEXT_WIDTH_MAC );
   }
 
   private void showUbuntuWarningDialog() {
     showWarningDialog(
-        BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Title.Ubuntu" ),
-        BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Message.Ubuntu" ),
-        BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.HelpLink.Ubuntu" ),
-        EnvironmentCase.UBUNTU,
-        MAX_TEXT_WIDTH_UBUNTU );
+      BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Title.Ubuntu" ),
+      BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Message.Ubuntu" ),
+      BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.HelpLink.Ubuntu" ),
+      EnvironmentCase.UBUNTU,
+      MAX_TEXT_WIDTH_UBUNTU );
   }
 
   private void showWindowsWarningDialog() {
     showWarningDialog(
-        BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Title" ),
-        BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Message.Windows" ),
-        BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.HelpLink" ),
-        EnvironmentCase.WINDOWS,
-        MAX_TEXT_WIDTH_WINDOWS );
+      BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Title" ),
+      BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Message.Windows" ),
+      BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.HelpLink" ),
+      EnvironmentCase.WINDOWS,
+      MAX_TEXT_WIDTH_WINDOWS );
   }
 
   private void showMacThinWarningDialog() {
     showWarningDialog(
-        BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Title" ),
-        BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Message.Mac.Thin" ),
-        BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.HelpLink" ),
-        EnvironmentCase.MAC_OS_X_THIN,
-        MAX_TEXT_WIDTH_MAC );
+      BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Title" ),
+      BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Message.Mac.Thin" ),
+      BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.HelpLink" ),
+      EnvironmentCase.MAC_OS_X_THIN,
+      MAX_TEXT_WIDTH_MAC );
   }
 
   private void showUbuntuThinWarningDialog() {
     showWarningDialog(
-        BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Title.Ubuntu" ),
-        BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Message.Ubuntu.Thin" ),
-        BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.HelpLink.Ubuntu" ),
-        EnvironmentCase.UBUNTU_THIN,
-        MAX_TEXT_WIDTH_UBUNTU );
+      BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Title.Ubuntu" ),
+      BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Message.Ubuntu.Thin" ),
+      BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.HelpLink.Ubuntu" ),
+      EnvironmentCase.UBUNTU_THIN,
+      MAX_TEXT_WIDTH_UBUNTU );
   }
 
   private void showWindowsThinWarningDialog() {
     showWarningDialog(
-        BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Title" ),
-        BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Message.Windows.Thin" ),
-        BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.HelpLink" ),
-        EnvironmentCase.WINDOWS_THIN,
-        MAX_TEXT_WIDTH_WINDOWS );
+      BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Title" ),
+      BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.Message.Windows.Thin" ),
+      BaseMessages.getString( PKG, "BrowserEnvironmentWarningDialog.HelpLink" ),
+      EnvironmentCase.WINDOWS_THIN,
+      MAX_TEXT_WIDTH_WINDOWS );
   }
 
   /**
    * showWarningDialog
-   *
+   * <p>
    * Shows a SWT dialog warning the user that something is wrong with the browser environment.
    *
-   * @param title the title on the top of the window.
-   * @param message the message at the center of the screen.
-   * @param helpLink a string that contains a hyperlink to a help web page.
+   * @param title        the title on the top of the window.
+   * @param message      the message at the center of the screen.
+   * @param helpLink     a string that contains a hyperlink to a help web page.
    * @param maxTextWidth the width for the text inside the dialog.
    */
   private void showWarningDialog( String title, String message, String helpLink, EnvironmentCase environment,
-                                  int maxTextWidth )  {
+                                  int maxTextWidth ) {
     if ( this.getParent().isDisposed() ) {
       return;
     }
@@ -225,8 +226,8 @@ public class BrowserEnvironmentWarningDialog extends Dialog {
     link.setText( helpLink );
     if ( environment == EnvironmentCase.MAC_OS_X || environment == EnvironmentCase.MAC_OS_X_THIN ) {
       FontData[] fD = link.getFont().getFontData();
-      fD[0].setHeight( 13 );
-      link.setFont( new Font( display, fD[0] ) );
+      fD[ 0 ].setHeight( 13 );
+      link.setFont( new Font( display, fD[ 0 ] ) );
     }
     FormData fdlink = new FormData();
     fdlink.left = new FormAttachment( warningIcon, margin ); // Link should be below description right of icon
@@ -268,7 +269,7 @@ public class BrowserEnvironmentWarningDialog extends Dialog {
 
   /**
    * dispose
-   *
+   * <p>
    * used to dispose the dialog.
    */
   public void dispose() {

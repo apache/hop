@@ -59,8 +59,7 @@ public class UnivariateStatsData extends BaseStepData implements StepDataInterfa
   /**
    * Set the FieldIndexes
    *
-   * @param fis
-   *          a <code>FieldIndex[]</code> value
+   * @param fis a <code>FieldIndex[]</code> value
    */
   public void setFieldIndexes( FieldIndex[] fis ) {
     m_indexes = fis;
@@ -87,8 +86,7 @@ public class UnivariateStatsData extends BaseStepData implements StepDataInterfa
   /**
    * Save the meta data for the input format. (I'm not sure that this is really needed)
    *
-   * @param rmi
-   *          a <code>RowMetaInterface</code> value
+   * @param rmi a <code>RowMetaInterface</code> value
    */
   public void setInputRowMeta( RowMetaInterface rmi ) {
     m_inputRowMeta = rmi;
@@ -106,8 +104,7 @@ public class UnivariateStatsData extends BaseStepData implements StepDataInterfa
   /**
    * Set the meta data for the output format
    *
-   * @param rmi
-   *          a <code>RowMetaInterface</code> value
+   * @param rmi a <code>RowMetaInterface</code> value
    */
   public void setOutputRowMeta( RowMetaInterface rmi ) {
     m_outputRowMeta = rmi;

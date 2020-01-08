@@ -22,12 +22,8 @@
 
 package org.apache.hop.trans.steps.uniquerows;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -36,7 +32,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -44,8 +40,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*
  * Created on 02-jun-2003
@@ -55,16 +52,24 @@ import org.w3c.dom.Node;
 public class UniqueRowsMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = UniqueRowsMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** Indicate that we want to count the number of doubles */
+  /**
+   * Indicate that we want to count the number of doubles
+   */
   private boolean countRows;
 
-  /** The fieldname that will contain the number of doubles */
+  /**
+   * The fieldname that will contain the number of doubles
+   */
   private String countField;
 
-  /** The fields to compare for double, null means all */
+  /**
+   * The fields to compare for double, null means all
+   */
   private String[] compareFields;
 
-  /** The fields to compare for double, null means all */
+  /**
+   * The fields to compare for double, null means all
+   */
   private boolean[] caseInsensitive;
 
   private boolean rejectDuplicateRow;
@@ -82,8 +87,7 @@ public class UniqueRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param countRows
-   *          The countRows to set.
+   * @param countRows The countRows to set.
    */
   public void setCountRows( boolean countRows ) {
     this.countRows = countRows;
@@ -97,16 +101,14 @@ public class UniqueRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param countField
-   *          The countField to set.
+   * @param countField The countField to set.
    */
   public void setCountField( String countField ) {
     this.countField = countField;
   }
 
   /**
-   * @param compareField
-   *          The compareField to set.
+   * @param compareField The compareField to set.
    */
   public void setCompareFields( String[] compareField ) {
     this.compareFields = compareField;
@@ -120,8 +122,7 @@ public class UniqueRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param rejectDuplicateRow
-   *          The rejectDuplicateRow to set.
+   * @param rejectDuplicateRow The rejectDuplicateRow to set.
    */
   public void setRejectDuplicateRow( boolean rejectDuplicateRow ) {
     this.rejectDuplicateRow = rejectDuplicateRow;
@@ -135,8 +136,8 @@ public class UniqueRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrfields ) {
-    compareFields = new String[nrfields];
-    caseInsensitive = new boolean[nrfields];
+    compareFields = new String[ nrfields ];
+    caseInsensitive = new boolean[ nrfields ];
   }
 
   /**
@@ -147,8 +148,7 @@ public class UniqueRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param errorDescription
-   *          The errorDescription to set.
+   * @param errorDescription The errorDescription to set.
    */
   public void setErrorDescription( String errorDescription ) {
     this.errorDescription = errorDescription;
@@ -187,8 +187,8 @@ public class UniqueRowsMeta extends BaseStepMeta implements StepMetaInterface {
       for ( int i = 0; i < nrfields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        compareFields[i] = XMLHandler.getTagValue( fnode, "name" );
-        caseInsensitive[i] = !"N".equalsIgnoreCase( XMLHandler.getTagValue( fnode, "case_insensitive" ) );
+        compareFields[ i ] = XMLHandler.getTagValue( fnode, "name" );
+        caseInsensitive[ i ] = !"N".equalsIgnoreCase( XMLHandler.getTagValue( fnode, "case_insensitive" ) );
       }
 
     } catch ( Exception e ) {
@@ -209,19 +209,19 @@ public class UniqueRowsMeta extends BaseStepMeta implements StepMetaInterface {
     allocate( nrfields );
 
     for ( int i = 0; i < nrfields; i++ ) {
-      compareFields[i] = "field" + i;
-      caseInsensitive[i] = true;
+      compareFields[ i ] = "field" + i;
+      caseInsensitive[ i ] = true;
     }
   }
 
   @Override
   public void getFields( RowMetaInterface row, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // change the case insensitive flag too
     for ( int i = 0; i < compareFields.length; i++ ) {
-      int idx = row.indexOfValue( compareFields[i] );
+      int idx = row.indexOfValue( compareFields[ i ] );
       if ( idx >= 0 ) {
-        row.getValueMeta( idx ).setCaseInsensitive( caseInsensitive[i] );
+        row.getValueMeta( idx ).setCaseInsensitive( caseInsensitive[ i ] );
       }
     }
     if ( countRows ) {
@@ -244,8 +244,8 @@ public class UniqueRowsMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "    <fields>" );
     for ( int i = 0; i < compareFields.length; i++ ) {
       retval.append( "      <field>" );
-      retval.append( "        " + XMLHandler.addTagValue( "name", compareFields[i] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "case_insensitive", caseInsensitive[i] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "name", compareFields[ i ] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "case_insensitive", caseInsensitive[ i ] ) );
       retval.append( "        </field>" );
     }
     retval.append( "      </fields>" );
@@ -255,8 +255,8 @@ public class UniqueRowsMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     if ( input.length > 0 ) {
@@ -274,7 +274,7 @@ public class UniqueRowsMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new UniqueRows( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -291,8 +291,7 @@ public class UniqueRowsMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param caseInsensitive
-   *          The caseInsensitive to set.
+   * @param caseInsensitive The caseInsensitive to set.
    */
   public void setCaseInsensitive( boolean[] caseInsensitive ) {
     this.caseInsensitive = caseInsensitive;

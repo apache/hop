@@ -22,21 +22,6 @@
 
 package org.apache.hop.trans.steps.insertupdate;
 
-import java.sql.Connection;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-
-import org.mockito.Mockito;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -59,6 +44,19 @@ import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.sql.Connection;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class InsertUpdateMetaTest {
   LoadSaveTester loadSaveTester;
@@ -123,8 +121,8 @@ public class InsertUpdateMetaTest {
   @Test
   public void testProvidesModeler() throws Exception {
     InsertUpdateMeta insertUpdateMeta = new InsertUpdateMeta();
-    insertUpdateMeta.setUpdateLookup( new String[] {"f1", "f2", "f3"} );
-    insertUpdateMeta.setUpdateStream( new String[] {"s4", "s5", "s6"} );
+    insertUpdateMeta.setUpdateLookup( new String[] { "f1", "f2", "f3" } );
+    insertUpdateMeta.setUpdateStream( new String[] { "s4", "s5", "s6" } );
 
     InsertUpdateData tableOutputData = new InsertUpdateData();
     tableOutputData.insertRowMeta = Mockito.mock( RowMeta.class );
@@ -152,8 +150,8 @@ public class InsertUpdateMetaTest {
   @Before
   public void setUpLoadSave() throws Exception {
     List<String> attributes =
-        Arrays.asList( "schemaName", "tableName", "databaseMeta", "keyStream", "keyLookup", "keyCondition",
-            "keyStream2", "updateLookup", "updateStream", "update", "commitSize", "updateBypassed" );
+      Arrays.asList( "schemaName", "tableName", "databaseMeta", "keyStream", "keyLookup", "keyCondition",
+        "keyStream2", "updateLookup", "updateStream", "update", "commitSize", "updateBypassed" );
 
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
@@ -189,7 +187,7 @@ public class InsertUpdateMetaTest {
       }
     };
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "keyStream", stringArrayLoadSaveValidator );

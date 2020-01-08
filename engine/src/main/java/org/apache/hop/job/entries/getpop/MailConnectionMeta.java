@@ -29,7 +29,6 @@ import org.apache.hop.i18n.BaseMessages;
  *
  * @author Samatar
  * @since 01-04-2009
- *
  */
 
 public class MailConnectionMeta {
@@ -45,7 +44,7 @@ public class MailConnectionMeta {
   public static final String PROTOCOL_STRING_IMAP = "IMAP";
   public static final String PROTOCOL_STRING_POP3 = "POP3";
   public static final String[] protocolCodes = new String[] { "POP3", "IMAP", "MBOX" };
-  public static final String PROTOCOL_STRING_MBOX = protocolCodes[PROTOCOL_MBOX];
+  public static final String PROTOCOL_STRING_MBOX = protocolCodes[ PROTOCOL_MBOX ];
 
   public static final int DEFAULT_IMAP_PORT = 110;
   public static final int DEFAULT_POP3_PORT = 110;
@@ -125,9 +124,9 @@ public class MailConnectionMeta {
 
   public static String getValueImapListCode( int i ) {
     if ( i < 0 || i >= valueIMAPListCode.length ) {
-      return valueIMAPListCode[0];
+      return valueIMAPListCode[ 0 ];
     }
-    return valueIMAPListCode[i];
+    return valueIMAPListCode[ i ];
   }
 
   public static int getConditionByCode( String tt ) {
@@ -136,7 +135,7 @@ public class MailConnectionMeta {
     }
 
     for ( int i = 0; i < conditionDateCode.length; i++ ) {
-      if ( conditionDateCode[i].equalsIgnoreCase( tt ) ) {
+      if ( conditionDateCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -149,7 +148,7 @@ public class MailConnectionMeta {
     }
 
     for ( int i = 0; i < actionTypeCode.length; i++ ) {
-      if ( actionTypeCode[i].equalsIgnoreCase( tt ) ) {
+      if ( actionTypeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -162,7 +161,7 @@ public class MailConnectionMeta {
     }
 
     for ( int i = 0; i < afterGetIMAPCode.length; i++ ) {
-      if ( afterGetIMAPCode[i].equalsIgnoreCase( tt ) ) {
+      if ( afterGetIMAPCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -175,7 +174,7 @@ public class MailConnectionMeta {
     }
 
     for ( int i = 0; i < valueIMAPListCode.length; i++ ) {
-      if ( valueIMAPListCode[i].equalsIgnoreCase( tt ) ) {
+      if ( valueIMAPListCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -188,7 +187,7 @@ public class MailConnectionMeta {
     }
 
     for ( int i = 0; i < valueIMAPListCode.length; i++ ) {
-      if ( valueIMAPListCode[i].equalsIgnoreCase( tt ) ) {
+      if ( valueIMAPListCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -197,23 +196,23 @@ public class MailConnectionMeta {
 
   public static String getActionTypeCode( int i ) {
     if ( i < 0 || i >= actionTypeCode.length ) {
-      return actionTypeCode[0];
+      return actionTypeCode[ 0 ];
     }
-    return actionTypeCode[i];
+    return actionTypeCode[ i ];
   }
 
   public static String getAfterGetIMAPCode( int i ) {
     if ( i < 0 || i >= afterGetIMAPCode.length ) {
-      return afterGetIMAPCode[0];
+      return afterGetIMAPCode[ 0 ];
     }
-    return afterGetIMAPCode[i];
+    return afterGetIMAPCode[ i ];
   }
 
   public static String getConditionDateCode( int i ) {
     if ( i < 0 || i >= conditionDateCode.length ) {
-      return conditionDateCode[0];
+      return conditionDateCode[ 0 ];
     }
-    return conditionDateCode[i];
+    return conditionDateCode[ i ];
   }
 
   public static int getValueImapListByDesc( String tt ) {
@@ -222,7 +221,7 @@ public class MailConnectionMeta {
     }
 
     for ( int i = 0; i < valueIMAPListDesc.length; i++ ) {
-      if ( valueIMAPListDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( valueIMAPListDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -233,30 +232,30 @@ public class MailConnectionMeta {
 
   public static String getConditionDateDesc( int i ) {
     if ( i < 0 || i >= conditionDateDesc.length ) {
-      return conditionDateDesc[0];
+      return conditionDateDesc[ 0 ];
     }
-    return conditionDateDesc[i];
+    return conditionDateDesc[ i ];
   }
 
   public static String getActionTypeDesc( int i ) {
     if ( i < 0 || i >= actionTypeDesc.length ) {
-      return actionTypeDesc[0];
+      return actionTypeDesc[ 0 ];
     }
-    return actionTypeDesc[i];
+    return actionTypeDesc[ i ];
   }
 
   public static String getAfterGetIMAPDesc( int i ) {
     if ( i < 0 || i >= afterGetIMAPDesc.length ) {
-      return afterGetIMAPDesc[0];
+      return afterGetIMAPDesc[ 0 ];
     }
-    return afterGetIMAPDesc[i];
+    return afterGetIMAPDesc[ i ];
   }
 
   public static String getValueImapListDesc( int i ) {
     if ( i < 0 || i >= valueIMAPListDesc.length ) {
-      return valueIMAPListDesc[0];
+      return valueIMAPListDesc[ 0 ];
     }
-    return valueIMAPListDesc[i];
+    return valueIMAPListDesc[ i ];
   }
 
   public static int getConditionDateByDesc( String tt ) {
@@ -265,7 +264,7 @@ public class MailConnectionMeta {
     }
 
     for ( int i = 0; i < conditionDateDesc.length; i++ ) {
-      if ( conditionDateDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( conditionDateDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -280,7 +279,7 @@ public class MailConnectionMeta {
     }
 
     for ( int i = 0; i < actionTypeDesc.length; i++ ) {
-      if ( actionTypeDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( actionTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -295,7 +294,7 @@ public class MailConnectionMeta {
     }
 
     for ( int i = 0; i < afterGetIMAPDesc.length; i++ ) {
-      if ( afterGetIMAPDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( afterGetIMAPDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -310,7 +309,7 @@ public class MailConnectionMeta {
     }
 
     for ( int i = 0; i < conditionDateCode.length; i++ ) {
-      if ( conditionDateCode[i].equalsIgnoreCase( tt ) ) {
+      if ( conditionDateCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }

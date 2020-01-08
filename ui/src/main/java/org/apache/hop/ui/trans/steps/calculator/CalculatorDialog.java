@@ -22,12 +22,24 @@
 
 package org.apache.hop.ui.trans.steps.calculator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.calculator.CalculatorMeta;
+import org.apache.hop.trans.steps.calculator.CalculatorMetaFunction;
+import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -47,24 +59,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.calculator.CalculatorMeta;
-import org.apache.hop.trans.steps.calculator.CalculatorMetaFunction;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.util.SwtSvgImageUtil;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class CalculatorDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = CalculatorMeta.class; // for i18n purposes, needed by Translator2!!
@@ -216,8 +216,8 @@ public class CalculatorDialog extends BaseStepDialog implements StepDialogInterf
         new ColumnInfo(
           BaseMessages.getString( PKG, "CalculatorDialog.RemoveColumn.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-            BaseMessages.getString( PKG, "System.Combo.No" ),
-            BaseMessages.getString( PKG, "System.Combo.Yes" ) } ),
+          BaseMessages.getString( PKG, "System.Combo.No" ),
+          BaseMessages.getString( PKG, "System.Combo.Yes" ) } ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "CalculatorDialog.ConversionMask.Column" ),
           ColumnInfo.COLUMN_TYPE_FORMAT, 6 ),
@@ -231,7 +231,7 @@ public class CalculatorDialog extends BaseStepDialog implements StepDialogInterf
           BaseMessages.getString( PKG, "CalculatorDialog.CurrencySymbol.Column" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false ), };
 
-    colinf[1].setSelectionAdapter( new SelectionAdapter() {
+    colinf[ 1 ].setSelectionAdapter( new SelectionAdapter() {
       @Override
       public void widgetSelected( SelectionEvent e ) {
         EnterSelectionDialog esd =
@@ -389,7 +389,7 @@ public class CalculatorDialog extends BaseStepDialog implements StepDialogInterf
         for ( int i = 0; i < nrNonEmptyFields; i++ ) {
           TableItem item = wFields.getNonEmpty( i );
           fields.put( item.getText( 1 ), Integer.valueOf( 1000000 + i ) ); // The number is just to debug the origin of
-                                                                           // the fieldname
+          // the fieldname
         }
       }
     } );
@@ -397,12 +397,12 @@ public class CalculatorDialog extends BaseStepDialog implements StepDialogInterf
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    colinf[2].setComboValues( fieldNames );
-    colinf[3].setComboValues( fieldNames );
-    colinf[4].setComboValues( fieldNames );
+    colinf[ 2 ].setComboValues( fieldNames );
+    colinf[ 3 ].setComboValues( fieldNames );
+    colinf[ 4 ].setComboValues( fieldNames );
   }
 
   /**
@@ -411,7 +411,7 @@ public class CalculatorDialog extends BaseStepDialog implements StepDialogInterf
   public void getData() {
     if ( currentMeta.getCalculation() != null ) {
       for ( int i = 0; i < currentMeta.getCalculation().length; i++ ) {
-        CalculatorMetaFunction fn = currentMeta.getCalculation()[i];
+        CalculatorMetaFunction fn = currentMeta.getCalculation()[ i ];
         TableItem item = wFields.table.getItem( i );
         item.setText( 1, Const.NVL( fn.getFieldName(), "" ) );
         item.setText( 2, Const.NVL( fn.getCalcTypeLongDesc(), "" ) );
@@ -428,7 +428,7 @@ public class CalculatorDialog extends BaseStepDialog implements StepDialogInterf
         item
           .setText( 9, fn.isRemovedFromResult()
             ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString(
-              PKG, "System.Combo.No" ) );
+            PKG, "System.Combo.No" ) );
         item.setText( 10, Const.NVL( fn.getConversionMask(), "" ) );
         item.setText( 11, Const.NVL( fn.getDecimalSymbol(), "" ) );
         item.setText( 12, Const.NVL( fn.getGroupingSymbol(), "" ) );
@@ -481,7 +481,7 @@ public class CalculatorDialog extends BaseStepDialog implements StepDialogInterf
       String currencySymbol = item.getText( 13 );
 
       //CHECKSTYLE:Indentation:OFF
-      currentMeta.getCalculation()[i] = new CalculatorMetaFunction(
+      currentMeta.getCalculation()[ i ] = new CalculatorMetaFunction(
         fieldName, calcType, fieldA, fieldB, fieldC, valueType, valueLength, valuePrecision, removed,
         conversionMask, decimalSymbol, groupingSymbol, currencySymbol );
     }
@@ -496,7 +496,7 @@ public class CalculatorDialog extends BaseStepDialog implements StepDialogInterf
 
   protected Image getImage() {
     return SwtSvgImageUtil
-            .getImage( shell.getDisplay(), getClass().getClassLoader(), "CLC.svg", ConstUI.LARGE_ICON_SIZE,
-                    ConstUI.LARGE_ICON_SIZE );
+      .getImage( shell.getDisplay(), getClass().getClassLoader(), "CLC.svg", ConstUI.LARGE_ICON_SIZE,
+        ConstUI.LARGE_ICON_SIZE );
   }
 }

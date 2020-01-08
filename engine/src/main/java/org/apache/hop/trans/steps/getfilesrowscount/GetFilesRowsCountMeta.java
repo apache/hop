@@ -22,15 +22,10 @@
 
 package org.apache.hop.trans.steps.getfilesrowscount;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
@@ -38,11 +33,12 @@ import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
@@ -52,8 +48,10 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
+import java.util.Map;
 
 public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = GetFilesRowsCountMeta.class; // for i18n purposes, needed by Translator2!!
@@ -66,44 +64,68 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
 
   public static final String DEFAULT_ROWSCOUNT_FIELDNAME = "rowscount";
 
-  /** Array of filenames */
+  /**
+   * Array of filenames
+   */
   private String[] fileName;
 
-  /** Wildcard or filemask (regular expression) */
+  /**
+   * Wildcard or filemask (regular expression)
+   */
   private String[] fileMask;
 
-  /** Wildcard or filemask to exclude (regular expression) */
+  /**
+   * Wildcard or filemask to exclude (regular expression)
+   */
   private String[] excludeFileMask;
 
-  /** Flag indicating that a row number field should be included in the output */
+  /**
+   * Flag indicating that a row number field should be included in the output
+   */
   private boolean includeFilesCount;
 
-  /** The name of the field in the output containing the file number */
+  /**
+   * The name of the field in the output containing the file number
+   */
   private String filesCountFieldName;
 
-  /** The name of the field in the output containing the row number */
+  /**
+   * The name of the field in the output containing the row number
+   */
   private String rowsCountFieldName;
 
-  /** The row separator type */
+  /**
+   * The row separator type
+   */
   private String RowSeparator_format;
 
-  /** The row separator */
+  /**
+   * The row separator
+   */
   private String RowSeparator;
 
-  /** file name from previous fields **/
+  /**
+   * file name from previous fields
+   **/
   private boolean filefield;
 
   private boolean isaddresult;
 
   private String outputFilenameField;
 
-  /** Array of boolean values as string, indicating if a file is required. */
+  /**
+   * Array of boolean values as string, indicating if a file is required.
+   */
   private String[] fileRequired;
 
-  /** Array of boolean values as string, indicating if we need to fetch sub folders. */
+  /**
+   * Array of boolean values as string, indicating if we need to fetch sub folders.
+   */
   private String[] includeSubFolders;
 
-  /** Flag : check if a data is there right after separator **/
+  /**
+   * Flag : check if a data is there right after separator
+   **/
   private boolean smartCount;
 
   public GetFilesRowsCountMeta() {
@@ -118,8 +140,7 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
   }
 
   /**
-   * @param RowSeparatorin
-   *          The RowSeparator to set.
+   * @param RowSeparatorin The RowSeparator to set.
    */
   public void setRowSeparator( String RowSeparatorin ) {
     this.RowSeparator = RowSeparatorin;
@@ -133,16 +154,14 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
   }
 
   /**
-   * @param isaddresult
-   *          The isaddresult to set.
+   * @param isaddresult The isaddresult to set.
    */
   public void setAddResultFile( boolean isaddresult ) {
     this.isaddresult = isaddresult;
   }
 
   /**
-   * @param smartCount
-   *          The smartCount to set.
+   * @param smartCount The smartCount to set.
    */
   public void setSmartCount( boolean smartCount ) {
     this.smartCount = smartCount;
@@ -165,8 +184,7 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
   }
 
   /**
-   * @param excludeFileMask
-   *          The excludeFileMask to set.
+   * @param excludeFileMask The excludeFileMask to set.
    */
   public void setExcludeFileMask( String[] excludeFileMask ) {
     this.excludeFileMask = excludeFileMask;
@@ -203,8 +221,7 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
   }
 
   /**
-   * @param outputFilenameField
-   *          The output filename_field to set.
+   * @param outputFilenameField The output filename_field to set.
    */
   public void setOutputFilenameField( String outputFilenameField ) {
     this.outputFilenameField = outputFilenameField;
@@ -218,16 +235,14 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
   }
 
   /**
-   * @param filefield
-   *          The file field to set.
+   * @param filefield The file field to set.
    */
   public void setFileField( boolean filefield ) {
     this.filefield = filefield;
   }
 
   /**
-   * @param RowSeparator_formatin
-   *          The RowSeparator_format to set.
+   * @param RowSeparator_formatin The RowSeparator_format to set.
    */
   public void setRowSeparatorFormat( String RowSeparator_formatin ) {
     this.RowSeparator_format = RowSeparator_formatin;
@@ -242,7 +257,7 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
 
   public void setFileRequired( String[] fileRequiredin ) {
     for ( int i = 0; i < fileRequiredin.length; i++ ) {
-      this.fileRequired[i] = getRequiredFilesCode( fileRequiredin[i] );
+      this.fileRequired[ i ] = getRequiredFilesCode( fileRequiredin[ i ] );
     }
   }
 
@@ -252,35 +267,34 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
 
   public void setIncludeSubFolders( String[] includeSubFoldersin ) {
     for ( int i = 0; i < includeSubFoldersin.length; i++ ) {
-      this.includeSubFolders[i] = getRequiredFilesCode( includeSubFoldersin[i] );
+      this.includeSubFolders[ i ] = getRequiredFilesCode( includeSubFoldersin[ i ] );
     }
   }
 
   public String getRequiredFilesCode( String tt ) {
     if ( tt == null ) {
-      return RequiredFilesCode[0];
+      return RequiredFilesCode[ 0 ];
     }
-    if ( tt.equals( RequiredFilesDesc[1] ) ) {
-      return RequiredFilesCode[1];
+    if ( tt.equals( RequiredFilesDesc[ 1 ] ) ) {
+      return RequiredFilesCode[ 1 ];
     } else {
-      return RequiredFilesCode[0];
+      return RequiredFilesCode[ 0 ];
     }
   }
 
   public String getRequiredFilesDesc( String tt ) {
     if ( tt == null ) {
-      return RequiredFilesDesc[0];
+      return RequiredFilesDesc[ 0 ];
     }
-    if ( tt.equals( RequiredFilesCode[1] ) ) {
-      return RequiredFilesDesc[1];
+    if ( tt.equals( RequiredFilesCode[ 1 ] ) ) {
+      return RequiredFilesDesc[ 1 ];
     } else {
-      return RequiredFilesDesc[0];
+      return RequiredFilesDesc[ 0 ];
     }
   }
 
   /**
-   * @param fileMask
-   *          The fileMask to set.
+   * @param fileMask The fileMask to set.
    */
   public void setFileMask( String[] fileMask ) {
     this.fileMask = fileMask;
@@ -294,8 +308,7 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
   }
 
   /**
-   * @param fileName
-   *          The fileName to set.
+   * @param fileName The fileName to set.
    */
   public void setFileName( String[] fileName ) {
     this.fileName = fileName;
@@ -309,8 +322,7 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
   }
 
   /**
-   * @param includeFilesCount
-   *          The "includes files count" flag to set.
+   * @param includeFilesCount The "includes files count" flag to set.
    */
   public void setIncludeCountFiles( boolean includeFilesCount ) {
     this.includeFilesCount = includeFilesCount;
@@ -335,16 +347,14 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
   }
 
   /**
-   * @param filesCountFieldName
-   *          The filesCountFieldName to set.
+   * @param filesCountFieldName The filesCountFieldName to set.
    */
   public void setFilesCountFieldName( String filesCountFieldName ) {
     this.filesCountFieldName = filesCountFieldName;
   }
 
   /**
-   * @param rowsCountFieldName
-   *          The rowsCountFieldName to set.
+   * @param rowsCountFieldName The rowsCountFieldName to set.
    */
   public void setRowsCountFieldName( String rowsCountFieldName ) {
     this.rowsCountFieldName = rowsCountFieldName;
@@ -384,11 +394,11 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
 
     retval.append( "    <file>" ).append( Const.CR );
     for ( int i = 0; i < fileName.length; i++ ) {
-      retval.append( "      " ).append( XMLHandler.addTagValue( "name", fileName[i] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "filemask", fileMask[i] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "exclude_filemask", excludeFileMask[i] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "file_required", fileRequired[i] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", includeSubFolders[i] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "name", fileName[ i ] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "filemask", fileMask[ i ] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "exclude_filemask", excludeFileMask[ i ] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "file_required", fileRequired[ i ] ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", includeSubFolders[ i ] ) );
     }
     retval.append( "    </file>" ).append( Const.CR );
 
@@ -398,8 +408,7 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
   /**
    * Adjust old outdated values to new ones
    *
-   * @param original
-   *          The original value
+   * @param original The original value
    * @return The new/correct equivelant
    */
   private String scrubOldRowSeparator( String original ) {
@@ -446,11 +455,11 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
         Node excludefilemasknode = XMLHandler.getSubNodeByNr( filenode, "exclude_filemask", i );
         Node fileRequirednode = XMLHandler.getSubNodeByNr( filenode, "file_required", i );
         Node includeSubFoldersnode = XMLHandler.getSubNodeByNr( filenode, "include_subfolders", i );
-        fileName[i] = XMLHandler.getNodeValue( filenamenode );
-        fileMask[i] = XMLHandler.getNodeValue( filemasknode );
-        excludeFileMask[i] = XMLHandler.getNodeValue( excludefilemasknode );
-        fileRequired[i] = XMLHandler.getNodeValue( fileRequirednode );
-        includeSubFolders[i] = XMLHandler.getNodeValue( includeSubFoldersnode );
+        fileName[ i ] = XMLHandler.getNodeValue( filenamenode );
+        fileMask[ i ] = XMLHandler.getNodeValue( filemasknode );
+        excludeFileMask[ i ] = XMLHandler.getNodeValue( excludefilemasknode );
+        fileRequired[ i ] = XMLHandler.getNodeValue( fileRequirednode );
+        includeSubFolders[ i ] = XMLHandler.getNodeValue( includeSubFoldersnode );
       }
 
     } catch ( Exception e ) {
@@ -459,11 +468,11 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
   }
 
   public void allocate( int nrfiles ) {
-    fileName = new String[nrfiles];
-    fileMask = new String[nrfiles];
-    excludeFileMask = new String[nrfiles];
-    fileRequired = new String[nrfiles];
-    includeSubFolders = new String[nrfiles];
+    fileName = new String[ nrfiles ];
+    fileMask = new String[ nrfiles ];
+    excludeFileMask = new String[ nrfiles ];
+    fileRequired = new String[ nrfiles ];
+    includeSubFolders = new String[ nrfiles ];
   }
 
   public void setDefault() {
@@ -481,17 +490,17 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
     allocate( nrFiles );
 
     for ( int i = 0; i < nrFiles; i++ ) {
-      fileName[i] = "filename" + ( i + 1 );
-      fileMask[i] = "";
-      excludeFileMask[i] = "";
-      fileRequired[i] = RequiredFilesCode[0];
-      includeSubFolders[i] = RequiredFilesCode[0];
+      fileName[ i ] = "filename" + ( i + 1 );
+      fileMask[ i ] = "";
+      excludeFileMask[ i ] = "";
+      fileRequired[ i ] = RequiredFilesCode[ 0 ];
+      includeSubFolders[ i ] = RequiredFilesCode[ 0 ];
     }
 
   }
 
   public void getFields( RowMetaInterface r, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     ValueMetaInterface v =
       new ValueMetaInteger( space.environmentSubstitute( rowsCountFieldName ) );
     v.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
@@ -513,16 +522,16 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
 
   private boolean[] includeSubFolderBoolean() {
     int len = fileName.length;
-    boolean[] includeSubFolderBoolean = new boolean[len];
+    boolean[] includeSubFolderBoolean = new boolean[ len ];
     for ( int i = 0; i < len; i++ ) {
-      includeSubFolderBoolean[i] = YES.equalsIgnoreCase( includeSubFolders[i] );
+      includeSubFolderBoolean[ i ] = YES.equalsIgnoreCase( includeSubFolders[ i ] );
     }
     return includeSubFolderBoolean;
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
 
     CheckResult cr;
 
@@ -568,7 +577,7 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new GetFilesRowsCount( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -582,17 +591,14 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param space
-   *          the variable space to use
+   * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
-   *
+   * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
@@ -600,8 +606,8 @@ public class GetFilesRowsCountMeta extends BaseStepMeta implements StepMetaInter
       //
       if ( !filefield ) {
         for ( int i = 0; i < fileName.length; i++ ) {
-          FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( fileName[i] ), space );
-          fileName[i] = resourceNamingInterface.nameResource( fileObject, space, Utils.isEmpty( fileMask[i] ) );
+          FileObject fileObject = HopVFS.getFileObject( space.environmentSubstitute( fileName[ i ] ), space );
+          fileName[ i ] = resourceNamingInterface.nameResource( fileObject, space, Utils.isEmpty( fileMask[ i ] ) );
         }
       }
       return null;

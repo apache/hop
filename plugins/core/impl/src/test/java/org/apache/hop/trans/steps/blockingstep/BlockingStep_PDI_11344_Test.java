@@ -22,16 +22,6 @@
 
 package org.apache.hop.trans.steps.blockingstep;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -43,6 +33,16 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 public class BlockingStep_PDI_11344_Test {
   private StepMockHelper<BlockingStepMeta, BlockingStepData> mockHelper;
@@ -50,10 +50,10 @@ public class BlockingStep_PDI_11344_Test {
   @Before
   public void setUp() {
     mockHelper =
-        new StepMockHelper<BlockingStepMeta, BlockingStepData>( "BlockingStep", BlockingStepMeta.class,
-            BlockingStepData.class );
+      new StepMockHelper<BlockingStepMeta, BlockingStepData>( "BlockingStep", BlockingStepMeta.class,
+        BlockingStepData.class );
     when( mockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) )
-        .thenReturn( mockHelper.logChannelInterface );
+      .thenReturn( mockHelper.logChannelInterface );
     when( mockHelper.trans.isRunning() ).thenReturn( true );
   }
 
@@ -80,21 +80,21 @@ public class BlockingStep_PDI_11344_Test {
   @Test
   public void outputRowMetaIsCreateOnce() throws Exception {
     BlockingStep step =
-        new BlockingStep( mockHelper.stepMeta, mockHelper.stepDataInterface, 0, mockHelper.transMeta,
-            mockHelper.trans );
+      new BlockingStep( mockHelper.stepMeta, mockHelper.stepDataInterface, 0, mockHelper.transMeta,
+        mockHelper.trans );
     step = spy( step );
 
     BlockingStepData data = new BlockingStepData();
     step.init( mockHelper.processRowsStepMetaInterface, data );
     step.setInputRowMeta( createRowMetaInterface() );
 
-    doReturn( new Object[0] ).when( step ).getRow();
+    doReturn( new Object[ 0 ] ).when( step ).getRow();
     step.processRow( mockHelper.processRowsStepMetaInterface, data );
 
     RowMetaInterface outputRowMeta = data.outputRowMeta;
     assertNotNull( outputRowMeta );
 
-    doReturn( new Object[0] ).when( step ).getRow();
+    doReturn( new Object[ 0 ] ).when( step ).getRow();
     step.processRow( mockHelper.processRowsStepMetaInterface, data );
     assertTrue( data.outputRowMeta == outputRowMeta );
   }

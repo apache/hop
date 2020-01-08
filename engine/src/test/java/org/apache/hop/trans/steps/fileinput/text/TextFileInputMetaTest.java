@@ -22,25 +22,22 @@
 
 package org.apache.hop.trans.steps.fileinput.text;
 
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.file.BaseFileInputFiles;
+import org.junit.Before;
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-
-import org.apache.commons.vfs2.FileObject;
-import org.junit.Before;
-import org.junit.Test;
-import org.apache.hop.core.util.StringUtil;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.resource.ResourceNamingInterface;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.file.BaseFileInputFiles;
 
 public class TextFileInputMetaTest {
   private static final String FILE_NAME_NULL = null;

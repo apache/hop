@@ -31,13 +31,13 @@ import org.apache.hop.core.row.ValueMetaInterface;
  * Contains Vertica Analytic Database information through static final members
  *
  * @author DEinspanjer
- * @since 2009-03-16
  * @author Matt
+ * @since 2009-03-16
  * @since May-2008
  */
 @DatabaseMetaPlugin(
-        type = "VERTICA",
-        typeDescription = "Vertica"
+  type = "VERTICA",
+  typeDescription = "Vertica"
 )
 @GuiPlugin( id = "GUI-VerticaDatabaseMeta" )
 public class VerticaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
@@ -83,23 +83,17 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
    * Generates the SQL statement to add a column to the specified table For this generic type, i set it to the most
    * common possibility.
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
   public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                       String pk, boolean semicolon ) {
     return "--NOTE: Table cannot be altered unless all projections are dropped.\nALTER TABLE "
       + tablename + " ADD " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
   }
@@ -107,23 +101,17 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
   public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                          String pk, boolean semicolon ) {
     return "--NOTE: Table cannot be altered unless all projections are dropped.\nALTER TABLE "
       + tablename + " ALTER COLUMN "
       + v.getName() + " SET DATA TYPE " + getFieldDefinition( v, tk, pk, use_autoinc, false, false );
@@ -131,7 +119,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
 
   @Override
   public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-    boolean add_fieldname, boolean add_cr ) {
+                                    boolean add_fieldname, boolean add_cr ) {
     String retval = "";
 
     String fieldname = v.getName();
@@ -267,8 +255,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
 
   /**
    * @return true if the database requires you to cast a parameter to varchar before comparing to null. Only required
-   *         for DB2 and Vertica
-   *
+   * for DB2 and Vertica
    */
   @Override
   public boolean requiresCastToVariousForIsNull() {
@@ -309,8 +296,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   /**
    * Get the SQL to get the next value of a sequence. (Vertica version)
    *
-   * @param sequenceName
-   *          The sequence name
+   * @param sequenceName The sequence name
    * @return the SQL to get the next value of a sequence.
    */
   @Override
@@ -321,8 +307,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   /**
    * Get the SQL to get the next value of a sequence.
    *
-   * @param sequenceName
-   *          The sequence name
+   * @param sequenceName The sequence name
    * @return the SQL to get the next value of a sequence.
    */
   @Override
@@ -348,7 +333,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
 
   /**
    * @return Handles the special case of Vertica where the display size returned is twice the precision. In that case,
-   *         the length is the precision.
+   * the length is the precision.
    */
   @Override
   public boolean isDisplaySizeTwiceThePrecision() {

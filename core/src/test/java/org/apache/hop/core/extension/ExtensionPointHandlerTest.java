@@ -20,11 +20,11 @@
 
 package org.apache.hop.core.extension;
 
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.plugins.PluginRegistry;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -44,7 +44,7 @@ public class ExtensionPointHandlerTest {
     PluginMockInterface pluginInterface = mock( PluginMockInterface.class );
     when( pluginInterface.getName() ).thenReturn( TEST_NAME );
     when( pluginInterface.getMainType() ).thenReturn( (Class) ExtensionPointInterface.class );
-    when( pluginInterface.getIds() ).thenReturn( new String[] {"testID"} );
+    when( pluginInterface.getIds() ).thenReturn( new String[] { "testID" } );
 
     ExtensionPointInterface extensionPoint = mock( ExtensionPointInterface.class );
     when( pluginInterface.loadClass( ExtensionPointInterface.class ) ).thenReturn( extensionPoint );

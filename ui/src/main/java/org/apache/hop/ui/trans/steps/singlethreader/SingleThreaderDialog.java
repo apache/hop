@@ -23,7 +23,27 @@
 package org.apache.hop.ui.trans.steps.singlethreader;
 
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.singlethreader.SingleThreaderMeta;
+import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ColumnsResizer;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -46,27 +66,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.singlethreader.SingleThreaderMeta;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ColumnsResizer;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
 
 import java.io.IOException;
@@ -314,14 +313,14 @@ public class SingleThreaderDialog extends BaseStepDialog implements StepDialogIn
     wBatchSize.setLayoutData( fdBatchSize );
 
     Label wlBatchTime = new Label( wOptions, SWT.LEFT );
-    wlBatchTime.setText(  BaseMessages.getString( PKG, "SingleThreaderDialog.BatchTime.Label" ) );
+    wlBatchTime.setText( BaseMessages.getString( PKG, "SingleThreaderDialog.BatchTime.Label" ) );
     props.setLook( wlBatchTime );
     FormData fdlBatchTime = new FormData();
     fdlBatchTime.top = new FormAttachment( wBatchSize, 10 );
     fdlBatchTime.left = new FormAttachment( 0, 0 );
     wlBatchTime.setLayoutData( fdlBatchTime );
 
-    wBatchTime = new TextVar( transMeta, wOptions, SWT.SINGLE | SWT.LEFT | SWT.BORDER  );
+    wBatchTime = new TextVar( transMeta, wOptions, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wBatchTime.addModifyListener( lsMod );
     FormData fdBatchTime = new FormData();
     fdBatchTime.left = new FormAttachment( 0, 0 );
@@ -390,7 +389,7 @@ public class SingleThreaderDialog extends BaseStepDialog implements StepDialogIn
         new ColumnInfo(
           BaseMessages.getString( PKG, "SingleThreaderDialog.Parameters.Value.Label" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false ), };
-    colinf[1].setUsingVariables( true );
+    colinf[ 1 ].setUsingVariables( true );
 
     wParameters =
       new TableView( transMeta, wParameterComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, parameterRows,
@@ -575,9 +574,9 @@ public class SingleThreaderDialog extends BaseStepDialog implements StepDialogIn
     if ( singleThreaderMeta.getParameters() != null ) {
       for ( int i = 0; i < singleThreaderMeta.getParameters().length; i++ ) {
         TableItem ti = wParameters.table.getItem( i );
-        if ( !Utils.isEmpty( singleThreaderMeta.getParameters()[i] ) ) {
-          ti.setText( 1, Const.NVL( singleThreaderMeta.getParameters()[i], "" ) );
-          ti.setText( 2, Const.NVL( singleThreaderMeta.getParameterValues()[i], "" ) );
+        if ( !Utils.isEmpty( singleThreaderMeta.getParameters()[ i ] ) ) {
+          ti.setText( 1, Const.NVL( singleThreaderMeta.getParameters()[ i ], "" ) );
+          ti.setText( 2, Const.NVL( singleThreaderMeta.getParameterValues()[ i ], "" ) );
         }
       }
       wParameters.removeEmptyRows();
@@ -630,16 +629,16 @@ public class SingleThreaderDialog extends BaseStepDialog implements StepDialogIn
         nr++;
       }
     }
-    meta.setParameters( new String[nr] );
-    meta.setParameterValues( new String[nr] );
+    meta.setParameters( new String[ nr ] );
+    meta.setParameterValues( new String[ nr ] );
     nr = 0;
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nritems; i++ ) {
       String param = wParameters.getNonEmpty( i ).getText( 1 );
       String value = wParameters.getNonEmpty( i ).getText( 2 );
 
-      meta.getParameters()[nr] = param;
-      meta.getParameterValues()[nr] = Const.NVL( value, "" );
+      meta.getParameters()[ nr ] = param;
+      meta.getParameterValues()[ nr ] = Const.NVL( value, "" );
 
       nr++;
     }
@@ -678,9 +677,9 @@ public class SingleThreaderDialog extends BaseStepDialog implements StepDialogIn
       String[] existing = wParameters.getItems( 1 );
 
       for ( int i = 0; i < parameters.length; i++ ) {
-        if ( Const.indexOfString( parameters[i], existing ) < 0 ) {
+        if ( Const.indexOfString( parameters[ i ], existing ) < 0 ) {
           TableItem item = new TableItem( wParameters.table, SWT.NONE );
-          item.setText( 1, parameters[i] );
+          item.setText( 1, parameters[ i ] );
         }
       }
       wParameters.removeEmptyRows();

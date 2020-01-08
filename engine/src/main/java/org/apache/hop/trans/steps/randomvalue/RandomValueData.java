@@ -22,14 +22,13 @@
 
 package org.apache.hop.trans.steps.randomvalue;
 
-import java.util.Random;
-
-import javax.crypto.KeyGenerator;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.util.UUID4Util;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import javax.crypto.KeyGenerator;
+import java.util.Random;
 
 /**
  * @author Samatar Hassan

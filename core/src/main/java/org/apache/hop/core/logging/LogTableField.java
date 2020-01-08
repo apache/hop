@@ -28,7 +28,6 @@ package org.apache.hop.core.logging;
  * subject like a step name.
  *
  * @author matt
- *
  */
 public class LogTableField implements Cloneable {
   private String id;
@@ -53,15 +52,14 @@ public class LogTableField implements Cloneable {
   private boolean nameField;
 
   /**
-   * @param id
-   *          the ID to reference this field by in the log table
+   * @param id          the ID to reference this field by in the log table
    * @param enabled
    * @param fieldName
    * @param subject
    * @param description
    */
   public LogTableField( String id, boolean enabled, String fieldName, Object subject, String name,
-    String description ) {
+                        String description ) {
     this.id = id;
     this.enabled = enabled;
     this.fieldName = fieldName;
@@ -81,7 +79,7 @@ public class LogTableField implements Cloneable {
    * @param length
    */
   public LogTableField( String id, boolean enabled, boolean subjectAllowed, String fieldName, String name,
-    String description, int dataType, int length ) {
+                        String description, int dataType, int length ) {
     this.id = id;
     this.enabled = enabled;
     this.subjectAllowed = subjectAllowed;
@@ -126,8 +124,7 @@ public class LogTableField implements Cloneable {
   }
 
   /**
-   * @param enabled
-   *          the enabled to set
+   * @param enabled the enabled to set
    */
   public void setEnabled( boolean enabled ) {
     this.enabled = enabled;
@@ -141,8 +138,7 @@ public class LogTableField implements Cloneable {
   }
 
   /**
-   * @param subject
-   *          the subject to set
+   * @param subject the subject to set
    */
   public void setSubject( Object subject ) {
     this.subject = subject;
@@ -163,8 +159,7 @@ public class LogTableField implements Cloneable {
   }
 
   /**
-   * @param fieldName
-   *          the fieldName to set
+   * @param fieldName the fieldName to set
    */
   public void setFieldName( String fieldName ) {
     this.fieldName = fieldName;
@@ -178,8 +173,7 @@ public class LogTableField implements Cloneable {
   }
 
   /**
-   * @param description
-   *          the description to set
+   * @param description the description to set
    */
   public void setDescription( String description ) {
     this.description = description;
@@ -193,8 +187,7 @@ public class LogTableField implements Cloneable {
   }
 
   /**
-   * @param dataType
-   *          the dataType to set
+   * @param dataType the dataType to set
    */
   public void setDataType( int dataType ) {
     this.dataType = dataType;
@@ -208,8 +201,7 @@ public class LogTableField implements Cloneable {
   }
 
   /**
-   * @param length
-   *          the length to set
+   * @param length the length to set
    */
   public void setLength( int length ) {
     this.length = length;
@@ -223,8 +215,7 @@ public class LogTableField implements Cloneable {
   }
 
   /**
-   * @param subjectAllowed
-   *          the subjectAllowed to set
+   * @param subjectAllowed the subjectAllowed to set
    */
   public void setSubjectAllowed( boolean subjectAllowed ) {
     this.subjectAllowed = subjectAllowed;
@@ -238,8 +229,7 @@ public class LogTableField implements Cloneable {
   }
 
   /**
-   * @param key
-   *          the key to set
+   * @param key the key to set
    */
   public void setKey( boolean key ) {
     this.key = key;
@@ -253,8 +243,7 @@ public class LogTableField implements Cloneable {
   }
 
   /**
-   * @param logDateField
-   *          the logDateField to set
+   * @param logDateField the logDateField to set
    */
   public void setLogDateField( boolean logDateField ) {
     this.logDateField = logDateField;
@@ -268,8 +257,7 @@ public class LogTableField implements Cloneable {
   }
 
   /**
-   * @param name
-   *          the name to set
+   * @param name the name to set
    */
   public void setName( String name ) {
     this.name = name;
@@ -283,8 +271,7 @@ public class LogTableField implements Cloneable {
   }
 
   /**
-   * @param logField
-   *          the logField to set
+   * @param logField the logField to set
    */
   public void setLogField( boolean logField ) {
     this.logField = logField;
@@ -298,8 +285,7 @@ public class LogTableField implements Cloneable {
   }
 
   /**
-   * @param visible
-   *          the visible to set
+   * @param visible the visible to set
    */
   public void setVisible( boolean visible ) {
     this.visible = visible;
@@ -313,8 +299,7 @@ public class LogTableField implements Cloneable {
   }
 
   /**
-   * @param statusField
-   *          the statusField to set
+   * @param statusField the statusField to set
    */
   public void setStatusField( boolean statusField ) {
     this.statusField = statusField;
@@ -328,8 +313,7 @@ public class LogTableField implements Cloneable {
   }
 
   /**
-   * @param errorsField
-   *          the errorsField to set
+   * @param errorsField the errorsField to set
    */
   public void setErrorsField( boolean errorsField ) {
     this.errorsField = errorsField;
@@ -343,8 +327,7 @@ public class LogTableField implements Cloneable {
   }
 
   /**
-   * @param nameField
-   *          the nameField to set
+   * @param nameField the nameField to set
    */
   public void setNameField( boolean nameField ) {
     this.nameField = nameField;

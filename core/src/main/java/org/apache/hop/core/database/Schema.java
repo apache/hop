@@ -49,8 +49,7 @@ public class Schema {
   }
 
   /**
-   * @param schemaName
-   *          The catalogName to set.
+   * @param schemaName The catalogName to set.
    */
   public void setSchemaName( String schemaName ) {
     this.schemaName = schemaName;
@@ -64,8 +63,7 @@ public class Schema {
   }
 
   /**
-   * @param items
-   *          The items to set.
+   * @param items The items to set.
    */
   public void setItems( String[] items ) {
     this.items = items;

@@ -22,11 +22,11 @@
 
 package org.apache.hop.trans.steps.nullif;
 
+import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 public class NullIfMetaInjectionTest extends BaseMetadataInjectionTest<NullIfMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -40,12 +40,12 @@ public class NullIfMetaInjectionTest extends BaseMetadataInjectionTest<NullIfMet
   public void test() throws Exception {
     check( "FIELDNAME", new StringGetter() {
       public String get() {
-        return meta.getFields()[0].getFieldName();
+        return meta.getFields()[ 0 ].getFieldName();
       }
     } );
     check( "FIELDVALUE", new StringGetter() {
       public String get() {
-        return meta.getFields()[0].getFieldValue();
+        return meta.getFields()[ 0 ].getFieldValue();
       }
     } );
   }

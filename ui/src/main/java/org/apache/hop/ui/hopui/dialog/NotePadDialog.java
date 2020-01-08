@@ -22,6 +22,15 @@
 
 package org.apache.hop.ui.hopui.dialog;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -47,15 +56,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.NotePadMeta;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.StyledTextComp;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * Dialog to enter a text. (descriptions etc.)
@@ -151,14 +151,10 @@ public class NotePadDialog extends Dialog {
   /**
    * Dialog to allow someone to show or enter a text in variable width font
    *
-   * @param parent
-   *          The parent shell to use
-   * @param title
-   *          The dialog title
-   * @param message
-   *          The message to display
-   * @param text
-   *          The text to display or edit
+   * @param parent  The parent shell to use
+   * @param title   The dialog title
+   * @param message The message to display
+   * @param text    The text to display or edit
    */
   public NotePadDialog( VariableSpace space, Shell parent, String title, NotePadMeta nMeta ) {
     super( parent, SWT.NONE );
@@ -606,8 +602,8 @@ public class NotePadDialog extends Dialog {
       fontColor =
         new Color(
           shell.getDisplay(), new RGB(
-            NotePadMeta.COLOR_RGB_BLACK_RED, NotePadMeta.COLOR_RGB_BLACK_GREEN,
-            NotePadMeta.COLOR_RGB_BLACK_BLUE ) );
+          NotePadMeta.COLOR_RGB_BLACK_RED, NotePadMeta.COLOR_RGB_BLACK_GREEN,
+          NotePadMeta.COLOR_RGB_BLACK_BLUE ) );
       bgColor =
         new Color( shell.getDisplay(), new RGB(
           NotePadMeta.COLOR_RGB_DEFAULT_BG_RED, NotePadMeta.COLOR_RGB_DEFAULT_BG_GREEN,

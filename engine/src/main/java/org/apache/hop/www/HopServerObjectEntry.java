@@ -22,15 +22,13 @@
 
 package org.apache.hop.www;
 
-import java.util.Comparator;
-
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Comparator;
 
 /**
  * A carte object entry in the transformation or job maps
  *
  * @author matt
- *
  */
 @XmlRootElement
 public class HopServerObjectEntry implements Comparator<HopServerObjectEntry>, Comparable<HopServerObjectEntry> {
@@ -40,14 +38,14 @@ public class HopServerObjectEntry implements Comparator<HopServerObjectEntry>, C
   public HopServerObjectEntry() {
   }
 
-  public HopServerObjectEntry(String name, String id ) {
+  public HopServerObjectEntry( String name, String id ) {
     this.name = name;
     this.id = id;
   }
 
   @Override
   public boolean equals( Object obj ) {
-    if ( !( obj instanceof HopServerObjectEntry) ) {
+    if ( !( obj instanceof HopServerObjectEntry ) ) {
       return false;
     }
     if ( obj == this ) {
@@ -63,7 +61,7 @@ public class HopServerObjectEntry implements Comparator<HopServerObjectEntry>, C
     return id.hashCode();
   }
 
-  public int compare(HopServerObjectEntry o1, HopServerObjectEntry o2 ) {
+  public int compare( HopServerObjectEntry o1, HopServerObjectEntry o2 ) {
     int cmpName = o1.getName().compareTo( o2.getName() );
     if ( cmpName != 0 ) {
       return cmpName;
@@ -84,8 +82,7 @@ public class HopServerObjectEntry implements Comparator<HopServerObjectEntry>, C
   }
 
   /**
-   * @param name
-   *          the name to set
+   * @param name the name to set
    */
   public void setName( String name ) {
     this.name = name;
@@ -99,8 +96,7 @@ public class HopServerObjectEntry implements Comparator<HopServerObjectEntry>, C
   }
 
   /**
-   * @param id
-   *          the id to set
+   * @param id the id to set
    */
   public void setId( String id ) {
     this.id = id;

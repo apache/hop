@@ -25,6 +25,10 @@ package org.apache.hop.core;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.Assert;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.net.URLClassLoader;
@@ -32,11 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.Assert;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -46,7 +45,6 @@ import static org.junit.Assert.fail;
 
 /**
  * Test class for the basic functionality of Const.
- *
  */
 public class ConstTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
@@ -62,7 +60,7 @@ public class ConstTest {
     }
 
     for ( int idx = 0; idx < arr.length - 1; idx++ ) {
-      if ( arr[idx].compareTo( arr[idx + 1] ) > 0 ) {
+      if ( arr[ idx ].compareTo( arr[ idx + 1 ] ) > 0 ) {
         return false;
       }
     }
@@ -252,33 +250,33 @@ public class ConstTest {
 
     String[] a = Const.splitString( ";", ";" );
     assertEquals( 1, a.length );
-    assertEquals( "", a[0] );
+    assertEquals( "", a[ 0 ] );
 
     a = Const.splitString( "a;b;c;d", ";" );
     assertEquals( 4, a.length );
-    assertEquals( "a", a[0] );
-    assertEquals( "b", a[1] );
-    assertEquals( "c", a[2] );
-    assertEquals( "d", a[3] );
+    assertEquals( "a", a[ 0 ] );
+    assertEquals( "b", a[ 1 ] );
+    assertEquals( "c", a[ 2 ] );
+    assertEquals( "d", a[ 3 ] );
 
     a = Const.splitString( "a;b;c;d;", ";" );
     assertEquals( 4, a.length );
-    assertEquals( "a", a[0] );
-    assertEquals( "b", a[1] );
-    assertEquals( "c", a[2] );
-    assertEquals( "d", a[3] );
+    assertEquals( "a", a[ 0 ] );
+    assertEquals( "b", a[ 1 ] );
+    assertEquals( "c", a[ 2 ] );
+    assertEquals( "d", a[ 3 ] );
 
     a = Const.splitString( "AACCAADAaAADD", "AA" );
     assertEquals( 4, a.length );
-    assertEquals( "", a[0] );
-    assertEquals( "CC", a[1] );
-    assertEquals( "DA", a[2] );
-    assertEquals( "ADD", a[3] );
+    assertEquals( "", a[ 0 ] );
+    assertEquals( "CC", a[ 1 ] );
+    assertEquals( "DA", a[ 2 ] );
+    assertEquals( "ADD", a[ 3 ] );
 
     a = Const.splitString( "CCAABBAA", "AA" );
     assertEquals( 2, a.length );
-    assertEquals( "CC", a[0] );
-    assertEquals( "BB", a[1] );
+    assertEquals( "CC", a[ 0 ] );
+    assertEquals( "BB", a[ 1 ] );
   }
 
   /**
@@ -291,33 +289,33 @@ public class ConstTest {
 
     String[] a = Const.splitString( ";", ';' );
     assertEquals( 1, a.length );
-    assertEquals( "", a[0] );
+    assertEquals( "", a[ 0 ] );
 
     a = Const.splitString( "a;b;c;d", ';' );
     assertEquals( 4, a.length );
-    assertEquals( "a", a[0] );
-    assertEquals( "b", a[1] );
-    assertEquals( "c", a[2] );
-    assertEquals( "d", a[3] );
+    assertEquals( "a", a[ 0 ] );
+    assertEquals( "b", a[ 1 ] );
+    assertEquals( "c", a[ 2 ] );
+    assertEquals( "d", a[ 3 ] );
 
     a = Const.splitString( "a;b;c;d;", ';' );
     assertEquals( 4, a.length );
-    assertEquals( "a", a[0] );
-    assertEquals( "b", a[1] );
-    assertEquals( "c", a[2] );
-    assertEquals( "d", a[3] );
+    assertEquals( "a", a[ 0 ] );
+    assertEquals( "b", a[ 1 ] );
+    assertEquals( "c", a[ 2 ] );
+    assertEquals( "d", a[ 3 ] );
 
     a = Const.splitString( ";CC;DA;ADD", ';' );
     assertEquals( 4, a.length );
-    assertEquals( "", a[0] );
-    assertEquals( "CC", a[1] );
-    assertEquals( "DA", a[2] );
-    assertEquals( "ADD", a[3] );
+    assertEquals( "", a[ 0 ] );
+    assertEquals( "CC", a[ 1 ] );
+    assertEquals( "DA", a[ 2 ] );
+    assertEquals( "ADD", a[ 3 ] );
 
     a = Const.splitString( "CC;BB;", ';' );
     assertEquals( 2, a.length );
-    assertEquals( "CC", a[0] );
-    assertEquals( "BB", a[1] );
+    assertEquals( "CC", a[ 0 ] );
+    assertEquals( "BB", a[ 1 ] );
   }
 
   /**
@@ -352,7 +350,7 @@ public class ConstTest {
   @Test
   public void testSplitStringWithDelimiterAndEnclosureNull() {
     String mask = "Hello%s world";
-    String[] chunks = {"Hello", " world"};
+    String[] chunks = { "Hello", " world" };
 
     String stringToSplit = String.format( mask, DELIMITER1 );
     String[] result = Const.splitString( stringToSplit, DELIMITER1, null );
@@ -362,7 +360,7 @@ public class ConstTest {
   @Test
   public void testSplitStringWithDelimiterAndEnclosureNullMultiChar() {
     String mask = "Hello%s world";
-    String[] chunks = {"Hello", " world"};
+    String[] chunks = { "Hello", " world" };
 
     String stringToSplit = String.format( mask, DELIMITER2 );
     String[] result = Const.splitString( stringToSplit, DELIMITER2, null );
@@ -372,7 +370,7 @@ public class ConstTest {
   @Test
   public void testSplitStringWithDelimiterAndEnclosureNullRemoveEnclosure() {
     String mask = "Hello%s world";
-    String[] chunks = {"Hello", " world"};
+    String[] chunks = { "Hello", " world" };
 
     String stringToSplit = String.format( mask, DELIMITER1 );
     String[] result = Const.splitString( stringToSplit, DELIMITER1, null, true );
@@ -382,7 +380,7 @@ public class ConstTest {
   @Test
   public void testSplitStringWithDelimiterAndEnclosureNullMultiCharRemoveEnclosure() {
     String mask = "Hello%s world";
-    String[] chunks = {"Hello", " world"};
+    String[] chunks = { "Hello", " world" };
 
     String stringToSplit = String.format( mask, DELIMITER2 );
     String[] result = Const.splitString( stringToSplit, DELIMITER2, null, true );
@@ -392,7 +390,7 @@ public class ConstTest {
   @Test
   public void testSplitStringWithDelimiterAndEmptyEnclosure() {
     String mask = "Hello%s world";
-    String[] chunks = {"Hello", " world"};
+    String[] chunks = { "Hello", " world" };
 
     String stringToSplit = String.format( mask, DELIMITER1 );
     String[] result = Const.splitString( stringToSplit, DELIMITER1, "" );
@@ -402,7 +400,7 @@ public class ConstTest {
   @Test
   public void testSplitStringWithDelimiterAndEmptyEnclosureMultiChar() {
     String mask = "Hello%s world";
-    String[] chunks = {"Hello", " world"};
+    String[] chunks = { "Hello", " world" };
 
     String stringToSplit = String.format( mask, DELIMITER2 );
     String[] result = Const.splitString( stringToSplit, DELIMITER2, "" );
@@ -412,7 +410,7 @@ public class ConstTest {
   @Test
   public void testSplitStringWithDelimiterAndEmptyEnclosureRemoveEnclosure() {
     String mask = "Hello%s world";
-    String[] chunks = {"Hello", " world"};
+    String[] chunks = { "Hello", " world" };
 
     String stringToSplit = String.format( mask, DELIMITER1 );
     String[] result = Const.splitString( stringToSplit, DELIMITER1, "", true );
@@ -422,10 +420,10 @@ public class ConstTest {
   @Test
   public void testSplitStringWithDelimiterAndEmptyEnclosureMultiCharRemoveEnclosure() {
     String mask = "Hello%s world";
-    String[] chunks = {"Hello", " world"};
+    String[] chunks = { "Hello", " world" };
 
     String stringToSplit = String.format( mask, DELIMITER2 );
-    String [] result = Const.splitString( stringToSplit, DELIMITER2, "", true );
+    String[] result = Const.splitString( stringToSplit, DELIMITER2, "", true );
     assertSplit( result, chunks );
   }
 
@@ -569,11 +567,11 @@ public class ConstTest {
     String[] result = Const.splitString( "a;'b;c;d';'e,f';'g';h", ";", "'" );
     assertNotNull( result );
     assertEquals( 5, result.length );
-    assertEquals( "a", result[0] );
-    assertEquals( "'b;c;d'", result[1] );
-    assertEquals( "'e,f'", result[2] );
-    assertEquals( "'g'", result[3] );
-    assertEquals( "h", result[4] );
+    assertEquals( "a", result[ 0 ] );
+    assertEquals( "'b;c;d'", result[ 1 ] );
+    assertEquals( "'e,f'", result[ 2 ] );
+    assertEquals( "'g'", result[ 3 ] );
+    assertEquals( "h", result[ 4 ] );
 
     // Check for null and empty as the last split
     result = Const.splitString( "a;b;c;", ";", null );
@@ -592,8 +590,8 @@ public class ConstTest {
       Const.splitString( "html this is a web page html</newpage>html and so is this html", "</newpage>", "html" );
     assertNotNull( result );
     assertEquals( 2, result.length );
-    assertEquals( "html this is a web page html", result[0] );
-    assertEquals( "html and so is this html", result[1] );
+    assertEquals( "html this is a web page html", result[ 0 ] );
+    assertEquals( "html and so is this html", result[ 1 ] );
   }
 
   @Test
@@ -630,7 +628,7 @@ public class ConstTest {
   private void testSplitStringRemoveEnclosureNested( String e, String d ) {
     //"""a,b,c"""
     String mask = "%s%s%sa" + "%s" + "b" + "%s" + "c%s%s%s";
-    String[] chunks = { e + e + "a" + d  + "b" + d + "c" + e + e};
+    String[] chunks = { e + e + "a" + d + "b" + d + "c" + e + e };
 
     String stringToSplit = String.format( mask, e, e, e, d, d, e, e, e );
     String[] result = Const.splitString( stringToSplit, d, e, true );
@@ -641,7 +639,7 @@ public class ConstTest {
     assertNotNull( result );
     assertEquals( chunks.length, result.length );
     for ( int i = 0; i < chunks.length; i++ ) {
-      assertEquals( chunks[i], result[i] );
+      assertEquals( chunks[ i ], result[ i ] );
     }
   }
 
@@ -658,14 +656,14 @@ public class ConstTest {
     result = Const.splitString( "Hello, world", null, null );
     assertNotNull( result );
     assertEquals( result.length, 1 );
-    assertEquals( result[0], "Hello, world" );
+    assertEquals( result[ 0 ], "Hello, world" );
 
     result = Const.splitString( "Hello\\, world,Hello\\, planet,Hello\\, 3rd rock", ',', true );
     assertNotNull( result );
     assertEquals( result.length, 3 );
-    assertEquals( result[0], "Hello\\, world" );
-    assertEquals( result[1], "Hello\\, planet" );
-    assertEquals( result[2], "Hello\\, 3rd rock" );
+    assertEquals( result[ 0 ], "Hello\\, world" );
+    assertEquals( result[ 1 ], "Hello\\, planet" );
+    assertEquals( result[ 2 ], "Hello\\, 3rd rock" );
   }
 
   /**
@@ -684,33 +682,33 @@ public class ConstTest {
 
     a = Const.splitPath( "/level1", "/" );
     assertEquals( 1, a.length );
-    assertEquals( "level1", a[0] );
+    assertEquals( "level1", a[ 0 ] );
 
     a = Const.splitPath( "level1", "/" );
     assertEquals( 1, a.length );
-    assertEquals( "level1", a[0] );
+    assertEquals( "level1", a[ 0 ] );
 
     a = Const.splitPath( "/level1/level2", "/" );
     assertEquals( 2, a.length );
-    assertEquals( "level1", a[0] );
-    assertEquals( "level2", a[1] );
+    assertEquals( "level1", a[ 0 ] );
+    assertEquals( "level2", a[ 1 ] );
 
     a = Const.splitPath( "level1/level2", "/" );
     assertEquals( 2, a.length );
-    assertEquals( "level1", a[0] );
-    assertEquals( "level2", a[1] );
+    assertEquals( "level1", a[ 0 ] );
+    assertEquals( "level2", a[ 1 ] );
 
     a = Const.splitPath( "/level1/level2/lvl3", "/" );
     assertEquals( 3, a.length );
-    assertEquals( "level1", a[0] );
-    assertEquals( "level2", a[1] );
-    assertEquals( "lvl3", a[2] );
+    assertEquals( "level1", a[ 0 ] );
+    assertEquals( "level2", a[ 1 ] );
+    assertEquals( "lvl3", a[ 2 ] );
 
     a = Const.splitPath( "level1/level2/lvl3", "/" );
     assertEquals( 3, a.length );
-    assertEquals( "level1", a[0] );
-    assertEquals( "level2", a[1] );
-    assertEquals( "lvl3", a[2] );
+    assertEquals( "level1", a[ 0 ] );
+    assertEquals( "level2", a[ 1 ] );
+    assertEquals( "lvl3", a[ 2 ] );
   }
 
   @Test
@@ -937,9 +935,9 @@ public class ConstTest {
     assertEquals( new BigDecimal( "-0.010" ), Const.round( new BigDecimal( "-0.010" ), 2, BigDecimal.ROUND_FLOOR ) );
     assertEquals( new BigDecimal( "-0.010" ), Const.round( new BigDecimal( "-0.010" ), 2, BigDecimal.ROUND_HALF_UP ) );
     assertEquals( new BigDecimal( "-0.010" ), Const.round( new BigDecimal( "-0.010" ), 2,
-        BigDecimal.ROUND_HALF_DOWN ) );
+      BigDecimal.ROUND_HALF_DOWN ) );
     assertEquals( new BigDecimal( "-0.010" ), Const.round( new BigDecimal( "-0.010" ), 2,
-        BigDecimal.ROUND_HALF_EVEN ) );
+      BigDecimal.ROUND_HALF_EVEN ) );
     assertEquals( new BigDecimal( "-0.010" ), Const.round( new BigDecimal( "-0.010" ), 2, Const.ROUND_HALF_CEILING ) );
 
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.012" ), 2, BigDecimal.ROUND_UP ) );
@@ -948,9 +946,9 @@ public class ConstTest {
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.012" ), 2, BigDecimal.ROUND_FLOOR ) );
     assertEquals( new BigDecimal( "-0.010" ), Const.round( new BigDecimal( "-0.012" ), 2, BigDecimal.ROUND_HALF_UP ) );
     assertEquals( new BigDecimal( "-0.010" ), Const.round( new BigDecimal( "-0.012" ), 2,
-        BigDecimal.ROUND_HALF_DOWN ) );
+      BigDecimal.ROUND_HALF_DOWN ) );
     assertEquals( new BigDecimal( "-0.010" ), Const.round( new BigDecimal( "-0.012" ), 2,
-        BigDecimal.ROUND_HALF_EVEN ) );
+      BigDecimal.ROUND_HALF_EVEN ) );
     assertEquals( new BigDecimal( "-0.010" ), Const.round( new BigDecimal( "-0.012" ), 2, Const.ROUND_HALF_CEILING ) );
 
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.015" ), 2, BigDecimal.ROUND_UP ) );
@@ -959,9 +957,9 @@ public class ConstTest {
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.015" ), 2, BigDecimal.ROUND_FLOOR ) );
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.015" ), 2, BigDecimal.ROUND_HALF_UP ) );
     assertEquals( new BigDecimal( "-0.010" ), Const.round( new BigDecimal( "-0.015" ), 2,
-        BigDecimal.ROUND_HALF_DOWN ) );
+      BigDecimal.ROUND_HALF_DOWN ) );
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.015" ), 2,
-        BigDecimal.ROUND_HALF_EVEN ) );
+      BigDecimal.ROUND_HALF_EVEN ) );
     assertEquals( new BigDecimal( "-0.010" ), Const.round( new BigDecimal( "-0.015" ), 2, Const.ROUND_HALF_CEILING ) );
 
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.017" ), 2, BigDecimal.ROUND_UP ) );
@@ -970,9 +968,9 @@ public class ConstTest {
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.017" ), 2, BigDecimal.ROUND_FLOOR ) );
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.017" ), 2, BigDecimal.ROUND_HALF_UP ) );
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.017" ), 2,
-        BigDecimal.ROUND_HALF_DOWN ) );
+      BigDecimal.ROUND_HALF_DOWN ) );
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.017" ), 2,
-        BigDecimal.ROUND_HALF_EVEN ) );
+      BigDecimal.ROUND_HALF_EVEN ) );
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.017" ), 2, Const.ROUND_HALF_CEILING ) );
 
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.020" ), 2, BigDecimal.ROUND_UP ) );
@@ -981,9 +979,9 @@ public class ConstTest {
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.020" ), 2, BigDecimal.ROUND_FLOOR ) );
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.020" ), 2, BigDecimal.ROUND_HALF_UP ) );
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.020" ), 2,
-        BigDecimal.ROUND_HALF_DOWN ) );
+      BigDecimal.ROUND_HALF_DOWN ) );
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.020" ), 2,
-        BigDecimal.ROUND_HALF_EVEN ) );
+      BigDecimal.ROUND_HALF_EVEN ) );
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.020" ), 2, Const.ROUND_HALF_CEILING ) );
 
     assertEquals( new BigDecimal( "-0.030" ), Const.round( new BigDecimal( "-0.022" ), 2, BigDecimal.ROUND_UP ) );
@@ -992,9 +990,9 @@ public class ConstTest {
     assertEquals( new BigDecimal( "-0.030" ), Const.round( new BigDecimal( "-0.022" ), 2, BigDecimal.ROUND_FLOOR ) );
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.022" ), 2, BigDecimal.ROUND_HALF_UP ) );
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.022" ), 2,
-        BigDecimal.ROUND_HALF_DOWN ) );
+      BigDecimal.ROUND_HALF_DOWN ) );
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.022" ), 2,
-        BigDecimal.ROUND_HALF_EVEN ) );
+      BigDecimal.ROUND_HALF_EVEN ) );
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.022" ), 2, Const.ROUND_HALF_CEILING ) );
 
     assertEquals( new BigDecimal( "-0.030" ), Const.round( new BigDecimal( "-0.025" ), 2, BigDecimal.ROUND_UP ) );
@@ -1003,9 +1001,9 @@ public class ConstTest {
     assertEquals( new BigDecimal( "-0.030" ), Const.round( new BigDecimal( "-0.025" ), 2, BigDecimal.ROUND_FLOOR ) );
     assertEquals( new BigDecimal( "-0.030" ), Const.round( new BigDecimal( "-0.025" ), 2, BigDecimal.ROUND_HALF_UP ) );
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.025" ), 2,
-        BigDecimal.ROUND_HALF_DOWN ) );
+      BigDecimal.ROUND_HALF_DOWN ) );
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.025" ), 2,
-        BigDecimal.ROUND_HALF_EVEN ) );
+      BigDecimal.ROUND_HALF_EVEN ) );
     assertEquals( new BigDecimal( "-0.020" ), Const.round( new BigDecimal( "-0.025" ), 2, Const.ROUND_HALF_CEILING ) );
 
     assertEquals( new BigDecimal( "-0.030" ), Const.round( new BigDecimal( "-0.027" ), 2, BigDecimal.ROUND_UP ) );
@@ -1014,9 +1012,9 @@ public class ConstTest {
     assertEquals( new BigDecimal( "-0.030" ), Const.round( new BigDecimal( "-0.027" ), 2, BigDecimal.ROUND_FLOOR ) );
     assertEquals( new BigDecimal( "-0.030" ), Const.round( new BigDecimal( "-0.027" ), 2, BigDecimal.ROUND_HALF_UP ) );
     assertEquals( new BigDecimal( "-0.030" ), Const.round( new BigDecimal( "-0.027" ), 2,
-        BigDecimal.ROUND_HALF_DOWN ) );
+      BigDecimal.ROUND_HALF_DOWN ) );
     assertEquals( new BigDecimal( "-0.030" ), Const.round( new BigDecimal( "-0.027" ), 2,
-        BigDecimal.ROUND_HALF_EVEN ) );
+      BigDecimal.ROUND_HALF_EVEN ) );
     assertEquals( new BigDecimal( "-0.030" ), Const.round( new BigDecimal( "-0.027" ), 2, Const.ROUND_HALF_CEILING ) );
 
     assertEquals( new BigDecimal( "100.0" ), Const.round( new BigDecimal( "100.0" ), -2, BigDecimal.ROUND_UP ) );
@@ -1097,9 +1095,9 @@ public class ConstTest {
     assertEquals( new BigDecimal( "-100.0" ), Const.round( new BigDecimal( "-100.0" ), -2, BigDecimal.ROUND_FLOOR ) );
     assertEquals( new BigDecimal( "-100.0" ), Const.round( new BigDecimal( "-100.0" ), -2, BigDecimal.ROUND_HALF_UP ) );
     assertEquals( new BigDecimal( "-100.0" ), Const.round( new BigDecimal( "-100.0" ), -2,
-        BigDecimal.ROUND_HALF_DOWN ) );
+      BigDecimal.ROUND_HALF_DOWN ) );
     assertEquals( new BigDecimal( "-100.0" ), Const.round( new BigDecimal( "-100.0" ), -2,
-        BigDecimal.ROUND_HALF_EVEN ) );
+      BigDecimal.ROUND_HALF_EVEN ) );
     assertEquals( new BigDecimal( "-100.0" ), Const.round( new BigDecimal( "-100.0" ), -2, Const.ROUND_HALF_CEILING ) );
 
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-120.0" ), -2, BigDecimal.ROUND_UP ) );
@@ -1108,9 +1106,9 @@ public class ConstTest {
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-120.0" ), -2, BigDecimal.ROUND_FLOOR ) );
     assertEquals( new BigDecimal( "-100.0" ), Const.round( new BigDecimal( "-120.0" ), -2, BigDecimal.ROUND_HALF_UP ) );
     assertEquals( new BigDecimal( "-100.0" ), Const.round( new BigDecimal( "-120.0" ), -2,
-        BigDecimal.ROUND_HALF_DOWN ) );
+      BigDecimal.ROUND_HALF_DOWN ) );
     assertEquals( new BigDecimal( "-100.0" ), Const.round( new BigDecimal( "-120.0" ), -2,
-        BigDecimal.ROUND_HALF_EVEN ) );
+      BigDecimal.ROUND_HALF_EVEN ) );
     assertEquals( new BigDecimal( "-100.0" ), Const.round( new BigDecimal( "-120.0" ), -2, Const.ROUND_HALF_CEILING ) );
 
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-150.0" ), -2, BigDecimal.ROUND_UP ) );
@@ -1119,9 +1117,9 @@ public class ConstTest {
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-150.0" ), -2, BigDecimal.ROUND_FLOOR ) );
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-150.0" ), -2, BigDecimal.ROUND_HALF_UP ) );
     assertEquals( new BigDecimal( "-100.0" ), Const.round( new BigDecimal( "-150.0" ), -2,
-        BigDecimal.ROUND_HALF_DOWN ) );
+      BigDecimal.ROUND_HALF_DOWN ) );
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-150.0" ), -2,
-        BigDecimal.ROUND_HALF_EVEN ) );
+      BigDecimal.ROUND_HALF_EVEN ) );
     assertEquals( new BigDecimal( "-100.0" ), Const.round( new BigDecimal( "-150.0" ), -2, Const.ROUND_HALF_CEILING ) );
 
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-170.0" ), -2, BigDecimal.ROUND_UP ) );
@@ -1130,9 +1128,9 @@ public class ConstTest {
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-170.0" ), -2, BigDecimal.ROUND_FLOOR ) );
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-170.0" ), -2, BigDecimal.ROUND_HALF_UP ) );
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-170.0" ), -2,
-        BigDecimal.ROUND_HALF_DOWN ) );
+      BigDecimal.ROUND_HALF_DOWN ) );
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-170.0" ), -2,
-        BigDecimal.ROUND_HALF_EVEN ) );
+      BigDecimal.ROUND_HALF_EVEN ) );
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-170.0" ), -2, Const.ROUND_HALF_CEILING ) );
 
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-200.0" ), -2, BigDecimal.ROUND_UP ) );
@@ -1141,9 +1139,9 @@ public class ConstTest {
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-200.0" ), -2, BigDecimal.ROUND_FLOOR ) );
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-200.0" ), -2, BigDecimal.ROUND_HALF_UP ) );
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-200.0" ), -2,
-        BigDecimal.ROUND_HALF_DOWN ) );
+      BigDecimal.ROUND_HALF_DOWN ) );
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-200.0" ), -2,
-        BigDecimal.ROUND_HALF_EVEN ) );
+      BigDecimal.ROUND_HALF_EVEN ) );
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-200.0" ), -2, Const.ROUND_HALF_CEILING ) );
 
     assertEquals( new BigDecimal( "-300.0" ), Const.round( new BigDecimal( "-220.0" ), -2, BigDecimal.ROUND_UP ) );
@@ -1152,9 +1150,9 @@ public class ConstTest {
     assertEquals( new BigDecimal( "-300.0" ), Const.round( new BigDecimal( "-220.0" ), -2, BigDecimal.ROUND_FLOOR ) );
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-220.0" ), -2, BigDecimal.ROUND_HALF_UP ) );
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-220.0" ), -2,
-        BigDecimal.ROUND_HALF_DOWN ) );
+      BigDecimal.ROUND_HALF_DOWN ) );
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-220.0" ), -2,
-        BigDecimal.ROUND_HALF_EVEN ) );
+      BigDecimal.ROUND_HALF_EVEN ) );
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-220.0" ), -2, Const.ROUND_HALF_CEILING ) );
 
     assertEquals( new BigDecimal( "-300.0" ), Const.round( new BigDecimal( "-250.0" ), -2, BigDecimal.ROUND_UP ) );
@@ -1163,9 +1161,9 @@ public class ConstTest {
     assertEquals( new BigDecimal( "-300.0" ), Const.round( new BigDecimal( "-250.0" ), -2, BigDecimal.ROUND_FLOOR ) );
     assertEquals( new BigDecimal( "-300.0" ), Const.round( new BigDecimal( "-250.0" ), -2, BigDecimal.ROUND_HALF_UP ) );
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-250.0" ), -2,
-        BigDecimal.ROUND_HALF_DOWN ) );
+      BigDecimal.ROUND_HALF_DOWN ) );
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-250.0" ), -2,
-        BigDecimal.ROUND_HALF_EVEN ) );
+      BigDecimal.ROUND_HALF_EVEN ) );
     assertEquals( new BigDecimal( "-200.0" ), Const.round( new BigDecimal( "-250.0" ), -2, Const.ROUND_HALF_CEILING ) );
 
     assertEquals( new BigDecimal( "-300.0" ), Const.round( new BigDecimal( "-270.0" ), -2, BigDecimal.ROUND_UP ) );
@@ -1174,9 +1172,9 @@ public class ConstTest {
     assertEquals( new BigDecimal( "-300.0" ), Const.round( new BigDecimal( "-270.0" ), -2, BigDecimal.ROUND_FLOOR ) );
     assertEquals( new BigDecimal( "-300.0" ), Const.round( new BigDecimal( "-270.0" ), -2, BigDecimal.ROUND_HALF_UP ) );
     assertEquals( new BigDecimal( "-300.0" ), Const.round( new BigDecimal( "-270.0" ), -2,
-        BigDecimal.ROUND_HALF_DOWN ) );
+      BigDecimal.ROUND_HALF_DOWN ) );
     assertEquals( new BigDecimal( "-300.0" ), Const.round( new BigDecimal( "-270.0" ), -2,
-        BigDecimal.ROUND_HALF_EVEN ) );
+      BigDecimal.ROUND_HALF_EVEN ) );
     assertEquals( new BigDecimal( "-300.0" ), Const.round( new BigDecimal( "-270.0" ), -2, Const.ROUND_HALF_CEILING ) );
   }
 
@@ -1857,7 +1855,7 @@ public class ConstTest {
   public void testReplace() {
     final String source = "A journey of a thousand miles never begins";
     assertEquals( "A journey of a thousand miles begins with a single step", Const.replace( source, "never begins",
-        "begins with a single step" ) );
+      "begins with a single step" ) );
     assertEquals( source, Const.replace( source, "evil", "good" ) );
     assertEquals( "short", Const.replace( "short", "long pattern", "replacement" ) );
     assertEquals( "", Const.replace( "", "anything", "something" ) );
@@ -1903,9 +1901,9 @@ public class ConstTest {
     assertEquals( "Replace what looks like a regex '$1' with '$1'", sb2.toString() );
 
     sb2 = new StringBuilder( "JUNK" );
-    Const.repl(  sb2, null, "wibble" );
+    Const.repl( sb2, null, "wibble" );
     assertEquals( "JUNK", sb2.toString() );
-    Const.repl(  sb2, "JUNK", null );
+    Const.repl( sb2, "JUNK", null );
 
   }
 
@@ -1926,12 +1924,12 @@ public class ConstTest {
   @Test
   public void testOptionallyQuoteStringByOS() {
     assertEquals( Const.getQuoteCharByOS() + "Quote me" + Const.getQuoteCharByOS(), Const.optionallyQuoteStringByOS(
-        "Quote me" ) );
+      "Quote me" ) );
     assertEquals( Const.getQuoteCharByOS() + "Quote=me" + Const.getQuoteCharByOS(), Const.optionallyQuoteStringByOS(
-        "Quote=me" ) );
+      "Quote=me" ) );
     assertEquals( "Quoteme", Const.optionallyQuoteStringByOS( "Quoteme" ) );
     assertEquals( "Quote" + Const.getQuoteCharByOS() + "me", Const.optionallyQuoteStringByOS( "Quote" + Const
-        .getQuoteCharByOS() + "me" ) );
+      .getQuoteCharByOS() + "me" ) );
   }
 
   @Test
@@ -1975,9 +1973,9 @@ public class ConstTest {
     assertNull( Const.replEnv( (String) null ) );
     System.setProperty( "testProp", "testValue" );
     assertEquals( "Value for testProp property is testValue.", Const.replEnv(
-        "Value for testProp property is %%testProp%%." ) );
+      "Value for testProp property is %%testProp%%." ) );
     assertEquals( "Value for testProp property is testValue.", Const.replEnv( new String[] {
-      "Value for testProp property is %%testProp%%." } )[0] );
+      "Value for testProp property is %%testProp%%." } )[ 0 ] );
   }
 
   @Test
@@ -2000,13 +1998,13 @@ public class ConstTest {
   @Test
   public void testIndexsOfStrings() {
     Assert.assertArrayEquals( new int[] { 2, 1, -1 }, Const.indexsOfStrings( new String[] { "foo", "bar", "qux" },
-        new String[] { "baz", "bar", "foo" } ) );
+      new String[] { "baz", "bar", "foo" } ) );
   }
 
   @Test
   public void testIndexsOfFoundStrings() {
-    Assert.assertArrayEquals( new int[] { 2, 1 }, Const.indexsOfFoundStrings( new String[] { "qux", "foo", "bar" },
-        new String[] { "baz", "bar", "foo" } ) );
+    Assert.assertArrayEquals( new int[] { 2, 1 }, Const.indexesOfFoundStrings( new String[] { "qux", "foo", "bar" },
+      new String[] { "baz", "bar", "foo" } ) );
   }
 
   @Test
@@ -2020,13 +2018,13 @@ public class ConstTest {
   @Test
   public void testStackTracker() {
     assertTrue( Const.getStackTracker( new Exception() ).contains( getClass().getName() + ".testStackTracker("
-        + getClass().getSimpleName() + ".java:" ) );
+      + getClass().getSimpleName() + ".java:" ) );
   }
 
   @Test
   public void testGetCustomStackTrace() {
     assertTrue( Const.getCustomStackTrace( new Exception() ).contains( getClass().getName()
-        + ".testGetCustomStackTrace(" + getClass().getSimpleName() + ".java:" ) );
+      + ".testGetCustomStackTrace(" + getClass().getSimpleName() + ".java:" ) );
   }
 
   @Test
@@ -2043,7 +2041,7 @@ public class ConstTest {
   @Test
   public void testCreateFilename() {
     assertEquals( "dir" + Const.FILE_SEPARATOR + "file__1.ext", Const.createFilename( "dir" + Const.FILE_SEPARATOR,
-        "File\t~ 1", ".ext" ) );
+      "File\t~ 1", ".ext" ) );
     assertEquals( "dir" + Const.FILE_SEPARATOR + "file__1.ext", Const.createFilename( "dir", "File\t~ 1", ".ext" ) );
   }
 
@@ -2143,7 +2141,7 @@ public class ConstTest {
   public void testGetEmptyPaddedStrings() {
     final String[] strings = Const.getEmptyPaddedStrings();
     for ( int i = 0; i < 250; i++ ) {
-      assertEquals( i, strings[i].length() );
+      assertEquals( i, strings[ i ].length() );
     }
   }
 
@@ -2204,7 +2202,7 @@ public class ConstTest {
     assertEquals( "", Const.removeCRLF( null ) );
     assertEquals( "", Const.removeCRLF( "\r\n" ) );
     assertEquals( "This is a test of the emergency broadcast system",
-        Const.removeCRLF( "This \r\nis \ra \ntest \rof \n\rthe \r\nemergency \rbroadcast \nsystem\r\n" ) );
+      Const.removeCRLF( "This \r\nis \ra \ntest \rof \n\rthe \r\nemergency \rbroadcast \nsystem\r\n" ) );
   }
 
   @Test
@@ -2215,7 +2213,7 @@ public class ConstTest {
     assertEquals( "", Const.removeCR( "\r" ) );
     assertEquals( "\n\n", Const.removeCR( "\n\r\n" ) );
     assertEquals( "This \nis a \ntest of \nthe \nemergency broadcast \nsystem\n",
-        Const.removeCR( "This \r\nis \ra \ntest \rof \n\rthe \r\nemergency \rbroadcast \nsystem\r\n" ) );
+      Const.removeCR( "This \r\nis \ra \ntest \rof \n\rthe \r\nemergency \rbroadcast \nsystem\r\n" ) );
   }
 
   @Test
@@ -2226,7 +2224,7 @@ public class ConstTest {
     assertEquals( "", Const.removeLF( "\n" ) );
     assertEquals( "\r\r", Const.removeLF( "\r\n\r" ) );
     assertEquals( "This \ris \ra test \rof \rthe \remergency \rbroadcast system\r",
-        Const.removeLF( "This \r\nis \ra \ntest \rof \n\rthe \r\nemergency \rbroadcast \nsystem\r\n" ) );
+      Const.removeLF( "This \r\nis \ra \ntest \rof \n\rthe \r\nemergency \rbroadcast \nsystem\r\n" ) );
   }
 
   @Test
@@ -2237,7 +2235,7 @@ public class ConstTest {
     assertEquals( "", Const.removeTAB( "\t" ) );
     assertEquals( "\r", Const.removeTAB( "\t\r\t" ) );
     assertEquals( "Thisisatest",
-        Const.removeTAB( "\tThis\tis\ta\ttest" ) );
+      Const.removeTAB( "\tThis\tis\ta\ttest" ) );
   }
 
   @Test

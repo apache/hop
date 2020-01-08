@@ -22,12 +22,13 @@
 
 package org.apache.hop.trans.steps.xbaseinput;
 
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 public class XBaseInputContentParsingTest extends BaseXBaseParsingTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Test
   public void testDefaultOptions() throws Exception {
     init( "test.dbf" );

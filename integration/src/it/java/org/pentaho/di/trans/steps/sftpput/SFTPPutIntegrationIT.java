@@ -24,17 +24,16 @@ package org.apache.hop.trans.steps.sftpput;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.Session;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.apache.hop.TestUtilities;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.job.entries.sftp.SftpServer;
 import org.apache.hop.trans.Trans;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.ByteArrayOutputStream;
 
@@ -100,7 +99,7 @@ public class SFTPPutIntegrationIT {
    * It executes a transformation with two steps: data grid and sftp put.
    * The latter uploads to an SFTP server a file <tt>pdi-13897/uploaded.txt</tt>, that contains a
    * <tt>qwerty</tt> string.<br/>
-   *
+   * <p>
    * Parameters of the transformation are:
    * <ul>
    *  <li>server</li>
@@ -108,6 +107,7 @@ public class SFTPPutIntegrationIT {
    *  <li>username</li>
    *  <li>password</li>
    * </ul>
+   *
    * @throws Exception
    */
   @Test

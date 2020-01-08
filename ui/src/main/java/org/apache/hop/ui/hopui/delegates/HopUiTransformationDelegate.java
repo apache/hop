@@ -22,32 +22,20 @@
 
 package org.apache.hop.ui.hopui.delegates;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.hop.ui.hopui.HopUi;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.EngineMetaInterface;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.HopUiInterface;
+import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.TransLogTable;
 import org.apache.hop.core.undo.TransAction;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransExecutionConfiguration;
@@ -59,6 +47,7 @@ import org.apache.hop.trans.debug.TransDebugMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.hopui.TabMapEntry;
 import org.apache.hop.ui.hopui.TabMapEntry.ObjectType;
 import org.apache.hop.ui.hopui.job.JobGraph;
@@ -66,6 +55,16 @@ import org.apache.hop.ui.hopui.trans.TransGraph;
 import org.apache.hop.ui.trans.debug.TransDebugDialog;
 import org.apache.hop.ui.trans.dialog.TransExecutionConfigurationDialog;
 import org.apache.xul.swt.tab.TabItem;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 public class HopUiTransformationDelegate extends HopUiDelegate {
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
@@ -96,8 +95,7 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
   /**
    * Add a transformation to the
    *
-   * @param transMeta
-   *          the transformation to add to the map
+   * @param transMeta the transformation to add to the map
    * @return true if the transformation was added, false if it couldn't be added (already loaded)
    **/
   public boolean addTransformation( TransMeta transMeta ) {
@@ -117,8 +115,7 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
   }
 
   /**
-   * @param transMeta
-   *          the transformation to close, make sure it's ok to dispose of it BEFORE you call this.
+   * @param transMeta the transformation to close, make sure it's ok to dispose of it BEFORE you call this.
    */
   public synchronized void closeTransformation( TransMeta transMeta ) {
     // Close the associated tabs...
@@ -192,8 +189,8 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
         }
         TabItem tabItem = new TabItem( hopUi.tabfolder, tabName, tabName, props.getSashWeights() );
         String toolTipText =
-            BaseMessages.getString( PKG, "Spoon.TabTrans.Tooltip", hopUi.delegates.tabs.makeTabName( transMeta,
-                showLocation ) );
+          BaseMessages.getString( PKG, "Spoon.TabTrans.Tooltip", hopUi.delegates.tabs.makeTabName( transMeta,
+            showLocation ) );
         if ( !Utils.isEmpty( transMeta.getFilename() ) ) {
           toolTipText += Const.CR + Const.CR + transMeta.getFilename();
         }
@@ -203,7 +200,7 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
         TransLogTable logTable = transMeta.getTransLogTable();
 
         tabEntry =
-            new TabMapEntry( tabItem, transMeta.getFilename(), transMeta.getName(), transGraph, ObjectType.TRANSFORMATION_GRAPH );
+          new TabMapEntry( tabItem, transMeta.getFilename(), transMeta.getName(), transGraph, ObjectType.TRANSFORMATION_GRAPH );
         tabEntry.setShowingLocation( showLocation );
 
         hopUi.delegates.tabs.addTab( tabEntry );
@@ -302,7 +299,7 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
   }
 
   public TransMeta[] getLoadedTransformations() {
-    return transformationMap.toArray( new TransMeta[transformationMap.size()] );
+    return transformationMap.toArray( new TransMeta[ transformationMap.size() ] );
   }
 
   public TransGraph findTransGraphOfTransformation( TransMeta transMeta ) {
@@ -344,7 +341,7 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_NEW_STEP:
         // Delete the step at correct location:
         for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
-          int idx = transAction.getCurrentIndex()[i];
+          int idx = transAction.getCurrentIndex()[ i ];
           transMeta.removeStep( idx );
         }
         hopUi.refreshTree();
@@ -355,7 +352,7 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_NEW_NOTE:
         // Delete the note at correct location:
         for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
-          int idx = transAction.getCurrentIndex()[i];
+          int idx = transAction.getCurrentIndex()[ i ];
           transMeta.removeNote( idx );
         }
         hopUi.refreshTree();
@@ -366,30 +363,8 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_NEW_HOP:
         // Delete the hop at correct location:
         for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
-          int idx = transAction.getCurrentIndex()[i];
+          int idx = transAction.getCurrentIndex()[ i ];
           transMeta.removeTransHop( idx );
-        }
-        hopUi.refreshTree();
-        hopUi.refreshGraph();
-        break;
-
-      // We created a new slave : undo this...
-      case TransAction.TYPE_ACTION_NEW_SLAVE:
-        // Delete the slave at correct location:
-        for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
-          int idx = transAction.getCurrentIndex()[i];
-          transMeta.getSlaveServers().remove( idx );
-        }
-        hopUi.refreshTree();
-        hopUi.refreshGraph();
-        break;
-
-      // We created a new slave : undo this...
-      case TransAction.TYPE_ACTION_NEW_CLUSTER:
-        // Delete the slave at correct location:
-        for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
-          int idx = transAction.getCurrentIndex()[i];
-          transMeta.getClusterSchemas().remove( idx );
         }
         hopUi.refreshTree();
         hopUi.refreshGraph();
@@ -403,8 +378,8 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_DELETE_STEP:
         // un-Delete the step at correct location: re-insert
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          StepMeta stepMeta = (StepMeta) transAction.getCurrent()[i];
-          int idx = transAction.getCurrentIndex()[i];
+          StepMeta stepMeta = (StepMeta) transAction.getCurrent()[ i ];
+          int idx = transAction.getCurrentIndex()[ i ];
           transMeta.addStep( idx, stepMeta );
         }
         hopUi.refreshTree();
@@ -415,8 +390,8 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_DELETE_NOTE:
         // re-insert the note at correct location:
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          NotePadMeta ni = (NotePadMeta) transAction.getCurrent()[i];
-          int idx = transAction.getCurrentIndex()[i];
+          NotePadMeta ni = (NotePadMeta) transAction.getCurrent()[ i ];
+          int idx = transAction.getCurrentIndex()[ i ];
           transMeta.addNote( idx, ni );
         }
         hopUi.refreshTree();
@@ -427,8 +402,8 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_DELETE_HOP:
         // re-insert the hop at correct location:
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          TransHopMeta hi = (TransHopMeta) transAction.getCurrent()[i];
-          int idx = transAction.getCurrentIndex()[i];
+          TransHopMeta hi = (TransHopMeta) transAction.getCurrent()[ i ];
+          int idx = transAction.getCurrentIndex()[ i ];
           // Build a new hop:
           StepMeta from = transMeta.findStep( hi.getFromStep().getName() );
           StepMeta to = transMeta.findStep( hi.getToStep().getName() );
@@ -447,8 +422,8 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_CHANGE_STEP:
         // Delete the current step, insert previous version.
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          StepMeta prev = (StepMeta) ( (StepMeta) transAction.getPrevious()[i] ).clone();
-          int idx = transAction.getCurrentIndex()[i];
+          StepMeta prev = (StepMeta) ( (StepMeta) transAction.getPrevious()[ i ] ).clone();
+          int idx = transAction.getCurrentIndex()[ i ];
 
           transMeta.getStep( idx ).replaceMeta( prev );
         }
@@ -460,9 +435,9 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_CHANGE_NOTE:
         // Delete & re-insert
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          int idx = transAction.getCurrentIndex()[i];
+          int idx = transAction.getCurrentIndex()[ i ];
           transMeta.removeNote( idx );
-          NotePadMeta prev = (NotePadMeta) transAction.getPrevious()[i];
+          NotePadMeta prev = (NotePadMeta) transAction.getPrevious()[ i ];
           transMeta.addNote( idx, (NotePadMeta) prev.clone() );
         }
         hopUi.refreshTree();
@@ -473,8 +448,8 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_CHANGE_HOP:
         // Delete & re-insert
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          TransHopMeta prev = (TransHopMeta) transAction.getPrevious()[i];
-          int idx = transAction.getCurrentIndex()[i];
+          TransHopMeta prev = (TransHopMeta) transAction.getPrevious()[ i ];
+          int idx = transAction.getCurrentIndex()[ i ];
 
           transMeta.removeTransHop( idx );
           transMeta.addTransHop( idx, (TransHopMeta) prev.clone() );
@@ -491,8 +466,8 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_POSITION_STEP:
         // Find the location of the step:
         for ( int i = 0; i < transAction.getCurrentIndex().length; i++ ) {
-          StepMeta stepMeta = transMeta.getStep( transAction.getCurrentIndex()[i] );
-          stepMeta.setLocation( transAction.getPreviousLocation()[i] );
+          StepMeta stepMeta = transMeta.getStep( transAction.getCurrentIndex()[ i ] );
+          stepMeta.setLocation( transAction.getPreviousLocation()[ i ] );
         }
         hopUi.refreshGraph();
         break;
@@ -500,9 +475,9 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       // The position of a note has changed: undo this...
       case TransAction.TYPE_ACTION_POSITION_NOTE:
         for ( int i = 0; i < transAction.getCurrentIndex().length; i++ ) {
-          int idx = transAction.getCurrentIndex()[i];
+          int idx = transAction.getCurrentIndex()[ i ];
           NotePadMeta npi = transMeta.getNote( idx );
-          Point prev = transAction.getPreviousLocation()[i];
+          Point prev = transAction.getPreviousLocation()[ i ];
           npi.setLocation( prev );
         }
         hopUi.refreshGraph();
@@ -524,8 +499,8 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_NEW_STEP:
         // re-delete the step at correct location:
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          StepMeta stepMeta = (StepMeta) transAction.getCurrent()[i];
-          int idx = transAction.getCurrentIndex()[i];
+          StepMeta stepMeta = (StepMeta) transAction.getCurrent()[ i ];
+          int idx = transAction.getCurrentIndex()[ i ];
           transMeta.addStep( idx, stepMeta );
 
           hopUi.refreshTree();
@@ -536,8 +511,8 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_NEW_NOTE:
         // re-insert the note at correct location:
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          NotePadMeta ni = (NotePadMeta) transAction.getCurrent()[i];
-          int idx = transAction.getCurrentIndex()[i];
+          NotePadMeta ni = (NotePadMeta) transAction.getCurrent()[ i ];
+          int idx = transAction.getCurrentIndex()[ i ];
           transMeta.addNote( idx, ni );
           hopUi.refreshTree();
           hopUi.refreshGraph();
@@ -547,8 +522,8 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_NEW_HOP:
         // re-insert the hop at correct location:
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          TransHopMeta hi = (TransHopMeta) transAction.getCurrent()[i];
-          int idx = transAction.getCurrentIndex()[i];
+          TransHopMeta hi = (TransHopMeta) transAction.getCurrent()[ i ];
+          int idx = transAction.getCurrentIndex()[ i ];
           transMeta.addTransHop( idx, hi );
           hopUi.refreshTree();
           hopUi.refreshGraph();
@@ -561,7 +536,7 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_DELETE_STEP:
         // re-remove the step at correct location:
         for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
-          int idx = transAction.getCurrentIndex()[i];
+          int idx = transAction.getCurrentIndex()[ i ];
           transMeta.removeStep( idx );
         }
         hopUi.refreshTree();
@@ -571,7 +546,7 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_DELETE_NOTE:
         // re-remove the note at correct location:
         for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
-          int idx = transAction.getCurrentIndex()[i];
+          int idx = transAction.getCurrentIndex()[ i ];
           transMeta.removeNote( idx );
         }
         hopUi.refreshTree();
@@ -581,7 +556,7 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_DELETE_HOP:
         // re-remove the hop at correct location:
         for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
-          int idx = transAction.getCurrentIndex()[i];
+          int idx = transAction.getCurrentIndex()[ i ];
           transMeta.removeTransHop( idx );
         }
         hopUi.refreshTree();
@@ -596,8 +571,8 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_CHANGE_STEP:
         // Delete the current step, insert previous version.
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          StepMeta stepMeta = (StepMeta) ( (StepMeta) transAction.getCurrent()[i] ).clone();
-          transMeta.getStep( transAction.getCurrentIndex()[i] ).replaceMeta( stepMeta );
+          StepMeta stepMeta = (StepMeta) ( (StepMeta) transAction.getCurrent()[ i ] ).clone();
+          transMeta.getStep( transAction.getCurrentIndex()[ i ] ).replaceMeta( stepMeta );
         }
         hopUi.refreshTree();
         hopUi.refreshGraph();
@@ -607,8 +582,8 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_CHANGE_NOTE:
         // Delete & re-insert
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          NotePadMeta ni = (NotePadMeta) transAction.getCurrent()[i];
-          int idx = transAction.getCurrentIndex()[i];
+          NotePadMeta ni = (NotePadMeta) transAction.getCurrent()[ i ];
+          int idx = transAction.getCurrentIndex()[ i ];
 
           transMeta.removeNote( idx );
           transMeta.addNote( idx, (NotePadMeta) ni.clone() );
@@ -621,8 +596,8 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_CHANGE_HOP:
         // Delete & re-insert
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
-          TransHopMeta hi = (TransHopMeta) transAction.getCurrent()[i];
-          int idx = transAction.getCurrentIndex()[i];
+          TransHopMeta hi = (TransHopMeta) transAction.getCurrent()[ i ];
+          int idx = transAction.getCurrentIndex()[ i ];
 
           transMeta.removeTransHop( idx );
           transMeta.addTransHop( idx, (TransHopMeta) hi.clone() );
@@ -637,16 +612,16 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       case TransAction.TYPE_ACTION_POSITION_STEP:
         for ( int i = 0; i < transAction.getCurrentIndex().length; i++ ) {
           // Find & change the location of the step:
-          StepMeta stepMeta = transMeta.getStep( transAction.getCurrentIndex()[i] );
-          stepMeta.setLocation( transAction.getCurrentLocation()[i] );
+          StepMeta stepMeta = transMeta.getStep( transAction.getCurrentIndex()[ i ] );
+          stepMeta.setLocation( transAction.getCurrentLocation()[ i ] );
         }
         hopUi.refreshGraph();
         break;
       case TransAction.TYPE_ACTION_POSITION_NOTE:
         for ( int i = 0; i < transAction.getCurrentIndex().length; i++ ) {
-          int idx = transAction.getCurrentIndex()[i];
+          int idx = transAction.getCurrentIndex()[ i ];
           NotePadMeta npi = transMeta.getNote( idx );
-          Point curr = transAction.getCurrentLocation()[i];
+          Point curr = transAction.getCurrentLocation()[ i ];
           npi.setLocation( curr );
         }
         hopUi.refreshGraph();
@@ -664,8 +639,8 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
   }
 
   public void executeTransformation( final TransMeta transMeta, final boolean local, final boolean remote,
-      final boolean cluster, final boolean preview, final boolean debug, final Date replayDate, final boolean safe,
-      LogLevel logLevel ) throws HopException {
+                                     final boolean cluster, final boolean preview, final boolean debug, final Date replayDate, final boolean safe,
+                                     LogLevel logLevel ) throws HopException {
 
     if ( transMeta == null ) {
       return;
@@ -763,11 +738,11 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
     Map<String, String> variableMap = new HashMap<String, String>();
     variableMap.putAll( executionConfiguration.getVariables() ); // the default
     for ( int idx = 0; idx < fields.length; idx++ ) {
-      String value = executionConfiguration.getVariables().get( fields[idx] );
+      String value = executionConfiguration.getVariables().get( fields[ idx ] );
       if ( Utils.isEmpty( value ) ) {
-        value = data[idx].toString();
+        value = data[ idx ].toString();
       }
-      variableMap.put( fields[idx], value );
+      variableMap.put( fields[ idx ], value );
     }
 
     executionConfiguration.setVariables( variableMap );
@@ -781,7 +756,7 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
 
     if ( debugAnswer == TransDebugDialog.DEBUG_CONFIG && replayDate == null && transMeta.isShowDialog() ) {
       TransExecutionConfigurationDialog dialog =
-          new TransExecutionConfigurationDialog( hopUi.getShell(), executionConfiguration, transMeta );
+        new TransExecutionConfigurationDialog( hopUi.getShell(), executionConfiguration, transMeta );
       execConfigAnswer = dialog.open();
     }
 
@@ -809,7 +784,7 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
 
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiTransMetaExecutionStart.id, transMeta );
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiTransExecutionConfiguration.id,
-          executionConfiguration );
+        executionConfiguration );
 
       try {
         ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiTransBeforeStart.id, new Object[] { executionConfiguration, transMeta, transMeta } );
@@ -855,7 +830,7 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
           showSaveTransformationBeforeRunningDialog( hopUi.getShell() );
         } else if ( executionConfiguration.getRemoteServer() != null ) {
           String carteObjectId =
-              Trans.sendToSlaveServer( transMeta, executionConfiguration, hopUi.metaStore );
+            Trans.sendToSlaveServer( transMeta, executionConfiguration, hopUi.metaStore );
           monitorRemoteTrans( transMeta, carteObjectId, executionConfiguration.getRemoteServer() );
           hopUi.delegates.slaves.addSpoonSlave( executionConfiguration.getRemoteServer() );
 
@@ -887,7 +862,7 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
   }
 
   private void monitorRemoteTrans( final TransMeta transMeta, final String carteObjectId,
-      final SlaveServer remoteSlaveServer ) {
+                                   final SlaveServer remoteSlaveServer ) {
     // There is a transformation running in the background. When it finishes, clean it up and log the result on the
     // console.
     // Launch in a separate thread to prevent GUI blocking...
@@ -899,7 +874,7 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
     } );
 
     thread.setName( "Monitor remote transformation '" + transMeta.getName() + "', carte object id=" + carteObjectId
-        + ", slave server: " + remoteSlaveServer.getName() );
+      + ", slave server: " + remoteSlaveServer.getName() );
     thread.start();
 
   }
@@ -928,7 +903,7 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
         // Then the slaves...
         //
         for ( int i = 0; i < slaves.length; i++ ) {
-          TransMeta slaveTrans = transSplitter.getSlaveTransMap().get( slaves[i] );
+          TransMeta slaveTrans = transSplitter.getSlaveTransMap().get( slaves[ i ] );
           addTransGraph( slaveTrans );
         }
       }
@@ -948,8 +923,8 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       TransMeta ot = transSplitter.getOriginalTransformation();
       for ( String param : ot.listParameters() ) {
         String value =
-            Const.NVL( ot.getParameterValue( param ), Const.NVL( ot.getParameterDefault( param ), ot.getVariable(
-                param ) ) );
+          Const.NVL( ot.getParameterValue( param ), Const.NVL( ot.getParameterDefault( param ), ot.getVariable(
+            param ) ) );
         if ( !Utils.isEmpty( value ) ) {
           executionConfiguration.getVariables().put( param, value );
         }
@@ -976,7 +951,7 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
         if ( masterServer != null ) {
           hopUi.addSpoonSlave( masterServer );
           for ( int i = 0; i < slaves.length; i++ ) {
-            hopUi.addSpoonSlave( slaves[i] );
+            hopUi.addSpoonSlave( slaves[ i ] );
           }
         }
       }

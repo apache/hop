@@ -22,10 +22,10 @@
 
 package org.apache.hop.concurrency;
 
-import org.junit.Test;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;

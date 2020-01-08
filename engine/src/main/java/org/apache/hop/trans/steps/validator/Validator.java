@@ -535,8 +535,8 @@ public class Validator extends BaseStep implements StepInterface {
 
   // package-local visibility for testing purposes
   HopValidatorException assertNumeric( ValueMetaInterface valueMeta,
-                                          Object valueData,
-                                          Validation field ) throws HopValueException {
+                                       Object valueData,
+                                       Validation field ) throws HopValueException {
     if ( valueMeta.isNumeric() || containsOnlyDigits( valueMeta.getString( valueData ) ) ) {
       return null;
     }

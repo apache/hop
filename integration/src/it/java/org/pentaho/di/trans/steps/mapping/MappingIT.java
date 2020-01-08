@@ -22,12 +22,7 @@
 
 package org.apache.hop.trans.steps.mapping;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import junit.framework.TestCase;
-
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.ObjectLocationSpecificationMethod;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -42,16 +37,18 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class MappingIT extends TestCase {
 
   /**
-   * Builds a {@link org.apache.hop.trans.steps.rowgenerator.RowGenerator} Step 
+   * Builds a {@link org.apache.hop.trans.steps.rowgenerator.RowGenerator} Step
    * with a single String field.
    *
-   * @param registry
-   *          Plugin Registry.
-   * @param stepName
-   *          Name to use for step
+   * @param registry Plugin Registry.
+   * @param stepName Name to use for step
    * @return {@link StepMeta} for a Row Generator step.
    */
   private StepMeta buildRowGeneratorStep( PluginRegistry registry, String stepName ) {
@@ -88,7 +85,7 @@ public class MappingIT extends TestCase {
   }
 
   private MappingIODefinition createMappingDef( String inputStepName, String mappingStepName,
-    String sourceValueName, String targetValueName ) {
+                                                String sourceValueName, String targetValueName ) {
     MappingIODefinition def = new MappingIODefinition();
     def.setInputStepname( inputStepName );
     def.setOutputStepname( mappingStepName );

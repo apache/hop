@@ -22,6 +22,20 @@
 
 package org.apache.hop.ui.job.entries.setvariables;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.setvariables.JobEntrySetVariables;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -43,20 +57,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.setvariables.JobEntrySetVariables;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * This dialog allows you to edit the Set variables job entry settings.
@@ -263,18 +263,18 @@ public class JobEntrySetVariablesDialog extends JobEntryDialog implements JobEnt
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
-    {
-      new ColumnInfo(
-        BaseMessages.getString( PKG, "SetVariableDialog.Fields.Column.VariableName" ),
-        ColumnInfo.COLUMN_TYPE_TEXT, false ),
-      new ColumnInfo(
-        BaseMessages.getString( PKG, "SetVariableDialog.Fields.Column.Value" ),
-        ColumnInfo.COLUMN_TYPE_TEXT, false ),
-      new ColumnInfo(
-        BaseMessages.getString( PKG, "SetVariableDialog.Fields.Column.VariableType" ),
-        ColumnInfo.COLUMN_TYPE_CCOMBO, JobEntrySetVariables.getVariableTypeDescriptions(), false ), };
-    colinf[0].setUsingVariables( true );
-    colinf[1].setUsingVariables( true );
+      {
+        new ColumnInfo(
+          BaseMessages.getString( PKG, "SetVariableDialog.Fields.Column.VariableName" ),
+          ColumnInfo.COLUMN_TYPE_TEXT, false ),
+        new ColumnInfo(
+          BaseMessages.getString( PKG, "SetVariableDialog.Fields.Column.Value" ),
+          ColumnInfo.COLUMN_TYPE_TEXT, false ),
+        new ColumnInfo(
+          BaseMessages.getString( PKG, "SetVariableDialog.Fields.Column.VariableType" ),
+          ColumnInfo.COLUMN_TYPE_CCOMBO, JobEntrySetVariables.getVariableTypeDescriptions(), false ), };
+    colinf[ 0 ].setUsingVariables( true );
+    colinf[ 1 ].setUsingVariables( true );
 
     wFields =
       new TableView(
@@ -357,14 +357,14 @@ public class JobEntrySetVariablesDialog extends JobEntryDialog implements JobEnt
     if ( jobEntry.variableName != null ) {
       for ( int i = 0; i < jobEntry.variableName.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.variableName[i] != null ) {
-          ti.setText( 1, jobEntry.variableName[i] );
+        if ( jobEntry.variableName[ i ] != null ) {
+          ti.setText( 1, jobEntry.variableName[ i ] );
         }
-        if ( jobEntry.getVariableValue()[i] != null ) {
-          ti.setText( 2, jobEntry.getVariableValue()[i] );
+        if ( jobEntry.getVariableValue()[ i ] != null ) {
+          ti.setText( 2, jobEntry.getVariableValue()[ i ] );
         }
 
-        ti.setText( 3, JobEntrySetVariables.getVariableTypeDescription( jobEntry.getVariableType()[i] ) );
+        ti.setText( 3, JobEntrySetVariables.getVariableTypeDescription( jobEntry.getVariableType()[ i ] ) );
 
       }
       wFields.setRowNums();
@@ -403,9 +403,9 @@ public class JobEntrySetVariablesDialog extends JobEntryDialog implements JobEnt
         nr++;
       }
     }
-    jobEntry.variableName = new String[nr];
-    jobEntry.variableValue = new String[nr];
-    jobEntry.variableType = new int[nr];
+    jobEntry.variableName = new String[ nr ];
+    jobEntry.variableValue = new String[ nr ];
+    jobEntry.variableType = new int[ nr ];
 
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
@@ -414,9 +414,9 @@ public class JobEntrySetVariablesDialog extends JobEntryDialog implements JobEnt
       String vartype = wFields.getNonEmpty( i ).getText( 3 );
 
       if ( varname != null && varname.length() != 0 ) {
-        jobEntry.variableName[nr] = varname;
-        jobEntry.variableValue[nr] = varvalue;
-        jobEntry.variableType[nr] = JobEntrySetVariables.getVariableType( vartype );
+        jobEntry.variableName[ nr ] = varname;
+        jobEntry.variableValue[ nr ] = varvalue;
+        jobEntry.variableType[ nr ] = JobEntrySetVariables.getVariableType( vartype );
         nr++;
       }
     }

@@ -22,34 +22,6 @@
 
 package org.apache.hop.ui.job.dialog;
 
-import org.apache.hop.ui.core.widget.MetaSelectionManager;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DBCache;
 import org.apache.hop.core.Props;
@@ -80,12 +52,39 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.FieldDisabledListener;
+import org.apache.hop.ui.core.widget.MetaSelectionManager;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.apache.hop.ui.util.HelpUtils;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -143,10 +142,6 @@ public class JobDialog extends Dialog {
   private ModifyListener lsMod;
 
   private boolean changed;
-
-  private TextVar wSharedObjectsFile;
-
-  private boolean sharedObjectsFileChanged;
 
   // param tab
   private TableView wParamFields;
@@ -212,7 +207,7 @@ public class JobDialog extends Dialog {
 
   private ArrayList<JobDialogPluginInterface> extraTabs;
 
-  public JobDialog( Shell parent, int style, JobMeta jobMeta) {
+  public JobDialog( Shell parent, int style, JobMeta jobMeta ) {
     super( parent, style );
     this.jobMeta = jobMeta;
     this.props = PropsUI.getInstance();
@@ -276,7 +271,7 @@ public class JobDialog extends Dialog {
         extraTabs.add( extraTab );
       } catch ( Exception e ) {
         new ErrorDialog(
-          shell, "Error", "Error loading job dialog plugin with id " + jobDialogPlugin.getIds()[0], e );
+          shell, "Error", "Error loading job dialog plugin with id " + jobDialogPlugin.getIds()[ 0 ], e );
       }
     }
 
@@ -369,7 +364,7 @@ public class JobDialog extends Dialog {
         }
       }
     }
-    return list.toArray( new String[list.size()] );
+    return list.toArray( new String[ list.size() ] );
   }
 
   private void addJobTab() {
@@ -504,7 +499,6 @@ public class JobDialog extends Dialog {
     wJobversion.setLayoutData( fdJobversion );
 
 
-
     // Create User:
     Label wlCreateUser = new Label( wJobComp, SWT.RIGHT );
     wlCreateUser.setText( BaseMessages.getString( PKG, "JobDialog.CreateUser.Label" ) );
@@ -621,16 +615,16 @@ public class JobDialog extends Dialog {
     final int FieldsCols = 3;
     final int FieldsRows = jobMeta.listParameters().length;
 
-    ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
+    ColumnInfo[] colinf = new ColumnInfo[ FieldsCols ];
+    colinf[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "JobDialog.ColumnInfo.Parameter.Label" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    colinf[1] =
+    colinf[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "JobDialog.ColumnInfo.Default.Label" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
-    colinf[2] =
+    colinf[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "JobDialog.ColumnInfo.Description.Label" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
@@ -811,7 +805,7 @@ public class JobDialog extends Dialog {
 
   private Control addDBSchemaTableLogOptions( LogTableInterface logTable ) {
 
-    wLogConnection = new MetaSelectionManager<DatabaseMeta>(jobMeta, jobMeta.getMetaStore(), DatabaseMeta.class, wLogOptionsComposite, SWT.NONE,
+    wLogConnection = new MetaSelectionManager<DatabaseMeta>( jobMeta, jobMeta.getMetaStore(), DatabaseMeta.class, wLogOptionsComposite, SWT.NONE,
       BaseMessages.getString( PKG, "JobDialog.LogConnection.Label" ),
       BaseMessages.getString( PKG, "JobDialog.LogConnection.Tooltip", logTable.getConnectionNameVariable() ) );
     FormData fdLogConnection = new FormData();
@@ -960,9 +954,9 @@ public class JobDialog extends Dialog {
 
     wOptionFields =
       new TableView( jobMeta, wLogOptionsComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.CHECK, // add a
-                                                                                                             // check
-                                                                                                             // to the
-                                                                                                             // left...
+        // check
+        // to the
+        // left...
         colinf, nrRows, true, lsMod, props );
 
     wOptionFields.setSortable( false );
@@ -1068,13 +1062,13 @@ public class JobDialog extends Dialog {
       }
     };
 
-    colinf[1].setDisabledListener( disabledListener );
+    colinf[ 1 ].setDisabledListener( disabledListener );
 
     wOptionFields =
       new TableView( jobMeta, wLogOptionsComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.CHECK, // add a
-                                                                                                             // check
-                                                                                                             // to the
-                                                                                                             // left...
+        // check
+        // to the
+        // left...
         colinf, nrRows, true, lsMod, props );
 
     wOptionFields.setSortable( false );
@@ -1180,13 +1174,13 @@ public class JobDialog extends Dialog {
       }
     };
 
-    colinf[1].setDisabledListener( disabledListener );
+    colinf[ 1 ].setDisabledListener( disabledListener );
 
     wOptionFields =
       new TableView( jobMeta, wLogOptionsComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.CHECK, // add a
-                                                                                                             // check
-                                                                                                             // to the
-                                                                                                             // left...
+        // check
+        // to the
+        // left...
         colinf, nrRows, true, lsMod, props );
 
     wOptionFields.setSortable( false );
@@ -1246,30 +1240,6 @@ public class JobDialog extends Dialog {
     fdBatchTrans.right = new FormAttachment( 100, 0 );
     wBatchTrans.setLayoutData( fdBatchTrans );
 
-    // Shared objects file
-    Label wlSharedObjectsFile = new Label( wSettingsComp, SWT.RIGHT );
-    wlSharedObjectsFile.setText( BaseMessages.getString( PKG, "JobDialog.SharedObjectsFile.Label" ) );
-    props.setLook( wlSharedObjectsFile );
-    FormData fdlSharedObjectsFile = new FormData();
-    fdlSharedObjectsFile.left = new FormAttachment( 0, 0 );
-    fdlSharedObjectsFile.right = new FormAttachment( middle, -margin );
-    fdlSharedObjectsFile.top = new FormAttachment( wBatchTrans, 4 * margin );
-    wlSharedObjectsFile.setLayoutData( fdlSharedObjectsFile );
-    wSharedObjectsFile = new TextVar( jobMeta, wSettingsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wlSharedObjectsFile.setToolTipText( BaseMessages.getString( PKG, "JobDialog.SharedObjectsFile.Tooltip" ) );
-    wSharedObjectsFile.setToolTipText( BaseMessages.getString( PKG, "JobDialog.SharedObjectsFile.Tooltip" ) );
-    props.setLook( wSharedObjectsFile );
-    FormData fdSharedObjectsFile = new FormData();
-    fdSharedObjectsFile.left = new FormAttachment( middle, 0 );
-    fdSharedObjectsFile.top = new FormAttachment( wBatchTrans, 4 * margin );
-    fdSharedObjectsFile.right = new FormAttachment( 100, 0 );
-    wSharedObjectsFile.setLayoutData( fdSharedObjectsFile );
-    wSharedObjectsFile.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent arg0 ) {
-        sharedObjectsFileChanged = true;
-      }
-    } );
-
     FormData fdLogComp = new FormData();
     fdLogComp.left = new FormAttachment( 0, 0 );
     fdLogComp.top = new FormAttachment( 0, 0 );
@@ -1328,26 +1298,23 @@ public class JobDialog extends Dialog {
 
       String description;
       try {
-        description = jobMeta.getParameterDescription( parameters[idx] );
+        description = jobMeta.getParameterDescription( parameters[ idx ] );
       } catch ( UnknownParamException e ) {
         description = "";
       }
       String defValue;
       try {
-        defValue = jobMeta.getParameterDefault( parameters[idx] );
+        defValue = jobMeta.getParameterDefault( parameters[ idx ] );
       } catch ( UnknownParamException e ) {
         defValue = "";
       }
 
-      item.setText( 1, parameters[idx] );
+      item.setText( 1, parameters[ idx ] );
       item.setText( 2, Const.NVL( defValue, "" ) );
       item.setText( 3, Const.NVL( description, "" ) );
     }
     wParamFields.setRowNums();
     wParamFields.optWidth( true );
-
-    wSharedObjectsFile.setText( Const.NVL( jobMeta.getSharedObjectsFile(), "" ) );
-    sharedObjectsFileChanged = false;
 
     for ( JobDialogPluginInterface extraTab : extraTabs ) {
       extraTab.getData( jobMeta );
@@ -1396,7 +1363,6 @@ public class JobDialog extends Dialog {
     jobMeta.activateParameters();
 
     jobMeta.setBatchIdPassed( wBatchTrans.getSelection() );
-    jobMeta.setSharedObjectsFile( wSharedObjectsFile.getText() );
 
     for ( JobDialogPluginInterface extraTab : extraTabs ) {
       extraTab.ok( jobMeta );
@@ -1479,12 +1445,8 @@ public class JobDialog extends Dialog {
     } catch ( Exception e ) {
       new ErrorDialog(
         shell, BaseMessages.getString( PKG, "JobDialog.Dialog.ErrorCreatingSQL.Title" ), BaseMessages.getString(
-          PKG, "JobDialog.Dialog.ErrorCreatingSQL.Message" ), e );
+        PKG, "JobDialog.Dialog.ErrorCreatingSQL.Message" ), e );
     }
-  }
-
-  public boolean isSharedObjectsFileChanged() {
-    return sharedObjectsFileChanged;
   }
 
   public static final Button setShellImage( Shell shell, JobEntryInterface jobEntryInterface ) {
@@ -1534,7 +1496,7 @@ public class JobDialog extends Dialog {
   }
 
   public static Image getImage( Shell shell, PluginInterface plugin ) {
-    String id = plugin.getIds()[0];
+    String id = plugin.getIds()[ 0 ];
     if ( id != null ) {
       return GUIResource.getInstance().getImagesJobentries().get( id ).getAsBitmapForSize(
         shell.getDisplay(), ConstUI.ICON_SIZE, ConstUI.ICON_SIZE );
@@ -1547,7 +1509,7 @@ public class JobDialog extends Dialog {
   }
 
   private LogTableUserInterface getLogTableUserInterface( LogTableInterface logTable, JobMeta jobMeta,
-    ModifyListener lsMod ) {
+                                                          ModifyListener lsMod ) {
 
     if ( !( logTable instanceof LogTablePluginInterface ) ) {
       return null;

@@ -22,29 +22,28 @@
 
 package org.apache.hop.www;
 
+import com.google.common.annotations.VisibleForTesting;
+import org.apache.hop.cluster.HttpUtil;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.Job;
+import org.apache.hop.www.cache.HopServerStatusCache;
+import org.owasp.encoder.Encode;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.google.common.annotations.VisibleForTesting;
-import org.owasp.encoder.Encode;
-import org.apache.hop.cluster.HttpUtil;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.Job;
-import org.apache.hop.www.cache.HopServerStatusCache;
 
 
 public class GetJobStatusServlet extends BaseHttpServlet implements HopServerPluginInterface {
@@ -68,120 +67,120 @@ public class GetJobStatusServlet extends BaseHttpServlet implements HopServerPlu
   }
 
   /**
-   <div id="mindtouch">
-   <h1>/hop/jobStatus</h1>
-   <a name="GET"></a>
-   <h2>GET</h2>
-   <p>Retrieves status of the specified job.
-   Status is returned as HTML or XML output depending on the input parameters.
-   Status contains information about last execution of the job.</p>
-
-   <p><b>Example Request:</b><br />
-   <pre function="syntax.xml">
-   GET /hop/jobStatus/?name=dummy_job&xml=Y
-   </pre>
-
-   </p>
-   <h3>Parameters</h3>
-   <table class="pentaho-table">
-   <tbody>
-   <tr>
-   <th>name</th>
-   <th>description</th>
-   <th>type</th>
-   </tr>
-   <tr>
-   <td>name</td>
-   <td>Name of the job to be used for status generation.</td>
-   <td>query</td>
-   </tr>
-   <tr>
-   <td>xml</td>
-   <td>Boolean flag which defines output format <code>Y</code> forces XML output to be generated.
-   HTML is returned otherwise.</td>
-   <td>boolean, optional</td>
-   </tr>
-   <tr>
-   <td>id</td>
-   <td>HopServer id of the job to be used for status generation.</td>
-   <td>query, optional</td>
-   </tr>
-   <tr>
-   <td>from</td>
-   <td>Start line number of the execution log to be included into response.</td>
-   <td>integer, optional</td>
-   </tr>
-   </tbody>
-   </table>
-
-   <h3>Response Body</h3>
-   <table class="pentaho-table">
-   <tbody>
-   <tr>
-   <td align="right">element:</td>
-   <td>(custom)</td>
-   </tr>
-   <tr>
-   <td align="right">media types:</td>
-   <td>text/xml, text/html</td>
-   </tr>
-   </tbody>
-   </table>
-   <p>Response XML or HTML response containing details about the job specified.
-   If an error occurs during method invocation <code>result</code> field of the response
-   will contain <code>ERROR</code> status.</p>
-
-   <p><b>Example Response:</b></p>
-   <pre function="syntax.xml">
-   <?xml version="1.0" encoding="UTF-8"?>
-   <jobstatus>
-   <jobname>dummy_job</jobname>
-   <id>a4d54106-25db-41c5-b9f8-73afd42766a6</id>
-   <status_desc>Finished</status_desc>
-   <error_desc/>
-   <logging_string>&#x3c;&#x21;&#x5b;CDATA&#x5b;H4sIAAAAAAAAADMyMDTRNzTUNzRXMDC3MjS2MjJQ0FVIKc3NrYzPyk8CsoNLEotKFPLTFEDc1IrU5NKSzPw8Xi4j4nRm5qUrpOaVFFUqRLuE&#x2b;vpGxhKj0y0zL7M4IzUFYieybgWNotTi0pwS2&#x2b;iSotLUWE1iTPNCdrhCGtRsXi4AOMIbLPwAAAA&#x3d;&#x5d;&#x5d;&#x3e;</logging_string>
-   <first_log_line_nr>0</first_log_line_nr>
-   <last_log_line_nr>20</last_log_line_nr>
-   <result>
-   <lines_input>0</lines_input>
-   <lines_output>0</lines_output>
-   <lines_read>0</lines_read>
-   <lines_written>0</lines_written>
-   <lines_updated>0</lines_updated>
-   <lines_rejected>0</lines_rejected>
-   <lines_deleted>0</lines_deleted>
-   <nr_errors>0</nr_errors>
-   <nr_files_retrieved>0</nr_files_retrieved>
-   <entry_nr>0</entry_nr>
-   <result>Y</result>
-   <exit_status>0</exit_status>
-   <is_stopped>N</is_stopped>
-   <log_channel_id/>
-   <log_text>null</log_text>
-   <result-file></result-file>
-   <result-rows></result-rows>
-   </result>
-   </jobstatus>
-   </pre>
-
-   <h3>Status Codes</h3>
-   <table class="pentaho-table">
-   <tbody>
-   <tr>
-   <th>code</th>
-   <th>description</th>
-   </tr>
-   <tr>
-   <td>200</td>
-   <td>Request was processed.</td>
-   </tr>
-   <tr>
-   <td>500</td>
-   <td>Internal server error occurs during request processing.</td>
-   </tr>
-   </tbody>
-   </table>
-   </div>
+   * <div id="mindtouch">
+   * <h1>/hop/jobStatus</h1>
+   * <a name="GET"></a>
+   * <h2>GET</h2>
+   * <p>Retrieves status of the specified job.
+   * Status is returned as HTML or XML output depending on the input parameters.
+   * Status contains information about last execution of the job.</p>
+   *
+   * <p><b>Example Request:</b><br />
+   * <pre function="syntax.xml">
+   * GET /hop/jobStatus/?name=dummy_job&xml=Y
+   * </pre>
+   *
+   * </p>
+   * <h3>Parameters</h3>
+   * <table class="pentaho-table">
+   * <tbody>
+   * <tr>
+   * <th>name</th>
+   * <th>description</th>
+   * <th>type</th>
+   * </tr>
+   * <tr>
+   * <td>name</td>
+   * <td>Name of the job to be used for status generation.</td>
+   * <td>query</td>
+   * </tr>
+   * <tr>
+   * <td>xml</td>
+   * <td>Boolean flag which defines output format <code>Y</code> forces XML output to be generated.
+   * HTML is returned otherwise.</td>
+   * <td>boolean, optional</td>
+   * </tr>
+   * <tr>
+   * <td>id</td>
+   * <td>HopServer id of the job to be used for status generation.</td>
+   * <td>query, optional</td>
+   * </tr>
+   * <tr>
+   * <td>from</td>
+   * <td>Start line number of the execution log to be included into response.</td>
+   * <td>integer, optional</td>
+   * </tr>
+   * </tbody>
+   * </table>
+   *
+   * <h3>Response Body</h3>
+   * <table class="pentaho-table">
+   * <tbody>
+   * <tr>
+   * <td align="right">element:</td>
+   * <td>(custom)</td>
+   * </tr>
+   * <tr>
+   * <td align="right">media types:</td>
+   * <td>text/xml, text/html</td>
+   * </tr>
+   * </tbody>
+   * </table>
+   * <p>Response XML or HTML response containing details about the job specified.
+   * If an error occurs during method invocation <code>result</code> field of the response
+   * will contain <code>ERROR</code> status.</p>
+   *
+   * <p><b>Example Response:</b></p>
+   * <pre function="syntax.xml">
+   * <?xml version="1.0" encoding="UTF-8"?>
+   * <jobstatus>
+   * <jobname>dummy_job</jobname>
+   * <id>a4d54106-25db-41c5-b9f8-73afd42766a6</id>
+   * <status_desc>Finished</status_desc>
+   * <error_desc/>
+   * <logging_string>&#x3c;&#x21;&#x5b;CDATA&#x5b;H4sIAAAAAAAAADMyMDTRNzTUNzRXMDC3MjS2MjJQ0FVIKc3NrYzPyk8CsoNLEotKFPLTFEDc1IrU5NKSzPw8Xi4j4nRm5qUrpOaVFFUqRLuE&#x2b;vpGxhKj0y0zL7M4IzUFYieybgWNotTi0pwS2&#x2b;iSotLUWE1iTPNCdrhCGtRsXi4AOMIbLPwAAAA&#x3d;&#x5d;&#x5d;&#x3e;</logging_string>
+   * <first_log_line_nr>0</first_log_line_nr>
+   * <last_log_line_nr>20</last_log_line_nr>
+   * <result>
+   * <lines_input>0</lines_input>
+   * <lines_output>0</lines_output>
+   * <lines_read>0</lines_read>
+   * <lines_written>0</lines_written>
+   * <lines_updated>0</lines_updated>
+   * <lines_rejected>0</lines_rejected>
+   * <lines_deleted>0</lines_deleted>
+   * <nr_errors>0</nr_errors>
+   * <nr_files_retrieved>0</nr_files_retrieved>
+   * <entry_nr>0</entry_nr>
+   * <result>Y</result>
+   * <exit_status>0</exit_status>
+   * <is_stopped>N</is_stopped>
+   * <log_channel_id/>
+   * <log_text>null</log_text>
+   * <result-file></result-file>
+   * <result-rows></result-rows>
+   * </result>
+   * </jobstatus>
+   * </pre>
+   *
+   * <h3>Status Codes</h3>
+   * <table class="pentaho-table">
+   * <tbody>
+   * <tr>
+   * <th>code</th>
+   * <th>description</th>
+   * </tr>
+   * <tr>
+   * <td>200</td>
+   * <td>Request was processed.</td>
+   * </tr>
+   * <tr>
+   * <td>500</td>
+   * <td>Internal server error occurs during request processing.</td>
+   * </tr>
+   * </tbody>
+   * </table>
+   * </div>
    */
   public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
     IOException {
@@ -340,10 +339,12 @@ public class GetJobStatusServlet extends BaseHttpServlet implements HopServerPlu
           out.println( "</div>" );
           out.println( "<div style=\"vertical-align: top; display: table-cell;\">" );
           out.println( "<table style=\"border-collapse: collapse;\" border=\"" + tableBorder + "\">" );
-          out.print( "<tr class=\"cellTableRow\" style=\"border: solid; border-width: 1px 0; border-top: none; border-color: #E3E3E3; font-size: 12; text-align: left;\"> <th style=\"font-weight: normal; padding: 8px 10px 10px 10px\" class=\"cellTableHeader\">"
-            + BaseMessages.getString( PKG, "TransStatusServlet.CarteObjectId" ) + "</th> <th style=\"font-weight: normal; padding: 8px 10px 10px 10px\" class=\"cellTableHeader\">"
-            + BaseMessages.getString( PKG, "TransStatusServlet.TransStatus" ) + "</th> <th style=\"font-weight: normal; padding: 8px 10px 10px 10px\" class=\"cellTableHeader\">"
-            + BaseMessages.getString( PKG, "TransStatusServlet.LastLogDate" ) + "</th> </tr>" );
+          out.print(
+            "<tr class=\"cellTableRow\" style=\"border: solid; border-width: 1px 0; border-top: none; border-color: #E3E3E3; font-size: 12; text-align: left;\"> <th style=\"font-weight: normal; "
+              + "padding: 8px 10px 10px 10px\" class=\"cellTableHeader\">"
+              + BaseMessages.getString( PKG, "TransStatusServlet.CarteObjectId" ) + "</th> <th style=\"font-weight: normal; padding: 8px 10px 10px 10px\" class=\"cellTableHeader\">"
+              + BaseMessages.getString( PKG, "TransStatusServlet.TransStatus" ) + "</th> <th style=\"font-weight: normal; padding: 8px 10px 10px 10px\" class=\"cellTableHeader\">"
+              + BaseMessages.getString( PKG, "TransStatusServlet.LastLogDate" ) + "</th> </tr>" );
           out.print( "<tr class=\"cellTableRow\" style=\"border: solid; border-width: 1px 0; border-bottom: none; font-size: 12; text-align:left\">" );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableFirstColumn\">" + Const.NVL( Encode.forHtml( id ), "" ) + "</td>" );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell\" id=\"statusColor\" style=\"font-weight: bold;\">" + job.getStatus() + "</td>" );
@@ -361,9 +362,9 @@ public class GetJobStatusServlet extends BaseHttpServlet implements HopServerPlu
           out.print( "</div>" );
           out.println( "<div style=\"text-align: center; padding-top: 12px; font-size: 12px;\">" );
           out.print( "<a target=\"_blank\" href=\""
-              + convertContextPath( GetJobStatusServlet.CONTEXT_PATH ) + "?name="
-              + URLEncoder.encode( jobName, "UTF-8" ) + "&id=" + URLEncoder.encode( id, "UTF-8" ) + "&xml=y\">"
-              + BaseMessages.getString( PKG, "TransStatusServlet.ShowAsXml" ) + "</a>" );
+            + convertContextPath( GetJobStatusServlet.CONTEXT_PATH ) + "?name="
+            + URLEncoder.encode( jobName, "UTF-8" ) + "&id=" + URLEncoder.encode( id, "UTF-8" ) + "&xml=y\">"
+            + BaseMessages.getString( PKG, "TransStatusServlet.ShowAsXml" ) + "</a>" );
           out.print( "</div>" );
           out.print( "</div>" );
           out.print( "</div>" );
@@ -394,8 +395,8 @@ public class GetJobStatusServlet extends BaseHttpServlet implements HopServerPlu
           out.print( "<div class=\"row\" style=\"padding: 0px 0px 30px 0px;\">" );
           out.print( "<div class=\"workspaceHeading\">Job log</div>" );
           out.println( "<textarea id=\"joblog\" cols=\"120\" rows=\"20\" wrap=\"off\" "
-              + "name=\"Job log\" readonly=\"readonly\" style=\"height: auto;\">"
-              + Encode.forHtml( getLogText( job, startLineNr, lastLineNr ) ) + "</textarea>" );
+            + "name=\"Job log\" readonly=\"readonly\" style=\"height: auto;\">"
+            + Encode.forHtml( getLogText( job, startLineNr, lastLineNr ) ) + "</textarea>" );
           out.print( "</div>" );
 
           out.println( "<script type=\"text/javascript\">" );

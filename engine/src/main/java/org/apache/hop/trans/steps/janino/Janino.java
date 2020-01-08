@@ -22,18 +22,14 @@
 
 package org.apache.hop.trans.steps.janino;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.codehaus.janino.ExpressionEvaluator;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -42,6 +38,10 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+import org.codehaus.janino.ExpressionEvaluator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Calculate new field values using pre-defined functions.
@@ -55,7 +55,7 @@ public class Janino extends BaseStep implements StepInterface {
   private JaninoData data;
 
   public Janino( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                 Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -79,19 +79,19 @@ public class Janino extends BaseStep implements StepInterface {
 
       // Calculate replace indexes...
       //
-      data.replaceIndex = new int[meta.getFormula().length];
-      data.returnType = new ValueMetaInterface[meta.getFormula().length];
+      data.replaceIndex = new int[ meta.getFormula().length ];
+      data.returnType = new ValueMetaInterface[ meta.getFormula().length ];
       for ( int i = 0; i < meta.getFormula().length; i++ ) {
-        JaninoMetaFunction fn = meta.getFormula()[i];
-        data.returnType[i] = ValueMetaFactory.createValueMeta( fn.getValueType() );
+        JaninoMetaFunction fn = meta.getFormula()[ i ];
+        data.returnType[ i ] = ValueMetaFactory.createValueMeta( fn.getValueType() );
         if ( !Utils.isEmpty( fn.getReplaceField() ) ) {
-          data.replaceIndex[i] = getInputRowMeta().indexOfValue( fn.getReplaceField() );
-          if ( data.replaceIndex[i] < 0 ) {
+          data.replaceIndex[ i ] = getInputRowMeta().indexOfValue( fn.getReplaceField() );
+          if ( data.replaceIndex[ i ] < 0 ) {
             throw new HopException( "Unknown field specified to replace with a formula result: ["
               + fn.getReplaceField() + "]" );
           }
         } else {
-          data.replaceIndex[i] = -1;
+          data.replaceIndex[ i ] = -1;
         }
       }
     }
@@ -129,7 +129,7 @@ public class Janino extends BaseStep implements StepInterface {
       // Initialize evaluators etc. Only do it once.
       //
       if ( data.expressionEvaluators == null ) {
-        data.expressionEvaluators = new ExpressionEvaluator[meta.getFormula().length];
+        data.expressionEvaluators = new ExpressionEvaluator[ meta.getFormula().length ];
         data.argumentIndexes = new ArrayList<List<Integer>>();
 
         for ( int i = 0; i < meta.getFormula().length; i++ ) {
@@ -148,7 +148,7 @@ public class Janino extends BaseStep implements StepInterface {
 
             // See if the value is being used in a formula...
             //
-            if ( meta.getFormula()[m].getFormula().contains( valueMeta.getName() ) ) {
+            if ( meta.getFormula()[ m ].getFormula().contains( valueMeta.getName() ) ) {
               // If so, add it to the indexes...
               argIndexes.add( i );
 
@@ -157,18 +157,18 @@ public class Janino extends BaseStep implements StepInterface {
             }
           }
 
-          JaninoMetaFunction fn = meta.getFormula()[m];
+          JaninoMetaFunction fn = meta.getFormula()[ m ];
           if ( !Utils.isEmpty( fn.getFieldName() ) ) {
 
             // Create the expression evaluator: is relatively slow so we do it only for the first row...
             //
-            data.expressionEvaluators[m] = new ExpressionEvaluator();
-            data.expressionEvaluators[m].setParameters(
-              parameterNames.toArray( new String[parameterNames.size()] ), parameterTypes
-                .toArray( new Class<?>[parameterTypes.size()] ) );
-            data.expressionEvaluators[m].setReturnType( Object.class );
-            data.expressionEvaluators[m].setThrownExceptions( new Class<?>[] { Exception.class } );
-            data.expressionEvaluators[m].cook( fn.getFormula() );
+            data.expressionEvaluators[ m ] = new ExpressionEvaluator();
+            data.expressionEvaluators[ m ].setParameters(
+              parameterNames.toArray( new String[ parameterNames.size() ] ), parameterTypes
+                .toArray( new Class<?>[ parameterTypes.size() ] ) );
+            data.expressionEvaluators[ m ].setReturnType( Object.class );
+            data.expressionEvaluators[ m ].setThrownExceptions( new Class<?>[] { Exception.class } );
+            data.expressionEvaluators[ m ].cook( fn.getFormula() );
           } else {
             throw new HopException( "Unable to find field name for formula ["
               + Const.NVL( fn.getFormula(), "" ) + "]" );
@@ -181,20 +181,20 @@ public class Janino extends BaseStep implements StepInterface {
 
         // This method can only accept the specified number of values...
         //
-        Object[] argumentData = new Object[argumentIndexes.size()];
+        Object[] argumentData = new Object[ argumentIndexes.size() ];
         for ( int x = 0; x < argumentIndexes.size(); x++ ) {
           int index = argumentIndexes.get( x );
           ValueMetaInterface outputValueMeta = data.outputRowMeta.getValueMeta( index );
-          argumentData[x] = outputValueMeta.convertToNormalStorageType( outputRowData[index] );
+          argumentData[ x ] = outputValueMeta.convertToNormalStorageType( outputRowData[ index ] );
         }
 
-        Object formulaResult = data.expressionEvaluators[i].evaluate( argumentData );
+        Object formulaResult = data.expressionEvaluators[ i ].evaluate( argumentData );
 
         Object value = null;
         if ( formulaResult == null ) {
           value = null;
         } else {
-          ValueMetaInterface valueMeta = data.returnType[i];
+          ValueMetaInterface valueMeta = data.returnType[ i ];
           if ( valueMeta.getNativeDataTypeClass().isAssignableFrom( formulaResult.getClass() ) ) {
             value = formulaResult;
           } else if ( formulaResult instanceof Integer && valueMeta.getType() == ValueMetaInterface.TYPE_INTEGER ) {
@@ -202,16 +202,16 @@ public class Janino extends BaseStep implements StepInterface {
           } else {
             throw new HopValueException(
               BaseMessages.getString( PKG, "Janino.Error.ValueTypeMismatch", valueMeta.getTypeDesc(),
-                meta.getFormula()[i].getFieldName(), formulaResult.getClass(), meta.getFormula()[i].getFormula() ) );
+                meta.getFormula()[ i ].getFieldName(), formulaResult.getClass(), meta.getFormula()[ i ].getFormula() ) );
           }
         }
 
         // We're done, store it in the row with all the data, including the temporary data...
         //
-        if ( data.replaceIndex[i] < 0 ) {
-          outputRowData[tempIndex++] = value;
+        if ( data.replaceIndex[ i ] < 0 ) {
+          outputRowData[ tempIndex++ ] = value;
         } else {
-          outputRowData[data.replaceIndex[i]] = value;
+          outputRowData[ data.replaceIndex[ i ] ] = value;
         }
       }
 

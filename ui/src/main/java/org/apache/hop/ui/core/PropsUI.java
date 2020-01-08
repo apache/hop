@@ -22,20 +22,21 @@
 
 package org.apache.hop.ui.core;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.LastUsedFile;
+import org.apache.hop.core.ObjectUsageCount;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.gui.GUIOption;
+import org.apache.hop.core.gui.GUIPositionInterface;
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.plugins.LifecyclePluginType;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.laf.BasePropertyHandler;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.events.PaintEvent;
@@ -53,21 +54,20 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.LastUsedFile;
-import org.apache.hop.core.ObjectUsageCount;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.gui.GUIOption;
-import org.apache.hop.core.gui.GUIPositionInterface;
-import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.plugins.LifecyclePluginType;
-import org.apache.hop.core.plugins.PluginInterface;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.laf.BasePropertyHandler;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.PropertyResourceBundle;
+import java.util.ResourceBundle;
 
 /**
  * We use Props to store all kinds of user interactive information such as the selected colors, fonts, positions of
@@ -75,7 +75,6 @@ import org.apache.hop.ui.core.gui.WindowProperty;
  *
  * @author Matt
  * @since 15-12-2003
- *
  */
 public class PropsUI extends Props {
 
@@ -118,10 +117,8 @@ public class PropsUI extends Props {
   /**
    * Initialize the properties: load from disk.
    *
-   * @param d
-   *          The Display
-   * @param t
-   *          The type of properties file.
+   * @param d The Display
+   * @param t The type of properties file.
    */
   public static void init( Display d, int t ) {
     if ( props == null ) {
@@ -138,10 +135,8 @@ public class PropsUI extends Props {
   /**
    * Initialize the properties: load from disk.
    *
-   * @param d
-   *          The Display
-   * @param filename
-   *          the filename to use
+   * @param d        The Display
+   * @param filename the filename to use
    */
   public static void init( Display d, String filename ) {
     if ( props == null ) {
@@ -214,8 +209,8 @@ public class PropsUI extends Props {
         }
       } catch ( ClassCastException cce ) {
         // Not all Lifecycle plugins implement GUIOption, keep calm and carry on
-        LogChannel.GENERAL.logDebug( "Plugin " + plugin.getIds()[0]
-            + " does not implement GUIOption, it will not be editable" );
+        LogChannel.GENERAL.logDebug( "Plugin " + plugin.getIds()[ 0 ]
+          + " does not implement GUIOption, it will not be editable" );
       } catch ( Exception e ) {
         LogChannel.GENERAL.logError( "Unexpected error loading class for plugin " + plugin.getName(), e );
       }
@@ -240,7 +235,7 @@ public class PropsUI extends Props {
     if ( display != null ) {
       // Set Default Look for all dialogs and sizes.
       String prop =
-          BasePropertyHandler.getProperty( "Default_UI_Properties_Resource", "org.apache.hop.ui.core.default" );
+        BasePropertyHandler.getProperty( "Default_UI_Properties_Resource", "org.apache.hop.ui.core.default" );
       try {
         ResourceBundle bundle = PropertyResourceBundle.getBundle( prop );
         if ( bundle != null ) {
@@ -358,7 +353,7 @@ public class PropsUI extends Props {
       LastUsedFile lastUsedFile = lastUsedFiles.get( i );
 
       properties.setProperty( "filetype" + ( i + 1 ), Const.NVL( lastUsedFile.getFileType(),
-          LastUsedFile.FILE_TYPE_TRANSFORMATION ) );
+        LastUsedFile.FILE_TYPE_TRANSFORMATION ) );
       properties.setProperty( "lastfile" + ( i + 1 ), Const.NVL( lastUsedFile.getFilename(), "" ) );
     }
   }
@@ -389,7 +384,7 @@ public class PropsUI extends Props {
       LastUsedFile openTabFile = openTabFiles.get( i );
 
       properties.setProperty( "tabtype" + ( i + 1 ), Const.NVL( openTabFile.getFileType(),
-          LastUsedFile.FILE_TYPE_TRANSFORMATION ) );
+        LastUsedFile.FILE_TYPE_TRANSFORMATION ) );
       properties.setProperty( "tabfile" + ( i + 1 ), Const.NVL( openTabFile.getFilename(), "" ) );
       properties.setProperty( "tabopened" + ( i + 1 ), openTabFile.isOpened() ? YES : NO );
       properties.setProperty( "tabopentypes" + ( i + 1 ), "" + openTabFile.getOpenItemTypes() );
@@ -399,10 +394,8 @@ public class PropsUI extends Props {
   /**
    * Add a last opened file to the top of the recently used list.
    *
-   * @param fileType
-   *          the type of file to use @see LastUsedFile
-   * @param filename
-   *          The name of the file or transformation
+   * @param fileType the type of file to use @see LastUsedFile
+   * @param filename The name of the file or transformation
    */
   public void addLastFile( String fileType, String filename ) {
     addLastFile( fileType, filename, null );
@@ -411,12 +404,12 @@ public class PropsUI extends Props {
   /**
    * Add a last opened file to the top of the recently used list.
    *
-   * @param fileType         the type of file to use @see LastUsedFile
-   * @param filename         The name of the file or transformation
+   * @param fileType the type of file to use @see LastUsedFile
+   * @param filename The name of the file or transformation
    */
   public void addLastFile( String fileType, String filename, Date lastOpened ) {
     LastUsedFile lastUsedFile = new LastUsedFile( fileType, filename, false,
-        LastUsedFile.OPENED_ITEM_TYPE_MASK_GRAPH, lastOpened );
+      LastUsedFile.OPENED_ITEM_TYPE_MASK_GRAPH, lastOpened );
 
     int idx = lastUsedFiles.indexOf( lastUsedFile );
     if ( idx >= 0 ) {
@@ -435,10 +428,8 @@ public class PropsUI extends Props {
   /**
    * Add a last opened file to the top of the recently used list.
    *
-   * @param fileType
-   *          the type of file to use @see LastUsedFile
-   * @param filename
-   *          The name of the file or transformation
+   * @param fileType the type of file to use @see LastUsedFile
+   * @param filename The name of the file or transformation
    */
   public void addOpenTabFile( String fileType, String filename, int openTypes ) {
     LastUsedFile lastUsedFile = new LastUsedFile( fileType, filename, true, openTypes, new Date() );
@@ -517,19 +508,19 @@ public class PropsUI extends Props {
   }
 
   public String[] getLastFileTypes() {
-    String[] retval = new String[lastUsedFiles.size()];
+    String[] retval = new String[ lastUsedFiles.size() ];
     for ( int i = 0; i < retval.length; i++ ) {
       LastUsedFile lastUsedFile = lastUsedFiles.get( i );
-      retval[i] = lastUsedFile.getFileType();
+      retval[ i ] = lastUsedFile.getFileType();
     }
     return retval;
   }
 
   public String[] getLastFiles() {
-    String[] retval = new String[lastUsedFiles.size()];
+    String[] retval = new String[ lastUsedFiles.size() ];
     for ( int i = 0; i < retval.length; i++ ) {
       LastUsedFile lastUsedFile = lastUsedFiles.get( i );
-      retval[i] = lastUsedFile.getFilename();
+      retval[ i ] = lastUsedFile.getFilename();
     }
     return retval;
   }
@@ -727,17 +718,17 @@ public class PropsUI extends Props {
     properties.setProperty( STRING_LAST_PREVIEW_STEP, "" + lastpreview.length );
 
     for ( int i = 0; i < lastpreview.length; i++ ) {
-      properties.setProperty( STRING_LAST_PREVIEW_STEP + ( i + 1 ), lastpreview[i] );
-      properties.setProperty( STRING_LAST_PREVIEW_SIZE + ( i + 1 ), "" + stepsize[i] );
+      properties.setProperty( STRING_LAST_PREVIEW_STEP + ( i + 1 ), lastpreview[ i ] );
+      properties.setProperty( STRING_LAST_PREVIEW_SIZE + ( i + 1 ), "" + stepsize[ i ] );
     }
   }
 
   public String[] getLastPreview() {
     String snr = properties.getProperty( STRING_LAST_PREVIEW_STEP );
     int nr = Const.toInt( snr, 0 );
-    String[] lp = new String[nr];
+    String[] lp = new String[ nr ];
     for ( int i = 0; i < nr; i++ ) {
-      lp[i] = properties.getProperty( STRING_LAST_PREVIEW_STEP + ( i + 1 ), "" );
+      lp[ i ] = properties.getProperty( STRING_LAST_PREVIEW_STEP + ( i + 1 ), "" );
     }
     return lp;
   }
@@ -745,15 +736,15 @@ public class PropsUI extends Props {
   public int[] getLastPreviewSize() {
     String snr = properties.getProperty( STRING_LAST_PREVIEW_STEP );
     int nr = Const.toInt( snr, 0 );
-    int[] si = new int[nr];
+    int[] si = new int[ nr ];
     for ( int i = 0; i < nr; i++ ) {
-      si[i] = Const.toInt( properties.getProperty( STRING_LAST_PREVIEW_SIZE + ( i + 1 ), "" ), 0 );
+      si[ i ] = Const.toInt( properties.getProperty( STRING_LAST_PREVIEW_SIZE + ( i + 1 ), "" ), 0 );
     }
     return si;
   }
 
   public FontData getDefaultFontData() {
-    return display.getSystemFont().getFontData()[0];
+    return display.getSystemFont().getFontData()[ 0 ];
   }
 
   public void setMaxUndo( int max ) {
@@ -784,8 +775,8 @@ public class PropsUI extends Props {
   }
 
   public void setSashWeights( int[] w ) {
-    properties.setProperty( STRING_SASH_W1, "" + w[0] );
-    properties.setProperty( STRING_SASH_W2, "" + w[1] );
+    properties.setProperty( STRING_SASH_W1, "" + w[ 0 ] );
+    properties.setProperty( STRING_SASH_W2, "" + w[ 1 ] );
   }
 
   public int[] getSashWeights() {
@@ -998,8 +989,7 @@ public class PropsUI extends Props {
   }
 
   /**
-   * @param d
-   *          The display to set.
+   * @param d The display to set.
    */
   public static void setDisplay( Display d ) {
     display = d;
@@ -1074,7 +1064,7 @@ public class PropsUI extends Props {
       return;
     }
 
-    shell.setSize( Integer.parseInt( xy[0] ), Integer.parseInt( xy[1] ) );
+    shell.setSize( Integer.parseInt( xy[ 0 ] ), Integer.parseInt( xy[ 1 ] ) );
   }
 
   public boolean isBrandingActive() {
@@ -1123,8 +1113,7 @@ public class PropsUI extends Props {
   }
 
   /**
-   * @param openTabFiles
-   *          the openTabFiles to set
+   * @param openTabFiles the openTabFiles to set
    */
   public void setOpenTabFiles( List<LastUsedFile> openTabFiles ) {
     this.openTabFiles = openTabFiles;

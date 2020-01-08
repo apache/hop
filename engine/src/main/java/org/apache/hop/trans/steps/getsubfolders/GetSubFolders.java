@@ -22,18 +22,14 @@
 
 package org.apache.hop.trans.steps.getsubfolders;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
@@ -43,6 +39,10 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Read all subfolder inside a specified folder and convert them to rows and writes these to one or more output streams.
@@ -58,7 +58,7 @@ public class GetSubFolders extends BaseStep implements StepInterface {
   private GetSubFoldersData data;
 
   public GetSubFolders( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                        Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -114,8 +114,8 @@ public class GetSubFolders extends BaseStep implements StepInterface {
         // Create the output row meta-data
         data.outputRowMeta = new RowMeta();
         meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore ); // get the
-                                                                                                      // metadata
-                                                                                                      // populated
+        // metadata
+        // populated
         // data.nrStepFields= data.outputRowMeta.size();
 
         data.files = meta.getFolderList( this );
@@ -141,7 +141,7 @@ public class GetSubFolders extends BaseStep implements StepInterface {
     try {
       Object[] outputRow = buildEmptyRow();
       int outputIndex = 0;
-      Object[] extraData = new Object[data.nrStepFields];
+      Object[] extraData = new Object[ data.nrStepFields ];
       if ( meta.isFoldernameDynamic() ) {
         if ( data.filenr >= data.filessize ) {
           // Get value of dynamic filename field ...
@@ -162,43 +162,43 @@ public class GetSubFolders extends BaseStep implements StepInterface {
         data.file = data.files.getFile( data.filenr );
 
         // filename
-        extraData[outputIndex++] = HopVFS.getFilename( data.file );
+        extraData[ outputIndex++ ] = HopVFS.getFilename( data.file );
 
         // short_filename
-        extraData[outputIndex++] = data.file.getName().getBaseName();
+        extraData[ outputIndex++ ] = data.file.getName().getBaseName();
 
         try {
           // Path
-          extraData[outputIndex++] = HopVFS.getFilename( data.file.getParent() );
+          extraData[ outputIndex++ ] = HopVFS.getFilename( data.file.getParent() );
 
           // ishidden
-          extraData[outputIndex++] = Boolean.valueOf( data.file.isHidden() );
+          extraData[ outputIndex++ ] = Boolean.valueOf( data.file.isHidden() );
 
           // isreadable
-          extraData[outputIndex++] = Boolean.valueOf( data.file.isReadable() );
+          extraData[ outputIndex++ ] = Boolean.valueOf( data.file.isReadable() );
 
           // iswriteable
-          extraData[outputIndex++] = Boolean.valueOf( data.file.isWriteable() );
+          extraData[ outputIndex++ ] = Boolean.valueOf( data.file.isWriteable() );
 
           // lastmodifiedtime
-          extraData[outputIndex++] = new Date( data.file.getContent().getLastModifiedTime() );
+          extraData[ outputIndex++ ] = new Date( data.file.getContent().getLastModifiedTime() );
 
         } catch ( IOException e ) {
           throw new HopException( e );
         }
 
         // uri
-        extraData[outputIndex++] = data.file.getName().getURI();
+        extraData[ outputIndex++ ] = data.file.getName().getURI();
 
         // rooturi
-        extraData[outputIndex++] = data.file.getName().getRootURI();
+        extraData[ outputIndex++ ] = data.file.getName().getRootURI();
 
         // childrens files
-        extraData[outputIndex++] = new Long( data.file.getChildren().length );
+        extraData[ outputIndex++ ] = new Long( data.file.getChildren().length );
 
         // See if we need to add the row number to the row...
         if ( meta.includeRowNumber() && !Utils.isEmpty( meta.getRowNumberField() ) ) {
-          extraData[outputIndex++] = new Long( data.rownr );
+          extraData[ outputIndex++ ] = new Long( data.rownr );
         }
 
         data.rownr++;

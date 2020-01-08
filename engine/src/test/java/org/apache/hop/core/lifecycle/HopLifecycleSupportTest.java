@@ -22,15 +22,15 @@
 
 package org.apache.hop.core.lifecycle;
 
+import org.apache.hop.core.plugins.HopLifecyclePluginType;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.PluginTypeListener;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.apache.hop.core.plugins.HopLifecyclePluginType;
-import org.apache.hop.core.plugins.PluginInterface;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.PluginTypeListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +63,7 @@ public class HopLifecycleSupportTest {
   @Test
   public void testOnEnvironmentInit() throws Exception {
     final List<HopLifecycleListener> listeners = new ArrayList<HopLifecycleListener>();
-    listeners.add(  createLifecycleListener() );
+    listeners.add( createLifecycleListener() );
     HopLifecycleSupport kettleLifecycleSupport = new HopLifecycleSupport();
     assertNotNull( typeListenerRegistration.getValue() );
 

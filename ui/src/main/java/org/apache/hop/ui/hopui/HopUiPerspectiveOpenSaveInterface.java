@@ -38,16 +38,14 @@ public interface HopUiPerspectiveOpenSaveInterface {
   /**
    * Import from a file (extension driven by the perspective)
    *
-   * @param filename
-   *          the file to read from
+   * @param filename the file to read from
    */
   public void importFile( String filename );
 
   /**
    * Save the specified file/object
    *
-   * @param meta
-   *          The object to be saved.
+   * @param meta The object to be saved.
    * @return true if the object was saved
    */
   public boolean save( EngineMetaInterface meta );
@@ -55,10 +53,8 @@ public interface HopUiPerspectiveOpenSaveInterface {
   /**
    * Export to a file
    *
-   * @param meta
-   *          the object to export
-   * @param filename
-   *          the file to write to
+   * @param meta     the object to export
+   * @param filename the file to write to
    */
   boolean exportFile( EngineMetaInterface meta, String filename );
 

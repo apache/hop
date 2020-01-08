@@ -21,10 +21,9 @@
 package org.apache.hop.core.logging;
 
 
-import org.junit.Assert;
-
-import org.junit.Test;
 import org.apache.hop.core.Const;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.util.Iterator;
 import java.util.concurrent.CountDownLatch;
@@ -172,7 +171,7 @@ public class LoggingBufferTest {
     }
     for ( int i = 10; i < 17; i++ ) {
       HopLoggingEvent event = new HopLoggingEvent();
-      event.setMessage( new LogMessage( "testWithNoLogChannelId",  LogLevel.BASIC ) );
+      event.setMessage( new LogMessage( "testWithNoLogChannelId", LogLevel.BASIC ) );
       event.setTimeStamp( i );
       loggingBuffer.addLogggingEvent( event );
     }

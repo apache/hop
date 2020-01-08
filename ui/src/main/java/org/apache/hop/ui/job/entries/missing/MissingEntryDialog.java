@@ -22,8 +22,16 @@
 
 package org.apache.hop.ui.job.entries.missing;
 
-import java.util.List;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.missing.MissingEntry;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -35,16 +43,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.Const;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.missing.MissingEntry;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.hopui.HopUi;
+
+import java.util.List;
 
 public class MissingEntryDialog extends JobEntryDialog implements JobEntryDialogInterface {
   private static Class<?> PKG = MissingEntryDialog.class;
@@ -88,8 +88,8 @@ public class MissingEntryDialog extends JobEntryDialog implements JobEntryDialog
 
     if ( mode == MISSING_JOB_ENTRY_ID ) {
       message =
-          BaseMessages.getString( PKG, "MissingEntryDialog.MissingJobEntryId", jobEntryInt.getName() + " - "
-              + ( (MissingEntry) jobEntryInt ).getMissingPluginId() );
+        BaseMessages.getString( PKG, "MissingEntryDialog.MissingJobEntryId", jobEntryInt.getName() + " - "
+          + ( (MissingEntry) jobEntryInt ).getMissingPluginId() );
     }
     return message;
   }
@@ -101,8 +101,8 @@ public class MissingEntryDialog extends JobEntryDialog implements JobEntryDialog
     int margin = Const.MARGIN;
 
     shell =
-        new Shell( shellParent, SWT.DIALOG_TRIM | SWT.CLOSE | SWT.ICON
-            | SWT.APPLICATION_MODAL );
+      new Shell( shellParent, SWT.DIALOG_TRIM | SWT.CLOSE | SWT.ICON
+        | SWT.APPLICATION_MODAL );
 
     props.setLook( shell );
     shell.setImage( GUIResource.getInstance().getImageHopUi() );

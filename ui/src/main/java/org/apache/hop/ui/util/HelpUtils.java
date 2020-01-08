@@ -20,6 +20,12 @@
 
 package org.apache.hop.ui.util;
 
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.ShowHelpDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -29,12 +35,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.apache.hop.core.plugins.PluginInterface;
-import org.apache.hop.core.plugins.StepPluginType;
-import org.apache.hop.core.util.StringUtil;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.dialog.ShowHelpDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
 
 public class HelpUtils {
 
@@ -52,7 +52,7 @@ public class HelpUtils {
   }
 
   public static Button createHelpButton( final Composite parent, final String title, final String url,
-      final String header ) {
+                                         final String header ) {
     Button button = newButton( parent );
     button.addSelectionListener( new SelectionAdapter() {
       @Override
@@ -102,7 +102,7 @@ public class HelpUtils {
     }
     if ( isPluginDocumented( plugin ) ) {
       return openHelpDialog( shell, getHelpDialogTitle( plugin ), plugin.getDocumentationUrl(),
-          plugin.getName()  );
+        plugin.getName() );
     } else {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
       String msgKey = "";

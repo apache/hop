@@ -63,7 +63,7 @@ public class TableOutput extends BaseStep implements StepInterface {
   private TableOutputData data;
 
   public TableOutput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                      Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -98,24 +98,24 @@ public class TableOutput extends BaseStep implements StepInterface {
         //
         // Cache the position of the compare fields in Row row
         //
-        data.valuenrs = new int[meta.getFieldDatabase().length];
+        data.valuenrs = new int[ meta.getFieldDatabase().length ];
         for ( int i = 0; i < meta.getFieldDatabase().length; i++ ) {
-          data.valuenrs[i] = getInputRowMeta().indexOfValue( meta.getFieldStream()[i] );
-          if ( data.valuenrs[i] < 0 ) {
+          data.valuenrs[ i ] = getInputRowMeta().indexOfValue( meta.getFieldStream()[ i ] );
+          if ( data.valuenrs[ i ] < 0 ) {
             throw new HopStepException( BaseMessages.getString(
-              PKG, "TableOutput.Exception.FieldRequired", meta.getFieldStream()[i] ) );
+              PKG, "TableOutput.Exception.FieldRequired", meta.getFieldStream()[ i ] ) );
           }
         }
 
         for ( int i = 0; i < meta.getFieldDatabase().length; i++ ) {
-          ValueMetaInterface insValue = getInputRowMeta().searchValueMeta( meta.getFieldStream()[i] );
+          ValueMetaInterface insValue = getInputRowMeta().searchValueMeta( meta.getFieldStream()[ i ] );
           if ( insValue != null ) {
             ValueMetaInterface insertValue = insValue.clone();
-            insertValue.setName( meta.getFieldDatabase()[i] );
+            insertValue.setName( meta.getFieldDatabase()[ i ] );
             data.insertRowMeta.addValueMeta( insertValue );
           } else {
             throw new HopStepException( BaseMessages.getString(
-              PKG, "TableOutput.Exception.FailedToFindField", meta.getFieldStream()[i] ) );
+              PKG, "TableOutput.Exception.FailedToFindField", meta.getFieldStream()[ i ] ) );
           }
         }
       }
@@ -210,7 +210,7 @@ public class TableOutput extends BaseStep implements StepInterface {
       }
 
       ValueMetaInterface partitioningValue = rowMeta.getValueMeta( data.indexOfPartitioningField );
-      if ( !partitioningValue.isDate() || r[data.indexOfPartitioningField] == null ) {
+      if ( !partitioningValue.isDate() || r[ data.indexOfPartitioningField ] == null ) {
         throw new HopStepException(
           "Sorry, the partitioning field needs to contain a data value and can't be empty!" );
       }
@@ -229,9 +229,9 @@ public class TableOutput extends BaseStep implements StepInterface {
       //
       // The values to insert are those in the fields sections
       //
-      insertRowData = new Object[data.valuenrs.length];
+      insertRowData = new Object[ data.valuenrs.length ];
       for ( int idx = 0; idx < data.valuenrs.length; idx++ ) {
-        insertRowData[idx] = r[data.valuenrs[idx]];
+        insertRowData[ idx ] = r[ data.valuenrs[ idx ] ];
       }
     }
 
@@ -439,7 +439,7 @@ public class TableOutput extends BaseStep implements StepInterface {
       int errNr = 0;
       for ( int i = 0; i < updateCounts.length; i++ ) {
         Object[] row = data.batchBuffer.get( i );
-        if ( updateCounts[i] > 0 ) {
+        if ( updateCounts[ i ] > 0 ) {
           // send the error foward
           putRow( data.outputRowMeta, row );
           incrementLinesOutput();

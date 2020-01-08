@@ -26,7 +26,7 @@ import org.apache.hop.core.exception.HopValueException;
 
 /**
  * Default type converter for metadata injection.
- * 
+ *
  * @author Alexander Buloichik
  */
 public class DefaultInjectionTypeConverter extends InjectionTypeConverter {

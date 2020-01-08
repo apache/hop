@@ -22,22 +22,13 @@
 
 package org.apache.hop.trans.steps.mailinput;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.List;
-
-import javax.mail.Header;
-import javax.mail.Message;
-
 import org.apache.commons.collections.iterators.ArrayIterator;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entries.getpop.MailConnection;
 import org.apache.hop.job.entries.getpop.MailConnectionMeta;
@@ -48,6 +39,14 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import javax.mail.Header;
+import javax.mail.Message;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.List;
 
 /**
  * Read data from POP3/IMAP server and input data to the next steps.
@@ -65,7 +64,7 @@ public class MailInput extends BaseStep implements StepInterface {
   private MessageParser instance = new MessageParser();
 
   public MailInput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                    Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -109,10 +108,10 @@ public class MailInput extends BaseStep implements StepInterface {
             ? new String[] { "" }
             : new String[] { Const.NVL( realIMAPFolder, MailConnectionMeta.INBOX_FOLDER ) };
       } else {
-        folderslist = new String[folderslist0.length + 1];
-        folderslist[0] = Const.NVL( realIMAPFolder, MailConnectionMeta.INBOX_FOLDER );
+        folderslist = new String[ folderslist0.length + 1 ];
+        folderslist[ 0 ] = Const.NVL( realIMAPFolder, MailConnectionMeta.INBOX_FOLDER );
         for ( int i = 0; i < folderslist0.length; i++ ) {
-          folderslist[i + 1] = folderslist0[i];
+          folderslist[ i + 1 ] = folderslist0[ i ];
         }
       }
     } else {
@@ -328,7 +327,7 @@ public class MailInput extends BaseStep implements StepInterface {
       data.start = parseIntWithSubstitute( meta.getStart() );
       data.end = parseIntWithSubstitute( meta.getEnd() );
       // Get the current folder
-      data.folder = data.folders[data.folderenr];
+      data.folder = data.folders[ data.folderenr ];
 
       // Move folder pointer ahead!
       data.folderenr++;
@@ -341,10 +340,10 @@ public class MailInput extends BaseStep implements StepInterface {
       }
 
       if ( meta.useBatch() || ( !Utils.isEmpty( environmentSubstitute( meta.getFirstMails() ) )
-                                  && Integer.parseInt( environmentSubstitute( meta.getFirstMails() ) ) > 0  ) ) {
+        && Integer.parseInt( environmentSubstitute( meta.getFirstMails() ) ) > 0 ) ) {
         // get data by pieces
         Integer batchSize = meta.useBatch() ? meta.getBatchSize()
-            : Integer.parseInt( environmentSubstitute( meta.getFirstMails() ) );
+          : Integer.parseInt( environmentSubstitute( meta.getFirstMails() ) );
         Integer start = meta.useBatch() ? data.start : 1;
         Integer end = meta.useBatch() ? data.end : batchSize;
         data.folderIterator =
@@ -386,8 +385,8 @@ public class MailInput extends BaseStep implements StepInterface {
         // Create the output row meta-data
         data.outputRowMeta = new RowMeta();
         meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore ); // get the
-                                                                                                      // metadata
-                                                                                                      // populated
+        // metadata
+        // populated
 
       } catch ( Exception e ) {
         logError( BaseMessages.getString( PKG, "MailInput.ErrorInit", e.toString() ) );
@@ -462,7 +461,7 @@ public class MailInput extends BaseStep implements StepInterface {
       data.mailConn =
         new MailConnection(
           log, MailConnectionMeta.getProtocolFromString(
-            meta.getProtocol(), MailConnectionMeta.PROTOCOL_IMAP ), realserver, realport, realusername,
+          meta.getProtocol(), MailConnectionMeta.PROTOCOL_IMAP ), realserver, realport, realusername,
           realpassword, meta.isUseSSL(), meta.isUseProxy(), realProxyUsername );
       // connect
       data.mailConn.connect();
@@ -526,7 +525,6 @@ public class MailInput extends BaseStep implements StepInterface {
 
   /**
    * Extracted message parse algorithm to be able to unit test separately
-   *
    */
   class MessageParser {
 
@@ -538,71 +536,71 @@ public class MailInput extends BaseStep implements StepInterface {
 
         try {
 
-          switch ( meta.getInputFields()[i].getColumn() ) {
+          switch ( meta.getInputFields()[ i ].getColumn() ) {
             case MailInputField.COLUMN_MESSAGE_NR:
-              r[index] = new Long( message.getMessageNumber() );
+              r[ index ] = new Long( message.getMessageNumber() );
               break;
             case MailInputField.COLUMN_SUBJECT:
-              r[index] = message.getSubject();
+              r[ index ] = message.getSubject();
               break;
             case MailInputField.COLUMN_SENDER:
-              r[index] = StringUtils.join( message.getFrom(), ";" );
+              r[ index ] = StringUtils.join( message.getFrom(), ";" );
               break;
             case MailInputField.COLUMN_REPLY_TO:
-              r[index] = StringUtils.join( message.getReplyTo(), ";" );
+              r[ index ] = StringUtils.join( message.getReplyTo(), ";" );
               break;
             case MailInputField.COLUMN_RECIPIENTS:
-              r[index] = StringUtils.join( message.getAllRecipients(), ";" );
+              r[ index ] = StringUtils.join( message.getAllRecipients(), ";" );
               break;
             case MailInputField.COLUMN_DESCRIPTION:
-              r[index] = message.getDescription();
+              r[ index ] = message.getDescription();
               break;
             case MailInputField.COLUMN_BODY:
-              r[index] = data.mailConn.getMessageBody( message );
+              r[ index ] = data.mailConn.getMessageBody( message );
               break;
             case MailInputField.COLUMN_RECEIVED_DATE:
               Date receivedDate = message.getReceivedDate();
-              r[index] = receivedDate != null ? new Date( receivedDate.getTime() ) : null;
+              r[ index ] = receivedDate != null ? new Date( receivedDate.getTime() ) : null;
               break;
             case MailInputField.COLUMN_SENT_DATE:
               Date sentDate = message.getSentDate();
-              r[index] = sentDate != null ? new Date( sentDate.getTime() ) : null;
+              r[ index ] = sentDate != null ? new Date( sentDate.getTime() ) : null;
               break;
             case MailInputField.COLUMN_CONTENT_TYPE:
-              r[index] = message.getContentType();
+              r[ index ] = message.getContentType();
               break;
             case MailInputField.COLUMN_FOLDER_NAME:
-              r[index] = data.mailConn.getFolderName();
+              r[ index ] = data.mailConn.getFolderName();
               break;
             case MailInputField.COLUMN_SIZE:
-              r[index] = new Long( message.getSize() );
+              r[ index ] = new Long( message.getSize() );
               break;
             case MailInputField.COLUMN_FLAG_DRAFT:
-              r[index] = new Boolean( data.mailConn.isMessageDraft( message ) );
+              r[ index ] = new Boolean( data.mailConn.isMessageDraft( message ) );
               break;
             case MailInputField.COLUMN_FLAG_FLAGGED:
-              r[index] = new Boolean( data.mailConn.isMessageFlagged( message ) );
+              r[ index ] = new Boolean( data.mailConn.isMessageFlagged( message ) );
               break;
             case MailInputField.COLUMN_FLAG_NEW:
-              r[index] = new Boolean( data.mailConn.isMessageNew( message ) );
+              r[ index ] = new Boolean( data.mailConn.isMessageNew( message ) );
               break;
             case MailInputField.COLUMN_FLAG_READ:
-              r[index] = new Boolean( data.mailConn.isMessageRead( message ) );
+              r[ index ] = new Boolean( data.mailConn.isMessageRead( message ) );
               break;
             case MailInputField.COLUMN_FLAG_DELETED:
-              r[index] = new Boolean( data.mailConn.isMessageDeleted( message ) );
+              r[ index ] = new Boolean( data.mailConn.isMessageDeleted( message ) );
               break;
             case MailInputField.COLUMN_ATTACHED_FILES_COUNT:
-              r[index] = new Long( data.mailConn.getAttachedFilesCount( message, null ) );
+              r[ index ] = new Long( data.mailConn.getAttachedFilesCount( message, null ) );
               break;
             case MailInputField.COLUMN_HEADER:
-              String name = meta.getInputFields()[i].getName();
+              String name = meta.getInputFields()[ i ].getName();
               // *only one name
               String[] arr = { name };
               // this code was before generic epoch
               Enumeration<?> en = message.getMatchingHeaders( arr );
               if ( en == null ) {
-                r[index] = "";
+                r[ index ] = "";
                 break;
               }
               List<String> headers = new ArrayList<String>();
@@ -611,17 +609,17 @@ public class MailInput extends BaseStep implements StepInterface {
                 headers.add( next.getValue() );
               }
               // [PDI-6532] if there is no matching headers return empty String
-              r[index] = headers.isEmpty() ? "" : StringUtils.join( headers, ";" );
+              r[ index ] = headers.isEmpty() ? "" : StringUtils.join( headers, ";" );
               break;
             case MailInputField.COLUMN_BODY_CONTENT_TYPE:
-              r[index] = data.mailConn.getMessageBodyContentType( message );
+              r[ index ] = data.mailConn.getMessageBodyContentType( message );
               break;
             default:
 
               break;
           }
         } catch ( Exception e ) {
-          String errMsg = "Error adding value for field " + meta.getInputFields()[i].getName();
+          String errMsg = "Error adding value for field " + meta.getInputFields()[ i ].getName();
           throw new Exception( errMsg, e );
         }
       }

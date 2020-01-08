@@ -22,15 +22,6 @@
 
 package org.apache.hop.trans.steps.selectvalues;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.runner.RunWith;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowSet;
@@ -51,18 +42,25 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.StepMockUtil;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
 import org.apache.hop.trans.steps.selectvalues.SelectValuesMeta.SelectField;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
+import java.math.BigDecimal;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.math.BigDecimal;
 
 /**
  * @author Andrey Khayrutdinov
@@ -109,12 +107,12 @@ public class SelectValuesTest {
     // This tests that the fix for PDI-16388 doesn't get re-broken.
     //
 
-    SelectValuesHandler  step2 = null;
+    SelectValuesHandler step2 = null;
     Object[] inputRow2 = null;
     RowMeta inputRowMeta = null;
     SelectValuesMeta stepMeta = null;
     SelectValuesData stepData = null;
-    ValueMetaInterface vmi =  null;
+    ValueMetaInterface vmi = null;
     // First, test current behavior (it's worked this way since 5.x or so)
     //
     step2 = new SelectValuesHandler( helper.stepMeta, helper.stepDataInterface, 1, helper.transMeta, helper.trans );
@@ -122,16 +120,16 @@ public class SelectValuesTest {
     inputRow2 = new Object[] { new BigDecimal( "589" ) }; // Starting with a BigDecimal (no places)
     doReturn( inputRow2 ).when( step2 ).getRow();
     doNothing().when( step2 )
-        .putError( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
-          anyString() );
+      .putError( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
+        anyString() );
 
     inputRowMeta = new RowMeta();
     inputRowMeta.addValueMeta( new ValueMetaBigNumber( SELECTED_FIELD ) );
     step2.setInputRowMeta( inputRowMeta );
     stepMeta = new SelectValuesMeta();
     stepMeta.allocate( 1, 0, 1 );
-    stepMeta.getSelectFields()[0] = new SelectField();
-    stepMeta.getSelectFields()[0].setName( SELECTED_FIELD );
+    stepMeta.getSelectFields()[ 0 ] = new SelectField();
+    stepMeta.getSelectFields()[ 0 ].setName( SELECTED_FIELD );
     stepMeta.getMeta()[ 0 ] =
       new SelectMetadataChange( stepMeta, SELECTED_FIELD, null, ValueMetaInterface.TYPE_INTEGER, -2, -2,
         ValueMetaInterface.STORAGE_TYPE_NORMAL, null, false, null, null, false, null, null, null ); // no specified conversion type so should have default conversion mask.
@@ -150,16 +148,16 @@ public class SelectValuesTest {
     step2 = spy( step2 );
     doReturn( inputRow2 ).when( step2 ).getRow();
     doNothing().when( step2 )
-        .putError( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
-          anyString() );
+      .putError( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
+        anyString() );
 
     inputRowMeta = new RowMeta();
     inputRowMeta.addValueMeta( new ValueMetaBigNumber( SELECTED_FIELD ) );
     step2.setInputRowMeta( inputRowMeta );
     stepMeta = new SelectValuesMeta();
     stepMeta.allocate( 1, 0, 1 );
-    stepMeta.getSelectFields()[0] = new SelectField();
-    stepMeta.getSelectFields()[0].setName( SELECTED_FIELD );
+    stepMeta.getSelectFields()[ 0 ] = new SelectField();
+    stepMeta.getSelectFields()[ 0 ].setName( SELECTED_FIELD );
     stepMeta.getMeta()[ 0 ] =
       new SelectMetadataChange( stepMeta, SELECTED_FIELD, null, ValueMetaInterface.TYPE_NUMBER, -2, -2,
         ValueMetaInterface.STORAGE_TYPE_NORMAL, null, false, null, null, false, null, null, null ); // no specified conversion type so should have default conversion mask for Double.
@@ -180,16 +178,16 @@ public class SelectValuesTest {
     inputRow2 = new Object[] { new Long( "589" ) }; // Starting with a Long
     doReturn( inputRow2 ).when( step2 ).getRow();
     doNothing().when( step2 )
-        .putError( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
-          anyString() );
+      .putError( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
+        anyString() );
 
     inputRowMeta = new RowMeta();
     inputRowMeta.addValueMeta( new ValueMetaInteger( SELECTED_FIELD ) );
     step2.setInputRowMeta( inputRowMeta );
     stepMeta = new SelectValuesMeta();
     stepMeta.allocate( 1, 0, 1 );
-    stepMeta.getSelectFields()[0] = new SelectField();
-    stepMeta.getSelectFields()[0].setName( SELECTED_FIELD );
+    stepMeta.getSelectFields()[ 0 ] = new SelectField();
+    stepMeta.getSelectFields()[ 0 ].setName( SELECTED_FIELD );
     // no specified conversion type so should have default conversion mask for BigNumber
     stepMeta.getMeta()[ 0 ] =
       new SelectMetadataChange( stepMeta, SELECTED_FIELD, null, ValueMetaInterface.TYPE_BIGNUMBER, -2, -2,
@@ -212,16 +210,16 @@ public class SelectValuesTest {
     inputRow2 = new Object[] { new BigDecimal( "589" ) }; // Starting with a BigDecimal (no places)
     doReturn( inputRow2 ).when( step2 ).getRow();
     doNothing().when( step2 )
-        .putError( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
-          anyString() );
+      .putError( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
+        anyString() );
 
     inputRowMeta = new RowMeta();
     inputRowMeta.addValueMeta( new ValueMetaBigNumber( SELECTED_FIELD ) );
     step2.setInputRowMeta( inputRowMeta );
     stepMeta = new SelectValuesMeta();
     stepMeta.allocate( 1, 0, 1 );
-    stepMeta.getSelectFields()[0] = new SelectField();
-    stepMeta.getSelectFields()[0].setName( SELECTED_FIELD );
+    stepMeta.getSelectFields()[ 0 ] = new SelectField();
+    stepMeta.getSelectFields()[ 0 ].setName( SELECTED_FIELD );
     stepMeta.getMeta()[ 0 ] =
       new SelectMetadataChange( stepMeta, SELECTED_FIELD, null, ValueMetaInterface.TYPE_INTEGER, -2, -2,
         ValueMetaInterface.STORAGE_TYPE_NORMAL, null, false, null, null, false, null, null, null ); // no specified conversion type so should have default conversion mask.
@@ -241,16 +239,16 @@ public class SelectValuesTest {
     step2 = spy( step2 );
     doReturn( inputRow2 ).when( step2 ).getRow();
     doNothing().when( step2 )
-        .putError( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
-          anyString() );
+      .putError( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
+        anyString() );
 
     inputRowMeta = new RowMeta();
     inputRowMeta.addValueMeta( new ValueMetaBigNumber( SELECTED_FIELD ) );
     step2.setInputRowMeta( inputRowMeta );
     stepMeta = new SelectValuesMeta();
     stepMeta.allocate( 1, 0, 1 );
-    stepMeta.getSelectFields()[0] = new SelectField();
-    stepMeta.getSelectFields()[0].setName( SELECTED_FIELD );
+    stepMeta.getSelectFields()[ 0 ] = new SelectField();
+    stepMeta.getSelectFields()[ 0 ].setName( SELECTED_FIELD );
     stepMeta.getMeta()[ 0 ] =
       new SelectMetadataChange( stepMeta, SELECTED_FIELD, null, ValueMetaInterface.TYPE_NUMBER, -2, -2,
         ValueMetaInterface.STORAGE_TYPE_NORMAL, null, false, null, null, false, null, null, null ); // no specified conversion type so should have default conversion mask for Double.
@@ -272,16 +270,16 @@ public class SelectValuesTest {
     inputRow2 = new Object[] { new Long( "589" ) }; // Starting with a Long
     doReturn( inputRow2 ).when( step2 ).getRow();
     doNothing().when( step2 )
-        .putError( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
-          anyString() );
+      .putError( any( RowMetaInterface.class ), any( Object[].class ), anyLong(), anyString(), anyString(),
+        anyString() );
 
     inputRowMeta = new RowMeta();
     inputRowMeta.addValueMeta( new ValueMetaInteger( SELECTED_FIELD ) );
     step2.setInputRowMeta( inputRowMeta );
     stepMeta = new SelectValuesMeta();
     stepMeta.allocate( 1, 0, 1 );
-    stepMeta.getSelectFields()[0] = new SelectField();
-    stepMeta.getSelectFields()[0].setName( SELECTED_FIELD );
+    stepMeta.getSelectFields()[ 0 ] = new SelectField();
+    stepMeta.getSelectFields()[ 0 ].setName( SELECTED_FIELD );
     // no specified conversion type so should have default conversion mask for BigNumber
     stepMeta.getMeta()[ 0 ] =
       new SelectMetadataChange( stepMeta, SELECTED_FIELD, null, ValueMetaInterface.TYPE_BIGNUMBER, -2, -2,
@@ -303,8 +301,8 @@ public class SelectValuesTest {
   public void errorRowSetObtainsFieldName() throws Exception {
     SelectValuesMeta stepMeta = new SelectValuesMeta();
     stepMeta.allocate( 1, 0, 1 );
-    stepMeta.getSelectFields()[0] = new SelectField();
-    stepMeta.getSelectFields()[0].setName( SELECTED_FIELD );
+    stepMeta.getSelectFields()[ 0 ] = new SelectField();
+    stepMeta.getSelectFields()[ 0 ].setName( SELECTED_FIELD );
     stepMeta.getMeta()[ 0 ] =
       new SelectMetadataChange( stepMeta, SELECTED_FIELD, null, ValueMetaInterface.TYPE_INTEGER, -2, -2,
         ValueMetaInterface.STORAGE_TYPE_NORMAL, null, false, null, null, false, null, null, null );
@@ -338,7 +336,7 @@ public class SelectValuesTest {
     private RowSet rowset;
 
     public SelectValuesHandler( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-        Trans trans ) {
+                                Trans trans ) {
       super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
     }
 
@@ -351,11 +349,9 @@ public class SelectValuesTest {
     /**
      * Find input row set.
      *
-     * @param sourceStep
-     *          the source step
+     * @param sourceStep the source step
      * @return the row set
-     * @throws org.apache.hop.core.exception.HopStepException
-     *           the kettle step exception
+     * @throws org.apache.hop.core.exception.HopStepException the kettle step exception
      */
     @Override
     public RowSet findInputRowSet( String sourceStep ) throws HopStepException {

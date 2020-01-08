@@ -17,14 +17,13 @@
 
 package org.apache.hop.metastore.stores.xml;
 
-import java.io.File;
-
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 
 public class XmlUtil {
 

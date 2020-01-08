@@ -22,30 +22,30 @@
 
 package org.apache.hop.ui.core.widget;
 
-import java.util.Arrays;
-
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+
+import java.util.Arrays;
 
 public class VariableButtonListenerFactory {
   private static Class<?> PKG = VariableButtonListenerFactory.class; // for i18n purposes, needed by Translator2!!
 
   // Listen to the Variable... button
   public static final SelectionAdapter getSelectionAdapter( final Composite composite, final Text destination,
-    final VariableSpace space ) {
+                                                            final VariableSpace space ) {
     return getSelectionAdapter( composite, destination, null, null, space );
   }
 
   // Listen to the Variable... button
   public static final SelectionAdapter getSelectionAdapter( final Composite composite, final Text destination,
-    final GetCaretPositionInterface getCaretPositionInterface, final InsertTextInterface insertTextInterface,
-    final VariableSpace space ) {
+                                                            final GetCaretPositionInterface getCaretPositionInterface, final InsertTextInterface insertTextInterface,
+                                                            final VariableSpace space ) {
     return new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         // Before focus is lost, we get the position of where the selected variable needs to be inserted.
@@ -74,14 +74,14 @@ public class VariableButtonListenerFactory {
     Arrays.sort( keys );
 
     int size = keys.length;
-    String[] key = new String[size];
-    String[] val = new String[size];
-    String[] str = new String[size];
+    String[] key = new String[ size ];
+    String[] val = new String[ size ];
+    String[] str = new String[ size ];
 
     for ( int i = 0; i < keys.length; i++ ) {
-      key[i] = keys[i];
-      val[i] = space.getVariable( key[i] );
-      str[i] = key[i] + "  [" + val[i] + "]";
+      key[ i ] = keys[ i ];
+      val[ i ] = space.getVariable( key[ i ] );
+      str[ i ] = key[ i ] + "  [" + val[ i ] + "]";
     }
 
     EnterSelectionDialog esd = new EnterSelectionDialog( shell, str,
@@ -90,7 +90,7 @@ public class VariableButtonListenerFactory {
     esd.clearModal();
     if ( esd.open() != null ) {
       int nr = esd.getSelectionNr();
-      String var = key[nr];
+      String var = key[ nr ];
 
       return var;
     } else {

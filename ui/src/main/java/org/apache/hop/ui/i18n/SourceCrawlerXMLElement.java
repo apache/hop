@@ -46,8 +46,7 @@ public class SourceCrawlerXMLElement {
   }
 
   /**
-   * @param searchElement
-   *          the searchElement to set
+   * @param searchElement the searchElement to set
    */
   public void setSearchElement( String searchElement ) {
     this.searchElement = searchElement;
@@ -61,8 +60,7 @@ public class SourceCrawlerXMLElement {
   }
 
   /**
-   * @param keyTag
-   *          the keyTag to set
+   * @param keyTag the keyTag to set
    */
   public void setKeyTag( String keyTag ) {
     this.keyTag = keyTag;
@@ -76,8 +74,7 @@ public class SourceCrawlerXMLElement {
   }
 
   /**
-   * @param keyAttribute
-   *          the keyAttribute to set
+   * @param keyAttribute the keyAttribute to set
    */
   public void setKeyAttribute( String keyAttribute ) {
     this.keyAttribute = keyAttribute;

@@ -22,13 +22,13 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.ui.core.FormDataBuilder;
+import org.apache.hop.ui.core.WidgetUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.ui.core.FormDataBuilder;
-import org.apache.hop.ui.core.WidgetUtils;
 
 public abstract class Input<Txt extends Control> extends Composite {
   protected Label label;

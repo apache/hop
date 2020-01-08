@@ -22,6 +22,15 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.DescriptionInterface;
+import org.apache.hop.core.Props;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.hopui.job.JobGraph;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -38,15 +47,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.DescriptionInterface;
-import org.apache.hop.core.Props;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.hopui.job.JobGraph;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * Dialog to enter a text. (descriptions etc.)
@@ -77,16 +77,11 @@ public class EnterTextDialog extends Dialog {
   /**
    * Dialog to allow someone to show or enter a text
    *
-   * @param parent
-   *          The parent shell to use
-   * @param title
-   *          The dialog title
-   * @param message
-   *          The message to display
-   * @param text
-   *          The text to display or edit
-   * @param fixed
-   *          true if you want the font to be in fixed-width
+   * @param parent  The parent shell to use
+   * @param title   The dialog title
+   * @param message The message to display
+   * @param text    The text to display or edit
+   * @param fixed   true if you want the font to be in fixed-width
    */
   public EnterTextDialog( Shell parent, String title, String message, String text, boolean fixed ) {
     this( parent, title, message, text );
@@ -96,14 +91,10 @@ public class EnterTextDialog extends Dialog {
   /**
    * Dialog to allow someone to show or enter a text in variable width font
    *
-   * @param parent
-   *          The parent shell to use
-   * @param title
-   *          The dialog title
-   * @param message
-   *          The message to display
-   * @param text
-   *          The text to display or edit
+   * @param parent  The parent shell to use
+   * @param title   The dialog title
+   * @param message The message to display
+   * @param text    The text to display or edit
    */
   public EnterTextDialog( Shell parent, String title, String message, String text ) {
     super( parent, SWT.NONE );
@@ -288,7 +279,7 @@ public class EnterTextDialog extends Dialog {
   }
 
   public static final void editDescription( Shell shell, DescriptionInterface descriptionInterface,
-    String shellText, String message ) {
+                                            String shellText, String message ) {
     EnterTextDialog textDialog =
       new EnterTextDialog( shell, shellText, message, descriptionInterface.getDescription() );
     String description = textDialog.open();

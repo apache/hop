@@ -22,12 +22,12 @@
 
 package org.apache.hop.job.entry.validator;
 
-import java.util.List;
-
 import org.apache.commons.validator.GenericValidator;
 import org.apache.commons.validator.util.ValidatorUtils;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.CheckResultSourceInterface;
+
+import java.util.List;
 
 /**
  * Fails if the field's value is either <code>null</code>, an empty string, or a string containing only whitespace.
@@ -41,7 +41,7 @@ public class NotBlankValidator implements JobEntryValidator {
   private static final String VALIDATOR_NAME = "notBlank";
 
   public boolean validate( CheckResultSourceInterface source, String propertyName,
-    List<CheckResultInterface> remarks, ValidatorContext context ) {
+                           List<CheckResultInterface> remarks, ValidatorContext context ) {
     String value = ValidatorUtils.getValueAsString( source, propertyName );
     if ( GenericValidator.isBlankOrNull( value ) ) {
       JobEntryValidatorUtils.addFailureRemark(

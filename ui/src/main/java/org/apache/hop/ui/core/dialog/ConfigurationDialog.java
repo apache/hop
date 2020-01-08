@@ -22,11 +22,19 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
+import org.apache.hop.ExecutionConfiguration;
+import org.apache.hop.base.AbstractMeta;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.parameters.UnknownParamException;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -48,19 +56,11 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.apache.hop.ExecutionConfiguration;
-import org.apache.hop.base.AbstractMeta;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.parameters.UnknownParamException;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.util.HelpUtils;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class ConfigurationDialog extends Dialog {
 
@@ -210,8 +210,7 @@ public abstract class ConfigurationDialog extends Dialog {
   }
 
   /**
-   * @param configuration
-   *          the configuration to set
+   * @param configuration the configuration to set
    */
   public void setConfiguration( ExecutionConfiguration configuration ) {
     this.configuration = configuration;
@@ -265,20 +264,20 @@ public abstract class ConfigurationDialog extends Dialog {
 
     ColumnInfo[] cParams = {
       new ColumnInfo( BaseMessages.getString( PKG, prefix + ".ParamsColumn.Argument" ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false, true, 126 ), // Stepname
+        ColumnInfo.COLUMN_TYPE_TEXT, false, true, 126 ), // Stepname
       new ColumnInfo( BaseMessages.getString( PKG, prefix + ".ParamsColumn.Default" ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false, true, 138 ), // Preview size
+        ColumnInfo.COLUMN_TYPE_TEXT, false, true, 138 ), // Preview size
       new ColumnInfo( BaseMessages.getString( PKG, prefix + ".ParamsColumn.Value" ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false, false, 142 ), // Preview size
+        ColumnInfo.COLUMN_TYPE_TEXT, false, false, 142 ), // Preview size
       new ColumnInfo( BaseMessages.getString( PKG, prefix + ".ParamsColumn.Description" ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false, true, 181 ), // Preview size
+        ColumnInfo.COLUMN_TYPE_TEXT, false, true, 181 ), // Preview size
     };
 
     String[] namedParams = abstractMeta.listParameters();
     int nrParams = namedParams.length;
     wParams =
-        new TableView( abstractMeta, parametersComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, cParams,
-            nrParams, false, null, props, false );
+      new TableView( abstractMeta, parametersComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, cParams,
+        nrParams, false, null, props, false );
     FormData fdParams = new FormData();
     fdParams.top = new FormAttachment( 0, 10 );
     fdParams.right = new FormAttachment( 100, -10 );
@@ -313,15 +312,15 @@ public abstract class ConfigurationDialog extends Dialog {
 
     ColumnInfo[] cVariables = {
       new ColumnInfo( BaseMessages.getString( PKG, prefix + ".VariablesColumn.Argument" ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false, false, 287 ), // Stepname
+        ColumnInfo.COLUMN_TYPE_TEXT, false, false, 287 ), // Stepname
       new ColumnInfo( BaseMessages.getString( PKG, prefix + ".VariablesColumn.Value" ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false, false, 300 ), // Preview size
+        ColumnInfo.COLUMN_TYPE_TEXT, false, false, 300 ), // Preview size
     };
 
     int nrVariables = configuration.getVariables() != null ? configuration.getVariables().size() : 0;
     wVariables =
-        new TableView( abstractMeta, variablesComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, cVariables,
-            nrVariables, false, null, props, false );
+      new TableView( abstractMeta, variablesComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, cVariables,
+        nrVariables, false, null, props, false );
 
     FormData fdVariables = new FormData();
     fdVariables.top = new FormAttachment( 0, 10 );
@@ -333,7 +332,7 @@ public abstract class ConfigurationDialog extends Dialog {
   }
 
   protected void buttonsSectionLayout( Class<?> PKG, String prefix, final String docTitle, final String docUrl,
-      final String docHeader ) {
+                                       final String docHeader ) {
 
     // Bottom buttons and separator
 
@@ -416,7 +415,7 @@ public abstract class ConfigurationDialog extends Dialog {
     Point dialogSize = shell.getSize();
 
     shell.setLocation( shellBounds.x + ( shellBounds.width - dialogSize.x ) / 2, shellBounds.y
-        + ( shellBounds.height - dialogSize.y ) / 2 );
+      + ( shellBounds.height - dialogSize.y ) / 2 );
 
     shell.open();
     while ( !shell.isDisposed() ) {

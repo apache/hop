@@ -22,15 +22,15 @@
 
 package org.apache.hop.trans.steps.file;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.errorhandling.FileErrorHandler;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Some base data for file-based input steps.
@@ -41,15 +41,21 @@ public class BaseFileInputStepData extends BaseStepData {
 
   public FileErrorHandler dataErrorLineHandler;
 
-  /** Files for process. */
+  /**
+   * Files for process.
+   */
   public FileInputList files;
 
-  /** Current file info. */
+  /**
+   * Current file info.
+   */
   public String filename;
   public int currentFileIndex;
   public FileObject file;
 
-  /** Reader for current file. */
+  /**
+   * Reader for current file.
+   */
   public IBaseFileInputReader reader;
 
   public RowMetaInterface outputRowMeta;
@@ -67,7 +73,9 @@ public class BaseFileInputStepData extends BaseStepData {
 
   public Map<String, Boolean> rejectedFiles = new HashMap<String, Boolean>();
 
-  /** File-dependent data for fill additional fields. */
+  /**
+   * File-dependent data for fill additional fields.
+   */
   public String shortFilename;
   public String path;
   public String extension;

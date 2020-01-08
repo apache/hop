@@ -22,16 +22,6 @@
 
 package org.apache.hop.trans.steps.dummytrans;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
@@ -39,6 +29,16 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DummyTransTest {
   private StepMockHelper<StepMetaInterface, StepDataInterface> stepMockHelper;

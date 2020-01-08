@@ -33,7 +33,6 @@ import java.lang.annotation.Target;
  * servlet plugin. The class needs to implement the HopServerPluginInterface interface
  *
  * @author Matt Casters
- *
  */
 @Documented
 @Retention( RetentionPolicy.RUNTIME )
@@ -42,7 +41,7 @@ public @interface HopServerServlet {
 
   /**
    * @return The ID of the plugin. You can specify more than one ID in a comma separated format: id1,id2,id3 for
-   *         deprecation purposes.
+   * deprecation purposes.
    */
   String id();
 

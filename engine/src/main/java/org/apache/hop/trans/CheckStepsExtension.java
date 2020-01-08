@@ -24,8 +24,8 @@ package org.apache.hop.trans;
 
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.trans.step.StepMeta;
 
 import java.util.List;
 

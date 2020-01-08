@@ -22,14 +22,15 @@
 
 package org.apache.hop.trans.steps.orabulkloader;
 
+import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 public class OraBulkLoaderMetaInjectionTest extends BaseMetadataInjectionTest<OraBulkLoaderMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Before
   public void setup() throws Exception {
     setup( new OraBulkLoaderMeta() );
@@ -79,17 +80,17 @@ public class OraBulkLoaderMetaInjectionTest extends BaseMetadataInjectionTest<Or
     } );
     check( "FIELD_TABLE", new StringGetter() {
       public String get() {
-        return meta.getFieldTable()[0];
+        return meta.getFieldTable()[ 0 ];
       }
     } );
     check( "FIELD_STREAM", new StringGetter() {
       public String get() {
-        return meta.getFieldStream()[0];
+        return meta.getFieldStream()[ 0 ];
       }
     } );
     check( "FIELD_DATEMASK", new StringGetter() {
       public String get() {
-        return meta.getDateMask()[0];
+        return meta.getDateMask()[ 0 ];
       }
     } );
     check( "COMMIT_SIZE", new StringGetter() {
@@ -168,9 +169,9 @@ public class OraBulkLoaderMetaInjectionTest extends BaseMetadataInjectionTest<Or
       }
     } );
     check( "CONNECTION_NAME", new StringGetter() {
-        public String get() {
-          return "My Connection";
-        }
-      }, "My Connection" );
+      public String get() {
+        return "My Connection";
+      }
+    }, "My Connection" );
   }
 }

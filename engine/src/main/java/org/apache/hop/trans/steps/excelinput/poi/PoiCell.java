@@ -22,14 +22,14 @@
 
 package org.apache.hop.trans.steps.excelinput.poi;
 
-import java.sql.Date;
-import java.util.TimeZone;
-
+import org.apache.hop.core.spreadsheet.KCell;
+import org.apache.hop.core.spreadsheet.KCellType;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.hop.core.spreadsheet.KCell;
-import org.apache.hop.core.spreadsheet.KCellType;
+
+import java.sql.Date;
+import java.util.TimeZone;
 
 public class PoiCell implements KCell {
 

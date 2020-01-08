@@ -22,23 +22,9 @@
 
 package org.apache.hop.trans.steps.groupby;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.Collections;
-
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -54,6 +40,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
@@ -63,6 +50,19 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Groups informations based on aggregation rules. (sum, count, ...)
@@ -81,7 +81,7 @@ public class GroupBy extends BaseStep implements StepInterface {
   private boolean minNullIsValued = false;
 
   public GroupBy( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
+                  Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
 
     meta = (GroupByMeta) getStepMeta().getStepMetaInterface();
@@ -133,11 +133,11 @@ public class GroupBy extends BaseStep implements StepInterface {
         if ( meta.getAggregateType()[ i ] == GroupByMeta.TYPE_GROUP_COUNT_ANY ) {
           data.subjectnrs[ i ] = 0;
         } else {
-          data.subjectnrs[ i ] = data.inputRowMeta.indexOfValue( meta.getSubjectField()[i] );
+          data.subjectnrs[ i ] = data.inputRowMeta.indexOfValue( meta.getSubjectField()[ i ] );
         }
         if ( ( r != null ) && ( data.subjectnrs[ i ] < 0 ) ) {
           logError( BaseMessages.getString( PKG, "GroupBy.Log.AggregateSubjectFieldCouldNotFound",
-              meta.getSubjectField()[ i ] ) );
+            meta.getSubjectField()[ i ] ) );
           setErrors( 1 );
           stopAll();
           return false;
@@ -167,7 +167,7 @@ public class GroupBy extends BaseStep implements StepInterface {
 
       data.groupnrs = new int[ meta.getGroupField().length ];
       for ( int i = 0; i < meta.getGroupField().length; i++ ) {
-        data.groupnrs[ i ] = data.inputRowMeta.indexOfValue( meta.getGroupField()[i] );
+        data.groupnrs[ i ] = data.inputRowMeta.indexOfValue( meta.getGroupField()[ i ] );
         if ( ( r != null ) && ( data.groupnrs[ i ] < 0 ) ) {
           logError( BaseMessages.getString( PKG, "GroupBy.Log.GroupFieldCouldNotFound", meta.getGroupField()[ i ] ) );
           setErrors( 1 );
@@ -643,9 +643,9 @@ public class GroupBy extends BaseStep implements StepInterface {
       }
 
       if ( ( subjMeta != null )
-          && ( aggType != GroupByMeta.TYPE_GROUP_COUNT_ALL
-          && aggType != GroupByMeta.TYPE_GROUP_COUNT_DISTINCT
-          && aggType != GroupByMeta.TYPE_GROUP_COUNT_ANY ) ) {
+        && ( aggType != GroupByMeta.TYPE_GROUP_COUNT_ALL
+        && aggType != GroupByMeta.TYPE_GROUP_COUNT_DISTINCT
+        && aggType != GroupByMeta.TYPE_GROUP_COUNT_ANY ) ) {
         vMeta.setLength( subjMeta.getLength(), subjMeta.getPrecision() );
       }
       data.agg[ i ] = v;
@@ -707,8 +707,8 @@ public class GroupBy extends BaseStep implements StepInterface {
           break;
         case GroupByMeta.TYPE_GROUP_AVERAGE:
           ag =
-              ValueDataUtil.divide( data.aggMeta.getValueMeta( i ), ag,
-                  new ValueMetaInteger( "c" ), new Long( data.counts[ i ] ) );
+            ValueDataUtil.divide( data.aggMeta.getValueMeta( i ), ag,
+              new ValueMetaInteger( "c" ), new Long( data.counts[ i ] ) );
           break;
         case GroupByMeta.TYPE_GROUP_MEDIAN:
         case GroupByMeta.TYPE_GROUP_PERCENTILE:
@@ -801,7 +801,7 @@ public class GroupBy extends BaseStep implements StepInterface {
         data.firstRead = true;
       } catch ( IOException e ) {
         throw new HopFileException( BaseMessages.getString( PKG, "GroupBy.Exception.UnableToCreateTemporaryFile" ),
-            e );
+          e );
       }
       // OK, save the oldest rows to disk!
       Object[] oldest = data.bufferList.get( 0 );
@@ -828,7 +828,7 @@ public class GroupBy extends BaseStep implements StepInterface {
           data.firstRead = false;
         } catch ( IOException e ) {
           throw new HopFileException( BaseMessages.getString(
-              PKG, "GroupBy.Exception.UnableToReadBackRowFromTemporaryFile" ), e );
+            PKG, "GroupBy.Exception.UnableToReadBackRowFromTemporaryFile" ), e );
         }
       }
 
@@ -866,7 +866,7 @@ public class GroupBy extends BaseStep implements StepInterface {
       data.firstRead = true;
     } catch ( IOException e ) {
       throw new HopFileException(
-          BaseMessages.getString( PKG, "GroupBy.Exception.UnableToCloseInputStream", data.tempFile.getPath() ), e );
+        BaseMessages.getString( PKG, "GroupBy.Exception.UnableToCloseInputStream", data.tempFile.getPath() ), e );
     }
   }
 
@@ -882,7 +882,7 @@ public class GroupBy extends BaseStep implements StepInterface {
       }
     } catch ( IOException e ) {
       throw new HopFileException(
-          BaseMessages.getString( PKG, "GroupBy.Exception.UnableToCloseInputStream", data.tempFile.getPath() ), e );
+        BaseMessages.getString( PKG, "GroupBy.Exception.UnableToCloseInputStream", data.tempFile.getPath() ), e );
     }
   }
 
@@ -915,7 +915,7 @@ public class GroupBy extends BaseStep implements StepInterface {
 
       if ( !tempFileDeleted && log.isDetailed() ) {
         log.logDetailed(
-            BaseMessages.getString( PKG, "GroupBy.Exception.UnableToDeleteTemporaryFile", data.tempFile.getPath() ) );
+          BaseMessages.getString( PKG, "GroupBy.Exception.UnableToDeleteTemporaryFile", data.tempFile.getPath() ) );
       }
     }
 

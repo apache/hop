@@ -22,9 +22,9 @@
 
 package org.apache.hop.ui.hopui;
 
-import org.eclipse.swt.widgets.TreeItem;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.ui.core.gui.GUIResource;
+import org.eclipse.swt.widgets.TreeItem;
 
 public class SelectionTreeExtension {
 

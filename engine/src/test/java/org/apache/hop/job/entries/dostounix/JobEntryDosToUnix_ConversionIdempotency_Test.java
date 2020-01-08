@@ -23,14 +23,14 @@
 package org.apache.hop.job.entries.dostounix;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 
 import java.io.File;
 import java.io.FileOutputStream;

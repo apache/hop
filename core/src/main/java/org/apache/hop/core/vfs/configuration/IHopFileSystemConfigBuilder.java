@@ -22,9 +22,9 @@
 
 package org.apache.hop.core.vfs.configuration;
 
-import java.io.IOException;
-
 import org.apache.commons.vfs2.FileSystemOptions;
+
+import java.io.IOException;
 
 /**
  * @author cboyden
@@ -43,5 +43,5 @@ public interface IHopFileSystemConfigBuilder {
    * Publicly expose a generic way to set parameters
    */
   public void setParameter( FileSystemOptions opts, String name, String value, String fullParameterName,
-    String vfsUrl ) throws IOException;
+                            String vfsUrl ) throws IOException;
 }

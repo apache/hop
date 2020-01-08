@@ -32,20 +32,15 @@ public class LifecycleException extends Exception {
   private boolean severe;
 
   /**
-   *
-   * @param severe
-   *          true if Spoon should quit because of this exception
+   * @param severe true if Spoon should quit because of this exception
    */
   public LifecycleException( boolean severe ) {
     this.severe = severe;
   }
 
   /**
-   *
-   * @param message
-   *          The (localized) message
-   * @param severe
-   *          true if Spoon should quit because of this exception
+   * @param message The (localized) message
+   * @param severe  true if Spoon should quit because of this exception
    */
   public LifecycleException( String message, boolean severe ) {
     super( message );
@@ -53,10 +48,8 @@ public class LifecycleException extends Exception {
   }
 
   /**
-   *
    * @param cause
-   * @param severe
-   *          true if Spoon should quit because of this exception
+   * @param severe true if Spoon should quit because of this exception
    */
   public LifecycleException( Throwable cause, boolean severe ) {
     super( cause );
@@ -64,11 +57,9 @@ public class LifecycleException extends Exception {
   }
 
   /**
-   *
    * @param message
    * @param cause
-   * @param severe
-   *          true if Spoon should quit because of this exception
+   * @param severe  true if Spoon should quit because of this exception
    */
   public LifecycleException( String message, Throwable cause, boolean severe ) {
     super( message, cause );
@@ -76,7 +67,6 @@ public class LifecycleException extends Exception {
   }
 
   /**
-   *
    * @return true if Spoon should quit because of this exception
    */
   public boolean isSevere() {

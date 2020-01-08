@@ -22,28 +22,22 @@
 
 package org.apache.hop.trans.steps.fixedinput;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -57,13 +51,16 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInjectionInterface;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 /**
- * @since 2007-07-05
  * @author matt
  * @version 3.0
+ * @since 2007-07-05
  */
 
 public class FixedInputMeta extends BaseStepMeta implements StepMetaInterface {
@@ -97,7 +94,9 @@ public class FixedInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   private boolean isaddresult;
 
-  /** The encoding to use for reading: null or empty string means system default encoding */
+  /**
+   * The encoding to use for reading: null or empty string means system default encoding
+   */
   private String encoding;
 
   private FixedFileInputField[] fieldDefinition;
@@ -145,7 +144,7 @@ public class FixedInputMeta extends BaseStepMeta implements StepMetaInterface {
 
       for ( int i = 0; i < nrfields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        fieldDefinition[i] = new FixedFileInputField( fnode );
+        fieldDefinition[ i ] = new FixedFileInputField( fnode );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( "Unable to load step info from XML", e );
@@ -153,7 +152,7 @@ public class FixedInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrFields ) {
-    fieldDefinition = new FixedFileInputField[nrFields];
+    fieldDefinition = new FixedFileInputField[ nrFields ];
   }
 
   public String getXML() {
@@ -173,7 +172,7 @@ public class FixedInputMeta extends BaseStepMeta implements StepMetaInterface {
 
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < fieldDefinition.length; i++ ) {
-      retval.append( fieldDefinition[i].getXML() );
+      retval.append( fieldDefinition[ i ].getXML() );
     }
     retval.append( "    </fields>" ).append( Const.CR );
 
@@ -181,10 +180,10 @@ public class FixedInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     try {
       for ( int i = 0; i < fieldDefinition.length; i++ ) {
-        FixedFileInputField field = fieldDefinition[i];
+        FixedFileInputField field = fieldDefinition[ i ];
 
         ValueMetaInterface valueMeta = ValueMetaFactory.createValueMeta( field.getName(), field.getType() );
         valueMeta.setConversionMask( field.getFormat() );
@@ -218,8 +217,8 @@ public class FixedInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -248,7 +247,7 @@ public class FixedInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
-    Trans trans ) {
+                                Trans trans ) {
     return new FixedInput( stepMeta, stepDataInterface, cnr, tr, trans );
   }
 
@@ -264,8 +263,7 @@ public class FixedInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param filename
-   *          the filename to set
+   * @param filename the filename to set
    */
   public void setFilename( String filename ) {
     this.filename = filename;
@@ -279,8 +277,7 @@ public class FixedInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param bufferSize
-   *          the bufferSize to set
+   * @param bufferSize the bufferSize to set
    */
   public void setBufferSize( String bufferSize ) {
     this.bufferSize = bufferSize;
@@ -288,16 +285,15 @@ public class FixedInputMeta extends BaseStepMeta implements StepMetaInterface {
 
   /**
    * @return true if lazy conversion is turned on: conversions are delayed as long as possible, perhaps to never occur
-   *         at all.
+   * at all.
    */
   public boolean isLazyConversionActive() {
     return lazyConversionActive;
   }
 
   /**
-   * @param lazyConversionActive
-   *          true if lazy conversion is to be turned on: conversions are delayed as long as possible, perhaps to never
-   *          occur at all.
+   * @param lazyConversionActive true if lazy conversion is to be turned on: conversions are delayed as long as possible, perhaps to never
+   *                             occur at all.
    */
   public void setLazyConversionActive( boolean lazyConversionActive ) {
     this.lazyConversionActive = lazyConversionActive;
@@ -311,8 +307,7 @@ public class FixedInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param headerPresent
-   *          the headerPresent to set
+   * @param headerPresent the headerPresent to set
    */
   public void setHeaderPresent( boolean headerPresent ) {
     this.headerPresent = headerPresent;
@@ -333,16 +328,14 @@ public class FixedInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param lineWidth
-   *          the lineWidth to set
+   * @param lineWidth the lineWidth to set
    */
   public void setLineWidth( String lineWidth ) {
     this.lineWidth = lineWidth;
   }
 
   /**
-   * @param lineFeedPresent
-   *          the lineFeedPresent to set
+   * @param lineFeedPresent the lineFeedPresent to set
    */
   public void setLineFeedPresent( boolean lineFeedPresent ) {
     this.lineFeedPresent = lineFeedPresent;
@@ -356,8 +349,7 @@ public class FixedInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param runningInParallel
-   *          the runningInParallel to set
+   * @param runningInParallel the runningInParallel to set
    */
   public void setRunningInParallel( boolean runningInParallel ) {
     this.runningInParallel = runningInParallel;
@@ -371,8 +363,7 @@ public class FixedInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param fieldDefinition
-   *          the fieldDefinition to set
+   * @param fieldDefinition the fieldDefinition to set
    */
   public void setFieldDefinition( FixedFileInputField[] fieldDefinition ) {
     this.fieldDefinition = fieldDefinition;
@@ -401,19 +392,18 @@ public class FixedInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param fileType
-   *          the fileType to set
+   * @param fileType the fileType to set
    */
   public void setFileType( int fileType ) {
     this.fileType = fileType;
   }
 
   public static final String getFileTypeCode( int fileType ) {
-    return fileTypeCode[fileType];
+    return fileTypeCode[ fileType ];
   }
 
   public static final String getFileTypeDesc( int fileType ) {
-    return fileTypeDesc[fileType];
+    return fileTypeDesc[ fileType ];
   }
 
   public String getFileTypeCode() {
@@ -461,16 +451,14 @@ public class FixedInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param encoding
-   *          the encoding to set
+   * @param encoding the encoding to set
    */
   public void setEncoding( String encoding ) {
     this.encoding = encoding;
   }
 
   /**
-   * @param isaddresult
-   *          The isaddresult to set.
+   * @param isaddresult The isaddresult to set.
    */
   public void setAddResultFile( boolean isaddresult ) {
     this.isaddresult = isaddresult;
@@ -484,17 +472,14 @@ public class FixedInputMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param space
-   *          the variable space to use
+   * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
-   *
+   * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
-    ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+                                 ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

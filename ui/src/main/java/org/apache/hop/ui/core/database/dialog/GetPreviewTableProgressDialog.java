@@ -22,13 +22,6 @@
 
 package org.apache.hop.ui.core.database.dialog;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.swt.widgets.Shell;
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -37,6 +30,13 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopui.HopUi;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.swt.widgets.Shell;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 /**
  * Takes care of displaying a dialog that will handle the wait while we're getting rows for a certain SQL query on a
@@ -61,7 +61,7 @@ public class GetPreviewTableProgressDialog {
    * Creates a new dialog that will handle the wait while we're doing the hard work.
    */
   public GetPreviewTableProgressDialog( Shell shell, DatabaseMeta dbInfo, String schemaName, String tableName,
-    int limit ) {
+                                        int limit ) {
     this.shell = shell;
     this.dbMeta = dbInfo;
     this.tableName = dbInfo.getQuotedSchemaTableCombination( schemaName, tableName );
@@ -136,7 +136,7 @@ public class GetPreviewTableProgressDialog {
   private void showErrorDialog( Exception e ) {
     new ErrorDialog(
       shell, BaseMessages.getString( PKG, "GetPreviewTableProgressDialog.Error.Title" ), BaseMessages.getString(
-        PKG, "GetPreviewTableProgressDialog.Error.Message" ), e );
+      PKG, "GetPreviewTableProgressDialog.Error.Message" ), e );
   }
 
   /**

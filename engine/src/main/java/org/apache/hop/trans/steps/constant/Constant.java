@@ -22,11 +22,6 @@
 
 package org.apache.hop.trans.steps.constant;
 
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.RowMetaAndData;
@@ -46,6 +41,11 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Generates a number of (empty or the same) rows
  *
@@ -59,7 +59,7 @@ public class Constant extends BaseStep implements StepInterface {
   private ConstantData data;
 
   public Constant( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                   Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
 
     meta = (ConstantMeta) getStepMeta().getStepMetaInterface();
@@ -67,33 +67,33 @@ public class Constant extends BaseStep implements StepInterface {
   }
 
   public static final RowMetaAndData buildRow( ConstantMeta meta, ConstantData data,
-    List<CheckResultInterface> remarks ) {
+                                               List<CheckResultInterface> remarks ) {
     RowMetaInterface rowMeta = new RowMeta();
-    Object[] rowData = new Object[meta.getFieldName().length];
+    Object[] rowData = new Object[ meta.getFieldName().length ];
 
     for ( int i = 0; i < meta.getFieldName().length; i++ ) {
-      int valtype = ValueMetaFactory.getIdForValueMeta( meta.getFieldType()[i] );
-      if ( meta.getFieldName()[i] != null ) {
+      int valtype = ValueMetaFactory.getIdForValueMeta( meta.getFieldType()[ i ] );
+      if ( meta.getFieldName()[ i ] != null ) {
         ValueMetaInterface value = null;
         try {
-          value = ValueMetaFactory.createValueMeta( meta.getFieldName()[i], valtype );
+          value = ValueMetaFactory.createValueMeta( meta.getFieldName()[ i ], valtype );
         } catch ( Exception exception ) {
           remarks.add( new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, exception.getMessage(), null ) );
           continue;
         }
-        value.setLength( meta.getFieldLength()[i] );
-        value.setPrecision( meta.getFieldPrecision()[i] );
+        value.setLength( meta.getFieldLength()[ i ] );
+        value.setPrecision( meta.getFieldPrecision()[ i ] );
 
-        if ( meta.isSetEmptyString()[i] ) {
+        if ( meta.isSetEmptyString()[ i ] ) {
           // Just set empty string
-          rowData[i] = StringUtil.EMPTY_STRING;
+          rowData[ i ] = StringUtil.EMPTY_STRING;
         } else {
 
-          String stringValue = meta.getValue()[i];
+          String stringValue = meta.getValue()[ i ];
 
           // If the value is empty: consider it to be NULL.
           if ( stringValue == null || stringValue.length() == 0 ) {
-            rowData[i] = null;
+            rowData[ i ] = null;
 
             if ( value.getType() == ValueMetaInterface.TYPE_NONE ) {
               String message =
@@ -105,26 +105,26 @@ public class Constant extends BaseStep implements StepInterface {
             switch ( value.getType() ) {
               case ValueMetaInterface.TYPE_NUMBER:
                 try {
-                  if ( meta.getFieldFormat()[i] != null
-                    || meta.getDecimal()[i] != null || meta.getGroup()[i] != null
-                    || meta.getCurrency()[i] != null ) {
-                    if ( meta.getFieldFormat()[i] != null && meta.getFieldFormat()[i].length() >= 1 ) {
-                      data.df.applyPattern( meta.getFieldFormat()[i] );
+                  if ( meta.getFieldFormat()[ i ] != null
+                    || meta.getDecimal()[ i ] != null || meta.getGroup()[ i ] != null
+                    || meta.getCurrency()[ i ] != null ) {
+                    if ( meta.getFieldFormat()[ i ] != null && meta.getFieldFormat()[ i ].length() >= 1 ) {
+                      data.df.applyPattern( meta.getFieldFormat()[ i ] );
                     }
-                    if ( meta.getDecimal()[i] != null && meta.getDecimal()[i].length() >= 1 ) {
-                      data.dfs.setDecimalSeparator( meta.getDecimal()[i].charAt( 0 ) );
+                    if ( meta.getDecimal()[ i ] != null && meta.getDecimal()[ i ].length() >= 1 ) {
+                      data.dfs.setDecimalSeparator( meta.getDecimal()[ i ].charAt( 0 ) );
                     }
-                    if ( meta.getGroup()[i] != null && meta.getGroup()[i].length() >= 1 ) {
-                      data.dfs.setGroupingSeparator( meta.getGroup()[i].charAt( 0 ) );
+                    if ( meta.getGroup()[ i ] != null && meta.getGroup()[ i ].length() >= 1 ) {
+                      data.dfs.setGroupingSeparator( meta.getGroup()[ i ].charAt( 0 ) );
                     }
-                    if ( meta.getCurrency()[i] != null && meta.getCurrency()[i].length() >= 1 ) {
-                      data.dfs.setCurrencySymbol( meta.getCurrency()[i] );
+                    if ( meta.getCurrency()[ i ] != null && meta.getCurrency()[ i ].length() >= 1 ) {
+                      data.dfs.setCurrencySymbol( meta.getCurrency()[ i ] );
                     }
 
                     data.df.setDecimalFormatSymbols( data.dfs );
                   }
 
-                  rowData[i] = new Double( data.nf.parse( stringValue ).doubleValue() );
+                  rowData[ i ] = new Double( data.nf.parse( stringValue ).doubleValue() );
                 } catch ( Exception e ) {
                   String message =
                     BaseMessages.getString(
@@ -135,17 +135,17 @@ public class Constant extends BaseStep implements StepInterface {
                 break;
 
               case ValueMetaInterface.TYPE_STRING:
-                rowData[i] = stringValue;
+                rowData[ i ] = stringValue;
                 break;
 
               case ValueMetaInterface.TYPE_DATE:
                 try {
-                  if ( meta.getFieldFormat()[i] != null ) {
-                    data.daf.applyPattern( meta.getFieldFormat()[i] );
+                  if ( meta.getFieldFormat()[ i ] != null ) {
+                    data.daf.applyPattern( meta.getFieldFormat()[ i ] );
                     data.daf.setDateFormatSymbols( data.dafs );
                   }
 
-                  rowData[i] = data.daf.parse( stringValue );
+                  rowData[ i ] = data.daf.parse( stringValue );
                 } catch ( Exception e ) {
                   String message =
                     BaseMessages.getString(
@@ -156,7 +156,7 @@ public class Constant extends BaseStep implements StepInterface {
 
               case ValueMetaInterface.TYPE_INTEGER:
                 try {
-                  rowData[i] = new Long( Long.parseLong( stringValue ) );
+                  rowData[ i ] = new Long( Long.parseLong( stringValue ) );
                 } catch ( Exception e ) {
                   String message =
                     BaseMessages.getString(
@@ -168,7 +168,7 @@ public class Constant extends BaseStep implements StepInterface {
 
               case ValueMetaInterface.TYPE_BIGNUMBER:
                 try {
-                  rowData[i] = new BigDecimal( stringValue );
+                  rowData[ i ] = new BigDecimal( stringValue );
                 } catch ( Exception e ) {
                   String message =
                     BaseMessages.getString(
@@ -179,18 +179,18 @@ public class Constant extends BaseStep implements StepInterface {
                 break;
 
               case ValueMetaInterface.TYPE_BOOLEAN:
-                rowData[i] =
+                rowData[ i ] =
                   Boolean
                     .valueOf( "Y".equalsIgnoreCase( stringValue ) || "TRUE".equalsIgnoreCase( stringValue ) );
                 break;
 
               case ValueMetaInterface.TYPE_BINARY:
-                rowData[i] = stringValue.getBytes();
+                rowData[ i ] = stringValue.getBytes();
                 break;
 
               case ValueMetaInterface.TYPE_TIMESTAMP:
                 try {
-                  rowData[i] = Timestamp.valueOf( stringValue );
+                  rowData[ i ] = Timestamp.valueOf( stringValue );
                 } catch ( Exception e ) {
                   String message =
                     BaseMessages.getString(

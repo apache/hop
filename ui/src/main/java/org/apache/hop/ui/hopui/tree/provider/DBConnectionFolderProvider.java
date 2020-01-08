@@ -59,9 +59,9 @@ public class DBConnectionFolderProvider extends AutomaticTreeFolderProvider {
       collector.collectDatabases();
     } catch ( HopException e ) {
       new ErrorDialog( HopUi.getInstance().getShell(),
-              BaseMessages.getString( PKG, "Spoon.ErrorDialog.Title" ),
-              BaseMessages.getString( PKG, "Spoon.ErrorDialog.ErrorFetchingFromRepo.DbConnections" ),
-              e
+        BaseMessages.getString( PKG, "Spoon.ErrorDialog.Title" ),
+        BaseMessages.getString( PKG, "Spoon.ErrorDialog.ErrorFetchingFromRepo.DbConnections" ),
+        e
       );
     }
 
@@ -71,10 +71,7 @@ public class DBConnectionFolderProvider extends AutomaticTreeFolderProvider {
       }
       DatabaseMeta databaseMeta = collector.getMetaFor( dbName );
 
-      TreeNode childTreeNode = createTreeNode( treeNode, databaseMeta.getName(), guiResource.getImageConnectionTree() );
-      if ( databaseMeta.isShared() ) {
-        childTreeNode.setFont( guiResource.getFontBold() );
-      }
+      createTreeNode( treeNode, databaseMeta.getName(), guiResource.getImageConnectionTree() );
     }
   }
 

@@ -22,6 +22,19 @@
 
 package org.apache.hop.ui.trans.steps.creditcardvalidator;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.creditcardvalidator.CreditCardValidatorMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.ComponentSelectionListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusListener;
@@ -43,19 +56,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.creditcardvalidator.CreditCardValidatorMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.ComponentSelectionListener;
 
 public class CreditCardValidatorDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = CreditCardValidatorMeta.class; // for i18n purposes, needed by Translator2!!
@@ -371,7 +371,7 @@ public class CreditCardValidatorDialog extends BaseStepDialog implements StepDia
           r.getFieldNames();
 
           for ( int i = 0; i < r.getFieldNames().length; i++ ) {
-            wFieldName.add( r.getFieldNames()[i] );
+            wFieldName.add( r.getFieldNames()[ i ] );
           }
         }
         wFieldName.setText( columnName );

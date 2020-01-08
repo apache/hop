@@ -26,10 +26,14 @@ import java.security.SecureRandom;
 import java.util.Random;
 
 public class UUID4Util {
-  /** SecureRandom (or Random as failover) used to generate UUID's */
+  /**
+   * SecureRandom (or Random as failover) used to generate UUID's
+   */
   private static Random random;
 
-  /** Used to build output as hex. Adapted from org.apache.commons.id.Hex */
+  /**
+   * Used to build output as hex. Adapted from org.apache.commons.id.Hex
+   */
   private static final char[] DIGITS = {
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
@@ -50,12 +54,12 @@ public class UUID4Util {
    * @return
    */
   private byte[] getBytes() {
-    byte[] raw = new byte[16];
+    byte[] raw = new byte[ 16 ];
     random.nextBytes( raw );
-    raw[6] &= 0x0F;
-    raw[6] |= ( 4 << 4 );
-    raw[8] &= 0x3F; // 0011 1111
-    raw[8] |= 0x80; // 1000 0000
+    raw[ 6 ] &= 0x0F;
+    raw[ 6 ] |= ( 4 << 4 );
+    raw[ 8 ] &= 0x3F; // 0011 1111
+    raw[ 8 ] |= 0x80; // 1000 0000
     return raw;
   }
 
@@ -82,19 +86,18 @@ public class UUID4Util {
    * Converts an array of bytes into an array of characters representing the hexidecimal values of each byte in order.
    * The returned array will be double the length of the passed array, as it takes two characters to represent any given
    * byte.
-   *
+   * <p>
    * Adapted from org.apache.commons.id.Hex
    *
-   * @param data
-   *          a byte[] to convert to Hex characters
+   * @param data a byte[] to convert to Hex characters
    * @return A char[] containing hexidecimal characters
    */
   private static char[] encodeHex( byte[] data ) {
     int l = data.length;
-    char[] out = new char[l << 1];
+    char[] out = new char[ l << 1 ];
     for ( int i = 0, j = 0; i < l; i++ ) {
-      out[j++] = DIGITS[( 0xF0 & data[i] ) >>> 4];
-      out[j++] = DIGITS[0x0F & data[i]];
+      out[ j++ ] = DIGITS[ ( 0xF0 & data[ i ] ) >>> 4 ];
+      out[ j++ ] = DIGITS[ 0x0F & data[ i ] ];
     }
     return out;
   }

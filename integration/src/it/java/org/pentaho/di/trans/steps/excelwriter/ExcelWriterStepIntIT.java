@@ -22,17 +22,6 @@
 
 package org.apache.hop.trans.steps.excelwriter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -45,6 +34,17 @@ import org.apache.hop.trans.TransTestFactory;
 import org.apache.hop.trans.steps.excelinput.ExcelInputField;
 import org.apache.hop.trans.steps.excelinput.ExcelInputMeta;
 import org.apache.hop.trans.steps.excelinput.SpreadSheetType;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 public class ExcelWriterStepIntIT {
 
@@ -97,17 +97,17 @@ public class ExcelWriterStepIntIT {
     excelInput.setFileMask( new String[] { "" } );
     excelInput.setExcludeFileMask( new String[] { "" } );
     excelInput.setFileRequired( new String[] { "N" } );
-    excelInput.setIncludeSubFolders( new String[]{ "N" } );
+    excelInput.setIncludeSubFolders( new String[] { "N" } );
     excelInput.setSpreadSheetType( SpreadSheetType.POI );
     excelInput.setSheetName( new String[] { "Sheet10" } );
     excelInput.setStartColumn( new int[] { 0 } );
     excelInput.setStartRow( new int[] { 0 } );
     excelInput.setStartsWithHeader( false ); // Ensures that we can check the header names
 
-    ExcelInputField[] fields = new ExcelInputField[5];
+    ExcelInputField[] fields = new ExcelInputField[ 5 ];
     for ( int i = 0; i < 5; i++ ) {
-      fields[i] = new ExcelInputField();
-      fields[i].setName( "field" + ( i + 1 ) );
+      fields[ i ] = new ExcelInputField();
+      fields[ i ].setName( "field" + ( i + 1 ) );
     }
     excelInput.setField( fields );
 

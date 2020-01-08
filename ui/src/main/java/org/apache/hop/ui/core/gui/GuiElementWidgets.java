@@ -208,8 +208,8 @@ public class GuiElementWidgets {
             }
             break;
           case CHECKBOX:
-            Button button = (Button)control;
-            button.setSelection( (Boolean)value );
+            Button button = (Button) control;
+            button.setSelection( (Boolean) value );
             break;
           case COMBO:
           default:
@@ -271,7 +271,7 @@ public class GuiElementWidgets {
             }
             break;
           case CHECKBOX:
-            Button button = (Button)control;
+            Button button = (Button) control;
             value = button.getSelection();
             break;
           case COMBO:
@@ -342,15 +342,15 @@ public class GuiElementWidgets {
         System.out.println( "Widget not found to enable/disable: " + guiElements );
       }
     } else {
-    System.out.println( "Enabling " + guiElements.getChildren().size() + " children" );
-    // Add the children
-    //
-    for ( GuiElements child : guiElements.getChildren() ) {
-      enableWidget( sourceData, child, enabled );
+      System.out.println( "Enabling " + guiElements.getChildren().size() + " children" );
+      // Add the children
+      //
+      for ( GuiElements child : guiElements.getChildren() ) {
+        enableWidget( sourceData, child, enabled );
+      }
     }
-  }
 
-}
+  }
 
   /**
    * Gets space

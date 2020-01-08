@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.fileinput.text;
 
-import java.util.Date;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.playlist.FilePlayListAll;
 import org.apache.hop.core.playlist.FilePlayListReplay;
@@ -36,6 +34,8 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.file.BaseFileInputStep;
 import org.apache.hop.trans.steps.file.IBaseFileInputReader;
 
+import java.util.Date;
+
 /**
  * Read all sorts of text files, convert them to rows and writes these to one or more output streams.
  *
@@ -46,7 +46,7 @@ public class TextFileInput extends BaseFileInputStep<TextFileInputMeta, TextFile
   private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator2!!
 
   public TextFileInput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
+                        Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -63,9 +63,9 @@ public class TextFileInput extends BaseFileInputStep<TextFileInputMeta, TextFile
       data.filePlayList = FilePlayListAll.INSTANCE;
     } else {
       data.filePlayList =
-          new FilePlayListReplay( replayDate, meta.errorHandling.lineNumberFilesDestinationDirectory,
-              meta.errorHandling.lineNumberFilesExtension, meta.errorHandling.errorFilesDestinationDirectory,
-              meta.errorHandling.errorFilesExtension, meta.content.encoding );
+        new FilePlayListReplay( replayDate, meta.errorHandling.lineNumberFilesDestinationDirectory,
+          meta.errorHandling.lineNumberFilesExtension, meta.errorHandling.errorFilesDestinationDirectory,
+          meta.errorHandling.errorFilesExtension, meta.content.encoding );
     }
 
     data.filterProcessor = new TextFileFilterProcessor( meta.getFilter(), this );
@@ -82,7 +82,7 @@ public class TextFileInput extends BaseFileInputStep<TextFileInputMeta, TextFile
     data.escapeCharacter = environmentSubstitute( meta.content.escapeCharacter );
     // CSV without separator defined
     if ( meta.content.fileType.equalsIgnoreCase( "CSV" ) && ( meta.content.separator == null || meta.content.separator
-        .isEmpty() ) ) {
+      .isEmpty() ) ) {
       logError( BaseMessages.getString( PKG, "TextFileInput.Exception.NoSeparator" ) );
       return false;
     }

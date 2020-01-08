@@ -22,31 +22,19 @@
 
 package org.apache.hop.job.entries.addresultfilenames;
 
-import org.apache.hop.job.entry.validator.AbstractFileValidator;
-import org.apache.hop.job.entry.validator.AndValidator;
-import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.JobEntry;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
@@ -55,10 +43,17 @@ import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryBase;
 import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.job.entry.validator.AbstractFileValidator;
+import org.apache.hop.job.entry.validator.AndValidator;
+import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
 import org.apache.hop.job.entry.validator.ValidatorContext;
-
 import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This defines a 'add result filenames' job entry.
@@ -115,8 +110,8 @@ public class JobEntryAddResultFilenames extends JobEntryBase implements Cloneabl
     if ( arguments != null ) {
       for ( int i = 0; i < arguments.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "name", arguments[i] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "filemask", filemasks[i] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "name", arguments[ i ] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "filemask", filemasks[ i ] ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
@@ -125,10 +120,10 @@ public class JobEntryAddResultFilenames extends JobEntryBase implements Cloneabl
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       argFromPrevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
       includeSubfolders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "include_subfolders" ) );
       deleteallbefore = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "delete_all_before" ) );
@@ -137,15 +132,15 @@ public class JobEntryAddResultFilenames extends JobEntryBase implements Cloneabl
 
       // How many field arguments?
       int nrFields = XMLHandler.countNodes( fields, "field" );
-      arguments = new String[nrFields];
-      filemasks = new String[nrFields];
+      arguments = new String[ nrFields ];
+      filemasks = new String[ nrFields ];
 
       // Read them all...
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        arguments[i] = XMLHandler.getTagValue( fnode, "name" );
-        filemasks[i] = XMLHandler.getTagValue( fnode, "filemask" );
+        arguments[ i ] = XMLHandler.getTagValue( fnode, "name" );
+        filemasks[ i ] = XMLHandler.getTagValue( fnode, "filemask" );
       }
     } catch ( HopXMLException xe ) {
       throw new HopXMLException(
@@ -206,9 +201,9 @@ public class JobEntryAddResultFilenames extends JobEntryBase implements Cloneabl
         // ok we can process this file/folder
         if ( log.isDetailed() ) {
           logDetailed( BaseMessages.getString(
-            PKG, "JobEntryAddResultFilenames.ProcessingArg", arguments[i], filemasks[i] ) );
+            PKG, "JobEntryAddResultFilenames.ProcessingArg", arguments[ i ], filemasks[ i ] ) );
         }
-        if ( !processFile( arguments[i], filemasks[i], parentJob, result ) ) {
+        if ( !processFile( arguments[ i ], filemasks[ i ], parentJob, result ) ) {
           nrErrFiles++;
         }
       }
@@ -243,7 +238,7 @@ public class JobEntryAddResultFilenames extends JobEntryBase implements Cloneabl
           ResultFile resultFile =
             new ResultFile(
               ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( filefolder.toString(), this ), parentJob
-                .getJobname(), toString() );
+              .getJobname(), toString() );
           result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
         } else {
           FileObject[] list = filefolder.findFiles( new TextFileSelector( filefolder.toString(), realwildcard ) );
@@ -251,13 +246,13 @@ public class JobEntryAddResultFilenames extends JobEntryBase implements Cloneabl
           for ( int i = 0; i < list.length && !parentJob.isStopped(); i++ ) {
             // Add filename to Resultfilenames ...
             if ( log.isDetailed() ) {
-              logDetailed( BaseMessages.getString( PKG, "JobEntryAddResultFilenames.AddingFileToResult", list[i]
+              logDetailed( BaseMessages.getString( PKG, "JobEntryAddResultFilenames.AddingFileToResult", list[ i ]
                 .toString() ) );
             }
             ResultFile resultFile =
               new ResultFile(
-                ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( list[i].toString(), this ), parentJob
-                  .getJobname(), toString() );
+                ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( list[ i ].toString(), this ), parentJob
+                .getJobname(), toString() );
             result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
           }
         }
@@ -313,7 +308,7 @@ public class JobEntryAddResultFilenames extends JobEntryBase implements Cloneabl
             || ( !info.getFile().getParent().equals( info.getBaseFolder() ) && includeSubfolders ) ) {
             if ( ( info.getFile().getType() == FileType.FILE && fileWildcard == null )
               || ( info.getFile().getType() == FileType.FILE && fileWildcard != null && GetFileWildcard(
-                short_filename, fileWildcard ) ) ) {
+              short_filename, fileWildcard ) ) ) {
               returncode = true;
             }
           }
@@ -390,9 +385,9 @@ public class JobEntryAddResultFilenames extends JobEntryBase implements Cloneabl
   }
 
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     boolean res = JobEntryValidatorUtils.andValidator().validate( this, "arguments", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
 
     if ( res == false ) {
       return;

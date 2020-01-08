@@ -51,7 +51,7 @@ public class UserDefinedJavaClass extends BaseStep implements StepInterface {
   public static final String HOP_DEFAULT_CLASS_CACHE_SIZE = "HOP_DEFAULT_CLASS_CACHE_SIZE";
 
   public UserDefinedJavaClass( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,
-    TransMeta transMeta, Trans trans ) {
+                               TransMeta transMeta, Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
     meta = (UserDefinedJavaClassMeta) ( stepMeta.getStepMetaInterface() );
     data = (UserDefinedJavaClassData) stepDataInterface;
@@ -1021,7 +1021,7 @@ public class UserDefinedJavaClass extends BaseStep implements StepInterface {
   }
 
   public void putError( RowMetaInterface rowMeta, Object[] row, long nrErrors, String errorDescriptions,
-    String fieldNames, String errorCodes ) throws HopStepException {
+                        String fieldNames, String errorCodes ) throws HopStepException {
     if ( child == null ) {
       putErrorImpl( rowMeta, row, nrErrors, errorDescriptions, fieldNames, errorCodes );
     } else {
@@ -1030,7 +1030,7 @@ public class UserDefinedJavaClass extends BaseStep implements StepInterface {
   }
 
   public void putErrorImpl( RowMetaInterface rowMeta, Object[] row, long nrErrors, String errorDescriptions,
-    String fieldNames, String errorCodes ) throws HopStepException {
+                            String fieldNames, String errorCodes ) throws HopStepException {
     super.putError( rowMeta, row, nrErrors, errorDescriptions, fieldNames, errorCodes );
   }
 

@@ -23,16 +23,16 @@
 package org.apache.hop.trans.steps.replacestring;
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,16 +42,19 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * User: Dzmitry Stsiapanau Date: 1/31/14 Time: 11:19 AM
  */
 public class ReplaceStringTest {
 
-  private static final String LITERAL_STRING =  "[a-z]{2,7}";
+  private static final String LITERAL_STRING = "[a-z]{2,7}";
 
-  private static final String INPUT_STRING =  "This is String This Is String THIS IS STRING";
+  private static final String INPUT_STRING = "This is String This Is String THIS IS STRING";
 
   private Object[] row = new Object[] { "some data", "another data" };
 
@@ -63,10 +66,10 @@ public class ReplaceStringTest {
   @Before
   public void setUp() throws Exception {
     stepMockHelper =
-        new StepMockHelper<ReplaceStringMeta, ReplaceStringData>( "REPLACE STRING TEST", ReplaceStringMeta.class,
-            ReplaceStringData.class );
+      new StepMockHelper<ReplaceStringMeta, ReplaceStringData>( "REPLACE STRING TEST", ReplaceStringMeta.class,
+        ReplaceStringData.class );
     when( stepMockHelper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        stepMockHelper.logChannelInterface );
+      stepMockHelper.logChannelInterface );
     verify( stepMockHelper.logChannelInterface, never() ).logError( anyString() );
     verify( stepMockHelper.logChannelInterface, never() ).logError( anyString(), any( Object[].class ) );
     verify( stepMockHelper.logChannelInterface, never() ).logError( anyString(), (Throwable) anyObject() );
@@ -83,7 +86,7 @@ public class ReplaceStringTest {
     ReplaceStringData data = new ReplaceStringData();
 
     ReplaceString replaceString =
-        new ReplaceString( stepMockHelper.stepMeta, data, 0, stepMockHelper.transMeta, stepMockHelper.trans );
+      new ReplaceString( stepMockHelper.stepMeta, data, 0, stepMockHelper.transMeta, stepMockHelper.trans );
     RowMetaInterface inputRowMeta = new RowMeta();
     inputRowMeta.addValueMeta( 0, new ValueMetaString( "SomeDataMeta" ) );
     inputRowMeta.addValueMeta( 1, new ValueMetaString( "AnotherDataMeta" ) );
@@ -179,14 +182,14 @@ public class ReplaceStringTest {
     RowMetaInterface inputRowMeta = new RowMeta();
     byte[] array = { 0, 97, 0, 65, -1, 65, -1, 33 };
     byte[] matcharray = { -1, 33 };
-    String match = new String( matcharray , "UTF-16BE" );
+    String match = new String( matcharray, "UTF-16BE" );
     Object[] _row = new Object[] { new String( array, "UTF-16BE" ), "another data" };
     doReturn( _row ).when( replaceString ).getRow();
     inputRowMeta.addValueMeta( 0, new ValueMetaString( "string" ) );
     ReplaceStringMeta meta = stepMockHelper.processRowsStepMetaInterface;
 
-    doReturn( new String[] { "string" }  ).when( meta ).getFieldInStream();
-    doReturn( new String[] { "output" }  ).when( meta ).getFieldOutStream();
+    doReturn( new String[] { "string" } ).when( meta ).getFieldInStream();
+    doReturn( new String[] { "output" } ).when( meta ).getFieldOutStream();
 
     doReturn( new int[] { 1 } ).when( meta ).isUnicode();
     doReturn( new int[] { 0 } ).when( meta ).getUseRegEx();
@@ -209,8 +212,8 @@ public class ReplaceStringTest {
     data.setEmptyString = new boolean[] { false, false };
 
     replaceString.processRow( meta, data );
-    System.out.println( replaceString.getRow()[1] );
-    assertTrue( "Expected: aAmatchedmatched","aAmatchedmatched".equals( replaceString.getRow()[1] ) );
+    System.out.println( replaceString.getRow()[ 1 ] );
+    assertTrue( "Expected: aAmatchedmatched", "aAmatchedmatched".equals( replaceString.getRow()[ 1 ] ) );
   }
 }
 

@@ -22,15 +22,13 @@
 
 package org.apache.hop.trans.steps.dynamicsqlrow;
 
-import java.sql.ResultSet;
-
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -39,6 +37,8 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+
+import java.sql.ResultSet;
 
 /**
  * Run dynamic SQL. SQL is defined in a field.
@@ -53,7 +53,7 @@ public class DynamicSQLRow extends BaseStep implements StepInterface {
   private DynamicSQLRowData data;
 
   public DynamicSQLRow( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                        Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -109,7 +109,7 @@ public class DynamicSQLRow extends BaseStep implements StepInterface {
         for ( int p = 0; p < data.previousrowbuffer.size(); p++ ) {
           Object[] getBufferRow = data.previousrowbuffer.get( p );
           for ( int i = 0; i < addMeta.size(); i++ ) {
-            newRow[newIndex++] = getBufferRow[i];
+            newRow[ newIndex++ ] = getBufferRow[ i ];
           }
           putRow( data.outputRowMeta, data.outputRowMeta.cloneRow( newRow ) );
         }
@@ -162,7 +162,7 @@ public class DynamicSQLRow extends BaseStep implements StepInterface {
         Object[] newRow = RowDataUtil.resizeArray( rowData, data.outputRowMeta.size() );
         int newIndex = rowMeta.size();
         for ( int i = 0; i < addMeta.size(); i++ ) {
-          newRow[newIndex++] = add[i];
+          newRow[ newIndex++ ] = add[ i ];
         }
 
         // we have to clone, otherwise we only get the last new value
@@ -189,12 +189,12 @@ public class DynamicSQLRow extends BaseStep implements StepInterface {
       // Nothing found? Perhaps we have to put something out after all?
       if ( counter == 0 && meta.isOuterJoin() ) {
         if ( data.notfound == null ) {
-          data.notfound = new Object[data.db.getReturnRowMeta().size()];
+          data.notfound = new Object[ data.db.getReturnRowMeta().size() ];
         }
         Object[] newRow = RowDataUtil.resizeArray( rowData, data.outputRowMeta.size() );
         int newIndex = rowMeta.size();
         for ( int i = 0; i < data.notfound.length; i++ ) {
-          newRow[newIndex++] = data.notfound[i];
+          newRow[ newIndex++ ] = data.notfound[ i ];
         }
         putRow( data.outputRowMeta, newRow );
 
@@ -275,7 +275,9 @@ public class DynamicSQLRow extends BaseStep implements StepInterface {
     return true;
   }
 
-  /** Stop the running query */
+  /**
+   * Stop the running query
+   */
   public void stopRunning( StepMetaInterface smi, StepDataInterface sdi ) throws HopException {
     meta = (DynamicSQLRowMeta) smi;
     data = (DynamicSQLRowData) sdi;

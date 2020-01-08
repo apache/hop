@@ -28,7 +28,6 @@ import org.apache.hop.trans.Trans;
  * This listener informs the audience of the various states of a step.
  *
  * @author matt
- *
  */
 public interface StepListener {
 

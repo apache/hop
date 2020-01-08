@@ -22,11 +22,10 @@
 
 package org.apache.hop.core.logging;
 
-import java.util.List;
-
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 public interface LogTableInterface extends LogTableCoreInterface {
 
@@ -38,10 +37,8 @@ public interface LogTableInterface extends LogTableCoreInterface {
   /**
    * Load the information for this logging table from the job XML node
    *
-   * @param jobNode
-   *          the node to load from
-   * @param steps
-   *          the steps to reference (or null)
+   * @param jobNode the node to load from
+   * @param steps   the steps to reference (or null)
    */
   public void loadXML( Node jobNode, List<StepMeta> steps );
 

@@ -23,11 +23,11 @@
 package org.apache.hop.trans.steps.stringcut;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -51,7 +51,7 @@ public class StringCut extends BaseStep implements StepInterface {
   private StringCutData data;
 
   public StringCut( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                    Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -95,7 +95,7 @@ public class StringCut extends BaseStep implements StepInterface {
   }
 
   private Object[] getOneRow( RowMetaInterface rowMeta, Object[] row ) throws HopException {
-    Object[] RowData = new Object[data.outputRowMeta.size()];
+    Object[] RowData = new Object[ data.outputRowMeta.size() ];
 
     // Copy the input fields.
     System.arraycopy( row, 0, RowData, 0, rowMeta.size() );
@@ -103,12 +103,12 @@ public class StringCut extends BaseStep implements StepInterface {
 
     int j = 0; // Index into "new fields" area, past the first {data.inputFieldsNr} records
     for ( int i = 0; i < length; i++ ) {
-      String valueIn = getInputRowMeta().getString( row, data.inStreamNrs[i] );
-      String value = CutString( valueIn, data.cutFrom[i], data.cutTo[i] );
-      if ( Utils.isEmpty( data.outStreamNrs[i] ) ) {
-        RowData[data.inStreamNrs[i]] = value;
+      String valueIn = getInputRowMeta().getString( row, data.inStreamNrs[ i ] );
+      String value = CutString( valueIn, data.cutFrom[ i ], data.cutTo[ i ] );
+      if ( Utils.isEmpty( data.outStreamNrs[ i ] ) ) {
+        RowData[ data.inStreamNrs[ i ] ] = value;
       } else {
-        RowData[data.inputFieldsNr + j] = value;
+        RowData[ data.inputFieldsNr + j ] = value;
         j++;
       }
     }
@@ -133,39 +133,39 @@ public class StringCut extends BaseStep implements StepInterface {
       data.inputFieldsNr = data.outputRowMeta.size();
       meta.getFields( data.outputRowMeta, getStepname(), null, null, this, metaStore );
 
-      data.inStreamNrs = new int[meta.getFieldInStream().length];
+      data.inStreamNrs = new int[ meta.getFieldInStream().length ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        data.inStreamNrs[i] = getInputRowMeta().indexOfValue( meta.getFieldInStream()[i] );
-        if ( data.inStreamNrs[i] < 0 ) {
+        data.inStreamNrs[ i ] = getInputRowMeta().indexOfValue( meta.getFieldInStream()[ i ] );
+        if ( data.inStreamNrs[ i ] < 0 ) {
           throw new HopStepException( BaseMessages.getString( PKG, "StringCut.Exception.FieldRequired", meta
-            .getFieldInStream()[i] ) );
+            .getFieldInStream()[ i ] ) );
         }
 
         // check field type
-        if ( getInputRowMeta().getValueMeta( data.inStreamNrs[i] ).getType() != ValueMetaInterface.TYPE_STRING ) {
+        if ( getInputRowMeta().getValueMeta( data.inStreamNrs[ i ] ).getType() != ValueMetaInterface.TYPE_STRING ) {
           throw new HopStepException( BaseMessages.getString(
-            PKG, "StringCut.Exception.FieldTypeNotString", meta.getFieldInStream()[i] ) );
+            PKG, "StringCut.Exception.FieldTypeNotString", meta.getFieldInStream()[ i ] ) );
         }
       }
 
-      data.outStreamNrs = new String[meta.getFieldInStream().length];
+      data.outStreamNrs = new String[ meta.getFieldInStream().length ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        data.outStreamNrs[i] = environmentSubstitute( meta.getFieldOutStream()[i] );
+        data.outStreamNrs[ i ] = environmentSubstitute( meta.getFieldOutStream()[ i ] );
       }
 
-      data.cutFrom = new int[meta.getFieldInStream().length];
-      data.cutTo = new int[meta.getFieldInStream().length];
+      data.cutFrom = new int[ meta.getFieldInStream().length ];
+      data.cutTo = new int[ meta.getFieldInStream().length ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        if ( Utils.isEmpty( environmentSubstitute( meta.getCutFrom()[i] ) ) ) {
-          data.cutFrom[i] = 0;
+        if ( Utils.isEmpty( environmentSubstitute( meta.getCutFrom()[ i ] ) ) ) {
+          data.cutFrom[ i ] = 0;
         } else {
-          data.cutFrom[i] = Const.toInt( environmentSubstitute( meta.getCutFrom()[i] ), 0 );
+          data.cutFrom[ i ] = Const.toInt( environmentSubstitute( meta.getCutFrom()[ i ] ), 0 );
         }
 
-        if ( Utils.isEmpty( environmentSubstitute( meta.getCutTo()[i] ) ) ) {
-          data.cutTo[i] = 0;
+        if ( Utils.isEmpty( environmentSubstitute( meta.getCutTo()[ i ] ) ) ) {
+          data.cutTo[ i ] = 0;
         } else {
-          data.cutTo[i] = Const.toInt( environmentSubstitute( meta.getCutTo()[i] ), 0 );
+          data.cutTo[ i ] = Const.toInt( environmentSubstitute( meta.getCutTo()[ i ] ), 0 );
         }
 
       } // end for

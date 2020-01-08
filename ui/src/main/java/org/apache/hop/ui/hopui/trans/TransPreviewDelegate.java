@@ -22,20 +22,6 @@
 
 package org.apache.hop.ui.hopui.trans;
 
-import org.apache.hop.ui.hopui.delegates.HopUiDelegate;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolBar;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.RowMetaAndData;
@@ -61,7 +47,21 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
+import org.apache.hop.ui.hopui.delegates.HopUiDelegate;
 import org.apache.hop.ui.xul.HopXulLoader;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulLoader;
 import org.pentaho.ui.xul.containers.XulToolbar;
@@ -139,7 +139,6 @@ public class TransPreviewDelegate extends HopUiDelegate implements XulEventHandl
 
   /**
    * Add a grid with the execution metrics per step in a table view
-   *
    */
   public void addTransPreview() {
 
@@ -201,7 +200,7 @@ public class TransPreviewDelegate extends HopUiDelegate implements XulEventHandl
       }
     } );
     TransPreviewExtension extension = new TransPreviewExtension(
-        transPreviewComposite, toolbarControl, previewComposite );
+      transPreviewComposite, toolbarControl, previewComposite );
     try {
       ExtensionPointHandler.callExtensionPoint( log, "TransPreviewCreated", extension );
     } catch ( HopException ex ) {
@@ -304,14 +303,14 @@ public class TransPreviewDelegate extends HopUiDelegate implements XulEventHandl
   }
 
   protected void showPreviewGrid( TransMeta transMeta, StepMeta stepMeta, RowMetaInterface rowMeta,
-    List<RowMetaAndData> rowsData ) throws HopException {
+                                  List<RowMetaAndData> rowsData ) throws HopException {
     clearPreviewComposite();
 
-    ColumnInfo[] columnInfo = new ColumnInfo[rowMeta.size()];
+    ColumnInfo[] columnInfo = new ColumnInfo[ rowMeta.size() ];
     for ( int i = 0; i < columnInfo.length; i++ ) {
       ValueMetaInterface valueMeta = rowMeta.getValueMeta( i );
-      columnInfo[i] = new ColumnInfo( valueMeta.getName(), ColumnInfo.COLUMN_TYPE_TEXT, false, true );
-      columnInfo[i].setValueMeta( valueMeta );
+      columnInfo[ i ] = new ColumnInfo( valueMeta.getName(), ColumnInfo.COLUMN_TYPE_TEXT, false, true );
+      columnInfo[ i ].setValueMeta( valueMeta );
     }
 
     tableView =
@@ -337,7 +336,7 @@ public class TransPreviewDelegate extends HopUiDelegate implements XulEventHandl
         try {
           valueMetaInterface = dataRowMeta.getValueMeta( dataIndex );
           if ( valueMetaInterface.isStorageBinaryString() ) {
-            Object nativeType = valueMetaInterface.convertBinaryStringToNativeType( (byte[]) rowData[dataIndex] );
+            Object nativeType = valueMetaInterface.convertBinaryStringToNativeType( (byte[]) rowData[ dataIndex ] );
             string = valueMetaInterface.getStorageMetadata().getString( nativeType );
           } else {
             string = dataRowMeta.getString( rowData, dataIndex );
@@ -545,7 +544,7 @@ public class TransPreviewDelegate extends HopUiDelegate implements XulEventHandl
   }
 
   public void addPreviewData( StepMeta stepMeta, RowMetaInterface rowMeta, List<Object[]> rowsData,
-    StringBuffer buffer ) {
+                              StringBuffer buffer ) {
     previewLogMap.put( stepMeta, buffer );
     previewMetaMap.put( stepMeta, rowMeta );
     List<RowMetaAndData> rowsMetaAndData =
@@ -561,8 +560,7 @@ public class TransPreviewDelegate extends HopUiDelegate implements XulEventHandl
   }
 
   /**
-   * @param selectedStep
-   *          the selectedStep to set
+   * @param selectedStep the selectedStep to set
    */
   public void setSelectedStep( StepMeta selectedStep ) {
     this.selectedStep = selectedStep;

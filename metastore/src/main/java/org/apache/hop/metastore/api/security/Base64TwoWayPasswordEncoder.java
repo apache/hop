@@ -17,9 +17,9 @@
 
 package org.apache.hop.metastore.api.security;
 
-import java.io.UnsupportedEncodingException;
-
 import org.apache.commons.codec.binary.Base64;
+
+import java.io.UnsupportedEncodingException;
 
 public class Base64TwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
 

@@ -22,18 +22,19 @@
 
 package org.apache.hop.trans.steps.fieldsplitter;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class FieldSplitterMetaInjectionTest extends BaseMetadataInjectionTest<FieldSplitterMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Before
   public void setup() throws Exception {
     setup( new FieldSplitterMeta() );
@@ -58,69 +59,69 @@ public class FieldSplitterMetaInjectionTest extends BaseMetadataInjectionTest<Fi
     } );
     check( "NAME", new StringGetter() {
       public String get() {
-        return meta.getFieldName()[0];
+        return meta.getFieldName()[ 0 ];
       }
     } );
     check( "ID", new StringGetter() {
       public String get() {
-        return meta.getFieldID()[0];
+        return meta.getFieldID()[ 0 ];
       }
     } );
     check( "REMOVE_ID", new BooleanGetter() {
       public boolean get() {
-        return meta.getFieldRemoveID()[0];
+        return meta.getFieldRemoveID()[ 0 ];
       }
     } );
     check( "FORMAT", new StringGetter() {
       public String get() {
-        return meta.getFieldFormat()[0];
+        return meta.getFieldFormat()[ 0 ];
       }
     } );
     check( "GROUPING", new StringGetter() {
       public String get() {
-        return meta.getFieldGroup()[0];
+        return meta.getFieldGroup()[ 0 ];
       }
     } );
     check( "DECIMAL", new StringGetter() {
       public String get() {
-        return meta.getFieldDecimal()[0];
+        return meta.getFieldDecimal()[ 0 ];
       }
     } );
     check( "CURRENCY", new StringGetter() {
       public String get() {
-        return meta.getFieldCurrency()[0];
+        return meta.getFieldCurrency()[ 0 ];
       }
     } );
     check( "LENGTH", new IntGetter() {
       public int get() {
-        return meta.getFieldLength()[0];
+        return meta.getFieldLength()[ 0 ];
       }
     } );
     check( "PRECISION", new IntGetter() {
       public int get() {
-        return meta.getFieldPrecision()[0];
+        return meta.getFieldPrecision()[ 0 ];
       }
     } );
     check( "NULL_IF", new StringGetter() {
       public String get() {
-        return meta.getFieldNullIf()[0];
+        return meta.getFieldNullIf()[ 0 ];
       }
     } );
     check( "DEFAULT", new StringGetter() {
       public String get() {
-        return meta.getFieldIfNull()[0];
+        return meta.getFieldIfNull()[ 0 ];
       }
     } );
 
     ValueMetaInterface mftt = new ValueMetaString( "f" );
     injector.setProperty( meta, "TRIM_TYPE", setValue( mftt, "none" ), "f" );
-    assertEquals( 0, meta.getFieldTrimType()[0] );
+    assertEquals( 0, meta.getFieldTrimType()[ 0 ] );
     injector.setProperty( meta, "TRIM_TYPE", setValue( mftt, "left" ), "f" );
-    assertEquals( 1, meta.getFieldTrimType()[0] );
+    assertEquals( 1, meta.getFieldTrimType()[ 0 ] );
     injector.setProperty( meta, "TRIM_TYPE", setValue( mftt, "right" ), "f" );
-    assertEquals( 2, meta.getFieldTrimType()[0] );
+    assertEquals( 2, meta.getFieldTrimType()[ 0 ] );
     injector.setProperty( meta, "TRIM_TYPE", setValue( mftt, "both" ), "f" );
-    assertEquals( 3, meta.getFieldTrimType()[0] );
+    assertEquals( 3, meta.getFieldTrimType()[ 0 ] );
     skipPropertyTest( "TRIM_TYPE" );
 
     // TODO check field type plugins

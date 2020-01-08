@@ -29,7 +29,6 @@ import org.apache.hop.core.row.ValueMetaInterface;
  * trim options, etc) and the minimum and maximum value encountered.
  *
  * @author matt
- *
  */
 public class StringEvaluationResult {
 
@@ -50,8 +49,8 @@ public class StringEvaluationResult {
     return conversionMeta.toStringMeta()
       + " "
       + ( conversionMeta.isNumeric() ? conversionMeta.getConversionMask()
-        + " : " + conversionMeta.getDecimalSymbol() + conversionMeta.getGroupingSymbol() : conversionMeta
-        .isDate() ? conversionMeta.getConversionMask() : "" );
+      + " : " + conversionMeta.getDecimalSymbol() + conversionMeta.getGroupingSymbol() : conversionMeta
+      .isDate() ? conversionMeta.getConversionMask() : "" );
   }
 
   /**
@@ -62,8 +61,7 @@ public class StringEvaluationResult {
   }
 
   /**
-   * @param conversionMeta
-   *          the conversionMeta to set
+   * @param conversionMeta the conversionMeta to set
    */
   public void setConversionMeta( ValueMetaInterface conversionMeta ) {
     this.conversionMeta = conversionMeta;
@@ -77,8 +75,7 @@ public class StringEvaluationResult {
   }
 
   /**
-   * @param min
-   *          the min to set
+   * @param min the min to set
    */
   public void setMin( Object min ) {
     this.min = min;
@@ -92,8 +89,7 @@ public class StringEvaluationResult {
   }
 
   /**
-   * @param max
-   *          the max to set
+   * @param max the max to set
    */
   public void setMax( Object max ) {
     this.max = max;
@@ -107,8 +103,7 @@ public class StringEvaluationResult {
   }
 
   /**
-   * @param nrNull
-   *          Set the number of null values to set
+   * @param nrNull Set the number of null values to set
    */
   public void setNrNull( int nrNull ) {
     this.nrNull = nrNull;
@@ -143,8 +138,7 @@ public class StringEvaluationResult {
   }
 
   /**
-   * @param nrSuccesses
-   *          the nrSuccesses to set
+   * @param nrSuccesses the nrSuccesses to set
    */
   public void setNrSuccesses( int nrSuccesses ) {
     this.nrSuccesses = nrSuccesses;
@@ -158,8 +152,7 @@ public class StringEvaluationResult {
   }
 
   /**
-   * @param nrFailures
-   *          the nrFailures to set
+   * @param nrFailures the nrFailures to set
    */
   public void setNrFailures( int nrFailures ) {
     this.nrFailures = nrFailures;

@@ -22,8 +22,8 @@
 
 package org.apache.hop.ui.hopui.job;
 
-import org.eclipse.swt.events.MouseEvent;
 import org.apache.hop.core.gui.Point;
+import org.eclipse.swt.events.MouseEvent;
 
 public class JobGraphExtension {
 

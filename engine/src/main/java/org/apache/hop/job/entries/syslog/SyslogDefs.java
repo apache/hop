@@ -22,22 +22,21 @@
 
 package org.apache.hop.job.entries.syslog;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Hashtable;
-import java.util.TimeZone;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.productivity.java.syslog4j.SyslogConstants;
 import org.productivity.java.syslog4j.SyslogIF;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Hashtable;
+import java.util.TimeZone;
 
 /**
  * This defines settings for Syslog.
  *
  * @author Samatar
  * @since 05-01-2010
- *
  */
 public class SyslogDefs {
 
@@ -113,7 +112,7 @@ public class SyslogDefs {
   }
 
   public static void sendMessage( SyslogIF syslog, int priority, String message, boolean addTimestamp,
-    String pattern, boolean addHostName ) {
+                                  String pattern, boolean addHostName ) {
 
     String messageString = message;
 

@@ -22,8 +22,6 @@
 
 package org.apache.hop.www;
 
-import java.util.List;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
@@ -34,6 +32,8 @@ import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.xml.XMLHandler;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 public class SlaveSequence {
   public static final String XML_TAG = "sequence";
@@ -88,7 +88,7 @@ public class SlaveSequence {
    * @param valueField
    */
   public SlaveSequence( String name, long startValue, DatabaseMeta databaseMeta, String schemaName,
-    String tableName, String sequenceNameField, String valueField ) {
+                        String tableName, String sequenceNameField, String valueField ) {
     this.name = name;
     this.startValue = startValue;
     this.databaseMeta = databaseMeta;
@@ -188,8 +188,7 @@ public class SlaveSequence {
   }
 
   /**
-   * @param name
-   *          the name to set
+   * @param name the name to set
    */
   public void setName( String name ) {
     this.name = name;
@@ -203,8 +202,7 @@ public class SlaveSequence {
   }
 
   /**
-   * @param startValue
-   *          the startValue to set
+   * @param startValue the startValue to set
    */
   public void setStartValue( long startValue ) {
     this.startValue = startValue;
@@ -218,8 +216,7 @@ public class SlaveSequence {
   }
 
   /**
-   * @param databaseMeta
-   *          the databaseMeta to set
+   * @param databaseMeta the databaseMeta to set
    */
   public void setDatabaseMeta( DatabaseMeta databaseMeta ) {
     this.databaseMeta = databaseMeta;
@@ -233,8 +230,7 @@ public class SlaveSequence {
   }
 
   /**
-   * @param schemaName
-   *          the schemaName to set
+   * @param schemaName the schemaName to set
    */
   public void setSchemaName( String schemaName ) {
     this.schemaName = schemaName;
@@ -248,8 +244,7 @@ public class SlaveSequence {
   }
 
   /**
-   * @param tableName
-   *          the tableName to set
+   * @param tableName the tableName to set
    */
   public void setTableName( String tableName ) {
     this.tableName = tableName;
@@ -263,8 +258,7 @@ public class SlaveSequence {
   }
 
   /**
-   * @param sequenceNameField
-   *          the sequenceNameField to set
+   * @param sequenceNameField the sequenceNameField to set
    */
   public void setSequenceNameField( String sequenceNameField ) {
     this.sequenceNameField = sequenceNameField;
@@ -278,8 +272,7 @@ public class SlaveSequence {
   }
 
   /**
-   * @param valueField
-   *          the valueField to set
+   * @param valueField the valueField to set
    */
   public void setValueField( String valueField ) {
     this.valueField = valueField;
@@ -288,8 +281,7 @@ public class SlaveSequence {
   /**
    * Find a slave sequence with a certain name
    *
-   * @param name
-   *          the name to look for
+   * @param name the name to look for
    * @return the slave sequence with the specified name or null of the sequence couldn't be found.
    */
   public static SlaveSequence findSlaveSequence( String name, List<SlaveSequence> slaveSequences ) {

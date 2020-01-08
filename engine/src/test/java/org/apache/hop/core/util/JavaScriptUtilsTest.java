@@ -22,6 +22,8 @@
 
 package org.apache.hop.core.util;
 
+import org.apache.hop.compatibility.Value;
+import org.apache.hop.core.row.ValueMetaInterface;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,8 +32,6 @@ import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Undefined;
-import org.apache.hop.compatibility.Value;
-import org.apache.hop.core.row.ValueMetaInterface;
 
 import java.math.BigDecimal;
 import java.util.Date;

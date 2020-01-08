@@ -22,14 +22,14 @@
 
 package org.apache.hop.metastore;
 
-import java.io.File;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.stores.xml.XmlMetaStore;
 import org.apache.hop.metastore.stores.xml.XmlUtil;
+
+import java.io.File;
 
 public class MetaStoreConst {
 

@@ -23,14 +23,38 @@
 
 package org.apache.hop.ui.trans.steps.script;
 
-import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Vector;
-
+import org.apache.hop.compatibility.Value;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransHopMeta;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
+import org.apache.hop.trans.steps.script.ScriptAddedFunctions;
+import org.apache.hop.trans.steps.script.ScriptDummy;
+import org.apache.hop.trans.steps.script.ScriptMeta;
+import org.apache.hop.trans.steps.script.ScriptValuesScript;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
@@ -90,38 +114,14 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.ast.ScriptNode;
 import org.mozilla.javascript.tools.ToolErrorReporter;
-import org.apache.hop.compatibility.Value;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.StepPluginType;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransHopMeta;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta;
-import org.apache.hop.trans.steps.script.ScriptAddedFunctions;
-import org.apache.hop.trans.steps.script.ScriptDummy;
-import org.apache.hop.trans.steps.script.ScriptMeta;
-import org.apache.hop.trans.steps.script.ScriptValuesScript;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.StyledTextComp;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.hopui.HopUi;
-import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
+
+import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Vector;
 
 public class ScriptDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = ScriptMeta.class; // for i18n purposes, needed by Translator2!!
@@ -613,7 +613,7 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
     ds.addDragListener( new DragSourceAdapter() {
 
       public void dragStart( DragSourceEvent event ) {
-        TreeItem item = wTree.getSelection()[0];
+        TreeItem item = wTree.getSelection()[ 0 ];
 
         // Qualifikation where the Drag Request Comes from
         if ( item != null && item.getParentItem() != null ) {
@@ -637,7 +637,7 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
 
       public void dragSetData( DragSourceEvent event ) {
         // Set the data to be the first selected item's text
-        event.data = wTree.getSelection()[0].getText();
+        event.data = wTree.getSelection()[ 0 ].getText();
       }
     } );
 
@@ -753,8 +753,8 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
   private TreeItem getTreeItemByName( String strTabName ) {
     TreeItem[] tItems = wTreeScriptsItem.getItems();
     for ( int i = 0; i < tItems.length; i++ ) {
-      if ( tItems[i].getText().equals( strTabName ) ) {
-        return tItems[i];
+      if ( tItems[ i ].getText().equals( strTabName ) ) {
+        return tItems[ i ];
       }
     }
     return null;
@@ -763,7 +763,7 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
   private int getCTabPosition( String strTabName ) {
     CTabItem[] cItems = folder.getItems();
     for ( int i = 0; i < cItems.length; i++ ) {
-      if ( cItems[i].getText().equals( strTabName ) ) {
+      if ( cItems[ i ].getText().equals( strTabName ) ) {
         return i;
       }
     }
@@ -773,8 +773,8 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
   private CTabItem getCTabItemByName( String strTabName ) {
     CTabItem[] cItems = folder.getItems();
     for ( int i = 0; i < cItems.length; i++ ) {
-      if ( cItems[i].getText().equals( strTabName ) ) {
-        return cItems[i];
+      if ( cItems[ i ].getText().equals( strTabName ) ) {
+        return cItems[ i ];
       }
     }
     return null;
@@ -882,34 +882,34 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
    */
   public void getData() {
     for ( int i = 0; i < input.getFieldname().length; i++ ) {
-      if ( input.getFieldname()[i] != null && input.getFieldname()[i].length() > 0 ) {
+      if ( input.getFieldname()[ i ] != null && input.getFieldname()[ i ].length() > 0 ) {
         TableItem item = wFields.table.getItem( i );
-        item.setText( 1, input.getFieldname()[i] );
-        if ( input.getRename()[i] != null && !input.getFieldname()[i].equals( input.getRename()[i] ) ) {
-          item.setText( 2, input.getRename()[i] );
+        item.setText( 1, input.getFieldname()[ i ] );
+        if ( input.getRename()[ i ] != null && !input.getFieldname()[ i ].equals( input.getRename()[ i ] ) ) {
+          item.setText( 2, input.getRename()[ i ] );
         }
-        item.setText( 3, ValueMetaFactory.getValueMetaName( input.getType()[i] ) );
-        if ( input.getLength()[i] >= 0 ) {
-          item.setText( 4, "" + input.getLength()[i] );
+        item.setText( 3, ValueMetaFactory.getValueMetaName( input.getType()[ i ] ) );
+        if ( input.getLength()[ i ] >= 0 ) {
+          item.setText( 4, "" + input.getLength()[ i ] );
         }
-        if ( input.getPrecision()[i] >= 0 ) {
-          item.setText( 5, "" + input.getPrecision()[i] );
+        if ( input.getPrecision()[ i ] >= 0 ) {
+          item.setText( 5, "" + input.getPrecision()[ i ] );
         }
-        item.setText( 6, input.getReplace()[i] ? YES_NO_COMBO[1] : YES_NO_COMBO[0] );
+        item.setText( 6, input.getReplace()[ i ] ? YES_NO_COMBO[ 1 ] : YES_NO_COMBO[ 0 ] );
       }
     }
 
     org.apache.hop.trans.steps.script.ScriptValuesScript[] jsScripts = input.getJSScripts();
     if ( jsScripts.length > 0 ) {
       for ( int i = 0; i < jsScripts.length; i++ ) {
-        if ( jsScripts[i].isTransformScript() ) {
-          strActiveScript = jsScripts[i].getScriptName();
-        } else if ( jsScripts[i].isStartScript() ) {
-          strActiveStartScript = jsScripts[i].getScriptName();
-        } else if ( jsScripts[i].isEndScript() ) {
-          strActiveEndScript = jsScripts[i].getScriptName();
+        if ( jsScripts[ i ].isTransformScript() ) {
+          strActiveScript = jsScripts[ i ].getScriptName();
+        } else if ( jsScripts[ i ].isStartScript() ) {
+          strActiveStartScript = jsScripts[ i ].getScriptName();
+        } else if ( jsScripts[ i ].isEndScript() ) {
+          strActiveEndScript = jsScripts[ i ].getScriptName();
         }
-        addCtab( jsScripts[i].getScriptName(), jsScripts[i].getScript(), ADD_DEFAULT );
+        addCtab( jsScripts[ i ].getScriptName(), jsScripts[ i ].getScript(), ADD_DEFAULT );
       }
     } else {
       addCtab( "", "", ADD_DEFAULT );
@@ -945,10 +945,10 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
   private void refreshScripts() {
     CTabItem[] cTabs = folder.getItems();
     for ( int i = 0; i < cTabs.length; i++ ) {
-      if ( cTabs[i].getImage().equals( imageActiveStartScript ) ) {
-        strActiveStartScript = cTabs[i].getText();
-      } else if ( cTabs[i].getImage().equals( imageActiveEndScript ) ) {
-        strActiveEndScript = cTabs[i].getText();
+      if ( cTabs[ i ].getImage().equals( imageActiveStartScript ) ) {
+        strActiveStartScript = cTabs[ i ].getText();
+      } else if ( cTabs[ i ].getImage().equals( imageActiveEndScript ) ) {
+        strActiveEndScript = cTabs[ i ].getText();
       }
     }
   }
@@ -976,36 +976,36 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrfields; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      meta.getFieldname()[i] = item.getText( 1 );
-      meta.getRename()[i] = item.getText( 2 );
-      if ( meta.getRename()[i] == null
-        || meta.getRename()[i].length() == 0 || meta.getRename()[i].equalsIgnoreCase( meta.getFieldname()[i] ) ) {
-        meta.getRename()[i] = meta.getFieldname()[i];
+      meta.getFieldname()[ i ] = item.getText( 1 );
+      meta.getRename()[ i ] = item.getText( 2 );
+      if ( meta.getRename()[ i ] == null
+        || meta.getRename()[ i ].length() == 0 || meta.getRename()[ i ].equalsIgnoreCase( meta.getFieldname()[ i ] ) ) {
+        meta.getRename()[ i ] = meta.getFieldname()[ i ];
       }
-      meta.getType()[i] = ValueMetaFactory.getIdForValueMeta( item.getText( 3 ) );
+      meta.getType()[ i ] = ValueMetaFactory.getIdForValueMeta( item.getText( 3 ) );
       String slen = item.getText( 4 );
       String sprc = item.getText( 5 );
-      meta.getLength()[i] = Const.toInt( slen, -1 );
-      meta.getPrecision()[i] = Const.toInt( sprc, -1 );
-      meta.getReplace()[i] = YES_NO_COMBO[1].equalsIgnoreCase( item.getText( 6 ) );
+      meta.getLength()[ i ] = Const.toInt( slen, -1 );
+      meta.getPrecision()[ i ] = Const.toInt( sprc, -1 );
+      meta.getReplace()[ i ] = YES_NO_COMBO[ 1 ].equalsIgnoreCase( item.getText( 6 ) );
     }
 
     // input.setActiveJSScript(strActiveScript);
     CTabItem[] cTabs = folder.getItems();
     if ( cTabs.length > 0 ) {
-      ScriptValuesScript[] jsScripts = new ScriptValuesScript[cTabs.length];
+      ScriptValuesScript[] jsScripts = new ScriptValuesScript[ cTabs.length ];
       for ( int i = 0; i < cTabs.length; i++ ) {
         ScriptValuesScript jsScript =
-          new ScriptValuesScript( ScriptValuesScript.NORMAL_SCRIPT, cTabs[i].getText(), getStyledTextComp(
-            cTabs[i] ).getText() );
-        if ( cTabs[i].getImage().equals( imageActiveScript ) ) {
+          new ScriptValuesScript( ScriptValuesScript.NORMAL_SCRIPT, cTabs[ i ].getText(), getStyledTextComp(
+            cTabs[ i ] ).getText() );
+        if ( cTabs[ i ].getImage().equals( imageActiveScript ) ) {
           jsScript.setScriptType( ScriptValuesScript.TRANSFORM_SCRIPT );
-        } else if ( cTabs[i].getImage().equals( imageActiveStartScript ) ) {
+        } else if ( cTabs[ i ].getImage().equals( imageActiveStartScript ) ) {
           jsScript.setScriptType( ScriptValuesScript.START_SCRIPT );
-        } else if ( cTabs[i].getImage().equals( imageActiveEndScript ) ) {
+        } else if ( cTabs[ i ].getImage().equals( imageActiveEndScript ) ) {
           jsScript.setScriptType( ScriptValuesScript.END_SCRIPT );
         }
-        jsScripts[i] = jsScript;
+        jsScripts[ i ] = jsScript;
       }
       meta.setJSScripts( jsScripts );
     }
@@ -1075,37 +1075,37 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
             if ( valueMeta.isStorageBinaryString() ) {
               valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
             }
-            genMeta.getFieldName()[i] = valueMeta.getName();
-            genMeta.getFieldType()[i] = valueMeta.getTypeDesc();
-            genMeta.getFieldLength()[i] = valueMeta.getLength();
-            genMeta.getFieldPrecision()[i] = valueMeta.getPrecision();
-            genMeta.getCurrency()[i] = valueMeta.getCurrencySymbol();
-            genMeta.getDecimal()[i] = valueMeta.getDecimalSymbol();
-            genMeta.getGroup()[i] = valueMeta.getGroupingSymbol();
+            genMeta.getFieldName()[ i ] = valueMeta.getName();
+            genMeta.getFieldType()[ i ] = valueMeta.getTypeDesc();
+            genMeta.getFieldLength()[ i ] = valueMeta.getLength();
+            genMeta.getFieldPrecision()[ i ] = valueMeta.getPrecision();
+            genMeta.getCurrency()[ i ] = valueMeta.getCurrencySymbol();
+            genMeta.getDecimal()[ i ] = valueMeta.getDecimalSymbol();
+            genMeta.getGroup()[ i ] = valueMeta.getGroupingSymbol();
 
             String string = null;
             switch ( valueMeta.getType() ) {
               case ValueMetaInterface.TYPE_DATE:
-                genMeta.getFieldFormat()[i] = "yyyy/MM/dd HH:mm:ss";
-                valueMeta.setConversionMask( genMeta.getFieldFormat()[i] );
+                genMeta.getFieldFormat()[ i ] = "yyyy/MM/dd HH:mm:ss";
+                valueMeta.setConversionMask( genMeta.getFieldFormat()[ i ] );
                 string = valueMeta.getString( new Date() );
                 break;
               case ValueMetaInterface.TYPE_STRING:
                 string = "test value test value";
                 break;
               case ValueMetaInterface.TYPE_INTEGER:
-                genMeta.getFieldFormat()[i] = "#";
-                valueMeta.setConversionMask( genMeta.getFieldFormat()[i] );
+                genMeta.getFieldFormat()[ i ] = "#";
+                valueMeta.setConversionMask( genMeta.getFieldFormat()[ i ] );
                 string = valueMeta.getString( Long.valueOf( 0L ) );
                 break;
               case ValueMetaInterface.TYPE_NUMBER:
-                genMeta.getFieldFormat()[i] = "#.#";
-                valueMeta.setConversionMask( genMeta.getFieldFormat()[i] );
+                genMeta.getFieldFormat()[ i ] = "#.#";
+                valueMeta.setConversionMask( genMeta.getFieldFormat()[ i ] );
                 string = valueMeta.getString( Double.valueOf( 0.0D ) );
                 break;
               case ValueMetaInterface.TYPE_BIGNUMBER:
-                genMeta.getFieldFormat()[i] = "#.#";
-                valueMeta.setConversionMask( genMeta.getFieldFormat()[i] );
+                genMeta.getFieldFormat()[ i ] = "#.#";
+                valueMeta.setConversionMask( genMeta.getFieldFormat()[ i ] );
                 string = valueMeta.getString( BigDecimal.ZERO );
                 break;
               case ValueMetaInterface.TYPE_BOOLEAN:
@@ -1118,7 +1118,7 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
                 break;
             }
 
-            genMeta.getValue()[i] = string;
+            genMeta.getValue()[ i ] = string;
           }
         }
         StepMeta genStep =
@@ -1155,7 +1155,7 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
           TransPreviewProgressDialog progressDialog =
             new TransPreviewProgressDialog(
               shell, transMeta, new String[] { scriptStepName, }, new int[] { Const.toInt( genMeta
-                .getRowLimit(), 10 ), } );
+              .getRowLimit(), 10 ), } );
           progressDialog.open();
 
           Trans trans = progressDialog.getTrans();
@@ -1166,7 +1166,7 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
               EnterTextDialog etd =
                 new EnterTextDialog(
                   shell, BaseMessages.getString( PKG, "System.Dialog.PreviewError.Title" ), BaseMessages
-                    .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
+                  .getString( PKG, "System.Dialog.PreviewError.Message" ), loggingText, true );
               etd.setReadOnly();
               etd.open();
             }
@@ -1234,8 +1234,8 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
         try {
           if ( input.getAddClasses() != null ) {
             for ( int i = 0; i < input.getAddClasses().length; i++ ) {
-              Object jsOut = Context.javaToJS( input.getAddClasses()[i].getAddObject(), jsscope );
-              ScriptableObject.putProperty( jsscope, input.getAddClasses()[i].getJSName(), jsOut );
+              Object jsOut = Context.javaToJS( input.getAddClasses()[ i ].getAddObject(), jsscope );
+              ScriptableObject.putProperty( jsscope, input.getAddClasses()[ i ].getJSName(), jsOut );
             }
           }
         } catch ( Exception e ) {
@@ -1270,7 +1270,7 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
         }
 
         try {
-          Object[] row = new Object[rowMeta.size()];
+          Object[] row = new Object[ rowMeta.size() ];
           Scriptable jsRowMeta = Context.toObject( rowMeta, jsscope );
           jsscope.put( "rowMeta", jsscope, jsRowMeta );
           for ( int i = 0; i < rowMeta.size(); i++ ) {
@@ -1306,7 +1306,7 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
               valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
             }
 
-            row[i] = valueData;
+            row[ i ] = valueData;
 
             Scriptable jsarg = Context.toObject( valueData, jsscope );
             jsscope.put( valueMeta.getName(), jsscope, jsarg );
@@ -1339,7 +1339,8 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
             && strActiveStartScript.length() > 0 ) {
             String strStartScript =
               getStyledTextComp( folder.getItem( getCTabPosition( strActiveStartScript ) ) ).getText();
-            /* Object startScript = */jscx.evaluateString( jsscope, strStartScript, "trans_Start", 1, null );
+            /* Object startScript = */
+            jscx.evaluateString( jsscope, strStartScript, "trans_Start", 1, null );
           }
         } catch ( Exception e ) {
           testException =
@@ -1400,7 +1401,7 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
 
                 // If the variable name exists in the input, suggest to replace the value
                 //
-                ti.setText( 6, ( rowMeta.indexOfValue( varname ) >= 0 ) ? YES_NO_COMBO[1] : YES_NO_COMBO[0] );
+                ti.setText( 6, ( rowMeta.indexOfValue( varname ) >= 0 ) ? YES_NO_COMBO[ 1 ] : YES_NO_COMBO[ 0 ] );
               }
             }
             wFields.removeEmptyRows();
@@ -1442,7 +1443,7 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
         } else {
           new ErrorDialog(
             shell, BaseMessages.getString( PKG, "ScriptDialog.TestFailed.DialogTitle" ), BaseMessages.getString(
-              PKG, "ScriptDialog.TestFailed.DialogMessage" ), testException );
+            PKG, "ScriptDialog.TestFailed.DialogMessage" ), testException );
         }
       }
     } catch ( HopException ke ) {
@@ -1559,7 +1560,7 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
     if ( itemToCheck.getItemCount() > 0 ) {
       TreeItem[] items = itemToCheck.getItems();
       for ( int i = 0; i < items.length; i++ ) {
-        if ( items[i].getText().equals( strItemName ) ) {
+        if ( items[ i ].getText().equals( strItemName ) ) {
           return true;
         }
       }
@@ -1681,19 +1682,19 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
         // System.out.println(input.getAddClasses().length);
 
         try {
-          Method[] methods = input.getAddClasses()[i].getAddClass().getMethods();
-          String strClassType = input.getAddClasses()[i].getAddClass().toString();
+          Method[] methods = input.getAddClasses()[ i ].getAddClass().getMethods();
+          String strClassType = input.getAddClasses()[ i ].getAddClass().toString();
           String strParams;
           wTreeClassesitem = new TreeItem( wTree, SWT.NULL );
-          wTreeClassesitem.setText( input.getAddClasses()[i].getJSName() );
+          wTreeClassesitem.setText( input.getAddClasses()[ i ].getJSName() );
           for ( int j = 0; j < methods.length; j++ ) {
-            String strDeclaringClass = methods[j].getDeclaringClass().toString();
+            String strDeclaringClass = methods[ j ].getDeclaringClass().toString();
             if ( strClassType.equals( strDeclaringClass ) ) {
               TreeItem item2 = new TreeItem( wTreeClassesitem, SWT.NULL );
-              strParams = buildAddClassFunctionName( methods[j] );
-              item2.setText( methods[j].getName() + "(" + strParams + ")" );
+              strParams = buildAddClassFunctionName( methods[ j ] );
+              item2.setText( methods[ j ].getName() + "(" + strParams + ")" );
               String strData =
-                input.getAddClasses()[i].getJSName() + "." + methods[j].getName() + "(" + strParams + ")";
+                input.getAddClasses()[ i ].getJSName() + "." + methods[ j ].getName() + "(" + strParams + ")";
               item2.setData( strData );
             }
           }
@@ -1711,7 +1712,7 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
     String strParam;
 
     for ( int x = 0; x < clsParamType.length; x++ ) {
-      strParam = clsParamType[x].getName();
+      strParam = clsParamType[ x ].getName();
       if ( strParam.toLowerCase().indexOf( "javascript" ) <= 0 ) {
         if ( strParam.toLowerCase().indexOf( "object" ) > 0 ) {
           sbRC.append( "var" );
@@ -1856,7 +1857,7 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
           return;
         }
 
-        TreeItem tItem = wTree.getSelection()[0];
+        TreeItem tItem = wTree.getSelection()[ 0 ];
         if ( tItem != null ) {
           MessageBox messageBox = new MessageBox( shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES );
           messageBox.setText( BaseMessages.getString( PKG, "ScriptDialog.DeleteItem.Label" ) );
@@ -1879,7 +1880,7 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
     renItem.setText( BaseMessages.getString( PKG, "ScriptDialog.Rename.Label" ) );
     renItem.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
-        renameFunction( wTree.getSelection()[0] );
+        renameFunction( wTree.getSelection()[ 0 ] );
       }
     } );
 
@@ -1888,7 +1889,7 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
     helpItem.setText( BaseMessages.getString( PKG, "ScriptDialog.Sample.Label" ) );
     helpItem.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
-        String strFunctionName = wTree.getSelection()[0].getText();
+        String strFunctionName = wTree.getSelection()[ 0 ].getText();
         String strFunctionNameWithArgs = strFunctionName;
         strFunctionName = strFunctionName.substring( 0, strFunctionName.indexOf( '(' ) );
         String strHelpTabName = strFunctionName + "_Sample";
@@ -1909,7 +1910,7 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
           return;
         }
 
-        TreeItem tItem = wTree.getSelection()[0];
+        TreeItem tItem = wTree.getSelection()[ 0 ];
         if ( tItem != null ) {
           TreeItem pItem = tItem.getParentItem();
 
@@ -1941,7 +1942,7 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
   }
 
   private void addRenameTowTreeScriptItems() {
-    lastItem = new TreeItem[1];
+    lastItem = new TreeItem[ 1 ];
     editor = new TreeEditor( wTree );
     wTree.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event event ) {
@@ -1955,7 +1956,7 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
   private void renameFunction( TreeItem tItem ) {
     final TreeItem item = tItem;
     if ( item.getParentItem() != null && item.getParentItem().equals( wTreeScriptsItem ) ) {
-      if ( item != null && item == lastItem[0] ) {
+      if ( item != null && item == lastItem[ 0 ] ) {
         boolean isCarbon = SWT.getPlatform().equals( "carbon" );
         final Composite composite = new Composite( wTree, SWT.NONE );
         if ( !isCarbon ) {
@@ -1993,10 +1994,10 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
                 size = text.computeSize( size.x, SWT.DEFAULT );
                 editor.horizontalAlignment = SWT.LEFT;
                 Rectangle itemRect = item.getBounds(),
-                rect = wTree.getClientArea();
+                  rect = wTree.getClientArea();
                 editor.minimumWidth = Math.max( size.x, itemRect.width ) + inset * 2;
                 int left = itemRect.x,
-                right = rect.x + rect.width;
+                  right = rect.x + rect.width;
                 editor.minimumWidth = Math.min( editor.minimumWidth, right - left );
                 editor.minimumHeight = size.y + inset * 2;
                 editor.layout();
@@ -2035,12 +2036,12 @@ public class ScriptDialog extends BaseStepDialog implements StepDialogInterface 
 
       }
     }
-    lastItem[0] = item;
+    lastItem[ 0 ] = item;
   }
 
   // This could be useful for further improvements
   public static ScriptNode parseVariables( Context cx, Scriptable scope, String source, String sourceName,
-    int lineno, Object securityDomain ) {
+                                           int lineno, Object securityDomain ) {
     // Interpreter compiler = new Interpreter();
     CompilerEnvirons evn = new CompilerEnvirons();
     // evn.setLanguageVersion(Context.VERSION_1_5);

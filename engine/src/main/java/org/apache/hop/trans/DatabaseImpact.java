@@ -58,7 +58,7 @@ public class DatabaseImpact {
   private int type;
 
   public DatabaseImpact( int type, String transname, String stepname, String dbname, String table, String field,
-    String valuename, String valueorigin, String sql, String remark ) {
+                         String valuename, String valueorigin, String sql, String remark ) {
     this.type = type;
     this.transname = transname;
     this.stepname = stepname;
@@ -108,12 +108,12 @@ public class DatabaseImpact {
   }
 
   public String getTypeDesc() {
-    return typeDesc[type];
+    return typeDesc[ type ];
   }
 
   public static final int getTypeDesc( String typedesc ) {
     for ( int i = 1; i < typeDesc.length; i++ ) {
-      if ( typeDesc[i].equalsIgnoreCase( typedesc ) ) {
+      if ( typeDesc[ i ].equalsIgnoreCase( typedesc ) ) {
         return i;
       }
     }

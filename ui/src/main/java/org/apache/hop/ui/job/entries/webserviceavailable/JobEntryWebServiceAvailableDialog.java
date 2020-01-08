@@ -22,6 +22,18 @@
 
 package org.apache.hop.ui.job.entries.webserviceavailable;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.webserviceavailable.JobEntryWebServiceAvailable;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -40,25 +52,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.webserviceavailable.JobEntryWebServiceAvailable;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * This dialog allows you to edit the webservice available job entry.
  *
  * @author Samatar
  * @since 05-11-2009
- *
  */
 
 public class JobEntryWebServiceAvailableDialog extends JobEntryDialog implements JobEntryDialogInterface {
@@ -101,7 +100,7 @@ public class JobEntryWebServiceAvailableDialog extends JobEntryDialog implements
   private boolean changed;
 
   public JobEntryWebServiceAvailableDialog( Shell parent, JobEntryInterface jobEntryInt,
-    JobMeta jobMeta ) {
+                                            JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryWebServiceAvailable) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {

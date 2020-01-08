@@ -22,17 +22,6 @@
 
 package org.apache.hop.trans.steps.tablecompare;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.hop.TestUtilities;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
@@ -50,6 +39,17 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.RowStepCollector;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransTestFactory;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class TableCompareIT {
 
@@ -62,7 +62,7 @@ public class TableCompareIT {
     HopEnvironment.init();
     log = new SimpleLoggingObject( "junit", LoggingObjectType.GENERAL, null );
     databaseMeta =
-        new DatabaseMeta( "TableCompare", "Hypersonic", "JDBC", null, "mem:HSQLDB-JUNIT-LOGJOB", null, null, null );
+      new DatabaseMeta( "TableCompare", "Hypersonic", "JDBC", null, "mem:HSQLDB-JUNIT-LOGJOB", null, null, null );
   }
 
   @AfterClass
@@ -94,17 +94,17 @@ public class TableCompareIT {
   private RowMetaInterface getRowMeta() {
     RowMetaInterface rm = new RowMeta();
     ValueMetaInterface[] valuesMeta =
-    {
-      // fields to handle error information
-      new ValueMetaString( ehlkd ),
-      new ValueMetaString( ehlrvi ),
-      new ValueMetaString( ehlcvif ),
-      // fields to handle connection properties
-      new ValueMetaString( schemaName ), new ValueMetaString( reference ),
-      new ValueMetaString( compare ), new ValueMetaString( key ),
-      new ValueMetaString( exclude ) };
+      {
+        // fields to handle error information
+        new ValueMetaString( ehlkd ),
+        new ValueMetaString( ehlrvi ),
+        new ValueMetaString( ehlcvif ),
+        // fields to handle connection properties
+        new ValueMetaString( schemaName ), new ValueMetaString( reference ),
+        new ValueMetaString( compare ), new ValueMetaString( key ),
+        new ValueMetaString( exclude ) };
     for ( int i = 0; i < valuesMeta.length; i++ ) {
-      rm.addValueMeta( valuesMeta[i] );
+      rm.addValueMeta( valuesMeta[ i ] );
     }
     return rm;
   }
@@ -153,7 +153,7 @@ public class TableCompareIT {
     // execute transformations
     TransMeta trMeta = TransTestFactory.generateTestTransformationError( null, meta, "junit" );
     Map<String, RowStepCollector> result = TransTestFactory
-        .executeTestTransformationError( trMeta, "junit", inputData );
+      .executeTestTransformationError( trMeta, "junit", inputData );
 
     // check the results
     List<RowMetaAndData> read = result.get( TransTestFactory.DUMMY_STEPNAME ).getRowsRead();
@@ -191,7 +191,7 @@ public class TableCompareIT {
 
     TransMeta trMeta = TransTestFactory.generateTestTransformationError( null, meta, "junit" );
     Map<String, RowStepCollector> result = TransTestFactory
-        .executeTestTransformationError( trMeta, "junit", inputData );
+      .executeTestTransformationError( trMeta, "junit", inputData );
 
     List<RowMetaAndData> read = result.get( TransTestFactory.DUMMY_STEPNAME ).getRowsRead();
     List<RowMetaAndData> errors = result.get( TransTestFactory.ERROR_STEPNAME ).getRowsRead();
@@ -233,7 +233,7 @@ public class TableCompareIT {
 
     TransMeta trMeta = TransTestFactory.generateTestTransformationError( null, meta, "junit" );
     Map<String, RowStepCollector> result = TransTestFactory
-        .executeTestTransformationError( trMeta, "junit", inputData );
+      .executeTestTransformationError( trMeta, "junit", inputData );
 
     List<RowMetaAndData> read = result.get( TransTestFactory.DUMMY_STEPNAME ).getRowsRead();
     List<RowMetaAndData> errors = result.get( TransTestFactory.ERROR_STEPNAME ).getRowsRead();
@@ -267,7 +267,7 @@ public class TableCompareIT {
 
     TransMeta trMeta = TransTestFactory.generateTestTransformationError( null, meta, "junit" );
     Map<String, RowStepCollector> result = TransTestFactory
-        .executeTestTransformationError( trMeta, "junit", inputData );
+      .executeTestTransformationError( trMeta, "junit", inputData );
 
     List<RowMetaAndData> read = result.get( TransTestFactory.DUMMY_STEPNAME ).getRowsRead();
     List<RowMetaAndData> errors = result.get( TransTestFactory.ERROR_STEPNAME ).getRowsRead();
@@ -299,7 +299,7 @@ public class TableCompareIT {
 
     TransMeta trMeta = TransTestFactory.generateTestTransformationError( null, meta, "junit" );
     Map<String, RowStepCollector> result = TransTestFactory
-        .executeTestTransformationError( trMeta, "junit", inputData );
+      .executeTestTransformationError( trMeta, "junit", inputData );
 
     List<RowMetaAndData> read = result.get( TransTestFactory.DUMMY_STEPNAME ).getRowsRead();
     List<RowMetaAndData> errors = result.get( TransTestFactory.ERROR_STEPNAME ).getRowsRead();
@@ -339,7 +339,7 @@ public class TableCompareIT {
 
     TransMeta trMeta = TransTestFactory.generateTestTransformationError( null, meta, "junit" );
     Map<String, RowStepCollector> result = TransTestFactory
-        .executeTestTransformationError( trMeta, "junit", inputData );
+      .executeTestTransformationError( trMeta, "junit", inputData );
 
     List<RowMetaAndData> read = result.get( TransTestFactory.DUMMY_STEPNAME ).getRowsRead();
     List<RowMetaAndData> errors = result.get( TransTestFactory.ERROR_STEPNAME ).getRowsRead();

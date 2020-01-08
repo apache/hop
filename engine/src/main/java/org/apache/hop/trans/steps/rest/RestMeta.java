@@ -22,26 +22,21 @@
 
 package org.apache.hop.trans.steps.rest;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -49,13 +44,13 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * @author Samatar
  * @since 16-jan-2011
- *
  */
 
 public class RestMeta extends BaseStepMeta implements StepMetaInterface {
@@ -75,7 +70,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
 
   private String applicationType;
 
-  public static final String[] HTTP_METHODS = new String[] { "GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH"};
+  public static final String[] HTTP_METHODS = new String[] { "GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH" };
 
   public static final String HTTP_METHOD_GET = "GET";
   public static final String HTTP_METHOD_POST = "POST";
@@ -85,45 +80,63 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   public static final String HTTP_METHOD_OPTIONS = "OPTIONS";
   public static final String HTTP_METHOD_PATCH = "PATCH";
 
-  /** URL / service to be called */
+  /**
+   * URL / service to be called
+   */
   private String url;
   private boolean urlInField;
   private String urlField;
 
-  /** headers name */
+  /**
+   * headers name
+   */
   private String[] headerField;
   private String[] headerName;
 
-  /** Query parameters name */
+  /**
+   * Query parameters name
+   */
   private String[] parameterField;
   private String[] parameterName;
 
-  /** Matrix parameters name */
+  /**
+   * Matrix parameters name
+   */
   private String[] matrixParameterField;
   private String[] matrixParameterName;
 
-  /** function result: new value name */
+  /**
+   * function result: new value name
+   */
   private String fieldName;
   private String resultCodeFieldName;
   private String responseTimeFieldName;
   private String responseHeaderFieldName;
 
-  /** proxy **/
+  /**
+   * proxy
+   **/
   private String proxyHost;
   private String proxyPort;
   private String httpLogin;
   private String httpPassword;
   private boolean preemptive;
 
-  /** Body fieldname **/
+  /**
+   * Body fieldname
+   **/
   private String bodyField;
 
-  /** HTTP Method **/
+  /**
+   * HTTP Method
+   **/
   private String method;
   private boolean dynamicMethod;
   private String methodFieldName;
 
-  /** Trust store **/
+  /**
+   * Trust store
+   **/
   private String trustStoreFile;
   private String trustStorePassword;
 
@@ -139,8 +152,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param value
-   *          The method to set.
+   * @param value The method to set.
    */
   public void setMethod( String value ) {
     this.method = value;
@@ -154,8 +166,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param value
-   *          The bodyField to set.
+   * @param value The bodyField to set.
    */
   public void setBodyField( String value ) {
     this.bodyField = value;
@@ -169,8 +180,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param value
-   *          The headerName to set.
+   * @param value The headerName to set.
    */
   public void setHeaderName( String[] value ) {
     this.headerName = value;
@@ -184,8 +194,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param value
-   *          The parameterField to set.
+   * @param value The parameterField to set.
    */
   public void setParameterField( String[] value ) {
     this.parameterField = value;
@@ -199,8 +208,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param value
-   *          The parameterName to set.
+   * @param value The parameterName to set.
    */
   public void setParameterName( String[] value ) {
     this.parameterName = value;
@@ -214,8 +222,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param value
-   *          The matrixParameterField to set.
+   * @param value The matrixParameterField to set.
    */
   public void setMatrixParameterField( String[] value ) {
     this.matrixParameterField = value;
@@ -229,8 +236,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param value
-   *          The matrixParameterName to set.
+   * @param value The matrixParameterName to set.
    */
   public void setMatrixParameterName( String[] value ) {
     this.matrixParameterName = value;
@@ -244,8 +250,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param value
-   *          The headerField to set.
+   * @param value The headerField to set.
    */
   public void setHeaderField( String[] value ) {
     this.headerField = value;
@@ -259,8 +264,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param procedure
-   *          The procedure to set.
+   * @param procedure The procedure to set.
    */
   public void setUrl( String procedure ) {
     this.url = procedure;
@@ -274,8 +278,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param urlInField
-   *          Is the url coded in a field?
+   * @param urlInField Is the url coded in a field?
    */
   public void setUrlInField( boolean urlInField ) {
     this.urlInField = urlInField;
@@ -289,8 +292,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param preemptive
-   *          Ispreemptive?
+   * @param preemptive Ispreemptive?
    */
   public void setPreemptive( boolean preemptive ) {
     this.preemptive = preemptive;
@@ -304,8 +306,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param dynamicMethod
-   *          If the method is defined in a field?
+   * @param dynamicMethod If the method is defined in a field?
    */
   public void setDynamicMethod( boolean dynamicMethod ) {
     this.dynamicMethod = dynamicMethod;
@@ -333,8 +334,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param urlField
-   *          name of the field that contains the url
+   * @param urlField name of the field that contains the url
    */
   public void setUrlField( String urlField ) {
     this.urlField = urlField;
@@ -348,8 +348,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param resultName
-   *          The resultName to set.
+   * @param resultName The resultName to set.
    */
   public void setFieldName( String resultName ) {
     this.fieldName = resultName;
@@ -366,12 +365,12 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int nrheaders, int nrparamers, int nrmatrixparameters ) {
-    headerField = new String[nrheaders];
-    headerName = new String[nrheaders];
-    parameterField = new String[nrparamers];
-    parameterName = new String[nrparamers];
-    matrixParameterField = new String[nrmatrixparameters];
-    matrixParameterName = new String[nrmatrixparameters];
+    headerField = new String[ nrheaders ];
+    headerName = new String[ nrheaders ];
+    parameterField = new String[ nrparamers ];
+    parameterName = new String[ nrparamers ];
+    matrixParameterField = new String[ nrmatrixparameters ];
+    matrixParameterName = new String[ nrmatrixparameters ];
   }
 
   @Override
@@ -412,7 +411,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     if ( !Utils.isEmpty( fieldName ) ) {
       ValueMetaInterface v = new ValueMetaString( space.environmentSubstitute( fieldName ) );
       v.setOrigin( name );
@@ -454,7 +453,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "    " ).append( XMLHandler.addTagValue( "bodyField", bodyField ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "httpLogin", httpLogin ) );
     retval.append( "    " ).append(
-        XMLHandler.addTagValue( "httpPassword", Encr.encryptPasswordIfNotUsingVariables( httpPassword ) ) );
+      XMLHandler.addTagValue( "httpPassword", Encr.encryptPasswordIfNotUsingVariables( httpPassword ) ) );
 
     retval.append( "    " ).append( XMLHandler.addTagValue( "proxyHost", proxyHost ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "proxyPort", proxyPort ) );
@@ -462,13 +461,13 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
 
     retval.append( "    " ).append( XMLHandler.addTagValue( "trustStoreFile", trustStoreFile ) );
     retval.append( "    " ).append(
-        XMLHandler.addTagValue( "trustStorePassword", Encr.encryptPasswordIfNotUsingVariables( trustStorePassword ) ) );
+      XMLHandler.addTagValue( "trustStorePassword", Encr.encryptPasswordIfNotUsingVariables( trustStorePassword ) ) );
 
     retval.append( "    <headers>" ).append( Const.CR );
     for ( int i = 0, len = ( headerName != null ? headerName.length : 0 ); i < len; i++ ) {
       retval.append( "      <header>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field", headerField[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", headerName[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "field", headerField[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "name", headerName[ i ] ) );
       retval.append( "        </header>" ).append( Const.CR );
     }
     retval.append( "      </headers>" ).append( Const.CR );
@@ -476,8 +475,8 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "    <parameters>" ).append( Const.CR );
     for ( int i = 0, len = ( parameterName != null ? parameterName.length : 0 ); i < len; i++ ) {
       retval.append( "      <parameter>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field", parameterField[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", parameterName[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "field", parameterField[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "name", parameterName[ i ] ) );
       retval.append( "        </parameter>" ).append( Const.CR );
     }
     retval.append( "      </parameters>" ).append( Const.CR );
@@ -485,8 +484,8 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "    <matrixParameters>" ).append( Const.CR );
     for ( int i = 0, len = ( matrixParameterName != null ? matrixParameterName.length : 0 ); i < len; i++ ) {
       retval.append( "      <matrixParameter>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field", matrixParameterField[i] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", matrixParameterName[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "field", matrixParameterField[ i ] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "name", matrixParameterName[ i ] ) );
       retval.append( "        </matrixParameter>" ).append( Const.CR );
     }
     retval.append( "      </matrixParameters>" ).append( Const.CR );
@@ -521,7 +520,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
 
       trustStoreFile = XMLHandler.getTagValue( stepnode, "trustStoreFile" );
       trustStorePassword =
-          Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( stepnode, "trustStorePassword" ) );
+        Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( stepnode, "trustStorePassword" ) );
 
       Node headernode = XMLHandler.getSubNode( stepnode, "headers" );
       int nrheaders = XMLHandler.countNodes( headernode, "header" );
@@ -533,18 +532,18 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
       allocate( nrheaders, nrparameters, nrmatrixparameters );
       for ( int i = 0; i < nrheaders; i++ ) {
         Node anode = XMLHandler.getSubNodeByNr( headernode, "header", i );
-        headerField[i] = XMLHandler.getTagValue( anode, "field" );
-        headerName[i] = XMLHandler.getTagValue( anode, "name" );
+        headerField[ i ] = XMLHandler.getTagValue( anode, "field" );
+        headerName[ i ] = XMLHandler.getTagValue( anode, "name" );
       }
       for ( int i = 0; i < nrparameters; i++ ) {
         Node anode = XMLHandler.getSubNodeByNr( paramnode, "parameter", i );
-        parameterField[i] = XMLHandler.getTagValue( anode, "field" );
-        parameterName[i] = XMLHandler.getTagValue( anode, "name" );
+        parameterField[ i ] = XMLHandler.getTagValue( anode, "field" );
+        parameterName[ i ] = XMLHandler.getTagValue( anode, "name" );
       }
       for ( int i = 0; i < nrmatrixparameters; i++ ) {
         Node anode = XMLHandler.getSubNodeByNr( matrixparamnode, "matrixParameter", i );
-        matrixParameterField[i] = XMLHandler.getTagValue( anode, "field" );
-        matrixParameterName[i] = XMLHandler.getTagValue( anode, "name" );
+        matrixParameterField[ i ] = XMLHandler.getTagValue( anode, "field" );
+        matrixParameterName[ i ] = XMLHandler.getTagValue( anode, "name" );
       }
 
       fieldName = XMLHandler.getTagValue( stepnode, "result", "name" ); // Optional, can be null
@@ -558,8 +557,8 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
 
     // See if we have input streams leading to this step!
@@ -628,7 +627,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new Rest( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
@@ -650,8 +649,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param resultCodeFieldName
-   *          the resultCodeFieldName to set
+   * @param resultCodeFieldName the resultCodeFieldName to set
    */
   public void setResultCodeFieldName( String resultCodeFieldName ) {
     this.resultCodeFieldName = resultCodeFieldName;
@@ -739,7 +737,6 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   *
    * @return
    */
   public String getHttpPassword() {
@@ -756,7 +753,6 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   *
    * @return trustStoreFile
    */
   public String getTrustStoreFile() {
@@ -773,7 +769,6 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   *
    * @return trustStorePassword
    */
   public String getTrustStorePassword() {
@@ -787,6 +782,7 @@ public class RestMeta extends BaseStepMeta implements StepMetaInterface {
   public void setResponseTimeFieldName( String responseTimeFieldName ) {
     this.responseTimeFieldName = responseTimeFieldName;
   }
+
   public String getResponseHeaderFieldName() {
     return responseHeaderFieldName;
   }

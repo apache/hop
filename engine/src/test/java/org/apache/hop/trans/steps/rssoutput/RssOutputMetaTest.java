@@ -21,15 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.trans.steps.rssoutput;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -40,24 +31,34 @@ import org.apache.hop.trans.steps.loadsave.initializer.InitializerInterface;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.StringLoadSaveValidator;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class RssOutputMetaTest implements InitializerInterface<StepMetaInterface> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   LoadSaveTester loadSaveTester;
   Class<RssOutputMeta> testMetaClass = RssOutputMeta.class;
+
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-        Arrays.asList( "channeltitle", "channeldescription", "channellink", "channelpubdate", "channelcopyright", "channelimagetitle",
-            "channelimagelink", "channelimageurl", "channelimagedescription", "channellanguage", "channelauthor", "itemtitle",
-            "itemdescription", "itemlink", "itempubdate", "itemauthor", "geopointlat", "geopointlong", "AddToResult",
-            "fileName", "extension", "stepNrInFilename", "partNrInFilename", "dateInFilename", "timeInFilename",
-            "createparentfolder", "version", "encoding", "addimage", "addgeorss", "usegeorssgml", "filenamefield",
-            "isfilenameinfield", "customrss", "displayitem", "ChannelCustomFields", "NameSpaces", "NameSpacesTitle",
-            "ChannelCustomTags", "ItemCustomFields", "ItemCustomTags" );
+      Arrays.asList( "channeltitle", "channeldescription", "channellink", "channelpubdate", "channelcopyright", "channelimagetitle",
+        "channelimagelink", "channelimageurl", "channelimagedescription", "channellanguage", "channelauthor", "itemtitle",
+        "itemdescription", "itemlink", "itempubdate", "itemauthor", "geopointlat", "geopointlong", "AddToResult",
+        "fileName", "extension", "stepNrInFilename", "partNrInFilename", "dateInFilename", "timeInFilename",
+        "createparentfolder", "version", "encoding", "addimage", "addgeorss", "usegeorssgml", "filenamefield",
+        "isfilenameinfield", "customrss", "displayitem", "ChannelCustomFields", "NameSpaces", "NameSpacesTitle",
+        "ChannelCustomTags", "ItemCustomFields", "ItemCustomTags" );
 
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
@@ -150,7 +151,7 @@ public class RssOutputMetaTest implements InitializerInterface<StepMetaInterface
       }
     };
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
@@ -164,8 +165,8 @@ public class RssOutputMetaTest implements InitializerInterface<StepMetaInterface
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-        new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
-            getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class

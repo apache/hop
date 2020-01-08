@@ -22,9 +22,36 @@
 
 package org.apache.hop.job.entries.shell;
 
+import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.logging.FileLoggingEventListener;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.util.StreamLogger;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.JobEntryBase;
+import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.job.entry.validator.AbstractFileValidator;
 import org.apache.hop.job.entry.validator.AndValidator;
 import org.apache.hop.job.entry.validator.JobEntryValidatorUtils;
+import org.apache.hop.job.entry.validator.ValidatorContext;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.resource.ResourceEntry;
+import org.apache.hop.resource.ResourceEntry.ResourceType;
+import org.apache.hop.resource.ResourceReference;
+import org.w3c.dom.Node;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,39 +62,6 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.logging.FileLoggingEventListener;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.util.StreamLogger;
-import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryBase;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.job.entry.validator.ValidatorContext;
-
-import org.apache.hop.resource.ResourceEntry;
-import org.apache.hop.resource.ResourceEntry.ResourceType;
-import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.w3c.dom.Node;
-
-import com.google.common.annotations.VisibleForTesting;
 
 /**
  * Shell type of Job Entry. You can define shell scripts to be executed in a Job.
@@ -112,7 +106,7 @@ public class JobEntryShell extends JobEntryBase implements Cloneable, JobEntryIn
   }
 
   public void allocate( int nrFields ) {
-    arguments = new String[nrFields];
+    arguments = new String[ nrFields ];
   }
 
   public Object clone() {
@@ -150,17 +144,17 @@ public class JobEntryShell extends JobEntryBase implements Cloneable, JobEntryIn
       for ( int i = 0; i < arguments.length; i++ ) {
         // THIS IS A VERY BAD WAY OF READING/SAVING AS IT MAKES
         // THE XML "DUBIOUS". DON'T REUSE IT. (Sven B)
-        retval.append( "      " ).append( XMLHandler.addTagValue( "argument" + i, arguments[i] ) );
+        retval.append( "      " ).append( XMLHandler.addTagValue( "argument" + i, arguments[ i ] ) );
       }
     }
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, List<SlaveServer> slaveServers,
-    IMetaStore metaStore ) throws HopXMLException {
+  public void loadXML( Node entrynode,
+                       IMetaStore metaStore ) throws HopXMLException {
     try {
-      super.loadXML( entrynode, slaveServers );
+      super.loadXML( entrynode );
       setFileName( XMLHandler.getTagValue( entrynode, "filename" ) );
       setWorkDirectory( XMLHandler.getTagValue( entrynode, "work_directory" ) );
       argFromPrevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
@@ -187,7 +181,7 @@ public class JobEntryShell extends JobEntryBase implements Cloneable, JobEntryIn
       // THIS IS A VERY BAD WAY OF READING/SAVING AS IT MAKES
       // THE XML "DUBIOUS". DON'T REUSE IT.
       for ( int a = 0; a < argnr; a++ ) {
-        arguments[a] = XMLHandler.getTagValue( entrynode, "argument" + a );
+        arguments[ a ] = XMLHandler.getTagValue( entrynode, "argument" + a );
       }
     } catch ( HopException e ) {
       throw new HopXMLException( "Unable to load job entry of type 'shell' from XML node", e );
@@ -213,8 +207,8 @@ public class JobEntryShell extends JobEntryBase implements Cloneable, JobEntryIn
   }
 
   /**
-   * @deprecated use {@link #setFilename(String)} instead
    * @param n
+   * @deprecated use {@link #setFilename(String)} instead
    */
   @Deprecated
   public void setFileName( String n ) {
@@ -304,9 +298,9 @@ public class JobEntryShell extends JobEntryBase implements Cloneable, JobEntryIn
     // "Translate" the arguments for later
     String[] substArgs = null;
     if ( arguments != null ) {
-      substArgs = new String[arguments.length];
+      substArgs = new String[ arguments.length ];
       for ( int idx = 0; idx < arguments.length; idx++ ) {
-        substArgs[idx] = environmentSubstitute( arguments[idx] );
+        substArgs[ idx ] = environmentSubstitute( arguments[ idx ] );
       }
     }
 
@@ -339,9 +333,9 @@ public class JobEntryShell extends JobEntryBase implements Cloneable, JobEntryIn
           // Copy the input row to the (command line) arguments
 
           if ( resultRow != null ) {
-            args = new String[resultRow.size()];
+            args = new String[ resultRow.size() ];
             for ( int i = 0; i < resultRow.size(); i++ ) {
-              args[i] = resultRow.getString( i, null );
+              args[ i ] = resultRow.getString( i, null );
             }
           }
         } else {
@@ -355,9 +349,9 @@ public class JobEntryShell extends JobEntryBase implements Cloneable, JobEntryIn
           // Only put the first Row on the arguments
           args = null;
           if ( resultRow != null ) {
-            args = new String[resultRow.size()];
+            args = new String[ resultRow.size() ];
             for ( int i = 0; i < resultRow.size(); i++ ) {
-              args[i] = resultRow.getString( i, null );
+              args[ i ] = resultRow.getString( i, null );
             }
           } else {
             cmdRows = rows;
@@ -435,7 +429,7 @@ public class JobEntryShell extends JobEntryBase implements Cloneable, JobEntryIn
       if ( argFromPrevious && cmdRows != null ) {
         // Add the base command...
         for ( int i = 0; i < base.length; i++ ) {
-          cmds.add( base[i] );
+          cmds.add( base[ i ] );
         }
 
         if ( Const.getOS().equals( "Windows 95" ) || Const.getOS().startsWith( "Windows" ) ) {
@@ -473,7 +467,7 @@ public class JobEntryShell extends JobEntryBase implements Cloneable, JobEntryIn
       } else if ( args != null ) {
         // Add the base command...
         for ( int i = 0; i < base.length; i++ ) {
-          cmds.add( base[i] );
+          cmds.add( base[ i ] );
         }
 
         if ( Const.getOS().equals( "Windows 95" ) || Const.getOS().startsWith( "Windows" ) ) {
@@ -488,13 +482,13 @@ public class JobEntryShell extends JobEntryBase implements Cloneable, JobEntryIn
 
           for ( int i = 0; i < args.length; i++ ) {
             cmdline.append( ' ' );
-            cmdline.append( Const.optionallyQuoteStringByOS( args[i] ) );
+            cmdline.append( Const.optionallyQuoteStringByOS( args[ i ] ) );
           }
           cmdline.append( '"' );
           cmds.add( cmdline.toString() );
         } else {
           for ( int i = 0; i < args.length; i++ ) {
-            cmds.add( args[i] );
+            cmds.add( args[ i ] );
           }
         }
       }
@@ -520,7 +514,7 @@ public class JobEntryShell extends JobEntryBase implements Cloneable, JobEntryIn
       Map<String, String> env = procBuilder.environment();
       String[] variables = listVariables();
       for ( int i = 0; i < variables.length; i++ ) {
-        env.put( variables[i], getVariable( variables[i] ) );
+        env.put( variables[ i ], getVariable( variables[ i ] ) );
       }
 
       if ( getWorkDirectory() != null && !Utils.isEmpty( Const.rtrim( getWorkDirectory() ) ) ) {
@@ -665,19 +659,19 @@ public class JobEntryShell extends JobEntryBase implements Cloneable, JobEntryIn
 
   @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
-    IMetaStore metaStore ) {
+                     IMetaStore metaStore ) {
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, JobEntryValidatorUtils.notBlankValidator(),
-        JobEntryValidatorUtils.fileExistsValidator() );
+      JobEntryValidatorUtils.fileExistsValidator() );
 
     JobEntryValidatorUtils.andValidator().validate( this, "workDirectory", remarks, ctx );
     JobEntryValidatorUtils.andValidator().validate( this, "filename", remarks,
-        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+      AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
 
     if ( setLogfile ) {
       JobEntryValidatorUtils.andValidator().validate( this, "logfile", remarks,
-          AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
+        AndValidator.putValidators( JobEntryValidatorUtils.notBlankValidator() ) );
     }
   }
 

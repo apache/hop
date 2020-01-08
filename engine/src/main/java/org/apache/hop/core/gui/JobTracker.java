@@ -22,24 +22,23 @@
 
 package org.apache.hop.core.gui;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.job.JobEntryResult;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 /**
  * Responsible for tracking the execution of a job as a hierarchy.
  *
  * @author Matt
  * @since 30-mar-2006
- *
  */
 public class JobTracker {
   /**
@@ -48,10 +47,14 @@ public class JobTracker {
    */
   private LinkedList<JobTracker> jobTrackers;
 
-  /** If the jobTrackers list is empty, then this is the result */
+  /**
+   * If the jobTrackers list is empty, then this is the result
+   */
   private JobEntryResult result;
 
-  /** The parent job tracker, null if this is the root */
+  /**
+   * The parent job tracker, null if this is the root
+   */
   private JobTracker parentJobTracker;
 
   private String jobName;
@@ -63,18 +66,15 @@ public class JobTracker {
   private final ReentrantReadWriteLock lock;
 
   /**
-   * @param jobMeta
-   *          the job metadata to keep track of (with maximum 5000 children)
+   * @param jobMeta the job metadata to keep track of (with maximum 5000 children)
    */
   public JobTracker( JobMeta jobMeta ) {
     this( jobMeta, Const.toInt( EnvUtil.getSystemProperty( Const.HOP_MAX_JOB_TRACKER_SIZE ), 5000 ) );
   }
 
   /**
-   * @param jobMeta
-   *          The job metadata to track
-   * @param maxChildren
-   *          The maximum number of children to keep track of (1000 is the default)
+   * @param jobMeta     The job metadata to track
+   * @param maxChildren The maximum number of children to keep track of (1000 is the default)
    */
   public JobTracker( JobMeta jobMeta, int maxChildren ) {
     if ( jobMeta != null ) {
@@ -90,10 +90,8 @@ public class JobTracker {
   /**
    * Creates a jobtracker with a single result (maxChildren children are kept)
    *
-   * @param jobMeta
-   *          the job metadata to keep track of
-   * @param result
-   *          the job entry result to track.
+   * @param jobMeta the job metadata to keep track of
+   * @param result  the job entry result to track.
    */
   public JobTracker( JobMeta jobMeta, JobEntryResult result ) {
     this( jobMeta );
@@ -103,12 +101,9 @@ public class JobTracker {
   /**
    * Creates a jobtracker with a single result
    *
-   * @param jobMeta
-   *          the job metadata to keep track of
-   * @param maxChildren
-   *          The maximum number of children to keep track of
-   * @param result
-   *          the job entry result to track.
+   * @param jobMeta     the job metadata to keep track of
+   * @param maxChildren The maximum number of children to keep track of
+   * @param result      the job entry result to track.
    */
   public JobTracker( JobMeta jobMeta, int maxChildren, JobEntryResult result ) {
     this( jobMeta, maxChildren );
@@ -149,7 +144,8 @@ public class JobTracker {
   /**
    * Returns a list that contains all job trackers. The list is created as a defensive copy of internal trackers'
    * storage.
-   * @return  list of job trackers
+   *
+   * @return list of job trackers
    */
   public List<JobTracker> getJobTrackers() {
     lock.readLock().lock();
@@ -161,8 +157,7 @@ public class JobTracker {
   }
 
   /**
-   * @param jobTrackers
-   *          The jobTrackers to set.
+   * @param jobTrackers The jobTrackers to set.
    */
   public void setJobTrackers( List<JobTracker> jobTrackers ) {
     lock.writeLock().lock();
@@ -182,8 +177,7 @@ public class JobTracker {
   }
 
   /**
-   * @param result
-   *          The result to set.
+   * @param result The result to set.
    */
   public void setJobEntryResult( JobEntryResult result ) {
     this.result = result;
@@ -202,8 +196,7 @@ public class JobTracker {
   /**
    * Finds the JobTracker for the job entry specified. Use this to
    *
-   * @param jobEntryCopy
-   *          The entry to search the job tracker for
+   * @param jobEntryCopy The entry to search the job tracker for
    * @return The JobTracker of null if none could be found...
    */
   public JobTracker findJobTracker( JobEntryCopy jobEntryCopy ) {
@@ -238,8 +231,7 @@ public class JobTracker {
   }
 
   /**
-   * @param parentJobTracker
-   *          The parentJobTracker to set.
+   * @param parentJobTracker The parentJobTracker to set.
    */
   public void setParentJobTracker( JobTracker parentJobTracker ) {
     this.parentJobTracker = parentJobTracker;
@@ -268,8 +260,7 @@ public class JobTracker {
   }
 
   /**
-   * @param jobFilename
-   *          the jobFilename to set
+   * @param jobFilename the jobFilename to set
    */
   public void setJobFilename( String jobFilename ) {
     this.jobFilename = jobFilename;
@@ -283,8 +274,7 @@ public class JobTracker {
   }
 
   /**
-   * @param jobName
-   *          the jobName to set
+   * @param jobName the jobName to set
    */
   public void setJobName( String jobName ) {
     this.jobName = jobName;
@@ -298,8 +288,7 @@ public class JobTracker {
   }
 
   /**
-   * @param maxChildren
-   *          the maxChildren to set
+   * @param maxChildren the maxChildren to set
    */
   public void setMaxChildren( int maxChildren ) {
     this.maxChildren = maxChildren;

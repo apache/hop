@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans.steps.concatfields;
 
-import java.io.UnsupportedEncodingException;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowDataUtil;
@@ -36,6 +34,8 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.textfileoutput.TextFileOutput;
+
+import java.io.UnsupportedEncodingException;
 
 /*
  * ConcatFields step - derived from the TextFileOutput step

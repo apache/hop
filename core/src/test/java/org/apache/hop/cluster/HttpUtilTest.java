@@ -24,10 +24,10 @@ package org.apache.hop.cluster;
 
 import junit.framework.Assert;
 import org.apache.commons.codec.binary.Base64;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -78,7 +78,6 @@ public class HttpUtilTest {
   /**
    * Test that we can encode and decode String using only static class-under-test methods.
    *
-   *
    * @throws IOException
    */
   @Test
@@ -93,8 +92,7 @@ public class HttpUtilTest {
    * https://www.securecoding.cert.org/confluence/display/java/IDS12-J.+Perform+lossless+conversion+
    * of+String+data+between+differing+character+encodings
    *
-   * @param in
-   *          string to encode
+   * @param in string to encode
    * @return
    * @throws IOException
    */
@@ -103,7 +101,7 @@ public class HttpUtilTest {
     CharsetEncoder encoder = charset.newEncoder();
     encoder.reset();
     ByteBuffer baosbf = encoder.encode( CharBuffer.wrap( in ) );
-    byte[] bytes = new byte[baosbf.limit()];
+    byte[] bytes = new byte[ baosbf.limit() ];
     baosbf.get( bytes );
 
     ByteArrayOutputStream baos = new ByteArrayOutputStream();

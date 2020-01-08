@@ -22,23 +22,18 @@
 
 package org.apache.hop.trans.steps.setvaluefield;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -46,8 +41,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 @InjectionSupported( localizationPrefix = "SetValueField.Injection.", groups = { "FIELDS" } )
 public class SetValueFieldMeta extends BaseStepMeta implements StepMetaInterface {
@@ -71,8 +67,7 @@ public class SetValueFieldMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param fieldName
-   *          The fieldName to set.
+   * @param fieldName The fieldName to set.
    */
   public void setFieldName( String[] fieldName ) {
     this.fieldName = fieldName;
@@ -86,8 +81,7 @@ public class SetValueFieldMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   /**
-   * @param replaceByFieldValue
-   *          The replaceByFieldValue to set.
+   * @param replaceByFieldValue The replaceByFieldValue to set.
    */
   public void setReplaceByFieldValue( String[] replaceByFieldValue ) {
     this.replaceByFieldValue = replaceByFieldValue;
@@ -98,8 +92,8 @@ public class SetValueFieldMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void allocate( int count ) {
-    fieldName = new String[count];
-    replaceByFieldValue = new String[count];
+    fieldName = new String[ count ];
+    replaceByFieldValue = new String[ count ];
   }
 
   public Object clone() {
@@ -124,8 +118,8 @@ public class SetValueFieldMeta extends BaseStepMeta implements StepMetaInterface
       for ( int i = 0; i < count; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldName[i] = XMLHandler.getTagValue( fnode, "name" );
-        replaceByFieldValue[i] = XMLHandler.getTagValue( fnode, "replaceby" );
+        fieldName[ i ] = XMLHandler.getTagValue( fnode, "name" );
+        replaceByFieldValue[ i ] = XMLHandler.getTagValue( fnode, "replaceby" );
       }
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString(
@@ -139,8 +133,8 @@ public class SetValueFieldMeta extends BaseStepMeta implements StepMetaInterface
     allocate( count );
 
     for ( int i = 0; i < count; i++ ) {
-      fieldName[i] = "field" + i;
-      replaceByFieldValue[i] = "";
+      fieldName[ i ] = "field" + i;
+      replaceByFieldValue[ i ] = "";
     }
   }
 
@@ -151,8 +145,8 @@ public class SetValueFieldMeta extends BaseStepMeta implements StepMetaInterface
 
     for ( int i = 0; i < fieldName.length; i++ ) {
       retval.append( "      <field>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", fieldName[i] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "replaceby", replaceByFieldValue[i] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "name", fieldName[ i ] ) );
+      retval.append( "        " + XMLHandler.addTagValue( "replaceby", replaceByFieldValue[ i ] ) );
       retval.append( "        </field>" + Const.CR );
     }
     retval.append( "      </fields>" + Const.CR );
@@ -161,8 +155,8 @@ public class SetValueFieldMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -194,10 +188,10 @@ public class SetValueFieldMeta extends BaseStepMeta implements StepMetaInterface
       remarks.add( cr );
     } else {
       for ( int i = 0; i < fieldName.length; i++ ) {
-        if ( Utils.isEmpty( replaceByFieldValue[i] ) ) {
+        if ( Utils.isEmpty( replaceByFieldValue[ i ] ) ) {
           cr =
             new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-              PKG, "SetValueFieldMeta.CheckResult.ReplaceByValueMissing", fieldName[i], "" + i ), stepMeta );
+              PKG, "SetValueFieldMeta.CheckResult.ReplaceByValueMissing", fieldName[ i ], "" + i ), stepMeta );
           remarks.add( cr );
         }
       }
@@ -205,7 +199,7 @@ public class SetValueFieldMeta extends BaseStepMeta implements StepMetaInterface
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new SetValueField( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

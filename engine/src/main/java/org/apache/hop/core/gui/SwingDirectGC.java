@@ -22,27 +22,7 @@
 
 package org.apache.hop.core.gui;
 
-import java.awt.AlphaComposite;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.Polygon;
-import java.awt.RenderingHints;
-import java.awt.Stroke;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.Map;
-
-import javax.imageio.ImageIO;
-
 import org.apache.commons.io.IOUtils;
-import org.jfree.text.TextUtilities;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SwingUniversalImage;
 import org.apache.hop.core.SwingUniversalImageBitmap;
@@ -54,6 +34,18 @@ import org.apache.hop.core.util.SwingSvgImageUtil;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.trans.step.StepMeta;
+import org.jfree.text.TextUtilities;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.Map;
 
 public class SwingDirectGC implements GCInterface {
 
@@ -386,7 +378,7 @@ public class SwingDirectGC implements GCInterface {
 
   private void drawImage( SwingUniversalImage img, int centerX, int centerY, double angle, int imageSize ) {
     if ( isDrawingPixelatedImages() && img.isBitmap() ) {
-      BufferedImage bi =  img.getAsBitmapForSize( imageSize, imageSize, angle );
+      BufferedImage bi = img.getAsBitmapForSize( imageSize, imageSize, angle );
 
       int offx = centerX + xOffset - bi.getWidth() / 2;
       int offy = centerY + yOffset - bi.getHeight() / 2;
@@ -476,11 +468,11 @@ public class SwingDirectGC implements GCInterface {
 
   private Polygon getSwingPolygon( int[] polygon ) {
     int nPoints = polygon.length / 2;
-    int[] xPoints = new int[polygon.length / 2];
-    int[] yPoints = new int[polygon.length / 2];
+    int[] xPoints = new int[ polygon.length / 2 ];
+    int[] yPoints = new int[ polygon.length / 2 ];
     for ( int i = 0; i < nPoints; i++ ) {
-      xPoints[i] = polygon[2 * i + 0] + xOffset;
-      yPoints[i] = polygon[2 * i + 1] + yOffset;
+      xPoints[ i ] = polygon[ 2 * i + 0 ] + xOffset;
+      yPoints[ i ] = polygon[ 2 * i + 1 ] + yOffset;
     }
 
     return new Polygon( xPoints, yPoints, nPoints );
@@ -488,11 +480,11 @@ public class SwingDirectGC implements GCInterface {
 
   public void drawPolyline( int[] polyline ) {
     int nPoints = polyline.length / 2;
-    int[] xPoints = new int[polyline.length / 2];
-    int[] yPoints = new int[polyline.length / 2];
+    int[] xPoints = new int[ polyline.length / 2 ];
+    int[] yPoints = new int[ polyline.length / 2 ];
     for ( int i = 0; i < nPoints; i++ ) {
-      xPoints[i] = polyline[2 * i + 0] + xOffset;
-      yPoints[i] = polyline[2 * i + 1] + yOffset;
+      xPoints[ i ] = polyline[ 2 * i + 0 ] + xOffset;
+      yPoints[ i ] = polyline[ 2 * i + 1 ] + yOffset;
     }
     gc.drawPolyline( xPoints, yPoints, nPoints );
   }
@@ -783,8 +775,7 @@ public class SwingDirectGC implements GCInterface {
   }
 
   /**
-   * @param drawingPixelatedImages
-   *          the drawingPixelatedImages to set
+   * @param drawingPixelatedImages the drawingPixelatedImages to set
    */
   public void setDrawingPixelatedImages( boolean drawingPixelatedImages ) {
     this.drawingPixelatedImages = drawingPixelatedImages;

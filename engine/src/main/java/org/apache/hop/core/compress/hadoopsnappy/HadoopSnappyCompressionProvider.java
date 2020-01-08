@@ -22,12 +22,12 @@
 
 package org.apache.hop.core.compress.hadoopsnappy;
 
+import org.apache.hop.core.compress.CompressionProvider;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
-
-import org.apache.hop.core.compress.CompressionProvider;
 
 public class HadoopSnappyCompressionProvider implements CompressionProvider {
 
@@ -46,15 +46,14 @@ public class HadoopSnappyCompressionProvider implements CompressionProvider {
    * Locate the Snappy Shim for the active Hadoop Configuration via the Hadoop Configuration Util
    *
    * @return A {@link org.pentaho.hadoop.shim.spi.SnappyShim} to interact with Snappy
-   * @throws Exception
-   *           Error locating a valid Snappy shim:
-   *           <p>
-   *           <ul>
-   *           <li>{@link org.pentaho.hadoop.hive.jdbc.HadoopConfigurationUtil} could not be located</li>
-   *           <li>No active Hadoop configuration</li>
-   *           <li>Active Hadoop configuration doesn't support Snappy</li>
-   *           </ul>
-   *           </p>
+   * @throws Exception Error locating a valid Snappy shim:
+   *                   <p>
+   *                   <ul>
+   *                   <li>{@link org.pentaho.hadoop.hive.jdbc.HadoopConfigurationUtil} could not be located</li>
+   *                   <li>No active Hadoop configuration</li>
+   *                   <li>Active Hadoop configuration doesn't support Snappy</li>
+   *                   </ul>
+   *                   </p>
    */
   public static Object getActiveSnappyShim() throws Exception {
     Class<?> hadoopConfigUtilClass = null;
@@ -64,7 +63,7 @@ public class HadoopSnappyCompressionProvider implements CompressionProvider {
     } else {
       for ( int i = 0; hadoopConfigUtilClass == null && i < HADOOP_CONFIG_UTIL_CLASS.length; i++ ) {
         try {
-          hadoopConfigUtilClass = Class.forName( HADOOP_CONFIG_UTIL_CLASS[i] );
+          hadoopConfigUtilClass = Class.forName( HADOOP_CONFIG_UTIL_CLASS[ i ] );
         } catch ( ClassNotFoundException cnfe ) {
           // Nothing to do here but try again
         }

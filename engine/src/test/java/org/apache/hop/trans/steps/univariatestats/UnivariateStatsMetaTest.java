@@ -22,12 +22,29 @@
 
 package org.apache.hop.trans.steps.univariatestats;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.apache.commons.io.IOUtils;
+import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopStepException;
+import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepDataInterface;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
+import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
+import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -40,30 +57,12 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopStepException;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
-import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
-import org.apache.hop.metastore.api.IMetaStore;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class UnivariateStatsMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -80,16 +79,16 @@ public class UnivariateStatsMetaTest {
       @Override
       public UnivariateStatsMetaFunction getTestObject() {
         return new UnivariateStatsMetaFunction( UUID.randomUUID().toString(), random.nextBoolean(), random
-            .nextBoolean(), random.nextBoolean(), random.nextBoolean(), random.nextBoolean(), random.nextBoolean(),
-            random.nextDouble(), random.nextBoolean() );
+          .nextBoolean(), random.nextBoolean(), random.nextBoolean(), random.nextBoolean(), random.nextBoolean(),
+          random.nextDouble(), random.nextBoolean() );
       }
     };
   private final ArrayLoadSaveValidator<UnivariateStatsMetaFunction> univariateFunctionArrayFieldLoadSaveValidator =
-      new ArrayLoadSaveValidator<UnivariateStatsMetaFunction>( univariateFunctionFieldLoadSaveValidator );
+    new ArrayLoadSaveValidator<UnivariateStatsMetaFunction>( univariateFunctionFieldLoadSaveValidator );
 
   @Test
   public void testGetAndSetSetInputFieldMetaFunctions() {
-    UnivariateStatsMetaFunction[] stats = new UnivariateStatsMetaFunction[3];
+    UnivariateStatsMetaFunction[] stats = new UnivariateStatsMetaFunction[ 3 ];
     UnivariateStatsMeta meta = new UnivariateStatsMeta();
     meta.setInputFieldMetaFunctions( stats );
     assertTrue( stats == meta.getInputFieldMetaFunctions() );
@@ -105,13 +104,13 @@ public class UnivariateStatsMetaTest {
   @Test
   public void testLegacyLoadXml() throws IOException, HopXMLException {
     String legacyXml =
-        IOUtils.toString( UnivariateStatsMetaTest.class.getClassLoader().getResourceAsStream(
-            "org/apache/hop/trans/steps/univariatestats/legacyUnivariateStatsMetaTest.xml" ) );
+      IOUtils.toString( UnivariateStatsMetaTest.class.getClassLoader().getResourceAsStream(
+        "org/apache/hop/trans/steps/univariatestats/legacyUnivariateStatsMetaTest.xml" ) );
     IMetaStore mockMetaStore = mock( IMetaStore.class );
     UnivariateStatsMeta meta = new UnivariateStatsMeta();
     meta.loadXML( XMLHandler.loadXMLString( legacyXml ).getFirstChild(), mockMetaStore );
     assertEquals( 2, meta.getNumFieldsToProcess() );
-    UnivariateStatsMetaFunction first = meta.getInputFieldMetaFunctions()[0];
+    UnivariateStatsMetaFunction first = meta.getInputFieldMetaFunctions()[ 0 ];
     assertEquals( "a", first.getSourceFieldName() );
     assertEquals( true, first.getCalcN() );
     assertEquals( true, first.getCalcMean() );
@@ -121,7 +120,7 @@ public class UnivariateStatsMetaTest {
     assertEquals( true, first.getCalcMedian() );
     assertEquals( .5, first.getCalcPercentile(), 0 );
     assertEquals( true, first.getInterpolatePercentile() );
-    UnivariateStatsMetaFunction second = meta.getInputFieldMetaFunctions()[1];
+    UnivariateStatsMetaFunction second = meta.getInputFieldMetaFunctions()[ 1 ];
     assertEquals( "b", second.getSourceFieldName() );
     assertEquals( false, second.getCalcN() );
     assertEquals( false, second.getCalcMean() );
@@ -138,15 +137,15 @@ public class UnivariateStatsMetaTest {
     List<String> attributes = Arrays.asList( "inputFieldMetaFunctions" );
 
     Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap =
-        new HashMap<String, FieldLoadSaveValidator<?>>();
+      new HashMap<String, FieldLoadSaveValidator<?>>();
 
     fieldLoadSaveValidatorTypeMap.put( UnivariateStatsMetaFunction[].class.getCanonicalName(),
-        univariateFunctionArrayFieldLoadSaveValidator );
+      univariateFunctionArrayFieldLoadSaveValidator );
 
     LoadSaveTester loadSaveTester =
-        new LoadSaveTester( UnivariateStatsMeta.class, attributes, new HashMap<String, String>(),
-            new HashMap<String, String>(), new HashMap<String, FieldLoadSaveValidator<?>>(),
-            fieldLoadSaveValidatorTypeMap );
+      new LoadSaveTester( UnivariateStatsMeta.class, attributes, new HashMap<String, String>(),
+        new HashMap<String, String>(), new HashMap<String, FieldLoadSaveValidator<?>>(),
+        fieldLoadSaveValidatorTypeMap );
 
     loadSaveTester.testSerialization();
   }
@@ -154,7 +153,7 @@ public class UnivariateStatsMetaTest {
   private void assertContains( Map<String, Integer> map, String key, Integer value ) {
     assertTrue( "Expected map to contain " + key, map.containsKey( key ) );
     assertTrue( "Expected key of " + key + " to be of type " + ValueMetaBase.getTypeDesc( value ),
-        map.get( key ) == value );
+      map.get( key ) == value );
   }
 
   @Test
@@ -180,7 +179,7 @@ public class UnivariateStatsMetaTest {
         if ( !clearCalled.get() ) {
           throw new RuntimeException( "Clear not called before adding value metas" );
         }
-        valueMetaInterfaces.add( (ValueMetaInterface) invocation.getArguments()[0] );
+        valueMetaInterfaces.add( (ValueMetaInterface) invocation.getArguments()[ 0 ] );
         return null;
       }
     } ).when( mockRowMetaInterface ).addValueMeta( any( ValueMetaInterface.class ) );
@@ -213,7 +212,7 @@ public class UnivariateStatsMetaTest {
         pF.setMaximumFractionDigits( 2 );
         String res = pF.format( function.getCalcPercentile() * 100 );
         assertContains( valueMetas, function.getSourceFieldName() + "(" + res + "th percentile)",
-            ValueMetaInterface.TYPE_NUMBER );
+          ValueMetaInterface.TYPE_NUMBER );
       }
     }
   }
@@ -222,7 +221,7 @@ public class UnivariateStatsMetaTest {
   public void testCheckNullPrev() {
     UnivariateStatsMeta meta = new UnivariateStatsMeta();
     List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
-    meta.check( remarks, null, null, null, new String[0], null, null, null, null );
+    meta.check( remarks, null, null, null, new String[ 0 ], null, null, null, null );
     assertEquals( 2, remarks.size() );
     assertEquals( "Not receiving any fields from previous steps!", remarks.get( 0 ).getText() );
   }
@@ -233,7 +232,7 @@ public class UnivariateStatsMetaTest {
     RowMetaInterface mockRowMetaInterface = mock( RowMetaInterface.class );
     when( mockRowMetaInterface.size() ).thenReturn( 0 );
     List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
-    meta.check( remarks, null, null, mockRowMetaInterface, new String[0], null, null, null, null );
+    meta.check( remarks, null, null, mockRowMetaInterface, new String[ 0 ], null, null, null, null );
     assertEquals( 2, remarks.size() );
     assertEquals( "Not receiving any fields from previous steps!", remarks.get( 0 ).getText() );
   }
@@ -244,7 +243,7 @@ public class UnivariateStatsMetaTest {
     RowMetaInterface mockRowMetaInterface = mock( RowMetaInterface.class );
     when( mockRowMetaInterface.size() ).thenReturn( 500 );
     List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
-    meta.check( remarks, null, null, mockRowMetaInterface, new String[0], null, null, null, null );
+    meta.check( remarks, null, null, mockRowMetaInterface, new String[ 0 ], null, null, null, null );
     assertEquals( 2, remarks.size() );
     assertEquals( "Step is connected to previous one, receiving " + 500 + " fields", remarks.get( 0 ).getText() );
   }
@@ -253,7 +252,7 @@ public class UnivariateStatsMetaTest {
   public void testCheckWithInput() {
     UnivariateStatsMeta meta = new UnivariateStatsMeta();
     List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
-    meta.check( remarks, null, null, null, new String[1], null, null, null, null );
+    meta.check( remarks, null, null, null, new String[ 1 ], null, null, null, null );
     assertEquals( 2, remarks.size() );
     assertEquals( "Step is receiving info from other steps.", remarks.get( 1 ).getText() );
   }
@@ -262,7 +261,7 @@ public class UnivariateStatsMetaTest {
   public void testCheckWithoutInput() {
     UnivariateStatsMeta meta = new UnivariateStatsMeta();
     List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
-    meta.check( remarks, null, null, null, new String[0], null, null, null, null );
+    meta.check( remarks, null, null, null, new String[ 0 ], null, null, null, null );
     assertEquals( 2, remarks.size() );
     assertEquals( "No input received from other steps!", remarks.get( 1 ).getText() );
   }
@@ -277,13 +276,13 @@ public class UnivariateStatsMetaTest {
     Trans mockTrans = mock( Trans.class );
     when( mockTransMeta.findStep( "testName" ) ).thenReturn( mockStepMeta );
     StepInterface step =
-        new UnivariateStatsMeta().getStep( mockStepMeta, mockStepDataInterface, cnr, mockTransMeta, mockTrans );
+      new UnivariateStatsMeta().getStep( mockStepMeta, mockStepDataInterface, cnr, mockTransMeta, mockTrans );
     assertTrue( "Expected Step to be instanceof " + UnivariateStats.class, step instanceof UnivariateStats );
   }
 
   @Test
   public void testGetStepData() {
     assertTrue( "Expected StepData to be instanceof " + UnivariateStatsData.class, new UnivariateStatsMeta()
-        .getStepData() instanceof UnivariateStatsData );
+      .getStepData() instanceof UnivariateStatsData );
   }
 }

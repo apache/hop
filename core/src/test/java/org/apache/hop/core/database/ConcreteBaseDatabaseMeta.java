@@ -7,7 +7,7 @@ public class ConcreteBaseDatabaseMeta extends BaseDatabaseMeta {
 
   @Override
   public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-      boolean add_fieldname, boolean add_cr ) {
+                                    boolean add_fieldname, boolean add_cr ) {
     return null;
   }
 
@@ -23,13 +23,13 @@ public class ConcreteBaseDatabaseMeta extends BaseDatabaseMeta {
 
   @Override
   public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-      String pk, boolean semicolon ) {
+                                       String pk, boolean semicolon ) {
     return null;
   }
 
   @Override
   public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-      String pk, boolean semicolon ) {
+                                          String pk, boolean semicolon ) {
     return null;
   }
 

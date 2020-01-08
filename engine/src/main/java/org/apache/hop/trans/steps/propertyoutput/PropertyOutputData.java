@@ -22,15 +22,15 @@
 
 package org.apache.hop.trans.steps.propertyoutput;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.HashSet;
-import java.util.Properties;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.HashSet;
+import java.util.Properties;
 
 /**
  * Output rows to Properties file and create a file.

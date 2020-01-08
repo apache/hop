@@ -22,18 +22,17 @@
 
 package org.apache.hop.trans.steps.socketreader;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.net.Socket;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.net.Socket;
+
 /**
  * @author Matt
  * @since 27-nov-2006
- *
  */
 public class SocketReaderData extends BaseStepData implements StepDataInterface {
 

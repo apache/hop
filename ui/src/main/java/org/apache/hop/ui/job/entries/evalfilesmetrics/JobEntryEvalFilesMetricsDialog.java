@@ -22,6 +22,22 @@
 
 package org.apache.hop.ui.job.entries.evalfilesmetrics;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entries.evalfilesmetrics.JobEntryEvalFilesMetrics;
+import org.apache.hop.job.entries.simpleeval.JobEntrySimpleEval;
+import org.apache.hop.job.entry.JobEntryDialogInterface;
+import org.apache.hop.job.entry.JobEntryInterface;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.job.dialog.JobDialog;
+import org.apache.hop.ui.job.entry.JobEntryDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -48,22 +64,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.evalfilesmetrics.JobEntryEvalFilesMetrics;
-import org.apache.hop.job.entries.simpleeval.JobEntrySimpleEval;
-import org.apache.hop.job.entry.JobEntryDialogInterface;
-import org.apache.hop.job.entry.JobEntryInterface;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.job.dialog.JobDialog;
-import org.apache.hop.ui.job.entry.JobEntryDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 /**
  * This dialog allows you to edit the eval files metrics job entry settings.
@@ -171,7 +171,7 @@ public class JobEntryEvalFilesMetricsDialog extends JobEntryDialog implements Jo
   private FormData fdbeSourceFileFolder, fdbaSourceFileFolder, fdbdSourceFileFolder;
 
   public JobEntryEvalFilesMetricsDialog( Shell parent, JobEntryInterface jobEntryInt,
-    JobMeta jobMeta ) {
+                                         JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
     jobEntry = (JobEntryEvalFilesMetrics) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
@@ -558,10 +558,10 @@ public class JobEntryEvalFilesMetricsDialog extends JobEntryDialog implements Jo
           BaseMessages.getString( PKG, "JobEvalFilesMetrics.Fields.IncludeSubDirs.Label" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, JobEntryEvalFilesMetrics.IncludeSubFoldersDesc ) };
 
-    colinf[0].setUsingVariables( true );
-    colinf[0].setToolTip( BaseMessages.getString( PKG, "JobEvalFilesMetrics.Fields.SourceFileFolder.Tooltip" ) );
-    colinf[1].setUsingVariables( true );
-    colinf[1].setToolTip( BaseMessages.getString( PKG, "JobEvalFilesMetrics.Fields.Wildcard.Tooltip" ) );
+    colinf[ 0 ].setUsingVariables( true );
+    colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "JobEvalFilesMetrics.Fields.SourceFileFolder.Tooltip" ) );
+    colinf[ 1 ].setUsingVariables( true );
+    colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "JobEvalFilesMetrics.Fields.Wildcard.Tooltip" ) );
 
     wFields =
       new TableView(
@@ -607,8 +607,8 @@ public class JobEntryEvalFilesMetricsDialog extends JobEntryDialog implements Jo
         int idx = wFields.getSelectionIndex();
         if ( idx >= 0 ) {
           String[] string = wFields.getItem( idx );
-          wSourceFileFolder.setText( string[0] );
-          wWildcard.setText( string[1] );
+          wSourceFileFolder.setText( string[ 0 ] );
+          wWildcard.setText( string[ 1 ] );
           wFields.remove( idx );
         }
         wFields.removeEmptyRows();
@@ -864,7 +864,7 @@ public class JobEntryEvalFilesMetricsDialog extends JobEntryDialog implements Jo
   private void RefreshSourceFiles() {
     boolean useStaticFiles =
       ( JobEntryEvalFilesMetrics.getSourceFilesByDesc( wSourceFiles.getText() )
-      == JobEntryEvalFilesMetrics.SOURCE_FILES_FILES );
+        == JobEntryEvalFilesMetrics.SOURCE_FILES_FILES );
     wlFields.setEnabled( useStaticFiles );
     wFields.setEnabled( useStaticFiles );
     wbdSourceFileFolder.setEnabled( useStaticFiles );
@@ -880,13 +880,13 @@ public class JobEntryEvalFilesMetricsDialog extends JobEntryDialog implements Jo
 
     boolean setResultWildcard =
       ( JobEntryEvalFilesMetrics.getSourceFilesByDesc( wSourceFiles.getText() )
-      == JobEntryEvalFilesMetrics.SOURCE_FILES_FILENAMES_RESULT );
+        == JobEntryEvalFilesMetrics.SOURCE_FILES_FILENAMES_RESULT );
     wlResultFilenamesWildcard.setEnabled( setResultWildcard );
     wResultFilenamesWildcard.setEnabled( setResultWildcard );
 
     boolean setResultFields =
       ( JobEntryEvalFilesMetrics.getSourceFilesByDesc( wSourceFiles.getText() )
-      == JobEntryEvalFilesMetrics.SOURCE_FILES_PREVIOUS_RESULT );
+        == JobEntryEvalFilesMetrics.SOURCE_FILES_PREVIOUS_RESULT );
     wlResultFieldIncludeSubFolders.setEnabled( setResultFields );
     wResultFieldIncludeSubFolders.setEnabled( setResultFields );
     wlResultFieldFile.setEnabled( setResultFields );
@@ -898,7 +898,7 @@ public class JobEntryEvalFilesMetricsDialog extends JobEntryDialog implements Jo
   private void RefreshSize() {
     boolean useSize =
       ( JobEntryEvalFilesMetrics.getEvaluationTypeByDesc( wEvaluationType.getText() )
-      == JobEntryEvalFilesMetrics.EVALUATE_TYPE_SIZE );
+        == JobEntryEvalFilesMetrics.EVALUATE_TYPE_SIZE );
     wlScale.setVisible( useSize );
     wScale.setVisible( useSize );
   }
@@ -920,17 +920,17 @@ public class JobEntryEvalFilesMetricsDialog extends JobEntryDialog implements Jo
     if ( jobEntry.getSourceFileFolder() != null ) {
       for ( int i = 0; i < jobEntry.getSourceFileFolder().length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.getSourceFileFolder()[i] != null ) {
-          ti.setText( 1, jobEntry.getSourceFileFolder()[i] );
+        if ( jobEntry.getSourceFileFolder()[ i ] != null ) {
+          ti.setText( 1, jobEntry.getSourceFileFolder()[ i ] );
         }
 
-        if ( jobEntry.getSourceWildcard()[i] != null ) {
-          ti.setText( 2, jobEntry.getSourceWildcard()[i] );
+        if ( jobEntry.getSourceWildcard()[ i ] != null ) {
+          ti.setText( 2, jobEntry.getSourceWildcard()[ i ] );
         }
 
-        if ( jobEntry.getSourceIncludeSubfolders()[i] != null ) {
+        if ( jobEntry.getSourceIncludeSubfolders()[ i ] != null ) {
           ti.setText( 3,
-            JobEntryEvalFilesMetrics.getIncludeSubFoldersDesc( jobEntry.getSourceIncludeSubfolders()[i] ) );
+            JobEntryEvalFilesMetrics.getIncludeSubFoldersDesc( jobEntry.getSourceIncludeSubfolders()[ i ] ) );
         }
       }
       wFields.setRowNums();
@@ -1002,18 +1002,18 @@ public class JobEntryEvalFilesMetricsDialog extends JobEntryDialog implements Jo
         nr++;
       }
     }
-    String[] sourceFileFolder = new String[nr];
-    String[] sourceWildcard = new String[nr];
-    String[] sourceIncludeSubfolders = new String[nr];
+    String[] sourceFileFolder = new String[ nr ];
+    String[] sourceWildcard = new String[ nr ];
+    String[] sourceIncludeSubfolders = new String[ nr ];
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
       String source = wFields.getNonEmpty( i ).getText( 1 );
       String wild = wFields.getNonEmpty( i ).getText( 2 );
       String includeSubFolders = wFields.getNonEmpty( i ).getText( 3 );
       if ( source != null && source.length() != 0 ) {
-        sourceFileFolder[nr] = source;
-        sourceWildcard[nr] = wild;
-        sourceIncludeSubfolders[nr] = JobEntryEvalFilesMetrics.getIncludeSubFolders( includeSubFolders );
+        sourceFileFolder[ nr ] = source;
+        sourceWildcard[ nr ] = wild;
+        sourceIncludeSubfolders[ nr ] = JobEntryEvalFilesMetrics.getIncludeSubFolders( includeSubFolders );
         nr++;
       }
     }
@@ -1026,7 +1026,7 @@ public class JobEntryEvalFilesMetricsDialog extends JobEntryDialog implements Jo
   private void refresh() {
     boolean compareValue =
       ( JobEntrySimpleEval.getSuccessNumberConditionByDesc( wSuccessNumberCondition.getText() )
-      != JobEntrySimpleEval.SUCCESS_NUMBER_CONDITION_BETWEEN );
+        != JobEntrySimpleEval.SUCCESS_NUMBER_CONDITION_BETWEEN );
     wlCompareValue.setVisible( compareValue );
     wCompareValue.setVisible( compareValue );
     wlMinValue.setVisible( !compareValue );

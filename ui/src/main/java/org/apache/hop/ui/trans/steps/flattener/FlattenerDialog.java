@@ -22,6 +22,19 @@
 
 package org.apache.hop.ui.trans.steps.flattener;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.steps.flattener.FlattenerMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusListener;
@@ -43,19 +56,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.steps.flattener.FlattenerMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class FlattenerDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = FlattenerMeta.class; // for i18n purposes, needed by Translator2!!
@@ -162,8 +162,8 @@ public class FlattenerDialog extends BaseStepDialog implements StepDialogInterfa
     int nrKeyCols = 1;
     int nrKeyRows = ( input.getTargetField() != null ? input.getTargetField().length : 1 );
 
-    ColumnInfo[] ciKey = new ColumnInfo[nrKeyCols];
-    ciKey[0] =
+    ColumnInfo[] ciKey = new ColumnInfo[ nrKeyCols ];
+    ciKey[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "FlattenerDialog.ColumnInfo.TargetField" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false );
@@ -247,7 +247,7 @@ public class FlattenerDialog extends BaseStepDialog implements StepDialogInterfa
       } catch ( HopException ke ) {
         new ErrorDialog(
           shell, BaseMessages.getString( PKG, "FlattenerDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-            .getString( PKG, "FlattenerDialog.FailedToGetFields.DialogMessage" ), ke );
+          .getString( PKG, "FlattenerDialog.FailedToGetFields.DialogMessage" ), ke );
       }
       gotPreviousFields = true;
     }
@@ -268,8 +268,8 @@ public class FlattenerDialog extends BaseStepDialog implements StepDialogInterfa
     if ( input.getTargetField() != null ) {
       for ( int i = 0; i < input.getTargetField().length; i++ ) {
         TableItem item = wFields.table.getItem( i );
-        if ( input.getTargetField()[i] != null ) {
-          item.setText( 1, input.getTargetField()[i] );
+        if ( input.getTargetField()[ i ] != null ) {
+          item.setText( 1, input.getTargetField()[ i ] );
         }
       }
     }
@@ -300,7 +300,7 @@ public class FlattenerDialog extends BaseStepDialog implements StepDialogInterfa
     for ( int i = 0; i < nrTargets; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
       //CHECKSTYLE:Indentation:OFF
-      input.getTargetField()[i] = item.getText( 1 );
+      input.getTargetField()[ i ] = item.getText( 1 );
     }
     stepname = wStepname.getText();
 

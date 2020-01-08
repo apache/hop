@@ -22,15 +22,16 @@
 
 package org.apache.hop.trans.steps.excelinput;
 
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 public class ExcelInputMetaInjectionTest extends BaseMetadataInjectionTest<ExcelInputMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
   @Before
   public void setup() throws Exception {
     setup( new ExcelInputMeta() );
@@ -40,51 +41,51 @@ public class ExcelInputMetaInjectionTest extends BaseMetadataInjectionTest<Excel
   public void test() throws Exception {
     check( "NAME", new StringGetter() {
       public String get() {
-        return meta.getField()[0].getName();
+        return meta.getField()[ 0 ].getName();
       }
     } );
     check( "LENGTH", new IntGetter() {
       public int get() {
-        return meta.getField()[0].getLength();
+        return meta.getField()[ 0 ].getLength();
       }
     } );
     check( "PRECISION", new IntGetter() {
       public int get() {
-        return meta.getField()[0].getPrecision();
+        return meta.getField()[ 0 ].getPrecision();
       }
     } );
     int[] trimInts = new int[ ValueMetaBase.trimTypeCode.length ];
     for ( int i = 0; i < trimInts.length; i++ ) {
-      trimInts[i] = i;
+      trimInts[ i ] = i;
     }
     checkStringToInt( "TRIM_TYPE", new IntGetter() {
       public int get() {
-        return meta.getField()[0].getTrimType();
+        return meta.getField()[ 0 ].getTrimType();
       }
     }, ValueMetaBase.trimTypeCode, trimInts );
     check( "FORMAT", new StringGetter() {
       public String get() {
-        return meta.getField()[0].getFormat();
+        return meta.getField()[ 0 ].getFormat();
       }
     } );
     check( "CURRENCY", new StringGetter() {
       public String get() {
-        return meta.getField()[0].getCurrencySymbol();
+        return meta.getField()[ 0 ].getCurrencySymbol();
       }
     } );
     check( "DECIMAL", new StringGetter() {
       public String get() {
-        return meta.getField()[0].getDecimalSymbol();
+        return meta.getField()[ 0 ].getDecimalSymbol();
       }
     } );
     check( "GROUP", new StringGetter() {
       public String get() {
-        return meta.getField()[0].getGroupSymbol();
+        return meta.getField()[ 0 ].getGroupSymbol();
       }
     } );
     check( "REPEAT", new BooleanGetter() {
       public boolean get() {
-        return meta.getField()[0].isRepeated();
+        return meta.getField()[ 0 ].isRepeated();
       }
     } );
 
@@ -93,42 +94,42 @@ public class ExcelInputMetaInjectionTest extends BaseMetadataInjectionTest<Excel
 
     check( "SHEET_NAME", new StringGetter() {
       public String get() {
-        return meta.getSheetName()[0];
+        return meta.getSheetName()[ 0 ];
       }
     } );
     check( "SHEET_START_ROW", new IntGetter() {
       public int get() {
-        return meta.getStartRow()[0];
+        return meta.getStartRow()[ 0 ];
       }
     } );
     check( "SHEET_START_COL", new IntGetter() {
       public int get() {
-        return meta.getStartColumn()[0];
+        return meta.getStartColumn()[ 0 ];
       }
     } );
     check( "FILENAME", new StringGetter() {
       public String get() {
-        return meta.getFileName()[0];
+        return meta.getFileName()[ 0 ];
       }
     } );
     check( "FILEMASK", new StringGetter() {
       public String get() {
-        return meta.getFileMask()[0];
+        return meta.getFileMask()[ 0 ];
       }
     } );
     check( "EXCLUDE_FILEMASK", new StringGetter() {
       public String get() {
-        return meta.getExludeFileMask()[0];
+        return meta.getExludeFileMask()[ 0 ];
       }
     } );
     check( "FILE_REQUIRED", new StringGetter() {
       public String get() {
-        return meta.getFileRequired()[0];
+        return meta.getFileRequired()[ 0 ];
       }
     } );
     check( "INCLUDE_SUBFOLDERS", new StringGetter() {
       public String get() {
-        return meta.getIncludeSubFolders()[0];
+        return meta.getIncludeSubFolders()[ 0 ];
       }
     } );
     check( "SPREADSHEET_TYPE", new EnumGetter() {

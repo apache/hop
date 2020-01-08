@@ -23,20 +23,19 @@
 package org.apache.hop.trans.steps.textfileinput;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.HopLoggingEvent;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.loadsave.LoadSaveTester;
 import org.apache.hop.trans.steps.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.FieldLoadSaveValidator;
 import org.apache.hop.trans.steps.loadsave.validator.TextFileInputFieldValidator;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Arrays;
@@ -51,7 +50,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * @author Andrey Khayrutdinov
-   * @deprecated replaced by implementation in the ...steps.fileinput.text package
+ * @deprecated replaced by implementation in the ...steps.fileinput.text package
  */
 @Deprecated
 @RunWith( PowerMockRunner.class )
@@ -128,7 +127,7 @@ public class TextFileInputMetaLoadSaveTest {
     List<String> xmlAttributes = Collections.emptyList();
     List<String> repoAttributes = Collections.emptyList();
 
-    Map<String, String> getters = new HashMap<String, String>(  );
+    Map<String, String> getters = new HashMap<String, String>();
     getters.put( "header", "hasHeader" );
     getters.put( "footer", "hasFooter" );
     getters.put( "noEmptyLines", "noEmptyLines" );
@@ -145,7 +144,7 @@ public class TextFileInputMetaLoadSaveTest {
     getters.put( "extensionFieldName", "getExtensionField" );
     getters.put( "sizeFieldName", "getSizeField" );
 
-    Map<String, String> setters = new HashMap<String, String>(  );
+    Map<String, String> setters = new HashMap<String, String>();
     setters.put( "fileName", "setFileNameForTest" );
     setters.put( "errorFilesExtension", "setErrorLineFilesExtension" );
     setters.put( "isaddresult", "setAddResultFile" );
@@ -160,15 +159,15 @@ public class TextFileInputMetaLoadSaveTest {
 
     Map<String, FieldLoadSaveValidator<?>> attributeValidators = Collections.emptyMap();
 
-    Map<String, FieldLoadSaveValidator<?>> typeValidators = new HashMap<String, FieldLoadSaveValidator<?>>(  );
+    Map<String, FieldLoadSaveValidator<?>> typeValidators = new HashMap<String, FieldLoadSaveValidator<?>>();
     typeValidators.put( TextFileFilter[].class.getCanonicalName(), new ArrayLoadSaveValidator<TextFileFilter>( new TextFileFilterValidator() ) );
     typeValidators.put( TextFileInputField[].class.getCanonicalName(), new ArrayLoadSaveValidator<TextFileInputField>( new TextFileInputFieldValidator() ) );
 
     assertTrue( !commonAttributes.isEmpty() || !( xmlAttributes.isEmpty() || repoAttributes.isEmpty() ) );
 
     tester =
-        new LoadSaveTester<TextFileInputMeta>( TextFileInputMeta.class, commonAttributes, xmlAttributes,
-            repoAttributes, getters, setters, attributeValidators, typeValidators );
+      new LoadSaveTester<TextFileInputMeta>( TextFileInputMeta.class, commonAttributes, xmlAttributes,
+        repoAttributes, getters, setters, attributeValidators, typeValidators );
   }
 
   @Test

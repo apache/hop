@@ -22,15 +22,34 @@
 
 package org.apache.hop.ui.trans.steps.dimensionlookup;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.dimensionlookup.DimensionLookupMeta;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.database.dialog.SQLEditor;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.trans.step.TableItemInsertListener;
+import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -65,31 +84,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.SQLStatement;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.plugins.PluginInterface;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.dimensionlookup.DimensionLookupMeta;
-import org.apache.hop.ui.core.database.dialog.SQLEditor;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.trans.step.TableItemInsertListener;
-import org.apache.hop.ui.util.HelpUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Dialog for the Dimension Lookup/Update step.
@@ -335,11 +335,11 @@ public class DimensionLookupDialog extends BaseStepDialog implements StepDialogI
     // Connection line
     wConnection = addConnectionLine( comp, wUpdate, input.getDatabaseMeta(), lsMod );
     wConnection.addFocusListener( lsConnectionFocus );
-    wConnection.addModifyListener( e-> {
-        // We have new content: change ci connection:
-        ci = transMeta.findDatabase( wConnection.getText() );
-        setFlags();
-      } );
+    wConnection.addModifyListener( e -> {
+      // We have new content: change ci connection:
+      ci = transMeta.findDatabase( wConnection.getText() );
+      setFlags();
+    } );
 
     // Schema line...
     wlSchema = new Label( comp, SWT.RIGHT );
@@ -511,16 +511,16 @@ public class DimensionLookupDialog extends BaseStepDialog implements StepDialogI
     int nrKeyCols = 2;
     int nrKeyRows = ( input.getKeyStream() != null ? input.getKeyStream().length : 1 );
 
-    ciKey = new ColumnInfo[nrKeyCols];
-    ciKey[0] =
+    ciKey = new ColumnInfo[ nrKeyCols ];
+    ciKey[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "DimensionLookupDialog.ColumnInfo.DimensionField" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    ciKey[1] =
+    ciKey[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "DimensionLookupDialog.ColumnInfo.FieldInStream" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    tableFieldColumns.add( ciKey[0] );
+    tableFieldColumns.add( ciKey[ 0 ] );
     wKey =
       new TableView( transMeta, wKeyComp, SWT.BORDER
         | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey, nrKeyRows, lsMod, props );
@@ -571,21 +571,21 @@ public class DimensionLookupDialog extends BaseStepDialog implements StepDialogI
     int UpInsCols = 3;
     int UpInsRows = ( input.getFieldStream() != null ? input.getFieldStream().length : 1 );
 
-    ciUpIns = new ColumnInfo[UpInsCols];
-    ciUpIns[0] =
+    ciUpIns = new ColumnInfo[ UpInsCols ];
+    ciUpIns[ 0 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "DimensionLookupDialog.ColumnInfo.DimensionField" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    ciUpIns[1] =
+    ciUpIns[ 1 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "DimensionLookupDialog.ColumnInfo.StreamField" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
-    ciUpIns[2] =
+    ciUpIns[ 2 ] =
       new ColumnInfo(
         BaseMessages.getString( PKG, "DimensionLookupDialog.ColumnInfo.TypeOfDimensionUpdate" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, input.isUpdate()
-          ? DimensionLookupMeta.typeDesc : DimensionLookupMeta.typeDescLookup );
-    tableFieldColumns.add( ciUpIns[0] );
+        ? DimensionLookupMeta.typeDesc : DimensionLookupMeta.typeDescLookup );
+    tableFieldColumns.add( ciUpIns[ 0 ] );
     wUpIns =
       new TableView( transMeta, wFieldsComp, SWT.BORDER
         | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciUpIns, UpInsRows, lsMod, props );
@@ -910,7 +910,7 @@ public class DimensionLookupDialog extends BaseStepDialog implements StepDialogI
     // All options except for "No alternative"...
     wAltStartDate.removeAll();
     for ( int i = 1; i < DimensionLookupMeta.getStartDateAlternativeDescriptions().length; i++ ) {
-      wAltStartDate.add( DimensionLookupMeta.getStartDateAlternativeDescriptions()[i] );
+      wAltStartDate.add( DimensionLookupMeta.getStartDateAlternativeDescriptions()[ i ] );
     }
     wAltStartDate.setText( BaseMessages.getString(
       PKG, "DimensionLookupDialog.AlternativeStartDate.SelectItemDefault" ) );
@@ -1212,10 +1212,10 @@ public class DimensionLookupDialog extends BaseStepDialog implements StepDialogI
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<String>( keySet );
 
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
+    String[] fieldNames = entries.toArray( new String[ entries.size() ] );
     Const.sortStrings( fieldNames );
-    ciKey[1].setComboValues( fieldNames );
-    ciUpIns[1].setComboValues( fieldNames );
+    ciKey[ 1 ].setComboValues( fieldNames );
+    ciUpIns[ 1 ].setComboValues( fieldNames );
   }
 
   public void setAutoincUse() {
@@ -1258,11 +1258,11 @@ public class DimensionLookupDialog extends BaseStepDialog implements StepDialogI
     if ( input.getKeyStream() != null ) {
       for ( int i = 0; i < input.getKeyStream().length; i++ ) {
         TableItem item = wKey.table.getItem( i );
-        if ( input.getKeyLookup()[i] != null ) {
-          item.setText( 1, input.getKeyLookup()[i] );
+        if ( input.getKeyLookup()[ i ] != null ) {
+          item.setText( 1, input.getKeyLookup()[ i ] );
         }
-        if ( input.getKeyStream()[i] != null ) {
-          item.setText( 2, input.getKeyStream()[i] );
+        if ( input.getKeyStream()[ i ] != null ) {
+          item.setText( 2, input.getKeyStream()[ i ] );
         }
       }
     }
@@ -1270,13 +1270,13 @@ public class DimensionLookupDialog extends BaseStepDialog implements StepDialogI
     if ( input.getFieldStream() != null ) {
       for ( int i = 0; i < input.getFieldStream().length; i++ ) {
         TableItem item = wUpIns.table.getItem( i );
-        if ( input.getFieldLookup()[i] != null ) {
-          item.setText( 1, input.getFieldLookup()[i] );
+        if ( input.getFieldLookup()[ i ] != null ) {
+          item.setText( 1, input.getFieldLookup()[ i ] );
         }
-        if ( input.getFieldStream()[i] != null ) {
-          item.setText( 2, input.getFieldStream()[i] );
+        if ( input.getFieldStream()[ i ] != null ) {
+          item.setText( 2, input.getFieldStream()[ i ] );
         }
-        item.setText( 3, DimensionLookupMeta.getUpdateType( input.isUpdate(), input.getFieldUpdate()[i] ) );
+        item.setText( 3, DimensionLookupMeta.getUpdateType( input.isUpdate(), input.getFieldUpdate()[ i ] ) );
       }
     }
 
@@ -1435,8 +1435,8 @@ public class DimensionLookupDialog extends BaseStepDialog implements StepDialogI
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrkeys; i++ ) {
       TableItem item = wKey.getNonEmpty( i );
-      in.getKeyLookup()[i] = item.getText( 1 );
-      in.getKeyStream()[i] = item.getText( 2 );
+      in.getKeyLookup()[ i ] = item.getText( 1 );
+      in.getKeyStream()[ i ] = item.getText( 2 );
     }
 
     if ( log.isDebug() ) {
@@ -1445,9 +1445,9 @@ public class DimensionLookupDialog extends BaseStepDialog implements StepDialogI
     //CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrfields; i++ ) {
       TableItem item = wUpIns.getNonEmpty( i );
-      in.getFieldLookup()[i] = item.getText( 1 );
-      in.getFieldStream()[i] = item.getText( 2 );
-      in.getFieldUpdate()[i] = DimensionLookupMeta.getUpdateType( in.isUpdate(), item.getText( 3 ) );
+      in.getFieldLookup()[ i ] = item.getText( 1 );
+      in.getFieldStream()[ i ] = item.getText( 2 );
+      in.getFieldUpdate()[ i ] = DimensionLookupMeta.getUpdateType( in.isUpdate(), item.getText( 3 ) );
     }
 
     in.setSchemaName( wSchema.getText() );
@@ -1502,11 +1502,11 @@ public class DimensionLookupDialog extends BaseStepDialog implements StepDialogI
 
   private void getTableName() {
     String connectionName = wConnection.getText();
-    if ( StringUtils.isEmpty(connectionName)) {
+    if ( StringUtils.isEmpty( connectionName ) ) {
       return;
     }
     DatabaseMeta databaseMeta = transMeta.findDatabase( connectionName );
-    if (databaseMeta==null) {
+    if ( databaseMeta == null ) {
       return;
     }
     logDebug( BaseMessages.getString( PKG, "DimensionLookupDialog.Log.LookingAtConnection" ) + databaseMeta.toString() );
@@ -1674,7 +1674,7 @@ public class DimensionLookupDialog extends BaseStepDialog implements StepDialogI
       } catch ( HopException ke ) {
         new ErrorDialog(
           shell, BaseMessages.getString( PKG, "DimensionLookupDialog.ErrorGettingFields.Title" ), BaseMessages
-            .getString( PKG, "DimensionLookupDialog.ErrorGettingFields.Message" ), ke );
+          .getString( PKG, "DimensionLookupDialog.ErrorGettingFields.Message" ), ke );
       }
       gotPreviousFields = true;
     }

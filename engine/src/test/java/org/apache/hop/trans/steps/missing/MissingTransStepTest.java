@@ -22,16 +22,6 @@
 
 package org.apache.hop.trans.steps.missing;
 
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.AbstractStepMeta;
 import org.apache.hop.trans.Trans;
@@ -43,8 +33,17 @@ import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.StepMockUtil;
 import org.apache.hop.trans.steps.datagrid.DataGridMeta;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MissingTransStepTest {
   private StepMockHelper<DataGridMeta, StepDataInterface> helper;
@@ -64,7 +63,8 @@ public class MissingTransStepTest {
     StepMetaInterface stepMetaInterface = new AbstractStepMeta() {
 
       @Override
-      public void setDefault() { }
+      public void setDefault() {
+      }
 
       @Override
       public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,

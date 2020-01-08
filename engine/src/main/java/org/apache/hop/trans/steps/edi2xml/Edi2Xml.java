@@ -28,9 +28,9 @@ import org.antlr.runtime.MismatchedTokenException;
 import org.antlr.runtime.RecognitionException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -114,7 +114,7 @@ public class Edi2Xml extends BaseStep implements StepInterface {
 
       // create instances of lexer/tokenstream/parser
       // treat null values as empty strings for parsing purposes
-      inputValue = Const.NVL( data.inputMeta.getString( r[data.inputFieldIndex] ), "" );
+      inputValue = Const.NVL( data.inputMeta.getString( r[ data.inputFieldIndex ] ), "" );
 
       lexer = new FastSimpleGenericEdifactDirectXMLLexer( new ANTLRStringStream( inputValue ) );
       tokens = new CommonTokenStream( lexer );
@@ -123,7 +123,7 @@ public class Edi2Xml extends BaseStep implements StepInterface {
     } else {
 
       // treat null values as empty strings for parsing purposes
-      inputValue = Const.NVL( data.inputMeta.getString( r[data.inputFieldIndex] ), "" );
+      inputValue = Const.NVL( data.inputMeta.getString( r[ data.inputFieldIndex ] ), "" );
 
       lexer.setCharStream( new ANTLRStringStream( inputValue ) );
       tokens.setTokenSource( lexer );
@@ -136,7 +136,7 @@ public class Edi2Xml extends BaseStep implements StepInterface {
       // make sure the row is big enough
       r = RowDataUtil.resizeArray( r, data.outputRowMeta.size() );
       // place parsing result into output field
-      r[data.outputFieldIndex] = parser.buf.toString();
+      r[ data.outputFieldIndex ] = parser.buf.toString();
       putRow( data.outputRowMeta, r );
 
     } catch ( MismatchedTokenException e ) {
@@ -144,8 +144,8 @@ public class Edi2Xml extends BaseStep implements StepInterface {
       StringBuilder errorMessage = new StringBuilder( 180 );
       errorMessage.append( "error parsing edi on line " + e.line + " position " + e.charPositionInLine );
       errorMessage.append( ": expecting "
-        + ( ( e.expecting > -1 ) ? parser.getTokenNames()[e.expecting] : "<UNKNOWN>" ) + " but found " );
-      errorMessage.append( ( e.token.getType() >= 0 ) ? parser.getTokenNames()[e.token.getType()] : "<EOF>" );
+        + ( ( e.expecting > -1 ) ? parser.getTokenNames()[ e.expecting ] : "<UNKNOWN>" ) + " but found " );
+      errorMessage.append( ( e.token.getType() >= 0 ) ? parser.getTokenNames()[ e.token.getType() ] : "<EOF>" );
 
       if ( getStepMeta().isDoingErrorHandling() ) {
         putError(
@@ -157,7 +157,7 @@ public class Edi2Xml extends BaseStep implements StepInterface {
         // try to determine the error line
         String errorline = "<UNKNOWN>";
         try {
-          errorline = inputValue.split( "\\r?\\n" )[e.line - 1];
+          errorline = inputValue.split( "\\r?\\n" )[ e.line - 1 ];
         } catch ( Exception ee ) {
           // Ignore pattern syntax errors
         }
@@ -181,7 +181,7 @@ public class Edi2Xml extends BaseStep implements StepInterface {
         // try to determine the error line
         String errorline = "<UNKNOWN>";
         try {
-          errorline = inputValue.split( "\\r?\\n" )[e.line - 1];
+          errorline = inputValue.split( "\\r?\\n" )[ e.line - 1 ];
         } catch ( Exception ee ) {
           // Ignore pattern syntax errors
         }

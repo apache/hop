@@ -21,9 +21,19 @@
  ******************************************************************************/
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import org.apache.commons.dbcp.DelegatingConnection;
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.database.util.DatabaseUtil;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.i18n.BaseMessages;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -38,19 +48,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.commons.dbcp.DelegatingConnection;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.database.util.DatabaseUtil;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.i18n.BaseMessages;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 public class ConnectionPoolUtilIntegrationIT {
 
@@ -193,7 +193,7 @@ public class ConnectionPoolUtilIntegrationIT {
     when( dbMeta.environmentSubstitute( anyString() ) ).thenAnswer( new Answer<Object>() {
       @Override
       public Object answer( InvocationOnMock invocation ) throws Throwable {
-        return invocation.getArguments()[0];
+        return invocation.getArguments()[ 0 ];
       }
     } );
     when( dbMeta.getName() ).thenReturn( "CP1" );

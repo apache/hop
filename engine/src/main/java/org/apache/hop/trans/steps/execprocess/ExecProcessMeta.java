@@ -22,25 +22,20 @@
 
 package org.apache.hop.trans.steps.execprocess;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.shared.SharedObjectInterface;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
@@ -48,8 +43,9 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /*
  * Created on 03-11-2008
@@ -59,28 +55,44 @@ import org.w3c.dom.Node;
 public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** dynamic process field name */
+  /**
+   * dynamic process field name
+   */
   private String processfield;
 
-  /** function result: new value name */
+  /**
+   * function result: new value name
+   */
   private String resultfieldname;
 
-  /** function result: error fieldname */
+  /**
+   * function result: error fieldname
+   */
   private String errorfieldname;
 
-  /** function result: exit value fieldname */
+  /**
+   * function result: exit value fieldname
+   */
   private String exitvaluefieldname;
 
-  /** fail if the exit status is different from 0 **/
+  /**
+   * fail if the exit status is different from 0
+   **/
   private boolean failwhennotsuccess;
 
-  /** Output Line Delimiter - defaults to empty string for backward compatibility **/
+  /**
+   * Output Line Delimiter - defaults to empty string for backward compatibility
+   **/
   public String outputLineDelimiter = "";
 
-  /** Whether arguments for the command are provided in input fields **/
+  /**
+   * Whether arguments for the command are provided in input fields
+   **/
   private boolean argumentsInFields;
 
-  /** The field names where arguments should be found **/
+  /**
+   * The field names where arguments should be found
+   **/
   private String[] argumentFieldNames;
 
   public ExecProcessMeta() {
@@ -89,7 +101,7 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void allocate( int argumentCount ) {
-    this.argumentFieldNames = new String[argumentCount];
+    this.argumentFieldNames = new String[ argumentCount ];
   }
 
   /**
@@ -100,8 +112,7 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param processfield
-   *          The processfield to set.
+   * @param processfield The processfield to set.
    */
   public void setProcessField( String processfield ) {
     this.processfield = processfield;
@@ -115,8 +126,7 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param resultfieldname
-   *          The resultfieldname to set.
+   * @param resultfieldname The resultfieldname to set.
    */
   public void setResultFieldName( String resultfieldname ) {
     this.resultfieldname = resultfieldname;
@@ -130,8 +140,7 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param errorfieldname
-   *          The errorfieldname to set.
+   * @param errorfieldname The errorfieldname to set.
    */
   public void setErrorFieldName( String errorfieldname ) {
     this.errorfieldname = errorfieldname;
@@ -145,8 +154,7 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param exitvaluefieldname
-   *          The exitvaluefieldname to set.
+   * @param exitvaluefieldname The exitvaluefieldname to set.
    */
   public void setExitValueFieldName( String exitvaluefieldname ) {
     this.exitvaluefieldname = exitvaluefieldname;
@@ -160,9 +168,8 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
+   * @param failwhennotsuccess The failwhennotsuccess to set.
    * @deprecated due to method name typo
-   * @param failwhennotsuccess
-   *          The failwhennotsuccess to set.
    */
   @Deprecated
   public void setFailWhentNoSuccess( boolean failwhennotsuccess ) {
@@ -170,8 +177,7 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   /**
-   * @param failwhennotsuccess
-   *          The failwhennotsuccess to set.
+   * @param failwhennotsuccess The failwhennotsuccess to set.
    */
   public void setFailWhenNotSuccess( boolean failwhennotsuccess ) {
     this.failwhennotsuccess = failwhennotsuccess;
@@ -199,7 +205,7 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-    VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
     // Output fields (String)
     String realOutputFieldname = space.environmentSubstitute( resultfieldname );
     if ( !Utils.isEmpty( realOutputFieldname ) ) {
@@ -239,7 +245,7 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
     retval.append( "    " ).append( XMLHandler.openTag( "argumentFields" ) ).append( Const.CR );
     for ( int i = 0; i < argumentFieldNames.length; i++ ) {
       retval.append( "      " ).append( XMLHandler.openTag( "argumentField" ) ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "argumentFieldName", argumentFieldNames[i] ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "argumentFieldName", argumentFieldNames[ i ] ) );
       retval.append( "      " ).append( XMLHandler.closeTag( "argumentField" ) ).append( Const.CR );
     }
     retval.append( "    " ).append( XMLHandler.closeTag( "argumentFields" ) ).append( Const.CR );
@@ -261,13 +267,13 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
       argumentsInFields = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "argumentsInFields" ) );
       Node argumentFieldsNode = XMLHandler.getSubNode( stepnode, "argumentFields" );
       if ( argumentFieldsNode == null ) {
-        argumentFieldNames = new String[0];
+        argumentFieldNames = new String[ 0 ];
       } else {
         int argumentFieldCount = XMLHandler.countNodes( argumentFieldsNode, "argumentField" );
-        argumentFieldNames = new String[argumentFieldCount];
+        argumentFieldNames = new String[ argumentFieldCount ];
         for ( int i = 0; i < argumentFieldCount; i++ ) {
           Node fnode = XMLHandler.getSubNodeByNr( argumentFieldsNode, "argumentField", i );
-          argumentFieldNames[i] = XMLHandler.getTagValue( fnode, "argumentFieldName" );
+          argumentFieldNames[ i ] = XMLHandler.getTagValue( fnode, "argumentFieldName" );
         }
       }
 
@@ -279,8 +285,8 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-    IMetaStore metaStore ) {
+                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                     IMetaStore metaStore ) {
     CheckResult cr;
     String error_message = "";
 
@@ -318,7 +324,7 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-    TransMeta transMeta, Trans trans ) {
+                                TransMeta transMeta, Trans trans ) {
     return new ExecProcess( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 

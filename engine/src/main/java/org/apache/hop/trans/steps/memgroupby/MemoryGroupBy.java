@@ -22,15 +22,8 @@
 
 package org.apache.hop.trans.steps.memgroupby;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowDataUtil;
@@ -42,6 +35,7 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -51,6 +45,12 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.memgroupby.MemoryGroupByData.HashEntry;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Groups information based on aggregation rules. (sum, count, ...)
@@ -116,20 +116,20 @@ public class MemoryGroupBy extends BaseStep implements StepInterface {
       // Do all the work we can beforehand
       // Calculate indexes, loop up fields, etc.
       //
-      data.subjectnrs = new int[meta.getSubjectField().length];
-      data.groupnrs = new int[meta.getGroupField().length];
+      data.subjectnrs = new int[ meta.getSubjectField().length ];
+      data.groupnrs = new int[ meta.getGroupField().length ];
 
       // If the step does not receive any rows, we can not lookup field position indexes
       if ( r != null ) {
         for ( int i = 0; i < meta.getSubjectField().length; i++ ) {
-          if ( meta.getAggregateType()[i] == MemoryGroupByMeta.TYPE_GROUP_COUNT_ANY ) {
-            data.subjectnrs[i] = 0;
+          if ( meta.getAggregateType()[ i ] == MemoryGroupByMeta.TYPE_GROUP_COUNT_ANY ) {
+            data.subjectnrs[ i ] = 0;
           } else {
-            data.subjectnrs[i] = data.inputRowMeta.indexOfValue( meta.getSubjectField()[i] );
+            data.subjectnrs[ i ] = data.inputRowMeta.indexOfValue( meta.getSubjectField()[ i ] );
           }
-          if ( data.subjectnrs[i] < 0 ) {
+          if ( data.subjectnrs[ i ] < 0 ) {
             logError( BaseMessages.getString( PKG, "MemoryGroupBy.Log.AggregateSubjectFieldCouldNotFound", meta
-              .getSubjectField()[i] ) );
+              .getSubjectField()[ i ] ) );
             setErrors( 1 );
             stopAll();
             return false;
@@ -137,10 +137,10 @@ public class MemoryGroupBy extends BaseStep implements StepInterface {
         }
 
         for ( int i = 0; i < meta.getGroupField().length; i++ ) {
-          data.groupnrs[i] = data.inputRowMeta.indexOfValue( meta.getGroupField()[i] );
-          if ( data.groupnrs[i] < 0 ) {
+          data.groupnrs[ i ] = data.inputRowMeta.indexOfValue( meta.getGroupField()[ i ] );
+          if ( data.groupnrs[ i ] < 0 ) {
             logError( BaseMessages.getString(
-              PKG, "MemoryGroupBy.Log.GroupFieldCouldNotFound", meta.getGroupField()[i] ) );
+              PKG, "MemoryGroupBy.Log.GroupFieldCouldNotFound", meta.getGroupField()[ i ] ) );
             setErrors( 1 );
             stopAll();
             return false;
@@ -206,10 +206,10 @@ public class MemoryGroupBy extends BaseStep implements StepInterface {
       Object[] outputRowData = RowDataUtil.allocateRowData( data.outputRowMeta.size() );
       int index = 0;
       for ( int i = 0; i < data.groupMeta.size(); i++ ) {
-        outputRowData[index++] = data.groupMeta.getValueMeta( i ).convertToNormalStorageType( entry.getGroupData()[i] );
+        outputRowData[ index++ ] = data.groupMeta.getValueMeta( i ).convertToNormalStorageType( entry.getGroupData()[ i ] );
       }
       for ( int i = 0; i < data.aggMeta.size(); i++ ) {
-        outputRowData[index++] = data.aggMeta.getValueMeta( i ).convertToNormalStorageType( aggregateResult[i] );
+        outputRowData[ index++ ] = data.aggMeta.getValueMeta( i ).convertToNormalStorageType( aggregateResult[ i ] );
       }
       putRow( data.outputRowMeta, outputRowData );
     }
@@ -221,15 +221,15 @@ public class MemoryGroupBy extends BaseStep implements StepInterface {
       Object[] outputRowData = RowDataUtil.allocateRowData( data.outputRowMeta.size() );
       int index = 0;
       for ( int i = 0; i < data.groupMeta.size(); i++ ) {
-        outputRowData[index++] = null;
+        outputRowData[ index++ ] = null;
       }
       for ( int i = 0; i < data.aggMeta.size(); i++ ) {
-        if ( meta.getAggregateType()[i] == MemoryGroupByMeta.TYPE_GROUP_COUNT_ALL
-          || meta.getAggregateType()[i] == MemoryGroupByMeta.TYPE_GROUP_COUNT_ANY
-          || meta.getAggregateType()[i] == MemoryGroupByMeta.TYPE_GROUP_COUNT_DISTINCT ) {
-          outputRowData[index++] = Long.valueOf( 0L );
+        if ( meta.getAggregateType()[ i ] == MemoryGroupByMeta.TYPE_GROUP_COUNT_ALL
+          || meta.getAggregateType()[ i ] == MemoryGroupByMeta.TYPE_GROUP_COUNT_ANY
+          || meta.getAggregateType()[ i ] == MemoryGroupByMeta.TYPE_GROUP_COUNT_DISTINCT ) {
+          outputRowData[ index++ ] = Long.valueOf( 0L );
         } else {
-          outputRowData[index++] = null;
+          outputRowData[ index++ ] = null;
         }
       }
       putRow( data.outputRowMeta, outputRowData );
@@ -244,9 +244,9 @@ public class MemoryGroupBy extends BaseStep implements StepInterface {
    */
   @SuppressWarnings( "unchecked" ) void addToAggregate( Object[] r ) throws HopException {
 
-    Object[] groupData = new Object[data.groupMeta.size()];
+    Object[] groupData = new Object[ data.groupMeta.size() ];
     for ( int i = 0; i < data.groupnrs.length; i++ ) {
-      groupData[i] = r[data.groupnrs[i]];
+      groupData[ i ] = r[ data.groupnrs[ i ] ];
     }
     HashEntry entry = data.getHashEntry( groupData );
 
@@ -263,108 +263,108 @@ public class MemoryGroupBy extends BaseStep implements StepInterface {
     }
 
     for ( int i = 0; i < data.subjectnrs.length; i++ ) {
-      Object subj = r[data.subjectnrs[i]];
-      ValueMetaInterface subjMeta = data.inputRowMeta.getValueMeta( data.subjectnrs[i] );
-      Object value = aggregate.agg[i];
+      Object subj = r[ data.subjectnrs[ i ] ];
+      ValueMetaInterface subjMeta = data.inputRowMeta.getValueMeta( data.subjectnrs[ i ] );
+      Object value = aggregate.agg[ i ];
       ValueMetaInterface valueMeta = data.aggMeta.getValueMeta( i );
 
-      switch ( meta.getAggregateType()[i] ) {
+      switch ( meta.getAggregateType()[ i ] ) {
         case MemoryGroupByMeta.TYPE_GROUP_SUM:
-          aggregate.agg[i] = ValueDataUtil.sum( valueMeta, value, subjMeta, subj );
+          aggregate.agg[ i ] = ValueDataUtil.sum( valueMeta, value, subjMeta, subj );
           break;
         case MemoryGroupByMeta.TYPE_GROUP_AVERAGE:
           if ( !subjMeta.isNull( subj ) ) {
-            aggregate.agg[i] = ValueDataUtil.sum( valueMeta, value, subjMeta, subj );
-            aggregate.counts[i]++;
+            aggregate.agg[ i ] = ValueDataUtil.sum( valueMeta, value, subjMeta, subj );
+            aggregate.counts[ i ]++;
           }
           break;
         case MemoryGroupByMeta.TYPE_GROUP_MEDIAN:
         case MemoryGroupByMeta.TYPE_GROUP_PERCENTILE:
           if ( !subjMeta.isNull( subj ) ) {
-            ( (List<Double>) aggregate.agg[i] ).add( subjMeta.getNumber( subj ) );
+            ( (List<Double>) aggregate.agg[ i ] ).add( subjMeta.getNumber( subj ) );
           }
           break;
         case MemoryGroupByMeta.TYPE_GROUP_STANDARD_DEVIATION:
           if ( aggregate.mean == null ) {
-            aggregate.mean = new double[meta.getSubjectField().length];
+            aggregate.mean = new double[ meta.getSubjectField().length ];
           }
-          aggregate.counts[i]++;
-          double n = aggregate.counts[i];
+          aggregate.counts[ i ]++;
+          double n = aggregate.counts[ i ];
           double x = subjMeta.getNumber( subj );
           // for standard deviation null is exact 0
           double sum = value == null ? new Double( 0 ) : (Double) value;
-          double mean = aggregate.mean[i];
+          double mean = aggregate.mean[ i ];
 
           double delta = x - mean;
           mean = mean + ( delta / n );
           sum = sum + delta * ( x - mean );
 
-          aggregate.mean[i] = mean;
-          aggregate.agg[i] = sum;
+          aggregate.mean[ i ] = mean;
+          aggregate.agg[ i ] = sum;
           break;
         case MemoryGroupByMeta.TYPE_GROUP_COUNT_DISTINCT:
           if ( aggregate.distinctObjs == null ) {
-            aggregate.distinctObjs = new Set[meta.getSubjectField().length];
+            aggregate.distinctObjs = new Set[ meta.getSubjectField().length ];
           }
-          if ( aggregate.distinctObjs[i] == null ) {
-            aggregate.distinctObjs[i] = new TreeSet<>();
+          if ( aggregate.distinctObjs[ i ] == null ) {
+            aggregate.distinctObjs[ i ] = new TreeSet<>();
           }
           if ( !subjMeta.isNull( subj ) ) {
             Object obj = subjMeta.convertToNormalStorageType( subj );
             // byte [] is not Comparable and can not be added to TreeSet.
             // For our case it can be binary array. It was typed as String.
             // So it can be processing (comparing and displaying) correctly as String
-            if ( obj instanceof byte [] ) {
-              obj = new String( (byte []) obj );
+            if ( obj instanceof byte[] ) {
+              obj = new String( (byte[]) obj );
             }
-            if ( !aggregate.distinctObjs[i].contains( obj ) ) {
-              aggregate.distinctObjs[i].add( obj );
+            if ( !aggregate.distinctObjs[ i ].contains( obj ) ) {
+              aggregate.distinctObjs[ i ].add( obj );
             }
           }
-          aggregate.counts[i] = aggregate.distinctObjs[i].size();
+          aggregate.counts[ i ] = aggregate.distinctObjs[ i ].size();
           break;
         case MemoryGroupByMeta.TYPE_GROUP_COUNT_ALL:
           if ( !subjMeta.isNull( subj ) ) {
-            aggregate.counts[i]++;
+            aggregate.counts[ i ]++;
           }
           break;
         case MemoryGroupByMeta.TYPE_GROUP_COUNT_ANY:
-          aggregate.counts[i]++;
+          aggregate.counts[ i ]++;
           break;
         case MemoryGroupByMeta.TYPE_GROUP_MIN:
           boolean subjIsNull = subjMeta.isNull( subj );
           boolean valueIsNull = valueMeta.isNull( value );
           if ( minNullIsValued || ( !subjIsNull && !valueIsNull ) ) {
             // PDI-11530 do not compare null
-            aggregate.agg[i] = subjMeta.compare( subj, valueMeta, value ) < 0 ? subj : value;
+            aggregate.agg[ i ] = subjMeta.compare( subj, valueMeta, value ) < 0 ? subj : value;
           } else if ( valueIsNull && !subjIsNull ) {
             // By default set aggregate to first not null value
-            aggregate.agg[i] = subj;
+            aggregate.agg[ i ] = subj;
           }
           break;
         case MemoryGroupByMeta.TYPE_GROUP_MAX:
           if ( subjMeta.compare( subj, valueMeta, value ) > 0 ) {
-            aggregate.agg[i] = subj;
+            aggregate.agg[ i ] = subj;
           }
           break;
         case MemoryGroupByMeta.TYPE_GROUP_FIRST:
           if ( !subjMeta.isNull( subj ) && value == null ) {
-            aggregate.agg[i] = subj;
+            aggregate.agg[ i ] = subj;
           }
           break;
         case MemoryGroupByMeta.TYPE_GROUP_LAST:
           if ( !subjMeta.isNull( subj ) ) {
-            aggregate.agg[i] = subj;
+            aggregate.agg[ i ] = subj;
           }
           break;
         case MemoryGroupByMeta.TYPE_GROUP_FIRST_INCL_NULL:
-          if ( aggregate.counts[i] == 0 ) {
-            aggregate.agg[i] = subj;
-            aggregate.counts[i]++;
+          if ( aggregate.counts[ i ] == 0 ) {
+            aggregate.agg[ i ] = subj;
+            aggregate.counts[ i ]++;
           }
           break;
         case MemoryGroupByMeta.TYPE_GROUP_LAST_INCL_NULL:
-          aggregate.agg[i] = subj;
+          aggregate.agg[ i ] = subj;
           break;
         case MemoryGroupByMeta.TYPE_GROUP_CONCAT_COMMA:
           if ( !( subj == null ) ) {
@@ -378,8 +378,8 @@ public class MemoryGroupBy extends BaseStep implements StepInterface {
         case MemoryGroupByMeta.TYPE_GROUP_CONCAT_STRING:
           if ( !( subj == null ) ) {
             String separator = "";
-            if ( !Utils.isEmpty( meta.getValueField()[i] ) ) {
-              separator = environmentSubstitute( meta.getValueField()[i] );
+            if ( !Utils.isEmpty( meta.getValueField()[ i ] ) ) {
+              separator = environmentSubstitute( meta.getValueField()[ i ] );
             }
             StringBuilder sb = (StringBuilder) value;
             if ( sb.length() > 0 ) {
@@ -405,39 +405,39 @@ public class MemoryGroupBy extends BaseStep implements StepInterface {
     if ( aggregate == null ) {
       data.aggMeta = new RowMeta();
     } else {
-      aggregate.counts = new long[data.subjectnrs.length];
+      aggregate.counts = new long[ data.subjectnrs.length ];
 
       // Put all the counters at 0
       for ( int i = 0; i < aggregate.counts.length; i++ ) {
-        aggregate.counts[i] = 0;
+        aggregate.counts[ i ] = 0;
       }
       aggregate.distinctObjs = null;
-      aggregate.agg = new Object[data.subjectnrs.length];
-      aggregate.mean = new double[data.subjectnrs.length]; // sets all doubles to 0.0
+      aggregate.agg = new Object[ data.subjectnrs.length ];
+      aggregate.mean = new double[ data.subjectnrs.length ]; // sets all doubles to 0.0
     }
 
     for ( int i = 0; i < data.subjectnrs.length; i++ ) {
-      ValueMetaInterface subjMeta = data.inputRowMeta.getValueMeta( data.subjectnrs[i] );
+      ValueMetaInterface subjMeta = data.inputRowMeta.getValueMeta( data.subjectnrs[ i ] );
       Object v = null;
       ValueMetaInterface vMeta = null;
-      switch ( meta.getAggregateType()[i] ) {
+      switch ( meta.getAggregateType()[ i ] ) {
         case MemoryGroupByMeta.TYPE_GROUP_MEDIAN:
         case MemoryGroupByMeta.TYPE_GROUP_PERCENTILE:
-          vMeta = new ValueMetaNumber( meta.getAggregateField()[i] );
+          vMeta = new ValueMetaNumber( meta.getAggregateField()[ i ] );
           v = new ArrayList<Double>();
           break;
         case MemoryGroupByMeta.TYPE_GROUP_STANDARD_DEVIATION:
-          vMeta = new ValueMetaNumber( meta.getAggregateField()[i] );
+          vMeta = new ValueMetaNumber( meta.getAggregateField()[ i ] );
           break;
         case MemoryGroupByMeta.TYPE_GROUP_COUNT_DISTINCT:
         case MemoryGroupByMeta.TYPE_GROUP_COUNT_ANY:
         case MemoryGroupByMeta.TYPE_GROUP_COUNT_ALL:
-          vMeta = new ValueMetaInteger( meta.getAggregateField()[i] );
+          vMeta = new ValueMetaInteger( meta.getAggregateField()[ i ] );
           break;
         case MemoryGroupByMeta.TYPE_GROUP_SUM:
         case MemoryGroupByMeta.TYPE_GROUP_AVERAGE:
           vMeta = !compatibilityMode && subjMeta.isNumeric() ? subjMeta.clone() : new ValueMetaNumber();
-          vMeta.setName( meta.getAggregateField()[i] );
+          vMeta.setName( meta.getAggregateField()[ i ] );
           break;
         case MemoryGroupByMeta.TYPE_GROUP_FIRST:
         case MemoryGroupByMeta.TYPE_GROUP_LAST:
@@ -446,30 +446,30 @@ public class MemoryGroupBy extends BaseStep implements StepInterface {
         case MemoryGroupByMeta.TYPE_GROUP_MIN:
         case MemoryGroupByMeta.TYPE_GROUP_MAX:
           vMeta = subjMeta.clone();
-          vMeta.setName( meta.getAggregateField()[i] );
-          v = r == null ? null : r[data.subjectnrs[i]];
+          vMeta.setName( meta.getAggregateField()[ i ] );
+          v = r == null ? null : r[ data.subjectnrs[ i ] ];
           break;
         case MemoryGroupByMeta.TYPE_GROUP_CONCAT_COMMA:
-          vMeta = new ValueMetaString( meta.getAggregateField()[i] );
+          vMeta = new ValueMetaString( meta.getAggregateField()[ i ] );
           v = new StringBuilder();
           break;
         case MemoryGroupByMeta.TYPE_GROUP_CONCAT_STRING:
-          vMeta = new ValueMetaString( meta.getAggregateField()[i] );
+          vMeta = new ValueMetaString( meta.getAggregateField()[ i ] );
           v = new StringBuilder();
           break;
         default:
-          throw new HopException( "Unknown data type for aggregation : " + meta.getAggregateField()[i] );
+          throw new HopException( "Unknown data type for aggregation : " + meta.getAggregateField()[ i ] );
       }
 
-      if ( meta.getAggregateType()[i] != MemoryGroupByMeta.TYPE_GROUP_COUNT_ALL
-        && meta.getAggregateType()[i] != MemoryGroupByMeta.TYPE_GROUP_COUNT_DISTINCT
-        && meta.getAggregateType()[i] != MemoryGroupByMeta.TYPE_GROUP_COUNT_ANY ) {
+      if ( meta.getAggregateType()[ i ] != MemoryGroupByMeta.TYPE_GROUP_COUNT_ALL
+        && meta.getAggregateType()[ i ] != MemoryGroupByMeta.TYPE_GROUP_COUNT_DISTINCT
+        && meta.getAggregateType()[ i ] != MemoryGroupByMeta.TYPE_GROUP_COUNT_ANY ) {
         vMeta.setLength( subjMeta.getLength(), subjMeta.getPrecision() );
       }
       if ( aggregate == null ) {
         data.aggMeta.addValueMeta( vMeta );
       } else {
-        aggregate.agg[i] = v;
+        aggregate.agg[ i ] = v;
       }
     }
   }
@@ -479,7 +479,7 @@ public class MemoryGroupBy extends BaseStep implements StepInterface {
     data.entryMeta = new RowMeta();
 
     for ( int i = 0; i < data.groupnrs.length; i++ ) {
-      ValueMetaInterface valueMeta = previousRowMeta.getValueMeta( data.groupnrs[i] );
+      ValueMetaInterface valueMeta = previousRowMeta.getValueMeta( data.groupnrs[ i ] );
       data.groupMeta.addValueMeta( valueMeta );
 
       ValueMetaInterface normalMeta = valueMeta.clone();
@@ -497,45 +497,45 @@ public class MemoryGroupBy extends BaseStep implements StepInterface {
    * @throws HopValueException
    */
   Object[] getAggregateResult( Aggregate aggregate ) throws HopValueException {
-    Object[] result = new Object[data.subjectnrs.length];
+    Object[] result = new Object[ data.subjectnrs.length ];
 
     if ( data.subjectnrs != null ) {
       for ( int i = 0; i < data.subjectnrs.length; i++ ) {
-        Object ag = aggregate.agg[i];
-        switch ( meta.getAggregateType()[i] ) {
+        Object ag = aggregate.agg[ i ];
+        switch ( meta.getAggregateType()[ i ] ) {
           case MemoryGroupByMeta.TYPE_GROUP_SUM:
             break;
           case MemoryGroupByMeta.TYPE_GROUP_AVERAGE:
             ag = ValueDataUtil.divide(
               data.aggMeta.getValueMeta( i ), ag,
-              new ValueMetaInteger( "c" ), aggregate.counts[i]
+              new ValueMetaInteger( "c" ), aggregate.counts[ i ]
             );
             break;
           case MemoryGroupByMeta.TYPE_GROUP_MEDIAN:
           case MemoryGroupByMeta.TYPE_GROUP_PERCENTILE:
             double percentile = 50.0;
-            if ( meta.getAggregateType()[i] == MemoryGroupByMeta.TYPE_GROUP_PERCENTILE ) {
-              percentile = Double.parseDouble( meta.getValueField()[i] );
+            if ( meta.getAggregateType()[ i ] == MemoryGroupByMeta.TYPE_GROUP_PERCENTILE ) {
+              percentile = Double.parseDouble( meta.getValueField()[ i ] );
             }
             @SuppressWarnings( "unchecked" )
-            List<Double> valuesList = (List<Double>) aggregate.agg[i];
-            double[] values = new double[valuesList.size()];
+            List<Double> valuesList = (List<Double>) aggregate.agg[ i ];
+            double[] values = new double[ valuesList.size() ];
             for ( int v = 0; v < values.length; v++ ) {
-              values[v] = valuesList.get( v );
+              values[ v ] = valuesList.get( v );
             }
             ag = new Percentile().evaluate( values, percentile );
             break;
           case MemoryGroupByMeta.TYPE_GROUP_COUNT_ANY:
           case MemoryGroupByMeta.TYPE_GROUP_COUNT_ALL:
           case MemoryGroupByMeta.TYPE_GROUP_COUNT_DISTINCT:
-            ag = aggregate.counts[i];
+            ag = aggregate.counts[ i ];
             break;
           case MemoryGroupByMeta.TYPE_GROUP_MIN:
             break;
           case MemoryGroupByMeta.TYPE_GROUP_MAX:
             break;
           case MemoryGroupByMeta.TYPE_GROUP_STANDARD_DEVIATION:
-            double sum = (Double) ag / aggregate.counts[i];
+            double sum = (Double) ag / aggregate.counts[ i ];
             ag = Double.valueOf( Math.sqrt( sum ) );
             break;
           case MemoryGroupByMeta.TYPE_GROUP_CONCAT_COMMA:
@@ -550,7 +550,7 @@ public class MemoryGroupBy extends BaseStep implements StepInterface {
           ValueMetaInterface vm = data.aggMeta.getValueMeta( i );
           ag = ValueDataUtil.getZeroForValueMetaType( vm );
         }
-        result[i] = ag;
+        result[ i ] = ag;
       }
     }
 

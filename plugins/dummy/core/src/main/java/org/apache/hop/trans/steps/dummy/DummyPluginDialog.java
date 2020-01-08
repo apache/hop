@@ -22,7 +22,14 @@
 
 package org.apache.hop.trans.steps.dummy;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.row.ValueMetaAndData;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.ui.core.dialog.EnterValueDialog;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -40,13 +47,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.row.ValueMetaAndData;
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.ui.core.dialog.EnterValueDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
 
 public class DummyPluginDialog extends BaseStepDialog implements StepDialogInterface {
   private static final Class<?> PKG = DummyPluginDialog.class; // i18n
@@ -88,7 +88,7 @@ public class DummyPluginDialog extends BaseStepDialog implements StepDialogInter
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth  = Const.FORM_MARGIN;
+    formLayout.marginWidth = Const.FORM_MARGIN;
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout( formLayout );
@@ -104,7 +104,7 @@ public class DummyPluginDialog extends BaseStepDialog implements StepDialogInter
     fdlStepname = new FormData();
     fdlStepname.left = new FormAttachment( 0, 0 );
     fdlStepname.right = new FormAttachment( middle, -margin );
-    fdlStepname.top  = new FormAttachment( 0, margin );
+    fdlStepname.top = new FormAttachment( 0, margin );
     wlStepname.setLayoutData( fdlStepname );
     wStepname = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wStepname.setText( stepname );
@@ -131,7 +131,7 @@ public class DummyPluginDialog extends BaseStepDialog implements StepDialogInter
     fdValName = new FormData();
     fdValName.left = new FormAttachment( middle, 0 );
     fdValName.right = new FormAttachment( 100, 0 );
-    fdValName.top  = new FormAttachment( wStepname, margin );
+    fdValName.top = new FormAttachment( wStepname, margin );
     wValName.setLayoutData( fdValName );
 
     // Value line
@@ -149,7 +149,7 @@ public class DummyPluginDialog extends BaseStepDialog implements StepDialogInter
     wbValue.setText( BaseMessages.getString( PKG, "System.Button.Edit" ) ); //$NON-NLS-1$
     fdbValue = new FormData();
     fdbValue.right = new FormAttachment( 100, 0 );
-    fdbValue.top  = new FormAttachment( wValName, margin );
+    fdbValue.top = new FormAttachment( wValName, margin );
     wbValue.setLayoutData( fdbValue );
 
     wValue = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
@@ -158,7 +158,7 @@ public class DummyPluginDialog extends BaseStepDialog implements StepDialogInter
     fdValue = new FormData();
     fdValue.left = new FormAttachment( middle, 0 );
     fdValue.right = new FormAttachment( wbValue, -margin );
-    fdValue.top  = new FormAttachment( wValName, margin );
+    fdValue.top = new FormAttachment( wValName, margin );
     wValue.setLayoutData( fdValue );
 
     wbValue.addSelectionListener( new SelectionAdapter() {
@@ -210,7 +210,7 @@ public class DummyPluginDialog extends BaseStepDialog implements StepDialogInter
     wValName.addSelectionListener( lsDef );
 
     // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(  new ShellAdapter() {
+    shell.addShellListener( new ShellAdapter() {
       @Override
       public void shellClosed( ShellEvent e ) {
         cancel();

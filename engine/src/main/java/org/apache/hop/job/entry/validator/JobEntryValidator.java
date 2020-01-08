@@ -22,10 +22,10 @@
 
 package org.apache.hop.job.entry.validator;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.CheckResultSourceInterface;
+
+import java.util.List;
 
 /**
  * The interface of a job entry validator.
@@ -50,18 +50,14 @@ public interface JobEntryValidator {
    * and runs the validation putting any messages into <code>remarks</code>. The return value is <code>true</code> if
    * the validation passes.
    *
-   * @param source
-   *          bean to validate
-   * @param propertyName
-   *          property to validate
-   * @param remarks
-   *          list to which to add messages
-   * @param context
-   *          any other information needed to perform the validation
+   * @param source       bean to validate
+   * @param propertyName property to validate
+   * @param remarks      list to which to add messages
+   * @param context      any other information needed to perform the validation
    * @return validation result
    */
   boolean validate( CheckResultSourceInterface source, String propertyName, List<CheckResultInterface> remarks,
-    ValidatorContext context );
+                    ValidatorContext context );
 
   /**
    * Returns the name of this validator, unique among all validators.

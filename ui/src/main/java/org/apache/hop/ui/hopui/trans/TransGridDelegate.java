@@ -22,27 +22,7 @@
 
 package org.apache.hop.ui.hopui.trans;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.locks.ReentrantLock;
-
 import com.google.common.base.Strings;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.ToolBar;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -61,11 +41,30 @@ import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.hopui.XulHopUiSettingsManager;
 import org.apache.hop.ui.hopui.delegates.HopUiDelegate;
 import org.apache.hop.ui.xul.HopXulLoader;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.ToolBar;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulLoader;
 import org.pentaho.ui.xul.containers.XulToolbar;
 import org.pentaho.ui.xul.impl.XulEventHandler;
 import org.pentaho.ui.xul.swt.tags.SwtToolbarbutton;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class TransGridDelegate extends HopUiDelegate implements XulEventHandler {
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
@@ -118,7 +117,6 @@ public class TransGridDelegate extends HopUiDelegate implements XulEventHandler 
 
   /**
    * Add a grid with the execution metrics per step in a table view
-   *
    */
   public void addTransGrid() {
 
@@ -194,18 +192,18 @@ public class TransGridDelegate extends HopUiDelegate implements XulEventHandler 
           BaseMessages.getString( PKG, "TransLog.Column.PriorityBufferSizes" ), ColumnInfo.COLUMN_TYPE_TEXT,
           false, true ), };
 
-    colinf[1].setAllignement( SWT.RIGHT );
-    colinf[2].setAllignement( SWT.RIGHT );
-    colinf[3].setAllignement( SWT.RIGHT );
-    colinf[4].setAllignement( SWT.RIGHT );
-    colinf[5].setAllignement( SWT.RIGHT );
-    colinf[6].setAllignement( SWT.RIGHT );
-    colinf[7].setAllignement( SWT.RIGHT );
-    colinf[8].setAllignement( SWT.RIGHT );
-    colinf[9].setAllignement( SWT.LEFT );
-    colinf[10].setAllignement( SWT.RIGHT );
-    colinf[11].setAllignement( SWT.RIGHT );
-    colinf[12].setAllignement( SWT.RIGHT );
+    colinf[ 1 ].setAllignement( SWT.RIGHT );
+    colinf[ 2 ].setAllignement( SWT.RIGHT );
+    colinf[ 3 ].setAllignement( SWT.RIGHT );
+    colinf[ 4 ].setAllignement( SWT.RIGHT );
+    colinf[ 5 ].setAllignement( SWT.RIGHT );
+    colinf[ 6 ].setAllignement( SWT.RIGHT );
+    colinf[ 7 ].setAllignement( SWT.RIGHT );
+    colinf[ 8 ].setAllignement( SWT.RIGHT );
+    colinf[ 9 ].setAllignement( SWT.LEFT );
+    colinf[ 10 ].setAllignement( SWT.RIGHT );
+    colinf[ 11 ].setAllignement( SWT.RIGHT );
+    colinf[ 12 ].setAllignement( SWT.RIGHT );
 
     transGridView = new TableView( transGraph.getManagedObject(), transGridComposite, SWT.BORDER
       | SWT.FULL_SELECTION | SWT.MULTI, colinf, 1,
@@ -556,7 +554,7 @@ public class TransGridDelegate extends HopUiDelegate implements XulEventHandler 
 
   /**
    * Sub Step Compare
-   *
+   * <p>
    * Note - nulls must be handled outside of this method
    *
    * @param o1 - First object to compare

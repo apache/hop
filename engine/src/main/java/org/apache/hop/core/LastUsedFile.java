@@ -23,7 +23,6 @@
 package org.apache.hop.core;
 
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.core.util.Utils;
 
 import java.util.Date;
 
@@ -49,8 +48,7 @@ public class LastUsedFile {
   private int openItemTypes;
 
   /**
-   * @param fileType
-   *          The type of file to use (FILE_TYPE_TRANSFORMATION, FILE_TYPE_JOB, ...)
+   * @param fileType      The type of file to use (FILE_TYPE_TRANSFORMATION, FILE_TYPE_JOB, ...)
    * @param filename
    * @param opened
    * @param openItemTypes
@@ -85,8 +83,7 @@ public class LastUsedFile {
   }
 
   /**
-   * @param filename
-   *          the filename to set
+   * @param filename the filename to set
    */
   public void setFilename( String filename ) {
     this.filename = filename;
@@ -112,8 +109,7 @@ public class LastUsedFile {
   }
 
   /**
-   * @param fileType
-   *          the fileType to set
+   * @param fileType the fileType to set
    */
   public void setFileType( String fileType ) {
     this.fileType = fileType;
@@ -139,8 +135,7 @@ public class LastUsedFile {
   }
 
   /**
-   * @param opened
-   *          the opened to set
+   * @param opened the opened to set
    */
   public void setOpened( boolean opened ) {
     this.opened = opened;

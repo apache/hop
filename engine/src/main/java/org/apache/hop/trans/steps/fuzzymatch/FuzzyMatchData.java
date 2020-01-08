@@ -22,12 +22,12 @@
 
 package org.apache.hop.trans.steps.fuzzymatch;
 
-import java.util.HashSet;
-
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
+
+import java.util.HashSet;
 
 /**
  * @author Samatar
@@ -37,12 +37,16 @@ public class FuzzyMatchData extends BaseStepData implements StepDataInterface {
   public RowMetaInterface previousRowMeta;
   public RowMetaInterface outputRowMeta;
 
-  /** used to store values in used to look up things */
+  /**
+   * used to store values in used to look up things
+   */
   public HashSet<Object[]> look;
 
   public boolean readLookupValues;
 
-  /** index of main stream field **/
+  /**
+   * index of main stream field
+   **/
   public int indexOfMainField;
 
   public int minimalDistance;
@@ -62,7 +66,9 @@ public class FuzzyMatchData extends BaseStepData implements StepDataInterface {
   public boolean addValueFieldName;
   public boolean addAdditionalFields;
 
-  /** index of return fields from lookup stream **/
+  /**
+   * index of return fields from lookup stream
+   **/
   public int[] indexOfCachedFields;
   public int nrCachedFields;
   public RowMetaInterface infoCache;

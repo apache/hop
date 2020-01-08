@@ -22,13 +22,6 @@
 
 package org.apache.hop.trans.steps.userdefinedjavaclass;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.net.InetAddress;
-import java.sql.Timestamp;
-import java.util.Date;
-import java.util.regex.Pattern;
-
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
@@ -37,6 +30,13 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.i18n.BaseMessages;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.net.InetAddress;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.regex.Pattern;
 
 public class FieldHelper {
   private int index = -1;
@@ -55,7 +55,7 @@ public class FieldHelper {
   }
 
   public Object getObject( Object[] dataRow ) {
-    return dataRow[index];
+    return dataRow[ index ];
   }
 
   @Deprecated
@@ -64,19 +64,19 @@ public class FieldHelper {
   }
 
   public BigDecimal getBigDecimal( Object[] dataRow ) throws HopValueException {
-    return meta.getBigNumber( dataRow[index] );
+    return meta.getBigNumber( dataRow[ index ] );
   }
 
   public byte[] getBinary( Object[] dataRow ) throws HopValueException {
-    return meta.getBinary( dataRow[index] );
+    return meta.getBinary( dataRow[ index ] );
   }
 
   public Boolean getBoolean( Object[] dataRow ) throws HopValueException {
-    return meta.getBoolean( dataRow[index] );
+    return meta.getBoolean( dataRow[ index ] );
   }
 
   public Date getDate( Object[] dataRow ) throws HopValueException {
-    return meta.getDate( dataRow[index] );
+    return meta.getDate( dataRow[ index ] );
   }
 
   @Deprecated
@@ -85,7 +85,7 @@ public class FieldHelper {
   }
 
   public Long getLong( Object[] dataRow ) throws HopValueException {
-    return meta.getInteger( dataRow[index] );
+    return meta.getInteger( dataRow[ index ] );
   }
 
   @Deprecated
@@ -94,23 +94,23 @@ public class FieldHelper {
   }
 
   public Double getDouble( Object[] dataRow ) throws HopValueException {
-    return meta.getNumber( dataRow[index] );
+    return meta.getNumber( dataRow[ index ] );
   }
 
   public Timestamp getTimestamp( Object[] dataRow ) throws HopValueException {
-    return  ( (ValueMetaTimestamp) meta ).getTimestamp( dataRow[index] );
+    return ( (ValueMetaTimestamp) meta ).getTimestamp( dataRow[ index ] );
   }
 
   public InetAddress getInetAddress( Object[] dataRow ) throws HopValueException {
-    return  ( (ValueMetaInternetAddress) meta ).getInternetAddress( dataRow[index] );
+    return ( (ValueMetaInternetAddress) meta ).getInternetAddress( dataRow[ index ] );
   }
 
   public Serializable getSerializable( Object[] dataRow ) throws HopValueException {
-    return (Serializable) dataRow[index];
+    return (Serializable) dataRow[ index ];
   }
 
   public String getString( Object[] dataRow ) throws HopValueException {
-    return meta.getString( dataRow[index] );
+    return meta.getString( dataRow[ index ] );
   }
 
   public ValueMetaInterface getValueMeta() {
@@ -122,11 +122,11 @@ public class FieldHelper {
   }
 
   public void setValue( Object[] dataRow, Object value ) {
-    dataRow[index] = value;
+    dataRow[ index ] = value;
   }
 
   public void setValue( Object[] dataRow, byte[] value ) {
-    dataRow[index] = value;
+    dataRow[ index ] = value;
   }
 
   private static final Pattern validJavaIdentifier = Pattern.compile( "^[\\w&&\\D]\\w*" );

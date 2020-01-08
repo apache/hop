@@ -22,12 +22,6 @@
 
 package org.apache.hop.trans.steps.sasinput;
 
-import java.io.File;
-import java.util.ArrayList;
-
-import org.eobjects.sassy.SasColumnType;
-import org.eobjects.sassy.SasReader;
-import org.eobjects.sassy.SasReaderCallback;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
@@ -44,23 +38,29 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+import org.eobjects.sassy.SasColumnType;
+import org.eobjects.sassy.SasReader;
+import org.eobjects.sassy.SasReaderCallback;
+
+import java.io.File;
+import java.util.ArrayList;
 
 /**
  * Reads data from a SAS file in SAS7BAT format.
  *
  * @author Matt
- * @since 9-OCT-2011
  * @version 4.3
+ * @since 9-OCT-2011
  */
 public class SasInput extends BaseStep implements StepInterface {
   private static Class<?> PKG = SasInputMeta.class; // for i18n purposes, needed
-                                                    // by Translator2!!
+  // by Translator2!!
 
   private SasInputMeta meta;
   private SasInputData data;
 
   public SasInput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-    Trans trans ) {
+                   Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
@@ -192,14 +192,14 @@ public class SasInput extends BaseStep implements StepInterface {
             int type = data.fileLayout.getValueMeta( fieldIndex ).getType();
             switch ( type ) {
               case ValueMetaInterface.TYPE_STRING:
-                row[outputIndex++] = rowData[fieldIndex];
+                row[ outputIndex++ ] = rowData[ fieldIndex ];
                 break;
               case ValueMetaInterface.TYPE_NUMBER:
-                Double value = (Double) rowData[fieldIndex];
+                Double value = (Double) rowData[ fieldIndex ];
                 if ( value.equals( Double.NaN ) ) {
                   value = null;
                 }
-                row[outputIndex++] = value;
+                row[ outputIndex++ ] = value;
                 break;
               default:
                 throw new RuntimeException( "Unhandled data type '" + ValueMetaFactory.getValueMetaName( type ) );
@@ -232,7 +232,7 @@ public class SasInput extends BaseStep implements StepInterface {
       int fieldIndex = data.fieldIndexes.get( i );
       ValueMetaInterface sourceValueMeta = source.getValueMeta( fieldIndex );
       ValueMetaInterface targetValueMeta = target.getValueMeta( targetIndex );
-      sourceData[targetIndex] = targetValueMeta.convertData( sourceValueMeta, sourceData[targetIndex] );
+      sourceData[ targetIndex ] = targetValueMeta.convertData( sourceValueMeta, sourceData[ targetIndex ] );
 
       targetIndex++;
     }

@@ -22,13 +22,15 @@
 
 package org.apache.hop.core.row.value;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -36,15 +38,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.ValueMetaInterface;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ValueMetaFactoryTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
@@ -460,7 +460,7 @@ public class ValueMetaFactoryTest {
     assertTrue( ValueMetaFactory.guessValueMetaInterface( new Boolean( true ) ) instanceof ValueMetaBoolean );
     assertTrue( ValueMetaFactory.guessValueMetaInterface( false ) instanceof ValueMetaBoolean );
     assertTrue( ValueMetaFactory.guessValueMetaInterface( true ) instanceof ValueMetaBoolean );
-    assertTrue( ValueMetaFactory.guessValueMetaInterface( new byte[10] ) instanceof ValueMetaBinary );
+    assertTrue( ValueMetaFactory.guessValueMetaInterface( new byte[ 10 ] ) instanceof ValueMetaBinary );
 
     // Test Unsupported Data Types
     assertEquals( null, ValueMetaFactory.guessValueMetaInterface( null ) );

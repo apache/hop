@@ -22,9 +22,9 @@
 
 package org.apache.test.util.impl;
 
-import static org.junit.Assert.assertEquals;
-
 import org.apache.test.util.ObjectValidator;
+
+import static org.junit.Assert.assertEquals;
 
 public class DotEqualsValidator<T> implements ObjectValidator<T> {
 

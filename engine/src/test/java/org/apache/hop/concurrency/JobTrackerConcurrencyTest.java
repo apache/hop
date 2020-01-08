@@ -23,15 +23,15 @@
 package org.apache.hop.concurrency;
 
 import org.apache.commons.collections.ListUtils;
+import org.apache.hop.core.gui.JobTracker;
+import org.apache.hop.job.JobEntryResult;
+import org.apache.hop.job.JobMeta;
+import org.apache.hop.job.entry.JobEntryCopy;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.apache.hop.core.gui.JobTracker;
-import org.apache.hop.job.JobEntryResult;
-import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entry.JobEntryCopy;
 
 import java.util.ArrayList;
 import java.util.Arrays;

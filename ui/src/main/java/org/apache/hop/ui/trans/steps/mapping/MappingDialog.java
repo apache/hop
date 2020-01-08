@@ -23,6 +23,34 @@
 package org.apache.hop.ui.trans.steps.mapping;
 
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.SourceToTargetMapping;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDialogInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.steps.mapping.MappingIODefinition;
+import org.apache.hop.trans.steps.mapping.MappingMeta;
+import org.apache.hop.trans.steps.mapping.MappingParameters;
+import org.apache.hop.trans.steps.mapping.MappingValueRename;
+import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.dialog.EnterMappingDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ColumnsResizer;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
+import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -50,35 +78,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.SourceToTargetMapping;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.i18n.BaseMessages;
-
-import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.mapping.MappingIODefinition;
-import org.apache.hop.trans.steps.mapping.MappingMeta;
-import org.apache.hop.trans.steps.mapping.MappingParameters;
-import org.apache.hop.trans.steps.mapping.MappingValueRename;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.dialog.EnterMappingDialog;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ColumnsResizer;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopui.HopUi;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
 
 import java.io.IOException;
@@ -301,7 +300,7 @@ public class MappingDialog extends BaseStepDialog implements StepDialogInterface
 
     wbBrowse.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-      selectFileTrans();
+        selectFileTrans();
       }
     } );
 
@@ -441,14 +440,14 @@ public class MappingDialog extends BaseStepDialog implements StepDialogInterface
   // Method is defined as package-protected in order to be accessible by unit tests
   void loadTransformation() throws HopException {
     String filename = wPath.getText();
-        if ( Utils.isEmpty( filename ) ) {
-          return;
-        }
-        if ( !filename.endsWith( ".ktr" ) ) {
-          filename = filename + ".ktr";
-          wPath.setText( filename );
-        }
-        loadFileTrans( filename );
+    if ( Utils.isEmpty( filename ) ) {
+      return;
+    }
+    if ( !filename.endsWith( ".ktr" ) ) {
+      filename = filename + ".ktr";
+      wPath.setText( filename );
+    }
+    loadFileTrans( filename );
 
   }
 
@@ -744,7 +743,7 @@ public class MappingDialog extends BaseStepDialog implements StepDialogInterface
     wFieldsComposite.setLayout( fieldLayout );
 
     final Button wMainPath = new Button( wFieldsComposite, SWT.CHECK );
-    wMainPath.setText( BaseMessages.getString( PKG, "MappingDialog.input.MainDataPath" )  );
+    wMainPath.setText( BaseMessages.getString( PKG, "MappingDialog.input.MainDataPath" ) );
     props.setLook( wMainPath );
     FormData fdMainPath = new FormData();
     fdMainPath.top = new FormAttachment( 0 );

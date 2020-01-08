@@ -21,14 +21,13 @@
  ******************************************************************************/
 package org.apache.hop.job.entries.waitforfile;
 
-import java.util.Arrays;
-
-import java.util.List;
-import java.util.Map;
-
-import org.junit.ClassRule;
 import org.apache.hop.job.entry.loadSave.JobEntryLoadSaveTestSupport;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.junit.ClassRule;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class JobEntryWaitForFileTest extends JobEntryLoadSaveTestSupport<JobEntryWaitForFile> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -41,34 +40,34 @@ public class JobEntryWaitForFileTest extends JobEntryLoadSaveTestSupport<JobEntr
   @Override
   protected List<String> listCommonAttributes() {
     return Arrays.asList(
-        "filename",
-        "maximumTimeout",
-        "checkCycleTime",
-        "successOnTimeout",
-        "fileSizeCheck",
-        "addFilenameToResult" );
+      "filename",
+      "maximumTimeout",
+      "checkCycleTime",
+      "successOnTimeout",
+      "fileSizeCheck",
+      "addFilenameToResult" );
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-        "filename", "getFilename",
-        "maximumTimeout", "getMaximumTimeout",
-        "checkCycleTime", "getCheckCycleTime",
-        "successOnTimeout", "isSuccessOnTimeout",
-        "fileSizeCheck", "isFileSizeCheck",
-        "addFilenameToResult", "isAddFilenameToResult" );
+      "filename", "getFilename",
+      "maximumTimeout", "getMaximumTimeout",
+      "checkCycleTime", "getCheckCycleTime",
+      "successOnTimeout", "isSuccessOnTimeout",
+      "fileSizeCheck", "isFileSizeCheck",
+      "addFilenameToResult", "isAddFilenameToResult" );
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-        "filename", "setFilename",
-        "maximumTimeout", "setMaximumTimeout",
-        "checkCycleTime", "setCheckCycleTime",
-        "successOnTimeout", "setSuccessOnTimeout",
-        "fileSizeCheck", "setFileSizeCheck",
-        "addFilenameToResult", "setAddFilenameToResult" );
+      "filename", "setFilename",
+      "maximumTimeout", "setMaximumTimeout",
+      "checkCycleTime", "setCheckCycleTime",
+      "successOnTimeout", "setSuccessOnTimeout",
+      "fileSizeCheck", "setFileSizeCheck",
+      "addFilenameToResult", "setAddFilenameToResult" );
   }
 
 }

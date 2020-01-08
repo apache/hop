@@ -22,19 +22,6 @@
 
 package org.apache.hop.trans.steps.fieldsplitter;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.RowSet;
@@ -48,13 +35,25 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import java.util.Arrays;
+
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for FieldSplitter step
@@ -74,10 +73,10 @@ public class FieldSplitterTest {
   @Before
   public void setUp() {
     smh =
-        new StepMockHelper<FieldSplitterMeta, FieldSplitterData>( "Field Splitter", FieldSplitterMeta.class,
-            FieldSplitterData.class );
+      new StepMockHelper<FieldSplitterMeta, FieldSplitterData>( "Field Splitter", FieldSplitterMeta.class,
+        FieldSplitterData.class );
     when( smh.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
-        smh.logChannelInterface );
+      smh.logChannelInterface );
     when( smh.trans.isRunning() ).thenReturn( true );
   }
 
@@ -94,11 +93,11 @@ public class FieldSplitterTest {
     FieldSplitterMeta processRowMeta = smh.processRowsStepMetaInterface;
     doReturn( "field to split" ).when( processRowMeta ).getSplitField();
     doCallRealMethod().when( processRowMeta ).getFields( any( RowMetaInterface.class ), anyString(),
-        any( RowMetaInterface[].class ), any( StepMeta.class ), any( VariableSpace.class ),
-        any( IMetaStore.class ) );
+      any( RowMetaInterface[].class ), any( StepMeta.class ), any( VariableSpace.class ),
+      any( IMetaStore.class ) );
     doReturn( new String[] { "a", "b" } ).when( processRowMeta ).getFieldName();
     doReturn( new int[] { ValueMetaInterface.TYPE_STRING, ValueMetaInterface.TYPE_STRING } ).when( processRowMeta )
-        .getFieldType();
+      .getFieldType();
     doReturn( new String[] { "a=", "b=" } ).when( processRowMeta ).getFieldID();
     doReturn( new boolean[] { false, false } ).when( processRowMeta ).getFieldRemoveID();
     doReturn( new int[] { -1, -1 } ).when( processRowMeta ).getFieldLength();
@@ -145,7 +144,7 @@ public class FieldSplitterTest {
     assertEquals( "Output row is of an unexpected length", expectedRow.length, outputRowSet.getRowMeta().size() );
 
     for ( int i = 0; i < expectedRow.length; i++ ) {
-      assertEquals( "Unexpected output value at index " + i, expectedRow[i], actualRow[i] );
+      assertEquals( "Unexpected output value at index " + i, expectedRow[ i ], actualRow[ i ] );
     }
   }
 
@@ -178,11 +177,11 @@ public class FieldSplitterTest {
     RowMetaInterface rm = rs.getRowMeta();
 
     assertArrayEquals(
-        new Object[] { "key", "string", "part1", "part2" },
-        Arrays.copyOf( row, 4 ) );
+      new Object[] { "key", "string", "part1", "part2" },
+      Arrays.copyOf( row, 4 ) );
 
     assertArrayEquals(
-        new Object[] { "key", "val", "key_1", "val_1" },
-        rm.getFieldNames() );
+      new Object[] { "key", "val", "key_1", "val_1" },
+      rm.getFieldNames() );
   }
 }

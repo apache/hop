@@ -28,9 +28,13 @@ import org.apache.hop.core.vfs.HopVFS;
 
 public class LockFile {
 
-  /** name of file to check **/
+  /**
+   * name of file to check
+   **/
   private String filename;
-  /** lock indicator **/
+  /**
+   * lock indicator
+   **/
   private boolean locked;
 
   /**

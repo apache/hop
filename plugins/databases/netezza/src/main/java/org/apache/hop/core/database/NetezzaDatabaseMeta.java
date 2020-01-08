@@ -34,10 +34,10 @@ import org.apache.hop.core.row.ValueMetaInterface;
  * @since 16-oct-2006
  */
 @DatabaseMetaPlugin(
-        type = "NETEZZA",
-        typeDescription = "Netezza"
+  type = "NETEZZA",
+  typeDescription = "Netezza"
 )
-@GuiPlugin( id="GUI-NetezzaDatabaseMeta" )
+@GuiPlugin( id = "GUI-NetezzaDatabaseMeta" )
 public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   public static final int MAX_CHAR_LEN = 32767;
 
@@ -151,8 +151,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   /**
    * Get the SQL to get the next value of a sequence. (Netezza version)
    *
-   * @param sequenceName
-   *          The sequence name
+   * @param sequenceName The sequence name
    * @return the SQL to get the next value of a sequence.
    */
   @Override
@@ -163,8 +162,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   /**
    * Get the SQL to get the current value of a sequence. (Netezza version)
    *
-   * @param sequenceName
-   *          The sequence name
+   * @param sequenceName The sequence name
    * @return the SQL to get the current value of a sequence.
    */
   @Override
@@ -175,8 +173,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   /**
    * Check if a sequence exists.
    *
-   * @param sequenceName
-   *          The sequence to check
+   * @param sequenceName The sequence to check
    * @return The SQL to get the name of the sequence back from the databases data dictionary
    */
   @Override
@@ -193,23 +190,17 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
    * Generates the SQL statement to add a column to the specified table Note: Netezza does not allow adding columns to
    * tables
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
   public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                       String pk, boolean semicolon ) {
     return null;
   }
 
@@ -217,23 +208,17 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
    * Generates the SQL statement to drop a column from the specified table Note: Netezza does not allow
    * addition/deletion of columns to tables
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to drop a column from the specified table
    */
   @Override
   public String getDropColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                        String pk, boolean semicolon ) {
     return null;
   }
 
@@ -241,23 +226,17 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
    * Generates the SQL statement to modify a column in the specified table. Note: Support for this in Netezza is
    * incomplete since Netezza allows very limited table/column modifications post-creation
    *
-   * @param tablename
-   *          The table to add
-   * @param v
-   *          The column defined as a value
-   * @param tk
-   *          the name of the technical key field
-   * @param use_autoinc
-   *          whether or not this field uses auto increment
-   * @param pk
-   *          the name of the primary key field
-   * @param semicolon
-   *          whether or not to add a semi-colon behind the statement.
+   * @param tablename   The table to add
+   * @param v           The column defined as a value
+   * @param tk          the name of the technical key field
+   * @param use_autoinc whether or not this field uses auto increment
+   * @param pk          the name of the primary key field
+   * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
   public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
-    String pk, boolean semicolon ) {
+                                          String pk, boolean semicolon ) {
     String retval = "";
     retval += "ALTER TABLE " + tablename + " MODIFY COLUMN " + v.getName() + Const.CR + ";" + Const.CR;
     return retval;
@@ -265,7 +244,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
 
   @Override
   public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-    boolean add_fieldname, boolean add_cr ) {
+                                    boolean add_fieldname, boolean add_cr ) {
     String retval = "";
 
     String fieldname = v.getName();
@@ -331,8 +310,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   /**
-   * @param the
-   *          schema name to search in or null if you want to search the whole DB
+   * @param the schema name to search in or null if you want to search the whole DB
    * @return The SQL on this database to get a list of stored procedures.
    */
   public String getSQLListOfProcedures( String schemaName ) {
@@ -398,8 +376,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   /**
-   * @param tableNames
-   *          The names of the tables to lock
+   * @param tableNames The names of the tables to lock
    * @return The SQL commands to lock database tables for write purposes.
    */
   @Override
@@ -408,8 +385,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   /**
-   * @param tableName
-   *          The name of the table to unlock
+   * @param tableName The name of the table to unlock
    * @return The SQL command to unlock a database table.
    */
   @Override
@@ -419,7 +395,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
 
   /**
    * @return true if the database defaults to naming tables and fields in uppercase. True for most databases except for
-   *         stuborn stuff like Postgres ;-)
+   * stuborn stuff like Postgres ;-)
    */
   @Override
   public boolean isDefaultingToUppercase() {
@@ -435,6 +411,8 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   @Override
-  public boolean isNettezaVariant() { return true; }
+  public boolean isNettezaVariant() {
+    return true;
+  }
 
 }

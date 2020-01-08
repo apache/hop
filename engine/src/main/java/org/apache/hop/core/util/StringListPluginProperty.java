@@ -22,21 +22,17 @@
 
 package org.apache.hop.core.util;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.xml.XMLHandler;
+import org.w3c.dom.Node;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.prefs.Preferences;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.xml.XMLHandler;
-
-import org.apache.hop.metastore.api.IMetaStore;
-import org.w3c.dom.Node;
-
 /**
  * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl</a>
- *
  */
 public class StringListPluginProperty extends KeyValue<List<String>> implements PluginProperty, Iterable<String> {
 
@@ -56,16 +52,14 @@ public class StringListPluginProperty extends KeyValue<List<String>> implements 
   public static final char SEPARATOR_CHAR = ',';
 
   /**
-   * @param key
-   *          key to use.
+   * @param key key to use.
    */
   public StringListPluginProperty( final String key ) {
     super( key, new ArrayList<String>() );
   }
 
   /**
-   * @param list
-   *          list to transform, maybe null.
+   * @param list list to transform, maybe null.
    * @return string, never null.
    */
   public static String asString( final List<String> list ) {
@@ -76,8 +70,7 @@ public class StringListPluginProperty extends KeyValue<List<String>> implements 
   }
 
   /**
-   * @param input
-   *          the input.
+   * @param input the input.
    * @return new list, never null.
    */
   public static List<String> fromString( final String input ) {
@@ -92,6 +85,7 @@ public class StringListPluginProperty extends KeyValue<List<String>> implements 
   }
 
   /**
+   *
    */
   public void appendXml( final StringBuilder builder ) {
     if ( !this.evaluate() ) {
@@ -102,12 +96,14 @@ public class StringListPluginProperty extends KeyValue<List<String>> implements 
   }
 
   /**
+   *
    */
   public boolean evaluate() {
     return CollectionPredicates.NOT_NULL_OR_EMPTY_COLLECTION.evaluate( this.getValue() );
   }
 
   /**
+   *
    */
   public void loadXml( final Node node ) {
     final String stringValue = XMLHandler.getTagValue( node, this.getKey() );
@@ -116,6 +112,7 @@ public class StringListPluginProperty extends KeyValue<List<String>> implements 
   }
 
   /**
+   *
    */
   public void readFromPreferences( final Preferences node ) {
     final String stringValue = node.get( this.getKey(), asString( this.getValue() ) );
@@ -124,6 +121,7 @@ public class StringListPluginProperty extends KeyValue<List<String>> implements 
 
 
   /**
+   *
    */
   public void saveToPreferences( final Preferences node ) {
     node.put( this.getKey(), asString( this.getValue() ) );
@@ -131,8 +129,7 @@ public class StringListPluginProperty extends KeyValue<List<String>> implements 
 
 
   /**
-   * @param values
-   *          values to set, no validation.
+   * @param values values to set, no validation.
    */
   public void setValues( final String... values ) {
     if ( this.getValue() == null ) {
@@ -163,8 +160,7 @@ public class StringListPluginProperty extends KeyValue<List<String>> implements 
 
   /**
    * @return size
-   * @throws IllegalStateException
-   *           if value is null.
+   * @throws IllegalStateException if value is null.
    */
   public int size() throws IllegalStateException {
     this.assertValueNotNull();
@@ -174,8 +170,7 @@ public class StringListPluginProperty extends KeyValue<List<String>> implements 
   /**
    * Assert state, value not null.
    *
-   * @throws IllegalStateException
-   *           if this.value is null.
+   * @throws IllegalStateException if this.value is null.
    */
   public void assertValueNotNull() throws IllegalStateException {
     if ( this.getValue() == null ) {

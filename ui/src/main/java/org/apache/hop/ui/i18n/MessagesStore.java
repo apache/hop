@@ -22,6 +22,10 @@
 
 package org.apache.hop.ui.i18n;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.changed.ChangedFlag;
+import org.apache.hop.core.exception.HopException;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -33,16 +37,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.changed.ChangedFlag;
-import org.apache.hop.core.exception.HopException;
-
 /**
  * This class contains a messages store: for a certain Locale and for a certain messages package, it keeps all the keys
  * and values. This class can read and write messages files...
  *
  * @author matt
- *
  */
 public class MessagesStore extends ChangedFlag {
 
@@ -61,17 +60,13 @@ public class MessagesStore extends ChangedFlag {
   /**
    * Create a new messages store
    *
-   * @param locale
-   *          The locale to read
-   * @param sourceFolder
-   *          The source folder to read
-   * @param messagesPackage
-   *          The messages package to consider
-   * @param sourcePackageOccurrences
-   *          The occurrences map
+   * @param locale                   The locale to read
+   * @param sourceFolder             The source folder to read
+   * @param messagesPackage          The messages package to consider
+   * @param sourcePackageOccurrences The occurrences map
    */
   public MessagesStore( String locale, String sourceFolder, String messagesPackage,
-    Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences ) {
+                        Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences ) {
     messagesMap = new Hashtable<String, String>();
     this.sourceFolder = sourceFolder;
     this.locale = locale;
@@ -159,9 +154,7 @@ public class MessagesStore extends ChangedFlag {
    * directories in the order that they are specified.
    *
    * @param alternativeSourceFolders
-   *
-   * @param directories
-   *          the source directories to try and map the messages files against.
+   * @param directories              the source directories to try and map the messages files against.
    * @return the filename that was found.
    */
   public String getLoadFilename( List<String> alternativeSourceFolders ) throws FileNotFoundException {
@@ -216,8 +209,7 @@ public class MessagesStore extends ChangedFlag {
    * Find a suitable filename to save this information in the specified locale and messages package. It needs a source
    * directory to save the package in
    *
-   * @param directory
-   *          the source directory to save the messages file in.
+   * @param directory the source directory to save the messages file in.
    * @return the filename that was generated.
    */
   public String getSaveFilename( String directory ) {
@@ -238,8 +230,7 @@ public class MessagesStore extends ChangedFlag {
   }
 
   /**
-   * @param locale
-   *          the locale to set
+   * @param locale the locale to set
    */
   public void setLocale( String locale ) {
     this.locale = locale;
@@ -253,8 +244,7 @@ public class MessagesStore extends ChangedFlag {
   }
 
   /**
-   * @param messagesPackage
-   *          the messagesPackage to set
+   * @param messagesPackage the messagesPackage to set
    */
   public void setMessagesPackage( String messagesPackage ) {
     this.messagesPackage = messagesPackage;
@@ -268,8 +258,7 @@ public class MessagesStore extends ChangedFlag {
   }
 
   /**
-   * @param messsagesMap
-   *          the map to set
+   * @param messsagesMap the map to set
    */
   public void setMessagesMap( Map<String, String> messsagesMap ) {
     this.messagesMap = messsagesMap;

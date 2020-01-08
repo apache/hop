@@ -22,9 +22,9 @@
 
 package org.apache.hop.core.metrics;
 
-import java.util.Date;
-
 import org.apache.hop.core.logging.MetricsInterface;
+
+import java.util.Date;
 
 public interface MetricsSnapshotInterface {
 
