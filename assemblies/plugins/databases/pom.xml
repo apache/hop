@@ -49,7 +49,6 @@
         <module>msaccess-assemblies</module>
         <module>mssqlnative-assemblies</module>
         <module>mssql-assemblies</module>
-        <module>mondrian-assemblies</module>
         <module>netezza-assemblies</module>
         <module>oraclerdb-assemblies</module>
         <module>remedy-ar-system-assemblies</module>
