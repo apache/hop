@@ -328,7 +328,9 @@ public class MetaStoreFactory<T> {
       Method listGetMethod = parentClass.getMethod( listGetter );
       @SuppressWarnings( "unchecked" )
       List<Object> list = (List<Object>) listGetMethod.invoke( parentObject );
-
+      if (list==null) {
+        throw new MetaStoreException( "List attribute '"+field.getName()+"' in class '"+parentClass.getName()+"' is not pre-initialized. It will not be possible to add values" );
+      }
       String childClassName = parentElement.getValue().toString();
 
       List<IMetaStoreAttribute> children = parentElement.getChildren();
