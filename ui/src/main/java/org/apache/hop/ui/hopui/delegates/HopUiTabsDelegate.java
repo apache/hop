@@ -33,6 +33,7 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.HopUiInterface;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
@@ -327,7 +328,8 @@ public class HopUiTabsDelegate extends HopUiDelegate {
       if ( !ok ) {
         // Log an error
         //
-        log.logError( "Unable to open browser tab for URL: " + urlString, e );
+        System.err.println( "Unable to open browser tab for URL: " + urlString );
+        e.printStackTrace( System.err );
         return false;
       } else {
         return true;
