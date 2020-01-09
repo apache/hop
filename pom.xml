@@ -142,7 +142,7 @@
     <fasterxml-jackson.version>2.10.2</fasterxml-jackson.version>
     <dom4j.version>2.1.1</dom4j.version>
     <jaxen.version>1.1.6</jaxen.version>
-    <commons-compress.version>1.18</commons-compress.version>
+    <commons-compress.version>1.19</commons-compress.version>
     <commons-fileupload.version>1.4</commons-fileupload.version>
     <aws-java-sdk.version>1.11.516</aws-java-sdk.version>
 
