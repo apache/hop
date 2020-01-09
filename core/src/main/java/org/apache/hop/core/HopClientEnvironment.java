@@ -70,7 +70,7 @@ public class HopClientEnvironment {
   private static Boolean initialized;
 
   public enum ClientType {
-    SPOON, PAN, KITCHEN, CARTE, DI_SERVER, SCALE, OTHER;
+    HOP_GUI, CLI, SERVER, OTHER;
 
     public String getID() {
       if ( this != OTHER ) {

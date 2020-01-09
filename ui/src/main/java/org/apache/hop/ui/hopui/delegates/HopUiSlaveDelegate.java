@@ -43,11 +43,9 @@ import java.util.List;
 public class HopUiSlaveDelegate  {
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
   private final HopUi hopUi;
-  private final DelegatingMetaStore metaStore;
 
   public HopUiSlaveDelegate( HopUi hopUi ) {
     this.hopUi = hopUi;
-    this.metaStore = hopUi.getMetaStore();
   }
 
   public void addSpoonSlave( SlaveServer slaveServer ) {
@@ -84,7 +82,7 @@ public class HopUiSlaveDelegate  {
     SlaveServer slaveServer = new SlaveServer();
 
     SlaveServerDialog dialog =
-      new SlaveServerDialog( hopUi.getShell(), metaStore, slaveServer );
+      new SlaveServerDialog( hopUi.getShell(), hopUi.getMetaStore(), slaveServer );
     if ( dialog.open() ) {
       slaveServer.verifyAndModifySlaveServerName( hasSlaveServersInterface.getSlaveServers(), null );
       hasSlaveServersInterface.getSlaveServers().add( slaveServer );
@@ -95,7 +93,7 @@ public class HopUiSlaveDelegate  {
 
   public boolean edit( SlaveServer slaveServer ) {
     String originalName = slaveServer.getName();
-    SlaveServerDialog dialog = new SlaveServerDialog( hopUi.getShell(), metaStore, slaveServer );
+    SlaveServerDialog dialog = new SlaveServerDialog( hopUi.getShell(), hopUi.getMetaStore(), slaveServer );
     if ( dialog.open() ) {
 
       refreshTree();

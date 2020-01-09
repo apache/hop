@@ -60,7 +60,6 @@ public class HopUiTreeDelegateTest {
   public void getTreeObjects_getStepByName() {
     HopUiTreeDelegate std = spy( new HopUiTreeDelegate( hopUi ) );
 
-    Tree selection = mock( Tree.class );
     Tree core = mock( Tree.class );
     TreeItem item = mock( TreeItem.class );
     PluginInterface step = mock( PluginInterface.class );
@@ -78,7 +77,7 @@ public class HopUiTreeDelegateTest {
     hopUi.showJob = false;
     hopUi.showTrans = true;
 
-    TreeSelection[] ts = std.getTreeObjects( core, selection, core );
+    TreeSelection[] ts = std.getTreeObjects( core, core );
 
     assertEquals( 1, ts.length );
     assertEquals( step, ts[ 0 ].getSelection() );
@@ -88,7 +87,6 @@ public class HopUiTreeDelegateTest {
   public void getTreeObjects_getStepById() {
     HopUiTreeDelegate std = spy( new HopUiTreeDelegate( hopUi ) );
 
-    Tree selection = mock( Tree.class );
     Tree core = mock( Tree.class );
     TreeItem item = mock( TreeItem.class );
     PluginInterface step = mock( PluginInterface.class );
@@ -106,7 +104,7 @@ public class HopUiTreeDelegateTest {
     hopUi.showJob = false;
     hopUi.showTrans = true;
 
-    TreeSelection[] ts = std.getTreeObjects( core, selection, core );
+    TreeSelection[] ts = std.getTreeObjects( core, core );
 
     assertEquals( 1, ts.length );
     assertEquals( step, ts[ 0 ].getSelection() );

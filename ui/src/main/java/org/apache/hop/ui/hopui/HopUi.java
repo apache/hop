@@ -180,11 +180,6 @@ import org.apache.hop.ui.hopui.partition.PartitionSettings;
 import org.apache.hop.ui.hopui.partition.processor.MethodProcessor;
 import org.apache.hop.ui.hopui.partition.processor.MethodProcessorFactory;
 import org.apache.hop.ui.hopui.trans.TransGraph;
-import org.apache.hop.ui.hopui.tree.TreeManager;
-import org.apache.hop.ui.hopui.tree.provider.DBConnectionFolderProvider;
-import org.apache.hop.ui.hopui.tree.provider.HopsFolderProvider;
-import org.apache.hop.ui.hopui.tree.provider.JobEntriesFolderProvider;
-import org.apache.hop.ui.hopui.tree.provider.StepsFolderProvider;
 import org.apache.hop.ui.job.dialog.JobDialogPluginType;
 import org.apache.hop.ui.trans.dialog.TransDialogPluginType;
 import org.apache.hop.ui.trans.dialog.TransHopDialog;
@@ -253,8 +248,6 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.pentaho.ui.xul.XulComponent;
@@ -264,7 +257,6 @@ import org.pentaho.ui.xul.binding.BindingFactory;
 import org.pentaho.ui.xul.binding.DefaultBindingFactory;
 import org.pentaho.ui.xul.components.XulMenuitem;
 import org.pentaho.ui.xul.components.XulMenuseparator;
-import org.pentaho.ui.xul.components.XulToolbarbutton;
 import org.pentaho.ui.xul.containers.XulMenupopup;
 import org.pentaho.ui.xul.containers.XulToolbar;
 import org.pentaho.ui.xul.impl.XulEventHandler;
@@ -367,11 +359,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   public static final String APP_NAME = BaseMessages.getString( PKG, "Spoon.Application.Name" );
 
-  private static final String STRING_SPOON_MAIN_TREE = BaseMessages.getString( PKG, "Spoon.MainTree.Label" );
-
-  private static final String STRING_SPOON_CORE_OBJECTS_TREE = BaseMessages
-    .getString( PKG, "Spoon.CoreObjectsTree.Label" );
-
   public static final String XML_TAG_TRANSFORMATION_STEPS = "transformation-steps";
 
   public static final String XML_TAG_JOB_JOB_ENTRIES = "job-jobentries";
@@ -392,8 +379,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   private Shell shell;
 
-  private static Splash splash;
-
   private static FileLoggingEventListener fileLoggingEventListener;
 
   private boolean destroy;
@@ -402,9 +387,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   public TabSet tabfolder;
 
-  private Composite viewTreeComposite;
   private Composite designTreeComposite;
-  private TreeToolbar viewTreeToolbar;
   private TreeToolbar designTreeToolbar;
 
   // THE HANDLERS
@@ -422,12 +405,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   private Cursor cursor_hourglass, cursor_hand;
 
   public PropsUI props;
-
-  private CTabItem view, design;
-
-  private CTabFolder tabFolder;
-
-  private org.eclipse.swt.widgets.Menu fileMenus;
 
   private static final String APP_TITLE = APP_NAME;
 
@@ -466,8 +443,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   private static final int MISSING_RECENT_DLG_WIDTH = 465;
 
   private Composite tabComp;
-
-  private Tree selectionTree;
 
   private Tree coreObjectsTree;
 
@@ -528,10 +503,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   private static PrintStream originalSystemOut = System.out;
   private static PrintStream originalSystemErr = System.err;
 
-  private TreeManager selectionTreeManager;
-
-  public Text selectionFilter;
-
   /**
    * This is the main procedure for Spoon.
    *
@@ -563,7 +534,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       public HopException call() throws Exception {
         registerUIPluginObjectTypes();
 
-        HopClientEnvironment.getInstance().setClient( HopClientEnvironment.ClientType.SPOON );
+        HopClientEnvironment.getInstance().setClient( HopClientEnvironment.ClientType.HOP_GUI );
         try {
           HopEnvironment.init();
         } catch ( HopException e ) {
@@ -609,10 +580,9 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         throw registryException;
       }
 
-      PropsUI.init( display, Props.TYPE_PROPERTIES_SPOON );
+      PropsUI.init( display );
 
-      HopLogStore
-        .init( PropsUI.getInstance().getMaxNrLinesInLog(), PropsUI.getInstance().getMaxLogLineTimeoutMinutes() );
+      HopLogStore.init( PropsUI.getInstance().getMaxNrLinesInLog(), PropsUI.getInstance().getMaxLogLineTimeoutMinutes() );
 
       initLogging();
       // remember...
@@ -1233,7 +1203,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     mainComposite.redraw();
 
     // Perhaps the transformation contains elements at startup?
-    refreshTree(); // Do a complete refresh then...
+
+    ; // Do a complete refresh then...
 
     setShellText();
   }
@@ -1731,67 +1702,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     openFile( lastUsedFile.getFilename(), false );
   }
 
-  private void addViewTab( CTabFolder tabFolder ) {
-    Composite viewComposite = new Composite( tabFolder, SWT.NONE );
-    viewComposite.setLayout( new FormLayout() );
-    viewComposite.setBackground( GUIResource.getInstance().getColorDemoGray() );
-
-    viewTreeToolbar = new TreeToolbar( viewComposite, SWT.NONE );
-    FormData fdTreeToolbar = new FormData();
-    fdTreeToolbar.left = new FormAttachment( 0 );
-    fdTreeToolbar.right = new FormAttachment( 100 );
-    viewTreeToolbar.setLayoutData( fdTreeToolbar );
-
-    viewTreeToolbar.setSearchTooltip( BaseMessages.getString( PKG, "Spoon.SelectionFilter.Tooltip" ) );
-    viewTreeToolbar.setSearchPlaceholder( BaseMessages.getString( PKG, "Spoon.SelectionFilter.Placeholder" ) );
-    viewTreeToolbar.addSearchModifyListener( modifyEvent -> {
-      selectionTreeManager.setFilter( viewTreeToolbar.getSearchText() );
-      refreshTree();
-      viewTreeToolbar.setFocus();
-      if ( Utils.isEmpty( viewTreeToolbar.getSearchText() ) ) {
-        tidyBranches( selectionTree.getItems(), false );
-      }
-    } );
-
-    viewTreeToolbar.addExpandAllListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent selectionEvent ) {
-        tidyBranches( selectionTree.getItems(), true );
-      }
-    } );
-
-    viewTreeToolbar.addCollapseAllListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent selectionEvent ) {
-        tidyBranches( selectionTree.getItems(), false );
-      }
-    } );
-
-    view = new CTabItem( tabFolder, SWT.NONE );
-    view.setControl( viewComposite );
-    view.setText( STRING_SPOON_MAIN_TREE );
-    view.setImage( GUIResource.getInstance().getImageExploreSolutionSmall() );
-
-    viewTreeComposite = new Composite( viewComposite, SWT.NONE );
-    viewTreeComposite.setLayout( new FillLayout() );
-
-    FormData fdViewTreeComposite = new FormData();
-    fdViewTreeComposite.left = new FormAttachment( 0 );
-    fdViewTreeComposite.top = new FormAttachment( viewTreeToolbar );
-    fdViewTreeComposite.right = new FormAttachment( 100 );
-    fdViewTreeComposite.bottom = new FormAttachment( 100 );
-    viewTreeComposite.setLayoutData( fdViewTreeComposite );
-
-    FormData fdViewComposite = new FormData();
-    fdViewComposite.left = new FormAttachment( 0 );
-    fdViewComposite.top = new FormAttachment( 0 );
-    fdViewComposite.right = new FormAttachment( 100 );
-    fdViewComposite.bottom = new FormAttachment( 100 );
-    viewComposite.setLayoutData( fdViewComposite );
-  }
-
-  private void addDesignTab( CTabFolder tabFolder ) {
-    Composite designComposite = new Composite( tabFolder, SWT.NONE );
+  private void addDesignTab(Composite parent) {
+    Composite designComposite = new Composite( parent, SWT.NONE );
     designComposite.setLayout( new FormLayout() );
     designComposite.setBackground( GUIResource.getInstance().getColorDemoGray() );
 
@@ -1830,11 +1742,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       }
     } );
 
-    design = new CTabItem( tabFolder, SWT.NONE );
-    design.setText( STRING_SPOON_CORE_OBJECTS_TREE );
-    design.setControl( designComposite );
-    design.setImage( GUIResource.getInstance().getImageEditSmall() );
-
     designTreeComposite = new Composite( designComposite, SWT.NONE );
     designTreeComposite.setLayout( new FillLayout() );
 
@@ -1854,34 +1761,26 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   public void clearSearchFilter() {
-    viewTreeToolbar.clear();
     designTreeToolbar.clear();
   }
 
   private void addTree() {
     mainComposite = new Composite( sashform, SWT.BORDER );
     mainComposite.setLayout( new FormLayout() );
+    FormData fdMainComposite = new FormData();
+    fdMainComposite.left = new FormAttachment( 0, 0 );
+    fdMainComposite.top = new FormAttachment( 0, 0 );
+    fdMainComposite.right = new FormAttachment( 100, 0 );
+    fdMainComposite.bottom = new FormAttachment( 100, 0 );
+    mainComposite.setLayoutData( fdMainComposite );
+
     props.setLook( mainComposite, Props.WIDGET_STYLE_TOOLBAR );
 
-    tabFolder = new CTabFolder( mainComposite, SWT.HORIZONTAL );
-    props.setLook( tabFolder, Props.WIDGET_STYLE_TAB );
-
-    FormData fdTab = new FormData();
-    fdTab.left = new FormAttachment( 0 );
-    fdTab.top = new FormAttachment( mainComposite, 0 );
-    fdTab.right = new FormAttachment( 100 );
-    fdTab.bottom = new FormAttachment( 100 );
-    tabFolder.setLayoutData( fdTab );
-
-    addViewTab( tabFolder );
-    addDesignTab( tabFolder );
-
-    tabFolder.setSelection( view );
+    addDesignTab( mainComposite );
 
     coreStepToolTipMap = new Hashtable<>();
     coreJobToolTipMap = new Hashtable<>();
 
-    addDefaultKeyListeners( tabFolder );
     addDefaultKeyListeners( mainComposite );
   }
 
@@ -1903,18 +1802,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         }
       }
     } );
-  }
-
-  public boolean setViewMode() {
-    tabFolder.setSelection( view );
-    refreshTree();
-    return false;
-  }
-
-  public boolean setDesignMode() {
-    tabFolder.setSelection( design );
-    refreshCoreObjects();
-    return false;
   }
 
   private void tidyBranches( TreeItem[] items, boolean expand ) {
@@ -2046,7 +1933,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       }
     } );
 
-    toolTip = new DefaultToolTip( viewTreeComposite, ToolTip.RECREATE, true );
+    toolTip = new DefaultToolTip( designTreeComposite, ToolTip.RECREATE, true );
     toolTip.setRespectMonitorBounds( true );
     toolTip.setRespectDisplayBounds( true );
     toolTip.setPopupDelay( 350 );
@@ -2313,84 +2200,16 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
    * @return The object that is selected in the tree or null if we couldn't figure it out. (titles etc. == null)
    */
   public TreeSelection[] getTreeObjects( final Tree tree ) {
-    return delegates.tree.getTreeObjects( tree, selectionTree, coreObjectsTree );
+    return delegates.tree.getTreeObjects( tree, coreObjectsTree );
   }
 
   private void addDragSourceToTree( final Tree tree ) {
-    delegates.tree.addDragSourceToTree( tree, selectionTree, coreObjectsTree );
+    delegates.tree.addDragSourceToTree( tree, coreObjectsTree );
   }
 
   public void hideToolTips() {
     if ( toolTip != null ) {
       toolTip.hide();
-    }
-  }
-
-  /**
-   * If you click in the tree, you might want to show the corresponding window.
-   */
-  public void showSelection() {
-    TreeSelection[] objects = getTreeObjects( selectionTree );
-    if ( objects.length != 1 ) {
-      return; // not yet supported, we can do this later when the OSX bug
-      // goes away
-    }
-
-    TreeSelection object = objects[ 0 ];
-
-    final Object selection = object.getSelection();
-    final Object parent = object.getParent();
-
-    TransMeta transMeta = null;
-    if ( selection instanceof TransMeta ) {
-      transMeta = (TransMeta) selection;
-    }
-    if ( parent instanceof TransMeta ) {
-      transMeta = (TransMeta) parent;
-    }
-
-    if ( transMeta != null ) {
-
-      TabMapEntry entry = delegates.tabs.findTabMapEntry( transMeta );
-      if ( entry != null ) {
-        int current = tabfolder.getSelectedIndex();
-        int desired = tabfolder.indexOf( entry.getTabItem() );
-        if ( current != desired ) {
-          tabfolder.setSelected( desired );
-        }
-        transMeta.setInternalHopVariables();
-        if ( getCoreObjectsState() != STATE_CORE_OBJECTS_SPOON ) {
-          // Switch the core objects in the lower left corner to the
-          // spoon trans types
-          refreshCoreObjects();
-        }
-      }
-    }
-
-    JobMeta jobMeta = null;
-    if ( selection instanceof JobMeta ) {
-      jobMeta = (JobMeta) selection;
-    }
-    if ( parent instanceof JobMeta ) {
-      jobMeta = (JobMeta) parent;
-    }
-    if ( jobMeta != null ) {
-
-      TabMapEntry entry = delegates.tabs.findTabMapEntry( jobMeta );
-      if ( entry != null ) {
-        int current = tabfolder.getSelectedIndex();
-        int desired = tabfolder.indexOf( entry.getTabItem() );
-        if ( current != desired ) {
-          tabfolder.setSelected( desired );
-        }
-        jobMeta.setInternalHopVariables();
-        if ( getCoreObjectsState() != STATE_CORE_OBJECTS_CHEF ) {
-          // Switch the core objects in the lower left corner to the
-          // spoon job types
-          //
-          refreshCoreObjects();
-        }
-      }
     }
   }
 
@@ -2742,8 +2561,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     } else {
       tree.setMenu( null );
     }
-
-    createPopUpMenuExtension();
   }
 
   /**
@@ -3649,7 +3466,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       }
       if ( !loaded ) {
         // Give error back
-        hideSplash();
         MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
         mb.setMessage( BaseMessages.getString( PKG, "Spoon.UnknownFileType.Message", filename ) );
         mb.setText( BaseMessages.getString( PKG, "Spoon.UnknownFileType.Title" ) );
@@ -3694,7 +3510,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
    * @param missingPluginsException The missing plugins exception
    */
   public void handleMissingPluginsExceptionWithMarketplace( HopMissingPluginsException missingPluginsException ) {
-    hideSplash();
     MessageBox box = new MessageBox( shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO );
     box.setText( BaseMessages.getString( PKG, "Spoon.MissingPluginsFoundDialog.Title" ) );
     box.setMessage( BaseMessages.getString(
@@ -3707,28 +3522,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   public PropsUI getProperties() {
     return props;
-  }
-
-  /*
-   * public void newFileDropDown() { newFileDropDown(toolbar); }
-   */
-
-  public void newFileDropDown() {
-    // Drop down a list below the "New" icon (new.png)
-    // First problem: where is that icon?
-    XulToolbarbutton button = (XulToolbarbutton) this.mainToolbar.getElementById( "file-new" );
-    Object object = button.getManagedObject();
-    if ( object instanceof ToolItem ) {
-      // OK, let's determine the location of this widget...
-      //
-      ToolItem item = (ToolItem) object;
-      Rectangle bounds = item.getBounds();
-      org.eclipse.swt.graphics.Point p =
-        item.getParent().toDisplay( new org.eclipse.swt.graphics.Point( bounds.x, bounds.y ) );
-
-      fileMenus.setLocation( p.x, p.y + bounds.height );
-      fileMenus.setVisible( true );
-    }
   }
 
   public void newTransFile() {
@@ -3758,10 +3551,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     addTransGraph( transMeta );
     applyVariables();
 
-    // switch to design mode...
-    //
-    setDesignMode();
-    refreshTree( transMeta );
     loadPerspective( MainHopUiPerspective.ID );
 
     try {
@@ -3800,10 +3589,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       addJobGraph( jobMeta );
       applyVariables();
 
-      // switch to design mode...
-      //
-      setDesignMode();
-      refreshTree( jobMeta );
       loadPerspective( MainHopUiPerspective.ID );
     } catch ( Exception e ) {
       new ErrorDialog(
@@ -4730,112 +4515,12 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     return string.toUpperCase().contains( filter.toUpperCase() );
   }
 
-  public TreeManager getTreeManager() {
-    return selectionTreeManager;
-  }
-
-  private void createSelectionTree() {
-    // //////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Now set up the transformation/job tree
-    //
-    selectionTree = new Tree( viewTreeComposite, SWT.SINGLE );
-    selectionTreeManager = new TreeManager( selectionTree );
-    selectionTreeManager.addRoot( STRING_TRANSFORMATIONS, Arrays.asList( new DBConnectionFolderProvider(), new
-      StepsFolderProvider(), new HopsFolderProvider() ) );
-    selectionTreeManager.addRoot( STRING_JOBS, Arrays.asList( new DBConnectionFolderProvider(), new
-      JobEntriesFolderProvider() ) );
-
-    props.setLook( selectionTree );
-    selectionTree.setLayout( new FillLayout() );
-    addDefaultKeyListeners( selectionTree );
-
-    selectionTree.addMenuDetectListener( e -> setMenu( selectionTree ) );
-
-    selectionTree.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        showSelection();
-      }
-
-      @Override
-      public void widgetDefaultSelected( SelectionEvent e ) {
-        doubleClickedInTree( selectionTree );
-      }
-    } );
-
-    // Set a listener on the tree
-    addDragSourceToTree( selectionTree );
-  }
-
-  public void refreshTree( AbstractMeta abstractMeta ) {
-    selectionTreeManager.remove( abstractMeta );
-    refreshTree();
-  }
-
-  public void refreshTree( String folderName ) {
-    selectionTreeManager.update( folderName );
-    refreshTree();
-  }
-
   /**
    * Refresh the object selection tree (on the left of the screen)
    */
   public void refreshTree() {
-
-    if ( selectionTree == null ) {
-      createSelectionTree();
-    }
-
-    selectionTreeManager.clear();
-    TransMeta activeTransMeta = getActiveTransformation();
-    JobMeta activeJobMeta = getActiveJob();
-    boolean showAll = activeTransMeta == null && activeJobMeta == null;
-    boolean showTrans = !props.isOnlyActiveFileShownInTree() || showAll || ( props.isOnlyActiveFileShownInTree()
-      && activeTransMeta != null );
-    boolean showJobs = !props.isOnlyActiveFileShownInTree() || showAll || ( props.isOnlyActiveFileShownInTree()
-      && activeJobMeta != null );
-
-    selectionTreeManager.showRoot( STRING_TRANSFORMATIONS, showTrans || showAll );
-    selectionTreeManager.showRoot( STRING_JOBS, showJobs || showAll );
-
-    if ( showTrans ) {
-      for ( TabMapEntry entry : delegates.tabs.getTabs() ) {
-        Object managedObject = entry.getObject().getManagedObject();
-        if ( managedObject instanceof TransMeta ) {
-          showMetaTree( activeTransMeta, (TransMeta) managedObject, STRING_TRANSFORMATIONS, showAll );
-        }
-      }
-    }
-
-    if ( showJobs ) {
-      for ( TabMapEntry entry : delegates.tabs.getTabs() ) {
-        Object managedObject = entry.getObject().getManagedObject();
-        if ( managedObject instanceof JobMeta ) {
-          showMetaTree( activeJobMeta, (JobMeta) managedObject, STRING_JOBS, showAll );
-        }
-      }
-    }
-
-    selectionTreeManager.render();
-    selectionTree.setFocus();
-    selectionTree.layout();
-    viewTreeComposite.layout( true, true );
+    // No longer refreshing tree
     setShellText();
-  }
-
-  private void showMetaTree( AbstractMeta activeMeta, AbstractMeta meta, String type, boolean showAll ) {
-    if ( !props.isOnlyActiveFileShownInTree() || showAll || ( activeMeta != null && activeMeta.equals( meta ) ) ) {
-      if ( !selectionTreeManager.hasNode( meta ) ) {
-        selectionTreeManager.create( meta, type, props.isOnlyActiveFileShownInTree() );
-      } else {
-        selectionTreeManager.checkUpdate( meta, type );
-        selectionTreeManager.reset( meta );
-      }
-      if ( activeMeta != null ) {
-        selectionTreeManager.show( meta );
-      }
-    }
   }
 
   @VisibleForTesting TreeItem createTreeItem( TreeItem parent, String text, Image image ) {
@@ -4888,15 +4573,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     }
   }
 
-
-  @VisibleForTesting void createPopUpMenuExtension() {
-    try {
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiPopupMenuExtension.id, selectionTree );
-    } catch ( Exception e ) {
-      log.logError( "Error handling menu right click on job entry through extension point", e );
-    }
-  }
-
   public String getActiveTabText() {
     if ( tabfolder.getSelected() == null ) {
       return null;
@@ -4937,7 +4613,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     if ( transMeta == null ) {
       return null;
     }
-    TreeItem[] ti = selectionTree.getSelection();
+    TreeItem[] ti = coreObjectsTree.getSelection();
     StepMeta inf = null;
 
     if ( ti.length == 1 ) {
@@ -5599,9 +5275,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   public void changeLooks() {
-    if ( !selectionTree.isDisposed() ) {
-      props.setLook( selectionTree );
-    }
+
     props.setLook( tabfolder.getSwtTabset(), Props.WIDGET_STYLE_TAB );
 
     refreshTree();
@@ -6002,7 +5676,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         try {
           loadLastUsedFileAtStartup( lastUsedFile );
         } catch ( Exception e ) {
-          hideSplash();
           new ErrorDialog(
             shell, BaseMessages.getString( PKG, "Spoon.LoadLastUsedFile.Exception.Title" ), BaseMessages
             .getString( PKG, "Spoon.LoadLastUsedFile.Exception.Message", lastUsedFile.toString() ), e );
@@ -6926,12 +6599,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       for ( IHopUiMenuController menuController : menuControllers ) {
         menuController.updateMenu( doc );
       }
-    }
-  }
-
-  public void hideSplash() {
-    if ( splash != null ) {
-      splash.hide();
     }
   }
 

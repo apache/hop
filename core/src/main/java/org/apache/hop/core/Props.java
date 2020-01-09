@@ -152,16 +152,7 @@ public class Props implements Cloneable {
 
   protected ArrayList<ObjectUsageCount> pluginHistory;
 
-  protected int type;
   protected String filename;
-
-  public static final int TYPE_PROPERTIES_EMPTY = 0;
-  public static final int TYPE_PROPERTIES_SPOON = 1;
-  public static final int TYPE_PROPERTIES_PAN = 2;
-  public static final int TYPE_PROPERTIES_CHEF = 3;
-  public static final int TYPE_PROPERTIES_KITCHEN = 4;
-  public static final int TYPE_PROPERTIES_MENU = 5;
-  public static final int TYPE_PROPERTIES_PLATE = 6;
 
   public static final int WIDGET_STYLE_DEFAULT = 0;
   public static final int WIDGET_STYLE_FIXED = 1;
@@ -174,12 +165,10 @@ public class Props implements Cloneable {
   /**
    * Initialize the properties: load from disk.
    *
-   * @param display The Display
-   * @param t       The type of properties file.
    */
-  public static final void init( int t ) {
+  public static final void init( ) {
     if ( props == null ) {
-      props = new Props( t );
+      props = new Props();
 
     } else {
       throw new RuntimeException( "The Properties systems settings are already initialised!" );
@@ -189,13 +178,11 @@ public class Props implements Cloneable {
   /**
    * Initialize the properties: load from disk.
    *
-   * @param display  The Display
    * @param filename the filename to use
    */
   public static final void init( String filename ) {
     if ( props == null ) {
       props = new Props( filename );
-
     } else {
       throw new RuntimeException( "The properties systems settings are already initialised!" );
     }
@@ -218,17 +205,12 @@ public class Props implements Cloneable {
     throw new RuntimeException( "Properties, Hop systems settings, not initialised!" );
   }
 
-  protected Props() {
-    init();
+  protected Props( ) {
+    initialize();
   }
 
-  protected Props( int t ) {
-    type = t;
+  protected void initialize() {
     filename = getFilename();
-    init();
-  }
-
-  protected void init() {
     createLogChannel();
     properties = new Properties();
     pluginHistory = new ArrayList<ObjectUsageCount>();
@@ -242,7 +224,6 @@ public class Props implements Cloneable {
 
   protected Props( String filename ) {
     properties = new Properties();
-    this.type = TYPE_PROPERTIES_EMPTY;
     this.filename = filename;
     init();
   }
@@ -257,59 +238,13 @@ public class Props implements Cloneable {
   }
 
   public String getFilename() {
-    String filename = "";
     String directory = Const.getHopDirectory();
-
-    switch ( type ) {
-      case TYPE_PROPERTIES_SPOON:
-      case TYPE_PROPERTIES_PAN:
-        filename = directory + Const.FILE_SEPARATOR + ".spoonrc";
-        break;
-      case TYPE_PROPERTIES_CHEF:
-      case TYPE_PROPERTIES_KITCHEN:
-        filename = directory + Const.FILE_SEPARATOR + ".chefrc";
-        break;
-      case TYPE_PROPERTIES_MENU:
-        filename = directory + Const.FILE_SEPARATOR + ".menurc";
-        break;
-      case TYPE_PROPERTIES_PLATE:
-        filename = directory + Const.FILE_SEPARATOR + ".platerc";
-        break;
-      default:
-        break;
-    }
-
-    return filename;
-  }
-
-  public String getLicenseFilename() {
-    String directory = Const.getHopDirectory();
-    String filename = directory + Const.FILE_SEPARATOR + ".licence";
-
-    // Try to create the directory...
-    File dir = new File( directory );
-    if ( !dir.exists() ) {
-      try {
-        dir.mkdirs();
-      } catch ( Exception e ) {
-        // ignore - should likely report failure to create directory
-      }
-    }
-
-    return filename;
+    return directory + Const.FILE_SEPARATOR + ".hoprc";
   }
 
   public boolean fileExists() {
     File f = new File( filename );
     return f.exists();
-  }
-
-  public void setType( int t ) {
-    type = t;
-  }
-
-  public int getType() {
-    return type;
   }
 
   public boolean loadProps() {

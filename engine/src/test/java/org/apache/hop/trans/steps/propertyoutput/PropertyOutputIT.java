@@ -50,7 +50,7 @@ public class PropertyOutputIT {
     PluginRegistry.addPluginType( StepPluginType.getInstance() );
     PluginRegistry.init();
     if ( !Props.isInitialized() ) {
-      Props.init( 0 );
+      Props.init();
     }
   }
 

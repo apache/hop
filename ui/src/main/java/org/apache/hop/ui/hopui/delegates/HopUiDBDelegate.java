@@ -288,6 +288,6 @@ public class HopUiDBDelegate extends HopUiDelegate {
   }
 
   private void refreshTree() {
-    hopUi.refreshTree( DBConnectionFolderProvider.STRING_CONNECTIONS );
+    hopUi.refreshTree();
   }
 }

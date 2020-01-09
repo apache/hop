@@ -236,7 +236,7 @@ public class HopServer {
   }
 
   private static void setHopEnvironment() throws Exception {
-    HopClientEnvironment.getInstance().setClient( HopClientEnvironment.ClientType.CARTE );
+    HopClientEnvironment.getInstance().setClient( HopClientEnvironment.ClientType.SERVER );
     HopEnvironment.init();
   }
 

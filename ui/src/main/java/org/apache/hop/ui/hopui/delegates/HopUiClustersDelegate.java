@@ -32,20 +32,18 @@ import org.apache.hop.ui.hopui.HopUi;
 public class HopUiClustersDelegate  {
 
   private final HopUi hopUi;
-  private final DelegatingMetaStore metaStore;
 
   public HopUiClustersDelegate( HopUi hopUi ) {
     this.hopUi = hopUi;
-    this.metaStore = hopUi.getMetaStore();
   }
 
   public void newClusteringSchema( TransMeta transMeta ) {
     try {
-      DelegatingMetaStore metaStore = hopUi.getMetaStore();
       ClusterSchema clusterSchema = new ClusterSchema();
 
-      ClusterSchemaDialog dialog = new ClusterSchemaDialog( hopUi.getShell(), metaStore, clusterSchema );
+      ClusterSchemaDialog dialog = new ClusterSchemaDialog( hopUi.getShell(), hopUi.getMetaStore(), clusterSchema );
       if ( dialog.open() ) {
+        ClusterSchema.createFactory( hopUi.getMetaStore() ).saveElement( clusterSchema );
         refreshTree();
       }
     } catch ( Exception e ) {
@@ -54,9 +52,14 @@ public class HopUiClustersDelegate  {
   }
 
   public void editClusterSchema( TransMeta transMeta, ClusterSchema clusterSchema ) {
-    ClusterSchemaDialog dialog = new ClusterSchemaDialog( hopUi.getShell(), hopUi.getMetaStore(), clusterSchema );
-    if ( dialog.open() ) {
-      refreshTree();
+    try {
+      ClusterSchemaDialog dialog = new ClusterSchemaDialog( hopUi.getShell(), hopUi.getMetaStore(), clusterSchema );
+      if ( dialog.open() ) {
+        ClusterSchema.createFactory( hopUi.getMetaStore() ).saveElement( clusterSchema );
+        refreshTree();
+      }
+    } catch(Exception e) {
+      new ErrorDialog( hopUi.getShell(), "Error", "Error editing/saving cluster schema", e );
     }
   }
 
@@ -64,7 +67,6 @@ public class HopUiClustersDelegate  {
     try {
       ClusterSchema.createFactory( hopUi.getMetaStore() ).deleteElement( clusterSchema.getName() );
       refreshTree();
-
     } catch ( Exception e ) {
       new ErrorDialog( hopUi.getShell(), "Error", "Error deleting cluster schema", e );
     }

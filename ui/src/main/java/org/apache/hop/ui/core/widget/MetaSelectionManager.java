@@ -476,7 +476,7 @@ public class MetaSelectionManager<T extends IHopMetaStoreElement> extends Compos
   public static void main( String[] args ) throws Exception {
     HopClientEnvironment.init();
     Display display = new Display();
-    PropsUI.init( display, Props.TYPE_PROPERTIES_SPOON );
+    PropsUI.init( display );
     HopEnvironment.init();
     IMetaStore metaStore = buildTestMetaStore();
 

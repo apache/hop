@@ -36,21 +36,19 @@ import java.util.List;
 
 public class HopUiPartitionsDelegate {
   private final HopUi hopUi;
-  private final DelegatingMetaStore metaStore;
 
   public HopUiPartitionsDelegate( HopUi hopUi ) {
     this.hopUi = hopUi;
-    this.metaStore = hopUi.getMetaStore();
   }
 
   public void newPartitioningSchema( TransMeta transMeta ) {
     PartitionSchema partitionSchema = new PartitionSchema();
 
-    PartitionSchemaDialog dialog = new PartitionSchemaDialog( hopUi.getShell(), metaStore, partitionSchema, transMeta );
+    PartitionSchemaDialog dialog = new PartitionSchemaDialog( hopUi.getShell(), hopUi.getMetaStore(), partitionSchema, transMeta );
     if ( dialog.open() ) {
 
       try {
-        PartitionSchema.createFactory( metaStore ).saveElement( partitionSchema );
+        PartitionSchema.createFactory( hopUi.getMetaStore() ).saveElement( partitionSchema );
       } catch ( MetaStoreException e ) {
         new ErrorDialog( hopUi.getShell(), "Error", "Error adding partition schema to the metastore", e );
       }
@@ -60,10 +58,10 @@ public class HopUiPartitionsDelegate {
 
   public void editPartitionSchema( TransMeta transMeta, PartitionSchema partitionSchema ) {
     String originalName = partitionSchema.getName();
-    PartitionSchemaDialog dialog = new PartitionSchemaDialog( hopUi.getShell(), metaStore, partitionSchema, transMeta );
+    PartitionSchemaDialog dialog = new PartitionSchemaDialog( hopUi.getShell(), hopUi.getMetaStore(), partitionSchema, transMeta );
     if ( dialog.open() ) {
       try {
-        PartitionSchema.createFactory( metaStore ).saveElement( partitionSchema );
+        PartitionSchema.createFactory( hopUi.getMetaStore() ).saveElement( partitionSchema );
       } catch ( MetaStoreException e ) {
         new ErrorDialog( hopUi.getShell(), "Error", "Error saving partition schema in the metastore", e );
       }
@@ -73,7 +71,7 @@ public class HopUiPartitionsDelegate {
 
   public void delPartitionSchema( TransMeta transMeta, PartitionSchema partitionSchema ) {
     try {
-      PartitionSchema.createFactory( metaStore ).deleteElement(  partitionSchema.getName() );
+      PartitionSchema.createFactory( hopUi.getMetaStore() ).deleteElement(  partitionSchema.getName() );
     } catch ( MetaStoreException e ) {
       new ErrorDialog( hopUi.getShell(), "Error", "Error deleting partition schema from the metastore", e );
     }

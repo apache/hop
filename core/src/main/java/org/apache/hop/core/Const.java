@@ -428,12 +428,7 @@ public class Const {
   /**
    * Name of the kettle parameters file
    */
-  public static final String HOP_PROPERTIES = "kettle.properties";
-
-  /**
-   * Name of the kettle shared data file
-   */
-  public static final String SHARED_DATA_FILE = "shared.xml";
+  public static final String HOP_PROPERTIES = "hop.properties";
 
   /**
    * The prefix that all internal kettle variables should have
@@ -2092,33 +2087,6 @@ public class Const {
    */
   public static String getDIHomeDirectory() {
     return System.getProperty( "DI_HOME" );
-  }
-
-  /**
-   * Determines the location of the shared objects file
-   *
-   * @return the name of the shared objects file
-   */
-  public static String getSharedObjectsFile() {
-    return getHopDirectory() + FILE_SEPARATOR + SHARED_DATA_FILE;
-  }
-
-  /**
-   * Returns the path to the Hop local (current directory) repositories XML file.
-   *
-   * @return The local repositories file.
-   */
-  public static String getHopLocalRepositoriesFile() {
-    return "repositories.xml";
-  }
-
-  /**
-   * Returns the full path to the Hop repositories XML file.
-   *
-   * @return The Hop repositories file.
-   */
-  public static String getHopUserRepositoriesFile() {
-    return getHopDirectory() + FILE_SEPARATOR + getHopLocalRepositoriesFile();
   }
 
   /**

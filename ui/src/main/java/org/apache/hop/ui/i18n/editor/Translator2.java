@@ -1159,7 +1159,7 @@ public class Translator2 {
 
     Display display = new Display();
     LogChannelInterface log = new LogChannel( APP_NAME );
-    PropsUI.init( display, Props.TYPE_PROPERTIES_SPOON );
+    PropsUI.init( display );
 
     Translator2 translator = new Translator2( display );
     translator.loadConfiguration( configFile, sourceFolder );

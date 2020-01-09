@@ -845,7 +845,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     List<PluginInterface> plugins = PluginRegistry.getInstance().getPlugins( DatabasePluginType.class );
     System.out.println( ">>>>>>>>>>>>>>>> Nr of database plugins found: " + plugins.size() );
 
-    PropsUI.init( display, Props.TYPE_PROPERTIES_SPOON );
+    PropsUI.init( display );
     System.out.println( ">>>>>>>>>>>>>>>> PropsUI initialized" );
 
     HopEnvironment.init();

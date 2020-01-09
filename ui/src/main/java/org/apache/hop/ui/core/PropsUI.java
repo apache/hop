@@ -90,8 +90,6 @@ public class PropsUI extends Props {
   protected List<LastUsedFile> openTabFiles;
   protected Map<String, List<LastUsedFile>> lastUsedRepoFiles;
 
-  protected String overriddenFileName;
-
   private Hashtable<String, WindowProperty> screens;
 
   private static final String STRING_SHOW_COPY_OR_DISTRIBUTE_WARNING = "ShowCopyOrDistributeWarning";
@@ -118,12 +116,11 @@ public class PropsUI extends Props {
    * Initialize the properties: load from disk.
    *
    * @param d The Display
-   * @param t The type of properties file.
    */
-  public static void init( Display d, int t ) {
+  public static void init( Display d ) {
     if ( props == null ) {
       display = d;
-      props = new PropsUI( t );
+      props = new PropsUI( );
 
       // Also init the colors and fonts to use...
       GUIResource.getInstance();
@@ -168,17 +165,21 @@ public class PropsUI extends Props {
       new RuntimeException( "Properties, Hop systems settings, not initialised!" );
   }
 
-  private PropsUI( int t ) {
-    super( t );
+  private PropsUI() {
+    super();
+    initialize();
   }
 
   private PropsUI( String filename ) {
     super( filename );
+    initialize();
   }
 
   @SuppressWarnings( "unchecked" )
-  protected synchronized void init() {
+  @Override
+  protected synchronized void initialize() {
     super.createLogChannel();
+    super.initialize();
     properties = new Properties();
     pluginHistory = new ArrayList<ObjectUsageCount>();
 

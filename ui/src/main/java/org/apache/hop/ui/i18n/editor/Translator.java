@@ -626,7 +626,7 @@ public class Translator {
   public static void main( String[] args ) {
     Display display = new Display();
     LogChannelInterface log = new LogChannel( APP_NAME );
-    PropsUI.init( display, Props.TYPE_PROPERTIES_SPOON );
+    PropsUI.init( display );
 
     Translator translator = new Translator( display );
     translator.open();
