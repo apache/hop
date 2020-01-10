@@ -15,7 +15,6 @@
   </parent>
 
   <dependencies>
-    <!-- Need a properties file from here -->
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-ui-swt</artifactId>

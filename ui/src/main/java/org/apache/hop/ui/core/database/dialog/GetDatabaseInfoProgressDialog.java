@@ -28,10 +28,10 @@ import org.apache.hop.core.database.DatabaseMetaInformation;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopui.HopUi;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.core.runtime.IProgressMonitor;
 
 import java.lang.reflect.InvocationTargetException;
 

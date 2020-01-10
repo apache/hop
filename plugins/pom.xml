@@ -16,12 +16,6 @@
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
-  <properties>
-    <!-- Test running configuration -->
-    <maven-surefire-plugin.reuseForks>true</maven-surefire-plugin.reuseForks>
-    <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
-  </properties>
-
   <profiles>
     <profile>
       <id>lowdeps</id>
@@ -34,7 +28,6 @@
        <module>core</module>
         <module>dummy</module>
         <module>databases</module>
-       <!--- <module>log4j</module> -->
       </modules>
     </profile>
 

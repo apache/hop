@@ -77,7 +77,7 @@
       <version>${project.version}</version>
       <exclusions>
         <exclusion>
-          <groupId>org.eclipse.swt</groupId>
+          <groupId>org.eclipse.platform</groupId>
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
@@ -378,6 +378,27 @@
         </exclusion>
       </exclusions>
     </dependency>
+
+    <!-- SWT dependencies -->
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.jface</artifactId>
+      <version>${org.eclipse.jface.version}</version>
+      <exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.equinox.common</artifactId>
+      <version>${org.eclipse.equinox.version}</version>
+      <exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.core.commands</artifactId>
+      <version>${org.eclipse.commands.version}</version>
+      <exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions>
+    </dependency>
+
   </dependencies>
 
   <build>

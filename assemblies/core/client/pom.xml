@@ -2,108 +2,103 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>hop-assemblies-core-client</artifactId>
-    <packaging>pom</packaging>
+  <artifactId>hop-assemblies-core-client</artifactId>
+  <packaging>pom</packaging>
 
-    <name>Hop Assemblies Core Client</name>
+  <name>Hop Assemblies Core Client</name>
 
-    <parent>
-        <groupId>org.hop</groupId>
-        <artifactId>hop-assemblies-core</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
-    </parent>
+  <parent>
+    <groupId>org.hop</groupId>
+    <artifactId>hop-assemblies-core</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
 
-    <properties>
+  <properties>
 
-        <pentaho-launcher.version>8.2.0.7-719</pentaho-launcher.version>
-        <oss-licenses.version>8.2.0.7-719</oss-licenses.version>
+    <pentaho-launcher.version>8.2.0.7-719</pentaho-launcher.version>
+    <oss-licenses.version>8.2.0.7-719</oss-licenses.version>
 
-        <!-- swt -->
-        <org.eclipse.swt.gtk.linux.x86.version>4.3.2</org.eclipse.swt.gtk.linux.x86.version>
-        <org.eclipse.swt.gtk.linux.x86_64.version>4.3.2</org.eclipse.swt.gtk.linux.x86_64.version>
-        <org.eclipse.swt.win32.win32.x86.version>4.6</org.eclipse.swt.win32.win32.x86.version>
-        <org.eclipse.swt.win32.win32.x86_64.version>4.6</org.eclipse.swt.win32.win32.x86_64.version>
-        <org.eclipse.swt.cocoa.macosx.x86_64.version>4.6</org.eclipse.swt.cocoa.macosx.x86_64.version>
-    </properties>
+    <!-- swt -->
+    <org.eclipse.swt.gtk.linux.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.gtk.linux.x86_64.version>
+    <org.eclipse.swt.win32.win32.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.win32.win32.x86_64.version>
+    <org.eclipse.swt.cocoa.macosx.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.cocoa.macosx.x86_64.version>
+  </properties>
 
-    <dependencies>
-        <!-- Hop Assemblies -->
-        <dependency>
-            <groupId>org.hop</groupId>
-            <artifactId>hop-assemblies-core-static</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.hop</groupId>
-            <artifactId>hop-assemblies-core-libs</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        
-        <dependency>
-            <groupId>pentaho</groupId>
-            <artifactId>pentaho-application-launcher</artifactId>
-            <version>${pentaho-launcher.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>pentaho</groupId>
-            <artifactId>oss-licenses</artifactId>
-            <version>${oss-licenses.version}</version>
-            <type>zip</type>
-        </dependency>
-        <!-- swt -->
-        <dependency>
-          <groupId>org.eclipse.swt</groupId>
-          <artifactId>org.eclipse.swt.gtk.linux.x86</artifactId>
-          <version>${org.eclipse.swt.gtk.linux.x86.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>org.eclipse.swt</groupId>
-          <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
-          <version>${org.eclipse.swt.gtk.linux.x86_64.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>org.eclipse.swt</groupId>
-          <artifactId>org.eclipse.swt.win32.win32.x86</artifactId>
-          <version>${org.eclipse.swt.win32.win32.x86.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>org.eclipse.swt</groupId>
-          <artifactId>org.eclipse.swt.win32.win32.x86_64</artifactId>
-          <version>${org.eclipse.swt.win32.win32.x86_64.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>org.eclipse.swt</groupId>
-          <artifactId>org.eclipse.swt.cocoa.macosx.x86_64</artifactId>
-          <version>${org.eclipse.swt.cocoa.macosx.x86_64.version}</version>
-        </dependency>
-    </dependencies>
+  <dependencies>
+    <!-- Hop Assemblies -->
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-assemblies-core-static</artifactId>
+      <version>${project.version}</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-assemblies-core-libs</artifactId>
+      <version>${project.version}</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
 
-    <build>
-        <plugins>
+    <dependency>
+      <groupId>pentaho</groupId>
+      <artifactId>oss-licenses</artifactId>
+      <version>${oss-licenses.version}</version>
+      <type>zip</type>
+    </dependency>
+    <!-- swt -->
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
+      <version>${org.eclipse.swt.gtk.linux.x86_64.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.swt.win32.win32.x86_64</artifactId>
+      <version>${org.eclipse.swt.win32.win32.x86_64.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.swt.cocoa.macosx.x86_64</artifactId>
+      <version>${org.eclipse.swt.cocoa.macosx.x86_64.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
 
-        </plugins>
-    </build>
+  <build>
+    <plugins>
+
+    </plugins>
+  </build>
 
 </project>

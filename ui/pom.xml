@@ -26,8 +26,6 @@
 
     <!-- Third-party dependencies -->
     <common.version>3.111.0</common.version>
-    <jface.version>3.17.0</jface.version>
-    <commands.version>3.9.400</commands.version>
     <jfreechart.version>1.0.13</jfreechart.version>
     <batik.version>1.11</batik.version>
   </properties>
@@ -59,6 +57,16 @@
     <dependency>
       <groupId>org.pentaho</groupId>
       <artifactId>commons-xul-swt</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.eclipse</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.swt</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.pentaho</groupId>
@@ -67,23 +75,29 @@
 
     <!-- Third-party dependencies -->
     <dependency>
-      <groupId>org.eclipse.swt</groupId>
-      <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.eclipse.platform</groupId>
-      <artifactId>org.eclipse.swt</artifactId>
-      <version>${common.version}</version>
+      <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
+      <version>${org.eclipse.platform.version}</version>
+      <exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions>
     </dependency>
+
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.jface</artifactId>
-      <version>${jface.version}</version>
+      <version>${org.eclipse.jface.version}</version>
+      <exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.equinox.common</artifactId>
+      <version>${org.eclipse.equinox.version}</version>
+      <exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions>
     </dependency>
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.core.commands</artifactId>
-      <version>${commands.version}</version>
+      <version>${org.eclipse.commands.version}</version>
+      <exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions>
     </dependency>
     <dependency>
       <groupId>jfree</groupId>

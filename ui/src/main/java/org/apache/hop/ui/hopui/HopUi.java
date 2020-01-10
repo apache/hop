@@ -309,10 +309,6 @@ import java.util.stream.Collectors;
  * @author Matt
  * @since 16-may-2003, i18n at 07-Feb-2006, redesign 01-Dec-2006
  */
-@GuiPlugin(
-  id = "HopUi",
-  description = "The main Hop UI"
-)
 public class HopUi extends ApplicationWindow implements AddUndoPositionInterface, TabListener, HopUiInterface,
   HopObserver, LifeEventHandler, XulEventSource, XulEventHandler, PartitionSchemasProvider {
 

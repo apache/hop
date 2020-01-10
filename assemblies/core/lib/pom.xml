@@ -74,7 +74,7 @@
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.eclipse.swt</groupId>
+                    <groupId>org.eclipse.platform</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>

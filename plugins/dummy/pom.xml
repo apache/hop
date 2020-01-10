@@ -3,18 +3,18 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.hop</groupId>
-    <artifactId>hop-plugins</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
-  </parent>
-
   <artifactId>hop-plugins-dummy</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Hop Plugins Dummy</name>
   <description>This contains a sample dummy Hop plugin as a job entry and a step</description>
+
+  <parent>
+    <groupId>org.hop</groupId>
+    <artifactId>hop-plugins</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
 
   <modules>
     <module>core</module>
@@ -30,8 +30,6 @@
     </license>
   </licenses>
   <properties>
-    <org.eclipse.swt.version>4.6</org.eclipse.swt.version>
-    <jface.version>3.3.0-I20070606-0010</jface.version>
     <junit.version>4.7</junit.version>
   </properties>
   <build>
@@ -87,9 +85,9 @@
       </dependency>
       <!-- SWT is required to compile,inorder to work with architecture -->
       <dependency>
-        <groupId>org.eclipse.swt</groupId>
+        <groupId>org.eclipse.platform</groupId>
         <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
-        <version>${org.eclipse.swt.version}</version>
+        <version>${org.eclipse.platform.version}</version>
         <scope>provided</scope>
         <exclusions>
           <exclusion>
@@ -99,16 +97,18 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.eclipse</groupId>
-        <artifactId>jface</artifactId>
-        <version>${jface.version}</version>
+        <groupId>org.eclipse.platform</groupId>
+        <artifactId>org.eclipse.jface</artifactId>
+        <version>${org.eclipse.jface.version}</version>
         <scope>provided</scope>
-        <exclusions>
-          <exclusion>
-            <artifactId>*</artifactId>
-            <groupId>*</groupId>
-          </exclusion>
-        </exclusions>
+        <exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.platform</groupId>
+        <artifactId>org.eclipse.equinox.common</artifactId>
+        <version>${org.eclipse.equinox.version}</version>
+        <scope>provided</scope>
+        <exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions>
       </dependency>
       <!-- test dependencies -->
       <dependency>
