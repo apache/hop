@@ -33,7 +33,7 @@ public enum LoggingObjectType {
 
   // User Interface...
   //
-  SPOON, STEPDIALOG, JOBENTRYDIALOG,
+  HOPUI, STEPDIALOG, JOBENTRYDIALOG,
 
   // Web server + HttpServlet...
   //

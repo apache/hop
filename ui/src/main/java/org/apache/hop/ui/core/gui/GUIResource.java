@@ -78,6 +78,8 @@ public class GUIResource {
 
   private Display display;
 
+  private double zoomFactor;
+
   // 33 resources
 
   /* * * Colors * * */
@@ -414,6 +416,18 @@ public class GUIResource {
 
   private SwtUniversalImage imagePrintDisabled;
 
+  private Image imageToolbarBack;
+  private Image imageToolbarCleanup;
+  private Image imageToolbarClose;
+  private Image imageToolbarJob;
+  private Image imageToolbarPause;
+  private Image imageToolbarRun;
+  private Image imageToolbarRunOption;
+  private Image imageToolbarStop;
+  private Image imageToolbarTrans;
+  private Image imageToolbarView;
+  private Image imageToolbarViewAsXml;
+
   /**
    * GUIResource also contains the clipboard as it has to be allocated only once! I don't want to put it in a separate
    * singleton just for this one member.
@@ -486,6 +500,7 @@ public class GUIResource {
 
   private void getResources() {
     PropsUI props = PropsUI.getInstance();
+    zoomFactor = props.getZoomFactor();
     imageMap = new HashMap<String, Image>();
     colorMap = new HashMap<RGB, Color>();
 
@@ -708,6 +723,22 @@ public class GUIResource {
       disposeImage( imageMinimizePanel );
 
       disposeImage( imageShowErrorLines );
+      
+      // Toolbar images
+      //
+      // Toolbar icons
+      //
+      imageToolbarBack.dispose();
+      imageToolbarCleanup.dispose();
+      imageToolbarClose.dispose();
+      imageToolbarJob.dispose();
+      imageToolbarPause.dispose();
+      imageToolbarRun.dispose();
+      imageToolbarRunOption.dispose();
+      imageToolbarStop.dispose();
+      imageToolbarTrans.dispose();
+      imageToolbarView.dispose();
+      imageToolbarViewAsXml.dispose();
 
       // big images
       disposeUniversalImages( imagesSteps.values() );
@@ -838,7 +869,8 @@ public class GUIResource {
     SwtUniversalImage img = SwtSvgImageUtil.getImageAsResource( display, location );
     Image image;
     if ( size > 0 ) {
-      image = new Image( display, img.getAsBitmapForSize( display, size, size ), SWT.IMAGE_COPY );
+    int newSize = (int)Math.round(size*zoomFactor);
+      image = new Image( display, img.getAsBitmapForSize( display, newSize, newSize ), SWT.IMAGE_COPY );
     } else {
       image = new Image( display, img.getAsBitmap( display ), SWT.IMAGE_COPY );
     }
@@ -850,15 +882,13 @@ public class GUIResource {
     // "ui/images/HOP.png"
     imageHop = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "HOP_image" ) );
 
-    imageDisabledHop =
-      SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Disabled_HOP_image" ) );
+    imageDisabledHop = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Disabled_HOP_image" ) );
 
     // "ui/images/CNC.png"
     imageConnection = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "CNC_image" ) );
 
     // "ui/images/CNC_tree"
-    imageConnectionTree =
-      SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "CNC_tree_image" ) );
+    imageConnectionTree = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "CNC_tree_image" ) );
 
     // "ui/images/Add.png"
     imageAdd = loadAsResource( display, BasePropertyHandler.getProperty( "Add_image" ), ConstUI.SMALL_ICON_SIZE );
@@ -873,8 +903,7 @@ public class GUIResource {
     imageSchema = loadAsResource( display, BasePropertyHandler.getProperty( "Schema_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/synonym.png"
-    imageSynonym =
-      loadAsResource( display, BasePropertyHandler.getProperty( "Synonym_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageSynonym = loadAsResource( display, BasePropertyHandler.getProperty( "Synonym_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/view.png"
     imageView = loadAsResource( display, BasePropertyHandler.getProperty( "View_image" ), ConstUI.SMALL_ICON_SIZE );
@@ -886,8 +915,7 @@ public class GUIResource {
     imageNoteSmall = loadAsResource( display, BasePropertyHandler.getProperty( "Note_image" ), 12 );
 
     // "ui/images/proc.png"
-    imageProcedure =
-      loadAsResource( display, BasePropertyHandler.getProperty( "ProcedureSmall_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageProcedure = loadAsResource( display, BasePropertyHandler.getProperty( "ProcedureSmall_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // , "ui/images/exploreDbSmall.png"
     imageExploreDbSmall =
@@ -908,31 +936,22 @@ public class GUIResource {
     imageBanner = loadAsResource( display, BasePropertyHandler.getProperty( "Banner_bg_image" ), 0 );
 
     // "ui/images/BOL.png"
-    imageBol =
-      SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler
-        .getProperty( "BOL_image" ) );
+    imageBol = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "BOL_image" ) );
 
-    imageCalendar =
-      loadAsResource( display, BasePropertyHandler.getProperty( "Calendar_image" ), ConstUI.SMALL_ICON_SIZE ); // ,
     // "ui/images/Calendar.png"
+    imageCalendar =loadAsResource( display, BasePropertyHandler.getProperty( "Calendar_image" ), ConstUI.SMALL_ICON_SIZE ); // ,
 
     // "ui/images/credits.png"
     imageCredits = loadAsResource( display, BasePropertyHandler.getProperty( "Credits_image" ), 0 );
 
     // "ui/images/STR.png"
-    imageStart =
-      SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler
-        .getProperty( "STR_image" ) );
+    imageStart = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "STR_image" ) );
 
     // "ui/images/DUM.png"
-    imageDummy =
-      SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler
-        .getProperty( "DUM_image" ) );
+    imageDummy = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "DUM_image" ) );
 
     //ui/images/missing_entry.svg
-    imageMissing =
-      SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler
-        .getProperty( "MIS_image" ) );
+    imageMissing = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "MIS_image" ) );
 
     // "ui/images/spoon.ico"
     imageHopUi = loadAsResource( display, BasePropertyHandler.getProperty( "spoon_image" ), 0 );
@@ -944,76 +963,58 @@ public class GUIResource {
     imageVariable = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Variable_image" ) );
 
     // "ui/images/edit_option.png"
-    imageEditOptionButton =
-      loadAsResource( display, BasePropertyHandler.getProperty( "EditOption_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageEditOptionButton = loadAsResource( display, BasePropertyHandler.getProperty( "EditOption_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/reset_option.png"
-    imageResetOptionButton =
-      loadAsResource( display, BasePropertyHandler.getProperty( "ResetOption_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageResetOptionButton = loadAsResource( display, BasePropertyHandler.getProperty( "ResetOption_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/Edit.png"
-    imageEditSmall =
-      loadAsResource( display, BasePropertyHandler.getProperty( "EditSmall_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageEditSmall = loadAsResource( display, BasePropertyHandler.getProperty( "EditSmall_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/exploreSolution.png"
-    imageExploreSolutionSmall =
-      loadAsResource( display, BasePropertyHandler.getProperty( "ExploreSolutionSmall_image" ),
-        ConstUI.SMALL_ICON_SIZE );
+    imageExploreSolutionSmall = loadAsResource( display, BasePropertyHandler.getProperty( "ExploreSolutionSmall_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/show-log.png"
-    imageShowLog =
-      loadAsResource( display, BasePropertyHandler.getProperty( "ShowLog_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageShowLog = loadAsResource( display, BasePropertyHandler.getProperty( "ShowLog_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/show-grid.png"
-    imageShowGrid =
-      loadAsResource( display, BasePropertyHandler.getProperty( "ShowGrid_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageShowGrid = loadAsResource( display, BasePropertyHandler.getProperty( "ShowGrid_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/show-history.png"
-    imageShowHistory =
-      loadAsResource( display, BasePropertyHandler.getProperty( "ShowHistory_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageShowHistory = loadAsResource( display, BasePropertyHandler.getProperty( "ShowHistory_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/show-perf.png"
-    imageShowPerf =
-      loadAsResource( display, BasePropertyHandler.getProperty( "ShowPerf_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageShowPerf = loadAsResource( display, BasePropertyHandler.getProperty( "ShowPerf_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // ui/images/show-inactive-selected.png
-    imageShowInactive =
-      loadAsResource( display, BasePropertyHandler.getProperty( "ShowInactive_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageShowInactive = loadAsResource( display, BasePropertyHandler.getProperty( "ShowInactive_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // ui/images/show-inactive-selected.png
-    imageHideInactive =
-      loadAsResource( display, BasePropertyHandler.getProperty( "HideInactive_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageHideInactive = loadAsResource( display, BasePropertyHandler.getProperty( "HideInactive_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // ui/images/show-selected.png
-    imageShowSelected =
-      loadAsResource( display, BasePropertyHandler.getProperty( "ShowSelected_image" ), ConstUI.ICON_SIZE );
+    imageShowSelected = loadAsResource( display, BasePropertyHandler.getProperty( "ShowSelected_image" ), ConstUI.ICON_SIZE );
 
     // ui/images/show-all.png
     imageShowAll = loadAsResource( display, BasePropertyHandler.getProperty( "ShowAll_image" ), ConstUI.ICON_SIZE );
 
     // "ui/images/show-perf.png"
-    imageClosePanel =
-      loadAsResource( display, BasePropertyHandler.getProperty( "ClosePanel_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageClosePanel = loadAsResource( display, BasePropertyHandler.getProperty( "ClosePanel_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/show-perf.png"
-    imageMaximizePanel =
-      loadAsResource( display, BasePropertyHandler.getProperty( "MaximizePanel_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageMaximizePanel = loadAsResource( display, BasePropertyHandler.getProperty( "MaximizePanel_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/show-perf.png"
-    imageMinimizePanel =
-      loadAsResource( display, BasePropertyHandler.getProperty( "MinimizePanel_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageMinimizePanel = loadAsResource( display, BasePropertyHandler.getProperty( "MinimizePanel_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/show-perf.png"
-    imageShowErrorLines =
-      loadAsResource( display, BasePropertyHandler.getProperty( "ShowErrorLines_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageShowErrorLines = loadAsResource( display, BasePropertyHandler.getProperty( "ShowErrorLines_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/show-results.png
-    imageShowResults =
-      loadAsResource( display, BasePropertyHandler.getProperty( "ShowResults_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageShowResults = loadAsResource( display, BasePropertyHandler.getProperty( "ShowResults_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/hide-results.png
-    imageHideResults =
-      loadAsResource( display, BasePropertyHandler.getProperty( "HideResults_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageHideResults = loadAsResource( display, BasePropertyHandler.getProperty( "HideResults_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/Design.png;
     imageDesignPanel = loadAsResource( display, BasePropertyHandler.getProperty( "DesignPanel_image" ), 0 );
@@ -1022,28 +1023,22 @@ public class GUIResource {
     imageViewPanel = loadAsResource( display, BasePropertyHandler.getProperty( "ViewPanel_image" ), 0 );
 
     // "ui/images/ClearText.png;
-    imageClearText =
-      SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "ClearText_image" ) );
+    imageClearText = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "ClearText_image" ) );
 
     // "ui/images/ClearTextDisabled.png;
-    imageClearTextDisabled =
-      SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "ClearTextDisabled_image" ) );
+    imageClearTextDisabled = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "ClearTextDisabled_image" ) );
 
     // "ui/images/ExpandAll.png;
-    imageExpandAll =
-      SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "ExpandAll_image" ) );
+    imageExpandAll = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "ExpandAll_image" ) );
 
     // "ui/images/CollapseAll.png;
-    imageCollapseAll =
-      SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "CollapseAll_image" ) );
+    imageCollapseAll = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "CollapseAll_image" ) );
 
     // "ui/images/show-error-lines.png;
-    imageStepError =
-      SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "StepErrorLines_image" ) );
+    imageStepError = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "StepErrorLines_image" ) );
 
     // "ui/images/step-error.svg;
-    imageRedStepError =
-      SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "StepErrorLinesRed_image" ) );
+    imageRedStepError = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "StepErrorLinesRed_image" ) );
 
     // "ui/images/copy-hop.png;
     imageCopyHop = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "CopyHop_image" ) );
@@ -1062,8 +1057,7 @@ public class GUIResource {
       ConstUI.LARGE_ICON_SIZE );
 
     // "ui/images/version-history.png;
-    imageVersionBrowser =
-      loadAsResource( display, BasePropertyHandler.getProperty( "VersionBrowser_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageVersionBrowser = loadAsResource( display, BasePropertyHandler.getProperty( "VersionBrowser_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/generic-new.png;
     imageNew = loadAsResource( display, BasePropertyHandler.getProperty( "Add_image" ), ConstUI.SMALL_ICON_SIZE );
@@ -1075,16 +1069,13 @@ public class GUIResource {
     imageDelete = loadAsResource( display, BasePropertyHandler.getProperty( "DeleteOriginal_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/show-deleted.png;
-    imageShowDeleted =
-      loadAsResource( display, BasePropertyHandler.getProperty( "ShowDeleted_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageShowDeleted = loadAsResource( display, BasePropertyHandler.getProperty( "ShowDeleted_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/pause-log.png;
-    imagePauseLog =
-      loadAsResource( display, BasePropertyHandler.getProperty( "PauseLog_image" ), ConstUI.SMALL_ICON_SIZE );
+    imagePauseLog = loadAsResource( display, BasePropertyHandler.getProperty( "PauseLog_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/continue-log.png;
-    imageContinueLog =
-      loadAsResource( display, BasePropertyHandler.getProperty( "ContinueLog_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageContinueLog = loadAsResource( display, BasePropertyHandler.getProperty( "ContinueLog_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/import.png;
     imageImport = loadAsResource( display, BasePropertyHandler.getProperty( "Import_image" ), ConstUI.SMALL_ICON_SIZE );
@@ -1096,12 +1087,10 @@ public class GUIResource {
     imageHopInput = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "HopInput_image" ) );
 
     // "ui/images/hop-output.png;
-    imageHopOutput =
-      SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "HopOutput_image" ) );
+    imageHopOutput = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "HopOutput_image" ) );
 
     // "ui/images/hop-target.png;
-    imageHopTarget =
-      SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "HopTarget_image" ) );
+    imageHopTarget = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "HopTarget_image" ) );
 
     // "ui/images/locked.png;
     imageLocked = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Locked_image" ) );
@@ -1113,16 +1102,13 @@ public class GUIResource {
     imageFalse = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "False_image" ) );
 
     // "ui/images/context_menu.png;
-    imageContextMenu =
-      SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "ContextMenu_image" ) );
+    imageContextMenu = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "ContextMenu_image" ) );
 
     // "ui/images/parallel-hop.png
-    imageParallelHop =
-      SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "ParallelHop_image" ) );
+    imageParallelHop = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "ParallelHop_image" ) );
 
     // "ui/images/unconditional-hop.png
-    imageUnconditionalHop =
-      SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "UnconditionalHop_image" ) );
+    imageUnconditionalHop = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "UnconditionalHop_image" ) );
 
     // "ui/images/busy.png
     imageBusy = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Busy_image" ) );
@@ -1131,19 +1117,16 @@ public class GUIResource {
     imageInject = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Inject_image" ) );
 
     // "ui/images/scales.png
-    imageBalance =
-      SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "LoadBalance_image" ) );
+    imageBalance = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "LoadBalance_image" ) );
 
     // "ui/images/scales.png
-    imageCheckpoint =
-      SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "CheckeredFlag_image" ) );
+    imageCheckpoint = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "CheckeredFlag_image" ) );
 
     // "ui/images/gantt.png
     imageGantt = loadAsResource( display, BasePropertyHandler.getProperty( "Gantt_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/help_web.png
-    imageHelpWeb =
-      loadAsResource( display, BasePropertyHandler.getProperty( "HelpWeb_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageHelpWeb = loadAsResource( display, BasePropertyHandler.getProperty( "HelpWeb_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/hadoop.png
     imageHadoop = loadAsResource( display, BasePropertyHandler.getProperty( "Hadoop_image" ), ConstUI.SMALL_ICON_SIZE );
@@ -1170,80 +1153,60 @@ public class GUIResource {
     imageRemoveSingle = loadAsResource( display, BasePropertyHandler.getProperty( "RemoveSingle_image" ), 12 );
 
     // ui/images/back-enabled.png
-    imageBackEnabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
-      BasePropertyHandler.getProperty( "BackEnabled" ) );
+    imageBackEnabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "BackEnabled" ) );
 
     // ui/images/back-disabled.png
-    imageBackDisabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
-      BasePropertyHandler.getProperty( "BackDisabled" ) );
+    imageBackDisabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "BackDisabled" ) );
 
     // ui/images/forward-enabled.png
-    imageForwardEnabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
-      BasePropertyHandler.getProperty( "ForwardEnabled" ) );
+    imageForwardEnabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "ForwardEnabled" ) );
 
     // ui/images/forward-disabled.png
-    imageForwardDisabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
-      BasePropertyHandler.getProperty( "ForwardDisabled" ) );
+    imageForwardDisabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "ForwardDisabled" ) );
 
     // ui/images/refresh-enabled.png
-    imageRefreshEnabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
-      BasePropertyHandler.getProperty( "RefreshEnabled" ) );
+    imageRefreshEnabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "RefreshEnabled" ) );
 
     // ui/images/refresh-disabled.png
-    imageRefreshDisabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
-      BasePropertyHandler.getProperty( "RefreshDisabled" ) );
+    imageRefreshDisabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "RefreshDisabled" ) );
 
     // ui/images/home-enabled.png
-    imageHomeEnabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
-      BasePropertyHandler.getProperty( "HomeEnabled" ) );
+    imageHomeEnabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "HomeEnabled" ) );
 
     // ui/images/home-disabled.png
-    imageHomeDisabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
-      BasePropertyHandler.getProperty( "HomeDisabled" ) );
+    imageHomeDisabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "HomeDisabled" ) );
 
     // ui/images/print-enabled.png
-    imagePrintEnabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
-      BasePropertyHandler.getProperty( "PrintEnabled" ) );
+    imagePrintEnabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "PrintEnabled" ) );
 
     // ui/images/print-disabled.png
-    imagePrintDisabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
-      BasePropertyHandler.getProperty( "PrintDisabled" ) );
+    imagePrintDisabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "PrintDisabled" ) );
 
     imageEmpty16x16 = new Image( display, 16, 16 );
 
-    imageTransGraph = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
-      BasePropertyHandler.getProperty( "SpoonIcon_image" ) );
+    imageTransGraph = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "SpoonIcon_image" ) );
 
-    imagePartitionSchema = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
-      BasePropertyHandler.getProperty( "Image_Partition_Schema" ) );
+    imagePartitionSchema = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Image_Partition_Schema" ) );
 
-    imageJobGraph = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
-      BasePropertyHandler.getProperty( "ChefIcon_image" ) );
+    imageJobGraph = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "ChefIcon_image" ) );
 
-    imageTransTree = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
-      BasePropertyHandler.getProperty( "Trans_tree_image" ) );
-    imageJobTree = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
-      BasePropertyHandler.getProperty( "Job_tree_image" ) );
+    imageTransTree = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Trans_tree_image" ) );
+    imageJobTree = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Job_tree_image" ) );
 
     // "ui/images/kettle_logo_small.png"
-    imageLogoSmall = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
-      BasePropertyHandler.getProperty( "Logo_sml_image" ) );
+    imageLogoSmall = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Logo_sml_image" ) );
 
     // "ui/images/arrow.png"
-    imageArrow = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
-      BasePropertyHandler.getProperty( "ArrowIcon_image" ) );
+    imageArrow = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "ArrowIcon_image" ) );
 
     // "ui/images/folder.png"
-    imageFolder = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
-      BasePropertyHandler.getProperty( "Folder_image" ) );
+    imageFolder = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Folder_image" ) );
 
     // "ui/images/transrepo.png"
-    imageTransRepo = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
-      BasePropertyHandler.getProperty( "TransRepo_image" ) );
+    imageTransRepo = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "TransRepo_image" ) );
 
     // "ui/images/jobrepo.png"
-    imageJobRepo = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(),
-      BasePropertyHandler.getProperty( "JobRepo_image" ) );
+    imageJobRepo = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "JobRepo_image" ) );
 
 
     // Makes transparent images "on the fly"
@@ -1252,48 +1215,43 @@ public class GUIResource {
     // "ui/images/wizard.png"
     imageWizard = loadAsResource( display, BasePropertyHandler.getProperty( "spoon_icon" ), 0 );
 
-    imageBanner =
-      ImageUtil.makeImageTransparent( display, loadAsResource( display, BasePropertyHandler
-          .getProperty( "Banner_bg_image" ), 0 ), // , "ui/images/bg_banner.png"
-        new RGB( 255, 255, 255 ) );
+    // , "ui/images/bg_banner.png"
+    imageBanner = ImageUtil.makeImageTransparent( display, loadAsResource( display, BasePropertyHandler.getProperty( "Banner_bg_image" ), 0 ), new RGB( 255, 255, 255 ) );
 
-    imageUser = loadAsResource( display, BasePropertyHandler.getProperty( "User_image" ), // , "ui/images/user.png"
-      ConstUI.SMALL_ICON_SIZE );
-    imageProfil = loadAsResource( display, BasePropertyHandler.getProperty( "Profil_image" ), // ,
-      // "ui/images/profil.png"
-      ConstUI.SMALL_ICON_SIZE );
+    // , "ui/images/user.png"
+    imageUser = loadAsResource( display, BasePropertyHandler.getProperty( "User_image" ), ConstUI.SMALL_ICON_SIZE );
+
+    // "ui/images/profil.png"
+    imageProfil = loadAsResource( display, BasePropertyHandler.getProperty( "Profil_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/folder_connection.png"
-    imageFolderConnections =
-      SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "FolderConnections_image" ) );
+    imageFolderConnections = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "FolderConnections_image" ) );
 
-    imageRegExSmall =
-      loadAsResource( display, BasePropertyHandler.getProperty( "RegExSmall_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageRegExSmall = loadAsResource( display, BasePropertyHandler.getProperty( "RegExSmall_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageSearchSmall = loadAsResource( display, BasePropertyHandler.getProperty( "SearchSmall_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageKeySmall = loadAsResource( display, BasePropertyHandler.getProperty( "KeySmall_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageColumnSmall = loadAsResource( display, BasePropertyHandler.getProperty( "ColumnSmall_image" ), ConstUI.SMALL_ICON_SIZE );
 
-    imageSearchSmall =
-      loadAsResource( display, BasePropertyHandler.getProperty( "SearchSmall_image" ), ConstUI.SMALL_ICON_SIZE );
-    imageKeySmall =
-      loadAsResource( display, BasePropertyHandler.getProperty( "KeySmall_image" ), ConstUI.SMALL_ICON_SIZE );
-
-    imageColumnSmall =
-      loadAsResource( display, BasePropertyHandler.getProperty( "ColumnSmall_image" ), ConstUI.SMALL_ICON_SIZE );
-
-    defaultArrow =
-      SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler
-        .getProperty( "defaultArrow_image" ) );
-    okArrow =
-      SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler
-        .getProperty( "okArrow_image" ) );
-    errorArrow =
-      SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler
-        .getProperty( "errorArrow_image" ) );
-    disabledArrow =
-      SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler
-        .getProperty( "disabledArrow_image" ) );
-    candidateArrow =
-      SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler
-        .getProperty( "candidateArrow_image" ) );
-
+    defaultArrow = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "defaultArrow_image" ) );
+    okArrow = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "okArrow_image" ) );
+    errorArrow = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "errorArrow_image" ) );
+    disabledArrow = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "disabledArrow_image" ) );
+    candidateArrow = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "candidateArrow_image" ) );
+    
+    
+    // Toolbar icons
+    //
+    imageToolbarBack= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarBack_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarCleanup= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarCleanup_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarClose= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarClose_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarJob= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarJob_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarPause= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarPause_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarRun= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarRun_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarRunOption= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarRunOption_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarStop= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarStop_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarTrans= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarTrans_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarView= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarView_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarViewAsXml= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarViewAsXml_image" ), ConstUI.SMALL_ICON_SIZE );
   }
 
   /**
@@ -2696,5 +2654,104 @@ public class GUIResource {
 
   public SwtUniversalImage getCandidateArrow() {
     return candidateArrow;
+  }
+
+  /**
+   * Gets imageToolbarBack
+   *
+   * @return value of imageToolbarBack
+   */
+  public Image getImageToolbarBack() {
+    return imageToolbarBack;
+  }
+
+  /**
+   * Gets imageToolbarCleanup
+   *
+   * @return value of imageToolbarCleanup
+   */
+  public Image getImageToolbarCleanup() {
+    return imageToolbarCleanup;
+  }
+
+  /**
+   * Gets imageToolbarClose
+   *
+   * @return value of imageToolbarClose
+   */
+  public Image getImageToolbarClose() {
+    return imageToolbarClose;
+  }
+
+  /**
+   * Gets imageToolbarJob
+   *
+   * @return value of imageToolbarJob
+   */
+  public Image getImageToolbarJob() {
+    return imageToolbarJob;
+  }
+
+  /**
+   * Gets imageToolbarPause
+   *
+   * @return value of imageToolbarPause
+   */
+  public Image getImageToolbarPause() {
+    return imageToolbarPause;
+  }
+
+  /**
+   * Gets imageToolbarRun
+   *
+   * @return value of imageToolbarRun
+   */
+  public Image getImageToolbarRun() {
+    return imageToolbarRun;
+  }
+
+  /**
+   * Gets imageToolbarRunOption
+   *
+   * @return value of imageToolbarRunOption
+   */
+  public Image getImageToolbarRunOption() {
+    return imageToolbarRunOption;
+  }
+
+  /**
+   * Gets imageToolbarStop
+   *
+   * @return value of imageToolbarStop
+   */
+  public Image getImageToolbarStop() {
+    return imageToolbarStop;
+  }
+
+  /**
+   * Gets imageToolbarTrans
+   *
+   * @return value of imageToolbarTrans
+   */
+  public Image getImageToolbarTrans() {
+    return imageToolbarTrans;
+  }
+
+  /**
+   * Gets imageToolbarView
+   *
+   * @return value of imageToolbarView
+   */
+  public Image getImageToolbarView() {
+    return imageToolbarView;
+  }
+
+  /**
+   * Gets imageToolbarViewAsXml
+   *
+   * @return value of imageToolbarViewAsXml
+   */
+  public Image getImageToolbarViewAsXml() {
+    return imageToolbarViewAsXml;
   }
 }

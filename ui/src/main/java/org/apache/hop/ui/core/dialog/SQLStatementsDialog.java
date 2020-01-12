@@ -66,7 +66,7 @@ public class SQLStatementsDialog extends Dialog {
   private static Class<?> PKG = SQLStatementsDialog.class; // for i18n purposes, needed by Translator2!!
 
   public static final LoggingObjectInterface loggingObject = new SimpleLoggingObject(
-    "SQL Statements Dialog", LoggingObjectType.SPOON, null );
+    "SQL Statements Dialog", LoggingObjectType.HOPUI, null );
 
   private List<SQLStatement> stats;
 

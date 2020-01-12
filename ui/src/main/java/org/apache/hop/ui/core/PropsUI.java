@@ -691,6 +691,14 @@ public class PropsUI extends Props {
     return Const.toInt( properties.getProperty( STRING_ICON_SIZE ), ConstUI.ICON_SIZE );
   }
 
+  public void setZoomFactor( double factor ) {
+    properties.setProperty( STRING_ZOOM_FACTOR, Double.toString( factor ));
+  }
+
+  public double getZoomFactor() {
+    return Const.toDouble( properties.getProperty( STRING_ZOOM_FACTOR ), 2.0d );
+  }
+
   public void setLineWidth( int width ) {
     properties.setProperty( STRING_LINE_WIDTH, "" + width );
   }

@@ -1553,7 +1553,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
 
   public boolean setFocus() {
     xulDomContainer.addEventHandler( this );
-    return canvas.setFocus();
+    return ( canvas != null && !canvas.isDisposed() ) ? canvas.setFocus() : false;
   }
 
   /**
@@ -3351,7 +3351,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
 
             String spoonObjectId = UUID.randomUUID().toString();
             SimpleLoggingObject spoonLoggingObject =
-              new SimpleLoggingObject( "SPOON", LoggingObjectType.SPOON, null );
+              new SimpleLoggingObject( "HOPUI", LoggingObjectType.HOPUI, null );
             spoonLoggingObject.setContainerObjectId( spoonObjectId );
             spoonLoggingObject.setLogLevel( executionConfiguration.getLogLevel() );
             job = new Job( runJobMeta, spoonLoggingObject );

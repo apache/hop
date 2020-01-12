@@ -439,7 +439,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
 
       setXulDomContainer( container );
     } catch ( XulException e1 ) {
-      log.logError( "Error loading XUL resource bundle for Spoon", e1 );
+      log.logError( "Error loading XUL resource bundle for HopUI", e1 );
     }
 
     setLayout( new FormLayout() );
@@ -1871,7 +1871,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
       sep.setControl( zoomLabel );
       swtToolbar.pack();
     } catch ( Throwable t ) {
-      log.logError( "Error loading the navigation toolbar for Spoon", t );
+      log.logError( "Error loading the navigation toolbar for HopUI", t );
       new ErrorDialog( shell, BaseMessages.getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Title" ), BaseMessages
         .getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Message", XUL_FILE_TRANS_TOOLBAR ), new Exception( t ) );
     }
@@ -2046,7 +2046,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
 
   @Override
   public boolean setFocus() {
-    return ( canvas != null ) ? canvas.setFocus() : false;
+    return ( canvas != null && !canvas.isDisposed() ) ? canvas.setFocus() : false;
   }
 
   public void renameStep( StepMeta stepMeta, String stepname ) {
@@ -3813,7 +3813,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
           trans.setMetaStore( hopUi.getMetaStore() );
 
           String spoonLogObjectId = UUID.randomUUID().toString();
-          SimpleLoggingObject spoonLoggingObject = new SimpleLoggingObject( "SPOON", LoggingObjectType.SPOON, null );
+          SimpleLoggingObject spoonLoggingObject = new SimpleLoggingObject( "HOPUI", LoggingObjectType.HOPUI, null );
           spoonLoggingObject.setContainerObjectId( spoonLogObjectId );
           spoonLoggingObject.setLogLevel( executionConfiguration.getLogLevel() );
           trans.setParent( spoonLoggingObject );

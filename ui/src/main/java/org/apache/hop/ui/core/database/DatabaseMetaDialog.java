@@ -382,7 +382,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     // Now add the database plugin specific widgets
     //
     guiElementWidgets = new GuiElementWidgets( databaseMeta );
-    guiElementWidgets.createWidgets( workingMeta.getDatabaseInterface(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
+    guiElementWidgets.createCompositeWidgets( workingMeta.getDatabaseInterface(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
 
     fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment( 0, 0 );
@@ -417,7 +417,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     // Re-add the widgets
     //
     guiElementWidgets = new GuiElementWidgets( databaseMeta );
-    guiElementWidgets.createWidgets( workingMeta.getDatabaseInterface(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
+    guiElementWidgets.createCompositeWidgets( workingMeta.getDatabaseInterface(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
 
     // Put the data back
     //

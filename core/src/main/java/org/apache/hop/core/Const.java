@@ -1447,6 +1447,9 @@ public class Const {
    * @return The converted value or the default.
    */
   public static int toInt( String str, int def ) {
+    if (str==null) {
+      return def;
+    }
     int retval;
     try {
       retval = Integer.parseInt( str );
@@ -1464,6 +1467,9 @@ public class Const {
    * @return The converted value or the default.
    */
   public static long toLong( String str, long def ) {
+    if (str==null) {
+      return def;
+    }
     long retval;
     try {
       retval = Long.parseLong( str );
@@ -1481,6 +1487,9 @@ public class Const {
    * @return The converted value or the default.
    */
   public static double toDouble( String str, double def ) {
+    if (str==null) {
+      return def;
+    }
     double retval;
     try {
       retval = Double.parseDouble( str );
@@ -1499,6 +1508,9 @@ public class Const {
    * @return The converted value or the default.
    */
   public static Date toDate( String str, Date def ) {
+    if (str==null) {
+      return def;
+    }
     SimpleDateFormat df = new SimpleDateFormat( "yyyy/MM/dd HH:mm:ss.SSS", Locale.US );
     try {
       return df.parse( str );

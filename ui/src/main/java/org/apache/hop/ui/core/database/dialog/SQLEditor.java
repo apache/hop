@@ -81,7 +81,7 @@ public class SQLEditor {
   private static Class<?> PKG = SQLEditor.class; // for i18n purposes, needed by Translator2!!
 
   public static final LoggingObjectInterface loggingObject = new SimpleLoggingObject(
-    "SQL Editor", LoggingObjectType.SPOON, null );
+    "SQL Editor", LoggingObjectType.HOPUI, null );
 
   private PropsUI props;
 

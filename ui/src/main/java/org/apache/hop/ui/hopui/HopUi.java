@@ -61,7 +61,6 @@ import org.apache.hop.core.gui.HopUiFactory;
 import org.apache.hop.core.gui.HopUiInterface;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.UndoInterface;
-import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.lifecycle.LifeEventHandler;
 import org.apache.hop.core.lifecycle.LifeEventInfo;
 import org.apache.hop.core.lifecycle.LifecycleException;
@@ -147,7 +146,6 @@ import org.apache.hop.ui.core.FileDialogOperation;
 import org.apache.hop.ui.core.PrintSpool;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.auth.AuthProviderDialog;
-import org.apache.hop.ui.core.dialog.AboutDialog;
 import org.apache.hop.ui.core.dialog.BrowserEnvironmentWarningDialog;
 import org.apache.hop.ui.core.dialog.CheckResultDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
@@ -161,7 +159,6 @@ import org.apache.hop.ui.core.dialog.HopPropertiesFileDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.dialog.ShowBrowserDialog;
 import org.apache.hop.ui.core.dialog.SimpleMessageDialog;
-import org.apache.hop.ui.core.dialog.Splash;
 import org.apache.hop.ui.core.dialog.SubjectDataBrowserDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -314,7 +311,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   private static Class<?> PKG = HopUi.class;
 
-  public static final LoggingObjectInterface loggingObject = new SimpleLoggingObject( "Spoon", LoggingObjectType.SPOON,
+  public static final LoggingObjectInterface loggingObject = new SimpleLoggingObject( "HopUi", LoggingObjectType.HOPUI,
     null );
 
   public static final String STRING_TRANSFORMATIONS = BaseMessages.getString( PKG, "Spoon.STRING_TRANSFORMATIONS" );
@@ -500,18 +497,18 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   private static PrintStream originalSystemErr = System.err;
 
   /**
-   * This is the main procedure for Spoon.
+   * This is the main procedure for HopUi.
    *
    * @param a Arguments are available in the "Get System Info" step.
    */
   public static void main( String[] a ) throws HopException {
-    boolean doConsoleRedirect = !Boolean.getBoolean( "Spoon.Console.Redirect.Disabled" );
+    boolean doConsoleRedirect = !Boolean.getBoolean( "HopUi.Console.Redirect.Disabled" );
     if ( doConsoleRedirect ) {
       try {
         Path parent = Paths.get( System.getProperty( "user.dir" ) + File.separator + "logs" );
         Files.createDirectories( parent );
-        Files.deleteIfExists( Paths.get( parent.toString(), "spoon.log" ) );
-        Path path = Files.createFile( Paths.get( parent.toString(), "spoon.log" ) );
+        Files.deleteIfExists( Paths.get( parent.toString(), "hopui.log" ) );
+        Path path = Files.createFile( Paths.get( parent.toString(), "hopui.log" ) );
         System.setProperty( "LOG_PATH", path.toString() );
         final FileOutputStream fos = new FileOutputStream( path.toFile() );
         System.setOut( new PrintStream( new TeeOutputStream( originalSystemOut, fos ) ) );
@@ -542,6 +539,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     } );
     try {
       OsHelper.setAppName();
+
       // Bootstrap Hop
       //
       Display display;
@@ -567,8 +565,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
       // The core plugin types don't know about UI classes. Add them in now
       // before the PluginRegistry is inited.
-      // splash = new Splash( display );
-
+      //
       List<String> args = new ArrayList<>( Arrays.asList( a ) );
 
       HopException registryException = pluginRegistryFuture.get();
@@ -581,8 +578,9 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       HopLogStore.init( PropsUI.getInstance().getMaxNrLinesInLog(), PropsUI.getInstance().getMaxLogLineTimeoutMinutes() );
 
       initLogging();
-      // remember...
 
+      // remember...
+      //
       staticHopUi = new HopUi();
       HopUiFactory.setSpoonInstance( staticHopUi );
       staticHopUi.setDestroy( true );
@@ -647,10 +645,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   private static void registerUIPluginObjectTypes() {
     PluginRegistry.addPluginType( HopUiPluginType.getInstance() );
 
-    HopUiPluginType.getInstance().getPluginFolders().add( new PluginFolder( "plugins/repositories", false, true ) );
-
-    LifecyclePluginType.getInstance().getPluginFolders().add( new PluginFolder( "plugins/spoon", false, true ) );
-    LifecyclePluginType.getInstance().getPluginFolders().add( new PluginFolder( "plugins/repositories", false, true ) );
+    LifecyclePluginType.getInstance().getPluginFolders().add( new PluginFolder( "plugins/hopui", false, true ) );
 
     PluginRegistry.addPluginType( JobDialogPluginType.getInstance() );
     PluginRegistry.addPluginType( TransDialogPluginType.getInstance() );
@@ -4391,12 +4386,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   public void helpAbout() {
-    try {
-      AboutDialog aboutDialog = new AboutDialog( getShell() );
-      aboutDialog.open();
-    } catch ( HopException e ) {
-      log.logError( "Error opening about dialog", e );
-    }
+     // Not used anymore
   }
 
   /**
@@ -5690,11 +5680,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     // enable perspective switching
     HopUiPerspectiveManager.getInstance().setForcePerspective( false );
 
-    if ( splash != null ) {
-      splash.dispose();
-      splash = null;
-    }
-
     // If we are a MILESTONE or RELEASE_CANDIDATE
     if ( !ValueMetaString.convertStringToBoolean( System.getProperty( "HOP_HIDE_DEVELOPMENT_VERSION_WARNING", "N" ) )
       && Const.RELEASE.equals( Const.ReleaseType.MILESTONE ) ) {
@@ -6686,7 +6671,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     } catch ( Throwable e ) {
       LogChannel.GENERAL.logError( "Error starting Spoon shell", e );
     }
-    System.out.println( "stopping" );
   }
 
   public String getStartupPerspective() {
@@ -6709,7 +6693,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         super.handleShellCloseEvent();
       }
     } catch ( Exception e ) {
-      LogChannel.GENERAL.logError( "Error closing Spoon", e );
+      LogChannel.GENERAL.logError( "Error closing HopUi", e );
     }
   }
 

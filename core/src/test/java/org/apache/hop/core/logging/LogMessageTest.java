@@ -126,7 +126,7 @@ public class LogMessageTest {
   }
 
   private static LoggingObjectInterface getTreeLoggingObject() {
-    LoggingObjectInterface rootLogObject = new SimpleLoggingObject( "ROOT_SUBJECT", LoggingObjectType.SPOON, null );
+    LoggingObjectInterface rootLogObject = new SimpleLoggingObject( "ROOT_SUBJECT", LoggingObjectType.HOPUI, null );
     LoggingObjectInterface transLogObject =
       new SimpleLoggingObject( "TRANS_SUBJECT", LoggingObjectType.TRANS, rootLogObject );
     LoggingObjectInterface stepLogObject =
@@ -137,7 +137,7 @@ public class LogMessageTest {
   }
 
   private static LoggingObjectInterface getLoggingObjectWithOneParent() {
-    LoggingObjectInterface rootLogObject = new SimpleLoggingObject( "ROOT_SUBJECT", LoggingObjectType.SPOON, null );
+    LoggingObjectInterface rootLogObject = new SimpleLoggingObject( "ROOT_SUBJECT", LoggingObjectType.HOPUI, null );
     LoggingObjectInterface transLogObject =
       new SimpleLoggingObject( "TRANS_SUBJECT", LoggingObjectType.TRANS, rootLogObject );
     return transLogObject;

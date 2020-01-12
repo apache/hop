@@ -36,13 +36,7 @@ public class GuiElementWidgets {
     widgetsMap = new HashMap<>();
   }
 
-  public GuiElementWidgets( VariableSpace space, Map<GuiElements, Control> labelsMap, Map<GuiElements, Control> widgetsMap ) {
-    this( space );
-    this.labelsMap = labelsMap;
-    this.widgetsMap = widgetsMap;
-  }
-
-  public void createWidgets( Object sourceData, Composite parent, String parentGuiElementId, Control lastControl ) {
+  public void createCompositeWidgets( Object sourceData, Composite parent, String parentGuiElementId, Control lastControl ) {
     // Find the GUI Elements for the given class...
     //
     GuiRegistry registry = GuiRegistry.getInstance();
@@ -54,14 +48,14 @@ public class GuiElementWidgets {
 
     // Loop over the GUI elements, create and remember the widgets...
     //
-    addWidgets( sourceData, parent, guiElements, lastControl );
+    addCompositeWidgets( sourceData, parent, guiElements, lastControl );
 
     // Force re-layout
     //
     parent.layout( true, true );
   }
 
-  private Control addWidgets( Object sourceData, Composite parent, GuiElements guiElements, Control lastControl ) {
+  private Control addCompositeWidgets( Object sourceData, Composite parent, GuiElements guiElements, Control lastControl ) {
 
     System.out.println( "addWidgets START" );
 
@@ -146,7 +140,7 @@ public class GuiElementWidgets {
       //
       Control previousControl = lastControl;
       for ( GuiElements child : guiElements.getChildren() ) {
-        previousControl = addWidgets( sourceData, parent, child, previousControl );
+        previousControl = addCompositeWidgets( sourceData, parent, child, previousControl );
       }
       return previousControl;
     }
@@ -241,6 +235,8 @@ public class GuiElementWidgets {
 
     getWidgetsData( sourceData, guiElements );
   }
+
+  public void
 
   private void getWidgetsData( Object sourceData, GuiElements guiElements ) {
     if ( guiElements.isIgnored() ) {
@@ -349,7 +345,6 @@ public class GuiElementWidgets {
         enableWidget( sourceData, child, enabled );
       }
     }
-
   }
 
   /**

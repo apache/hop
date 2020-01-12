@@ -96,9 +96,6 @@ public class ImageUtil {
     }
   }
 
-  /**
-   * TODO: Load splash and common images.
-   */
   public static Image getImageAsResource( Display display, String location ) {
     return new Image( display, getImageInputStream( display, location ) );
   }

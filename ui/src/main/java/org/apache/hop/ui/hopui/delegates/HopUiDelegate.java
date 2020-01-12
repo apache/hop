@@ -31,7 +31,7 @@ import org.apache.hop.ui.hopui.HopUi;
 
 public abstract class HopUiDelegate {
   public static final LoggingObjectInterface loggingObject = new SimpleLoggingObject(
-    "Spoon (delegate)", LoggingObjectType.SPOON, null );
+    "Spoon (delegate)", LoggingObjectType.HOPUI, null );
 
   protected HopUi hopUi;
   protected LogChannelInterface log;
