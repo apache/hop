@@ -74,10 +74,6 @@ public class ExtensionPointPluginType extends BasePluginType implements PluginTy
     return "./";
   }
 
-  @Override
-  protected void registerXmlPlugins() throws HopPluginException {
-  }
-
   public String[] getNaturalCategoriesOrder() {
     return new String[ 0 ];
   }

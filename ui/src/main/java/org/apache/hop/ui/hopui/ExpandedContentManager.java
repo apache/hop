@@ -54,7 +54,7 @@ public final class ExpandedContentManager {
   /**
    * isBrowserVisible
    *
-   * @return a boolean that represents that the web browser is the topmost control of the active TransGraph. If browser
+   * @return a boolean that represents that the web browser is the topmost control of the active HopGuiTransGraph. If browser
    * hasn't been created it will return false.
    */
   public static boolean isVisible() {
@@ -62,9 +62,9 @@ public final class ExpandedContentManager {
   }
 
   /**
-   * isBrowserVisible( TransGraph graph )
+   * isBrowserVisible( HopGuiTransGraph graph )
    *
-   * @param graph a TransGraph object that is being interrogated to see if the web browser is the topmost control
+   * @param graph a HopGuiTransGraph object that is being interrogated to see if the web browser is the topmost control
    * @return true if the web browser is the topmost control of the graph
    */
   public static boolean isVisible( TransGraph graph ) {
@@ -79,18 +79,18 @@ public final class ExpandedContentManager {
   /**
    * createExpandedContent
    * <p>
-   * creates a web browser for the current TransGraph
+   * creates a web browser for the current HopGuiTransGraph
    */
   public static void createExpandedContent( String url ) {
     createExpandedContent( spoonInstance().getActiveTransGraph(), url );
   }
 
   /**
-   * createExpandedContent( TransGraph parent )
+   * createExpandedContent( HopGuiTransGraph parent )
    * <p>
-   * Create a web browser for the TransGraph argument.
+   * Create a web browser for the HopGuiTransGraph argument.
    *
-   * @param parent a TransGraph that will be the parent of the web browser.
+   * @param parent a HopGuiTransGraph that will be the parent of the web browser.
    * @param url    The content to open and expand
    */
   public static void createExpandedContent( TransGraph parent, String url ) {
@@ -134,17 +134,17 @@ public final class ExpandedContentManager {
   /**
    * showTransformationBrowser
    * <p>
-   * Creates and shows the web browser for the active TransGraph
+   * Creates and shows the web browser for the active HopGuiTransGraph
    */
   public static void showExpandedContent() {
     showExpandedContent( spoonInstance().getActiveTransGraph() );
   }
 
   /**
-   * showExpandedContent( TransGraph graph )
+   * showExpandedContent( HopGuiTransGraph graph )
    *
-   * @param graph TransGraph to create the web browser for. If the wev browser hasn't been created this will create one.
-   *              Else it will just bring the web browser associated to this TransGraph to the top.
+   * @param graph HopGuiTransGraph to create the web browser for. If the wev browser hasn't been created this will create one.
+   *              Else it will just bring the web browser associated to this HopGuiTransGraph to the top.
    */
   public static void showExpandedContent( TransGraph graph ) {
     if ( graph == null ) {
@@ -168,8 +168,8 @@ public final class ExpandedContentManager {
   /**
    * getExpandedContentForTransGraph
    *
-   * @param graph a TransGraph object that will be interrogated for a web browser
-   * @return a web browser that is associated with the TransGraph or null if it has yet to be created.
+   * @param graph a HopGuiTransGraph object that will be interrogated for a web browser
+   * @return a web browser that is associated with the HopGuiTransGraph or null if it has yet to be created.
    */
   public static Browser getExpandedContentForTransGraph( TransGraph graph ) {
     for ( Control control : graph.getChildren() ) {
@@ -183,7 +183,7 @@ public final class ExpandedContentManager {
   /**
    * hideExpandedContent
    * <p>
-   * hides the web browser associated with the active TransGraph
+   * hides the web browser associated with the active HopGuiTransGraph
    */
   public static void hideExpandedContent() {
     hideExpandedContent( spoonInstance().getActiveTransGraph() );
@@ -192,16 +192,16 @@ public final class ExpandedContentManager {
   /**
    * closeExpandedContent
    * <p>
-   * closes the web browser associated with the active TransGraph
+   * closes the web browser associated with the active HopGuiTransGraph
    */
   public static void closeExpandedContent() {
     closeExpandedContent( spoonInstance().getActiveTransGraph() );
   }
 
   /**
-   * hideExpandedContent( TransGraph graph )
+   * hideExpandedContent( HopGuiTransGraph graph )
    *
-   * @param graph the TransGraph whose web browser will be hidden
+   * @param graph the HopGuiTransGraph whose web browser will be hidden
    */
   public static void hideExpandedContent( TransGraph graph ) {
     doToExpandedContent( graph, browser -> {
@@ -215,18 +215,18 @@ public final class ExpandedContentManager {
   }
 
   /**
-   * closeExpandedContent( TransGraph graph )
+   * closeExpandedContent( HopGuiTransGraph graph )
    *
-   * @param graph the TransGraph whose web browser will be closed
+   * @param graph the HopGuiTransGraph whose web browser will be closed
    */
   public static void closeExpandedContent( TransGraph graph ) {
     doToExpandedContent( graph, Browser::close );
   }
 
   /**
-   * doToExpandedContent( TransGraph graph )
+   * doToExpandedContent( HopGuiTransGraph graph )
    *
-   * @param graph         the TransGraph whose web browser will be hidden
+   * @param graph         the HopGuiTransGraph whose web browser will be hidden
    * @param browserAction Consumer for acting on the browser
    */
   private static void doToExpandedContent( TransGraph graph, Consumer<Browser> browserAction ) {

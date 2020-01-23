@@ -75,11 +75,6 @@ public class HopLifecyclePluginType extends BasePluginType implements PluginType
   }
 
   @Override
-  protected void registerXmlPlugins() throws HopPluginException {
-    // Not supported
-  }
-
-  @Override
   protected String extractID( Annotation annotation ) {
     return ( (HopLifecyclePlugin) annotation ).id();
   }

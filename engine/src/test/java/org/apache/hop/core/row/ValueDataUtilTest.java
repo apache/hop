@@ -63,7 +63,7 @@ public class ValueDataUtilTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
-    HopEnvironment.init( false );
+    HopEnvironment.init();
   }
 
   // private enum DateCalc {WORKING_DAYS, DATE_DIFF};

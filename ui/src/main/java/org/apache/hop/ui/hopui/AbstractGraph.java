@@ -36,7 +36,7 @@ import org.pentaho.ui.xul.XulDomContainer;
 import java.util.List;
 
 /**
- * The beginnings of a common graph object, used by JobGraph and TransGraph to share common behaviors.
+ * The beginnings of a common graph object, used by JobGraph and HopGuiTransGraph to share common behaviors.
  *
  * @author Will Gorman (wgorman@pentaho.com)
  */

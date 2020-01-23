@@ -58,7 +58,7 @@ public class TextFileOutputSplittingIT {
 
   @BeforeClass
   public static void initHop() throws Exception {
-    HopEnvironment.init( false );
+    HopEnvironment.init();
   }
 
   @Before

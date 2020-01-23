@@ -11,8 +11,8 @@ import java.lang.annotation.Target;
  */
 @Documented
 @Retention( RetentionPolicy.RUNTIME )
-@Target( ElementType.FIELD )
-public @interface GuiElement {
+@Target( {ElementType.FIELD, ElementType.METHOD} )
+public @interface GuiToolbarElement {
 
   /**
    * Every GUI Element has a unique ID so it can be replaced by other plugins at any given time.
@@ -27,6 +27,12 @@ public @interface GuiElement {
    * @return
    */
   public GuiElementType type();
+
+  /**
+   * The parent in which this annotation resides. Normally simply the class name is taken but plugins can pick a specific parent.
+   * @return
+   */
+  public String parent() default "";
 
   /**
    * The label of the GUI element: the menu item text and so on.
@@ -97,7 +103,13 @@ public @interface GuiElement {
    * Set this flag to true if you want to ignore the field as a GUI Element.
    * You can use this to override a GUI element from a base class.
    *
-   * @return
+   * @return True if you want this element to be ignored
    */
   public boolean ignored() default false;
+
+  /**
+   * Set to true if you want the menu-item of toolbar icon to be preceded by a separator or space.
+   * @return True if you want a separator before this element
+   */
+  public boolean separator() default false;
 }

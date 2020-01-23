@@ -40,7 +40,7 @@ import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.core.gui.GuiElementWidgets;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -105,7 +105,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
   private TextVar wPassword;
 
   private Composite wDatabaseSpecificComp;
-  private GuiElementWidgets guiElementWidgets;
+  private GuiCompositeWidgets guiCompositeWidgets;
 
   private CTabItem wAdvancedTab;
   private Composite wAdvancedComp;
@@ -381,8 +381,8 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
 
     // Now add the database plugin specific widgets
     //
-    guiElementWidgets = new GuiElementWidgets( databaseMeta );
-    guiElementWidgets.createCompositeWidgets( workingMeta.getDatabaseInterface(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
+    guiCompositeWidgets = new GuiCompositeWidgets( databaseMeta );
+    guiCompositeWidgets.createCompositeWidgets( workingMeta.getDatabaseInterface(), null, wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
 
     fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment( 0, 0 );
@@ -416,8 +416,8 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
 
     // Re-add the widgets
     //
-    guiElementWidgets = new GuiElementWidgets( databaseMeta );
-    guiElementWidgets.createCompositeWidgets( workingMeta.getDatabaseInterface(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
+    guiCompositeWidgets = new GuiCompositeWidgets( databaseMeta );
+    guiCompositeWidgets.createCompositeWidgets( workingMeta.getDatabaseInterface(), null, wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
 
     // Put the data back
     //
@@ -667,7 +667,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
 
     // Also enable/disable the custom native fields
     //
-    guiElementWidgets.enableWidgets( workingMeta.getDatabaseInterface(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, !odbc && !manualUrl );
+    guiCompositeWidgets.enableWidgets( workingMeta.getDatabaseInterface(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, !odbc && !manualUrl );
   }
 
   private void ok( Event event ) {
@@ -703,7 +703,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     wPassword.setText( Const.NVL( workingMeta.getPassword(), "" ) );
 
     System.out.println( "DMD getData()  getWidgetsContents" );
-    guiElementWidgets.setWidgetsContents( workingMeta.getDatabaseInterface(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
+    guiCompositeWidgets.setWidgetsContents( workingMeta.getDatabaseInterface(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
 
     wSupportsBoolean.setSelection( workingMeta.supportsBooleanDataType() );
     wSupportsTimestamp.setSelection( workingMeta.supportsTimestampDataType() );
@@ -762,7 +762,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
 
     // Finally, get the database specific information
     //
-    guiElementWidgets.getWidgetsContents( meta.getDatabaseInterface(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
+    guiCompositeWidgets.getWidgetsContents( meta.getDatabaseInterface(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
 
     return meta;
   }

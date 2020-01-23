@@ -7,10 +7,7 @@
    tooltip="Remainder of division"
    category="Partitioner"
    classname="org.apache.hop.trans.ModPartitioner">
-   <libraries>
-    <library name="dummy.jar"/>
-    </libraries>
-    
+
    <localized_category>
      <category locale="en_US">Partitioner</category>
    </localized_category>

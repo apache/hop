@@ -39,12 +39,12 @@ public abstract class TransformationIT extends TestCase {
 
   public TransformationIT() throws HopException {
     super();
-    HopEnvironment.init( false );
+    HopEnvironment.init();
   }
 
   public TransformationIT( String name ) throws HopException {
     super( name );
-    HopEnvironment.init( false );
+    HopEnvironment.init();
   }
 
   public RowMetaInterface createRowMetaInterface( ValueMetaInterface... valueMetas ) {

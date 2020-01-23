@@ -222,7 +222,7 @@ public class TransGridDelegate extends HopUiDelegate implements XulEventHandler 
     numberColumn.setValueMeta( numberColumnValueMeta );
 
     // Timer updates the view every UPDATE_TIME_VIEW interval
-    final Timer tim = new Timer( "TransGraph: " + transGraph.getMeta().getName() );
+    final Timer tim = new Timer( "HopGuiTransGraph: " + transGraph.getMeta().getName() );
 
     TimerTask timtask = new TimerTask() {
       public void run() {

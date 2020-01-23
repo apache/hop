@@ -30,6 +30,7 @@ import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepPartitioningMeta;
+import org.apache.hop.ui.core.metastore.MetaStoreManager;
 import org.apache.hop.ui.hopui.PartitionSchemasProvider;
 
 import java.util.Collections;
@@ -42,21 +43,19 @@ public class PartitionSettings {
 
   private final StepMeta stepMeta;
   private final TransMeta transMeta;
-  private final PartitionSchemasProvider schemasProvider;
+  private final MetaStoreManager<PartitionSchema> schemaManager;
   private final String[] options;
   private final String[] codes;
   private final StepMeta before;
 
-  public PartitionSettings( int exactSize, TransMeta transMeta, StepMeta stepMeta,
-                            PartitionSchemasProvider schemasProvider ) {
+  public PartitionSettings( int exactSize, TransMeta transMeta, StepMeta stepMeta, MetaStoreManager<PartitionSchema> schemaManager) {
     this.transMeta = transMeta;
     this.stepMeta = stepMeta;
-    this.schemasProvider = schemasProvider;
+    this.schemaManager = schemaManager;
     this.options = new String[ exactSize ];
     this.codes = new String[ exactSize ];
     this.before = (StepMeta) stepMeta.clone();
-    System.arraycopy(
-      StepPartitioningMeta.methodDescriptions, 0, options, 0, StepPartitioningMeta.methodDescriptions.length );
+    System.arraycopy( StepPartitioningMeta.methodDescriptions, 0, options, 0, StepPartitioningMeta.methodDescriptions.length );
     System.arraycopy( StepPartitioningMeta.methodCodes, 0, codes, 0, StepPartitioningMeta.methodCodes.length );
   }
 
@@ -81,7 +80,7 @@ public class PartitionSettings {
   public int getDefaultSelectedSchemaIndex() {
     List<String> schemaNames;
     try {
-      schemaNames = schemasProvider.getPartitionSchemasNames( transMeta );
+      schemaNames = schemaManager.getNames();
     } catch ( HopException e ) {
       schemaNames = Collections.emptyList();
     }
@@ -116,7 +115,7 @@ public class PartitionSettings {
 
   public List<String> getSchemaNames() {
     try {
-      return schemasProvider.getPartitionSchemasNames( transMeta );
+      return schemaManager.getNames();
     } catch ( HopException e ) {
       return Collections.emptyList();
     }
@@ -129,8 +128,9 @@ public class PartitionSettings {
 
   public List<PartitionSchema> getSchemas() {
     try {
-      return schemasProvider.getPartitionSchemas( transMeta );
-    } catch ( HopException e ) {
+      return schemaManager.getFactory().getElements();
+    } catch ( Exception e ) {
+      e.printStackTrace( System.out ); // TODO: properly throw exception, don't eat exception like this!!!
       return Collections.emptyList();
     }
   }

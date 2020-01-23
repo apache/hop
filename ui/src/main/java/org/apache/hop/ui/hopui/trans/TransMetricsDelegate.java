@@ -214,7 +214,7 @@ public class TransMetricsDelegate extends HopUiDelegate {
 
     // Refresh automatically every 5 seconds as well.
     //
-    final Timer timer = new Timer( "TransMetricsDelegate Timer" );
+    final Timer timer = new Timer( "HopGuiTransMetricsDelegate Timer" );
     timer.schedule( new TimerTask() {
       public void run() {
         updateGraph();

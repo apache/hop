@@ -36,7 +36,7 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
@@ -81,7 +81,7 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
 
   private FormData fdlName, fdName;
 
-  private MetaSelectionManager<DatabaseMeta> wConnection;
+  private MetaSelectionLine<DatabaseMeta> wConnection;
 
   private Button wOK, wCancel;
 

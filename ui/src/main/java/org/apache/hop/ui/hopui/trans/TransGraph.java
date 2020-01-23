@@ -198,7 +198,7 @@ import java.util.concurrent.Callable;
 
 /**
  * This class handles the display of the transformations in a graphical way using icons, arrows, etc. One transformation
- * is handled per TransGraph
+ * is handled per HopGuiTransGraph
  *
  * @author Matt
  * @since 17-mei-2003
@@ -729,7 +729,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
 
     // Add a timer to set correct the state of the run/stop buttons every 2 seconds...
     //
-    final Timer timer = new Timer( "TransGraph.setControlStates Timer: " + getMeta().getName() );
+    final Timer timer = new Timer( "HopGuiTransGraph.setControlStates Timer: " + getMeta().getName() );
     TimerTask timerTask = new TimerTask() {
 
       @Override
@@ -4287,7 +4287,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
 
   private void startRedrawTimer() {
 
-    redrawTimer = new Timer( "TransGraph: redraw timer" );
+    redrawTimer = new Timer( "HopGuiTransGraph: redraw timer" );
     TimerTask timtask = new TimerTask() {
       @Override
       public void run() {

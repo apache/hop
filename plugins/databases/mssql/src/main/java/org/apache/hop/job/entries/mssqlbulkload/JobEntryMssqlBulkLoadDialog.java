@@ -38,7 +38,7 @@ import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
@@ -87,7 +87,7 @@ public class JobEntryMssqlBulkLoadDialog extends JobEntryDialog implements JobEn
   private Text wName;
   private FormData fdlName, fdName;
 
-  private MetaSelectionManager<DatabaseMeta> wConnection;
+  private MetaSelectionLine<DatabaseMeta> wConnection;
 
   // Schema name
   private Label wlSchemaname;

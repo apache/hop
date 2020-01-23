@@ -22,12 +22,15 @@
 
 package org.apache.hop.core;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.extension.ExtensionPointPluginType;
-import org.apache.hop.core.gui.plugin.GuiElement;
+import org.apache.hop.core.gui.plugin.GuiMenuElement;
+import org.apache.hop.core.gui.plugin.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiPluginType;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.logging.ConsoleLoggingEventListener;
@@ -47,8 +50,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -91,8 +97,7 @@ public class HopClientEnvironment {
       ValueMetaPluginType.getInstance(),
       DatabasePluginType.getInstance(),
       ExtensionPointPluginType.getInstance(),
-      TwoWayPasswordEncoderPluginType.getInstance(),
-      GuiPluginType.getInstance()
+      TwoWayPasswordEncoderPluginType.getInstance()
       )
     );
   }
@@ -136,56 +141,16 @@ public class HopClientEnvironment {
 
     Encr.init( passwordEncoderPluginID );
 
-    initGuiPlugins();
-
     initialized = new Boolean( true );
-  }
-
-  /**
-   * Look for GuiElement annotated fields in all the GuiPlugins.
-   * Put them in the Gui registry
-   *
-   * @throws HopException
-   */
-  public static void initGuiPlugins() throws HopException {
-
-    try {
-      GuiRegistry guiRegistry = GuiRegistry.getInstance();
-      PluginRegistry pluginRegistry = PluginRegistry.getInstance();
-
-      List<PluginInterface> guiPlugins = pluginRegistry.getPlugins( GuiPluginType.class );
-      for ( PluginInterface guiPlugin : guiPlugins ) {
-        ClassLoader classLoader = pluginRegistry.getClassLoader( guiPlugin );
-        Class<?>[] typeClasses = guiPlugin.getClassMap().keySet().toArray( new Class<?>[ 0 ] );
-        String mainClassname = guiPlugin.getClassMap().get( typeClasses[ 0 ] );
-        Class<?> mainClass = classLoader.loadClass( mainClassname );
-        List<Field> fields = findDeclaredFields( mainClass );
-
-        for ( Field field : fields ) {
-          GuiElement guiElement = field.getAnnotation( GuiElement.class );
-          if ( guiElement != null ) {
-            // Add the GUI Element to the registry...
-            //
-            guiRegistry.addGuiElement( mainClassname, guiElement, field.getName(), field.getType() );
-          }
-        }
-      }
-      // Sort all GUI elements once.
-      //
-      guiRegistry.sortAllElements();
-
-    } catch ( Exception e ) {
-      throw new HopException( "Error looking for Elements in GUI Plugins ", e );
-    }
   }
 
   /**
    * Get all declared fields from the given class, also the ones from all super classes
    *
    * @param parentClass
-   * @return A unqiue list of fields.
+   * @return A unique list of fields.
    */
-  private static final List<Field> findDeclaredFields( Class<?> parentClass ) {
+  protected static final List<Field> findDeclaredFields( Class<?> parentClass ) {
     Set<Field> fields = new HashSet<>();
 
     for ( Field field : parentClass.getDeclaredFields() ) {
@@ -201,6 +166,30 @@ public class HopClientEnvironment {
     }
 
     return new ArrayList<>( fields );
+  }
+
+  /**
+   * Get all declared methods from the given class, also the ones from all super classes
+   *
+   * @param parentClass
+   * @return A unique list of methods.
+   */
+  protected static final List<Method> findDeclaredMethods( Class<?> parentClass ) {
+    Set<Method> methods = new HashSet<>();
+
+    for ( Method method : parentClass.getDeclaredMethods() ) {
+      methods.add( method );
+    }
+    Class<?> superClass = parentClass.getSuperclass();
+    while ( superClass != null ) {
+      for ( Method method : superClass.getDeclaredMethods() ) {
+        methods.add( method );
+      }
+
+      superClass = superClass.getSuperclass();
+    }
+
+    return new ArrayList<>( methods );
   }
 
   public static boolean isInitialized() {

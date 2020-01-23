@@ -61,10 +61,6 @@ public class LifecyclePluginType extends BasePluginType implements PluginTypeInt
     // Up until now, we have no natives.
   }
 
-  protected void registerXmlPlugins() throws HopPluginException {
-    // Not supported yet.
-  }
-
   @Override
   protected String extractCategory( Annotation annotation ) {
     return "";

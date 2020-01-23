@@ -25,7 +25,7 @@ package org.apache.hop.core.database;
 import com.google.common.collect.Sets;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.gui.plugin.GuiElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -49,7 +49,7 @@ import java.util.Set;
 public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   private static final Class<?> PKG = MySQLDatabaseMeta.class;
 
-  @GuiElement(
+  @GuiWidgetElement(
     id = "resultStreaming",
     order = "10",
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,

@@ -78,10 +78,6 @@ public class GuiPluginType extends BasePluginType implements PluginTypeInterface
     return "./";
   }
 
-  @Override
-  protected void registerXmlPlugins() throws HopPluginException {
-  }
-
   public String[] getNaturalCategoriesOrder() {
     return new String[ 0 ];
   }
@@ -118,7 +114,7 @@ public class GuiPluginType extends BasePluginType implements PluginTypeInterface
 
   @Override
   protected String extractI18nPackageName( Annotation annotation ) {
-    return ( (GuiPlugin) annotation ).i18nPackage();
+    return null;
   }
 
   @Override
@@ -147,6 +143,6 @@ public class GuiPluginType extends BasePluginType implements PluginTypeInterface
 
   @Override
   protected String extractClassLoaderGroup( Annotation annotation ) {
-    return ( (GuiPlugin) annotation ).classLoaderGroup();
+    return null;
   }
 }

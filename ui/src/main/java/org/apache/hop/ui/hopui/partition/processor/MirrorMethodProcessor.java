@@ -23,7 +23,7 @@
 package org.apache.hop.ui.hopui.partition.processor;
 
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.ui.hopui.delegates.HopUiDelegates;
+import org.apache.hop.ui.hopgui.file.trans.IPartitionSchemaSelection;
 import org.apache.hop.ui.hopui.partition.PartitionSettings;
 import org.eclipse.swt.widgets.Shell;
 
@@ -33,10 +33,11 @@ import org.eclipse.swt.widgets.Shell;
 public class MirrorMethodProcessor extends AbstractMethodProcessor {
 
   @Override
-  public void schemaSelection( PartitionSettings settings, Shell shell, HopUiDelegates delegates )
+  public void schemaSelection( PartitionSettings settings, Shell shell, IPartitionSchemaSelection schemaSelection )
     throws HopPluginException {
     String schema =
       super.askForSchema( settings.getSchemaNamesArray(), shell, settings.getDefaultSelectedSchemaIndex() );
     super.processForKnownSchema( schema, settings );
   }
+
 }

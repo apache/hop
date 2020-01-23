@@ -48,7 +48,7 @@ public class MonetDBBulkLoaderIT {
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
-    HopEnvironment.init( false );
+    HopEnvironment.init();
   }
 
   // not a real unit test: ignore it. depends on monetdb running and a specific table existing in it.

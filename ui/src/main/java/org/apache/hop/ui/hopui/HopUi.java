@@ -164,6 +164,8 @@ import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.core.widget.tree.TreeToolbar;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.trans.IPartitionSchemaSelection;
 import org.apache.hop.ui.hopui.HopUiLifecycleListener.SpoonLifeCycleEvent;
 import org.apache.hop.ui.hopui.TabMapEntry.ObjectType;
 import org.apache.hop.ui.hopui.delegates.HopUiDelegates;
@@ -5142,7 +5144,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   /**
-   * @return The active TransMeta object by looking at the selected TransGraph, TransLog, TransHist If nothing valueable
+   * @return The active TransMeta object by looking at the selected HopGuiTransGraph, TransLog, TransHist If nothing valueable
    * is selected, we return null
    */
   public TransMeta getActiveTransformation() {
@@ -5891,7 +5893,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         PluginRegistry registry = PluginRegistry.getInstance();
         List<PluginInterface> plugins = registry.getPlugins( PartitionerPluginType.class );
         int exactSize = StepPartitioningMeta.methodDescriptions.length + plugins.size();
-        PartitionSettings settings = new PartitionSettings( exactSize, transMeta, stepMeta, this );
+        PartitionSettings settings = new PartitionSettings( exactSize, transMeta, stepMeta, HopGui.getInstance().partitionManager );
         settings.fillOptionsAndCodesByPlugins( plugins );
 
         /*Method selection*/
@@ -5907,7 +5909,11 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
           /*Schema selection*/
           MethodProcessor methodProcessor = MethodProcessorFactory.create( methodType );
-          methodProcessor.schemaSelection( settings, shell, delegates );
+          methodProcessor.schemaSelection( settings, shell, new IPartitionSchemaSelection() {
+            @Override public String schemaFieldSelection( Shell shell, PartitionSettings partitionSettings ) throws HopException {
+              return null; // TODO: fix or remove the whole class
+            }
+          } );
         }
         addUndoChange( settings.getTransMeta(), new StepMeta[] { settings.getBefore() },
           new StepMeta[] { settings.getAfter() }, new int[] { settings.getTransMeta()

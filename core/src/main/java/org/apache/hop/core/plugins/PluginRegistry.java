@@ -525,7 +525,7 @@ public class PluginRegistry {
   }
 
   public static synchronized void init() throws HopPluginException {
-    init( false );
+    init( true );
   }
 
   /**
@@ -859,6 +859,9 @@ public class PluginRegistry {
   @SuppressWarnings( "unchecked" )
   public <T> T getClass( PluginInterface plugin, T classType ) throws HopPluginException {
     String className = plugin.getClassMap().get( classType );
+    if (className==null) {
+      throw new HopPluginException( "Unable to find the classname for class type " + classType.getClass().getName() );
+    }
     return (T) getClass( plugin, className );
   }
 

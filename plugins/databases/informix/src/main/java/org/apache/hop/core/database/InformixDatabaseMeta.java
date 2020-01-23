@@ -23,7 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.gui.plugin.GuiElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
@@ -42,7 +42,7 @@ import org.apache.hop.core.row.ValueMetaInterface;
 @GuiPlugin( id = "GUI-InformixDatabaseMeta" )
 public class InformixDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
 
-  @GuiElement(
+  @GuiWidgetElement(
     id = "servername",
     order = "10",
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,

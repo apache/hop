@@ -65,7 +65,7 @@ public class SelectCountIT {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    HopEnvironment.init( false );
+    HopEnvironment.init();
   }
 
   @Test

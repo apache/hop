@@ -74,7 +74,7 @@
     <menuitem id="trans-graph-entry-inputs" label="${TransGraph.PopupMenu.ShowInputFields}" command="transgraph.fieldsBefore()" />
     <menuitem id="trans-graph-entry-outputs" label="${TransGraph.PopupMenu.ShowOutputFields}" command="transgraph.fieldsAfter()" />
     <!--
-      - <menuitem id="trans-graph-entry-lineage" label="${TransGraph.PopupMenu.ShowDataLineage}"
+      - <menuitem id="trans-graph-entry-lineage" label="${HopGuiTransGraph.PopupMenu.ShowDataLineage}"
       command="transgraph.fieldsLineage()" />
     -->
 	<menu id="trans-graph-entry-sniff" label="${TransGraph.PopupMenu.Sniff}"> 

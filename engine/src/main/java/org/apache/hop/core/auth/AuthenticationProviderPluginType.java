@@ -69,10 +69,6 @@ public class AuthenticationProviderPluginType extends BasePluginType implements 
     return "./";
   }
 
-  @Override
-  protected void registerXmlPlugins() throws HopPluginException {
-  }
-
   public String[] getNaturalCategoriesOrder() {
     return new String[ 0 ];
   }

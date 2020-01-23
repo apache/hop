@@ -38,7 +38,7 @@ import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
@@ -67,7 +67,7 @@ import org.eclipse.swt.widgets.Text;
 public class GetTableNamesDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = GetTableNamesMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private MetaSelectionManager<DatabaseMeta> wConnection;
+  private MetaSelectionLine<DatabaseMeta> wConnection;
 
   private Label wlTablenameField;
   private Text wTablenameField;

@@ -52,7 +52,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
@@ -103,7 +103,7 @@ public class TableOutputDialog extends BaseStepDialog implements StepDialogInter
   private CTabItem wMainTab, wFieldsTab;
   private FormData fdMainComp, fdFieldsComp;
 
-  private MetaSelectionManager<DatabaseMeta> wConnection;
+  private MetaSelectionLine<DatabaseMeta> wConnection;
 
   private Label wlSchema;
   private TextVar wSchema;

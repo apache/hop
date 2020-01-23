@@ -33,7 +33,7 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
-import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
@@ -125,9 +125,9 @@ public class JobEntryDialog extends Dialog {
    * @param
    * @return the combo box UI component
    */
-  public MetaSelectionManager<DatabaseMeta> addConnectionLine( Composite parent, Control previous, DatabaseMeta selected, ModifyListener lsMod ) {
+  public MetaSelectionLine<DatabaseMeta> addConnectionLine( Composite parent, Control previous, DatabaseMeta selected, ModifyListener lsMod ) {
 
-    final MetaSelectionManager<DatabaseMeta> wConnection = new MetaSelectionManager<>(
+    final MetaSelectionLine<DatabaseMeta> wConnection = new MetaSelectionLine<>(
       jobMeta,
       metaStore,
       DatabaseMeta.class, parent, SWT.NONE,

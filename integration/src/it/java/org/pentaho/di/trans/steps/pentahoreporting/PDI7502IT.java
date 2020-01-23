@@ -58,7 +58,7 @@ public class PDI7502IT {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     ClassicEngineBoot.getInstance().start();
-    HopEnvironment.init( false );
+    HopEnvironment.init();
     reportFile = new File( "src/it/resources/org.apache.hop/trans/steps/pentahoreporting/pdi-7502.prpt" );
     assertTrue( reportFile.exists() );
   }

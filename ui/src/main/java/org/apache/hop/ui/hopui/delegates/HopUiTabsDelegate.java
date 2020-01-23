@@ -212,7 +212,7 @@ public class HopUiTabsDelegate extends HopUiDelegate {
     }
 
     // What transformation is in the active tab?
-    // TransLog, TransGraph & TransHist contain the same transformation
+    // TransLog, HopGuiTransGraph & TransHist contain the same transformation
     //
     TabMapEntry mapEntry = getTab( tabfolder.getSelected() );
     EngineMetaInterface meta = null;

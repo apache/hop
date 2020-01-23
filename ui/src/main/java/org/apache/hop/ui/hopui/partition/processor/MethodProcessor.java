@@ -23,7 +23,7 @@
 package org.apache.hop.ui.hopui.partition.processor;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.ui.hopui.delegates.HopUiDelegates;
+import org.apache.hop.ui.hopgui.file.trans.IPartitionSchemaSelection;
 import org.apache.hop.ui.hopui.partition.PartitionSettings;
 import org.eclipse.swt.widgets.Shell;
 
@@ -31,5 +31,5 @@ import org.eclipse.swt.widgets.Shell;
  * @author Evgeniy_Lyakhov@epam.com
  */
 public interface MethodProcessor {
-  void schemaSelection( PartitionSettings settings, Shell shell, HopUiDelegates delegates ) throws HopException;
+  void schemaSelection( PartitionSettings settings, Shell shell, IPartitionSchemaSelection schemaSelection ) throws HopException;
 }

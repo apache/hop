@@ -72,10 +72,6 @@ public class CompressionPluginType extends BasePluginType implements PluginTypeI
     return "./";
   }
 
-  @Override
-  protected void registerXmlPlugins() throws HopPluginException {
-  }
-
   public String[] getNaturalCategoriesOrder() {
     return new String[ 0 ];
   }

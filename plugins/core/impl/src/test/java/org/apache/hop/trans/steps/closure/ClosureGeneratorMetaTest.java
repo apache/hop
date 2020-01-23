@@ -40,7 +40,7 @@ public class ClosureGeneratorMetaTest {
 
   @Before
   public void setUpLoadSave() throws Exception {
-    HopEnvironment.init( false );
+    HopEnvironment.init();
     List<String> attributes =
       Arrays.asList( "rootIdZero", "parentIdFieldName", "childIdFieldName", "distanceFieldName" );
 

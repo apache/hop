@@ -1,0 +1,38 @@
+<gui-plugins>
+
+  <gui-plugin id="Hop-GUI">
+    <description>Hop GUI Plugin</description>
+    <classname>org.apache.hop.ui.hopgui.HopGui</classname>
+  </gui-plugin>
+
+  <gui-plugin id="Generic-GUI">
+    <description>Generic database GUI Plugin</description>
+    <classname>org.apache.hop.core.database.GenericDatabaseMeta</classname>
+  </gui-plugin>
+
+  <gui-plugin id="MySQL-Gui">
+    <description>MySQL GUI Plugin</description>
+    <classname>org.apache.hop.core.database.MySQLDatabaseMeta</classname>
+  </gui-plugin>
+
+  <gui-plugin id="Oracle-GUI">
+    <description>Oracle GUI Plugin</description>
+    <classname>org.apache.hop.core.database.OracleDatabaseMeta</classname>
+  </gui-plugin>
+
+  <gui-plugin id="Hop-Data-Orchestration-Perspective-GUI">
+    <description>Hop Data Orchestration Perspective GUI</description>
+    <classname>org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective</classname>
+  </gui-plugin>
+
+  <gui-plugin id="Hop-Search-Perspective-GUI">
+    <description>Hop Search Perspective GUI</description>
+    <classname>org.apache.hop.ui.hopgui.perspective.search.HopSearchPlugin</classname>
+  </gui-plugin>
+
+  <gui-plugin id="HopGui-TransGraph-Tabs">
+    <description>Transformation Graph tab</description>
+    <classname>org.apache.hop.ui.hopgui.file.trans.HopGuiTransGraph</classname>
+  </gui-plugin>
+
+ </gui-plugins>

@@ -124,7 +124,7 @@ public class MainHopUiPerspective implements HopUiPerspectiveImageProvider {
     }
 
     // What transformation is in the active tab?
-    // TransLog, TransGraph & TransHist contain the same transformation
+    // TransLog, HopGuiTransGraph & TransHist contain the same transformation
     //
     TabMapEntry mapEntry = ( (HopUi) HopUiFactory.getInstance() ).delegates.tabs.getTab( tabfolder.getSelected() );
     EngineMetaInterface meta = null;

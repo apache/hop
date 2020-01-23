@@ -1087,6 +1087,16 @@ public class Const {
   public static final String XML_FILE_HOP_GUI_PLUGINS = "hop-gui-plugins.xml";
 
   /**
+   * The XML file that contains the list of native Hop database types (MySQL, Oracle, etc)
+   */
+  public static final String XML_FILE_HOP_PERSPECTIVE_PLUGINS = "hop-perspective-plugins.xml";
+
+  /**
+   * The XML file that contains the list of native Hop database types (MySQL, Oracle, etc)
+   */
+  public static final String XML_FILE_HOP_FILE_TYPES = "hop-file-types.xml";
+
+  /**
    * The XML file that contains the list of native Hop compression providers (None, ZIP, GZip, etc.)
    */
   public static final String XML_FILE_HOP_COMPRESSION_PROVIDERS = "hop-compression-providers.xml";

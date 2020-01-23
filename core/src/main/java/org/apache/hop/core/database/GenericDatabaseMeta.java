@@ -24,7 +24,7 @@ package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.gui.plugin.GuiElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.row.ValueMetaInterface;
 
@@ -43,14 +43,14 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   public static final String DATABASE_DIALECT_ID = "DATABASE_DIALECT_ID";
   private DatabaseInterface databaseDialect = null;
 
-  @GuiElement( id = "hostname", type = GuiElementType.NONE, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, ignored = true )
+  @GuiWidgetElement( id = "hostname", type = GuiElementType.NONE, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, ignored = true )
   protected String hostname;
-  @GuiElement( id = "port", type = GuiElementType.NONE, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, ignored = true )
+  @GuiWidgetElement( id = "port", type = GuiElementType.NONE, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, ignored = true )
   protected String port;
-  @GuiElement( id = "databaseName", type = GuiElementType.NONE, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, ignored = true )
+  @GuiWidgetElement( id = "databaseName", type = GuiElementType.NONE, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, ignored = true )
   protected String databaseName;
 
-  @GuiElement(
+  @GuiWidgetElement(
     id = "driverClass",
     order = "10",
     i18nPackage = "org.apache.hop.ui.core.database",

@@ -40,7 +40,7 @@ import org.apache.hop.ui.core.SimpleFileSelection;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.PluginWidgetFactory;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -91,7 +91,7 @@ public class TeraFastDialog extends BaseStepDialog implements StepDialogInterfac
 
   private TeraFastMeta meta;
 
-  private MetaSelectionManager<DatabaseMeta> wConnection;
+  private MetaSelectionLine<DatabaseMeta> wConnection;
 
   private Label wlTable;
 

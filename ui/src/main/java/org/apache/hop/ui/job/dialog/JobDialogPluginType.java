@@ -62,10 +62,6 @@ public class JobDialogPluginType extends BasePluginType implements PluginTypeInt
     // No native plugins
   }
 
-  protected void registerXmlPlugins() throws HopPluginException {
-    // No longer performed.
-  }
-
   @Override
   protected String extractCategory( Annotation annotation ) {
     return null;

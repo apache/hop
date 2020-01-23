@@ -81,9 +81,6 @@ public abstract class BaseFragmentType extends BasePluginType {
   @Override protected void registerNatives() throws HopPluginException {
   }
 
-  @Override protected void registerXmlPlugins() throws HopPluginException {
-  }
-
   @Override
   protected String extractName( Annotation annotation ) {
     return null;

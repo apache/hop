@@ -38,7 +38,7 @@ public class CalculatorDataTest {
 
   @Test
   public void dataReturnsCachedValues() throws Exception {
-    HopEnvironment.init( false );
+    HopEnvironment.init();
 
     CalculatorData data = new CalculatorData();
     ValueMetaInterface valueMeta = data.getValueMetaFor( ValueMetaInterface.TYPE_INTEGER, null );

@@ -40,8 +40,4 @@ public @interface GuiPlugin {
   String id();
 
   String description() default "";
-
-  String classLoaderGroup() default "";
-
-  String i18nPackage() default "";
 }

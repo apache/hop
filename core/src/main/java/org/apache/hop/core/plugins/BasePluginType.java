@@ -180,7 +180,6 @@ public abstract class BasePluginType implements PluginTypeInterface {
   public void searchPlugins() throws HopPluginException {
     registerNatives();
     registerPluginJars();
-    registerXmlPlugins();
   }
 
   protected void registerNatives() throws HopPluginException {
@@ -264,8 +263,6 @@ public abstract class BasePluginType implements PluginTypeInterface {
       registerPluginFromXmlResource( repNode, getPath(), this.getClass(), true, null );
     }
   }
-
-  protected abstract void registerXmlPlugins() throws HopPluginException;
 
   /**
    * @return the id

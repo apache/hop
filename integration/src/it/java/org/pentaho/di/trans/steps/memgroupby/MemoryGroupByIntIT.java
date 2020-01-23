@@ -60,7 +60,7 @@ public class MemoryGroupByIntIT {
 
   @BeforeClass
   public static void before() throws HopException {
-    HopEnvironment.init( false );
+    HopEnvironment.init();
   }
 
   RowMetaInterface getTestRowMeta() {

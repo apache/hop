@@ -27,7 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.gui.plugin.GuiElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.Utils;
@@ -134,7 +134,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
   protected int accessType; // Database.TYPE_ODBC / NATIVE / OCI
 
   @MetaStoreAttribute
-  @GuiElement(
+  @GuiWidgetElement(
     id = "hostname",
     order = "01",
     i18nPackage = "org.apache.hop.ui.core.database",
@@ -145,7 +145,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
   protected String hostname;
 
   @MetaStoreAttribute
-  @GuiElement(
+  @GuiWidgetElement(
     id = "port",
     order = "02",
     i18nPackage = "org.apache.hop.ui.core.database",
@@ -156,7 +156,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
   protected String port;
 
   @MetaStoreAttribute
-  @GuiElement(
+  @GuiWidgetElement(
     id = "databaseName",
     order = "03",
     i18nPackage = "org.apache.hop.ui.core.database",

@@ -323,7 +323,7 @@ public class TransPerfDelegate extends HopUiDelegate {
 
     // Refresh automatically every 5 seconds as well.
     //
-    final Timer timer = new Timer( "TransPerfDelegate Timer" );
+    final Timer timer = new Timer( "HopGuiTransPerfDelegate Timer" );
     timer.schedule( new TimerTask() {
       public void run() {
         updateGraph();

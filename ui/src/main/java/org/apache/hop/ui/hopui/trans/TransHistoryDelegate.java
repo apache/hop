@@ -109,7 +109,7 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
 
   /**
    * @param hopUi      Spoon instance
-   * @param transGraph TransGraph instance
+   * @param transGraph HopGuiTransGraph instance
    */
   public TransHistoryDelegate( HopUi hopUi, TransGraph transGraph ) {
     super( hopUi );

@@ -75,10 +75,6 @@ public class DatabasePluginType extends BasePluginType implements PluginTypeInte
     return "./";
   }
 
-  @Override
-  protected void registerXmlPlugins() throws HopPluginException {
-  }
-
   public String[] getNaturalCategoriesOrder() {
     return new String[ 0 ];
   }

@@ -4,6 +4,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.i18n.BaseMessages;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -49,13 +51,25 @@ public class GuiElements {
 
   private boolean ignored;
 
+  private boolean addingSeparator;
+
+
+
+  // The singleton listener class to use
+  private boolean singleTon;
+  private Class<?> listenerClass;
+  private String listenerMethod;
 
   public GuiElements() {
     children = new ArrayList<>();
   }
 
-  public GuiElements( GuiElement guiElement, String fieldName, Class<?> fieldClass ) {
+  public GuiElements( GuiWidgetElement guiElement, Field field ) {
     this();
+
+    String fieldName = field.getName();
+    Class<?> fieldClass = field.getType();
+
     this.id = guiElement.id();
     this.type = guiElement.type();
     this.parentId = guiElement.parentId();
@@ -70,6 +84,7 @@ public class GuiElements {
     this.password = guiElement.password();
     this.i18nPackage = guiElement.i18nPackage();
     this.ignored = guiElement.ignored();
+    this.addingSeparator = guiElement.separator();
     if ( StringUtils.isNotEmpty( i18nPackage ) ) {
       this.label = BaseMessages.getString( i18nPackage, guiElement.label() );
       this.toolTip = BaseMessages.getString( i18nPackage, guiElement.toolTip() );
@@ -79,7 +94,65 @@ public class GuiElements {
     }
   }
 
-  private String calculateGetterMethod( GuiElement guiElement, String fieldName ) {
+  public GuiElements( GuiToolbarElement toolbarElement, Class<?> listenerClass, Method method ) {
+    this();
+
+    this.id = toolbarElement.id();
+    this.type = toolbarElement.type();
+    this.parentId = toolbarElement.parentId();
+    this.order = toolbarElement.order();
+    this.fieldName = null;
+    this.fieldClass = Void.class;
+    this.getterMethod = null;
+    this.setterMethod = null;
+    this.getComboValuesMethod = toolbarElement.comboValuesMethod();
+    this.image = toolbarElement.image();
+    this.variablesEnabled = toolbarElement.variables();
+    this.password = toolbarElement.password();
+    this.i18nPackage = toolbarElement.i18nPackage();
+    this.ignored = toolbarElement.ignored();
+    this.addingSeparator = toolbarElement.separator();
+    this.singleTon = StringUtils.isNotEmpty(toolbarElement.parent());
+    this.listenerClass = listenerClass;
+    this.listenerMethod = method.getName();
+    if ( StringUtils.isNotEmpty( i18nPackage ) ) {
+      this.label = BaseMessages.getString( i18nPackage, toolbarElement.label() );
+      this.toolTip = BaseMessages.getString( i18nPackage, toolbarElement.toolTip() );
+    } else {
+      this.label = toolbarElement.label();
+      this.toolTip = toolbarElement.toolTip();
+    }
+  }
+
+  public GuiElements( GuiMenuElement guiElement, Method method ) {
+    this();
+
+    this.id = guiElement.id();
+    this.type = guiElement.type();
+    this.parentId = guiElement.parentId();
+    this.order = guiElement.order();
+    this.fieldName = null;
+    this.fieldClass = Void.class;
+    this.getterMethod = null;
+    this.setterMethod = null;
+    this.getComboValuesMethod = guiElement.comboValuesMethod();
+    this.image = guiElement.image();
+    this.variablesEnabled = guiElement.variables();
+    this.password = guiElement.password();
+    this.i18nPackage = guiElement.i18nPackage();
+    this.ignored = guiElement.ignored();
+    this.addingSeparator = guiElement.separator();
+    this.listenerMethod = method.getName();
+    if ( StringUtils.isNotEmpty( i18nPackage ) ) {
+      this.label = BaseMessages.getString( i18nPackage, guiElement.label() );
+      this.toolTip = BaseMessages.getString( i18nPackage, guiElement.toolTip() );
+    } else {
+      this.label = guiElement.label();
+      this.toolTip = guiElement.toolTip();
+    }
+  }
+
+  private String calculateGetterMethod( GuiWidgetElement guiElement, String fieldName ) {
     if ( StringUtils.isNotEmpty( guiElement.getterMethod() ) ) {
       return guiElement.getterMethod();
     }
@@ -88,7 +161,7 @@ public class GuiElements {
   }
 
 
-  private String calculateSetterMethod( GuiElement guiElement, String fieldName ) {
+  private String calculateSetterMethod( GuiWidgetElement guiElement, String fieldName ) {
     if ( StringUtils.isNotEmpty( guiElement.setterMethod() ) ) {
       return guiElement.setterMethod();
     }
@@ -406,5 +479,69 @@ public class GuiElements {
    */
   public void setIgnored( boolean ignored ) {
     this.ignored = ignored;
+  }
+
+  /**
+   * Gets addingSeparator
+   *
+   * @return value of addingSeparator
+   */
+  public boolean isAddingSeparator() {
+    return addingSeparator;
+  }
+
+  /**
+   * @param addingSeparator The addingSeparator to set
+   */
+  public void setAddingSeparator( boolean addingSeparator ) {
+    this.addingSeparator = addingSeparator;
+  }
+
+  /**
+   * Gets listenerClass
+   *
+   * @return value of listenerClass
+   */
+  public Class<?> getListenerClass() {
+    return listenerClass;
+  }
+
+  /**
+   * @param listenerClass The listenerClass to set
+   */
+  public void setListenerClass( Class<?> listenerClass ) {
+    this.listenerClass = listenerClass;
+  }
+
+  /**
+   * Gets menuMethod
+   *
+   * @return value of menuMethod
+   */
+  public String getListenerMethod() {
+    return listenerMethod;
+  }
+
+  /**
+   * @param listenerMethod The menuMethod to set
+   */
+  public void setListenerMethod( String listenerMethod ) {
+    this.listenerMethod = listenerMethod;
+  }
+
+  /**
+   * Gets singleTon
+   *
+   * @return value of singleTon
+   */
+  public boolean isSingleTon() {
+    return singleTon;
+  }
+
+  /**
+   * @param singleTon The singleTon to set
+   */
+  public void setSingleTon( boolean singleTon ) {
+    this.singleTon = singleTon;
   }
 }

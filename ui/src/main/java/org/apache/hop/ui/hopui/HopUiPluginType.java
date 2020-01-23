@@ -57,11 +57,6 @@ public class HopUiPluginType extends BasePluginType implements PluginTypeInterfa
   }
 
   @Override
-  protected void registerXmlPlugins() throws HopPluginException {
-    // TODO Auto-generated method stub
-  }
-
-  @Override
   protected String extractCategory( Annotation annotation ) {
     return ( (HopUiPlugin) annotation ).categoryDescription();
   }

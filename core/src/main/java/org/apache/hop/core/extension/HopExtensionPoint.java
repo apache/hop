@@ -128,8 +128,12 @@ public enum HopExtensionPoint {
   AfterDeleteRepositoryObject( "AfterDeleteRepositoryObject",
     "After an object has been deleted from the repository" ),
 
-  TransformationCreateNew( "TransformationCreateNew", "Create a New Empty Transformation in the Hop UI" );
+  TransformationCreateNew( "TransformationCreateNew", "Create a New Empty Transformation in the Hop UI" ),
 
+
+
+  HopGuiFileOpenDialog( "HopGuiFileOpenDialog", "Allows you to modify the file dialog before it's shown. If you want to show your own, set doIt to false");
+  ;
 
   public String id;
 

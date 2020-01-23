@@ -66,33 +66,20 @@ public class HopEnvironment {
   private static HopLifecycleSupport kettleLifecycleSupport;
 
   /**
-   * Initializes the Hop environment. This method will attempt to configure Simple JNDI, by simply calling
-   * init(true).
-   *
-   * @throws HopException Any errors that occur during initialization will throw a HopException.
-   * @see HopEnvironment#init(boolean)
-   */
-  public static void init() throws HopException {
-    init( true );
-  }
-
-  public static void init( Class<? extends PluginTypeInterface> pluginClasses ) {
-
-  }
-
-  /**
    * Initializes the Hop environment. This method performs the following operations:
    * <p/>
-   * - Creates a Hop "home" directory if it does not already exist - Reads in the kettle.properties file -
+   * - Creates a Hop "home" directory if it does not already exist - Reads in the hop.properties file -
    * Initializes the logging back-end - Sets the console log level to debug - If specified by parameter, configures
-   * Simple JNDI - Registers the native types and the plugins for the various plugin types - Reads the list of variables
    * - Initializes the Lifecycle listeners
    *
-   * @param simpleJndi true to configure Simple JNDI, false otherwise
    * @throws HopException Any errors that occur during initialization will throw a HopException.
    */
-  public static void init( boolean simpleJndi ) throws HopException {
-    init( Arrays.asList(
+  public static void init() throws HopException {
+    init( getStandardPluginTypes() );
+  }
+
+  public static List<PluginTypeInterface> getStandardPluginTypes() {
+    return Arrays.asList(
       RowDistributionPluginType.getInstance(),
       StepPluginType.getInstance(),
       StepDialogFragmentType.getInstance(),
@@ -106,10 +93,10 @@ public class HopEnvironment {
       CompressionPluginType.getInstance(),
       AuthenticationProviderPluginType.getInstance(),
       AuthenticationConsumerPluginType.getInstance()
-    ), simpleJndi );
+    );
   }
 
-  public static void init( List<PluginTypeInterface> pluginClasses, boolean simpleJndi ) throws HopException {
+  public static void init( List<PluginTypeInterface> pluginTypes ) throws HopException {
 
     SettableFuture<Boolean> ready;
     if ( initialized.compareAndSet( null, ready = SettableFuture.create() ) ) {
@@ -127,7 +114,7 @@ public class HopEnvironment {
 
         // Register the native types and the plugins for the various plugin types...
         //
-        pluginClasses.forEach( PluginRegistry::addPluginType );
+        pluginTypes.forEach( PluginRegistry::addPluginType );
         PluginRegistry.init();
 
         // Also read the list of variables.

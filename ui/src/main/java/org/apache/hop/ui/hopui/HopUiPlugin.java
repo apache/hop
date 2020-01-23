@@ -29,10 +29,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Xul-based Spoon plugin. Implementations can modify the look of Spoon, register a SpoonLifecycleListener and add a
- * SpoonPerspective.
- *
- * @author nbaker
+ * Signals to the GUI Plugin system that there are GuiElement annotations to be found in this class
  */
 
 @Documented

@@ -61,10 +61,6 @@ public class TransDialogPluginType extends BasePluginType implements PluginTypeI
     // No native plugins
   }
 
-  protected void registerXmlPlugins() throws HopPluginException {
-    // No longer performed.
-  }
-
   @Override
   protected String extractCategory( Annotation annotation ) {
     return null;

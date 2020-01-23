@@ -84,31 +84,6 @@ public class LoggingPluginType extends BasePluginType implements PluginTypeInter
   }
 
   @Override
-  protected void registerXmlPlugins() throws HopPluginException {
-    for ( PluginFolderInterface folder : pluginFolders ) {
-
-      if ( folder.isPluginXmlFolder() ) {
-        List<FileObject> pluginXmlFiles = findPluginXmlFiles( folder.getFolder() );
-        for ( FileObject file : pluginXmlFiles ) {
-
-          try {
-            Document document = XMLHandler.loadXMLFile( file );
-            Node pluginNode = XMLHandler.getSubNode( document, "plugin" );
-            if ( pluginNode != null ) {
-              registerPluginFromXmlResource( pluginNode, HopVFS.getFilename( file.getParent() ), this
-                .getClass(), false, file.getParent().getURL() );
-            }
-          } catch ( Exception e ) {
-            // We want to report this plugin.xml error, perhaps an XML typo or something like that...
-            //
-            log.logError( "Error found while reading logging plugin.xml file: " + file.getName().toString(), e );
-          }
-        }
-      }
-    }
-  }
-
-  @Override
   protected String extractCategory( Annotation annotation ) {
     return null;
   }

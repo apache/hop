@@ -100,11 +100,6 @@ public class PluginRegistryPluginType extends BasePluginType implements PluginTy
   }
 
   @Override
-  protected void registerXmlPlugins() throws HopPluginException {
-    // To change body of implemented methods use File | Settings | File Templates.
-  }
-
-  @Override
   protected String extractID( Annotation annotation ) {
     return ( (RegistryPlugin) annotation ).id();
   }

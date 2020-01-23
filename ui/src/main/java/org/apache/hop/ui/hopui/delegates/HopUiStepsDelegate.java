@@ -280,8 +280,7 @@ public class HopUiStepsDelegate extends HopUiDelegate {
     String dialogClassName = partitioner.getDialogClassName();
 
     Class<?> dialogClass;
-    Class<?>[] paramClasses =
-      new Class<?>[] { Shell.class, StepMeta.class, StepPartitioningMeta.class, TransMeta.class };
+    Class<?>[] paramClasses = new Class<?>[] { Shell.class, StepMeta.class, StepPartitioningMeta.class, TransMeta.class };
     Object[] paramArgs = new Object[] { hopUi.getShell(), stepMeta, partitioningMeta, transMeta };
     Constructor<?> dialogConstructor;
     try {
@@ -289,21 +288,8 @@ public class HopUiStepsDelegate extends HopUiDelegate {
       dialogConstructor = dialogClass.getConstructor( paramClasses );
       return (StepDialogInterface) dialogConstructor.newInstance( paramArgs );
     } catch ( Exception e ) {
-      // try the old way for compatibility
-      Method method;
-      try {
-        Class<?>[] sig = new Class<?>[] { Shell.class, StepMetaInterface.class, TransMeta.class };
-        method = stepMeta.getClass().getDeclaredMethod( "getDialog", sig );
-        if ( method != null ) {
-          return (StepDialogInterface) method.invoke( stepMeta, new Object[] {
-            hopUi.getShell(), stepMeta, transMeta } );
-        }
-      } catch ( Throwable ignored ) {
-      }
-
-      throw new HopException( e );
+      throw new HopException( "Unable to open dialog of partitioning method", e );
     }
-
   }
 
 }

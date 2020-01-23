@@ -24,7 +24,7 @@ package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.gui.plugin.GuiElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
@@ -45,7 +45,7 @@ import java.sql.ResultSet;
 @GuiPlugin( id = "GUI-MSSQLServerDatabaseMeta" )
 public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
 
-  @GuiElement(
+  @GuiWidgetElement(
     id = "usingDoubleDigit",
     order = "20",
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,

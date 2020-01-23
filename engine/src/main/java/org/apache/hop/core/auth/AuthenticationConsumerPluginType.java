@@ -127,9 +127,4 @@ public class AuthenticationConsumerPluginType extends BasePluginType implements 
   protected void registerNatives() throws HopPluginException {
 
   }
-
-  @Override
-  protected void registerXmlPlugins() throws HopPluginException {
-
-  }
 }

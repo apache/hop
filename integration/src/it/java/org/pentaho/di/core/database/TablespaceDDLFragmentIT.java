@@ -64,7 +64,7 @@ public class TablespaceDDLFragmentIT extends TestCase {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    HopEnvironment.init( false );
+    HopEnvironment.init();
   }
 
   @Test

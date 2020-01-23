@@ -1,0 +1,13 @@
+<hop-perspective-plugins>
+
+  <hop-perspective-plugin id="Hop-Data-Orchestration-Perspective">
+    <description>Hop Data Orchestration</description>
+    <classname>org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective</classname>
+  </hop-perspective-plugin>
+
+  <hop-perspective-plugin id="Hop-Search-Perspective">
+    <description>Hop Search</description>
+    <classname>org.apache.hop.ui.hopgui.perspective.search.HopSearchPlugin</classname>
+  </hop-perspective-plugin>
+
+</hop-perspective-plugins>

@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.core;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.LastUsedFile;
 import org.apache.hop.core.ObjectUsageCount;
@@ -46,6 +47,7 @@ import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -85,6 +87,7 @@ public class PropsUI extends Props {
   private static final String YES = "Y";
 
   private static Display display;
+  private static double nativeZoomFactor;
 
   protected List<LastUsedFile> lastUsedFiles;
   protected List<LastUsedFile> openTabFiles;
@@ -122,7 +125,20 @@ public class PropsUI extends Props {
       display = d;
       props = new PropsUI( );
 
+      // Calculate the native default zoom factor...
+      // We take the default font and render it, calculate the height.
+      // Compare that to the standard small icon size of 16
+      //
+      Image image = new Image( display, 500, 500 );
+      GC gc = new GC(image);
+      org.eclipse.swt.graphics.Point extent = gc.textExtent( "The quick brown fox jumped over the lazy dog!" );
+      nativeZoomFactor = (double)extent.y / (double)ConstUI.SMALL_ICON_SIZE;
+      gc.dispose();
+      image.dispose();
+
       // Also init the colors and fonts to use...
+      // The icons and so on are corrected with a zoom factor
+      //
       GUIResource.getInstance();
     } else {
       throw new RuntimeException( "The Properties systems settings are already initialised!" );
@@ -589,9 +605,14 @@ public class PropsUI extends Props {
     String name = properties.getProperty( STRING_FONT_GRAPH_NAME, def.getName() );
 
     int size = Const.toInt( properties.getProperty( STRING_FONT_GRAPH_SIZE ), def.getHeight() );
+
+    // Correct the size with the native zoom factor...
+    //
+    int correctedSize = (int)Math.round( size / PropsUI.getNativeZoomFactor() );
+
     int style = Const.toInt( properties.getProperty( STRING_FONT_GRAPH_STYLE ), def.getStyle() );
 
-    return new FontData( name, size, style );
+    return new FontData( name, correctedSize, style );
   }
 
   public void setGridFont( FontData fd ) {
@@ -696,7 +717,12 @@ public class PropsUI extends Props {
   }
 
   public double getZoomFactor() {
-    return Const.toDouble( properties.getProperty( STRING_ZOOM_FACTOR ), 2.0d );
+    String zoomFactorString = properties.getProperty( STRING_ZOOM_FACTOR );
+    if ( StringUtils.isNotEmpty(zoomFactorString)) {
+      return Const.toDouble( zoomFactorString, nativeZoomFactor );
+    } else {
+      return nativeZoomFactor;
+    }
   }
 
   public void setLineWidth( int width ) {
@@ -1203,5 +1229,21 @@ public class PropsUI extends Props {
 
   public String getRecentSearches() {
     return properties.getProperty( STRING_RECENT_SEARCHES );
+  }
+
+  /**
+   * Gets nativeZoomFactor
+   *
+   * @return value of nativeZoomFactor
+   */
+  public static double getNativeZoomFactor() {
+    return nativeZoomFactor;
+  }
+
+  /**
+   * @param nativeZoomFactor The nativeZoomFactor to set
+   */
+  public static void setNativeZoomFactor( double nativeZoomFactor ) {
+    PropsUI.nativeZoomFactor = nativeZoomFactor;
   }
 }

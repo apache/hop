@@ -80,7 +80,7 @@ public class CalculatorUnitTest {
 
   @BeforeClass
   public static void init() throws HopException {
-    HopEnvironment.init( false );
+    HopEnvironment.init();
   }
 
   @Before

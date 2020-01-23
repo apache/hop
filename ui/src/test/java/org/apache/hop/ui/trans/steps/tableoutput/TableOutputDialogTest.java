@@ -28,7 +28,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.junit.Before;
 import org.junit.Test;
@@ -85,7 +85,7 @@ public class TableOutputDialogTest {
     TransMeta transMeta = mock( TransMeta.class );
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
     TextVar text = mock( TextVar.class );
-    MetaSelectionManager<DatabaseMeta> combo = mock( MetaSelectionManager.class );
+    MetaSelectionLine<DatabaseMeta> combo = mock( MetaSelectionLine.class );
     DatabaseInterface dbInterface = mock( DatabaseInterface.class );
 
     setInternalState( dialog, "wTable", text );

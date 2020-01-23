@@ -99,7 +99,7 @@ public class TransMetaTest {
 
   @BeforeClass
   public static void initHop() throws Exception {
-    HopEnvironment.init( false );
+    HopEnvironment.init();
   }
 
   private TransMeta transMeta;

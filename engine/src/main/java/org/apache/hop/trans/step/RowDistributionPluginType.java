@@ -60,10 +60,6 @@ public class RowDistributionPluginType extends BasePluginType implements PluginT
     // None at this moment
   }
 
-  protected void registerXmlPlugins() throws HopPluginException {
-    // None at this moment
-  }
-
   public String[] getNaturalCategoriesOrder() {
     return new String[ 0 ];
   }

@@ -26,23 +26,18 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.Props;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.IHopMetaStoreElement;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.persist.MetaStoreElementType;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.hopui.dialog.MetaStoreExplorerDialog;
+import org.apache.hop.ui.core.metastore.MetaStoreManager;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -59,7 +54,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
-import java.lang.reflect.Constructor;
 import java.util.Collections;
 import java.util.List;
 
@@ -72,8 +66,8 @@ import java.util.List;
  * @author Matt
  * @since 2019-12-17
  */
-public class MetaSelectionManager<T extends IHopMetaStoreElement> extends Composite {
-  private static final Class<?> PKG = MetaSelectionManager.class; // i18n
+public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite {
+  private static final Class<?> PKG = MetaSelectionLine.class; // i18n
   private final Button wManage;
   private final Button wNew;
   private final Button wEdit;
@@ -81,6 +75,7 @@ public class MetaSelectionManager<T extends IHopMetaStoreElement> extends Compos
   private IMetaStore metaStore;
   private VariableSpace space;
   private ClassLoader classLoader;
+  private MetaStoreManager<T> manager;
 
   private Class<T> managedClass;
   private Composite parentComposite;
@@ -88,7 +83,7 @@ public class MetaSelectionManager<T extends IHopMetaStoreElement> extends Compos
   private Label wLabel;
   private ComboVar wCombo;
 
-  public MetaSelectionManager( VariableSpace space, IMetaStore metaStore, Class<T> managedClass, Composite parentComposite, int flags, String labelText, String toolTipText ) {
+  public MetaSelectionLine( VariableSpace space, IMetaStore metaStore, Class<T> managedClass, Composite parentComposite, int flags, String labelText, String toolTipText ) {
     super( parentComposite, SWT.NONE );
     this.space = space;
     this.classLoader = managedClass.getClassLoader();
@@ -96,6 +91,8 @@ public class MetaSelectionManager<T extends IHopMetaStoreElement> extends Compos
     this.managedClass = managedClass;
     this.parentComposite = parentComposite;
     this.props = PropsUI.getInstance();
+
+    this.manager = new MetaStoreManager<>( space, metaStore, managedClass, parentComposite.getShell() );
 
     props.setLook( this );
 
@@ -159,97 +156,30 @@ public class MetaSelectionManager<T extends IHopMetaStoreElement> extends Compos
 
 
   protected void manageMetadata() {
-    MetaStoreExplorerDialog dialog = new MetaStoreExplorerDialog( parentComposite.getShell(), metaStore );
-    dialog.open();
+    manager.openMetaStoreExplorer();
   }
 
   /**
    * We look at the managed class name, add Dialog to it and then simply us that class to edit the dialog.
    */
-  protected void editMetadata() {
-
+  protected boolean editMetadata() {
     String selected = wCombo.getText();
     if ( StringUtils.isEmpty( selected ) ) {
-      return;
+      return false;
     }
 
-    try {
-      MetaStoreFactory<T> factory = getFactory();
-
-      // Load the metadata element from the metastore
-      //
-      T element = factory.loadElement( selected );
-      if ( element == null ) {
-        // Something removed or renamed the element in the background
-        //
-        throw new HopException( "Unable to find element '" + selected + "' in the metastore" );
-      }
-
-      openMetaDialog( element, factory );
-
-    } catch ( Exception e ) {
-      new ErrorDialog( getShell(), "Error", "Error editing metadata", e );
-    }
-  }
-
-  private MetaStoreFactory<T> getFactory() throws IllegalAccessException, InstantiationException {
-    // T implements getFactory so let's create a new empty instance and get the factory...
-    //
-    return managedClass.newInstance().getFactory( metaStore );
+    return manager.editMetadata( selected );
   }
 
   private void openMetaDialog( T element, MetaStoreFactory<T> factory ) throws Exception {
-    String dialogClassName = calculateDialogClassname();
-
-    // Create the dialog class editor...
-    // Always pass the shell, the metastore and the object to edit...
-    //
-    Class<?>[] constructorArguments = new Class<?>[] {
-      Shell.class,
-      IMetaStore.class,
-      managedClass
-    };
-
-    Class<IMetaStoreDialog> dialogClass;
-    try {
-      dialogClass = (Class<IMetaStoreDialog>) classLoader.loadClass( dialogClassName );
-    } catch ( ClassNotFoundException e1 ) {
-      dialogClass = (Class<IMetaStoreDialog>) Class.forName( dialogClassName );
-    }
-    Constructor<IMetaStoreDialog> constructor = dialogClass.getDeclaredConstructor( constructorArguments );
-    IMetaStoreDialog dialog = constructor.newInstance( getShell(), metaStore, element );
-    String name = dialog.open();
-    if ( name != null ) {
-      // Save it in the MetaStore
-      factory.saveElement( element );
-
+    if (manager.openMetaDialog( element, factory )) {
       fillItems();
-      wCombo.setText( name );
+      wCombo.setText( element.getName() );
     }
   }
 
   private void newMetadata() {
-    try {
-      // Create a new instance of the managed class
-      //
-      T element = managedClass.newInstance();
-      openMetaDialog( element, element.getFactory( metaStore ) );
-    } catch ( Exception e ) {
-      new ErrorDialog( getShell(), "Error", "Error creating new metadata element", e );
-    }
-  }
-
-  private String calculateDialogClassname() {
-    String dialogClassName;
-    MetaStoreElementType elementType = managedClass.getAnnotation( MetaStoreElementType.class );
-    if ( elementType != null && StringUtils.isNotEmpty( elementType.dialogClassname() ) ) {
-      dialogClassName = elementType.dialogClassname();
-    } else {
-      dialogClassName = managedClass.getName();
-      dialogClassName = dialogClassName.replaceFirst( "\\.hop\\.", ".hop.ui." );
-      dialogClassName += "Dialog";
-    }
-    return dialogClassName;
+    manager.newMetadata();
   }
 
   /**
@@ -258,8 +188,7 @@ public class MetaSelectionManager<T extends IHopMetaStoreElement> extends Compos
    * @throws MetaStoreException In case something went horribly wrong.
    */
   public void fillItems() throws MetaStoreException, InstantiationException, IllegalAccessException {
-    MetaStoreFactory<T> factory = getFactory();
-    List<String> elementNames = factory.getElementNames();
+    List<String> elementNames = manager.getFactory().getElementNames();
     Collections.sort( elementNames );
     wCombo.setItems( elementNames.toArray( new String[ 0 ] ) );
   }
@@ -481,7 +410,7 @@ public class MetaSelectionManager<T extends IHopMetaStoreElement> extends Compos
     IMetaStore metaStore = buildTestMetaStore();
 
     Shell shell = new Shell( display, SWT.MIN | SWT.MAX | SWT.RESIZE | SWT.CLOSE );
-    shell.setText( "MetaSelectionManager" );
+    shell.setText( "MetaSelectionLine" );
     FormLayout shellLayout = new FormLayout();
     shellLayout.marginTop = 5;
     shellLayout.marginBottom = 5;
@@ -489,7 +418,7 @@ public class MetaSelectionManager<T extends IHopMetaStoreElement> extends Compos
     shellLayout.marginRight = 5;
     shell.setLayout( shellLayout );
 
-    MetaSelectionManager<DatabaseMeta> wConnection = new MetaSelectionManager<DatabaseMeta>(
+    MetaSelectionLine<DatabaseMeta> wConnection = new MetaSelectionLine<DatabaseMeta>(
       Variables.getADefaultVariableSpace(),
       metaStore,
       DatabaseMeta.class,

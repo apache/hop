@@ -48,7 +48,7 @@ public abstract class JobEntryLoadSaveTestSupport<T extends JobEntryInterface> {
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
-    HopEnvironment.init( false );
+    HopEnvironment.init();
   }
 
   @Before

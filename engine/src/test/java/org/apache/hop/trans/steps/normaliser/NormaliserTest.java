@@ -48,7 +48,7 @@ public class NormaliserTest {
 
   @BeforeClass
   public static void before() throws HopException {
-    HopEnvironment.init( false );
+    HopEnvironment.init();
   }
 
   private NormaliserMeta.NormaliserField[] getTestNormaliserFieldsWiki() {

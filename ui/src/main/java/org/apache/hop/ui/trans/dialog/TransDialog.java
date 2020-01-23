@@ -58,7 +58,7 @@ import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.FieldDisabledListener;
-import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
@@ -137,7 +137,7 @@ public class TransDialog extends Dialog {
   private Text wModUser;
   private Text wModDate;
 
-  private MetaSelectionManager<DatabaseMeta> wLogconnection;
+  private MetaSelectionLine<DatabaseMeta> wLogconnection;
 
   private TextVar wLogSizeLimit;
 
@@ -834,7 +834,7 @@ public class TransDialog extends Dialog {
 
     // Log table connection...
     //
-    wLogconnection = new MetaSelectionManager<DatabaseMeta>( transMeta, transMeta.getMetaStore(), DatabaseMeta.class,
+    wLogconnection = new MetaSelectionLine<DatabaseMeta>( transMeta, transMeta.getMetaStore(), DatabaseMeta.class,
       wLogOptionsComposite, SWT.NONE,
       BaseMessages.getString( PKG, "TransDialog.LogConnection.Label" ),
       BaseMessages.getString( PKG, "TransDialog.LogConnection.Tooltip", logTable.getConnectionNameVariable() )

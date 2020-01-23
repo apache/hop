@@ -53,7 +53,7 @@ import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.FieldDisabledListener;
-import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
@@ -119,7 +119,7 @@ public class JobDialog extends Dialog {
 
   private FormData fdlJobFilename, fdJobFilename;
 
-  private MetaSelectionManager<DatabaseMeta> wLogConnection;
+  private MetaSelectionLine<DatabaseMeta> wLogConnection;
 
   private TextVar wLogSchema;
 
@@ -805,7 +805,7 @@ public class JobDialog extends Dialog {
 
   private Control addDBSchemaTableLogOptions( LogTableInterface logTable ) {
 
-    wLogConnection = new MetaSelectionManager<DatabaseMeta>( jobMeta, jobMeta.getMetaStore(), DatabaseMeta.class, wLogOptionsComposite, SWT.NONE,
+    wLogConnection = new MetaSelectionLine<DatabaseMeta>( jobMeta, jobMeta.getMetaStore(), DatabaseMeta.class, wLogOptionsComposite, SWT.NONE,
       BaseMessages.getString( PKG, "JobDialog.LogConnection.Label" ),
       BaseMessages.getString( PKG, "JobDialog.LogConnection.Tooltip", logTable.getConnectionNameVariable() ) );
     FormData fdLogConnection = new FormData();

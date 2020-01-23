@@ -24,8 +24,7 @@ package org.apache.hop.ui.hopui.partition.processor;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.StringUtil;
-import org.apache.hop.trans.step.StepDialogInterface;
-import org.apache.hop.ui.hopui.delegates.HopUiDelegates;
+import org.apache.hop.ui.hopgui.file.trans.IPartitionSchemaSelection;
 import org.apache.hop.ui.hopui.partition.PartitionSettings;
 import org.eclipse.swt.widgets.Shell;
 
@@ -34,27 +33,20 @@ import org.eclipse.swt.widgets.Shell;
  */
 public class SpecialMethodProcessor extends AbstractMethodProcessor {
 
-
   @Override
-  public void schemaSelection( PartitionSettings settings, Shell shell, HopUiDelegates delegates )
+  public void schemaSelection( PartitionSettings settings, Shell shell, IPartitionSchemaSelection schemaSelection )
     throws HopException {
-    String schema =
-      super.askForSchema( settings.getSchemaNamesArray(), shell, settings.getDefaultSelectedSchemaIndex() );
+    String schema = super.askForSchema( settings.getSchemaNamesArray(), shell, settings.getDefaultSelectedSchemaIndex() );
     super.processForKnownSchema( schema, settings );
     if ( !StringUtil.isEmpty( schema ) ) {
-      askForField( settings, delegates );
+      askForField( settings, shell, schemaSelection );
     }
   }
 
-  private void askForField( PartitionSettings settings, HopUiDelegates delegates ) throws HopException {
-    StepDialogInterface partitionDialog =
-      delegates.steps.getPartitionerDialog( settings.getStepMeta(), settings.getStepMeta().getStepPartitioningMeta(),
-        settings.getTransMeta() );
-    String fieldName = partitionDialog.open();
+  private void askForField( PartitionSettings settings, Shell shell, IPartitionSchemaSelection schemaSelection ) throws HopException {
+    String fieldName = schemaSelection.schemaFieldSelection( shell, settings );
     if ( StringUtil.isEmpty( fieldName ) ) {
       settings.rollback( settings.getBefore() );
     }
   }
-
-
 }

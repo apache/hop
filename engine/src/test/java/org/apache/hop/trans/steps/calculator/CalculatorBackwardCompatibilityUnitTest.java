@@ -108,7 +108,7 @@ public class CalculatorBackwardCompatibilityUnitTest {
     setRound2Mode( OBSOLETE_ROUND_2_MODE );
     assertEquals( OBSOLETE_ROUND_2_MODE, getRound2Mode() );
 
-    HopEnvironment.init( false );
+    HopEnvironment.init();
   }
 
   @AfterClass

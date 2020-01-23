@@ -2281,24 +2281,7 @@ public class TransMeta extends AbstractMeta
    */
   @Override
   public String getXML() throws HopException {
-    return getXML( true, true, true, true, true );
-  }
-
-  /**
-   * Gets the XML representation of this transformation, including or excluding step, database, slave server, cluster,
-   * or partition information as specified by the parameters
-   *
-   * @param includeSteps      whether to include step data
-   * @param includeDatabase   whether to include database data
-   * @param includeSlaves     whether to include slave server data
-   * @param includeClusters   whether to include cluster data
-   * @param includePartitions whether to include partition data
-   * @return the XML representation of this transformation
-   * @throws HopException if any errors occur during generation of the XML
-   */
-  public String getXML( boolean includeSteps, boolean includeDatabase, boolean includeSlaves, boolean includeClusters,
-                        boolean includePartitions ) throws HopException {
-    return getXML( true, true, true, true, true, true, true, true, true, true );
+    return getXML( true, true, true, true, true, true );
   }
 
   /**
@@ -2306,10 +2289,6 @@ public class TransMeta extends AbstractMeta
    * or partition information as specified by the parameters
    *
    * @param includeSteps           whether to include step data
-   * @param includeDatabase        whether to include database data
-   * @param includeSlaves          whether to include slave server data
-   * @param includeClusters        whether to include cluster data
-   * @param includePartitions      whether to include partition data
    * @param includeNamedParameters whether to include named parameters data
    * @param includeLog             whether to include log data
    * @param includeDependencies    whether to include dependencies data
@@ -2318,8 +2297,8 @@ public class TransMeta extends AbstractMeta
    * @return the XML representation of this transformation
    * @throws HopException if any errors occur during generation of the XML
    */
-  public String getXML( boolean includeSteps, boolean includeDatabase, boolean includeSlaves, boolean includeClusters,
-                        boolean includePartitions, boolean includeNamedParameters, boolean includeLog, boolean includeDependencies,
+  public String getXML( boolean includeSteps,
+                        boolean includeNamedParameters, boolean includeLog, boolean includeDependencies,
                         boolean includeNotePads, boolean includeAttributeGroups ) throws HopException {
 
     Props props = null;
@@ -2408,17 +2387,6 @@ public class TransMeta extends AbstractMeta
         retval.append( td.getXML() );
       }
       retval.append( "    " ).append( XMLHandler.closeTag( XML_TAG_DEPENDENCIES ) ).append( Const.CR );
-    }
-
-    // The partitioning schemas...
-    //
-    if ( includePartitions ) {
-      retval.append( "    " ).append( XMLHandler.openTag( XML_TAG_PARTITIONSCHEMAS ) ).append( Const.CR );
-      for ( int i = 0; i < partitionSchemas.size(); i++ ) {
-        PartitionSchema partitionSchema = partitionSchemas.get( i );
-        retval.append( partitionSchema.getXML() );
-      }
-      retval.append( "    " ).append( XMLHandler.closeTag( XML_TAG_PARTITIONSCHEMAS ) ).append( Const.CR );
     }
 
     retval.append( "    " ).append( XMLHandler.addTagValue( "created_user", createdUser ) );

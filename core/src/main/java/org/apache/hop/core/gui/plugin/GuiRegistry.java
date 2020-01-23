@@ -1,5 +1,7 @@
 package org.apache.hop.core.gui.plugin;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -55,7 +57,15 @@ public class GuiRegistry {
     if ( elementsMap == null ) {
       return null;
     }
-    return elementsMap.get( parentGuiElementId );
+    GuiElements guiElements = elementsMap.get( parentGuiElementId );
+    if (guiElements==null) {
+      for (GuiElements elements : elementsMap.values()) {
+        if (elements.getId()!=null && elements.getId().equals( parentGuiElementId )) {
+          return elements;
+        }
+      }
+    }
+    return guiElements;
   }
 
   /**
@@ -64,19 +74,82 @@ public class GuiRegistry {
    *
    * @param dataClassName
    * @param guiElement
-   * @param fieldName
-   * @param fieldClass
+   * @param field
    */
-  public void addGuiElement( String dataClassName, GuiElement guiElement, String fieldName, Class<?> fieldClass ) {
+  public void addGuiElement( String dataClassName, GuiWidgetElement guiElement, Field field ) {
     GuiElements guiElements = findGuiElements( dataClassName, guiElement.parentId() );
     if ( guiElements == null ) {
       guiElements = new GuiElements();
       putGuiElements( dataClassName, guiElement.parentId(), guiElements );
     }
-    GuiElements child = new GuiElements( guiElement, fieldName, fieldClass );
+    GuiElements child = new GuiElements( guiElement, field );
 
     // See if we need to disable something of if something is disabled already...
-    // In those scenarios we ignore the GuiElement
+    // In those scenarios we ignore the GuiWidgetElement
+    //
+    GuiElements existing = guiElements.findChild( guiElement.id() );
+    if ( existing != null && existing.isIgnored() ) {
+      return;
+    }
+    if ( existing != null && child.isIgnored() ) {
+      existing.setIgnored( true );
+      return;
+    }
+
+    guiElements.getChildren().add( child );
+  }
+
+  /**
+   * Add a GUI element to the registry.
+   * If there is no elements objects for the parent ID under which the element belongs, one will be added.
+   *
+   * @param dataClassName
+   * @param guiElement
+   * @param method
+   */
+  public void addMethodElement( String dataClassName, GuiMenuElement guiElement, Method method ) {
+    GuiElements guiElements = findGuiElements( dataClassName, guiElement.parentId() );
+    if ( guiElements == null ) {
+      guiElements = new GuiElements( guiElement, method );
+      putGuiElements( dataClassName, guiElement.parentId(), guiElements );
+      return;
+    }
+    GuiElements child = new GuiElements( guiElement, method );
+
+    // See if we need to disable something of if something is disabled already...
+    // In those scenarios we ignore the GuiWidgetElement
+    //
+    GuiElements existing = guiElements.findChild( guiElement.id() );
+    if ( existing != null && existing.isIgnored() ) {
+      return;
+    }
+    if ( existing != null && child.isIgnored() ) {
+      existing.setIgnored( true );
+      return;
+    }
+
+    guiElements.getChildren().add( child );
+  }
+
+  /**
+   * Add a GUI element to the registry.
+   * If there is no elements objects for the parent ID under which the element belongs, one will be added.
+   *
+   * @param parentClassName The parent under which the widgets are stored
+   * @param dataClass The data class (singleton) of the method
+   * @param guiElement
+   * @param method
+   */
+  public void addMethodElement( String parentClassName, Class<?> dataClass, GuiToolbarElement guiElement, Method method ) {
+    GuiElements guiElements = findGuiElements( parentClassName, guiElement.parentId() );
+    if ( guiElements == null ) {
+      guiElements = new GuiElements();
+      putGuiElements( parentClassName, guiElement.parentId(), guiElements );
+    }
+    GuiElements child = new GuiElements( guiElement, dataClass, method );
+
+    // See if we need to disable something of if something is disabled already...
+    // In those scenarios we ignore the GuiWidgetElement
     //
     GuiElements existing = guiElements.findChild( guiElement.id() );
     if ( existing != null && existing.isIgnored() ) {

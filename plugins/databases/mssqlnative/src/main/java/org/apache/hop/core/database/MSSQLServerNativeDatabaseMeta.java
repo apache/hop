@@ -23,7 +23,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.gui.plugin.GuiElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
@@ -38,7 +38,7 @@ public class MSSQLServerNativeDatabaseMeta extends MSSQLServerDatabaseMeta {
 
   public static final String ATTRIBUTE_USE_INTEGRATED_SECURITY = "MSSQLUseIntegratedSecurity";
 
-  @GuiElement(
+  @GuiWidgetElement(
     id = "usingIntegratedSecurity",
     order = "20",
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
@@ -48,7 +48,7 @@ public class MSSQLServerNativeDatabaseMeta extends MSSQLServerDatabaseMeta {
   )
   private boolean usingIntegratedSecurity;
 
-  @GuiElement(
+  @GuiWidgetElement(
     id = "usingDoubleDigit",
     order = "20",
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,

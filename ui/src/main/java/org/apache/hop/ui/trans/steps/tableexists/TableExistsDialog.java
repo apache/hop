@@ -35,7 +35,7 @@ import org.apache.hop.trans.step.StepDialogInterface;
 import org.apache.hop.trans.steps.tableexists.TableExistsMeta;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
@@ -63,7 +63,7 @@ import org.eclipse.swt.widgets.Text;
 public class TableExistsDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = TableExistsMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private MetaSelectionManager<DatabaseMeta> wConnection;
+  private MetaSelectionLine<DatabaseMeta> wConnection;
 
   private Label wlTableName;
   private CCombo wTableName;

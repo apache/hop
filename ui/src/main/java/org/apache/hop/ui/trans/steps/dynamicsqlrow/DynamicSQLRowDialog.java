@@ -34,7 +34,7 @@ import org.apache.hop.trans.step.BaseStepMeta;
 import org.apache.hop.trans.step.StepDialogInterface;
 import org.apache.hop.trans.steps.dynamicsqlrow.DynamicSQLRowMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.MetaSelectionManager;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.apache.hop.ui.trans.steps.tableinput.SQLValuesHighlight;
@@ -71,7 +71,7 @@ public class DynamicSQLRowDialog extends BaseStepDialog implements StepDialogInt
 
   private boolean gotPreviousFields = false;
 
-  private MetaSelectionManager<DatabaseMeta> wConnection;
+  private MetaSelectionLine<DatabaseMeta> wConnection;
 
   private Label wlSQL;
   private StyledTextComp wSQL;
