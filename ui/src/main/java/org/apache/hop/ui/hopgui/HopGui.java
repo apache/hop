@@ -32,6 +32,7 @@ import org.apache.hop.ui.core.metastore.MetaStoreManager;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiUndoDelegate;
+import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
 import org.apache.hop.ui.hopgui.perspective.HopGuiPerspectiveManager;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
@@ -81,6 +82,8 @@ public class HopGui {
   public static final String ID_MAIN_MENU_FILE_SAVE = "menu-100030-file-save";
   public static final String ID_MAIN_MENU_FILE_SAVE_AS = "menu-10040-file-save-as";
   public static final String ID_MAIN_MENU_FILE_CLOSE = "menu-10090-file-close";
+  public static final String ID_MAIN_MENU_FILE_CLOSE_ALL = "menu-10100-file-close-all";
+  public static final String ID_MAIN_MENU_FILE_EXIT = "menu-10900-file-exit";
   public static final String ID_MAIN_MENU_EDIT_PARENT_ID = "menu-20000-edit";
   public static final String ID_MAIN_MENU_EDIT_UNDO = "menu-20010-edit-undo";
   public static final String ID_MAIN_MENU_EDIT_REDO = "menu-20020-edit-redo";
@@ -338,6 +341,18 @@ public class HopGui {
     fileDelegate.fileClose();
   }
 
+  @GuiMenuElement( id = ID_MAIN_MENU_FILE_CLOSE_ALL, type = GuiElementType.MENU_ITEM, label = "Close all", parentId = ID_MAIN_MENU_FILE )
+  public void menuFileCloseAll() {
+    System.out.println("TODO: implement HopGui.menuFileCloseAll()");
+  }
+
+  @GuiMenuElement( id = ID_MAIN_MENU_FILE_EXIT, type = GuiElementType.MENU_ITEM, label = "Exit", parentId = ID_MAIN_MENU_FILE, separator = true )
+  public void menuFileExit() {
+    System.out.println("TODO: implement HopGui.menuFileExit()");
+  }
+
+
+
   @GuiMenuElement( id = ID_MAIN_MENU_EDIT_PARENT_ID, type = GuiElementType.MENU_ITEM, label = "Edit", parentId = ID_MAIN_MENU )
   public void menuEdit() {
     // Nothing is done here.
@@ -345,12 +360,24 @@ public class HopGui {
 
   @GuiMenuElement( id = ID_MAIN_MENU_EDIT_UNDO, type = GuiElementType.MENU_ITEM, label = "Undo", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
   public void menuEditUndo() {
-    System.out.println( "editUndo" );
+    HopFileTypeHandlerInterface handler = getActiveFileTypeHandler();
+    if (handler==null) {
+      return;
+    }
+    handler.undo();
+    handler.redraw();
+    handler.updateGui();
   }
 
   @GuiMenuElement( id = ID_MAIN_MENU_EDIT_REDO, type = GuiElementType.MENU_ITEM, label = "Redo", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
   public void menuEditRedo() {
-    System.out.println( "editRedo" );
+    HopFileTypeHandlerInterface handler = getActiveFileTypeHandler();
+    if (handler==null) {
+      return;
+    }
+    handler.redo();
+    handler.redraw();
+    handler.updateGui();
   }
 
 
@@ -467,6 +494,14 @@ public class HopGui {
     mainMenuWidgets.findMenuItem( ID_MAIN_MENU_FILE_SAVE ).setEnabled( saveEnabled );
     mainMenuWidgets.findMenuItem( ID_MAIN_MENU_FILE_SAVE_AS ).setEnabled( saveAsEnabled );
     mainMenuWidgets.findMenuItem( ID_MAIN_MENU_FILE_CLOSE ).setEnabled( closeEnabled );
+  }
+
+  public HopFileTypeHandlerInterface getActiveFileTypeHandler() {
+    IHopPerspective perspective = getActivePerspective();
+    if (perspective==null) {
+      return null;
+    }
+    return perspective.getActiveFileTypeHandler();
   }
 
 

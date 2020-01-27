@@ -24,6 +24,8 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
 import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -144,7 +146,16 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
           event.doit = false;
         }
       }
+    });
+
+    tabFolder.addListener( SWT.Selection, e->{
+      activeItem = findTabItemHandler( (CTabItem) e.item );
+      if (activeItem!=null) {
+        activeItem.getTypeHandler().redraw();
+        activeItem.getTypeHandler().updateGui();
+      }
     } );
+
   }
 
   public TabItemHandler findTabItemHandler(CTabItem tabItem) {

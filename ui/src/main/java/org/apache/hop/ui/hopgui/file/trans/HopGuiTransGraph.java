@@ -337,6 +337,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   public HopGuiTransPreviewDelegate transPreviewDelegate;
   public HopGuiStepDelegate stepDelegate;
   public HopGuiHopDelegate hopDelegate;
+  public HopGuiTransUndoDelegate undoTransDelegate;
 
   public List<SelectedStepListener> stepListeners;
 
@@ -420,6 +421,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     transPreviewDelegate = new HopGuiTransPreviewDelegate( hopUi, this );
     stepDelegate = new HopGuiStepDelegate( hopUi, this );
     hopDelegate = new HopGuiHopDelegate( hopUi, this );
+    undoTransDelegate = new HopGuiTransUndoDelegate( hopUi, this);
 
     stepListeners = new ArrayList<>();
 
@@ -4883,5 +4885,21 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
   @Override public int hashCode() {
     return Objects.hash( transMeta );
+  }
+
+  @Override public void undo() {
+    undoTransDelegate.undoTransformationAction( this, transMeta );
+  }
+
+  @Override public void redo() {
+    undoTransDelegate.redoTransformationAction( this, transMeta );
+  }
+
+  /**
+   * Update the toolbar, menus and so on. This is needed after a file, context or capabilities changes
+   */
+  @Override public void updateGui() {
+    hopUi.setUndoMenu( transMeta );
+    hopUi.handleFileCapabilities( fileType );
   }
 }

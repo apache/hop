@@ -60,9 +60,14 @@ public interface HopFileTypeHandlerInterface {
   public void print() throws HopException;
 
   /**
-   * Refresh the file representation
+   * Refresh the graphical file representation after model changes
    */
   public void redraw();
+
+  /**
+   * Update the toolbar, menus and so on. This is needed after a file, context or capabilities changes
+   */
+  public void updateGui();
 
   /**
    * Perform any task needed to close a file, save it if needed
@@ -75,4 +80,7 @@ public interface HopFileTypeHandlerInterface {
    * @return true if there were changes worth saving, false if nothing has been changed.
    */
   boolean hasChanged();
+
+  void undo();
+  void redo();
 }
