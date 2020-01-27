@@ -25,14 +25,14 @@ package org.apache.hop.core.extension;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelInterface;
 
-public interface ExtensionPointInterface {
+public interface ExtensionPointInterface<T> {
 
   /**
    * This method is called by the Hop code
    *
    * @param log    the logging channel to log debugging information to
-   * @param object The subject object that is passed to the plugin code
+   * @param t The subject object that is passed to the plugin code
    * @throws HopException In case the plugin decides that an error has occurred and the parent process should stop.
    */
-  public void callExtensionPoint( LogChannelInterface log, Object object ) throws HopException;
+  public void callExtensionPoint( LogChannelInterface log, T t ) throws HopException;
 }

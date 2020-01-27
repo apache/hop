@@ -1,10 +1,12 @@
 package org.apache.hop.ui.hopgui.delegates;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
@@ -46,7 +48,7 @@ public class HopGuiFileDelegate {
       AtomicBoolean doIt = new AtomicBoolean( true );
       try {
         HopGuiFileOpenExtension openExtension = new HopGuiFileOpenExtension( doIt, fileDialog, hopGui );
-        ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.TransBeforeOpen.id, openExtension );
+        ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopGuiExtensionPoint.HopGuiFileOpenDialog.id, openExtension );
       } catch ( Exception e ) {
         throw new HopException( "Error calling extension point on the file dialog", e );
       }
@@ -65,7 +67,7 @@ public class HopGuiFileDelegate {
       }
 
       HopFileTypeHandlerInterface hopFileTypeHandlerInterface = hopFile.openFile( hopGui, filename, hopGui.getVariableSpace() );
-      hopGui.handleFileCapabilities(hopFile.getCapabilities());
+      hopGui.handleFileCapabilities(hopFile);
 
     } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error opening file", e );
@@ -111,7 +113,7 @@ public class HopGuiFileDelegate {
 
       typeHandler.saveAs( filename );
     } catch(Exception e) {
-      new ErrorDialog( hopGui.getShell(), "Error", "Error saving to file", e );
+      new ErrorDialog( hopGui.getShell(), "Error", "Error saving file", e );
     }
   }
 
@@ -119,10 +121,34 @@ public class HopGuiFileDelegate {
     try {
       HopFileTypeHandlerInterface typeHandler = getActiveFileTypeHandler();
       if (typeHandler!=null) {
-        typeHandler.save();
+
+        if ( StringUtils.isEmpty(typeHandler.getFilename())) {
+          // Ask for the filename: saveAs
+          //
+          fileSaveAs();
+        } else {
+          typeHandler.save();
+        }
       }
     } catch(Exception e) {
-      new ErrorDialog(hopGui.getShell(), "Error", "Error saving to file", e);
+      new ErrorDialog(hopGui.getShell(), "Error", "Error saving file", e);
     }
+  }
+
+  public boolean fileClose() {
+    try {
+      IHopPerspective perspective = hopGui.getActivePerspective();
+      if (perspective==null) {
+        return false; // Not sure this is a possible scenario
+      }
+      HopFileTypeHandlerInterface typeHandler = getActiveFileTypeHandler();
+      if (typeHandler!=null) {
+        typeHandler.isCloseable();
+        return true;
+      }
+    } catch(Exception e) {
+      new ErrorDialog(hopGui.getShell(), "Error", "Error saving/closing file", e);
+    }
+    return false;
   }
 }

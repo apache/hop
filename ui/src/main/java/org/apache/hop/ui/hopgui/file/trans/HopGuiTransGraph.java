@@ -24,6 +24,8 @@
 package org.apache.hop.ui.hopgui.file.trans;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.vfs2.FileName;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.EngineMetaInterface;
@@ -234,7 +236,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   public Trans trans;
 
   private Shell shell;
-
   private Composite mainComposite;
 
   private DefaultToolTip toolTip;
@@ -398,14 +399,11 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     currentStepListeners.add( stepSelectionListener );
   }
 
-  public HopGuiTransGraph( Composite parent, int style ) {
-    super( parent, style );
-  }
-
-  public HopGuiTransGraph( Composite parent, final HopGui hopUi, final TransMeta transMeta, HopTransFileType fileType ) {
-    super( parent, SWT.NONE );
+  public HopGuiTransGraph( Composite parent, final HopGui hopUi, final CTabItem parentTabItem, final TransMeta transMeta, HopTransFileType fileType ) {
+    super( parent, SWT.NONE, parentTabItem );
     this.shell = parent.getShell();
     this.hopUi = hopUi;
+    this.parentTabItem = parentTabItem;
     this.transMeta = transMeta;
     this.fileType = fileType;
     this.areaOwners = new ArrayList<>();
@@ -3324,6 +3322,10 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     return ti != null;
   }
 
+  @Override public boolean hasChanged() {
+    return transMeta.hasChanged();
+  }
+
   @Override
   public void save() throws HopException {
     String filename = transMeta.getFilename();
@@ -3336,17 +3338,19 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       try {
         out.write( XMLHandler.getXMLHeader( Const.XML_ENCODING ).getBytes( Const.XML_ENCODING ) );
         out.write( xml.getBytes( Const.XML_ENCODING ) );
+        transMeta.clearChanged();
+        redraw();
       } finally {
         out.flush();
         out.close();
       }
     } catch ( Exception e ) {
-      throw new HopException( "Error serializing transformation to file '" + filename + "'", e );
+      throw new HopException( "Error saving transformation to file '" + filename + "'", e );
     }
   }
 
   @Override
-  public void saveAs(String filename) throws HopException {
+  public void saveAs( String filename ) throws HopException {
     transMeta.setFilename( filename );
     save();
   }
@@ -3372,6 +3376,38 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
     img.dispose();
     ps.dispose();
+  }
+
+  @GuiToolbarElement(
+    type = GuiElementType.TOOLBAR_BUTTON,
+    id = "HopGuiTransGraph-ToolBar-10080-Close",
+    label = "Close",
+    toolTip = "Close this transformation",
+    image = "ui/images/toolbar/close.svg",
+    separator = true,
+    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+  ) @Override public boolean isCloseable() {
+    try {
+      // Check if the file is saved. If not, ask for it to be saved.
+      //
+      if ( transMeta.hasChanged() ) {
+
+        MessageBox messageDialog = new MessageBox( shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL );
+        messageDialog.setText( "Save file?" );
+        messageDialog.setMessage( "Do you want to save file '" + buildTabName() + "' before closing?" );
+        int answer = messageDialog.open();
+        if ( ( answer & SWT.CANCEL ) != 0 ) {
+          return false;
+        }
+        if ( ( answer & SWT.YES ) != 0 ) {
+          save();
+        }
+      }
+      return true;
+    } catch ( Exception e ) {
+      new ErrorDialog( hopUi.getShell(), "Error", "Error preparing file close", e );
+    }
+    return false;
   }
 
   @GuiToolbarElement(
@@ -4511,6 +4547,23 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
    */
   public void editStep( TransMeta transMeta, StepMeta stepMeta ) {
     // TODO: implement this
+  }
+
+  public String buildTabName() throws HopException {
+    String tabName = null;
+    String realFilename = transMeta.environmentSubstitute( transMeta.getFilename() );
+    if ( StringUtils.isEmpty( realFilename ) ) {
+      tabName = transMeta.getName();
+    } else {
+      try {
+        FileObject fileObject = HopVFS.getFileObject( transMeta.getFilename() );
+        FileName fileName = fileObject.getName();
+        tabName = fileName.getBaseName();
+      } catch ( Exception e ) {
+        throw new HopException( "Unable to get information from file '" + transMeta.getFilename() + "'", e );
+      }
+    }
+    return tabName;
   }
 
   private class StepVelocity {

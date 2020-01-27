@@ -662,30 +662,6 @@
             <doclint>none</doclint>
           </configuration>
         </plugin>
-
-        <plugin>
-          <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>${maven-checkstyle-plugin.version}</version>
-          <dependencies>
-            <dependency>
-              <groupId>com.puppycrawl.tools</groupId>
-              <artifactId>checkstyle</artifactId>
-              <version>${checkstyle.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>org.pentaho</groupId>
-              <artifactId>coding-standards</artifactId>
-              <version>${coding-standards.version}</version>
-              <type>zip</type>
-            </dependency>
-          </dependencies>
-          <configuration>
-            <configLocation>${checkstyle.configLocation}</configLocation>
-            <linkXRef>${checkstyle.linkXRef}</linkXRef>
-            <consoleOutput>${checkstyle.consoleOutput}</consoleOutput>
-            <cacheFile/>
-          </configuration>
-        </plugin>
         <plugin>
           <artifactId>maven-verifier-plugin</artifactId>
           <version>${maven-verifier-plugin.version}</version>

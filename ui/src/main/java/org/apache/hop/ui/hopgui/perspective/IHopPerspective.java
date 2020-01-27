@@ -49,4 +49,5 @@ public interface IHopPerspective {
    * @return The layout data of the composite of this perspective
    */
   FormData getFormData();
+
 }

@@ -60,12 +60,32 @@ public class GuiRegistry {
     GuiElements guiElements = elementsMap.get( parentGuiElementId );
     if (guiElements==null) {
       for (GuiElements elements : elementsMap.values()) {
-        if (elements.getId()!=null && elements.getId().equals( parentGuiElementId )) {
-          return elements;
+        GuiElements found = findChildGuiElementsById( elements, parentGuiElementId );
+        if (found!=null) {
+          return found;
         }
       }
     }
     return guiElements;
+  }
+
+  /**
+   * Look at the given {@link GuiElements} object its children and see if the element with the given ID is found.
+   * @param guiElements The element and its children to examine
+   * @param id The element ID to look for
+   * @return The GuiElement if any is found or null if nothing is found.
+   */
+  public GuiElements findChildGuiElementsById(GuiElements guiElements, String id) {
+    if (guiElements.getId()!=null && guiElements.getId().equals( id )) {
+      return guiElements;
+    }
+    for (GuiElements child : guiElements.getChildren()) {
+      GuiElements found = findChildGuiElementsById( child, id );
+      if (found!=null) {
+        return found;
+      }
+    }
+    return null;
   }
 
   /**
@@ -100,7 +120,7 @@ public class GuiRegistry {
   }
 
   /**
-   * Add a GUI element to the registry.
+   * Add a GUI menu element to the registry.
    * If there is no elements objects for the parent ID under which the element belongs, one will be added.
    *
    * @param dataClassName
@@ -110,9 +130,8 @@ public class GuiRegistry {
   public void addMethodElement( String dataClassName, GuiMenuElement guiElement, Method method ) {
     GuiElements guiElements = findGuiElements( dataClassName, guiElement.parentId() );
     if ( guiElements == null ) {
-      guiElements = new GuiElements( guiElement, method );
+      guiElements = new GuiElements();
       putGuiElements( dataClassName, guiElement.parentId(), guiElements );
-      return;
     }
     GuiElements child = new GuiElements( guiElement, method );
 

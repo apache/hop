@@ -116,15 +116,15 @@ public class HopGuiEnvironment extends HopClientEnvironment {
 
 
         for (GuiElementMethod item : menuItems) {
-          System.out.println("Found menu item: "+item.menuElement.id());
+          // System.out.println("Found menu item: "+item.menuElement.id());
           guiRegistry.addMethodElement( parentClassName, item.menuElement, item.method );
         }
         for (GuiElementMethod item : toolBarItems) {
           if (StringUtils.isEmpty( item.toolBarElement.parent())) {
-            System.out.println("Found toolbar item: "+item.toolBarElement.id()+" for parent class "+parentClassName+" and parent ID "+item.toolBarElement.parentId());
+            // System.out.println("Found toolbar item: "+item.toolBarElement.id()+" for parent class "+parentClassName+" and parent ID "+item.toolBarElement.parentId());
             guiRegistry.addMethodElement( parentClassName, parentClass, item.toolBarElement, item.method );
           } else {
-            System.out.println("Found toolbar item: "+item.toolBarElement.id()+" for parent "+item.toolBarElement.parent()+" and parent ID "+item.toolBarElement.parentId());
+            // System.out.println("Found toolbar item: "+item.toolBarElement.id()+" for parent "+item.toolBarElement.parent()+" and parent ID "+item.toolBarElement.parentId());
             guiRegistry.addMethodElement( item.toolBarElement.parent(), parentClass, item.toolBarElement, item.method );
           }
         }

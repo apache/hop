@@ -29,6 +29,8 @@ import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopui.ChangedWarningDialog;
 import org.apache.hop.ui.hopui.ChangedWarningInterface;
+import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ScrollBar;
@@ -38,9 +40,10 @@ import java.util.List;
 /**
  * The beginnings of a common graph object, used by JobGraph and HopGuiTransGraph to share common behaviors.
  *
- * @author Will Gorman (wgorman@pentaho.com)
  */
 public abstract class HopGuiAbstractGraph extends Composite {
+
+  protected CTabItem parentTabItem;
 
   protected Point offset, iconoffset, noteoffset;
 
@@ -50,8 +53,14 @@ public abstract class HopGuiAbstractGraph extends Composite {
 
   protected float magnification = 1.0f;
 
-  public HopGuiAbstractGraph( Composite parent, int style ) {
+  private boolean changedState;
+  private Font defaultFont;
+
+  public HopGuiAbstractGraph( Composite parent, int style, CTabItem parentTabItem ) {
     super( parent, style );
+    this.parentTabItem = parentTabItem;
+    defaultFont = parentTabItem.getFont();
+    changedState = false;
   }
 
   protected abstract Point getOffset();
@@ -71,7 +80,7 @@ public abstract class HopGuiAbstractGraph extends Composite {
   }
 
   protected float calculateCorrectedMagnification() {
-    return (float)(magnification*PropsUI.getInstance().getZoomFactor());
+    return (float) ( magnification * PropsUI.getInstance().getZoomFactor() );
   }
 
   protected Point magnifyPoint( Point p ) {
@@ -124,9 +133,20 @@ public abstract class HopGuiAbstractGraph extends Composite {
     redraw();
   }
 
+  public abstract boolean hasChanged();
+
   public void redraw() {
-    if ( isDisposed() || canvas.isDisposed() ) {
+    if ( isDisposed() || canvas.isDisposed() || parentTabItem.isDisposed() ) {
       return;
+    }
+
+    if (hasChanged()!=changedState) {
+      changedState = hasChanged();
+      if ( hasChanged() ) {
+        parentTabItem.setFont( GUIResource.getInstance().getFontBold() );
+      } else {
+        parentTabItem.setFont( defaultFont );
+      }
     }
 
     canvas.redraw();
@@ -208,4 +228,21 @@ public abstract class HopGuiAbstractGraph extends Composite {
   public void dispose() {
     super.dispose();
   }
+
+  /**
+   * Gets parentTabItem
+   *
+   * @return value of parentTabItem
+   */
+  public CTabItem getParentTabItem() {
+    return parentTabItem;
+  }
+
+  /**
+   * @param parentTabItem The parentTabItem to set
+   */
+  public void setParentTabItem( CTabItem parentTabItem ) {
+    this.parentTabItem = parentTabItem;
+  }
+
 }

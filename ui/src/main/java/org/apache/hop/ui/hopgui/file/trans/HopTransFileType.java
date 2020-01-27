@@ -1,11 +1,8 @@
 package org.apache.hop.ui.hopgui.file.trans;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.core.xml.XMLInterface;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.HopFileTypeBase;
@@ -17,7 +14,6 @@ import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspec
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import java.io.OutputStream;
 import java.util.Properties;
 
 @HopFileTypePlugin(
@@ -43,7 +39,7 @@ public class HopTransFileType<T extends TransMeta> extends HopFileTypeBase<T> im
     capabilities.setProperty( HopFileTypeInterface.CAPABILITY_STOP, "true" );
     capabilities.setProperty( HopFileTypeInterface.CAPABILITY_SAVE, "true" );
     capabilities.setProperty( HopFileTypeInterface.CAPABILITY_SAVE_AS, "true" );
-    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_PAUZE, "true" );
+    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_PAUSE, "true" );
     capabilities.setProperty( HopFileTypeInterface.CAPABILITY_PREVIEW, "true" );
     return capabilities;
   }

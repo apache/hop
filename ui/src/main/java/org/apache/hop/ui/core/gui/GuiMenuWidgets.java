@@ -12,6 +12,8 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class contains the widgets for Menu Bars
@@ -19,9 +21,11 @@ import java.lang.reflect.Method;
 public class GuiMenuWidgets {
 
   private VariableSpace space;
+  private Map<String,MenuItem> menuItemMap;
 
   public GuiMenuWidgets( VariableSpace space ) {
     this.space = space;
+    this.menuItemMap = new HashMap<>(  );
   }
 
   public void createMenuWidgets( Object sourceData, Shell shell, Menu parent, String parentGuiElementId ) {
@@ -73,16 +77,22 @@ public class GuiMenuWidgets {
         }
       } );
 
+      menuItemMap.put(guiElements.getId(), menuItem);
+
     } else {
       // We have a bunch of children so we want to create a new drop-down menu in the parent menu
       //
-      menuItem = new MenuItem( parentMenu, SWT.CASCADE );
-      menuItem.setText( guiElements.getLabel() );
-      if ( StringUtils.isNotEmpty( guiElements.getToolTip() ) ) {
-        menuItem.setToolTipText( guiElements.getToolTip() );
+      Menu menu = parentMenu;
+      if (guiElements.getId()!=null) {
+        menuItem = new MenuItem( parentMenu, SWT.CASCADE );
+        menuItem.setText( guiElements.getLabel() );
+        if ( StringUtils.isNotEmpty( guiElements.getToolTip() ) ) {
+          menuItem.setToolTipText( guiElements.getToolTip() );
+        }
+        menu = new Menu( shell, SWT.DROP_DOWN );
+        menuItem.setMenu( menu );
+        menuItemMap.put(guiElements.getId(), menuItem);
       }
-      Menu menu = new Menu( shell, SWT.DROP_DOWN );
-      menuItem.setMenu( menu );
 
       // Add the children to this menu...
       //
@@ -90,6 +100,15 @@ public class GuiMenuWidgets {
         addMenuWidgets( sourceData, shell, menu, child );
       }
     }
+  }
+
+  /**
+   * Find the menu item with the given ID
+   * @param id The ID to look for
+   * @return The menu item or null if nothing is found
+   */
+  public MenuItem findMenuItem(String id) {
+    return menuItemMap.get( id );
   }
 
   /**
@@ -106,5 +125,21 @@ public class GuiMenuWidgets {
    */
   public void setSpace( VariableSpace space ) {
     this.space = space;
+  }
+
+  /**
+   * Gets menuItemMap
+   *
+   * @return value of menuItemMap
+   */
+  public Map<String, MenuItem> getMenuItemMap() {
+    return menuItemMap;
+  }
+
+  /**
+   * @param menuItemMap The menuItemMap to set
+   */
+  public void setMenuItemMap( Map<String, MenuItem> menuItemMap ) {
+    this.menuItemMap = menuItemMap;
   }
 }

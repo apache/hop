@@ -16,6 +16,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.plugins.Plugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.undo.TransAction;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
@@ -45,6 +46,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 
@@ -63,7 +65,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Properties;
 
 @GuiPlugin(
   id = "HopGUI",
@@ -72,9 +73,30 @@ import java.util.Properties;
 public class HopGui {
   private static Class<?> PKG = HopUi.class;
 
-  public static final String GUI_PLUGIN_MENU_PARENT_ID = "HopGui-Menu";
-  public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGui-Toolbar";
+  // The main Menu IDs
+  public static final String ID_MAIN_MENU = "HopGui-Menu";
+  public static final String ID_MAIN_MENU_FILE = "menu-10000-file";
+  public static final String ID_MAIN_MENU_FILE_NEW = "menu-100010-file-new";
+  public static final String ID_MAIN_MENU_FILE_OPEN = "menu-100020-file-open";
+  public static final String ID_MAIN_MENU_FILE_SAVE = "menu-100030-file-save";
+  public static final String ID_MAIN_MENU_FILE_SAVE_AS = "menu-10040-file-save-as";
+  public static final String ID_MAIN_MENU_FILE_CLOSE = "menu-10090-file-close";
+  public static final String ID_MAIN_MENU_EDIT_PARENT_ID = "menu-20000-edit";
+  public static final String ID_MAIN_MENU_EDIT_UNDO = "menu-20010-edit-undo";
+  public static final String ID_MAIN_MENU_EDIT_REDO = "menu-20020-edit-redo";
+
+  // The main toolbar IDs
+  public static final String ID_MAIN_TOOLBAR = "HopGui-Toolbar";
+  public static final String ID_MAIN_TOOLBAR_NEW = "toolbar-10010-new";
+  public static final String ID_MAIN_TOOLBAR_OPEN = "toolbar-10010-open";
+  public static final String ID_MAIN_TOOLBAR_SAVE = "toolbar-10010-save";
+  public static final String ID_MAIN_TOOLBAR_SAVE_AS = "toolbar-10010-save-as";
+
   public static final String GUI_PLUGIN_PERSPECTIVES_PARENT_ID = "HopGui-Perspectives";
+
+
+  private static final String UNDO_UNAVAILABLE = BaseMessages.getString( PKG, "Spoon.Menu.Undo.NotAvailable" );
+  private static final String REDO_UNAVAILABLE = BaseMessages.getString( PKG, "Spoon.Menu.Redo.NotAvailable" );
 
   private static HopGui hopGui;
 
@@ -87,15 +109,20 @@ public class HopGui {
   private LogChannelInterface log;
 
   private Menu mainMenu;
+  private GuiMenuWidgets mainMenuWidgets;
+  private Composite mainHopGuiComposite;
+
   private ToolBar mainToolbar;
+  private GuiCompositeWidgets mainToolbarWidgets;
+
   private ToolBar perspectivesToolbar;
+  private GuiCompositeWidgets perspectivesToolbarWidgets;
   private Composite mainPerspectivesComposite;
+  private HopGuiPerspectiveManager perspectiveManager;
+  private IHopPerspective activePerspective;
 
   private static PrintStream originalSystemOut = System.out;
   private static PrintStream originalSystemErr = System.err;
-  private Composite mainHopGuiComposite;
-  private HopGuiPerspectiveManager perspectiveManager;
-  private IHopPerspective activePerspective;
 
   public MetaStoreManager<DatabaseMeta> databaseMetaManager;
   public MetaStoreManager<PartitionSchema> partitionManager;
@@ -269,40 +296,63 @@ public class HopGui {
   private void addMainMenu() {
     mainMenu = new Menu( shell, SWT.BAR );
 
-    GuiMenuWidgets guiMenuWidgets = new GuiMenuWidgets( variableSpace );
-    guiMenuWidgets.createMenuWidgets( this, shell, mainMenu, GUI_PLUGIN_MENU_PARENT_ID );
+    mainMenuWidgets = new GuiMenuWidgets( variableSpace );
+    mainMenuWidgets.createMenuWidgets( this, shell, mainMenu, ID_MAIN_MENU );
 
     shell.setMenuBar( mainMenu );
+    setUndoMenu( null );
+    handleFileCapabilities( null );
   }
 
-  @GuiMenuElement( id = "1000-menu-file", type = GuiElementType.MENU_ITEM, label = "&File", parentId = GUI_PLUGIN_MENU_PARENT_ID )
+  @GuiMenuElement( id = ID_MAIN_MENU_FILE, type = GuiElementType.MENU_ITEM, label = "&File", parentId = ID_MAIN_MENU )
   public void menuFile() {
     // Nothing is done here.
   }
 
-  @GuiMenuElement( id = "1010-menu-file-new", type = GuiElementType.MENU_ITEM, label = "&New", parentId = "1000-menu-file" )
-  @GuiToolbarElement( id = "10010-toolbar-new", type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/new.svg", toolTip = "New", parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID )
+  @GuiMenuElement( id = ID_MAIN_MENU_FILE_NEW, type = GuiElementType.MENU_ITEM, label = "New", parentId = ID_MAIN_MENU_FILE )
+  @GuiToolbarElement( id = ID_MAIN_TOOLBAR_NEW, type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/new.svg", toolTip = "New", parentId = ID_MAIN_TOOLBAR )
   public void menuFileNew() {
     System.out.println( "fileNew" );
   }
 
-  @GuiMenuElement( id = "1020-menu-file-open", type = GuiElementType.MENU_ITEM, label = "&Open", parentId = "1000-menu-file" )
-  @GuiToolbarElement( id = "10020-toolbar-open", type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/open.svg", toolTip = "Open", parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID, separator = true )
+  @GuiMenuElement( id = ID_MAIN_MENU_FILE_OPEN, type = GuiElementType.MENU_ITEM, label = "Open", parentId = ID_MAIN_MENU_FILE )
+  @GuiToolbarElement( id = ID_MAIN_TOOLBAR_OPEN, type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/open.svg", toolTip = "Open", parentId = ID_MAIN_TOOLBAR, separator = true )
   public void menuFileOpen() {
     fileDelegate.fileOpen();
   }
 
-  @GuiMenuElement( id = "1030-menu-file-save", type = GuiElementType.MENU_ITEM, label = "&Save", parentId = "1000-menu-file" )
-  @GuiToolbarElement( id = "10030-toolbar-save", type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/save.svg", toolTip = "Save", parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID )
+  @GuiMenuElement( id = ID_MAIN_MENU_FILE_SAVE, type = GuiElementType.MENU_ITEM, label = "Save", parentId = ID_MAIN_MENU_FILE )
+  @GuiToolbarElement( id = ID_MAIN_TOOLBAR_SAVE, type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/save.svg", toolTip = "Save", parentId = ID_MAIN_TOOLBAR )
   public void menuFileSave() {
-    fileDelegate.fileSaveAs();
+    fileDelegate.fileSave();
   }
 
-  @GuiMenuElement( id = "1040-menu-file-save-as", type = GuiElementType.MENU_ITEM, label = "Save &As", parentId = "1000-menu-file" )
-  @GuiToolbarElement( id = "10040-toolbar-save-as", type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/saveas.svg", toolTip = "Save as...", parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID )
+  @GuiMenuElement( id = ID_MAIN_MENU_FILE_SAVE_AS, type = GuiElementType.MENU_ITEM, label = "Save As...", parentId = ID_MAIN_MENU_FILE )
+  @GuiToolbarElement( id = ID_MAIN_TOOLBAR_SAVE_AS, type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/saveas.svg", toolTip = "Save as...", parentId = ID_MAIN_TOOLBAR )
   public void menuFileSaveAs() {
     System.out.println( "fileSaveAs" );
   }
+
+  @GuiMenuElement( id = ID_MAIN_MENU_FILE_CLOSE, type = GuiElementType.MENU_ITEM, label = "Close", parentId = ID_MAIN_MENU_FILE, separator = true )
+  public void menuFileClose() {
+    fileDelegate.fileClose();
+  }
+
+  @GuiMenuElement( id = ID_MAIN_MENU_EDIT_PARENT_ID, type = GuiElementType.MENU_ITEM, label = "Edit", parentId = ID_MAIN_MENU )
+  public void menuEdit() {
+    // Nothing is done here.
+  }
+
+  @GuiMenuElement( id = ID_MAIN_MENU_EDIT_UNDO, type = GuiElementType.MENU_ITEM, label = "Undo", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
+  public void menuEditUndo() {
+    System.out.println( "editUndo" );
+  }
+
+  @GuiMenuElement( id = ID_MAIN_MENU_EDIT_REDO, type = GuiElementType.MENU_ITEM, label = "Redo", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
+  public void menuEditRedo() {
+    System.out.println( "editRedo" );
+  }
+
 
   protected void addMainToolbar() {
     mainToolbar = new ToolBar( shell, SWT.BORDER | SWT.WRAP | SWT.SHADOW_OUT | SWT.LEFT | SWT.HORIZONTAL );
@@ -313,8 +363,8 @@ public class HopGui {
     mainToolbar.setLayoutData( fdToolBar );
     props.setLook( mainToolbar, Props.WIDGET_STYLE_TOOLBAR );
 
-    GuiCompositeWidgets widgets = new GuiCompositeWidgets( variableSpace );
-    widgets.createCompositeWidgets( this, null, mainToolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID, null );
+    mainToolbarWidgets = new GuiCompositeWidgets( variableSpace );
+    mainToolbarWidgets.createCompositeWidgets( this, null, mainToolbar, ID_MAIN_TOOLBAR, null );
     mainToolbar.pack();
   }
 
@@ -339,8 +389,8 @@ public class HopGui {
     fdToolBar.bottom = new FormAttachment( 100, 0 );
     perspectivesToolbar.setLayoutData( fdToolBar );
 
-    GuiCompositeWidgets widgets = new GuiCompositeWidgets( variableSpace );
-    widgets.createCompositeWidgets( this, GUI_PLUGIN_PERSPECTIVES_PARENT_ID, perspectivesToolbar, GUI_PLUGIN_PERSPECTIVES_PARENT_ID, null );
+    perspectivesToolbarWidgets = new GuiCompositeWidgets( variableSpace );
+    perspectivesToolbarWidgets.createCompositeWidgets( this, GUI_PLUGIN_PERSPECTIVES_PARENT_ID, perspectivesToolbar, GUI_PLUGIN_PERSPECTIVES_PARENT_ID, null );
     perspectivesToolbar.pack();
   }
 
@@ -365,24 +415,59 @@ public class HopGui {
   }
 
   public void setUndoMenu( UndoInterface undoInterface ) {
-    // TODO: adjust the undo menu items
+    // Grab the undo and redo menu items...
+    //
+    MenuItem undoItem = mainMenuWidgets.findMenuItem( ID_MAIN_MENU_EDIT_UNDO );
+    MenuItem redoItem = mainMenuWidgets.findMenuItem( ID_MAIN_MENU_EDIT_REDO );
+    if ( undoItem == null || redoItem == null ) {
+      return;
+    }
+
+    TransAction prev = null;
+    TransAction next = null;
+
+    if ( undoInterface != null ) {
+      prev = undoInterface.viewThisUndo();
+      next = undoInterface.viewNextUndo();
+    }
+
+    undoItem.setEnabled( prev != null );
+    if ( prev == null ) {
+      undoItem.setText( UNDO_UNAVAILABLE );
+    } else {
+      undoItem.setText( BaseMessages.getString( PKG, "Spoon.Menu.Undo.Available", prev.toString() ) );
+    }
+
+    redoItem.setEnabled( next != null );
+    if ( next == null ) {
+      redoItem.setText( REDO_UNAVAILABLE );
+    } else {
+      redoItem.setText( BaseMessages.getString( PKG, "Spoon.Menu.Redo.Available", next.toString() ) );
+    }
   }
 
   /**
    * We're given a bunch of capabilities from {@link HopFileTypeInterface}
    * In this method we'll enable/disable menu and toolbar items
    *
-   * @param capabilities The capabilities to take into account from {@link HopFileTypeInterface} or set by a plugin
+   * @param fileType The type of file to handle giving you its capabilities to take into account from {@link HopFileTypeInterface} or set by a plugin
    */
-  public void handleFileCapabilities( Properties capabilities ) {
-    // TODO: implement
+  public void handleFileCapabilities( HopFileTypeInterface fileType ) {
+
+    boolean saveEnabled = false;
+    boolean saveAsEnabled = false;
+    boolean closeEnabled = false;
+
+    if (fileType!=null) {
+      saveEnabled = fileType.getCapabilities().getProperty( HopFileTypeInterface.CAPABILITY_SAVE )!=null;
+      saveAsEnabled = fileType.getCapabilities().getProperty( HopFileTypeInterface.CAPABILITY_SAVE_AS )!=null;
+      closeEnabled = fileType.getCapabilities().getProperty( HopFileTypeInterface.CAPABILITY_CLOSE )!=null;
+    }
+
+    mainMenuWidgets.findMenuItem( ID_MAIN_MENU_FILE_SAVE ).setEnabled( saveEnabled );
+    mainMenuWidgets.findMenuItem( ID_MAIN_MENU_FILE_SAVE_AS ).setEnabled( saveAsEnabled );
+    mainMenuWidgets.findMenuItem( ID_MAIN_MENU_FILE_CLOSE ).setEnabled( closeEnabled );
   }
-
-
-
-
-
-
 
 
   /**

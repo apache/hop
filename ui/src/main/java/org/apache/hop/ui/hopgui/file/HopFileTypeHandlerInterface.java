@@ -60,7 +60,19 @@ public interface HopFileTypeHandlerInterface {
   public void print() throws HopException;
 
   /**
-   * Redraw the file on the screen
+   * Refresh the file representation
    */
   public void redraw();
+
+  /**
+   * Perform any task needed to close a file, save it if needed
+   * @return true if the file is ready to close. Return false if there was a problem saving or any other issue.
+   */
+  boolean isCloseable();
+
+  /**
+   * See if there anything has been changed by the user
+   * @return true if there were changes worth saving, false if nothing has been changed.
+   */
+  boolean hasChanged();
 }

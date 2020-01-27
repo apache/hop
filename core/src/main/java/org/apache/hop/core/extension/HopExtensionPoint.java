@@ -130,17 +130,25 @@ public enum HopExtensionPoint {
 
   TransformationCreateNew( "TransformationCreateNew", "Create a New Empty Transformation in the Hop UI" ),
 
-
-
-  HopGuiFileOpenDialog( "HopGuiFileOpenDialog", "Allows you to modify the file dialog before it's shown. If you want to show your own, set doIt to false");
+  HopGuiFileOpenDialog( "HopGuiFileOpenDialog", "Allows you to modify the file dialog before it's shown. If you want to show your own, set doIt to false ("),
+  HopGuiNewTransformationTab( "HopGuiTransformationTab", "Determine the tab name of a transformation (HopGuiTransGraph)" ),
   ;
 
   public String id;
 
   public String description;
 
+  public Class<?> providedClass;
+
   private HopExtensionPoint( String id, String description ) {
     this.id = id;
     this.description = description;
+    this.providedClass = Object.class;
+  }
+
+  private HopExtensionPoint( String id, String description, Class<?> providedClass ) {
+    this.id = id;
+    this.description = description;
+    this.providedClass = providedClass;
   }
 }

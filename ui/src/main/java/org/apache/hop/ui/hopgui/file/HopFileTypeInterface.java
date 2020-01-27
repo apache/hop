@@ -13,9 +13,10 @@ public interface HopFileTypeInterface<T extends XMLInterface> {
   public static final String CAPABILITY_SAVE = "Save";
   public static final String CAPABILITY_SAVE_AS = "SaveAs";
   public static final String CAPABILITY_START = "Start";
+  public static final String CAPABILITY_CLOSE = "Close";
   public static final String CAPABILITY_STOP = "Stop";
-  public static final String CAPABILITY_PAUZE = "CanPause";
-  public static final String CAPABILITY_PREVIEW = "CanPreview";
+  public static final String CAPABILITY_PAUSE = "Pause";
+  public static final String CAPABILITY_PREVIEW = "Preview";
 
   /**
    * @return The file type extensions.

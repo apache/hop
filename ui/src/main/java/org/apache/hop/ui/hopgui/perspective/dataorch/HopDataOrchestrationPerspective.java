@@ -1,9 +1,16 @@
 package org.apache.hop.ui.hopgui.perspective.dataorch;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.vfs2.FileName;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
+import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -14,6 +21,8 @@ import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabFolder2Adapter;
+import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -32,6 +41,8 @@ import java.util.List;
   id = "GuiPlugin-HopDataOrchestrationPerspective"
 )
 public class HopDataOrchestrationPerspective implements IHopPerspective {
+
+  public static final String STRING_NEW_TRANSFORMATION_PREFIX = "Transformation";
 
   private static HopDataOrchestrationPerspective perspective;
   private HopGui hopGui;
@@ -108,8 +119,41 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     fdLabel.top = new FormAttachment( 0, 0 );
     fdLabel.bottom = new FormAttachment( 100, 0 );
     tabFolder.setLayoutData( fdLabel );
+
+    tabFolder.addCTabFolder2Listener( new CTabFolder2Adapter() {
+      @Override public void close( CTabFolderEvent event ) {
+        // A tab is closed.  We need to handle this gracefully.
+        // - Look up which tab it is
+        // - Look up which file it contains
+        // - Save the file if it was changed
+        // - Remove the tab and file from the list
+        //
+        CTabItem tabItem = (CTabItem) event.item;
+        TabItemHandler tabItemHandler = findTabItemHandler( tabItem );
+        if (tabItemHandler==null) {
+          hopGui.getLog().logError( "Tab item handler not found for tab item "+tabItem.toString() );
+          return;
+        }
+        HopFileTypeHandlerInterface typeHandler = tabItemHandler.getTypeHandler();
+
+        // Don't close the tab if we had an error saving the file
+        //
+        if (typeHandler.isCloseable()) {
+          items.remove( tabItemHandler );
+        } else {
+          event.doit = false;
+        }
+      }
+    } );
   }
 
+  public TabItemHandler findTabItemHandler(CTabItem tabItem) {
+    int index = tabFolder.indexOf( tabItem );
+    if (index<0) {
+      return null;
+    }
+    return items.get(index);
+  }
 
   /**
    * Add a new transformation tab to the tab folder...
@@ -117,21 +161,26 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
    * @param transMeta
    * @return
    */
-  public HopFileTypeHandlerInterface addTransformation( Composite parent, HopGui hopGui, TransMeta transMeta, HopTransFileType transFile ) {
+  public HopFileTypeHandlerInterface addTransformation( Composite parent, HopGui hopGui, TransMeta transMeta, HopTransFileType transFile ) throws HopException {
     CTabItem tabItem = new CTabItem( tabFolder, SWT.CLOSE );
-    tabItem.setText( Const.NVL( transMeta.getFilename(), "" ) );
-    HopGuiTransGraph transGraph = new HopGuiTransGraph( tabFolder, hopGui, transMeta, transFile );
+    HopGuiTransGraph transGraph = new HopGuiTransGraph( tabFolder, hopGui, tabItem, transMeta, transFile );
     tabItem.setControl( transGraph );
+
+    // Set the tab name
+    //
+    tabItem.setText( Const.NVL( transGraph.buildTabName(), "" ) );
+
     // Switch to the tab
     tabFolder.setSelection( tabItem );
     activeItem = new TabItemHandler(tabItem, transGraph);
     items.add( activeItem );
-    tabItem.addListener( SWT.Selection, e -> {
-      System.out.println( "Tab Selected: " + tabItem.getText() );
-    } );
-    tabItem.addDisposeListener( e -> {
-      System.out.println( "Tab closed: " + tabItem.getText() );
-    } );
+
+    try {
+      ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.HopGuiNewTransformationTab.id, transGraph );
+    } catch(Exception e) {
+      throw new HopException( "Error calling extension point plugin for plugin id "+HopExtensionPoint.HopGuiNewTransformationTab.id+" trying to handle a new transformation tab", e );
+    }
+
     return transGraph;
   }
 

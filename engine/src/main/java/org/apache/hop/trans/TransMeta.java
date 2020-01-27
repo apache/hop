@@ -2962,6 +2962,7 @@ public class TransMeta extends AbstractMeta
         throw missingPluginsException;
       }
     }
+    clearChanged();
   }
 
   public byte[] getKey() {
