@@ -241,7 +241,7 @@ public class AbstractMetaTest {
     assertNull( meta.viewNextUndo() );
     TransAction action = meta.previousUndo();
     assertNotNull( action );
-    assertEquals( AbstractMeta.TYPE_UNDO_CHANGE, action.getType() );
+    assertEquals( TransAction.ActionType.ChangeStep, action.getType() );
     assertNotNull( meta.viewThisUndo() );
     assertNotNull( meta.viewPreviousUndo() );
     assertNotNull( meta.viewNextUndo() );
