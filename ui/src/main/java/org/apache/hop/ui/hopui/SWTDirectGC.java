@@ -114,7 +114,7 @@ public class SWTDirectGC implements GCInterface {
     this.lightGray = GUIResource.getInstance().getColorLightGray();
     this.darkGray = GUIResource.getInstance().getColorDarkGray();
     this.lightBlue = GUIResource.getInstance().getColorLightBlue();
-    this.crystal = GUIResource.getInstance().getColorCrystalTextPentaho();
+    this.crystal = GUIResource.getInstance().getColorCrystalText();
     this.hopDefault = GUIResource.getInstance().getColorHopDefault();
     this.hopOK = GUIResource.getInstance().getColorHopOK();
   }

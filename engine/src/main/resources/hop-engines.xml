@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hop-engines>
+
+  <hop-engine id="Trans">
+    <description>Transformation execution engine</description>
+    <tooltip>The classic transformation execution engine</tooltip>
+    <classname>org.apache.hop.trans.Trans</classname>
+  </hop-engine>
+
+</hop-engines>

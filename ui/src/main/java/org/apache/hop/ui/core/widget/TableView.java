@@ -2743,7 +2743,7 @@ public class TableView extends Composite {
       //
 
       // We created a table item: undo this...
-      case TransAction.TYPE_ACTION_NEW_TABLEITEM:
+      case NewTableRow:
         int[] idx = ta.getCurrentIndex();
         table.remove( idx );
         for ( int i = 0; i < idx.length; i++ ) {
@@ -2763,7 +2763,7 @@ public class TableView extends Composite {
       //
 
       // un-Delete the rows at correct location: re-insert
-      case TransAction.TYPE_ACTION_DELETE_TABLEITEM:
+      case DeleteTableRow:
         idx = ta.getCurrentIndex();
         String[][] str = (String[][]) ta.getCurrent();
         for ( int i = 0; i < idx.length; i++ ) {
@@ -2781,7 +2781,7 @@ public class TableView extends Composite {
       //
 
       // Change the item back to the original row-value.
-      case TransAction.TYPE_ACTION_CHANGE_TABLEITEM:
+      case ChangeTableRow:
         idx = ta.getCurrentIndex();
         String[][] prev = (String[][]) ta.getPrevious();
         for ( int x = 0; x < idx.length; x++ ) {
@@ -2796,7 +2796,7 @@ public class TableView extends Composite {
       // POSITION
       //
       // The position of a row has changed...
-      case TransAction.TYPE_ACTION_POSITION_TABLEITEM:
+      case PositionTableRow:
         int[] curr = ta.getCurrentIndex();
         int[] prevIdx = ta.getPreviousIndex();
         for ( int i = 0; i < curr.length; i++ ) {
@@ -2833,7 +2833,7 @@ public class TableView extends Composite {
       //
       // NEW
       //
-      case TransAction.TYPE_ACTION_NEW_TABLEITEM:
+      case NewTableRow:
         int[] idx = ta.getCurrentIndex();
         String[][] str = (String[][]) ta.getCurrent();
         for ( int i = 0; i < idx.length; i++ ) {
@@ -2848,7 +2848,7 @@ public class TableView extends Composite {
       //
       // DELETE
       //
-      case TransAction.TYPE_ACTION_DELETE_TABLEITEM:
+      case DeleteTableRow:
         idx = ta.getCurrentIndex();
         table.remove( idx );
         for ( int i = 0; i < idx.length; i++ ) {
@@ -2867,7 +2867,7 @@ public class TableView extends Composite {
       // CHANGE
       //
 
-      case TransAction.TYPE_ACTION_CHANGE_TABLEITEM:
+      case ChangeTableRow:
         idx = ta.getCurrentIndex();
         String[][] curr = (String[][]) ta.getCurrent();
         for ( int x = 0; x < idx.length; x++ ) {
@@ -2881,7 +2881,7 @@ public class TableView extends Composite {
       //
       // CHANGE POSITION
       //
-      case TransAction.TYPE_ACTION_POSITION_TABLEITEM:
+      case PositionTableRow:
         int[] currIdx = ta.getCurrentIndex();
         int[] prev = ta.getPreviousIndex();
         for ( int i = 0; i < currIdx.length; i++ ) {

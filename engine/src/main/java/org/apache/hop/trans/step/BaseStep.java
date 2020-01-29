@@ -59,6 +59,7 @@ import org.apache.hop.trans.SlaveStepCopyPartitionDistribution;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.cluster.TransSplitter;
+import org.apache.hop.trans.engine.IEngineComponent;
 import org.apache.hop.trans.step.BaseStepData.StepExecutionStatus;
 import org.apache.hop.trans.steps.mapping.Mapping;
 import org.apache.hop.trans.steps.mappinginput.MappingInput;
@@ -143,7 +144,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * deallocation.
  * </ul>
  */
-public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInterface, ExtensionDataInterface {
+public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInterface, ExtensionDataInterface, IEngineComponent {
   private static Class<?> PKG = BaseStep.class; // for i18n purposes, needed by Translator2!!
 
   protected VariableSpace variables = new Variables();
@@ -274,7 +275,7 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
   /**
    * the copy number of this thread
    */
-  private int stepcopy;
+  private int copyNr;
 
   private Date start_time, stop_time;
 
@@ -454,7 +455,7 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
                    Trans trans ) {
     this.stepMeta = stepMeta;
     this.stepDataInterface = stepDataInterface;
-    this.stepcopy = copyNr;
+    this.copyNr = copyNr;
     this.transMeta = transMeta;
     this.trans = trans;
     this.stepname = stepMeta.getName();
@@ -592,7 +593,7 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
       //
       if ( partitionDistribution != null && !partitionDistribution.getDistribution().isEmpty() ) {
         String slaveServerName = getVariable( Const.INTERNAL_VARIABLE_SLAVE_SERVER_NAME );
-        int stepCopyNr = stepcopy;
+        int stepCopyNr = copyNr;
 
         // Look up the partition nr...
         // Set the partition ID (string) as well as the partition nr [0..size[
@@ -633,7 +634,7 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
       } else {
         // This is a locally partitioned step...
         //
-        int partitionNr = stepcopy;
+        int partitionNr = copyNr;
         String partitionNrString = new DecimalFormat( "000" ).format( partitionNr );
         setVariable( Const.INTERNAL_VARIABLE_STEP_PARTITION_NR, partitionNrString );
         final List<String> partitionIDList = stepMeta.getStepPartitioningMeta().getPartitionSchema().getPartitionIDs();
@@ -655,7 +656,7 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
     //
     // slaveNr * nrCopies + copyNr
     //
-    uniqueStepNrAcrossSlaves = this.slaveNr * getStepMeta().getCopies() + stepcopy;
+    uniqueStepNrAcrossSlaves = this.slaveNr * getStepMeta().getCopies() + copyNr;
     uniqueStepCountAcrossSlaves =
       this.clusterSize <= 1 ? getStepMeta().getCopies() : this.clusterSize * getStepMeta().getCopies();
     if ( uniqueStepCountAcrossSlaves == 0 ) {
@@ -664,7 +665,7 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
 
     setVariable( Const.INTERNAL_VARIABLE_STEP_UNIQUE_NUMBER, Integer.toString( uniqueStepNrAcrossSlaves ) );
     setVariable( Const.INTERNAL_VARIABLE_STEP_UNIQUE_COUNT, Integer.toString( uniqueStepCountAcrossSlaves ) );
-    setVariable( Const.INTERNAL_VARIABLE_STEP_COPYNR, Integer.toString( stepcopy ) );
+    setVariable( Const.INTERNAL_VARIABLE_STEP_COPYNR, Integer.toString( copyNr ) );
 
     // BACKLOG-18004
     allowEmptyFieldNamesAndTypes = Boolean.parseBoolean( System.getProperties().getProperty(
@@ -730,7 +731,7 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
         //
         for ( int i = 0; i < stepMeta.getRemoteInputSteps().size(); i++ ) {
           RemoteStep remoteStep = stepMeta.getRemoteInputSteps().get( i );
-          if ( remoteStep.getTargetStepCopyNr() == stepcopy ) {
+          if ( remoteStep.getTargetStepCopyNr() == copyNr ) {
             RemoteStep copy = (RemoteStep) remoteStep.clone();
             remoteInputSteps.add( copy );
           }
@@ -868,7 +869,7 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
    * @param cop the new copy
    */
   public void setCopy( int cop ) {
-    stepcopy = cop;
+    copyNr = cop;
   }
 
   /**
@@ -876,7 +877,7 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
    */
   @Override
   public int getCopy() {
-    return stepcopy;
+    return copyNr;
   }
 
   /*
@@ -3639,7 +3640,7 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
         } else {
           // To be sure (race conditions and all), get the rest in StepDataInterface object:
           //
-          StepDataInterface sdi = trans.getStepDataInterface( stepname, stepcopy );
+          StepDataInterface sdi = trans.getStepDataInterface( stepname, copyNr );
           if ( sdi != null ) {
             if ( sdi.getStatus() == StepExecutionStatus.STATUS_DISPOSED ) {
               return StepExecutionStatus.STATUS_FINISHED;
@@ -4128,6 +4129,34 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
     return log;
   }
 
+  @Override public String getName() {
+    return stepname;
+  }
+
+  /**
+   * Gets copyNr
+   *
+   * @return value of copyNr
+   */
+  public int getCopyNr() {
+    return copyNr;
+  }
+
+  /**
+   * @param copyNr The copyNr to set
+   */
+  public void setCopyNr( int copyNr ) {
+    this.copyNr = copyNr;
+  }
+
+  @Override public String getLogText() {
+    StringBuffer buffer = HopLogStore.getAppender().getBuffer( log.getLogChannelId(), false );
+    if (buffer==null) {
+      return null;
+    }
+    return buffer.toString();
+  }
+
   /*
    * (non-Javadoc)
    *
@@ -4175,7 +4204,7 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
    */
   @Override
   public String getObjectCopy() {
-    return Integer.toString( stepcopy );
+    return Integer.toString( copyNr );
   }
 
   /*
@@ -4350,5 +4379,7 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
     }
 
   }
+
+
 }
 

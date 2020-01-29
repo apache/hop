@@ -206,15 +206,13 @@ public class PrepareExecutionTransServlet extends BaseHttpServlet implements Hop
         TransExecutionConfiguration executionConfiguration = transConfiguration.getTransExecutionConfiguration();
         // Set the appropriate logging, variables, arguments, replay date, ...
         // etc.
-        trans.setArguments( executionConfiguration.getArgumentStrings() );
-        trans.setReplayDate( executionConfiguration.getReplayDate() );
         trans.setSafeModeEnabled( executionConfiguration.isSafeModeEnabled() );
         trans.setGatheringMetrics( executionConfiguration.isGatheringMetrics() );
         trans.injectVariables( executionConfiguration.getVariables() );
         trans.setPreviousResult( executionConfiguration.getPreviousResult() );
 
         try {
-          trans.prepareExecution( null );
+          trans.prepareExecution();
           cache.remove( trans.getLogChannelId() );
 
           if ( useXML ) {

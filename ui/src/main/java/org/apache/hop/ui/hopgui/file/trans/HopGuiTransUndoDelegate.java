@@ -72,14 +72,14 @@ public class HopGuiTransUndoDelegate {
       return;
     }
     undoTransformationAction( handler, transMeta, transAction );
-    handler.redraw();
+    handler.updateGui();
   }
 
 
   public void undoTransformationAction( HopFileTypeHandlerInterface handler, TransMeta transMeta, TransAction transAction ) {
     switch ( transAction.getType() ) {
       // We created a new step : undo this...
-      case TransAction.TYPE_ACTION_NEW_STEP:
+      case NewStep:
         // Delete the step at correct location:
         for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
           int idx = transAction.getCurrentIndex()[ i ];
@@ -88,7 +88,7 @@ public class HopGuiTransUndoDelegate {
         break;
 
       // We created a new note : undo this...
-      case TransAction.TYPE_ACTION_NEW_NOTE:
+      case NewNote:
         // Delete the note at correct location:
         for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
           int idx = transAction.getCurrentIndex()[ i ];
@@ -97,7 +97,7 @@ public class HopGuiTransUndoDelegate {
         break;
 
       // We created a new hop : undo this...
-      case TransAction.TYPE_ACTION_NEW_HOP:
+      case NewHop:
         // Delete the hop at correct location:
         for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
           int idx = transAction.getCurrentIndex()[ i ];
@@ -110,7 +110,7 @@ public class HopGuiTransUndoDelegate {
       //
 
       // We delete a step : undo this...
-      case TransAction.TYPE_ACTION_DELETE_STEP:
+      case DeleteStep:
         // un-Delete the step at correct location: re-insert
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
           StepMeta stepMeta = (StepMeta) transAction.getCurrent()[ i ];
@@ -120,7 +120,7 @@ public class HopGuiTransUndoDelegate {
         break;
 
       // We delete new note : undo this...
-      case TransAction.TYPE_ACTION_DELETE_NOTE:
+      case DeleteNote:
         // re-insert the note at correct location:
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
           NotePadMeta ni = (NotePadMeta) transAction.getCurrent()[ i ];
@@ -130,7 +130,7 @@ public class HopGuiTransUndoDelegate {
         break;
 
       // We deleted a hop : undo this...
-      case TransAction.TYPE_ACTION_DELETE_HOP:
+      case DeleteHop:
         // re-insert the hop at correct location:
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
           TransHopMeta hi = (TransHopMeta) transAction.getCurrent()[ i ];
@@ -148,7 +148,7 @@ public class HopGuiTransUndoDelegate {
       //
 
       // We changed a step : undo this...
-      case TransAction.TYPE_ACTION_CHANGE_STEP:
+      case ChangeStep:
         // Delete the current step, insert previous version.
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
           StepMeta prev = (StepMeta) ( (StepMeta) transAction.getPrevious()[ i ] ).clone();
@@ -159,7 +159,7 @@ public class HopGuiTransUndoDelegate {
         break;
 
       // We changed a note : undo this...
-      case TransAction.TYPE_ACTION_CHANGE_NOTE:
+      case ChangeNote:
         // Delete & re-insert
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
           int idx = transAction.getCurrentIndex()[ i ];
@@ -170,7 +170,7 @@ public class HopGuiTransUndoDelegate {
         break;
 
       // We changed a hop : undo this...
-      case TransAction.TYPE_ACTION_CHANGE_HOP:
+      case ChangeHop:
         // Delete & re-insert
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
           TransHopMeta prev = (TransHopMeta) transAction.getPrevious()[ i ];
@@ -186,7 +186,7 @@ public class HopGuiTransUndoDelegate {
       //
 
       // The position of a step has changed: undo this...
-      case TransAction.TYPE_ACTION_POSITION_STEP:
+      case PositionStep:
         // Find the location of the step:
         for ( int i = 0; i < transAction.getCurrentIndex().length; i++ ) {
           StepMeta stepMeta = transMeta.getStep( transAction.getCurrentIndex()[ i ] );
@@ -195,7 +195,7 @@ public class HopGuiTransUndoDelegate {
         break;
 
       // The position of a note has changed: undo this...
-      case TransAction.TYPE_ACTION_POSITION_NOTE:
+      case PositionNote:
         for ( int i = 0; i < transAction.getCurrentIndex().length; i++ ) {
           int idx = transAction.getCurrentIndex()[ i ];
           NotePadMeta npi = transMeta.getNote( idx );
@@ -221,11 +221,12 @@ public class HopGuiTransUndoDelegate {
       return;
     }
     redoTransformationAction( handler, transMeta, transAction );
+    handler.updateGui();
   }
 
   public void redoTransformationAction( HopFileTypeHandlerInterface handler, TransMeta transMeta, TransAction transAction ) {
     switch ( transAction.getType() ) {
-      case TransAction.TYPE_ACTION_NEW_STEP:
+      case NewStep:
         // re-delete the step at correct location:
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
           StepMeta stepMeta = (StepMeta) transAction.getCurrent()[ i ];
@@ -234,7 +235,7 @@ public class HopGuiTransUndoDelegate {
         }
         break;
 
-      case TransAction.TYPE_ACTION_NEW_NOTE:
+      case NewNote:
         // re-insert the note at correct location:
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
           NotePadMeta ni = (NotePadMeta) transAction.getCurrent()[ i ];
@@ -243,7 +244,7 @@ public class HopGuiTransUndoDelegate {
         }
         break;
 
-      case TransAction.TYPE_ACTION_NEW_HOP:
+      case NewHop:
         // re-insert the hop at correct location:
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
           TransHopMeta hi = (TransHopMeta) transAction.getCurrent()[ i ];
@@ -255,7 +256,7 @@ public class HopGuiTransUndoDelegate {
       //
       // DELETE
       //
-      case TransAction.TYPE_ACTION_DELETE_STEP:
+      case DeleteStep:
         // re-remove the step at correct location:
         for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
           int idx = transAction.getCurrentIndex()[ i ];
@@ -263,7 +264,7 @@ public class HopGuiTransUndoDelegate {
         }
         break;
 
-      case TransAction.TYPE_ACTION_DELETE_NOTE:
+      case DeleteNote:
         // re-remove the note at correct location:
         for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
           int idx = transAction.getCurrentIndex()[ i ];
@@ -271,7 +272,7 @@ public class HopGuiTransUndoDelegate {
         }
         break;
 
-      case TransAction.TYPE_ACTION_DELETE_HOP:
+      case DeleteHop:
         // re-remove the hop at correct location:
         for ( int i = transAction.getCurrent().length - 1; i >= 0; i-- ) {
           int idx = transAction.getCurrentIndex()[ i ];
@@ -284,7 +285,7 @@ public class HopGuiTransUndoDelegate {
       //
 
       // We changed a step : undo this...
-      case TransAction.TYPE_ACTION_CHANGE_STEP:
+      case ChangeStep:
         // Delete the current step, insert previous version.
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
           StepMeta stepMeta = (StepMeta) ( (StepMeta) transAction.getCurrent()[ i ] ).clone();
@@ -293,7 +294,7 @@ public class HopGuiTransUndoDelegate {
         break;
 
       // We changed a note : undo this...
-      case TransAction.TYPE_ACTION_CHANGE_NOTE:
+      case ChangeNote:
         // Delete & re-insert
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
           NotePadMeta ni = (NotePadMeta) transAction.getCurrent()[ i ];
@@ -305,7 +306,7 @@ public class HopGuiTransUndoDelegate {
         break;
 
       // We changed a hop : undo this...
-      case TransAction.TYPE_ACTION_CHANGE_HOP:
+      case ChangeHop:
         // Delete & re-insert
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
           TransHopMeta hi = (TransHopMeta) transAction.getCurrent()[ i ];
@@ -319,14 +320,14 @@ public class HopGuiTransUndoDelegate {
       //
       // CHANGE POSITION
       //
-      case TransAction.TYPE_ACTION_POSITION_STEP:
+      case PositionStep:
         for ( int i = 0; i < transAction.getCurrentIndex().length; i++ ) {
           // Find & change the location of the step:
           StepMeta stepMeta = transMeta.getStep( transAction.getCurrentIndex()[ i ] );
           stepMeta.setLocation( transAction.getCurrentLocation()[ i ] );
         }
         break;
-      case TransAction.TYPE_ACTION_POSITION_NOTE:
+      case PositionNote:
         for ( int i = 0; i < transAction.getCurrentIndex().length; i++ ) {
           int idx = transAction.getCurrentIndex()[ i ];
           NotePadMeta npi = transMeta.getNote( idx );

@@ -228,14 +228,6 @@ public class TransMeta extends AbstractMeta
   protected double maxDateDifference;
 
   /**
-   * The list of arguments to the transformation.
-   *
-   * @deprecated Moved to Trans
-   */
-  @Deprecated
-  protected String[] arguments;
-
-  /**
    * A table of named counters.
    *
    * @deprecated Moved to Trans
@@ -267,22 +259,6 @@ public class TransMeta extends AbstractMeta
    * The previous result.
    */
   protected Result previousResult;
-
-  /**
-   * The result rows.
-   *
-   * @deprecated
-   */
-  @Deprecated
-  protected List<RowMetaAndData> resultRows;
-
-  /**
-   * The result files.
-   *
-   * @deprecated
-   */
-  @Deprecated
-  protected List<ResultFile> resultFiles;
 
   /**
    * Whether the transformation is using unique connections.
@@ -540,22 +516,6 @@ public class TransMeta extends AbstractMeta
     initializeVariablesFrom( null );
   }
 
-  /**
-   * Constructs a new transformation specifying the filename, name and arguments.
-   *
-   * @param filename  The filename of the transformation
-   * @param name      The name of the transformation
-   * @param arguments The arguments as Strings
-   * @deprecated passing in arguments (a runtime argument) into the metadata is deprecated, pass it to Trans
-   */
-  @Deprecated
-  public TransMeta( String filename, String name, String[] arguments ) {
-    clear();
-    setFilename( filename );
-    this.name = name;
-    this.arguments = arguments;
-    initializeVariablesFrom( null );
-  }
 
   /**
    * Compares two transformation on name, filename, repository directory, etc.
@@ -735,16 +695,10 @@ public class TransMeta extends AbstractMeta
     max_undo = Const.MAX_UNDO;
     undo_position = -1;
 
-    counters = new Hashtable<>();
-    resultRows = null;
-
     super.clear();
 
     // LOAD THE DATABASE CACHE!
     dbCache = DBCache.getInstance();
-
-    resultRows = new ArrayList<>();
-    resultFiles = new ArrayList<>();
 
     feedbackShown = true;
     feedbackSize = Const.ROWS_UPDATE;
@@ -4144,72 +4098,6 @@ public class TransMeta extends AbstractMeta
   }
 
   /**
-   * Gets the result rows.
-   *
-   * @return a list containing the result rows.
-   * @deprecated Moved to Trans to make this class stateless
-   */
-  @Deprecated
-  public List<RowMetaAndData> getResultRows() {
-    return resultRows;
-  }
-
-  /**
-   * Sets the list of result rows.
-   *
-   * @param resultRows The list of result rows to set.
-   * @deprecated Moved to Trans to make this class stateless
-   */
-  @Deprecated
-  public void setResultRows( List<RowMetaAndData> resultRows ) {
-    this.resultRows = resultRows;
-  }
-
-  /**
-   * Gets the arguments used for this transformation.
-   *
-   * @return an array of String arguments for the transformation
-   * @deprecated moved to Trans
-   */
-  @Deprecated
-  public String[] getArguments() {
-    return arguments;
-  }
-
-  /**
-   * Sets the arguments used for this transformation.
-   *
-   * @param arguments The arguments to set.
-   * @deprecated moved to Trans
-   */
-  @Deprecated
-  public void setArguments( String[] arguments ) {
-    this.arguments = arguments;
-  }
-
-  /**
-   * Gets the counters (database sequence values, e.g.) for the transformation.
-   *
-   * @return a named table of counters.
-   * @deprecated moved to Trans
-   */
-  @Deprecated
-  public Hashtable<String, Counter> getCounters() {
-    return counters;
-  }
-
-  /**
-   * Sets the counters (database sequence values, e.g.) for the transformation.
-   *
-   * @param counters The counters to set.
-   * @deprecated moved to Trans
-   */
-  @Deprecated
-  public void setCounters( Hashtable<String, Counter> counters ) {
-    this.counters = counters;
-  }
-
-  /**
    * Gets a list of dependencies for the transformation
    *
    * @return a list of the dependencies for the transformation
@@ -4450,49 +4338,6 @@ public class TransMeta extends AbstractMeta
   }
 
   /**
-   * Gets the arguments (and their values) used by this transformation. If argument values are supplied by parameter,
-   * the values will used for the arguments. If the values are null or empty, the method will attempt to use argument
-   * values from a previous execution.
-   *
-   * @param arguments the values for the arguments
-   * @return A row with the used arguments (and their values) in it.
-   */
-  public Map<String, String> getUsedArguments( String[] arguments ) {
-    Map<String, String> transArgs = new HashMap<>();
-
-    for ( int i = 0; i < nrSteps(); i++ ) {
-      StepMetaInterface smi = getStep( i ).getStepMetaInterface();
-      Map<String, String> stepArgs = smi.getUsedArguments(); // Get the command line arguments that this step uses.
-      if ( stepArgs != null ) {
-        transArgs.putAll( stepArgs );
-      }
-    }
-
-    // OK, so perhaps, we can use the arguments from a previous execution?
-    String[] saved = Props.isInitialized() ? Props.getInstance().getLastArguments() : null;
-
-    // Set the default values on it...
-    // Also change the name to "Argument 1" .. "Argument 10"
-    //
-    for ( String argument : transArgs.keySet() ) {
-      String value = "";
-      int argNr = Const.toInt( argument, -1 );
-      if ( arguments != null && argNr > 0 && argNr <= arguments.length ) {
-        value = Const.NVL( arguments[ argNr - 1 ], "" );
-      }
-      if ( value.length() == 0 ) { // try the saved option...
-
-        if ( argNr > 0 && argNr < saved.length && saved[ argNr ] != null ) {
-          value = saved[ argNr - 1 ];
-        }
-      }
-      transArgs.put( argument, value );
-    }
-
-    return transArgs;
-  }
-
-  /**
    * Gets the amount of time (in nano-seconds) to wait while the input buffer is empty.
    *
    * @return the number of nano-seconds to wait while the input buffer is empty.
@@ -4641,50 +4486,6 @@ public class TransMeta extends AbstractMeta
     }
 
     return varList;
-  }
-
-  /**
-   * Gets the previous result.
-   *
-   * @return the previous Result.
-   * @deprecated this was moved to Trans to keep the metadata stateless
-   */
-  @Deprecated
-  public Result getPreviousResult() {
-    return previousResult;
-  }
-
-  /**
-   * Sets the previous result.
-   *
-   * @param previousResult The previous Result to set.
-   * @deprecated this was moved to Trans to keep the metadata stateless
-   */
-  @Deprecated
-  public void setPreviousResult( Result previousResult ) {
-    this.previousResult = previousResult;
-  }
-
-  /**
-   * Gets a list of the files in the result.
-   *
-   * @return a list of ResultFiles.
-   * @deprecated this was moved to Trans to keep the metadata stateless
-   */
-  @Deprecated
-  public List<ResultFile> getResultFiles() {
-    return resultFiles;
-  }
-
-  /**
-   * Sets the list of the files in the result.
-   *
-   * @param resultFiles The list of ResultFiles to set.
-   * @deprecated this was moved to Trans to keep the metadata stateless
-   */
-  @Deprecated
-  public void setResultFiles( List<ResultFile> resultFiles ) {
-    this.resultFiles = resultFiles;
   }
 
   /**

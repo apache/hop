@@ -621,7 +621,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     //
     metaStore = new DelegatingMetaStore();
     try {
-      IMetaStore localMetaStore = MetaStoreConst.openLocalPentahoMetaStore();
+      IMetaStore localMetaStore = MetaStoreConst.openLocalHopMetaStore();
       metaStore.addMetaStore( localMetaStore );
       metaStore.setActiveMetaStoreName( localMetaStore.getName() );
 
@@ -1443,20 +1443,18 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   public void executeTransformation() {
     executeTransformation(
-      getActiveTransformation(), true, false, false, false, false, transExecutionConfiguration.getReplayDate(),
+      getActiveTransformation(), true, false, false, false, false,
       false, transExecutionConfiguration.getLogLevel() );
   }
 
   public void previewTransformation() {
     executeTransformation(
-      getActiveTransformation(), true, false, false, true, false, transDebugExecutionConfiguration
-        .getReplayDate(), true, transDebugExecutionConfiguration.getLogLevel() );
+      getActiveTransformation(), true, false, false, true, false, true, transDebugExecutionConfiguration.getLogLevel() );
   }
 
   public void debugTransformation() {
     executeTransformation(
-      getActiveTransformation(), true, false, false, false, true, transPreviewExecutionConfiguration
-        .getReplayDate(), true, transPreviewExecutionConfiguration.getLogLevel() );
+      getActiveTransformation(), true, false, false, false, true, true, transPreviewExecutionConfiguration.getLogLevel() );
   }
 
   public void checkTrans() {
@@ -1524,7 +1522,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   public void executeJob() {
-    executeJob( getActiveJob(), true, false, null, false, null, 0 );
+    executeJob( getActiveJob(), true, false, false, null, 0 );
   }
 
   public void copyJob() {
@@ -5284,11 +5282,11 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
     if ( undoInterface instanceof TransMeta ) {
       delegates.trans.undoTransformationAction( (TransMeta) undoInterface, ta );
-      if ( ta.getType() == TransAction.TYPE_ACTION_DELETE_STEP ) {
+      if ( ta.getType() == TransAction.ActionType.DeleteStep ) {
         setUndoMenu( undoInterface ); // something changed: change the menu
         handleSelectedStepOnUndo( (TransMeta) undoInterface );
         ta = undoInterface.viewPreviousUndo();
-        if ( ta != null && ta.getType() == TransAction.TYPE_ACTION_DELETE_HOP ) {
+        if ( ta != null && ta.getType() == TransAction.ActionType.DeleteHop ) {
           ta = undoInterface.previousUndo();
           delegates.trans.undoTransformationAction( (TransMeta) undoInterface, ta );
         }
@@ -5297,10 +5295,10 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     }
     if ( undoInterface instanceof JobMeta ) {
       delegates.jobs.undoJobAction( (JobMeta) undoInterface, ta );
-      if ( ta.getType() == TransAction.TYPE_ACTION_DELETE_JOB_ENTRY ) {
+      if ( ta.getType() == TransAction.ActionType.DeleteJobEntry ) {
         setUndoMenu( undoInterface ); // something changed: change the menu
         ta = undoInterface.viewPreviousUndo();
-        if ( ta != null && ta.getType() == TransAction.TYPE_ACTION_DELETE_JOB_HOP ) {
+        if ( ta != null && ta.getType() == TransAction.ActionType.DeleteJobHop ) {
           ta = undoInterface.previousUndo();
           delegates.jobs.undoJobAction( (JobMeta) undoInterface, ta );
         }
@@ -5332,10 +5330,10 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
     if ( undoInterface instanceof TransMeta ) {
       delegates.trans.redoTransformationAction( (TransMeta) undoInterface, ta );
-      if ( ta.getType() == TransAction.TYPE_ACTION_DELETE_HOP ) {
+      if ( ta.getType() == TransAction.ActionType.DeleteHop ) {
         setUndoMenu( undoInterface ); // something changed: change the menu
         ta = undoInterface.viewNextUndo();
-        if ( ta != null && ta.getType() == TransAction.TYPE_ACTION_DELETE_STEP ) {
+        if ( ta != null && ta.getType() == TransAction.ActionType.DeleteStep ) {
           ta = undoInterface.nextUndo();
           delegates.trans.redoTransformationAction( (TransMeta) undoInterface, ta );
         }
@@ -5344,10 +5342,10 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     }
     if ( undoInterface instanceof JobMeta ) {
       delegates.jobs.redoJobAction( (JobMeta) undoInterface, ta );
-      if ( ta.getType() == TransAction.TYPE_ACTION_DELETE_JOB_HOP ) {
+      if ( ta.getType() == TransAction.ActionType.DeleteJobHop ) {
         setUndoMenu( undoInterface ); // something changed: change the menu
         ta = undoInterface.viewNextUndo();
-        if ( ta != null && ta.getType() == TransAction.TYPE_ACTION_DELETE_JOB_ENTRY ) {
+        if ( ta != null && ta.getType() == TransAction.ActionType.DeleteJobEntry ) {
           ta = undoInterface.nextUndo();
           delegates.jobs.redoJobAction( (JobMeta) undoInterface, ta );
         }
@@ -6044,48 +6042,47 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   }
 
   public void runFile() {
-    executeFile( true, false, false, false, false, null, false, false );
+    executeFile( true, false, false, false, false, false, false );
   }
 
   public void runOptionsFile() {
-    executeFile( true, false, false, false, false, null, false, true );
+    executeFile( true, false, false, false, false, false, true );
   }
 
   public void replayTransformation() {
     TransExecutionConfiguration tc = this.getTransExecutionConfiguration();
     executeFile(
-      tc.isExecutingLocally(), tc.isExecutingRemotely(), tc.isExecutingClustered(), false, false, new Date(),
-      false, false );
+      tc.isExecutingLocally(), tc.isExecutingRemotely(), tc.isExecutingClustered(), false, false, false, false );
   }
 
   public void previewFile() {
-    executeFile( true, false, false, true, false, null, true, false );
+    executeFile( true, false, false, true, false, true, false );
   }
 
   public void debugFile() {
-    executeFile( true, false, false, false, true, null, true, false );
+    executeFile( true, false, false, false, true, true, false );
   }
 
   public void executeFile( boolean local, boolean remote, boolean cluster, boolean preview, boolean debug,
-                           Date replayDate, boolean safe, boolean show ) {
+                           boolean safe, boolean show ) {
 
     TransMeta transMeta = getActiveTransformation();
     if ( transMeta != null ) {
       transMeta.setShowDialog( show || transMeta.isAlwaysShowRunOptions() );
-      executeTransformation( transMeta, local, remote, cluster, preview, debug, replayDate, safe,
+      executeTransformation( transMeta, local, remote, cluster, preview, debug, safe,
         transExecutionConfiguration.getLogLevel() );
     }
 
     JobMeta jobMeta = getActiveJob();
     if ( jobMeta != null ) {
       jobMeta.setShowDialog( show || jobMeta.isAlwaysShowRunOptions() );
-      executeJob( jobMeta, local, remote, replayDate, safe, null, 0 );
+      executeJob( jobMeta, local, remote, safe, null, 0 );
     }
 
   }
 
   public void executeTransformation( final TransMeta transMeta, final boolean local, final boolean remote,
-                                     final boolean cluster, final boolean preview, final boolean debug, final Date replayDate,
+                                     final boolean cluster, final boolean preview, final boolean debug,
                                      final boolean safe, final LogLevel logLevel ) {
 
     Thread thread = new Thread() {
@@ -6096,7 +6093,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
           public void run() {
             try {
               delegates.trans.executeTransformation(
-                transMeta, local, remote, cluster, preview, debug, replayDate, safe, logLevel );
+                transMeta, local, remote, cluster, preview, debug, safe, logLevel );
             } catch ( Exception e ) {
               new ErrorDialog(
                 shell, "Execute transformation", "There was an error during transformation execution", e );
@@ -6108,11 +6105,10 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     thread.start();
   }
 
-  public void executeJob( JobMeta jobMeta, boolean local, boolean remote, Date replayDate, boolean safe,
-                          String startCopyName, int startCopyNr ) {
+  public void executeJob( JobMeta jobMeta, boolean local, boolean remote, boolean safe, String startCopyName, int startCopyNr ) {
 
     try {
-      delegates.jobs.executeJob( jobMeta, local, remote, replayDate, safe, startCopyName, startCopyNr );
+      delegates.jobs.executeJob( jobMeta, local, remote, safe, startCopyName, startCopyNr );
     } catch ( Exception e ) {
       new ErrorDialog( shell, "Execute job", "There was an error during job execution", e );
     }

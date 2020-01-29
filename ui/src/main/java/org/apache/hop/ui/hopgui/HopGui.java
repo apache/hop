@@ -8,9 +8,12 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.UndoInterface;
 import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.KeyboardShortcut;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
@@ -21,6 +24,9 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.LanguageChoice;
+import org.apache.hop.metastore.MetaStoreConst;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.ui.core.PropsUI;
@@ -40,11 +46,14 @@ import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.hopui.Sleak;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.graphics.DeviceData;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -146,6 +155,18 @@ public class HopGui {
 
     fileDelegate = new HopGuiFileDelegate( this );
     undoDelegate = new HopGuiUndoDelegate( this );
+
+    // TODO: create metastore plugin system
+    //
+    metaStore = new DelegatingMetaStore(  );
+    try {
+      IMetaStore localMetaStore = MetaStoreConst.openLocalHopMetaStore();
+      metaStore.addMetaStore( localMetaStore );
+      metaStore.setActiveMetaStoreName( localMetaStore.getName() );
+
+    } catch ( MetaStoreException e ) {
+      new ErrorDialog( shell, "Error opening Hop Metastore", "Unable to open the local Hop Metastore", e );
+    }
   }
 
   public static final HopGui getInstance() {
@@ -320,12 +341,14 @@ public class HopGui {
 
   @GuiMenuElement( id = ID_MAIN_MENU_FILE_OPEN, type = GuiElementType.MENU_ITEM, label = "Open", parentId = ID_MAIN_MENU_FILE )
   @GuiToolbarElement( id = ID_MAIN_TOOLBAR_OPEN, type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/open.svg", toolTip = "Open", parentId = ID_MAIN_TOOLBAR, separator = true )
+  @GuiKeyboardShortcut( control = true, key = 'o' )
   public void menuFileOpen() {
     fileDelegate.fileOpen();
   }
 
   @GuiMenuElement( id = ID_MAIN_MENU_FILE_SAVE, type = GuiElementType.MENU_ITEM, label = "Save", parentId = ID_MAIN_MENU_FILE )
   @GuiToolbarElement( id = ID_MAIN_TOOLBAR_SAVE, type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/save.svg", toolTip = "Save", parentId = ID_MAIN_TOOLBAR )
+  @GuiKeyboardShortcut( control = true, key = 's' )
   public void menuFileSave() {
     fileDelegate.fileSave();
   }
@@ -365,8 +388,6 @@ public class HopGui {
       return;
     }
     handler.undo();
-    handler.redraw();
-    handler.updateGui();
   }
 
   @GuiMenuElement( id = ID_MAIN_MENU_EDIT_REDO, type = GuiElementType.MENU_ITEM, label = "Redo", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
@@ -376,8 +397,6 @@ public class HopGui {
       return;
     }
     handler.redo();
-    handler.redraw();
-    handler.updateGui();
   }
 
 
@@ -504,6 +523,49 @@ public class HopGui {
     return perspective.getActiveFileTypeHandler();
   }
 
+  public void addKeyBoardListeners( Control control, Object parentObject, boolean addHopGuiListeners) {
+    if (addHopGuiListeners) {
+      addKeyBoardListeners( control, this, false );
+    }
+
+    List<KeyboardShortcut> shortcuts = GuiRegistry.getInstance().getKeyboardShortcuts( parentObject.getClass().getName() );
+    if (shortcuts==null) {
+      return;
+    }
+    for (KeyboardShortcut shortcut : shortcuts) {
+      control.addKeyListener( new KeyListener() {
+        @Override public void keyPressed( KeyEvent e ) {
+          if (e.keyCode!=shortcut.getKeyCode()) {
+            return;
+          }
+          if (shortcut.isAlt() && (e.stateMask&SWT.ALT)==0) {
+            return;
+          }
+          if (shortcut.isShift() && (e.stateMask&SWT.SHIFT)==0) {
+            return;
+          }
+          if (shortcut.isControl() && (e.stateMask&SWT.CONTROL)==0) {
+            return;
+          }
+          // This is the key
+          // Call the method
+          //
+          try {
+            Class<?> parentClass = parentObject.getClass();
+            Method method = parentClass.getMethod( shortcut.getParentMethodName() );
+            if (method!=null) {
+              method.invoke( parentObject );
+            }
+          } catch(Exception ex) {
+            LogChannel.UI.logError( "Error calling keyboard shortcut method on parent object "+parentObject.toString(), ex );
+          }
+        }
+
+        @Override public void keyReleased( KeyEvent e ) {
+        }
+      } );
+    }
+  }
 
   /**
    * Gets metaStore

@@ -197,7 +197,6 @@ public class JobExecutor extends BaseStep implements StepInterface {
     data.executorJob.setLogLevel( getLogLevel() );
     data.executorJob.setInternalHopVariables( this );
     data.executorJob.copyParametersFrom( data.executorJobMeta );
-    data.executorJob.setArguments( getTrans().getArguments() );
 
     // data.executorJob.setInteractive(); TODO: pass interactivity through the transformation too for drill-down.
 

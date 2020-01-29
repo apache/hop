@@ -228,7 +228,7 @@ public class TransExecutor extends BaseStep implements StepInterface {
     executorTrans.setPreviousResult( result );
 
     try {
-      executorTrans.prepareExecution( getTrans().getArguments() );
+      executorTrans.prepareExecution();
 
       // run transformation
       executorTrans.startThreads();
@@ -278,10 +278,7 @@ public class TransExecutor extends BaseStep implements StepInterface {
 
     executorTrans.setParentTrans( getTrans() );
     executorTrans.setLogLevel( getLogLevel() );
-    executorTrans.setArguments( getTrans().getArguments() );
-
     executorTrans.setInternalHopVariables( this );
-
     executorTrans.setPreview( getTrans().isPreview() );
 
     TransStepUtil.initServletConfig( getTrans(), executorTrans );

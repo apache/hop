@@ -89,8 +89,6 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   private String jobname;
   private String directory;
 
-  public String[] arguments;
-  public boolean argFromPrevious;
   public boolean paramsFromPrevious;
   public boolean execPerRow;
 
@@ -137,7 +135,6 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   }
 
   private void allocateArgs( int nrArgs ) {
-    arguments = new String[ nrArgs ];
   }
 
   private void allocateParams( int nrParameters ) {
@@ -149,11 +146,6 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   @Override
   public Object clone() {
     JobEntryJob je = (JobEntryJob) super.clone();
-    if ( arguments != null ) {
-      int nrArgs = arguments.length;
-      je.allocateArgs( nrArgs );
-      System.arraycopy( arguments, 0, je.arguments, 0, nrArgs );
-    }
     if ( parameters != null ) {
       int nrParameters = parameters.length;
       je.allocateParams( nrParameters );
@@ -254,7 +246,6 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
     retval.append( "      " ).append( XMLHandler.addTagValue( "jobname", jobname ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "directory", directory ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "arg_from_previous", argFromPrevious ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "params_from_previous", paramsFromPrevious ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "exec_per_row", execPerRow ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "set_logfile", setLogfile ) );
@@ -272,14 +263,6 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
     retval.append( "      " ).append( XMLHandler.addTagValue( "create_parent_folder", createParentFolder ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "pass_export", passingExport ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "run_configuration", runConfiguration ) );
-
-    if ( arguments != null ) {
-      for ( int i = 0; i < arguments.length; i++ ) {
-        // This is a very very bad way of making an XML file, don't use it (or
-        // copy it). Sven Boden
-        retval.append( "      " ).append( XMLHandler.addTagValue( "argument" + i, arguments[ i ] ) );
-      }
-    }
 
     if ( parameters != null ) {
       retval.append( "      " ).append( XMLHandler.openTag( "parameters" ) );
@@ -313,7 +296,6 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
       jobname = XMLHandler.getTagValue( entrynode, "jobname" );
       directory = XMLHandler.getTagValue( entrynode, "directory" );
 
-      argFromPrevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
       paramsFromPrevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "params_from_previous" ) );
       execPerRow = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "exec_per_row" ) );
       setLogfile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "set_logfile" ) );
@@ -344,12 +326,6 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
         argnr++;
       }
       allocateArgs( argnr );
-
-      // Read them all... This is a very BAD way to do it by the way. Sven
-      // Boden.
-      for ( int a = 0; a < argnr; a++ ) {
-        arguments[ a ] = XMLHandler.getTagValue( entrynode, "argument" + a );
-      }
 
       Node parametersNode = XMLHandler.getSubNode( entrynode, "parameters" );
 
@@ -436,26 +412,9 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
       verifyRecursiveExecution( parentJob, jobMeta );
 
       int iteration = 0;
-      String[] args1 = arguments;
-      // no arguments? Check the parent jobs arguments
-      if ( args1 == null || args1.length == 0 ) {
-        args1 = parentJob.getArguments();
-      }
 
       copyVariablesFrom( parentJob );
       setParentVariableSpace( parentJob );
-
-      //
-      // For the moment only do variable translation at the start of a job, not
-      // for every input row (if that would be switched on)
-      //
-      String[] args = null;
-      if ( args1 != null ) {
-        args = new String[ args1.length ];
-        for ( int idx = 0; idx < args1.length; idx++ ) {
-          args[ idx ] = environmentSubstitute( args1[ idx ] );
-        }
-      }
 
       RowMetaAndData resultRow = null;
       boolean first = true;
@@ -536,23 +495,11 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
 
         if ( execPerRow ) {
           // Execute for each input row
-
-          if ( argFromPrevious ) {
-            // Copy the input row to the (command line) arguments
-
-            args = null;
-            if ( resultRow != null ) {
-              args = new String[ resultRow.size() ];
-              for ( int i = 0; i < resultRow.size(); i++ ) {
-                args[ i ] = resultRow.getString( i, null );
-              }
-            }
-          } else {
-            // Just pass a single row
-            List<RowMetaAndData> newList = new ArrayList<RowMetaAndData>();
-            newList.add( resultRow );
-            sourceRows = newList;
-          }
+          // Just pass a single row
+          //
+          List<RowMetaAndData> newList = new ArrayList<RowMetaAndData>();
+          newList.add( resultRow );
+          sourceRows = newList;
 
           if ( paramsFromPrevious ) { // Copy the input the parameters
 
@@ -577,19 +524,10 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
             }
           }
         } else {
-          if ( argFromPrevious ) {
-            // Only put the first Row on the arguments
-            args = null;
-            if ( resultRow != null ) {
-              args = new String[ resultRow.size() ];
-              for ( int i = 0; i < resultRow.size(); i++ ) {
-                args[ i ] = resultRow.getString( i, null );
-              }
-            }
-          } else {
-            // Keep it as it was...
-            sourceRows = result.getRows();
-          }
+
+          // Keep it as it was...
+          //
+          sourceRows = result.getRows();
 
           if ( paramsFromPrevious ) { // Copy the input the parameters
 
@@ -731,8 +669,6 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
             job.setPassedBatchId( parentJob.getBatchId() );
           }
 
-          job.setArguments( args );
-
           // Inform the parent job we started something here...
           //
           for ( DelegationListener delegationListener : parentJob.getDelegationListeners() ) {
@@ -782,7 +718,6 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
           jobExecutionConfiguration.setPreviousResult( result.lightClone() ); // lightClone() because rows are
           // overwritten in next line.
           jobExecutionConfiguration.getPreviousResult().setRows( sourceRows );
-          jobExecutionConfiguration.setArgumentStrings( args );
           jobExecutionConfiguration.setVariables( this );
           jobExecutionConfiguration.setRemoteServer( remoteSlaveServer );
           jobExecutionConfiguration.setLogLevel( jobLogLevel );
@@ -1046,8 +981,6 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
     jobname = null;
     filename = null;
     directory = null;
-    arguments = null;
-    argFromPrevious = false;
     addDate = false;
     addTime = false;
     logfile = null;

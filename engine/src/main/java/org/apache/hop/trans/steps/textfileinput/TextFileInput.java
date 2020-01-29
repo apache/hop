@@ -34,7 +34,6 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.playlist.FilePlayListAll;
-import org.apache.hop.core.playlist.FilePlayListReplay;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -1602,15 +1601,7 @@ public class TextFileInput extends BaseStep implements StepInterface {
   }
 
   private void initReplayFactory() {
-    Date replayDate = getTrans().getReplayDate();
-    if ( replayDate == null ) {
-      data.filePlayList = FilePlayListAll.INSTANCE;
-    } else {
-      data.filePlayList =
-        new FilePlayListReplay( replayDate, meta.getLineNumberFilesDestinationDirectory(), meta
-          .getLineNumberFilesExtension(), meta.getErrorFilesDestinationDirectory(), meta
-          .getErrorLineFilesExtension(), meta.getEncoding() );
-    }
+    data.filePlayList = FilePlayListAll.INSTANCE;
   }
 
   private void initErrorHandling() {

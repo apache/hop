@@ -90,8 +90,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
 
   public String[] arguments;
 
-  public boolean argFromPrevious;
-
   public boolean paramsFromPrevious;
 
   public boolean execPerRow;
@@ -223,7 +221,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
     retval.append( super.getXML() );
 
     retval.append( "      " ).append( XMLHandler.addTagValue( "filename", filename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "arg_from_previous", argFromPrevious ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "params_from_previous", paramsFromPrevious ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "exec_per_row", execPerRow ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "clear_rows", clearResultRows ) );
@@ -281,7 +278,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
 
       filename = XMLHandler.getTagValue( entrynode, "filename" );
 
-      argFromPrevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
       paramsFromPrevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "params_from_previous" ) );
       execPerRow = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "exec_per_row" ) );
       clearResultRows = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "clear_rows" ) );
@@ -347,7 +343,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
 
     filename = null;
     arguments = null;
-    argFromPrevious = false;
     execPerRow = false;
     addDate = false;
     addTime = false;
@@ -434,24 +429,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
     }
 
     int iteration = 0;
-    String[] args1 = arguments;
-    if ( args1 == null || args1.length == 0 ) { // No arguments set, look at the parent job.
-      args1 = parentJob.getArguments();
-    }
-    // initializeVariablesFrom(parentJob);
-
-    //
-    // For the moment only do variable translation at the start of a job, not
-    // for every input row (if that would be switched on). This is for safety,
-    // the real argument setting is later on.
-    //
-    String[] args = null;
-    if ( args1 != null ) {
-      args = new String[ args1.length ];
-      for ( int idx = 0; idx < args1.length; idx++ ) {
-        args[ idx ] = environmentSubstitute( args1[ idx ] );
-      }
-    }
 
     RowMetaAndData resultRow = null;
     boolean first = true;
@@ -521,29 +498,18 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
         if ( execPerRow ) {
           // Execute for each input row
 
-          if ( argFromPrevious ) {
-            // Copy the input row to the (command line) arguments
+          // Just pass a single row
+          List<RowMetaAndData> newList = new ArrayList<RowMetaAndData>();
+          newList.add( resultRow );
 
-            args = null;
-            if ( resultRow != null ) {
-              args = new String[ resultRow.size() ];
-              for ( int i = 0; i < resultRow.size(); i++ ) {
-                args[ i ] = resultRow.getString( i, null );
-              }
-            }
-          } else {
-            // Just pass a single row
-            List<RowMetaAndData> newList = new ArrayList<RowMetaAndData>();
-            newList.add( resultRow );
+          // This previous result rows list can be either empty or not.
+          // Depending on the checkbox "clear result rows"
+          // In this case, it would execute the transformation with one extra row each time
+          // Can't figure out a real use-case for it, but hey, who am I to decide that, right?
+          // :-)
+          //
+          previousResult.getRows().addAll( newList );
 
-            // This previous result rows list can be either empty or not.
-            // Depending on the checkbox "clear result rows"
-            // In this case, it would execute the transformation with one extra row each time
-            // Can't figure out a real use-case for it, but hey, who am I to decide that, right?
-            // :-)
-            //
-            previousResult.getRows().addAll( newList );
-          }
 
           if ( paramsFromPrevious ) { // Copy the input the parameters
 
@@ -568,16 +534,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
             }
           }
         } else {
-          if ( argFromPrevious ) {
-            // Only put the first Row on the arguments
-            args = null;
-            if ( resultRow != null ) {
-              args = new String[ resultRow.size() ];
-              for ( int i = 0; i < resultRow.size(); i++ ) {
-                args[ i ] = resultRow.getString( i, null );
-              }
-            }
-          }
 
           if ( paramsFromPrevious ) {
             // Copy the input the parameters
@@ -680,10 +636,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
           //
           executionConfiguration.setVariables( transMeta );
 
-          // Also set the arguments...
-          //
-          executionConfiguration.setArgumentStrings( args );
-
           if ( parentJob.getJobMeta().isBatchIdPassed() ) {
             executionConfiguration.setPassedBatchId( parentJob.getPassedBatchId() );
           }
@@ -747,7 +699,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
           // Remote execution...
           //
           executionConfiguration.setPreviousResult( previousResult.clone() );
-          executionConfiguration.setArgumentStrings( args );
           executionConfiguration.setVariables( this );
           executionConfiguration.setRemoteServer( remoteSlaveServer );
           executionConfiguration.setLogLevel( transLogLevel );
@@ -858,7 +809,6 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
           trans.setParentVariableSpace( parentJob );
           trans.setLogLevel( transLogLevel );
           trans.setPreviousResult( previousResult );
-          trans.setArguments( arguments );
 
           // inject the metaStore
           trans.setMetaStore( metaStore );
@@ -887,7 +837,7 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
           try {
             // Start execution...
             //
-            trans.execute( args );
+            trans.execute();
 
             // Wait until we're done with it...
             //TODO is it possible to implement Observer pattern to avoid Thread.sleep here?

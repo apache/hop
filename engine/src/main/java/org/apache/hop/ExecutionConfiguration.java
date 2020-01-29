@@ -35,14 +35,6 @@ public interface ExecutionConfiguration extends Cloneable {
 
   public Object clone();
 
-  public Map<String, String> getArguments();
-
-  public void setArguments( Map<String, String> arguments );
-
-  public String[] getArgumentStrings();
-
-  public void setArgumentStrings( String[] arguments );
-
   public LogLevel getLogLevel();
 
   public void setLogLevel( LogLevel logLevel );
@@ -62,10 +54,6 @@ public interface ExecutionConfiguration extends Cloneable {
   public SlaveServer getRemoteServer();
 
   public void setRemoteServer( SlaveServer remoteServer );
-
-  public Date getReplayDate();
-
-  public void setReplayDate( Date replayDate );
 
   public Map<String, String> getVariables();
 

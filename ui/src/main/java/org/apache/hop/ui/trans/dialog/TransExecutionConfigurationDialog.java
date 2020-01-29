@@ -26,6 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -61,12 +62,32 @@ public class TransExecutionConfigurationDialog extends ConfigurationDialog {
   }
 
   protected void optionsSectionControls() {
+
+    wlLogLevel = new Label( gDetails, SWT.NONE );
+    props.setLook( wlLogLevel );
+    wlLogLevel.setText( BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.LogLevel.Label" ) );
+    wlLogLevel.setToolTipText( BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.LogLevel.Tooltip" ) );
+    FormData fdlLogLevel = new FormData();
+    fdlLogLevel.top = new FormAttachment( 0, 10 );
+    fdlLogLevel.left = new FormAttachment( 0, 10 );
+    wlLogLevel.setLayoutData( fdlLogLevel );
+
+    wLogLevel = new CCombo( gDetails, SWT.READ_ONLY | SWT.BORDER );
+    wLogLevel.setToolTipText( BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.LogLevel.Tooltip" ) );
+    props.setLook( wLogLevel );
+    FormData fdLogLevel = new FormData();
+    fdLogLevel.top = new FormAttachment( wlLogLevel, -2, SWT.TOP );
+    fdLogLevel.width = 180;
+    fdLogLevel.left = new FormAttachment( wlLogLevel, 6 );
+    wLogLevel.setLayoutData( fdLogLevel );
+    wLogLevel.setItems( LogLevel.getLogLevelDescriptions() );
+
     wClearLog = new Button( gDetails, SWT.CHECK );
     wClearLog.setText( BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.ClearLog.Label" ) );
     wClearLog.setToolTipText( BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.ClearLog.Tooltip" ) );
     props.setLook( wClearLog );
     FormData fdClearLog = new FormData();
-    fdClearLog.top = new FormAttachment( 0, 10 );
+    fdClearLog.top = new FormAttachment( wLogLevel, 10 );
     fdClearLog.left = new FormAttachment( 0, 10 );
     wClearLog.setLayoutData( fdClearLog );
 
@@ -81,47 +102,27 @@ public class TransExecutionConfigurationDialog extends ConfigurationDialog {
 
     wGatherMetrics = new Button( gDetails, SWT.CHECK );
     wGatherMetrics.setText( BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.GatherMetrics.Label" ) );
-    wGatherMetrics.setToolTipText( BaseMessages.getString( PKG,
-      "TransExecutionConfigurationDialog.GatherMetrics.Tooltip" ) );
+    wGatherMetrics.setToolTipText( BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.GatherMetrics.Tooltip" ) );
     props.setLook( wGatherMetrics );
     FormData fdGatherMetrics = new FormData();
     fdGatherMetrics.top = new FormAttachment( wSafeMode, 7 );
     fdGatherMetrics.left = new FormAttachment( 0, 10 );
     fdGatherMetrics.bottom = new FormAttachment( 100, -10 );
     wGatherMetrics.setLayoutData( fdGatherMetrics );
-
-    wlLogLevel = new Label( gDetails, SWT.NONE );
-    props.setLook( wlLogLevel );
-    wlLogLevel.setText( BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.LogLevel.Label" ) );
-    wlLogLevel.setToolTipText( BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.LogLevel.Tooltip" ) );
-    FormData fdlLogLevel = new FormData();
-    fdlLogLevel.top = new FormAttachment( 0, 10 );
-    fdlLogLevel.left = new FormAttachment( 45, 0 );
-    wlLogLevel.setLayoutData( fdlLogLevel );
-
-    wLogLevel = new CCombo( gDetails, SWT.READ_ONLY | SWT.BORDER );
-    wLogLevel.setToolTipText( BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.LogLevel.Tooltip" ) );
-    props.setLook( wLogLevel );
-    FormData fdLogLevel = new FormData();
-    fdLogLevel.top = new FormAttachment( wlLogLevel, -2, SWT.TOP );
-    fdLogLevel.width = 180;
-    fdLogLevel.left = new FormAttachment( wlLogLevel, 6 );
-    wLogLevel.setLayoutData( fdLogLevel );
-    wLogLevel.setItems( LogLevel.getLogLevelDescriptions() );
   }
 
   public boolean open() {
-
     mainLayout( PKG, "TransExecutionConfigurationDialog", GUIResource.getInstance().getImageTransGraph() );
+
+    String docUrl = Const.getDocUrl( BaseMessages.getString( HopUi.class, "Spoon.TransExecutionConfigurationDialog.Help" ) );
+    String docTitle = BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.docTitle" );
+    String docHeader = BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.docHeader" );
+    buttonsSectionLayout( PKG, "TransExecutionConfigurationDialog", docTitle, docUrl, docHeader );
+
     runConfigurationSectionLayout( PKG, "TransExecutionConfigurationDialog" );
     optionsSectionLayout( PKG, "TransExecutionConfigurationDialog" );
     parametersSectionLayout( PKG, "TransExecutionConfigurationDialog" );
 
-    String docUrl =
-      Const.getDocUrl( BaseMessages.getString( HopUi.class, "Spoon.TransExecutionConfigurationDialog.Help" ) );
-    String docTitle = BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.docTitle" );
-    String docHeader = BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.docHeader" );
-    buttonsSectionLayout( PKG, "TransExecutionConfigurationDialog", docTitle, docUrl, docHeader );
 
     getData();
     openDialog();
@@ -156,8 +157,7 @@ public class TransExecutionConfigurationDialog extends ConfigurationDialog {
 
     List<String> runConfigurations = new ArrayList<>();
     try {
-      ExtensionPointHandler
-        .callExtensionPoint( HopUi.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id,
+      ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopExtensionPoint.HopUiRunConfiguration.id,
           new Object[] { runConfigurations, TransMeta.XML_TAG } );
     } catch ( HopException e ) {
       // Ignore errors
@@ -180,7 +180,6 @@ public class TransExecutionConfigurationDialog extends ConfigurationDialog {
 
   public void getInfo() {
     try {
-      configuration.setReplayDate( null ); // removed from new execution dialog.
       getConfiguration().setRunConfiguration( wRunConfiguration.getText() );
 
       configuration.setSafeModeEnabled( wSafeMode.getSelection() );

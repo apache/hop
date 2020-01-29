@@ -261,16 +261,6 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
   }
 
   /**
-   * Default a step doesn't use any arguments. Implement this to notify the GUI that a window has to be displayed BEFORE
-   * launching a transformation.
-   *
-   * @return A row of argument values. (name and optionally a default value)
-   */
-  public Map<String, String> getUsedArguments() {
-    return null;
-  }
-
-  /**
    * The natural way of data flow in a transformation is source-to-target. However, this makes mapping to target tables
    * difficult to do. To help out here, we supply information to the transformation meta-data model about which fields
    * are required for a step. This allows us to automate certain tasks like the mapping to pre-defined tables. The Table

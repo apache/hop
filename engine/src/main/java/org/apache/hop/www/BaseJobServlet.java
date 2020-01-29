@@ -38,10 +38,11 @@ import org.apache.hop.job.JobExecutionConfiguration;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransAdapter;
+import org.apache.hop.trans.ExecutionAdapter;
 import org.apache.hop.trans.TransConfiguration;
 import org.apache.hop.trans.TransExecutionConfiguration;
 import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.engine.IEngine;
 
 import java.util.Map;
 import java.util.UUID;
@@ -69,7 +70,6 @@ public abstract class BaseJobServlet extends BodyHttpServlet {
     job.getJobMeta().setMetaStore( jobMap.getSlaveServerConfig().getMetaStore() );
     job.getJobMeta().setInternalHopVariables( job );
     job.injectVariables( jobConfiguration.getJobExecutionConfiguration().getVariables() );
-    job.setArguments( jobExecutionConfiguration.getArgumentStrings() );
     job.setSocketRepository( getSocketRepository() );
 
     copyJobParameters( job, jobExecutionConfiguration.getParams() );
@@ -125,9 +125,9 @@ public abstract class BaseJobServlet extends BodyHttpServlet {
             HopVFS.getFileObject( realLogFilename ), transExecutionConfiguration.isSetAppendLogfile() );
         logChannelFileWriter.startLogging();
 
-        trans.addTransListener( new TransAdapter() {
+        trans.addTransListener( new ExecutionAdapter<TransMeta>() {
           @Override
-          public void transFinished( Trans trans ) throws HopException {
+          public void finished( IEngine<TransMeta> trans ) throws HopException {
             if ( logChannelFileWriter != null ) {
               logChannelFileWriter.stopLogging();
             }

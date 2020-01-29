@@ -41,6 +41,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class GetTransImageServlet extends BaseHttpServlet implements HopServerPluginInterface {
 
@@ -191,8 +192,7 @@ public class GetTransImageServlet extends BaseHttpServlet implements HopServerPl
     SwingGC gc = new SwingGC( null, maximum, 32, 0, 0 );
     TransPainter transPainter =
       new TransPainter(
-        gc, transMeta, maximum, null, null, null, null, null, new ArrayList<AreaOwner>(),
-        new ArrayList<StepMeta>(), 32, 1, 0, 0, true, "Arial", 10 );
+        gc, transMeta, maximum, null, null, null, null, null, new ArrayList<AreaOwner>(), 32, 1, 0, 0, true, "Arial", 10, 1.0d );
     transPainter.setMagnification( magnification );
     transPainter.buildTransformationImage();
 

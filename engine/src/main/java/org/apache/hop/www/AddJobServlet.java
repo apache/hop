@@ -207,7 +207,6 @@ public class AddJobServlet extends BaseHttpServlet implements HopServerPluginInt
       job.initializeVariablesFrom( null );
       job.getJobMeta().setInternalHopVariables( job );
       job.injectVariables( jobConfiguration.getJobExecutionConfiguration().getVariables() );
-      job.setArguments( jobExecutionConfiguration.getArgumentStrings() );
 
       // Also copy the parameters over...
       //

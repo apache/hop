@@ -119,15 +119,15 @@ public class GUIResource {
 
   private ManagedColor colorDirectory;
 
-  private ManagedColor colorPentaho;
+  private ManagedColor colorHop;
 
-  private ManagedColor colorLightPentaho;
+  private ManagedColor colorLight;
 
-  private ManagedColor colorCreamPentaho;
+  private ManagedColor colorCream;
 
   private ManagedColor colorLightBlue;
 
-  private ManagedColor colorCrystalTextPentaho;
+  private ManagedColor colorCrystalText;
 
   private ManagedColor colorHopDefault;
 
@@ -526,12 +526,12 @@ public class GUIResource {
     colorLightBlue = new ManagedColor( display, 135, 206, 250 ); // light sky blue
 
     colorDirectory = new ManagedColor( display, 0, 0, 255 );
-    // colorPentaho = new ManagedColor(display, 239, 128, 51 ); // Orange
-    colorPentaho = new ManagedColor( display, 188, 198, 82 );
-    colorLightPentaho = new ManagedColor( display, 238, 248, 152 );
-    colorCreamPentaho = new ManagedColor( display, 248, 246, 231 );
+    // colorHop = new ManagedColor(display, 239, 128, 51 ); // Orange
+    colorHop = new ManagedColor( display, 188, 198, 82 );
+    colorLight = new ManagedColor( display, 238, 248, 152 );
+    colorCream = new ManagedColor( display, 248, 246, 231 );
 
-    colorCrystalTextPentaho = new ManagedColor( display, 61, 99, 128 );
+    colorCrystalText = new ManagedColor( display, 61, 99, 128 );
 
     colorHopDefault = new ManagedColor( display, 61, 99, 128 );
 
@@ -569,9 +569,9 @@ public class GUIResource {
     colorLightBlue.dispose();
 
     colorDirectory.dispose();
-    colorPentaho.dispose();
-    colorLightPentaho.dispose();
-    colorCreamPentaho.dispose();
+    colorHop.dispose();
+    colorLight.dispose();
+    colorCream.dispose();
 
     disposeColors( colorMap.values() );
 
@@ -1960,10 +1960,10 @@ public class GUIResource {
   }
 
   /**
-   * @return the colorPentaho
+   * @return the color
    */
-  public Color getColorPentaho() {
-    return colorPentaho.getColor();
+  public Color getColorHop() {
+    return colorHop.getColor();
   }
 
   /**
@@ -1974,24 +1974,24 @@ public class GUIResource {
   }
 
   /**
-   * @return the colorLightPentaho
+   * @return the colorLight
    */
-  public Color getColorLightPentaho() {
-    return colorLightPentaho.getColor();
+  public Color getColorLight() {
+    return colorLight.getColor();
   }
 
   /**
-   * @return the colorCreamPentaho
+   * @return the colorCream
    */
-  public Color getColorCreamPentaho() {
-    return colorCreamPentaho.getColor();
+  public Color getColorCream() {
+    return colorCream.getColor();
   }
 
   /**
-   * @return the default color of text in the Pentaho Crystal theme
+   * @return the default color of text in the Crystal theme
    */
-  public Color getColorCrystalTextPentaho() {
-    return colorCrystalTextPentaho.getColor();
+  public Color getColorCrystalText() {
+    return colorCrystalText.getColor();
   }
 
   /**
@@ -2015,19 +2015,19 @@ public class GUIResource {
     return colorDeprecated.getColor();
   }
 
-  public void drawPentahoGradient( Display display, GC gc, Rectangle rect, boolean vertical ) {
+  public void drawGradient( Display display, GC gc, Rectangle rect, boolean vertical ) {
     if ( !vertical ) {
       gc.setForeground( display.getSystemColor( SWT.COLOR_WIDGET_BACKGROUND ) );
-      gc.setBackground( GUIResource.getInstance().getColorPentaho() );
+      gc.setBackground( GUIResource.getInstance().getColorHop() );
       gc.fillGradientRectangle( rect.x, rect.y, 2 * rect.width / 3, rect.height, vertical );
-      gc.setForeground( GUIResource.getInstance().getColorPentaho() );
+      gc.setForeground( GUIResource.getInstance().getColorHop() );
       gc.setBackground( display.getSystemColor( SWT.COLOR_WIDGET_BACKGROUND ) );
       gc.fillGradientRectangle( rect.x + 2 * rect.width / 3, rect.y, rect.width / 3 + 1, rect.height, vertical );
     } else {
       gc.setForeground( display.getSystemColor( SWT.COLOR_WIDGET_BACKGROUND ) );
-      gc.setBackground( GUIResource.getInstance().getColorPentaho() );
+      gc.setBackground( GUIResource.getInstance().getColorHop() );
       gc.fillGradientRectangle( rect.x, rect.y, rect.width, 2 * rect.height / 3, vertical );
-      gc.setForeground( GUIResource.getInstance().getColorPentaho() );
+      gc.setForeground( GUIResource.getInstance().getColorHop() );
       gc.setBackground( display.getSystemColor( SWT.COLOR_WIDGET_BACKGROUND ) );
       gc.fillGradientRectangle( rect.x, rect.y + 2 * rect.height / 3, rect.width, rect.height / 3 + 1, vertical );
     }

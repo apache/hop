@@ -2,7 +2,9 @@ package org.apache.hop.core.gui.plugin;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,9 +18,11 @@ public class GuiRegistry {
   private static GuiRegistry guiRegistry;
 
   private Map<String, Map<String, GuiElements>> dataElementsMap;
+  private Map<String, List<KeyboardShortcut>> shortCutsMap;
 
   private GuiRegistry() {
     dataElementsMap = new HashMap<>();
+    shortCutsMap = new HashMap<>(  );
   }
 
   public static final GuiRegistry getInstance() {
@@ -197,4 +201,19 @@ public class GuiRegistry {
       }
     }
   }
+
+  public void addKeyboardShortcut( String parentClassName, Method parentMethod, GuiKeyboardShortcut shortcut ) {
+    List<KeyboardShortcut> shortcuts = shortCutsMap.get( parentClassName );
+    if (shortcuts==null) {
+      shortcuts = new ArrayList<>(  );
+      shortCutsMap.put(parentClassName, shortcuts);
+    }
+    shortcuts.add(new KeyboardShortcut( shortcut, parentMethod ));
+  }
+
+  public List<KeyboardShortcut> getKeyboardShortcuts( String parentClassName ) {
+    List<KeyboardShortcut> shortcuts = shortCutsMap.get( parentClassName );
+    return shortcuts;
+  }
+
 }

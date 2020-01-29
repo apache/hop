@@ -672,29 +672,53 @@ public abstract class BasePluginType implements PluginTypeInterface {
     return new HopURLClassLoader( urls.toArray( new URL[ urls.size() ] ), classLoader );
   }
 
+  protected String extractCategory( Annotation annotation ) {
+    return null;
+  }
+
   protected abstract String extractID( java.lang.annotation.Annotation annotation );
 
   protected abstract String extractName( java.lang.annotation.Annotation annotation );
 
   protected abstract String extractDesc( java.lang.annotation.Annotation annotation );
 
-  protected abstract String extractCategory( java.lang.annotation.Annotation annotation );
-
-  protected abstract String extractImageFile( java.lang.annotation.Annotation annotation );
-
-  protected abstract boolean extractSeparateClassLoader( java.lang.annotation.Annotation annotation );
-
-  protected abstract String extractI18nPackageName( java.lang.annotation.Annotation annotation );
-
-  protected abstract String extractDocumentationUrl( java.lang.annotation.Annotation annotation );
-
-  protected abstract String extractSuggestion( java.lang.annotation.Annotation annotation );
-
-  protected abstract String extractCasesUrl( java.lang.annotation.Annotation annotation );
-
-  protected abstract String extractForumUrl( java.lang.annotation.Annotation annotation );
-
+  /**
+   * Extract extra classes information from a plugin annotation.
+   *
+   * @param annotation
+   */
   protected String extractClassLoaderGroup( java.lang.annotation.Annotation annotation ) {
+    return null;
+  }
+
+  protected String extractImageFile( Annotation annotation ) {
+    return null;
+  }
+
+  protected boolean extractSeparateClassLoader( Annotation annotation ) {
+    return false;
+  }
+
+  protected String extractI18nPackageName( Annotation annotation ) {
+    return null;
+  }
+
+  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Annotation annotation ) {
+  }
+
+  protected String extractDocumentationUrl( Annotation annotation ) {
+    return null;
+  }
+
+  protected String extractCasesUrl( Annotation annotation ) {
+    return null;
+  }
+
+  protected String extractForumUrl( Annotation annotation ) {
+    return null;
+  }
+
+  protected String extractSuggestion( Annotation annotation ) {
     return null;
   }
 
@@ -798,15 +822,6 @@ public abstract class BasePluginType implements PluginTypeInterface {
         + ids[ 0 ] + "] has " + libraries.size() + " libaries in its private class path" );
     }
   }
-
-  /**
-   * Extract extra classes information from a plugin annotation.
-   *
-   * @param classMap
-   * @param clazz
-   * @param annotation
-   */
-  protected abstract void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Annotation annotation );
 
   private String addDeprecation( String category ) {
     String deprecated = BaseMessages.getString( PKG, "PluginRegistry.Category.Deprecated" );

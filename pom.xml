@@ -121,7 +121,6 @@
     <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
     <iterator-maven-plugin.version>0.5.1</iterator-maven-plugin.version>
     <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
-    <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
     <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
     <maven-failsafe-plugin.version>2.21.0</maven-failsafe-plugin.version>
     <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
@@ -162,9 +161,6 @@
     <maven.compiler.source>${source.jdk.version}</maven.compiler.source>
     <maven.compiler.target>${target.jdk.version}</maven.compiler.target>
     <compilerArgument/>
-    <checkstyle.version>8.18</checkstyle.version>
-    <coding-standards.version>8.2.0.7-719</coding-standards.version>
-<!--    <spotbugs.version>3.1.3</spotbugs.version>-->
 
     <!-- PHASE BINDINGS -->
     <set-highest-basedir-phase>initialize</set-highest-basedir-phase>
@@ -235,12 +231,6 @@
     <license.licenseFile>LICENSE.txt</license.licenseFile>
     <license.bundleLicenseFile>META-INF/LICENSE.txt</license.bundleLicenseFile>
     <license.failOnLicenseCheck>false</license.failOnLicenseCheck>
-
-    <!-- Chechstyle configuration -->
-    <!--  configuration file comes from coding-standards artifact -->
-    <checkstyle.configLocation>checkstyle/pentaho_checks.xml</checkstyle.configLocation>
-    <checkstyle.consoleOutput>true</checkstyle.consoleOutput>
-    <checkstyle.linkXRef>true</checkstyle.linkXRef>
 
     <!-- Documentation properties -->
     <!-- parsedVersion.* properties are dynamically created by the build-helper-maven-plugin:create-doc-version-property -->
@@ -767,9 +757,6 @@
       </plugins>
     </pluginManagement>
     <plugins>
-      <plugin>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
       </plugin>

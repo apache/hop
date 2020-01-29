@@ -179,7 +179,7 @@ public class TransPartitioningTest {
   public void testOneToManyCopies() throws HopException {
     prepareStepMetas_1_x2();
 
-    trans.prepareExecution( new String[] {} );
+    trans.prepareExecution();
     List<RowSet> rowsets = trans.getRowsets();
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 2 rowsets finally", 2, rowsets.size() );
@@ -208,7 +208,7 @@ public class TransPartitioningTest {
   public void testManyToManyCopies() throws HopException {
     prepareStepMetas_x2_x2();
 
-    trans.prepareExecution( new String[] {} );
+    trans.prepareExecution();
     List<RowSet> rowsets = trans.getRowsets();
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 2 rowsets finally", 2, rowsets.size() );
@@ -241,7 +241,7 @@ public class TransPartitioningTest {
   public void testManyToOneCopies() throws HopException {
     prepareStepMetas_x2_1();
 
-    trans.prepareExecution( new String[] {} );
+    trans.prepareExecution();
     List<RowSet> rowsets = trans.getRowsets();
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 2 rowsets finally", 2, rowsets.size() );
@@ -270,7 +270,7 @@ public class TransPartitioningTest {
   public void testOneToPartitioningSchema() throws HopException {
     prepareStepMetas_1_cl1();
 
-    trans.prepareExecution( new String[] {} );
+    trans.prepareExecution();
     List<RowSet> rowsets = trans.getRowsets();
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 2 rowsets finally", 2, rowsets.size() );
@@ -300,7 +300,7 @@ public class TransPartitioningTest {
   public void testSwimLanesPartitioning() throws HopException {
     prepareStepMetas_cl1_cl1();
 
-    trans.prepareExecution( new String[] {} );
+    trans.prepareExecution();
     List<RowSet> rowsets = trans.getRowsets();
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 2 rowsets finally", 2, rowsets.size() );
@@ -335,7 +335,7 @@ public class TransPartitioningTest {
   public void testDifferentPartitioningFlow() throws HopException {
     prepareStepMetas_cl1_cl2();
 
-    trans.prepareExecution( new String[] {} );
+    trans.prepareExecution();
     List<RowSet> rowsets = trans.getRowsets();
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 4 rowsets finally since repartitioning happens", 4, rowsets.size() );
@@ -369,7 +369,7 @@ public class TransPartitioningTest {
   public void testManyCopiesToPartitioningFlow() throws HopException {
     prepareStepMetas_x2_cl1();
 
-    trans.prepareExecution( new String[] {} );
+    trans.prepareExecution();
     List<RowSet> rowsets = trans.getRowsets();
     assertTrue( !rowsets.isEmpty() );
     assertEquals( "We have 4 rowsets finally since repartitioning happens", 4, rowsets.size() );

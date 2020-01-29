@@ -148,7 +148,6 @@ public abstract class HopGuiAbstractGraph extends Composite {
         parentTabItem.setFont( defaultFont );
       }
     }
-
     canvas.redraw();
   }
 
@@ -226,7 +225,7 @@ public abstract class HopGuiAbstractGraph extends Composite {
   }
 
   public void dispose() {
-    super.dispose();
+    parentTabItem.dispose();
   }
 
   /**

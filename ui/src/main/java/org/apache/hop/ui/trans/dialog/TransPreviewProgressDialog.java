@@ -150,7 +150,7 @@ public class TransPreviewProgressDialog {
     // Prepare the execution...
     //
     try {
-      trans.prepareExecution( null );
+      trans.prepareExecution();
     } catch ( final HopException e ) {
       if ( showErrorDialogs ) {
         shell.getDisplay().asyncExec( new Runnable() {

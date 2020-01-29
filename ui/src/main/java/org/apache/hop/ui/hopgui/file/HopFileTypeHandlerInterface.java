@@ -76,6 +76,11 @@ public interface HopFileTypeHandlerInterface {
   boolean isCloseable();
 
   /**
+   * Actually close the file, remove it from the user interface.
+   */
+  void close();
+
+  /**
    * See if there anything has been changed by the user
    * @return true if there were changes worth saving, false if nothing has been changed.
    */

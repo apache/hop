@@ -96,7 +96,7 @@ public class TransExecutorUnitTest {
 
     internalTrans = spy( new Trans() );
     internalTrans.setLog( mock( LogChannelInterface.class ) );
-    doNothing().when( internalTrans ).prepareExecution( any( String[].class ) );
+    doNothing().when( internalTrans ).prepareExecution();
     doNothing().when( internalTrans ).startThreads();
     doNothing().when( internalTrans ).waitUntilFinished();
     doNothing().when( executor ).discardLogLines( any( TransExecutorData.class ) );

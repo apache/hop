@@ -30,6 +30,7 @@ public class GuiElements {
   private GuiElementType type;
 
   private String image;
+  private String disabledImage;
 
   private boolean variablesEnabled;
 
@@ -80,6 +81,7 @@ public class GuiElements {
     this.setterMethod = calculateSetterMethod( guiElement, fieldName );
     this.getComboValuesMethod = guiElement.comboValuesMethod();
     this.image = guiElement.image();
+    this.disabledImage = null;
     this.variablesEnabled = guiElement.variables();
     this.password = guiElement.password();
     this.i18nPackage = guiElement.i18nPackage();
@@ -107,6 +109,7 @@ public class GuiElements {
     this.setterMethod = null;
     this.getComboValuesMethod = toolbarElement.comboValuesMethod();
     this.image = toolbarElement.image();
+    this.disabledImage = toolbarElement.disabledImage();
     this.variablesEnabled = toolbarElement.variables();
     this.password = toolbarElement.password();
     this.i18nPackage = toolbarElement.i18nPackage();
@@ -319,6 +322,22 @@ public class GuiElements {
    */
   public void setImage( String image ) {
     this.image = image;
+  }
+
+  /**
+   * Gets disabledImage
+   *
+   * @return value of disabledImage
+   */
+  public String getDisabledImage() {
+    return disabledImage;
+  }
+
+  /**
+   * @param disabledImage The disabledImage to set
+   */
+  public void setDisabledImage( String disabledImage ) {
+    this.disabledImage = disabledImage;
   }
 
   /**

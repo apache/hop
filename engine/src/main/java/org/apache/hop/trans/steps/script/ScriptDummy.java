@@ -266,6 +266,18 @@ public class ScriptDummy implements StepInterface {
     return null;
   }
 
+  @Override public String getLogText() {
+    return null;
+  }
+
+  @Override public String getName() {
+    return null;
+  }
+
+  @Override public int getCopyNr() {
+    return 0;
+  }
+
   public boolean isUsingThreadPriorityManagment() {
     return false;
   }

@@ -2,7 +2,7 @@
  *
  * Pentaho Data Integration
  *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -23,22 +23,35 @@
 package org.apache.hop.trans;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.trans.engine.IEngine;
 
 /**
- * Utility class to allow only certain methods of TransListener to be overridden.
- *
- * @author matt
+ * A listener for execution engines
+ * @param <T> The executing object/subject (TransMeta)
  */
-public class TransAdapter implements TransListener {
+public interface ExecutionListener<T> {
 
-  @Override public void transStarted( Trans trans ) throws HopException {
+  /**
+   * The execution started
+   *
+   * @param engine
+   * @throws HopException
+   */
+  void started( IEngine<T> engine ) throws HopException;
 
-  }
+  /**
+   * This transformation went from an in-active to an active state.
+   *
+   * @param engine
+   * @throws HopException
+   */
+  public void becameActive( IEngine<T> engine );
 
-  @Override public void transActive( Trans trans ) {
-  }
-
-  @Override public void transFinished( Trans trans ) throws HopException {
-  }
-
+  /**
+   * The transformation has finished.
+   *
+   * @param engine
+   * @throws HopException
+   */
+  public void finished( IEngine<T> engine ) throws HopException;
 }

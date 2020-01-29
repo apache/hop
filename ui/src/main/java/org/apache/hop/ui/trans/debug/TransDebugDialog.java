@@ -287,7 +287,7 @@ public class TransDebugDialog extends Dialog {
       if ( stepDebugMeta != null ) {
         // We have debugging information so we mark the row
         //
-        item.setBackground( resource.getColorLightPentaho() );
+        item.setBackground( resource.getColorLight() );
         if ( indexSelected < 0 ) {
           indexSelected = i;
         }

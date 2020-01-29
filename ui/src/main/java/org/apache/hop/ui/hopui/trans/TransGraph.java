@@ -66,6 +66,7 @@ import org.apache.hop.job.Job;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.lineage.TransDataLineage;
 import org.apache.hop.trans.DatabaseImpact;
+import org.apache.hop.trans.ExecutionAdapter;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransExecutionConfiguration;
 import org.apache.hop.trans.TransHopMeta;
@@ -75,6 +76,7 @@ import org.apache.hop.trans.debug.BreakPointListener;
 import org.apache.hop.trans.debug.StepDebugMeta;
 import org.apache.hop.trans.debug.TransDebugMeta;
 import org.apache.hop.trans.debug.TransDebugMetaWrapper;
+import org.apache.hop.trans.engine.IEngine;
 import org.apache.hop.trans.step.RemoteStep;
 import org.apache.hop.trans.step.RowDistributionInterface;
 import org.apache.hop.trans.step.RowDistributionPluginType;
@@ -261,7 +263,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
 
   private StepMeta selectedStep;
 
-  private List<StepMeta> mouseOverSteps;
+  private Set<StepMeta> mouseOverSteps;
 
   private List<NotePadMeta> selectedNotes;
 
@@ -415,7 +417,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
     this.log = hopUi.getLog();
     hopUi.clearSearchFilter();
 
-    this.mouseOverSteps = new ArrayList<>();
+    this.mouseOverSteps = new HashSet<>();
     this.delayTimers = new HashMap<>();
 
     transLogDelegate = new TransLogDelegate( hopUi, this );
@@ -3216,7 +3218,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
     Image img = getTransformationImage( disp, area.x, area.y, magnification );
     e.gc.drawImage( img, 0, 0 );
     if ( transMeta.nrSteps() == 0 ) {
-      e.gc.setForeground( GUIResource.getInstance().getColorCrystalTextPentaho() );
+      e.gc.setForeground( GUIResource.getInstance().getColorCrystalText() );
       e.gc.setFont( GUIResource.getInstance().getFontMedium() );
 
       Image pentahoImage = GUIResource.getInstance().getImageTransCanvas();
@@ -3238,11 +3240,11 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
 
     TransPainter transPainter =
       new TransPainter( gc, transMeta, new Point( x, y ), new SwtScrollBar( hori ), new SwtScrollBar( vert ),
-        candidate, drop_candidate, selectionRegion, areaOwners, mouseOverSteps,
+        candidate, drop_candidate, selectionRegion, areaOwners,
         PropsUI.getInstance().getIconSize(), PropsUI.getInstance().getLineWidth(), gridSize,
         PropsUI.getInstance().getShadowSize(), PropsUI.getInstance()
         .isAntiAliasingEnabled(), PropsUI.getInstance().getNoteFont().getName(), PropsUI.getInstance()
-        .getNoteFont().getHeight(), trans, PropsUI.getInstance().isIndicateSlowTransStepsEnabled() );
+        .getNoteFont().getHeight(), trans, PropsUI.getInstance().isIndicateSlowTransStepsEnabled(), PropsUI.getInstance().getZoomFactor() );
 
     transPainter.setMagnification( magnificationFactor );
     transPainter.setStepLogMap( stepLogMap );
@@ -3754,20 +3756,6 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
     sashForm.setWeights( new int[] { 60, 40, } );
   }
 
-  /**
-   * @deprecated Deprecated as of 8.0. Seems unused; will be to remove in 8.1 (ccaspanello)
-   */
-  @Deprecated
-  public void checkErrors() {
-    if ( trans != null ) {
-      if ( !trans.isFinished() ) {
-        if ( trans.getErrors() != 0 ) {
-          trans.killAll();
-        }
-      }
-    }
-  }
-
   public synchronized void start( TransExecutionConfiguration executionConfiguration ) throws HopException {
     // Auto save feature...
     handleTransMetaChanges( transMeta );
@@ -3819,7 +3807,6 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
           trans.setParent( spoonLoggingObject );
 
           trans.setLogLevel( executionConfiguration.getLogLevel() );
-          trans.setReplayDate( executionConfiguration.getReplayDate() );
           trans.setMonitored( true );
           log.logBasic( BaseMessages.getString( PKG, "TransLog.Log.TransformationOpened" ) );
         } catch ( HopException e ) {
@@ -3828,16 +3815,8 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
             BaseMessages.getString( PKG, "TransLog.Dialog.ErrorOpeningTransformation.Message" ), e );
         }
         if ( trans != null ) {
-          Map<String, String> arguments = executionConfiguration.getArguments();
-          final String[] args;
-          if ( arguments != null ) {
-            args = convertArguments( arguments );
-          } else {
-            args = null;
-          }
 
-          log.logMinimal( BaseMessages.getString( PKG, "TransLog.Log.LaunchingTransformation" )
-            + trans.getTransMeta().getName() + "]..." );
+          log.logMinimal( BaseMessages.getString( PKG, "TransLog.Log.LaunchingTransformation" ) + trans.getTransMeta().getName() + "]..." );
 
           trans.setSafeModeEnabled( executionConfiguration.isSafeModeEnabled() );
           trans.setGatheringMetrics( executionConfiguration.isGatheringMetrics() );
@@ -3851,7 +3830,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
             @Override
             public void run() {
               addAllTabs();
-              prepareTrans( parentThread, args );
+              prepareTrans( parentThread );
             }
           } );
 
@@ -3927,11 +3906,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
         if ( log.isDetailed() ) {
           log.logDetailed( BaseMessages.getString( PKG, "TransLog.Log.DoPreview" ) );
         }
-        String[] args = null;
-        Map<String, String> arguments = executionConfiguration.getArguments();
-        if ( arguments != null ) {
-          args = convertArguments( arguments );
-        }
+
         transMeta.injectVariables( executionConfiguration.getVariables() );
 
         // Set the named parameters
@@ -3963,7 +3938,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
         trans.setPreview( true );
         trans.setGatheringMetrics( executionConfiguration.isGatheringMetrics() );
         trans.setMetaStore( hopUi.getMetaStore() );
-        trans.prepareExecution( args );
+        trans.prepareExecution();
 
         List<HopUiExtenderPluginInterface> relevantExtenders =
           HopUiExtenderPluginType.getInstance().getRelevantExtenders( TransDebugMetaWrapper.class, PREVIEW_TRANS );
@@ -4203,12 +4178,12 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
 
   }
 
-  private synchronized void prepareTrans( final Thread parentThread, final String[] args ) {
+  private synchronized void prepareTrans( final Thread parentThread ) {
     Runnable runnable = new Runnable() {
       @Override
       public void run() {
         try {
-          trans.prepareExecution( args );
+          trans.prepareExecution();
 
           // Do we capture data?
           //
@@ -4247,10 +4222,10 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
       // Add a listener to the transformation.
       // If the transformation is done, we want to do the end processing, etc.
       //
-      trans.addTransListener( new org.apache.hop.trans.TransAdapter() {
+      trans.addTransListener( new ExecutionAdapter<TransMeta>() {
 
         @Override
-        public void transFinished( Trans trans ) {
+        public void finished( IEngine<TransMeta> trans ) {
           checkTransEnded();
           checkErrorVisuals();
           stopRedrawTimer();
@@ -4604,10 +4579,10 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
       halted = trans.isStopped();
 
       if ( running ) {
-        trans.addTransListener( new org.apache.hop.trans.TransAdapter() {
+        trans.addTransListener( new ExecutionAdapter<TransMeta>() {
 
           @Override
-          public void transFinished( Trans trans ) {
+          public void finished( IEngine<TransMeta> trans ) {
             checkTransEnded();
             checkErrorVisuals();
           }

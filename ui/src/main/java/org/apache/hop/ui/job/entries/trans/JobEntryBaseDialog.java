@@ -117,9 +117,6 @@ public abstract class JobEntryBaseDialog extends JobEntryDialog {
   protected Label wlLoglevel;
   protected CCombo wLoglevel;
 
-  protected Label wlPrevious;
-  protected Button wPrevious;
-
   protected Button wPrevToParams;
 
   protected Button wEveryRow;
@@ -127,8 +124,6 @@ public abstract class JobEntryBaseDialog extends JobEntryDialog {
   protected Button wClearRows;
 
   protected Button wClearFiles;
-
-  protected TableView wFields;
 
   protected TableView wParameters;
 
@@ -423,67 +418,11 @@ public abstract class JobEntryBaseDialog extends JobEntryDialog {
     wOptions.setLayoutData( fdLogging );
     // Logging Tab End
 
-    CTabItem wArgumentTab = new CTabItem( wTabFolder, SWT.NONE );
-    wArgumentTab.setText( BaseMessages.getString( PKG, "JobTrans.Fields.Arguments.Label" ) );
-
-    FormLayout fieldLayout = new FormLayout();
-    fieldLayout.marginWidth = 15;
-    fieldLayout.marginHeight = 15;
-
-    Composite wFieldComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wFieldComp );
-    wFieldComp.setLayout( fieldLayout );
-
-    wPrevious = new Button( wFieldComp, SWT.CHECK );
-    props.setLook( wPrevious );
-    wPrevious.setSelection( getArgFromPrev() );
-    wPrevious.setText( BaseMessages.getString( PKG, "JobTrans.Previous.Label" ) );
-    FormData fdCopyResults = new FormData();
-    fdCopyResults.top = new FormAttachment( 0, 0 );
-    fdCopyResults.left = new FormAttachment( 0, 0 );
-    wPrevious.setLayoutData( fdCopyResults );
-    wPrevious.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        wFields.setEnabled( !getArgFromPrev() );
-      }
-    } );
-
-    final int FieldsCols = 1;
-    int rows = getArguments() == null ? 1 : ( getArguments().length == 0 ? 0 : getArguments().length );
-    final int FieldsRows = rows;
-
-    ColumnInfo[] colinf = new ColumnInfo[ FieldsCols ];
-    colinf[ 0 ] =
-      new ColumnInfo(
-        BaseMessages.getString( PKG, "JobTrans.Arguments.Argument.Label" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colinf[ 0 ].setUsingVariables( true );
-
-    wFields =
-      new TableView( jobMeta, wFieldComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.NO_SCROLL | SWT.V_SCROLL,
-        colinf, FieldsRows, false, lsMod, props, false );
-
-    FormData fdFields = new FormData();
-    fdFields.left = new FormAttachment( 0, 0 );
-    fdFields.top = new FormAttachment( wPrevious, 15 );
-    fdFields.right = new FormAttachment( 100, 0 );
-    fdFields.bottom = new FormAttachment( 100, 0 );
-    wFields.setLayoutData( fdFields );
-    wFields.getTable().addListener( SWT.Resize, new ColumnsResizer( 0, 100 ) );
-
-    FormData fdFieldsComp = new FormData();
-    fdFieldsComp.left = new FormAttachment( 0, 0 );
-    fdFieldsComp.top = new FormAttachment( 0, 0 );
-    fdFieldsComp.right = new FormAttachment( 100, 0 );
-    fdFieldsComp.bottom = new FormAttachment( 100, 0 );
-    wFieldComp.setLayoutData( fdFieldsComp );
-
-    wFieldComp.layout();
-    wArgumentTab.setControl( wFieldComp );
 
     CTabItem wParametersTab = new CTabItem( wTabFolder, SWT.NONE );
     wParametersTab.setText( BaseMessages.getString( PKG, "JobTrans.Fields.Parameters.Label" ) );
 
-    fieldLayout = new FormLayout();
+    FormLayout fieldLayout = new FormLayout();
     fieldLayout.marginWidth = 15;
     fieldLayout.marginHeight = 15;
 
@@ -518,19 +457,18 @@ public abstract class JobEntryBaseDialog extends JobEntryDialog {
     fdGetParams.right = new FormAttachment( 100, 0 );
     wbGetParams.setLayoutData( fdGetParams );
 
-    final int parameterRows = getParamters() != null ? getParamters().length : 0;
+    final int parameterRows = getParameters() != null ? getParameters().length : 0;
 
-    colinf =
-      new ColumnInfo[] {
-        new ColumnInfo(
-          BaseMessages.getString( PKG, "JobTrans.Parameters.Parameter.Label" ), ColumnInfo.COLUMN_TYPE_TEXT,
-          false ),
-        new ColumnInfo(
-          BaseMessages.getString( PKG, "JobTrans.Parameters.ColumnName.Label" ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false ),
-        new ColumnInfo(
-          BaseMessages.getString( PKG, "JobTrans.Parameters.Value.Label" ), ColumnInfo.COLUMN_TYPE_TEXT,
-          false ), };
+    ColumnInfo[] colinf = new ColumnInfo[] {
+      new ColumnInfo(
+        BaseMessages.getString( PKG, "JobTrans.Parameters.Parameter.Label" ), ColumnInfo.COLUMN_TYPE_TEXT,
+        false ),
+      new ColumnInfo(
+        BaseMessages.getString( PKG, "JobTrans.Parameters.ColumnName.Label" ),
+        ColumnInfo.COLUMN_TYPE_TEXT, false ),
+      new ColumnInfo(
+        BaseMessages.getString( PKG, "JobTrans.Parameters.Value.Label" ), ColumnInfo.COLUMN_TYPE_TEXT,
+        false ), };
     colinf[ 2 ].setUsingVariables( true );
 
     wParameters =
@@ -703,10 +641,6 @@ public abstract class JobEntryBaseDialog extends JobEntryDialog {
 
   protected abstract Image getImage();
 
-  protected abstract boolean getArgFromPrev();
-
-  protected abstract String[] getArguments();
-
-  protected abstract String[] getParamters();
+  protected abstract String[] getParameters();
 
 }

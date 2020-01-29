@@ -54,11 +54,6 @@ public class HopPerspectivePluginType extends BasePluginType implements PluginTy
   }
 
   @Override
-  protected void registerNatives() throws HopPluginException {
-    super.registerNatives();
-  }
-
-  @Override
   protected String getXmlPluginFile() {
     return Const.XML_FILE_HOP_PERSPECTIVE_PLUGINS;
   }
@@ -79,11 +74,6 @@ public class HopPerspectivePluginType extends BasePluginType implements PluginTy
   }
 
   @Override
-  protected String extractCategory( Annotation annotation ) {
-    return null;
-  }
-
-  @Override
   protected String extractDesc( Annotation annotation ) {
     return ( (HopPerspectivePlugin) annotation ).description();
   }
@@ -96,49 +86,5 @@ public class HopPerspectivePluginType extends BasePluginType implements PluginTy
   @Override
   protected String extractName( Annotation annotation ) {
     return ( (HopPerspectivePlugin) annotation ).name();
-  }
-
-  @Override
-  protected String extractImageFile( Annotation annotation ) {
-    return null;
-  }
-
-  @Override
-  protected boolean extractSeparateClassLoader( Annotation annotation ) {
-    return false;
-  }
-
-  @Override
-  protected String extractI18nPackageName( Annotation annotation ) {
-    return null;
-  }
-
-  @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Annotation annotation ) {
-  }
-
-  @Override
-  protected String extractDocumentationUrl( Annotation annotation ) {
-    return null;
-  }
-
-  @Override
-  protected String extractCasesUrl( Annotation annotation ) {
-    return null;
-  }
-
-  @Override
-  protected String extractForumUrl( Annotation annotation ) {
-    return null;
-  }
-
-  @Override
-  protected String extractSuggestion( Annotation annotation ) {
-    return null;
-  }
-
-  @Override
-  protected String extractClassLoaderGroup( Annotation annotation ) {
-    return null;
   }
 }

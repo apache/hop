@@ -36,6 +36,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.trans.engine.IEngine;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
@@ -100,7 +101,7 @@ public class TransTest {
     meta = new TransMeta();
     trans = new Trans( meta );
     trans.setLog( Mockito.mock( LogChannelInterface.class ) );
-    trans.prepareExecution( null );
+    trans.prepareExecution();
     trans.startThreads();
   }
 
@@ -112,7 +113,7 @@ public class TransTest {
     Trans transWithNoSteps = new Trans( new TransMeta() );
     transWithNoSteps = spy( transWithNoSteps );
 
-    transWithNoSteps.prepareExecution( new String[] {} );
+    transWithNoSteps.prepareExecution();
 
     transWithNoSteps.startThreads();
 
@@ -222,20 +223,20 @@ public class TransTest {
   @Test
   public void testFireTransFinishedListeners() throws Exception {
     Trans trans = new Trans();
-    TransListener mockListener = mock( TransListener.class );
-    trans.setTransListeners( Collections.singletonList( mockListener ) );
+    ExecutionListener mockListener = mock( ExecutionListener.class );
+    trans.setExecutionListeners( Collections.singletonList( mockListener ) );
 
     trans.fireTransFinishedListeners();
 
-    verify( mockListener ).transFinished( trans );
+    verify( mockListener ).finished( trans );
   }
 
   @Test( expected = HopException.class )
   public void testFireTransFinishedListenersExceptionOnTransFinished() throws Exception {
     Trans trans = new Trans();
-    TransListener mockListener = mock( TransListener.class );
-    doThrow( HopException.class ).when( mockListener ).transFinished( trans );
-    trans.setTransListeners( Collections.singletonList( mockListener ) );
+    ExecutionListener mockListener = mock( ExecutionListener.class );
+    doThrow( HopException.class ).when( mockListener ).finished( trans );
+    trans.setExecutionListeners( Collections.singletonList( mockListener ) );
 
     trans.fireTransFinishedListeners();
   }
@@ -433,17 +434,17 @@ public class TransTest {
     }
   }
 
-  private final TransListener listener = new TransListener() {
+  private final ExecutionListener<TransMeta> listener = new ExecutionListener<TransMeta>() {
     @Override
-    public void transStarted( Trans trans ) throws HopException {
+    public void started( IEngine<TransMeta> trans ) throws HopException {
     }
 
     @Override
-    public void transActive( Trans trans ) {
+    public void becameActive( IEngine<TransMeta> trans ) {
     }
 
     @Override
-    public void transFinished( Trans trans ) throws HopException {
+    public void finished( IEngine<TransMeta> trans ) throws HopException {
     }
   };
 

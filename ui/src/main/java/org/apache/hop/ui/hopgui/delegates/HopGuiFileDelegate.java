@@ -143,8 +143,10 @@ public class HopGuiFileDelegate {
       }
       HopFileTypeHandlerInterface typeHandler = getActiveFileTypeHandler();
       if (typeHandler!=null) {
-        typeHandler.isCloseable();
-        return true;
+        if (typeHandler.isCloseable()) {
+          typeHandler.close();
+          return true;
+        }
       }
     } catch(Exception e) {
       new ErrorDialog(hopGui.getShell(), "Error", "Error saving/closing file", e);

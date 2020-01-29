@@ -294,14 +294,6 @@ public interface StepMetaInterface {
    */
   void cancelQueries() throws HopDatabaseException;
 
-  /**
-   * Default a step doesn't use any arguments. Implement this to notify the GUI that a window has to be displayed BEFORE
-   * launching a transformation. You can also use this to specify certain Environment variable values.
-   *
-   * @return A Map of argument values. (name and optionally a default value) Put 10 values in the map for the possible
-   * 10 arguments.
-   */
-  Map<String, String> getUsedArguments();
 
   /**
    * The natural way of data flow in a transformation is source-to-target. However, this makes mapping to target tables

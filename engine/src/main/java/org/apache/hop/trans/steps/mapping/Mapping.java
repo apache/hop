@@ -289,7 +289,7 @@ public class Mapping extends BaseStep implements StepInterface {
     // init is done.
     //
     try {
-      mappingData.getMappingTrans().prepareExecution( getTrans().getArguments() );
+      mappingData.getMappingTrans().prepareExecution();
     } catch ( HopException e ) {
       throw new HopException( BaseMessages.getString( PKG, "Mapping.Exception.UnableToPrepareExecutionOfMapping" ),
         e );

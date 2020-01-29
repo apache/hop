@@ -3,8 +3,6 @@
   <toolbar id="nav-toolbar" mode="icons">
     <toolbarbutton id="refresh-history" label="${TransHistory.Button.Refresh}" image="images/refresh.svg"
       tooltiptext="${TransHistory.Button.Refresh}" onclick="transhistory.refreshHistory()"/>
-    <toolbarbutton id="replay-history" label="${TransHistory.Button.Replay}" image="images/replay.svg"
-      tooltiptext="${TransHistory.Button.Replay}" onclick="transhistory.replayHistory()" />
     <toolbarseparator />
     <toolbarbutton id="clear-history" label="${TransHistory.Button.Clear}" image="images/trash.svg"
       tooltiptext="${TransHistory.Button.Clear}" onclick="transhistory.clearLogTable()" />

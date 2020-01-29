@@ -30,7 +30,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.playlist.FilePlayListAll;
-import org.apache.hop.core.playlist.FilePlayListReplay;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaNumber;
@@ -715,17 +714,7 @@ public class ExcelInput extends BaseStep implements StepInterface {
   }
 
   private void initReplayFactory() {
-    Date replayDate = getTrans().getReplayDate();
-    if ( replayDate == null ) {
-      data.filePlayList = FilePlayListAll.INSTANCE;
-    } else {
-      data.filePlayList =
-        new FilePlayListReplay(
-          replayDate, environmentSubstitute( meta.getLineNumberFilesDestinationDirectory() ), meta
-          .getLineNumberFilesExtension(),
-          environmentSubstitute( meta.getErrorFilesDestinationDirectory() ), meta.getErrorFilesExtension(),
-          "Latin1" );
-    }
+    data.filePlayList = FilePlayListAll.INSTANCE;
   }
 
   /**

@@ -174,7 +174,7 @@ public class SimpleMapping extends BaseStep implements StepInterface {
     // init is done.
     //
     try {
-      simpleMappingData.mappingTrans.prepareExecution( getTrans().getArguments() );
+      simpleMappingData.mappingTrans.prepareExecution();
     } catch ( HopException e ) {
       throw new HopException( BaseMessages.getString( PKG,
         "SimpleMapping.Exception.UnableToPrepareExecutionOfMapping" ), e );

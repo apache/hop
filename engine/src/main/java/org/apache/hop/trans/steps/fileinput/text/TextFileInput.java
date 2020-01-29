@@ -24,7 +24,6 @@ package org.apache.hop.trans.steps.fileinput.text;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.playlist.FilePlayListAll;
-import org.apache.hop.core.playlist.FilePlayListReplay;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
@@ -33,8 +32,6 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.file.BaseFileInputStep;
 import org.apache.hop.trans.steps.file.IBaseFileInputReader;
-
-import java.util.Date;
 
 /**
  * Read all sorts of text files, convert them to rows and writes these to one or more output streams.
@@ -58,15 +55,7 @@ public class TextFileInput extends BaseFileInputStep<TextFileInputMeta, TextFile
 
   @Override
   public boolean init() {
-    Date replayDate = getTrans().getReplayDate();
-    if ( replayDate == null ) {
-      data.filePlayList = FilePlayListAll.INSTANCE;
-    } else {
-      data.filePlayList =
-        new FilePlayListReplay( replayDate, meta.errorHandling.lineNumberFilesDestinationDirectory,
-          meta.errorHandling.lineNumberFilesExtension, meta.errorHandling.errorFilesDestinationDirectory,
-          meta.errorHandling.errorFilesExtension, meta.content.encoding );
-    }
+    data.filePlayList = FilePlayListAll.INSTANCE;
 
     data.filterProcessor = new TextFileFilterProcessor( meta.getFilter(), this );
 

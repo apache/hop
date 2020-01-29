@@ -41,6 +41,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class GetJobImageServlet extends BaseHttpServlet implements HopServerPluginInterface {
 
@@ -193,7 +194,7 @@ public class GetJobImageServlet extends BaseHttpServlet implements HopServerPlug
     JobPainter jobPainter =
       new JobPainter(
         gc, jobMeta, maximum, null, null, null, null, null, new ArrayList<AreaOwner>(),
-        new ArrayList<JobEntryCopy>(), 32, 1, 0, 0, true, "Arial", 10 );
+        new HashSet<JobEntryCopy>(), 32, 1, 0, 0, true, "Arial", 10, 1.0d );
     jobPainter.setMagnification( magnification );
     jobPainter.drawJob();
 

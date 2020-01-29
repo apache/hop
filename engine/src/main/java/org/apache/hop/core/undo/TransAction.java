@@ -59,64 +59,60 @@ import org.apache.hop.trans.step.StepMeta;
 public class TransAction {
   private static Class<?> PKG = TransAction.class; // for i18n purposes, needed by Translator2!!
 
-  public static final int TYPE_ACTION_NONE = 0;
-  public static final int TYPE_ACTION_CHANGE_STEP = 1;
-  public static final int TYPE_ACTION_CHANGE_HOP = 3;
-  public static final int TYPE_ACTION_CHANGE_NOTE = 4;
-  public static final int TYPE_ACTION_NEW_STEP = 5;
-  public static final int TYPE_ACTION_NEW_HOP = 7;
-  public static final int TYPE_ACTION_NEW_NOTE = 8;
-  public static final int TYPE_ACTION_DELETE_STEP = 9;
-  public static final int TYPE_ACTION_DELETE_HOP = 11;
-  public static final int TYPE_ACTION_DELETE_NOTE = 12;
-  public static final int TYPE_ACTION_POSITION_STEP = 13;
-  public static final int TYPE_ACTION_POSITION_NOTE = 14;
+  public enum ActionType {
 
-  public static final int TYPE_ACTION_CHANGE_JOB_ENTRY = 15;
-  public static final int TYPE_ACTION_CHANGE_JOB_HOP = 16;
-  public static final int TYPE_ACTION_NEW_JOB_ENTRY = 17;
-  public static final int TYPE_ACTION_NEW_JOB_HOP = 18;
-  public static final int TYPE_ACTION_DELETE_JOB_ENTRY = 19;
-  public static final int TYPE_ACTION_DELETE_JOB_HOP = 20;
-  public static final int TYPE_ACTION_POSITION_JOB_ENTRY = 21;
+    None(""),
+    
+    ChangeStep(BaseMessages.getString( PKG, "TransAction.label.ChangeStep" )),
+    ChangeHop(BaseMessages.getString( PKG, "TransAction.label.ChangeHop" )),
+    ChangeNote(BaseMessages.getString( PKG, "TransAction.label.ChangeNote" )),
+    
+    NewStep(BaseMessages.getString( PKG, "TransAction.label.NewStep" )),
+    NewHop(BaseMessages.getString( PKG, "TransAction.label.NewHop" )),
+    NewNote(BaseMessages.getString( PKG, "TransAction.label.NewNote" )),
+    DeleteStep(BaseMessages.getString( PKG, "TransAction.label.DeleteStep" )),
+    
+    DeleteHop(BaseMessages.getString( PKG, "TransAction.label.DeleteHop" )),
+    DeleteNote(BaseMessages.getString( PKG, "TransAction.label.DeleteNote" )),
+    
+    PositionStep(BaseMessages.getString( PKG, "TransAction.label.PositionStep" )),
+    PositionNote(BaseMessages.getString( PKG, "TransAction.label.PositionNote" )),
+    
+    ChangeJobEntry(BaseMessages.getString( PKG, "TransAction.label.ChangeJobEntry" )),
+    ChangeJobHop(BaseMessages.getString( PKG, "TransAction.label.ChangeJobHop" )),
+    
+    NewJobEntry(BaseMessages.getString( PKG, "TransAction.label.NewJobEntry" )),
+    NewJobHop(BaseMessages.getString( PKG, "TransAction.label.NewJobHop" )),
 
-  public static final int TYPE_ACTION_CHANGE_TABLEITEM = 22;
-  public static final int TYPE_ACTION_NEW_TABLEITEM = 23;
-  public static final int TYPE_ACTION_DELETE_TABLEITEM = 24;
-  public static final int TYPE_ACTION_POSITION_TABLEITEM = 25;
+    DeleteJobEntry(BaseMessages.getString( PKG, "TransAction.label.DeleteJobEntry" )),
+    DeleteJobHop(BaseMessages.getString( PKG, "TransAction.label.DeleteJobHop" )),
 
-  public static final String[] desc_action = new String[] {
-    "", BaseMessages.getString( PKG, "TransAction.label.ChangeStep" ),
-    BaseMessages.getString( PKG, "TransAction.label.ChangeHop" ),
-    BaseMessages.getString( PKG, "TransAction.label.ChangeNote" ),
-    BaseMessages.getString( PKG, "TransAction.label.NewStep" ),
-    BaseMessages.getString( PKG, "TransAction.label.NewHop" ),
-    BaseMessages.getString( PKG, "TransAction.label.NewNote" ),
-    BaseMessages.getString( PKG, "TransAction.label.DeleteStep" ),
-    BaseMessages.getString( PKG, "TransAction.label.DeleteHop" ),
-    BaseMessages.getString( PKG, "TransAction.label.DeleteNote" ),
-    BaseMessages.getString( PKG, "TransAction.label.PositionStep" ),
-    BaseMessages.getString( PKG, "TransAction.label.PositionNote" ),
-    BaseMessages.getString( PKG, "TransAction.label.ChangeJobEntry" ),
-    BaseMessages.getString( PKG, "TransAction.label.ChangeJobHop" ),
-    BaseMessages.getString( PKG, "TransAction.label.NewJobEntry" ),
-    BaseMessages.getString( PKG, "TransAction.label.NewJobHop" ),
-    BaseMessages.getString( PKG, "TransAction.label.DeleteJobEntry" ),
-    BaseMessages.getString( PKG, "TransAction.label.DeleteJobHop" ),
-    BaseMessages.getString( PKG, "TransAction.label.PositionJobEntry" ),
-    BaseMessages.getString( PKG, "TransAction.label.ChangeTableRow" ),
-    BaseMessages.getString( PKG, "TransAction.label.NewTableRow" ),
-    BaseMessages.getString( PKG, "TransAction.label.DeleteTableRow" ),
-    BaseMessages.getString( PKG, "TransAction.label.PositionTableRow" ),
-    BaseMessages.getString( PKG, "TransAction.label.ChangeTable" ),
-    BaseMessages.getString( PKG, "TransAction.label.ChangeRelationship" ),
-    BaseMessages.getString( PKG, "TransAction.label.NewTable" ),
-    BaseMessages.getString( PKG, "TransAction.label.NewRelationship" ),
-    BaseMessages.getString( PKG, "TransAction.label.DeleteTable" ),
-    BaseMessages.getString( PKG, "TransAction.label.DeleteRelationship" ),
-    BaseMessages.getString( PKG, "TransAction.label.PositionTable" ) };
+    PositionJobEntry(BaseMessages.getString( PKG, "TransAction.label.PositionJobEntry" )),
 
-  private int type;
+    ChangeTableRow(BaseMessages.getString( PKG, "TransAction.label.ChangeTableRow" )),
+    NewTableRow(BaseMessages.getString( PKG, "TransAction.label.NewTableRow" )),
+    DeleteTableRow(BaseMessages.getString( PKG, "TransAction.label.DeleteTableRow" )),
+    PositionTableRow(BaseMessages.getString( PKG, "TransAction.label.PositionTableRow" )),
+    ;
+    
+    private String description;
+    
+    private ActionType(String description) {
+      this.description = description;
+    }
+
+    /**
+     * Gets description
+     *
+     * @return value of description
+     */
+    public String getDescription() {
+      return description;
+    }
+  }
+  
+  
+  private ActionType type;
   private Object[] previous;
   private Point[] previous_location;
   private int[] previous_index;
@@ -128,7 +124,7 @@ public class TransAction {
   private boolean nextAlso;
 
   public TransAction() {
-    type = TYPE_ACTION_NONE;
+    type = ActionType.None;
   }
 
   public void setDelete( Object[] prev, int[] idx ) {
@@ -136,22 +132,22 @@ public class TransAction {
     current_index = idx;
 
     if ( prev[ 0 ] instanceof StepMeta ) {
-      type = TYPE_ACTION_DELETE_STEP;
+      type = ActionType.DeleteStep;
     }
     if ( prev[ 0 ] instanceof TransHopMeta ) {
-      type = TYPE_ACTION_DELETE_HOP;
+      type = ActionType.DeleteHop;
     }
     if ( prev[ 0 ] instanceof NotePadMeta ) {
-      type = TYPE_ACTION_DELETE_NOTE;
+      type = ActionType.DeleteNote;
     }
     if ( prev[ 0 ] instanceof JobEntryCopy ) {
-      type = TYPE_ACTION_DELETE_JOB_ENTRY;
+      type = ActionType.DeleteJobEntry;
     }
     if ( prev[ 0 ] instanceof JobHopMeta ) {
-      type = TYPE_ACTION_DELETE_JOB_HOP;
+      type = ActionType.DeleteJobHop;
     }
     if ( prev[ 0 ] instanceof String[] ) {
-      type = TYPE_ACTION_DELETE_TABLEITEM;
+      type = ActionType.DeleteTableRow;
     }
   }
 
@@ -162,22 +158,22 @@ public class TransAction {
     previous_index = idx;
 
     if ( prev[ 0 ] instanceof StepMeta ) {
-      type = TYPE_ACTION_CHANGE_STEP;
+      type = ActionType.ChangeStep;
     }
     if ( prev[ 0 ] instanceof TransHopMeta ) {
-      type = TYPE_ACTION_CHANGE_HOP;
+      type = ActionType.ChangeHop;
     }
     if ( prev[ 0 ] instanceof NotePadMeta ) {
-      type = TYPE_ACTION_CHANGE_NOTE;
+      type = ActionType.ChangeNote;
     }
     if ( prev[ 0 ] instanceof JobEntryCopy ) {
-      type = TYPE_ACTION_CHANGE_JOB_ENTRY;
+      type = ActionType.ChangeJobEntry;
     }
     if ( prev[ 0 ] instanceof JobHopMeta ) {
-      type = TYPE_ACTION_CHANGE_JOB_HOP;
+      type = ActionType.ChangeJobHop;
     }
     if ( prev[ 0 ] instanceof String[] ) {
-      type = TYPE_ACTION_CHANGE_TABLEITEM;
+      type = ActionType.ChangeTableRow;
     }
   }
 
@@ -191,22 +187,22 @@ public class TransAction {
     previous = null;
 
     if ( prev[ 0 ] instanceof StepMeta ) {
-      type = TYPE_ACTION_NEW_STEP;
+      type = ActionType.NewStep;
     }
     if ( prev[ 0 ] instanceof TransHopMeta ) {
-      type = TYPE_ACTION_NEW_HOP;
+      type = ActionType.NewHop;
     }
     if ( prev[ 0 ] instanceof NotePadMeta ) {
-      type = TYPE_ACTION_NEW_NOTE;
+      type = ActionType.NewNote;
     }
     if ( prev[ 0 ] instanceof JobEntryCopy ) {
-      type = TYPE_ACTION_NEW_JOB_ENTRY;
+      type = ActionType.NewJobEntry;
     }
     if ( prev[ 0 ] instanceof JobHopMeta ) {
-      type = TYPE_ACTION_NEW_JOB_HOP;
+      type = ActionType.NewJobHop;
     }
     if ( prev[ 0 ] instanceof String[] ) {
-      type = TYPE_ACTION_NEW_TABLEITEM;
+      type = ActionType.NewTableRow;
     }
   }
 
@@ -227,13 +223,13 @@ public class TransAction {
 
     Object fobj = obj[ 0 ];
     if ( fobj instanceof StepMeta ) {
-      type = TYPE_ACTION_POSITION_STEP;
+      type = ActionType.PositionStep;
     }
     if ( fobj instanceof NotePadMeta ) {
-      type = TYPE_ACTION_POSITION_NOTE;
+      type = ActionType.PositionNote;
     }
     if ( fobj instanceof JobEntryCopy ) {
-      type = TYPE_ACTION_POSITION_JOB_ENTRY;
+      type = ActionType.PositionJobEntry;
     }
   }
 
@@ -245,10 +241,10 @@ public class TransAction {
     previous = null;
     previous_index = prev;
 
-    type = TYPE_ACTION_POSITION_TABLEITEM;
+    type = ActionType.PositionTableRow;
   }
 
-  public int getType() {
+  public ActionType getType() {
     return type;
   }
 
@@ -296,11 +292,11 @@ public class TransAction {
 
   public String toString() {
     String retval = "";
-    if ( type < 0 || type >= desc_action.length ) {
+    if ( type == null ) {
       return TransAction.class.getName();
     }
 
-    retval = desc_action[ type ];
+    retval = type.getDescription();
 
     if ( current != null && current.length > 1 ) {
       retval += " (x" + current.length + ")";

@@ -31,10 +31,11 @@ import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransAdapter;
+import org.apache.hop.trans.ExecutionAdapter;
 import org.apache.hop.trans.TransConfiguration;
 import org.apache.hop.trans.TransExecutionConfiguration;
 import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.engine.IEngine;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -226,9 +227,9 @@ public class AddTransServlet extends BaseHttpServlet implements HopServerPluginI
               .getFileObject( realLogFilename ), transExecutionConfiguration.isSetAppendLogfile() );
           logChannelFileWriter.startLogging();
 
-          trans.addTransListener( new TransAdapter() {
+          trans.addTransListener( new ExecutionAdapter<TransMeta>() {
             @Override
-            public void transFinished( Trans trans ) throws HopException {
+            public void finished( IEngine<TransMeta> trans ) throws HopException {
               if ( logChannelFileWriter != null ) {
                 logChannelFileWriter.stopLogging();
               }

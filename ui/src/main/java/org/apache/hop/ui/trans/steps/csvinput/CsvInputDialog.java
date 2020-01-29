@@ -59,6 +59,9 @@ import org.apache.hop.ui.core.widget.ComboValuesSelectionListener;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.trans.HopGuiTransGraph;
+import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.hopui.trans.TransGraph;
 import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
@@ -1028,7 +1031,7 @@ public class CsvInputDialog extends BaseStepDialog implements StepDialogInterfac
 
         TransMeta previewTransMeta = TransPreviewFactory.generatePreviewTransformation( transMeta, meta, stepname );
         final Trans trans = new Trans( previewTransMeta );
-        trans.prepareExecution( null );
+        trans.prepareExecution();
         StepInterface step = trans.getRunThread( stepname, 0 );
         step.addRowListener( new RowAdapter() {
           @Override
@@ -1055,7 +1058,7 @@ public class CsvInputDialog extends BaseStepDialog implements StepDialogInterfac
         buffer.append( Const.getStackTracker( e ) );
       }
 
-      TransGraph transGraph = HopUi.getInstance().getActiveTransGraph();
+      HopGuiTransGraph transGraph = (HopGuiTransGraph) HopGui.getInstance().getActiveFileTypeHandler();
       if ( transGraph != null ) {
         if ( !transGraph.isExecutionResultsPaneVisible() ) {
           transGraph.showExecutionResults();

@@ -66,11 +66,9 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   private boolean clusterStarting;
   private boolean clusterShowingTransformation;
 
-  private Map<String, String> arguments;
   private Map<String, String> params;
   private Map<String, String> variables;
 
-  private Date replayDate;
   private boolean safeModeEnabled;
   private LogLevel logLevel;
   private boolean clearingLog;
@@ -100,7 +98,6 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
 
     passingExport = false;
 
-    arguments = new HashMap<String, String>();
     params = new HashMap<String, String>();
     variables = new HashMap<String, String>();
 
@@ -121,9 +118,6 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
       configuration.params = new HashMap<String, String>();
       configuration.params.putAll( params );
 
-      configuration.arguments = new HashMap<String, String>();
-      configuration.arguments.putAll( arguments );
-
       configuration.variables = new HashMap<String, String>();
       configuration.variables.putAll( variables );
 
@@ -131,20 +125,6 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
     } catch ( CloneNotSupportedException e ) {
       return null;
     }
-  }
-
-  /**
-   * @return the arguments
-   */
-  public Map<String, String> getArguments() {
-    return arguments;
-  }
-
-  /**
-   * @param arguments the arguments to set
-   */
-  public void setArguments( Map<String, String> arguments ) {
-    this.arguments = arguments;
   }
 
   /**
@@ -161,17 +141,6 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
     return params;
   }
 
-  /**
-   * @param arguments the arguments to set
-   */
-  public void setArgumentStrings( String[] arguments ) {
-    this.arguments = new HashMap<String, String>();
-    if ( arguments != null ) {
-      for ( int i = 0; i < arguments.length; i++ ) {
-        this.arguments.put( "arg " + ( i + 1 ), arguments[ i ] );
-      }
-    }
-  }
 
   /**
    * @return the clusteredExecution
@@ -372,32 +341,6 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
     }
   }
 
-  public void getUsedArguments( TransMeta transMeta, String[] commandLineArguments ) {
-    // OK, see if we need to ask for some arguments first...
-    //
-    Map<String, String> map = transMeta.getUsedArguments( commandLineArguments );
-    for ( String key : map.keySet() ) {
-      String value = map.get( key );
-      if ( !arguments.containsKey( key ) ) {
-        arguments.put( key, value );
-      }
-    }
-  }
-
-  /**
-   * @return the replayDate
-   */
-  public Date getReplayDate() {
-    return replayDate;
-  }
-
-  /**
-   * @param replayDate the replayDate to set
-   */
-  public void setReplayDate( Date replayDate ) {
-    this.replayDate = replayDate;
-  }
-
   /**
    * @return the usingSafeMode
    */
@@ -473,25 +416,10 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
     }
     xml.append( "    </variables>" ).append( Const.CR );
 
-    // Serialize the variables...
-    //
-    xml.append( "    <arguments>" ).append( Const.CR );
-    List<String> argumentNames = new ArrayList<String>( arguments.keySet() );
-    Collections.sort( argumentNames );
-    for ( String name : argumentNames ) {
-      String value = arguments.get( name );
-      xml.append( "    <argument>" );
-      xml.append( XMLHandler.addTagValue( "name", name, false ) );
-      xml.append( XMLHandler.addTagValue( "value", value, false ) );
-      xml.append( "</argument>" ).append( Const.CR );
-    }
-    xml.append( "    </arguments>" ).append( Const.CR );
-
     // IMPORTANT remote debugging is not yet supported
     //
     // xml.append(transDebugMeta.getXML());
 
-    xml.append( "    " ).append( XMLHandler.addTagValue( "replay_date", replayDate ) );
     xml.append( "    " ).append( XMLHandler.addTagValue( "safe_mode", safeModeEnabled ) );
     xml.append( "    " ).append( XMLHandler.addTagValue( "log_level", logLevel.getCode() ) );
     xml.append( "    " ).append( XMLHandler.addTagValue( "log_file", setLogfile ) );
@@ -547,19 +475,6 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
       }
     }
 
-    // Read the arguments...
-    //
-    Node argsNode = XMLHandler.getSubNode( trecNode, "arguments" );
-    int nrArguments = XMLHandler.countNodes( argsNode, "argument" );
-    for ( int i = 0; i < nrArguments; i++ ) {
-      Node argNode = XMLHandler.getSubNodeByNr( argsNode, "argument", i );
-      String name = XMLHandler.getTagValue( argNode, "name" );
-      String value = XMLHandler.getTagValue( argNode, "value" );
-      if ( !Utils.isEmpty( name ) && !Utils.isEmpty( value ) ) {
-        arguments.put( name, value );
-      }
-    }
-
     // Read the parameters...
     //
     Node parmsNode = XMLHandler.getSubNode( trecNode, "parameters" );
@@ -575,8 +490,6 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
 
     // IMPORTANT: remote preview and remote debugging is NOT yet supported.
     //
-
-    replayDate = XMLHandler.stringToDate( XMLHandler.getTagValue( trecNode, "replay_date" ) );
     safeModeEnabled = "Y".equalsIgnoreCase( XMLHandler.getTagValue( trecNode, "safe_mode" ) );
     logLevel = LogLevel.getLogLevelForCode( XMLHandler.getTagValue( trecNode, "log_level" ) );
     setLogfile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( trecNode, "log_file" ) );
@@ -602,23 +515,6 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
     }
   }
 
-  public String[] getArgumentStrings() {
-    if ( arguments == null || arguments.size() == 0 ) {
-      return null;
-    }
-
-    String[] argNames = arguments.keySet().toArray( new String[ arguments.size() ] );
-    Arrays.sort( argNames );
-
-    String[] values = new String[ argNames.length ];
-    for ( int i = 0; i < argNames.length; i++ ) {
-      if ( argNames[ i ].equalsIgnoreCase( Props.STRING_ARGUMENT_NAME_PREFIX + ( i + 1 ) ) ) {
-        values[ i ] = arguments.get( argNames[ i ] );
-      }
-    }
-
-    return values;
-  }
 
   /**
    * @return the transDebugMeta

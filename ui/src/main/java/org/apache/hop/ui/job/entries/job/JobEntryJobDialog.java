@@ -232,15 +232,7 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
         ConstUI.LARGE_ICON_SIZE );
   }
 
-  protected boolean getArgFromPrev() {
-    return jobEntry.argFromPrevious;
-  }
-
-  protected String[] getArguments() {
-    return jobEntry.arguments;
-  }
-
-  protected String[] getParamters() {
+  protected String[] getParameters() {
     return jobEntry.parameters;
   }
 
@@ -358,18 +350,6 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
 
     wPath.setText( Const.NVL( jobEntry.getFilename(), "" ) );
 
-    // Arguments
-    if ( jobEntry.arguments != null ) {
-      for ( int i = 0; i < jobEntry.arguments.length; i++ ) {
-        TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.arguments[ i ] != null ) {
-          ti.setText( 1, jobEntry.arguments[ i ] );
-        }
-      }
-      wFields.setRowNums();
-      wFields.optWidth( true );
-    }
-
     // Parameters
     if ( jobEntry.parameters != null ) {
       for ( int i = 0; i < jobEntry.parameters.length; i++ ) {
@@ -386,7 +366,6 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
 
     wPassParams.setSelection( jobEntry.isPassingAllParameters() );
 
-    wPrevious.setSelection( jobEntry.argFromPrevious );
     wPrevToParams.setSelection( jobEntry.paramsFromPrevious );
     wEveryRow.setSelection( jobEntry.execPerRow );
     wSetLogfile.setSelection( jobEntry.setLogfile );
@@ -447,28 +426,9 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
     jej.setDirectory( null );
     jej.setJobName( null );
 
-    // Do the arguments
-    int nritems = wFields.nrNonEmpty();
-    int nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
-      String arg = wFields.getNonEmpty( i ).getText( 1 );
-      if ( arg != null && arg.length() != 0 ) {
-        nr++;
-      }
-    }
-    jej.arguments = new String[ nr ];
-    nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
-      String arg = wFields.getNonEmpty( i ).getText( 1 );
-      if ( arg != null && arg.length() != 0 ) {
-        jej.arguments[ nr ] = arg;
-        nr++;
-      }
-    }
-
     // Do the parameters
-    nritems = wParameters.nrNonEmpty();
-    nr = 0;
+    int nritems = wParameters.nrNonEmpty();
+    int nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
       String param = wParameters.getNonEmpty( i ).getText( 1 );
       if ( param != null && param.length() != 0 ) {
@@ -512,7 +472,6 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
     } else {
       jej.logFileLevel = LogLevel.BASIC;
     }
-    jej.argFromPrevious = wPrevious.getSelection();
     jej.paramsFromPrevious = wPrevToParams.getSelection();
     jej.execPerRow = wEveryRow.getSelection();
     jej.setPassingExport( wPassExport.getSelection() );

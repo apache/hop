@@ -3,8 +3,6 @@
   <toolbar id="nav-toolbar" mode="icons">
     <toolbarbutton id="refresh-history" label="${JobHistory.Button.Refresh}" image="images/refresh.svg"
       tooltiptext="${JobHistory.Button.Refresh}" onclick="history.refreshHistory()" />
-    <toolbarbutton id="replay-history" label="${JobHistory.Button.Replay}" image="images/replay.svg"
-      tooltiptext="${JobHistory.Button.Replay}" onclick="history.replayHistory()" />
     <toolbarseparator />
     <toolbarbutton id="clear-history" label="${JobHistory.Button.Clear}" image="images/trash.svg"
       tooltiptext="${JobHistory.Button.Clear}" onclick="history.clearLogTable()" />

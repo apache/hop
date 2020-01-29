@@ -112,7 +112,7 @@ public class TransformationResource {
       servletLoggingObject.setContainerObjectId( carteObjectId );
       servletLoggingObject.setLogLevel( trans.getLogLevel() );
       trans.setParent( servletLoggingObject );
-      trans.execute( null );
+      trans.execute();
     } catch ( HopException e ) {
       e.printStackTrace();
     }
@@ -133,14 +133,12 @@ public class TransformationResource {
       TransExecutionConfiguration executionConfiguration = transConfiguration.getTransExecutionConfiguration();
       // Set the appropriate logging, variables, arguments, replay date, ...
       // etc.
-      trans.setArguments( executionConfiguration.getArgumentStrings() );
-      trans.setReplayDate( executionConfiguration.getReplayDate() );
       trans.setSafeModeEnabled( executionConfiguration.isSafeModeEnabled() );
       trans.setGatheringMetrics( executionConfiguration.isGatheringMetrics() );
       trans.injectVariables( executionConfiguration.getVariables() );
       trans.setPreviousResult( executionConfiguration.getPreviousResult() );
 
-      trans.prepareExecution( null );
+      trans.prepareExecution();
     } catch ( HopException e ) {
       e.printStackTrace();
     }

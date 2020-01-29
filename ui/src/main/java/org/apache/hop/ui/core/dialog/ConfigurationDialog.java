@@ -34,6 +34,7 @@ import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -218,7 +219,7 @@ public abstract class ConfigurationDialog extends Dialog {
 
   protected void mainLayout( Class<?> PKG, String prefix, Image img ) {
     display = parent.getDisplay();
-    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.APPLICATION_MODAL );
+    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.APPLICATION_MODAL | SWT.RESIZE | SWT.MAX );
     props.setLook( shell );
     shell.setImage( img );
     shell.setLayout( new FormLayout() );
@@ -250,7 +251,7 @@ public abstract class ConfigurationDialog extends Dialog {
     fd_tabFolder.right = new FormAttachment( 100, -15 );
     fd_tabFolder.left = new FormAttachment( 0, 15 );
     fd_tabFolder.top = new FormAttachment( gDetails, 15 );
-    fd_tabFolder.bottom = new FormAttachment( gDetails, 370 );
+    fd_tabFolder.bottom = new FormAttachment( alwaysShowOption, -15 );
     tabFolder.setLayoutData( fd_tabFolder );
 
     // Parameters
@@ -287,20 +288,6 @@ public abstract class ConfigurationDialog extends Dialog {
 
     tabFolder.setSelection( 0 );
 
-    Button argsButton = new Button( parametersComposite, SWT.NONE );
-    FormData fd_argsButton = new FormData();
-    fd_argsButton.right = new FormAttachment( 100, -10 );
-    fd_argsButton.top = new FormAttachment( wParams, 6 );
-    fd_argsButton.bottom = new FormAttachment( 100, -10 );
-    argsButton.setLayoutData( fd_argsButton );
-    argsButton.setText( BaseMessages.getString( PKG, prefix + ".Arguments.Label" ) );
-
-    argsButton.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        new ArgumentsDialog( shell, configuration, abstractMeta );
-      }
-    } );
-
     // Variables
     CTabItem tbtmVariables = new CTabItem( tabFolder, SWT.NONE );
     tbtmVariables.setText( BaseMessages.getString( PKG, prefix + ".Variables.Label" ) );
@@ -336,18 +323,6 @@ public abstract class ConfigurationDialog extends Dialog {
 
     // Bottom buttons and separator
 
-    alwaysShowOption = new Button( shell, SWT.CHECK );
-    props.setLook( alwaysShowOption );
-    alwaysShowOption.setSelection( abstractMeta.isAlwaysShowRunOptions() );
-
-    alwaysShowOption.setToolTipText( BaseMessages.getString( PKG, prefix + ".alwaysShowOption" ) );
-
-    FormData fd_alwaysShowOption = new FormData();
-    fd_alwaysShowOption.left = new FormAttachment( 0, 15 );
-    fd_alwaysShowOption.top = new FormAttachment( tabFolder, 15 );
-    alwaysShowOption.setLayoutData( fd_alwaysShowOption );
-    alwaysShowOption.setText( BaseMessages.getString( PKG, prefix + ".AlwaysOption.Value" ) );
-
     wCancel = new Button( shell, SWT.PUSH );
     FormData fd_wCancel = new FormData();
     fd_wCancel.bottom = new FormAttachment( 100, -15 );
@@ -361,7 +336,6 @@ public abstract class ConfigurationDialog extends Dialog {
 
     wOK = new Button( shell, SWT.PUSH );
     FormData fd_wOK = new FormData();
-    fd_wOK.top = new FormAttachment( wCancel, 0, SWT.TOP );
     fd_wOK.right = new FormAttachment( wCancel, -5 );
     fd_wOK.bottom = new FormAttachment( 100, -15 );
     wOK.setLayoutData( fd_wOK );
@@ -388,34 +362,32 @@ public abstract class ConfigurationDialog extends Dialog {
     } );
 
     Label separator = new Label( shell, SWT.SEPARATOR | SWT.HORIZONTAL );
-    if ( Const.isLinux() ) {
-      fd_wCancel.top = new FormAttachment( separator, 10 );
-    } else {
-      fd_wCancel.top = new FormAttachment( separator, 15 );
-    }
-    if ( Const.isLinux() ) {
-      fd_btnHelp.top = new FormAttachment( separator, 10 );
-    } else {
-      fd_btnHelp.top = new FormAttachment( separator, 15 );
-    }
     fd_wCancel.right = new FormAttachment( 100, -15 );
     FormData fd_separator = new FormData();
     fd_separator.right = new FormAttachment( 100, -15 );
     fd_separator.left = new FormAttachment( 0, 15 );
-    fd_separator.top = new FormAttachment( alwaysShowOption, 15 );
+    fd_separator.bottom = new FormAttachment( wOK, -15 );
     separator.setLayoutData( fd_separator );
+
+    alwaysShowOption = new Button( shell, SWT.CHECK );
+    props.setLook( alwaysShowOption );
+    alwaysShowOption.setSelection( abstractMeta.isAlwaysShowRunOptions() );
+
+    alwaysShowOption.setToolTipText( BaseMessages.getString( PKG, prefix + ".alwaysShowOption" ) );
+
+    FormData fd_alwaysShowOption = new FormData();
+    fd_alwaysShowOption.left = new FormAttachment( 0, 15 );
+    fd_alwaysShowOption.bottom = new FormAttachment( separator, -15 );
+    alwaysShowOption.setLayoutData( fd_alwaysShowOption );
+    alwaysShowOption.setText( BaseMessages.getString( PKG, prefix + ".AlwaysOption.Value" ) );
   }
 
   protected void openDialog() {
-    shell.pack();
+
+    BaseStepDialog.setSize(shell);
+
     // Set the focus on the OK button
     wOK.setFocus();
-
-    Rectangle shellBounds = getParent().getBounds();
-    Point dialogSize = shell.getSize();
-
-    shell.setLocation( shellBounds.x + ( shellBounds.width - dialogSize.x ) / 2, shellBounds.y
-      + ( shellBounds.height - dialogSize.y ) / 2 );
 
     shell.open();
     while ( !shell.isDisposed() ) {

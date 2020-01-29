@@ -215,16 +215,6 @@ public class SystemDataMeta extends BaseStepMeta implements StepMetaInterface {
           break;
         case TYPE_SYSTEM_INFO_TRANS_NAME:
         case TYPE_SYSTEM_INFO_FILENAME:
-        case TYPE_SYSTEM_INFO_ARGUMENT_01:
-        case TYPE_SYSTEM_INFO_ARGUMENT_02:
-        case TYPE_SYSTEM_INFO_ARGUMENT_03:
-        case TYPE_SYSTEM_INFO_ARGUMENT_04:
-        case TYPE_SYSTEM_INFO_ARGUMENT_05:
-        case TYPE_SYSTEM_INFO_ARGUMENT_06:
-        case TYPE_SYSTEM_INFO_ARGUMENT_07:
-        case TYPE_SYSTEM_INFO_ARGUMENT_08:
-        case TYPE_SYSTEM_INFO_ARGUMENT_09:
-        case TYPE_SYSTEM_INFO_ARGUMENT_10:
         case TYPE_SYSTEM_INFO_MODIFIED_USER:
         case TYPE_SYSTEM_INFO_HOSTNAME:
         case TYPE_SYSTEM_INFO_HOSTNAME_REAL:
@@ -317,32 +307,6 @@ public class SystemDataMeta extends BaseStepMeta implements StepMetaInterface {
     }
   }
 
-  /**
-   * Default a step doesn't use any arguments. Implement this to notify the GUI that a window has to be displayed BEFORE
-   * launching a transformation. You can also use this to specify certain Environment variable values.
-   *
-   * @return A row of argument values. (name and optionally a default value) Put up to 10 values in the row for the
-   * possible 10 arguments. The name of the value is "1" through "10" for the 10 possible arguments.
-   */
-  @Override
-  public Map<String, String> getUsedArguments() {
-    Map<String, String> stepArgs = new HashMap<String, String>();
-    DecimalFormat df = new DecimalFormat( "00" );
-
-    for ( int argNr = 0; argNr < 10; argNr++ ) {
-      boolean found = false;
-      for ( int i = 0; i < fieldName.length; i++ ) {
-        if ( fieldType[ i ].ordinal() == SystemDataTypes.TYPE_SYSTEM_INFO_ARGUMENT_01.ordinal() + argNr ) {
-          found = true;
-        }
-      }
-      if ( found ) {
-        stepArgs.put( df.format( argNr + 1 ), "" );
-      }
-    }
-
-    return stepArgs;
-  }
 
   @Override
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,

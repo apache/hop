@@ -170,7 +170,7 @@ public class TransTestFactory {
         }
       }
     }
-    trans.prepareExecution( null );
+    trans.prepareExecution();
 
     // Capture the rows that come out of the dummy step...
     //
@@ -223,7 +223,7 @@ public class TransTestFactory {
     // Now execute the transformation...
     Trans trans = new Trans( transMeta );
 
-    trans.prepareExecution( null );
+    trans.prepareExecution();
 
     // Capture the rows that come out of the dummy step...
     //

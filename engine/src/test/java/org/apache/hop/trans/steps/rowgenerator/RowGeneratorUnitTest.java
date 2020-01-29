@@ -96,7 +96,7 @@ public class RowGeneratorUnitTest {
   public void doesNotWriteRowOnTimeWhenStopped() throws HopException, InterruptedException {
     TransMeta transMeta = new TransMeta( getClass().getResource( "safe-stop.ktr" ).getPath() );
     Trans trans = new Trans( transMeta );
-    trans.prepareExecution( new String[] {} );
+    trans.prepareExecution();
     trans.getSteps().get( 1 ).step.addRowListener( new RowAdapter() {
       @Override public void rowWrittenEvent( RowMetaInterface rowMeta, Object[] row ) throws HopStepException {
         trans.safeStop();

@@ -34,8 +34,10 @@ import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.GlobalMessages;
 import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransAdapter;
+import org.apache.hop.trans.ExecutionAdapter;
 import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.engine.IEngine;
+import org.apache.hop.trans.engine.IEngineComponent;
 import org.apache.hop.trans.step.RowAdapter;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
@@ -91,9 +93,9 @@ public class TransPreviewDelegate extends HopUiDelegate implements XulEventHandl
   private XulToolbar toolbar;
   private Composite transPreviewComposite;
 
-  protected Map<StepMeta, RowMetaInterface> previewMetaMap;
-  protected Map<StepMeta, List<RowMetaAndData>> previewDataMap;
-  protected Map<StepMeta, StringBuffer> previewLogMap;
+  protected Map<String, RowMetaInterface> previewMetaMap;
+  protected Map<String, List<RowMetaAndData>> previewDataMap;
+  protected Map<String, String> previewLogMap;
   private Composite previewComposite;
 
   private Text logText;
@@ -274,9 +276,9 @@ public class TransPreviewDelegate extends HopUiDelegate implements XulEventHandl
       }
     }
 
-    StringBuffer logText = previewLogMap.get( stepMeta );
+    String logText = previewLogMap.get( stepMeta );
     if ( errorStep && logText != null && logText.length() > 0 ) {
-      showLogText( stepMeta, logText.toString() );
+      showLogText( stepMeta, logText );
       return;
     }
 
@@ -290,8 +292,8 @@ public class TransPreviewDelegate extends HopUiDelegate implements XulEventHandl
         showPreviewGrid( transGraph.getManagedObject(), stepMeta, rowMeta, rowData );
       } catch ( Exception e ) {
         e.printStackTrace();
-        logText.append( Const.getStackTracker( e ) );
-        showLogText( stepMeta, logText.toString() );
+        logText+= Const.getStackTracker( e );
+        showLogText( stepMeta, logText );
       }
     }
   }
@@ -465,9 +467,9 @@ public class TransPreviewDelegate extends HopUiDelegate implements XulEventHandl
       final TransMeta transMeta = trans.getTransMeta();
 
       for ( final StepMeta stepMeta : stepMetas ) {
-
+        String stepname = stepMeta.getName();
         final RowMetaInterface rowMeta = transMeta.getStepFields( stepMeta ).clone();
-        previewMetaMap.put( stepMeta, rowMeta );
+        previewMetaMap.put( stepname, rowMeta );
         final List<RowMetaAndData> rowsData;
         if ( previewMode == PreviewMode.LAST ) {
           rowsData = new LinkedList<>();
@@ -475,8 +477,8 @@ public class TransPreviewDelegate extends HopUiDelegate implements XulEventHandl
           rowsData = new ArrayList<>();
         }
 
-        previewDataMap.put( stepMeta, rowsData );
-        previewLogMap.put( stepMeta, loggingText );
+        previewDataMap.put( stepname, rowsData );
+        previewLogMap.put( stepname, loggingText.toString() );
 
         StepInterface step = trans.findRunThread( stepMeta.getName() );
 
@@ -523,19 +525,17 @@ public class TransPreviewDelegate extends HopUiDelegate implements XulEventHandl
 
     // In case there were errors during preview...
     //
-    trans.addTransListener( new TransAdapter() {
+    trans.addTransListener( new ExecutionAdapter<TransMeta>() {
       @Override
-      public void transFinished( Trans trans ) throws HopException {
+      public void finished( IEngine<TransMeta> engine ) throws HopException {
         // Copy over the data from the previewDelegate...
         //
-        if ( trans.getErrors() != 0 ) {
+        if ( engine.getErrors() != 0 ) {
           // capture logging and store it...
           //
-          for ( StepMetaDataCombi combi : trans.getSteps() ) {
-            if ( combi.copy == 0 ) {
-              StringBuffer logBuffer =
-                HopLogStore.getAppender().getBuffer( combi.step.getLogChannel().getLogChannelId(), false );
-              previewLogMap.put( combi.stepMeta, logBuffer );
+          for ( IEngineComponent component : engine.getComponents() ) {
+            if ( component.getCopyNr() == 0 ) {
+              previewLogMap.put( component.getName(), component.getLogText() );
             }
           }
         }
@@ -543,13 +543,13 @@ public class TransPreviewDelegate extends HopUiDelegate implements XulEventHandl
     } );
   }
 
-  public void addPreviewData( StepMeta stepMeta, RowMetaInterface rowMeta, List<Object[]> rowsData,
+  public void addPreviewData( String stepname, RowMetaInterface rowMeta, List<Object[]> rowsData,
                               StringBuffer buffer ) {
-    previewLogMap.put( stepMeta, buffer );
-    previewMetaMap.put( stepMeta, rowMeta );
+    previewLogMap.put( stepname, buffer.toString() );
+    previewMetaMap.put( stepname, rowMeta );
     List<RowMetaAndData> rowsMetaAndData =
       rowsData.stream().map( data -> new RowMetaAndData( rowMeta, data ) ).collect( toList() );
-    previewDataMap.put( stepMeta, rowsMetaAndData );
+    previewDataMap.put( stepname, rowsMetaAndData );
   }
 
   /**
@@ -589,13 +589,5 @@ public class TransPreviewDelegate extends HopUiDelegate implements XulEventHandl
     firstRadio.setSelected( false );
     lastRadio.setSelected( false );
     offRadio.setSelected( true );
-  }
-
-  public Map<StepMeta, List<Object[]>> getPreviewDataMap() {
-    // Note this method is unused, but sincie it's public, we will keep the original signature after change to type of
-    // this map, just in case.
-    return previewDataMap.keySet().stream().collect(
-      toMap(
-        identity(), key -> previewDataMap.get( key ).stream().map( RowMetaAndData::getData ).collect( toList() ) ) );
   }
 }

@@ -46,20 +46,20 @@ public class MetaStoreConstTest {
     String metaFolder = tempPath + File.separator + XmlUtil.META_FOLDER_NAME;
 
     // Create a metastore
-    assertNotNull( MetaStoreConst.openLocalPentahoMetaStore() );
+    assertNotNull( MetaStoreConst.openLocalHopMetaStore() );
     assertTrue( ( new File( metaFolder ) ).exists() );
 
     // Check existing while disabling the metastore ( used for tests )
     MetaStoreConst.disableMetaStore = true;
-    assertNull( MetaStoreConst.openLocalPentahoMetaStore() );
+    assertNull( MetaStoreConst.openLocalHopMetaStore() );
 
     // Check existing metastore
     MetaStoreConst.disableMetaStore = false;
-    assertNotNull( MetaStoreConst.openLocalPentahoMetaStore( false ) );
+    assertNotNull( MetaStoreConst.openLocalHopMetaStore( false ) );
 
     // Try to read a metastore that does not exist with allowCreate = false
     FileUtils.deleteDirectory( new File( metaFolder ) );
-    assertNull( MetaStoreConst.openLocalPentahoMetaStore( false ) );
+    assertNull( MetaStoreConst.openLocalHopMetaStore( false ) );
     assertFalse( ( new File( metaFolder ) ).exists() );
   }
 

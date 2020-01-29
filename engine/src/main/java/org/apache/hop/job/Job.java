@@ -213,11 +213,6 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
   private Map<String, Object> extensionDataMap;
 
   /**
-   * The command line arguments for the job.
-   */
-  protected String[] arguments;
-
-  /**
    * Int value for storage job statuses
    */
   private AtomicInteger status;
@@ -247,7 +242,6 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
     }
     jobMeta.setName( name );
     jobMeta.setFilename( file );
-    this.arguments = args;
 
     init();
     this.log = new LogChannel( this );
@@ -2140,14 +2134,6 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
 
   public void addDelegationListener( DelegationListener delegationListener ) {
     delegationListeners.add( delegationListener );
-  }
-
-  public String[] getArguments() {
-    return arguments;
-  }
-
-  public void setArguments( String[] arguments ) {
-    this.arguments = arguments;
   }
 
   public Trans getParentTrans() {

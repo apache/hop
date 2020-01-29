@@ -55,6 +55,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.HopLoggingEvent;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LogMessage;
 import org.apache.hop.core.logging.LogParentProvidedInterface;
 import org.apache.hop.core.logging.LoggingObjectInterface;
@@ -72,6 +73,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
 import org.apache.hop.lineage.TransDataLineage;
 import org.apache.hop.trans.DatabaseImpact;
+import org.apache.hop.trans.ExecutionAdapter;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransExecutionConfiguration;
 import org.apache.hop.trans.TransHopMeta;
@@ -81,6 +83,7 @@ import org.apache.hop.trans.debug.BreakPointListener;
 import org.apache.hop.trans.debug.StepDebugMeta;
 import org.apache.hop.trans.debug.TransDebugMeta;
 import org.apache.hop.trans.debug.TransDebugMetaWrapper;
+import org.apache.hop.trans.engine.IEngine;
 import org.apache.hop.trans.step.RemoteStep;
 import org.apache.hop.trans.step.RowDistributionInterface;
 import org.apache.hop.trans.step.RowDistributionPluginType;
@@ -111,6 +114,7 @@ import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.CheckBoxToolTipListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
+import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.hopui.HopUiExtenderPluginInterface;
@@ -161,6 +165,7 @@ import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
@@ -186,7 +191,6 @@ import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 
 /**
  * This class handles the display of the transformations in a graphical way using icons, arrows, etc. One transformation
@@ -207,6 +211,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiTransGraph-Toolbar";
+  public static final String TOOLBAR_ITEM_UNDO_ID = "HopGuiTransGraph-ToolBar-10100-Undo";
+  public static final String TOOLBAR_ITEM_REDO_ID = "HopGuiTransGraph-ToolBar-10110-Redo";
 
   public static final String LOAD_TAB = "loadTab";
   public static final String PREVIEW_TRANS = "previewTrans";
@@ -232,10 +238,12 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   private static final int TOOLTIP_HIDE_DELAY_LONG = 10000;
 
   private TransMeta transMeta;
-
   public Trans trans;
 
   private Shell shell;
+
+  private final HopDataOrchestrationPerspective perspective;
+
   private Composite mainComposite;
 
   private DefaultToolTip toolTip;
@@ -243,6 +251,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   private CheckBoxToolTip helpTip;
 
   private ToolBar toolBar;
+  private GuiCompositeWidgets toolBarWidgets;
 
   private int iconsize;
 
@@ -257,8 +266,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   private List<StepMeta> selectedSteps;
 
   private StepMeta selectedStep;
-
-  private List<StepMeta> mouseOverSteps;
 
   private List<NotePadMeta> selectedNotes;
 
@@ -335,6 +342,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   public HopGuiTransPerfDelegate transPerfDelegate;
   public HopGuiTransMetricsDelegate transMetricsDelegate;
   public HopGuiTransPreviewDelegate transPreviewDelegate;
+  private final HopGuiTransRunDelegate transRunDelegate;
   public HopGuiStepDelegate stepDelegate;
   public HopGuiHopDelegate hopDelegate;
   public HopGuiTransUndoDelegate undoTransDelegate;
@@ -400,18 +408,19 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     currentStepListeners.add( stepSelectionListener );
   }
 
-  public HopGuiTransGraph( Composite parent, final HopGui hopUi, final CTabItem parentTabItem, final TransMeta transMeta, HopTransFileType fileType ) {
+  public HopGuiTransGraph( Composite parent, final HopGui hopUi, final CTabItem parentTabItem,
+                           final HopDataOrchestrationPerspective perspective, final TransMeta transMeta, final HopTransFileType fileType ) {
     super( parent, SWT.NONE, parentTabItem );
     this.shell = parent.getShell();
     this.hopUi = hopUi;
     this.parentTabItem = parentTabItem;
+    this.perspective = perspective;
     this.transMeta = transMeta;
     this.fileType = fileType;
     this.areaOwners = new ArrayList<>();
 
     this.log = hopUi.getLog();
 
-    this.mouseOverSteps = new ArrayList<>();
     this.delayTimers = new HashMap<>();
 
     transLogDelegate = new HopGuiTransLogDelegate( hopUi, this );
@@ -421,7 +430,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     transPreviewDelegate = new HopGuiTransPreviewDelegate( hopUi, this );
     stepDelegate = new HopGuiStepDelegate( hopUi, this );
     hopDelegate = new HopGuiHopDelegate( hopUi, this );
-    undoTransDelegate = new HopGuiTransUndoDelegate( hopUi, this);
+    undoTransDelegate = new HopGuiTransUndoDelegate( hopUi, this );
+    transRunDelegate = new HopGuiTransRunDelegate( hopUi, this );
 
     stepListeners = new ArrayList<>();
 
@@ -684,7 +694,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
               new int[] { transMeta.indexOfStep( stepMeta ) } );
           }
 
-          canvas.forceFocus();
+          forceFocus();
           redraw();
 
           // See if we want to draw a tool tip explaining how to create new hops...
@@ -726,6 +736,14 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         timer.cancel();
       }
     } );
+
+    // Add keyboard listeners from the main GUI and this class (toolbar etc) to the canvas. That's where the focus should be
+    //
+    hopUi.addKeyBoardListeners( canvas, this, true );
+
+    // Update menu, toolbar, force redraw canvas
+    //
+    updateGui();
   }
 
   @Override
@@ -828,7 +846,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
             startHopStep = (StepMeta) areaOwner.getParent();
             candidateHopType = null;
             startErrorHopStep = false;
-            // stopStepMouseOverDelayTimer(startHopStep);
             break;
 
           case STEP_INPUT_HOP_ICON:
@@ -840,7 +857,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
             endHopStep = (StepMeta) areaOwner.getParent();
             candidateHopType = null;
             startErrorHopStep = false;
-            // stopStepMouseOverDelayTimer(endHopStep);
             break;
 
           case HOP_ERROR_ICON:
@@ -857,7 +873,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           case STEP_EDIT_ICON:
             clearSettings();
             currentStep = (StepMeta) areaOwner.getParent();
-            stopStepMouseOverDelayTimer( currentStep );
             editStep();
             break;
 
@@ -1026,7 +1041,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         transMeta.unselectAll();
         selectInRect( transMeta, selectionRegion );
         selectionRegion = null;
-        stopStepMouseOverDelayTimers();
         redraw();
       } else {
         // Clicked on an icon?
@@ -1335,7 +1349,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         for ( int i = 0; i < selectedSteps.size(); i++ ) {
           StepMeta stepMeta = selectedSteps.get( i );
           PropsUI.setLocation( stepMeta, stepMeta.getLocation().x + dx, stepMeta.getLocation().y + dy );
-          stopStepMouseOverDelayTimer( stepMeta );
         }
       }
       // Adjust location of selected hops...
@@ -1441,15 +1454,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     AreaOwner areaOwner = getVisibleAreaOwner( real.x, real.y );
     if ( areaOwner != null && areaOwner.getAreaType() != null ) {
       switch ( areaOwner.getAreaType() ) {
-        case STEP_ICON:
-          StepMeta stepMeta = (StepMeta) areaOwner.getOwner();
-          isDeprecated = stepMeta.isDeprecated();
-          if ( !stepMeta.isMissing() && !mouseOverSteps.contains( stepMeta ) ) {
-            addStepMouseOverDelayTimer( stepMeta );
-            redraw();
-            tip = false;
-          }
-          break;
         default:
           break;
       }
@@ -1641,65 +1645,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   public void mouseExit( MouseEvent arg0 ) {
   }
 
-  private synchronized void addStepMouseOverDelayTimer( final StepMeta stepMeta ) {
-
-    // Don't add the same mouse over delay timer twice...
-    //
-    if ( mouseOverSteps.contains( stepMeta ) ) {
-      return;
-    }
-
-    mouseOverSteps.add( stepMeta );
-
-    DelayTimer delayTimer = new DelayTimer( 500, new DelayListener() {
-      @Override
-      public void expired() {
-        mouseOverSteps.remove( stepMeta );
-        delayTimers.remove( stepMeta );
-        showTargetStreamsStep = null;
-        asyncRedraw();
-      }
-    }, new Callable<Boolean>() {
-
-      @Override
-      public Boolean call() throws Exception {
-        Point cursor = getLastMove();
-        if ( cursor != null ) {
-          AreaOwner areaOwner = getVisibleAreaOwner( cursor.x, cursor.y );
-          if ( areaOwner != null ) {
-            AreaType areaType = areaOwner.getAreaType();
-            if ( areaType == AreaType.STEP_ICON ) {
-              StepMeta selectedStepMeta = (StepMeta) areaOwner.getOwner();
-              return selectedStepMeta == stepMeta;
-            } else if ( areaType != null && areaType.belongsToTransContextMenu() ) {
-              StepMeta selectedStepMeta = (StepMeta) areaOwner.getParent();
-              return selectedStepMeta == stepMeta;
-            } else if ( areaOwner.getExtensionAreaType() != null ) {
-              return true;
-            }
-          }
-        }
-        return false;
-      }
-    } );
-
-    new Thread( delayTimer ).start();
-
-    delayTimers.put( stepMeta, delayTimer );
-  }
-
-  private void stopStepMouseOverDelayTimer( final StepMeta stepMeta ) {
-    DelayTimer delayTimer = delayTimers.get( stepMeta );
-    if ( delayTimer != null ) {
-      delayTimer.stop();
-    }
-  }
-
-  private void stopStepMouseOverDelayTimers() {
-    for ( DelayTimer timer : delayTimers.values() ) {
-      timer.stop();
-    }
-  }
 
   protected void asyncRedraw() {
     hopUi.getDisplay().asyncExec( new Runnable() {
@@ -1718,8 +1663,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       // Create a new toolbar at the top of the main composite...
       //
       toolBar = new ToolBar( this, SWT.BORDER | SWT.WRAP | SWT.SHADOW_OUT | SWT.LEFT | SWT.HORIZONTAL );
-      GuiCompositeWidgets widgets = new GuiCompositeWidgets( HopGui.getInstance().getVariableSpace() );
-      widgets.createCompositeWidgets( this, null, toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID, null );
+      toolBarWidgets = new GuiCompositeWidgets( HopGui.getInstance().getVariableSpace() );
+      toolBarWidgets.createCompositeWidgets( this, null, toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID, null );
       toolBar.pack();
 
       // Add a zoom label widget: TODO: move to GuiElement
@@ -1972,13 +1917,10 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     startHopStep = null;
     endHopStep = null;
     endHopLocation = null;
-    mouseOverSteps.clear();
     for ( int i = 0; i < transMeta.nrTransHops(); i++ ) {
       // CHECKSTYLE:Indentation:OFF
       transMeta.getTransHop( i ).split = false;
     }
-
-    stopStepMouseOverDelayTimers();
   }
 
   public String[] getDropStrings( String str, String sep ) {
@@ -2888,7 +2830,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     toolTip.show( new org.eclipse.swt.graphics.Point( screenX, screenY ) );
   }
 
-  public AreaOwner getVisibleAreaOwner( int x, int y ) {
+  public synchronized AreaOwner getVisibleAreaOwner( int x, int y ) {
     for ( int i = areaOwners.size() - 1; i >= 0; i-- ) {
       AreaOwner areaOwner = areaOwners.get( i );
       if ( areaOwner.contains( x, y ) ) {
@@ -3011,17 +2953,15 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     Image img = getTransformationImage( disp, area.x, area.y, magnification );
     e.gc.drawImage( img, 0, 0 );
     if ( transMeta.nrSteps() == 0 ) {
-      e.gc.setForeground( GUIResource.getInstance().getColorCrystalTextPentaho() );
+      e.gc.setForeground( GUIResource.getInstance().getColorCrystalText() );
       e.gc.setFont( GUIResource.getInstance().getFontMedium() );
 
-      Image pentahoImage = GUIResource.getInstance().getImageTransCanvas();
-      int leftPosition = ( area.x - pentahoImage.getBounds().width ) / 2;
-      int topPosition = ( area.y - pentahoImage.getBounds().height ) / 2;
-      e.gc.drawImage( pentahoImage, leftPosition, topPosition );
+      Image emptyCanvasImage = GUIResource.getInstance().getImageTransCanvas();
+      int leftPosition = ( area.x - emptyCanvasImage.getBounds().width ) / 2;
+      int topPosition = ( area.y - emptyCanvasImage.getBounds().height ) / 2;
+      e.gc.drawImage( emptyCanvasImage, leftPosition, topPosition );
     }
     img.dispose();
-
-    // spoon.setShellText();
   }
 
   public Image getTransformationImage( Device device, int x, int y, float magnificationFactor ) {
@@ -3032,11 +2972,11 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       PropsUI.getInstance().isShowCanvasGridEnabled() ? PropsUI.getInstance().getCanvasGridSize() : 1;
 
     TransPainter transPainter = new TransPainter( gc, transMeta, new Point( x, y ), new SwtScrollBar( hori ), new SwtScrollBar( vert ),
-      candidate, drop_candidate, selectionRegion, areaOwners, mouseOverSteps,
+      candidate, drop_candidate, selectionRegion, areaOwners,
       PropsUI.getInstance().getIconSize(), PropsUI.getInstance().getLineWidth(), gridSize,
       PropsUI.getInstance().getShadowSize(), PropsUI.getInstance()
       .isAntiAliasingEnabled(), PropsUI.getInstance().getNoteFont().getName(), PropsUI.getInstance()
-      .getNoteFont().getHeight(), trans, PropsUI.getInstance().isIndicateSlowTransStepsEnabled() );
+      .getNoteFont().getHeight(), trans, PropsUI.getInstance().isIndicateSlowTransStepsEnabled(), PropsUI.getInstance().getZoomFactor() );
 
     // correct the magnifacation with the overall zoom factor
     //
@@ -3388,7 +3328,12 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/close.svg",
     separator = true,
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
-  ) @Override public boolean isCloseable() {
+  )
+  public void close() {
+    hopUi.menuFileClose();
+  }
+
+  @Override public boolean isCloseable() {
     try {
       // Check if the file is saved. If not, ask for it to be saved.
       //
@@ -3398,14 +3343,14 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         messageDialog.setText( "Save file?" );
         messageDialog.setMessage( "Do you want to save file '" + buildTabName() + "' before closing?" );
         int answer = messageDialog.open();
-        if ( ( answer & SWT.CANCEL ) != 0 ) {
-          return false;
-        }
         if ( ( answer & SWT.YES ) != 0 ) {
           save();
+          return true;
         }
+        return false;
+      } else {
+        return true;
       }
-      return true;
     } catch ( Exception e ) {
       new ErrorDialog( hopUi.getShell(), "Error", "Error preparing file close", e );
     }
@@ -3422,7 +3367,24 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   )
   @Override
   public void start() {
-    // hopUi.runFile();
+    transMeta.setShowDialog( transMeta.isAlwaysShowRunOptions() );
+    Thread thread = new Thread() {
+      @Override
+      public void run() {
+        getDisplay().asyncExec( new Runnable() {
+          @Override
+          public void run() {
+            try {
+              transRunDelegate.executeTransformation( hopUi.getLog(), transMeta, true, false, false, false, debug, false, LogLevel.BASIC );
+            } catch ( Exception e ) {
+              new ErrorDialog(
+                shell, "Execute transformation", "There was an error during transformation execution", e );
+            }
+          }
+        } );
+      }
+    };
+    thread.start();
   }
 
   @Override
@@ -3514,15 +3476,13 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       //
       sashForm.setMaximizedControl( null );
       minMaxButton.setImage( GUIResource.getInstance().getImageMaximizePanel() );
-      minMaxButton
-        .setToolTipText( BaseMessages.getString( PKG, "TransGraph.ExecutionResultsPanel.MaxButton.Tooltip" ) );
+      minMaxButton.setToolTipText( BaseMessages.getString( PKG, "TransGraph.ExecutionResultsPanel.MaxButton.Tooltip" ) );
     } else {
       // Maximize
       //
       sashForm.setMaximizedControl( extraViewComposite );
       minMaxButton.setImage( GUIResource.getInstance().getImageMinimizePanel() );
-      minMaxButton
-        .setToolTipText( BaseMessages.getString( PKG, "TransGraph.ExecutionResultsPanel.MinButton.Tooltip" ) );
+      minMaxButton.setToolTipText( BaseMessages.getString( PKG, "TransGraph.ExecutionResultsPanel.MinButton.Tooltip" ) );
     }
   }
 
@@ -3587,7 +3547,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     // Add a label at the top: Results
     //
     Label wResultsLabel = new Label( extraViewComposite, SWT.LEFT );
-    wResultsLabel.setFont( GUIResource.getInstance().getFontMediumBold() );
+    wResultsLabel.setFont( GUIResource.getInstance().getFontLarge() );
     wResultsLabel.setBackground( GUIResource.getInstance().getColorWhite() );
     wResultsLabel.setText( BaseMessages.getString( PKG, "TransLog.ResultsPanel.NameLabel" ) );
     FormData fdResultsLabel = new FormData();
@@ -3622,20 +3582,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     extraViewTabFolder.setLayoutData( fdTabFolder );
 
     sashForm.setWeights( new int[] { 60, 40, } );
-  }
-
-  /**
-   * @deprecated Deprecated as of 8.0. Seems unused; will be to remove in 8.1 (ccaspanello)
-   */
-  @Deprecated
-  public void checkErrors() {
-    if ( trans != null ) {
-      if ( !trans.isFinished() ) {
-        if ( trans.getErrors() != 0 ) {
-          trans.killAll();
-        }
-      }
-    }
   }
 
   public synchronized void start( TransExecutionConfiguration executionConfiguration ) throws HopException {
@@ -3689,7 +3635,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           trans.setParent( spoonLoggingObject );
 
           trans.setLogLevel( executionConfiguration.getLogLevel() );
-          trans.setReplayDate( executionConfiguration.getReplayDate() );
           trans.setMonitored( true );
           log.logBasic( BaseMessages.getString( PKG, "TransLog.Log.TransformationOpened" ) );
         } catch ( HopException e ) {
@@ -3698,16 +3643,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
             BaseMessages.getString( PKG, "TransLog.Dialog.ErrorOpeningTransformation.Message" ), e );
         }
         if ( trans != null ) {
-          Map<String, String> arguments = executionConfiguration.getArguments();
-          final String[] args;
-          if ( arguments != null ) {
-            args = convertArguments( arguments );
-          } else {
-            args = null;
-          }
-
-          log.logMinimal( BaseMessages.getString( PKG, "TransLog.Log.LaunchingTransformation" )
-            + trans.getTransMeta().getName() + "]..." );
+          log.logMinimal( BaseMessages.getString( PKG, "TransLog.Log.LaunchingTransformation" ) + trans.getTransMeta().getName() + "]..." );
 
           trans.setSafeModeEnabled( executionConfiguration.isSafeModeEnabled() );
           trans.setGatheringMetrics( executionConfiguration.isGatheringMetrics() );
@@ -3721,7 +3657,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
             @Override
             public void run() {
               addAllTabs();
-              prepareTrans( parentThread, args );
+              prepareTrans( parentThread );
             }
           } );
 
@@ -3762,33 +3698,22 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       tabItemSelection = extraViewTabFolder.getSelection();
     }
 
-    // transHistoryDelegate.addTransHistory();
-    // transLogDelegate.addTransLog();
-    // transGridDelegate.addTransGrid();
-    // transPerfDelegate.addTransPerf();
-    // transMetricsDelegate.addTransMetrics();
-    // transPreviewDelegate.addTransPreview();
-    //
+    transLogDelegate.addTransLog();
+    transGridDelegate.addTransGrid();
+    transPerfDelegate.addTransPerf();
+    transMetricsDelegate.addTransMetrics();
+    transPreviewDelegate.addTransPreview();
+
     List<HopUiExtenderPluginInterface> relevantExtenders = HopUiExtenderPluginType.getInstance().getRelevantExtenders( HopGuiTransGraph.class, LOAD_TAB );
-    //
     for ( HopUiExtenderPluginInterface relevantExtender : relevantExtenders ) {
       relevantExtender.uiEvent( this, LOAD_TAB );
     }
 
-    /** TODO: decide to enable/disable this whole bottom part
-     if ( tabItemSelection != null ) {
-     extraViewTabFolder.setSelection( tabItemSelection );
-     } else {
-     extraViewTabFolder.setSelection( transGridDelegate.getTransGridTab() );
-     }
-     */
-
-    // TODO : enable/disable button using GuiElement
-    //
-    // XulToolbarbutton button = (XulToolbarbutton) toolBar.getElementById( "trans-show-results" );
-    // button.setTooltiptext( BaseMessages.getString( PKG, "Spoon.Tooltip.HideExecutionResults" ) );
-    // ToolItem toolItem = (ToolItem) button.getManagedObject();
-    // toolItem.setImage( GUIResource.getInstance().getImageHideResults() );
+    if ( tabItemSelection != null ) {
+      extraViewTabFolder.setSelection( tabItemSelection );
+    } else {
+      extraViewTabFolder.setSelection( transGridDelegate.getTransGridTab() );
+    }
   }
 
   public synchronized void debug( TransExecutionConfiguration executionConfiguration, TransDebugMeta transDebugMeta ) {
@@ -3799,11 +3724,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         log.setLogLevel( executionConfiguration.getLogLevel() );
         if ( log.isDetailed() ) {
           log.logDetailed( BaseMessages.getString( PKG, "TransLog.Log.DoPreview" ) );
-        }
-        String[] args = null;
-        Map<String, String> arguments = executionConfiguration.getArguments();
-        if ( arguments != null ) {
-          args = convertArguments( arguments );
         }
         transMeta.injectVariables( executionConfiguration.getVariables() );
 
@@ -3836,7 +3756,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         trans.setPreview( true );
         trans.setGatheringMetrics( executionConfiguration.isGatheringMetrics() );
         trans.setMetaStore( hopUi.getMetaStore() );
-        trans.prepareExecution( args );
+        trans.prepareExecution();
 
         List<HopUiExtenderPluginInterface> relevantExtenders =
           HopUiExtenderPluginType.getInstance().getRelevantExtenders( TransDebugMetaWrapper.class, PREVIEW_TRANS );
@@ -4086,12 +4006,12 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
      */
   }
 
-  private synchronized void prepareTrans( final Thread parentThread, final String[] args ) {
+  private synchronized void prepareTrans( final Thread parentThread ) {
     Runnable runnable = new Runnable() {
       @Override
       public void run() {
         try {
-          trans.prepareExecution( args );
+          trans.prepareExecution();
 
           // Do we capture data?
           //
@@ -4130,10 +4050,10 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       // Add a listener to the transformation.
       // If the transformation is done, we want to do the end processing, etc.
       //
-      trans.addTransListener( new org.apache.hop.trans.TransAdapter() {
+      trans.addTransListener( new ExecutionAdapter<TransMeta>() {
 
         @Override
-        public void transFinished( Trans trans ) {
+        public void finished( IEngine<TransMeta> trans ) {
           checkTransEnded();
           checkErrorVisuals();
           stopRedrawTimer();
@@ -4434,10 +4354,10 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       halted = trans.isStopped();
 
       if ( running ) {
-        trans.addTransListener( new org.apache.hop.trans.TransAdapter() {
+        trans.addTransListener( new ExecutionAdapter<TransMeta>() {
 
           @Override
-          public void transFinished( Trans trans ) {
+          public void finished( IEngine<TransMeta> trans ) {
             checkTransEnded();
             checkErrorVisuals();
           }
@@ -4872,6 +4792,15 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     this.fileType = fileType;
   }
 
+  /**
+   * Gets perspective
+   *
+   * @return value of perspective
+   */
+  public HopDataOrchestrationPerspective getPerspective() {
+    return perspective;
+  }
+
   @Override public boolean equals( Object o ) {
     if ( this == o ) {
       return true;
@@ -4887,19 +4816,65 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     return Objects.hash( transMeta );
   }
 
+  @GuiToolbarElement(
+    type = GuiElementType.TOOLBAR_BUTTON,
+    id = TOOLBAR_ITEM_UNDO_ID,
+    label = "Undo",
+    toolTip = "Undo an operation",
+    image = "ui/images/toolbar/Antu_edit-undo.svg",
+    disabledImage = "ui/images/toolbar/Antu_edit-undo-disabled.svg",
+    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+    separator = true
+  )
   @Override public void undo() {
     undoTransDelegate.undoTransformationAction( this, transMeta );
+    forceFocus();
   }
 
+  @GuiToolbarElement(
+    type = GuiElementType.TOOLBAR_BUTTON,
+    id = TOOLBAR_ITEM_REDO_ID,
+    label = "Redo",
+    toolTip = "Redo an operation",
+    image = "ui/images/toolbar/Antu_edit-redo.svg",
+    disabledImage = "ui/images/toolbar/Antu_edit-redo-disabled.svg",
+    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+  )
   @Override public void redo() {
     undoTransDelegate.redoTransformationAction( this, transMeta );
+    forceFocus();
   }
 
   /**
-   * Update the toolbar, menus and so on. This is needed after a file, context or capabilities changes
+   * Update the representation, toolbar, menus and so on. This is needed after a file, context or capabilities changes
    */
   @Override public void updateGui() {
+
+    boolean hasUndo = transMeta.viewThisUndo()!=null;
+    ToolItem undoItem = toolBarWidgets.getToolItemMap().get( TOOLBAR_ITEM_UNDO_ID );
+    if (undoItem!=null) {
+      undoItem.setEnabled( hasUndo );
+    } else {
+      LogChannel.UI.logError( "Undo icon not found in the transformation graph tab toolbar" );
+    }
+    boolean hasRedo = transMeta.viewNextUndo()!=null;
+    ToolItem redoItem = toolBarWidgets.getToolItemMap().get( TOOLBAR_ITEM_REDO_ID );
+    if (redoItem!=null) {
+      redoItem.setEnabled( hasRedo );
+    } else {
+      LogChannel.UI.logError( "Redo icon not found in the transformation graph tab toolbar" );
+    }
+
     hopUi.setUndoMenu( transMeta );
     hopUi.handleFileCapabilities( fileType );
+    super.redraw();
+  }
+
+  public void redraw() {
+    updateGui();
+  }
+
+  public boolean forceFocus() {
+    return canvas.forceFocus();
   }
 }

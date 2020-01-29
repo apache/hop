@@ -170,7 +170,7 @@ public class CheckSumTest {
   private MockRowListener executeHexTest( int checkSumType, boolean compatibilityMode, Object input, ValueMetaInterface meta, boolean oldChecksumBehaviour ) throws Exception {
     Trans trans = buildHexadecimalChecksumTrans( checkSumType, compatibilityMode, oldChecksumBehaviour );
 
-    trans.prepareExecution( null );
+    trans.prepareExecution();
 
     StepInterface output = trans.getRunThread( "Output", 0 );
     MockRowListener listener = new MockRowListener();

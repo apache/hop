@@ -123,63 +123,6 @@ public class JobExecutionConfigurationTest {
   }
 
   @Test
-  public void testGetUsedArguments() throws HopException {
-    JobExecutionConfiguration executionConfiguration = new JobExecutionConfiguration();
-    JobMeta jobMeta = new JobMeta();
-    jobMeta.jobcopies = new ArrayList<>();
-    String[] commandLineArguments = new String[ 0 ];
-    IMetaStore metaStore = mock( IMetaStore.class );
-
-    JobEntryCopy jobEntryCopy0 = new JobEntryCopy();
-
-    TransMeta transMeta0 = mock( TransMeta.class );
-    Map<String, String> map0 = new HashMap<>();
-    map0.put( "arg0", "argument0" );
-    when( transMeta0.getUsedArguments( commandLineArguments ) ).thenReturn( map0 );
-
-    JobEntryInterface jobEntryInterface0 = mock( JobEntryInterface.class );
-    when( jobEntryInterface0.isTransformation() ).thenReturn( false );
-
-    jobEntryCopy0.setEntry( jobEntryInterface0 );
-    jobMeta.jobcopies.add( jobEntryCopy0 );
-
-
-    JobEntryCopy jobEntryCopy1 = new JobEntryCopy();
-
-    TransMeta transMeta1 = mock( TransMeta.class );
-    Map<String, String> map1 = new HashMap<>();
-    map1.put( "arg1", "argument1" );
-    when( transMeta1.getUsedArguments( commandLineArguments ) ).thenReturn( map1 );
-
-    JobEntryTrans jobEntryTrans1 = mock( JobEntryTrans.class );
-    when( jobEntryTrans1.isTransformation() ).thenReturn( true );
-    when( jobEntryTrans1.getTransMeta( metaStore, jobMeta ) ).thenReturn( transMeta1 );
-
-    jobEntryCopy1.setEntry( jobEntryTrans1 );
-    jobMeta.jobcopies.add( jobEntryCopy1 );
-
-
-    JobEntryCopy jobEntryCopy2 = new JobEntryCopy();
-
-    TransMeta transMeta2 = mock( TransMeta.class );
-    Map<String, String> map2 = new HashMap<>();
-    map2.put( "arg1", "argument1" );
-    map2.put( "arg2", "argument2" );
-    when( transMeta2.getUsedArguments( commandLineArguments ) ).thenReturn( map2 );
-
-    JobEntryTrans jobEntryTrans2 = mock( JobEntryTrans.class );
-    when( jobEntryTrans2.isTransformation() ).thenReturn( true );
-    when( jobEntryTrans2.getTransMeta( metaStore, jobMeta ) ).thenReturn( transMeta2 );
-
-    jobEntryCopy2.setEntry( jobEntryTrans2 );
-    jobMeta.jobcopies.add( jobEntryCopy2 );
-
-
-    executionConfiguration.getUsedArguments( jobMeta, commandLineArguments, metaStore );
-    assertEquals( 2, executionConfiguration.getArguments().size() );
-  }
-
-  @Test
   public void testGetUsedVariablesWithNoPreviousExecutionConfigurationVariables() throws HopException {
     JobExecutionConfiguration executionConfiguration = new JobExecutionConfiguration();
     Map<String, String> variables0 = new HashMap<>();

@@ -69,7 +69,7 @@ public abstract class SingleThreadedExecutionGuarder<Meta extends StepMetaInterf
     transMeta.addStep( stepMeta );
 
     Trans trans = new Trans( transMeta );
-    trans.prepareExecution( null );
+    trans.prepareExecution();
 
     SingleThreadedTransExecutor executor = new SingleThreadedTransExecutor( trans );
     executor.init();

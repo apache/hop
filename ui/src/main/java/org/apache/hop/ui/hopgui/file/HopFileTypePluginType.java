@@ -79,11 +79,6 @@ public class HopFileTypePluginType extends BasePluginType implements PluginTypeI
   }
 
   @Override
-  protected String extractCategory( Annotation annotation ) {
-    return null;
-  }
-
-  @Override
   protected String extractDesc( Annotation annotation ) {
     return ( (HopFileTypePlugin) annotation ).description();
   }
@@ -96,49 +91,5 @@ public class HopFileTypePluginType extends BasePluginType implements PluginTypeI
   @Override
   protected String extractName( Annotation annotation ) {
     return ( (HopFileTypePlugin) annotation ).name();
-  }
-
-  @Override
-  protected String extractImageFile( Annotation annotation ) {
-    return null;
-  }
-
-  @Override
-  protected boolean extractSeparateClassLoader( Annotation annotation ) {
-    return false;
-  }
-
-  @Override
-  protected String extractI18nPackageName( Annotation annotation ) {
-    return null;
-  }
-
-  @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Annotation annotation ) {
-  }
-
-  @Override
-  protected String extractDocumentationUrl( Annotation annotation ) {
-    return null;
-  }
-
-  @Override
-  protected String extractCasesUrl( Annotation annotation ) {
-    return null;
-  }
-
-  @Override
-  protected String extractForumUrl( Annotation annotation ) {
-    return null;
-  }
-
-  @Override
-  protected String extractSuggestion( Annotation annotation ) {
-    return null;
-  }
-
-  @Override
-  protected String extractClassLoaderGroup( Annotation annotation ) {
-    return null;
   }
 }

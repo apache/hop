@@ -128,7 +128,7 @@ public abstract class AbstractPreviewRowsXulDialog extends AbstractXulEventHandl
 
     try {
 
-      trans.prepareExecution( null );
+      trans.prepareExecution();
 
       TransDebugMeta transDebugMeta = new TransDebugMeta( previewMeta );
       StepMeta stepMeta = previewMeta.findStep( "data_sync" );

@@ -34,13 +34,15 @@ public class GuiCompositeWidgets {
   private static final String LABEL_ID_PREFIX = "label-";
 
   private VariableSpace space;
-  private Map<GuiElements, Control> labelsMap;
-  private Map<GuiElements, Control> widgetsMap;
+  private Map<String, Control> labelsMap;
+  private Map<String, Control> widgetsMap;
+  private Map<String, ToolItem> toolItemMap;
 
   public GuiCompositeWidgets( VariableSpace space ) {
     this.space = space;
     labelsMap = new HashMap<>();
     widgetsMap = new HashMap<>();
+    toolItemMap = new HashMap<>(  );
   }
 
   public void createCompositeWidgets( Object sourceData, String parentKey, Composite parent, String parentGuiElementId, Control lastControl ) {
@@ -86,7 +88,6 @@ public class GuiCompositeWidgets {
 
       if ( isToolbar && ( guiElements.isAddingSeparator() || guiElements.getType() != GuiElementType.TOOLBAR_BUTTON ) ) {
         separator = new ToolItem( (ToolBar) parent, SWT.SEPARATOR );
-        separator.setWidth( Const.MARGIN );
       }
 
       // Add the label on the left hand side...
@@ -104,7 +105,7 @@ public class GuiCompositeWidgets {
         }
         fdLabel.right = new FormAttachment( Const.MIDDLE_PCT, 0 );
         label.setLayoutData( fdLabel );
-        labelsMap.put( guiElements, label );
+        labelsMap.put( guiElements.getId(), label );
       }
 
       // Add the GUI element
@@ -117,7 +118,7 @@ public class GuiCompositeWidgets {
             if ( guiElements.isPassword() ) {
               textVar.setEchoChar( '*' );
             }
-            widgetsMap.put( guiElements, textVar );
+            widgetsMap.put( guiElements.getId(), textVar );
             control = textVar;
           } else {
             Text text = new Text( parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT );
@@ -125,23 +126,29 @@ public class GuiCompositeWidgets {
             if ( guiElements.isPassword() ) {
               text.setEchoChar( '*' );
             }
-            widgetsMap.put( guiElements, text );
+            widgetsMap.put( guiElements.getId(), text );
             control = text;
           }
           break;
         case CHECKBOX:
           Button button = new Button( parent, SWT.CHECK | SWT.LEFT );
           props.setLook( button );
-          widgetsMap.put( guiElements, button );
+          widgetsMap.put( guiElements.getId(), button );
           control = button;
           break;
         case TOOLBAR_BUTTON:
           ToolItem item = new ToolItem( (ToolBar) parent, SWT.NONE );
-          item.setImage( GUIResource.getInstance().getImage( guiElements.getImage(), ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE ) );
+          if (StringUtils.isNotEmpty( guiElements.getImage() )) {
+            item.setImage( GUIResource.getInstance().getImage( guiElements.getImage(), ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE ) );
+          }
+          if (StringUtils.isNotEmpty( guiElements.getDisabledImage() )) {
+            item.setDisabledImage( GUIResource.getInstance().getImage( guiElements.getDisabledImage(), ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE ) );
+          }
           if ( StringUtils.isNotEmpty( guiElements.getToolTip() ) ) {
             item.setToolTipText( guiElements.getToolTip() );
           }
           addListener( item, sourceObject, guiElements );
+          toolItemMap.put(guiElements.getId(), item);
           break;
         case MENU_ITEM:
           break;
@@ -236,7 +243,7 @@ public class GuiCompositeWidgets {
     //
     if ( guiElements.getId() != null ) {
 
-      Control control = widgetsMap.get( guiElements );
+      Control control = widgetsMap.get( guiElements.getId() );
       if ( control != null ) {
 
         // What's the value?
@@ -306,7 +313,7 @@ public class GuiCompositeWidgets {
     //
     if ( guiElements.getId() != null ) {
 
-      Control control = widgetsMap.get( guiElements );
+      Control control = widgetsMap.get( guiElements.getId() );
       if ( control != null ) {
 
         // What's the value?
@@ -381,8 +388,8 @@ public class GuiCompositeWidgets {
       // TODO: look for flag to have custom enable/disable code
       //
 
-      Control label = labelsMap.get( guiElements );
-      Control widget = widgetsMap.get( guiElements );
+      Control label = labelsMap.get( guiElements.getId() );
+      Control widget = widgetsMap.get( guiElements.getId() );
       if ( label != null ) {
         label.setEnabled( enabled );
       } else {
@@ -423,14 +430,14 @@ public class GuiCompositeWidgets {
    *
    * @return value of labelsMap
    */
-  public Map<GuiElements, Control> getLabelsMap() {
+  public Map<String, Control> getLabelsMap() {
     return labelsMap;
   }
 
   /**
    * @param labelsMap The labelsMap to set
    */
-  public void setLabelsMap( Map<GuiElements, Control> labelsMap ) {
+  public void setLabelsMap( Map<String, Control> labelsMap ) {
     this.labelsMap = labelsMap;
   }
 
@@ -439,14 +446,30 @@ public class GuiCompositeWidgets {
    *
    * @return value of widgetsMap
    */
-  public Map<GuiElements, Control> getWidgetsMap() {
+  public Map<String, Control> getWidgetsMap() {
     return widgetsMap;
   }
 
   /**
    * @param widgetsMap The widgetsMap to set
    */
-  public void setWidgetsMap( Map<GuiElements, Control> widgetsMap ) {
+  public void setWidgetsMap( Map<String, Control> widgetsMap ) {
     this.widgetsMap = widgetsMap;
+  }
+
+  /**
+   * Gets toolItemMap
+   *
+   * @return value of toolItemMap
+   */
+  public Map<String, ToolItem> getToolItemMap() {
+    return toolItemMap;
+  }
+
+  /**
+   * @param toolItemMap The toolItemMap to set
+   */
+  public void setToolItemMap( Map<String, ToolItem> toolItemMap ) {
+    this.toolItemMap = toolItemMap;
   }
 }

@@ -86,7 +86,7 @@ public class SubtransExecutor {
     result.setRows( rows );
     subtrans.setPreviousResult( result );
 
-    subtrans.prepareExecution( this.parentTrans.getArguments() );
+    subtrans.prepareExecution();
     List<RowMetaAndData> rowMetaAndData = new ArrayList<>();
     subtrans.getSteps().stream()
       .filter( c -> c.step.getStepname().equalsIgnoreCase( subStep ) )
@@ -127,7 +127,6 @@ public class SubtransExecutor {
     Trans subTrans = new Trans( this.subtransMeta, this.parentTrans );
     subTrans.setParentTrans( this.parentTrans );
     subTrans.setLogLevel( this.parentTrans.getLogLevel() );
-    subTrans.setArguments( this.parentTrans.getArguments() );
     if ( this.shareVariables ) {
       subTrans.shareVariablesWith( this.parentTrans );
     }

@@ -229,23 +229,6 @@ public class SystemData extends BaseStep implements StepInterface {
         case TYPE_SYSTEM_INFO_FILENAME:
           row[ index ] = getTransMeta().getFilename();
           break;
-        case TYPE_SYSTEM_INFO_ARGUMENT_01:
-        case TYPE_SYSTEM_INFO_ARGUMENT_02:
-        case TYPE_SYSTEM_INFO_ARGUMENT_03:
-        case TYPE_SYSTEM_INFO_ARGUMENT_04:
-        case TYPE_SYSTEM_INFO_ARGUMENT_05:
-        case TYPE_SYSTEM_INFO_ARGUMENT_06:
-        case TYPE_SYSTEM_INFO_ARGUMENT_07:
-        case TYPE_SYSTEM_INFO_ARGUMENT_08:
-        case TYPE_SYSTEM_INFO_ARGUMENT_09:
-        case TYPE_SYSTEM_INFO_ARGUMENT_10:
-          argnr = meta.getFieldType()[ i ].ordinal() - SystemDataTypes.TYPE_SYSTEM_INFO_ARGUMENT_01.ordinal();
-          if ( getTrans().getArguments() != null && argnr < getTrans().getArguments().length ) {
-            row[ index ] = getTrans().getArguments()[ argnr ];
-          } else {
-            row[ index ] = null;
-          }
-          break;
         case TYPE_SYSTEM_INFO_HOP_VERSION:
           row[ index ] = BuildVersion.getInstance().getVersion();
           break;

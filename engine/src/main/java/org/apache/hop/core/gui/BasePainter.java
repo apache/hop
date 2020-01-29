@@ -52,7 +52,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends BaseM
   public static final int CORNER_RADIUS_3 = 6;
   public static final int CORNER_RADIUS_2 = 4;
 
-  public static final float FACTOR_1_TO_1 = 1.0f;
+  protected double zoomFactor;
 
   protected Point area;
 
@@ -85,7 +85,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends BaseM
 
   public BasePainter( GCInterface gc, Object subject, Point area, ScrollBarInterface hori,
                       ScrollBarInterface vert, Point drop_candidate, Rectangle selrect, List<AreaOwner> areaOwners, int iconsize,
-                      int linewidth, int gridsize, int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight ) {
+                      int linewidth, int gridsize, int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight, double zoomFactor ) {
     this.gc = gc;
     this.subject = subject;
     this.area = area;
@@ -107,6 +107,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends BaseM
     this.shadow = shadowSize > 0;
 
     this.magnification = 1.0f;
+    this.zoomFactor = zoomFactor;
 
     gc.setAntialias( antiAliasing );
 
@@ -507,4 +508,20 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends BaseM
 
   protected abstract void drawArrow( EImage arrow, int x1, int y1, int x2, int y2, double theta, int size, double factor,
                                      Hop jobHop, Object startObject, Object endObject );
+
+  /**
+   * Gets zoomFactor
+   *
+   * @return value of zoomFactor
+   */
+  public double getZoomFactor() {
+    return zoomFactor;
+  }
+
+  /**
+   * @param zoomFactor The zoomFactor to set
+   */
+  public void setZoomFactor( double zoomFactor ) {
+    this.zoomFactor = zoomFactor;
+  }
 }

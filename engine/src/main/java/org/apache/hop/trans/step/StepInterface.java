@@ -32,6 +32,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
+import org.apache.hop.trans.engine.IEngineComponent;
 import org.apache.hop.trans.step.BaseStepData.StepExecutionStatus;
 
 import java.util.Collection;
@@ -47,7 +48,7 @@ import java.util.Map;
  * @author Matt
  */
 
-public interface StepInterface extends VariableSpace, HasLogChannelInterface {
+public interface StepInterface extends VariableSpace, HasLogChannelInterface, IEngineComponent {
   /**
    * @return the transformation that is executing this step
    */

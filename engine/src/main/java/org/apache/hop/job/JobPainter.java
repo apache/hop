@@ -45,12 +45,13 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
 
   private JobMeta jobMeta;
 
-  private List<JobEntryCopy> mouseOverEntries;
+  private Set<JobEntryCopy> mouseOverEntries;
   private Map<JobEntryCopy, String> entryLogMap;
   private JobEntryCopy startHopEntry;
   private Point endHopLocation;
@@ -61,11 +62,11 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
 
   public JobPainter( GCInterface gc, JobMeta jobMeta, Point area, ScrollBarInterface hori,
                      ScrollBarInterface vert, JobHopMeta candidate, Point drop_candidate, Rectangle selrect,
-                     List<AreaOwner> areaOwners, List<JobEntryCopy> mouseOverEntries, int iconsize, int linewidth, int gridsize,
-                     int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight ) {
+                     List<AreaOwner> areaOwners, Set<JobEntryCopy> mouseOverEntries, int iconsize, int linewidth, int gridsize,
+                     int shadowSize, boolean antiAliasing, String noteFontName, int noteFontHeight, double zoomFactor ) {
     super(
       gc, jobMeta, area, hori, vert, drop_candidate, selrect, areaOwners, iconsize, linewidth, gridsize,
-      shadowSize, antiAliasing, noteFontName, noteFontHeight );
+      shadowSize, antiAliasing, noteFontName, noteFontHeight, zoomFactor );
     this.jobMeta = jobMeta;
 
     this.candidate = candidate;
@@ -299,7 +300,7 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
     // Optionally drawn the mouse-over information
     //
     if ( mouseOverEntries.contains( jobEntryCopy ) && !jobEntryCopy.isDeprecated() ) {
-      gc.setTransform( translationX, translationY, 0, BasePainter.FACTOR_1_TO_1 );
+      gc.setTransform( translationX, translationY, 0, (float) zoomFactor );
 
       EImage[] miniIcons = new EImage[] { EImage.INPUT, EImage.EDIT, EImage.CONTEXT_MENU, EImage.OUTPUT, };
 
@@ -409,7 +410,7 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
         } else {
           gc.setAlpha( 100 );
         }
-        gc.drawImage( miniIcon, xIcon, yIcon, BasePainter.FACTOR_1_TO_1 );
+        gc.drawImage( miniIcon, xIcon, yIcon, (float)zoomFactor );
         xIcon += bounds.x + 5;
       }
       gc.setTransform( translationX, translationY, 0, magnification );
@@ -607,14 +608,14 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
   /**
    * @return the mouseOverEntries
    */
-  public List<JobEntryCopy> getMouseOverEntries() {
+  public Set<JobEntryCopy> getMouseOverEntries() {
     return mouseOverEntries;
   }
 
   /**
    * @param mouseOverEntries the mouseOverEntries to set
    */
-  public void setMouseOverEntries( List<JobEntryCopy> mouseOverEntries ) {
+  public void setMouseOverEntries( Set<JobEntryCopy> mouseOverEntries ) {
     this.mouseOverEntries = mouseOverEntries;
   }
 

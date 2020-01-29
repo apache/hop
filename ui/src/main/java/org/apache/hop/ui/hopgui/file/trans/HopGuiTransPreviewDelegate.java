@@ -28,13 +28,18 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiToolbarElement;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
-import org.apache.hop.trans.TransAdapter;
+import org.apache.hop.trans.ExecutionAdapter;
 import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.engine.IEngine;
+import org.apache.hop.trans.engine.IEngineComponent;
 import org.apache.hop.trans.step.RowAdapter;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
@@ -59,8 +64,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
-import org.pentaho.ui.xul.XulDomContainer;
-import org.pentaho.ui.xul.swt.tags.SwtRadio;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,6 +75,10 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
+@GuiPlugin(
+  id = "HopGuiTransPreviewDelegate",
+  description = "The transformation preview tab in the execution pane"
+)
 public class HopGuiTransPreviewDelegate {
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
 
@@ -85,9 +92,9 @@ public class HopGuiTransPreviewDelegate {
   private ToolBar toolbar;
   private Composite transPreviewComposite;
 
-  protected Map<StepMeta, RowMetaInterface> previewMetaMap;
-  protected Map<StepMeta, List<RowMetaAndData>> previewDataMap;
-  protected Map<StepMeta, StringBuffer> previewLogMap;
+  protected Map<String, RowMetaInterface> previewMetaMap;
+  protected Map<String, List<RowMetaAndData>> previewDataMap;
+  protected Map<String, String> previewLogMap;
   private Composite previewComposite;
 
   private Text logText;
@@ -101,9 +108,6 @@ public class HopGuiTransPreviewDelegate {
 
   private StepMeta selectedStep;
   protected StepMeta lastSelectedStep;
-  private SwtRadio firstRadio;
-  private SwtRadio lastRadio;
-  private SwtRadio offRadio;
 
   /**
    * @param hopUi
@@ -188,7 +192,7 @@ public class HopGuiTransPreviewDelegate {
   }
 
   private void addToolBar() {
-    toolbar = new ToolBar( transPreviewComposite, SWT.BORDER | SWT.WRAP | SWT.SHADOW_OUT | SWT.RIGHT | SWT.VERTICAL );
+    toolbar = new ToolBar( transPreviewComposite, SWT.BORDER | SWT.WRAP | SWT.SHADOW_OUT | SWT.RIGHT | SWT.HORIZONTAL );
     FormData fdToolBar = new FormData();
     fdToolBar.left = new FormAttachment( 0, 0 );
     fdToolBar.top = new FormAttachment( 0, 0 );
@@ -200,6 +204,7 @@ public class HopGuiTransPreviewDelegate {
     widgets.createCompositeWidgets( this, null, toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID, null );
     toolbar.pack();
   }
+
 
   /**
    * This refresh is driven by outside influenced using listeners and so on.
@@ -236,7 +241,7 @@ public class HopGuiTransPreviewDelegate {
       }
     }
 
-    StringBuffer logText = previewLogMap.get( stepMeta );
+    String logText = previewLogMap.get( stepMeta );
     if ( errorStep && logText != null && logText.length() > 0 ) {
       showLogText( stepMeta, logText.toString() );
       return;
@@ -252,7 +257,7 @@ public class HopGuiTransPreviewDelegate {
         showPreviewGrid( transGraph.getManagedObject(), stepMeta, rowMeta, rowData );
       } catch ( Exception e ) {
         e.printStackTrace();
-        logText.append( Const.getStackTracker( e ) );
+        logText+= Const.getStackTracker( e );
         showLogText( stepMeta, logText.toString() );
       }
     }
@@ -344,65 +349,6 @@ public class HopGuiTransPreviewDelegate {
     return transPreviewTab;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.pentaho.ui.xul.impl.XulEventHandler#getData()
-   */
-  public Object getData() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.pentaho.ui.xul.impl.XulEventHandler#getName()
-   */
-  public String getName() {
-    return "transpreview";
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.pentaho.ui.xul.impl.XulEventHandler#getXulDomContainer()
-   */
-  public XulDomContainer getXulDomContainer() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.pentaho.ui.xul.impl.XulEventHandler#setData(java.lang.Object)
-   */
-  public void setData( Object data ) {
-    // TODO Auto-generated method stub
-
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.pentaho.ui.xul.impl.XulEventHandler#setName(java.lang.String)
-   */
-  public void setName( String name ) {
-    // TODO Auto-generated method stub
-
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.pentaho.ui.xul.impl.XulEventHandler#setXulDomContainer(org.pentaho. ui.xul.XulDomContainer)
-   */
-  public void setXulDomContainer( XulDomContainer xulDomContainer ) {
-    // TODO Auto-generated method stub
-
-  }
-
   /**
    * @return the active
    */
@@ -429,7 +375,7 @@ public class HopGuiTransPreviewDelegate {
       for ( final StepMeta stepMeta : stepMetas ) {
 
         final RowMetaInterface rowMeta = transMeta.getStepFields( stepMeta ).clone();
-        previewMetaMap.put( stepMeta, rowMeta );
+        previewMetaMap.put( stepMeta.getName(), rowMeta );
         final List<RowMetaAndData> rowsData;
         if ( previewMode == PreviewMode.LAST ) {
           rowsData = new LinkedList<>();
@@ -437,8 +383,8 @@ public class HopGuiTransPreviewDelegate {
           rowsData = new ArrayList<>();
         }
 
-        previewDataMap.put( stepMeta, rowsData );
-        previewLogMap.put( stepMeta, loggingText );
+        previewDataMap.put( stepMeta.getName(), rowsData );
+        previewLogMap.put( stepMeta.getName(), loggingText.toString() );
 
         StepInterface step = trans.findRunThread( stepMeta.getName() );
 
@@ -485,19 +431,17 @@ public class HopGuiTransPreviewDelegate {
 
     // In case there were errors during preview...
     //
-    trans.addTransListener( new TransAdapter() {
+    trans.addTransListener( new ExecutionAdapter<TransMeta>() {
       @Override
-      public void transFinished( Trans trans ) throws HopException {
+      public void finished( IEngine<TransMeta> trans ) throws HopException {
         // Copy over the data from the previewDelegate...
         //
         if ( trans.getErrors() != 0 ) {
           // capture logging and store it...
           //
-          for ( StepMetaDataCombi combi : trans.getSteps() ) {
-            if ( combi.copy == 0 ) {
-              StringBuffer logBuffer =
-                HopLogStore.getAppender().getBuffer( combi.step.getLogChannel().getLogChannelId(), false );
-              previewLogMap.put( combi.stepMeta, logBuffer );
+          for ( IEngineComponent component : trans.getComponents() ) {
+            if ( component.getCopyNr() == 0 ) {
+              previewLogMap.put( component.getName(), component.getLogText() );
             }
           }
         }
@@ -507,11 +451,11 @@ public class HopGuiTransPreviewDelegate {
 
   public void addPreviewData( StepMeta stepMeta, RowMetaInterface rowMeta, List<Object[]> rowsData,
                               StringBuffer buffer ) {
-    previewLogMap.put( stepMeta, buffer );
-    previewMetaMap.put( stepMeta, rowMeta );
+    previewLogMap.put( stepMeta.getName(), buffer.toString());
+    previewMetaMap.put( stepMeta.getName(), rowMeta );
     List<RowMetaAndData> rowsMetaAndData =
       rowsData.stream().map( data -> new RowMetaAndData( rowMeta, data ) ).collect( toList() );
-    previewDataMap.put( stepMeta, rowsMetaAndData );
+    previewDataMap.put( stepMeta.getName(), rowsMetaAndData );
   }
 
   /**
@@ -532,32 +476,19 @@ public class HopGuiTransPreviewDelegate {
     return previewMode;
   }
 
+  @GuiToolbarElement( id = "trans-graph-preview-10100-first", parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID, type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/back.svg")
   public void first() {
     previewMode = PreviewMode.FIRST;
-    firstRadio.setSelected( true );
-    lastRadio.setSelected( false );
-    offRadio.setSelected( false );
   }
 
+  @GuiToolbarElement( id = "trans-graph-preview-10200-last", parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID, type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/forward.svg")
   public void last() {
     previewMode = PreviewMode.LAST;
-    firstRadio.setSelected( false );
-    lastRadio.setSelected( true );
-    offRadio.setSelected( false );
   }
 
+  @GuiToolbarElement( id = "trans-graph-preview-10300-off", parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID, type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/generic-delete.svg")
   public void off() {
     previewMode = PreviewMode.OFF;
-    firstRadio.setSelected( false );
-    lastRadio.setSelected( false );
-    offRadio.setSelected( true );
   }
 
-  public Map<StepMeta, List<Object[]>> getPreviewDataMap() {
-    // Note this method is unused, but sincie it's public, we will keep the original signature after change to type of
-    // this map, just in case.
-    return previewDataMap.keySet().stream().collect(
-      toMap(
-        identity(), key -> previewDataMap.get( key ).stream().map( RowMetaAndData::getData ).collect( toList() ) ) );
-  }
 }

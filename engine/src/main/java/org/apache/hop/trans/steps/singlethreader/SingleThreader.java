@@ -193,7 +193,7 @@ public class SingleThreader extends BaseStep implements StepInterface {
 
     // prepare the execution
     //
-    singleThreaderData.mappingTrans.prepareExecution( null );
+    singleThreaderData.mappingTrans.prepareExecution();
 
     // If the inject step is a mapping input step, tell it all is OK...
     //

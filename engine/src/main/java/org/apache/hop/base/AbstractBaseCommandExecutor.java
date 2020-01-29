@@ -54,7 +54,7 @@ public abstract class AbstractBaseCommandExecutor {
 
   public DelegatingMetaStore createDefaultMetastore() throws MetaStoreException {
     DelegatingMetaStore metaStore = new DelegatingMetaStore();
-    metaStore.addMetaStore( MetaStoreConst.openLocalPentahoMetaStore() );
+    metaStore.addMetaStore( MetaStoreConst.openLocalHopMetaStore() );
     metaStore.setActiveMetaStoreName( metaStore.getName() );
     return metaStore;
   }

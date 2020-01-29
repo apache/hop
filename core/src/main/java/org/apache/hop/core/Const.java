@@ -1094,6 +1094,11 @@ public class Const {
   /**
    * The XML file that contains the list of native Hop database types (MySQL, Oracle, etc)
    */
+  public static final String XML_FILE_HOP_ENGINE_PLUGINS = "hop-engine-plugins.xml";
+
+  /**
+   * The XML file that contains the list of native Hop database types (MySQL, Oracle, etc)
+   */
   public static final String XML_FILE_HOP_FILE_TYPES = "hop-file-types.xml";
 
   /**

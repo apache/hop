@@ -272,22 +272,6 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
   /**
    * Public for XUL.
    */
-  public void replayHistory() {
-    TransHistoryLogTab model = models[ tabFolder.getSelectionIndex() ];
-
-    int idx = model.logDisplayTableView.getSelectionIndex();
-    if ( idx >= 0 ) {
-      String[] fields = model.logDisplayTableView.getItem( idx );
-      String dateString = fields[ 13 ];
-      Date replayDate = XMLHandler.stringToDate( dateString );
-      hopUi.executeTransformation( transGraph.getManagedObject(), true, false, false, false, false, replayDate, false,
-        hopUi.getTransExecutionConfiguration().getLogLevel() );
-    }
-  }
-
-  /**
-   * Public for XUL.
-   */
   public void refreshHistory() {
     refreshHistory( tabFolder.getSelectionIndex(), Mode.INITIAL );
   }

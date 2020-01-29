@@ -63,7 +63,7 @@ public class PropertyOutputIT {
   public void testExecute() throws HopException, IOException {
     TransMeta meta = new TransMeta( getClass().getResource( "propertyOutput.ktr" ).getPath() );
     Trans trans = new Trans( meta );
-    trans.execute( new String[] {} );
+    trans.execute();
     trans.waitUntilFinished();
 
     //check that trans is finished

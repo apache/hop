@@ -174,7 +174,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
    */
   public HopFileTypeHandlerInterface addTransformation( Composite parent, HopGui hopGui, TransMeta transMeta, HopTransFileType transFile ) throws HopException {
     CTabItem tabItem = new CTabItem( tabFolder, SWT.CLOSE );
-    HopGuiTransGraph transGraph = new HopGuiTransGraph( tabFolder, hopGui, tabItem, transMeta, transFile );
+    HopGuiTransGraph transGraph = new HopGuiTransGraph( tabFolder, hopGui, tabItem, this, transMeta, transFile );
     tabItem.setControl( transGraph );
 
     // Set the tab name

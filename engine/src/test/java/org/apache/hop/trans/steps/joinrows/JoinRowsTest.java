@@ -100,7 +100,7 @@ public class JoinRowsTest {
     transMeta.setStep( 0, stepMeta );
     stepMeta.setName( "test" );
     trans.setLog( mock( LogChannelInterface.class ) );
-    trans.prepareExecution( null );
+    trans.prepareExecution();
     trans.startThreads();
 
     return new JoinRows( stepMeta, null, 0, transMeta, trans );

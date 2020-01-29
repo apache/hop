@@ -2,7 +2,7 @@
  *
  * Pentaho Data Integration
  *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -20,29 +20,27 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.core.playlist;
+package org.apache.hop.trans;
 
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.trans.engine.IEngine;
 
-public class FilePlayListReplayFile implements FilePlayList {
-  private FileObject processingFile;
-  private String processingFilePart;
+/**
+ * Utility class to allow only certain methods of ExecutionListener to be overridden.
+ *
+ * @author matt
+ */
+public class ExecutionAdapter<T> implements ExecutionListener<T> {
 
-  public FilePlayListReplayFile( FileObject processingFile, String processingFilePart ) {
-    this.processingFile = processingFile;
-    this.processingFilePart = processingFilePart;
+  @Override public void started( IEngine<T> engine ) throws HopException {
+
   }
 
-  FileObject getProcessingFile() {
-    return processingFile;
+  @Override public void becameActive( IEngine<T> engine ) {
+
   }
 
-  String getProcessingFilePart() {
-    return processingFilePart;
-  }
+  @Override public void finished( IEngine<T> engine ) throws HopException {
 
-  public boolean isProcessingNeeded( FileObject file, long lineNr, String filePart ) throws HopException {
-    return false;
   }
 }

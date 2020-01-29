@@ -277,7 +277,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
 
   private List<AreaOwner> areaOwners;
 
-  private List<JobEntryCopy> mouseOverEntries;
+  private Set<JobEntryCopy> mouseOverEntries;
 
   /**
    * A map that keeps track of which log line was written by which job entry
@@ -306,7 +306,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
 
     this.props = PropsUI.getInstance();
     this.areaOwners = new ArrayList<>();
-    this.mouseOverEntries = new ArrayList<>();
+    this.mouseOverEntries = new HashSet<>();
     this.delayTimers = new HashMap<>();
 
     jobLogDelegate = new JobLogDelegate( hopUi, this );
@@ -2739,7 +2739,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
     Image img = getJobImage( disp, area.x, area.y, magnification );
     e.gc.drawImage( img, 0, 0 );
     if ( jobMeta.nrJobEntries() == 0 ) {
-      e.gc.setForeground( GUIResource.getInstance().getColorCrystalTextPentaho() );
+      e.gc.setForeground( GUIResource.getInstance().getColorCrystalText() );
       e.gc.setBackground( GUIResource.getInstance().getColorBackground() );
       e.gc.setFont( GUIResource.getInstance().getFontMedium() );
 
@@ -2765,7 +2765,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
         drop_candidate, selectionRegion, areaOwners, mouseOverEntries, PropsUI.getInstance().getIconSize(),
         PropsUI.getInstance().getLineWidth(), gridSize, PropsUI
         .getInstance().getShadowSize(), PropsUI.getInstance().isAntiAliasingEnabled(), PropsUI
-        .getInstance().getNoteFont().getName(), PropsUI.getInstance().getNoteFont().getHeight() );
+        .getInstance().getNoteFont().getName(), PropsUI.getInstance().getNoteFont().getHeight(), PropsUI.getInstance().getZoomFactor() );
 
     jobPainter.setMagnification( magnificationFactor );
     jobPainter.setEntryLogMap( entryLogMap );
@@ -3360,7 +3360,6 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
             job.shareVariablesWith( jobMeta );
             job.setInteractive( true );
             job.setGatheringMetrics( executionConfiguration.isGatheringMetrics() );
-            job.setArguments( executionConfiguration.getArgumentStrings() );
 
             // Pass specific extension points...
             //
@@ -3626,7 +3625,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
 
     JobEntryCopy copy = selectedEntries.get( 0 );
 
-    hopUi.executeJob( jobMeta, true, false, null, false, copy.getName(), copy.getNr() );
+    hopUi.executeJob( jobMeta, true, false, false, copy.getName(), copy.getNr() );
   }
 
   public void handleJobMetaChanges( JobMeta jobMeta ) throws HopException {

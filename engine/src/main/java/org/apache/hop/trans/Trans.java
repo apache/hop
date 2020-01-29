@@ -40,6 +40,7 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.SingleRowRowSet;
+import org.apache.hop.core.annotations.EnginePlugin;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseTransactionListener;
@@ -92,7 +93,10 @@ import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.resource.ResourceUtil;
 import org.apache.hop.resource.TopLevelResource;
 import org.apache.hop.trans.cluster.TransSplitter;
+import org.apache.hop.trans.engine.EngineMetrics;
+import org.apache.hop.trans.engine.IEngineComponent;
 import org.apache.hop.trans.performance.StepPerformanceSnapShot;
+import org.apache.hop.trans.engine.IEngine;
 import org.apache.hop.trans.step.BaseStep;
 import org.apache.hop.trans.step.BaseStepData.StepExecutionStatus;
 import org.apache.hop.trans.step.RunThread;
@@ -120,7 +124,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -151,27 +154,33 @@ import static org.apache.hop.trans.Trans.BitMaskStatus.PREPARING;
 import static org.apache.hop.trans.Trans.BitMaskStatus.RUNNING;
 import static org.apache.hop.trans.Trans.BitMaskStatus.STOPPED;
 
-
 /**
- * This class represents the information and operations associated with the concept of a Transformation. It loads,
+ * This class represents the information and operations associated with the execution of a Transformation. It loads,
  * instantiates, initializes, runs, and monitors the execution of the transformation contained in the specified
- * TransInfo object.
+ * TransMeta object.
  *
  * @author Matt
  * @since 07-04-2003
  */
+@EnginePlugin(
+  id = "Trans",
+  name = "Transformation execution engine",
+  description = "The classic transformation execution engine"
+)
 public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface, LoggingObjectInterface,
-  ExecutorInterface, ExtensionDataInterface {
+  ExecutorInterface, ExtensionDataInterface, IEngine<TransMeta> {
+
+  public static final String METRIC_NAME_INPUT = "input";
+  public static final String METRIC_NAME_OUTPUT = "output";
+  public static final String METRIC_NAME_ERROR = "error";
+  public static final String METRIC_NAME_READ = "read";
+  public static final String METRIC_NAME_WRITTEN = "written";
+  public static final String METRIC_NAME_REJECTED = "rejected";
 
   /**
    * The package name, used for internationalization of messages.
    */
   private static Class<?> PKG = Trans.class; // for i18n purposes, needed by Translator2!!
-
-  /**
-   * The replay date format.
-   */
-  public static final String REPLAY_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
 
   /**
    * The log channel interface.
@@ -274,12 +283,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    * The class number.
    */
   public int class_nr;
-
-  /**
-   * The replayDate indicates that this transformation is a replay transformation for a transformation executed on
-   * replayDate. If replayDate is null, the transformation is not a replay.
-   */
-  private Date replayDate;
 
   /**
    * Constant indicating a dispatch type of 1-to-1.
@@ -427,7 +430,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
   /**
    * A list of listeners attached to the transformation.
    */
-  private List<TransListener> transListeners;
+  private List<ExecutionListener<TransMeta>> executionListeners;
 
   /**
    * A list of stop-event listeners attached to the transformation.
@@ -536,15 +539,13 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
 
   private Map<String, Object> extensionDataMap;
 
-  private ExecutorService heartbeat = null; // this transformations's heartbeat scheduled executor
-
   /**
    * Instantiates a new transformation.
    */
   public Trans() {
     status = new AtomicInteger();
 
-    transListeners = Collections.synchronizedList( new ArrayList<TransListener>() );
+    executionListeners = Collections.synchronizedList( new ArrayList<ExecutionListener<TransMeta>>() );
     transStoppedListeners = Collections.synchronizedList( new ArrayList<TransStoppedListener>() );
     delegationListeners = new ArrayList<>();
 
@@ -597,6 +598,10 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
     // Get a valid transactionId in case we run database transactional.
     transactionId = calculateTransactionId();
     threadName = transactionId; // / backward compatibility but deprecated!
+  }
+
+  @Override public TransMeta getSubject() {
+    return transMeta;
   }
 
   /**
@@ -715,11 +720,10 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    * Executes the transformation. This method will prepare the transformation for execution and then start all the
    * threads associated with the transformation and its steps.
    *
-   * @param arguments the arguments
    * @throws HopException if the transformation could not be prepared (initialized)
    */
-  public void execute( String[] arguments ) throws HopException {
-    prepareExecution( arguments );
+  public void execute() throws HopException {
+    prepareExecution();
     startThreads();
   }
 
@@ -727,10 +731,9 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    * Prepares the transformation for execution. This includes setting the arguments and parameters as well as preparing
    * and tracking the steps and hops in the transformation.
    *
-   * @param arguments the arguments to use for this transformation
    * @throws HopException in case the transformation could not be prepared (initialized)
    */
-  public void prepareExecution( String[] arguments ) throws HopException {
+  public void prepareExecution() throws HopException {
     setPreparing( true );
     startDate = null;
     setRunning( false );
@@ -739,14 +742,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
     log.snap( Metrics.METRIC_TRANSFORMATION_INIT_START );
 
     ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.TransformationPrepareExecution.id, this );
-
-    checkCompatibility();
-
-    // Set the arguments on the transformation...
-    //
-    if ( arguments != null ) {
-      setArguments( arguments );
-    }
 
     activateParameters();
     transMeta.activateParameters();
@@ -761,26 +756,9 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
         .getName() ) );
     }
 
-    if ( getArguments() != null ) {
-      if ( log.isDetailed() ) {
-        log.logDetailed( BaseMessages.getString( PKG, "Trans.Log.NumberOfArgumentsDetected", String.valueOf(
-          getArguments().length ) ) );
-      }
-    }
-
     if ( isSafeModeEnabled() ) {
       if ( log.isDetailed() ) {
         log.logDetailed( BaseMessages.getString( PKG, "Trans.Log.SafeModeIsEnabled", transMeta.getName() ) );
-      }
-    }
-
-    if ( getReplayDate() != null ) {
-      SimpleDateFormat df = new SimpleDateFormat( REPLAY_DATE_FORMAT );
-      log.logBasic( BaseMessages.getString( PKG, "Trans.Log.ThisIsAReplayTransformation" ) + df.format(
-        getReplayDate() ) );
-    } else {
-      if ( log.isDetailed() ) {
-        log.logDetailed( BaseMessages.getString( PKG, "Trans.Log.ThisIsNotAReplayTransformation" ) );
       }
     }
 
@@ -1256,21 +1234,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
     setReadyToStart( true );
   }
 
-  @SuppressWarnings( "deprecation" )
-  private void checkCompatibility() {
-    // If we don't have a previous result and transMeta does have one, someone has been using a deprecated method.
-    //
-    if ( transMeta.getPreviousResult() != null && getPreviousResult() == null ) {
-      setPreviousResult( transMeta.getPreviousResult() );
-    }
-
-    // If we don't have arguments set and TransMeta has, someone has been using a deprecated method.
-    //
-    if ( transMeta.getArguments() != null && getArguments() == null ) {
-      setArguments( transMeta.getArguments() );
-    }
-  }
-
   /**
    * Starts the threads prepared by prepareThreads(). Before you start the threads, you can add RowListeners to them.
    *
@@ -1300,9 +1263,9 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
           if ( nrOfActiveSteps == 1 ) {
             // Transformation goes from in-active to active...
             // PDI-5229 sync added
-            synchronized ( transListeners ) {
-              for ( TransListener listener : transListeners ) {
-                listener.transActive( Trans.this );
+            synchronized ( executionListeners ) {
+              for ( ExecutionListener listener : executionListeners ) {
+                listener.becameActive( Trans.this );
               }
             }
           }
@@ -1387,13 +1350,11 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
 
     transFinishedBlockingQueue = new ArrayBlockingQueue<>( 10 );
 
-    TransListener transListener = new TransAdapter() {
+    ExecutionListener executionListener = new ExecutionAdapter<TransMeta>() {
       @Override
-      public void transFinished( Trans trans ) {
+      public void finished( IEngine<TransMeta> trans ) {
 
         try {
-          shutdownHeartbeat( trans != null ? trans.heartbeat : null );
-
           ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.TransformationFinish.id, trans );
         } catch ( HopException e ) {
           throw new RuntimeException( "Error calling extension point at end of transformation", e );
@@ -1438,7 +1399,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
     // This should always be done first so that the other listeners achieve a clean state to start from (setFinished and
     // so on)
     //
-    transListeners.add( 0, transListener );
+    executionListeners.add( 0, executionListener );
 
     setRunning( true );
 
@@ -1546,8 +1507,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
 
     ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.TransformationStart.id, this );
 
-    heartbeat = startHeartbeat( getHeartbeatIntervalInSeconds() );
-
     if ( steps.isEmpty() ) {
       fireTransFinishedListeners();
     }
@@ -1565,15 +1524,15 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    */
   protected void fireTransFinishedListeners() throws HopException {
     // PDI-5229 sync added
-    synchronized ( transListeners ) {
-      if ( transListeners.size() == 0 ) {
+    synchronized ( executionListeners ) {
+      if ( executionListeners.size() == 0 ) {
         return;
       }
       // prevent Exception from one listener to block others execution
-      List<HopException> badGuys = new ArrayList<>( transListeners.size() );
-      for ( TransListener transListener : transListeners ) {
+      List<HopException> badGuys = new ArrayList<>( executionListeners.size() );
+      for ( ExecutionListener executionListener : executionListeners ) {
         try {
-          transListener.transFinished( this );
+          executionListener.finished( this );
         } catch ( HopException e ) {
           badGuys.add( e );
         }
@@ -1596,9 +1555,9 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    */
   protected void fireTransStartedListeners() throws HopException {
     // PDI-5229 sync added
-    synchronized ( transListeners ) {
-      for ( TransListener transListener : transListeners ) {
-        transListener.transStarted( this );
+    synchronized ( executionListeners ) {
+      for ( ExecutionListener executionListener : executionListeners ) {
+        executionListener.started( this );
       }
     }
   }
@@ -1671,18 +1630,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
   }
 
   /**
-   * Logs a summary message for the specified step.
-   *
-   * @param si the step interface
-   */
-  public void logSummary( StepInterface si ) {
-    log.logBasic( si.getStepname(), BaseMessages.getString( PKG, "Trans.Log.FinishedProcessing", String.valueOf( si
-      .getLinesInput() ), String.valueOf( si.getLinesOutput() ), String.valueOf( si.getLinesRead() ) ) + BaseMessages
-      .getString( PKG, "Trans.Log.FinishedProcessing2", String.valueOf( si.getLinesWritten() ), String.valueOf( si
-        .getLinesUpdated() ), String.valueOf( si.getErrors() ) ) );
-  }
-
-  /**
    * Waits until all RunThreads have finished.
    */
   public void waitUntilFinished() {
@@ -1729,33 +1676,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
     return nrErrors;
   }
 
-  /**
-   * Gets the number of steps in the transformation that are in an end state, such as Finished, Halted, or Stopped.
-   *
-   * @return the number of ended steps
-   */
-  public int getEnded() {
-    int nrEnded = 0;
-
-    if ( steps == null ) {
-      return 0;
-    }
-
-    for ( int i = 0; i < steps.size(); i++ ) {
-      StepMetaDataCombi sid = steps.get( i );
-      StepDataInterface data = sid.data;
-
-      if ( ( sid.step != null && !sid.step.isRunning() )
-        // Should normally not be needed anymore, status is kept in data.
-        || data.getStatus() == StepExecutionStatus.STATUS_FINISHED || // Finished processing
-        data.getStatus() == StepExecutionStatus.STATUS_HALTED || // Not launching because of init error
-        data.getStatus() == StepExecutionStatus.STATUS_STOPPED ) { // Stopped because of an error
-        nrEnded++;
-      }
-    }
-
-    return nrEnded;
-  }
 
   /**
    * Checks if the transformation is finished\.
@@ -1773,49 +1693,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
 
   public boolean isFinishedOrStopped() {
     return isFinished() || isStopped();
-  }
-
-  /**
-   * Attempts to stops all running steps and subtransformations. If all steps have finished, the transformation is
-   * marked as Finished.
-   *
-   * @deprecated Deprecated as of 8.0. Seems unused; will be to remove in 8.1 (ccaspanello)
-   */
-  @Deprecated
-  public void killAll() {
-    if ( steps == null ) {
-      return;
-    }
-
-    int nrStepsFinished = 0;
-
-    for ( int i = 0; i < steps.size(); i++ ) {
-      StepMetaDataCombi sid = steps.get( i );
-
-      if ( log.isDebug() ) {
-        log.logDebug( BaseMessages.getString( PKG, "Trans.Log.LookingAtStep" ) + sid.step.getStepname() );
-      }
-
-      // If thr is a mapping, this is cause for an endless loop
-      //
-      while ( sid.step.isRunning() ) {
-        sid.step.stopAll();
-        try {
-          Thread.sleep( 20 );
-        } catch ( Exception e ) {
-          log.logError( BaseMessages.getString( PKG, "Trans.Log.TransformationErrors" ) + e.toString() );
-          return;
-        }
-      }
-
-      if ( !sid.step.isRunning() ) {
-        nrStepsFinished++;
-      }
-    }
-
-    if ( nrStepsFinished == steps.size() ) {
-      setFinished( true );
-    }
   }
 
   /**
@@ -1842,76 +1719,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
         return;
       }
     }
-  }
-
-  /**
-   * Logs the execution statistics for the transformation for the specified time interval. If the total length of
-   * execution is supplied as the interval, then the statistics represent the average throughput (lines
-   * read/written/updated/rejected/etc. per second) for the entire execution.
-   *
-   * @param seconds the time interval (in seconds)
-   */
-  public void printStats( int seconds ) {
-    log.logBasic( " " );
-    if ( steps == null ) {
-      return;
-    }
-
-    for ( int i = 0; i < steps.size(); i++ ) {
-      StepMetaDataCombi sid = steps.get( i );
-      StepInterface step = sid.step;
-      long proc = step.getProcessed();
-      if ( seconds != 0 ) {
-        if ( step.getErrors() == 0 ) {
-          log.logBasic( BaseMessages.getString( PKG, "Trans.Log.ProcessSuccessfullyInfo", step.getStepname(), "." + step
-            .getCopy(), String.valueOf( proc ), String.valueOf( ( proc / seconds ) ) ) );
-        } else {
-          log.logError( BaseMessages.getString( PKG, "Trans.Log.ProcessErrorInfo", step.getStepname(), "." + step
-            .getCopy(), String.valueOf( step.getErrors() ), String.valueOf( proc ), String.valueOf( proc
-            / seconds ) ) );
-        }
-      } else {
-        if ( step.getErrors() == 0 ) {
-          log.logBasic( BaseMessages.getString( PKG, "Trans.Log.ProcessSuccessfullyInfo", step.getStepname(), "." + step
-            .getCopy(), String.valueOf( proc ), seconds != 0 ? String.valueOf( ( proc / seconds ) ) : "-" ) );
-        } else {
-          log.logError( BaseMessages.getString( PKG, "Trans.Log.ProcessErrorInfo2", step.getStepname(), "." + step
-            .getCopy(), String.valueOf( step.getErrors() ), String.valueOf( proc ), String.valueOf( seconds ) ) );
-        }
-      }
-    }
-  }
-
-  /**
-   * Gets a representable metric of the "processed" lines of the last step.
-   *
-   * @return the number of lines processed by the last step
-   */
-  public long getLastProcessed() {
-    if ( steps == null || steps.size() == 0 ) {
-      return 0L;
-    }
-    StepMetaDataCombi sid = steps.get( steps.size() - 1 );
-    return sid.step.getProcessed();
-  }
-
-  /**
-   * Finds the RowSet with the specified name.
-   *
-   * @param rowsetname the rowsetname
-   * @return the row set, or null if none found
-   */
-  public RowSet findRowSet( String rowsetname ) {
-    // Start with the transformation.
-    for ( int i = 0; i < rowsets.size(); i++ ) {
-      // log.logDetailed("DIS: looking for RowSet ["+rowsetname+"] in nr "+i+" of "+threads.size()+" threads...");
-      RowSet rs = rowsets.get( i );
-      if ( rs.getName().equalsIgnoreCase( rowsetname ) ) {
-        return rs;
-      }
-    }
-
-    return null;
   }
 
   /**
@@ -2361,13 +2168,8 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
     try {
       String logTable = transLogTable.getActualTableName();
 
-      SimpleDateFormat df = new SimpleDateFormat( REPLAY_DATE_FORMAT );
-      log.logDetailed( BaseMessages.getString( PKG, "Trans.Log.TransformationCanBeReplayed" ) + df.format(
-        currentDate ) );
-
       try {
-        if ( transLogTableDatabaseConnection != null && !Utils.isEmpty( logTable ) && !Utils.isEmpty( transMeta
-          .getName() ) ) {
+        if ( transLogTableDatabaseConnection != null && !Utils.isEmpty( logTable ) && !Utils.isEmpty( transMeta.getName() ) ) {
           transLogTableDatabaseConnection.writeLogRecord( transLogTable, LogStatus.START, this, null );
 
           // Pass in a commit to release transaction locks and to allow a user to actually see the log record.
@@ -2396,9 +2198,9 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
             };
             timer.schedule( timerTask, intervalInSeconds * 1000, intervalInSeconds * 1000 );
 
-            addTransListener( new TransAdapter() {
+            addTransListener( new ExecutionAdapter<TransMeta>() {
               @Override
-              public void transFinished( Trans trans ) {
+              public void finished( IEngine<TransMeta> trans ) {
                 timer.cancel();
               }
             } );
@@ -2406,9 +2208,9 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
 
           // Add a listener to make sure that the last record is also written when transformation finishes...
           //
-          addTransListener( new TransAdapter() {
+          addTransListener( new ExecutionAdapter<TransMeta>() {
             @Override
-            public void transFinished( Trans trans ) throws HopException {
+            public void finished( IEngine<TransMeta> trans ) throws HopException {
               try {
                 endProcessing();
 
@@ -2428,9 +2230,9 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
         //
         StepLogTable stepLogTable = transMeta.getStepLogTable();
         if ( stepLogTable.isDefined() ) {
-          addTransListener( new TransAdapter() {
+          addTransListener( new ExecutionAdapter<TransMeta>() {
             @Override
-            public void transFinished( Trans trans ) throws HopException {
+            public void finished( IEngine<TransMeta> trans ) throws HopException {
               try {
                 writeStepLogInformation();
               } catch ( HopException e ) {
@@ -2445,9 +2247,9 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
         //
         ChannelLogTable channelLogTable = transMeta.getChannelLogTable();
         if ( channelLogTable.isDefined() ) {
-          addTransListener( new TransAdapter() {
+          addTransListener( new ExecutionAdapter<TransMeta>() {
             @Override
-            public void transFinished( Trans trans ) throws HopException {
+            public void finished( IEngine<TransMeta> trans ) throws HopException {
               try {
                 writeLogChannelInformation();
               } catch ( HopException e ) {
@@ -2482,9 +2284,9 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
           };
           timer.schedule( timerTask, perfLogInterval * 1000, perfLogInterval * 1000 );
 
-          addTransListener( new TransAdapter() {
+          addTransListener( new ExecutionAdapter<TransMeta>() {
             @Override
-            public void transFinished( Trans trans ) {
+            public void finished( IEngine<TransMeta> trans ) {
               timer.cancel();
             }
           } );
@@ -2881,7 +2683,8 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    *
    * @param result the result of the transformation execution
    */
-  private void closeUniqueDatabaseConnections( Result result ) {
+  @Override
+  public void closeUniqueDatabaseConnections( Result result ) {
 
     // Don't close any connections if the parent job is using the same transaction
     //
@@ -3291,34 +3094,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
   }
 
   /**
-   * Gets the replay date. The replay date is used to indicate that the transformation was replayed (re-tried, run
-   * again) with that particular replay date. You can use this in Text File/Excel Input to allow you to save error line
-   * numbers into a file (SOURCE_FILE.line for example) During replay, only the lines that have errors in them are
-   * passed to the next steps, the other lines are ignored. This is for the use case: if the document contained errors
-   * (bad dates, chars in numbers, etc), you simply send the document back to the source (the user/departement that
-   * created it probably) and when you get it back, re-run the last transformation.
-   *
-   * @return the replay date
-   */
-  public Date getReplayDate() {
-    return replayDate;
-  }
-
-  /**
-   * Sets the replay date. The replay date is used to indicate that the transformation was replayed (re-tried, run
-   * again) with that particular replay date. You can use this in Text File/Excel Input to allow you to save error line
-   * numbers into a file (SOURCE_FILE.line for example) During replay, only the lines that have errors in them are
-   * passed to the next steps, the other lines are ignored. This is for the use case: if the document contained errors
-   * (bad dates, chars in numbers, etc), you simply send the document back to the source (the user/departement that
-   * created it probably) and when you get it back, re-run the last transformation.
-   *
-   * @param replayDate the new replay date
-   */
-  public void setReplayDate( Date replayDate ) {
-    this.replayDate = replayDate;
-  }
-
-  /**
    * Turn on safe mode during running: the transformation will run slower but with more checking enabled.
    *
    * @param safeModeEnabled true for safe mode
@@ -3344,8 +3119,8 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    * @param copynr   The copynr of the step to produce row for (normally 0 unless you have multiple copies running)
    * @return the row producer
    * @throws HopException in case the thread/step to produce rows for could not be found.
-   * @see Trans#execute(String[])
-   * @see Trans#prepareExecution(String[])
+   * @see Trans#execute()
+   * @see Trans#prepareExecution()
    */
   public RowProducer addRowProducer( String stepname, int copynr ) throws HopException {
     StepInterface stepInterface = getStepInterface( stepname, copynr );
@@ -4320,7 +4095,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    * Checks whether the transformation is ready to start (i.e. execution preparation was successful)
    *
    * @return true if the transformation was prepared for execution successfully, false otherwise
-   * @see org.apache.hop.trans.Trans#prepareExecution(String[])
+   * @see org.apache.hop.trans.Trans#prepareExecution()
    */
   public boolean isReadyToStart() {
     return readyToStart;
@@ -4607,30 +4382,30 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    * Gets a list of the transformation listeners. Please do not attempt to modify this list externally. Returned list is
    * mutable only for backward compatibility purposes.
    *
-   * @return the transListeners
+   * @return the executionListeners
    */
-  public List<TransListener> getTransListeners() {
-    return transListeners;
+  public List<ExecutionListener<TransMeta>> getExecutionListeners() {
+    return executionListeners;
   }
 
   /**
    * Sets the list of transformation listeners.
    *
-   * @param transListeners the transListeners to set
+   * @param executionListeners the executionListeners to set
    */
-  public void setTransListeners( List<TransListener> transListeners ) {
-    this.transListeners = Collections.synchronizedList( transListeners );
+  public void setExecutionListeners( List<ExecutionListener<TransMeta>> executionListeners ) {
+    this.executionListeners = Collections.synchronizedList( executionListeners );
   }
 
   /**
    * Adds a transformation listener.
    *
-   * @param transListener the trans listener
+   * @param executionListener the trans listener
    */
-  public void addTransListener( TransListener transListener ) {
+  public void addTransListener( ExecutionListener executionListener ) {
     // PDI-5229 sync added
-    synchronized ( transListeners ) {
-      transListeners.add( transListener );
+    synchronized ( executionListeners ) {
+      executionListeners.add( executionListener );
     }
   }
 
@@ -5279,14 +5054,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
     this.counters = counters;
   }
 
-  public String[] getArguments() {
-    return arguments;
-  }
-
-  public void setArguments( String[] arguments ) {
-    this.arguments = arguments;
-  }
-
   /**
    * Clear the error in the transformation, clear all the rows from all the row sets, to make sure the transformation
    * can continue with other data. This is intended for use when running single threaded.
@@ -5545,76 +5312,44 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
     return extensionDataMap;
   }
 
-  protected ExecutorService startHeartbeat( final long intervalInSeconds ) {
 
-    ScheduledExecutorService heartbeat = Executors.newSingleThreadScheduledExecutor( new ThreadFactory() {
-
-      @Override
-      public Thread newThread( Runnable r ) {
-        Thread thread = new Thread( r, "Transformation Heartbeat Thread for: " + getName() );
-        thread.setDaemon( true );
-        return thread;
-      }
-    } );
-
-    heartbeat.scheduleAtFixedRate( new Runnable() {
-      @Override
-      public void run() {
-        try {
-
-          if ( Trans.this.isFinished() ) {
-            log.logBasic( "Shutting down heartbeat signal for " + getName() );
-            shutdownHeartbeat( Trans.this.heartbeat );
-            return;
-          }
-
-          log.logDebug( "Triggering heartbeat signal for " + getName() + " at every " + intervalInSeconds
-            + " seconds" );
-          ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.TransformationHeartbeat.id, Trans.this );
-
-        } catch ( HopException e ) {
-          log.logError( e.getMessage(), e );
-        }
-      }
-    }, intervalInSeconds /* initial delay */, intervalInSeconds /* interval delay */, TimeUnit.SECONDS );
-
-    return heartbeat;
+  public EngineMetrics getEngineMetrics() {
+    EngineMetrics metrics = new EngineMetrics();
+    metrics.setStartDate( getStartDate() );
+    metrics.setEndDate( getEndDate() );
+    for (StepMetaDataCombi combi : steps) {
+      metrics.setComponentMetric(combi.stepname, METRIC_NAME_INPUT, combi.step.getLinesInput());
+      metrics.setComponentMetric(combi.stepname, METRIC_NAME_OUTPUT, combi.step.getLinesOutput());
+      metrics.setComponentMetric(combi.stepname, METRIC_NAME_READ, combi.step.getLinesRead());
+      metrics.setComponentMetric(combi.stepname, METRIC_NAME_WRITTEN, combi.step.getLinesWritten());
+      metrics.setComponentMetric(combi.stepname, METRIC_NAME_REJECTED, combi.step.getLinesRejected());
+      metrics.setComponentMetric(combi.stepname, METRIC_NAME_ERROR, combi.step.getErrors());
+    }
+    return metrics;
   }
 
-  protected void shutdownHeartbeat( ExecutorService heartbeat ) {
-
-    if ( heartbeat != null ) {
-
-      try {
-        heartbeat.shutdownNow(); // prevents waiting tasks from starting and attempts to stop currently executing ones
-
-      } catch ( Throwable t ) {
-        /* do nothing */
-      }
+  @Override
+  public String getComponentLogText( String componentName, int copyNr ) {
+    StepInterface step = findStepInterface( componentName, copyNr );
+    if (step==null) {
+      return null;
     }
+    StringBuffer logBuffer = HopLogStore.getAppender().getBuffer( step.getLogChannel().getLogChannelId(), false );
+    if (logBuffer==null) {
+      return null;
+    }
+    return logBuffer.toString();
   }
 
-  private int getHeartbeatIntervalInSeconds() {
-
-    TransMeta meta = this.getTransMeta();
-
-    // 1 - check if there's a user defined value ( transformation-specific ) heartbeat periodic interval;
-    // 2 - check if there's a default defined value ( transformation-specific ) heartbeat periodic interval;
-    // 3 - use default Const.HEARTBEAT_PERIODIC_INTERVAL_IN_SECS if none of the above have been set
-
-    try {
-
-      if ( meta != null ) {
-
-        return Const.toInt( meta.getParameterValue( Const.VARIABLE_HEARTBEAT_PERIODIC_INTERVAL_SECS ), Const.toInt( meta
-            .getParameterDefault( Const.VARIABLE_HEARTBEAT_PERIODIC_INTERVAL_SECS ),
-          Const.HEARTBEAT_PERIODIC_INTERVAL_IN_SECS ) );
-      }
-
-    } catch ( Exception e ) {
-      /* do nothing, return Const.HEARTBEAT_PERIODIC_INTERVAL_IN_SECS */
+  @Override public List<IEngineComponent> getComponents() {
+    List<IEngineComponent> list = new ArrayList<>();
+    for (StepMetaDataCombi step : steps) {
+      list.add(step.step);
     }
+    return list;
+  }
 
-    return Const.HEARTBEAT_PERIODIC_INTERVAL_IN_SECS;
+  @Override public IEngineComponent findComponent( String name, int copyNr ) {
+    return findStepInterface( name, copyNr );
   }
 }

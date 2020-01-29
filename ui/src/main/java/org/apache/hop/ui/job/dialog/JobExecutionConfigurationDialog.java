@@ -63,13 +63,32 @@ public class JobExecutionConfigurationDialog extends ConfigurationDialog {
 
   protected void optionsSectionControls() {
 
+    wlLogLevel = new Label( gDetails, SWT.RIGHT );
+    wlLogLevel.setText( BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.LogLevel.Label" ) );
+    wlLogLevel.setToolTipText( BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.LogLevel.Tooltip" ) );
+    props.setLook( wlLogLevel );
+    FormData fdlLogLevel = new FormData();
+    fdlLogLevel.top = new FormAttachment( 0, 10 );
+    fdlLogLevel.left = new FormAttachment( 0, 10 );
+    wlLogLevel.setLayoutData( fdlLogLevel );
+
+    wLogLevel = new CCombo( gDetails, SWT.READ_ONLY | SWT.BORDER );
+    wLogLevel.setToolTipText( BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.LogLevel.Tooltip" ) );
+    props.setLook( wLogLevel );
+    FormData fdLogLevel = new FormData();
+    fdLogLevel.top = new FormAttachment( wlLogLevel, -2, SWT.TOP );
+    fdLogLevel.width = 180;
+    fdLogLevel.left = new FormAttachment( wlLogLevel, 6 );
+    wLogLevel.setLayoutData( fdLogLevel );
+    wLogLevel.setItems( LogLevel.getLogLevelDescriptions() );
+
     wExpandRemote = new Button( gDetails, SWT.CHECK );
     wExpandRemote.setText( BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.ExpandRemote.Label" ) );
     wExpandRemote
       .setToolTipText( BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.ExpandRemote.Tooltip" ) );
     props.setLook( wExpandRemote );
     FormData fd_expandCheckButton = new FormData();
-    fd_expandCheckButton.top = new FormAttachment( 0, 10 );
+    fd_expandCheckButton.top = new FormAttachment( wLogLevel, 10 );
     fd_expandCheckButton.left = new FormAttachment( 0, 10 );
     wExpandRemote.setLayoutData( fd_expandCheckButton );
     addRunConfigurationListenerForExpandRemoteOption();
@@ -102,25 +121,6 @@ public class JobExecutionConfigurationDialog extends ConfigurationDialog {
     fdGatherMetrics.left = new FormAttachment( 0, 10 );
     fdGatherMetrics.bottom = new FormAttachment( 100, -10 );
     wGatherMetrics.setLayoutData( fdGatherMetrics );
-
-    wlLogLevel = new Label( gDetails, SWT.RIGHT );
-    wlLogLevel.setText( BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.LogLevel.Label" ) );
-    wlLogLevel.setToolTipText( BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.LogLevel.Tooltip" ) );
-    props.setLook( wlLogLevel );
-    FormData fdlLogLevel = new FormData();
-    fdlLogLevel.top = new FormAttachment( 0, 10 );
-    fdlLogLevel.left = new FormAttachment( 45, 0 );
-    wlLogLevel.setLayoutData( fdlLogLevel );
-
-    wLogLevel = new CCombo( gDetails, SWT.READ_ONLY | SWT.BORDER );
-    wLogLevel.setToolTipText( BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.LogLevel.Tooltip" ) );
-    props.setLook( wLogLevel );
-    FormData fdLogLevel = new FormData();
-    fdLogLevel.top = new FormAttachment( wlLogLevel, -2, SWT.TOP );
-    fdLogLevel.width = 180;
-    fdLogLevel.left = new FormAttachment( wlLogLevel, 6 );
-    wLogLevel.setLayoutData( fdLogLevel );
-    wLogLevel.setItems( LogLevel.getLogLevelDescriptions() );
 
     Label lblStartJob = new Label( gDetails, SWT.RIGHT );
     lblStartJob.setText( BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.StartCopy.Label" ) );
@@ -247,7 +247,6 @@ public class JobExecutionConfigurationDialog extends ConfigurationDialog {
 
       // various settings
       //
-      configuration.setReplayDate( null );
       configuration.setSafeModeEnabled( wSafeMode.getSelection() );
       configuration.setClearingLog( wClearLog.getSelection() );
       configuration.setLogLevel( LogLevel.values()[ wLogLevel.getSelectionIndex() ] );

@@ -35,4 +35,10 @@
     <classname>org.apache.hop.ui.hopgui.file.trans.HopGuiTransGraph</classname>
   </gui-plugin>
 
- </gui-plugins>
+  <gui-plugin id="HopGui-TransGraph-PreviewDelegate">
+    <description>Transformation Graph Preview Delegate</description>
+    <classname>org.apache.hop.ui.hopgui.file.trans.HopGuiTransPreviewDelegate</classname>
+  </gui-plugin>
+
+
+</gui-plugins>

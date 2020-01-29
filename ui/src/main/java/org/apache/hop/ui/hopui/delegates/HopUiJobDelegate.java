@@ -646,7 +646,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
       //
       // NEW
       //
-      case TransAction.TYPE_ACTION_NEW_JOB_ENTRY:
+      case NewJobEntry:
         // re-delete the entry at correct location:
         JobEntryCopy[] si = (JobEntryCopy[]) transAction.getCurrent();
         int[] idx = transAction.getCurrentIndex();
@@ -657,7 +657,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         hopUi.refreshGraph();
         break;
 
-      case TransAction.TYPE_ACTION_NEW_NOTE:
+      case NewNote:
         // re-insert the note at correct location:
         NotePadMeta[] ni = (NotePadMeta[]) transAction.getCurrent();
         idx = transAction.getCurrentIndex();
@@ -668,7 +668,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         hopUi.refreshGraph();
         break;
 
-      case TransAction.TYPE_ACTION_NEW_JOB_HOP:
+      case NewJobHop:
         // re-insert the hop at correct location:
         JobHopMeta[] hi = (JobHopMeta[]) transAction.getCurrent();
         idx = transAction.getCurrentIndex();
@@ -682,7 +682,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
       //
       // DELETE
       //
-      case TransAction.TYPE_ACTION_DELETE_JOB_ENTRY:
+      case DeleteJobEntry:
         // re-remove the entry at correct location:
         idx = transAction.getCurrentIndex();
         for ( int i = idx.length - 1; i >= 0; i-- ) {
@@ -692,7 +692,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         hopUi.refreshGraph();
         break;
 
-      case TransAction.TYPE_ACTION_DELETE_NOTE:
+      case DeleteNote:
         // re-remove the note at correct location:
         idx = transAction.getCurrentIndex();
         for ( int i = idx.length - 1; i >= 0; i-- ) {
@@ -702,7 +702,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         hopUi.refreshGraph();
         break;
 
-      case TransAction.TYPE_ACTION_DELETE_JOB_HOP:
+      case DeleteJobHop:
         // re-remove the hop at correct location:
         idx = transAction.getCurrentIndex();
         for ( int i = idx.length - 1; i >= 0; i-- ) {
@@ -717,7 +717,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
       //
 
       // We changed a step : undo this...
-      case TransAction.TYPE_ACTION_CHANGE_JOB_ENTRY:
+      case ChangeJobEntry:
         // replace with "current" version.
         for ( int i = 0; i < transAction.getCurrent().length; i++ ) {
           JobEntryCopy copy = (JobEntryCopy) ( (JobEntryCopy) ( transAction.getCurrent()[ i ] ) ).clone_deep();
@@ -728,7 +728,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         break;
 
       // We changed a note : undo this...
-      case TransAction.TYPE_ACTION_CHANGE_NOTE:
+      case ChangeNote:
         // Delete & re-insert
         ni = (NotePadMeta[]) transAction.getCurrent();
         idx = transAction.getCurrentIndex();
@@ -742,7 +742,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         break;
 
       // We changed a hop : undo this...
-      case TransAction.TYPE_ACTION_CHANGE_JOB_HOP:
+      case ChangeJobHop:
         // Delete & re-insert
         hi = (JobHopMeta[]) transAction.getCurrent();
         idx = transAction.getCurrentIndex();
@@ -758,7 +758,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
       //
       // CHANGE POSITION
       //
-      case TransAction.TYPE_ACTION_POSITION_JOB_ENTRY:
+      case PositionJobEntry:
         // Find the location of the step:
         idx = transAction.getCurrentIndex();
         Point[] p = transAction.getCurrentLocation();
@@ -769,7 +769,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         hopUi.refreshGraph();
         break;
 
-      case TransAction.TYPE_ACTION_POSITION_NOTE:
+      case PositionNote:
         idx = transAction.getCurrentIndex();
         Point[] curr = transAction.getCurrentLocation();
         for ( int i = 0; i < idx.length; i++ ) {
@@ -787,7 +787,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
   public void undoJobAction( JobMeta jobMeta, TransAction transAction ) {
     switch ( transAction.getType() ) {
       // We created a new entry : undo this...
-      case TransAction.TYPE_ACTION_NEW_JOB_ENTRY:
+      case NewJobEntry:
         // Delete the entry at correct location:
         int[] idx = transAction.getCurrentIndex();
         for ( int i = idx.length - 1; i >= 0; i-- ) {
@@ -798,7 +798,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         break;
 
       // We created a new note : undo this...
-      case TransAction.TYPE_ACTION_NEW_NOTE:
+      case NewNote:
         // Delete the note at correct location:
         idx = transAction.getCurrentIndex();
         for ( int i = idx.length - 1; i >= 0; i-- ) {
@@ -809,7 +809,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         break;
 
       // We created a new hop : undo this...
-      case TransAction.TYPE_ACTION_NEW_JOB_HOP:
+      case NewJobHop:
         // Delete the hop at correct location:
         idx = transAction.getCurrentIndex();
         for ( int i = idx.length - 1; i >= 0; i-- ) {
@@ -824,7 +824,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
       //
 
       // We delete an entry : undo this...
-      case TransAction.TYPE_ACTION_DELETE_JOB_ENTRY:
+      case DeleteJobEntry:
         // un-Delete the entry at correct location: re-insert
         JobEntryCopy[] ce = (JobEntryCopy[]) transAction.getCurrent();
         idx = transAction.getCurrentIndex();
@@ -836,7 +836,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         break;
 
       // We delete new note : undo this...
-      case TransAction.TYPE_ACTION_DELETE_NOTE:
+      case DeleteNote:
         // re-insert the note at correct location:
         NotePadMeta[] ni = (NotePadMeta[]) transAction.getCurrent();
         idx = transAction.getCurrentIndex();
@@ -848,7 +848,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         break;
 
       // We deleted a new hop : undo this...
-      case TransAction.TYPE_ACTION_DELETE_JOB_HOP:
+      case DeleteJobHop:
         // re-insert the hop at correct location:
         JobHopMeta[] hi = (JobHopMeta[]) transAction.getCurrent();
         idx = transAction.getCurrentIndex();
@@ -864,7 +864,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
       //
 
       // We changed a job entry: undo this...
-      case TransAction.TYPE_ACTION_CHANGE_JOB_ENTRY:
+      case ChangeJobEntry:
         // Delete the current job entry, insert previous version.
         for ( int i = 0; i < transAction.getPrevious().length; i++ ) {
           JobEntryCopy copy = (JobEntryCopy) ( (JobEntryCopy) transAction.getPrevious()[ i ] ).clone();
@@ -876,7 +876,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         break;
 
       // We changed a note : undo this...
-      case TransAction.TYPE_ACTION_CHANGE_NOTE:
+      case ChangeNote:
         // Delete & re-insert
         NotePadMeta[] prev = (NotePadMeta[]) transAction.getPrevious();
         idx = transAction.getCurrentIndex();
@@ -889,7 +889,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         break;
 
       // We changed a hop : undo this...
-      case TransAction.TYPE_ACTION_CHANGE_JOB_HOP:
+      case ChangeJobHop:
         // Delete & re-insert
         JobHopMeta[] prevHops = (JobHopMeta[]) transAction.getPrevious();
         idx = transAction.getCurrentIndex();
@@ -906,7 +906,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
       //
 
       // The position of a step has changed: undo this...
-      case TransAction.TYPE_ACTION_POSITION_JOB_ENTRY:
+      case PositionJobEntry:
         // Find the location of the step:
         idx = transAction.getCurrentIndex();
         Point[] p = transAction.getPreviousLocation();
@@ -918,7 +918,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         break;
 
       // The position of a note has changed: undo this...
-      case TransAction.TYPE_ACTION_POSITION_NOTE:
+      case PositionNote:
         idx = transAction.getCurrentIndex();
         Point[] prevLoc = transAction.getPreviousLocation();
         for ( int i = 0; i < idx.length; i++ ) {
@@ -933,8 +933,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
     }
   }
 
-  public void executeJob( JobMeta jobMeta, boolean local, boolean remote, Date replayDate, boolean safe,
-                          String startCopyName, int startCopyNr ) throws HopException {
+  public void executeJob( JobMeta jobMeta, boolean local, boolean remote, boolean safe, String startCopyName, int startCopyNr ) throws HopException {
 
     if ( jobMeta == null ) {
       return;
@@ -953,12 +952,9 @@ public class HopUiJobDelegate extends HopUiDelegate {
 
     executionConfiguration.setVariables( variableMap );
     executionConfiguration.getUsedVariables( jobMeta );
-    executionConfiguration.setReplayDate( replayDate );
     executionConfiguration.setSafeModeEnabled( safe );
     executionConfiguration.setStartCopyName( startCopyName );
     executionConfiguration.setStartCopyNr( startCopyNr );
-
-    executionConfiguration.getUsedArguments( jobMeta, hopUi.getArguments(), hopUi.getMetaStore() );
     executionConfiguration.setLogLevel( DefaultLogLevel.getLogLevel() );
 
     JobExecutionConfigurationDialog dialog = newJobExecutionConfigurationDialog( executionConfiguration, jobMeta );

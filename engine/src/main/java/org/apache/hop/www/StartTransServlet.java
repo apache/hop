@@ -276,7 +276,7 @@ public class StartTransServlet extends BaseHttpServlet implements HopServerPlugi
   }
 
   protected void executeTrans( Trans trans ) throws HopException {
-    trans.execute( null );
+    trans.execute();
   }
 
   public String getContextPath() {

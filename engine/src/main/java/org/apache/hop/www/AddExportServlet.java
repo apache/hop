@@ -256,7 +256,6 @@ public class AddExportServlet extends BaseHttpServlet implements HopServerPlugin
           // Apply the execution configuration...
           //
           log.setLogLevel( jobExecutionConfiguration.getLogLevel() );
-          job.setArguments( jobExecutionConfiguration.getArgumentStrings() );
           jobMeta.injectVariables( jobExecutionConfiguration.getVariables() );
 
           // Also copy the parameters over...

@@ -57,11 +57,11 @@ public class MetaStoreConst {
     return System.getProperty( "user.home" ) + File.separator + ".hop";
   }
 
-  public static IMetaStore openLocalPentahoMetaStore() throws MetaStoreException {
-    return MetaStoreConst.openLocalPentahoMetaStore( true );
+  public static IMetaStore openLocalHopMetaStore() throws MetaStoreException {
+    return MetaStoreConst.openLocalHopMetaStore( true );
   }
 
-  public static IMetaStore openLocalPentahoMetaStore( boolean allowCreate ) throws MetaStoreException {
+  public static IMetaStore openLocalHopMetaStore( boolean allowCreate ) throws MetaStoreException {
     if ( disableMetaStore ) {
       return null;
     }

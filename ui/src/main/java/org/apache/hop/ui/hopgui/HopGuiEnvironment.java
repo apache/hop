@@ -5,6 +5,7 @@ import org.apache.hop.core.GuiElementMethod;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.GuiPluginType;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
@@ -93,6 +94,10 @@ public class HopGuiEnvironment extends HopClientEnvironment {
           if ( toolbarElement != null ) {
             toolBarItems.add( new GuiElementMethod( toolbarElement, method ) );
           }
+          GuiKeyboardShortcut shortcut = method.getAnnotation( GuiKeyboardShortcut.class );
+          if ( shortcut != null ) {
+            guiRegistry.addKeyboardShortcut( parentClassName, method, shortcut );
+          }
         }
 
         Collections.sort( menuItems, new Comparator<GuiElementMethod>() {
@@ -134,7 +139,6 @@ public class HopGuiEnvironment extends HopClientEnvironment {
       // Sort all GUI elements once.
       //
       guiRegistry.sortAllElements();
-
 
       // Now populate the HopFileTypeRegistry
       //
