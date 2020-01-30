@@ -615,11 +615,6 @@ public class ParGzipCsvInput extends BaseStep implements StepInterface {
           outputRowData[ outputIndex++ ] = null; // nothing for the header, no conversions here.
         }
 
-        // if (outputRowData[0]!=null && (outputRowData[0] instanceof Long) &&
-        // ((Long)outputRowData[0]).longValue()==95174) {
-        // System.out.println(outputRowData[0]);
-        // }
-
         // OK, move on to the next field...
         if ( !newLineFound ) {
           data.endBuffer++;

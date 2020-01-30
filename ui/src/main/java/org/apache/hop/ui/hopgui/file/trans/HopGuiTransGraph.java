@@ -47,6 +47,8 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Redrawable;
 import org.apache.hop.core.gui.SnapAllignDistribute;
 import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.GuiOSXKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
 import org.apache.hop.core.logging.DefaultLogLevel;
@@ -165,7 +167,6 @@ import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
@@ -342,13 +343,16 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   public HopGuiTransPerfDelegate transPerfDelegate;
   public HopGuiTransMetricsDelegate transMetricsDelegate;
   public HopGuiTransPreviewDelegate transPreviewDelegate;
-  private final HopGuiTransRunDelegate transRunDelegate;
-  public HopGuiStepDelegate stepDelegate;
-  public HopGuiHopDelegate hopDelegate;
+  public HopGuiTransRunDelegate transRunDelegate;
+  public HopGuiTransStepDelegate transStepDelegate;
+  public HopGuiTransClipboardDelegate transClipboardDelegate;
+  public HopGuiTransHopDelegate transHopDelegate;
   public HopGuiTransUndoDelegate undoTransDelegate;
 
-  public List<SelectedStepListener> stepListeners;
+  public HopGuiSlaveDelegate slaveDelegate;
+  public HopGuiNotePadDelegate notePadDelegate;
 
+  public List<SelectedStepListener> stepListeners;
   public List<StepSelectionListener> currentStepListeners = new ArrayList<>();
 
   /**
@@ -428,10 +432,14 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     transPerfDelegate = new HopGuiTransPerfDelegate( hopUi, this );
     transMetricsDelegate = new HopGuiTransMetricsDelegate( hopUi, this );
     transPreviewDelegate = new HopGuiTransPreviewDelegate( hopUi, this );
-    stepDelegate = new HopGuiStepDelegate( hopUi, this );
-    hopDelegate = new HopGuiHopDelegate( hopUi, this );
+    transClipboardDelegate = new HopGuiTransClipboardDelegate( hopUi, this );
+    transStepDelegate = new HopGuiTransStepDelegate( hopUi, this );
+    transHopDelegate = new HopGuiTransHopDelegate( hopUi, this );
     undoTransDelegate = new HopGuiTransUndoDelegate( hopUi, this );
     transRunDelegate = new HopGuiTransRunDelegate( hopUi, this );
+
+    slaveDelegate = new HopGuiSlaveDelegate( hopUi, this );
+    notePadDelegate = new HopGuiNotePadDelegate( hopUi, this );
 
     stepListeners = new ArrayList<>();
 
@@ -601,8 +609,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           return;
         }
 
-        // System.out.println("Dropping a step!!");
-
         // What's the real drop position?
         Point p = getRealPosition( canvas, event.x, event.y );
 
@@ -637,7 +643,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
               // Not an existing step: data refers to the type of step to create
               String id = container.getId();
               String name = container.getData();
-              stepMeta = stepDelegate.newStep( transMeta, id, name, name, false, true );
+              stepMeta = transStepDelegate.newStep( transMeta, id, name, name, false, true );
               if ( stepMeta != null ) {
                 newstep = true;
               } else {
@@ -656,7 +662,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
               PluginInterface stepPlugin = registry.findPluginWithId( StepPluginType.class, stepID );
               String stepName = transMeta.getAlternativeStepname( stepPlugin.getName() );
               stepMeta = new StepMeta( stepID, stepName, tii );
-              if ( stepDelegate.editStep( transMeta, stepMeta ) != null ) {
+              if ( transStepDelegate.editStep( transMeta, stepMeta ) != null ) {
                 transMeta.addStep( stepMeta );
                 redraw();
               } else {
@@ -739,12 +745,13 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
     // Add keyboard listeners from the main GUI and this class (toolbar etc) to the canvas. That's where the focus should be
     //
-    hopUi.addKeyBoardListeners( canvas, this, true );
+    hopUi.replaceKeyboardShortcutListeners( this );
 
     // Update menu, toolbar, force redraw canvas
     //
     updateGui();
   }
+
 
   @Override
   public void mouseDoubleClick( MouseEvent e ) {
@@ -790,7 +797,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
               if ( areaOwner.getParent() instanceof StepMeta
                 && areaOwner.getOwner().equals( TransPainter.STRING_PARTITIONING_CURRENT_STEP ) ) {
                 StepMeta step = (StepMeta) areaOwner.getParent();
-                stepDelegate.editStepPartitioning( transMeta, step );
+                transStepDelegate.editStepPartitioning( transMeta, step );
                 hit = true;
                 break;
               }
@@ -863,7 +870,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
             // Click on the error icon means: Edit error handling
             //
             StepMeta stepMeta = (StepMeta) areaOwner.getParent();
-            stepDelegate.editStepErrorHandling( transMeta, stepMeta );
+            transStepDelegate.editStepErrorHandling( transMeta, stepMeta );
             break;
 
           case STEP_TARGET_HOP_ICON_OPTION:
@@ -901,7 +908,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
             // ALT-Click: edit error handling
             //
             if ( e.button == 1 && alt && stepMeta.supportsErrorHandling() ) {
-              stepDelegate.editStepErrorHandling( transMeta, stepMeta );
+              transStepDelegate.editStepErrorHandling( transMeta, stepMeta );
               return;
             } else if ( e.button == 2 || ( e.button == 1 && shift ) ) {
               // SHIFT CLICK is start of drag to create a new hop
@@ -1582,10 +1589,10 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       case ERROR:
         addErrorHop();
         candidate.setErrorHop( true );
-        hopDelegate.newHop( transMeta, candidate );
+        transHopDelegate.newHop( transMeta, candidate );
         break;
       case INPUT:
-        hopDelegate.newHop( transMeta, candidate );
+        transHopDelegate.newHop( transMeta, candidate );
         break;
       case OUTPUT:
         StepErrorMeta stepErrorMeta = candidate.getFromStep().getStepErrorMeta();
@@ -1594,19 +1601,19 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
             candidate.getFromStep().setStepErrorMeta( null );
           }
         }
-        hopDelegate.newHop( transMeta, candidate );
+        transHopDelegate.newHop( transMeta, candidate );
         break;
       case INFO:
         stream.setStepMeta( candidate.getFromStep() );
         candidate.getToStep().getStepMetaInterface().handleStreamSelection( stream );
-        hopDelegate.newHop( transMeta, candidate );
+        transHopDelegate.newHop( transMeta, candidate );
         break;
       case TARGET:
         // We connect a target of the source step to an output step...
         //
         stream.setStepMeta( candidate.getToStep() );
         candidate.getFromStep().getStepMetaInterface().handleStreamSelection( stream );
-        hopDelegate.newHop( transMeta, candidate );
+        transHopDelegate.newHop( transMeta, candidate );
         break;
       default:
         break;
@@ -1707,7 +1714,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     }
   }
 
-  protected void setZoomLabel() {
+  public void setZoomLabel() {
     zoomLabel.setText( Integer.toString( Math.round( magnification * 100 ) ) + "%" );
   }
 
@@ -2034,11 +2041,11 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   }
 
   public void partitioning() {
-    stepDelegate.editStepPartitioning( transMeta, getCurrentStep() );
+    transStepDelegate.editStepPartitioning( transMeta, getCurrentStep() );
   }
 
   public void errorHandling() {
-    stepDelegate.editStepErrorHandling( transMeta, getCurrentStep() );
+    transStepDelegate.editStepErrorHandling( transMeta, getCurrentStep() );
   }
 
   public void newHopChoice() {
@@ -2133,10 +2140,10 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     try {
       List<StepMeta> steps = transMeta.getSelectedSteps();
       if ( steps.size() <= 1 ) {
-        stepDelegate.dupeStep( transMeta, getCurrentStep() );
+        transStepDelegate.dupeStep( transMeta, getCurrentStep() );
       } else {
         for ( StepMeta stepMeta : steps ) {
-          stepDelegate.dupeStep( transMeta, stepMeta );
+          transStepDelegate.dupeStep( transMeta, stepMeta );
         }
       }
     } catch ( Exception ex ) {
@@ -2211,7 +2218,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   public void deleteHop() {
     selectionRegion = null;
     TransHopMeta hi = getCurrentHop();
-    hopDelegate.delHop( transMeta, hi );
+    transHopDelegate.delHop( transMeta, hi );
   }
 
   private void updateErrorMetaForHop( TransHopMeta hop ) {
@@ -2342,20 +2349,12 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     }
   }
 
-  public void paste() {
-    /*
-    final String clipcontent = hopUi.fromClipboard();
-    Point loc = new Point( currentMouseX, currentMouseY );
-    hopUi.pasteXML( transMeta, clipcontent, loc );
-     */
-  }
-
   public void settings() {
     editProperties( transMeta, hopUi, true );
   }
 
   public void newStep( String description ) {
-    StepMeta stepMeta = stepDelegate.newStep( transMeta, null, description, description, false, true );
+    StepMeta stepMeta = transStepDelegate.newStep( transMeta, null, description, description, false, true );
     PropsUI.setLocation( stepMeta, currentMouseX, currentMouseY );
     stepMeta.setDraw( true );
     redraw();
@@ -2552,20 +2551,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
        */
     } catch ( Throwable t ) {
       new ErrorDialog( shell, "Error", "Error showing context menu", t );
-    }
-  }
-
-  public void editUnselectAll() {
-    if ( transMeta != null ) {
-      transMeta.unselectAll();
-      redraw();
-    }
-  }
-
-  public void editSelectAll() {
-    if ( transMeta != null ) {
-      transMeta.selectAll();
-      redraw();
     }
   }
 
@@ -2840,10 +2825,10 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     return null;
   }
 
-  public void delSelected( StepMeta stMeta ) {
+  public void delSelected( StepMeta stepMeta ) {
     List<StepMeta> selection = transMeta.getSelectedSteps();
-    if ( selection.size() == 0 ) {
-      stepDelegate.delStep( transMeta, stMeta );
+    if ( stepMeta != null && selection.size() == 0 ) {
+      transStepDelegate.delStep( transMeta, stepMeta );
       return;
     }
 
@@ -2854,8 +2839,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       }
     }
 
-    StepMeta[] steps = selection.toArray( new StepMeta[ selection.size() ] );
-    stepDelegate.delSteps( transMeta, steps );
+    transStepDelegate.delSteps( transMeta, selection );
+    notePadDelegate.deleteNotes( transMeta, transMeta.getSelectedNotes() );
   }
 
   public void editDescription( StepMeta stepMeta ) {
@@ -3009,7 +2994,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   }
 
   private void editStep( StepMeta stepMeta ) {
-    stepDelegate.editStep( transMeta, stepMeta );
+    transStepDelegate.editStep( transMeta, stepMeta );
   }
 
   private void editNote( NotePadMeta ni ) {
@@ -3053,7 +3038,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     if ( log.isDebug() ) {
       log.logDebug( BaseMessages.getString( PKG, "TransGraph.Logging.EditingHop" ) + name );
     }
-    hopDelegate.editHop( transMeta, transHopMeta );
+    transHopDelegate.editHop( transMeta, transHopMeta );
   }
 
   private void newHop() {
@@ -3061,7 +3046,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     if ( selection.size() == 2 ) {
       StepMeta fr = selection.get( 0 );
       StepMeta to = selection.get( 1 );
-      hopDelegate.newHop( transMeta, fr, to );
+      transHopDelegate.newHop( transMeta, fr, to );
     }
   }
 
@@ -3167,7 +3152,30 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   )
   @Override
   public void preview() {
-    // hopUi.previewTransformation(); TODO: put back preview/execution
+    try {
+      transRunDelegate.executeTransformation( hopUi.getLog(), transMeta, true, false, false, true, false, true,
+        transRunDelegate.getTransPreviewExecutionConfiguration().getLogLevel() );
+    } catch(Exception e) {
+      new ErrorDialog( hopUi.getShell(), "Error", "Error previewing transformation", e );
+    }
+  }
+
+  @GuiToolbarElement(
+    type = GuiElementType.TOOLBAR_BUTTON,
+    id = "HopGuiTransGraph-ToolBar-10045-Debug",
+    label = "Debug",
+    toolTip = "Debug the transformation",
+    image = "ui/images/debug.svg",
+    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+  )
+  @Override
+  public void debug() {
+    try {
+      transRunDelegate.executeTransformation( hopUi.getLog(), transMeta, true, false, false, false, true, true,
+        transRunDelegate.getTransDebugExecutionConfiguration().getLogLevel() );
+    } catch(Exception e) {
+      new ErrorDialog( hopUi.getShell(), "Error", "Error debugging transformation", e );
+    }
   }
 
   public void newProps() {
@@ -3320,6 +3328,9 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     ps.dispose();
   }
 
+  /**
+   * This is an alias for the File/Close menu item.
+   */
   @GuiToolbarElement(
     type = GuiElementType.TOOLBAR_BUTTON,
     id = "HopGuiTransGraph-ToolBar-10080-Close",
@@ -3345,6 +3356,10 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         int answer = messageDialog.open();
         if ( ( answer & SWT.YES ) != 0 ) {
           save();
+          return true;
+        }
+        if ( ( answer & SWT.NO ) != 0 ) {
+          // User doesn't want to save but close
           return true;
         }
         return false;
@@ -4324,17 +4339,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     this.stepLogMap = stepLogMap;
   }
 
-  public void dumpLoggingRegistry() {
-    LoggingRegistry registry = LoggingRegistry.getInstance();
-    Map<String, LoggingObjectInterface> loggingMap = registry.getMap();
-
-    for ( LoggingObjectInterface loggingObject : loggingMap.values() ) {
-      System.out.println( loggingObject.getLogChannelId() + " - " + loggingObject.getObjectName() + " - "
-        + loggingObject.getObjectType() );
-    }
-
-  }
-
   @Override
   public HasLogChannelInterface getLogChannelProvider() {
     return new HasLogChannelInterface() {
@@ -4716,7 +4720,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     // Which is the new step?
 
     StepMeta newStep =
-      stepDelegate.newStep( transMeta, stepPlugin.getIds()[ 0 ], stepPlugin.getName(), stepPlugin.getName(), false, true );
+      transStepDelegate.newStep( transMeta, stepPlugin.getIds()[ 0 ], stepPlugin.getName(), stepPlugin.getName(), false, true );
     if ( newStep == null ) {
       return;
     }
@@ -4725,7 +4729,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
     if ( lastChained != null ) {
       TransHopMeta hop = new TransHopMeta( lastChained, newStep );
-      hopDelegate.newHop( transMeta, hop );
+      transHopDelegate.newHop( transMeta, hop );
     }
 
     lastChained = newStep;
@@ -4826,6 +4830,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     separator = true
   )
+  @GuiKeyboardShortcut( control = true, key = 'z' )
   @Override public void undo() {
     undoTransDelegate.undoTransformationAction( this, transMeta );
     forceFocus();
@@ -4840,6 +4845,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     disabledImage = "ui/images/toolbar/Antu_edit-redo-disabled.svg",
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
   )
+  @GuiKeyboardShortcut( control = true, shift = true, key = 'z' )
   @Override public void redo() {
     undoTransDelegate.redoTransformationAction( this, transMeta );
     forceFocus();
@@ -4850,16 +4856,18 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
    */
   @Override public void updateGui() {
 
-    boolean hasUndo = transMeta.viewThisUndo()!=null;
+    setZoomLabel();
+
+    boolean hasUndo = transMeta.viewThisUndo() != null;
     ToolItem undoItem = toolBarWidgets.getToolItemMap().get( TOOLBAR_ITEM_UNDO_ID );
-    if (undoItem!=null) {
+    if ( undoItem != null ) {
       undoItem.setEnabled( hasUndo );
     } else {
       LogChannel.UI.logError( "Undo icon not found in the transformation graph tab toolbar" );
     }
-    boolean hasRedo = transMeta.viewNextUndo()!=null;
+    boolean hasRedo = transMeta.viewNextUndo() != null;
     ToolItem redoItem = toolBarWidgets.getToolItemMap().get( TOOLBAR_ITEM_REDO_ID );
-    if (redoItem!=null) {
+    if ( redoItem != null ) {
       redoItem.setEnabled( hasRedo );
     } else {
       LogChannel.UI.logError( "Redo icon not found in the transformation graph tab toolbar" );
@@ -4868,6 +4876,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     hopUi.setUndoMenu( transMeta );
     hopUi.handleFileCapabilities( fileType );
     super.redraw();
+    canvas.setFocus();
   }
 
   public void redraw() {
@@ -4876,5 +4885,50 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
   public boolean forceFocus() {
     return canvas.forceFocus();
+  }
+
+  @GuiKeyboardShortcut( control = true, key = 'a' )
+  @GuiOSXKeyboardShortcut( command = true, key = 'a' )
+  @Override public void selectAll() {
+    transMeta.selectAll();
+    updateGui();
+  }
+
+  @GuiKeyboardShortcut( key = SWT.ESC )
+  @Override public void unselectAll() {
+    transMeta.unselectAll();
+    updateGui();
+  }
+
+  @GuiKeyboardShortcut( control = true, key = 'c' )
+  @GuiOSXKeyboardShortcut( command = true, key = 'c' )
+  @Override public void copySelectedToClipboard() {
+    if ( transLogDelegate.hasSelectedText() ) {
+      transLogDelegate.copySelected();
+    } else {
+      transClipboardDelegate.copySelected( transMeta, transMeta.getSelectedSteps(), transMeta.getSelectedNotes() );
+    }
+  }
+
+  @GuiKeyboardShortcut( control = true, key = 'x' )
+  @GuiOSXKeyboardShortcut( command = true, key = 'x' )
+  @Override public void cutSelectedToClipboard() {
+    transClipboardDelegate.copySelected( transMeta, transMeta.getSelectedSteps(), transMeta.getSelectedNotes() );
+    transStepDelegate.delSteps( transMeta, transMeta.getSelectedSteps() );
+    notePadDelegate.deleteNotes( transMeta, transMeta.getSelectedNotes() );
+  }
+
+  @GuiKeyboardShortcut( key = SWT.DEL )
+  @Override public void deleteSelected() {
+    delSelected();
+    updateGui();
+  }
+
+  @GuiKeyboardShortcut( control = true, key = 'v' )
+  @GuiOSXKeyboardShortcut( command = true, key = 'v' )
+  @Override public void pasteFromClipboard() {
+    final String clipcontent = transClipboardDelegate.fromClipboard();
+    Point loc = new Point( currentMouseX, currentMouseY );
+    transClipboardDelegate.pasteXML( transMeta, clipcontent, loc );
   }
 }

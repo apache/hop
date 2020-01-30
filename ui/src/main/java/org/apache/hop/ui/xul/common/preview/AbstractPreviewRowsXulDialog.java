@@ -143,7 +143,6 @@ public abstract class AbstractPreviewRowsXulDialog extends AbstractXulEventHandl
       transDebugMeta.addBreakPointListers( new BreakPointListener() {
         public void breakPointHit( TransDebugMeta transDebugMeta, StepDebugMeta stepDebugMeta,
                                    RowMetaInterface rowBufferMeta, List<Object[]> rowBuffer ) {
-          System.out.println( "break point hit...".concat( String.valueOf( stepDebugMeta.getRowCount() ) ) );
           trans.stopAll();
         }
       } );

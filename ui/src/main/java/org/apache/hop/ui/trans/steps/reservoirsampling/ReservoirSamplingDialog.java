@@ -271,7 +271,6 @@ public class ReservoirSamplingDialog extends BaseStepDialog implements StepDialo
 
     m_currentMeta.setSampleSize( m_wSampleSize.getText() );
     m_currentMeta.setSeed( m_wSeed.getText() );
-    System.out.println( "OK:" + m_wSampleSize + ":" + m_wSeed );
     if ( !m_originalMeta.equals( m_currentMeta ) ) {
       m_currentMeta.setChanged();
       changed = m_currentMeta.hasChanged();

@@ -167,8 +167,7 @@ public class HopURLClassLoader extends URLClassLoader {
       }
       return retval;
     } catch ( Exception e ) {
-      System.out.println( BaseMessages.getString( PKG, "HopURLClassLoader.Exception.UnableToReadClass" )
-        + e.toString() );
+      // TODO: Throw error here!!
       return null;
     }
   }

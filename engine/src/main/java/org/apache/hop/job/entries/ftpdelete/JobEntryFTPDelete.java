@@ -740,7 +740,6 @@ public class JobEntryFTPDelete extends JobEntryBase implements Cloneable, JobEnt
               ftpclient.delete( filelist[ i ] );
             }
             if ( protocol.equals( PROTOCOL_FTPS ) ) {
-              // System.out.println( "---------------" + filelist[i] );
               ftpsclient.deleteFile( filelist[ i ] );
             } else if ( protocol.equals( PROTOCOL_SFTP ) ) {
               sftpclient.delete( filelist[ i ] );

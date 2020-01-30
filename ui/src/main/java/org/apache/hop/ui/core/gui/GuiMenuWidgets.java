@@ -1,11 +1,14 @@
 package org.apache.hop.ui.core.gui;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
+import org.apache.hop.core.gui.plugin.KeyboardShortcut;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -21,11 +24,13 @@ import java.util.Map;
 public class GuiMenuWidgets {
 
   private VariableSpace space;
-  private Map<String,MenuItem> menuItemMap;
+  private Map<String, MenuItem> menuItemMap;
+  private Map<String, KeyboardShortcut> shortcutMap;
 
   public GuiMenuWidgets( VariableSpace space ) {
     this.space = space;
-    this.menuItemMap = new HashMap<>(  );
+    this.menuItemMap = new HashMap<>();
+    this.shortcutMap = new HashMap<>();
   }
 
   public void createMenuWidgets( Object sourceData, Shell shell, Menu parent, String parentGuiElementId ) {
@@ -56,42 +61,49 @@ public class GuiMenuWidgets {
     // With children mean: drop-down menu item
     //
     if ( guiElements.getChildren().isEmpty() ) {
+
+      if ( guiElements.isAddingSeparator() ) {
+        new MenuItem( parentMenu, SWT.SEPARATOR );
+      }
+
       menuItem = new MenuItem( parentMenu, SWT.PUSH );
       menuItem.setText( guiElements.getLabel() );
+      setMenuItemKeyboardShortcut( menuItem, guiElements, sourceData.getClass().getName() );
       if ( StringUtils.isNotEmpty( guiElements.getToolTip() ) ) {
         menuItem.setToolTipText( guiElements.getToolTip() );
       }
 
       // Call the method to which the GuiWidgetElement annotation belongs.
       //
-      menuItem.addListener( SWT.Selection, e->{
+      menuItem.addListener( SWT.Selection, e -> {
         try {
           Method menuMethod = sourceData.getClass().getMethod( guiElements.getListenerMethod() );
-          if (menuMethod==null) {
-            throw new HopException( "Unable to find method "+guiElements.getListenerMethod()+" in class "+sourceData.getClass().getName() );
+          if ( menuMethod == null ) {
+            throw new HopException( "Unable to find method " + guiElements.getListenerMethod() + " in class " + sourceData.getClass().getName() );
           }
           menuMethod.invoke( sourceData );
-        } catch(Exception ex) {
-          System.err.println( "Unable to call method "+guiElements.getListenerMethod()+" in class "+sourceData.getClass().getName()+" : "+ex.getMessage());
-          ex.printStackTrace(System.err);
+        } catch ( Exception ex ) {
+          System.err.println( "Unable to call method " + guiElements.getListenerMethod() + " in class " + sourceData.getClass().getName() + " : " + ex.getMessage() );
+          ex.printStackTrace( System.err );
         }
       } );
 
-      menuItemMap.put(guiElements.getId(), menuItem);
+      menuItemMap.put( guiElements.getId(), menuItem );
 
     } else {
       // We have a bunch of children so we want to create a new drop-down menu in the parent menu
       //
       Menu menu = parentMenu;
-      if (guiElements.getId()!=null) {
+      if ( guiElements.getId() != null ) {
         menuItem = new MenuItem( parentMenu, SWT.CASCADE );
         menuItem.setText( guiElements.getLabel() );
+        setMenuItemKeyboardShortcut( menuItem, guiElements, sourceData.getClass().getName() );
         if ( StringUtils.isNotEmpty( guiElements.getToolTip() ) ) {
           menuItem.setToolTipText( guiElements.getToolTip() );
         }
         menu = new Menu( shell, SWT.DROP_DOWN );
         menuItem.setMenu( menu );
-        menuItemMap.put(guiElements.getId(), menuItem);
+        menuItemMap.put( guiElements.getId(), menuItem );
       }
 
       // Add the children to this menu...
@@ -102,13 +114,158 @@ public class GuiMenuWidgets {
     }
   }
 
+  private void setMenuItemKeyboardShortcut( MenuItem menuItem, GuiElements guiElements, String parentClassName ) {
+
+    // See if there's a shortcut worth mentioning...
+    //
+    KeyboardShortcut shortcut = GuiRegistry.getInstance().findKeyboardShortcut( parentClassName, guiElements.getListenerMethod(), Const.isOSX() );
+    if ( shortcut != null ) {
+      appendShortCut( menuItem, shortcut );
+      menuItem.setAccelerator( getAccelerator( shortcut ) );
+      shortcutMap.put( guiElements.getId(), shortcut );
+    }
+  }
+
+  public static void appendShortCut(MenuItem menuItem, KeyboardShortcut shortcut) {
+    menuItem.setText( menuItem.getText() + "    (" + getShortcutString( shortcut ) + ")" );
+  }
+
+  public static int getAccelerator( KeyboardShortcut shortcut ) {
+    int a = 0;
+    a += shortcut.getKeyCode();
+    if ( shortcut.isControl() ) {
+      a += SWT.CONTROL;
+    }
+    if ( shortcut.isShift() ) {
+      a += SWT.SHIFT;
+    }
+    if ( shortcut.isAlt() ) {
+      a += SWT.ALT;
+    }
+    if ( shortcut.isCommand() ) {
+      a += SWT.COMMAND;
+    }
+    return a;
+  }
+
+  public static String getShortcutString( KeyboardShortcut shortcut ) {
+    String s = shortcut.toString();
+    if ( StringUtils.isEmpty( s ) || s.endsWith( "-" ) ) {
+      // Unknown characters from the SWT library
+      // We'll handle the special cases here.
+      //
+      int keyCode = shortcut.getKeyCode();
+      if ( keyCode == SWT.BS ) {
+        return s + "Backspace";
+      }
+      if ( keyCode == SWT.ESC ) {
+        return s + "Esc";
+      }
+      if ( keyCode == SWT.ARROW_LEFT ) {
+        return s + "LEFT";
+      }
+      if ( keyCode == SWT.ARROW_RIGHT ) {
+        return s + "RIGHT";
+      }
+      if ( keyCode == SWT.ARROW_UP ) {
+        return s + "UP";
+      }
+      if ( keyCode == SWT.ARROW_DOWN ) {
+        return s + "DOWN";
+      }
+      if ( keyCode == SWT.HOME ) {
+        return s + "HOME";
+      }
+      if ( keyCode == SWT.F1 ) {
+        return s + "F1";
+      }
+      if ( keyCode == SWT.F2 ) {
+        return s + "F2";
+      }
+      if ( keyCode == SWT.F3 ) {
+        return s + "F3";
+      }
+      if ( keyCode == SWT.F4 ) {
+        return s + "F4";
+      }
+      if ( keyCode == SWT.F5 ) {
+        return s + "F5";
+      }
+      if ( keyCode == SWT.F6 ) {
+        return s + "F6";
+      }
+      if ( keyCode == SWT.F7 ) {
+        return s + "F7";
+      }
+      if ( keyCode == SWT.F8 ) {
+        return s + "F8";
+      }
+      if ( keyCode == SWT.F9 ) {
+        return s + "F9";
+      }
+      if ( keyCode == SWT.F10 ) {
+        return s + "F10";
+      }
+      if ( keyCode == SWT.F11 ) {
+        return s + "F11";
+      }
+      if ( keyCode == SWT.F12 ) {
+        return s + "F12";
+      }
+    }
+    return s;
+  }
+
   /**
    * Find the menu item with the given ID
+   *
    * @param id The ID to look for
    * @return The menu item or null if nothing is found
    */
-  public MenuItem findMenuItem(String id) {
+  public MenuItem findMenuItem( String id ) {
     return menuItemMap.get( id );
+  }
+
+  public KeyboardShortcut findKeyboardShortcut( String id ) {
+    return shortcutMap.get( id );
+  }
+
+
+  /**
+   * Find the menu item with the given ID.
+   * If we find it we enable or disable it.
+   *
+   * @param id      The ID to look for
+   * @param enabled true if the item needs to be enabled.
+   * @return The menu item or null if nothing is found
+   */
+  public MenuItem enableMenuItem( String id, boolean enabled ) {
+    MenuItem menuItem = menuItemMap.get( id );
+    if ( menuItem == null ) {
+      return null;
+    }
+    menuItem.setEnabled( enabled );
+    return menuItem;
+  }
+
+  /**
+   * Find the menu item with the given ID.
+   * Check the capability in the given file type
+   * Enable or disable accordingly.
+   *
+   * @param fileType
+   * @param id         The ID of the widget to look for
+   * @param permission
+   * @return The menu item or null if nothing is found
+   */
+  public MenuItem enableMenuItem( HopFileTypeInterface fileType, String id, String permission ) {
+    MenuItem menuItem = menuItemMap.get( id );
+    if ( menuItem == null ) {
+      return null;
+    }
+    boolean hasCapability = fileType.hasCapability( permission );
+    menuItem.setEnabled( hasCapability );
+    return menuItem;
   }
 
   /**

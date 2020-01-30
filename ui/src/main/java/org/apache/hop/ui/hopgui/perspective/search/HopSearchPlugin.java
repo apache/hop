@@ -103,6 +103,26 @@ public class HopSearchPlugin implements IHopPerspective {
     label.setLayoutData( fdLabel );
   }
 
+  @Override public boolean remove( HopFileTypeHandlerInterface typeHandler ) {
+    return false; // Nothing to do here
+  }
+
+  @Override public void navigateToPreviousFile() {
+
+  }
+
+  @Override public void navigateToNextFile() {
+
+  }
+
+  @Override public boolean hasNavigationPreviousFile() {
+    return false;
+  }
+
+  @Override public boolean hasNavigationNextFile() {
+    return false;
+  }
+
   /**
    * Gets hopGui
    *
@@ -159,4 +179,5 @@ public class HopSearchPlugin implements IHopPerspective {
   @Override public FormData getFormData() {
     return formData;
   }
+
 }

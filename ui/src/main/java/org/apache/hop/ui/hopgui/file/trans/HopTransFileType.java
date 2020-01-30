@@ -38,14 +38,18 @@ public class HopTransFileType<T extends TransMeta> extends HopFileTypeBase<T> im
     capabilities.setProperty( HopFileTypeInterface.CAPABILITY_START, "true" );
     capabilities.setProperty( HopFileTypeInterface.CAPABILITY_STOP, "true" );
     capabilities.setProperty( HopFileTypeInterface.CAPABILITY_SAVE, "true" );
-    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_SAVE_AS, "true" );
     capabilities.setProperty( HopFileTypeInterface.CAPABILITY_PAUSE, "true" );
     capabilities.setProperty( HopFileTypeInterface.CAPABILITY_PREVIEW, "true" );
-    return capabilities;
-  }
+    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_DEBUG, "true" );
 
-  @Override public Class<? extends IHopPerspective> getPerspectiveClass() {
-    return HopDataOrchestrationPerspective.class;
+    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_COPY, "true" );
+    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_PASTE, "true" );
+    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_CUT, "true" );
+    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_DELETE, "true" );
+
+    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_FILE_HISTORY, "true" );
+
+    return capabilities;
   }
 
   @Override public HopFileTypeHandlerInterface openFile( HopGui hopGui, String filename, VariableSpace parentVariableSpace ) throws HopException {

@@ -570,8 +570,6 @@ public class BaseFileField implements Cloneable, TextFileInputFieldInterface {
       return 0; // nothing behind decimal point...
     }
 
-    // System.out.println("d="+d+", diff="+diff);
-
     // remainder: 12.345678 --> 0.345678
     for ( int i = 1; i < maxprec; i++ ) {
       // cap off precision at a reasonable maximum
@@ -580,8 +578,6 @@ public class BaseFileField implements Cloneable, TextFileInputFieldInterface {
       if ( diff < maxdiff ) {
         return i;
       }
-
-      // System.out.println("d="+d+", diff="+diff+", factor="+factor);
 
       factor *= 10;
     }

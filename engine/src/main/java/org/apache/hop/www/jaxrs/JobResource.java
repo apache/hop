@@ -148,8 +148,6 @@ public class JobResource {
 
     // Parse the XML, create a job configuration
     //
-    // System.out.println(xml);
-    //
     JobConfiguration jobConfiguration;
     try {
       jobConfiguration = JobConfiguration.fromXML( xml.toString() );

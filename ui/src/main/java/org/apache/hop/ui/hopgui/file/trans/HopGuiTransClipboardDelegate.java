@@ -48,6 +48,17 @@ public class HopGuiTransClipboardDelegate {
     }
   }
 
+  public String fromClipboard() {
+    try {
+      return GUIResource.getInstance().fromClipboard();
+    } catch ( Throwable e ) {
+      new ErrorDialog(
+        hopGui.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ExceptionPasteFromClipboard.Title" ), BaseMessages
+        .getString( PKG, "Spoon.Dialog.ExceptionPasteFromClipboard.Message" ), e );
+      return null;
+    }
+  }
+
   public void pasteXML( TransMeta transMeta, String clipcontent, Point loc ) {
 
     try {
@@ -188,15 +199,13 @@ public class HopGuiTransClipboardDelegate {
       }
       hopGui.undoDelegate.addUndoNew( transMeta, notes, notePos, true );
 
-      if ( transMeta.haveStepsChanged() ) {
-        transGraph.redraw();
-      }
     } catch ( HopException e ) {
       // "Error pasting steps...",
       // "I was unable to paste steps to this transformation"
       new ErrorDialog( hopGui.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.UnablePasteSteps.Title" ), BaseMessages
         .getString( PKG, "Spoon.Dialog.UnablePasteSteps.Message" ), e );
     }
+    transGraph.redraw();
   }
 
   public void copySelected( TransMeta transMeta, List<StepMeta> steps, List<NotePadMeta> notes ) {

@@ -28,6 +28,16 @@ public interface IHopPerspective {
   void hide();
 
   /**
+   * Navigate the file usage history to the previous file
+   */
+  void navigateToPreviousFile();
+
+  /**
+   * Navigate the file usage history to the next file
+   */
+  void navigateToNextFile();
+
+  /**
    * See if this perspective is active (shown)
    * @return True if the perspective is currently shown
    */
@@ -40,6 +50,10 @@ public interface IHopPerspective {
    */
   void initialize( HopGui hopGui, Composite parent );
 
+  boolean hasNavigationPreviousFile();
+
+  boolean hasNavigationNextFile();
+
   /**
    * @return The composite of this perspective
    */
@@ -50,4 +64,10 @@ public interface IHopPerspective {
    */
   FormData getFormData();
 
+  /**
+   * Remove this file type handler from the perspective
+   * @param typeHandler The file type handler to remove
+   * @return
+   */
+  boolean remove( HopFileTypeHandlerInterface typeHandler );
 }

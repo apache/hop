@@ -613,8 +613,6 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
           return;
         }
 
-        // System.out.println("Dropping a step!!");
-
         // What's the real drop position?
         Point p = getRealPosition( canvas, event.x, event.y );
 

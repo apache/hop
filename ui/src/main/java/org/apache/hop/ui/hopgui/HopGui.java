@@ -10,8 +10,8 @@ import org.apache.hop.core.gui.UndoInterface;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiMenuElement;
+import org.apache.hop.core.gui.plugin.GuiOSXKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.KeyboardShortcut;
 import org.apache.hop.core.logging.HopLogStore;
@@ -38,16 +38,16 @@ import org.apache.hop.ui.core.metastore.MetaStoreManager;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiUndoDelegate;
+import org.apache.hop.ui.hopgui.file.EmptyFileType;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
+import org.apache.hop.ui.hopgui.perspective.EmptyHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.HopGuiPerspectiveManager;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.hopui.Sleak;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.graphics.DeviceData;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -85,17 +85,34 @@ public class HopGui {
 
   // The main Menu IDs
   public static final String ID_MAIN_MENU = "HopGui-Menu";
-  public static final String ID_MAIN_MENU_FILE = "menu-10000-file";
-  public static final String ID_MAIN_MENU_FILE_NEW = "menu-100010-file-new";
-  public static final String ID_MAIN_MENU_FILE_OPEN = "menu-100020-file-open";
-  public static final String ID_MAIN_MENU_FILE_SAVE = "menu-100030-file-save";
-  public static final String ID_MAIN_MENU_FILE_SAVE_AS = "menu-10040-file-save-as";
-  public static final String ID_MAIN_MENU_FILE_CLOSE = "menu-10090-file-close";
-  public static final String ID_MAIN_MENU_FILE_CLOSE_ALL = "menu-10100-file-close-all";
-  public static final String ID_MAIN_MENU_FILE_EXIT = "menu-10900-file-exit";
-  public static final String ID_MAIN_MENU_EDIT_PARENT_ID = "menu-20000-edit";
-  public static final String ID_MAIN_MENU_EDIT_UNDO = "menu-20010-edit-undo";
-  public static final String ID_MAIN_MENU_EDIT_REDO = "menu-20020-edit-redo";
+  public static final String ID_MAIN_MENU_FILE               = "10000-menu-file";
+  public static final String ID_MAIN_MENU_FILE_NEW           = "10010-menu-file-new";
+  public static final String ID_MAIN_MENU_FILE_OPEN          = "10020-menu-file-open";
+  public static final String ID_MAIN_MENU_FILE_SAVE          = "10030-menu-file-save";
+  public static final String ID_MAIN_MENU_FILE_SAVE_AS       = "10040-menu-file-save-as";
+  public static final String ID_MAIN_MENU_FILE_CLOSE         = "10090-menu-file-close";
+  public static final String ID_MAIN_MENU_FILE_CLOSE_ALL     = "10100-menu-file-close-all";
+  public static final String ID_MAIN_MENU_FILE_EXIT          = "10900-menu-file-exit";
+
+  public static final String ID_MAIN_MENU_EDIT_PARENT_ID     = "20000-menu-edit";
+  public static final String ID_MAIN_MENU_EDIT_UNDO          = "20010-menu-edit-undo";
+  public static final String ID_MAIN_MENU_EDIT_REDO          = "20020-menu-edit-redo";
+  public static final String ID_MAIN_MENU_EDIT_SELECT_ALL    = "20050-menu-edit-select-all";
+  public static final String ID_MAIN_MENU_EDIT_UNSELECT_ALL  = "20060-menu-edit-unselect-all";
+  public static final String ID_MAIN_MENU_EDIT_COPY          = "20080-menu-edit-copy";
+  public static final String ID_MAIN_MENU_EDIT_PASTE         = "20090-menu-edit-paste";
+  public static final String ID_MAIN_MENU_EDIT_CUT           = "20100-menu-edit-cut";
+  public static final String ID_MAIN_MENU_EDIT_DELETE        = "20110-menu-edit-delete";
+  public static final String ID_MAIN_MENU_EDIT_NAV_PREV      = "20200-menu-edit-nav-previous";
+  public static final String ID_MAIN_MENU_EDIT_NAV_NEXT      = "20210-menu-edit-nav-next";
+
+
+  public static final String ID_MAIN_MENU_RUN_PARENT_ID      = "30000-menu-run";
+  public static final String ID_MAIN_MENU_RUN_START          = "30010-menu-run-execute";
+  public static final String ID_MAIN_MENU_RUN_PAUSE          = "30030-menu-run-pause";
+  public static final String ID_MAIN_MENU_RUN_STOP           = "30040-menu-run-stop";
+  public static final String ID_MAIN_MENU_RUN_PREVIEW        = "30050-menu-run-preview";
+  public static final String ID_MAIN_MENU_RUN_DEBUG          = "30060-menu-run-debug";
 
   // The main toolbar IDs
   public static final String ID_MAIN_TOOLBAR = "HopGui-Toolbar";
@@ -139,6 +156,7 @@ public class HopGui {
   public MetaStoreManager<DatabaseMeta> databaseMetaManager;
   public MetaStoreManager<PartitionSchema> partitionManager;
   public MetaStoreManager<ClusterSchema> clusterManager;
+
   public HopGuiFileDelegate fileDelegate;
   public HopGuiUndoDelegate undoDelegate;
 
@@ -149,6 +167,8 @@ public class HopGui {
     props = PropsUI.getInstance();
     log = LogChannel.UI;
 
+    activePerspective = new EmptyHopPerspective();
+
     databaseMetaManager = new MetaStoreManager<>( variableSpace, metaStore, DatabaseMeta.class, shell );
     partitionManager = new MetaStoreManager<>( variableSpace, metaStore, PartitionSchema.class, shell );
     clusterManager = new MetaStoreManager<>( variableSpace, metaStore, ClusterSchema.class, shell );
@@ -158,7 +178,7 @@ public class HopGui {
 
     // TODO: create metastore plugin system
     //
-    metaStore = new DelegatingMetaStore(  );
+    metaStore = new DelegatingMetaStore();
     try {
       IMetaStore localMetaStore = MetaStoreConst.openLocalHopMetaStore();
       metaStore.addMetaStore( localMetaStore );
@@ -225,6 +245,8 @@ public class HopGui {
     addMainPerspectivesComposite();
 
     loadPerspectives();
+
+    replaceKeyboardShortcutListeners( this );
 
     // Open the Hop GUI shell and wait until it's closed
     //
@@ -325,7 +347,7 @@ public class HopGui {
 
     shell.setMenuBar( mainMenu );
     setUndoMenu( null );
-    handleFileCapabilities( null );
+    handleFileCapabilities( new EmptyFileType() );
   }
 
   @GuiMenuElement( id = ID_MAIN_MENU_FILE, type = GuiElementType.MENU_ITEM, label = "&File", parentId = ID_MAIN_MENU )
@@ -335,6 +357,8 @@ public class HopGui {
 
   @GuiMenuElement( id = ID_MAIN_MENU_FILE_NEW, type = GuiElementType.MENU_ITEM, label = "New", parentId = ID_MAIN_MENU_FILE )
   @GuiToolbarElement( id = ID_MAIN_TOOLBAR_NEW, type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/new.svg", toolTip = "New", parentId = ID_MAIN_TOOLBAR )
+  @GuiKeyboardShortcut( control = true, key = 'n' )
+  @GuiOSXKeyboardShortcut( command = true, key = 'n' )
   public void menuFileNew() {
     System.out.println( "fileNew" );
   }
@@ -342,6 +366,7 @@ public class HopGui {
   @GuiMenuElement( id = ID_MAIN_MENU_FILE_OPEN, type = GuiElementType.MENU_ITEM, label = "Open", parentId = ID_MAIN_MENU_FILE )
   @GuiToolbarElement( id = ID_MAIN_TOOLBAR_OPEN, type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/open.svg", toolTip = "Open", parentId = ID_MAIN_TOOLBAR, separator = true )
   @GuiKeyboardShortcut( control = true, key = 'o' )
+  @GuiOSXKeyboardShortcut( command = true, key = 'o' )
   public void menuFileOpen() {
     fileDelegate.fileOpen();
   }
@@ -349,6 +374,7 @@ public class HopGui {
   @GuiMenuElement( id = ID_MAIN_MENU_FILE_SAVE, type = GuiElementType.MENU_ITEM, label = "Save", parentId = ID_MAIN_MENU_FILE )
   @GuiToolbarElement( id = ID_MAIN_TOOLBAR_SAVE, type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/save.svg", toolTip = "Save", parentId = ID_MAIN_TOOLBAR )
   @GuiKeyboardShortcut( control = true, key = 's' )
+  @GuiOSXKeyboardShortcut( command = true, key = 's' )
   public void menuFileSave() {
     fileDelegate.fileSave();
   }
@@ -360,20 +386,23 @@ public class HopGui {
   }
 
   @GuiMenuElement( id = ID_MAIN_MENU_FILE_CLOSE, type = GuiElementType.MENU_ITEM, label = "Close", parentId = ID_MAIN_MENU_FILE, separator = true )
+  @GuiKeyboardShortcut( control = true, key = 'w' )
+  @GuiOSXKeyboardShortcut( command = true, key = 'w' )
   public void menuFileClose() {
     fileDelegate.fileClose();
   }
 
   @GuiMenuElement( id = ID_MAIN_MENU_FILE_CLOSE_ALL, type = GuiElementType.MENU_ITEM, label = "Close all", parentId = ID_MAIN_MENU_FILE )
   public void menuFileCloseAll() {
-    System.out.println("TODO: implement HopGui.menuFileCloseAll()");
+    System.out.println( "TODO: implement HopGui.menuFileCloseAll()" );
   }
 
   @GuiMenuElement( id = ID_MAIN_MENU_FILE_EXIT, type = GuiElementType.MENU_ITEM, label = "Exit", parentId = ID_MAIN_MENU_FILE, separator = true )
+  @GuiKeyboardShortcut( control = true, key = 'q' )
+  @GuiOSXKeyboardShortcut( command = true, key = 'q' )
   public void menuFileExit() {
-    System.out.println("TODO: implement HopGui.menuFileExit()");
+    System.out.println( "TODO: implement HopGui.menuFileExit()" );
   }
-
 
 
   @GuiMenuElement( id = ID_MAIN_MENU_EDIT_PARENT_ID, type = GuiElementType.MENU_ITEM, label = "Edit", parentId = ID_MAIN_MENU )
@@ -382,23 +411,105 @@ public class HopGui {
   }
 
   @GuiMenuElement( id = ID_MAIN_MENU_EDIT_UNDO, type = GuiElementType.MENU_ITEM, label = "Undo", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
+  @GuiKeyboardShortcut( control = true, key = 'z' )
+  @GuiOSXKeyboardShortcut( command = true, key = 'z' )
   public void menuEditUndo() {
-    HopFileTypeHandlerInterface handler = getActiveFileTypeHandler();
-    if (handler==null) {
-      return;
-    }
-    handler.undo();
+    getActiveFileTypeHandler().undo();
   }
 
   @GuiMenuElement( id = ID_MAIN_MENU_EDIT_REDO, type = GuiElementType.MENU_ITEM, label = "Redo", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
+  @GuiKeyboardShortcut( control = true, shift = true, key = 'z' )
+  @GuiOSXKeyboardShortcut( command = true, shift = true, key = 'z' )
   public void menuEditRedo() {
-    HopFileTypeHandlerInterface handler = getActiveFileTypeHandler();
-    if (handler==null) {
-      return;
-    }
-    handler.redo();
+    getActiveFileTypeHandler().redo();
   }
 
+  @GuiMenuElement( id = ID_MAIN_MENU_EDIT_SELECT_ALL, type = GuiElementType.MENU_ITEM, label = "Select all", parentId = ID_MAIN_MENU_EDIT_PARENT_ID, separator = true)
+  @GuiKeyboardShortcut( control = true, key = 'a' )
+  @GuiOSXKeyboardShortcut( command = true, key = 'a' )
+  public void menuEditSelectAll() {
+    getActiveFileTypeHandler().selectAll();
+  }
+
+
+  @GuiMenuElement( id = ID_MAIN_MENU_EDIT_UNSELECT_ALL, type = GuiElementType.MENU_ITEM, label = "Clear selection", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
+  @GuiKeyboardShortcut( key = SWT.ESC )
+  @GuiOSXKeyboardShortcut( key = SWT.ESC )
+  public void menuEditUnselectAll() {
+    getActiveFileTypeHandler().unselectAll();
+  }
+
+  @GuiMenuElement( id = ID_MAIN_MENU_EDIT_COPY, type = GuiElementType.MENU_ITEM, label = "Copy selected to clipboard", parentId = ID_MAIN_MENU_EDIT_PARENT_ID, separator = true)
+  @GuiKeyboardShortcut( control = true, key = 'c' )
+  @GuiOSXKeyboardShortcut( command = true, key = 'c' )
+  public void menuEditCopySelected() {
+    getActiveFileTypeHandler().copySelectedToClipboard();
+  }
+
+  @GuiMenuElement( id = ID_MAIN_MENU_EDIT_PASTE, type = GuiElementType.MENU_ITEM, label = "Paste from clipboard", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
+  @GuiKeyboardShortcut( control = true, key = 'v' )
+  @GuiOSXKeyboardShortcut( command = true, key = 'v' )
+  public void menuEditPaste() {
+    getActiveFileTypeHandler().pasteFromClipboard();
+  }
+
+  @GuiMenuElement( id = ID_MAIN_MENU_EDIT_CUT, type = GuiElementType.MENU_ITEM, label = "Cut selected to clipboard", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
+  @GuiKeyboardShortcut( control = true, key = 'x' )
+  @GuiOSXKeyboardShortcut( command = true, key = 'x' )
+  public void menuEditCutSelected() {
+    getActiveFileTypeHandler().cutSelectedToClipboard();
+  }
+
+  @GuiMenuElement( id = ID_MAIN_MENU_EDIT_DELETE, type = GuiElementType.MENU_ITEM, label = "Delete selected", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
+  @GuiKeyboardShortcut( control = true, key = 'x' )
+  @GuiOSXKeyboardShortcut( command = true, key = 'x' )
+  public void menuEditDeleteSelected() {
+    getActiveFileTypeHandler().deleteSelected();
+  }
+
+  @GuiMenuElement( id = ID_MAIN_MENU_EDIT_NAV_PREV, type = GuiElementType.MENU_ITEM, label = "Go to previous file", parentId = ID_MAIN_MENU_EDIT_PARENT_ID, separator = true )
+  @GuiKeyboardShortcut( alt = true, key = SWT.ARROW_LEFT )
+  public void menuEditNavigatePreviousFile() {
+    getActivePerspective().navigateToPreviousFile();
+  }
+
+  @GuiMenuElement( id = ID_MAIN_MENU_EDIT_NAV_NEXT, type = GuiElementType.MENU_ITEM, label = "Go to next file", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
+  @GuiKeyboardShortcut( alt = true, key = SWT.ARROW_RIGHT )
+  public void menuEditNavigateNextFile() {
+    getActivePerspective().navigateToNextFile();
+  }
+
+
+  @GuiMenuElement( id = ID_MAIN_MENU_RUN_PARENT_ID, type = GuiElementType.MENU_ITEM, label = "Run", parentId = ID_MAIN_MENU )
+  public void menuRun() {
+    // Nothing is done here.
+  }
+
+  @GuiMenuElement( id = ID_MAIN_MENU_RUN_START, type = GuiElementType.MENU_ITEM, label = "Start execution", parentId = ID_MAIN_MENU_RUN_PARENT_ID )
+  @GuiKeyboardShortcut( key = SWT.F8 )
+  public void menuRunStart() {
+    getActiveFileTypeHandler().start();
+  }
+
+  @GuiMenuElement( id = ID_MAIN_MENU_RUN_STOP, type = GuiElementType.MENU_ITEM, label = "Stop execution", parentId = ID_MAIN_MENU_RUN_PARENT_ID )
+  public void menuRunStop() {
+    getActiveFileTypeHandler().stop();
+  }
+
+  @GuiMenuElement( id = ID_MAIN_MENU_RUN_PAUSE, type = GuiElementType.MENU_ITEM, label = "Pause execution", parentId = ID_MAIN_MENU_RUN_PARENT_ID, separator = true )
+  public void menuRunPause() {
+    getActiveFileTypeHandler().pause();
+  }
+
+  @GuiMenuElement( id = ID_MAIN_MENU_RUN_PREVIEW, type = GuiElementType.MENU_ITEM, label = "Preview", parentId = ID_MAIN_MENU_RUN_PARENT_ID, separator = true )
+  public void menuRunPreview() {
+    getActiveFileTypeHandler().preview();
+  }
+
+  @GuiMenuElement( id = ID_MAIN_MENU_RUN_DEBUG, type = GuiElementType.MENU_ITEM, label = "Debug", parentId = ID_MAIN_MENU_RUN_PARENT_ID )
+  public void menuRunDebug() {
+    getActiveFileTypeHandler().debug();
+  }
 
   protected void addMainToolbar() {
     mainToolbar = new ToolBar( shell, SWT.BORDER | SWT.WRAP | SWT.SHADOW_OUT | SWT.LEFT | SWT.HORIZONTAL );
@@ -483,12 +594,20 @@ public class HopGui {
     } else {
       undoItem.setText( BaseMessages.getString( PKG, "Spoon.Menu.Undo.Available", prev.toString() ) );
     }
+    KeyboardShortcut undoShortcut = mainMenuWidgets.findKeyboardShortcut( ID_MAIN_MENU_EDIT_UNDO );
+    if (undoShortcut!=null) {
+      GuiMenuWidgets.appendShortCut( undoItem, undoShortcut );
+    }
 
     redoItem.setEnabled( next != null );
     if ( next == null ) {
       redoItem.setText( REDO_UNAVAILABLE );
     } else {
       redoItem.setText( BaseMessages.getString( PKG, "Spoon.Menu.Redo.Available", next.toString() ) );
+    }
+    KeyboardShortcut redoShortcut = mainMenuWidgets.findKeyboardShortcut( ID_MAIN_MENU_EDIT_REDO );
+    if (redoShortcut!=null) {
+      GuiMenuWidgets.appendShortCut( redoItem, redoShortcut );
     }
   }
 
@@ -500,70 +619,55 @@ public class HopGui {
    */
   public void handleFileCapabilities( HopFileTypeInterface fileType ) {
 
-    boolean saveEnabled = false;
-    boolean saveAsEnabled = false;
-    boolean closeEnabled = false;
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_FILE_SAVE, HopFileTypeInterface.CAPABILITY_SAVE );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_FILE_SAVE_AS, HopFileTypeInterface.CAPABILITY_SAVE );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_FILE_CLOSE, HopFileTypeInterface.CAPABILITY_CLOSE );
 
-    if (fileType!=null) {
-      saveEnabled = fileType.getCapabilities().getProperty( HopFileTypeInterface.CAPABILITY_SAVE )!=null;
-      saveAsEnabled = fileType.getCapabilities().getProperty( HopFileTypeInterface.CAPABILITY_SAVE_AS )!=null;
-      closeEnabled = fileType.getCapabilities().getProperty( HopFileTypeInterface.CAPABILITY_CLOSE )!=null;
-    }
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_SELECT_ALL, HopFileTypeInterface.CAPABILITY_SELECT );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_UNSELECT_ALL, HopFileTypeInterface.CAPABILITY_SELECT );
 
-    mainMenuWidgets.findMenuItem( ID_MAIN_MENU_FILE_SAVE ).setEnabled( saveEnabled );
-    mainMenuWidgets.findMenuItem( ID_MAIN_MENU_FILE_SAVE_AS ).setEnabled( saveAsEnabled );
-    mainMenuWidgets.findMenuItem( ID_MAIN_MENU_FILE_CLOSE ).setEnabled( closeEnabled );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_COPY, HopFileTypeInterface.CAPABILITY_COPY );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_PASTE, HopFileTypeInterface.CAPABILITY_PASTE );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_CUT, HopFileTypeInterface.CAPABILITY_CUT );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_DELETE, HopFileTypeInterface.CAPABILITY_DELETE );
+
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_START, HopFileTypeInterface.CAPABILITY_START );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_STOP, HopFileTypeInterface.CAPABILITY_STOP );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_PAUSE, HopFileTypeInterface.CAPABILITY_PAUSE );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_PREVIEW, HopFileTypeInterface.CAPABILITY_PREVIEW );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_DEBUG, HopFileTypeInterface.CAPABILITY_DEBUG );
+
+    MenuItem navPrevItem = mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_NAV_PREV, HopFileTypeInterface.CAPABILITY_FILE_HISTORY );
+    navPrevItem.setEnabled( getActivePerspective().hasNavigationPreviousFile() );
+    MenuItem navNextItem = mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_NAV_NEXT, HopFileTypeInterface.CAPABILITY_FILE_HISTORY );
+    navNextItem.setEnabled( getActivePerspective().hasNavigationNextFile() );
   }
 
   public HopFileTypeHandlerInterface getActiveFileTypeHandler() {
-    IHopPerspective perspective = getActivePerspective();
-    if (perspective==null) {
-      return null;
-    }
-    return perspective.getActiveFileTypeHandler();
+    return getActivePerspective().getActiveFileTypeHandler();
   }
 
-  public void addKeyBoardListeners( Control control, Object parentObject, boolean addHopGuiListeners) {
-    if (addHopGuiListeners) {
-      addKeyBoardListeners( control, this, false );
-    }
+  /**
+   * Replace the listeners based on the @{@link GuiKeyboardShortcut} annotations
+   * @param parentObject The parent object containing the annotations and methods
+   */
+  public void replaceKeyboardShortcutListeners( Object parentObject ) {
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle( parentObject );
+    replaceKeyboardShortcutListeners( shell, keyHandler );
+  }
 
-    List<KeyboardShortcut> shortcuts = GuiRegistry.getInstance().getKeyboardShortcuts( parentObject.getClass().getName() );
-    if (shortcuts==null) {
-      return;
-    }
-    for (KeyboardShortcut shortcut : shortcuts) {
-      control.addKeyListener( new KeyListener() {
-        @Override public void keyPressed( KeyEvent e ) {
-          if (e.keyCode!=shortcut.getKeyCode()) {
-            return;
-          }
-          if (shortcut.isAlt() && (e.stateMask&SWT.ALT)==0) {
-            return;
-          }
-          if (shortcut.isShift() && (e.stateMask&SWT.SHIFT)==0) {
-            return;
-          }
-          if (shortcut.isControl() && (e.stateMask&SWT.CONTROL)==0) {
-            return;
-          }
-          // This is the key
-          // Call the method
-          //
-          try {
-            Class<?> parentClass = parentObject.getClass();
-            Method method = parentClass.getMethod( shortcut.getParentMethodName() );
-            if (method!=null) {
-              method.invoke( parentObject );
-            }
-          } catch(Exception ex) {
-            LogChannel.UI.logError( "Error calling keyboard shortcut method on parent object "+parentObject.toString(), ex );
-          }
-        }
+  public void replaceKeyboardShortcutListeners( Control control, HopGuiKeyHandler keyHandler ) {
 
-        @Override public void keyReleased( KeyEvent e ) {
-        }
-      } );
+    control.removeKeyListener( keyHandler );
+    control.addKeyListener( keyHandler );
+
+    // Add it to all the children as well so we don't have any focus issues
+    //
+    if (control instanceof Composite) {
+      for (Control child : ((Composite)control).getChildren()) {
+        replaceKeyboardShortcutListeners( child, keyHandler );
+      }
     }
   }
 
@@ -766,6 +870,9 @@ public class HopGui {
    */
   public void setActivePerspective( IHopPerspective activePerspective ) {
     this.activePerspective = activePerspective;
+    if (activePerspective==null) {
+      this.activePerspective=getActivePerspective();
+    }
   }
 
   /**

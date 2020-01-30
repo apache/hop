@@ -154,7 +154,6 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
       return;
     }
 
-    // System.out.println(tagIndexes);
     for ( Object i : tagIndexes ) {
       String s = (String) i;
       buf.append( "\t\t<index>" + s + "</index>\n" );
@@ -259,9 +258,6 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
       } while ( true );
       buf.append( TAG_EDIFACT_END );
       retval.stop = input.LT( -1 );
-
-      // System.out.println(buf.toString());
-
     } catch ( RecognitionException e ) {
       // do not try to recover from parse errors, propagate the error instead
       throw e;

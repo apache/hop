@@ -562,16 +562,6 @@ public class PluginRegistry {
     }
     log.snap( Metrics.METRIC_PLUGIN_REGISTRY_PLUGIN_REGISTRATION_STOP );
 
-    /*
-     * System.out.println(MetricsUtil.getDuration(log.getLogChannelId(),
-     * Metrics.METRIC_PLUGIN_REGISTRY_REGISTER_EXTENSIONS_START.getDescription()).get(0));
-     * System.out.println(MetricsUtil.getDuration(log.getLogChannelId(),
-     * Metrics.METRIC_PLUGIN_REGISTRY_PLUGIN_REGISTRATION_START.getDescription()).get(0)); long total=0; for
-     * (MetricsDuration duration : MetricsUtil.getDuration(log.getLogChannelId(),
-     * Metrics.METRIC_PLUGIN_REGISTRY_PLUGIN_TYPE_REGISTRATION_START.getDescription())) { total+=duration.getDuration();
-     * System.out.println("   - "+duration.toString()+"          Total="+total); }
-     */
-
     // Clear the jar file cache so that we don't waste memory...
     //
     if ( !keepCache ) {

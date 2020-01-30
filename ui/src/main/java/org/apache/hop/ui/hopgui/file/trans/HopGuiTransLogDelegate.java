@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.hopgui.file.trans;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.logging.HopLogStore;
@@ -236,7 +237,6 @@ public class HopGuiTransLogDelegate {
             transGraph.editStep(transMeta, stepMeta);
           }
         }
-        // System.out.println("Error line selected: "+line);
       }
     }
   }
@@ -281,4 +281,13 @@ public class HopGuiTransLogDelegate {
     return logBrowser;
   }
 
+  public boolean hasSelectedText() {
+    return transLogText!=null && !transLogText.isDisposed() && StringUtils.isNotEmpty(transLogText.getSelectionText());
+  }
+
+  public void copySelected() {
+    if (hasSelectedText()) {
+      transGraph.transClipboardDelegate.toClipboard( transLogText.getSelectionText() );
+    }
+  }
 }

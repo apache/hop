@@ -1047,7 +1047,6 @@ public class Value implements Cloneable, XMLInterface, Serializable {
         } else {
           DecimalFormat form = new DecimalFormat();
           form.applyPattern( " ##########0.0########;-#########0.0########" );
-          // System.out.println("local.pattern = ["+form.toLocalizedPattern()+"]");
           retval = form.format( value.getNumber() );
         }
       } else {
@@ -2664,9 +2663,7 @@ public class Value implements Cloneable, XMLInterface, Serializable {
         // For example 123.458343938437, Decimalplaces = 2
         //
         BigDecimal bigDec = getBigNumber();
-        // System.out.println("ROUND decimalPlaces : "+decimalPlaces+", bigNumber = "+bigDec);
         bigDec = bigDec.setScale( decimalPlaces, BigDecimal.ROUND_HALF_EVEN );
-        // System.out.println("ROUND finished result         : "+bigDec);
         setValue( bigDec );
       } else {
         setValue( Const.round( getNumber(), decimalPlaces ) );
@@ -3075,8 +3072,6 @@ public class Value implements Cloneable, XMLInterface, Serializable {
     if ( isNull() ) {
       setType( VALUE_TYPE_DATE );
     } else {
-      // System.out.println("Convert string ["+string+"] to date using pattern '"+arg0+"'");
-
       SimpleDateFormat df = new SimpleDateFormat();
 
       DateFormatSymbols dfs = new DateFormatSymbols();

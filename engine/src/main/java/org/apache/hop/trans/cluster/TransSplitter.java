@@ -1335,9 +1335,6 @@ public class TransSplitter {
       // slaveStepCopyPartitionDistribution.getDistribution().keySet()) {
       // int partition = slaveStepCopyPartitionDistribution.getPartition(slaveStepCopy.getSlaveServerName(),
       // slaveStepCopy.getPartitionSchemaName(), slaveStepCopy.getStepCopyNr());
-      // System.out.println("slave step copy: slaveServer="+slaveStepCopy.getSlaveServerName()+
-      // ", partition schema="+slaveStepCopy.getPartitionSchemaName()+
-      // ", copynr="+slaveStepCopy.getStepCopyNr()+" ---> partition="+partition);
       // }
 
       // Get a hold of all the slave transformations & the master...
@@ -1554,7 +1551,6 @@ public class TransSplitter {
         }
       }
     }
-    // System.out.println("We have "+(slaveServerPartitionsMap.size())+" entries in the slave server partitions map");
   }
 
   public Map<TransMeta, String> getCarteObjectMap() {

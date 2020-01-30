@@ -1872,10 +1872,6 @@ public class Const {
         while ( ip.hasMoreElements() ) {
           InetAddress in = ip.nextElement();
           lastHostname = in.getHostName();
-          // System.out.println("  ip address bound : "+in.getHostAddress());
-          // System.out.println("  hostname         : "+in.getHostName());
-          // System.out.println("  Cann.hostname    : "+in.getCanonicalHostName());
-          // System.out.println("  ip string        : "+in.toString());
           if ( !lastHostname.equalsIgnoreCase( "localhost" ) && !( lastHostname.indexOf( ':' ) >= 0 ) ) {
             break;
           }
@@ -1988,15 +1984,11 @@ public class Const {
     String s = "";
     @SuppressWarnings( "unused" )
     Boolean errorOccured = false;
-    // System.out.println("os = "+os+", ip="+ip);
-
     if ( os.equalsIgnoreCase( "Windows NT" )
       || os.equalsIgnoreCase( "Windows 2000" ) || os.equalsIgnoreCase( "Windows XP" )
       || os.equalsIgnoreCase( "Windows 95" ) || os.equalsIgnoreCase( "Windows 98" )
       || os.equalsIgnoreCase( "Windows Me" ) || os.startsWith( "Windows" ) ) {
       try {
-        // System.out.println("EXEC> nbtstat -a "+ip);
-
         Process p = Runtime.getRuntime().exec( "nbtstat -a " + ip );
 
         // read the standard output of the command
@@ -2004,7 +1996,6 @@ public class Const {
 
         while ( !procDone( p ) ) {
           while ( ( s = stdInput.readLine() ) != null ) {
-            // System.out.println("NBTSTAT> "+s);
             if ( s.indexOf( "MAC" ) >= 0 ) {
               int idx = s.indexOf( '=' );
               mac = s.substring( idx + 2 );
@@ -2412,7 +2403,6 @@ public class Const {
     /*
      * 0123456 Example a;b;c;d --> new String[] { a, b, c, d }
      */
-    // System.out.println("splitString ["+path+"] using ["+separator+"]");
     List<String> list = new ArrayList<>();
 
     if ( string == null || string.length() == 0 ) {
@@ -2472,7 +2462,6 @@ public class Const {
     /*
      * 0123456 Example a;b;c;d --> new String[] { a, b, c, d }
      */
-    // System.out.println("splitString ["+path+"] using ["+separator+"]");
     List<String> list = new ArrayList<>();
 
     if ( string == null || string.length() == 0 ) {

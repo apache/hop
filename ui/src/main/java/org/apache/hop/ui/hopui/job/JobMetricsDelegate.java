@@ -246,14 +246,11 @@ public class JobMetricsDelegate extends HopUiDelegate {
               continue;
             }
 
-            System.out.println( duration.toString() );
             LoggingObjectInterface loggingObject =
               LoggingRegistry.getInstance().getLoggingObject( duration.getLogChannelId() );
             if ( loggingObject == null ) {
               return;
             }
-            System.out.println( loggingObject.getObjectType() + " : " + loggingObject.getObjectName() );
-
           }
         }
       }

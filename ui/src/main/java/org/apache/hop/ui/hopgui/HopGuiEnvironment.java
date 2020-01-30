@@ -7,6 +7,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiMenuElement;
+import org.apache.hop.core.gui.plugin.GuiOSXKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiPluginType;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
@@ -98,6 +99,10 @@ public class HopGuiEnvironment extends HopClientEnvironment {
           if ( shortcut != null ) {
             guiRegistry.addKeyboardShortcut( parentClassName, method, shortcut );
           }
+          GuiOSXKeyboardShortcut osxShortcut = method.getAnnotation( GuiOSXKeyboardShortcut.class );
+          if ( osxShortcut != null ) {
+            guiRegistry.addKeyboardShortcut( parentClassName, method, osxShortcut );
+          }
         }
 
         Collections.sort( menuItems, new Comparator<GuiElementMethod>() {
@@ -121,15 +126,12 @@ public class HopGuiEnvironment extends HopClientEnvironment {
 
 
         for (GuiElementMethod item : menuItems) {
-          // System.out.println("Found menu item: "+item.menuElement.id());
           guiRegistry.addMethodElement( parentClassName, item.menuElement, item.method );
         }
         for (GuiElementMethod item : toolBarItems) {
           if (StringUtils.isEmpty( item.toolBarElement.parent())) {
-            // System.out.println("Found toolbar item: "+item.toolBarElement.id()+" for parent class "+parentClassName+" and parent ID "+item.toolBarElement.parentId());
             guiRegistry.addMethodElement( parentClassName, parentClass, item.toolBarElement, item.method );
           } else {
-            // System.out.println("Found toolbar item: "+item.toolBarElement.id()+" for parent "+item.toolBarElement.parent()+" and parent ID "+item.toolBarElement.parentId());
             guiRegistry.addMethodElement( item.toolBarElement.parent(), parentClass, item.toolBarElement, item.method );
           }
         }

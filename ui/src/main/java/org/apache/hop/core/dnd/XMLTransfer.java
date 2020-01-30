@@ -68,8 +68,6 @@ public class XMLTransfer extends ByteArrayTransfer {
       return false;
     }
 
-    // System.out.println("Object class: "+object.getClass().toString());
-
     return true;
   }
 

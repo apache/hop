@@ -2062,8 +2062,6 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
                 fieldname = cell.getContents();
               }
 
-              // System.out.println("Fieldname = "+fieldname);
-
               KCell below = sheet.getCell( colnr, rownr + 1 );
 
               if ( below != null ) {
@@ -2092,7 +2090,6 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
               }
             }
           } catch ( ArrayIndexOutOfBoundsException aioobe ) {
-            // System.out.println("index out of bounds at column "+colnr+" : "+aioobe.toString());
             stop = true;
           }
         }

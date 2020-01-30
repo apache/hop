@@ -277,7 +277,6 @@ public class ScriptValuesMod extends BaseStep implements StepInterface {
             ScriptValuesAddedFunctions.jsFunctionList, ScriptValuesAddedFunctions.class,
             ScriptableObject.DONTENUM );
         } catch ( Exception ex ) {
-          // System.out.println(ex.toString());
           throw new HopValueException( BaseMessages.getString(
             PKG, "ScriptValuesMod.Log.CouldNotAddDefaultFunctions" ), ex );
         }
@@ -291,9 +290,7 @@ public class ScriptValuesMod extends BaseStep implements StepInterface {
           data.scope.put( "CONTINUE_TRANSFORMATION", data.scope, Integer.valueOf( CONTINUE_TRANSFORMATION ) );
 
         } catch ( Exception ex ) {
-          // System.out.println("Exception Adding the Constants " + ex.toString());
-          throw new HopValueException( BaseMessages.getString(
-            PKG, "ScriptValuesMod.Log.CouldNotAddDefaultConstants" ), ex );
+          throw new HopValueException( BaseMessages.getString(PKG, "ScriptValuesMod.Log.CouldNotAddDefaultConstants" ), ex );
         }
 
         try {
@@ -310,9 +307,7 @@ public class ScriptValuesMod extends BaseStep implements StepInterface {
             }
           }
         } catch ( Exception es ) {
-          // System.out.println("Exception processing StartScript " + es.toString());
-          throw new HopValueException( BaseMessages.getString(
-            PKG, "ScriptValuesMod.Log.ErrorProcessingStartScript" ), es );
+          throw new HopValueException( BaseMessages.getString( PKG, "ScriptValuesMod.Log.ErrorProcessingStartScript" ), es );
 
         }
         // Now Compile our Script

@@ -860,8 +860,6 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
       int tr = XMLHandler.countNodes( entriesnode, "entry" );
       for ( int i = 0; i < tr; i++ ) {
         Node entrynode = XMLHandler.getSubNodeByNr( entriesnode, "entry", i );
-        // System.out.println("Reading entry:\n"+entrynode);
-
         JobEntryCopy je = new JobEntryCopy( entrynode, metaStore );
 
         if ( je.isSpecial() && je.isMissing() ) {

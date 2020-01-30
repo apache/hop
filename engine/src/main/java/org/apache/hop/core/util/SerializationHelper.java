@@ -201,8 +201,6 @@ public class SerializationHelper {
           if ( value == null ) {
             continue;
           }
-          // System.out.println("Setting " + field.getName() + "(" + field.getType().getSimpleName() + ") = " + value +
-          // " on: " + object.getClass().getName());
           if ( !( field.getType().isPrimitive() && "".equals( value ) ) ) {
             // skip setting of primitives if we see null
             if ( "".equals( value ) ) {

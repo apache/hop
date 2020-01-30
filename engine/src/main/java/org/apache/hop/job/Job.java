@@ -492,14 +492,6 @@ public class Job extends Thread implements VariableSpace, NamedParams, HasLogCha
         while ( ( jes.isRepeat() || isFirst ) && !isStopped() ) {
           isFirst = false;
           res = execute( 0, null, startpoint, null, BaseMessages.getString( PKG, "Job.Reason.Started" ) );
-
-          //
-          // if (iteration > 0 && (iteration % 500) == 0) {
-          // System.out.println("other 500 iterations: " + iteration);
-          // }
-
-          // iteration++;
-          //
         }
         jerEnd =
           new JobEntryResult( res, jes.getLogChannelId(), BaseMessages.getString( PKG, "Job.Comment.JobFinished" ),

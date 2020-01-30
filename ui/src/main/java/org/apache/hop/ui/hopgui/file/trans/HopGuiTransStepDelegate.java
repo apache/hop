@@ -1,6 +1,8 @@
 package org.apache.hop.ui.hopgui.file.trans;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.plugins.PartitionerPluginType;
 import org.apache.hop.core.plugins.PluginInterface;
@@ -35,9 +37,10 @@ import java.io.FileInputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class HopGuiStepDelegate {
+public class HopGuiTransStepDelegate {
 
   // TODO: move i18n package to HopGui
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
@@ -46,7 +49,7 @@ public class HopGuiStepDelegate {
   private HopGui hopUi;
   private HopGuiTransGraph transGraph;
 
-  public HopGuiStepDelegate( HopGui hopGui, HopGuiTransGraph transGraph ) {
+  public HopGuiTransStepDelegate( HopGui hopGui, HopGuiTransGraph transGraph ) {
     this.hopUi = hopGui;
     this.transGraph = transGraph;
   }
@@ -435,55 +438,48 @@ public class HopGuiStepDelegate {
     }
   }
 
-  public void delSteps( TransMeta transformation, StepMeta[] steps ) {
-    /* TODO: Put XP handling back in
+  public void delSteps( TransMeta transMeta, List<StepMeta> steps ) {
     try {
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.TransBeforeDeleteSteps.id, steps );
+      ExtensionPointHandler.callExtensionPoint( hopUi.getLog(), HopExtensionPoint.TransBeforeDeleteSteps.id, steps );
     } catch ( HopException e ) {
       return;
     }
-     */
 
     // Hops belonging to the deleting steps are placed in a single transaction and removed.
     List<TransHopMeta> transHops = new ArrayList<>();
-    int[] hopIndexes = new int[ transformation.nrTransHops() ];
+    int[] hopIndexes = new int[ transMeta.nrTransHops() ];
     int hopIndex = 0;
-    for ( int i = transformation.nrTransHops() - 1; i >= 0; i-- ) {
-      TransHopMeta hi = transformation.getTransHop( i );
-      for ( int j = 0; j < steps.length && hopIndex < hopIndexes.length; j++ ) {
-        if ( hi.getFromStep().equals( steps[ j ] ) || hi.getToStep().equals( steps[ j ] ) ) {
-          int idx = transformation.indexOfTransHop( hi );
+    for ( int i = transMeta.nrTransHops() - 1; i >= 0; i-- ) {
+      TransHopMeta hi = transMeta.getTransHop( i );
+      for ( int j = 0; j < steps.size() && hopIndex < hopIndexes.length; j++ ) {
+        if ( hi.getFromStep().equals( steps.get( j ) ) || hi.getToStep().equals( steps.get( j ) ) ) {
+          int idx = transMeta.indexOfTransHop( hi );
           transHops.add( (TransHopMeta) hi.clone() );
           hopIndexes[ hopIndex ] = idx;
-          transformation.removeTransHop( idx );
+          transMeta.removeTransHop( idx );
           hopIndex++;
           break;
         }
       }
     }
-    /* TODO: Create new Undo/Redo system
-
     if ( !transHops.isEmpty() ) {
       TransHopMeta[] hops = transHops.toArray( new TransHopMeta[ transHops.size() ] );
-      hopUi.addUndoDelete( transformation, hops, hopIndexes );
+      hopUi.undoDelegate.addUndoDelete( transMeta, hops, hopIndexes );
     }
-     */
 
     // Deleting steps are placed all in a single transaction and removed.
-    int[] positions = new int[ steps.length ];
-    for ( int i = 0; i < steps.length; i++ ) {
-      int pos = transformation.indexOfStep( steps[ i ] );
-      transformation.removeStep( pos );
+    int[] positions = new int[ steps.size() ];
+    for ( int i = 0; i < steps.size(); i++ ) {
+      int pos = transMeta.indexOfStep( steps.get( i ) );
+      transMeta.removeStep( pos );
       positions[ i ] = pos;
     }
-    /* TODO: Create new Undo/Redo system
-    hopUi.addUndoDelete( transformation, steps, positions );
-    */
+    hopUi.undoDelegate.addUndoDelete( transMeta, steps.toArray( new StepMeta[0] ), positions );
 
     transGraph.redraw();
   }
 
   public void delStep( TransMeta transMeta, StepMeta stepMeta ) {
-    delSteps( transMeta, new StepMeta[] { stepMeta } );
+    delSteps( transMeta, Arrays.asList(stepMeta) );
   }
 }

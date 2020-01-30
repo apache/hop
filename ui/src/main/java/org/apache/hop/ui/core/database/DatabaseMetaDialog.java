@@ -694,7 +694,6 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
    */
   private void getData() {
 
-    System.out.println( "DMD getData()  START" );
     wName.setText( Const.NVL( workingMeta.getName(), "" ) );
     wODBC.setSelection( workingMeta.getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC );
     wConnectionType.setText( Const.NVL( workingMeta.getPluginName(), "" ) );
@@ -702,7 +701,6 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     wUsername.setText( Const.NVL( workingMeta.getUsername(), "" ) );
     wPassword.setText( Const.NVL( workingMeta.getPassword(), "" ) );
 
-    System.out.println( "DMD getData()  getWidgetsContents" );
     guiCompositeWidgets.setWidgetsContents( workingMeta.getDatabaseInterface(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
 
     wSupportsBoolean.setSelection( workingMeta.supportsBooleanDataType() );
@@ -729,8 +727,6 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     wOptions.optWidth( true );
 
     enableFields();
-
-    System.out.println( "DMD getData()  END" );
   }
 
   private DatabaseMeta getInfo( DatabaseMeta meta ) {
@@ -831,39 +827,18 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
   }
 
   public static void main( String[] args ) throws HopException {
-    System.out.println( ">>>>>>>>>>>>>>>> DatabaseMetaDialog START" );
     Display display = new Display();
     Shell shell = new Shell( display, SWT.MIN | SWT.MAX | SWT.RESIZE );
     // shell.setSize( 500, 500 );
     // shell.open();
 
-    System.out.println( ">>>>>>>>>>>>>>>> Main shell opened" );
-
     HopClientEnvironment.init();
-    System.out.println( ">>>>>>>>>>>>>>>> Hop client environment initialized" );
-
     List<PluginInterface> plugins = PluginRegistry.getInstance().getPlugins( DatabasePluginType.class );
-    System.out.println( ">>>>>>>>>>>>>>>> Nr of database plugins found: " + plugins.size() );
-
     PropsUI.init( display );
-    System.out.println( ">>>>>>>>>>>>>>>> PropsUI initialized" );
-
     HopEnvironment.init();
-    System.out.println( ">>>>>>>>>>>>>>>> Hop Environment initialized" );
-
     DatabaseMeta databaseMeta = new DatabaseMeta( "Test", "MYSQL", "Native", "localhost", "samples", "3306", "username", "password" );
-
-    System.out.println( ">>>>>>>>>>>>>>>> DatabaseMetaDialog created" );
     DatabaseMetaDialog dialog = new DatabaseMetaDialog( shell, null, databaseMeta );
-    System.out.println( ">>>>>>>>>>>>>>>> DatabaseMetaDialog created" );
     String name = dialog.open();
-    System.out.println( ">>>>>>>>>>>>>>>> DatabaseMetaDialog opened, name=" + name );
-
-    System.out.println( ">>>>>>>>>>>>>>>> DatabaseMetaDialog hostname = " + databaseMeta.getHostname() );
-    System.out.println( ">>>>>>>>>>>>>>>> DatabaseMetaDialog port     = " + databaseMeta.getPort() );
-    System.out.println( ">>>>>>>>>>>>>>>> DatabaseMetaDialog db name  = " + databaseMeta.getDatabaseName() );
-    System.out.println( ">>>>>>>>>>>>>>>> DatabaseMetaDialog username = " + databaseMeta.getUsername() );
-    System.out.println( ">>>>>>>>>>>>>>>> DatabaseMetaDialog password = " + databaseMeta.getPassword() );
 
     // Re-open with a new dialog...
     //

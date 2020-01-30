@@ -222,7 +222,6 @@ public class LogChannel implements LogChannelInterface {
     try {
       return logLevel.isDetailed();
     } catch ( NullPointerException ex ) {
-      // System.out.println( "Oops!" );
       return false;
     }
   }

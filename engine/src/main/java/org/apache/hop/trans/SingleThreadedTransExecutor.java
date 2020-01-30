@@ -365,10 +365,6 @@ public class SingleThreadedTransExecutor {
         // Signal the step that a batch of rows has passed for this iteration (sort rows and all)
         //
         combi.step.batchComplete();
-
-        // System.out.println(combi.step.toString()+" : input="+getTotalRows(combi.step.getInputRowSets())+",
-        // output="+getTotalRows(combi.step.getOutputRowSets()));
-
         if ( stepDone ) {
           nrDone++;
         }

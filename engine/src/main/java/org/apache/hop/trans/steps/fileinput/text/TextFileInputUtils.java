@@ -409,7 +409,6 @@ public class TextFileInputUtils {
     }
 
     try {
-      // System.out.println("Convertings line to string ["+line+"]");
       String[] strings = convertLineToStrings( log, textFileLine.line, info, delimiter, enclosure, escapeCharacter );
       int shiftFields = ( passThruFields == null ? 0 : nrPassThruFields );
       for ( fieldnr = 0; fieldnr < nrfields; fieldnr++ ) {

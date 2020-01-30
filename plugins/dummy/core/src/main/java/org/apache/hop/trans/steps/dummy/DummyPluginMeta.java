@@ -117,7 +117,6 @@ public class DummyPluginMeta extends BaseStepMeta implements StepMetaInterface {
 
       Node valnode = XMLHandler.getSubNode( stepnode, "values", "value" );
       if ( valnode != null ) {
-        System.out.println( "reading value in " + valnode );
         value.loadXML( valnode );
       }
     } catch ( Exception e ) {

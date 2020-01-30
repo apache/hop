@@ -71,7 +71,6 @@ public class FixedFileImportWizardPage1 extends WizardPage { // implements Liste
     MouseAdapter lsMouse = new MouseAdapter() {
       public void mouseDown( MouseEvent e ) {
         int s = getSize();
-        // System.out.println("size = "+s);
         setPageComplete( s > 0 );
       }
     };

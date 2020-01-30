@@ -25,11 +25,7 @@ public class HopGuiFileDelegate {
   }
 
   public HopFileTypeHandlerInterface getActiveFileTypeHandler() {
-    IHopPerspective perspective = hopGui.getActivePerspective();
-    if ( perspective == null ) {
-      return null; // should happen rarely if ever
-    }
-    HopFileTypeHandlerInterface typeHandler = perspective.getActiveFileTypeHandler();
+    HopFileTypeHandlerInterface typeHandler = hopGui.getActivePerspective().getActiveFileTypeHandler();
     return typeHandler;
   }
 
@@ -85,10 +81,10 @@ public class HopGuiFileDelegate {
   public void fileSaveAs() {
     try {
       HopFileTypeHandlerInterface typeHandler = getActiveFileTypeHandler();
-      if ( typeHandler == null ) {
-        return; // Nothing to save?
-      }
       HopFileTypeInterface fileType = typeHandler.getFileType();
+      if (!fileType.hasCapability( HopFileTypeInterface.CAPABILITY_SAVE )) {
+        return;
+      }
 
       FileDialog fileDialog = new FileDialog( hopGui.getShell(), SWT.SAVE | SWT.OK | SWT.CANCEL );
       fileDialog.setText( "Save as ..." ); // TODO i18n
@@ -120,8 +116,8 @@ public class HopGuiFileDelegate {
   public void fileSave() {
     try {
       HopFileTypeHandlerInterface typeHandler = getActiveFileTypeHandler();
-      if (typeHandler!=null) {
-
+      HopFileTypeInterface fileType = typeHandler.getFileType();
+      if (fileType.hasCapability( HopFileTypeInterface.CAPABILITY_SAVE )) {
         if ( StringUtils.isEmpty(typeHandler.getFilename())) {
           // Ask for the filename: saveAs
           //
@@ -138,15 +134,10 @@ public class HopGuiFileDelegate {
   public boolean fileClose() {
     try {
       IHopPerspective perspective = hopGui.getActivePerspective();
-      if (perspective==null) {
-        return false; // Not sure this is a possible scenario
-      }
       HopFileTypeHandlerInterface typeHandler = getActiveFileTypeHandler();
-      if (typeHandler!=null) {
-        if (typeHandler.isCloseable()) {
-          typeHandler.close();
-          return true;
-        }
+      HopFileTypeInterface fileType = typeHandler.getFileType();
+      if (fileType.hasCapability( HopFileTypeInterface.CAPABILITY_CLOSE )) {
+        perspective.remove( typeHandler );
       }
     } catch(Exception e) {
       new ErrorDialog(hopGui.getShell(), "Error", "Error saving/closing file", e);

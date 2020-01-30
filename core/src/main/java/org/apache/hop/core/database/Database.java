@@ -1256,7 +1256,6 @@ public class Database implements VariableSpace, LoggingObjectInterface {
         throw new HopDatabaseException( "Error inserting/updating row", ex );
       }
     } catch ( Exception e ) {
-      // System.out.println("Unexpected exception in ["+debug+"] : "+e.getMessage());
       throw new HopDatabaseException( "Unexpected error inserting/updating row in part [" + debug + "]", e );
     }
   }
@@ -4231,9 +4230,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   public String[] getProcedures() throws HopDatabaseException {
     String sql = databaseMeta.getSQLListOfProcedures();
     if ( sql != null ) {
-      // System.out.println("SQL= "+sql);
       List<Object[]> procs = getRows( sql, 1000 );
-      // System.out.println("Found "+procs.size()+" rows");
       String[] str = new String[ procs.size() ];
       for ( int i = 0; i < procs.size(); i++ ) {
         str[ i ] = procs.get( i )[ 0 ].toString();

@@ -231,9 +231,6 @@ public class ConstUI {
         return parent;
       }
     } else {
-      if ( grandParent != null && grandParent.getText().equalsIgnoreCase( "OTHER" ) ) {
-        System.out.println( "Other" );
-      }
       if ( grandParent != null
         && grandParent.getText().equalsIgnoreCase( parentName ) && parent.getText().equalsIgnoreCase( name ) ) {
         return parent;

@@ -525,7 +525,6 @@ public class PropertyOutputDialog extends BaseStepDialog implements StepDialogIn
     wAddDate.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
-        // System.out.println("wAddDate.getSelection()="+wAddDate.getSelection());
       }
     } );
     // Create multi-part file?

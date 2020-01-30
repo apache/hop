@@ -277,7 +277,6 @@ public class XBase {
    * public boolean setMemo(String memo_file) { try { if (reader.hasMemo()) { RandomAccessFile raf = new
    * RandomAccessFile(memo_file, "r"); reader.setMemoFile(raf);
    *
-   * // System.out.println("Memo set! "); } return true; } catch(Exception e) { return false; } }
    */
 
   /**

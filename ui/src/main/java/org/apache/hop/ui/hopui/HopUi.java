@@ -1558,7 +1558,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
         @Override
         public void changed( LocationEvent event ) {
-          // System.out.println("Changed to: " + event.location);
         }
       };
 
@@ -2083,7 +2082,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
             @Override
             public void handleEvent( Event event ) {
-              System.out.println( "Tree item Listener fired" );
             }
           } );
 
@@ -2133,7 +2131,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
                 @Override
                 public void handleEvent( Event arg0 ) {
-                  System.out.println( "Tree item Listener fired" );
                 }
               } );
               // if (isPlugin)
@@ -2171,7 +2168,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
           @Override
           public void handleEvent( Event arg0 ) {
-            System.out.println( "Tree item Listener fired" );
           }
 
         } );
@@ -6402,7 +6398,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       }
     } catch ( Exception e ) {
       // ignore... let the other notifiers try to do something
-      System.out.println( "Unable to update: " + e.getLocalizedMessage() );
     }
   }
 

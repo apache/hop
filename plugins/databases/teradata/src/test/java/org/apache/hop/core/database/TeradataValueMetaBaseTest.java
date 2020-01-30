@@ -92,7 +92,6 @@ public class TeradataValueMetaBaseTest {
   public void testMetdataPreviewSqlDateToPentahoDateUsingTeradata() throws SQLException, HopDatabaseException {
     doReturn( Types.DATE ).when( resultSet ).getInt( "DATA_TYPE" );
     doReturn( mock( TeradataDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    System.out.println( dbMeta.getDatabaseInterface() );
     ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isDate() );
     assertEquals( 1, valueMeta.getPrecision() );

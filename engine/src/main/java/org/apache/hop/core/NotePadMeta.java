@@ -127,6 +127,12 @@ public class NotePadMeta implements Cloneable, XMLInterface, GUIPositionInterfac
     this.drawshadow = drawshadow;
   }
 
+  public NotePadMeta( NotePadMeta n ) {
+    this( n.note, n.location.x, n.location.y, n.width, n.height, n.fontname, n.fontsize, n.fontbold, n.fontitalic,
+      n.fontcolorred, n.backgroundcolorgreen, n.fontcolorblue, n.backgroundcolorred,
+      n.backgroundcolorgreen, n.backgroundcolorblue, n.bordercolorred, n.bordercolorgreen, n.bordercolorblue, n.drawshadow );
+  }
+
   public NotePadMeta( Node notepadnode ) throws HopXMLException {
     try {
       note = XMLHandler.getTagValue( notepadnode, "note" );
@@ -298,13 +304,8 @@ public class NotePadMeta implements Cloneable, XMLInterface, GUIPositionInterfac
     return this.drawshadow;
   }
 
-  public Object clone() {
-    try {
-      Object retval = super.clone();
-      return retval;
-    } catch ( CloneNotSupportedException e ) {
-      return null;
-    }
+  public NotePadMeta clone() {
+    return new NotePadMeta( this );
   }
 
   public void setChanged() {

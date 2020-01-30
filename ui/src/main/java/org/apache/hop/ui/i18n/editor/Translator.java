@@ -367,7 +367,6 @@ public class Translator {
     try {
       if ( wList.getSelectionCount() > 0 ) {
         String[] languages = getSelectedLocale();
-        System.out.println( "Selected languages: " + languages.length );
 
         shell.setCursor( display.getSystemCursor( SWT.CURSOR_WAIT ) );
 
@@ -429,10 +428,6 @@ public class Translator {
                   }
 
                   boolean notUsed = "N".equalsIgnoreCase( used );
-
-                  if ( key.equalsIgnoreCase( "Log.FinishedProcessing" ) ) {
-                    System.out.println( "Debug!" );
-                  }
 
                   String available = checkAvailability( dir, entry, locale, languages );
 

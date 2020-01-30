@@ -1831,8 +1831,6 @@ public class ScriptValuesModDialog extends BaseStepDialog implements StepDialogI
     }
     if ( input.getAddClasses() != null ) {
       for ( int i = 0; i < input.getAddClasses().length; i++ ) {
-        // System.out.println(input.getAddClasses().length);
-
         try {
           Method[] methods = input.getAddClasses()[ i ].getAddClass().getMethods();
           String strClassType = input.getAddClasses()[ i ].getAddClass().toString();

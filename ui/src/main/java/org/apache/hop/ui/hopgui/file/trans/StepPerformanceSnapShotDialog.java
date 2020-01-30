@@ -342,7 +342,6 @@ public class StepPerformanceSnapShotDialog extends Dialog {
                   }
                   double movingAverage = movingTotal / movingList.size();
                   dataset.addValue( movingAverage, dataType + "(Avg)", xLabel );
-                  // System.out.println("moving average = "+movingAverage+", movingTotal="+movingTotal+", m");
                 }
               }
             }

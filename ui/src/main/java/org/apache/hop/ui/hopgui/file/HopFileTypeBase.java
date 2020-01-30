@@ -9,10 +9,8 @@ import org.apache.hop.core.xml.XMLInterface;
 import java.util.Properties;
 
 public abstract class HopFileTypeBase<T extends XMLInterface> implements HopFileTypeInterface<T> {
-  @Override public Properties getCapabilities() {
-    // The default is: no capabilities
-    return new Properties(  );
-  }
+  @Override
+  public abstract Properties getCapabilities();
 
   @Override
   public abstract String[] getFilterExtensions();
@@ -53,4 +51,10 @@ public abstract class HopFileTypeBase<T extends XMLInterface> implements HopFile
     }
   }
 
+  @Override public boolean hasCapability( String capability ) {
+    if (getCapabilities()==null) {
+      return false;
+    }
+    return getCapabilities().get( capability )!=null;
+  }
 }

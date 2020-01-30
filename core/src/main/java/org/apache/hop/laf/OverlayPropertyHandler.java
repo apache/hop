@@ -65,7 +65,6 @@ public class OverlayPropertyHandler implements PropertyHandler {
 
   @Override
   public String getProperty( String key ) {
-    // System.out.println(properties.getProperty(key));
     // go through linked list from front to back to find the property
     String s = null;
     Iterator<OverlayProperties> i = propList.iterator();

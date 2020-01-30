@@ -232,7 +232,6 @@ public class JobLogDelegate extends HopUiDelegate implements XulEventHandler {
             hopUi.editJobEntry( jobMeta, entryCopy );
           }
         }
-        // System.out.println("Error line selected: "+line);
       }
     }
   }

@@ -56,7 +56,6 @@ public class TestUtils {
       file.deleteOnExit();
       ret = file.getAbsolutePath();
     } catch ( Exception ex ) {
-      System.out.println( "Can't create temp folder" );
       ex.printStackTrace();
     }
     return ret;

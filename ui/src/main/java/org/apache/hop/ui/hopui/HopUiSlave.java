@@ -970,7 +970,6 @@ public class HopUiSlave extends Composite implements TabItemInterface {
        * TODO: we have multiple transformation we can go to: which one should we pick? if (line != null) { for (i = 0; i
        * < spoon.getTransMeta().nrSteps(); i++) { StepMeta stepMeta = spoon.getTransMeta().getStep(i); if
        * (line.indexOf(stepMeta.getName()) >= 0) { spoon.editStep(stepMeta.getName()); } } //
-       * System.out.println("Error line selected: "+line); }
        */
     }
   }

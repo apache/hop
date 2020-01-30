@@ -127,7 +127,6 @@ public class SwitchCaseTest {
     // expected 5*2 + 5 = 15 rows generated
     // expected 15 - 5 - 2 = 8 rows go to default.
     // expected one empty string at the end
-    // System.out.println( krasavez.getInputDataOverview() );
     // 1, 1, null, 2, 2, null, 3, 3, null, 4, 4, null, 5, 5, null,""
     krasavez.generateData( 1, 5, 2 );
 

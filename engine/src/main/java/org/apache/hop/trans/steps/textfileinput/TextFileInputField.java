@@ -570,8 +570,6 @@ public class TextFileInputField implements Cloneable, TextFileInputFieldInterfac
       return 0; // nothing behind decimal point...
     }
 
-    // System.out.println("d="+d+", diff="+diff);
-
     // remainder: 12.345678 --> 0.345678
     for ( int i = 1; i < maxprec; i++ ) { // cap off precision at a reasonable maximum
       double factor = Math.pow( 10.0, i );
@@ -579,8 +577,6 @@ public class TextFileInputField implements Cloneable, TextFileInputFieldInterfac
       if ( diff < maxdiff ) {
         return i;
       }
-
-      // System.out.println("d="+d+", diff="+diff+", factor="+factor);
 
       factor *= 10;
     }

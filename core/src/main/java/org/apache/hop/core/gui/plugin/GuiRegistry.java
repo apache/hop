@@ -1,5 +1,7 @@
 package org.apache.hop.core.gui.plugin;
 
+import org.apache.hop.core.Const;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -211,9 +213,32 @@ public class GuiRegistry {
     shortcuts.add(new KeyboardShortcut( shortcut, parentMethod ));
   }
 
+  public void addKeyboardShortcut( String parentClassName, Method parentMethod, GuiOSXKeyboardShortcut shortcut ) {
+    List<KeyboardShortcut> shortcuts = shortCutsMap.get( parentClassName );
+    if (shortcuts==null) {
+      shortcuts = new ArrayList<>(  );
+      shortCutsMap.put(parentClassName, shortcuts);
+    }
+    shortcuts.add(new KeyboardShortcut( shortcut, parentMethod ));
+  }
+
   public List<KeyboardShortcut> getKeyboardShortcuts( String parentClassName ) {
     List<KeyboardShortcut> shortcuts = shortCutsMap.get( parentClassName );
     return shortcuts;
+  }
+
+  public KeyboardShortcut findKeyboardShortcut(String parentClassName, String methodName, boolean osx) {
+    List<KeyboardShortcut> shortcuts = getKeyboardShortcuts( parentClassName );
+    if (shortcuts!=null) {
+      for ( KeyboardShortcut shortcut : shortcuts ) {
+        if ( shortcut.getParentMethodName().equals( methodName ) ) {
+          if (shortcut.isOsx()==osx) {
+            return shortcut;
+          }
+        }
+      }
+    }
+    return null;
   }
 
 }

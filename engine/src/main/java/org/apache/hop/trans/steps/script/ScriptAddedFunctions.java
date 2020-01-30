@@ -1697,6 +1697,7 @@ public class ScriptAddedFunctions {
         actualContext.eval( strScript, actualObject );
       }
     } catch ( Exception e ) {
+      // TODO: DON'T EAT EXCEPTIONS!!
       // System.out.println(e.toString());
     }
   }

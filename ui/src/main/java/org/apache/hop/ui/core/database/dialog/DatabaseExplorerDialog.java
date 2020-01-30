@@ -572,7 +572,6 @@ public class DatabaseExplorerDialog extends Dialog {
       }
 
       // Make sure the selected table is shown...
-      // System.out.println("Selecting table "+k);
       if ( !Const.isEmpty( selectedTable ) ) {
         TreeItem ti = null;
         if ( ti == null && tiTab != null ) {
@@ -589,7 +588,6 @@ public class DatabaseExplorerDialog extends Dialog {
         }
 
         if ( ti != null ) {
-          // System.out.println("Selection set on "+ti.getText());
           wTree.setSelection( new TreeItem[] { ti } );
           wTree.showSelection();
           refreshButtons( dbMeta.getQuotedSchemaTableCombination( selectedSchema, selectedTable ) );

@@ -214,8 +214,6 @@ public class SasInput extends BaseStep implements StepInterface {
           //
           putRow( data.outputRowMeta, row );
 
-          // System.out.println(rowNumber+" ---- passed row : "+Arrays.toString(rowData));
-
           return !isStopped();
         } catch ( Exception e ) {
           throw new RuntimeException( "There was an error reading from SAS7BAT file '" + filename + "'", e );

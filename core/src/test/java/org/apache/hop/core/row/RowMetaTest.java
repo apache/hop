@@ -411,8 +411,6 @@ public class RowMetaTest {
     assertEquals( searchFor, found );
     time2 = stop - start;
 
-    // System.out.println( time1 + ", " + time2 );
-
     assertTrue( "array search is slower then current implementation : " + "for array list: " + time1
       + ", for hashed rowMeta: " + time2, time1 > time2 );
   }
@@ -449,8 +447,6 @@ public class RowMetaTest {
     time2 = stop - start;
 
     // ~6 time slower that for original implementation
-    System.out.println( time1 + ", " + time2 );
-
     // let say finally it is not 10 times slower :(
     assertTrue( "it is not 10 times slower than for original arrayList", time1 * 10 > time2 );
   }

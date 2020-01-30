@@ -1351,7 +1351,6 @@ public class RssOutputDialog extends BaseStepDialog implements StepDialogInterfa
     wAddDate.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
-        // System.out.println("wAddDate.getSelection()="+wAddDate.getSelection());
       }
     } );
     // Create multi-part file?

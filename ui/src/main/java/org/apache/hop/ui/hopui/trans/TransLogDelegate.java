@@ -259,7 +259,6 @@ public class TransLogDelegate extends HopUiDelegate implements XulEventHandler {
             hopUi.editStep( transMeta, stepMeta );
           }
         }
-        // System.out.println("Error line selected: "+line);
       }
     }
   }

@@ -77,9 +77,6 @@ public class DBCache {
 
     RowMetaInterface copy = fields.clone();
     cache.put( entry, copy );
-
-    // System.out.println("Cache store: "+copy.toStringMeta());
-    // System.out.println("Cache store entry="+entry.sql );
   }
 
   /**
@@ -96,9 +93,6 @@ public class DBCache {
     RowMetaInterface fields = cache.get( entry );
     if ( fields != null ) {
       fields = fields.clone(); // Copy it again!
-
-      // System.out.println("Cache hit!!, fields="+fields.toStringMeta() );
-      // System.out.println("Cache hit entry="+entry.sql );
     }
 
     return fields;

@@ -184,8 +184,6 @@ public class AddJobServlet extends BaseHttpServlet implements HopServerPluginInt
 
       // Parse the XML, create a job configuration
       //
-      // System.out.println(xml);
-      //
       JobConfiguration jobConfiguration = JobConfiguration.fromXML( xml.toString() );
       JobMeta jobMeta = jobConfiguration.getJobMeta();
       JobExecutionConfiguration jobExecutionConfiguration = jobConfiguration.getJobExecutionConfiguration();

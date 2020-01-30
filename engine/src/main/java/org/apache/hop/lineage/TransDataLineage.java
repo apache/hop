@@ -119,11 +119,6 @@ public class TransDataLineage {
           }
         }
       } );
-
-      System.out.println( "Step considered: " + stepMeta.getName() );
-      for ( StepMeta prev : previousSteps ) {
-        System.out.println( "      --> previous step: " + prev.getName() );
-      }
     }
 
     fieldStepsMap = new HashMap<ValueMetaInterface, List<StepMeta>>();

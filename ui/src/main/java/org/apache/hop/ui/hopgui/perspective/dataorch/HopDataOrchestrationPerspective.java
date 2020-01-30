@@ -1,8 +1,5 @@
 package org.apache.hop.ui.hopgui.perspective.dataorch;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.vfs2.FileName;
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -10,10 +7,11 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
-import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
+import org.apache.hop.ui.hopgui.file.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 import org.apache.hop.ui.hopgui.file.trans.HopGuiTransGraph;
 import org.apache.hop.ui.hopgui.file.trans.HopTransFileType;
@@ -24,8 +22,6 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
 import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -33,6 +29,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 @HopPerspectivePlugin(
   id = "HopDataOrchestrationPerspective",
@@ -58,6 +55,9 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   private List<TabItemHandler> items;
   private TabItemHandler activeItem;
 
+  private Stack<Integer> tabSelectionHistory;
+  private int tabSelectionIndex;
+
   public static final HopDataOrchestrationPerspective getInstance() {
     if ( perspective == null ) {
       perspective = new HopDataOrchestrationPerspective();
@@ -68,6 +68,8 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   private HopDataOrchestrationPerspective() {
     items = new ArrayList<>();
     activeItem = null;
+    tabSelectionHistory = new Stack<>();
+    tabSelectionIndex = 0;
   }
 
   @GuiToolbarElement(
@@ -131,28 +133,87 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
         // - Remove the tab and file from the list
         //
         CTabItem tabItem = (CTabItem) event.item;
+        int tabIndex = tabFolder.indexOf( tabItem );
         TabItemHandler tabItemHandler = findTabItemHandler( tabItem );
         if (tabItemHandler==null) {
           hopGui.getLog().logError( "Tab item handler not found for tab item "+tabItem.toString() );
           return;
         }
         HopFileTypeHandlerInterface typeHandler = tabItemHandler.getTypeHandler();
+        remove(typeHandler);
 
-        // Don't close the tab if we had an error saving the file
+        // Also switch to the last used tab
+        // But first remove all from the selection history
         //
-        if (typeHandler.isCloseable()) {
-          items.remove( tabItemHandler );
-        } else {
-          event.doit = false;
+        if (tabIndex>=0) {
+          // Remove the index from the tab selection history
+          //
+          int historyIndex = tabSelectionHistory.indexOf( tabIndex );
+          while ( historyIndex>=0 ) {
+            if (historyIndex<=tabSelectionIndex) {
+              tabSelectionIndex--;
+            }
+            tabSelectionHistory.remove( historyIndex );
+
+            // Search again
+            historyIndex = tabSelectionHistory.indexOf( tabIndex );
+          }
+
+          // Compress the history: 2 the same files visited after each other become one.
+          //
+          Stack<Integer> newHistory = new Stack<>();
+          Integer previous = null;
+          for (int i=0;i<tabSelectionHistory.size();i++ ) {
+            Integer index = tabSelectionHistory.get(i);
+            if (previous==null || previous!=index) {
+              newHistory.add(index);
+            } else {
+              if (tabSelectionIndex>=i) {
+                tabSelectionIndex--;
+              }
+            }
+            previous=index;
+          }
+          tabSelectionHistory=newHistory;
+
+          // Correct the history taken the removed tab into account
+          //
+          for ( int i=0;i<tabSelectionHistory.size();i++) {
+            int index = tabSelectionHistory.get( i );
+            if (index>tabIndex) {
+              tabSelectionHistory.set( i, index-- );
+            }
+          }
+
+          // Select the appropriate tab on the stack
+          //
+          if ( tabSelectionIndex<0) {
+            tabSelectionIndex=0;
+          } else if (tabSelectionIndex>=tabSelectionHistory.size() ) {
+            tabSelectionIndex=tabSelectionHistory.size()-1;
+          }
+          if (!tabSelectionHistory.isEmpty()) {
+            Integer activeIndex = tabSelectionHistory.get( tabSelectionIndex );
+            activeItem = items.get( activeIndex );
+            tabFolder.setSelection( activeIndex );
+            activeItem.getTypeHandler().updateGui();
+          }
         }
       }
     });
 
     tabFolder.addListener( SWT.Selection, e->{
-      activeItem = findTabItemHandler( (CTabItem) e.item );
+      CTabItem tabItem = (CTabItem) e.item;
+      activeItem = findTabItemHandler( tabItem );
       if (activeItem!=null) {
         activeItem.getTypeHandler().redraw();
         activeItem.getTypeHandler().updateGui();
+      }
+      int tabIndex = tabFolder.indexOf( tabItem );
+      Integer lastIndex = tabSelectionHistory.isEmpty() ? null : tabSelectionHistory.peek();
+      if ( lastIndex == null || lastIndex != tabIndex ) {
+        tabSelectionHistory.push( tabIndex );
+        tabSelectionIndex = tabSelectionHistory.size()-1;
       }
     } );
 
@@ -164,6 +225,16 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
       return null;
     }
     return items.get(index);
+  }
+
+  public TabItemHandler findTabItemHandler(HopFileTypeHandlerInterface handler) {
+    for (TabItemHandler item : items) {
+      // This compares the handler payload, typically TransMeta, JobMeta and so on.
+      if (item.getTypeHandler().equals( handler )) {
+        return item;
+      }
+    }
+    return null;
   }
 
   /**
@@ -186,20 +257,94 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     activeItem = new TabItemHandler(tabItem, transGraph);
     items.add( activeItem );
 
+    // Remove all the history above the current tabSelectionIndex
+    //
+    while (tabSelectionHistory.size()-1>tabSelectionIndex) {
+      tabSelectionHistory.pop();
+    }
+    int tabIndex = tabFolder.indexOf( tabItem );
+    tabSelectionHistory.add( tabIndex );
+    tabSelectionIndex = tabSelectionHistory.size()-1;
+
     try {
       ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.HopGuiNewTransformationTab.id, transGraph );
     } catch(Exception e) {
       throw new HopException( "Error calling extension point plugin for plugin id "+HopExtensionPoint.HopGuiNewTransformationTab.id+" trying to handle a new transformation tab", e );
     }
 
+    transGraph.setFocus();
+
     return transGraph;
   }
 
+  /**
+   * Remove the file type handler from this perspective, from the tab folder.
+   * This simply tries to remove the item, does not
+   * @param typeHandler The file type handler to remove
+   * @return true if the handler was removed from the perspective, false if it wasn't (cancelled, not possible, ...)
+   */
+  @Override public boolean remove( HopFileTypeHandlerInterface typeHandler ) {
+    TabItemHandler tabItemHandler = findTabItemHandler( typeHandler );
+    if (tabItemHandler==null) {
+      return false;
+    }
+    if (typeHandler.isCloseable()) {
+      // Remove the tab item handler from the list
+      // Then close the tab item...
+      //
+      items.remove( tabItemHandler );
+      CTabItem tabItem = tabItemHandler.getTabItem();
+      tabItem.dispose();
+
+      // Also remove the keyboard shortcuts for this handler
+      //
+      HopGuiKeyHandler.getInstance().removeParentObjectToHandle(typeHandler);
+      hopGui.getMainHopGuiComposite().setFocus();
+
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Get the active file type handler.  If none is active return an empty handler which does do anything.
+   * @return the active file type handler or if none is active return an empty handler which does do anything.
+   */
   @Override public HopFileTypeHandlerInterface getActiveFileTypeHandler() {
     if (activeItem==null) {
-      return null;
+      return new EmptyHopFileTypeHandler();
     }
     return activeItem.getTypeHandler();
+  }
+
+  @Override public void navigateToPreviousFile() {
+    if (hasNavigationPreviousFile()) {
+      tabSelectionIndex--;
+      Integer tabIndex = tabSelectionHistory.get( tabSelectionIndex );
+      activeItem = items.get( tabIndex );
+      tabFolder.setSelection( tabIndex );
+      activeItem.getTypeHandler().updateGui();
+    }
+  }
+
+  @Override public void navigateToNextFile() {
+    if (hasNavigationNextFile()) {
+      tabSelectionIndex++;
+      Integer tabIndex = tabSelectionHistory.get( tabSelectionIndex );
+      activeItem = items.get( tabIndex );
+      tabFolder.setSelection( tabIndex );
+      activeItem.getTypeHandler().updateGui();
+    }
+  }
+
+  @Override
+  public boolean hasNavigationPreviousFile() {
+    return tabSelectionIndex>0 && tabSelectionIndex<tabSelectionHistory.size();
+  }
+
+  @Override
+  public boolean hasNavigationNextFile() {
+    return tabSelectionIndex+1 < tabSelectionHistory.size();
   }
 
   /**

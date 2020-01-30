@@ -37,27 +37,32 @@ public interface HopFileTypeHandlerInterface {
   /**
    * Start execution
    */
-  public void start() throws HopException;
+  public void start();
 
   /**
    * Stop execution
    */
-  public void stop() throws HopException;
+  public void stop();
 
   /**
    * Pause execution
    */
-  public void pause() throws HopException;
+  public void pause();
 
   /**
-   * Preview data
+   * Preview this file
    */
-  public void preview() throws HopException;
+  public void preview();
+
+  /**
+   * Debug the file
+   */
+  public void debug();
 
   /**
    * Print the file
    */
-  public void print() throws HopException;
+  public void print();
 
   /**
    * Refresh the graphical file representation after model changes
@@ -67,7 +72,37 @@ public interface HopFileTypeHandlerInterface {
   /**
    * Update the toolbar, menus and so on. This is needed after a file, context or capabilities changes
    */
-  public void updateGui();
+  void updateGui();
+
+  /**
+   * Select all items in the current files
+   */
+  void selectAll();
+
+  /**
+   * Unselect all items in the current file
+   */
+  void unselectAll();
+
+  /**
+   * Copy the selected items to the clipboard
+   */
+  void copySelectedToClipboard();
+
+  /**
+   * Cut the selected items to the clipboard
+   */
+  void cutSelectedToClipboard();
+
+  /**
+   * Delete the selected items
+   */
+  void deleteSelected();
+
+  /**
+   * Paste items from the clipboard
+   */
+  void pasteFromClipboard();
 
   /**
    * Perform any task needed to close a file, save it if needed
@@ -86,6 +121,13 @@ public interface HopFileTypeHandlerInterface {
    */
   boolean hasChanged();
 
+  /**
+   * Undo a change to the file
+   */
   void undo();
+
+  /**
+   * Redo a change to the file
+   */
   void redo();
 }

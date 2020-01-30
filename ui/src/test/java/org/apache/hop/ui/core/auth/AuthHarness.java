@@ -43,7 +43,6 @@ public class AuthHarness {
       dialog.show();
 
     } catch ( Exception e ) {
-      System.out.println( e.getMessage() );
       e.printStackTrace( System.out );
     }
   }

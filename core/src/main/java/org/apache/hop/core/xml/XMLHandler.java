@@ -1172,8 +1172,6 @@ public class XMLHandler {
 class DTDIgnoringEntityResolver implements EntityResolver {
   @Override
   public InputSource resolveEntity( java.lang.String publicID, java.lang.String systemID ) throws IOException {
-    System.out.println( "Public-ID: " + publicID.toString() );
-    System.out.println( "System-ID: " + systemID.toString() );
     return new InputSource( new ByteArrayInputStream( "<?xml version='1.0' encoding='UTF-8'?>".getBytes() ) );
   }
 

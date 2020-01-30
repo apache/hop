@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention( RetentionPolicy.RUNTIME )
 @Target( { ElementType.FIELD, ElementType.METHOD} )
-public @interface GuiKeyboardShortcut {
+public @interface GuiOSXKeyboardShortcut {
   boolean control() default false;
   boolean alt() default false;
   boolean shift() default false;

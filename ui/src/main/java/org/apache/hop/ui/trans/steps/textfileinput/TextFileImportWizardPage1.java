@@ -78,7 +78,6 @@ public class TextFileImportWizardPage1 extends WizardPage { // implements Listen
     MouseAdapter lsMouse = new MouseAdapter() {
       public void mouseDown( MouseEvent e ) {
         int s = getSize();
-        // System.out.println("size = "+s);
         setPageComplete( s > 0 );
       }
     };

@@ -25,11 +25,11 @@ public class TabItemHandler {
       return false;
     }
     TabItemHandler that = (TabItemHandler) o;
-    return typeHandler.equals( that.typeHandler );
+    return tabItem.equals( that.tabItem );
   }
 
   @Override public int hashCode() {
-    return Objects.hash( typeHandler );
+    return Objects.hash( tabItem );
   }
 
   /**

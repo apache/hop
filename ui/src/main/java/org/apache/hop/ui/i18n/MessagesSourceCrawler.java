@@ -152,9 +152,6 @@ public class MessagesSourceCrawler {
    */
   public void addKeyOccurrence( KeyOccurrence occ ) {
 
-    // System.out.println("Adding key occurrence : folder="+occ.getSourceFolder()+",
-    // pkg="+occ.getMessagesPackage()+", key="+occ.getKey());
-
     String sourceFolder = occ.getSourceFolder();
     if ( sourceFolder == null ) {
       throw new RuntimeException( "No source folder found for key: "
@@ -404,7 +401,6 @@ public class MessagesSourceCrawler {
         int fromIndex = line.indexOf( '=' ) + 1;
         int toIndex = line.indexOf( ".class", fromIndex );
         String expression = Const.trim( line.substring( fromIndex, toIndex ) );
-        // System.out.println("expression : "+expression);
 
         // If the expression doesn't contain any package, we'll look up the package in the imports. If not found there,
         // it's a local package.

@@ -11,12 +11,20 @@ import java.util.Properties;
 public interface HopFileTypeInterface<T extends XMLInterface> {
 
   public static final String CAPABILITY_SAVE = "Save";
-  public static final String CAPABILITY_SAVE_AS = "SaveAs";
   public static final String CAPABILITY_START = "Start";
   public static final String CAPABILITY_CLOSE = "Close";
   public static final String CAPABILITY_STOP = "Stop";
   public static final String CAPABILITY_PAUSE = "Pause";
   public static final String CAPABILITY_PREVIEW = "Preview";
+  public static final String CAPABILITY_DEBUG = "Debug";
+
+  public static final String CAPABILITY_SELECT = "Select";
+  public static final String CAPABILITY_COPY = "Copy";
+  public static final String CAPABILITY_PASTE = "Paste";
+  public static final String CAPABILITY_CUT = "Cut";
+  public static final String CAPABILITY_DELETE = "Delete";
+
+  public static final String CAPABILITY_FILE_HISTORY = "FileHistory";
 
   /**
    * @return The file type extensions.
@@ -34,10 +42,11 @@ public interface HopFileTypeInterface<T extends XMLInterface> {
   Properties getCapabilities();
 
   /**
-   * Allows you to specify which perspective is to be used to load handle this file
-   * @return
+   * Check to see if the capability is present
+   * @param capability The capability to check
+   * @return True if the capability is set to any non-null value
    */
-  Class<? extends IHopPerspective> getPerspectiveClass();
+  boolean hasCapability(String capability);
 
   /**
    * Load and display the file

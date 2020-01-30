@@ -122,8 +122,6 @@ public class TreeMemory {
     /*
      * // key.hashCode() Set<TreeMemoryEntry> keySet = map.keySet(); for (Iterator<TreeMemoryEntry> iterator =
      * keySet.iterator(); iterator.hasNext();) { TreeMemoryEntry entry = iterator.next();
-     * System.out.println("Entry: "+entry.toString()+", hashCode="+entry.hashCode()); if (key.equals(entry)) {
-     * System.out.println("FOUND!!! Entry: "+entry.toString()+", hashCode="+entry.hashCode()); } }
      */
 
     Boolean expanded = map.get( key );

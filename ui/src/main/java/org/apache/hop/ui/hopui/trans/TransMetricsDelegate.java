@@ -245,14 +245,11 @@ public class TransMetricsDelegate extends HopUiDelegate {
             if ( duration == null ) {
               continue;
             }
-            System.out.println( duration.toString() );
             LoggingObjectInterface loggingObject =
               LoggingRegistry.getInstance().getLoggingObject( duration.getLogChannelId() );
             if ( loggingObject == null ) {
               continue;
             }
-
-            System.out.println( loggingObject.getObjectType() + " : " + loggingObject.getObjectName() );
           }
         }
       }

@@ -1083,7 +1083,6 @@ public class JobEntryMail extends JobEntryBase implements Cloneable, JobEntryInt
 
           Address[] validSent = sfex.getValidSentAddresses();
           if ( validSent != null ) {
-            // System.out.println("    ** ValidSent Addresses");
             for ( int i = 0; i < validSent.length; i++ ) {
               logError( "         " + validSent[ i ] );
               result.setNrErrors( 1 );

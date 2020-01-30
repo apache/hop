@@ -1744,6 +1744,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
         actualContext.evaluateString( actualObject, strScript, "_" + strToLoad + "_", 0, null );
       }
     } catch ( Exception e ) {
+      // TODO: DON'T EAT EXCEPTION
       // System.out.println(e.toString());
     }
   }

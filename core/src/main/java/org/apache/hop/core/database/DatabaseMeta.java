@@ -964,7 +964,6 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
             databaseInterface.setPluginName( plugin.getName() );
             tmpAllDatabaseInterfaces.put( plugin.getIds()[ 0 ], databaseInterface );
           } catch ( HopPluginException cnfe ) {
-            // System.out.println( "Could not create connection entry for " + plugin.getName() + ".  " + cnfe.getCause().getClass().getName() );
             log.logError( "Could not create connection entry for "
               + plugin.getName() + ".  " + cnfe.getCause().getClass().getName() );
             if ( log.isDebug() ) {

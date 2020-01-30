@@ -23,7 +23,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HopGuiHopDelegate {
+public class HopGuiTransHopDelegate {
 
   // TODO: move i18n package to HopGui
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
@@ -33,7 +33,7 @@ public class HopGuiHopDelegate {
   private HopGuiTransGraph transGraph;
   private PropsUI props;
 
-  public HopGuiHopDelegate( HopGui hopGui, HopGuiTransGraph transGraph ) {
+  public HopGuiTransHopDelegate( HopGui hopGui, HopGuiTransGraph transGraph ) {
     this.hopUi = hopGui;
     this.transGraph = transGraph;
     this.props = PropsUI.getInstance();

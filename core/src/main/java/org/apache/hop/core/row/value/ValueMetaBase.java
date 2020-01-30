@@ -2830,7 +2830,6 @@ public class ValueMetaBase implements ValueMetaInterface {
     inputStream.readFully( chars );
 
     String string = new String( chars, Const.XML_ENCODING );
-    // System.out.println("Read string("+getName()+"), length "+length+": "+string);
     return string;
   }
 
@@ -2854,7 +2853,6 @@ public class ValueMetaBase implements ValueMetaInterface {
 
   protected BigDecimal readBigNumber( DataInputStream inputStream ) throws IOException {
     String string = readString( inputStream );
-    // System.out.println("Read big number("+getName()+") ["+string+"]");
     return new BigDecimal( string );
   }
 
@@ -2864,7 +2862,6 @@ public class ValueMetaBase implements ValueMetaInterface {
 
   protected Date readDate( DataInputStream inputStream ) throws IOException {
     long time = inputStream.readLong();
-    // System.out.println("Read Date("+getName()+") ["+new Date(time)+"]");
     return new Date( time );
   }
 
@@ -2874,7 +2871,6 @@ public class ValueMetaBase implements ValueMetaInterface {
 
   protected Boolean readBoolean( DataInputStream inputStream ) throws IOException {
     Boolean bool = Boolean.valueOf( inputStream.readBoolean() );
-    // System.out.println("Read boolean("+getName()+") ["+bool+"]");
     return bool;
   }
 
@@ -2884,7 +2880,6 @@ public class ValueMetaBase implements ValueMetaInterface {
 
   protected Double readNumber( DataInputStream inputStream ) throws IOException {
     Double d = new Double( inputStream.readDouble() );
-    // System.out.println("Read number("+getName()+") ["+d+"]");
     return d;
   }
 
@@ -2894,7 +2889,6 @@ public class ValueMetaBase implements ValueMetaInterface {
 
   protected Long readInteger( DataInputStream inputStream ) throws IOException {
     Long l = new Long( inputStream.readLong() );
-    // System.out.println("Read integer("+getName()+") ["+l+"]");
     return l;
   }
 
@@ -2904,7 +2898,6 @@ public class ValueMetaBase implements ValueMetaInterface {
 
   protected Integer readSmallInteger( DataInputStream inputStream ) throws IOException {
     Integer i = Integer.valueOf( inputStream.readInt() );
-    // System.out.println("Read index integer("+getName()+") ["+i+"]");
     return i;
   }
 
@@ -2917,8 +2910,6 @@ public class ValueMetaBase implements ValueMetaInterface {
     int size = inputStream.readInt();
     byte[] buffer = new byte[ size ];
     inputStream.readFully( buffer );
-
-    // System.out.println("Read binary("+getName()+") with size="+size);
 
     return buffer;
   }

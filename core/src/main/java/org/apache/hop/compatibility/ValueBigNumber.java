@@ -44,8 +44,6 @@ public class ValueBigNumber implements ValueInterface, Cloneable {
   }
 
   public ValueBigNumber( BigDecimal number ) {
-    // System.out.println("new ValueBigNumber("+number+")"); OK
-
     this.number = number;
     this.length = -1;
     this.precision = -1;
