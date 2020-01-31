@@ -81,7 +81,6 @@ public class OracleRDBDatabaseMetaTest {
         "UID", "UNION", "UNIQUE", "UPDATE", "USER", "VALIDATE", "VALUES", "VARCHAR", "VARCHAR2", "VIEW", "WHENEVER",
         "WHERE", "WITH" };
     assertArrayEquals( reservedWords, nativeMeta.getReservedWords() );
-    assertFalse( nativeMeta.supportsRepository() );
     assertEquals( 9999999, nativeMeta.getMaxVARCHARLength() );
     assertEquals( "SELECT SEQUENCE_NAME FROM USER_SEQUENCES", nativeMeta.getSQLListOfSequences() );
     assertEquals( "SELECT * FROM USER_SEQUENCES WHERE SEQUENCE_NAME = 'FOO'", nativeMeta.getSQLSequenceExists( "FOO" ) );

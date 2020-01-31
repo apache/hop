@@ -108,9 +108,9 @@ public class StepMetaTest {
     }
 
     Map<String, Map<String, String>> attributes = new HashMap<String, Map<String, String>>();
-    Map<String, String> map1 = new HashMap<String, String>();
+    Map<String, String> map1 = new HashMap<>();
     map1.put( "1", "1" );
-    Map<String, String> map2 = new HashMap<String, String>();
+    Map<String, String> map2 = new HashMap<>();
     map2.put( "2", "2" );
 
     attributes.put( "qwerty", map1 );

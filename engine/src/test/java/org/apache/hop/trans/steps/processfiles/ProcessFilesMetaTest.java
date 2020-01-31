@@ -43,8 +43,8 @@ public class ProcessFilesMetaTest {
     List<String> attributes = Arrays.asList( "DynamicSourceFileNameField", "DynamicTargetFileNameField",
       "OperationType", "AddTargetFileNameToResult", "OverwriteTargetFile", "CreateParentFolder",
       "Simulate" );
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
 
     Map<String, FieldLoadSaveValidator<?>> attributeMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attributeMap.put( "OperationType", new IntLoadSaveValidator( ProcessFilesMeta.operationTypeCode.length ) );

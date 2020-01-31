@@ -43,11 +43,11 @@ public class FilesToResultMetaTest {
   public void testStepMeta() throws HopException {
     List<String> attributes = Arrays.asList( "filename_field", "file_type" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "filename_field", "getFilenameField" );
     getterMap.put( "file_type", "getFileType" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "filename_field", "setFilenameField" );
     setterMap.put( "file_type", "setFileType" );
 

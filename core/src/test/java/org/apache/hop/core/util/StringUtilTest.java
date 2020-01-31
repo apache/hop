@@ -58,7 +58,7 @@ public class StringUtilTest extends TestCase {
    * @return Map of variablenames/values.
    */
   Map<String, String> createVariables1( String open, String close ) {
-    Map<String, String> map = new HashMap<String, String>();
+    Map<String, String> map = new HashMap<>();
 
     map.put( "NULL", null );
     map.put( "EMPTY", "" );

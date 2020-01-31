@@ -293,8 +293,8 @@ public class JobEntryFoldersCompare extends JobEntryBase implements Cloneable, J
               }
               if ( lenList1 == lenList2 ) {
 
-                HashMap<String, String> collection1 = new HashMap<String, String>();
-                HashMap<String, String> collection2 = new HashMap<String, String>();
+                HashMap<String, String> collection1 = new HashMap<>();
+                HashMap<String, String> collection2 = new HashMap<>();
 
                 for ( int i = 0; i < list1.length; i++ ) {
                   // Put files list1 in TreeMap collection1

@@ -54,7 +54,7 @@ public class ExecSQLMetaTest implements InitializerInterface<StepMetaInterface> 
       Arrays.asList( "databaseMeta", "sql", "executedEachInputRow", "updateField", "insertField", "deleteField", "readField",
         "singleStatement", "replaceVariables", "quoteString", "params", "arguments" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<String, String>() {
       {
         put( "replaceVariables", "setVariableReplacementActive" );
@@ -70,7 +70,7 @@ public class ExecSQLMetaTest implements InitializerInterface<StepMetaInterface> 
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
         getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 

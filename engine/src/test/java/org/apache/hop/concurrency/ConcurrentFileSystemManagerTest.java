@@ -24,9 +24,6 @@ package org.apache.hop.concurrency;
 
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
 import org.apache.commons.vfs2.provider.AbstractFileProvider;
-import org.apache.commons.vfs2.provider.FileProvider;
-import org.apache.hop.core.osgi.api.VfsEmbeddedFileSystemCloser;
-import org.apache.hop.core.vfs.ConcurrentFileSystemManager;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.After;
@@ -39,8 +36,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 public class ConcurrentFileSystemManagerTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -74,26 +69,6 @@ public class ConcurrentFileSystemManagerTest {
     ConcurrencyTestRunner.runAndCheckNoExceptionRaised( putters, getters, condition );
   }
 
-  @Test
-  public void testNcCloseEmbeddedFileSystem() throws Exception {
-    ConcurrentFileSystemManager concurrentFileSystemManager = new ConcurrentFileSystemManager();
-    MockNamedClusterProvider mockFileProvider = mock( MockNamedClusterProvider.class );
-    concurrentFileSystemManager.addProvider( new String[] { "hc" }, mockFileProvider );
-    concurrentFileSystemManager.closeEmbeddedFileSystem( "key" );
-    verify( mockFileProvider ).closeFileSystem( "key" );
-  }
-
-  @Test
-  public void testNonNcCloseEmbeddedFileSystem() throws Exception {
-    ConcurrentFileSystemManager concurrentFileSystemManager = new ConcurrentFileSystemManager();
-    MockNamedClusterProvider mockFileProvider = mock( MockNamedClusterProvider.class );
-    concurrentFileSystemManager.addProvider( new String[] { "notnc" }, mockFileProvider );
-    concurrentFileSystemManager.closeEmbeddedFileSystem( "key" );
-    verify( mockFileProvider, times( 0 ) ).closeFileSystem( "key" );
-  }
-
-  public interface MockNamedClusterProvider extends FileProvider, VfsEmbeddedFileSystemCloser {
-  }
 
   private class Getter extends StopOnErrorCallable<Object> {
     private DefaultFileSystemManager fsm;

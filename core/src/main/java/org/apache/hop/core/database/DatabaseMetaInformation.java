@@ -237,7 +237,7 @@ public class DatabaseMetaInformation {
         // Now loop over the catalogs...
         //
         for ( Catalog catalog : catalogList ) {
-          ArrayList<String> catalogTables = new ArrayList<String>();
+          ArrayList<String> catalogTables = new ArrayList<>();
 
           try {
             ResultSet catalogTablesResultSet = dbmd.getTables( catalog.getCatalogName(), null, null, null );
@@ -315,7 +315,7 @@ public class DatabaseMetaInformation {
             }
           }
           for ( Schema schema : schemaList ) {
-            ArrayList<String> schemaTables = new ArrayList<String>();
+            ArrayList<String> schemaTables = new ArrayList<>();
 
             try {
               ResultSet schemaTablesResultSet = dbmd.getTables( null, schema.getSchemaName(), null, null );

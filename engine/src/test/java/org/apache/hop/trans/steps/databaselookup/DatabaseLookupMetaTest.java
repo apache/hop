@@ -70,8 +70,8 @@ public class DatabaseLookupMetaTest implements InitializerInterface<StepMetaInte
         "streamKeyField1", "streamKeyField2", "keyCondition", "tableKeyField", "returnValueField",
         "returnValueNewName", "returnValueDefault", "returnValueDefaultType" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
 
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
@@ -92,7 +92,7 @@ public class DatabaseLookupMetaTest implements InitializerInterface<StepMetaInte
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
         getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 

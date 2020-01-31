@@ -206,25 +206,25 @@ public class SlaveServerConfigTest {
   }
 
   private String getConfigWithAcceptorsOnlyOption() {
-    jettyOptions = new HashMap<String, String>();
+    jettyOptions = new HashMap<>();
     jettyOptions.put( XML_TAG_ACCEPTORS, ACCEPTORS_VALUE );
     return getConfig( jettyOptions );
   }
 
   private String getConfigWithAcceptQueueSizeOnlyOption() {
-    jettyOptions = new HashMap<String, String>();
+    jettyOptions = new HashMap<>();
     jettyOptions.put( XML_TAG_ACCEPT_QUEUE_SIZE, ACCEPT_QUEUE_SIZE_VALUE );
     return getConfig( jettyOptions );
   }
 
   private String getConfigWithLowResourcesMaxIdleTimeeOnlyOption() {
-    jettyOptions = new HashMap<String, String>();
+    jettyOptions = new HashMap<>();
     jettyOptions.put( XML_TAG_LOW_RES_MAX_IDLE_TIME, LOW_RES_MAX_IDLE_TIME_VALUE );
     return getConfig( jettyOptions );
   }
 
   private String getConfigWithAllOptions() {
-    jettyOptions = new HashMap<String, String>();
+    jettyOptions = new HashMap<>();
     jettyOptions.put( XML_TAG_ACCEPTORS, ACCEPTORS_VALUE );
     jettyOptions.put( XML_TAG_ACCEPT_QUEUE_SIZE, ACCEPT_QUEUE_SIZE_VALUE );
     jettyOptions.put( XML_TAG_LOW_RES_MAX_IDLE_TIME, LOW_RES_MAX_IDLE_TIME_VALUE );
@@ -232,7 +232,7 @@ public class SlaveServerConfigTest {
   }
 
   private String getConfigWithEmptyOptionsNode() {
-    jettyOptions = new HashMap<String, String>();
+    jettyOptions = new HashMap<>();
     return getConfig( jettyOptions );
   }
 

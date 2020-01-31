@@ -600,7 +600,7 @@ public class SortRowsMeta extends BaseStepMeta implements StepMetaInterface, Ser
       for ( int i = 0; i < preSortedField.length; i++ ) {
         if ( preSortedField[ i ] == true ) {
           if ( groupFields == null ) {
-            groupFields = new ArrayList<String>();
+            groupFields = new ArrayList<>();
           }
           groupFields.add( this.fieldName[ i ] );
         }

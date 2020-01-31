@@ -116,7 +116,7 @@ public class GetFileNamesData extends BaseStepData implements StepDataInterface 
   public GetFileNamesData() {
     super();
 
-    lineBuffer = new ArrayList<String>();
+    lineBuffer = new ArrayList<>();
     nf = NumberFormat.getInstance();
     df = (DecimalFormat) nf;
     dfs = new DecimalFormatSymbols();

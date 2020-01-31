@@ -118,22 +118,22 @@ public class InsertUpdateIT extends TestCase {
 
     int newLength = insupd.getKeyLookup().length + 1;
 
-    ArrayList<String> newKeyLookup = new ArrayList<String>( newLength );
+    ArrayList<String> newKeyLookup = new ArrayList<>( newLength );
     newKeyLookup.addAll( Arrays.asList( insupd.getKeyLookup() ) );
     newKeyLookup.add( def[ 0 ] );
     insupd.setKeyLookup( newKeyLookup.toArray( new String[ 0 ] ) );
 
-    ArrayList<String> newKeyCondition = new ArrayList<String>( newLength );
+    ArrayList<String> newKeyCondition = new ArrayList<>( newLength );
     newKeyCondition.addAll( Arrays.asList( insupd.getKeyCondition() ) );
     newKeyCondition.add( def[ 1 ] );
     insupd.setKeyCondition( newKeyCondition.toArray( new String[ 0 ] ) );
 
-    ArrayList<String> newKeyStream = new ArrayList<String>( newLength );
+    ArrayList<String> newKeyStream = new ArrayList<>( newLength );
     newKeyStream.addAll( Arrays.asList( insupd.getKeyStream() ) );
     newKeyStream.add( def[ 2 ] );
     insupd.setKeyStream( newKeyStream.toArray( new String[ 0 ] ) );
 
-    ArrayList<String> newKeyStream2 = new ArrayList<String>( newLength );
+    ArrayList<String> newKeyStream2 = new ArrayList<>( newLength );
     newKeyStream2.addAll( Arrays.asList( insupd.getKeyStream2() ) );
     newKeyStream2.add( def[ 3 ] );
     insupd.setKeyStream2( newKeyStream2.toArray( new String[ 0 ] ) );
@@ -273,7 +273,7 @@ public class InsertUpdateIT extends TestCase {
 
     ResultSet rs = db.openQuery( "SELECT VALUE FROM " + TARGET_TABLE + " ORDER BY ROW_ORDER ASC;" );
 
-    ArrayList<String> rows = new ArrayList<String>();
+    ArrayList<String> rows = new ArrayList<>();
 
     while ( rs.next() ) {
       rows.add( rs.getString( "VALUE" ) );

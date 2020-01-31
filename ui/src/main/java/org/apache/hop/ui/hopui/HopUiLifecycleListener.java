@@ -30,7 +30,7 @@ package org.apache.hop.ui.hopui;
  */
 public interface HopUiLifecycleListener {
   public enum SpoonLifeCycleEvent {
-    STARTUP, SHUTDOWN, REPOSITORY_CONNECTED, REPOSITORY_CHANGED, REPOSITORY_DISCONNECTED, MENUS_REFRESHED
+    STARTUP, SHUTDOWN, MENUS_REFRESHED
   }
 
   void onEvent( SpoonLifeCycleEvent evt );

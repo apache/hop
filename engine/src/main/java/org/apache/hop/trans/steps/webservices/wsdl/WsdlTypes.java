@@ -197,7 +197,7 @@ public final class WsdlTypes implements Serializable {
    */
   private List<String> getElementFormQualifiedNamespaces() {
 
-    List<String> namespaces = new ArrayList<String>();
+    List<String> namespaces = new ArrayList<>();
     List<ExtensibilityElement> schemas = getSchemas();
 
     for ( ExtensibilityElement schema : schemas ) {

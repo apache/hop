@@ -61,7 +61,7 @@ public class TextFileOutputMetaTest {
   }
 
   public static Map<String, String> getGetterMap() {
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "separator", "getSeparator" );
     getterMap.put( "enclosure", "getEnclosure" );
     getterMap.put( "enclosure_forced", "isEnclosureForced" );
@@ -95,7 +95,7 @@ public class TextFileOutputMetaTest {
   }
 
   public static Map<String, String> getSetterMap() {
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "separator", "setSeparator" );
     setterMap.put( "enclosure", "setEnclosure" );
     setterMap.put( "enclosure_forced", "setEnclosureForced" );

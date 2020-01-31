@@ -211,10 +211,6 @@ public class GUIResource {
 
   private SwtUniversalImage imageFolder;
 
-  private SwtUniversalImage imageTransRepo;
-
-  private SwtUniversalImage imageJobRepo;
-
   private Image imageWizard;
 
   private Image imageCredits;
@@ -225,7 +221,7 @@ public class GUIResource {
 
   private SwtUniversalImage imageMissing;
 
-  private Image imageHopUi;
+  private SwtUniversalImage imageHopUi;
 
   private Image imageJob;
 
@@ -612,8 +608,6 @@ public class GUIResource {
       imageSlaveTree.dispose();
       imageArrow.dispose();
       imageFolder.dispose();
-      imageTransRepo.dispose();
-      imageJobRepo.dispose();
       imageWizard.dispose();
       imageCredits.dispose();
       imageStart.dispose();
@@ -953,11 +947,11 @@ public class GUIResource {
     //ui/images/missing_entry.svg
     imageMissing = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "MIS_image" ) );
 
-    // "ui/images/spoon.ico"
-    imageHopUi = loadAsResource( display, BasePropertyHandler.getProperty( "spoon_image" ), 0 );
+    // "ui/images/hop-logo.svg"
+    imageHopUi = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "hop_icon" ));
 
-    // "ui/images/chef.png"
-    imageJob = loadAsResource( display, BasePropertyHandler.getProperty( "Chef_image" ), ConstUI.ICON_SIZE );
+    // "ui/images/chefgraph.svg"
+    imageJob = loadAsResource( display, BasePropertyHandler.getProperty( "Job_image" ), ConstUI.ICON_SIZE );
 
     // "ui/images/variable.svg"
     imageVariable = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Variable_image" ) );
@@ -993,10 +987,10 @@ public class GUIResource {
     imageHideInactive = loadAsResource( display, BasePropertyHandler.getProperty( "HideInactive_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // ui/images/show-selected.png
-    imageShowSelected = loadAsResource( display, BasePropertyHandler.getProperty( "ShowSelected_image" ), ConstUI.ICON_SIZE );
+    imageShowSelected = loadAsResource( display, BasePropertyHandler.getProperty( "ShowSelected_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // ui/images/show-all.png
-    imageShowAll = loadAsResource( display, BasePropertyHandler.getProperty( "ShowAll_image" ), ConstUI.ICON_SIZE );
+    imageShowAll = loadAsResource( display, BasePropertyHandler.getProperty( "ShowAll_image" ), ConstUI.SMALL_ICON_SIZE );
 
     // "ui/images/show-perf.png"
     imageClosePanel = loadAsResource( display, BasePropertyHandler.getProperty( "ClosePanel_image" ), ConstUI.SMALL_ICON_SIZE );
@@ -1184,7 +1178,7 @@ public class GUIResource {
 
     imageEmpty16x16 = new Image( display, 16, 16 );
 
-    imageTransGraph = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "SpoonIcon_image" ) );
+    imageTransGraph = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "TransGraph_image" ) );
 
     imagePartitionSchema = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Image_Partition_Schema" ) );
 
@@ -1193,7 +1187,7 @@ public class GUIResource {
     imageTransTree = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Trans_tree_image" ) );
     imageJobTree = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Job_tree_image" ) );
 
-    // "ui/images/kettle_logo_small.png"
+    // "ui/images/hop-logo.png"
     imageLogoSmall = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Logo_sml_image" ) );
 
     // "ui/images/arrow.png"
@@ -1201,13 +1195,6 @@ public class GUIResource {
 
     // "ui/images/folder.png"
     imageFolder = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Folder_image" ) );
-
-    // "ui/images/transrepo.png"
-    imageTransRepo = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "TransRepo_image" ) );
-
-    // "ui/images/jobrepo.png"
-    imageJobRepo = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "JobRepo_image" ) );
-
 
     // Makes transparent images "on the fly"
     //
@@ -1672,7 +1659,7 @@ public class GUIResource {
    * @return Returns the imageSpoon.
    */
   public Image getImageHopUi() {
-    return imageHopUi;
+    return imageHopUi.getAsBitmapForSize( display, ConstUI.LARGE_ICON_SIZE, ConstUI.LARGE_ICON_SIZE );
   }
 
   /**
@@ -1872,28 +1859,6 @@ public class GUIResource {
    */
   public Image getImageFolder() {
     return imageFolder.getAsBitmapForSize( display, ConstUI.MEDIUM_ICON_SIZE, ConstUI.MEDIUM_ICON_SIZE );
-  }
-
-  /**
-   * @return the imageJobRepo
-   */
-  public Image getImageJobRepo() {
-    return imageJobRepo.getAsBitmapForSize( display, ConstUI.MEDIUM_ICON_SIZE, ConstUI.MEDIUM_ICON_SIZE );
-  }
-
-  public SwtUniversalImage getSwtImageJobRepo() {
-    return imageJobRepo;
-  }
-
-  /**
-   * @return the imageTransRepo
-   */
-  public Image getImageTransRepo() {
-    return imageTransRepo.getAsBitmapForSize( display, ConstUI.MEDIUM_ICON_SIZE, ConstUI.MEDIUM_ICON_SIZE );
-  }
-
-  public SwtUniversalImage getSwtImageTransRepo() {
-    return imageTransRepo;
   }
 
   /**

@@ -92,8 +92,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The definition of a PDI job is represented by a JobMeta object. It is typically loaded from a .kjb file, a PDI
- * repository, or it is generated dynamically. The declared parameters of the job definition are then queried using
+ * The definition of a PDI job is represented by a JobMeta object. It is typically loaded from a .kjb file or it is generated dynamically.
+ * The declared parameters of the job definition are then queried using
  * listParameters() and assigned values using calls to setParameterValue(..). JobMeta provides methods to load, save,
  * verify, etc.
  *
@@ -302,23 +302,15 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
   }
 
   /**
-   * Compares two job on name, filename, repository directory, etc.
+   * Compares two job on name, filename, etc.
    * The comparison algorithm is as follows:<br/>
    * <ol>
-   * <li>The first job's filename is checked first; if it has none, the job comes from a
-   * repository. If the second job does not come from a repository, -1 is returned.</li>
-   * <li>If the jobs are both from a repository, the jobs' names are compared. If the first
+   * <li>The first job's filename is checked first; if it has none, the job is created.
+   * If the second job does not come from a repository, -1 is returned.</li>
+   * <li>If the jobs are both created, the jobs' names are compared. If the first
    * job has no name and the second one does, a -1 is returned.
    * If the opposite is true, a 1 is returned.</li>
-   * <li>If they both have names they are compared as strings. If the result is non-zero it is returned. Otherwise the
-   * repository directories are compared using the same technique of checking empty values and then performing a string
-   * comparison, returning any non-zero result.</li>
-   * <li>If the names and directories are equal, the object revision strings are compared using the same technique of
-   * checking empty values and then performing a string comparison, this time ultimately returning the result of the
-   * string compare.</li>
-   * <li>If the first job does not come from a repository and the second one does, a 1 is returned. Otherwise
-   * the job names and filenames are subsequently compared using the same technique of checking empty values
-   * and then performing a string comparison, ultimately returning the result of the filename string comparison.
+   * <li>If they both have names they are compared as strings. If the result is non-zero it is returned.</li>
    * </ol>
    *
    * @param j1 the first job to compare
@@ -620,7 +612,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
         // The jobnode
         Node jobnode = XMLHandler.getSubNode( doc, XML_TAG );
 
-        loadXML( jobnode, fname, metaStore, false );
+        loadXML( jobnode, fname, metaStore );
       } else {
         throw new HopXMLException(
           BaseMessages.getString( PKG, "JobMeta.Exception.ErrorReadingFromXMLFile" ) + fname );
@@ -640,82 +632,21 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
   public JobMeta( InputStream inputStream ) throws HopXMLException {
     this();
     Document doc = XMLHandler.loadXMLFile( inputStream, null, false, false );
-    loadXML( XMLHandler.getSubNode( doc, JobMeta.XML_TAG ) );
+    Node subNode = XMLHandler.getSubNode( doc, JobMeta.XML_TAG );
+    loadXML( subNode, null );
   }
 
   /**
    * Create a new JobMeta object by loading it from a a DOM node.
    *
-   * @param jobnode The node to load from
+   * @param jobNode The node to load from
    * @throws HopXMLException
    */
-  public JobMeta( Node jobnode ) throws HopXMLException {
+  public JobMeta( Node jobNode ) throws HopXMLException {
     this();
-    loadXML( jobnode, false );
+    loadXML( jobNode, null );
   }
 
-  /**
-   * Create a new JobMeta object by loading it from a a DOM node.
-   *
-   * @param jobnode                       The node to load from
-   * @param ignoreRepositorySharedObjects Do not load shared objects, handled separately
-   * @throws HopXMLException
-   */
-  public JobMeta( Node jobnode, boolean ignoreRepositorySharedObjects )
-    throws HopXMLException {
-    this();
-    loadXML( jobnode, ignoreRepositorySharedObjects );
-  }
-
-  /**
-   * Checks if is rep reference.
-   *
-   * @return true, if is rep reference
-   */
-  public boolean isRepReference() {
-    return isRepReference( getFilename(), this.getName() );
-  }
-
-  /**
-   * Checks if is file reference.
-   *
-   * @return true, if is file reference
-   */
-  public boolean isFileReference() {
-    return !isRepReference( getFilename(), this.getName() );
-  }
-
-  /**
-   * Checks if is rep reference.
-   *
-   * @param fileName  the file name
-   * @param transName the trans name
-   * @return true, if is rep reference
-   */
-  public static boolean isRepReference( String fileName, String transName ) {
-    return Utils.isEmpty( fileName ) && !Utils.isEmpty( transName );
-  }
-
-  /**
-   * Checks if is file reference.
-   *
-   * @param fileName  the file name
-   * @param transName the trans name
-   * @return true, if is file reference
-   */
-  public static boolean isFileReference( String fileName, String transName ) {
-    return !isRepReference( fileName, transName );
-  }
-
-  /**
-   * Load xml.
-   *
-   * @param jobnode the jobnode
-   * @throws HopXMLException the kettle xml exception
-   */
-  public void loadXML( Node jobnode ) throws HopXMLException {
-    loadXML( jobnode, false );
-  }
 
   /**
    * Load xml.
@@ -726,33 +657,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
    */
   public void loadXML( Node jobnode, String fname )
     throws HopXMLException {
-    loadXML( jobnode, fname, false );
-  }
-
-  /**
-   * Load a block of XML from an DOM node.
-   *
-   * @param jobnode                       The node to load from
-   * @param ignoreRepositorySharedObjects Do not load shared objects, handled separately
-   * @throws HopXMLException
-   */
-  public void loadXML( Node jobnode, boolean ignoreRepositorySharedObjects )
-    throws HopXMLException {
-    loadXML( jobnode, null, ignoreRepositorySharedObjects );
-  }
-
-  /**
-   * Load a block of XML from an DOM node.
-   *
-   * @param jobnode                       The node to load from
-   * @param fname                         The filename
-   * @param ignoreRepositorySharedObjects Do not load shared objects, handled separately
-   * @throws HopXMLException
-   * @deprecated
-   */
-  @Deprecated
-  public void loadXML( Node jobnode, String fname, boolean ignoreRepositorySharedObjects ) throws HopXMLException {
-    loadXML( jobnode, fname, null, ignoreRepositorySharedObjects );
+    loadXML( jobnode, fname, null );
   }
 
   /**
@@ -761,11 +666,9 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
    * @param jobnode                       The node to load from
    * @param fname                         The filename
    * @param metaStore                     the MetaStore to use
-   * @param ignoreRepositorySharedObjects Do not load shared objects, handled separately
    * @throws HopXMLException
    */
-  public void loadXML( Node jobnode, String fname, IMetaStore metaStore,
-                       boolean ignoreRepositorySharedObjects ) throws HopXMLException {
+  public void loadXML( Node jobnode, String fname, IMetaStore metaStore ) throws HopXMLException {
     Props props = null;
     if ( Props.isInitialized() ) {
       props = Props.getInstance();
@@ -1958,7 +1861,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
     // Get the list of Strings.
     List<StringSearchResult> stringList = getStringList( true, true, false );
 
-    List<String> varList = new ArrayList<String>();
+    List<String> varList = new ArrayList<>();
 
     // Look around in the strings, see what we find...
     for ( StringSearchResult result : stringList ) {
@@ -2187,7 +2090,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
                                  ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException {
     String resourceName = null;
     try {
-      // Handle naming for both repository and XML bases resources...
+      // Handle naming for XML bases resources...
       //
       String baseName;
       String originalPath;
@@ -2236,7 +2139,7 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
 
           // Also remember the original filename (if any), including variables etc.
           //
-          if ( Utils.isEmpty( this.getFilename() ) ) { // Repository
+          if ( Utils.isEmpty( this.getFilename() ) ) {
             definition.setOrigin( fullname );
           } else {
             definition.setOrigin( this.getFilename() );
@@ -2383,20 +2286,6 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
     logTables.add( channelLogTable );
     logTables.addAll( extraLogTables );
     return logTables;
-  }
-
-  /**
-   * Checks whether the job has repository references.
-   *
-   * @return true if the job has repository references, false otherwise
-   */
-  public boolean hasRepositoryReferences() {
-    for ( JobEntryCopy copy : jobcopies ) {
-      if ( copy.getEntry().hasRepositoryReferences() ) {
-        return true;
-      }
-    }
-    return false;
   }
 
   /**

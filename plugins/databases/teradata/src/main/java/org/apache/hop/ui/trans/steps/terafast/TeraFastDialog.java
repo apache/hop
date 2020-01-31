@@ -283,7 +283,7 @@ public class TeraFastDialog extends BaseStepDialog implements StepDialogInterfac
     fields.putAll( this.inputFields );
 
     Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<String>( keySet );
+    List<String> entries = new ArrayList<>( keySet );
 
     String[] fieldNames = entries.toArray( new String[ entries.size() ] );
     Const.sortStrings( fieldNames );

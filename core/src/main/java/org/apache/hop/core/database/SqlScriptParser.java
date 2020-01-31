@@ -62,7 +62,7 @@ public class SqlScriptParser {
     if ( script == null ) {
       return Collections.emptyList();
     }
-    List<String> result = new ArrayList<String>();
+    List<String> result = new ArrayList<>();
 
     MODE mode = MODE.SQL;
 

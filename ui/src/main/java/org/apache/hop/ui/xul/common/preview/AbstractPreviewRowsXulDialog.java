@@ -96,7 +96,7 @@ public abstract class AbstractPreviewRowsXulDialog extends AbstractXulEventHandl
 
   public void init() {
 
-    final List<String> columns = new ArrayList<String>();
+    final List<String> columns = new ArrayList<>();
     final List<Object[]> data = new ArrayList<Object[]>();
 
     previewStep( data, columns );

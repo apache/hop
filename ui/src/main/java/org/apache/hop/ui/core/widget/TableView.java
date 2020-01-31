@@ -2586,12 +2586,10 @@ public class TableView extends Composite {
         }
 
         if ( tc.getWidth() != max + extra ) {
-          if ( c > 0 ) {
-            if ( columns[ c - 1 ].getWidth() == -1 ) {
-              tc.setWidth( max + extra );
-            } else {
-              tc.setWidth( columns[ c - 1 ].getWidth() );
-            }
+          if ( columns[ c ].getWidth() == -1 ) {
+            tc.setWidth( max + extra );
+          } else {
+            tc.setWidth( columns[ c ].getWidth() );
           }
         }
       } catch ( Exception e ) {

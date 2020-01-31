@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Set;
 
 public class ContainsKeyToRowSetMap extends KeyToRowSetMap {
-  protected ArrayList<String> list = new ArrayList<String>();
+  protected ArrayList<String> list = new ArrayList<>();
 
   protected ContainsKeyToRowSetMap() {
     super();

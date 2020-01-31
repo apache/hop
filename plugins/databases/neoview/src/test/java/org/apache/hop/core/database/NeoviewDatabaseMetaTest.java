@@ -84,7 +84,6 @@ public class NeoviewDatabaseMetaTest {
     assertTrue( nativeMeta.useSchemaNameForTableList() );
     assertFalse( nativeMeta.supportsBitmapIndex() );
     assertTrue( nativeMeta.supportsSynonyms() );
-    assertFalse( nativeMeta.needsToLockAllTables() );
     assertTrue( nativeMeta.supportsGetBlob() );
     assertEquals( "", nativeMeta.getLimitClause( 15 ) );
     assertArrayEquals( new String[] {

@@ -115,12 +115,12 @@ public class JaninoMetaInjection implements StepMetaInjectionInterface {
   @Override
   public void injectStepMetadataEntries( List<StepInjectionMetaEntry> all ) throws HopException {
 
-    List<String> fieldNames = new ArrayList<String>();
-    List<String> javaExpressions = new ArrayList<String>();
-    List<String> valueTypes = new ArrayList<String>();
-    List<String> lengths = new ArrayList<String>();
-    List<String> precisions = new ArrayList<String>();
-    List<String> replaceValues = new ArrayList<String>();
+    List<String> fieldNames = new ArrayList<>();
+    List<String> javaExpressions = new ArrayList<>();
+    List<String> valueTypes = new ArrayList<>();
+    List<String> lengths = new ArrayList<>();
+    List<String> precisions = new ArrayList<>();
+    List<String> replaceValues = new ArrayList<>();
 
     // Parse the fields, inject into the meta class..
     //

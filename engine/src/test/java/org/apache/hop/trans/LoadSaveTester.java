@@ -38,7 +38,7 @@ public class LoadSaveTester<T extends Partitioner> extends LoadSaveBase<T> {
                          List<String> repoAttributes, Map<String, String> getterMap, Map<String, String> setterMap,
                          Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
                          Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
-    super( clazz, commonAttributes, xmlAttributes, repoAttributes, getterMap, setterMap,
+    super( clazz, commonAttributes, xmlAttributes, getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap );
   }
 

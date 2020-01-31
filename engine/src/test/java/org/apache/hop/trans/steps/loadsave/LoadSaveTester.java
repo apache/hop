@@ -46,21 +46,21 @@ import static org.junit.Assert.assertNotSame;
 public class LoadSaveTester<T extends StepMetaInterface> extends LoadSaveBase<T> {
 
   public LoadSaveTester( Class<T> clazz,
-                         List<String> commonAttributes, List<String> xmlAttributes, List<String> repoAttributes,
+                         List<String> commonAttributes, List<String> xmlAttributes,
                          Map<String, String> getterMap, Map<String, String> setterMap,
                          Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
                          Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
                          InitializerInterface<T> metaInitializerIFace ) {
-    super( clazz, commonAttributes, xmlAttributes, repoAttributes, getterMap, setterMap,
+    super( clazz, commonAttributes, xmlAttributes, getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap, metaInitializerIFace );
   }
 
   public LoadSaveTester( Class<T> clazz,
-                         List<String> commonAttributes, List<String> xmlAttributes, List<String> repoAttributes,
+                         List<String> commonAttributes, List<String> xmlAttributes,
                          Map<String, String> getterMap, Map<String, String> setterMap,
                          Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
                          Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
-    this( clazz, commonAttributes, xmlAttributes, repoAttributes, getterMap, setterMap,
+    this( clazz, commonAttributes, xmlAttributes, getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap, null );
   }
 
@@ -68,7 +68,7 @@ public class LoadSaveTester<T extends StepMetaInterface> extends LoadSaveBase<T>
                          Map<String, String> getterMap, Map<String, String> setterMap,
                          Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
                          Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
-    this( clazz, commonAttributes, new ArrayList<String>(), new ArrayList<String>(), getterMap, setterMap,
+    this( clazz, commonAttributes, new ArrayList<>(), getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap );
   }
 
@@ -77,25 +77,25 @@ public class LoadSaveTester<T extends StepMetaInterface> extends LoadSaveBase<T>
                          Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
                          Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
                          InitializerInterface<T> metaInitializerIFace ) {
-    this( clazz, commonAttributes, new ArrayList<String>(), new ArrayList<String>(), getterMap, setterMap,
+    this( clazz, commonAttributes, new ArrayList<>(), getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap, metaInitializerIFace );
   }
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes,
-                         List<String> xmlAttributes, List<String> repoAttributes,
+                         List<String> xmlAttributes,
                          Map<String, String> getterMap, Map<String, String> setterMap ) {
-    this( clazz, commonAttributes, xmlAttributes, repoAttributes, getterMap, setterMap,
+    this( clazz, commonAttributes, xmlAttributes, getterMap, setterMap,
       new HashMap<String, FieldLoadSaveValidator<?>>(), new HashMap<String, FieldLoadSaveValidator<?>>() );
   }
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes,
                          Map<String, String> getterMap, Map<String, String> setterMap ) {
-    this( clazz, commonAttributes, new ArrayList<String>(), new ArrayList<String>(), getterMap, setterMap,
+    this( clazz, commonAttributes, new ArrayList<>(), getterMap, setterMap,
       new HashMap<String, FieldLoadSaveValidator<?>>(), new HashMap<String, FieldLoadSaveValidator<?>>() );
   }
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes ) {
-    this( clazz, commonAttributes, new HashMap<String, String>(), new HashMap<String, String>() );
+    this( clazz, commonAttributes, new HashMap<>(), new HashMap<>() );
   }
 
   public FieldLoadSaveValidatorFactory getFieldLoadSaveValidatorFactory() {
@@ -143,7 +143,6 @@ public class LoadSaveTester<T extends StepMetaInterface> extends LoadSaveBase<T>
     T metaLoaded = (T) metaToSave.clone();
     assertNotSame( metaToSave, metaLoaded );
     validateLoadedMeta( xmlAttributes, validatorMap, metaToSave, metaLoaded );
-    validateLoadedMeta( repoAttributes, validatorMap, metaToSave, metaLoaded );
   }
 
   /**

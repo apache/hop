@@ -20,13 +20,23 @@ public interface IEngineComponent {
 
 
   /**
-   * @return The log channel or null if there is no separate log channel.
+   * @return The log channel ID or null if there is no separate log channel.
    */
-  LogChannelInterface getLogChannel();
+  String getLogChannelId();
 
   /**
    * Retrieve the logging text of this component in the engine
    * @return logging text
    */
   String getLogText();
+
+  /**
+   * @return true if this component is running/active
+   */
+  boolean isRunning();
+
+  /**
+   * @return true if the component is selected in the user interface
+   */
+  boolean isSelected();
 }

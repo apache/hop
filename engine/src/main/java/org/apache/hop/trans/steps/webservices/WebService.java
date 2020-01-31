@@ -242,14 +242,14 @@ public class WebService extends BaseStep implements StepInterface {
     String requestOperation = Const.NVL( meta.getOperationRequestName(), meta.getOperationName() );
     Iterator<WsdlOpParameter> iterator = parameters.iterator();
 
-    List<String> bodyNames = new ArrayList<String>();
+    List<String> bodyNames = new ArrayList<>();
 
     while ( iterator.hasNext() ) {
       WsdlOpParameter wsdlOpParameter = iterator.next();
       bodyNames.add( wsdlOpParameter.getName().getLocalPart() );
     }
 
-    List<String> headerNames = new ArrayList<String>( parameters.getHeaderNames() );
+    List<String> headerNames = new ArrayList<>( parameters.getHeaderNames() );
 
     StringBuilder xml = new StringBuilder();
 

@@ -91,8 +91,8 @@ public class RestMetaTest {
     fieldLoadSaveValidatorAttributeMap.put( "matrixParameterName", stringArrayLoadSaveValidator );
 
     LoadSaveTester<RestMeta> loadSaveTester =
-      new LoadSaveTester<RestMeta>( RestMeta.class, attributes, new HashMap<String, String>(),
-        new HashMap<String, String>(), fieldLoadSaveValidatorAttributeMap,
+      new LoadSaveTester<RestMeta>( RestMeta.class, attributes, new HashMap<>(),
+        new HashMap<>(), fieldLoadSaveValidatorAttributeMap,
         new HashMap<String, FieldLoadSaveValidator<?>>() );
 
     loadSaveTester.testSerialization();

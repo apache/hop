@@ -39,10 +39,6 @@ public enum LoggingObjectType {
   //
   CARTE, SERVLET,
 
-  // Repository
-  //
-  REPOSITORY,
-
   // General
   //
   GENERAL,

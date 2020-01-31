@@ -285,7 +285,7 @@ public class InsertUpdate extends BaseStep implements StepInterface {
           .getTableName() ) );
 
       if ( !meta.isUpdateBypassed() ) {
-        List<String> updateColumns = new ArrayList<String>();
+        List<String> updateColumns = new ArrayList<>();
         for ( int i = 0; i < meta.getUpdate().length; i++ ) {
           if ( meta.getUpdate()[ i ].booleanValue() ) {
             updateColumns.add( meta.getUpdateLookup()[ i ] );

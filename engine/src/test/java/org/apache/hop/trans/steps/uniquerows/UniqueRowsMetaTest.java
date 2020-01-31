@@ -47,7 +47,7 @@ public class UniqueRowsMetaTest {
       Arrays.asList( "count_rows", "count_field", "reject_duplicate_row",
         "error_description", "name", "case_insensitive" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "count_rows", "isCountRows" );
     getterMap.put( "count_field", "getCountField" );
     getterMap.put( "reject_duplicate_row", "isRejectDuplicateRow" );
@@ -55,7 +55,7 @@ public class UniqueRowsMetaTest {
     getterMap.put( "name", "getCompareFields" );
     getterMap.put( "case_insensitive", "getCaseInsensitive" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "count_rows", "setCountRows" );
     setterMap.put( "count_field", "setCountField" );
     setterMap.put( "reject_duplicate_row", "setRejectDuplicateRow" );

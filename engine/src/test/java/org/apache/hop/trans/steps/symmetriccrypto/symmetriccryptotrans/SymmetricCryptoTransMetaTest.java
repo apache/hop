@@ -46,7 +46,7 @@ public class SymmetricCryptoTransMetaTest {
     List<String> attributes = Arrays.asList( "operation_type", "algorithm", "schema", "secretKeyField", "messageField",
       "resultfieldname", "secretKey", "secretKeyInField", "readKeyAsBinary", "outputResultAsBinary" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "operation_type", "getOperationType" );
     getterMap.put( "algorithm", "getAlgorithm" );
     getterMap.put( "schema", "getSchema" );
@@ -58,7 +58,7 @@ public class SymmetricCryptoTransMetaTest {
     getterMap.put( "readKeyAsBinary", "isReadKeyAsBinary" );
     getterMap.put( "outputResultAsBinary", "isOutputResultAsBinary" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "operation_type", "setOperationType" );
     setterMap.put( "algorithm", "setAlgorithm" );
     setterMap.put( "schema", "setSchema" );

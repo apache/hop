@@ -46,11 +46,11 @@ public class SortedMergeMetaTest {
   public void testRoundTrips() throws HopException {
     List<String> attributes = Arrays.asList( "name", "ascending" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "name", "getFieldName" );
     getterMap.put( "ascending", "getAscending" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "name", "setFieldName" );
     setterMap.put( "ascending", "setAscending" );
 

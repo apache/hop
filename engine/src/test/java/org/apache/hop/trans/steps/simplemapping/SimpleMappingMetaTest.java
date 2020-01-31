@@ -50,8 +50,8 @@ public class SimpleMappingMetaTest {
     List<String> attributes =
       Arrays.asList( "fileName", "inputMapping", "outputMapping", "mappingParameters" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "inputMapping", new MappingIODefinitionLoadSaveValidator() );

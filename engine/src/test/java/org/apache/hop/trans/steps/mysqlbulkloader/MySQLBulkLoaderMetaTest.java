@@ -48,7 +48,7 @@ public class MySQLBulkLoaderMetaTest {
         "escape_char", "replace", "ignore", "local", "fifo_file_name", "bulk_size",
         "stream_name", "field_name", "field_format_ok" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     //getterMap.put( "connection", "" );
     getterMap.put( "schema", "getSchemaName" );
     getterMap.put( "table", "getTableName" );
@@ -65,7 +65,7 @@ public class MySQLBulkLoaderMetaTest {
     getterMap.put( "field_name", "getFieldStream" );
     getterMap.put( "field_format_ok", "getFieldFormatType" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     //setterMap.put( "connection", "" );
     setterMap.put( "schema", "setSchemaName" );
     setterMap.put( "table", "setTableName" );

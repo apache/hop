@@ -517,7 +517,7 @@ public class InsertUpdateDialog extends BaseStepDialog implements StepDialogInte
     fields.putAll( inputFields );
 
     Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<String>( keySet );
+    List<String> entries = new ArrayList<>( keySet );
 
     String[] fieldNames = entries.toArray( new String[ entries.size() ] );
     Const.sortStrings( fieldNames );
@@ -570,7 +570,7 @@ public class InsertUpdateDialog extends BaseStepDialog implements StepDialogInte
     // Also copy the update status of targets in to a hashmap
     //
     List<SourceToTargetMapping> mappings = new ArrayList<SourceToTargetMapping>();
-    Map<String, String> targetUpdateStatus = new HashMap<String, String>();
+    Map<String, String> targetUpdateStatus = new HashMap<>();
     StringBuilder missingSourceFields = new StringBuilder();
     StringBuilder missingTargetFields = new StringBuilder();
 

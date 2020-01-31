@@ -394,10 +394,6 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
     return "UNLOCK TABLES"; // This unlocks all tables
   }
 
-  @Override public boolean needsToLockAllTables() {
-    return true;
-  }
-
   /**
    * @return extra help text on the supported options on the selected database platform.
    */
@@ -463,13 +459,6 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
 
   @Override public boolean isRequiringTransactionsOnQueries() {
     return false;
-  }
-
-  /**
-   * @return true if Hop can create a repository on this type of database.
-   */
-  @Override public boolean supportsRepository() {
-    return true;
   }
 
   @Override public boolean fullExceptionLog( Exception e ) {

@@ -177,7 +177,7 @@ public class TextFileInput extends BaseStep implements StepInterface {
 
   public static final String[] guessStringsFromLine( VariableSpace space, LogChannelInterface log, String line,
                                                      TextFileInputMeta inf, String delimiter, String enclosure, String escapeCharacter ) throws HopException {
-    List<String> strings = new ArrayList<String>();
+    List<String> strings = new ArrayList<>();
 
     String pol; // piece of line
 

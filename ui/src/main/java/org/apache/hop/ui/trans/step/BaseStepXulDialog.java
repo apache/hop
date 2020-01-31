@@ -272,7 +272,7 @@ public abstract class BaseStepXulDialog extends BaseStepGenericXulDialog {
 
     // get a list of all the non-empty keys (names)
     //
-    List<String> keys = new ArrayList<String>();
+    List<String> keys = new ArrayList<>();
     for ( int i = 0; i < table.getItemCount(); i++ ) {
       TableItem tableItem = table.getItem( i );
       String key = tableItem.getText( keyColumn );
@@ -428,7 +428,7 @@ public abstract class BaseStepXulDialog extends BaseStepGenericXulDialog {
 
     // get a list of all the non-empty keys (names)
     //
-    List<String> keys = new ArrayList<String>();
+    List<String> keys = new ArrayList<>();
     for ( Object entry : fields ) {
       keys.add( ( (StepTableDataObject) entry ).getName() );
     }

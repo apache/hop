@@ -61,7 +61,7 @@ public class DataGridMetaTest implements InitializerInterface<StepMetaInterface>
       Arrays.asList( "currency", "decimal", "group", "fieldName", "fieldType", "fieldFormat", "fieldLength",
         "fieldPrecision", "setEmptyString", "dataLines" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<String, String>() {
       {
         put( "setEmptyString", "setEmptyString" );
@@ -88,7 +88,7 @@ public class DataGridMetaTest implements InitializerInterface<StepMetaInterface>
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
         getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 
@@ -112,7 +112,7 @@ public class DataGridMetaTest implements InitializerInterface<StepMetaInterface>
     public List<List<String>> getTestObject() {
       List<List<String>> dataLinesList = new ArrayList<List<String>>();
       for ( int i = 0; i < 3; i++ ) {
-        List<String> dl = new ArrayList<String>();
+        List<String> dl = new ArrayList<>();
         dl.add( "line" + ( ( i * 2 ) + 1 ) );
         dl.add( "line" + ( ( i * 2 ) + 2 ) );
         dl.add( "line" + ( ( i * 2 ) + 3 ) );

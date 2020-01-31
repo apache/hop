@@ -119,7 +119,7 @@ public class TransExecutorUnitTest {
   }
 
   @Test
-  public void testCreateInternalTransSetsRepository() throws HopException {
+  public void testCreateInternalTransSets() throws HopException {
     Trans transParentMock = mock( Trans.class );
     TransExecutorData transExecutorDataMock = mock( TransExecutorData.class );
     TransMeta transMetaMock = mock( TransMeta.class );

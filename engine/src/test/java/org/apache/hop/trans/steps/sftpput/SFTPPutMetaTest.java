@@ -54,8 +54,8 @@ public class SFTPPutMetaTest {
         "proxyType", "proxyHost", "proxyPort", "proxyUsername", "proxyPassword", "destinationFolderFieldName", "createDestinationFolder",
         "afterFTPS", "remoteFilenameFieldName" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     // See JobEntrySFTPPUT for the boundary ... chose not to create a test dependency between the Step and the JobEntry.

@@ -271,9 +271,9 @@ public class Translator2 {
   public void loadConfiguration( String configFile, String sourceFolder ) throws Exception {
     // What are the locale to handle?
     //
-    localeList = new ArrayList<String>();
-    rootDirectories = new ArrayList<String>();
-    filesToAvoid = new ArrayList<String>();
+    localeList = new ArrayList<>();
+    rootDirectories = new ArrayList<>();
+    filesToAvoid = new ArrayList<>();
     xmlFolders = new ArrayList<SourceCrawlerXMLFolder>();
 
     FileObject file = HopVFS.getFileObject( configFile );

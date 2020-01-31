@@ -664,9 +664,8 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
     executionConfiguration.setExecutingRemotely( false );
     executionConfiguration.setExecutingClustered( false );
 
-    // Set repository and safe mode information in both the exec config and the metadata
+    // Set IMetaStore and safe mode information in both the exec config and the metadata
     transMeta.setMetaStore( hopUi.metaStore );
-
     executionConfiguration.setSafeModeEnabled( safe );
 
     if ( debug ) {
@@ -735,7 +734,7 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
 
     Object[] data = hopUi.variables.getData();
     String[] fields = hopUi.variables.getRowMeta().getFieldNames();
-    Map<String, String> variableMap = new HashMap<String, String>();
+    Map<String, String> variableMap = new HashMap<>();
     variableMap.putAll( executionConfiguration.getVariables() ); // the default
     for ( int idx = 0; idx < fields.length; idx++ ) {
       String value = executionConfiguration.getVariables().get( fields[ idx ] );

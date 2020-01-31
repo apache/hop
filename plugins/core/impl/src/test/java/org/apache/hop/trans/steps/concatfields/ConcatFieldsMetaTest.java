@@ -45,7 +45,7 @@ public class ConcatFieldsMetaTest {
 
   @Test
   public void testLoadSave() throws HopException {
-    List<String> attributes = new ArrayList<String>( TextFileOutputMetaTest.getMetaAttributes() );
+    List<String> attributes = new ArrayList<>( TextFileOutputMetaTest.getMetaAttributes() );
     attributes.addAll( Arrays.asList( "targetFieldName", "targetFieldLength", "removeSelectedFields" ) );
 
     LoadSaveTester<ConcatFieldsMeta> loadSaveTester =

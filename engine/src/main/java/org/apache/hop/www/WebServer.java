@@ -154,7 +154,7 @@ public class WebServer {
   public void startServer() throws Exception {
     server = new Server();
 
-    List<String> roles = new ArrayList<String>();
+    List<String> roles = new ArrayList<>();
     roles.add( Constraint.ANY_ROLE );
 
     // Set up the security handler, optionally with JAAS

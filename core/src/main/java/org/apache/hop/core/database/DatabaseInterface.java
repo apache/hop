@@ -465,11 +465,6 @@ public interface DatabaseInterface extends Cloneable {
   public String getEndQuote();
 
   /**
-   * @return true if Hop can create a repository on this type of database.
-   */
-  public boolean supportsRepository();
-
-  /**
    * @return a list of table types to retrieve tables for the database This is mostly just { "TABLE" }
    */
   public String[] getTableTypes();
@@ -640,11 +635,6 @@ public interface DatabaseInterface extends Cloneable {
    * have the column.
    */
   public String getSQLColumnExists( String column, String tablename );
-
-  /**
-   * @return true if the database needs all repository tables to be locked, not just one ref table (R_REPOSITORY_LOG)
-   */
-  public boolean needsToLockAllTables();
 
   /**
    * @return true if the database is streaming results (normally this is an option just for MySQL).

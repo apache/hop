@@ -275,7 +275,7 @@ public class MetaStoreFactory<T> {
    * @return
    */
   private Map<String, String> getObjectFactoryContext( IMetaStoreAttribute parentElement ) {
-    Map<String, String> context = new HashMap<String, String>();
+    Map<String, String> context = new HashMap<>();
 
     if ( parentElement != null ) {
       IMetaStoreAttribute contextChild = parentElement.getChild( OBJECT_FACTORY_CONTEXT );

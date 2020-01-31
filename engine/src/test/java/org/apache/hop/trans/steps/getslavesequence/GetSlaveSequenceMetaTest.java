@@ -40,13 +40,13 @@ public class GetSlaveSequenceMetaTest {
   public void testRoundTrip() throws HopException {
     List<String> attributes =
       Arrays.asList( "valuename", "slave", "seqname", "increment" );
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "valuename", "getValuename" );
     getterMap.put( "slave", "getSlaveServerName" );
     getterMap.put( "seqname", "getSequenceName" );
     getterMap.put( "increment", "getIncrement" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "valuename", "setValuename" );
     setterMap.put( "slave", "setSlaveServerName" );
     setterMap.put( "seqname", "setSequenceName" );

@@ -933,7 +933,7 @@ public class HopUiSlave extends Composite implements TabItemInterface {
 
   public void showErrors() {
     String all = wText.getText();
-    List<String> err = new ArrayList<String>();
+    List<String> err = new ArrayList<>();
 
     int i = 0;
     int startpos = 0;

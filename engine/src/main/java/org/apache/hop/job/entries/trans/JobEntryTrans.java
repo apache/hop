@@ -413,8 +413,7 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
     logDetailed( BaseMessages.getString( PKG, "JobTrans.Log.OpeningTrans", environmentSubstitute( getFilename() ) ) );
 
     // Load the transformation only once for the complete loop!
-    // Throws an exception if it was not possible to load the transformation. For example, the XML file doesn't exist or
-    // the repository is down.
+    // Throws an exception if it was not possible to load the transformation, for example if the XML file doesn't exist.
     // Log the stack trace and return an error condition from this
     //
     TransMeta transMeta = null;
@@ -942,7 +941,7 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
           // variables from the transformation?' option is checked)
           StepWithMappingMeta.addMissingVariables( transMeta, space );
         }
-        // Pass repository and metastore references
+        // Pass the IMetaStore references
         //
         transMeta.setMetaStore( metaStore );
       }
@@ -1053,7 +1052,7 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
                                  ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException {
-    // Try to load the transformation from repository or file.
+    // Try to load the transformation from a file.
     // Modify this recursively too...
     //
     // AGAIN: there is no need to clone this job entry because the caller is responsible for this.

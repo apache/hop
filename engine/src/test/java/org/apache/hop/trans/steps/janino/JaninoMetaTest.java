@@ -64,7 +64,7 @@ public class JaninoMetaTest {
     fieldLoadSaveValidatorAttributeMap.put( "formula", janinoMetaFunctionArrayLoadSaveValidator );
 
     LoadSaveTester loadSaveTester =
-      new LoadSaveTester( JaninoMeta.class, attributes, new HashMap<String, String>(), new HashMap<String, String>(),
+      new LoadSaveTester( JaninoMeta.class, attributes, new HashMap<>(), new HashMap<>(),
         fieldLoadSaveValidatorAttributeMap, new HashMap<String, FieldLoadSaveValidator<?>>() );
 
     loadSaveTester.testSerialization();

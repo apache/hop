@@ -117,9 +117,6 @@ public class Props implements Cloneable {
   public static final String STRING_USE_DB_CACHE = "UseDBCache";
   public static final String STRING_OPEN_LAST_FILE = "OpenLastFile";
 
-  public static final String STRING_LAST_REPOSITORY_LOGIN = "RepositoryLastLogin";
-  public static final String STRING_LAST_REPOSITORY = "RepositoryLast";
-
   public static final String STRING_ONLY_ACTIVE_STEPS = "OnlyActiveSteps";
   public static final String STRING_START_SHOW_REPOSITORIES = "ShowRepositoriesAtStartup";
   public static final String STRING_ANTI_ALIASING = "EnableAntiAliasing54";
@@ -327,22 +324,6 @@ public class Props implements Cloneable {
   public boolean useDBCache() {
     String use = properties.getProperty( STRING_USE_DB_CACHE );
     return !"N".equalsIgnoreCase( use );
-  }
-
-  public void setLastRepository( String repname ) {
-    properties.setProperty( STRING_LAST_REPOSITORY, repname );
-  }
-
-  public String getLastRepository() {
-    return properties.getProperty( STRING_LAST_REPOSITORY );
-  }
-
-  public void setLastRepositoryLogin( String login ) {
-    properties.setProperty( STRING_LAST_REPOSITORY_LOGIN, login );
-  }
-
-  public String getLastRepositoryLogin() {
-    return properties.getProperty( STRING_LAST_REPOSITORY_LOGIN );
   }
 
   public void setOnlyActiveSteps( boolean only ) {

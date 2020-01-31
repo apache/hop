@@ -58,7 +58,7 @@ public class LdapProtocolFactory {
    * @throws HopException
    */
   public static final List<String> getConnectionTypes( LogChannelInterface log ) {
-    List<String> result = new ArrayList<String>();
+    List<String> result = new ArrayList<>();
     synchronized ( protocols ) {
       for ( Class<? extends LdapProtocol> protocol : protocols ) {
         try {

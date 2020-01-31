@@ -43,13 +43,13 @@ public class ObjectValidator<T> implements FieldLoadSaveValidator<T> {
     this.fieldLoadSaveValidatorFactory = fieldLoadSaveValidatorFactory;
     manipulator = new JavaBeanManipulator<T>( clazz, fieldNames, getterMap, setterMap );
     this.clazz = clazz;
-    this.fieldNames = new ArrayList<String>( fieldNames );
+    this.fieldNames = new ArrayList<>( fieldNames );
   }
 
   public ObjectValidator( FieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory, Class<T> clazz,
                           List<String> fieldNames ) {
-    this( fieldLoadSaveValidatorFactory, clazz, fieldNames, new HashMap<String, String>(),
-      new HashMap<String, String>() );
+    this( fieldLoadSaveValidatorFactory, clazz, fieldNames, new HashMap<>(),
+      new HashMap<>() );
   }
 
   @SuppressWarnings( { "rawtypes", "unchecked" } )

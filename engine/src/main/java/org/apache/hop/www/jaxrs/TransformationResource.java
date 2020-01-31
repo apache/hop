@@ -226,8 +226,6 @@ public class TransformationResource {
         transMeta.setParameterValue( param, value );
       }
 
-      // If there was a repository, we know about it at this point in time.
-      //
       TransExecutionConfiguration executionConfiguration = transConfiguration.getTransExecutionConfiguration();
 
       String carteObjectId = UUID.randomUUID().toString();

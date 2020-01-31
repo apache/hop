@@ -71,7 +71,7 @@ public class UtilsTest {
   @Test
   public void testIsEmptyList() {
     assertTrue( Utils.isEmpty( (List<String>) null ) );
-    assertTrue( Utils.isEmpty( new ArrayList<String>() ) );
+    assertTrue( Utils.isEmpty( new ArrayList<>() ) );
     assertFalse( Utils.isEmpty( Arrays.asList( "test", 1 ) ) );
   }
 

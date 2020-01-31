@@ -543,7 +543,7 @@ public class SQLValuesHighlight implements LineStyleListener {
       return;
     }
 
-    // List<String> keywords = new ArrayList<String>(Arrays.asList(scanner.getSQLKeywords()));
+    // List<String> keywords = new ArrayList<>(Arrays.asList(scanner.getSQLKeywords()));
     // keywords.addAll(Arrays.asList(reservedWords));
     scanner.setSQLKeywords( reservedWords );
     scanner.initializeSQLFunctions();

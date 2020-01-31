@@ -41,11 +41,11 @@ public class ReservoirSamplingMetaTest {
 
     List<String> attributes = Arrays.asList( "sample_size", "seed" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "sample_size", "getSampleSize" );
     getterMap.put( "seed", "getSeed" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "sample_size", "setSampleSize" );
     setterMap.put( "seed", "setSeed" );
 

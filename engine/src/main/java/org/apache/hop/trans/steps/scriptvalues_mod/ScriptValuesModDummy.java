@@ -283,6 +283,14 @@ public class ScriptValuesModDummy implements StepInterface {
     return 0;
   }
 
+  @Override public String getLogChannelId() {
+    return null;
+  }
+
+  @Override public boolean isSelected() {
+    return false;
+  }
+
   public boolean isRunning() {
     // TODO Auto-generated method stub
     return false;

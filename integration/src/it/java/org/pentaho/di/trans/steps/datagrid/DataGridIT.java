@@ -151,7 +151,7 @@ public class DataGridIT {
     List<List<String>> list = new ArrayList<List<String>>( rowCount );
     for ( String[] rowValues : gridvalues ) {
       final int colCount = rowValues.length;
-      List<String> row = new ArrayList<String>( colCount );
+      List<String> row = new ArrayList<>( colCount );
       Collections.addAll( row, rowValues );
       list.add( row );
     }

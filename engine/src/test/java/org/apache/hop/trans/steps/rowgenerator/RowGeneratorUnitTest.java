@@ -70,7 +70,7 @@ public class RowGeneratorUnitTest {
     StepDataInterface stepDataInterface = stepMeta.getStepMetaInterface().getStepData();
 
     // add variable to transformation variable space
-    Map<String, String> map = new HashMap<String, String>();
+    Map<String, String> map = new HashMap<>();
     map.put( "ROW_LIMIT", "1440" );
     TransMeta transMeta = spy( new TransMeta() );
     transMeta.injectVariables( map );

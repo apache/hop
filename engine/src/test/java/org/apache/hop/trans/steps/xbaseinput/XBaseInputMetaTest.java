@@ -49,10 +49,10 @@ public class XBaseInputMetaTest {
       Arrays.asList( "dbfFileName", "rowLimit", "rowNrAdded", "rowNrField", "acceptingFilenames", "acceptingField",
         "acceptingStepName", "includeFilename", "filenameField", "charactersetName" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "includeFilename", "includeFilename" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 

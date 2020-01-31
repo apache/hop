@@ -326,7 +326,7 @@ public class StringOperationsDialog extends BaseStepDialog implements StepDialog
 
   protected void setComboBoxes() {
     Set<String> keySet = inputFields.keySet();
-    List<String> entries = new ArrayList<String>( keySet );
+    List<String> entries = new ArrayList<>( keySet );
     String[] fieldNames = entries.toArray( new String[ entries.size() ] );
     Const.sortStrings( fieldNames );
     ciKey[ 0 ].setComboValues( fieldNames );

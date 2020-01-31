@@ -209,7 +209,7 @@ public class LoadFileInputMetaTest implements InitializerInterface<StepMetaInter
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-      new LoadSaveTester( LoadFileInputMeta.class, attributes, new ArrayList<String>(), new ArrayList<String>(),
+      new LoadSaveTester( LoadFileInputMeta.class, attributes, new ArrayList<>(),
         getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 

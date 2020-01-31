@@ -47,7 +47,7 @@ public class CloneRowMetaTest {
       "addclonenum",
       "clonenumfield" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "nrclones", "getNrClones" );
     getterMap.put( "addcloneflag", "isAddCloneFlag" );
     getterMap.put( "cloneflagfield", "getCloneFlagField" );
@@ -56,7 +56,7 @@ public class CloneRowMetaTest {
     getterMap.put( "addclonenum", "isAddCloneNum" );
     getterMap.put( "clonenumfield", "getCloneNumField" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "nrclones", "setNrClones" );
     setterMap.put( "addcloneflag", "setAddCloneFlag" );
     setterMap.put( "cloneflagfield", "setCloneFlagField" );

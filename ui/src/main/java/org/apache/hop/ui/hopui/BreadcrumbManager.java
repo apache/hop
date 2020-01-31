@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class BreadcrumbManager {
 
-  private Map<String, String> contentCallStack = new HashMap<String, String>();
+  private Map<String, String> contentCallStack = new HashMap<>();
 
   private static BreadcrumbManager INSTANCE = new BreadcrumbManager();
 

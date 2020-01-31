@@ -41,8 +41,8 @@ public class StepMetastructureMetaTest {
     // At present, none of the other fields in StepMetastructureMeta are being persisted or read
     // All the other fields in the class are set from message bundles and not persisted. See default() method.
     // MB - 5/2016
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
 
     LoadSaveTester loadSaveTester = new LoadSaveTester( StepMetastructureMeta.class, attributes, getterMap, setterMap );
     loadSaveTester.testSerialization();

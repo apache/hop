@@ -56,8 +56,8 @@ public class BlockUntilStepsFinishMetaTest implements InitializerInterface<Block
     List<String> attributes =
       Arrays.asList( "stepName", "stepCopyNr" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
@@ -68,8 +68,8 @@ public class BlockUntilStepsFinishMetaTest implements InitializerInterface<Block
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-      new LoadSaveTester<BlockUntilStepsFinishMeta>( testMetaClass, attributes, new ArrayList<String>(),
-        new ArrayList<String>(), getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+      new LoadSaveTester<>( testMetaClass, attributes, new ArrayList<>(),
+        getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class

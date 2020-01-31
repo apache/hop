@@ -241,7 +241,7 @@ public class SimpleMapping extends BaseStep implements StepInterface {
     if ( super.init( smi, sdi ) ) {
       // First we need to load the mapping (transformation)
       try {
-        // Pass the repository down to the metadata object...
+        // Pass the MetaStore down to the metadata object...
         //
         simpleMappingData.mappingTransMeta =
           SimpleMappingMeta.loadMappingMeta( meta, meta.getMetaStore(), this, meta.getMappingParameters().isInheritingAllVariables() );

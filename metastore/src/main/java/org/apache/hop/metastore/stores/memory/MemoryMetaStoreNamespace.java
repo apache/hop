@@ -91,7 +91,7 @@ public class MemoryMetaStoreNamespace {
 
       @Override
       public List<String> call() throws Exception {
-        ArrayList<String> list = new ArrayList<String>( typeMap.size() );
+        ArrayList<String> list = new ArrayList<>( typeMap.size() );
         for ( MemoryMetaStoreElementType elementType : typeMap.values() ) {
           list.add( elementType.getId() );
         }

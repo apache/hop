@@ -44,13 +44,13 @@ public class NumberRangeMetaTest {
   public void testStepMeta() throws HopException {
     List<String> attributes = Arrays.asList( "inputField", "outputField", "fallBackValue", "rules" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "inputField", "getInputField" );
     getterMap.put( "outputField", "getOutputField" );
     getterMap.put( "fallBackValue", "getFallBackValue" );
     getterMap.put( "rules", "getRules" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "inputField", "setInputField" );
     setterMap.put( "outputField", "setOutputField" );
     setterMap.put( "fallBackValue", "setFallBackValue" );

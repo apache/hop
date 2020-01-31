@@ -67,7 +67,7 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, ResourceH
   private Date changedDate;
 
   public PartitionSchema() {
-    this.partitionIDs = new ArrayList<String>();
+    this.partitionIDs = new ArrayList<>();
     this.changedDate = new Date();
   }
 
@@ -89,7 +89,7 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, ResourceH
 
   public void replaceMeta( PartitionSchema partitionSchema ) {
     this.name = partitionSchema.name;
-    this.partitionIDs = new ArrayList<String>();
+    this.partitionIDs = new ArrayList<>();
     this.partitionIDs.addAll( partitionSchema.partitionIDs );
 
     this.dynamicallyDefined = partitionSchema.dynamicallyDefined;
@@ -166,7 +166,7 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, ResourceH
     name = XMLHandler.getTagValue( partitionSchemaNode, "name" );
 
     int nrIDs = XMLHandler.countNodes( partitionSchemaNode, "partition" );
-    partitionIDs = new ArrayList<String>();
+    partitionIDs = new ArrayList<>();
     for ( int i = 0; i < nrIDs; i++ ) {
       Node partitionNode = XMLHandler.getSubNodeByNr( partitionSchemaNode, "partition", i );
       partitionIDs.add( XMLHandler.getTagValue( partitionNode, "id" ) );
@@ -251,7 +251,7 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, ResourceH
    * @param slaveNumber
    */
   public void retainPartitionsForSlaveServer( int slaveCount, int slaveNumber ) {
-    List<String> ids = new ArrayList<String>();
+    List<String> ids = new ArrayList<>();
     int partitionCount = partitionIDs.size();
 
     for ( int i = 0; i < partitionCount; i++ ) {

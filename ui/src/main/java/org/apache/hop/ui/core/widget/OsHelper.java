@@ -69,7 +69,7 @@ public class OsHelper {
       return txt;
     }
 
-    List<String> items = new ArrayList<String>();
+    List<String> items = new ArrayList<>();
     items.addAll( Arrays.asList( parts ) );
 
     String key = items.remove( items.size() - 1 );

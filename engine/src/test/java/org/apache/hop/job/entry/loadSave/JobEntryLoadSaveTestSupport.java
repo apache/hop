@@ -55,15 +55,14 @@ public abstract class JobEntryLoadSaveTestSupport<T extends JobEntryInterface> {
   public void setUp() throws Exception {
     List<String> commonAttributes = listCommonAttributes();
     List<String> xmlAttributes = listXmlAttributes();
-    List<String> repoAttributes = listRepositoryAttributes();
     Map<String, String> getters = createGettersMap();
     Map<String, String> setters = createSettersMap();
     Map<String, FieldLoadSaveValidator<?>> attributeValidators = createAttributeValidatorsMap();
     Map<String, FieldLoadSaveValidator<?>> typeValidators = createTypeValidatorsMap();
 
-    assertTrue( !commonAttributes.isEmpty() || !( xmlAttributes.isEmpty() || repoAttributes.isEmpty() ) );
+    assertTrue( !commonAttributes.isEmpty() || !xmlAttributes.isEmpty() );
 
-    tester = new LoadSaveTester<T>( getJobEntryClass(), commonAttributes, xmlAttributes, repoAttributes, getters, setters,
+    tester = new LoadSaveTester<T>( getJobEntryClass(), commonAttributes, xmlAttributes, getters, setters,
       attributeValidators, typeValidators );
   }
 
@@ -78,10 +77,6 @@ public abstract class JobEntryLoadSaveTestSupport<T extends JobEntryInterface> {
 
 
   protected List<String> listXmlAttributes() {
-    return Collections.emptyList();
-  }
-
-  protected List<String> listRepositoryAttributes() {
     return Collections.emptyList();
   }
 

@@ -49,11 +49,11 @@ public class SplitFieldToRowsMetaTest {
     List<String> attributes = Arrays.asList( "splitField", "delimiter", "newFieldname", "includeRowNumber",
       "rowNumberField", "resetRowNumber", "delimiterRegex" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "includeRowNumber", "includeRowNumber" );
     getterMap.put( "resetRowNumber", "resetRowNumber" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
 
     LoadSaveTester loadSaveTester = new LoadSaveTester(
       SplitFieldToRowsMeta.class, attributes, getterMap, setterMap,

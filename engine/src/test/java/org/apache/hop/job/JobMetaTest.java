@@ -128,30 +128,6 @@ public class JobMetaTest {
   }
 
   @Test
-  public void testLookupRepositoryReferences() throws Exception {
-    jobMeta.clear();
-
-    JobEntryTrans jobEntryMock = mock( JobEntryTrans.class );
-    when( jobEntryMock.hasRepositoryReferences() ).thenReturn( true );
-
-    JobEntryTrans brokenJobEntryMock = mock( JobEntryTrans.class );
-    when( brokenJobEntryMock.hasRepositoryReferences() ).thenReturn( true );
-
-    JobEntryCopy jobEntryCopy1 = mock( JobEntryCopy.class );
-    when( jobEntryCopy1.getEntry() ).thenReturn( jobEntryMock );
-    jobMeta.addJobEntry( 0, jobEntryCopy1 );
-
-    JobEntryCopy jobEntryCopy2 = mock( JobEntryCopy.class );
-    when( jobEntryCopy2.getEntry() ).thenReturn( brokenJobEntryMock );
-    jobMeta.addJobEntry( 1, jobEntryCopy2 );
-
-    JobEntryCopy jobEntryCopy3 = mock( JobEntryCopy.class );
-    when( jobEntryCopy3.getEntry() ).thenReturn( jobEntryMock );
-    jobMeta.addJobEntry( 2, jobEntryCopy3 );
-
-  }
-
-  @Test
   public void shouldUseCoordinatesOfItsStepsAndNotesWhenCalculatingMinimumPoint() {
     Point jobEntryPoint = new Point( 500, 500 );
     Point notePadMetaPoint = new Point( 400, 400 );
@@ -250,7 +226,7 @@ public class JobMetaTest {
 
     JobMeta meta = new JobMeta();
 
-    meta.loadXML( jobNode, null, Mockito.mock( IMetaStore.class ), false );
+    meta.loadXML( jobNode, null, Mockito.mock( IMetaStore.class ) );
     Job job = new Job( meta );
     job.setInternalHopVariables( null );
   }
@@ -321,7 +297,7 @@ public class JobMetaTest {
   }
 
   @Test
-  public void testSetInternalEntryCurrentDirectoryWithoutFilenameOrRepository() {
+  public void testSetInternalEntryCurrentDirectoryWithoutFilename() {
     JobMeta jobMetaTest = new JobMeta();
     jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
     jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
@@ -343,7 +319,7 @@ public class JobMetaTest {
   }
 
   @Test
-  public void testUpdateCurrentDirWithoutFilenameOrRepository() {
+  public void testUpdateCurrentDirWithoutFilename() {
     JobMeta jobMetaTest = new JobMeta();
     jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
     jobMetaTest.setVariable( Const.INTERNAL_VARIABLE_JOB_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );

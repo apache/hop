@@ -139,7 +139,7 @@ public class Janino extends BaseStep implements StepInterface {
 
         for ( int m = 0; m < meta.getFormula().length; m++ ) {
           List<Integer> argIndexes = data.argumentIndexes.get( m );
-          List<String> parameterNames = new ArrayList<String>();
+          List<String> parameterNames = new ArrayList<>();
           List<Class<?>> parameterTypes = new ArrayList<Class<?>>();
 
           for ( int i = 0; i < data.outputRowMeta.size(); i++ ) {

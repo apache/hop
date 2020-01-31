@@ -93,8 +93,10 @@ import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.resource.ResourceUtil;
 import org.apache.hop.resource.TopLevelResource;
 import org.apache.hop.trans.cluster.TransSplitter;
+import org.apache.hop.trans.engine.EngineMetric;
 import org.apache.hop.trans.engine.EngineMetrics;
 import org.apache.hop.trans.engine.IEngineComponent;
+import org.apache.hop.trans.engine.IEngineMetric;
 import org.apache.hop.trans.performance.StepPerformanceSnapShot;
 import org.apache.hop.trans.engine.IEngine;
 import org.apache.hop.trans.step.BaseStep;
@@ -108,6 +110,7 @@ import org.apache.hop.trans.step.StepListener;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaDataCombi;
 import org.apache.hop.trans.step.StepPartitioningMeta;
+import org.apache.hop.trans.step.StepStatus;
 import org.apache.hop.trans.steps.mappinginput.MappingInput;
 import org.apache.hop.trans.steps.mappingoutput.MappingOutput;
 import org.apache.hop.www.PrepareExecutionTransServlet;
@@ -176,6 +179,8 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
   public static final String METRIC_NAME_READ = "read";
   public static final String METRIC_NAME_WRITTEN = "written";
   public static final String METRIC_NAME_REJECTED = "rejected";
+  public static final String METRIC_NAME_BUFFER_IN = "buffer_in";
+  public static final String METRIC_NAME_BUFFER_OUT = "buffer_out";
 
   /**
    * The package name, used for internationalization of messages.
@@ -679,19 +684,15 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
   }
 
   /**
-   * Instantiates a new transformation using any of the provided parameters including the variable bindings, a
-   * repository, a name, a repository directory name, and a filename. This is a multi-purpose method that supports
-   * loading a transformation from a file (if the filename is provided but not a repository object) or from a repository
-   * (if the repository object, repository directory name, and transformation name are specified).
+   * Instantiates a new transformation using any of the provided parameters including the variable bindings, a name
+   * and a filename. This is a multi-purpose method that supports loading a transformation from a file
    *
    * @param parent   the parent variable space and named params
    * @param name     the name of the transformation
-   * @param dirname  the dirname the repository directory name
    * @param filename the filename containing the transformation definition
    * @throws HopException if any error occurs during loading, parsing, or creation of the transformation
    */
-  public <Parent extends VariableSpace & NamedParams> Trans( Parent parent, String name, String dirname,
-                                                             String filename ) throws HopException {
+  public <Parent extends VariableSpace & NamedParams> Trans( Parent parent, String name, String filename ) throws HopException {
     this();
     try {
 
@@ -988,7 +989,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
           step.initializeVariablesFrom( this );
           step.setUsingThreadPriorityManagment( transMeta.isUsingThreadPriorityManagment() );
 
-          // Pass the connected repository & metaStore to the steps runtime
+          // Pass the metaStore to the steps runtime
           //
           step.setMetaStore( metaStore );
 
@@ -4027,8 +4028,10 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
         //
         FileObject tempFile = HopVFS.createTempFile( "transExport", HopVFS.Suffix.ZIP, transMeta );
 
-        //the executionConfiguration should not include a repository here because all the resources should be
-        //retrieved from the exported zip file
+        // The executionConfiguration should not include external references here because all the resources should be
+        // retrieved from the exported zip file
+        // TODO: Serialize metastore objects to JSON (Kettle Beam project) and include it in the zip file
+        //
         TransExecutionConfiguration clonedConfiguration = (TransExecutionConfiguration) executionConfiguration.clone();
         TopLevelResource topLevelResource =
           ResourceUtil.serializeResourceExportInterface( tempFile.getName().toString(), transMeta, transMeta,
@@ -5312,18 +5315,47 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
     return extensionDataMap;
   }
 
+  // TODO: i18n
+  public static final IEngineMetric METRIC_INPUT = new EngineMetric(METRIC_NAME_INPUT, "Input", "The number of rows read from physical I/O", "010", true);
+  public static final IEngineMetric METRIC_OUTPUT = new EngineMetric(METRIC_NAME_OUTPUT, "Output", "The number of rows written to physical I/O", "020", true);
+  public static final IEngineMetric METRIC_READ = new EngineMetric(METRIC_NAME_READ, "Read", "The number of rows read from other steps", "030", true);
+  public static final IEngineMetric METRIC_WRITTEN = new EngineMetric(METRIC_NAME_WRITTEN, "Written", "The number of rows written to other steps", "040", true);
+  public static final IEngineMetric METRIC_REJECTED = new EngineMetric(METRIC_NAME_REJECTED, "Rejected", "The number of rows rejected by a step", "050", true);
+  public static final IEngineMetric METRIC_ERROR = new EngineMetric(METRIC_NAME_ERROR, "Errors", "The number of errors", "060", true);
+  public static final IEngineMetric METRIC_BUFFER_IN = new EngineMetric(METRIC_NAME_BUFFER_IN, "Buffers Input", "The number of rows in the steps input buffers", "070", true);
+  public static final IEngineMetric METRIC_BUFFER_OUT = new EngineMetric(METRIC_NAME_BUFFER_OUT, "Buffers Output", "The number of rows in the steps output buffers", "080", true);
 
   public EngineMetrics getEngineMetrics() {
     EngineMetrics metrics = new EngineMetrics();
     metrics.setStartDate( getStartDate() );
     metrics.setEndDate( getEndDate() );
-    for (StepMetaDataCombi combi : steps) {
-      metrics.setComponentMetric(combi.stepname, METRIC_NAME_INPUT, combi.step.getLinesInput());
-      metrics.setComponentMetric(combi.stepname, METRIC_NAME_OUTPUT, combi.step.getLinesOutput());
-      metrics.setComponentMetric(combi.stepname, METRIC_NAME_READ, combi.step.getLinesRead());
-      metrics.setComponentMetric(combi.stepname, METRIC_NAME_WRITTEN, combi.step.getLinesWritten());
-      metrics.setComponentMetric(combi.stepname, METRIC_NAME_REJECTED, combi.step.getLinesRejected());
-      metrics.setComponentMetric(combi.stepname, METRIC_NAME_ERROR, combi.step.getErrors());
+    if (steps!=null) {
+      for ( StepMetaDataCombi combi : steps ) {
+        metrics.addComponent(combi.step);
+
+        metrics.setComponentMetric( combi.step, METRIC_INPUT, combi.step.getLinesInput() );
+        metrics.setComponentMetric( combi.step, METRIC_OUTPUT, combi.step.getLinesOutput() );
+        metrics.setComponentMetric( combi.step, METRIC_READ, combi.step.getLinesRead() );
+        metrics.setComponentMetric( combi.step, METRIC_WRITTEN, combi.step.getLinesWritten() );
+        metrics.setComponentMetric( combi.step, METRIC_REJECTED, combi.step.getLinesRejected() );
+        metrics.setComponentMetric( combi.step, METRIC_ERROR, combi.step.getErrors() );
+
+        long inputBufferSize = 0;
+        for ( RowSet rowSet : combi.step.getInputRowSets() ) {
+          inputBufferSize += rowSet.size();
+        }
+        metrics.setComponentMetric( combi.step, METRIC_BUFFER_IN, inputBufferSize );
+        long outputBufferSize = 0;
+        for ( RowSet rowSet : combi.step.getOutputRowSets() ) {
+          outputBufferSize += rowSet.size();
+        }
+        metrics.setComponentMetric( combi.step, METRIC_BUFFER_OUT, outputBufferSize );
+
+        StepStatus stepStatus = new StepStatus( combi.step );
+        metrics.setComponentSpeed( combi.step, stepStatus.getSpeed() );
+        metrics.setComponentStatus( combi.step, combi.step.getStatus().getDescription() );
+        metrics.setComponentRunning( combi.step, combi.step.isRunning());
+      }
     }
     return metrics;
   }

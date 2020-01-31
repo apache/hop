@@ -61,8 +61,8 @@ public class CalculatorMetaTest implements InitializerInterface<CalculatorMeta> 
   public void setUpLoadSave() throws Exception {
     List<String> attributes = Arrays.asList( "Calculation" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
     FieldLoadSaveValidator<CalculatorMetaFunction[]> calculationMetaFunctionArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<CalculatorMetaFunction>( new CalculatorMetaFunctionLoadSaveValidator(), 5 );
 
@@ -71,9 +71,7 @@ public class CalculatorMetaTest implements InitializerInterface<CalculatorMeta> 
 
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
-    loadSaveTester =
-      new LoadSaveTester<>( testMetaClass, attributes, new ArrayList<String>(),
-        new ArrayList<String>(), getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
+    loadSaveTester = new LoadSaveTester<>( testMetaClass, attributes, new ArrayList<>(), getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class

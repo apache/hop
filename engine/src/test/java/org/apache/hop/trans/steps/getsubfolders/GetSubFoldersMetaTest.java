@@ -100,7 +100,7 @@ public class GetSubFoldersMetaTest {
       Arrays.asList( "rownum", "foldername_dynamic", "rownum_field",
         "foldername_field", "limit", "name", "file_required" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "rownum", "includeRowNumber" );
     getterMap.put( "foldername_dynamic", "isFoldernameDynamic" );
     getterMap.put( "foldername_field", "getDynamicFoldernameField" );
@@ -109,7 +109,7 @@ public class GetSubFoldersMetaTest {
     getterMap.put( "name", "getFolderName" );
     getterMap.put( "file_required", "getFolderRequired" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "rownum", "setIncludeRowNumber" );
     setterMap.put( "foldername_dynamic", "setFolderField" );
     setterMap.put( "foldername_field", "setDynamicFoldernameField" );

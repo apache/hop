@@ -1052,29 +1052,9 @@ public class Const {
   public static final String HOP_DISABLE_CONSOLE_LOGGING = "HOP_DISABLE_CONSOLE_LOGGING";
 
   /**
-   * Set this variable to with the intended repository name ( in repositories.xml )
-   */
-  public static final String HOP_REPOSITORY = "HOP_REPOSITORY";
-
-  /**
-   * Set this variable to with the intended username to pass as repository credentials
-   */
-  public static final String HOP_USER = "HOP_USER";
-
-  /**
-   * Set this variable to with the intended password to pass as repository credentials
-   */
-  public static final String HOP_PASSWORD = "HOP_PASSWORD";
-
-  /**
    * The XML file that contains the list of native Hop job entries
    */
   public static final String XML_FILE_HOP_JOB_ENTRIES = "hop-job-entries.xml";
-
-  /**
-   * The XML file that contains the list of native Hop repository types (DB, File, etc)
-   */
-  public static final String XML_FILE_HOP_REPOSITORIES = "hop-repositories.xml";
 
   /**
    * The XML file that contains the list of native Hop database types (MySQL, Oracle, etc)

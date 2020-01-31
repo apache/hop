@@ -85,21 +85,6 @@ public class LoadFileInputMeta extends BaseStepMeta implements StepMetaInterface
   private static final String FILE = "file";
   private static final String FIELDS = "fields";
 
-  // Repository constant not sync with xml just to backward compatibility
-  private static final String FILE_NAME_REP = "file_name";
-  private static final String FILE_MASK_REP = "file_mask";
-  private static final String EXCLUDEFILE_MASK_REP = "excludefile_mask";
-  private static final String FIELD_NAME_REP = "field_name";
-  private static final String ELEMENT_TYPE_REP = "element_type";
-  private static final String FIELD_TYPE_REP = "field_type";
-  private static final String FIELD_FORMAT_REP = "field_format";
-  private static final String FIELD_CURRENCY_REP = "field_currency";
-  private static final String FIELD_DECIMAL_REP = "field_decimal";
-  private static final String FIELD_GROUP_REP = "field_group";
-  private static final String FIELD_LENGTH_REP = "field_length";
-  private static final String FIELD_PRECISION_REP = "field_precision";
-  private static final String FIELD_TRIM_TYPE_REP = "field_trim_type";
-  private static final String FIELD_REPEAT_REP = "field_repeat";
   private static Class<?> PKG = LoadFileInputMeta.class; // for i18n purposes, needed by Translator2!!
 
   public static final String[] RequiredFilesDesc = new String[] { BaseMessages.getString( PKG, "System.Combo.No" ),

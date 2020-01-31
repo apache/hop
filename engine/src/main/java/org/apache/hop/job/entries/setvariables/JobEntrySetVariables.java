@@ -175,8 +175,8 @@ public class JobEntrySetVariables extends JobEntryBase implements Cloneable, Job
     result.setNrErrors( 0 );
     try {
 
-      List<String> variables = new ArrayList<String>();
-      List<String> variableValues = new ArrayList<String>();
+      List<String> variables = new ArrayList<>();
+      List<String> variableValues = new ArrayList<>();
       List<Integer> variableTypes = new ArrayList<Integer>();
 
       String realFilename = environmentSubstitute( filename );

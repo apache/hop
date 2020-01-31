@@ -371,7 +371,7 @@ public class FilterRowsMeta extends BaseStepMeta implements StepMetaInterface {
    * @return
    */
   public List<String> getOrphanFields( Condition condition, RowMetaInterface prev ) {
-    List<String> orphans = new ArrayList<String>();
+    List<String> orphans = new ArrayList<>();
     if ( condition == null || prev == null ) {
       return orphans;
     }

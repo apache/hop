@@ -161,11 +161,6 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
   }
 
   @Override
-  public boolean needsToLockAllTables() {
-    return false;
-  }
-
-  @Override
   public String getSQLListOfSequences() {
     return "SELECT relname AS sequence_name FROM pg_catalog.pg_statio_all_sequences";
   }
@@ -451,14 +446,6 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements Database
       "USER_DEFINED_TYPE_SCHEMA", "USING", "VACUUM", "VALID", "VALIDATOR", "VALUE", "VALUES", "VARCHAR", "VARIABLE",
       "VARYING", "VAR_POP", "VAR_SAMP", "VERBOSE", "VIEW", "VOLATILE", "WHEN", "WHENEVER", "WHERE", "WIDTH_BUCKET",
       "WINDOW", "WITH", "WITHIN", "WITHOUT", "WORK", "WRITE", "YEAR", "ZONE" };
-  }
-
-  /**
-   * @return true if Hop can create a repository on this type of database.
-   */
-  @Override
-  public boolean supportsRepository() {
-    return true;
   }
 
   /**

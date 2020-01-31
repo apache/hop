@@ -55,7 +55,7 @@ public class StringListPluginProperty extends KeyValue<List<String>> implements 
    * @param key key to use.
    */
   public StringListPluginProperty( final String key ) {
-    super( key, new ArrayList<String>() );
+    super( key, new ArrayList<>() );
   }
 
   /**
@@ -74,7 +74,7 @@ public class StringListPluginProperty extends KeyValue<List<String>> implements 
    * @return new list, never null.
    */
   public static List<String> fromString( final String input ) {
-    final List<String> result = new ArrayList<String>();
+    final List<String> result = new ArrayList<>();
     if ( StringUtils.isBlank( input ) ) {
       return result;
     }
@@ -133,7 +133,7 @@ public class StringListPluginProperty extends KeyValue<List<String>> implements 
    */
   public void setValues( final String... values ) {
     if ( this.getValue() == null ) {
-      this.setValue( new ArrayList<String>() );
+      this.setValue( new ArrayList<>() );
     }
     for ( String value : values ) {
       this.getValue().add( value );

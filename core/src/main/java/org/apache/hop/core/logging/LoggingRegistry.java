@@ -97,7 +97,7 @@ public class LoggingRegistry {
         String parentLogChannelId = loggingSource.getParent().getLogChannelId();
         if ( parentLogChannelId != null ) {
           List<String> parentChildren =
-            this.childrenMap.computeIfAbsent( parentLogChannelId, k -> new ArrayList<String>() );
+            this.childrenMap.computeIfAbsent( parentLogChannelId, k -> new ArrayList<>() );
           parentChildren.add( logChannelId );
         }
       }
@@ -168,7 +168,7 @@ public class LoggingRegistry {
     if ( parentLogChannelId == null ) {
       return null;
     }
-    List<String> list = getLogChannelChildren( new ArrayList<String>(), parentLogChannelId );
+    List<String> list = getLogChannelChildren( new ArrayList<>(), parentLogChannelId );
     list.add( parentLogChannelId );
     return list;
   }

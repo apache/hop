@@ -97,7 +97,7 @@ public class DimensionLookupMeta extends BaseStepMeta implements StepMetaInterfa
     BaseMessages.getString( PKG, "DimensionLookupMeta.TypeDesc.DateUpdated" ),
     BaseMessages.getString( PKG, "DimensionLookupMeta.TypeDesc.LastVersion" ), };
 
-  public static final String[] typeCodes = { // for saving to the repository
+  public static final String[] typeCodes = { // for serialization
     "Insert", "Update", "Punch through", "DateInsertedOrUpdated", "DateInserted", "DateUpdated", "LastVersion", };
 
   public static final String[] typeDescLookup = ValueMetaFactory.getValueMetaNames();
@@ -1841,7 +1841,7 @@ public class DimensionLookupMeta extends BaseStepMeta implements StepMetaInterfa
 
   @Override
   public List<String> getDatabaseFields() {
-    ArrayList<String> fields = new ArrayList<String>( fieldLookup.length + keyLookup.length );
+    ArrayList<String> fields = new ArrayList<>( fieldLookup.length + keyLookup.length );
     fields.addAll( Arrays.asList( fieldLookup ) );
     fields.addAll( Arrays.asList( keyLookup ) );
     return fields;
@@ -1849,7 +1849,7 @@ public class DimensionLookupMeta extends BaseStepMeta implements StepMetaInterfa
 
   @Override
   public List<String> getStreamFields() {
-    ArrayList<String> fields = new ArrayList<String>( fieldLookup.length + keyLookup.length );
+    ArrayList<String> fields = new ArrayList<>( fieldLookup.length + keyLookup.length );
     fields.addAll( Arrays.asList( fieldStream ) );
     fields.addAll( Arrays.asList( keyStream ) );
     return fields;

@@ -613,7 +613,7 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
     int nritems = wFields.nrNonEmpty();
 
 
-    Map<String, String> sourceDestinationMappings = new HashMap<String, String>();
+    Map<String, String> sourceDestinationMappings = new HashMap<>();
     jobEntry.source_filefolder = new String[ nritems ];
     jobEntry.destination_filefolder = new String[ nritems ];
     jobEntry.wildcard = new String[ nritems ];

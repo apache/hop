@@ -48,7 +48,7 @@ public class GetFileNamesMetaTest {
         "filename_Field", "wildcard_Field", "exclude_wildcard_Field", "dynamic_include_subfolders", "limit", "name",
         "filemask", "exclude_filemask", "file_required", "include_subfolders" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "filterfiletype", "getFileTypeFilter" );
     getterMap.put( "doNotFailIfNoFile", "isdoNotFailIfNoFile" );
     getterMap.put( "rownum", "includeRowNumber" );
@@ -66,7 +66,7 @@ public class GetFileNamesMetaTest {
     getterMap.put( "file_required", "getFileRequired" );
     getterMap.put( "include_subfolders", "getIncludeSubFolders" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "filterfiletype", "setFilterFileType" );
     setterMap.put( "doNotFailIfNoFile", "setdoNotFailIfNoFile" );
     setterMap.put( "rownum", "setIncludeRowNumber" );

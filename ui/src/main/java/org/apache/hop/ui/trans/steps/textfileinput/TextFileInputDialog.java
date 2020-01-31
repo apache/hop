@@ -678,8 +678,8 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
           CompressionProvider provider =
             CompressionProviderFactory.getInstance().getCompressionProviderByName( wCompression.getText() );
 
-          List<String> filterExtensions = new ArrayList<String>();
-          List<String> filterNames = new ArrayList<String>();
+          List<String> filterExtensions = new ArrayList<>();
+          List<String> filterNames = new ArrayList<>();
 
           if ( !Utils.isEmpty( provider.getDefaultExtension() ) && !Utils.isEmpty( provider.getName() ) ) {
             filterExtensions.add( "*." + provider.getDefaultExtension() );
@@ -2899,7 +2899,7 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
     StringBuilder lineStringBuilder = new StringBuilder( 256 );
     int fileFormatType = meta.getFileFormatTypeNr();
 
-    List<String> retval = new ArrayList<String>();
+    List<String> retval = new ArrayList<>();
 
     if ( textFileList.nrOfFiles() > 0 ) {
       FileObject file = textFileList.getFile( 0 );

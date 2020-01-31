@@ -102,11 +102,6 @@ public class NeoviewDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   @Override
-  public boolean needsToLockAllTables() {
-    return false;
-  }
-
-  @Override
   public String getDriverClass() {
     return "com.hp.t4jdbc.HPT4Driver";
   }

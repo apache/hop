@@ -145,11 +145,11 @@ public class GroupByMetaInjection implements StepMetaInjectionInterface {
   @Override
   public void injectStepMetadataEntries( List<StepInjectionMetaEntry> all ) throws HopException {
 
-    List<String> groupFields = new ArrayList<String>();
-    List<String> aggFields = new ArrayList<String>();
-    List<String> aggSubjects = new ArrayList<String>();
+    List<String> groupFields = new ArrayList<>();
+    List<String> aggFields = new ArrayList<>();
+    List<String> aggSubjects = new ArrayList<>();
     List<Integer> aggTypes = new ArrayList<Integer>();
-    List<String> aggValues = new ArrayList<String>();
+    List<String> aggValues = new ArrayList<>();
 
     // Parse the fields, inject into the meta class..
     //

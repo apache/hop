@@ -171,7 +171,7 @@ public class DelegatingMetaStore implements IMetaStore {
   @Override
   public List<String> getNamespaces() throws MetaStoreException {
     Set<String> namespaceSet = new HashSet<String>();
-    List<String> namespaces = new ArrayList<String>();
+    List<String> namespaces = new ArrayList<>();
     for ( IMetaStore metaStore : getReadMetaStoreList() ) {
       for ( String namespace : metaStore.getNamespaces() ) {
         if ( namespaceSet.add( namespace ) ) {
@@ -218,7 +218,7 @@ public class DelegatingMetaStore implements IMetaStore {
 
   @Override
   public List<String> getElementTypeIds( String namespace ) throws MetaStoreException {
-    List<String> elementTypeIds = new ArrayList<String>();
+    List<String> elementTypeIds = new ArrayList<>();
     for ( IMetaStoreElementType elementType : getElementTypes( namespace ) ) {
       elementTypeIds.add( elementType.getId() );
     }
@@ -289,7 +289,7 @@ public class DelegatingMetaStore implements IMetaStore {
 
   @Override
   public List<String> getElementIds( String namespace, IMetaStoreElementType elementType ) throws MetaStoreException {
-    List<String> elementIds = new ArrayList<String>();
+    List<String> elementIds = new ArrayList<>();
     for ( IMetaStoreElement element : getElements( namespace, elementType ) ) {
       elementIds.add( element.getId() );
     }

@@ -68,7 +68,6 @@ public class InformixDatabaseMetaTest {
     assertTrue( nativeMeta.isFetchSizeSupported() );
     assertTrue( nativeMeta.supportsBitmapIndex() );
     assertFalse( nativeMeta.supportsSynonyms() );
-    assertFalse( nativeMeta.needsToLockAllTables() );
   }
 
   @Test

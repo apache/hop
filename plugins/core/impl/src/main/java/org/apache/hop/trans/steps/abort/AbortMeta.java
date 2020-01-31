@@ -143,7 +143,7 @@ public class AbortMeta extends BaseStepMeta implements StepMetaInterface {
       }
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString(
-        PKG, "AbortMeta.Exception.UnexpectedErrorInReadingStepInfoFromRepository" ), e );
+        PKG, "AbortMeta.Exception.UnexpectedErrorInReadingStepInfoFromRepository" ), e ); // TODO: Change wording
     }
   }
 

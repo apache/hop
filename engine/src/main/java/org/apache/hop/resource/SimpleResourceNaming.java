@@ -31,7 +31,7 @@ import java.util.Map;
 
 public class SimpleResourceNaming implements ResourceNamingInterface {
 
-  private final Map<String, String> namedResources = new HashMap<String, String>();
+  private final Map<String, String> namedResources = new HashMap<>();
 
   /**
    * The fileSystemPrefix would be appropriate for something like:
@@ -48,7 +48,7 @@ public class SimpleResourceNaming implements ResourceNamingInterface {
   public SimpleResourceNaming() {
     super();
 
-    directoryMap = new HashMap<String, String>();
+    directoryMap = new HashMap<>();
     parameterNr = 0;
   }
 

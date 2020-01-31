@@ -64,7 +64,7 @@ public class ExcelOutputMetaTest implements InitializerInterface<StepMetaInterfa
 
     // Note - newline (get/set) doesn't appear to be used or persisted. So, it's not included in the load/save tester.
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<String, String>() {
       {
         put( "sheetProtected", "setProtectSheet" );
@@ -88,7 +88,7 @@ public class ExcelOutputMetaTest implements InitializerInterface<StepMetaInterfa
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
         getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 

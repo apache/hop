@@ -137,7 +137,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
   public static final int TYPE_ACCESS_ODBC = 1;
 
   /**
-   * Short description of the access type, used in XML and the repository.
+   * Short description of the access type, used in serialization.
    */
   public static final String[] dbAccessTypeCode = { "Native", "ODBC" };
 
@@ -1953,10 +1953,6 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
 
   public String getSQLColumnExists( String columnname, String tablename ) {
     return databaseInterface.getSQLColumnExists( columnname, tablename );
-  }
-
-  public boolean needsToLockAllTables() {
-    return databaseInterface.needsToLockAllTables();
   }
 
   /**

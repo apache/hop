@@ -71,7 +71,6 @@ public class OracleDatabaseMetaTest {
     assertEquals( 1521, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertFalse( nativeMeta.supportsAutoInc() );
-    assertFalse( nativeMeta.needsToLockAllTables() );
     assertEquals( "oracle.jdbc.driver.OracleDriver", nativeMeta.getDriverClass() );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( null, null, "FOO" ) );
     assertEquals( "jdbc:oracle:thin:@FOO:1024:BAR", nativeMeta.getURL( "FOO", "1024", "BAR" ) );
@@ -116,7 +115,6 @@ public class OracleDatabaseMetaTest {
     assertEquals( "TABLESPACE FOOVALUE", nativeMeta.getTablespaceDDL( v, dm, "${FOOVARIABLE}" ) );
     assertEquals( "", nativeMeta.getTablespaceDDL( v, dm, "" ) );
     assertFalse( nativeMeta.supportsErrorHandlingOnBatchUpdates() );
-    assertTrue( nativeMeta.supportsRepository() );
     assertEquals( 2000, nativeMeta.getMaxVARCHARLength() );
     assertFalse( nativeMeta.supportsTimestampDataType() );
     assertEquals( 32, nativeMeta.getMaxColumnsInIndex() );

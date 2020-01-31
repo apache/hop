@@ -44,7 +44,7 @@ public class RandomCCNumberGeneratorMetaTest {
     List<String> attributes = Arrays.asList(
       "cardNumberFieldName", "cardLengthFieldName", "cardTypeFieldName", "cctype", "cclen", "ccsize" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "cardNumberFieldName", "getCardNumberFieldName" );
     getterMap.put( "cardLengthFieldName", "getCardLengthFieldName" );
     getterMap.put( "cardTypeFieldName", "getCardTypeFieldName" );
@@ -52,7 +52,7 @@ public class RandomCCNumberGeneratorMetaTest {
     getterMap.put( "cclen", "getFieldCCLength" );
     getterMap.put( "ccsize", "getFieldCCSize" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "cardNumberFieldName", "setCardNumberFieldName" );
     setterMap.put( "cardLengthFieldName", "setCardLengthFieldName" );
     setterMap.put( "cardTypeFieldName", "setCardTypeFieldName" );

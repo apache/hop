@@ -463,7 +463,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
     PluginInterface stepPlugin =
       new Plugin(
         new String[] { id }, pluginType, mainClassTypesAnnotation.value(), cat, name, desc, image, false,
-        false, classMap, new ArrayList<String>(), null, null, null, null, null );
+        false, classMap, new ArrayList<>(), null, null, null, null, null );
     registry.registerPlugin( pluginType, stepPlugin );
   }
 
@@ -486,7 +486,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
       Node libsnode = XMLHandler.getSubNode( pluginNode, "libraries" );
       int nrlibs = XMLHandler.countNodes( libsnode, "library" );
 
-      List<String> jarFiles = new ArrayList<String>();
+      List<String> jarFiles = new ArrayList<>();
       if ( path != null ) {
         for ( int j = 0; j < nrlibs; j++ ) {
           Node libnode = XMLHandler.getSubNodeByNr( libsnode, "library", j );

@@ -36,9 +36,6 @@ import static org.junit.Assert.assertEquals;
 public class TransExecutionConfigurationTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  public interface MockRepositoryPlugin extends PluginInterface, ClassLoadingPluginInterface {
-  }
-
   @Test
   public void testDefaultPassedBatchId() {
     TransExecutionConfiguration tec = new TransExecutionConfiguration();

@@ -23,14 +23,23 @@
 package org.apache.hop.ui.hopgui.file.trans;
 
 import com.google.common.base.Strings;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiToolbarElement;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.trans.engine.EngineMetrics;
+import org.apache.hop.trans.engine.IEngineComponent;
+import org.apache.hop.trans.engine.IEngineMetric;
 import org.apache.hop.trans.step.BaseStepData.StepExecutionStatus;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepStatus;
+import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -45,27 +54,33 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 import org.pentaho.ui.xul.XulDomContainer;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
 
+@GuiPlugin(
+  id = "HopGuiTransGridDelegate"
+)
 public class HopGuiTransGridDelegate {
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
 
-  private static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiTransGridDelegate-ToolBar";
+  public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiTransGridDelegate-ToolBar";
+  public static final String TOOLBAR_ICON_SHOW_HIDE_INACTIVE = "ToolbarIcon-10000-ShowHideInactive";
+  public static final String TOOLBAR_ICON_SHOW_HIDE_SELECTED = "ToolbarIcon-10010-ShowHideSelected";
 
-  private static final int STEP_NUMBER_COLUMN = 0;
-
-  private static final int STEP_NAME_COLUMN = 1;
-
-  public static final long UPDATE_TIME_VIEW = 1000L;
+  public static final long UPDATE_TIME_VIEW = 2000L;
 
   private HopGui hopUi;
   private HopGuiTransGraph transGraph;
@@ -75,6 +90,7 @@ public class HopGuiTransGridDelegate {
   private TableView transGridView;
 
   private ToolBar toolbar;
+  private GuiCompositeWidgets toolbarWidget;
 
   private Composite transGridComposite;
 
@@ -82,7 +98,7 @@ public class HopGuiTransGridDelegate {
 
   private boolean showSelectedSteps;
 
-  private final ReentrantLock refreshViewLock = new ReentrantLock();
+  private final ReentrantLock refreshViewLock;
 
   /**
    * @param hopUi
@@ -91,7 +107,7 @@ public class HopGuiTransGridDelegate {
   public HopGuiTransGridDelegate( HopGui hopUi, HopGuiTransGraph transGraph ) {
     this.hopUi = hopUi;
     this.transGraph = transGraph;
-
+    this.refreshViewLock = new ReentrantLock();
     hideInactiveSteps = false;
   }
 
@@ -227,231 +243,170 @@ public class HopGuiTransGridDelegate {
 
   private void addToolBar() {
 
-    toolbar = new ToolBar( transGridComposite, SWT.BORDER | SWT.WRAP | SWT.SHADOW_OUT | SWT.RIGHT | SWT.VERTICAL );
-    FormData fdToolBar = new FormData(  );
+    toolbar = new ToolBar( transGridComposite, SWT.BORDER | SWT.WRAP | SWT.SHADOW_OUT | SWT.LEFT | SWT.HORIZONTAL );
+    FormData fdToolBar = new FormData();
     fdToolBar.left = new FormAttachment( 0, 0 );
     fdToolBar.top = new FormAttachment( 0, 0 );
     fdToolBar.right = new FormAttachment( 100, 0 );
     toolbar.setLayoutData( fdToolBar );
     hopUi.getProps().setLook( toolbar, Props.WIDGET_STYLE_TOOLBAR );
 
-    GuiCompositeWidgets widgets = new GuiCompositeWidgets( hopUi.getVariableSpace() );
-    widgets.createCompositeWidgets( this, null, toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID, null );
+    toolbarWidget = new GuiCompositeWidgets( hopUi.getVariableSpace() );
+    toolbarWidget.createCompositeWidgets( this, null, toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID, null );
     toolbar.pack();
   }
 
+  @GuiToolbarElement(
+    id = TOOLBAR_ICON_SHOW_HIDE_INACTIVE,
+    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+    type = GuiElementType.TOOLBAR_BUTTON,
+    label = "${TransLog.Button.ShowOnlyActiveSteps}",
+    toolTip = "${TransLog.Button.ShowOnlyActiveSteps}",
+    i18nPackageClass = HopUi.class,
+    image = "ui/images/show-inactive.svg"
+  )
   public void showHideInactive() {
     hideInactiveSteps = !hideInactiveSteps;
 
-    /** TODO: support enable/disable icons in the GuiElement toolbars
-     *
-    SwtToolbarbutton onlyActiveButton = (SwtToolbarbutton) toolbar.getElementById( "show-inactive" );
-    if ( onlyActiveButton != null ) {
-      onlyActiveButton.setSelected( hideInactiveSteps );
+    ToolItem toolItem = toolbarWidget.findToolItem( TOOLBAR_ICON_SHOW_HIDE_INACTIVE );
+    if ( toolItem != null ) {
       if ( hideInactiveSteps ) {
-        onlyActiveButton.setImage( GUIResource.getInstance().getImageHideInactive() );
+        toolItem.setImage( GUIResource.getInstance().getImageHideInactive() );
       } else {
-        onlyActiveButton.setImage( GUIResource.getInstance().getImageShowInactive() );
+        toolItem.setImage( GUIResource.getInstance().getImageShowInactive() );
       }
     }
-     */
+    refreshView();
   }
 
+  @GuiToolbarElement(
+    id = TOOLBAR_ICON_SHOW_HIDE_SELECTED,
+    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+    type = GuiElementType.TOOLBAR_BUTTON,
+    label = "${TransLog.Button.ShowOnlySelectedSteps}",
+    toolTip = "${TransLog.Button.ShowOnlySelectedSteps}",
+    i18nPackageClass = HopUi.class,
+    image = "ui/images/toolbar/show-all.svg"
+  )
   public void showHideSelected() {
     showSelectedSteps = !showSelectedSteps;
 
-    /** TODO: support enable/disable icons in the GuiElement toolbars
-     *
-    SwtToolbarbutton onlySelectedButton = (SwtToolbarbutton) toolbar.getElementById( "show-selected" );
-    if ( onlySelectedButton != null ) {
-      onlySelectedButton.setSelected( showSelectedSteps );
+    ToolItem toolItem = toolbarWidget.findToolItem( TOOLBAR_ICON_SHOW_HIDE_SELECTED );
+    if ( toolItem != null ) {
       if ( showSelectedSteps ) {
-        onlySelectedButton.setImage( GUIResource.getInstance().getImageShowSelected() );
+        toolItem.setImage( GUIResource.getInstance().getImageShowSelected() );
       } else {
-        onlySelectedButton.setImage( GUIResource.getInstance().getImageShowAll() );
+        toolItem.setImage( GUIResource.getInstance().getImageShowAll() );
       }
     }
-     */
+    refreshView();
   }
 
   private void refreshView() {
     refreshViewLock.lock();
     try {
-      int numberStepsToDisplay = -1;
-      int baseStepCount = -1;
-
-      if ( transGridView == null || transGridView.isDisposed() ) {
+      if ( transGraph.trans==null || transGridView == null || transGridView.isDisposed() ) {
         return;
       }
 
-      List<StepMeta> selectedSteps = new ArrayList<StepMeta>();
-      if ( showSelectedSteps ) {
-        selectedSteps = transGraph.trans.getTransMeta().getSelectedSteps();
-      }
+      // Get the metrics from the engine
+      //
+      EngineMetrics engineMetrics = transGraph.trans.getEngineMetrics();
+      List<IEngineComponent> shownComponents = new ArrayList<>();
+      for (IEngineComponent component : engineMetrics.getComponents()) {
+        boolean select = true;
+        // If we hide inactive components we only want to see stuff running
+        //
+        select = select && ( !hideInactiveSteps || component.isRunning());
 
-      int topIdx = transGridView.getTable().getTopIndex();
+        // If we opted to only see selected components...
+        //
+        select = select && (!showSelectedSteps || component.isSelected());
 
-      Table table = transGridView.table;
-
-      if ( transGraph.trans != null && !transGraph.trans.isPreparing() ) {
-        baseStepCount = transGraph.trans.nrSteps();
-        if ( hideInactiveSteps ) {
-          numberStepsToDisplay = transGraph.trans.nrActiveSteps();
-        } else {
-          numberStepsToDisplay = baseStepCount;
-        }
-
-        StepExecutionStatus[] stepStatusLookup = transGraph.trans.getTransStepExecutionStatusLookup();
-        boolean[] isRunningLookup = transGraph.trans.getTransStepIsRunningLookup();
-
-        // Count sub steps
-        for ( int i = 0; i < baseStepCount; i++ ) {
-          // if inactive steps are hidden, only count sub steps of active base steps
-          if ( !hideInactiveSteps || ( isRunningLookup[ i ]
-            || stepStatusLookup[ i ] != StepExecutionStatus.STATUS_FINISHED ) ) {
-            StepInterface baseStep = transGraph.trans.getRunThread( i );
-            numberStepsToDisplay += baseStep.subStatuses().size();
-          }
-        }
-
-        if ( numberStepsToDisplay == 0 && table.getItemCount() == 0 ) {
-          // We need at least one table-item in a table
-          new TableItem( table, SWT.NONE );
-          return;
-        }
-
-        //account for the empty tableItem which is added to an empty table
-        int offsetTableItemCount = table.getItemCount();
-        if ( offsetTableItemCount == 1 && Strings.isNullOrEmpty( table.getItem( 0 ).getText( STEP_NUMBER_COLUMN ) ) ) {
-          offsetTableItemCount = 0;
-        }
-
-        if ( offsetTableItemCount != numberStepsToDisplay ) {
-          table.removeAll();
-
-          // Fill table: iterate over the base steps and add into table
-          for ( int i = 0; i < baseStepCount; i++ ) {
-            StepInterface baseStep = transGraph.trans.getRunThread( i );
-
-            // if the step should be displayed
-            if ( showSelected( selectedSteps, baseStep )
-              && ( hideInactiveSteps && ( isRunningLookup[ i ]
-              || stepStatusLookup[ i ] != StepExecutionStatus.STATUS_FINISHED ) )
-              || ( !hideInactiveSteps && stepStatusLookup[ i ] != StepExecutionStatus.STATUS_EMPTY ) ) {
-
-              // write base step to table
-              TableItem ti = new TableItem( table, SWT.NONE );
-              String baseStepNumber = "" + ( i + 1 );
-              ti.setText( STEP_NUMBER_COLUMN, baseStepNumber );
-              updateRowFromBaseStep( baseStep, ti );
-
-              // write sub steps to table
-              int subStepIndex = 1;
-              for ( StepStatus subStepStatus : baseStep.subStatuses() ) {
-                String[] subFields = subStepStatus.getTransLogFields( baseStep.getStatus().getDescription() );
-                subFields[ STEP_NAME_COLUMN ] = "     " + subFields[ STEP_NAME_COLUMN ];
-                TableItem subItem = new TableItem( table, SWT.NONE );
-                subItem.setText( STEP_NUMBER_COLUMN, baseStepNumber + "." + subStepIndex++ );
-                for ( int f = 1; f < subFields.length; f++ ) {
-                  subItem.setText( f, subFields[ f ] );
-                }
-              }
-            }
-          }
-        } else {
-          // iterate over and update the existing rows in the table
-          for ( int rowIndex = 0; rowIndex < table.getItemCount(); rowIndex++ ) {
-            TableItem ti = table.getItem( rowIndex );
-
-            if ( ti == null ) {
-              continue;
-            }
-
-            String tableStepNumber = ti.getText( STEP_NUMBER_COLUMN );
-
-            if ( Strings.isNullOrEmpty( tableStepNumber ) ) {
-              continue;
-            }
-
-            String[] tableStepNumberSplit = tableStepNumber.split( "\\." );
-            String tableBaseStepNumber = tableStepNumberSplit[ 0 ];
-
-            if ( Strings.isNullOrEmpty( tableBaseStepNumber ) ) {
-              hopUi.getLog().logError( "Table base step null or empty, skipping update for table row: " + rowIndex );
-              continue;
-            }
-
-            boolean isBaseStep = tableStepNumberSplit.length == 1;
-
-            int baseStepNumber;
-
-            try {
-              baseStepNumber = Integer.parseInt( tableBaseStepNumber );
-            } catch ( NumberFormatException e ) {
-              hopUi.getLog().logError( "Error converting baseStepNumber to int, skipping update for table row: " + rowIndex, e );
-              continue;
-            }
-
-            // step numbers displayed on table start at 1 and step number indexes begin at 0
-            baseStepNumber = baseStepNumber - 1;
-
-            StepInterface baseStep = transGraph.trans.getRunThread( baseStepNumber );
-
-            // if the step should be displayed
-            if ( showSelected( selectedSteps, baseStep )
-              && ( hideInactiveSteps && ( isRunningLookup[ baseStepNumber ]
-              || stepStatusLookup[ baseStepNumber ] != StepExecutionStatus.STATUS_FINISHED ) )
-              || ( !hideInactiveSteps && stepStatusLookup[ baseStepNumber ] != StepExecutionStatus.STATUS_EMPTY ) ) {
-
-              if ( isBaseStep ) {
-                updateRowFromBaseStep( baseStep, ti );
-              } else {
-                // loop through sub steps and update the one that matches the sub step name from the table
-                String tableSubStepName = ti.getText( STEP_NAME_COLUMN );
-                for ( StepStatus subStepStatus : baseStep.subStatuses() ) {
-                  String[] subFields = subStepStatus.getTransLogFields( baseStep.getStatus().getDescription() );
-                  subFields[ STEP_NAME_COLUMN ] = "     " + subFields[ STEP_NAME_COLUMN ];
-                  if ( ( subFields[ STEP_NAME_COLUMN ] ).equals( tableSubStepName ) ) {
-                    updateCellsIfChanged( subFields, ti );
-                  }
-                }
-              }
-            }
-          }
-        }
-
-        int sortColumn = transGridView.getSortField();
-        boolean sortDescending = transGridView.isSortingDescending();
-        // Only need to re-sort if the output has been sorted differently to the default
-        if ( table.getItemCount() > 0 && ( sortColumn != 0 || sortDescending ) ) {
-          transGridView.sortTable( transGridView.getSortField(), sortDescending );
-        }
-
-        // Alternate row background color
-        for ( int i = 0; i < table.getItems().length; i++ ) {
-          TableItem item = table.getItem( i );
-          item.setForeground( GUIResource.getInstance().getColorBlack() );
-          if ( !item.getBackground().equals( GUIResource.getInstance().getColorRed() ) ) {
-            item.setBackground(
-              i % 2 == 0
-                ? GUIResource.getInstance().getColorWhite()
-                : GUIResource.getInstance().getColorBlueCustomGrid() );
-          }
-        }
-
-        // if (updateRowNumbers) { transGridView.setRowNums(); }
-        transGridView.optWidth( true );
-
-        int[] selectedItems = transGridView.getSelectionIndices();
-
-        if ( selectedItems != null && selectedItems.length > 0 ) {
-          transGridView.setSelection( selectedItems );
-        }
-        // transGridView.getTable().setTopIndex(topIdx);
-        if ( transGridView.getTable().getTopIndex() != topIdx ) {
-          transGridView.getTable().setTopIndex( topIdx );
+        if (select) {
+          shownComponents.add(component);
         }
       }
+
+      // Build a list of columns to show...
+      //
+      List<ColumnInfo> columns = new ArrayList<>();
+
+      // First the name of the component (step):
+      // Then the copy number
+      // TODO: rename step to component
+      //
+      columns.add( new ColumnInfo( BaseMessages.getString( PKG, "TransLog.Column.Stepname" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ) );
+      ColumnInfo copyColumn = new ColumnInfo( BaseMessages.getString( PKG, "TransLog.Column.Copynr" ), ColumnInfo.COLUMN_TYPE_TEXT, true, true );
+      copyColumn.setAllignement( SWT.RIGHT );
+      columns.add( copyColumn );
+
+      List<IEngineMetric> usedMetrics = new ArrayList(engineMetrics.getMetricsList());
+      Collections.sort( usedMetrics, new Comparator<IEngineMetric>() {
+        @Override public int compare( IEngineMetric o1, IEngineMetric o2 ) {
+          return o1.getDisplayPriority().compareTo( o2.getDisplayPriority() );
+        }
+      } );
+
+      for (IEngineMetric metric : usedMetrics) {
+        ColumnInfo column = new ColumnInfo( metric.getHeader(), ColumnInfo.COLUMN_TYPE_TEXT, metric.isNumeric(), true );
+        column.setToolTip( metric.getTooltip() );
+        ValueMetaInterface stringMeta = new ValueMetaString(metric.getCode());
+        ValueMetaInteger valueMeta = new ValueMetaInteger( metric.getCode(), 15, 0 );
+        valueMeta.setConversionMask( " #" );
+        stringMeta.setConversionMetadata( valueMeta );
+        column.setValueMeta( stringMeta );
+        column.setAllignement( SWT.RIGHT );
+        columns.add(column);
+      }
+
+      // Also add the status and speed
+      //
+      ValueMetaInterface stringMeta = new ValueMetaString("speed");
+      ValueMetaInteger speedMeta = new ValueMetaInteger( "speed", 15, 0 );
+      speedMeta.setConversionMask( " ###,###,###,##0" );
+      stringMeta.setConversionMetadata( speedMeta );
+      ColumnInfo speedColumn = new ColumnInfo( "Speed", ColumnInfo.COLUMN_TYPE_TEXT, false, true ); // TODO i18n
+      speedColumn.setValueMeta( stringMeta );
+      speedColumn.setAllignement( SWT.RIGHT );
+      columns.add( speedColumn );
+
+      columns.add( new ColumnInfo( "Status", ColumnInfo.COLUMN_TYPE_TEXT, false, true ) ); // TODO i18n
+
+      // Remove the old stuff on the composite...
+      //
+      transGridView.dispose();
+      transGridView = new TableView( transGraph.getManagedObject(), transGridComposite, SWT.NONE, columns.toArray(new ColumnInfo[0]), shownComponents.size(), null, PropsUI.getInstance() );
+      transGridView.setSortable( false ); // TODO: re-implement
+      FormData fdView = new FormData();
+      fdView.left = new FormAttachment( 0, 0 );
+      fdView.right = new FormAttachment( 100, 0 );
+      fdView.top = new FormAttachment( toolbar, 0 );
+      fdView.bottom = new FormAttachment( 100, 0 );
+      transGridView.setLayoutData( fdView );
+
+      // Fill the grid...
+      //
+      int row=0;
+      for (IEngineComponent component : shownComponents) {
+        int col=0;
+
+        TableItem item = transGridView.table.getItem( row++ );
+        item.setText( col++, Integer.toString(row) );
+        item.setText( col++, Const.NVL(component.getName(), "") );
+        item.setText( col++, Integer.toString(component.getCopyNr()) );
+
+        for (IEngineMetric metric : usedMetrics) {
+          Long value = engineMetrics.getComponentMetric( component, metric );
+          item.setText( col++, value==null ? "" : Long.toString( value ) );
+        }
+        String speed = engineMetrics.getComponentSpeedMap().get( component );
+        item.setText( col++, Const.NVL(speed, "") );
+        String status = engineMetrics.getComponentStatusMap().get(component);
+        item.setText( col++, Const.NVL(status, "") );
+      }
+      transGridView.optWidth( true );
+      transGridComposite.layout(true, true);
     } finally {
       refreshViewLock.unlock();
     }
@@ -470,27 +425,6 @@ public class HopGuiTransGridDelegate {
     } else {
       row.setBackground( GUIResource.getInstance().getColorWhite() );
     }
-  }
-
-  private boolean showSelected( List<StepMeta> selectedSteps, StepInterface baseStep ) {
-    // See if the step is selected & in need of display
-    boolean showSelected;
-    if ( showSelectedSteps ) {
-      if ( selectedSteps.size() == 0 ) {
-        showSelected = true;
-      } else {
-        showSelected = false;
-        for ( StepMeta stepMeta : selectedSteps ) {
-          if ( baseStep.getStepMeta().equals( stepMeta ) ) {
-            showSelected = true;
-            break;
-          }
-        }
-      }
-    } else {
-      showSelected = true;
-    }
-    return showSelected;
   }
 
   /**

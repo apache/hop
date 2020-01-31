@@ -68,7 +68,7 @@ public class HopGuiLogBrowser {
 
   private StyledText text;
   private LogParentProvidedInterface logProvider;
-  private List<String> childIds = new ArrayList<String>();
+  private List<String> childIds = new ArrayList<>();
   private Date lastLogRegistryChange;
   private AtomicBoolean paused;
 

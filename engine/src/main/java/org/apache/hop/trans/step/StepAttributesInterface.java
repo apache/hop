@@ -33,8 +33,6 @@ public interface StepAttributesInterface {
 
   public String getXmlCode( String attributeKey );
 
-  public String getRepCode( String attributeKey );
-
   public String getDescription( String attributeKey );
 
   public String getTooltip( String attributeKey );

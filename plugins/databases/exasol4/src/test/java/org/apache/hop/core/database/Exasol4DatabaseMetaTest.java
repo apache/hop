@@ -55,7 +55,6 @@ public class Exasol4DatabaseMetaTest {
     assertEquals( 8563, nativeMeta.getDefaultDatabasePort() );
     assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertFalse( nativeMeta.supportsAutoInc() );
-    assertFalse( nativeMeta.needsToLockAllTables() );
     assertEquals( "com.exasol.jdbc.EXADriver", nativeMeta.getDriverClass() );
     assertEquals( "jdbc:exa:FOO:BAR", nativeMeta.getURL( "FOO", "BAR", "IGNORED" ) );
     assertTrue( nativeMeta.supportsOptionsInURL() );

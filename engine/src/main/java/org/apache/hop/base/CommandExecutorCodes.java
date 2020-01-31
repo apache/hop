@@ -39,7 +39,7 @@ public class CommandExecutorCodes {
     UNEXPECTED_ERROR( 2, "An unexpected error occurred during loading / running of the transformation" ),
     UNABLE_TO_PREP_INIT_TRANS( 3, "Unable to prepare and initialize this transformation" ),
     HOP_VERSION_PRINT( 6, "Hop Version printing" ),
-    COULD_NOT_LOAD_TRANS( 7, "The transformation couldn't be loaded from XML or the Repository" ),
+    COULD_NOT_LOAD_TRANS( 7, "The transformation couldn't be de-serialized" ),
     ERROR_LOADING_STEPS_PLUGINS( 8, "Error loading steps or plugins (error in loading one of the plugins mostly)" ),
     CMD_LINE_PRINT( 9, "Command line usage printing" );
 
@@ -90,7 +90,7 @@ public class CommandExecutorCodes {
     ERRORS_DURING_PROCESSING( 1, "Errors occurred during processing" ),
     UNEXPECTED_ERROR( 2, "An unexpected error occurred during loading or running of the job" ),
     HOP_VERSION_PRINT( 6, "Hop Version printing" ),
-    COULD_NOT_LOAD_JOB( 7, "The job couldn't be loaded from XML or the Repository" ),
+    COULD_NOT_LOAD_JOB( 7, "The job couldn't be de-serialized" ),
     ERROR_LOADING_STEPS_PLUGINS( 8, "Error loading steps or plugins (error in loading one of the plugins mostly)" ),
     CMD_LINE_PRINT( 9, "Command line usage printing" );
 

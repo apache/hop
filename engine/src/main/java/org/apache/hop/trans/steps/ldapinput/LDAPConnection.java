@@ -104,7 +104,7 @@ public class LDAPConnection {
                          Collection<String> binaryAttributes ) throws HopException {
     this.log = logInterface;
     protocol = new LdapProtocolFactory( logInterface ).createLdapProtocol( variableSpace, meta, binaryAttributes );
-    this.sortingAttributes = new ArrayList<String>();
+    this.sortingAttributes = new ArrayList<>();
   }
 
   /**
@@ -450,7 +450,7 @@ public class LDAPConnection {
         getInitialContext().removeFromEnvironment( "java.naming.ldap.deleteRDN" );
       }
       Map<String, Attributes> childs = new java.util.HashMap<String, Attributes>();
-      List<String> paths = new ArrayList<String>();
+      List<String> paths = new ArrayList<>();
 
       getPaths( oldDn, childs, paths );
 
@@ -472,7 +472,7 @@ public class LDAPConnection {
       }
 
       // attach sub context
-      List<String> newpaths = new ArrayList<String>();
+      List<String> newpaths = new ArrayList<>();
       for ( String childName : paths ) {
         newpaths.add( childName.replaceAll( oldDn, newDn ) );
       }
@@ -681,11 +681,11 @@ public class LDAPConnection {
 
   public RowMeta getFields( String searchBase ) throws HopException {
     RowMeta fields = new RowMeta();
-    List<String> fieldsl = new ArrayList<String>();
+    List<String> fieldsl = new ArrayList<>();
     try {
       search( searchBase, null, 0, null, SEARCH_SCOPE_SUBTREE_SCOPE );
       Attributes attributes = null;
-      fieldsl = new ArrayList<String>();
+      fieldsl = new ArrayList<>();
       while ( ( attributes = getAttributes() ) != null ) {
 
         NamingEnumeration<? extends Attribute> ne = attributes.getAll();

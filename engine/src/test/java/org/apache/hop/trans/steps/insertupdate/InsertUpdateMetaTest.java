@@ -78,7 +78,7 @@ public class InsertUpdateMetaTest {
     TransMeta transMeta = new TransMeta();
     transMeta.setName( "delete1" );
 
-    Map<String, String> vars = new HashMap<String, String>();
+    Map<String, String> vars = new HashMap<>();
     vars.put( "max.sz", "10" );
     transMeta.injectVariables( vars );
 

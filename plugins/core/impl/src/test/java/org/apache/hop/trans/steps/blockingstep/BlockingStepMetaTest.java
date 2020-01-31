@@ -41,14 +41,14 @@ public class BlockingStepMetaTest {
   public void testRoundTrip() throws HopException {
     List<String> attributes = Arrays.asList( "pass_all_rows", "directory", "prefix", "cache_size", "compress" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "pass_all_rows", "isPassAllRows" );
     getterMap.put( "directory", "getDirectory" );
     getterMap.put( "prefix", "getPrefix" );
     getterMap.put( "cache_size", "getCacheSize" );
     getterMap.put( "compress", "getCompress" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "pass_all_rows", "setPassAllRows" );
     setterMap.put( "directory", "setDirectory" );
     setterMap.put( "prefix", "setPrefix" );

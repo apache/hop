@@ -62,7 +62,7 @@ public class MemoryMetaStore extends BaseMetaStore implements IMetaStore {
 
       @Override
       public List<String> call() throws Exception {
-        return new ArrayList<String>( namespacesMap.keySet() );
+        return new ArrayList<>( namespacesMap.keySet() );
       }
     } );
   }

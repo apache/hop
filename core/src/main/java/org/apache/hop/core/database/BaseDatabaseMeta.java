@@ -793,14 +793,6 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
   }
 
   /**
-   * @return true if Hop can create a repository on this type of database.
-   */
-  @Override
-  public boolean supportsRepository() {
-    return false;
-  }
-
-  /**
    * @return a list of table types to retrieve tables for the database
    */
   @Override
@@ -1103,11 +1095,6 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
   @Override
   public String getSQLColumnExists( String columnname, String tablename ) {
     return "SELECT " + columnname + " FROM " + tablename;
-  }
-
-  @Override
-  public boolean needsToLockAllTables() {
-    return true;
   }
 
   /**
@@ -1453,7 +1440,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
   public List<String> parseStatements( String sqlScript ) {
 
     List<SqlScriptStatement> scriptStatements = getSqlScriptStatements( sqlScript );
-    List<String> statements = new ArrayList<String>();
+    List<String> statements = new ArrayList<>();
     for ( SqlScriptStatement scriptStatement : scriptStatements ) {
       statements.add( scriptStatement.getStatement() );
     }

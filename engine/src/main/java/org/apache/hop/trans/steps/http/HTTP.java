@@ -206,7 +206,7 @@ public class HTTP extends BaseStep implements StepInterface {
             List<String> list = (List<String>) previousValue;
             list.add( header.getValue() );
           } else {
-            ArrayList<String> list = new ArrayList<String>();
+            ArrayList<String> list = new ArrayList<>();
             list.add( (String) previousValue );
             list.add( header.getValue() );
             json.put( header.getName(), list );

@@ -74,7 +74,7 @@ public class MyElement {
    */
   public MyElement() {
     subAttributes = new ArrayList<MyElementAttr>();
-    stringList = new ArrayList<String>();
+    stringList = new ArrayList<>();
   }
 
   public MyElement( String name, String myAttribute, String anotherAttribute, String passwordAttribute, int intAttribute, long longAttribute, boolean boolAttribute, Date dateAttribute ) {

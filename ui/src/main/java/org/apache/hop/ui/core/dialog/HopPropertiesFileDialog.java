@@ -231,7 +231,7 @@ public class HopPropertiesFileDialog extends Dialog {
 
       // Obtain and sort the list of keys...
       //
-      List<String> keys = new ArrayList<String>();
+      List<String> keys = new ArrayList<>();
       Enumeration<Object> keysEnum = properties.keys();
       while ( keysEnum.hasMoreElements() ) {
         keys.add( (String) keysEnum.nextElement() );
@@ -280,7 +280,7 @@ public class HopPropertiesFileDialog extends Dialog {
 
   private void ok() {
     Properties properties = new Properties();
-    kettleProperties = new HashMap<String, String>();
+    kettleProperties = new HashMap<>();
 
     int nr = wFields.nrNonEmpty();
     for ( int i = 0; i < nr; i++ ) {

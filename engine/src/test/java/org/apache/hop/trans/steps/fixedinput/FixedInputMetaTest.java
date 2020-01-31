@@ -56,8 +56,8 @@ public class FixedInputMetaTest implements InitializerInterface<StepMetaInterfac
       Arrays.asList( "filename", "headerPresent", "lineWidth", "bufferSize", "lazyConversionActive", "lineFeedPresent",
         "runningInParallel", "fileType", "addResultFile", "encoding", "fieldDefinition" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "fieldDefinition",
       new ArrayLoadSaveValidator<FixedFileInputField>( new FixedFileInputFieldLoadSaveValidator(), 5 ) );
@@ -66,7 +66,7 @@ public class FixedInputMetaTest implements InitializerInterface<StepMetaInterfac
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
         getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 

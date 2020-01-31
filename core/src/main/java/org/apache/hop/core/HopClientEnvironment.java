@@ -22,17 +22,11 @@
 
 package org.apache.hop.core;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.extension.ExtensionPointPluginType;
-import org.apache.hop.core.gui.plugin.GuiMenuElement;
-import org.apache.hop.core.gui.plugin.GuiToolbarElement;
-import org.apache.hop.core.gui.plugin.GuiWidgetElement;
-import org.apache.hop.core.gui.plugin.GuiPluginType;
-import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.logging.ConsoleLoggingEventListener;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingPluginInterface;
@@ -53,8 +47,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

@@ -90,8 +90,7 @@ public class ConstantMetaTest implements InitializerInterface<ConstantMeta> {
 
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
-    loadSaveTester =
-      new LoadSaveTester<ConstantMeta>( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+    loadSaveTester = new LoadSaveTester<>( testMetaClass, attributes, new ArrayList<>(),
         getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 

@@ -840,7 +840,7 @@ public class FixedInputDialog extends BaseStepDialog implements StepDialogInterf
   //
   private List<String> getFirst( FixedInputMeta meta, int limit ) throws IOException, HopValueException {
 
-    List<String> lines = new ArrayList<String>();
+    List<String> lines = new ArrayList<>();
 
     FixedInputMeta oneMeta = new FixedInputMeta();
     getInfo( oneMeta );

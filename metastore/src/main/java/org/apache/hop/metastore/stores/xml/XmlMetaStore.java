@@ -90,7 +90,7 @@ public class XmlMetaStore extends BaseMetaStore implements IMetaStore {
     lockStore();
     try {
       File[] files = listFolders( rootFile );
-      List<String> namespaces = new ArrayList<String>( files.length );
+      List<String> namespaces = new ArrayList<>( files.length );
       for ( File file : files ) {
         namespaces.add( file.getName() );
       }
@@ -143,7 +143,7 @@ public class XmlMetaStore extends BaseMetaStore implements IMetaStore {
       List<IMetaStoreElementType> elementTypes = getElementTypes( namespace, false );
 
       if ( !elementTypes.isEmpty() ) {
-        List<String> dependencies = new ArrayList<String>( elementTypes.size() );
+        List<String> dependencies = new ArrayList<>( elementTypes.size() );
         for ( IMetaStoreElementType elementType : elementTypes ) {
           dependencies.add( elementType.getId() );
         }
@@ -196,7 +196,7 @@ public class XmlMetaStore extends BaseMetaStore implements IMetaStore {
       String spaceFolder = XmlUtil.getNamespaceFolder( rootFolder, namespace );
       File spaceFolderFile = new File( spaceFolder );
       File[] elementTypeFolders = listFolders( spaceFolderFile );
-      List<String> ids = new ArrayList<String>( elementTypeFolders.length );
+      List<String> ids = new ArrayList<>( elementTypeFolders.length );
       for ( File elementTypeFolder : elementTypeFolders ) {
         String elementTypeId = elementTypeFolder.getName();
         ids.add( elementTypeId );
@@ -328,7 +328,7 @@ public class XmlMetaStore extends BaseMetaStore implements IMetaStore {
       // Check if the element type has no remaining elements
       List<IMetaStoreElement> elements = getElements( namespace, elementType, false, true );
       if ( !elements.isEmpty() ) {
-        List<String> dependencies = new ArrayList<String>();
+        List<String> dependencies = new ArrayList<>();
         for ( IMetaStoreElement element : elements ) {
           dependencies.add( element.getId() );
         }
@@ -398,7 +398,7 @@ public class XmlMetaStore extends BaseMetaStore implements IMetaStore {
       String elementTypeFolder = XmlUtil.getElementTypeFolder( rootFolder, namespace, elementType.getName() );
       File elementTypeFolderFile = new File( elementTypeFolder );
       File[] elementTypeFiles = listFiles( elementTypeFolderFile, true );
-      List<String> elementIds = new ArrayList<String>( elementTypeFiles.length );
+      List<String> elementIds = new ArrayList<>( elementTypeFiles.length );
       for ( File elementTypeFile : elementTypeFiles ) {
         String elementId = elementTypeFile.getName();
         // File .type.xml doesn't hidden in OS Windows so better to ignore it explicitly

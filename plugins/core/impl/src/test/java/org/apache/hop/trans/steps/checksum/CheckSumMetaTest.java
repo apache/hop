@@ -69,8 +69,8 @@ public class CheckSumMetaTest implements InitializerInterface<CheckSumMeta> {
     List<String> attributes =
       Arrays.asList( "FieldName", "ResultFieldName", "CheckSumType", "CompatibilityMode", "ResultType", "oldChecksumBehaviour" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
     getterMap.put( "CheckSumType", "getTypeByDesc" );
 
     FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =

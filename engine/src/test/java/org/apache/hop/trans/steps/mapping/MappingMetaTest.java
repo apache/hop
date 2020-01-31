@@ -60,7 +60,7 @@ public class MappingMetaTest {
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, new HashMap<String, String>(), new HashMap<String, String>(),
+      new LoadSaveTester( testMetaClass, attributes, new HashMap<>(), new HashMap<>(),
         attrValidatorMap, typeValidatorMap );
   }
 

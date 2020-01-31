@@ -45,7 +45,7 @@ public final class ComplexType implements java.io.Serializable {
 
   private static final long serialVersionUID = 1L;
   private final HashMap<String, QName> _elements = new HashMap<String, QName>();
-  private final List<String> _elementNames = new ArrayList<String>();
+  private final List<String> _elementNames = new ArrayList<>();
   private final String _name;
   private WsdlTypes _wsdlTypes;
 

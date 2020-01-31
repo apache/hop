@@ -97,11 +97,6 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   }
 
   @Override
-  public boolean needsToLockAllTables() {
-    return false;
-  }
-
-  @Override
   public String getDriverClass() {
     return "oracle.jdbc.driver.OracleDriver";
   }
@@ -594,14 +589,6 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   @Override
   public boolean supportsErrorHandlingOnBatchUpdates() {
     return false;
-  }
-
-  /**
-   * @return true if Hop can create a repository on this type of database.
-   */
-  @Override
-  public boolean supportsRepository() {
-    return true;
   }
 
   @Override

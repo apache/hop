@@ -148,16 +148,16 @@ public class ConcatFieldsMetaInjection implements StepMetaInjectionInterface {
   @Override
   public void injectStepMetadataEntries( List<StepInjectionMetaEntry> all ) throws HopException {
 
-    List<String> concatFields = new ArrayList<String>();
-    List<String> concatTypes = new ArrayList<String>();
-    List<String> concatLengths = new ArrayList<String>();
-    List<String> concatFormats = new ArrayList<String>();
-    List<String> concatPrecisions = new ArrayList<String>();
-    List<String> concatCurrencies = new ArrayList<String>();
-    List<String> concatDecimals = new ArrayList<String>();
-    List<String> concatGroups = new ArrayList<String>();
-    List<String> concatTrims = new ArrayList<String>();
-    List<String> concatNulls = new ArrayList<String>();
+    List<String> concatFields = new ArrayList<>();
+    List<String> concatTypes = new ArrayList<>();
+    List<String> concatLengths = new ArrayList<>();
+    List<String> concatFormats = new ArrayList<>();
+    List<String> concatPrecisions = new ArrayList<>();
+    List<String> concatCurrencies = new ArrayList<>();
+    List<String> concatDecimals = new ArrayList<>();
+    List<String> concatGroups = new ArrayList<>();
+    List<String> concatTrims = new ArrayList<>();
+    List<String> concatNulls = new ArrayList<>();
 
     // Parse the fields, inject into the meta class..
     //

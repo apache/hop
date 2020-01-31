@@ -43,7 +43,7 @@ public class ChangeFileEncodingMetaTest {
       Arrays.asList( "filenamefield", "targetfilenamefield", "sourceencoding", "targetencoding",
         "addsourceresultfilenames", "addtargetresultfilenames", "createparentfolder" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "filenamefield", "getDynamicFilenameField" );
     getterMap.put( "targetfilenamefield", "getTargetFilenameField" );
     getterMap.put( "sourceencoding", "getSourceEncoding" );
@@ -52,7 +52,7 @@ public class ChangeFileEncodingMetaTest {
     getterMap.put( "addtargetresultfilenames", "addTargetResultFilenames" );
     getterMap.put( "createparentfolder", "isCreateParentFolder" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "filenamefield", "setDynamicFilenameField" );
     setterMap.put( "targetfilenamefield", "setTargetFilenameField" );
     setterMap.put( "sourceencoding", "setSourceEncoding" );

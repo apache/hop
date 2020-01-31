@@ -104,7 +104,7 @@ public class RestIT {
     protected MultivaluedMap<String, String> searchForHeaders( ClientResponse response ) {
       if ( override ) {
         String host = "host";
-        List<String> localhost = new ArrayList<String>();
+        List<String> localhost = new ArrayList<>();
         localhost.add( "localhost" );
         Map.Entry<String, List<String>> entry = Mockito.mock( Map.Entry.class );
         when( entry.getKey() ).thenReturn( host );

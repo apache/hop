@@ -40,12 +40,12 @@ public class FileLockedMetaTest {
   public void testStepMeta() throws HopException {
     List<String> attributes = Arrays.asList( "filenamefield", "resultfieldname", "addresultfilenames" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "filenamefield", "getDynamicFilenameField" );
     getterMap.put( "resultfieldname", "getResultFieldName" );
     getterMap.put( "addresultfilenames", "addResultFilenames" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "filenamefield", "setDynamicFilenameField" );
     setterMap.put( "resultfieldname", "setResultFieldName" );
     setterMap.put( "addresultfilenames", "setaddResultFilenames" );

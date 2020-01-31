@@ -43,7 +43,7 @@ public class WsdlOperationContainer implements WsdlParamContainer {
   }
 
   public String[] getParamNames() {
-    List<String> paramsRet = new ArrayList<String>();
+    List<String> paramsRet = new ArrayList<>();
     for ( WsdlOpParameter param : operation.getParameters() ) {
       if ( param.getMode().equals( mode ) ) {
         paramsRet.add( param.getName().getLocalPart() );

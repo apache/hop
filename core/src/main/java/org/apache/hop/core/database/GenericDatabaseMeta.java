@@ -698,14 +698,6 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   @Override
-  public boolean needsToLockAllTables() {
-    if ( databaseDialect != null ) {
-      return databaseDialect.needsToLockAllTables();
-    }
-    return super.needsToLockAllTables();
-  }
-
-  @Override
   public boolean supportsSetMaxRows() {
     if ( databaseDialect != null ) {
       return databaseDialect.supportsSetMaxRows();

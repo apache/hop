@@ -74,14 +74,14 @@ public abstract class TransformClassBase {
       data.inputRowMeta = getTransMeta().getPrevStepFields( getStepMeta() ).clone();
       data.outputRowMeta = getTransMeta().getThisStepFields( getStepMeta(), null, data.inputRowMeta.clone() );
 
-      data.parameterMap = new HashMap<String, String>();
+      data.parameterMap = new HashMap<>();
       for ( UsageParameter par : meta.getUsageParameters() ) {
         if ( par.tag != null && par.value != null ) {
           data.parameterMap.put( par.tag, par.value );
         }
       }
 
-      data.infoMap = new HashMap<String, String>();
+      data.infoMap = new HashMap<>();
       for ( InfoStepDefinition stepDefinition : meta.getInfoStepDefinitions() ) {
         if ( stepDefinition.tag != null
           && stepDefinition.stepMeta != null && stepDefinition.stepMeta.getName() != null ) {
@@ -89,7 +89,7 @@ public abstract class TransformClassBase {
         }
       }
 
-      data.targetMap = new HashMap<String, String>();
+      data.targetMap = new HashMap<>();
       for ( TargetStepDefinition stepDefinition : meta.getTargetStepDefinitions() ) {
         if ( stepDefinition.tag != null
           && stepDefinition.stepMeta != null && stepDefinition.stepMeta.getName() != null ) {

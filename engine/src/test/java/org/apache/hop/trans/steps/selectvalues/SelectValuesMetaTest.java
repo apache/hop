@@ -72,8 +72,8 @@ public class SelectValuesMetaTest {
       new SelectFieldLoadSaveValidator( selectField ), 2 ) );
 
     LoadSaveTester tester =
-      new LoadSaveTester( SelectValuesMeta.class, attributes, new HashMap<String, String>(),
-        new HashMap<String, String>(), new HashMap<String, FieldLoadSaveValidator<?>>(),
+      new LoadSaveTester( SelectValuesMeta.class, attributes, new HashMap<>(),
+        new HashMap<>(), new HashMap<String, FieldLoadSaveValidator<?>>(),
         fieldLoadSaveValidatorTypeMap );
 
     tester.testSerialization();

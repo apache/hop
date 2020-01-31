@@ -57,7 +57,7 @@ public class ExcelWriterStepMetaTest {
       "password", "protected_by", "splitevery", "if_file_exists", "if_sheet_exists", "enabled", "sheet_enabled",
       "filename", "sheetname", "outputfields", "TemplateSheetHidden" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "header", "isHeaderEnabled" );
     getterMap.put( "footer", "isFooterEnabled" );
     getterMap.put( "makeSheetActive", "isMakeSheetActive" );
@@ -94,7 +94,7 @@ public class ExcelWriterStepMetaTest {
     getterMap.put( "sheetname", "getTemplateSheetName" );
     getterMap.put( "outputfields", "getOutputFields" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "header", "setHeaderEnabled" );
     setterMap.put( "footer", "setFooterEnabled" );
     setterMap.put( "makeSheetActive", "setMakeSheetActive" );

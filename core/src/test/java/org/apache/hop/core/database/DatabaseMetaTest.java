@@ -119,12 +119,12 @@ public class DatabaseMetaTest {
 
   @Test
   public void testApplyingDefaultOptions() throws Exception {
-    HashMap<String, String> existingOptions = new HashMap<String, String>();
+    HashMap<String, String> existingOptions = new HashMap<>();
     existingOptions.put( "type1.extra", "extraValue" );
     existingOptions.put( "type1.existing", "existingValue" );
     existingOptions.put( "type2.extra", "extraValue2" );
 
-    HashMap<String, String> newOptions = new HashMap<String, String>();
+    HashMap<String, String> newOptions = new HashMap<>();
     newOptions.put( "type1.new", "newValue" );
     newOptions.put( "type1.existing", "existingDefault" );
 

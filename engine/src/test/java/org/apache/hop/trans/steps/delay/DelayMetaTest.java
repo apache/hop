@@ -40,11 +40,11 @@ public class DelayMetaTest {
   public void testStepMeta() throws HopException {
     List<String> attributes = Arrays.asList( "timeout", "scaletime" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "timeout", "getTimeOut" );
     getterMap.put( "scaletime", "getScaleTimeCode" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "timeout", "setTimeOut" );
     setterMap.put( "scaletime", "setScaleTimeCode" );
 

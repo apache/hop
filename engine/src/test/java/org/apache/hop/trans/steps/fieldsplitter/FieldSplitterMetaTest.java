@@ -59,7 +59,7 @@ public class FieldSplitterMetaTest {
       Arrays.asList( "splitfield", "delimiter", "enclosure", "name", "id", "idrem", "type", "format",
         "group", "decimal", "currency", "length", "precision", "nullif", "ifnull", "trimtype" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "splitfield", "getSplitField" );
     getterMap.put( "delimiter", "getDelimiter" );
     getterMap.put( "enclosure", "getEnclosure" );
@@ -77,7 +77,7 @@ public class FieldSplitterMetaTest {
     getterMap.put( "ifnull", "getFieldIfNull" );
     getterMap.put( "trimtype", "getFieldTrimType" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "splitfield", "setSplitField" );
     setterMap.put( "delimiter", "setDelimiter" );
     setterMap.put( "enclosure", "setEnclosure" );

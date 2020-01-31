@@ -103,7 +103,7 @@ public class LogMessage implements LogMessageInterface {
    * @param loggingObject
    */
   private List<String> getSubjectTree( LoggingObjectInterface loggingObject ) {
-    List<String> subjects = new ArrayList<String>();
+    List<String> subjects = new ArrayList<>();
     while ( loggingObject != null ) {
       subjects.add( loggingObject.getObjectName() );
       loggingObject = loggingObject.getParent();

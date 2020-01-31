@@ -51,7 +51,7 @@ public class AuthenticationConsumerPluginType extends BasePluginType implements 
     AuthenticationConsumerPlugin pluginAnnotation =
       clazz.getAnnotation( AuthenticationConsumerPlugin.class );
     AuthenticationConsumerPluginType.getInstance().handlePluginAnnotation( clazz, pluginAnnotation,
-      new ArrayList<String>(), false, null );
+      new ArrayList<>(), false, null );
     PluginRegistry.getInstance().addClassLoader( classLoader,
       PluginRegistry.getInstance().getPlugin( AuthenticationConsumerPluginType.class, pluginAnnotation.id() ) );
   }

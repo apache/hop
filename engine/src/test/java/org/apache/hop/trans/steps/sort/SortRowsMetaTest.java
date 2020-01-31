@@ -60,8 +60,8 @@ public class SortRowsMetaTest {
       "CompressFilesVariable", "OnlyPassingUniqueRows", "FieldName", "Ascending", "CaseSensitive", "CollatorEnabled",
       "CollatorStrength", "PreSortedField" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
 
     Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
       new HashMap<String, FieldLoadSaveValidator<?>>();

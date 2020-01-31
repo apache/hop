@@ -81,7 +81,7 @@ public class FTPSConnection implements FTPListener {
     "IMPLICIT_TLS_WITH_CRYPTED_DATA_FTP_CONNECTION" };
 
   private FTPConnection connection = null;
-  private ArrayList<String> replies = new ArrayList<String>();
+  private ArrayList<String> replies = new ArrayList<>();
 
   private String hostName;
   private int portNumber;
@@ -357,7 +357,7 @@ public class FTPSConnection implements FTPListener {
   }
 
   public void replyMessageArrived( FTPEvent event ) {
-    this.replies = new ArrayList<String>();
+    this.replies = new ArrayList<>();
     for ( String e : event.getReply().getLines() ) {
       if ( !e.trim().equals( "" ) ) {
         e = e.substring( 3 ).trim().replace( "\n", "" );
@@ -474,7 +474,7 @@ public class FTPSConnection implements FTPListener {
     ArrayList<String> list = null;
     try {
       List<FTPFile> fileList = getFileList( getWorkingDirectory() );
-      list = new ArrayList<String>();
+      list = new ArrayList<>();
       Iterator<FTPFile> it = fileList.iterator();
       while ( it.hasNext() ) {
         FTPFile file = it.next();

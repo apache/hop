@@ -942,8 +942,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   /**
    * Prompt user to close all open Jobs & Transformations if they have execute permissions.
-   * If they don't have execute permission then warn user if they really want to disconnect
-   * from repository.  If yes, close all tabs.
+   * If yes, close all tabs.
    *
    * @return If user agrees with closing of tabs then return true so we can disconnect from the repo.
    */
@@ -1674,12 +1673,6 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       }
       miFileLast.setCommand( "spoon.lastFileSelect('" + i + "')" );
     }
-  }
-
-  public void lastRepoFileSelect( String repo, String id ) {
-    int idx = Integer.parseInt( id );
-    List<LastUsedFile> lastUsedFiles = props.getLastUsedRepoFiles().getOrDefault( repo, Collections.emptyList() );
-    lastFileSelect( lastUsedFiles.get( idx ) );
   }
 
   public void lastFileSelect( String id ) {
@@ -3520,7 +3513,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     //
     setTransMetaVariables( transMeta );
 
-    // Pass repository information
+    // Pass MetaStore information
     //
     transMeta.setMetaStore( metaStore );
 
@@ -3796,8 +3789,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     ( (AbstractMeta) meta ).setMetaStore( metaStore );
 
     if ( getLog().isDetailed() ) {
-      // "Save to file or repository...
-      getLog().logDetailed( BaseMessages.getString( PKG, "Spoon.Log.SaveToFileOrRepository" ) );
+      // "Save to file ...
+      getLog().logDetailed( BaseMessages.getString( PKG, "Spoon.Log.SaveToFileOrRepository" ) ); // TODO change i18n name and translation
     }
 
     HopUiPerspective activePerspective = HopUiPerspectiveManager.getInstance().getActivePerspective();
@@ -3966,107 +3959,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       String message =
         ResourceUtil.getExplanation( zipFilename, topLevelResource.getResourceName(), resourceExportInterface );
 
-      /*
-       * // Add the ZIP file as a repository to the repository list... // RepositoriesMeta repositoriesMeta = new
-       * RepositoriesMeta(); repositoriesMeta.readData();
-       *
-       * HopFileRepositoryMeta fileRepositoryMeta = new HopFileRepositoryMeta(
-       * HopFileRepositoryMeta.REPOSITORY_TYPE_ID, "Export " + baseFileName, "Export to file : " + zipFilename,
-       * "zip://" + zipFilename + "!"); fileRepositoryMeta.setReadOnly(true); // A ZIP file is read-only int nr = 2;
-       * String baseName = fileRepositoryMeta.getName(); while
-       * (repositoriesMeta.findRepository(fileRepositoryMeta.getName()) != null) { fileRepositoryMeta.setName(baseName +
-       * " " + nr); nr++; }
-       *
-       * repositoriesMeta.addRepository(fileRepositoryMeta); repositoriesMeta.writeData();
-       */
-
       // Show some information concerning all this work...
 
-      EnterTextDialog enterTextDialog =
-        new EnterTextDialog(
-          shell, BaseMessages.getString( PKG, "Spoon.Dialog.ResourceSerialized" ), BaseMessages.getString(
-          PKG, "Spoon.Dialog.ResourceSerializedSuccesfully" ), message );
-      enterTextDialog.setReadOnly();
-      enterTextDialog.open();
-    } catch ( Exception e ) {
-      new ErrorDialog( shell, BaseMessages.getString( PKG, "Spoon.Error" ), BaseMessages.getString(
-        PKG, "Spoon.ErrorExportingFile" ), e );
-    }
-  }
-
-  /**
-   * Export this job or transformation including all depending resources to a single ZIP file containing a file
-   * repository.
-   */
-  public void exportAllFileRepository() {
-
-    ResourceExportInterface resourceExportInterface = getActiveTransformation();
-    if ( resourceExportInterface == null ) {
-      resourceExportInterface = getActiveJob();
-    }
-    if ( resourceExportInterface == null ) {
-      return; // nothing to do here, prevent an NPE
-    }
-
-    // Ask the user for a zip file to export to:
-    //
-    try {
-      String zipFilename = null;
-      while ( Utils.isEmpty( zipFilename ) ) {
-        FileDialog dialog = new FileDialog( shell, SWT.SAVE );
-        dialog.setText( BaseMessages.getString( PKG, "Spoon.ExportResourceSelectZipFile" ) );
-        dialog.setFilterExtensions( new String[] { "*.zip;*.ZIP", "*" } );
-        dialog.setFilterNames( new String[] {
-          BaseMessages.getString( PKG, "System.FileType.ZIPFiles" ),
-          BaseMessages.getString( PKG, "System.FileType.AllFiles" ), } );
-        setFilterPath( dialog );
-        if ( dialog.open() != null ) {
-          lastDirOpened = dialog.getFilterPath();
-          zipFilename = dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName();
-          FileObject zipFileObject = HopVFS.getFileObject( zipFilename );
-          if ( zipFileObject.exists() ) {
-            MessageBox box = new MessageBox( shell, SWT.YES | SWT.NO | SWT.CANCEL );
-            box
-              .setMessage( BaseMessages
-                .getString( PKG, "Spoon.ExportResourceZipFileExists.Message", zipFilename ) );
-            box.setText( BaseMessages.getString( PKG, "Spoon.ExportResourceZipFileExists.Title" ) );
-            int answer = box.open();
-            if ( answer == SWT.CANCEL ) {
-              return;
-            }
-            if ( answer == SWT.NO ) {
-              zipFilename = null;
-            }
-          }
-        } else {
-          return;
-        }
-      }
-
-      // Export the resources linked to the currently loaded file...
-      //
-      TopLevelResource topLevelResource =
-        ResourceUtil.serializeResourceExportInterface(
-          zipFilename, resourceExportInterface, (VariableSpace) resourceExportInterface, metaStore );
-      String message =
-        ResourceUtil.getExplanation( zipFilename, topLevelResource.getResourceName(), resourceExportInterface );
-
-      /*
-       * // Add the ZIP file as a repository to the repository list... // RepositoriesMeta repositoriesMeta = new
-       * RepositoriesMeta(); repositoriesMeta.readData();
-       *
-       * HopFileRepositoryMeta fileRepositoryMeta = new HopFileRepositoryMeta(
-       * HopFileRepositoryMeta.REPOSITORY_TYPE_ID, "Export " + baseFileName, "Export to file : " + zipFilename,
-       * "zip://" + zipFilename + "!"); fileRepositoryMeta.setReadOnly(true); // A ZIP file is read-only int nr = 2;
-       * String baseName = fileRepositoryMeta.getName(); while
-       * (repositoriesMeta.findRepository(fileRepositoryMeta.getName()) != null) { fileRepositoryMeta.setName(baseName +
-       * " " + nr); nr++; }
-       *
-       * repositoriesMeta.addRepository(fileRepositoryMeta); repositoriesMeta.writeData();
-       */
-
-      // Show some information concerning all this work...
-      //
       EnterTextDialog enterTextDialog =
         new EnterTextDialog(
           shell, BaseMessages.getString( PKG, "Spoon.Dialog.ResourceSerialized" ), BaseMessages.getString(

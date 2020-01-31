@@ -72,8 +72,8 @@ public class HTTPPOSTMetaTest {
     fieldLoadSaveValidatorAttributeMap.put( "queryField", stringArrayLoadSaveValidator );
     fieldLoadSaveValidatorAttributeMap.put( "queryParameter", stringArrayLoadSaveValidator );
 
-    loadSaveTester = new LoadSaveTester( HTTPPOSTMeta.class, attributes, new HashMap<String, String>(),
-      new HashMap<String, String>(), fieldLoadSaveValidatorAttributeMap, new HashMap<String, FieldLoadSaveValidator<?>>() );
+    loadSaveTester = new LoadSaveTester( HTTPPOSTMeta.class, attributes, new HashMap<>(),
+      new HashMap<>(), fieldLoadSaveValidatorAttributeMap, new HashMap<String, FieldLoadSaveValidator<?>>() );
   }
 
   @Test

@@ -91,12 +91,6 @@ public class ValueMetaAndData {
     return vmad;
   }
 
-  public static final String VALUE_REPOSITORY_NUMBER_CONVERSION_MASK = "#.#";
-  public static final String VALUE_REPOSITORY_INTEGER_CONVERSION_MASK = "#";
-  public static final String VALUE_REPOSITORY_DATE_CONVERSION_MASK = "yyyy/MM/dd HH:mm:ss.SSS";
-  public static final String VALUE_REPOSITORY_DECIMAL_SYMBOL = ".";
-  public static final String VALUE_REPOSITORY_GROUPING_SYMBOL = ",";
-
   @Override
   public String toString() {
     try {

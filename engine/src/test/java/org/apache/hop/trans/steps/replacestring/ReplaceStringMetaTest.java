@@ -87,7 +87,7 @@ public class ReplaceStringMetaTest {
     List<String> attributes = Arrays.asList( "in_stream_name", "out_stream_name", "use_regex", "replace_string",
       "replace_by_string", "set_empty_string", "replace_field_by_string", "whole_word", "case_sensitive", "is_unicode" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "in_stream_name", "getFieldInStream" );
     getterMap.put( "out_stream_name", "getFieldOutStream" );
     getterMap.put( "use_regex", "getUseRegEx" );
@@ -99,7 +99,7 @@ public class ReplaceStringMetaTest {
     getterMap.put( "case_sensitive", "getCaseSensitive" );
     getterMap.put( "is_unicode", "isUnicode" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "in_stream_name", "setFieldInStream" );
     setterMap.put( "out_stream_name", "setFieldOutStream" );
     setterMap.put( "use_regex", "setUseRegEx" );

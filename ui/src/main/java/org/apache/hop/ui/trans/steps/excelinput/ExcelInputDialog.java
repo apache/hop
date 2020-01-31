@@ -1907,7 +1907,7 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
    * Get the names of the sheets from the Excel workbooks and let the user select some or all of them.
    */
   public void getSheets() {
-    List<String> sheetnames = new ArrayList<String>();
+    List<String> sheetnames = new ArrayList<>();
 
     ExcelInputMeta info = new ExcelInputMeta();
     getInfo( info );

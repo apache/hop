@@ -1009,7 +1009,7 @@ public class XMLHandler {
   }
 
   public static String[] getNodeElements( Node node ) {
-    ArrayList<String> elements = new ArrayList<String>(); // List of String
+    ArrayList<String> elements = new ArrayList<>(); // List of String
 
     NodeList nodeList = node.getChildNodes();
     if ( nodeList == null ) {

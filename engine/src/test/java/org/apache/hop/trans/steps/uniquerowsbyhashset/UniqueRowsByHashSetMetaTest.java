@@ -44,13 +44,13 @@ public class UniqueRowsByHashSetMetaTest {
     List<String> attributes =
       Arrays.asList( "store_values", "reject_duplicate_row", "error_description", "name" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "store_values", "getStoreValues" );
     getterMap.put( "reject_duplicate_row", "isRejectDuplicateRow" );
     getterMap.put( "error_description", "getErrorDescription" );
     getterMap.put( "name", "getCompareFields" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "store_values", "setStoreValues" );
     setterMap.put( "reject_duplicate_row", "setRejectDuplicateRow" );
     setterMap.put( "error_description", "setErrorDescription" );

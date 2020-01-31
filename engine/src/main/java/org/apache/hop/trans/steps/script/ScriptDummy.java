@@ -258,11 +258,15 @@ public class ScriptDummy implements StepInterface {
     return null;
   }
 
-  public Trans getTrans() {
+  @Override public LogChannelInterface getLogChannel() {
     return null;
   }
 
-  @Override public LogChannelInterface getLogChannel() {
+  @Override public boolean isSelected() {
+    return false;
+  }
+
+  public Trans getTrans() {
     return null;
   }
 
@@ -276,6 +280,10 @@ public class ScriptDummy implements StepInterface {
 
   @Override public int getCopyNr() {
     return 0;
+  }
+
+  @Override public String getLogChannelId() {
+    return null;
   }
 
   public boolean isUsingThreadPriorityManagment() {

@@ -58,8 +58,8 @@ public class ParGzipCsvInputMetaTest implements InitializerInterface<StepMetaInt
         "enclosure", "bufferSize", "lazyConversionActive", "addResultFile", "runningInParallel", "encoding",
         "inputFields" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "inputFields", new ArrayLoadSaveValidator<TextFileInputField>( new TextFileInputFieldValidator(), 5 ) );
@@ -67,7 +67,7 @@ public class ParGzipCsvInputMetaTest implements InitializerInterface<StepMetaInt
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(), getterMap,
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(), getterMap,
         setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 

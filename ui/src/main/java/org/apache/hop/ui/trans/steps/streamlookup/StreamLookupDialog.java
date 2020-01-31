@@ -434,7 +434,7 @@ public class StreamLookupDialog extends BaseStepDialog implements StepDialogInte
             fields.putAll( prevFields );
 
             Set<String> keySet = fields.keySet();
-            List<String> entries = new ArrayList<String>( keySet );
+            List<String> entries = new ArrayList<>( keySet );
 
             String[] fieldNames = entries.toArray( new String[ entries.size() ] );
             Const.sortStrings( fieldNames );
@@ -471,7 +471,7 @@ public class StreamLookupDialog extends BaseStepDialog implements StepDialogInte
             fields.putAll( lookupFields );
 
             Set<String> keySet = fields.keySet();
-            List<String> entries = new ArrayList<String>( keySet );
+            List<String> entries = new ArrayList<>( keySet );
 
             String[] fieldNames = entries.toArray( new String[ entries.size() ] );
             Const.sortStrings( fieldNames );

@@ -26,7 +26,6 @@ public class HopAttribute implements HopAttributeInterface {
   private String key;
 
   private String xmlCode;
-  private String repCode;
   private String description;
   private String tooltip;
   private int type;
@@ -40,11 +39,10 @@ public class HopAttribute implements HopAttributeInterface {
    * @param tooltip
    * @param type
    */
-  public HopAttribute( String key, String xmlCode, String repCode, String description, String tooltip,
+  public HopAttribute( String key, String xmlCode, String description, String tooltip,
                        int type, HopAttributeInterface parent ) {
     this.key = key;
     this.xmlCode = xmlCode;
-    this.repCode = repCode;
     this.description = description;
     this.tooltip = tooltip;
     this.type = type;
@@ -73,21 +71,6 @@ public class HopAttribute implements HopAttributeInterface {
    */
   public void setXmlCode( String xmlCode ) {
     this.xmlCode = xmlCode;
-  }
-
-  /**
-   * @return the repCode
-   */
-  @Override
-  public String getRepCode() {
-    return repCode;
-  }
-
-  /**
-   * @param repCode the repCode to set
-   */
-  public void setRepCode( String repCode ) {
-    this.repCode = repCode;
   }
 
   /**

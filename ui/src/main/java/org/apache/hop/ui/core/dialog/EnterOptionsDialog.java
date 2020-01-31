@@ -175,8 +175,6 @@ public class EnterOptionsDialog extends Dialog {
 
   private Button wCopyDistrib;
 
-  private Button wShowRep;
-
   private Button wExitWarning;
 
   private Button wClearCustom;
@@ -1282,31 +1280,13 @@ public class EnterOptionsDialog extends Dialog {
     fdCopyDistrib.right = new FormAttachment( 100, 0 );
     wCopyDistrib.setLayoutData( fdCopyDistrib );
 
-    // Show repository dialog at startup?
-    Label wlShowRep = new Label( wGeneralComp, SWT.RIGHT );
-    wlShowRep.setText( BaseMessages.getString( PKG, "EnterOptionsDialog.ShowRepoDialog.Label" ) );
-    props.setLook( wlShowRep );
-    FormData fdlShowRep = new FormData();
-    fdlShowRep.left = new FormAttachment( 0, 0 );
-    fdlShowRep.top = new FormAttachment( wCopyDistrib, margin );
-    fdlShowRep.right = new FormAttachment( middle, -margin );
-    wlShowRep.setLayoutData( fdlShowRep );
-    wShowRep = new Button( wGeneralComp, SWT.CHECK );
-    props.setLook( wShowRep );
-    wShowRep.setSelection( props.showRepositoriesDialogAtStartup() );
-    FormData fdShowRep = new FormData();
-    fdShowRep.left = new FormAttachment( middle, 0 );
-    fdShowRep.top = new FormAttachment( wCopyDistrib, margin );
-    fdShowRep.right = new FormAttachment( 100, 0 );
-    wShowRep.setLayoutData( fdShowRep );
-
     // Show exit warning?
     Label wlExitWarning = new Label( wGeneralComp, SWT.RIGHT );
     wlExitWarning.setText( BaseMessages.getString( PKG, "EnterOptionsDialog.AskOnExit.Label" ) );
     props.setLook( wlExitWarning );
     FormData fdlExitWarning = new FormData();
     fdlExitWarning.left = new FormAttachment( 0, 0 );
-    fdlExitWarning.top = new FormAttachment( wShowRep, margin );
+    fdlExitWarning.top = new FormAttachment( wCopyDistrib, margin );
     fdlExitWarning.right = new FormAttachment( middle, -margin );
     wlExitWarning.setLayoutData( fdlExitWarning );
     wExitWarning = new Button( wGeneralComp, SWT.CHECK );
@@ -1314,7 +1294,7 @@ public class EnterOptionsDialog extends Dialog {
     wExitWarning.setSelection( props.showExitWarning() );
     FormData fdExitWarning = new FormData();
     fdExitWarning.left = new FormAttachment( middle, 0 );
-    fdExitWarning.top = new FormAttachment( wShowRep, margin );
+    fdExitWarning.top = new FormAttachment( wCopyDistrib, margin );
     fdExitWarning.right = new FormAttachment( 100, 0 );
     wExitWarning.setLayoutData( fdExitWarning );
 
@@ -1606,7 +1586,6 @@ public class EnterOptionsDialog extends Dialog {
     props.setSaveConfirmation( wSaveConf.getSelection() );
     props.setAutoSplit( wAutoSplit.getSelection() );
     props.setShowCopyOrDistributeWarning( wCopyDistrib.getSelection() );
-    props.setRepositoriesDialogAtStartupShown( wShowRep.getSelection() );
     props.setAntiAliasingEnabled( wAntiAlias.getSelection() );
     props.setShowCanvasGridEnabled( wShowCanvasGrid.getSelection() );
     props.setExitWarningShown( wExitWarning.getSelection() );

@@ -33,15 +33,13 @@ public class HopAttributeTest {
   public void testClass() {
     final String key = "key";
     final String xmlCode = "xmlCode";
-    final String repCode = "repCode";
     final String description = "description";
     final String tooltip = "tooltip";
     final int type = 6;
     final HopAttributeInterface parent = mock( HopAttributeInterface.class );
-    HopAttribute attribute = new HopAttribute( key, xmlCode, repCode, description, tooltip, type, parent );
+    HopAttribute attribute = new HopAttribute( key, xmlCode, description, tooltip, type, parent );
     assertSame( key, attribute.getKey() );
     assertSame( xmlCode, attribute.getXmlCode() );
-    assertSame( repCode, attribute.getRepCode() );
     assertSame( description, attribute.getDescription() );
     assertSame( tooltip, attribute.getTooltip() );
     assertEquals( type, attribute.getType() );
@@ -51,8 +49,6 @@ public class HopAttributeTest {
     assertNull( attribute.getKey() );
     attribute.setXmlCode( null );
     assertNull( attribute.getXmlCode() );
-    attribute.setRepCode( null );
-    assertNull( attribute.getRepCode() );
     attribute.setDescription( null );
     assertNull( attribute.getDescription() );
     attribute.setTooltip( null );

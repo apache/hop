@@ -160,7 +160,7 @@ public class YamlInputDialog extends BaseStepDialog implements StepDialogInterfa
 
   public static final int[] dateLengths = new int[] { 23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6 };
 
-  ArrayList<String> listpath = new ArrayList<String>();
+  ArrayList<String> listpath = new ArrayList<>();
   String precNodeName = null;
 
   public YamlInputDialog( Shell parent, Object in, TransMeta transMeta, String sname ) {

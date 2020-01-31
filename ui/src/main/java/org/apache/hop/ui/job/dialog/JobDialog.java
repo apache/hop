@@ -354,7 +354,7 @@ public class JobDialog extends Dialog {
 
   public String[] listParameterNames() {
     int count = wParamFields.nrNonEmpty();
-    java.util.List<String> list = new ArrayList<String>();
+    java.util.List<String> list = new ArrayList<>();
     for ( int i = 0; i < count; i++ ) {
       TableItem item = wParamFields.getNonEmpty( i );
       String parameterName = item.getText( 1 );

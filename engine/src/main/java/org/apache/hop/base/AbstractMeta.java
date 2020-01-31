@@ -162,17 +162,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   }
 
   /**
-   * The set of names of databases available only for this meta. The list is needed to distinguish connections when we
-   * load/save the meta in JCR repository.
-   * <p/>
-   * Should be {@code null} if we use old meta
-   *
-   * @see <a href="http://jira.pentaho.com/browse/PPP-3405">PPP-3405</a>,
-   * <a href="http://jira.pentaho.com/browse/PPP-3413">PPP-3413</a>
-   **/
-  protected Set<String> privateDatabases;
-
-  /**
    * Gets the container object id.
    *
    * @return the carteObjectId
@@ -719,7 +708,7 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
   public void setAttribute( String groupName, String key, String value ) {
     Map<String, String> attributes = getAttributes( groupName );
     if ( attributes == null ) {
-      attributes = new HashMap<String, String>();
+      attributes = new HashMap<>();
       attributesMap.put( groupName, attributes );
     }
     attributes.put( key, value );
@@ -1504,25 +1493,6 @@ public abstract class AbstractMeta implements ChangedFlagInterface, UndoInterfac
 
   public boolean hasMissingPlugins() {
     return false;
-  }
-
-  /**
-   * Returns the set of databases available only for this meta or <b>null</b> if it was not initialized.
-   * Note, that the internal collection is returned with no protection wrapper!
-   *
-   * @return <b>nonSharableDatabases</b>
-   */
-  public Set<String> getPrivateDatabases() {
-    return privateDatabases;
-  }
-
-  /**
-   * Sets private databases' names
-   *
-   * @param privateDatabases - The list of databases available only for this meta
-   */
-  public void setPrivateDatabases( Set<String> privateDatabases ) {
-    this.privateDatabases = privateDatabases;
   }
 
   protected int compare( AbstractMeta meta1, AbstractMeta meta2 ) {

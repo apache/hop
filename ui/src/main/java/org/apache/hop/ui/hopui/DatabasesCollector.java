@@ -52,7 +52,7 @@ public class DatabasesCollector {
       names2metas.put( db.getName(), db );
     }
 
-    dbNames = new ArrayList<String>( names2metas.keySet() );
+    dbNames = new ArrayList<>( names2metas.keySet() );
     Collections.sort( dbNames, String.CASE_INSENSITIVE_ORDER );
   }
 

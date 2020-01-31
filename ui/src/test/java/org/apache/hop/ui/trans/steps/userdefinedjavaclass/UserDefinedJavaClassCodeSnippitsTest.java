@@ -39,7 +39,7 @@ public class UserDefinedJavaClassCodeSnippitsTest {
 
   @Test
   public void testSnippitsWellDefined() throws HopXMLException {
-    List<String> snippitNames = new ArrayList<String>();
+    List<String> snippitNames = new ArrayList<>();
     for ( Snippit snippit : UserDefinedJavaClassCodeSnippits.getSnippitsHelper().getSnippits() ) {
       Assert.assertNotNull( snippit.category );
       Assert.assertFalse( Utils.isEmpty( snippit.name ) );

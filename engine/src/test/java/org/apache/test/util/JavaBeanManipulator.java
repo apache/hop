@@ -43,8 +43,8 @@ public class JavaBeanManipulator<T> {
   public JavaBeanManipulator( Class<? extends T> clazz, List<String> attributes, Map<String, String> getterMap,
                               Map<String, String> setterMap ) {
     this.clazz = clazz;
-    this.getterMap = new HashMap<String, String>( getterMap );
-    this.setterMap = new HashMap<String, String>( setterMap );
+    this.getterMap = new HashMap<>( getterMap );
+    this.setterMap = new HashMap<>( setterMap );
     this.getterMethodMap = new HashMap<String, Getter<?>>();
     this.setterMethodMap = new HashMap<String, Setter<?>>();
     populateGetters( attributes );

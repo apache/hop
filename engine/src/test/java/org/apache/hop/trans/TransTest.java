@@ -194,7 +194,7 @@ public class TransTest {
       InputStream inputStream = new ByteArrayInputStream( "<transformation></transformation>".getBytes() );
       IOUtils.copy( inputStream, outputStream );
     }
-    Trans trans = new Trans( mockTransMeta, null, null, ktr.getURL().toURI().toString() );
+    Trans trans = new Trans( mockTransMeta, null, ktr.getURL().toURI().toString() );
     assertEquals( testParamValue, trans.getParameterValue( testParam ) );
   }
 

@@ -40,11 +40,11 @@ public class Edi2XmlMetaTest {
   public void testStepMeta() throws HopException {
     List<String> attributes = Arrays.asList( "inputfield", "outputfield" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "inputfield", "getInputField" );
     getterMap.put( "outputfield", "getOutputField" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "inputfield", "setInputField" );
     setterMap.put( "outputfield", "setOutputField" );
 

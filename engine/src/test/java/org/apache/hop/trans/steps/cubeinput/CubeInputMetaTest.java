@@ -42,12 +42,12 @@ public class CubeInputMetaTest {
     List<String> attributes =
       Arrays.asList( "name", "limit", "addfilenameresult" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "name", "getFilename" );
     getterMap.put( "limit", "getRowLimit" );
     getterMap.put( "addfilenameresult", "isAddResultFile" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "name", "setFilename" );
     setterMap.put( "limit", "setRowLimit" );
     setterMap.put( "addfilenameresult", "setAddResultFile" );

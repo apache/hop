@@ -3821,7 +3821,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
 
   public String[] getTableTypes() throws HopDatabaseException {
     try {
-      ArrayList<String> types = new ArrayList<String>();
+      ArrayList<String> types = new ArrayList<>();
 
       ResultSet rstt = getDatabaseMetaData().getTableTypes();
       while ( rstt.next() ) {
@@ -3850,7 +3850,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   public String[] getTablenames( String schemanamein, boolean includeSchema, Map<String, String> props )
     throws HopDatabaseException {
     Map<String, Collection<String>> tableMap = getTableMap( schemanamein, props );
-    List<String> res = new ArrayList<String>();
+    List<String> res = new ArrayList<>();
     for ( String schema : tableMap.keySet() ) {
       Collection<String> tables = tableMap.get( schema );
       for ( String table : tables ) {
@@ -3966,7 +3966,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
 
   public String[] getViews( String schemanamein, boolean includeSchema ) throws HopDatabaseException {
     Map<String, Collection<String>> viewMap = getViewMap( schemanamein );
-    List<String> res = new ArrayList<String>();
+    List<String> res = new ArrayList<>();
     for ( String schema : viewMap.keySet() ) {
       Collection<String> views = viewMap.get( schema );
       for ( String view : views ) {
@@ -4065,7 +4065,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
 
   public String[] getSynonyms( String schemanamein, boolean includeSchema ) throws HopDatabaseException {
     Map<String, Collection<String>> synonymMap = getSynonymMap( schemanamein );
-    List<String> res = new ArrayList<String>();
+    List<String> res = new ArrayList<>();
     for ( String schema : synonymMap.keySet() ) {
       Collection<String> synonyms = synonymMap.get( schema );
       for ( String synonym : synonyms ) {
@@ -4095,7 +4095,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
       }
     }
     Map<String, Collection<String>> synonymMap = new HashMap<String, Collection<String>>();
-    // ArrayList<String> names = new ArrayList<String>();
+    // ArrayList<String> names = new ArrayList<>();
     ResultSet alltables = null;
     try {
       alltables = getDatabaseMetaData().getTables( null, schemaname, null, databaseMeta.getSynonymTypes() );
@@ -4172,7 +4172,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   }
 
   public String[] getSchemas() throws HopDatabaseException {
-    ArrayList<String> catalogList = new ArrayList<String>();
+    ArrayList<String> catalogList = new ArrayList<>();
     ResultSet catalogResultSet = null;
     try {
       catalogResultSet = getDatabaseMetaData().getSchemas();
@@ -4200,7 +4200,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   }
 
   public String[] getCatalogs() throws HopDatabaseException {
-    ArrayList<String> catalogList = new ArrayList<String>();
+    ArrayList<String> catalogList = new ArrayList<>();
     ResultSet catalogResultSet = null;
     try {
       catalogResultSet = getDatabaseMetaData().getCatalogs();
@@ -4803,7 +4803,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * @throws HopDatabaseException
    */
   public String[] getPrimaryKeyColumnNames( String tablename ) throws HopDatabaseException {
-    List<String> names = new ArrayList<String>();
+    List<String> names = new ArrayList<>();
     ResultSet allkeys = null;
     try {
       allkeys = getDatabaseMetaData().getPrimaryKeys( null, null, tablename );

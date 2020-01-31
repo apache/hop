@@ -80,7 +80,7 @@ public class CompressionProviderFactory implements CompressionProviderFactoryInt
 
   @Override
   public String[] getCompressionProviderNames() {
-    ArrayList<String> providerNames = new ArrayList<String>();
+    ArrayList<String> providerNames = new ArrayList<>();
 
     List<PluginInterface> providers = getPlugins();
     if ( providers != null ) {

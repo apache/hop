@@ -47,7 +47,7 @@ public class SampleRowsMetaTest {
     List<String> attributes =
       Arrays.asList( "linesRange", "lineNumberField" );
 
-    Map<String, String> aMap = new HashMap<String, String>();
+    Map<String, String> aMap = new HashMap<>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, aMap, aMap );

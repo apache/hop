@@ -115,7 +115,7 @@ public class MailValidation {
     // Huzzah! we have machines to try. Return them as an array list
     // NOTE: We SHOULD take the preference into account to be absolutely
     // correct. This is left as an exercise for anyone who cares.
-    ArrayList<String> res = new ArrayList<String>();
+    ArrayList<String> res = new ArrayList<>();
     NamingEnumeration<?> en = attr.getAll();
 
     while ( en.hasMore() ) {
@@ -169,7 +169,7 @@ public class MailValidation {
     // In that case, we will ignore the domain
     // extracted from email address
 
-    ArrayList<String> mxList = new ArrayList<String>();
+    ArrayList<String> mxList = new ArrayList<>();
     if ( Utils.isEmpty( defaultSMTPServer ) ) {
       try {
         mxList = getMX( domain );

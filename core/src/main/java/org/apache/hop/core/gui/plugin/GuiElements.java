@@ -84,9 +84,11 @@ public class GuiElements {
     this.disabledImage = null;
     this.variablesEnabled = guiElement.variables();
     this.password = guiElement.password();
-    this.i18nPackage = guiElement.i18nPackage();
+    this.i18nPackage = calculateI18nPackage( guiElement.i18nPackageClass(), guiElement.i18nPackage() );
     this.ignored = guiElement.ignored();
     this.addingSeparator = guiElement.separator();
+    this.label = calculateI18n( i18nPackage, guiElement.label() );
+    this.toolTip = calculateI18n( i18nPackage, guiElement.toolTip() );
     if ( StringUtils.isNotEmpty( i18nPackage ) ) {
       this.label = BaseMessages.getString( i18nPackage, guiElement.label() );
       this.toolTip = BaseMessages.getString( i18nPackage, guiElement.toolTip() );
@@ -112,19 +114,24 @@ public class GuiElements {
     this.disabledImage = toolbarElement.disabledImage();
     this.variablesEnabled = toolbarElement.variables();
     this.password = toolbarElement.password();
-    this.i18nPackage = toolbarElement.i18nPackage();
+    this.i18nPackage = calculateI18nPackage(toolbarElement.i18nPackageClass(), toolbarElement.i18nPackage() );
     this.ignored = toolbarElement.ignored();
     this.addingSeparator = toolbarElement.separator();
     this.singleTon = StringUtils.isNotEmpty(toolbarElement.parent());
     this.listenerClass = listenerClass;
     this.listenerMethod = method.getName();
-    if ( StringUtils.isNotEmpty( i18nPackage ) ) {
-      this.label = BaseMessages.getString( i18nPackage, toolbarElement.label() );
-      this.toolTip = BaseMessages.getString( i18nPackage, toolbarElement.toolTip() );
-    } else {
-      this.label = toolbarElement.label();
-      this.toolTip = toolbarElement.toolTip();
+    this.label = calculateI18n(i18nPackage, toolbarElement.label());
+    this.toolTip = calculateI18n(i18nPackage, toolbarElement.toolTip());
+  }
+
+  private String calculateI18n( String i18nPackage, String string ) {
+    if (StringUtils.isEmpty( i18nPackage)) {
+      return string;
     }
+    if (StringUtils.isEmpty( string )) {
+      return null;
+    }
+    return BaseMessages.getString( i18nPackage, string );
   }
 
   public GuiElements( GuiMenuElement guiElement, Method method ) {
@@ -142,17 +149,22 @@ public class GuiElements {
     this.image = guiElement.image();
     this.variablesEnabled = guiElement.variables();
     this.password = guiElement.password();
-    this.i18nPackage = guiElement.i18nPackage();
+    this.i18nPackage = calculateI18nPackage(guiElement.i18nPackageClass(), guiElement.i18nPackage() );
     this.ignored = guiElement.ignored();
     this.addingSeparator = guiElement.separator();
     this.listenerMethod = method.getName();
-    if ( StringUtils.isNotEmpty( i18nPackage ) ) {
-      this.label = BaseMessages.getString( i18nPackage, guiElement.label() );
-      this.toolTip = BaseMessages.getString( i18nPackage, guiElement.toolTip() );
-    } else {
-      this.label = guiElement.label();
-      this.toolTip = guiElement.toolTip();
+    this.label = calculateI18n(i18nPackage, guiElement.label());
+    this.toolTip = calculateI18n(i18nPackage, guiElement.toolTip());
+  }
+
+  private String calculateI18nPackage( Class<?> i18nPackageClass, String i18nPackage ) {
+    if (StringUtils.isNotEmpty( i18nPackage )) {
+      return i18nPackage;
     }
+    if (Void.class.equals( i18nPackageClass )) {
+      return null;
+    }
+    return i18nPackageClass.getName();
   }
 
   private String calculateGetterMethod( GuiWidgetElement guiElement, String fieldName ) {

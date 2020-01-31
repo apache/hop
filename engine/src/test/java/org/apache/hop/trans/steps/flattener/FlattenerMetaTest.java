@@ -40,11 +40,11 @@ public class FlattenerMetaTest {
   public void testRoundTrip() throws HopException {
     List<String> attributes = Arrays.asList( "field_name", "target" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "field_name", "getFieldName" );
     getterMap.put( "target", "getTargetField" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "field_name", "setFieldName" );
     setterMap.put( "target", "setTargetField" );
 

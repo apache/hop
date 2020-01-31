@@ -405,8 +405,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
       // Verify that we loaded something, complain if we did not...
       //
       if ( jobMeta == null ) {
-        throw new HopException(
-          "Unable to load the job: please specify the name and repository directory OR a filename" );
+        throw new HopException("Unable to load the job: please specify a filename" );
       }
 
       verifyRecursiveExecution( parentJob, jobMeta );
@@ -956,17 +955,9 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
       return; // OK as well.
     }
 
-    // Not from the repository? just verify the filename
+    // Verify the filename for recursive execution
     //
     if ( jobMeta.getFilename() != null && jobMeta.getFilename().equals( parentJobMeta.getFilename() ) ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobJobError.Recursive", jobMeta.getFilename() ) );
-    }
-
-    // Same names, same directories : loaded from same location in the
-    // repository:
-    // --> recursive loading taking place!
-    //
-    if ( parentJobMeta.getName().equals( jobMeta.getName() ) ) {
       throw new HopException( BaseMessages.getString( PKG, "JobJobError.Recursive", jobMeta.getFilename() ) );
     }
 
@@ -1066,7 +1057,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
   @Override
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
                                  ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException {
-    // Try to load the transformation from repository or file.
+    // Try to load the transformation from file.
     // Modify this recursively too...
     //
     // AGAIN: there is no need to clone this job entry because the caller is

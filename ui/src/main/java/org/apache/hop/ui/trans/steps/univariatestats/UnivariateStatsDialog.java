@@ -313,7 +313,7 @@ public class UnivariateStatsDialog extends BaseStepDialog implements StepDialogI
    */
   protected void setComboBoxes() {
     Set<String> keySet = m_inputFields.keySet();
-    List<String> entries = new ArrayList<String>( keySet );
+    List<String> entries = new ArrayList<>( keySet );
     String[] fieldNames = entries.toArray( new String[ entries.size() ] );
     Const.sortStrings( fieldNames );
     m_colinf[ 0 ].setComboValues( fieldNames );

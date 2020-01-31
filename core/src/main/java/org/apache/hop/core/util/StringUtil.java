@@ -221,7 +221,7 @@ public class StringUtil {
    */
   public static final synchronized String environmentSubstitute( String aString,
                                                                  Map<String, String> systemProperties ) {
-    Map<String, String> sysMap = new HashMap<String, String>();
+    Map<String, String> sysMap = new HashMap<>();
     synchronized ( sysMap ) {
       sysMap.putAll( Collections.synchronizedMap( systemProperties ) );
 
@@ -268,7 +268,7 @@ public class StringUtil {
    * @throws HopValueException In case there is a String conversion error
    */
   public static String substituteField( String aString, RowMetaInterface rowMeta, Object[] rowData ) throws HopValueException {
-    Map<String, String> variables = new HashMap<String, String>();
+    Map<String, String> variables = new HashMap<>();
     for ( int i = 0; i < rowMeta.size(); i++ ) {
       variables.put( rowMeta.getValueMeta( i ).getName(), rowMeta.getString( rowData, i ) );
     }

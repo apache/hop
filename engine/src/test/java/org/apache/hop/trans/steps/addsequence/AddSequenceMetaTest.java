@@ -50,8 +50,8 @@ public class AddSequenceMetaTest {
     List<String> attributes = Arrays.asList( "valuename", "useDatabase", "databaseMeta", "schemaName", "sequenceName",
       "useCounter", "counterName", "startAt", "incrementBy", "maxValue" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
     getterMap.put( "useDatabase", "isDatabaseUsed" );
     getterMap.put( "useCounter", "isCounterUsed" );
 

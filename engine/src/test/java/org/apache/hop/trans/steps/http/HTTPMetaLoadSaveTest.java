@@ -65,8 +65,8 @@ public class HTTPMetaLoadSaveTest {
     fieldLoadSaveValidatorAttributeMap.put( "headerParameter", stringArrayLoadSaveValidator );
 
     loadSaveTester =
-      new LoadSaveTester( HTTPMeta.class, attributes, new HashMap<String, String>(),
-        new HashMap<String, String>(), fieldLoadSaveValidatorAttributeMap,
+      new LoadSaveTester( HTTPMeta.class, attributes, new HashMap<>(),
+        new HashMap<>(), fieldLoadSaveValidatorAttributeMap,
         new HashMap<String, FieldLoadSaveValidator<?>>() );
 
   }

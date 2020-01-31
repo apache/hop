@@ -240,7 +240,7 @@ public class DataGridMeta extends BaseStepMeta implements StepMetaInterface {
     if ( dataLines != null ) {
       retval.setDataLines( new ArrayList<List<String>>() );
       for ( List<String> line : dataLines ) {
-        List<String> newLine = new ArrayList<String>();
+        List<String> newLine = new ArrayList<>();
         newLine.addAll( line );
         retval.getDataLines().add( newLine );
       }
@@ -282,7 +282,7 @@ public class DataGridMeta extends BaseStepMeta implements StepMetaInterface {
       Node lineNode = datanode.getFirstChild();
       while ( lineNode != null ) {
         if ( "line".equals( lineNode.getNodeName() ) ) {
-          List<String> line = new ArrayList<String>();
+          List<String> line = new ArrayList<>();
           Node itemNode = lineNode.getFirstChild();
           while ( itemNode != null ) {
             if ( "item".equals( itemNode.getNodeName() ) ) {

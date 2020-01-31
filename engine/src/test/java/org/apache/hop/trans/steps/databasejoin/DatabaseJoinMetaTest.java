@@ -57,8 +57,8 @@ public class DatabaseJoinMetaTest implements InitializerInterface<StepMetaInterf
     List<String> attributes =
       Arrays.asList( "sql", "rowLimit", "outerJoin", "variableReplace", "databaseMeta", "parameterField", "parameterType" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
@@ -71,7 +71,7 @@ public class DatabaseJoinMetaTest implements InitializerInterface<StepMetaInterf
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-      new LoadSaveTester( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
+      new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
         getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 

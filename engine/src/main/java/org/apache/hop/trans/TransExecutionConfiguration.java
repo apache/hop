@@ -98,8 +98,8 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
 
     passingExport = false;
 
-    params = new HashMap<String, String>();
-    variables = new HashMap<String, String>();
+    params = new HashMap<>();
+    variables = new HashMap<>();
 
     transDebugMeta = null;
 
@@ -115,10 +115,10 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
     try {
       TransExecutionConfiguration configuration = (TransExecutionConfiguration) super.clone();
 
-      configuration.params = new HashMap<String, String>();
+      configuration.params = new HashMap<>();
       configuration.params.putAll( params );
 
-      configuration.variables = new HashMap<String, String>();
+      configuration.variables = new HashMap<>();
       configuration.variables.putAll( variables );
 
       return configuration;
@@ -199,7 +199,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
   }
 
   public void setVariables( VariableSpace space ) {
-    this.variables = new HashMap<String, String>();
+    this.variables = new HashMap<>();
 
     for ( String name : space.listVariables() ) {
       String value = space.getVariable( name );
@@ -288,7 +288,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
 
     String[] vars = transMeta.listVariables();
     if ( vars != null && vars.length > 0 ) {
-      HashMap<String, String> newVariables = new HashMap<String, String>();
+      HashMap<String, String> newVariables = new HashMap<>();
 
       for ( int i = 0; i < vars.length; i++ ) {
         String varname = vars[ i ];
@@ -319,7 +319,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
 
     List<String> vars = transMeta.getUsedVariables();
     if ( vars != null && vars.size() > 0 ) {
-      HashMap<String, String> newVariables = new HashMap<String, String>();
+      HashMap<String, String> newVariables = new HashMap<>();
 
       for ( int i = 0; i < vars.size(); i++ ) {
         String varname = vars.get( i );
@@ -391,7 +391,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
     // Serialize the parameters...
     //
     xml.append( "    <parameters>" ).append( Const.CR );
-    List<String> paramNames = new ArrayList<String>( params.keySet() );
+    List<String> paramNames = new ArrayList<>( params.keySet() );
     Collections.sort( paramNames );
     for ( String name : paramNames ) {
       String value = params.get( name );
@@ -405,7 +405,7 @@ public class TransExecutionConfiguration implements ExecutionConfiguration {
     // Serialize the variables...
     //
     xml.append( "    <variables>" ).append( Const.CR );
-    List<String> variableNames = new ArrayList<String>( variables.keySet() );
+    List<String> variableNames = new ArrayList<>( variables.keySet() );
     Collections.sort( variableNames );
     for ( String name : variableNames ) {
       String value = variables.get( name );

@@ -102,7 +102,6 @@ public class MySQLDatabaseMetaTest {
 
     assertEquals( "`", nativeMeta.getStartQuote() );
     assertEquals( "`", nativeMeta.getEndQuote() );
-    assertTrue( nativeMeta.needsToLockAllTables() );
     assertEquals( "http://dev.mysql.com/doc/refman/5.0/en/connector-j-reference-configuration-properties.html", nativeMeta.getExtraOptionsHelpText() );
     assertTrue( nativeMeta.isSystemTable( "sysTest" ) );
     assertTrue( nativeMeta.isSystemTable( "dtproperties" ) );
@@ -113,7 +112,6 @@ public class MySQLDatabaseMetaTest {
     assertFalse( nativeMeta.releaseSavepoint() );
     assertTrue( nativeMeta.supportsErrorHandlingOnBatchUpdates() );
     assertFalse( nativeMeta.isRequiringTransactionsOnQueries() );
-    assertTrue( nativeMeta.supportsRepository() );
   }
 
   @Test

@@ -208,7 +208,7 @@ public class TransLogDelegate extends HopUiDelegate implements XulEventHandler {
 
   public void showErrors() {
     String all = transLogText.getText();
-    ArrayList<String> err = new ArrayList<String>();
+    ArrayList<String> err = new ArrayList<>();
 
     int i = 0;
     int startpos = 0;

@@ -603,7 +603,7 @@ public class MailInput extends BaseStep implements StepInterface {
                 r[ index ] = "";
                 break;
               }
-              List<String> headers = new ArrayList<String>();
+              List<String> headers = new ArrayList<>();
               while ( en.hasMoreElements() ) {
                 Header next = Header.class.cast( en.nextElement() );
                 headers.add( next.getValue() );

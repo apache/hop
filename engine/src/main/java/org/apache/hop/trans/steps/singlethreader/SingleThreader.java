@@ -257,7 +257,7 @@ public class SingleThreader extends BaseStep implements StepInterface {
         singleThreaderData.batchSize = Const.toInt( environmentSubstitute( meta.getBatchSize() ), 0 );
         singleThreaderData.batchTime = Const.toInt( environmentSubstitute( meta.getBatchTime() ), 0 );
 
-        // Pass the repository down to the metadata object...
+        // TODO: Pass the MetaStore down to the metadata object?...
         //
         singleThreaderData.mappingTransMeta = SingleThreaderMeta.loadSingleThreadedTransMeta( meta, this, meta.isPassingAllParameters() );
         if ( singleThreaderData.mappingTransMeta != null ) { // Do we have a mapping at all?

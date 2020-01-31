@@ -409,11 +409,23 @@ public class GuiCompositeWidgets {
     }
   }
 
+  public void enableToolbarItem( String id, boolean enabled ) {
+    ToolItem toolItem = toolItemMap.get( id );
+    if (toolItem==null) {
+      return;
+    }
+    toolItem.setEnabled( enabled );
+  }
+
+  public ToolItem findToolItem( String id ) {
+    return toolItemMap.get( id );
+  }
+
   /**
-   * Gets space
-   *
-   * @return value of space
-   */
+     * Gets space
+     *
+     * @return value of space
+     */
   public VariableSpace getSpace() {
     return space;
   }

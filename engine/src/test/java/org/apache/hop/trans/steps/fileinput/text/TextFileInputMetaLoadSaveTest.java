@@ -58,7 +58,6 @@ public class TextFileInputMetaLoadSaveTest {
       "errorTextField",
       "length" );
     List<String> xmlAttributes = Collections.emptyList();
-    List<String> repoAttributes = Collections.emptyList();
 
     Map<String, String> getters = new HashMap<>();
     getters.put( "header", "hasHeader" );
@@ -96,11 +95,11 @@ public class TextFileInputMetaLoadSaveTest {
     typeValidators.put( TextFileFilter[].class.getCanonicalName(), new ArrayLoadSaveValidator<>( new TextFileFilterValidator() ) );
     typeValidators.put( BaseFileField[].class.getCanonicalName(), new ArrayLoadSaveValidator<>( new TextFileInputFieldValidator() ) );
 
-    assertTrue( !commonAttributes.isEmpty() || !( xmlAttributes.isEmpty() || repoAttributes.isEmpty() ) );
+    assertTrue( !commonAttributes.isEmpty() || !xmlAttributes.isEmpty() );
 
     tester =
       new LoadSaveTester( TextFileInputMeta.class, commonAttributes, xmlAttributes,
-        repoAttributes, getters, setters, attributeValidators, typeValidators );
+        getters, setters, attributeValidators, typeValidators );
   }
 
   @Test

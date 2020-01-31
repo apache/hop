@@ -279,7 +279,7 @@ public class NormaliserDialog extends BaseStepDialog implements StepDialogInterf
     fields.putAll( inputFields );
 
     Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<String>( keySet );
+    List<String> entries = new ArrayList<>( keySet );
 
     String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 

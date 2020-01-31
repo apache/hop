@@ -215,7 +215,7 @@ public class BlockUntilStepsFinishDialog extends BaseStepDialog implements StepD
     previousSteps = transMeta.getStepNames();
     String[] nextSteps = transMeta.getNextStepNames( stepMeta );
 
-    List<String> entries = new ArrayList<String>();
+    List<String> entries = new ArrayList<>();
     for ( int i = 0; i < previousSteps.length; i++ ) {
       if ( !previousSteps[ i ].equals( stepname ) ) {
         if ( nextSteps != null ) {

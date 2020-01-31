@@ -79,7 +79,7 @@ public class MemoryMetaStoreElementType extends BaseElementType {
 
       @Override
       public List<String> call() throws Exception {
-        List<String> ids = new ArrayList<String>();
+        List<String> ids = new ArrayList<>();
         for ( String id : elementMap.keySet() ) {
           ids.add( id );
         }

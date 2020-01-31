@@ -622,7 +622,6 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
    * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param repository              The repository to optionally load other resources from (to be converted to XML)
    * @param metaStore               the metaStore in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */

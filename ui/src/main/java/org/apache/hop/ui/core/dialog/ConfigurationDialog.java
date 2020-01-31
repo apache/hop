@@ -118,7 +118,7 @@ public abstract class ConfigurationDialog extends Dialog {
   }
 
   protected void getInfoVariables() {
-    Map<String, String> map = new HashMap<String, String>();
+    Map<String, String> map = new HashMap<>();
     int nrNonEmptyVariables = wVariables.nrNonEmpty();
     for ( int i = 0; i < nrNonEmptyVariables; i++ ) {
       TableItem tableItem = wVariables.getNonEmpty( i );
@@ -136,7 +136,7 @@ public abstract class ConfigurationDialog extends Dialog {
    * Get the parameters from the dialog.
    */
   protected void getInfoParameters() {
-    Map<String, String> map = new HashMap<String, String>();
+    Map<String, String> map = new HashMap<>();
     int nrNonEmptyVariables = wParams.nrNonEmpty();
     for ( int i = 0; i < nrNonEmptyVariables; i++ ) {
       TableItem tableItem = wParams.getNonEmpty( i );
@@ -179,7 +179,7 @@ public abstract class ConfigurationDialog extends Dialog {
 
   protected void getParamsData() {
     wParams.clearAll( false );
-    ArrayList<String> paramNames = new ArrayList<String>( configuration.getParams().keySet() );
+    ArrayList<String> paramNames = new ArrayList<>( configuration.getParams().keySet() );
     Collections.sort( paramNames );
 
     for ( int i = 0; i < paramNames.size(); i++ ) {

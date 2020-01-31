@@ -65,7 +65,7 @@ public class LetterPairSimilarity {
    */
 
   private static ArrayList<String> wordLetterPairs( String str ) {
-    ArrayList<String> allPairs = new ArrayList<String>();
+    ArrayList<String> allPairs = new ArrayList<>();
     // Tokenize the string and put the tokens/words into an array
     String[] words = str.split( "\\s" );
     // For each word

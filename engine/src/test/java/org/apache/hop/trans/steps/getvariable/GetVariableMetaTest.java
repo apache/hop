@@ -67,10 +67,10 @@ public class GetVariableMetaTest implements InitializerInterface<GetVariableMeta
   public void setUpLoadSave() throws Exception {
     List<String> attributes = Arrays.asList( "fieldDefinitions" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "fieldDefinitions", "getFieldDefinitions" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "fieldDefinitions", "setFieldDefinitions" );
 
     FieldDefinition fieldDefinition = new FieldDefinition();
@@ -92,7 +92,7 @@ public class GetVariableMetaTest implements InitializerInterface<GetVariableMeta
     typeValidatorMap.put( FieldDefinition[].class.getCanonicalName(), fieldDefinitionLoadSaveValidator );
 
     loadSaveTester =
-      new LoadSaveTester<>( testMetaClass, attributes, Collections.emptyList(), Collections.emptyList(), getterMap,
+      new LoadSaveTester<>( testMetaClass, attributes, Collections.emptyList(), getterMap,
         setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 

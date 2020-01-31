@@ -234,7 +234,6 @@ public class MSAccessDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
       case ValueMetaInterface.TYPE_DATE:
         retval += "DATETIME";
         break;
-      // Move back to Y/N for bug - [# 1538] Repository on MS ACCESS: error creating repository
       case ValueMetaInterface.TYPE_BOOLEAN:
         if ( supportsBooleanDataType() ) {
           retval += "BIT";

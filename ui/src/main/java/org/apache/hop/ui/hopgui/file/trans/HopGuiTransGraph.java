@@ -60,7 +60,6 @@ import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LogMessage;
 import org.apache.hop.core.logging.LogParentProvidedInterface;
-import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.logging.SimpleLoggingObject;
@@ -212,8 +211,23 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiTransGraph-Toolbar";
+  public static final String TOOLBAR_ITEM_START = "HopGuiTransGraph-ToolBar-10010-Run";
+  public static final String TOOLBAR_ITEM_STOP = "HopGuiTransGraph-ToolBar-10030-Stop";
+  public static final String TOOLBAR_ITEM_PAUSE = "HopGuiTransGraph-ToolBar-10020-Pause";
+  public static final String TOOLBAR_ITEM_PREVIEW = "HopGuiTransGraph-ToolBar-10040-Preview";
+  public static final String TOOLBAR_ITEM_DEBUG = "HopGuiTransGraph-ToolBar-10045-Debug";
+
   public static final String TOOLBAR_ITEM_UNDO_ID = "HopGuiTransGraph-ToolBar-10100-Undo";
   public static final String TOOLBAR_ITEM_REDO_ID = "HopGuiTransGraph-ToolBar-10110-Redo";
+
+  public static final String TOOLBAR_ITEM_ALIGN_LEFT = "HopGuiTransGraph-ToolBar-10200-Align-Left";
+  public static final String TOOLBAR_ITEM_ALIGN_RIGHT = "HopGuiTransGraph-ToolBar-10210-Align-Right";
+  public static final String TOOLBAR_ITEM_ALIGN_TOP = "HopGuiTransGraph-ToolBar-10250-Align-Ttop";
+  public static final String TOOLBAR_ITEM_ALIGN_BOTTOM = "HopGuiTransGraph-ToolBar-10260-Align-Bottom";
+  public static final String TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY = "HopGuiTransGraph-ToolBar-10300-Distribute-Horizontally";
+  public static final String TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY = "HopGuiTransGraph-ToolBar-10310-Distribute-Vertically";
+
+  public static final String TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS = "HopGuiTransGraph-ToolBar-10400-Execution-Results";
 
   public static final String LOAD_TAB = "loadTab";
   public static final String PREVIEW_TRANS = "previewTrans";
@@ -1253,6 +1267,10 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     toolTip.setHideDelay( TOOLTIP_HIDE_DELAY_SHORT );
 
     Point real = screen2real( e.x, e.y );
+
+    currentMouseX = real.x;
+    currentMouseY = real.y;
+
     // Remember the last position of the mouse for paste with keyboard
     //
     lastMove = real;
@@ -1676,7 +1694,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
       // Add a zoom label widget: TODO: move to GuiElement
       //
-      ToolItem sep1 = new ToolItem( toolBar, SWT.SEPARATOR );
+      new ToolItem( toolBar, SWT.SEPARATOR );
       ToolItem sep = new ToolItem( toolBar, SWT.SEPARATOR );
 
       zoomLabel = new Combo( toolBar, SWT.DROP_DOWN );
@@ -1803,46 +1821,29 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   @Override
   public void keyPressed( KeyEvent e ) {
 
-    if ( e.keyCode == SWT.ESC ) {
-      clearSettings();
-      redraw();
-    }
-
-    if ( e.keyCode == SWT.DEL ) {
-      List<StepMeta> stepMeta = transMeta.getSelectedSteps();
-      if ( stepMeta != null && stepMeta.size() > 0 ) {
-        delSelected( null );
-      }
-    }
-
-    if ( e.keyCode == SWT.F2 ) {
-      // TODO: Bring the properties editor back in
-      // hopUi.editHopPropertiesFile();
-    }
-
     // CTRL-UP : allignTop();
     if ( e.keyCode == SWT.ARROW_UP && ( e.stateMask & SWT.MOD1 ) != 0 ) {
-      alligntop();
+      alignTop();
     }
     // CTRL-DOWN : allignBottom();
     if ( e.keyCode == SWT.ARROW_DOWN && ( e.stateMask & SWT.MOD1 ) != 0 ) {
-      allignbottom();
+      alignBottom();
     }
     // CTRL-LEFT : allignleft();
     if ( e.keyCode == SWT.ARROW_LEFT && ( e.stateMask & SWT.MOD1 ) != 0 ) {
-      allignleft();
+      alignLeft();
     }
     // CTRL-RIGHT : allignRight();
     if ( e.keyCode == SWT.ARROW_RIGHT && ( e.stateMask & SWT.MOD1 ) != 0 ) {
-      allignright();
+      alignRight();
     }
     // ALT-RIGHT : distributeHorizontal();
     if ( e.keyCode == SWT.ARROW_RIGHT && ( e.stateMask & SWT.ALT ) != 0 ) {
-      distributehorizontal();
+      distributeHorizontal();
     }
     // ALT-UP : distributeVertical();
     if ( e.keyCode == SWT.ARROW_UP && ( e.stateMask & SWT.ALT ) != 0 ) {
-      distributevertical();
+      distributeVertical();
     }
     // ALT-HOME : snap to grid
     if ( e.keyCode == SWT.HOME && ( e.stateMask & SWT.ALT ) != 0 ) {
@@ -1851,17 +1852,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
     if ( e.character == 'E' && ( e.stateMask & SWT.CTRL ) != 0 ) {
       checkErrorVisuals();
-    }
-
-    // CTRL-W or CTRL-F4 : close tab
-    if ( ( e.keyCode == 'w' && ( e.stateMask & SWT.MOD1 ) != 0 )
-      || ( e.keyCode == SWT.F4 && ( e.stateMask & SWT.MOD1 ) != 0 ) ) {
-      // hopUi.tabCloseSelected(); TODO: handle tab closing
-    }
-
-    // Auto-layout
-    if ( e.character == 'A' ) {
-      autoLayout();
     }
 
     // SPACE : over a step: show output fields...
@@ -1879,7 +1869,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         inputOutputFields( stepMeta, false );
       }
     }
-
   }
 
   @Override
@@ -3103,27 +3092,80 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     createSnapAllignDistribute().snaptogrid( size );
   }
 
-  public void allignleft() {
+  @GuiToolbarElement(
+    id = TOOLBAR_ITEM_ALIGN_LEFT,
+    type = GuiElementType.TOOLBAR_BUTTON,
+    label = "Left-align selected steps",
+    toolTip = "Align the steps with the left-most step in your selection",
+    image = "ui/images/toolbar/align-left.svg",
+    disabledImage = "ui/images/toolbar/align-left-disabled.svg",
+    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+  )
+  public void alignLeft() {
     createSnapAllignDistribute().allignleft();
   }
 
-  public void allignright() {
+  @GuiToolbarElement(
+    id = TOOLBAR_ITEM_ALIGN_RIGHT,
+    type = GuiElementType.TOOLBAR_BUTTON,
+    label = "Right-align selected steps",
+    toolTip = "Align the steps with the right-most step in your selection",
+    image = "ui/images/toolbar/align-right.svg",
+    disabledImage = "ui/images/toolbar/align-right-disabled.svg",
+    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+  )
+  public void alignRight() {
     createSnapAllignDistribute().allignright();
   }
 
-  public void alligntop() {
+  @GuiToolbarElement(
+    id = TOOLBAR_ITEM_ALIGN_TOP,
+    type = GuiElementType.TOOLBAR_BUTTON,
+    label = "Top-align selected steps",
+    toolTip = "Align the steps with the top-most step in your selection",
+    image = "ui/images/toolbar/align-top.svg",
+    disabledImage = "ui/images/toolbar/align-top-disabled.svg",
+    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+  )
+  public void alignTop() {
     createSnapAllignDistribute().alligntop();
   }
 
-  public void allignbottom() {
+  @GuiToolbarElement(
+    id = TOOLBAR_ITEM_ALIGN_BOTTOM,
+    type = GuiElementType.TOOLBAR_BUTTON,
+    label = "Bottom-align selected steps",
+    toolTip = "Align the steps with the bottom-most step in your selection",
+    image = "ui/images/toolbar/align-bottom.svg",
+    disabledImage = "ui/images/toolbar/align-bottom-disabled.svg",
+    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+  )
+  public void alignBottom() {
     createSnapAllignDistribute().allignbottom();
   }
 
-  public void distributehorizontal() {
+  @GuiToolbarElement(
+    id = TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY,
+    type = GuiElementType.TOOLBAR_BUTTON,
+    label = "Horizontally distribute selected steps",
+    toolTip = "Distribute the selected steps evenly between the left-most and right-most step in your selection",
+    image = "ui/images/toolbar/distribute-horizontally.svg",
+    disabledImage = "ui/images/toolbar/distribute-horizontally-disabled.svg",
+    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+  )
+  public void distributeHorizontal() {
     createSnapAllignDistribute().distributehorizontal();
   }
 
-  public void distributevertical() {
+  @GuiToolbarElement(
+    id = TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY,
+    type = GuiElementType.TOOLBAR_BUTTON,
+    label = "Vertically distribute selected steps",
+    toolTip = "Distribute the selected steps evenly between the top-most and bottom-most step in your selection",
+    image = "ui/images/toolbar/distribute-vertically.svg",
+    disabledImage = "ui/images/toolbar/distribute-vertically-disabled.svg",
+    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+  )public void distributeVertical() {
     createSnapAllignDistribute().distributevertical();
   }
 
@@ -3144,7 +3186,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
   @GuiToolbarElement(
     type = GuiElementType.TOOLBAR_BUTTON,
-    id = "HopGuiTransGraph-ToolBar-10040-Preview",
+    id = TOOLBAR_ITEM_PREVIEW,
     label = "Preview",
     toolTip = "Preview the transformation",
     image = "ui/images/preview.svg",
@@ -3162,7 +3204,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
   @GuiToolbarElement(
     type = GuiElementType.TOOLBAR_BUTTON,
-    id = "HopGuiTransGraph-ToolBar-10045-Debug",
+    id = TOOLBAR_ITEM_DEBUG,
     label = "Debug",
     toolTip = "Debug the transformation",
     image = "ui/images/debug.svg",
@@ -3374,7 +3416,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
   @GuiToolbarElement(
     type = GuiElementType.TOOLBAR_BUTTON,
-    id = "HopGuiTransGraph-ToolBar-10010-Run",
+    id = TOOLBAR_ITEM_START,
     label = "Start",
     toolTip = "Start the execution of the transformation",
     image = "ui/images/toolbar/run.svg",
@@ -3404,8 +3446,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
   @Override
   @GuiToolbarElement(
+    id = TOOLBAR_ITEM_PAUSE,
     type = GuiElementType.TOOLBAR_BUTTON,
-    id = "HopGuiTransGraph-ToolBar-10020-Pause",
     label = "Pause",
     toolTip = "Pause the execution of the transformation",
     image = "ui/images/toolbar/pause.svg",
@@ -3415,32 +3457,25 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     pauseResume();
   }
 
-  /*
-  public void runOptionsTransformation() {
-    hopUi.runOptionsFile();
-  }
-  */
-  /*
-  public void debugFile() {
-    hopUi.debugFile();
-  }
-
-  public void transReplay() {
-    hopUi.replayTransformation();
-  }
-
+  /* TODO: re-introduce
   public void checkTrans() {
     hopUi.checkTrans();
   }
+  */
 
+  /** TODO: re-introduce
   public void analyseImpact() {
     hopUi.analyseImpact();
   }
+   */
 
+   /** TODO: re-introduce
   public void getSQL() {
     hopUi.getSQL();
   }
+    */
 
+   /* TODO: re-introduce
   public void exploreDatabase() {
     hopUi.exploreDatabase();
   }
@@ -3450,8 +3485,15 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     return extraViewComposite != null && !extraViewComposite.isDisposed();
   }
 
-  public void showExecutionResults() {
-
+  @GuiToolbarElement(
+    id = TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS,
+    type = GuiElementType.TOOLBAR_BUTTON,
+    label = "Execution results",
+    toolTip = "Show or hide the execution panel",
+    image = "ui/images/show-results.svg",
+    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+    separator = true
+  )  public void showExecutionResults() {
     if ( isExecutionResultsPaneVisible() ) {
       disposeExtraView();
     } else {
@@ -3885,8 +3927,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   }
 
   @GuiToolbarElement(
+    id = TOOLBAR_ITEM_STOP,
     type = GuiElementType.TOOLBAR_BUTTON,
-    id = "HopGuiTransGraph-ToolBar-10030-Stop",
     label = "Stop",
     toolTip = "Stop the execution of the transformation",
     image = "ui/images/toolbar/stop.svg",
@@ -4492,185 +4534,10 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     return tabName;
   }
 
-  private class StepVelocity {
-    public StepVelocity( double dx, double dy ) {
-      this.dx = dx;
-      this.dy = dy;
-    }
-
-    public double dx, dy;
-  }
-
-  private class StepLocation {
-    public StepLocation( double x, double y ) {
-      this.x = x;
-      this.y = y;
-    }
-
-    public double x, y;
-
-    public void add( StepLocation loc ) {
-      x += loc.x;
-      y += loc.y;
-    }
-  }
-
-  private class Force {
-    public Force( double fx, double fy ) {
-      this.fx = fx;
-      this.fy = fy;
-    }
-
-    public double fx, fy;
-
-    public void add( Force force ) {
-      fx += force.fx;
-      fy += force.fy;
-    }
-  }
-
-  private static double dampningConstant = 0.5;
-  // private static double springConstant = 1.0;
-  private static double timeStep = 1.0;
-  private static double nodeMass = 1.0;
-
-  /**
-   * Perform an automatic layout of a transformation based on "Force-based algorithms". Source:
-   * http://en.wikipedia.org/wiki/Force-based_algorithms_(graph_drawing)
-   * <p/>
-   * set up initial node velocities to (0,0) set up initial node positions randomly // make sure no 2 nodes are in
-   * exactly the same position loop total_kinetic_energy := 0 // running sum of total kinetic energy over all particles
-   * for each node net-force := (0, 0) // running sum of total force on this particular node
-   * <p/>
-   * for each other node net-force := net-force + Coulomb_repulsion( this_node, other_node ) next node
-   * <p/>
-   * for each spring connected to this node net-force := net-force + Hooke_attraction( this_node, spring ) next spring
-   * <p/>
-   * // without damping, it moves forever this_node.velocity := (this_node.velocity + timestep * net-force) * damping
-   * this_node.position := this_node.position + timestep * this_node.velocity total_kinetic_energy :=
-   * total_kinetic_energy + this_node.mass * (this_node.velocity)^2 next node until total_kinetic_energy is less than
-   * some small number // the simulation has stopped moving
-   */
-  public void autoLayout() {
-    // Initialize...
-    //
-    Map<StepMeta, StepVelocity> speeds = new HashMap<>();
-    Map<StepMeta, StepLocation> locations = new HashMap<>();
-    for ( StepMeta stepMeta : transMeta.getSteps() ) {
-      speeds.put( stepMeta, new StepVelocity( 0, 0 ) );
-      StepLocation location = new StepLocation( stepMeta.getLocation().x, stepMeta.getLocation().y );
-      locations.put( stepMeta, location );
-    }
-    StepLocation center = calculateCenter( locations );
-
-    // Layout loop!
-    //
-    double totalKineticEngergy = 0;
-    do {
-      totalKineticEngergy = 0;
-
-      for ( StepMeta stepMeta : transMeta.getSteps() ) {
-        Force netForce = new Force( 0, 0 );
-        StepVelocity velocity = speeds.get( stepMeta );
-        StepLocation location = locations.get( stepMeta );
-
-        for ( StepMeta otherStep : transMeta.getSteps() ) {
-          if ( !stepMeta.equals( otherStep ) ) {
-            netForce.add( getCoulombRepulsion( stepMeta, otherStep, locations ) );
-          }
-        }
-
-        for ( int i = 0; i < transMeta.nrTransHops(); i++ ) {
-          TransHopMeta hopMeta = transMeta.getTransHop( i );
-          if ( hopMeta.getFromStep().equals( stepMeta ) || hopMeta.getToStep().equals( stepMeta ) ) {
-            netForce.add( getHookeAttraction( hopMeta, locations ) );
-          }
-        }
-
-        adjustVelocity( velocity, netForce );
-        adjustLocation( location, velocity );
-        totalKineticEngergy += nodeMass * ( velocity.dx * velocity.dx + velocity.dy * velocity.dy );
-      }
-
-      StepLocation newCenter = calculateCenter( locations );
-      StepLocation diff = new StepLocation( center.x - newCenter.x, center.y - newCenter.y );
-      for ( StepMeta stepMeta : transMeta.getSteps() ) {
-        StepLocation location = locations.get( stepMeta );
-        location.x += diff.x;
-        location.y += diff.y;
-        stepMeta.setLocation( (int) Math.round( location.x ), (int) Math.round( location.y ) );
-      }
-
-      // redraw...
-      //
-      redraw();
-
-    } while ( totalKineticEngergy < 0.01 );
-  }
-
-  private StepLocation calculateCenter( Map<StepMeta, StepLocation> locations ) {
-    StepLocation center = new StepLocation( 0, 0 );
-    for ( StepLocation location : locations.values() ) {
-      center.add( location );
-    }
-    center.x /= locations.size();
-    center.y /= locations.size();
-    return center;
-  }
-
-  /**
-   * http://en.wikipedia.org/wiki/Coulomb's_law
-   *
-   * @param step1
-   * @param step2
-   * @param locations
-   * @return
-   */
-  private Force getCoulombRepulsion( StepMeta step1, StepMeta step2, Map<StepMeta, StepLocation> locations ) {
-    double q1 = 4.0;
-    double q2 = 4.0;
-    double Ke = -3.0;
-    StepLocation loc1 = locations.get( step1 );
-    StepLocation loc2 = locations.get( step2 );
-
-    double fx = Ke * q1 * q2 / Math.abs( loc1.x - loc2.x );
-    double fy = Ke * q1 * q2 / Math.abs( loc1.y - loc2.y );
-
-    return new Force( fx, fy );
-  }
-
-  /**
-   * The longer the hop, the higher the force
-   *
-   * @param hopMeta
-   * @param locations
-   * @return
-   */
-  private Force getHookeAttraction( TransHopMeta hopMeta, Map<StepMeta, StepLocation> locations ) {
-    StepLocation loc1 = locations.get( hopMeta.getFromStep() );
-    StepLocation loc2 = locations.get( hopMeta.getToStep() );
-    double springConstant = 0.01;
-
-    double fx = springConstant * Math.abs( loc1.x - loc2.x );
-    double fy = springConstant * Math.abs( loc1.y - loc2.y );
-
-    return new Force( fx * fx, fy * fy );
-  }
-
-  private void adjustVelocity( StepVelocity velocity, Force netForce ) {
-    velocity.dx = ( velocity.dx + timeStep * netForce.fx ) * dampningConstant;
-    velocity.dy = ( velocity.dy + timeStep * netForce.fy ) * dampningConstant;
-  }
-
-  private void adjustLocation( StepLocation location, StepVelocity velocity ) {
-    location.x = location.x + nodeMass * velocity.dx * velocity.dx;
-    location.y = location.y + nodeMass * velocity.dy * velocity.dy;
-  }
-
   public void handleTransMetaChanges( TransMeta transMeta ) throws HopException {
     if ( transMeta.hasChanged() ) {
       if ( hopUi.getProps().getAutoSave() ) {
-        // hopUi.saveToFile( transMeta ); TODO: Do generic file save/load
+        save();
       } else {
         MessageDialogWithToggle md =
           new MessageDialogWithToggle( shell, BaseMessages.getString( PKG, "TransLog.Dialog.FileHasChanged.Title" ),
@@ -4682,7 +4549,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
         int answer = md.open();
         if ( ( answer & 0xFF ) == 0 ) {
-          // hopUi.saveToFile( transMeta ); TODO: Do generic file save/load
+          save();
         }
         hopUi.getProps().setAutoSave( md.getToggleState() );
       }
@@ -4858,20 +4725,20 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
     setZoomLabel();
 
-    boolean hasUndo = transMeta.viewThisUndo() != null;
-    ToolItem undoItem = toolBarWidgets.getToolItemMap().get( TOOLBAR_ITEM_UNDO_ID );
-    if ( undoItem != null ) {
-      undoItem.setEnabled( hasUndo );
-    } else {
-      LogChannel.UI.logError( "Undo icon not found in the transformation graph tab toolbar" );
-    }
-    boolean hasRedo = transMeta.viewNextUndo() != null;
-    ToolItem redoItem = toolBarWidgets.getToolItemMap().get( TOOLBAR_ITEM_REDO_ID );
-    if ( redoItem != null ) {
-      redoItem.setEnabled( hasRedo );
-    } else {
-      LogChannel.UI.logError( "Redo icon not found in the transformation graph tab toolbar" );
-    }
+    // Enable/disable the undo/redo toolbar buttons...
+    //
+    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_UNDO_ID, transMeta.viewThisUndo() != null );
+    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_REDO_ID, transMeta.viewNextUndo() != null );
+
+    // Enable/disable the align/distribute toolbar buttons
+    //
+    boolean selectedSteps = !transMeta.getSelectedSteps().isEmpty();
+    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_LEFT, selectedSteps );
+    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_RIGHT, selectedSteps );
+    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_TOP, selectedSteps );
+    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_BOTTOM, selectedSteps );
+    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY, selectedSteps );
+    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY, selectedSteps );
 
     hopUi.setUndoMenu( transMeta );
     hopUi.handleFileCapabilities( fileType );
@@ -4896,7 +4763,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
   @GuiKeyboardShortcut( key = SWT.ESC )
   @Override public void unselectAll() {
-    transMeta.unselectAll();
+    clearSettings();
     updateGui();
   }
 
@@ -4927,8 +4794,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   @GuiKeyboardShortcut( control = true, key = 'v' )
   @GuiOSXKeyboardShortcut( command = true, key = 'v' )
   @Override public void pasteFromClipboard() {
-    final String clipcontent = transClipboardDelegate.fromClipboard();
+    final String clipboard = transClipboardDelegate.fromClipboard();
     Point loc = new Point( currentMouseX, currentMouseY );
-    transClipboardDelegate.pasteXML( transMeta, clipcontent, loc );
+    transClipboardDelegate.pasteXML( transMeta, clipboard, loc );
   }
 }

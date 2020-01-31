@@ -30,14 +30,24 @@
     <classname>org.apache.hop.ui.hopgui.perspective.search.HopSearchPlugin</classname>
   </gui-plugin>
 
-  <gui-plugin id="HopGui-TransGraph-Tabs">
+  <gui-plugin id="TransGraph-Tabs">
     <description>Transformation Graph tab</description>
     <classname>org.apache.hop.ui.hopgui.file.trans.HopGuiTransGraph</classname>
   </gui-plugin>
 
-  <gui-plugin id="HopGui-TransGraph-PreviewDelegate">
+  <gui-plugin id="TransGraph-PreviewDelegate">
     <description>Transformation Graph Preview Delegate</description>
     <classname>org.apache.hop.ui.hopgui.file.trans.HopGuiTransPreviewDelegate</classname>
+  </gui-plugin>
+
+  <gui-plugin id="HopGuiTransGridDelegate">
+    <description>Transformation Graph Grid Delegate</description>
+    <classname>org.apache.hop.ui.hopgui.file.trans.HopGuiTransGridDelegate</classname>
+  </gui-plugin>
+
+  <gui-plugin id="HopGuiTransLogDelegate">
+    <description>Transformation Graph Log Delegate</description>
+    <classname>org.apache.hop.ui.hopgui.file.trans.HopGuiTransLogDelegate</classname>
   </gui-plugin>
 
 

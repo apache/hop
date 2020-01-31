@@ -131,7 +131,7 @@ public class TransExecutionConfigurationDialog extends ConfigurationDialog {
 
   private void getVariablesData() {
     wVariables.clearAll( false );
-    List<String> variableNames = new ArrayList<String>( configuration.getVariables().keySet() );
+    List<String> variableNames = new ArrayList<>( configuration.getVariables().keySet() );
     Collections.sort( variableNames );
 
     for ( int i = 0; i < variableNames.size(); i++ ) {

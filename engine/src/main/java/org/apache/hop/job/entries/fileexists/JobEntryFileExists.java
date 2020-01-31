@@ -164,7 +164,6 @@ public class JobEntryFileExists extends JobEntryBase implements Cloneable, JobEn
    * @param space           The variable space to resolve (environment) variables with.
    * @param definitions     The map containing the filenames and content
    * @param namingInterface The resource naming interface allows the object to be named appropriately
-   * @param repository      The repository to load resources from
    * @param metaStore       the metaStore to load external metadata from
    * @return The filename for this object. (also contained in the definitions map)
    * @throws HopException in case something goes wrong during the export

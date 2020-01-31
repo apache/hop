@@ -63,7 +63,6 @@ public class ConcatFieldsMeta extends TextFileOutputMeta implements StepMetaInte
 
   private static Class<?> PKG = ConcatFieldsMeta.class; // for i18n purposes, needed by Translator2!!
 
-  // have a different namespace in repository in contrast to the TextFileOutput
   private static final String ConcatFieldsNodeNameSpace = "ConcatFields";
 
   private String targetFieldName; // the target field name

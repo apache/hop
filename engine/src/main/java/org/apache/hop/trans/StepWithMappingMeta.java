@@ -109,7 +109,7 @@ public abstract class StepWithMappingMeta extends BaseSerializingMeta implements
       // Don't set internal variables: they belong to the parent thread!
       if ( mappingTransMeta == null ) {
         mappingTransMeta = new TransMeta( realFilename, metaStore, true, tmpSpace );
-        LogChannel.GENERAL.logDetailed( "Loading transformation from repository", "Transformation was loaded from XML file [" + realFilename + "]" );
+        LogChannel.GENERAL.logDetailed( "Loading transformation", "Transformation was loaded from XML file [" + realFilename + "]" );
       }
     } catch ( Exception e ) {
       throw new HopException( BaseMessages.getString( PKG, "StepWithMappingMeta.Exception.UnableToLoadTrans" ), e );
@@ -220,7 +220,7 @@ public abstract class StepWithMappingMeta extends BaseSerializingMeta implements
                                  ResourceNamingInterface resourceNamingInterface,
                                  IMetaStore metaStore ) throws HopException {
     try {
-      // Try to load the transformation from repository or file.
+      // Try to load the transformation from a file.
       // Modify this recursively too...
       //
       // NOTE: there is no need to clone this step because the caller is

@@ -427,7 +427,7 @@ public class JobEntryFTPSPUT extends JobEntryBase implements Cloneable, JobEntry
 
       realRemoteDirectory = Const.NVL( realRemoteDirectory, FTPSConnection.HOME_FOLDER );
 
-      ArrayList<String> myFileList = new ArrayList<String>();
+      ArrayList<String> myFileList = new ArrayList<>();
       File localFiles = new File( realLocalDirectory );
 
       if ( !localFiles.exists() ) {

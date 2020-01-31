@@ -113,7 +113,7 @@ public class ValueMetaFactory {
   }
 
   public static String[] getValueMetaNames() {
-    List<String> strings = new ArrayList<String>();
+    List<String> strings = new ArrayList<>();
     List<PluginInterface> plugins = pluginRegistry.getPlugins( ValueMetaPluginType.class );
     for ( PluginInterface plugin : plugins ) {
       int id = Integer.valueOf( plugin.getIds()[ 0 ] );
@@ -125,7 +125,7 @@ public class ValueMetaFactory {
   }
 
   public static String[] getAllValueMetaNames() {
-    List<String> strings = new ArrayList<String>();
+    List<String> strings = new ArrayList<>();
     List<PluginInterface> plugins = pluginRegistry.getPlugins( ValueMetaPluginType.class );
     for ( PluginInterface plugin : plugins ) {
       String id = plugin.getIds()[ 0 ];

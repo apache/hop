@@ -86,9 +86,8 @@ public class MemoryGroupByMetaTest implements InitializerInterface<MemoryGroupBy
 
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
-    loadSaveTester =
-      new LoadSaveTester<MemoryGroupByMeta>( testMetaClass, attributes, new ArrayList<String>(), new ArrayList<String>(),
-        new HashMap<String, String>(), new HashMap<String, String>(), attrValidatorMap, typeValidatorMap, this );
+    loadSaveTester = new LoadSaveTester<MemoryGroupByMeta>( testMetaClass, attributes, new ArrayList<>(),
+        new HashMap<>(), new HashMap<>(), attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class

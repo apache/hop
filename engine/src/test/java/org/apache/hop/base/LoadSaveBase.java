@@ -54,23 +54,21 @@ public abstract class LoadSaveBase<T> {
 
   final Class<T> clazz;
   protected final List<String> xmlAttributes;
-  protected final List<String> repoAttributes;
   protected final JavaBeanManipulator<T> manipulator;
   protected final FieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory;
   protected final InitializerInterface<T> initializer;
   protected IMetaStore metaStore;
 
   public LoadSaveBase( Class<T> clazz,
-                       List<String> commonAttributes, List<String> xmlAttributes, List<String> repoAttributes,
+                       List<String> commonAttributes, List<String> xmlAttributes,
                        Map<String, String> getterMap, Map<String, String> setterMap,
                        Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
                        Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
                        InitializerInterface<T> initializer ) {
     this.clazz = clazz;
     this.xmlAttributes = concat( commonAttributes, xmlAttributes );
-    this.repoAttributes = concat( commonAttributes, repoAttributes );
     this.manipulator =
-      new JavaBeanManipulator<T>( clazz, concat( this.xmlAttributes, repoAttributes ), getterMap, setterMap );
+      new JavaBeanManipulator<T>( clazz, this.xmlAttributes, getterMap, setterMap );
     this.initializer = initializer;
 
     Map<Getter<?>, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorMethodMap =
@@ -84,17 +82,17 @@ public abstract class LoadSaveBase<T> {
   }
 
   public LoadSaveBase( Class<T> clazz,
-                       List<String> commonAttributes, List<String> xmlAttributes, List<String> repoAttributes,
+                       List<String> commonAttributes, List<String> xmlAttributes,
                        Map<String, String> getterMap, Map<String, String> setterMap,
                        Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
                        Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
-    this( clazz, commonAttributes, xmlAttributes, repoAttributes, getterMap, setterMap,
+    this( clazz, commonAttributes, xmlAttributes, getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap, null );
   }
 
   public LoadSaveBase( Class<T> clazz, List<String> commonAttributes ) {
-    this( clazz, commonAttributes, new ArrayList<String>(), new ArrayList<String>(),
-      new HashMap<String, String>(), new HashMap<String, String>(),
+    this( clazz, commonAttributes, new ArrayList<>(),
+      new HashMap<>(), new HashMap<>(),
       new HashMap<String, FieldLoadSaveValidator<?>>(), new HashMap<String, FieldLoadSaveValidator<?>>() );
   }
 

@@ -769,13 +769,12 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
         for ( Node node : nodes ) {
           String key = XMLHandler.getTagAttribute( node, "id" );
           String xmlCode = XMLHandler.getTagValue( node, "xmlcode" );
-          String repCode = XMLHandler.getTagValue( node, "repcode" );
           String description = XMLHandler.getTagValue( node, "description" );
           String tooltip = XMLHandler.getTagValue( node, "tooltip" );
           int valueType = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( node, "valuetype" ) );
           String parentId = XMLHandler.getTagValue( node, "parentid" );
 
-          HopAttribute attribute = new HopAttribute( key, xmlCode, repCode, description, tooltip, valueType, findParent( attributes, parentId ) );
+          HopAttribute attribute = new HopAttribute( key, xmlCode, description, tooltip, valueType, findParent( attributes, parentId ) );
           attributes.add( attribute );
         }
       }
@@ -825,17 +824,6 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
   @Override
   public String getXmlCode( String attributeKey ) {
     return findAttribute( attributeKey ).getXmlCode();
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.trans.step.StepAttributesInterface#getRepCode(java.lang.String)
-   */
-  @Override
-  public String getRepCode( String attributeKey ) {
-    HopAttributeInterface attr = findAttribute( attributeKey );
-    return Utils.isEmpty( attr.getRepCode() ) ? attr.getXmlCode() : attr.getRepCode();
   }
 
   /*

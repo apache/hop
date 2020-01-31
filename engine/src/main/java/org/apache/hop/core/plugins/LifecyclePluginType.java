@@ -31,7 +31,7 @@ import java.lang.annotation.Annotation;
 import java.util.Map;
 
 /**
- * This class represents the repository plugin type.
+ * This class represents the lifecycle plugin type.
  *
  * @author matt
  */

@@ -91,7 +91,6 @@ public class PropsUI extends Props {
 
   protected List<LastUsedFile> lastUsedFiles;
   protected List<LastUsedFile> openTabFiles;
-  protected Map<String, List<LastUsedFile>> lastUsedRepoFiles;
 
   private Hashtable<String, WindowProperty> screens;
 
@@ -207,7 +206,6 @@ public class PropsUI extends Props {
 
     loadScreens();
     loadLastUsedFiles();
-    loadLastUsedRepoFiles();
     loadOpenTabFiles();
     resetRecentSearches();
 
@@ -242,7 +240,6 @@ public class PropsUI extends Props {
     RGB col;
 
     lastUsedFiles = new ArrayList<LastUsedFile>();
-    lastUsedRepoFiles = new LinkedHashMap<>();
     openTabFiles = new ArrayList<LastUsedFile>();
     screens = new Hashtable<String, WindowProperty>();
 
@@ -358,7 +355,6 @@ public class PropsUI extends Props {
   public void saveProps() {
     storeScreens();
     setLastFiles();
-    setLastUsedRepoFiles();
     setOpenTabFiles();
 
     super.saveProps();
@@ -372,26 +368,6 @@ public class PropsUI extends Props {
       properties.setProperty( "filetype" + ( i + 1 ), Const.NVL( lastUsedFile.getFileType(),
         LastUsedFile.FILE_TYPE_TRANSFORMATION ) );
       properties.setProperty( "lastfile" + ( i + 1 ), Const.NVL( lastUsedFile.getFilename(), "" ) );
-    }
-  }
-
-  public void setLastUsedRepoFiles() {
-    int lastRepoFiles = 0;
-    for ( String repoName : lastUsedRepoFiles.keySet() ) {
-      lastRepoFiles += lastUsedRepoFiles.get( repoName ).size();
-    }
-    properties.setProperty( "lastrepofiles", "" + lastRepoFiles );
-    int i = 0;
-    for ( String repoName : lastUsedRepoFiles.keySet() ) {
-      for ( LastUsedFile lastUsedFile : lastUsedRepoFiles.get( repoName ) ) {
-        properties.setProperty( "repofiletype" + ( i + 1 ), Const.NVL( lastUsedFile.getFileType(),
-          LastUsedFile.FILE_TYPE_TRANSFORMATION ) );
-        properties.setProperty( "repolastfile" + ( i + 1 ), Const.NVL( lastUsedFile.getFilename(), "" ) );
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
-        properties.setProperty( "repolastdate" + ( i + 1 ),
-          Const.NVL( simpleDateFormat.format( lastUsedFile.getLastOpened() ), "" ) );
-        i++;
-      }
     }
   }
 
@@ -467,53 +443,17 @@ public class PropsUI extends Props {
     }
   }
 
-  public void loadLastUsedRepoFiles() {
-    lastUsedRepoFiles = new LinkedHashMap<>();
-    int nr = Const.toInt( properties.getProperty( "lastrepofiles" ), 0 );
-    for ( int i = 0; i < nr; i++ ) {
-      String fileType = properties.getProperty( "repofiletype" + ( i + 1 ), LastUsedFile.FILE_TYPE_TRANSFORMATION );
-      String filename = properties.getProperty( "repolastfile" + ( i + 1 ), "" );
-      String directory = properties.getProperty( "repolastdir" + ( i + 1 ), "" );
-      boolean sourceRepository = YES.equalsIgnoreCase( properties.getProperty( "repolasttype" + ( i + 1 ), NO ) );
-      String repositoryName = properties.getProperty( "repolastrepo" + ( i + 1 ) );
-      String username = properties.getProperty( "repolastuser" + ( i + 1 ) );
-      boolean isOpened = YES.equalsIgnoreCase( properties.getProperty( "repolastopened" + ( i + 1 ), NO ) );
-      int openItemTypes = Const.toInt( properties.getProperty( "repolastopentypes" + ( i + 1 ), "0" ), 0 );
-      Date lastOpened = null;
-      SimpleDateFormat simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
-      try {
-        String repoLastDate = properties.getProperty( "repolastdate" + ( i + 1 ) );
-        if ( repoLastDate != null ) {
-          lastOpened = simpleDateFormat.parse( repoLastDate );
-        }
-      } catch ( ParseException pe ) {
-        // Default of null is acceptable
-      }
-
-      List<LastUsedFile> lastUsedFiles = lastUsedRepoFiles.getOrDefault( repositoryName + ":" + username, new ArrayList<>() );
-      lastUsedFiles.add( new LastUsedFile( fileType, filename, isOpened, openItemTypes, lastOpened ) );
-      lastUsedRepoFiles.put( repositoryName + ":" + username, lastUsedFiles );
-    }
-  }
-
   public void loadOpenTabFiles() {
     openTabFiles = new ArrayList<LastUsedFile>();
     int nr = Const.toInt( properties.getProperty( "tabfiles" ), 0 );
     for ( int i = 0; i < nr; i++ ) {
       String fileType = properties.getProperty( "tabtype" + ( i + 1 ), LastUsedFile.FILE_TYPE_TRANSFORMATION );
       String filename = properties.getProperty( "tabfile" + ( i + 1 ), "" );
-      String directory = properties.getProperty( "tabdir" + ( i + 1 ), "" );
-      boolean sourceRepository = YES.equalsIgnoreCase( properties.getProperty( "tabrep" + ( i + 1 ), NO ) );
-      String repositoryName = properties.getProperty( "tabrepname" + ( i + 1 ) );
       boolean isOpened = YES.equalsIgnoreCase( properties.getProperty( "tabopened" + ( i + 1 ), NO ) );
       int openItemTypes = Const.toInt( properties.getProperty( "tabopentypes" + ( i + 1 ), "0" ), 0 );
 
       openTabFiles.add( new LastUsedFile( fileType, filename, isOpened, openItemTypes, new Date() ) );
     }
-  }
-
-  public Map<String, List<LastUsedFile>> getLastUsedRepoFiles() {
-    return lastUsedRepoFiles;
   }
 
   public List<LastUsedFile> getLastUsedFiles() {

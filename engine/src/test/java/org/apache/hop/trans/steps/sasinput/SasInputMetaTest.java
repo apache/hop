@@ -52,7 +52,7 @@ public class SasInputMetaTest {
     List<String> attributes =
       Arrays.asList( "acceptingField", "outputFields" );
 
-    Map<String, String> gsMap = new HashMap<String, String>();
+    Map<String, String> gsMap = new HashMap<>();
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "outputFields",

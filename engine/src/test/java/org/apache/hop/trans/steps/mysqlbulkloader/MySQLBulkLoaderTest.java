@@ -81,7 +81,7 @@ public class MySQLBulkLoaderTest {
     TransMeta transMeta = new TransMeta();
     transMeta.setName( "MysqlBulkLoader" );
 
-    Map<String, String> vars = new HashMap<String, String>();
+    Map<String, String> vars = new HashMap<>();
     vars.put( "delim", "," );
     vars.put( "enclos", "'" );
     vars.put( "charset", "UTF8" );

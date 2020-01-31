@@ -583,7 +583,7 @@ public class DataGridDialog extends BaseStepDialog implements StepDialogInterfac
     int nrFields = meta.getFieldName().length;
 
     for ( int i = 0; i < nrLines; i++ ) {
-      List<String> line = new ArrayList<String>();
+      List<String> line = new ArrayList<>();
       TableItem item = wData.table.getItem( i );
       for ( int f = 0; f < nrFields; f++ ) {
         line.add( item.getText( f + 1 ) );

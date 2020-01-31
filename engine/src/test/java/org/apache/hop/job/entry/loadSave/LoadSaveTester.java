@@ -39,21 +39,21 @@ import java.util.Map;
 public class LoadSaveTester<T extends JobEntryInterface> extends LoadSaveBase<T> {
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes,
-                         List<String> xmlAttributes, List<String> repoAttributes, Map<String, String> getterMap,
+                         List<String> xmlAttributes, Map<String, String> getterMap,
                          Map<String, String> setterMap,
                          Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
                          Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
                          JobEntryInitializer<T> jobEntryInitializer ) {
-    super( clazz, commonAttributes, xmlAttributes, repoAttributes, getterMap, setterMap,
+    super( clazz, commonAttributes, xmlAttributes, getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap );
   }
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes,
-                         List<String> xmlAttributes, List<String> repoAttributes, Map<String, String> getterMap,
+                         List<String> xmlAttributes, Map<String, String> getterMap,
                          Map<String, String> setterMap,
                          Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
                          Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
-    this( clazz, commonAttributes, xmlAttributes, repoAttributes, getterMap, setterMap,
+    this( clazz, commonAttributes, xmlAttributes, getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap, null );
   }
 
@@ -61,20 +61,20 @@ public class LoadSaveTester<T extends JobEntryInterface> extends LoadSaveBase<T>
                          Map<String, String> getterMap, Map<String, String> setterMap,
                          Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
                          Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap ) {
-    this( clazz, commonAttributes, Arrays.<String>asList(), Arrays.<String>asList(), getterMap, setterMap,
+    this( clazz, commonAttributes, Arrays.<String>asList(), getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap );
   }
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes,
-                         List<String> xmlAttributes, List<String> repoAttributes, Map<String, String> getterMap,
+                         List<String> xmlAttributes, Map<String, String> getterMap,
                          Map<String, String> setterMap ) {
-    this( clazz, commonAttributes, xmlAttributes, repoAttributes, getterMap, setterMap,
+    this( clazz, commonAttributes, xmlAttributes, getterMap, setterMap,
       new HashMap<String, FieldLoadSaveValidator<?>>(), new HashMap<String, FieldLoadSaveValidator<?>>() );
   }
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes,
                          Map<String, String> getterMap, Map<String, String> setterMap ) {
-    this( clazz, commonAttributes, Arrays.<String>asList(), Arrays.<String>asList(), getterMap, setterMap,
+    this( clazz, commonAttributes, Arrays.<String>asList(), getterMap, setterMap,
       new HashMap<String, FieldLoadSaveValidator<?>>(), new HashMap<String, FieldLoadSaveValidator<?>>() );
   }
 

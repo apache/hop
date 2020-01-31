@@ -25,7 +25,7 @@ package org.apache.hop.core;
 public interface HopAttributeInterface {
 
   /**
-   * @return the key for this attribute, usually the repository code.
+   * @return the key for this attribute
    */
   public String getKey();
 
@@ -33,11 +33,6 @@ public interface HopAttributeInterface {
    * @return the xmlCode
    */
   public String getXmlCode();
-
-  /**
-   * @return the repCode
-   */
-  public String getRepCode();
 
   /**
    * @return the description

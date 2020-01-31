@@ -563,11 +563,9 @@ public class Mapping extends BaseStep implements StepInterface {
     }
     // First we need to load the mapping (transformation)
     try {
-      // Pass the repository down to the metadata object...
+      // Pass the MetaStore down to the metadata object...
       //
-      mappingData.mappingTransMeta = MappingMeta.loadMappingMeta( meta,
-        meta.getMetaStore(), this, meta.getMappingParameters().isInheritingAllVariables() );
-
+      mappingData.mappingTransMeta = MappingMeta.loadMappingMeta( meta, meta.getMetaStore(), this, meta.getMappingParameters().isInheritingAllVariables() );
       if ( data.mappingTransMeta == null ) {
         // Do we have a mapping at all?
         logError( "No valid mapping was specified!" );

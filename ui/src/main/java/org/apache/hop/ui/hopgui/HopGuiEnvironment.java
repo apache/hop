@@ -1,7 +1,6 @@
 package org.apache.hop.ui.hopgui;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.GuiElementMethod;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;

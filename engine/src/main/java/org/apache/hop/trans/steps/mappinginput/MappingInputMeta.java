@@ -278,7 +278,7 @@ public class MappingInputMeta extends BaseStepMeta implements StepMetaInterface 
         // Sort the fields
         // Add them after the specified fields...
         //
-        List<String> extra = new ArrayList<String>();
+        List<String> extra = new ArrayList<>();
         for ( int i = 0; i < inputRowMeta.size(); i++ ) {
           String fieldName = inputRowMeta.getValueMeta( i ).getName();
           if ( newRow.indexOfValue( fieldName ) < 0 ) {

@@ -72,7 +72,6 @@ public class PostgreSQLDatabaseMetaTest {
     assertTrue( nativeMeta.supportsSequenceNoMaxValueOption() );
     assertTrue( nativeMeta.supportsAutoInc() );
     assertEquals( " limit 5", nativeMeta.getLimitClause( 5 ) );
-    assertFalse( nativeMeta.needsToLockAllTables() );
     assertArrayEquals( new String[] {
       // http://www.postgresql.org/docs/8.1/static/sql-keywords-appendix.html
       // added also non-reserved key words because there is progress from the Postgre developers to add them
@@ -146,7 +145,6 @@ public class PostgreSQLDatabaseMetaTest {
       "VARYING", "VAR_POP", "VAR_SAMP", "VERBOSE", "VIEW", "VOLATILE", "WHEN", "WHENEVER", "WHERE", "WIDTH_BUCKET",
       "WINDOW", "WITH", "WITHIN", "WITHOUT", "WORK", "WRITE", "YEAR", "ZONE" }, nativeMeta.getReservedWords() );
 
-    assertTrue( nativeMeta.supportsRepository() );
     assertFalse( nativeMeta.isDefaultingToUppercase() );
     assertEquals( "http://jdbc.postgresql.org/documentation/83/connect.html#connection-parameters", nativeMeta.getExtraOptionsHelpText() );
     assertFalse( nativeMeta.supportsErrorHandlingOnBatchUpdates() );

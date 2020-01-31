@@ -1101,7 +1101,7 @@ public class PluginRegistry {
 
       // Register the plugin using the metadata in the annotation
       //
-      pluginType.handlePluginAnnotation( pluginClass, annotation, new ArrayList<String>(), true, null );
+      pluginType.handlePluginAnnotation( pluginClass, annotation, new ArrayList<>(), true, null );
     } catch ( ClassNotFoundException e ) {
       throw new HopPluginException( "Sorry, the plugin class you want to register '" + pluginClassName + "' can't be found in the classpath", e );
     }

@@ -90,7 +90,7 @@ public class StaxPoiSheet implements KSheet {
     sheetStream = reader.getSheet( sheetID );
     XMLInputFactory factory = XMLInputFactory.newInstance();
     sheetReader = factory.createXMLStreamReader( sheetStream );
-    headerRow = new ArrayList<String>();
+    headerRow = new ArrayList<>();
     while ( sheetReader.hasNext() ) {
       int event = sheetReader.next();
       if ( event == XMLStreamConstants.START_ELEMENT && sheetReader.getLocalName().equals( "dimension" ) ) {

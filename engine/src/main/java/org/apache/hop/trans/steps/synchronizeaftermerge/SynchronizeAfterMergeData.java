@@ -52,7 +52,7 @@ public class SynchronizeAfterMergeData extends BaseStepData implements StepDataI
 
   public int indexOfOperationOrderField;
 
-  // List<String> updateColumns = new ArrayList<String>();
+  // List<String> updateColumns = new ArrayList<>();
   /**
    * Mapping between the SQL and the actual prepared statement. Normally this is only one, but in case we have more then
    * one, it's convenient to have this.

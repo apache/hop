@@ -725,7 +725,7 @@ public class YamlInputMeta extends BaseStepMeta implements StepMetaInterface {
       // So let's change the filename from relative to absolute by grabbing the file object...
       // In case the name of the file comes from previous steps, forget about this!
       //
-      List<String> newFilenames = new ArrayList<String>();
+      List<String> newFilenames = new ArrayList<>();
 
       if ( !isInFields() ) {
         FileInputList fileList = getFiles( space );

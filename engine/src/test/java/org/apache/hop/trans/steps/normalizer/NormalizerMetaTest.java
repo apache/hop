@@ -55,8 +55,8 @@ public class NormalizerMetaTest {
       new ArrayLoadSaveValidator<NormaliserField>( new NormaliserFieldLoadSaveValidator( testField ), 50 ) );
 
     LoadSaveTester<NormaliserMeta> tester =
-      new LoadSaveTester<NormaliserMeta>( NormaliserMeta.class, attributes, new HashMap<String, String>(),
-        new HashMap<String, String>(), new HashMap<String, FieldLoadSaveValidator<?>>(),
+      new LoadSaveTester<NormaliserMeta>( NormaliserMeta.class, attributes, new HashMap<>(),
+        new HashMap<>(), new HashMap<String, FieldLoadSaveValidator<?>>(),
         fieldLoadSaveValidatorTypeMap );
 
     tester.testSerialization();

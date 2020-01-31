@@ -125,7 +125,7 @@ public class RowMetaConcurrencyTest {
     final int searchersAmount = 10;
 
     final RowMeta rowMeta = new RowMeta();
-    List<String> toRemove = new ArrayList<String>( removeAmount );
+    List<String> toRemove = new ArrayList<>( removeAmount );
     for ( int i = 0; i < removeAmount; i++ ) {
       String name = "toBeRemoved_" + i;
       toRemove.add( name );

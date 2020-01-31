@@ -225,7 +225,7 @@ public class ParGzipCsvInput extends BaseStep implements StepInterface {
   }
 
   private void getFilenamesFromPreviousSteps() throws HopException {
-    List<String> filenames = new ArrayList<String>();
+    List<String> filenames = new ArrayList<>();
     boolean firstRow = true;
     int index = -1;
     Object[] row = getRow();

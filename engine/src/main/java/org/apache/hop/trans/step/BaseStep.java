@@ -823,7 +823,6 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
   public void cleanup() {
     for ( ServerSocket serverSocket : serverSockets ) {
       try {
-
         socketRepository.releaseSocket( serverSocket.getLocalPort() );
         logDetailed(
           BaseMessages.getString( PKG, "BaseStep.Log.ReleasedServerSocketOnPort", serverSocket.getLocalPort() ) );
@@ -1130,6 +1129,10 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
     synchronized ( statusCountersLock ) {
       linesSkipped = newLinesSkippedValue;
     }
+  }
+
+  @Override public boolean isSelected() {
+    return stepMeta!=null && stepMeta.isSelected();
   }
 
   /*

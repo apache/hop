@@ -58,7 +58,7 @@ import java.util.Map;
  * stored in modifiable objects, such as lists or custom helper objects. This interface does not extend Cloneable, but
  * the implementing class will provide a similar method due to this interface.</li><br/>
  * <li><b>Serialize job entry settings</b><br>
- * The plugin needs to be able to serialize its settings to both XML and a PDI repository. The interface methods are as
+ * The plugin needs to be able to serialize its settings to XML. The interface methods are as
  * follows:<br/>
  * <br/>
  * <a href="#getXML()"><code>String getXML()</code></a><br/>
@@ -67,27 +67,13 @@ import java.util.Map;
  * XML tags, typically one tag per setting. The helper class org.apache.hop.core.xml.XMLHandler is typically used to
  * construct the XML string.<br/>
  * <br/>
- * <a href="#loadXML(org.w3c.dom.Node, java.util.List, java.util.List, org.apache.hop.repository.Repository)">
+ * <a href="#loadXML(org.w3c.dom.Node)">
  * <code>void loadXML(...)</code></a></br> This method is called by PDI whenever a job entry needs to read its
  * settings from XML. The XML node containing the job entry's settings is passed in as an argument. Again, the helper
  * class org.apache.hop.core.xml.XMLHandler is typically used to conveniently read the settings from the XML node.<br/>
  * <br/>
- * <a href="#saveRep(org.apache.hop.repository.Repository, org.apache.hop.repository.ObjectId)">
- * <code>void saveRep(...)</code></a><br/>
- * This method is called by PDI whenever a job entry needs to save its settings to a PDI repository. The repository
- * object passed in as the first argument provides a convenient set of methods for serializing job entry settings. When
- * calling repository serialization methods, job id and job entry id are required. The job id is passed in to saveRep()
- * as an argument, and the job entry id can be obtained by a call to getObjectId() inherited from the base class.<br/>
  * <br/>
- * <a href=
- * "#loadRep(org.apache.hop.repository.Repository, org.apache.hop.repository.ObjectId, java.util.List,
- * java.util.List)">
- * <code>void loadRep(...)</code></a><br/>
- * This method is called by PDI whenever a job entry needs to read its configuration from a PDI repository. The job
- * entry id given in the arguments should be used as the identifier when using the repository's serialization methods.
- * <br/>
- * <br/>
- * <quote>Hint: When developing plugins, make sure the serialization code is in synch with the settings available from
+ * <quote>Hint: When developing plugins, make sure the serialization code is in sync with the settings available from
  * the job entry dialog. When testing a plugin in Spoon, PDI will internally first save and load a copy of the
  * job.</quote></li><br/>
  * <li><b>Provide access to dialog class</b><br/>
@@ -419,13 +405,6 @@ public interface JobEntryInterface {
    */
   String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
                           ResourceNamingInterface namingInterface, IMetaStore metaStore ) throws HopException;
-
-  /**
-   * Checks whether the job entry defines one or more references to a repository object
-   *
-   * @return true if the job entry defines one or more references to a repository object, false otherwise
-   */
-  boolean hasRepositoryReferences();
 
   /**
    * @return The objects referenced in the step, like a a transformation, a job, a mapper, a reducer, a combiner, ...

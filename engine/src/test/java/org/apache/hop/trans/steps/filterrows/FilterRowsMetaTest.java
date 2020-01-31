@@ -57,8 +57,8 @@ public class FilterRowsMetaTest {
     List<String> attributes =
       Arrays.asList( "condition", "send_true_to", "send_false_to" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "condition", new ConditionLoadSaveValidator() );

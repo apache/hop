@@ -71,7 +71,7 @@ import java.util.Map;
  * <p></li>
  * <li>
  * <b>Serialize step settings</b><br/>
- * The plugin needs to be able to serialize its settings to both XML and a PDI repository. The interface methods are as
+ * The plugin needs to be able to serialize its settings to XML . The interface methods are as
  * follows.
  * <p>
  * <i><a href="#getXML()">public String getXML()</a></i>
@@ -81,29 +81,12 @@ import java.util.Map;
  * contains a series of XML tags, typically one tag per setting. The helper class org.apache.hop.core.xml.XMLHandler is
  * typically used to construct the XML string.
  * <p>
- * <i><a href="#loadXML(org.w3c.dom.Node, java.util.List, java.util.Map)">public void loadXML(...)</a></i>
+ * <i><a href="#loadXML(org.w3c.dom.Node)">public void loadXML(...)</a></i>
  * <p>
  * This method is called by PDI whenever a step needs to read its settings from XML. The XML node containing the step's
  * settings is passed in as an argument. Again, the helper class org.apache.hop.core.xml.XMLHandler is typically used to
  * conveniently read the step settings from the XML node.
  * <p>
- * <i><a href=
- * "#saveRep(org.apache.hop.repository.Repository, org.apache.hop.repository.ObjectId,
- *   org.apache.hop.repository.ObjectId)"
- * >public void saveRep(...)</a></i>
- * <p>
- * This method is called by PDI whenever a step needs to save its settings to a PDI repository. The repository object
- * passed in as the first argument provides a convenient set of methods for serializing step settings. The
- * transformation id and step id passed in should be used by the step as identifiers when calling the repository
- * serialization methods.
- * <p>
- * <i><a href=
- * "#readRep(org.apache.hop.repository.Repository, org.apache.hop.repository.ObjectId, java.util.List, java.util.Map)"
- * >public void readRep(...)</a></i>
- * <p>
- * This method is called by PDI whenever a step needs to read its configuration from a PDI repository. The step id given
- * in the arguments should be used as the identifier when using the repositories serialization methods.
- * <p></li>
  * <li>
  * <b>Provide instances of other plugin classes</b><br/>
  * The StepMetaInterface plugin class is the main class tying in with the rest of PDI architecture. It is responsible

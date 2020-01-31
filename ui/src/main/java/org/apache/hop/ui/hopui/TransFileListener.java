@@ -68,7 +68,7 @@ public class TransFileListener implements FileListener {
       hopUi.getProperties().addLastFile( LastUsedFile.FILE_TYPE_TRANSFORMATION, fname, new Date() );
       hopUi.addMenuLast();
 
-      // If we are importing into a repository we need to fix 
+      // If we are importing we need to fix
       // up the references to other jobs and transformations
       // if any exist.
       if ( !importfile ) {

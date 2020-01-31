@@ -72,7 +72,7 @@ public class CsvInputFileEncodingTransformIT extends CsvInput3IT {
    */
   @Test
   public void testCSVInput1() throws Exception {
-    Map<String, String> vars = new HashMap<String, String>();
+    Map<String, String> vars = new HashMap<>();
     vars.put( "P_ENCODING", "UTF-8" );
     transMeta.injectVariables( vars );
 
@@ -89,7 +89,7 @@ public class CsvInputFileEncodingTransformIT extends CsvInput3IT {
    */
   @Test
   public void testCSVSpecSymbolInput() throws Exception {
-    Map<String, String> vars = new HashMap<String, String>();
+    Map<String, String> vars = new HashMap<>();
     vars.put( "${P_ENCODING}", "UTF-8" );
     transMeta.injectVariables( vars );
 

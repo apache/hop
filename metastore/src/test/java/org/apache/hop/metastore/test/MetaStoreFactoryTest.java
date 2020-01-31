@@ -367,7 +367,7 @@ public class MetaStoreFactoryTest extends TestCase {
     when( objectFactory.getContext( anyObject() ) ).thenAnswer( new Answer<Object>() {
       @Override
       public Object answer( InvocationOnMock invocation ) throws Throwable {
-        Map<String, String> context = new HashMap<String, String>();
+        Map<String, String> context = new HashMap<>();
         context.put( "context-num", String.valueOf( contextCount.getAndIncrement() ) );
         return context;
       }
@@ -450,7 +450,7 @@ public class MetaStoreFactoryTest extends TestCase {
     assertEquals( cube.getMainKpi().getOtherDetails(), verify.getMainKpi().getOtherDetails() );
 
     for ( int i = 0; i < contextCount.get(); i++ ) {
-      Map<String, String> context = new HashMap<String, String>();
+      Map<String, String> context = new HashMap<>();
       context.put( "context-num", String.valueOf( i ) );
       verify( objectFactory ).instantiateClass( anyString(), eq( context ) );
     }

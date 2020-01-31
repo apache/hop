@@ -54,7 +54,6 @@ public class SlaveServerConfig {
   public static final String XML_TAG = "slave_config";
   public static final String XML_TAG_MASTERS = "masters";
 
-  public static final String XML_TAG_REPOSITORY = "repository";
   public static final String XML_TAG_SEQUENCES = "sequences";
   public static final String XML_TAG_AUTOSEQUENCE = "autosequence";
   public static final String XML_TAG_AUTO_CREATE = "autocreate";
@@ -247,7 +246,7 @@ public class SlaveServerConfig {
 
     if ( jettyOptionsNode != null ) {
 
-      jettyOptions = new HashMap<String, String>();
+      jettyOptions = new HashMap<>();
       if ( XMLHandler.getTagValue( jettyOptionsNode, XML_TAG_ACCEPTORS ) != null ) {
         jettyOptions.put( Const.HOP_CARTE_JETTY_ACCEPTORS, XMLHandler.getTagValue( jettyOptionsNode, XML_TAG_ACCEPTORS ) );
       }

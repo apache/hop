@@ -125,9 +125,8 @@ public class TextFileInputMetaLoadSaveTest {
       "fileErrorMessageField"
     );
     List<String> xmlAttributes = Collections.emptyList();
-    List<String> repoAttributes = Collections.emptyList();
 
-    Map<String, String> getters = new HashMap<String, String>();
+    Map<String, String> getters = new HashMap<>();
     getters.put( "header", "hasHeader" );
     getters.put( "footer", "hasFooter" );
     getters.put( "noEmptyLines", "noEmptyLines" );
@@ -144,7 +143,7 @@ public class TextFileInputMetaLoadSaveTest {
     getters.put( "extensionFieldName", "getExtensionField" );
     getters.put( "sizeFieldName", "getSizeField" );
 
-    Map<String, String> setters = new HashMap<String, String>();
+    Map<String, String> setters = new HashMap<>();
     setters.put( "fileName", "setFileNameForTest" );
     setters.put( "errorFilesExtension", "setErrorLineFilesExtension" );
     setters.put( "isaddresult", "setAddResultFile" );
@@ -163,11 +162,11 @@ public class TextFileInputMetaLoadSaveTest {
     typeValidators.put( TextFileFilter[].class.getCanonicalName(), new ArrayLoadSaveValidator<TextFileFilter>( new TextFileFilterValidator() ) );
     typeValidators.put( TextFileInputField[].class.getCanonicalName(), new ArrayLoadSaveValidator<TextFileInputField>( new TextFileInputFieldValidator() ) );
 
-    assertTrue( !commonAttributes.isEmpty() || !( xmlAttributes.isEmpty() || repoAttributes.isEmpty() ) );
+    assertTrue( !commonAttributes.isEmpty() || !xmlAttributes.isEmpty() );
 
     tester =
-      new LoadSaveTester<TextFileInputMeta>( TextFileInputMeta.class, commonAttributes, xmlAttributes,
-        repoAttributes, getters, setters, attributeValidators, typeValidators );
+      new LoadSaveTester<>( TextFileInputMeta.class, commonAttributes, xmlAttributes,
+        getters, setters, attributeValidators, typeValidators );
   }
 
   @Test

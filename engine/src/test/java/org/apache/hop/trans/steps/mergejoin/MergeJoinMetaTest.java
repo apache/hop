@@ -62,12 +62,12 @@ public class MergeJoinMetaTest {
 
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "joinType", "getJoinType" );
     getterMap.put( "keyFields1", "getKeyFields1" );
     getterMap.put( "keyFields2", "getKeyFields2" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "joinType", "setJoinType" );
     setterMap.put( "keyFields1", "setKeyFields1" );
     setterMap.put( "keyFields2", "setKeyFields2" );

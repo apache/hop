@@ -84,7 +84,7 @@ public class KerberosUtil {
     getLoginConfigOptsKerberosNoPassword();
 
   private static Map<String, String> createLoginConfigBaseMap() {
-    Map<String, String> result = new HashMap<String, String>();
+    Map<String, String> result = new HashMap<>();
     // Enable JAAS debug if PENTAHO_JAAS_DEBUG is set
     if ( Boolean.parseBoolean( System.getenv( PENTAHO_JAAS_DEBUG ) ) ) {
       result.put( "debug", Boolean.TRUE.toString() );
@@ -94,7 +94,7 @@ public class KerberosUtil {
   }
 
   private static Map<String, String> getLoginConfigOptsKerberosUser() {
-    Map<String, String> result = new HashMap<String, String>( LOGIN_CONFIG_BASE );
+    Map<String, String> result = new HashMap<>( LOGIN_CONFIG_BASE );
     result.put( "useTicketCache", Boolean.FALSE.toString() );
     // Attempt to renew tickets
     result.put( "renewTGT", Boolean.FALSE.toString() );
@@ -102,7 +102,7 @@ public class KerberosUtil {
   }
 
   private static Map<String, String> getLoginConfigOptsKerberosNoPassword() {
-    Map<String, String> result = new HashMap<String, String>( LOGIN_CONFIG_OPTS_KERBEROS_USER );
+    Map<String, String> result = new HashMap<>( LOGIN_CONFIG_OPTS_KERBEROS_USER );
     result.put( "useTicketCache", Boolean.TRUE.toString() );
     result.put( "renewTGT", Boolean.TRUE.toString() );
     // Never prompt for passwords
@@ -116,7 +116,7 @@ public class KerberosUtil {
   public static final Map<String, String> LOGIN_CONFIG_OPTS_KERBEROS_KEYTAB = createLoginConfigOptsKerberosKeytabMap();
 
   private static Map<String, String> createLoginConfigOptsKerberosKeytabMap() {
-    Map<String, String> result = new HashMap<String, String>( LOGIN_CONFIG_BASE );
+    Map<String, String> result = new HashMap<>( LOGIN_CONFIG_BASE );
     // Never prompt for passwords
     result.put( "doNotPrompt", Boolean.TRUE.toString() );
     // Use a keytab file
@@ -129,7 +129,7 @@ public class KerberosUtil {
   }
 
   public LoginContext getLoginContextFromKeytab( String principal, String keytab ) throws LoginException {
-    Map<String, String> keytabConfig = new HashMap<String, String>( LOGIN_CONFIG_OPTS_KERBEROS_KEYTAB );
+    Map<String, String> keytabConfig = new HashMap<>( LOGIN_CONFIG_OPTS_KERBEROS_KEYTAB );
     keytabConfig.put( "keyTab", keytab );
     keytabConfig.put( "principal", principal );
 
@@ -142,7 +142,7 @@ public class KerberosUtil {
   }
 
   public LoginContext getLoginContextFromUsernamePassword( final String principal, final String password ) throws LoginException {
-    Map<String, String> opts = new HashMap<String, String>( LOGIN_CONFIG_OPTS_KERBEROS_USER );
+    Map<String, String> opts = new HashMap<>( LOGIN_CONFIG_OPTS_KERBEROS_USER );
     opts.put( "principal", principal );
     AppConfigurationEntry[] appConfigurationEntries =
       new AppConfigurationEntry[] { new AppConfigurationEntry( Krb5LoginModule.class.getName(),
@@ -165,7 +165,7 @@ public class KerberosUtil {
   }
 
   public LoginContext getLoginContextFromKerberosCache( String principal ) throws LoginException {
-    Map<String, String> opts = new HashMap<String, String>( LOGIN_CONFIG_OPTS_KERBEROS_USER_NOPASS );
+    Map<String, String> opts = new HashMap<>( LOGIN_CONFIG_OPTS_KERBEROS_USER_NOPASS );
     opts.put( "principal", principal );
     AppConfigurationEntry[] appConfigurationEntries =
       new AppConfigurationEntry[] { new AppConfigurationEntry( Krb5LoginModule.class.getName(),

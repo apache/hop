@@ -98,7 +98,7 @@ public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogIn
 
   private String[] getInputStepNames() {
     String[] inputStepNames = joinMeta.getInputSteps();
-    ArrayList<String> nameList = new ArrayList<String>();
+    ArrayList<String> nameList = new ArrayList<>();
     if ( inputStepNames != null ) {
       Collections.addAll( nameList, inputStepNames );
     }
@@ -484,7 +484,7 @@ public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogIn
     fields.putAll( inputFields );
 
     Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<String>( keySet );
+    List<String> entries = new ArrayList<>( keySet );
 
     String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
@@ -536,8 +536,8 @@ public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogIn
     List<StreamInterface> infoStreams = stepIOMeta.getInfoStreams();
     StreamInterface stream;
     String streamDescription;
-    ArrayList<String> inputStepNameList = new ArrayList<String>();
-    ArrayList<String> keyList = new ArrayList<String>();
+    ArrayList<String> inputStepNameList = new ArrayList<>();
+    ArrayList<String> keyList = new ArrayList<>();
     CCombo wInputStep;
     String inputStepName;
     for ( int i = 0; i < wInputStepArray.length; i++ ) {

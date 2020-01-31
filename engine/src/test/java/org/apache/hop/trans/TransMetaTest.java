@@ -784,7 +784,7 @@ public class TransMetaTest {
 
 
   @Test
-  public void testSetInternalEntryCurrentDirectoryWithoutFilenameOrRepository() {
+  public void testSetInternalEntryCurrentDirectoryWithoutFilename() {
     TransMeta transMetaTest = new TransMeta();
     transMetaTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
     transMetaTest.setVariable( Const.INTERNAL_VARIABLE_TRANSFORMATION_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );

@@ -364,7 +364,7 @@ public class StepMeta implements
   }
 
   /**
-   * Resolves the name of the cluster loaded from XML/Repository to the correct clusterSchema object
+   * Resolves the name of the cluster loaded from XML to the correct clusterSchema object
    *
    * @param clusterSchemas The list of clusterSchemas to reference.
    */
@@ -596,7 +596,7 @@ public class StepMeta implements
     Map<String, Map<String, String>> result = new HashMap<String, Map<String, String>>( map.size() );
     for ( Map.Entry<String, Map<String, String>> entry : map.entrySet() ) {
       Map<String, String> value = entry.getValue();
-      HashMap<String, String> copy = ( value == null ) ? null : new HashMap<String, String>( value );
+      HashMap<String, String> copy = ( value == null ) ? null : new HashMap<>( value );
       result.put( entry.getKey(), copy );
     }
     return result;
@@ -994,7 +994,7 @@ public class StepMeta implements
   public void setAttribute( String groupName, String key, String value ) {
     Map<String, String> attributes = getAttributes( groupName );
     if ( attributes == null ) {
-      attributes = new HashMap<String, String>();
+      attributes = new HashMap<>();
       attributesMap.put( groupName, attributes );
     }
     attributes.put( key, value );

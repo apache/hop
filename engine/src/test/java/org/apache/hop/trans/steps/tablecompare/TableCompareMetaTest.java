@@ -51,8 +51,8 @@ public class TableCompareMetaTest {
         "nrRecordsReferenceField", "nrRecordsCompareField", "nrErrorsLeftJoinField", "nrErrorsInnerJoinField",
         "nrErrorsRightJoinField", "keyDescriptionField", "valueReferenceField", "valueCompareField" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();

@@ -143,8 +143,8 @@ public class UnivariateStatsMetaTest {
       univariateFunctionArrayFieldLoadSaveValidator );
 
     LoadSaveTester loadSaveTester =
-      new LoadSaveTester( UnivariateStatsMeta.class, attributes, new HashMap<String, String>(),
-        new HashMap<String, String>(), new HashMap<String, FieldLoadSaveValidator<?>>(),
+      new LoadSaveTester( UnivariateStatsMeta.class, attributes, new HashMap<>(),
+        new HashMap<>(), new HashMap<String, FieldLoadSaveValidator<?>>(),
         fieldLoadSaveValidatorTypeMap );
 
     loadSaveTester.testSerialization();

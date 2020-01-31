@@ -1,8 +1,7 @@
-package org.apache.hop.core;
+package org.apache.hop.ui.hopgui;
 
 import org.apache.hop.core.gui.plugin.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
-import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 
 import java.lang.reflect.Method;
 

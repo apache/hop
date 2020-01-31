@@ -106,8 +106,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * This class executes a job as defined by a JobMeta object.
  * <p>
- * The definition of a PDI job is represented by a JobMeta object. It is typically loaded from a .kjb file, a PDI
- * repository, or it is generated dynamically. The declared parameters of the job definition are then queried using
+ * The definition of a PDI job is represented by a JobMeta object. It is typically loaded from a .kjb file,
+ * or it is generated dynamically. The declared parameters of the job definition are then queried using
  * listParameters() and assigned values using calls to setParameterValue(..).
  *
  * @author Matt Casters

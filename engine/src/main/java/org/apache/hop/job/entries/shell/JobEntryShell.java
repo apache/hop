@@ -390,7 +390,7 @@ public class JobEntryShell extends JobEntryBase implements Cloneable, JobEntryIn
     try {
       // What's the exact command?
       String[] base = null;
-      List<String> cmds = new ArrayList<String>();
+      List<String> cmds = new ArrayList<>();
 
       if ( log.isBasic() ) {
         logBasic( BaseMessages.getString( PKG, "JobShell.RunningOn", Const.getOS() ) );

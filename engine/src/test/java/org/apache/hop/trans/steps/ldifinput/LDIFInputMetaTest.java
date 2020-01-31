@@ -139,7 +139,7 @@ public class LDIFInputMetaTest implements InitializerInterface<StepMetaInterface
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 
     loadSaveTester =
-      new LoadSaveTester( LDIFInputMeta.class, attributes, new ArrayList<String>(), new ArrayList<String>(),
+      new LoadSaveTester( LDIFInputMeta.class, attributes, new ArrayList<>(),
         getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }
 

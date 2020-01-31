@@ -168,7 +168,7 @@ public class DataGridMetaInjection implements StepMetaInjectionInterface {
 
     // Now that we know how many fields we have we can simply read all the data fields...
     //
-    List<String> line = new ArrayList<String>();
+    List<String> line = new ArrayList<>();
 
     for ( StepInjectionMetaEntry lookFields : all ) {
       Entry fieldsEntry = Entry.findEntry( lookFields.getKey() );
@@ -188,7 +188,7 @@ public class DataGridMetaInjection implements StepMetaInjectionInterface {
                         line.add( value );
                         if ( line.size() >= gridMetaEntries.size() ) {
                           dataLines.add( line );
-                          line = new ArrayList<String>();
+                          line = new ArrayList<>();
                         }
                         break;
                       default:

@@ -210,8 +210,7 @@ public class JobExecutorMeta extends BaseStepMeta implements StepMetaInterface {
   public String getXML() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    // Export a little bit of extra information regarding the reference since it doesn't really matter outside the same
-    // repository.
+    // Export a little bit of extra information regarding the reference
     //
     retval.append( "    " ).append( XMLHandler.addTagValue( "filename", fileName ) );
     retval.append( "    " ).append( XMLHandler.addTagValue( "group_size", groupSize ) );
@@ -453,7 +452,7 @@ public class JobExecutorMeta extends BaseStepMeta implements StepMetaInterface {
 
   public String[] getTargetSteps() {
 
-    List<String> targetSteps = new ArrayList<String>();
+    List<String> targetSteps = new ArrayList<>();
 
     if ( !Utils.isEmpty( resultFilesTargetStep ) ) {
       targetSteps.add( resultFilesTargetStep );
@@ -486,7 +485,7 @@ public class JobExecutorMeta extends BaseStepMeta implements StepMetaInterface {
     // Don't set internal variables: they belong to the parent thread!
     //
     mappingJobMeta = new JobMeta( null, realFilename, metaStore );
-    LogChannel.GENERAL.logDetailed( "Loading job from repository", "Job was loaded from XML file ["
+    LogChannel.GENERAL.logDetailed( "Loaded job", "Job was loaded from XML file ["
       + realFilename + "]" );
 
     // Pass some important information to the mapping transformation metadata:
@@ -577,7 +576,7 @@ public class JobExecutorMeta extends BaseStepMeta implements StepMetaInterface {
   public String exportResources( VariableSpace space, Map<String, ResourceDefinition> definitions,
                                  ResourceNamingInterface resourceNamingInterface, IMetaStore metaStore ) throws HopException {
     try {
-      // Try to load the transformation from repository or file.
+      // Try to load the transformation from a file.
       // Modify this recursively too...
       //
       // NOTE: there is no need to clone this step because the caller is

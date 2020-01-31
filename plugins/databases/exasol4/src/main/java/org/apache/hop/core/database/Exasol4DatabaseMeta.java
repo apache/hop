@@ -97,11 +97,6 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   @Override
-  public boolean needsToLockAllTables() {
-    return false;
-  }
-
-  @Override
   public String getDriverClass() {
     return "com.exasol.jdbc.EXADriver";
   }

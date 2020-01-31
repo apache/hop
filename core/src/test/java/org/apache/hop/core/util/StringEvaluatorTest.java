@@ -86,7 +86,7 @@ public class StringEvaluatorTest {
       evaluator.evaluateString( string );
     }
     assertEquals( strings.size(), evaluator.getValues().size() );
-    List<String> actualStrings = new ArrayList<String>( evaluator.getValues() );
+    List<String> actualStrings = new ArrayList<>( evaluator.getValues() );
     Collections.sort( strings );
     Collections.sort( actualStrings );
 
@@ -312,9 +312,9 @@ public class StringEvaluatorTest {
   @Test
   public void testCustomDateFormat() {
     String sampleFormat = "MM/dd/yyyy HH:mm:ss";
-    ArrayList<String> dateFormats = new ArrayList<String>();
+    ArrayList<String> dateFormats = new ArrayList<>();
     dateFormats.add( sampleFormat );
-    StringEvaluator evaluator = new StringEvaluator( true, new ArrayList<String>(), dateFormats );
+    StringEvaluator evaluator = new StringEvaluator( true, new ArrayList<>(), dateFormats );
     evaluator.evaluateString( "02/29/2000 00:00:00" );
     assertFalse( evaluator.getStringEvaluationResults().isEmpty() );
     assertTrue( evaluator.getAdvicedResult().getConversionMeta().isDate() );
@@ -325,10 +325,10 @@ public class StringEvaluatorTest {
   public void testAdviceedOneDateFormat() {
     String sampleLongFormat = "MM/dd/yyyy HH:mm:ss";
     String sampleShortFormat = "MM/dd/yy HH:mm:ss";
-    ArrayList<String> dateFormats = new ArrayList<String>();
+    ArrayList<String> dateFormats = new ArrayList<>();
     dateFormats.add( sampleLongFormat );
     dateFormats.add( sampleShortFormat );
-    StringEvaluator evaluator = new StringEvaluator( true, new ArrayList<String>(), dateFormats );
+    StringEvaluator evaluator = new StringEvaluator( true, new ArrayList<>(), dateFormats );
     evaluator.evaluateString( "02/29/20 00:00:00" );
     assertFalse( evaluator.getStringEvaluationResults().isEmpty() );
     assertTrue( evaluator.getAdvicedResult().getConversionMeta().isDate() );

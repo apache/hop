@@ -92,7 +92,6 @@ public class BaseDatabaseMetaTest {
     assertTrue( nativeMeta.supportsSetLong() );
     assertArrayEquals( new String[] {}, nativeMeta.getReservedWords() );
     assertTrue( nativeMeta.quoteReservedWords() );
-    assertFalse( nativeMeta.supportsRepository() );
     assertArrayEquals( new String[] { "TABLE" }, nativeMeta.getTableTypes() );
     assertArrayEquals( new String[] { "VIEW" }, nativeMeta.getViewTypes() );
     assertArrayEquals( new String[] { "SYNONYM" }, nativeMeta.getSynonymTypes() );
@@ -110,7 +109,7 @@ public class BaseDatabaseMetaTest {
     assertFalse( nativeMeta.supportsTimestampDataType() );
     assertTrue( nativeMeta.preserveReservedCase() );
     assertTrue( nativeMeta.isDefaultingToUppercase() );
-    Map<String, String> emptyMap = new HashMap<String, String>();
+    Map<String, String> emptyMap = new HashMap<>();
     assertEquals( emptyMap, nativeMeta.getExtraOptions() );
     assertEquals( ";", nativeMeta.getExtraOptionSeparator() );
     assertEquals( "=", nativeMeta.getExtraOptionValueSeparator() );
@@ -120,7 +119,6 @@ public class BaseDatabaseMetaTest {
     assertTrue( nativeMeta.supportsGetBlob() );
     assertNull( nativeMeta.getConnectSQL() );
     assertTrue( nativeMeta.supportsSetMaxRows() );
-    assertTrue( nativeMeta.needsToLockAllTables() );
     assertTrue( nativeMeta.isStreamingResults() );
     assertFalse( nativeMeta.isQuoteAllFields() );
     assertFalse( nativeMeta.isForcingIdentifiersToLowerCase() );
@@ -241,7 +239,7 @@ public class BaseDatabaseMetaTest {
     nativeMeta.setPreserveReservedCase( false );
     assertFalse( nativeMeta.preserveReservedCase() );
     nativeMeta.addExtraOption( "JNDI", "FOO", "BAR" );
-    Map<String, String> expectedOptionsMap = new HashMap<String, String>();
+    Map<String, String> expectedOptionsMap = new HashMap<>();
     expectedOptionsMap.put( "JNDI.FOO", "BAR" );
     assertEquals( expectedOptionsMap, nativeMeta.getExtraOptions() );
     nativeMeta.setConnectSQL( "SELECT COUNT(*) FROM FOO" );

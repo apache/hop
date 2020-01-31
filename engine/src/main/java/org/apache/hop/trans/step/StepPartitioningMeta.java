@@ -268,7 +268,7 @@ public class StepPartitioningMeta implements XMLInterface, Cloneable {
   }
 
   /**
-   * Set the partitioning schema after loading from XML or repository
+   * Set the partitioning schema after loading from XML
    *
    * @param partitionSchemas the list of partitioning schemas
    */

@@ -59,10 +59,10 @@ public class SwitchCaseMetaTest {
       "caseTargets" );
 
     //Non-standard getters & setters
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "isContains", "isContains" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "isContains", "setContains" );
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap =

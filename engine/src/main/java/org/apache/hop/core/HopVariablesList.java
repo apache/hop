@@ -46,8 +46,8 @@ public class HopVariablesList {
 
   private HopVariablesList() {
     logger = new LogChannel( this );
-    descriptionMap = new HashMap<String, String>();
-    defaultValueMap = new HashMap<String, String>();
+    descriptionMap = new HashMap<>();
+    defaultValueMap = new HashMap<>();
   }
 
   public static HopVariablesList getInstance() {

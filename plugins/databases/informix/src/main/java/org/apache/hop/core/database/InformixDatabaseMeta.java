@@ -104,11 +104,6 @@ public class InformixDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
   }
 
   @Override
-  public boolean needsToLockAllTables() {
-    return false;
-  }
-
-  @Override
   public String getSQLQueryFields( String tableName ) {
     return "SELECT FIRST 1 * FROM " + tableName;
   }

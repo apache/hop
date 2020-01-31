@@ -136,7 +136,7 @@ public class JavaFilter extends BaseStep implements StepInterface {
         String realCondition = environmentSubstitute( meta.getCondition() );
         data.argumentIndexes = new ArrayList<Integer>();
 
-        List<String> parameterNames = new ArrayList<String>();
+        List<String> parameterNames = new ArrayList<>();
         List<Class<?>> parameterTypes = new ArrayList<Class<?>>();
 
         for ( int i = 0; i < data.outputRowMeta.size(); i++ ) {

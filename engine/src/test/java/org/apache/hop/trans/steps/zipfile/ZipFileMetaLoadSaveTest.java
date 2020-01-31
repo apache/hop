@@ -50,9 +50,9 @@ public class ZipFileMetaLoadSaveTest {
       Arrays.asList( "dynamicSourceFileNameField", "dynamicTargetFileNameField", "baseFolderField", "moveToFolderField", "addResultFilenames",
         "overwriteZipEntry", "createParentFolder", "keepSouceFolder", "operationType" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "addResultFilenames", "isaddTargetFileNametoResult" );
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "addResultFilenames", "setaddTargetFileNametoResult" );
 
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();

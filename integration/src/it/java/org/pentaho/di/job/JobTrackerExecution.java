@@ -124,7 +124,7 @@ public abstract class JobTrackerExecution {
   }
 
   public static List<String> getJobDefaultRunParameters() {
-    List<String> list = new ArrayList<String>();
+    List<String> list = new ArrayList<>();
     /*
      * list.add( "-param:junit.name=" + TMP ); list.add( "-param:junit.user=" + USER ); list.add(
      * "-param:junit.password=" + USER );

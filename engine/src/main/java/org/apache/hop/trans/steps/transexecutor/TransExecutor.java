@@ -96,7 +96,7 @@ public class TransExecutor extends BaseStep implements StepInterface {
         return false;
       }
 
-      List<String> incomingFieldValues = new ArrayList<String>();
+      List<String> incomingFieldValues = new ArrayList<>();
       if ( getInputRowMeta() != null ) {
         for ( int i = 0; i < getInputRowMeta().size(); i++ ) {
           String fieldvalue = getInputRowMeta().getString( row, i );
@@ -290,7 +290,7 @@ public class TransExecutor extends BaseStep implements StepInterface {
   void passParametersToTrans( List<String> incomingFieldValues ) throws HopException {
     //The values of the incoming fields from the previous step.
     if ( incomingFieldValues == null ) {
-      incomingFieldValues = new ArrayList<String>();
+      incomingFieldValues = new ArrayList<>();
     }
 
     // Set parameters, when fields are used take the first row in the set.
@@ -303,13 +303,13 @@ public class TransExecutor extends BaseStep implements StepInterface {
     }
 
     //The names of the "Fields to use".
-    List<String> fieldsToUse = new ArrayList<String>();
+    List<String> fieldsToUse = new ArrayList<>();
     if ( parameters.getField() != null ) {
       fieldsToUse = Arrays.asList( parameters.getField() );
     }
 
     //The names of the incoming fields from the previous step.
-    List<String> incomingFields = new ArrayList<String>();
+    List<String> incomingFields = new ArrayList<>();
     if ( data.getInputRowMeta() != null ) {
       incomingFields = Arrays.asList( data.getInputRowMeta().getFieldNames() );
     }

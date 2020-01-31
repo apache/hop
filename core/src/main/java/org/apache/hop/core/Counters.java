@@ -25,7 +25,7 @@ package org.apache.hop.core;
 import java.util.Hashtable;
 
 /**
- * This class contains the counters for Hop, the transformations, jobs and also the repository.
+ * This class contains the counters for Hop, the transformations, jobs, ...
  *
  * @author Matt
  * @since 17-apr-2005

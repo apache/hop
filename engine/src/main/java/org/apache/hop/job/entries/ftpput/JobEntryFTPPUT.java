@@ -554,7 +554,7 @@ public class JobEntryFTPPUT extends JobEntryBase implements Cloneable, JobEntryI
       if ( children == null ) {
         files = Collections.emptyList();
       } else {
-        files = new ArrayList<String>( children.length );
+        files = new ArrayList<>( children.length );
         for ( File child : children ) {
           // Get filename of file or directory
           if ( !child.isDirectory() ) {

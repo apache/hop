@@ -162,7 +162,7 @@ public class ZIPCompressionOutputStreamTest {
   }
 
   private static Map<String, String> readArchive( byte[] bytes ) throws Exception {
-    Map<String, String> result = new HashMap<String, String>();
+    Map<String, String> result = new HashMap<>();
 
     ZipInputStream stream = new ZipInputStream( new ByteArrayInputStream( bytes ) );
     byte[] buf = new byte[ 256 ];

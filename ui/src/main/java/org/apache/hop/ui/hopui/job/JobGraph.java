@@ -3324,8 +3324,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
       //
       handleJobMetaChanges( jobMeta );
 
-      // Is the repository available & name / id set?
-      // Is there a filename set and no repository available?
+      // Is there a filename set?
       //
       if ( jobMeta.getFilename() != null && !jobMeta.hasChanged() ) { // Didn't change
         if ( job == null || ( job != null && !job.isActive() ) ) {

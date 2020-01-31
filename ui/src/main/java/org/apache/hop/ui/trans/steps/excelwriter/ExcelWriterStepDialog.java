@@ -1253,7 +1253,7 @@ public class ExcelWriterStepDialog extends BaseStepDialog implements StepDialogI
     String[] formats = BuiltinFormats.getAll();
 
     List<String> allFormats = Arrays.asList( BuiltinFormats.getAll() );
-    List<String> nonReservedFormats = new ArrayList<String>( allFormats.size() );
+    List<String> nonReservedFormats = new ArrayList<>( allFormats.size() );
 
     for ( String format : allFormats ) {
       if ( !format.startsWith( "reserved" ) ) {
@@ -1587,7 +1587,7 @@ public class ExcelWriterStepDialog extends BaseStepDialog implements StepDialogI
     fields.putAll( inputFields );
 
     Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<String>( keySet );
+    List<String> entries = new ArrayList<>( keySet );
 
     String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 

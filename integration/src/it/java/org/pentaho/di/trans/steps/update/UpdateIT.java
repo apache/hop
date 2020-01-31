@@ -118,22 +118,22 @@ public class UpdateIT extends TestCase {
 
     int newLength = upd.getKeyLookup().length + 1;
 
-    ArrayList<String> newKeyLookup = new ArrayList<String>( newLength );
+    ArrayList<String> newKeyLookup = new ArrayList<>( newLength );
     newKeyLookup.addAll( Arrays.asList( upd.getKeyLookup() ) );
     newKeyLookup.add( def[ 0 ] );
     upd.setKeyLookup( newKeyLookup.toArray( new String[ 0 ] ) );
 
-    ArrayList<String> newKeyCondition = new ArrayList<String>( newLength );
+    ArrayList<String> newKeyCondition = new ArrayList<>( newLength );
     newKeyCondition.addAll( Arrays.asList( upd.getKeyCondition() ) );
     newKeyCondition.add( def[ 1 ] );
     upd.setKeyCondition( newKeyCondition.toArray( new String[ 0 ] ) );
 
-    ArrayList<String> newKeyStream = new ArrayList<String>( newLength );
+    ArrayList<String> newKeyStream = new ArrayList<>( newLength );
     newKeyStream.addAll( Arrays.asList( upd.getKeyStream() ) );
     newKeyStream.add( def[ 2 ] );
     upd.setKeyStream( newKeyStream.toArray( new String[ 0 ] ) );
 
-    ArrayList<String> newKeyStream2 = new ArrayList<String>( newLength );
+    ArrayList<String> newKeyStream2 = new ArrayList<>( newLength );
     newKeyStream2.addAll( Arrays.asList( upd.getKeyStream2() ) );
     newKeyStream2.add( def[ 3 ] );
     upd.setKeyStream2( newKeyStream2.toArray( new String[ 0 ] ) );
@@ -272,7 +272,7 @@ public class UpdateIT extends TestCase {
 
     ResultSet rs = db.openQuery( "SELECT VALUE FROM " + TARGET_TABLE + " ORDER BY ROW_ORDER ASC;" );
 
-    ArrayList<String> rows = new ArrayList<String>();
+    ArrayList<String> rows = new ArrayList<>();
 
     while ( rs.next() ) {
       rows.add( rs.getString( "VALUE" ) );

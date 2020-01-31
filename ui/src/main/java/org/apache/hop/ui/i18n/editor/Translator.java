@@ -352,7 +352,7 @@ public class Translator {
 
   public void refreshList() {
     // OK, now we have a distinct list of directories or packages to work with...
-    ArrayList<String> dirList = new ArrayList<String>( directories.keySet() );
+    ArrayList<String> dirList = new ArrayList<>( directories.keySet() );
     Collections.sort( dirList );
 
     // Put it in the listbox:
@@ -382,7 +382,7 @@ public class Translator {
 
               Properties properties = files.get( filename );
               ArrayList<Object> entryObjects = new ArrayList<Object>( properties.keySet() );
-              ArrayList<String> entries = new ArrayList<String>();
+              ArrayList<String> entries = new ArrayList<>();
               for ( Object object : entryObjects ) {
                 entries.add( (String) object );
               }
@@ -590,7 +590,7 @@ public class Translator {
   }
 
   public String[] getSelectedLocale() {
-    ArrayList<String> selection = new ArrayList<String>();
+    ArrayList<String> selection = new ArrayList<>();
     String[] locs = getAvailableLocale();
     for ( int i = 0; i < locs.length; i++ ) {
       if ( ( locales.get( locs[ i ] ) ).booleanValue() ) {

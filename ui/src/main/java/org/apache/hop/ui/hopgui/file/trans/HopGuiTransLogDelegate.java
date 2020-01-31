@@ -25,6 +25,7 @@ package org.apache.hop.ui.hopgui.file.trans;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.TransMeta;
@@ -48,7 +49,9 @@ import org.eclipse.swt.widgets.ToolBar;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class HopGuiTransLogDelegate {
+@GuiPlugin(
+  id = "HopGuiTransLogDelegate"
+)public class HopGuiTransLogDelegate {
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
 
   private static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiTransLogDelegate-ToolBar";
@@ -186,7 +189,7 @@ public class HopGuiTransLogDelegate {
 
   public void showErrors() {
     String all = transLogText.getText();
-    ArrayList<String> err = new ArrayList<String>();
+    ArrayList<String> err = new ArrayList<>();
 
     int i = 0;
     int startpos = 0;

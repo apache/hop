@@ -179,7 +179,7 @@ public class TransPreviewProgressDialog {
     }
 
     int previousPct = 0;
-    final List<String> previewComplete = new ArrayList<String>();
+    final List<String> previewComplete = new ArrayList<>();
     // We add a break-point that is called every time we have a step with a full preview row buffer
     // That makes it easy and fast to see if we have all the rows we need
     //

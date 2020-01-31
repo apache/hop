@@ -104,7 +104,7 @@ public class MessagesSourceCrawler {
     this.log = log;
     this.sourceDirectories = sourceDirectories;
     this.singleMessagesFile = singleMessagesFile;
-    this.filesToAvoid = new ArrayList<String>();
+    this.filesToAvoid = new ArrayList<>();
     this.xmlFolders = xmlFolders;
 
     this.sourcePackageOccurrences = new HashMap<String, Map<String, List<KeyOccurrence>>>();
@@ -534,7 +534,7 @@ public class MessagesSourceCrawler {
    */
   public List<String> getMessagesPackagesList( String sourceFolder ) {
     Map<String, List<KeyOccurrence>> packageOccurrences = sourcePackageOccurrences.get( sourceFolder );
-    List<String> list = new ArrayList<String>( packageOccurrences.keySet() );
+    List<String> list = new ArrayList<>( packageOccurrences.keySet() );
     Collections.sort( list );
     return list;
   }

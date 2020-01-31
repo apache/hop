@@ -527,13 +527,6 @@ public class HopVFS {
     return found;
   }
 
-  public static void closeEmbeddedFileSystem( String embeddedMetastoreKey ) {
-    if ( getInstance().getFileSystemManager() instanceof ConcurrentFileSystemManager ) {
-      ( (ConcurrentFileSystemManager) getInstance().getFileSystemManager() )
-        .closeEmbeddedFileSystem( embeddedMetastoreKey );
-    }
-  }
-
   public void reset() {
     defaultVariableSpace = new Variables();
     defaultVariableSpace.initializeVariablesFrom( null );

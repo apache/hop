@@ -138,8 +138,8 @@ public class TableOutputMetaInjection implements StepMetaInjectionInterface {
   @Override
   public void injectStepMetadataEntries( List<StepInjectionMetaEntry> all ) throws HopException {
 
-    List<String> databaseFields = new ArrayList<String>();
-    List<String> streamFields = new ArrayList<String>();
+    List<String> databaseFields = new ArrayList<>();
+    List<String> streamFields = new ArrayList<>();
 
     // Parse the fields, inject into the meta class..
     //

@@ -490,14 +490,6 @@ public class AbstractMetaTest {
   }
 
   @Test
-  public void testGetSetPrivateDatabases() throws Exception {
-    assertNull( meta.getPrivateDatabases() );
-    Set<String> dbs = new HashSet<>();
-    meta.setPrivateDatabases( dbs );
-    assertEquals( dbs, meta.getPrivateDatabases() );
-  }
-
-  @Test
   public void testGetSetChannelLogTable() throws Exception {
     assertNull( meta.getChannelLogTable() );
     ChannelLogTable table = mock( ChannelLogTable.class );

@@ -89,8 +89,6 @@ public class JobEntryJobIT extends JobEntryJob {
     SlaveServerJobStatus status = mock( SlaveServerJobStatus.class );
 
     when( parentJob.getLogLevel() ).thenReturn( LogLevel.BASIC );
-    when( parentJobMeta.getRepositoryDirectory() ).thenReturn( null );
-    when( jobMeta.getRepositoryDirectory() ).thenReturn( mock( RepositoryDirectoryInterface.class ) );
     when( jobMeta.getName() ).thenReturn( JOB_META_NAME );
     when( parentJob.getJobMeta() ).thenReturn( parentJobMeta );
     when( parentJobMeta.findSlaveServer( REMOTE_SLAVE_SERVER_NAME ) ).thenReturn( slaveServer );
@@ -107,7 +105,7 @@ public class JobEntryJobIT extends JobEntryJob {
     doReturn( LOG_FILE_NAME ).when( job ).getLogFilename();
     doReturn( file.toString() ).when( job ).environmentSubstitute( LOG_FILE_NAME );
     doReturn( REMOTE_SLAVE_SERVER_NAME ).when( job ).environmentSubstitute( REMOTE_SLAVE_SERVER_NAME );
-    doReturn( jobMeta ).when( job ).getJobMeta( any( Repository.class ), any( VariableSpace.class ) );
+    doReturn( jobMeta ).when( job ).getJobMeta( any( VariableSpace.class ) );
     doNothing().when( job ).copyVariablesFrom( anyObject() );
     doNothing().when( job ).setParentVariableSpace( anyObject() );
 

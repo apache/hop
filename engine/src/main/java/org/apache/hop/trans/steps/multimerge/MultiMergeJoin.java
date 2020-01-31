@@ -83,7 +83,7 @@ public class MultiMergeJoin extends BaseStep implements StepInterface {
     StepMeta toStepMeta = meta.getParentStepMeta();
     StepMeta fromStepMeta;
 
-    ArrayList<String> inputStepNameList = new ArrayList<String>();
+    ArrayList<String> inputStepNameList = new ArrayList<>();
     String[] inputStepNames = meta.getInputSteps();
     String inputStepName;
 

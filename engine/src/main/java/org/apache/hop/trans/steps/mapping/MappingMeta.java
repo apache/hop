@@ -429,7 +429,7 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
 
   public String[] getTargetSteps() {
 
-    List<String> targetSteps = new ArrayList<String>();
+    List<String> targetSteps = new ArrayList<>();
     // The infosteps are those steps that are specified in the input mappings
     for ( MappingIODefinition definition : outputMappings ) {
       if ( !definition.isMainDataPath() && !Utils.isEmpty( definition.getOutputStepname() ) ) {
@@ -495,8 +495,8 @@ public class MappingMeta extends StepWithMappingMeta implements StepMetaInterfac
      *
      * // Then check the fields that get added to the row. //
      *
-     * Repository repository = Repository.getCurrentRepository(); TransMeta mappingTransMeta = null; try {
-     * mappingTransMeta = loadMappingMeta(fileName, transName, directoryPath, repository); } catch(HopException e) {
+     * TransMeta mappingTransMeta = null; try {
+     * mappingTransMeta = loadMappingMeta(fileName); } catch(HopException e) {
      * cr = new CheckResult(CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(PKG,
      * "MappingMeta.CheckResult.UnableToLoadMappingTransformation" )+":"+Const.getStackTracker(e), stepinfo);
      * remarks.add(cr); }

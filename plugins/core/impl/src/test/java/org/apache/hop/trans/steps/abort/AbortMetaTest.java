@@ -47,13 +47,13 @@ public class AbortMetaTest {
   public void testRoundTrip() throws HopException {
     List<String> attributes = Arrays.asList( "row_threshold", "message", "always_log_rows", "abort_option" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "row_threshold", "getRowThreshold" );
     getterMap.put( "message", "getMessage" );
     getterMap.put( "always_log_rows", "isAlwaysLogRows" );
     getterMap.put( "abort_option", "getAbortOption" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "row_threshold", "setRowThreshold" );
     setterMap.put( "message", "setMessage" );
     setterMap.put( "always_log_rows", "setAlwaysLogRows" );

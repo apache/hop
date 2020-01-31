@@ -473,7 +473,7 @@ public class SortRowsDialog extends BaseStepDialog implements StepDialogInterfac
     fields.putAll( inputFields );
 
     Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<String>( keySet );
+    List<String> entries = new ArrayList<>( keySet );
 
     String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 

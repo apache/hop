@@ -55,8 +55,6 @@ public enum HopExtensionPoint {
   TransGraphMouseDoubleClick( "TransGraphMouseDoubleClick",
     "A left or right button was double-clicked in a transformation" ),
   TransBeforeDeleteSteps( "TransBeforeDeleteSteps", "Transformation steps about to be deleted" ),
-  TransImportAfterSaveToRepo( "TransImportAfterSaveToRepo",
-    "Transformation's shared objects created and it's content saved to repository" ),
   HopUiTransMetaExecutionStart( "HopUiTransMetaExecutionStart",
     "Hop UI initiates the execution of a trans (TransMeta)" ),
   HopUiTransExecutionConfiguration( "HopUiTransExecutionConfiguration",
@@ -115,18 +113,10 @@ public enum HopExtensionPoint {
   HopUiViewTreeExtension( "HopUiViewTreeExtension", "View tree Hop UI extension" ),
   HopUiPopupMenuExtension( "HopUiPopupMenuExtension", "Pop up menu extension for the view tree" ),
   HopUiTreeDelegateExtension( "HopUiTreeDelegateExtension", "During the HopUiTreeDelegate execution" ),
-  HopUiOpenSaveRepository( "HopUiOpenSaveRepository", "Open the repository browser" ),
   HopUiBrowserFunction( "HopUiBrowserFunction", "Generic browser function handler" ),
   GetFieldsExtension( "GetFieldsExtension", "Get Fields dialog" ),
 
-  RepositoryImporterPatchTransStep( "RepositoryImporterPatchTransStep", "Patch the step in a transformation during repository import" ),
-  RepositoryExporterPatchTransStep( "RepositoryExporterPatchTransStep", "Patch the step in a transformation during repository export" ),
-  RequestLoginToRepository( "RequestLoginToRepository", "Request to login into repository" ),
-
   OpenMapping( "OpenMapping", "Trigger when opening a mapping from TransGraph" ),
-
-  AfterDeleteRepositoryObject( "AfterDeleteRepositoryObject",
-    "After an object has been deleted from the repository" ),
 
   TransformationCreateNew( "TransformationCreateNew", "Create a New Empty Transformation in the Hop UI" ),
 

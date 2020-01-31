@@ -45,11 +45,11 @@ public class RandomValueMetaTest {
   public void testStepMeta() throws HopException {
     List<String> attributes = Arrays.asList( "name", "type" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "name", "getFieldName" );
     getterMap.put( "type", "getFieldType" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "name", "setFieldName" );
     setterMap.put( "type", "setFieldType" );
 

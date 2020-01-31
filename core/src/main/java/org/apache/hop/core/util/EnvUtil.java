@@ -199,7 +199,7 @@ public class EnvUtil {
       env = new Properties();
       if ( returnMap != null ) {
         // We're on a VM with getenv() defined.
-        ArrayList<String> list = new ArrayList<String>( returnMap.keySet() );
+        ArrayList<String> list = new ArrayList<>( returnMap.keySet() );
         for ( int i = 0; i < list.size(); i++ ) {
           String var = list.get( i );
           String val = returnMap.get( var );

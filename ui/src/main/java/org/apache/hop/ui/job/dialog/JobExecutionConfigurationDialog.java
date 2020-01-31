@@ -174,10 +174,10 @@ public class JobExecutionConfigurationDialog extends ConfigurationDialog {
 
   private void getVariablesData() {
     wVariables.clearAll( false );
-    List<String> variableNames = new ArrayList<String>( configuration.getVariables().keySet() );
+    List<String> variableNames = new ArrayList<>( configuration.getVariables().keySet() );
     Collections.sort( variableNames );
 
-    List<String> paramNames = new ArrayList<String>( configuration.getParams().keySet() );
+    List<String> paramNames = new ArrayList<>( configuration.getParams().keySet() );
 
     for ( int i = 0; i < variableNames.size(); i++ ) {
       String variableName = variableNames.get( i );

@@ -50,7 +50,7 @@ import org.w3c.dom.Node;
  * This method is required to return a new instance of the partitioner class, with the plugin id and plugin description
  * inherited from the instance this function is called on.</li>
  * <li><b>Serialize partitioner settings</b><br/>
- * The plugin needs to be able to serialize its settings to both XML and a PDI repository. The interface methods are as
+ * The plugin needs to be able to serialize its settings to XML. The interface methods are as
  * follows.
  * <p>
  * <i><a href="#getXML()">public String getXML()</a></i>
@@ -65,24 +65,6 @@ import org.w3c.dom.Node;
  * This method is called by PDI whenever a plugin needs to read its settings from XML. The XML node containing the
  * plugin's settings is passed in as an argument. Again, the helper class org.apache.hop.core.xml.XMLHandler is
  * typically used to conveniently read the settings from the XML node.
- * <p>
- * <i><a href=
- * "#saveRep(org.apache.hop.repository.Repository, org.apache.hop.repository.ObjectId,
- *    org.apache.hop.repository.ObjectId)"
- * >public void saveRep(...)</a></i>
- * <p>
- * This method is called by PDI whenever a plugin needs to save its settings to a PDI repository. The repository object
- * passed in as the first argument provides a convenient set of methods for serializing settings. The transformation id
- * and step id passed in should be used as identifiers when calling the repository serialization methods.
- * <p>
- * <i><a href="#loadRep(org.apache.hop.repository.Repository, org.apache.hop.repository.ObjectId)">public void
- * loadRep(...)</a></i>
- * <p>
- * This method is called by PDI whenever a plugin needs to read its configuration from a PDI repository. The step id
- * given in the arguments should be used as the identifier when using the repositories serialization methods.</li>
- * <li><b>Provide access to dialog class</b></li>
- * PDI needs to know which class will take care of the settings dialog for the plugin. The interface method must return
- * the name of the class implementing the StepDialogInterface for the partitioner.
  * <p>
  * <i><a href="#getDialogClassName()">public String getDialogClassName()</i></a> </li>
  * <li><b>Partition incoming rows during runtime</b><br/>

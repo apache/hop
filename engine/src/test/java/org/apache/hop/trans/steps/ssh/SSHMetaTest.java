@@ -88,7 +88,7 @@ public class SSHMetaTest {
       "servername", "userName", "password", "usePrivateKey", "keyFileName", "passPhrase", "stdOutFieldName",
       "stdErrFieldName", "timeOut", "proxyHost", "proxyPort", "proxyUsername", "proxyPassword" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "dynamicCommandField", "isDynamicCommand" );
     getterMap.put( "command", "getCommand" );
     getterMap.put( "commandfieldname", "getcommandfieldname" );
@@ -107,7 +107,7 @@ public class SSHMetaTest {
     getterMap.put( "proxyUsername", "getProxyUsername" );
     getterMap.put( "proxyPassword", "getProxyPassword" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "dynamicCommandField", "setDynamicCommand" );
     setterMap.put( "command", "setCommand" );
     setterMap.put( "commandfieldname", "setcommandfieldname" );

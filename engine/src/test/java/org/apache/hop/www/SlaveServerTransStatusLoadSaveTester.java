@@ -39,8 +39,8 @@ public class SlaveServerTransStatusLoadSaveTester extends LoadSaveBase<SlaveServ
 
   public SlaveServerTransStatusLoadSaveTester( Class<SlaveServerTransStatus> clazz, List<String> commonAttributes,
                                                Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap ) {
-    super( clazz, commonAttributes, new ArrayList<String>(), new ArrayList<String>(), new HashMap<String, String>(),
-      new HashMap<String, String>(), fieldLoadSaveValidatorAttributeMap,
+    super( clazz, commonAttributes, new ArrayList<>(), new HashMap<>(),
+      new HashMap<>(), fieldLoadSaveValidatorAttributeMap,
       new HashMap<String, FieldLoadSaveValidator<?>>() );
   }
 

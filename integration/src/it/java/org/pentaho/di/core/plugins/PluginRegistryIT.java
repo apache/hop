@@ -89,7 +89,7 @@ public class PluginRegistryIT extends TestCase {
       tableInputPlugin =
         new Plugin( new String[] { TABLE_INPUT_PLUGIN_ID, }, pluginTypeClass, StepMetaInterface.class,
           PLUGIN_INPUT_CATEGORY, TABLE_INPUT_PLUGIN_NAME, TABLE_INPUT_PLUGIN_DESCRIPTION,
-          TABLE_INPUT_PLUGIN_IMAGE_FILE_NAME, false, true, classMap, new ArrayList<String>(),
+          TABLE_INPUT_PLUGIN_IMAGE_FILE_NAME, false, true, classMap, new ArrayList<>(),
           null, // No error help file
           null, // pluginFolder
           null, // documentation URL
@@ -117,7 +117,7 @@ public class PluginRegistryIT extends TestCase {
       tableOutputPlugin =
         new Plugin( new String[] { TABLE_OUTPUT_PLUGIN_ID, }, pluginTypeClass, StepMetaInterface.class,
           PLUGIN_OUTPUT_CATEGORY, TABLE_OUTPUT_PLUGIN_NAME, TABLE_OUTPUT_PLUGIN_DESCRIPTION,
-          TABLE_OUTPUT_PLUGIN_IMAGE_FILE_NAME, false, true, classMap, new ArrayList<String>(),
+          TABLE_OUTPUT_PLUGIN_IMAGE_FILE_NAME, false, true, classMap, new ArrayList<>(),
           null, // No error help file
           null, // pluginFolder
           null, // documentation URL

@@ -1534,7 +1534,7 @@ public class TransSplitter {
         //
         List<String> partitions = schemaPartitionsMap.get( partitionSchema );
         if ( partitions == null ) {
-          partitions = new ArrayList<String>();
+          partitions = new ArrayList<>();
           schemaPartitionsMap.put( partitionSchema, partitions );
         }
 

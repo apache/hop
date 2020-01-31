@@ -42,12 +42,12 @@ public class CubeOutputMetaTest {
     List<String> attributes =
       Arrays.asList( "name", "add_to_result_filenames", "do_not_open_newfile_init" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "name", "getFilename" );
     getterMap.put( "add_to_result_filenames", "isAddToResultFiles" );
     getterMap.put( "do_not_open_newfile_init", "isDoNotOpenNewFileInit" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "name", "setFilename" );
     setterMap.put( "add_to_result_filenames", "setAddToResultFiles" );
     setterMap.put( "do_not_open_newfile_init", "setDoNotOpenNewFileInit" );

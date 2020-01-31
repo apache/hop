@@ -40,13 +40,13 @@ public class FieldsChangeSequenceMetaTest {
   public void testStepMeta() throws HopException {
     List<String> attributes = Arrays.asList( "start", "increment", "resultfieldName", "name" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "start", "getStart" );
     getterMap.put( "increment", "getIncrement" );
     getterMap.put( "resultfieldName", "getResultFieldName" );
     getterMap.put( "name", "getFieldName" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "start", "setStart" );
     setterMap.put( "increment", "setIncrement" );
     setterMap.put( "resultfieldName", "setResultFieldName" );

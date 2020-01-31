@@ -53,7 +53,7 @@ public class CsvInputFileEncodingIT extends CsvInputBase {
     TransMeta transMeta = new TransMeta();
     transMeta.setName( "csvinput1" );
 
-    Map<String, String> vars = new HashMap<String, String>();
+    Map<String, String> vars = new HashMap<>();
     vars.put( "${P_ENCODING}", "UTF-8" );
     vars.put( "P_ENCODING", "UTF-8" );
     transMeta.injectVariables( vars );

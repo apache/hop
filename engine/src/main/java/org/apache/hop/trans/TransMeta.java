@@ -42,8 +42,6 @@ import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.ProgressMonitorListener;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.attributes.AttributesUtil;
 import org.apache.hop.core.database.Database;
@@ -121,8 +119,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * This class defines information about a transformation and offers methods to save and load it from XML or a PDI
- * database repository, as well as methods to alter a transformation by adding/removing databases, steps, hops, etc.
+ * This class defines information about a transformation and offers methods to save and load it from XML as
+ * well as methods to alter a transformation by adding/removing databases, steps, hops, etc.
  *
  * @author Matt Casters
  * @since 20-jun-2003
@@ -518,23 +516,17 @@ public class TransMeta extends AbstractMeta
 
 
   /**
-   * Compares two transformation on name, filename, repository directory, etc.
+   * Compares two transformation on name and filename.
    * The comparison algorithm is as follows:<br/>
    * <ol>
-   * <li>The first transformation's filename is checked first; if it has none, the transformation comes from a
-   * repository. If the second transformation does not come from a repository, -1 is returned.</li>
-   * <li>If the transformations are both from a repository, the transformations' names are compared. If the first
+   * <li>The first transformation's filename is checked first; if it has none, the transformation is generated
+   * If the second transformation is not generated, -1 is returned.</li>
+   * <li>If the transformations are both generated, the transformations' names are compared. If the first
    * transformation has no name and the second one does, a -1 is returned.
-   * If the opposite is true, a 1 is returned.</li>
+   * If the opposite is true, 1 is returned.</li>
    * <li>If they both have names they are compared as strings. If the result is non-zero it is returned. Otherwise the
    * repository directories are compared using the same technique of checking empty values and then performing a string
    * comparison, returning any non-zero result.</li>
-   * <li>If the names and directories are equal, the object revision strings are compared using the same technique of
-   * checking empty values and then performing a string comparison, this time ultimately returning the result of the
-   * string compare.</li>
-   * <li>If the first transformation does not come from a repository and the second one does, a 1 is returned. Otherwise
-   * the transformation names and filenames are subsequently compared using the same technique of checking empty values
-   * and then performing a string comparison, ultimately returning the result of the filename string comparison.
    * </ol>
    *
    * @param t1 the first transformation to compare
@@ -1697,7 +1689,7 @@ public class TransMeta extends AbstractMeta
    * @throws HopStepException the kettle step exception
    */
   public RowMetaInterface getStepFields( StepMeta stepMeta, ProgressMonitorListener monitor ) throws HopStepException {
-    setRepositoryOnMappingSteps();
+    setMetaStoreOnMappingSteps();
     return getStepFields( stepMeta, null, monitor );
   }
 
@@ -1952,7 +1944,7 @@ public class TransMeta extends AbstractMeta
       }
     }
 
-    setRepositoryOnMappingSteps();
+    setMetaStoreOnMappingSteps();
 
     // Go get the fields...
     //
@@ -2022,11 +2014,11 @@ public class TransMeta extends AbstractMeta
   }
 
   /**
-   * Set the Repository object on the Mapping step That way the mapping step can determine the output fields for
-   * repository hosted mappings... This is the exception to the rule so we don't pass this through the getFields()
+   * Set the MetaStore on the Mapping step. That way the mapping step can determine the output fields for
+   * metastore referencing mappings... This is the exception to the rule so we don't pass this through the getFields()
    * method. TODO: figure out a way to make this more generic.
    */
-  private void setRepositoryOnMappingSteps() {
+  private void setMetaStoreOnMappingSteps() {
 
     for ( StepMeta step : steps ) {
       if ( step.getStepMetaInterface() instanceof MappingMeta ) {
@@ -2111,53 +2103,6 @@ public class TransMeta extends AbstractMeta
       }
     }
     return false;
-  }
-
-  /**
-   * Checks if the transformation is referenced by a repository.
-   *
-   * @return true if the transformation is referenced by a repository, false otherwise
-   */
-  public boolean isRepReference() {
-    return isRepReference( getFilename(), this.getName() );
-  }
-
-  /**
-   * Checks if the transformation is referenced by a file. If the transformation is not referenced by a repository, it
-   * is assumed to be referenced by a file.
-   *
-   * @return true if the transformation is referenced by a file, false otherwise
-   * @see #isRepReference()
-   */
-  public boolean isFileReference() {
-    return !isRepReference( getFilename(), this.getName() );
-  }
-
-  /**
-   * Checks (using the exact filename and transformation name) if the transformation is referenced by a repository. If
-   * referenced by a repository, the exact filename should be empty and the exact transformation name should be
-   * non-empty.
-   *
-   * @param exactFilename  the exact filename
-   * @param exactTransname the exact transformation name
-   * @return true if the transformation is referenced by a repository, false otherwise
-   */
-  public static boolean isRepReference( String exactFilename, String exactTransname ) {
-    return Utils.isEmpty( exactFilename ) && !Utils.isEmpty( exactTransname );
-  }
-
-  /**
-   * Checks (using the exact filename and transformation name) if the transformation is referenced by a file. If
-   * referenced by a repository, the exact filename should be non-empty and the exact transformation name should be
-   * empty.
-   *
-   * @param exactFilename  the exact filename
-   * @param exactTransname the exact transformation name
-   * @return true if the transformation is referenced by a file, false otherwise
-   * @see #isRepReference(String, String)
-   */
-  public static boolean isFileReference( String exactFilename, String exactTransname ) {
-    return !isRepReference( exactFilename, exactTransname );
   }
 
   /**
@@ -2411,9 +2356,7 @@ public class TransMeta extends AbstractMeta
   }
 
   /**
-   * Parses a file containing the XML that describes the transformation. No default connections are loaded since no
-   * repository is available at this time. Since the filename is set, internal variables are being set that relate to
-   * this.
+   * Parses a file containing the XML that describes the transformation.
    *
    * @param fname The filename
    * @throws HopXMLException            if any errors occur during parsing of the specified file
@@ -2424,8 +2367,7 @@ public class TransMeta extends AbstractMeta
   }
 
   /**
-   * Parses a file containing the XML that describes the transformation. No default connections are loaded since no
-   * repository is available at this time. Since the filename is set, variables are set in the specified variable space
+   * Parses a file containing the XML that describes the transformation.  Since the filename is set, variables are set in the specified variable space
    * that relate to this.
    *
    * @param fname               The filename
@@ -2521,8 +2463,7 @@ public class TransMeta extends AbstractMeta
   }
 
   /**
-   * Parse a file containing the XML that describes the transformation. Specify a repository to load default list of
-   * database connections from and to reference in mappings etc.
+   * Parse a file containing the XML that describes the transformation.
    *
    * @param transnode The XML node to load from
    * @throws HopXMLException            if any errors occur during parsing of the specified file
@@ -4835,7 +4776,7 @@ public class TransMeta extends AbstractMeta
 
     String exportFileName = null;
     try {
-      // Handle naming for both repository and XML bases resources...
+      // Handle naming for XML bases resources...
       //
       String baseName;
       String originalPath;
@@ -4890,7 +4831,7 @@ public class TransMeta extends AbstractMeta
 
           // Also remember the original filename (if any), including variables etc.
           //
-          if ( Utils.isEmpty( this.getFilename() ) ) { // Repository
+          if ( Utils.isEmpty( this.getFilename() ) ) { // Generated
             definition.setOrigin( fullname );
           } else {
             definition.setOrigin( this.getFilename() );

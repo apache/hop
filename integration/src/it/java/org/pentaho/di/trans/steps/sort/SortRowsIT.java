@@ -510,8 +510,8 @@ public class SortRowsIT {
   }
 
   private void checkStringSortCorrect( List<RowMetaAndData> list, boolean caseSensitive, boolean asc ) throws HopValueException {
-    List<String> actual = new ArrayList<String>();
-    List<String> expected = new ArrayList<String>();
+    List<String> actual = new ArrayList<>();
+    List<String> expected = new ArrayList<>();
 
     String caseSen = caseSensitive ? "case sensitive" : "case unsensitive";
 

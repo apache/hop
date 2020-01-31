@@ -1052,15 +1052,6 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   }
 
   /**
-   * Checks whether the job entry has repository references. For JobEntryBase, this method always returns false
-   *
-   * @return false
-   */
-  public boolean hasRepositoryReferences() {
-    return false;
-  }
-
-  /**
    * @return The objects referenced in the step, like a a transformation, a job, a mapper, a reducer, a combiner, ...
    */
   public String[] getReferencedObjectDescriptions() {

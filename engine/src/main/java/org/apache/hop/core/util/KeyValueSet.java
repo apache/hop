@@ -111,7 +111,7 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
    * @return keys.
    */
   public List<String> keys() {
-    return new ArrayList<String>( this.entries.keySet() );
+    return new ArrayList<>( this.entries.keySet() );
   }
 
   /**
