@@ -25,7 +25,9 @@ package org.apache.hop.ui.hopgui.file.trans;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiToolbarElement;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.TransMeta;
@@ -55,6 +57,9 @@ import java.util.Map;
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
 
   private static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiTransLogDelegate-ToolBar";
+  public static final String TOOLBAR_ICON_CLEAR_LOG_VIEW = "ToolbarIcon-10000-ClearLog";
+  public static final String TOOLBAR_ICON_SHOW_ERROR_LINES = "ToolbarIcon-10010-ShowErrorLines";
+  public static final String TOOLBAR_ICON_LOG_SETTINGS = "ToolbarIcon-10020-LogSettings";
 
   private HopGuiTransGraph transGraph;
 
@@ -137,7 +142,7 @@ import java.util.Map;
   }
 
   private void addToolBar() {
-    toolbar = new ToolBar( transLogComposite, SWT.BORDER | SWT.WRAP | SWT.SHADOW_OUT | SWT.RIGHT | SWT.VERTICAL );
+    toolbar = new ToolBar( transLogComposite, SWT.BORDER | SWT.WRAP | SWT.SHADOW_OUT | SWT.LEFT | SWT.HORIZONTAL );
     FormData fdToolBar = new FormData(  );
     fdToolBar.left = new FormAttachment( 0, 0 );
     fdToolBar.top = new FormAttachment( 0, 0 );
@@ -168,10 +173,15 @@ import java.util.Map;
     // spoon.addTransLog(transMeta);
   }
 
-  public void showLogSettings() {
-    // TODO: hopUi.setLog();
-  }
-
+  @GuiToolbarElement(
+    id = TOOLBAR_ICON_CLEAR_LOG_VIEW,
+    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+    type = GuiElementType.TOOLBAR_BUTTON,
+    label = "${TransLog.Button.ClearLog}",
+    toolTip = "${TransLog.Button.ClearLog}",
+    i18nPackageClass = HopUi.class,
+    image = "ui/images/trash.svg"
+  )
   public void clearLog() {
     if ( transLogText != null && !transLogText.isDisposed() ) {
       transLogText.setText( "" );
@@ -187,6 +197,28 @@ import java.util.Map;
     }
   }
 
+  @GuiToolbarElement(
+    id = TOOLBAR_ICON_LOG_SETTINGS,
+    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+    type = GuiElementType.TOOLBAR_BUTTON,
+    label = "${TransLog.Button.LogSettings}",
+    toolTip = "${TransLog.Button.LogSettings}",
+    i18nPackageClass = HopUi.class,
+    image = "ui/images/log-settings.svg"
+  )
+  public void showLogSettings() {
+    // TODO: implement or rethink
+  }
+
+  @GuiToolbarElement(
+    id = TOOLBAR_ICON_SHOW_ERROR_LINES,
+    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+    type = GuiElementType.TOOLBAR_BUTTON,
+    label = "${TransLog.Button.ShowErrorLines}",
+    toolTip = "${TransLog.Button.ShowErrorLines}",
+    i18nPackageClass = HopUi.class,
+    image = "ui/images/show-error-lines.svg"
+  )
   public void showErrors() {
     String all = transLogText.getText();
     ArrayList<String> err = new ArrayList<>();

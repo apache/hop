@@ -26,6 +26,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -126,97 +127,102 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
     tabFolder.addCTabFolder2Listener( new CTabFolder2Adapter() {
       @Override public void close( CTabFolderEvent event ) {
-        // A tab is closed.  We need to handle this gracefully.
-        // - Look up which tab it is
-        // - Look up which file it contains
-        // - Save the file if it was changed
-        // - Remove the tab and file from the list
-        //
-        CTabItem tabItem = (CTabItem) event.item;
-        int tabIndex = tabFolder.indexOf( tabItem );
-        TabItemHandler tabItemHandler = findTabItemHandler( tabItem );
-        if (tabItemHandler==null) {
-          hopGui.getLog().logError( "Tab item handler not found for tab item "+tabItem.toString() );
-          return;
-        }
-        HopFileTypeHandlerInterface typeHandler = tabItemHandler.getTypeHandler();
-        remove(typeHandler);
-
-        // Also switch to the last used tab
-        // But first remove all from the selection history
-        //
-        if (tabIndex>=0) {
-          // Remove the index from the tab selection history
-          //
-          int historyIndex = tabSelectionHistory.indexOf( tabIndex );
-          while ( historyIndex>=0 ) {
-            if (historyIndex<=tabSelectionIndex) {
-              tabSelectionIndex--;
-            }
-            tabSelectionHistory.remove( historyIndex );
-
-            // Search again
-            historyIndex = tabSelectionHistory.indexOf( tabIndex );
-          }
-
-          // Compress the history: 2 the same files visited after each other become one.
-          //
-          Stack<Integer> newHistory = new Stack<>();
-          Integer previous = null;
-          for (int i=0;i<tabSelectionHistory.size();i++ ) {
-            Integer index = tabSelectionHistory.get(i);
-            if (previous==null || previous!=index) {
-              newHistory.add(index);
-            } else {
-              if (tabSelectionIndex>=i) {
-                tabSelectionIndex--;
-              }
-            }
-            previous=index;
-          }
-          tabSelectionHistory=newHistory;
-
-          // Correct the history taken the removed tab into account
-          //
-          for ( int i=0;i<tabSelectionHistory.size();i++) {
-            int index = tabSelectionHistory.get( i );
-            if (index>tabIndex) {
-              tabSelectionHistory.set( i, index-- );
-            }
-          }
-
-          // Select the appropriate tab on the stack
-          //
-          if ( tabSelectionIndex<0) {
-            tabSelectionIndex=0;
-          } else if (tabSelectionIndex>=tabSelectionHistory.size() ) {
-            tabSelectionIndex=tabSelectionHistory.size()-1;
-          }
-          if (!tabSelectionHistory.isEmpty()) {
-            Integer activeIndex = tabSelectionHistory.get( tabSelectionIndex );
-            activeItem = items.get( activeIndex );
-            tabFolder.setSelection( activeIndex );
-            activeItem.getTypeHandler().updateGui();
-          }
-        }
+        handleTabCloseEvent(event);
       }
     });
+    tabFolder.addListener( SWT.Selection, event-> handTabSelectionEvent(event) );
 
-    tabFolder.addListener( SWT.Selection, e->{
-      CTabItem tabItem = (CTabItem) e.item;
-      activeItem = findTabItemHandler( tabItem );
-      if (activeItem!=null) {
-        activeItem.getTypeHandler().redraw();
+  }
+
+  private void handTabSelectionEvent( Event event ) {
+    CTabItem tabItem = (CTabItem) event.item;
+    activeItem = findTabItemHandler( tabItem );
+    if (activeItem!=null) {
+      activeItem.getTypeHandler().redraw();
+      activeItem.getTypeHandler().updateGui();
+    }
+    int tabIndex = tabFolder.indexOf( tabItem );
+    Integer lastIndex = tabSelectionHistory.isEmpty() ? null : tabSelectionHistory.peek();
+    if ( lastIndex == null || lastIndex != tabIndex ) {
+      tabSelectionHistory.push( tabIndex );
+      tabSelectionIndex = tabSelectionHistory.size()-1;
+    }
+  }
+
+  private void handleTabCloseEvent( CTabFolderEvent event ) {
+    // A tab is closed.  We need to handle this gracefully.
+    // - Look up which tab it is
+    // - Look up which file it contains
+    // - Save the file if it was changed
+    // - Remove the tab and file from the list
+    //
+    CTabItem tabItem = (CTabItem) event.item;
+    int tabIndex = tabFolder.indexOf( tabItem );
+    TabItemHandler tabItemHandler = findTabItemHandler( tabItem );
+    if (tabItemHandler==null) {
+      hopGui.getLog().logError( "Tab item handler not found for tab item "+tabItem.toString() );
+      return;
+    }
+    HopFileTypeHandlerInterface typeHandler = tabItemHandler.getTypeHandler();
+    remove(typeHandler);
+
+    // Also switch to the last used tab
+    // But first remove all from the selection history
+    //
+    if (tabIndex>=0) {
+      // Remove the index from the tab selection history
+      //
+      int historyIndex = tabSelectionHistory.indexOf( tabIndex );
+      while ( historyIndex>=0 ) {
+        if (historyIndex<=tabSelectionIndex) {
+          tabSelectionIndex--;
+        }
+        tabSelectionHistory.remove( historyIndex );
+
+        // Search again
+        historyIndex = tabSelectionHistory.indexOf( tabIndex );
+      }
+
+      // Compress the history: 2 the same files visited after each other become one.
+      //
+      Stack<Integer> newHistory = new Stack<>();
+      Integer previous = null;
+      for (int i=0;i<tabSelectionHistory.size();i++ ) {
+        Integer index = tabSelectionHistory.get(i);
+        if (previous==null || previous!=index) {
+          newHistory.add(index);
+        } else {
+          if (tabSelectionIndex>=i) {
+            tabSelectionIndex--;
+          }
+        }
+        previous=index;
+      }
+      tabSelectionHistory=newHistory;
+
+      // Correct the history taken the removed tab into account
+      //
+      for ( int i=0;i<tabSelectionHistory.size();i++) {
+        int index = tabSelectionHistory.get( i );
+        if (index>tabIndex) {
+          tabSelectionHistory.set( i, index-- );
+        }
+      }
+
+      // Select the appropriate tab on the stack
+      //
+      if ( tabSelectionIndex<0) {
+        tabSelectionIndex=0;
+      } else if (tabSelectionIndex>=tabSelectionHistory.size() ) {
+        tabSelectionIndex=tabSelectionHistory.size()-1;
+      }
+      if (!tabSelectionHistory.isEmpty()) {
+        Integer activeIndex = tabSelectionHistory.get( tabSelectionIndex );
+        activeItem = items.get( activeIndex );
+        tabFolder.setSelection( activeIndex );
         activeItem.getTypeHandler().updateGui();
       }
-      int tabIndex = tabFolder.indexOf( tabItem );
-      Integer lastIndex = tabSelectionHistory.isEmpty() ? null : tabSelectionHistory.peek();
-      if ( lastIndex == null || lastIndex != tabIndex ) {
-        tabSelectionHistory.push( tabIndex );
-        tabSelectionIndex = tabSelectionHistory.size()-1;
-      }
-    } );
-
+    }
   }
 
   public TabItemHandler findTabItemHandler(CTabItem tabItem) {
