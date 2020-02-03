@@ -177,8 +177,8 @@ import java.util.Map;
     id = TOOLBAR_ICON_CLEAR_LOG_VIEW,
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     type = GuiElementType.TOOLBAR_BUTTON,
-    label = "${TransLog.Button.ClearLog}",
-    toolTip = "${TransLog.Button.ClearLog}",
+    label = "TransLog.Button.ClearLog",
+    toolTip = "TransLog.Button.ClearLog",
     i18nPackageClass = HopUi.class,
     image = "ui/images/trash.svg"
   )
@@ -201,8 +201,8 @@ import java.util.Map;
     id = TOOLBAR_ICON_LOG_SETTINGS,
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     type = GuiElementType.TOOLBAR_BUTTON,
-    label = "${TransLog.Button.LogSettings}",
-    toolTip = "${TransLog.Button.LogSettings}",
+    label = "TransLog.Button.LogSettings",
+    toolTip = "TransLog.Button.LogSettings",
     i18nPackageClass = HopUi.class,
     image = "ui/images/log-settings.svg"
   )
@@ -214,8 +214,8 @@ import java.util.Map;
     id = TOOLBAR_ICON_SHOW_ERROR_LINES,
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     type = GuiElementType.TOOLBAR_BUTTON,
-    label = "${TransLog.Button.ShowErrorLines}",
-    toolTip = "${TransLog.Button.ShowErrorLines}",
+    label = "TransLog.Button.ShowErrorLines",
+    toolTip = "TransLog.Button.ShowErrorLines",
     i18nPackageClass = HopUi.class,
     image = "ui/images/show-error-lines.svg"
   )

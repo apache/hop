@@ -62,7 +62,7 @@ public class HopGuiFileDelegate {
         throw new HopException( "We looked at "+fileRegistry.getFileTypes().size()+" different Hop GUI file types but none know how to open file '"+filename+"'" );
       }
 
-      HopFileTypeHandlerInterface hopFileTypeHandlerInterface = hopFile.openFile( hopGui, filename, hopGui.getVariableSpace() );
+      hopFile.openFile( hopGui, filename, hopGui.getVariableSpace() );
       hopGui.handleFileCapabilities(hopFile);
 
     } catch ( Exception e ) {

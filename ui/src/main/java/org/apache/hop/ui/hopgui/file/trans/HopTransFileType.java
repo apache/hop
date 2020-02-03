@@ -25,6 +25,10 @@ public class HopTransFileType<T extends TransMeta> extends HopFileTypeBase<T> im
   public HopTransFileType() {
   }
 
+  @Override public String getName() {
+    return "Transformation"; // TODO: i18n
+  }
+
   @Override public String[] getFilterExtensions() {
     return new String[] { "*.ktr" };
   }
@@ -35,6 +39,7 @@ public class HopTransFileType<T extends TransMeta> extends HopFileTypeBase<T> im
 
   public Properties getCapabilities() {
     Properties capabilities = new Properties();
+    capabilities.setProperty( HopFileTypeInterface.CAPABILITY_NEW, "true" );
     capabilities.setProperty( HopFileTypeInterface.CAPABILITY_START, "true" );
     capabilities.setProperty( HopFileTypeInterface.CAPABILITY_STOP, "true" );
     capabilities.setProperty( HopFileTypeInterface.CAPABILITY_SAVE, "true" );
@@ -68,6 +73,25 @@ public class HopTransFileType<T extends TransMeta> extends HopFileTypeBase<T> im
       return perspective.addTransformation( perspective.getTabFolder(), hopGui, transMeta, this );
     } catch ( Exception e ) {
       throw new HopException( "Error opening transformation file '" + filename + "'", e );
+    }
+  }
+
+  @Override public HopFileTypeHandlerInterface newFile( HopGui hopGui, VariableSpace parentVariableSpace ) throws HopException {
+    try {
+      // This file is created in the data orchestration perspective
+      //
+      HopDataOrchestrationPerspective perspective = HopDataOrchestrationPerspective.getInstance();
+      perspective.activate();
+
+      // Create the empty transformation
+      //
+      TransMeta transMeta = new TransMeta( parentVariableSpace );
+
+      // Show it in the perspective
+      //
+      return perspective.addTransformation( perspective.getTabFolder(), hopGui, transMeta, this );
+    } catch ( Exception e ) {
+      throw new HopException( "Error creating new transformation", e );
     }
   }
 

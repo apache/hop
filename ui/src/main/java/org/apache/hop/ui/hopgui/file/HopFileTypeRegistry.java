@@ -1,5 +1,6 @@
 package org.apache.hop.ui.hopgui.file;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 
 import java.util.ArrayList;
@@ -78,5 +79,25 @@ public class HopFileTypeRegistry {
       filterNames.addAll( Arrays.asList(hopFile.getFilterNames()));
     }
     return filterNames.toArray(new String[0]);
+  }
+
+  public List<String> getFileTypeNames() {
+    List<String> names = new ArrayList<>(  );
+    for (HopFileTypeInterface fileType : hopFileTypes) {
+      names.add(fileType.getName());
+    }
+    return names;
+  }
+
+  public HopFileTypeInterface getFileTypeByName(String name) {
+    if ( StringUtils.isEmpty(name)) {
+      return null;
+    }
+    for (HopFileTypeInterface fileType : hopFileTypes) {
+      if (fileType.getName().equalsIgnoreCase( name )) {
+        return fileType;
+      }
+    }
+    return null;
   }
 }

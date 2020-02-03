@@ -11,63 +11,63 @@ public interface HopFileTypeHandlerInterface {
    * Get a hold of the file type details
    * @return
    */
-  public HopFileTypeInterface getFileType();
+  HopFileTypeInterface getFileType();
 
   /**
    * @return The filename of the hop file
    */
-  public String getFilename();
+  String getFilename();
 
   /**
    * Change the filename of the hop file
    * @param filename The new filename
    */
-  public void setFilename(String filename);
+  void setFilename(String filename);
 
   /**
    * Save the file without asking for a new filename
    */
-  public void save() throws HopException;
+  void save() throws HopException;
 
   /**
    * Save the file after asking for a filename
    */
-  public void saveAs(String filename) throws HopException;
+  void saveAs(String filename) throws HopException;
 
   /**
    * Start execution
    */
-  public void start();
+  void start();
 
   /**
    * Stop execution
    */
-  public void stop();
+  void stop();
 
   /**
    * Pause execution
    */
-  public void pause();
+  void pause();
 
   /**
    * Preview this file
    */
-  public void preview();
+  void preview();
 
   /**
    * Debug the file
    */
-  public void debug();
+  void debug();
 
   /**
    * Print the file
    */
-  public void print();
+  void print();
 
   /**
    * Refresh the graphical file representation after model changes
    */
-  public void redraw();
+  void redraw();
 
   /**
    * Update the toolbar, menus and so on. This is needed after a file, context or capabilities changes

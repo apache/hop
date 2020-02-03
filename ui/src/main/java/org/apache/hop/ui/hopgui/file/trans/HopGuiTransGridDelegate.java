@@ -260,8 +260,8 @@ public class HopGuiTransGridDelegate {
     id = TOOLBAR_ICON_SHOW_HIDE_INACTIVE,
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     type = GuiElementType.TOOLBAR_BUTTON,
-    label = "${TransLog.Button.ShowOnlyActiveSteps}",
-    toolTip = "${TransLog.Button.ShowOnlyActiveSteps}",
+    label = "TransLog.Button.ShowOnlyActiveSteps",
+    toolTip = "TransLog.Button.ShowOnlyActiveSteps",
     i18nPackageClass = HopUi.class,
     image = "ui/images/show-inactive.svg"
   )
@@ -283,8 +283,8 @@ public class HopGuiTransGridDelegate {
     id = TOOLBAR_ICON_SHOW_HIDE_SELECTED,
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     type = GuiElementType.TOOLBAR_BUTTON,
-    label = "${TransLog.Button.ShowOnlySelectedSteps}",
-    toolTip = "${TransLog.Button.ShowOnlySelectedSteps}",
+    label = "TransLog.Button.ShowOnlySelectedSteps",
+    toolTip = "TransLog.Button.ShowOnlySelectedSteps",
     i18nPackageClass = HopUi.class,
     image = "ui/images/toolbar/show-all.svg"
   )

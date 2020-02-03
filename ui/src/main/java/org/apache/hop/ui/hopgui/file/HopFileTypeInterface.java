@@ -10,6 +10,7 @@ import java.util.Properties;
 
 public interface HopFileTypeInterface<T extends XMLInterface> {
 
+  public static final String CAPABILITY_NEW = "New";
   public static final String CAPABILITY_SAVE = "Save";
   public static final String CAPABILITY_START = "Start";
   public static final String CAPABILITY_CLOSE = "Close";
@@ -25,6 +26,11 @@ public interface HopFileTypeInterface<T extends XMLInterface> {
   public static final String CAPABILITY_DELETE = "Delete";
 
   public static final String CAPABILITY_FILE_HISTORY = "FileHistory";
+
+  /**
+   * @return The name of this file type
+   */
+  String getName();
 
   /**
    * @return The file type extensions.
@@ -58,7 +64,9 @@ public interface HopFileTypeInterface<T extends XMLInterface> {
    */
   HopFileTypeHandlerInterface openFile( HopGui hopGui, String filename, VariableSpace parentVariableSpace ) throws HopException;
 
-    /**
+  HopFileTypeHandlerInterface newFile( HopGui hopGui, VariableSpace parentVariableSpace ) throws HopException;
+
+  /**
      * Look at the given file and see if it's handled by this type.
      * Usually this is done by simply looking at the file extension.
      * In rare cases we look at the content.

@@ -96,9 +96,6 @@ public class GuiMenuWidgets {
       Menu menu = parentMenu;
       if ( guiElements.getId() != null ) {
         menuItem = new MenuItem( parentMenu, SWT.CASCADE );
-        if (guiElements.getLabel()==null) {
-          System.err.println("No label on menu item");
-        }
         menuItem.setText( Const.NVL(guiElements.getLabel(), "") );
         setMenuItemKeyboardShortcut( menuItem, guiElements, sourceData.getClass().getName() );
         if ( StringUtils.isNotEmpty( guiElements.getToolTip() ) ) {

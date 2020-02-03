@@ -37,6 +37,7 @@ import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.metastore.MetaStoreManager;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileDelegate;
+import org.apache.hop.ui.hopgui.delegates.HopGuiNewDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiUndoDelegate;
 import org.apache.hop.ui.hopgui.file.EmptyFileType;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
@@ -159,6 +160,7 @@ public class HopGui {
 
   public HopGuiFileDelegate fileDelegate;
   public HopGuiUndoDelegate undoDelegate;
+  public HopGuiNewDelegate newDelegate;
 
   private HopGui( Display display ) {
     this.display = display;
@@ -175,6 +177,7 @@ public class HopGui {
 
     fileDelegate = new HopGuiFileDelegate( this );
     undoDelegate = new HopGuiUndoDelegate( this );
+    newDelegate = new HopGuiNewDelegate( this );
 
     // TODO: create metastore plugin system
     //
@@ -360,7 +363,7 @@ public class HopGui {
   @GuiKeyboardShortcut( control = true, key = 'n' )
   @GuiOSXKeyboardShortcut( command = true, key = 'n' )
   public void menuFileNew() {
-    System.out.println( "fileNew" );
+    newDelegate.fileNew();
   }
 
   @GuiMenuElement( id = ID_MAIN_MENU_FILE_OPEN, type = GuiElementType.MENU_ITEM, label = "Open", parentId = ID_MAIN_MENU_FILE )

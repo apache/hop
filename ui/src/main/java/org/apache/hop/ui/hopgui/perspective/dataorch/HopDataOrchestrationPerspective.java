@@ -116,8 +116,9 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
     // A tab folder covers the complete area...
     //
-    tabFolder = new CTabFolder( composite, SWT.NONE );
-    tabFolder.setBackground( GUIResource.getInstance().getColorBackground() );
+    tabFolder = new CTabFolder( composite, SWT.MULTI );
+    tabFolder.setSimple( false );
+    // tabFolder.setBackground( GUIResource.getInstance().getColorBackground() );
     FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment( 0, 0 );
     fdLabel.right = new FormAttachment( 100, 0 );
@@ -251,6 +252,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
    */
   public HopFileTypeHandlerInterface addTransformation( Composite parent, HopGui hopGui, TransMeta transMeta, HopTransFileType transFile ) throws HopException {
     CTabItem tabItem = new CTabItem( tabFolder, SWT.CLOSE );
+    tabItem.setImage( GUIResource.getInstance().getImageToolbarTrans() );
     HopGuiTransGraph transGraph = new HopGuiTransGraph( tabFolder, hopGui, tabItem, this, transMeta, transFile );
     tabItem.setControl( transGraph );
 

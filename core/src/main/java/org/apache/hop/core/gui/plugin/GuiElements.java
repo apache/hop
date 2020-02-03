@@ -120,6 +120,9 @@ public class GuiElements {
     this.singleTon = StringUtils.isNotEmpty(toolbarElement.parent());
     this.listenerClass = listenerClass;
     this.listenerMethod = method.getName();
+    if (toolbarElement.label().startsWith( "${" )) {
+      System.out.println("i18n");
+    }
     this.label = calculateI18n(i18nPackage, toolbarElement.label());
     this.toolTip = calculateI18n(i18nPackage, toolbarElement.toolTip());
   }
@@ -164,7 +167,7 @@ public class GuiElements {
     if (Void.class.equals( i18nPackageClass )) {
       return null;
     }
-    return i18nPackageClass.getName();
+    return i18nPackageClass.getPackage().getName();
   }
 
   private String calculateGetterMethod( GuiWidgetElement guiElement, String fieldName ) {
