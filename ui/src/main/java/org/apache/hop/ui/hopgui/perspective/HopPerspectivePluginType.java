@@ -23,23 +23,20 @@
 package org.apache.hop.ui.hopgui.perspective;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginFolder;
 import org.apache.hop.core.plugins.PluginMainClassType;
 import org.apache.hop.core.plugins.PluginTypeInterface;
-import org.apache.hop.ui.hopui.HopUiPlugin;
 
 import java.lang.annotation.Annotation;
-import java.util.Map;
 
 @PluginMainClassType( IHopPerspective.class )
 @PluginAnnotationType( HopPerspectivePlugin.class )
 public class HopPerspectivePluginType extends BasePluginType implements PluginTypeInterface {
 
   private HopPerspectivePluginType() {
-    super( HopUiPlugin.class, "HOP_PERSPECTIVES", "Hop Perspective Plugin" );
+    super( HopPerspectivePlugin.class, "HOP_PERSPECTIVES", "Hop Perspective Plugin" );
 
     pluginFolders.add( new PluginFolder( "plugins", false, true ) );
   }
