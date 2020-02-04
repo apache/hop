@@ -55,6 +55,7 @@
         <module>sapdb-assemblies</module>
         <module>sqlite-assemblies</module>
         <module>googlebigquery-assemblies</module>
+        <module>snowflake-assemblies</module>
     </modules>
 
 

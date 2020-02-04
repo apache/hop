@@ -85,6 +85,7 @@
         <module>sapdb</module>
         <module>sqlite</module>
         <module>googlebigquery</module>
+		<module>snowflake</module>        
       </modules>
     </profile>
 
