@@ -1,11 +1,5 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -40,8 +34,6 @@ import org.apache.hop.metastore.persist.MetaStoreAttribute;
  *
  * https://docs.snowflake.net/manuals/sql-reference/info-schema.html
  *
- * @author Nicolas Adment
- * @since 30-janv-2020
  */
 @DatabaseMetaPlugin(type = "SNOWFLAKE", typeDescription = "Snowflake")
 @GuiPlugin(id = "GUI-SnowflakeDatabaseMeta")
