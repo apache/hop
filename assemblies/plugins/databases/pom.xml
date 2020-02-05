@@ -25,7 +25,6 @@
         <module>vertica-assemblies</module>
         <module>teradata-assemblies</module>
         <module>universe-assemblies</module>
-        <module>neoview-assemblies</module>
         <module>firebird-assemblies</module>
         <module>ingres-assemblies</module>
         <module>as400-assemblies</module>
@@ -38,14 +37,12 @@
         <module>cache-assemblies</module>
         <module>dbase-assemblies</module>
         <module>exasol4-assemblies</module>
-        <module>extendb-assemblies</module>
         <module>sqlbase-assemblies</module>
         <module>h2-assemblies</module>
         <module>hypersonic-assemblies</module>
         <module>informix-assemblies</module>
         <module>interbase-assemblies</module>
         <module>kingbasees-assemblies</module>
-        <module>luciddb-assemblies</module>
         <module>msaccess-assemblies</module>
         <module>mssqlnative-assemblies</module>
         <module>mssql-assemblies</module>

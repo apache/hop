@@ -5,7 +5,7 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>databases/itnerbase</baseDirectory>
+    <baseDirectory>databases/interbase</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>

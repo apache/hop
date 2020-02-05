@@ -55,7 +55,6 @@
         <module>vectorwise</module>
         <module>teradata</module>
         <module>universe</module>
-        <module>neoview</module>
         <module>firebird</module>
         <module>ingres</module>
         <module>as400</module>
@@ -68,14 +67,12 @@
         <module>cache</module>
         <module>dbase</module>
         <module>exasol4</module>
-        <module>extendb</module>
         <module>sqlbase</module>
         <module>h2</module>
         <module>hypersonic</module>
         <module>informix</module>
         <module>interbase</module>
         <module>kingbasees</module>
-        <module>luciddb</module>
         <module>msaccess</module>
         <module>mssqlnative</module>
         <module>mssql</module>

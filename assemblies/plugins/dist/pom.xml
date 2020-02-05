@@ -169,19 +169,6 @@
 
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-neoview</artifactId>
-            <version>${hop-plugins-databases.version}</version>
-            <type>zip</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hop</groupId>
             <artifactId>hop-assemblies-plugins-databases-firebird</artifactId>
             <version>${hop-plugins-databases.version}</version>
             <type>zip</type>
@@ -338,19 +325,6 @@
 
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-extendb</artifactId>
-            <version>${hop-plugins-databases.version}</version>
-            <type>zip</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hop</groupId>
             <artifactId>hop-assemblies-plugins-databases-sqlbase</artifactId>
             <version>${hop-plugins-databases.version}</version>
             <type>zip</type>
@@ -417,19 +391,6 @@
         <dependency>
             <groupId>org.hop</groupId>
             <artifactId>hop-assemblies-plugins-databases-kingbasees</artifactId>
-            <version>${hop-plugins-databases.version}</version>
-            <type>zip</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-luciddb</artifactId>
             <version>${hop-plugins-databases.version}</version>
             <type>zip</type>
             <exclusions>
