@@ -10,7 +10,6 @@
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
-
     <artifactId>hop-assemblies-plugins-databases-firebird</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -18,6 +17,9 @@
     <name>Hop Assemblies Plugins Databases Firebird</name>
     <description></description>
 
+    <properties>        
+        <jaybird.version>2.1.6</jaybird.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -25,6 +27,17 @@
             <artifactId>hop-plugins-databases-firebird</artifactId>
             <version>${project.version}</version>
         </dependency>
+    	<dependency>
+      		<groupId>org.firebirdsql.jdbc</groupId>
+      		<artifactId>jaybird</artifactId>
+      		<version>${jaybird.version}</version>
+      		<exclusions>
+       			<exclusion>
+       				<groupId>*</groupId>
+       				<artifactId>*</artifactId>
+      			</exclusion>
+      		</exclusions>
+    	</dependency>        
     </dependencies>
 
 </project>

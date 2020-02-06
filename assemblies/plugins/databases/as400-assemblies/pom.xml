@@ -18,6 +18,9 @@
     <name>Hop Assemblies Plugins Databases AS400</name>
     <description></description>
 
+    <properties>
+        <jt400.version>6.1</jt400.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -25,6 +28,11 @@
             <artifactId>hop-plugins-databases-as400</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>net.sf.jt400</groupId>
+            <artifactId>jt400</artifactId>
+            <version>${jt400.version}</version>
+        </dependency>        
     </dependencies>
 
 </project>
