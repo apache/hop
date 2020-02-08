@@ -24,6 +24,7 @@
 package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ProgressMonitorListener;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopValueException;
@@ -34,6 +35,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
 
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -469,6 +471,22 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
     }
     return retval;
   }
+  
+  @Override
+  public List<DatabaseDriver> getDrivers() {
+  	return null;
+  }
+  
+  public void downloadDriver(ProgressMonitorListener monitor, DatabaseDriver driver)
+  		throws IOException, InterruptedException {
+
+  	assert driver != null : "Unable to load null database driver";
+  	for (DatabaseDriverLibrary library : driver.getDriverLibraries()) {
+  		//downloadDriverLibrary(monitor, library);
+  	}
+  }
+
+
 
   /*
    * *******************************************************************************
