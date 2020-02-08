@@ -33,14 +33,13 @@ import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
 /**
- * Singleton class to allow us to see on which date & time the kettle3.jar was built.
+ * Singleton class to allow us to see on which date & time the hop-core.jar was built.
  *
  * @author Matt
  * @since 2006-aug-12
  */
 public class BuildVersion {
-  public static final String REFERENCE_FILE = "/kettle-steps.xml";
-
+ 
   public static final String JAR_BUILD_DATE_FORMAT = "yyyy-MM-dd HH.mm.ss";
 
   public static final String HOP_BUILD_VERSION = "HOP_BUILD_VERSION";
