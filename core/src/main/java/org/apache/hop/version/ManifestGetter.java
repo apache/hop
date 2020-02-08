@@ -28,7 +28,7 @@ import java.util.jar.Manifest;
 
 public class ManifestGetter {
   public Manifest getManifest() throws Exception {
-    URL url = this.getClass().getResource("/META-INF/MANIFEST.MF");
+    URL url = this.getClass().getResource( BuildVersion.REFERENCE_FILE );
     JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
     return jarConnection.getManifest();
   }
