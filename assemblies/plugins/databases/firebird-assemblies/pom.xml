@@ -17,27 +17,12 @@
     <name>Hop Assemblies Plugins Databases Firebird</name>
     <description></description>
 
-    <properties>        
-        <jaybird.version>2.1.6</jaybird.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
             <artifactId>hop-plugins-databases-firebird</artifactId>
             <version>${project.version}</version>
-        </dependency>
-    	<dependency>
-      		<groupId>org.firebirdsql.jdbc</groupId>
-      		<artifactId>jaybird</artifactId>
-      		<version>${jaybird.version}</version>
-      		<exclusions>
-       			<exclusion>
-       				<groupId>*</groupId>
-       				<artifactId>*</artifactId>
-      			</exclusion>
-      		</exclusions>
-    	</dependency>        
+        </dependency>       
     </dependencies>
 
 </project>
