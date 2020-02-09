@@ -30,9 +30,9 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.steps.common.CsvInputAwareMeta;
-import org.apache.hop.trans.steps.csvinput.CsvInput;
-import org.apache.hop.trans.steps.fileinput.text.EncodingType;
-import org.apache.hop.trans.steps.fileinput.text.TextFileInputUtils;
+//import org.apache.hop.trans.steps.csvinput.CsvInput;
+//import org.apache.hop.trans.steps.fileinput.text.EncodingType;
+//import org.apache.hop.trans.steps.fileinput.text.TextFileInputUtils;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -77,10 +77,13 @@ public interface CsvInputAwareStepDialog {
     final String delimiter = getTransMeta().environmentSubstitute( meta.getDelimiter() );
     final String enclosure = getTransMeta().environmentSubstitute( meta.getEnclosure() );
 
-    final EncodingType encodingType = EncodingType.guessEncodingType( reader.getEncoding() );
+    //TODO: refactor
+    //final EncodingType encodingType = EncodingType.guessEncodingType( reader.getEncoding() );
+
+    //TODO: refactor
 
     // Read a line of data to determine the number of rows...
-    final String line = TextFileInputUtils.getLine( getLogChannel(), reader, encodingType, meta.getFileFormatTypeNr(),
+/*    final String line = TextFileInputUtils.getLine( getLogChannel(), reader, encodingType, meta.getFileFormatTypeNr(),
       new StringBuilder( 1000 ) );
     if ( !StringUtils.isBlank( line ) ) {
       fieldNames = CsvInput.guessStringsFromLine( getLogChannel(), line, delimiter, enclosure,
@@ -89,7 +92,7 @@ public interface CsvInputAwareStepDialog {
     if ( Utils.isEmpty( fieldNames ) ) {
       logError( BaseMessages.getString( "Dialog.ErrorGettingFields.Message" ) );
       return fieldNames;
-    }
+    }*/
 
     // Massage field names
     for ( int i = 0; i < fieldNames.length; i++ ) {

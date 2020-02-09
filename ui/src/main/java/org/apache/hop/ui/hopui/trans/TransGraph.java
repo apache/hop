@@ -2208,9 +2208,10 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
     selectedSteps = null;
   }
 
-  public void generateMappingToThisStep() {
+  //TODO: disabled see if needed
+/*  public void generateMappingToThisStep() {
     hopUi.generateFieldMapping( transMeta, getCurrentStep() );
-  }
+  }*/
 
   public void partitioning() {
     hopUi.editPartitioning( transMeta, getCurrentStep() );

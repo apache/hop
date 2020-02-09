@@ -28,17 +28,6 @@
             <artifactId>hop-plugins-databases-sapdb</artifactId>
             <version>${project.version}</version>
         </dependency>
-    	<dependency>
-      		<groupId>com.sap</groupId>
-      		<artifactId>sapdbc</artifactId>
-      		<version>${sapdbc.version}</version>
-      		<exclusions>
-        		<exclusion>
-          			<groupId>*</groupId>
-          			<artifactId>*</artifactId>
-        		</exclusion>
-      		</exclusions>
-    	</dependency>        
     </dependencies>
 
 </project>

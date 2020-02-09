@@ -23,7 +23,7 @@
 package org.apache.hop.ui.trans.steps.terafast;
 
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.steps.terafast.TeraFastMeta;
+import org.apache.hop.core.database.TeraFastMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;

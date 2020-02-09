@@ -36,16 +36,11 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.entries.trans.JobEntryTrans;
-import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.trans.TransMeta;
 import org.w3c.dom.Node;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

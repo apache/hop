@@ -25,7 +25,6 @@
         </property>
       </activation>
       <modules>
-       <module>core</module>
         <module>dummy</module>
         <module>databases</module>
       </modules>
@@ -39,7 +38,6 @@
         </property>
       </activation>
       <modules>
-        <module>core</module>
         <module>dummy</module>
       </modules>
     </profile>

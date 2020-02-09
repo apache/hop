@@ -33,11 +33,7 @@ import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -169,6 +165,7 @@ public class PGBulkLoaderTest {
    * [PDI-17481] Testing the ability that if no connection is specified, we will mark it as a fail and log the
    * appropriate reason to the user by throwing a HopException.
    */
+  @Ignore
   @Test
   public void testNoDatabaseConnection() {
     try {

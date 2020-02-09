@@ -140,7 +140,7 @@ import org.apache.hop.trans.step.StepErrorMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.step.StepPartitioningMeta;
-import org.apache.hop.trans.steps.selectvalues.SelectValuesMeta;
+//import org.apache.hop.trans.steps.selectvalues.SelectValuesMeta;
 import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.FileDialogOperation;
 import org.apache.hop.ui.core.PrintSpool;
@@ -5681,13 +5681,13 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       refreshTree();
     }
   }
-
-  /**
+//TODO: refactor
+/*  *//**
    * Create a new SelectValues step in between this step and the previous. If the previous fields are not there, no
    * mapping can be made, same with the required fields.
    *
    * @param stepMeta The target step to map against.
-   */
+   *//*
   // retry of required fields acquisition
   public void generateFieldMapping( TransMeta transMeta, StepMeta stepMeta ) {
     try {
@@ -5746,7 +5746,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         shell, "Error creating mapping",
         "There was an error when Hop tried to generate a field mapping against the target step", e );
     }
-  }
+  }*/
 
   public boolean isDefinedSchemaExist( String[] schemaNames ) {
     // Before we start, check if there are any partition schemas defined...

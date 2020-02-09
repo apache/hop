@@ -48,7 +48,7 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMeta.TransformationType;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.trans.steps.databaselookup.DatabaseLookupMeta;
+//import org.apache.hop.trans.steps.databaselookup.DatabaseLookupMeta;
 import org.apache.hop.trans.steps.tableinput.TableInputMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
@@ -2226,7 +2226,8 @@ public class TransDialog extends Dialog {
           tab = stepMeta.getName();
         }
       }
-      if ( sii instanceof DatabaseLookupMeta ) {
+      //TODO: refactor
+/*      if ( sii instanceof DatabaseLookupMeta ) {
         DatabaseLookupMeta dvli = (DatabaseLookupMeta) stepMeta.getStepMetaInterface();
         con = dvli.getDatabaseMeta().getName();
         tab = dvli.getTablename();
@@ -2234,7 +2235,7 @@ public class TransDialog extends Dialog {
           tab = stepMeta.getName();
         }
         break;
-      }
+      }*/
 
       if ( tab != null || con != null ) {
         item = new TableItem( table, SWT.NONE );

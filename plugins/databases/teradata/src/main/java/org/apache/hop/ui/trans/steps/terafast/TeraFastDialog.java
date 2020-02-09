@@ -35,7 +35,7 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.BaseStepMeta;
 import org.apache.hop.trans.step.StepDialogInterface;
 import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.terafast.TeraFastMeta;
+import org.apache.hop.core.database.TeraFastMeta;
 import org.apache.hop.ui.core.SimpleFileSelection;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;

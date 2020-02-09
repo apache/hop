@@ -23,15 +23,9 @@
 package org.apache.hop.job;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.plugins.ClassLoadingPluginInterface;
-import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.entries.trans.JobEntryTrans;
-import org.apache.hop.job.entry.JobEntryCopy;
-import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.trans.TransMeta;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.w3c.dom.Document;
