@@ -25,53 +25,52 @@
     <!-- Third-party dependencies -->
     <antlr-complete.version>3.5.2</antlr-complete.version>
     <commons-validator.version>1.3.1</commons-validator.version>
-    <edtftpj.version>2.1.0</edtftpj.version>
+<!--    <edtftpj.version>2.1.0</edtftpj.version>-->
     <jsendnsca.version>2.0.1</jsendnsca.version>
-    <feed4j.version>1.0</feed4j.version>
-    <ftp4che.version>0.7.1</ftp4che.version>
-    <georss-rome.version>0.9.8</georss-rome.version>
-    <infobright-core.version>3.4</infobright-core.version>
-    <ini4j.version>0.5.1</ini4j.version>
+<!--    <feed4j.version>1.0</feed4j.version>-->
+<!--    <ftp4che.version>0.7.1</ftp4che.version>-->
+<!--    <georss-rome.version>0.9.8</georss-rome.version>-->
+<!--    <infobright-core.version>3.4</infobright-core.version>-->
+<!--    <ini4j.version>0.5.1</ini4j.version>-->
     <!-- https://jira.pentaho.com/browse/PDI-44134 update janino to latest -->
     <janino.version>3.0.8</janino.version>
     <javadbf.version>20081125</javadbf.version>
     <jcommon.version>1.0.16</jcommon.version>
-    <json-simple.version>1.1</json-simple.version>
-    <jsonpath.version>1.0</jsonpath.version>
+<!--    <json-simple.version>1.1</json-simple.version>-->
+<!--    <jsonpath.version>1.0</jsonpath.version>-->
     <jersey-apache-client.version>1.19.1</jersey-apache-client.version>
     <jersey-bundle.version>1.19.1</jersey-bundle.version>
-    <jersey-client.version>1.19.1</jersey-client.version>
-    <jersey-core.version>1.19.1</jersey-core.version>
-    <jxl.version>2.6.12</jxl.version>
-    <ldapjdk.version>20000524</ldapjdk.version>
-    <monetdb-jdbc.version>2.8</monetdb-jdbc.version>
-    <odfdom-java.version>0.8.6</odfdom-java.version>
-    <poi.version>3.17</poi.version>
-    <commons-collections4.version>4.1</commons-collections4.version>
-    <xmlbeans.version>2.6.0</xmlbeans.version>
-    <rome.version>1.0</rome.version>
-    <SassyReader.version>0.5</SassyReader.version>
-    <saxon.version>9.1.0.8</saxon.version>
-    <saxon-dom.version>9.1.0.8</saxon-dom.version>
-    <snakeyaml.version>1.7</snakeyaml.version>
-    <snmp4j.version>1.9.3d</snmp4j.version>
-    <syslog4j.version>0.9.46</syslog4j.version>
-    <trilead-ssh2.version>build213</trilead-ssh2.version>
-    <jaxrpc-api.version>1.1</jaxrpc-api.version>
+<!--    <jersey-client.version>1.19.1</jersey-client.version>-->
+<!--    <jersey-core.version>1.19.1</jersey-core.version>-->
+<!--    <jxl.version>2.6.12</jxl.version>-->
+<!--    <ldapjdk.version>20000524</ldapjdk.version>-->
+<!--    <monetdb-jdbc.version>2.8</monetdb-jdbc.version>-->
+<!--    <odfdom-java.version>0.8.6</odfdom-java.version>-->
+<!--    <poi.version>3.17</poi.version>-->
+<!--    <commons-collections4.version>4.1</commons-collections4.version>-->
+<!--    <xmlbeans.version>2.6.0</xmlbeans.version>-->
+<!--    <rome.version>1.0</rome.version>-->
+<!--    <SassyReader.version>0.5</SassyReader.version>-->
+<!--    <saxon.version>9.1.0.8</saxon.version>-->
+<!--    <saxon-dom.version>9.1.0.8</saxon-dom.version>-->
+<!--    <snakeyaml.version>1.7</snakeyaml.version>-->
+<!--    <snmp4j.version>1.9.3d</snmp4j.version>-->
+<!--    <syslog4j.version>0.9.46</syslog4j.version>-->
+<!--    <trilead-ssh2.version>build213</trilead-ssh2.version>-->
+<!--    <jaxrpc-api.version>1.1</jaxrpc-api.version>-->
     <olap4j.version>1.2.0</olap4j.version>
     <olap4j-xmla.version>1.2.0</olap4j-xmla.version>
-    <wsdl4j.version>1.6.2</wsdl4j.version>
-    <wsdl4j-qname.version>1.6.1</wsdl4j-qname.version>
-    <ehcache-core.version>2.5.1</ehcache-core.version>
+<!--    <wsdl4j.version>1.6.2</wsdl4j.version>-->
+<!--    <wsdl4j-qname.version>1.6.1</wsdl4j-qname.version>-->
+<!--    <ehcache-core.version>2.5.1</ehcache-core.version>-->
     <hibernate-core.version>3.6.9.Final</hibernate-core.version>
-    <hibernate-c3p0.version>3.6.9.Final</hibernate-c3p0.version>
-    <hibernate-commons-annotations.version>3.2.0.Final</hibernate-commons-annotations.version>
-    <hibernate-ehcache.version>3.6.9.Final</hibernate-ehcache.version>
-    <cglib-nodep.version>2.2</cglib-nodep.version>
-    <nekohtml.version>1.9.15</nekohtml.version>
+<!--    <hibernate-commons-annotations.version>3.2.0.Final</hibernate-commons-annotations.version>-->
+<!--    <hibernate-ehcache.version>3.6.9.Final</hibernate-ehcache.version>-->
+<!--    <cglib-nodep.version>2.2</cglib-nodep.version>-->
+<!--    <nekohtml.version>1.9.15</nekohtml.version>-->
     <js.version>1.7R3</js.version>
-    <mail.version>1.4.7</mail.version>
-    <mstor.version>0.9.13</mstor.version>
+<!--    <mail.version>1.4.7</mail.version>-->
+<!--    <mstor.version>0.9.13</mstor.version>-->
     <snappy-java.version>1.1.0</snappy-java.version>
     <commons-cli.version>1.2</commons-cli.version>
     <jetty-plus.version>9.4.22.v20191022</jetty-plus.version>
@@ -82,11 +81,12 @@
     <jetty-webapp.version>9.4.22.v20191022</jetty-webapp.version>
     <jetty-jaas.version>9.4.22.v20191022</jetty-jaas.version>
     <jetty-util.version>9.4.22.v20191022</jetty-util.version>
-    <log4jdbc.version>1.2</log4jdbc.version>
+<!--    <log4jdbc.version>1.2</log4jdbc.version>-->
     <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
-    <oro.version>2.0.8</oro.version>
+<!--    <oro.version>2.0.8</oro.version>-->
     <javax.websocket-api.version>1.1</javax.websocket-api.version>
-    <xmlunit.version>1.5</xmlunit.version>
+<!--    <xmlunit.version>1.5</xmlunit.version>-->
+    <h2.version>1.2.131</h2.version>
   </properties>
 
   <dependencies>
@@ -110,14 +110,14 @@
     </dependency>
 
     <!-- Third-party dependencies -->
-    <dependency>
+<!--    <dependency>
       <groupId>org.dom4j</groupId>
       <artifactId>dom4j</artifactId>
-    </dependency>
-    <dependency>
+    </dependency>-->
+<!--    <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
@@ -152,16 +152,16 @@
       <artifactId>commons-io</artifactId>
       <version>2.6</version>
     </dependency>
-    <dependency>
+<!--    <dependency>
       <groupId>com.jcraft</groupId>
       <artifactId>jsch</artifactId>
       <version>0.1.55</version>
-    </dependency>
-    <dependency>
+    </dependency>-->
+<!--    <dependency>
       <groupId>com.wcohen</groupId>
       <artifactId>com.wcohen.secondstring</artifactId>
       <version>0.1</version>
-    </dependency>
+    </dependency>-->
 
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -197,7 +197,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
+  <!--  <dependency>
       <groupId>com.enterprisedt</groupId>
       <artifactId>edtftpj</artifactId>
       <version>${edtftpj.version}</version>
@@ -207,7 +207,7 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>com.googlecode.jsendnsca</groupId>
       <artifactId>jsendnsca</artifactId>
@@ -219,7 +219,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
+  <!--  <dependency>
       <groupId>feed4j</groupId>
       <artifactId>feed4j</artifactId>
       <version>${feed4j.version}</version>
@@ -240,8 +240,8 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+  <!--  <dependency>
       <groupId>georss-rome</groupId>
       <artifactId>georss-rome</artifactId>
       <version>${georss-rome.version}</version>
@@ -251,8 +251,8 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+<!--    <dependency>
       <groupId>infobright</groupId>
       <artifactId>infobright-core</artifactId>
       <version>${infobright-core.version}</version>
@@ -262,8 +262,8 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+  <!--  <dependency>
       <groupId>org.ini4j</groupId>
       <artifactId>ini4j</artifactId>
       <version>${ini4j.version}</version>
@@ -273,7 +273,7 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>org.codehaus.janino</groupId>
       <artifactId>commons-compiler</artifactId>
@@ -318,7 +318,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
+<!--    <dependency>
       <groupId>com.googlecode.json-simple</groupId>
       <artifactId>json-simple</artifactId>
       <version>${json-simple.version}</version>
@@ -328,8 +328,8 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+  <!--  <dependency>
       <groupId>jsonpath</groupId>
       <artifactId>jsonpath</artifactId>
       <version>${jsonpath.version}</version>
@@ -339,7 +339,7 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>com.sun.jersey.contribs</groupId>
       <artifactId>jersey-apache-client4</artifactId>
@@ -362,7 +362,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
+  <!--  <dependency>
       <groupId>com.sun.jersey</groupId>
       <artifactId>jersey-client</artifactId>
       <version>${jersey-client.version}</version>
@@ -383,8 +383,8 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+  <!--  <dependency>
       <groupId>jexcelapi</groupId>
       <artifactId>jxl</artifactId>
       <version>${jxl.version}</version>
@@ -405,8 +405,8 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+<!--    <dependency>
       <groupId>monetdb</groupId>
       <artifactId>monetdb-jdbc</artifactId>
       <version>${monetdb-jdbc.version}</version>
@@ -416,8 +416,8 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+<!--    <dependency>
       <groupId>org.odftoolkit</groupId>
       <artifactId>odfdom-java</artifactId>
       <version>${odfdom-java.version}</version>
@@ -427,8 +427,8 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+<!--    <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi</artifactId>
       <version>${poi.version}</version>
@@ -460,8 +460,8 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+  <!--  <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-collections4</artifactId>
       <version>${commons-collections4.version}</version>
@@ -471,8 +471,8 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+ <!--   <dependency>
       <groupId>org.apache.xmlbeans</groupId>
       <artifactId>xmlbeans</artifactId>
       <version>${xmlbeans.version}</version>
@@ -482,8 +482,8 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+   <!-- <dependency>
       <groupId>rome</groupId>
       <artifactId>rome</artifactId>
       <version>${rome.version}</version>
@@ -493,8 +493,8 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+<!--    <dependency>
       <groupId>org.eobjects.sassyreader</groupId>
       <artifactId>SassyReader</artifactId>
       <version>${SassyReader.version}</version>
@@ -504,8 +504,8 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+  <!--  <dependency>
       <groupId>net.sf.saxon</groupId>
       <artifactId>saxon</artifactId>
       <version>${saxon.version}</version>
@@ -526,8 +526,8 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+  <!--  <dependency>
       <groupId>org.yaml</groupId>
       <artifactId>snakeyaml</artifactId>
       <version>${snakeyaml.version}</version>
@@ -537,8 +537,8 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+ <!--   <dependency>
       <groupId>org.snmp4j</groupId>
       <artifactId>snmp4j</artifactId>
       <version>${snmp4j.version}</version>
@@ -548,8 +548,8 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+<!--    <dependency>
       <groupId>org.syslog4j</groupId>
       <artifactId>syslog4j</artifactId>
       <version>${syslog4j.version}</version>
@@ -559,8 +559,8 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+<!--    <dependency>
       <groupId>trilead-ssh2</groupId>
       <artifactId>trilead-ssh2</artifactId>
       <version>${trilead-ssh2.version}</version>
@@ -570,8 +570,8 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+  <!--  <dependency>
       <groupId>javax.xml</groupId>
       <artifactId>jaxrpc-api</artifactId>
       <version>${jaxrpc-api.version}</version>
@@ -581,19 +581,19 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-math3</artifactId>
       <version>3.6.1</version>
     </dependency>
-    <dependency>
+<!--    <dependency>
       <groupId>xerces</groupId>
       <artifactId>xercesImpl</artifactId>
       <version>2.12.0</version>
-    </dependency>
+    </dependency>-->
 
-    <dependency>
+  <!--  <dependency>
       <groupId>wsdl4j</groupId>
       <artifactId>wsdl4j</artifactId>
       <version>${wsdl4j.version}</version>
@@ -614,8 +614,8 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+<!--    <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache-core</artifactId>
       <version>${ehcache-core.version}</version>
@@ -625,7 +625,7 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
@@ -649,18 +649,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-c3p0</artifactId>
-      <version>${hibernate-c3p0.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
+<!--    <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-commons-annotations</artifactId>
       <version>${hibernate-commons-annotations.version}</version>
@@ -681,8 +670,8 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+<!--    <dependency>
       <groupId>cglib</groupId>
       <artifactId>cglib-nodep</artifactId>
       <version>${cglib-nodep.version}</version>
@@ -692,8 +681,8 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+<!--    <dependency>
       <groupId>net.sourceforge.nekohtml</groupId>
       <artifactId>nekohtml</artifactId>
       <version>${nekohtml.version}</version>
@@ -703,13 +692,13 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
+    </dependency>-->
+<!--    <dependency>
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
       <version>${mail.version}</version>
-    </dependency>
-    <dependency>
+    </dependency>-->
+<!--    <dependency>
       <groupId>org.mnode.mstor</groupId>
       <artifactId>mstor</artifactId>
       <version>${mstor.version}</version>
@@ -719,7 +708,7 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>org.xerial.snappy</groupId>
       <artifactId>snappy-java</artifactId>
@@ -736,7 +725,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
+ <!--   <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-plus</artifactId>
       <version>${jetty-plus.version}</version>
@@ -746,7 +735,7 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-server</artifactId>
@@ -835,7 +824,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
+   <!-- <dependency>
       <groupId>com.googlecode.log4jdbc</groupId>
       <artifactId>log4jdbc</artifactId>
       <version>${log4jdbc.version}</version>
@@ -845,7 +834,7 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
@@ -869,10 +858,10 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
+<!--    <dependency>
       <groupId>org.codehaus.woodstox</groupId>
       <artifactId>wstx-asl</artifactId>
-    </dependency>
+    </dependency>-->
 
     <!-- Test dependencies -->
     <dependency>
@@ -886,6 +875,7 @@
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
+      <version>${h2.version}</version>
       <scope>test</scope>
     </dependency>
     <!-- required by org.dom4j -->
@@ -949,7 +939,7 @@
       <version>1.3</version>
     </dependency>
 
-    <dependency>
+ <!--   <dependency>
       <groupId>oro</groupId>
       <artifactId>oro</artifactId>
       <version>${oro.version}</version>
@@ -960,7 +950,7 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>metastore</artifactId>
@@ -974,12 +964,12 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
+<!--    <dependency>
       <groupId>xmlunit</groupId>
       <artifactId>xmlunit</artifactId>
       <version>${xmlunit.version}</version>
       <scope>test</scope>
-    </dependency>
+    </dependency>-->
   </dependencies>
 
   <build>

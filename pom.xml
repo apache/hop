@@ -76,7 +76,7 @@
 
     <!-- Pentaho dependencies -->
     <commons-xul.version>8.2.0.7-719</commons-xul.version>
-    <pentaho-metastore.version>8.2.0.7-719</pentaho-metastore.version>
+<!--    <pentaho-metastore.version>8.2.0.7-719</pentaho-metastore.version>-->
 
     <!-- Third-party dependencies -->
     <org.eclipse.platform.version>3.113.0</org.eclipse.platform.version>
@@ -92,7 +92,6 @@
     <commons-logging.version>1.1.3</commons-logging.version>
     <guava.version>17.0</guava.version>
     <encoder.version>1.2</encoder.version>
-    <h2.version>1.2.131</h2.version>
     <wstx-asl.version>3.2.4</wstx-asl.version>
 
     <!-- Test dependencies -->
@@ -275,11 +274,11 @@
           </exclusion>
         </exclusions>
       </dependency>
-      <dependency>
+<!--      <dependency>
         <groupId>pentaho</groupId>
         <artifactId>metastore</artifactId>
         <version>${pentaho-metastore.version}</version>
-      </dependency>
+      </dependency>-->
 
       <!-- Third-party dependencies -->
       <dependency>
@@ -359,7 +358,7 @@
           </exclusion>
         </exclusions>
       </dependency>
-      <dependency>
+<!--      <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
         <version>${h2.version}</version>
@@ -369,7 +368,7 @@
             <artifactId>*</artifactId>
           </exclusion>
         </exclusions>
-      </dependency>
+      </dependency>-->
       <dependency>
         <groupId>org.codehaus.woodstox</groupId>
         <artifactId>wstx-asl</artifactId>
