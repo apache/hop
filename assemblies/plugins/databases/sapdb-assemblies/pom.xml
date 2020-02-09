@@ -15,9 +15,12 @@
     <version>0.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Hop Assemblies Plugins Databases SAP DB</name>
+    <name>Hop Assemblies Plugins Databases SAP MaxDB</name>
     <description></description>
 
+<!-- 	<properties> -->
+<!--     	<sapdbc.version>7.4.4</sapdbc.version> -->
+<!-- 	</properties> -->
 
     <dependencies>
         <dependency>
@@ -25,6 +28,17 @@
             <artifactId>hop-plugins-databases-sapdb</artifactId>
             <version>${project.version}</version>
         </dependency>
+    	<dependency>
+      		<groupId>com.sap</groupId>
+      		<artifactId>sapdbc</artifactId>
+      		<version>${sapdbc.version}</version>
+      		<exclusions>
+        		<exclusion>
+          			<groupId>*</groupId>
+          			<artifactId>*</artifactId>
+        		</exclusion>
+      		</exclusions>
+    	</dependency>        
     </dependencies>
 
 </project>
