@@ -179,7 +179,13 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
   }
 
   private void newMetadata() {
-    manager.newMetadata();
+    if ( manager.newMetadata() ) {
+      try {
+        fillItems();    
+      } catch ( Exception e ) {
+        LogChannel.UI.logError( "Error updating list of relational database connection names from the metastore", e);
+      }
+    }  
   }
 
   /**
