@@ -28,16 +28,16 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogStatus;
 import org.apache.hop.core.logging.LogTableField;
 import org.apache.hop.core.logging.LogTableInterface;
-import org.apache.hop.core.row.ValueMeta;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -74,7 +74,6 @@ import org.pentaho.ui.xul.impl.XulEventHandler;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -806,11 +805,16 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
               break;
           }
 
-          ValueMetaInterface valueMeta = new ValueMeta( field.getFieldName(), valueType, field.getLength(), -1 );
-          if ( conversionMask != null ) {
-            valueMeta.setConversionMask( conversionMask );
-          }
-          column.setValueMeta( valueMeta );
+          
+		  try {
+			ValueMetaInterface valueMeta = ValueMetaFactory.createValueMeta(field.getFieldName(), valueType, field.getLength(), -1 );
+	        if ( conversionMask != null ) {
+	          valueMeta.setConversionMask( conversionMask );
+	        }
+	        column.setValueMeta( valueMeta );
+		  } catch (HopPluginException e) {
+			  // TODO: don't ignore
+  		  }
           columnList.add( column );
         }
       }

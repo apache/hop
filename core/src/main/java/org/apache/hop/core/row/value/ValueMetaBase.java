@@ -23,7 +23,6 @@
 
 package org.apache.hop.core.row.value;
 
-import org.apache.hop.compatibility.Value;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -616,16 +615,6 @@ public class ValueMetaBase implements ValueMetaInterface {
   @Override
   public int getType() {
     return type;
-  }
-
-  /**
-   * @param type the type to set
-   * @deprecated
-   */
-  @Override
-  @Deprecated
-  public void setType( int type ) {
-    this.type = type;
   }
 
   /**
@@ -3956,7 +3945,7 @@ public class ValueMetaBase implements ValueMetaInterface {
 
     // See if the polled value is empty
     // In that case, we have a null value on our hands...
-    boolean isStringValue = outValueType == Value.VALUE_TYPE_STRING;
+    boolean isStringValue = outValueType == ValueMetaInterface.TYPE_STRING;
     Object emptyValue = isStringValue ? Const.NULL_STRING : null;
 
     Boolean isEmptyAndNullDiffer = convertStringToBoolean(
@@ -4116,91 +4105,7 @@ public class ValueMetaBase implements ValueMetaInterface {
     return hash;
   }
 
-  /**
-   * Create an old-style value for backward compatibility reasons
-   *
-   * @param data the data to store in the value
-   * @return a newly created Value object
-   * @throws HopValueException case there is a data conversion problem
-   */
-  @Override
-  public Value createOriginalValue( Object data ) throws HopValueException {
-    Value value = new Value( name, type );
-    value.setLength( length, precision );
 
-    if ( isNull( data ) ) {
-      value.setNull();
-    } else {
-      switch ( value.getType() ) {
-        case TYPE_STRING:
-          value.setValue( getString( data ) );
-          break;
-        case TYPE_NUMBER:
-          value.setValue( getNumber( data ).doubleValue() );
-          break;
-        case TYPE_INTEGER:
-          value.setValue( getInteger( data ).longValue() );
-          break;
-        case TYPE_DATE:
-          value.setValue( getDate( data ) );
-          break;
-        case TYPE_BOOLEAN:
-          value.setValue( getBoolean( data ).booleanValue() );
-          break;
-        case TYPE_BIGNUMBER:
-          value.setValue( getBigNumber( data ) );
-          break;
-        case TYPE_BINARY:
-          value.setValue( getBinary( data ) );
-          break;
-        default:
-          throw new HopValueException( toString() + " : We can't convert data type " + getTypeDesc()
-            + " to an original (V2) Value" );
-      }
-    }
-    return value;
-  }
-
-  /**
-   * Extracts the primitive data from an old style Value object
-   *
-   * @param value the old style Value object
-   * @return the value's data, NOT the meta data.
-   * @throws HopValueException case there is a data conversion problem
-   */
-  @Override
-  public Object getValueData( Value value ) throws HopValueException {
-    if ( value == null || value.isNull() ) {
-      return null;
-    }
-
-    // So far the old types and the new types map to the same thing.
-    // For compatibility we just ask the old-style value to convert to the new
-    // one.
-    // In the old transformation this would happen sooner or later anyway.
-    // It doesn't throw exceptions or complain either (unfortunately).
-    //
-
-    switch ( getType() ) {
-      case ValueMetaInterface.TYPE_STRING:
-        return value.getString();
-      case ValueMetaInterface.TYPE_NUMBER:
-        return value.getNumber();
-      case ValueMetaInterface.TYPE_INTEGER:
-        return value.getInteger();
-      case ValueMetaInterface.TYPE_DATE:
-        return value.getDate();
-      case ValueMetaInterface.TYPE_BOOLEAN:
-        return value.getBoolean();
-      case ValueMetaInterface.TYPE_BIGNUMBER:
-        return value.getBigNumber();
-      case ValueMetaInterface.TYPE_BINARY:
-        return value.getBytes();
-      default:
-        throw new HopValueException( toString() + " : We can't convert original data type " + value.getTypeDesc()
-          + " to a primitive data type" );
-    }
-  }
 
   /**
    * @return the storageMetadata

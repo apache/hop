@@ -22,11 +22,11 @@
 
 package org.apache.hop.core.database.util;
 
-import org.apache.hop.compatibility.ValueString;
 import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogTableCoreInterface;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.i18n.BaseMessages;
 
 public class DatabaseLogExceptionFactory {
@@ -80,7 +80,7 @@ public class DatabaseLogExceptionFactory {
    *
    * @param table logging table that participated in exception. Must be instance of {@link LogTableCoreInterface}, otherwise
    *              default suppress exception behavior will be used.
-   * @param e     if key-value pair is not defined or value is set to FALSE/N, e will be checked and suppressable strategy
+   * @param e     if key-value pair is not defined or value is set to N, e will be checked and suppressable strategy
    *              with short message can be chosen.
    * @return
    * @see {@link org.apache.hop.core.Const#HOP_VARIABLES_FILE}
@@ -100,8 +100,7 @@ public class DatabaseLogExceptionFactory {
       return suppressableResult;
     }
 
-    ValueString sVal = new ValueString( val );
-    return sVal.getBoolean() ? throwable : suppressableResult;
+    return ValueMetaBase.convertStringToBoolean( val ) ? throwable : suppressableResult;
   }
 
   private static DatabaseInterface extractDatabase( LogTableCoreInterface table ) {

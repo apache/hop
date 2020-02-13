@@ -22,7 +22,6 @@
 
 package org.apache.hop.core.util;
 
-import org.apache.hop.compatibility.Value;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -72,15 +71,11 @@ public class JavaScriptUtilsTest {
 
 
   private static Scriptable getIntValue() {
-    Value value = new Value();
-    value.setValue( 1 );
-    return Context.toObject( value, scope );
+    return Context.toObject( new Long(1), scope );
   }
 
   private static Scriptable getDoubleValue() {
-    Value value = new Value();
-    value.setValue( 1.0 );
-    return Context.toObject( value, scope );
+    return Context.toObject( new Double(1.0), scope );
   }
 
   // jsToNumber tests
@@ -209,7 +204,7 @@ public class JavaScriptUtilsTest {
   @Test
   public void jsToDate_NativeJavaObject() throws Exception {
     Scriptable value = getIntValue();
-    assertEquals( new Date( 1 ), JavaScriptUtils.jsToDate( value, JAVA_OBJECT ) );
+    assertEquals( new Date( 1 ), JavaScriptUtils.jsToDate(  new Date( 1 ), JAVA_OBJECT ) );
   }
 
   @Test
@@ -253,9 +248,7 @@ public class JavaScriptUtilsTest {
 
   @Test
   public void jsToBigNumber_NativeJavaObject_BigDecimal() throws Exception {
-    Value value = new Value();
-    value.setValue( BigDecimal.ONE );
-    Scriptable object = Context.toObject( value, scope );
+    Scriptable object = Context.toObject( BigDecimal.ONE, scope );
     assertEquals( 1.0, JavaScriptUtils.jsToBigNumber( object, JAVA_OBJECT ).doubleValue(), 1e-6 );
   }
 
