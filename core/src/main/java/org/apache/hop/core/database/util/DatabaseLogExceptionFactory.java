@@ -80,7 +80,7 @@ public class DatabaseLogExceptionFactory {
    *
    * @param table logging table that participated in exception. Must be instance of {@link LogTableCoreInterface}, otherwise
    *              default suppress exception behavior will be used.
-   * @param e     if key-value pair is not defined or value is set to N, e will be checked and suppressable strategy
+   * @param e     if key-value pair is not defined or value is set to FALSE/N, e will be checked and suppressable strategy
    *              with short message can be chosen.
    * @return
    * @see {@link org.apache.hop.core.Const#HOP_VARIABLES_FILE}
