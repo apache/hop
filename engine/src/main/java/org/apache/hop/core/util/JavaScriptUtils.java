@@ -119,7 +119,7 @@ public class JavaScriptUtils {
   }
 
   public static String jsToString( Object value, String classType ) {
-
+      // convert to a string should work in most cases...
       return Context.toString( value );
   }
 
