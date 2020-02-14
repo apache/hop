@@ -120,10 +120,6 @@ public class JavaScriptUtils {
 
   public static String jsToString( Object value, String classType ) {
 
-//      DecimalFormat form = new DecimalFormat();
-//      form.applyPattern( " ##########0.0########;-#########0.0########" );
-//      retval = form.format( value.getNumber() );
-	  
       return Context.toString( value );
   }
 
