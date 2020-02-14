@@ -119,8 +119,12 @@ public class JavaScriptUtils {
   }
 
   public static String jsToString( Object value, String classType ) {
-        // convert to a string should work in most cases...
-        return Context.toString( value );
+
+//      DecimalFormat form = new DecimalFormat();
+//      form.applyPattern( " ##########0.0########;-#########0.0########" );
+//      retval = form.format( value.getNumber() );
+	  
+      return Context.toString( value );
   }
 
   public static Date jsToDate( Object value, String classType ) throws HopValueException {

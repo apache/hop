@@ -69,7 +69,6 @@ public class JavaScriptUtilsTest {
     Context.exit();
   }
 
-
   private static Scriptable getIntValue() {
     return Context.toObject( new Long(1), scope );
   }
@@ -77,7 +76,7 @@ public class JavaScriptUtilsTest {
   private static Scriptable getDoubleValue() {
     return Context.toObject( new Double(1.0), scope );
   }
-
+  
   // jsToNumber tests
 
   @Test
@@ -174,12 +173,16 @@ public class JavaScriptUtilsTest {
 
   @Test
   public void jsToString_NativeJavaObject_Int() throws Exception {
-    assertEquals( "1", JavaScriptUtils.jsToString( getIntValue(), JAVA_OBJECT ).trim() );
+    assertEquals( "1", JavaScriptUtils.jsToString( getIntValue(), JAVA_OBJECT ) );
   }
 
   @Test
   public void jsToString_NativeJavaObject_Double() throws Exception {
-    assertEquals( "1.0", JavaScriptUtils.jsToString( getDoubleValue(), JAVA_OBJECT ).trim() );
+	// TODO: return "1.0" in previous release with org.apache.hop.compatibility.Value
+    assertEquals( "1", JavaScriptUtils.jsToString( getDoubleValue(), JAVA_OBJECT ) );
+        
+	Scriptable value = Context.toObject( new Double(1.23), scope );
+	assertEquals( "1.23", JavaScriptUtils.jsToString( value, JAVA_OBJECT ) );
   }
 
   @Test
@@ -203,8 +206,8 @@ public class JavaScriptUtilsTest {
 
   @Test
   public void jsToDate_NativeJavaObject() throws Exception {
-    Scriptable value = getIntValue();
-    assertEquals( new Date( 1 ), JavaScriptUtils.jsToDate(  new Date( 1 ), JAVA_OBJECT ) );
+    Scriptable value = Context.toObject( new Date(1), scope );
+    assertEquals( new Date( 1 ), JavaScriptUtils.jsToDate( value, JAVA_OBJECT ) );
   }
 
   @Test
