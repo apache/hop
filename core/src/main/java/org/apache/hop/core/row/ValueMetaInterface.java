@@ -22,7 +22,6 @@
 
 package org.apache.hop.core.row;
 
-import org.apache.hop.compatibility.Value;
 import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -356,15 +355,6 @@ public interface ValueMetaInterface extends Cloneable {
    * @return the type
    */
   int getType();
-
-  /**
-   * Sets the type.
-   *
-   * @param type the new type
-   * @deprecated This method is deprecated. The same code is still used underneath.
-   */
-  @Deprecated
-  void setType( int type );
 
   /**
    * Gets the storage type.
@@ -1091,24 +1081,6 @@ public interface ValueMetaInterface extends Cloneable {
    * @throws HopValueException in case there is a data conversion error
    */
   int hashCode( Object object ) throws HopValueException;
-
-  /**
-   * Create an old-style value for backward compatibility reasons
-   *
-   * @param data the data to store in the value
-   * @return a newly created Value object
-   * @throws HopValueException in case there is a data conversion problem
-   */
-  Value createOriginalValue( Object data ) throws HopValueException;
-
-  /**
-   * Extracts the primitive data from an old style Value object
-   *
-   * @param value the old style Value object
-   * @return the value's data, NOT the meta data.
-   * @throws HopValueException case there is a data conversion problem
-   */
-  Object getValueData( Value value ) throws HopValueException;
 
   /**
    * Returns the storage Meta data that is needed for internal conversion from BinaryString or String to the specified

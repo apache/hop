@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.xul;
+package org.apache.xul;
 
 public interface Messages {
 

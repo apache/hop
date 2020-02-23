@@ -23,7 +23,7 @@
 package org.apache.hop.version;
 
 import org.apache.hop.core.exception.HopVersionException;
-import org.apache.hop.core.row.ValueMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.xml.XMLHandler;
 
 import java.text.ParseException;
@@ -126,7 +126,7 @@ public class BuildVersion {
       // Ignore
     }
 
-    sdf = new SimpleDateFormat( ValueMeta.DEFAULT_DATE_FORMAT_MASK );
+    sdf = new SimpleDateFormat( ValueMetaBase.DEFAULT_DATE_FORMAT_MASK );
     try {
       Date d = sdf.parse( buildDate );
       return d;

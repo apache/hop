@@ -24,7 +24,7 @@ package org.apache.hop.ui.hopui;
 
 import org.apache.hop.i18n.BaseMessages;
 
-public class XulMessages implements org.pentaho.xul.Messages {
+public class XulMessages implements org.apache.xul.Messages {
   private static Class<?> PKG = XulMessages.class; // for i18n purposes, needed by Translator2!!
 
   public String getString( String key, String... parameters ) {
