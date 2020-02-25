@@ -29,7 +29,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.trans.step.StepInjectionMetaEntry;
 import org.apache.hop.trans.step.StepMetaInjectionInterface;
-import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
+import org.apache.hop.trans.steps.fileinput.TextFileInputField;
 
 import java.util.ArrayList;
 import java.util.List;

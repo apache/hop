@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.trans.steps.textfileinput;
+package org.apache.hop.trans.steps.fileinput;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.HopEnvironment;

@@ -53,9 +53,9 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInjectionInterface;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.trans.steps.textfileinput.InputFileMetaInterface;
-import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
-import org.apache.hop.trans.steps.textfileinput.TextFileInputMeta;
+import org.apache.hop.trans.steps.fileinput.InputFileMetaInterface;
+import org.apache.hop.trans.steps.fileinput.TextFileInputField;
+import org.apache.hop.trans.steps.fileinput.TextFileInputMeta;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;

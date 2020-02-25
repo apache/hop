@@ -31,7 +31,7 @@ import org.apache.hop.trans.step.RowAdapter;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.steps.StepMockUtil;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
-import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
+import org.apache.hop.trans.steps.fileinput.TextFileInputField;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;

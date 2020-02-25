@@ -23,5 +23,11 @@
         <include>**/*.zip</include>
       </includes>
     </fileSet>
+    <fileSet>
+      <directory>steps</directory>
+      <includes>
+        <include>**/*.zip</include>
+      </includes>
+    </fileSet>
   </fileSets>
 </assembly>

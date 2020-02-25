@@ -41,7 +41,7 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
 import org.apache.hop.trans.steps.injector.InjectorMeta;
-import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
+import org.apache.hop.trans.steps.fileinput.TextFileInputField;
 
 import java.util.ArrayList;
 import java.util.Iterator;

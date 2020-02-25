@@ -48,7 +48,7 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.steps.common.CsvInputAwareMeta;
 import org.apache.hop.trans.steps.csvinput.CsvInput;
 import org.apache.hop.trans.steps.csvinput.CsvInputMeta;
-import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
+import org.apache.hop.trans.steps.fileinput.TextFileInputField;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
