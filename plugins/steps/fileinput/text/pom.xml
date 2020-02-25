@@ -105,6 +105,11 @@
             </exclusions>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>pentaho</groupId>
+            <artifactId>pentaho-vfs-browser</artifactId>
+            <version>9.1.0.0-SNAPSHOT</version>
+        </dependency>
 
     </dependencies>
 

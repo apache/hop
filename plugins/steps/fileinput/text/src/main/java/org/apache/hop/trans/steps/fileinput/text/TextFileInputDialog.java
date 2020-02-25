@@ -60,7 +60,6 @@ import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.apache.hop.ui.trans.step.common.CsvInputAwareImportProgressDialog;
 import org.apache.hop.ui.trans.step.common.CsvInputAwareStepDialog;
 import org.apache.hop.ui.trans.step.common.GetFieldsCapableStepDialog;
-import org.apache.hop.vfs.ui.VfsFileChooserDialog;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
@@ -76,6 +75,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
+import org.pentaho.vfs.ui.VfsFileChooserDialog;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;

@@ -22,7 +22,7 @@
 
 package org.apache.hop.trans.steps.datagrid;
 
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.row.value.ValueMetaFactory;
