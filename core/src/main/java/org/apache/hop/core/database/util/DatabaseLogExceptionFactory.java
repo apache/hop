@@ -22,11 +22,11 @@
 
 package org.apache.hop.core.database.util;
 
-import org.apache.hop.compatibility.ValueString;
 import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.logging.LogTableCoreInterface;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.i18n.BaseMessages;
 
 public class DatabaseLogExceptionFactory {
@@ -100,8 +100,7 @@ public class DatabaseLogExceptionFactory {
       return suppressableResult;
     }
 
-    ValueString sVal = new ValueString( val );
-    return sVal.getBoolean() ? throwable : suppressableResult;
+    return ValueMetaBase.convertStringToBoolean( val ) ? throwable:suppressableResult;
   }
 
   private static DatabaseInterface extractDatabase( LogTableCoreInterface table ) {

@@ -155,7 +155,7 @@ public class ValueMetaBaseTest {
 
   @Test
   public void testCtorNameAndType() {
-    ValueMetaBase base = new ValueMetaBase( "myStringType", ValueMetaInterface.TYPE_STRING );
+    ValueMetaInterface base = new ValueMetaString( "myStringType" );
     assertEquals( base.getName(), "myStringType" );
     assertEquals( base.getType(), ValueMetaInterface.TYPE_STRING );
     assertEquals( base.getTypeDesc(), "String" );
@@ -213,14 +213,14 @@ public class ValueMetaBaseTest {
       valueMetaBase.getDataXML( stringValue ) );
 
     Timestamp timestamp = new Timestamp( 0 );
-    ValueMetaBase valueMetaBaseTimeStamp = new ValueMetaBase( timestamp.toString(), ValueMetaInterface.TYPE_TIMESTAMP );
+    ValueMetaBase valueMetaBaseTimeStamp = new ValueMetaTimestamp( timestamp.toString() );
     SimpleDateFormat formater = new SimpleDateFormat( ValueMetaBase.DEFAULT_TIMESTAMP_FORMAT_MASK );
     assertEquals(
       "<value-data>" + Encode.forXml( formater.format( timestamp ) ) + "</value-data>" + SystemUtils.LINE_SEPARATOR,
       valueMetaBaseTimeStamp.getDataXML( timestamp ) );
 
     byte[] byteTestValues = { 0, 1, 2, 3 };
-    ValueMetaBase valueMetaBaseByteArray = new ValueMetaBase( byteTestValues.toString(), ValueMetaInterface.TYPE_STRING );
+    ValueMetaBase valueMetaBaseByteArray = new ValueMetaString( byteTestValues.toString() );
     valueMetaBaseByteArray.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
     assertEquals(
       "<value-data><binary-string>" + Encode.forXml( XMLHandler.encodeBinaryData( byteTestValues ) )
@@ -318,7 +318,7 @@ public class ValueMetaBaseTest {
 
   @Test( expected = HopValueException.class )
   public void testConvertDataFromStringForNullMeta() throws HopValueException {
-    ValueMetaBase valueMetaBase = new ValueMetaBase();
+    ValueMetaInterface valueMetaBase = new ValueMetaNone();
     String inputValueEmptyString = StringUtils.EMPTY;
     ValueMetaInterface valueMetaInterface = null;
     String nullIf = null;
@@ -455,7 +455,7 @@ public class ValueMetaBaseTest {
 
   @Test
   public void testCompareIntegers() throws HopValueException {
-    ValueMetaBase intMeta = new ValueMetaBase( "int", ValueMetaInterface.TYPE_INTEGER );
+    ValueMetaBase intMeta = new ValueMetaInteger( "int" );
     Long int1 = new Long( 6223372036854775804L );
     Long int2 = new Long( -6223372036854775804L );
     assertEquals( 1, intMeta.compare( int1, int2 ) );
@@ -492,16 +492,16 @@ public class ValueMetaBaseTest {
 
   @Test
   public void testCompareIntegerToDouble() throws HopValueException {
-    ValueMetaBase intMeta = new ValueMetaBase( "int", ValueMetaInterface.TYPE_INTEGER );
+    ValueMetaInterface intMeta = new ValueMetaInteger( "int" );
     Long int1 = new Long( 2L );
-    ValueMetaBase numberMeta = new ValueMetaBase( "number", ValueMetaInterface.TYPE_NUMBER );
+    ValueMetaInterface numberMeta = new ValueMetaNumber( "number" );
     Double double2 = new Double( 1.5 );
     assertEquals( 1, intMeta.compare( int1, numberMeta, double2 ) );
   }
 
   @Test
   public void testCompareDate() throws HopValueException {
-    ValueMetaBase dateMeta = new ValueMetaBase( "int", ValueMetaInterface.TYPE_DATE );
+	ValueMetaInterface dateMeta = new ValueMetaDate( "int" );
     Date date1 = new Date( 6223372036854775804L );
     Date date2 = new Date( -6223372036854775804L );
     assertEquals( 1, dateMeta.compare( date1, date2 ) );
@@ -511,16 +511,16 @@ public class ValueMetaBaseTest {
 
   @Test
   public void testCompareDateWithStorageMask() throws HopValueException {
-    ValueMetaBase storageMeta = new ValueMetaBase( "string", ValueMetaInterface.TYPE_STRING );
+	ValueMetaInterface storageMeta = new ValueMetaString( "string" );
     storageMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
     storageMeta.setConversionMask( "MM/dd/yyyy HH:mm" );
 
-    ValueMetaBase dateMeta = new ValueMetaBase( "date", ValueMetaInterface.TYPE_DATE );
+    ValueMetaInterface dateMeta = new ValueMetaDate( "date" );
     dateMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
     dateMeta.setStorageMetadata( storageMeta );
     dateMeta.setConversionMask( "yyyy-MM-dd" );
 
-    ValueMetaBase targetDateMeta = new ValueMetaBase( "date", ValueMetaInterface.TYPE_DATE );
+    ValueMetaInterface targetDateMeta = new ValueMetaDate( "date" );
     targetDateMeta.setConversionMask( "yyyy-MM-dd" );
     targetDateMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
 
@@ -538,16 +538,16 @@ public class ValueMetaBaseTest {
 
   @Test
   public void testCompareDateNoStorageMask() throws HopValueException {
-    ValueMetaBase storageMeta = new ValueMetaBase( "string", ValueMetaInterface.TYPE_STRING );
+	ValueMetaInterface storageMeta = new ValueMetaString( "string" );
     storageMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
     storageMeta.setConversionMask( null ); // explicit set to null, to make sure test condition are met
 
-    ValueMetaBase dateMeta = new ValueMetaBase( "date", ValueMetaInterface.TYPE_DATE );
+    ValueMetaInterface dateMeta = new ValueMetaDate( "date" );
     dateMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
     dateMeta.setStorageMetadata( storageMeta );
     dateMeta.setConversionMask( "yyyy-MM-dd" );
 
-    ValueMetaBase targetDateMeta = new ValueMetaBase( "date", ValueMetaInterface.TYPE_DATE );
+    ValueMetaInterface targetDateMeta = new ValueMetaDate( "date" );
     //targetDateMeta.setConversionMask( "yyyy-MM-dd" ); by not setting a maks, the default one is used
     //and since this is a date of normal storage it should work
     targetDateMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
@@ -566,7 +566,7 @@ public class ValueMetaBaseTest {
 
   @Test
   public void testCompareBinary() throws HopValueException {
-    ValueMetaBase dateMeta = new ValueMetaBase( "int", ValueMetaInterface.TYPE_BINARY );
+    ValueMetaInterface dateMeta = new ValueMetaBinary( "int" );
     byte[] value1 = new byte[] { 0, 1, 0, 0, 0, 1 };
     byte[] value2 = new byte[] { 0, 1, 0, 0, 0, 0 };
     assertEquals( 1, dateMeta.compare( value1, value2 ) );
@@ -576,7 +576,7 @@ public class ValueMetaBaseTest {
 
   @Test
   public void testDateParsing8601() throws Exception {
-    ValueMetaBase dateMeta = new ValueMetaBase( "date", ValueMetaInterface.TYPE_DATE );
+	ValueMetaDate dateMeta = new ValueMetaDate( "date" );
     dateMeta.setDateFormatLenient( false );
 
     // try to convert date by 'start-of-date' make - old behavior
@@ -607,7 +607,7 @@ public class ValueMetaBaseTest {
 
   @Test
   public void testSetPreparedStatementStringValueDontLogTruncated() throws HopDatabaseException {
-    ValueMetaBase valueMetaString = new ValueMetaBase( "LOG_FIELD", ValueMetaInterface.TYPE_STRING, LOG_FIELD.length(), 0 );
+    ValueMetaBase valueMetaString = new ValueMetaString( "LOG_FIELD", LOG_FIELD.length(), 0 );
 
     DatabaseMeta databaseMeta = mock( DatabaseMeta.class );
     PreparedStatement preparedStatement = mock( PreparedStatement.class );
@@ -664,7 +664,7 @@ public class ValueMetaBaseTest {
 
   @Test
   public void testConvertDataUsingConversionMetaDataForCustomMeta() {
-    ValueMetaBase baseMeta = new ValueMetaBase( "CUSTOM_VALUEMETA_STRING", ValueMetaInterface.TYPE_STRING );
+    ValueMetaBase baseMeta = new ValueMetaString( "CUSTOM_VALUEMETA_STRING" );
     baseMeta.setConversionMetadata( new ValueMetaBase( "CUSTOM", 999 ) );
     Object customData = new Object();
     try {
@@ -719,8 +719,7 @@ public class ValueMetaBaseTest {
   @Test
   public void testGetCompatibleString() throws HopValueException {
     ValueMetaInteger valueMetaInteger = new ValueMetaInteger( "INTEGER" );
-    valueMetaInteger.setType( 5 ); // Integer
-    valueMetaInteger.setStorageType( 1 ); // STORAGE_TYPE_BINARY_STRING
+    valueMetaInteger.setStorageType( ValueMetaInterface.STORAGE_TYPE_BINARY_STRING );
 
     assertEquals( "2", valueMetaInteger.getCompatibleString( new Long( 2 ) ) ); //BACKLOG-15750
   }
@@ -790,48 +789,48 @@ public class ValueMetaBaseTest {
     ValueMetaBase valueMetaBase = null;
     Node xmlNode = null;
 
-    valueMetaBase = new ValueMetaBase( "test", ValueMetaInterface.TYPE_STRING );
+    valueMetaBase = new ValueMetaString( "test" );
     xmlNode = XMLHandler.loadXMLString( "<value-data>String val</value-data>" ).getFirstChild();
     assertEquals( "String val", valueMetaBase.getValue( xmlNode ) );
 
-    valueMetaBase = new ValueMetaBase( "test", ValueMetaInterface.TYPE_NUMBER );
+    valueMetaBase = new ValueMetaNumber( "test" );
     xmlNode = XMLHandler.loadXMLString( "<value-data>689.2</value-data>" ).getFirstChild();
     assertEquals( 689.2, valueMetaBase.getValue( xmlNode ) );
 
-    valueMetaBase = new ValueMetaBase( "test", ValueMetaInterface.TYPE_NUMBER );
+    valueMetaBase = new ValueMetaNumber( "test" );
     xmlNode = XMLHandler.loadXMLString( "<value-data>689.2</value-data>" ).getFirstChild();
     assertEquals( 689.2, valueMetaBase.getValue( xmlNode ) );
 
-    valueMetaBase = new ValueMetaBase( "test", ValueMetaInterface.TYPE_INTEGER );
+    valueMetaBase = new ValueMetaInteger( "test" );
     xmlNode = XMLHandler.loadXMLString( "<value-data>68933</value-data>" ).getFirstChild();
     assertEquals( 68933l, valueMetaBase.getValue( xmlNode ) );
 
-    valueMetaBase = new ValueMetaBase( "test", ValueMetaInterface.TYPE_DATE );
+    valueMetaBase = new ValueMetaDate( "test" );
     xmlNode = XMLHandler.loadXMLString( "<value-data>2017/11/27 08:47:10.000</value-data>" ).getFirstChild();
     assertEquals( XMLHandler.stringToDate( "2017/11/27 08:47:10.000" ), valueMetaBase.getValue( xmlNode ) );
 
-    valueMetaBase = new ValueMetaBase( "test", ValueMetaInterface.TYPE_TIMESTAMP );
+    valueMetaBase = new ValueMetaTimestamp( "test" );
     xmlNode = XMLHandler.loadXMLString( "<value-data>2017/11/27 08:47:10.123456789</value-data>" ).getFirstChild();
     assertEquals( XMLHandler.stringToTimestamp( "2017/11/27 08:47:10.123456789" ), valueMetaBase.getValue( xmlNode ) );
 
-    valueMetaBase = new ValueMetaBase( "test", ValueMetaInterface.TYPE_BOOLEAN );
+    valueMetaBase = new ValueMetaBoolean( "test" );
     xmlNode = XMLHandler.loadXMLString( "<value-data>Y</value-data>" ).getFirstChild();
     assertEquals( true, valueMetaBase.getValue( xmlNode ) );
 
-    valueMetaBase = new ValueMetaBase( "test", ValueMetaInterface.TYPE_BINARY );
+    valueMetaBase = new ValueMetaBinary( "test" );
     byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
     String s = XMLHandler.encodeBinaryData( bytes );
     xmlNode = XMLHandler.loadXMLString( "<value-data>test<binary-value>" + s + "</binary-value></value-data>" ).getFirstChild();
     assertArrayEquals( bytes, (byte[]) valueMetaBase.getValue( xmlNode ) );
 
-    valueMetaBase = new ValueMetaBase( "test", ValueMetaInterface.TYPE_STRING );
+    valueMetaBase = new ValueMetaString( "test" );
     xmlNode = XMLHandler.loadXMLString( "<value-data></value-data>" ).getFirstChild();
     assertNull( valueMetaBase.getValue( xmlNode ) );
   }
 
   @Test( expected = HopException.class )
   public void testGetValueUnknownType() throws Exception {
-    ValueMetaBase valueMetaBase = new ValueMetaBase( "test", ValueMetaInterface.TYPE_NONE );
+    ValueMetaBase valueMetaBase = new ValueMetaNone( "test" );
     valueMetaBase.getValue( XMLHandler.loadXMLString( "<value-data>not empty</value-data>" ).getFirstChild() );
   }
 
@@ -1247,7 +1246,7 @@ public class ValueMetaBaseTest {
   }
 
   private void initValueMeta( BaseDatabaseMeta dbMeta, int length, Object data ) throws HopDatabaseException {
-    ValueMetaBase valueMetaString = new ValueMetaBase( LOG_FIELD, ValueMetaInterface.TYPE_STRING, length, 0 );
+    ValueMetaInterface valueMetaString = new ValueMetaString( LOG_FIELD, length, 0 );
     databaseMetaSpy.setDatabaseInterface( dbMeta );
     valueMetaString.setPreparedStatementValue( databaseMetaSpy, preparedStatementMock, 0, data );
   }
