@@ -27,6 +27,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopStepException;
@@ -39,12 +40,7 @@ import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaBoolean;
-import org.apache.hop.core.row.value.ValueMetaDate;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.row.value.ValueMetaNone;
-import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.*;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
@@ -56,11 +52,7 @@ import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.step.*;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -69,6 +61,14 @@ import java.util.Map;
 /**
  * Meta data for the Excel step.
  */
+@Step(
+        id = "ExcelInput",
+        image = "ui/images/XLI.svg",
+        i18nPackageName = "org.apache.hop.trans.steps.excelinput",
+        name = "BaseStep.TypeLongDesc.ExcelInput",
+        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.ExcelInput",
+        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Input"
+)
 @InjectionSupported( localizationPrefix = "ExcelInput.Injection.", groups = { "FIELDS", "SHEETS", "FILENAME_LINES" } )
 public class ExcelInputMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = ExcelInputMeta.class; // for i18n purposes, needed by Translator2!!

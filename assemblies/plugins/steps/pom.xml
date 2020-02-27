@@ -19,7 +19,7 @@
         <module>addsequence</module>
         <module>calculator</module>
         <module>constant</module>
-<!--        <module>csvinput</module>-->
+        <module>csvinput</module>
         <module>databasejoin</module>
         <module>databaselookup</module>
         <module>datagrid</module>
@@ -31,14 +31,14 @@
         <module>exceloutput</module>
         <module>excelwriter</module>
         <module>execprocess</module>
-<!--        <module>execsqlrow</module>-->
+        <module>execsqlrow</module>
         <module>fieldschangesequence</module>
-<!--        <module>fileinput</module>-->
+        <module>fileinput</module>
         <module>rowgenerator</module>
         <module>selectvalues</module>
         <module>sql</module>
-<!--        <module>textfileinput</module>-->
-<!--        <module>textfileoutput</module>-->
+        <module>textfileinput</module>
+        <module>textfileoutput</module>
     </modules>
 
 </project>

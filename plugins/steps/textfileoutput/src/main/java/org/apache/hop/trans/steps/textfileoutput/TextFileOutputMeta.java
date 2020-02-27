@@ -26,6 +26,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopStepException;
@@ -47,11 +48,7 @@ import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepInjectionMetaEntry;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.step.*;
 import org.apache.hop.trans.steps.file.BaseFileOutputMeta;
 import org.apache.hop.workarounds.ResolvableResource;
 import org.w3c.dom.Node;
@@ -64,6 +61,14 @@ import java.util.Map;
  * Created on 4-apr-2003
  *
  */
+@Step(
+        id = "TextFileOutput",
+        image = "ui/images/TFO.svg",
+        i18nPackageName = "org.apache.hop.trans.steps.textfileoutput",
+        name = "BaseStep.TypeLongDesc.TextFileOutput",
+        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.TextFileOutput",
+        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Output"
+)
 @InjectionSupported( localizationPrefix = "TextFileOutput.Injection.", groups = { "OUTPUT_FIELDS" } )
 public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaInterface, ResolvableResource {
   private static Class<?> PKG = TextFileOutputMeta.class; // for i18n purposes, needed by Translator2!!

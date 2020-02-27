@@ -26,6 +26,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ProvidesModelerMeta;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -53,6 +54,14 @@ import org.w3c.dom.Node;
 import java.util.Arrays;
 import java.util.List;
 
+@Step(
+        id = "DBLookup",
+        image = "ui/images/DLU.svg",
+        i18nPackageName = "org.apache.hop.trans.steps.databaselookup",
+        name = "BaseStep.TypeLongDesc.DatabaseLookup",
+        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.DatabaseLookup",
+        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Lookup"
+)
 public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterface,
   ProvidesModelerMeta {
   private static Class<?> PKG = DatabaseLookupMeta.class; // for i18n purposes, needed by Translator2!!

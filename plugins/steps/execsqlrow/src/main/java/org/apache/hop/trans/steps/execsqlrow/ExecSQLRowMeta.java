@@ -23,6 +23,7 @@
 package org.apache.hop.trans.steps.execsqlrow;
 
 import org.apache.hop.core.*;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -48,6 +49,14 @@ import java.util.List;
  *
  * Created on 10-sep-2008
  */
+@Step(
+        id = "ExecSQLRow",
+        image = "ui/images/SQLR.svg",
+        i18nPackageName = "org.apache.hop.trans.steps.execsqlrow",
+        name = "BaseStep.TypeLongDesc.ExecSQLRow",
+        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.ExecSQLRow",
+        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Scripting"
+)
 @InjectionSupported( localizationPrefix = "ExecSQLRowMeta.Injection.", groups = "OUTPUT_FIELDS" )
 public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = ExecSQLRowMeta.class; // for i18n purposes, needed by Translator2!!

@@ -23,6 +23,7 @@
 package org.apache.hop.trans.steps.datagrid;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -34,18 +35,21 @@ import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInjectionInterface;
-import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.step.*;
 import org.w3c.dom.Node;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+@Step(
+        id = "DataGrid",
+        image = "ui/images/GNR.svg",
+        i18nPackageName = "org.apache.hop.trans.steps.datagrid",
+        name = "BaseStep.TypeLongDesc.DataGrid",
+        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.DataGrid",
+        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Input"
+)
 public class DataGridMeta extends BaseStepMeta implements StepMetaInterface {
   private String[] currency;
   private String[] decimal;

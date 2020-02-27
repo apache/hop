@@ -49,7 +49,7 @@
         <module>addsequence</module>
         <module>calculator</module>
         <module>constant</module>
-<!--        <module>csvinput</module>-->
+        <module>csvinput</module>
         <module>databasejoin</module>
         <module>databaselookup</module>
         <module>datagrid</module>
@@ -63,15 +63,15 @@
         <module>exceloutput</module>
         <module>excelwriter</module>
         <module>execprocess</module>
-<!--        <module>execsqlrow</module>-->
+        <module>execsqlrow</module>
         <module>fieldschangesequence</module>
-<!--        <module>fileinput/text</module>-->
+        <module>fileinput/text</module>
         <module>rowgenerator</module>
         <module>selectvalues</module>
         <module>sql</module>
-<!--        <module>tableoutput</module>-->
-<!--        <module>textfileinput</module>-->
-<!--        <module>textfileoutput</module>-->
+        <module>tableoutput</module>
+        <module>textfileinput</module>
+        <module>textfileoutput</module>
       </modules>
     </profile>
 
@@ -155,6 +155,7 @@
         <type>test-jar</type>
         <scope>test</scope>
       </dependency>
+
       <dependency>
         <groupId>org.hop</groupId>
         <artifactId>hop-core</artifactId>
@@ -162,6 +163,7 @@
         <type>test-jar</type>
         <scope>test</scope>
       </dependency>
+
     </dependencies>
   </dependencyManagement>
 </project>

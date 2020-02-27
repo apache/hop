@@ -24,6 +24,7 @@ package org.apache.hop.trans.steps.detectemptystream;
 
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.VariableSpace;
@@ -32,11 +33,7 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMeta.TransformationType;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.step.*;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -45,6 +42,14 @@ import java.util.List;
  * @author Samatar
  * @since 30-08-2008
  */
+@Step(
+        id = "DetectEmptyStream",
+        image = "ui/images/EMS.svg",
+        i18nPackageName = "org.apache.hop.trans.steps.detectemptystream",
+        name = "BaseStep.TypeLongDesc.DetectEmptyStream",
+        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.DetectEmptyStream",
+        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Flow"
+)
 public class DetectEmptyStreamMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = DetectEmptyStreamMeta.class; // for i18n purposes, needed by Translator2!!
 

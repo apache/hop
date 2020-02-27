@@ -36,6 +36,7 @@
                  </exclusions>
              </dependency>-->
 
+<!--
         <dependency>
             <groupId>org.hop</groupId>
             <artifactId>hop-dummy-plugins</artifactId>
@@ -48,6 +49,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+-->
 
 
      <!-- Step plugins -->
@@ -91,7 +93,6 @@
          </exclusions>
      </dependency>
 
-<!--
      <dependency>
          <groupId>org.hop</groupId>
          <artifactId>hop-assemblies-plugins-steps-csvinput</artifactId>
@@ -104,7 +105,6 @@
              </exclusion>
          </exclusions>
      </dependency>
--->
 
      <dependency>
          <groupId>org.hop</groupId>
@@ -249,7 +249,6 @@
          </exclusions>
      </dependency>
 
-<!--
      <dependency>
          <groupId>org.hop</groupId>
          <artifactId>hop-assemblies-plugins-steps-execsqlrow</artifactId>
@@ -262,7 +261,6 @@
              </exclusion>
          </exclusions>
      </dependency>
--->
 
      <dependency>
          <groupId>org.hop</groupId>
@@ -277,7 +275,6 @@
          </exclusions>
      </dependency>
 
-<!--
      <dependency>
          <groupId>org.hop</groupId>
          <artifactId>hop-assemblies-plugins-steps-fileinput</artifactId>
@@ -290,7 +287,6 @@
              </exclusion>
          </exclusions>
      </dependency>
--->
 
      <dependency>
          <groupId>org.hop</groupId>
@@ -318,7 +314,6 @@
          </exclusions>
      </dependency>
 
-<!--
      <dependency>
          <groupId>org.hop</groupId>
          <artifactId>hop-assemblies-plugins-steps-sql</artifactId>
@@ -331,9 +326,7 @@
              </exclusion>
          </exclusions>
      </dependency>
--->
 
-<!--
      <dependency>
          <groupId>org.hop</groupId>
          <artifactId>hop-assemblies-plugins-steps-textfileinput</artifactId>
@@ -346,9 +339,7 @@
              </exclusion>
          </exclusions>
      </dependency>
--->
 
-<!--
      <dependency>
          <groupId>org.hop</groupId>
          <artifactId>hop-assemblies-plugins-steps-textfileoutput</artifactId>
@@ -361,7 +352,6 @@
              </exclusion>
          </exclusions>
      </dependency>
--->
 
 
      <!-- Database plugins -->
