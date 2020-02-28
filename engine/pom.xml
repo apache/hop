@@ -23,7 +23,7 @@
     <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
 
     <!-- Third-party dependencies -->
-    <antlr-complete.version>3.5.2</antlr-complete.version>
+<!--     <antlr-complete.version>3.5.2</antlr-complete.version> -->
     <commons-validator.version>1.3.1</commons-validator.version>
 <!--    <edtftpj.version>2.1.0</edtftpj.version>-->
     <jsendnsca.version>2.0.1</jsendnsca.version>
@@ -175,17 +175,17 @@
       <groupId>rhino</groupId>
       <artifactId>js</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.antlr</groupId>
-      <artifactId>antlr-complete</artifactId>
-      <version>${antlr-complete.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+<!--     <dependency> -->
+<!--       <groupId>org.antlr</groupId> -->
+<!--       <artifactId>antlr-complete</artifactId> -->
+<!--       <version>${antlr-complete.version}</version> -->
+<!--       <exclusions> -->
+<!--         <exclusion> -->
+<!--           <groupId>*</groupId> -->
+<!--           <artifactId>*</artifactId> -->
+<!--         </exclusion> -->
+<!--       </exclusions> -->
+<!--     </dependency> -->
     <dependency>
       <groupId>commons-validator</groupId>
       <artifactId>commons-validator</artifactId>
