@@ -45,6 +45,7 @@
     <httpclient.version>4.5.3</httpclient.version>
     <httpccore.version>4.4.6</httpccore.version>
     <xmlunit.version>1.5</xmlunit.version>
+    <wstx-asl.version>3.2.4</wstx-asl.version>
   </properties>
 
   <dependencies>
@@ -449,10 +450,7 @@
 <!--         </exclusion> -->
 <!--       </exclusions> -->
 <!--     </dependency> -->
-<!--     <dependency> -->
-<!--       <groupId>org.codehaus.woodstox</groupId> -->
-<!--       <artifactId>wstx-asl</artifactId> -->
-<!--     </dependency> -->
+
 <!--     <dependency> -->
 <!--       <groupId>pentaho</groupId> -->
 <!--       <artifactId>simple-jndi</artifactId> -->
@@ -460,6 +458,12 @@
 <!--     </dependency> -->
 
     <!-- Test dependencies -->
+    <dependency>
+      <groupId>org.codehaus.woodstox</groupId>
+      <artifactId>wstx-asl</artifactId>
+      <version>${wstx-asl.version}</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>java-hamcrest</artifactId>
