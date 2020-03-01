@@ -26,6 +26,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -41,11 +42,7 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.step.*;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -56,6 +53,14 @@ import java.util.List;
  * @author Tom, Matt
  * @since 28-March-2006
  */
+@Step(
+        id = "Delete",
+        image = "ui/images/Delete.svg",
+        i18nPackageName = "org.apache.hop.trans.steps.delete",
+        name = "BaseStep.TypeLongDesc.Delete",
+        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.Delete",
+        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Output"
+)
 public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = DeleteMeta.class; // for i18n purposes, needed by Translator2!!
 

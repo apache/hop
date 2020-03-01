@@ -25,6 +25,7 @@ package org.apache.hop.trans.steps.selectvalues;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopValueException;
@@ -46,11 +47,7 @@ import org.apache.hop.lineage.FieldnameLineage;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.step.*;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -63,6 +60,14 @@ import java.util.List;
  * <p>
  * Created on 02-jun-2003
  */
+@Step(
+        id = "SelectValues",
+        image = "ui/images/SEL.svg",
+        i18nPackageName = "org.apache.hop.trans.steps.selectvalues",
+        name = "BaseStep.TypeLongDesc.SelectValues",
+        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.SelectValues",
+        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Transform"
+)
 @InjectionSupported( localizationPrefix = "SelectValues.Injection.", groups = { "FIELDS", "REMOVES", "METAS" } )
 public class SelectValuesMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = SelectValuesMeta.class; // for i18n purposes, needed by Translator2!!

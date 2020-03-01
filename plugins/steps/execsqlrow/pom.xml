@@ -108,7 +108,7 @@
 
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>sql</artifactId>
+            <artifactId>hop-step-sql</artifactId>
             <version>0.1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>

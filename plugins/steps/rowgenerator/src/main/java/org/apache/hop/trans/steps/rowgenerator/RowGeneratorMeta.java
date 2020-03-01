@@ -26,6 +26,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -53,6 +54,13 @@ import java.util.List;
 /*
  * Created on 4-apr-2003
  */
+@Step(  id = "RowGenerator",
+        image = "ui/images/GEN.svg",
+        i18nPackageName = "org.apache.hop.trans.steps.rowgenerator",
+        name = "BaseStep.TypeLongDesc.GenerateRows",
+        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.GenerateRows",
+        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Input"
+      )
 public class RowGeneratorMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = RowGeneratorMeta.class; // for i18n purposes, needed by Translator2!!
 

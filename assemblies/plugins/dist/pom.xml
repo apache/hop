@@ -36,6 +36,7 @@
                  </exclusions>
              </dependency>-->
 
+<!--
         <dependency>
             <groupId>org.hop</groupId>
             <artifactId>hop-dummy-plugins</artifactId>
@@ -48,6 +49,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+-->
 
 
      <!-- Step plugins -->

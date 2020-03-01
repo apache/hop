@@ -25,6 +25,7 @@ package org.apache.hop.trans.steps.databasejoin;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -53,6 +54,14 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
+@Step(
+        id = "DBJoin",
+        image = "ui/images/DBJ.svg",
+        i18nPackageName = "org.apache.hop.trans.steps.databasejoin",
+        name = "Database Join",
+        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.DatabaseJoin",
+        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Lookup"
+)
 public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = DatabaseJoinMeta.class; // for i18n purposes, needed by Translator2!!
 

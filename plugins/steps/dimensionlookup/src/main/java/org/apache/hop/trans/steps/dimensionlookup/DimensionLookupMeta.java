@@ -22,18 +22,11 @@
 
 package org.apache.hop.trans.steps.dimensionlookup;
 
-import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.ProvidesModelerMeta;
-import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.*;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopStepException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.*;
 import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
@@ -53,18 +46,10 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.step.*;
 import org.w3c.dom.Node;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Matt
@@ -76,6 +61,14 @@ import java.util.List;
  * Hop then connects over a socket to this daemon-like process to check wether a certain dimension entry is
  * present. Perhaps a more general caching service should be considered.
  */
+@Step(
+        id = "DimensionLookup",
+        image = "ui/images/DIM.svg",
+        i18nPackageName = "org.apache.hop.trans.steps.dimensionlookup",
+        name = "BaseStep.TypeLongDesc.DimensionUpdate",
+        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.DimensionUpdate",
+        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.DataWarehouse"
+)
 @InjectionSupported( localizationPrefix = "DimensionLookup.Injection.", groups = { "KEYS", "FIELDS" } )
 public class DimensionLookupMeta extends BaseStepMeta implements StepMetaInterface, ProvidesModelerMeta {
   private static Class<?> PKG = DimensionLookupMeta.class; // for i18n purposes, needed by Translator2!!

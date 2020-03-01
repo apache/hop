@@ -105,15 +105,17 @@
             </exclusions>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>textfileinput</artifactId>
+            <artifactId>hop-step-textfileinput</artifactId>
             <version>0.1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>fileinput-text</artifactId>
+            <artifactId>hop-step-fileinput-text</artifactId>
             <version>0.1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>

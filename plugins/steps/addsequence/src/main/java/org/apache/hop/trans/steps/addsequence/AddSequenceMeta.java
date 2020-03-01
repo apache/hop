@@ -26,6 +26,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -54,6 +55,15 @@ import java.util.List;
  * <p>
  * Created on 13-may-2003
  */
+
+@Step(
+        id = "Sequence",
+        image = "ui/images/SEQ.svg",
+        i18nPackageName = "i18n:org.apache.hop.trans.steps.addsequence",
+        name = "BaseStep.TypeLongDesc.AddSequence",
+        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.AddConstants",
+        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Transform"
+)
 public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = AddSequenceMeta.class; // for i18n purposes, needed by Translator2!!
 

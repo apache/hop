@@ -23,11 +23,8 @@
 package org.apache.hop.trans.steps.tableoutput;
 
 import com.google.common.base.Preconditions;
-import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.ProvidesModelerMeta;
-import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.*;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -46,12 +43,7 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepInjectionMetaEntry;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.step.*;
 import org.w3c.dom.Node;
 
 import java.util.Arrays;
@@ -64,6 +56,14 @@ import java.util.List;
  * @author Matt Casters
  * @since 2-jun-2003
  */
+@Step(
+        id = "TableOutput",
+        image = "ui/images/TOP.svg",
+        i18nPackageName = "org.apache.hop.trans.steps.tableoutput",
+        name = "BaseStep.TypeLongDesc.Output",
+        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.Output",
+        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Output"
+)
 public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, ProvidesModelerMeta {
   private static Class<?> PKG = TableOutputMeta.class; // for i18n purposes, needed by Translator2!!
 

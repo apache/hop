@@ -64,6 +64,22 @@
         </license>
     </licenses>
 
+    <repositories>
+        <repository>
+            <id>hop</id>
+            <name>Hop Repository</name>
+            <url>https://artifactory.project-hop.org/artifactory/hop-releases/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>interval:15</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -104,6 +120,12 @@
                 </exclusion>
             </exclusions>
             <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>pentaho</groupId>
+            <artifactId>pentaho-vfs-browser</artifactId>
+            <version>8.2.0.7-719</version>
         </dependency>
 
     </dependencies>

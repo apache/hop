@@ -26,6 +26,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
@@ -41,12 +42,7 @@ import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInjectionInterface;
-import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.step.*;
 import org.w3c.dom.Node;
 
 import java.text.SimpleDateFormat;
@@ -54,6 +50,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+@Step(
+        id = "TypeExitExcelWriterStep",
+        image = "ui/images/XWS.svg",
+        i18nPackageName = "org.apache.hop.trans.steps.excelwriter",
+        name = "BaseStep.TypeLongDesc.TypeExitExcelWriterStep",
+        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.TypeExitExcelWriterStep",
+        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Output"
+)
 public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = ExcelWriterStepMeta.class; // for i18n purposes, needed by Translator2!!
 
