@@ -29,17 +29,14 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaBoolean;
-import org.apache.hop.core.row.value.ValueMetaDate;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.*;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
@@ -54,12 +51,7 @@ import org.apache.hop.resource.ResourceNamingInterface;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInjectionInterface;
-import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.step.*;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -71,6 +63,14 @@ import java.util.Map;
  * @deprecated replaced by implementation in the ...steps.fileinput.text package
  */
 @Deprecated
+@Step(
+        id = "TextFileInput",
+        image = "ui/images/TFI.svg",
+        i18nPackageName = "org.apache.hop.trans.steps.fileinput",
+        name = "BaseStep.TypeLongDesc.TextFileInput",
+        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.TextFileInput",
+        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Input"
+)
 public class TextFileInputMeta extends BaseStepMeta implements StepMetaInterface, InputFileMetaInterface {
   private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator2!!
 

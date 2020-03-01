@@ -27,6 +27,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopAttributeInterface;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopStepException;
@@ -72,6 +73,14 @@ import java.util.Map;
  * @since 2007-07-05
  */
 
+@Step(
+        id = "CSVInput",
+        image = "ui/images/TFI.svg",
+        i18nPackageName = "org.apache.hop.trans.steps.csvinput",
+        name = "BaseStep.TypeLongDesc.CsvInput",
+        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.CsvInput",
+        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Input"
+)
 public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, InputFileMetaInterface,
   StepMetaInjectionInterface, CsvInputAwareMeta {
   private static Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator2!!

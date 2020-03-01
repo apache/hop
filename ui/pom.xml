@@ -21,7 +21,7 @@
     <maven-surefire-plugin.reuseForks>true</maven-surefire-plugin.reuseForks>
 
     <!-- Pentaho dependencies -->
-    <hop-vfs-browser.version>0.1.0-SNAPSHOT</hop-vfs-browser.version>
+    <pentaho-vfs-browser.version>8.2.0.7-719</pentaho-vfs-browser.version>
     <pentaho-capability-manager.version>${project.version}</pentaho-capability-manager.version>
 
     <!-- Third-party dependencies -->
@@ -42,13 +42,13 @@
       <artifactId>hop-engine</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.hop</groupId>
-      <artifactId>hop-vfs-browser</artifactId>
-      <version>${hop-vfs-browser.version}</version>
-    </dependency>
 
     <!-- Pentaho dependencies -->
+    <dependency>
+      <groupId>pentaho</groupId>
+      <artifactId>pentaho-vfs-browser</artifactId>
+      <version>${pentaho-vfs-browser.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.pentaho</groupId>
       <artifactId>commons-xul-core</artifactId>

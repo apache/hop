@@ -5,7 +5,7 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>steps/databasejoin</baseDirectory>
+    <baseDirectory>steps/csvinput</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
@@ -25,7 +25,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-step-databasejoin:jar</include>
+                <include>org.hop:hop-step-csvinput:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

@@ -25,6 +25,7 @@ package org.apache.hop.trans.steps.constant;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -37,11 +38,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.step.*;
 import org.w3c.dom.Node;
 
 import java.text.DecimalFormat;
@@ -51,6 +48,14 @@ import java.util.List;
  * Created on 4-apr-2003
  *
  */
+@Step(
+        id = "Constant",
+        image = "ui/images/CST.svg",
+        i18nPackageName = "org.apache.hop.trans.steps.constant",
+        name = "BaseStep.TypeLongDesc.AddConstants",
+        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.AddConstants",
+        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Transform"
+)
 public class ConstantMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = ConstantMeta.class; // for i18n purposes, needed by Translator2!!
 

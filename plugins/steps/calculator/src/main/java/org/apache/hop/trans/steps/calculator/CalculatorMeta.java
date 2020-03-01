@@ -24,6 +24,7 @@ package org.apache.hop.trans.steps.calculator;
 
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -51,6 +52,15 @@ import java.util.List;
  *
  * @since 08 september 2005
  */
+
+@Step(
+        id = "Calculator",
+        image = "ui/images/CLC.svg",
+        i18nPackageName = "i18n:org.apache.hop.trans.step.calculator",
+        name = "BaseStep.TypeLongDesc.Calculator",
+        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.Calculator",
+        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Transform"
+)
 public class CalculatorMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = CalculatorMeta.class; // for i18n purposes, needed by Translator2!!
 

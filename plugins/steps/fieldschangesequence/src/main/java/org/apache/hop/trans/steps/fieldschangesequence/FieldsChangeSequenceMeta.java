@@ -25,6 +25,7 @@ package org.apache.hop.trans.steps.fieldschangesequence;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -36,11 +37,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.step.*;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -50,6 +47,14 @@ import java.util.List;
  *
  */
 
+@Step(
+        id = "FieldsChangeSequence",
+        image = "ui/images/CSEQ.svg",
+        i18nPackageName = "org.apache.hop.trans.steps.datagrid",
+        name = "BaseStep.TypeLongDesc.FieldsChangeSequence",
+        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.FieldsChangeSequence",
+        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Transform"
+)
 public class FieldsChangeSequenceMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = FieldsChangeSequenceMeta.class; // for i18n purposes, needed by Translator2!!
 
