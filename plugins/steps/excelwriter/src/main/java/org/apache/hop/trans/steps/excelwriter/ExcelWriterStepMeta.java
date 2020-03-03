@@ -55,7 +55,7 @@ import java.util.Map;
         image = "ui/images/XWS.svg",
         i18nPackageName = "org.apache.hop.trans.steps.excelwriter",
         name = "BaseStep.TypeLongDesc.TypeExitExcelWriterStep",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.TypeExitExcelWriterStep",
+        description = "BaseStep.TypeTooltipDesc.TypeExitExcelWriterStep",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Output"
 )
 public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterface {
@@ -1010,6 +1010,11 @@ public class ExcelWriterStepMeta extends BaseStepMeta implements StepMetaInterfa
 
   public void setTemplateSheetHidden( boolean hide ) {
     this.templateSheetHidden = hide;
+  }
+
+  @Override
+  public String getDialogClassName(){
+    return ExcelWriterStepDialog.class.getName();
   }
 
 }

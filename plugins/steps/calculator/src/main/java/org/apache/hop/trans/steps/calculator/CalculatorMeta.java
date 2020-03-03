@@ -58,7 +58,7 @@ import java.util.List;
         image = "ui/images/CLC.svg",
         i18nPackageName = "i18n:org.apache.hop.trans.step.calculator",
         name = "BaseStep.TypeLongDesc.Calculator",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.Calculator",
+        description = "BaseStep.TypeTooltipDesc.Calculator",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Transform"
 )
 public class CalculatorMeta extends BaseStepMeta implements StepMetaInterface {
@@ -249,5 +249,10 @@ public class CalculatorMeta extends BaseStepMeta implements StepMetaInterface {
   @Override
   public StepDataInterface getStepData() {
     return new CalculatorData();
+  }
+
+  @Override
+  public String getDialogClassName(){
+    return CalculatorDialog.class.getName();
   }
 }

@@ -65,7 +65,7 @@ import java.util.List;
         image = "ui/images/SEL.svg",
         i18nPackageName = "org.apache.hop.trans.steps.selectvalues",
         name = "BaseStep.TypeLongDesc.SelectValues",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.SelectValues",
+        description = "BaseStep.TypeTooltipDesc.SelectValues",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Transform"
 )
 @InjectionSupported( localizationPrefix = "SelectValues.Injection.", groups = { "FIELDS", "REMOVES", "METAS" } )
@@ -801,6 +801,11 @@ public class SelectValuesMeta extends BaseStepMeta implements StepMetaInterface 
     return lineages;
   }
 
+  @Override
+  public String getDialogClassName(){
+    return SelectValuesDialog.class.getName();
+  }
+
   public static class SelectField implements Cloneable {
 
     /**
@@ -867,5 +872,6 @@ public class SelectValuesMeta extends BaseStepMeta implements StepMetaInterface 
         throw new RuntimeException( e );
       }
     }
+
   }
 }

@@ -75,7 +75,7 @@ import java.util.Map;
         image = "ui/images/TFI.svg",
         i18nPackageName = "org.apache.hop.trans.steps.fileinput.text",
         name = "BaseStep.TypeLongDesc.TextFileInput",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.TextFileInput",
+        description = "BaseStep.TypeTooltipDesc.TextFileInput",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Input"
 )
 @InjectionSupported( localizationPrefix = "TextFileInput.Injection.", groups = { "FILENAME_LINES", "FIELDS", "FILTERS" } )
@@ -1189,5 +1189,10 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
   public FileObject getHeaderFileObject( final TransMeta transMeta ) {
     final FileInputList fileList = getFileInputList( transMeta );
     return fileList.nrOfFiles() == 0 ? null : fileList.getFile( 0 );
+  }
+
+  @Override
+  public String getDialogClassName(){
+    return TextFileInputDialog.class.getName();
   }
 }

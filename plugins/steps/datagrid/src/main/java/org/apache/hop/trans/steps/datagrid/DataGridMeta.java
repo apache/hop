@@ -47,7 +47,7 @@ import java.util.List;
         image = "ui/images/GNR.svg",
         i18nPackageName = "org.apache.hop.trans.steps.datagrid",
         name = "BaseStep.TypeLongDesc.DataGrid",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.DataGrid",
+        description = "BaseStep.TypeTooltipDesc.DataGrid",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Input"
 )
 public class DataGridMeta extends BaseStepMeta implements StepMetaInterface {
@@ -411,4 +411,8 @@ public class DataGridMeta extends BaseStepMeta implements StepMetaInterface {
     return new DataGridMetaInjection( this );
   }
 
+  @Override
+  public String getDialogClassName(){
+    return DataGridDialog.class.getName();
+  }
 }

@@ -52,7 +52,7 @@ import java.util.List;
         image = "ui/images/CSEQ.svg",
         i18nPackageName = "org.apache.hop.trans.steps.datagrid",
         name = "BaseStep.TypeLongDesc.FieldsChangeSequence",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.FieldsChangeSequence",
+        description = "BaseStep.TypeTooltipDesc.FieldsChangeSequence",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Transform"
 )
 public class FieldsChangeSequenceMeta extends BaseStepMeta implements StepMetaInterface {
@@ -289,6 +289,11 @@ public class FieldsChangeSequenceMeta extends BaseStepMeta implements StepMetaIn
   @Override
   public boolean supportsErrorHandling() {
     return true;
+  }
+
+  @Override
+  public String getDialogClassName(){
+    return FieldsChangeSequenceDialog.class.getName();
   }
 
 }

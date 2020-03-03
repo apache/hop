@@ -68,7 +68,7 @@ import java.util.Map;
         image = "ui/images/TFI.svg",
         i18nPackageName = "org.apache.hop.trans.steps.fileinput",
         name = "BaseStep.TypeLongDesc.TextFileInput",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.TextFileInput",
+        description = "BaseStep.TypeTooltipDesc.TextFileInput",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Input"
 )
 public class TextFileInputMeta extends BaseStepMeta implements StepMetaInterface, InputFileMetaInterface {
@@ -1882,5 +1882,10 @@ public class TextFileInputMeta extends BaseStepMeta implements StepMetaInterface
 
   protected void saveSource( StringBuilder retVal, String source ) {
     retVal.append( "      " ).append( XMLHandler.addTagValue( "name", source ) );
+  }
+
+  @Override
+  public String getDialogClassName(){
+    return TextFileInputDialog.class.getName();
   }
 }

@@ -54,7 +54,7 @@ import java.util.List;
         image = "ui/images/UNP.svg",
         i18nPackageName = "org.apache.hop.trans.steps.denormaliser",
         name = "BaseStep.TypeLongDesc.RowDenormaliser",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.RowDenormaliser",
+        description = "BaseStep.TypeTooltipDesc.RowDenormaliser",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Transform"
 )
 public class DenormaliserMeta extends BaseStepMeta implements StepMetaInterface {
@@ -324,5 +324,10 @@ public class DenormaliserMeta extends BaseStepMeta implements StepMetaInterface 
   @Override
   public StepMetaInjectionInterface getStepMetaInjectionInterface() {
     return new DenormaliserMetaInjection( this );
+  }
+
+  @Override
+  public String getDialogClassName(){
+    return DenormaliserDialog.class.getName();
   }
 }

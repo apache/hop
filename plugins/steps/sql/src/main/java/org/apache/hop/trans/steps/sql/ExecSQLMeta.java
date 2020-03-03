@@ -56,7 +56,7 @@ import java.util.List;
         image = "ui/images/SQL.svg",
         i18nPackageName = "org.apache.hop.trans.steps.sql",
         name = "BaseStep.TypeLongDesc.ExecSQLRow",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.ExcuteSQL",
+        description = "BaseStep.TypeTooltipDesc.ExecuteSQL",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Scripting"
 )
 @InjectionSupported( localizationPrefix = "ExecSQLMeta.Injection.", groups = { "PARAMETERS" } )
@@ -467,5 +467,10 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
    */
   public void setSingleStatement( boolean singleStatement ) {
     this.singleStatement = singleStatement;
+  }
+
+  @Override
+  public String getDialogClassName(){
+    return ExecSQLDialog.class.getName();
   }
 }

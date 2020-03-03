@@ -58,7 +58,7 @@ import java.util.List;
         image = "ui/images/GEN.svg",
         i18nPackageName = "org.apache.hop.trans.steps.rowgenerator",
         name = "BaseStep.TypeLongDesc.GenerateRows",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.GenerateRows",
+        description = "BaseStep.TypeTooltipDesc.GenerateRows",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Input"
       )
 public class RowGeneratorMeta extends BaseStepMeta implements StepMetaInterface {
@@ -512,4 +512,8 @@ public class RowGeneratorMeta extends BaseStepMeta implements StepMetaInterface 
     this.value = value;
   }
 
+  @Override
+  public String getDialogClassName(){
+    return RowGeneratorDialog.class.getName();
+  }
 }

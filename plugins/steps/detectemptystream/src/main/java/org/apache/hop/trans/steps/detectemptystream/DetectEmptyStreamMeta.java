@@ -47,7 +47,7 @@ import java.util.List;
         image = "ui/images/EMS.svg",
         i18nPackageName = "org.apache.hop.trans.steps.detectemptystream",
         name = "BaseStep.TypeLongDesc.DetectEmptyStream",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.DetectEmptyStream",
+        description = "BaseStep.TypeTooltipDesc.DetectEmptyStream",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Flow"
 )
 public class DetectEmptyStreamMeta extends BaseStepMeta implements StepMetaInterface {
@@ -113,5 +113,10 @@ public class DetectEmptyStreamMeta extends BaseStepMeta implements StepMetaInter
 
   public TransformationType[] getSupportedTransformationTypes() {
     return new TransformationType[] { TransformationType.Normal, };
+  }
+
+  @Override
+  public String getDialogClassName(){
+    return DetectEmptyStreamDialog.class.getName();
   }
 }

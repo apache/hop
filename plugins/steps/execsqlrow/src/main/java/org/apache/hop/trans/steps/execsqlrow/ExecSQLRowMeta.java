@@ -54,7 +54,7 @@ import java.util.List;
         image = "ui/images/SQLR.svg",
         i18nPackageName = "org.apache.hop.trans.steps.execsqlrow",
         name = "BaseStep.TypeLongDesc.ExecSQLRow",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.ExecSQLRow",
+        description = "BaseStep.TypeTooltipDesc.ExecSQLRow",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Scripting"
 )
 @InjectionSupported( localizationPrefix = "ExecSQLRowMeta.Injection.", groups = "OUTPUT_FIELDS" )
@@ -396,5 +396,10 @@ public class ExecSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
    */
   public void setMetaStore( IMetaStore metaStore ) {
     this.metaStore = metaStore;
+  }
+
+  @Override
+  public String getDialogClassName(){
+    return ExecSQLRowDialog.class.getName();
   }
 }

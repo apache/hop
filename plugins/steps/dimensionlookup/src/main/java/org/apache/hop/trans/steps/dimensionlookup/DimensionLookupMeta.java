@@ -66,7 +66,7 @@ import java.util.*;
         image = "ui/images/DIM.svg",
         i18nPackageName = "org.apache.hop.trans.steps.dimensionlookup",
         name = "BaseStep.TypeLongDesc.DimensionUpdate",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.DimensionUpdate",
+        description = "BaseStep.TypeTooltipDesc.DimensionUpdate",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.DataWarehouse"
 )
 @InjectionSupported( localizationPrefix = "DimensionLookup.Injection.", groups = { "KEYS", "FIELDS" } )
@@ -1932,4 +1932,9 @@ public class DimensionLookupMeta extends BaseStepMeta implements StepMetaInterfa
     fieldUpdate = rtnFieldUpdate[ 0 ];
   }
 
+
+  @Override
+  public String getDialogClassName(){
+    return DimensionLookupDialog.class.getName();
+  }
 }

@@ -53,7 +53,7 @@ import java.util.List;
         image = "ui/images/CST.svg",
         i18nPackageName = "org.apache.hop.trans.steps.constant",
         name = "BaseStep.TypeLongDesc.AddConstants",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.AddConstants",
+        description = "BaseStep.TypeTooltipDesc.AddConstants",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Transform"
 )
 public class ConstantMeta extends BaseStepMeta implements StepMetaInterface {
@@ -392,5 +392,10 @@ public class ConstantMeta extends BaseStepMeta implements StepMetaInterface {
 
   public StepDataInterface getStepData() {
     return new ConstantData();
+  }
+
+  @Override
+  public String getDialogClassName(){
+    return ConstantDialog.class.getName();
   }
 }

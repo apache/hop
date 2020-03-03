@@ -66,7 +66,7 @@ import java.util.Map;
         image = "ui/images/TFO.svg",
         i18nPackageName = "org.apache.hop.trans.steps.textfileoutput",
         name = "BaseStep.TypeLongDesc.TextFileOutput",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.TextFileOutput",
+        description = "BaseStep.TypeTooltipDesc.TextFileOutput",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Output"
 )
 @InjectionSupported( localizationPrefix = "TextFileOutput.Injection.", groups = { "OUTPUT_FIELDS" } )
@@ -998,5 +998,10 @@ public class TextFileOutputMeta extends BaseFileOutputMeta implements StepMetaIn
         throw new RuntimeException( e );
       }
     }
+  }
+
+  @Override
+  public String getDialogClassName(){
+    return TextFileOutputDialog.class.getName();
   }
 }

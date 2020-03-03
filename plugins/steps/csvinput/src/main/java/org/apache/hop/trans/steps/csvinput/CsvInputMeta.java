@@ -78,7 +78,7 @@ import java.util.Map;
         image = "ui/images/TFI.svg",
         i18nPackageName = "org.apache.hop.trans.steps.csvinput",
         name = "BaseStep.TypeLongDesc.CsvInput",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.CsvInput",
+        description = "BaseStep.TypeTooltipDesc.CsvInput",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Input"
 )
 public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, InputFileMetaInterface,
@@ -798,4 +798,10 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
     }
   }
 
+
+  @Override
+  public String getDialogClassName(){
+
+    return CsvInputDialog.class.getName();
+  }
 }

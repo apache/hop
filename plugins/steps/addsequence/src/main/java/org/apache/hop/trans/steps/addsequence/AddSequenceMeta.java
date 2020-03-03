@@ -41,11 +41,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.BaseStepMeta;
-import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.step.StepInterface;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.step.*;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -61,8 +57,9 @@ import java.util.List;
         image = "ui/images/SEQ.svg",
         i18nPackageName = "i18n:org.apache.hop.trans.steps.addsequence",
         name = "BaseStep.TypeLongDesc.AddSequence",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.AddConstants",
-        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Transform"
+        description = "BaseStep.TypeTooltipDesc.AddSequence",
+        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Transform",
+        documentationUrl = ""
 )
 public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = AddSequenceMeta.class; // for i18n purposes, needed by Translator2!!
@@ -412,5 +409,10 @@ public class AddSequenceMeta extends BaseStepMeta implements StepMetaInterface {
    */
   public void setSchemaName( String schemaName ) {
     this.schemaName = schemaName;
+  }
+
+  @Override
+  public String getDialogClassName(){
+    return AddSequenceDialog.class.getName();
   }
 }

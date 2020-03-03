@@ -54,7 +54,7 @@ import java.util.List;
         image = "ui/images/RPL.svg",
         i18nPackageName = "org.apache.hop.trans.steps.execprocess",
         name = "BaseStep.TypeLongDesc.ExecProcess",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.ExecProcess",
+        description = "BaseStep.TypeTooltipDesc.ExecProcess",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Utility"
 )
 public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
@@ -102,11 +102,11 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
 
   public ExecProcessMeta() {
     super(); // allocate BaseStepMeta
-    allocate( 0 );
+    allocate(0);
   }
 
-  public void allocate( int argumentCount ) {
-    this.argumentFieldNames = new String[ argumentCount ];
+  public void allocate(int argumentCount) {
+    this.argumentFieldNames = new String[argumentCount];
   }
 
   /**
@@ -119,7 +119,7 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
   /**
    * @param processfield The processfield to set.
    */
-  public void setProcessField( String processfield ) {
+  public void setProcessField(String processfield) {
     this.processfield = processfield;
   }
 
@@ -133,7 +133,7 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
   /**
    * @param resultfieldname The resultfieldname to set.
    */
-  public void setResultFieldName( String resultfieldname ) {
+  public void setResultFieldName(String resultfieldname) {
     this.resultfieldname = resultfieldname;
   }
 
@@ -147,7 +147,7 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
   /**
    * @param errorfieldname The errorfieldname to set.
    */
-  public void setErrorFieldName( String errorfieldname ) {
+  public void setErrorFieldName(String errorfieldname) {
     this.errorfieldname = errorfieldname;
   }
 
@@ -161,7 +161,7 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
   /**
    * @param exitvaluefieldname The exitvaluefieldname to set.
    */
-  public void setExitValueFieldName( String exitvaluefieldname ) {
+  public void setExitValueFieldName(String exitvaluefieldname) {
     this.exitvaluefieldname = exitvaluefieldname;
   }
 
@@ -177,20 +177,20 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
    * @deprecated due to method name typo
    */
   @Deprecated
-  public void setFailWhentNoSuccess( boolean failwhennotsuccess ) {
-    setFailWhenNotSuccess( failwhennotsuccess );
+  public void setFailWhentNoSuccess(boolean failwhennotsuccess) {
+    setFailWhenNotSuccess(failwhennotsuccess);
   }
 
   /**
    * @param failwhennotsuccess The failwhennotsuccess to set.
    */
-  public void setFailWhenNotSuccess( boolean failwhennotsuccess ) {
+  public void setFailWhenNotSuccess(boolean failwhennotsuccess) {
     this.failwhennotsuccess = failwhennotsuccess;
   }
 
   @Override
-  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
-    readData( stepnode, metaStore );
+  public void loadXML(Node stepnode, IMetaStore metaStore) throws HopXMLException {
+    readData(stepnode, metaStore);
   }
 
   @Override
@@ -209,29 +209,29 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public void getFields( RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
-                         VariableSpace space, IMetaStore metaStore ) throws HopStepException {
+  public void getFields(RowMetaInterface inputRowMeta, String name, RowMetaInterface[] info, StepMeta nextStep,
+                        VariableSpace space, IMetaStore metaStore) throws HopStepException {
     // Output fields (String)
-    String realOutputFieldname = space.environmentSubstitute( resultfieldname );
-    if ( !Utils.isEmpty( realOutputFieldname ) ) {
-      ValueMetaInterface v = new ValueMetaString( realOutputFieldname );
-      v.setLength( 100, -1 );
-      v.setOrigin( name );
-      inputRowMeta.addValueMeta( v );
+    String realOutputFieldname = space.environmentSubstitute(resultfieldname);
+    if (!Utils.isEmpty(realOutputFieldname)) {
+      ValueMetaInterface v = new ValueMetaString(realOutputFieldname);
+      v.setLength(100, -1);
+      v.setOrigin(name);
+      inputRowMeta.addValueMeta(v);
     }
-    String realerrofieldname = space.environmentSubstitute( errorfieldname );
-    if ( !Utils.isEmpty( realerrofieldname ) ) {
-      ValueMetaInterface v = new ValueMetaString( realerrofieldname );
-      v.setLength( 100, -1 );
-      v.setOrigin( name );
-      inputRowMeta.addValueMeta( v );
+    String realerrofieldname = space.environmentSubstitute(errorfieldname);
+    if (!Utils.isEmpty(realerrofieldname)) {
+      ValueMetaInterface v = new ValueMetaString(realerrofieldname);
+      v.setLength(100, -1);
+      v.setOrigin(name);
+      inputRowMeta.addValueMeta(v);
     }
-    String realexitvaluefieldname = space.environmentSubstitute( exitvaluefieldname );
-    if ( !Utils.isEmpty( realexitvaluefieldname ) ) {
-      ValueMetaInterface v = new ValueMetaInteger( realexitvaluefieldname );
-      v.setLength( ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0 );
-      v.setOrigin( name );
-      inputRowMeta.addValueMeta( v );
+    String realexitvaluefieldname = space.environmentSubstitute(exitvaluefieldname);
+    if (!Utils.isEmpty(realexitvaluefieldname)) {
+      ValueMetaInterface v = new ValueMetaInteger(realexitvaluefieldname);
+      v.setLength(ValueMetaInterface.DEFAULT_INTEGER_LENGTH, 0);
+      v.setOrigin(name);
+      inputRowMeta.addValueMeta(v);
     }
   }
 
@@ -239,98 +239,98 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
   public String getXML() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " + XMLHandler.addTagValue( "processfield", processfield ) );
-    retval.append( "    " + XMLHandler.addTagValue( "resultfieldname", resultfieldname ) );
-    retval.append( "    " + XMLHandler.addTagValue( "errorfieldname", errorfieldname ) );
-    retval.append( "    " + XMLHandler.addTagValue( "exitvaluefieldname", exitvaluefieldname ) );
-    retval.append( "    " + XMLHandler.addTagValue( "failwhennotsuccess", failwhennotsuccess ) );
-    retval.append( "    " + XMLHandler.addTagValue( "outputlinedelimiter", outputLineDelimiter ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "argumentsInFields", argumentsInFields ) );
+    retval.append("    " + XMLHandler.addTagValue("processfield", processfield));
+    retval.append("    " + XMLHandler.addTagValue("resultfieldname", resultfieldname));
+    retval.append("    " + XMLHandler.addTagValue("errorfieldname", errorfieldname));
+    retval.append("    " + XMLHandler.addTagValue("exitvaluefieldname", exitvaluefieldname));
+    retval.append("    " + XMLHandler.addTagValue("failwhennotsuccess", failwhennotsuccess));
+    retval.append("    " + XMLHandler.addTagValue("outputlinedelimiter", outputLineDelimiter));
+    retval.append("    ").append(XMLHandler.addTagValue("argumentsInFields", argumentsInFields));
 
-    retval.append( "    " ).append( XMLHandler.openTag( "argumentFields" ) ).append( Const.CR );
-    for ( int i = 0; i < argumentFieldNames.length; i++ ) {
-      retval.append( "      " ).append( XMLHandler.openTag( "argumentField" ) ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "argumentFieldName", argumentFieldNames[ i ] ) );
-      retval.append( "      " ).append( XMLHandler.closeTag( "argumentField" ) ).append( Const.CR );
+    retval.append("    ").append(XMLHandler.openTag("argumentFields")).append(Const.CR);
+    for (int i = 0; i < argumentFieldNames.length; i++) {
+      retval.append("      ").append(XMLHandler.openTag("argumentField")).append(Const.CR);
+      retval.append("        ").append(XMLHandler.addTagValue("argumentFieldName", argumentFieldNames[i]));
+      retval.append("      ").append(XMLHandler.closeTag("argumentField")).append(Const.CR);
     }
-    retval.append( "    " ).append( XMLHandler.closeTag( "argumentFields" ) ).append( Const.CR );
+    retval.append("    ").append(XMLHandler.closeTag("argumentFields")).append(Const.CR);
     return retval.toString();
   }
 
-  private void readData( Node stepnode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData(Node stepnode, IMetaStore metaStore) throws HopXMLException {
     try {
-      processfield = XMLHandler.getTagValue( stepnode, "processfield" );
-      resultfieldname = XMLHandler.getTagValue( stepnode, "resultfieldname" );
-      errorfieldname = XMLHandler.getTagValue( stepnode, "errorfieldname" );
-      exitvaluefieldname = XMLHandler.getTagValue( stepnode, "exitvaluefieldname" );
-      failwhennotsuccess = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "failwhennotsuccess" ) );
-      outputLineDelimiter = XMLHandler.getTagValue( stepnode, "outputlinedelimiter" );
-      if ( outputLineDelimiter == null ) {
+      processfield = XMLHandler.getTagValue(stepnode, "processfield");
+      resultfieldname = XMLHandler.getTagValue(stepnode, "resultfieldname");
+      errorfieldname = XMLHandler.getTagValue(stepnode, "errorfieldname");
+      exitvaluefieldname = XMLHandler.getTagValue(stepnode, "exitvaluefieldname");
+      failwhennotsuccess = "Y".equalsIgnoreCase(XMLHandler.getTagValue(stepnode, "failwhennotsuccess"));
+      outputLineDelimiter = XMLHandler.getTagValue(stepnode, "outputlinedelimiter");
+      if (outputLineDelimiter == null) {
         outputLineDelimiter = ""; // default to empty string for backward compatibility
       }
 
-      argumentsInFields = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "argumentsInFields" ) );
-      Node argumentFieldsNode = XMLHandler.getSubNode( stepnode, "argumentFields" );
-      if ( argumentFieldsNode == null ) {
-        argumentFieldNames = new String[ 0 ];
+      argumentsInFields = "Y".equalsIgnoreCase(XMLHandler.getTagValue(stepnode, "argumentsInFields"));
+      Node argumentFieldsNode = XMLHandler.getSubNode(stepnode, "argumentFields");
+      if (argumentFieldsNode == null) {
+        argumentFieldNames = new String[0];
       } else {
-        int argumentFieldCount = XMLHandler.countNodes( argumentFieldsNode, "argumentField" );
-        argumentFieldNames = new String[ argumentFieldCount ];
-        for ( int i = 0; i < argumentFieldCount; i++ ) {
-          Node fnode = XMLHandler.getSubNodeByNr( argumentFieldsNode, "argumentField", i );
-          argumentFieldNames[ i ] = XMLHandler.getTagValue( fnode, "argumentFieldName" );
+        int argumentFieldCount = XMLHandler.countNodes(argumentFieldsNode, "argumentField");
+        argumentFieldNames = new String[argumentFieldCount];
+        for (int i = 0; i < argumentFieldCount; i++) {
+          Node fnode = XMLHandler.getSubNodeByNr(argumentFieldsNode, "argumentField", i);
+          argumentFieldNames[i] = XMLHandler.getTagValue(fnode, "argumentFieldName");
         }
       }
 
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       throw new HopXMLException(
-        BaseMessages.getString( PKG, "ExecProcessMeta.Exception.UnableToReadStepInfo" ), e );
+              BaseMessages.getString(PKG, "ExecProcessMeta.Exception.UnableToReadStepInfo"), e);
     }
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
-                     RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
-                     IMetaStore metaStore ) {
+  public void check(List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
+                    RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info, VariableSpace space,
+                    IMetaStore metaStore) {
     CheckResult cr;
     String error_message = "";
 
-    if ( Utils.isEmpty( resultfieldname ) ) {
-      error_message = BaseMessages.getString( PKG, "ExecProcessMeta.CheckResult.ResultFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, stepMeta );
+    if (Utils.isEmpty(resultfieldname)) {
+      error_message = BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.ResultFieldMissing");
+      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, error_message, stepMeta);
     } else {
-      error_message = BaseMessages.getString( PKG, "ExecProcessMeta.CheckResult.ResultFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, stepMeta );
+      error_message = BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.ResultFieldOK");
+      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, error_message, stepMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
 
-    if ( Utils.isEmpty( processfield ) ) {
-      error_message = BaseMessages.getString( PKG, "ExecProcessMeta.CheckResult.ProcessFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, stepMeta );
+    if (Utils.isEmpty(processfield)) {
+      error_message = BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.ProcessFieldMissing");
+      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, error_message, stepMeta);
     } else {
-      error_message = BaseMessages.getString( PKG, "ExecProcessMeta.CheckResult.ProcessFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, stepMeta );
+      error_message = BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.ProcessFieldOK");
+      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, error_message, stepMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
 
     // See if we have input streams leading to this step!
-    if ( input.length > 0 ) {
+    if (input.length > 0) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "ExecProcessMeta.CheckResult.ReceivingInfoFromOtherSteps" ), stepMeta );
+              new CheckResult(CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
+                      PKG, "ExecProcessMeta.CheckResult.ReceivingInfoFromOtherSteps"), stepMeta);
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "ExecProcessMeta.CheckResult.NoInpuReceived" ), stepMeta );
+              new CheckResult(CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
+                      PKG, "ExecProcessMeta.CheckResult.NoInpuReceived"), stepMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
 
   }
 
   @Override
-  public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
-                                TransMeta transMeta, Trans trans ) {
-    return new ExecProcess( stepMeta, stepDataInterface, cnr, transMeta, trans );
+  public StepInterface getStep(StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr,
+                               TransMeta transMeta, Trans trans) {
+    return new ExecProcess(stepMeta, stepDataInterface, cnr, transMeta, trans);
   }
 
   @Override
@@ -343,7 +343,7 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
     return failwhennotsuccess;
   }
 
-  public void setOutputLineDelimiter( String value ) {
+  public void setOutputLineDelimiter(String value) {
     this.outputLineDelimiter = value;
   }
 
@@ -355,7 +355,7 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
     return argumentsInFields;
   }
 
-  public void setArgumentsInFields( boolean argumentsInFields ) {
+  public void setArgumentsInFields(boolean argumentsInFields) {
     this.argumentsInFields = argumentsInFields;
   }
 
@@ -363,8 +363,13 @@ public class ExecProcessMeta extends BaseStepMeta implements StepMetaInterface {
     return argumentFieldNames;
   }
 
-  public void setArgumentFieldNames( String[] argumentFieldNames ) {
+  public void setArgumentFieldNames(String[] argumentFieldNames) {
     this.argumentFieldNames = argumentFieldNames;
+  }
+
+  @Override
+  public String getDialogClassName(){
+    return ExecProcessDialog.class.getName();
   }
 
 }

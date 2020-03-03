@@ -52,7 +52,7 @@ import java.util.List;
         image = "ui/images/DLR.svg",
         i18nPackageName = "org.apache.hop.trans.steps.detectlastrow",
         name = "BaseStep.TypeLongDesc.DetectLastRow",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.DetectLastRow",
+        description = "BaseStep.TypeTooltipDesc.DetectLastRow",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Flow"
 )
 public class DetectLastRowMeta extends BaseStepMeta implements StepMetaInterface {
@@ -158,5 +158,10 @@ public class DetectLastRowMeta extends BaseStepMeta implements StepMetaInterface
 
   public TransformationType[] getSupportedTransformationTypes() {
     return new TransformationType[] { TransformationType.Normal, };
+  }
+
+  @Override
+  public String getDialogClassName(){
+    return DetectLastRowDialog.class.getName();
   }
 }

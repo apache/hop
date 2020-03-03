@@ -58,7 +58,7 @@ import java.util.List;
         image = "ui/images/Delete.svg",
         i18nPackageName = "org.apache.hop.trans.steps.delete",
         name = "BaseStep.TypeLongDesc.Delete",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.Delete",
+        description = "BaseStep.TypeTooltipDesc.Delete",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Output"
 )
 public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
@@ -590,5 +590,9 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
 
   public boolean supportsErrorHandling() {
     return true;
+  }
+
+  public String getDialogClassName(){
+    return DeleteDialog.class.getName();
   }
 }

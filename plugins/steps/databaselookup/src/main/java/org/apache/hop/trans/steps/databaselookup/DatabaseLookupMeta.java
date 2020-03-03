@@ -59,7 +59,7 @@ import java.util.List;
         image = "ui/images/DLU.svg",
         i18nPackageName = "org.apache.hop.trans.steps.databaselookup",
         name = "BaseStep.TypeLongDesc.DatabaseLookup",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.DatabaseLookup",
+        description = "BaseStep.TypeTooltipDesc.DatabaseLookup",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Lookup"
 )
 public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterface,
@@ -850,5 +850,10 @@ public class DatabaseLookupMeta extends BaseStepMeta implements StepMetaInterfac
 
   @Override public List<String> getStreamFields() {
     return Arrays.asList( returnValueNewName );
+  }
+
+  @Override
+  public String getDialogClassName(){
+    return DatabaseLookupDialog.class.getName();
   }
 }

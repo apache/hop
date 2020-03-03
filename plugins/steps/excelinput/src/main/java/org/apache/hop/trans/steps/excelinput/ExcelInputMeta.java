@@ -66,7 +66,7 @@ import java.util.Map;
         image = "ui/images/XLI.svg",
         i18nPackageName = "org.apache.hop.trans.steps.excelinput",
         name = "BaseStep.TypeLongDesc.ExcelInput",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.ExcelInput",
+        description = "BaseStep.TypeTooltipDesc.ExcelInput",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Input"
 )
 @InjectionSupported( localizationPrefix = "ExcelInput.Injection.", groups = { "FIELDS", "SHEETS", "FILENAME_LINES" } )
@@ -1476,5 +1476,10 @@ public class ExcelInputMeta extends BaseStepMeta implements StepMetaInterface {
   @AfterInjection
   public void afterInjectionSynchronization() {
     this.normilizeAllocation();
+  }
+
+  @Override
+  public String getDialogClassName(){
+    return ExcelInputDialog.class.getName();
   }
 }

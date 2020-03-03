@@ -52,7 +52,7 @@ import java.util.List;
         image = "ui/images/DSR.svg",
         i18nPackageName = "org.apache.hop.trans.steps.dynamicsqlrow",
         name = "BaseStep.TypeLongDesc.DynamicSQLRow",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.DynamicSQLRow",
+        description = "BaseStep.TypeTooltipDesc.DynamicSQLRow",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Lookup"
 )
 public class DynamicSQLRowMeta extends BaseStepMeta implements StepMetaInterface {
@@ -403,5 +403,10 @@ public class DynamicSQLRowMeta extends BaseStepMeta implements StepMetaInterface
 
   public boolean supportsErrorHandling() {
     return true;
+  }
+
+  @Override
+  public String getDialogClassName(){
+    return DynamicSQLRowDialog.class.getName();
   }
 }

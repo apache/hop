@@ -58,8 +58,8 @@ import java.util.List;
         id = "DBJoin",
         image = "ui/images/DBJ.svg",
         i18nPackageName = "org.apache.hop.trans.steps.databasejoin",
-        name = "Database Join",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.DatabaseJoin",
+        name = "BaseStep.TypeLongDesc.DatabaseJoin",
+        description = "BaseStep.TypeTooltipDesc.DatabaseJoin",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Lookup"
 )
 public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface {
@@ -565,5 +565,10 @@ public class DatabaseJoinMeta extends BaseStepMeta implements StepMetaInterface 
   @Override
   public boolean supportsErrorHandling() {
     return true;
+  }
+
+  @Override
+  public String getDialogClassName(){
+    return DatabaseJoinDialog.class.getName();
   }
 }

@@ -64,7 +64,7 @@ import java.util.Map;
         image = "ui/images/XLO.svg",
         i18nPackageName = "org.apache.hop.trans.steps.exceloutput",
         name = "BaseStep.TypeLongDesc.ExcelOutput",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.ExcelOutput",
+        description = "BaseStep.TypeTooltipDesc.ExcelOutput",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Output"
 )
 @InjectionSupported( localizationPrefix = "ExcelOutput.Injection.", groups = { "FIELDS", "CUSTOM", "CONTENT" } )
@@ -1592,5 +1592,10 @@ public class ExcelOutputMeta extends BaseStepMeta implements StepMetaInterface {
 
   public void setHeaderFontBold( boolean font_bold ) {
     this.header_font_bold = font_bold;
+  }
+
+  @Override
+  public String getDialogClassName(){
+    return ExcelOutputDialog.class.getName();
   }
 }

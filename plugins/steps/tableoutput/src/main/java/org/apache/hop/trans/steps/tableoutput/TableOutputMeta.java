@@ -60,8 +60,8 @@ import java.util.List;
         id = "TableOutput",
         image = "ui/images/TOP.svg",
         i18nPackageName = "org.apache.hop.trans.steps.tableoutput",
-        name = "BaseStep.TypeLongDesc.Output",
-        description = "i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.Output",
+        name = "BaseStep.TypeLongDesc.TableOutput",
+        description = "BaseStep.TypeTooltipDesc.TableOutput",
         categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Output"
 )
 public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, ProvidesModelerMeta {
@@ -886,6 +886,11 @@ public class TableOutputMeta extends BaseStepMeta implements StepMetaInterface, 
 
   public List<StepInjectionMetaEntry> extractStepMetadataEntries() throws HopException {
     return getStepMetaInjectionInterface().extractStepMetadataEntries();
+  }
+
+  @Override
+  public String getDialogClassName(){
+    return TableOutputDialog.class.getName();
   }
 
 }

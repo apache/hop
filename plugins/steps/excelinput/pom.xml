@@ -113,6 +113,13 @@
             </exclusions>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-step-fileinput-text</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+
 
         <dependency>
             <groupId>net.sourceforge.jexcelapi</groupId>
@@ -179,7 +186,6 @@
             <artifactId>xmlbeans</artifactId>
             <version>${xmlbeans.version}</version>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -189,7 +195,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.2.0</version>
                 <configuration>
-                    <outputDirectory>target/${artifactId}</outputDirectory>
+                    <outputDirectory>target/${project.artifactId}</outputDirectory>
                 </configuration>
             </plugin>
             <plugin>
@@ -204,7 +210,7 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>target/${artifactId}/lib</outputDirectory>
+                            <outputDirectory>target/${project.artifactId}/lib</outputDirectory>
                             <excludeTransitive>true</excludeTransitive>
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>false</overWriteSnapshots>
