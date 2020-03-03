@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.trans.steps.textfileinput;
+package org.apache.hop.trans.steps.fileinput;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;

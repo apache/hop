@@ -24,7 +24,7 @@ package org.apache.hop.ui.trans.steps.textfileinput;
 
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.steps.textfileinput.TextFileInputMeta;
+import org.apache.hop.trans.steps.fileinput.TextFileInputMeta;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.widget.GetCaretPositionInterface;
 import org.apache.hop.ui.core.widget.InsertTextInterface;

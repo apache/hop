@@ -24,7 +24,6 @@
     <org.eclipse.swt.cocoa.macosx.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.cocoa.macosx.x86_64.version>
 
     <jfreechart.version>1.0.13</jfreechart.version>
-    <batik.version>1.11</batik.version>
   </properties>
 
   <dependencies>

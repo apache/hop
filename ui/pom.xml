@@ -27,7 +27,6 @@
     <!-- Third-party dependencies -->
     <common.version>3.111.0</common.version>
     <jfreechart.version>1.0.13</jfreechart.version>
-    <batik.version>1.11</batik.version>
   </properties>
 
 

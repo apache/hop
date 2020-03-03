@@ -12,11 +12,6 @@
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
         </file>
-        <file>
-            <source>${project.basedir}/src/main/resources/PUT_JDBC_HERE</source>
-            <outputDirectory>lib</outputDirectory>
-            <filtered>true</filtered>
-        </file>
     </files>
     <fileSets>
         <fileSet>
@@ -33,5 +28,12 @@
                 <include>org.hop:hop-plugins-databases-cache:jar</include>
             </includes>
         </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>com.intersystems:intersystems-jdbc:jar</include>
+            </includes>
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>lib</outputDirectory>
+        </dependencySet>        
     </dependencySets>
 </assembly>

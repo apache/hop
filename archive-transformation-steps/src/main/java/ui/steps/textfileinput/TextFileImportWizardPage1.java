@@ -25,7 +25,7 @@ package org.apache.hop.ui.trans.steps.textfileinput;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.TextFileInputFieldInterface;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.steps.textfileinput.TextFileInputMeta;
+import org.apache.hop.trans.steps.fileinput.TextFileInputMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.widget.TableDraw;
 import org.eclipse.jface.wizard.WizardPage;

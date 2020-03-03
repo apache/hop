@@ -29,6 +29,7 @@ import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaSerializable;
@@ -66,7 +67,7 @@ public class ValueMetaAndData {
     } else if ( valueData instanceof Long ) {
       this.valueMeta = new ValueMetaInteger( valueName );
     } else if ( valueData instanceof Date ) {
-      this.valueMeta = new ValueMetaDate( valueName, ValueMetaInterface.TYPE_DATE );
+      this.valueMeta = new ValueMetaDate( valueName );
     } else if ( valueData instanceof BigDecimal ) {
       this.valueMeta = new ValueMetaBigNumber( valueName );
     } else if ( valueData instanceof Boolean ) {
@@ -159,10 +160,9 @@ public class ValueMetaAndData {
       int prec = Const.toInt( XMLHandler.getTagValue( valnode, "precision" ), -1 );
       String mask = XMLHandler.getTagValue( valnode, "mask" );
 
-      valueMeta = new ValueMeta( valname, valtype );
+      valueMeta = ValueMetaFactory.createValueMeta( valname, valtype, len, prec );
       valueData = text;
-      valueMeta.setLength( len );
-      valueMeta.setPrecision( prec );
+
       if ( mask != null ) {
         valueMeta.setConversionMask( mask );
       }

@@ -21,7 +21,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.trans.steps.textfileinput;
+package org.apache.hop.trans.steps.fileinput;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.codec.binary.Base64;

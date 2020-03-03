@@ -47,10 +47,10 @@ import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.fileinput.text.BOMDetector;
-import org.apache.hop.trans.steps.textfileinput.EncodingType;
-import org.apache.hop.trans.steps.textfileinput.TextFileInput;
-import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
-import org.apache.hop.trans.steps.textfileinput.TextFileInputMeta;
+import org.apache.hop.trans.steps.fileinput.EncodingType;
+import org.apache.hop.trans.steps.fileinput.TextFileInput;
+import org.apache.hop.trans.steps.fileinput.TextFileInputField;
+import org.apache.hop.trans.steps.fileinput.TextFileInputMeta;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;

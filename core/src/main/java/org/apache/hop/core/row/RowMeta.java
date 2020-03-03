@@ -23,14 +23,14 @@
 package org.apache.hop.core.row;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.hop.compatibility.Row;
-import org.apache.hop.compatibility.Value;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopEOFException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XMLHandler;
@@ -1152,20 +1152,6 @@ public class RowMeta implements RowMetaInterface {
     }
   }
 
-  public static Row createOriginalRow( RowMetaInterface rowMeta, Object[] rowData ) throws HopValueException {
-    Row row = new Row();
-
-    for ( int i = 0; i < rowMeta.size(); i++ ) {
-      ValueMetaInterface valueMeta = rowMeta.getValueMeta( i );
-      Object valueData = rowData[ i ];
-
-      Value value = valueMeta.createOriginalValue( valueData );
-      row.addValue( value );
-    }
-
-    return row;
-  }
-
   /**
    * @return an XML representation of the row metadata
    * @throws IOException Thrown in case there is an (Base64/GZip) encoding problem
@@ -1199,9 +1185,9 @@ public class RowMeta implements RowMetaInterface {
   public RowMeta( Node node ) throws HopException {
     this();
 
-    int nrValues = XMLHandler.countNodes( node, ValueMeta.XML_META_TAG );
+    int nrValues = XMLHandler.countNodes( node, ValueMetaBase.XML_META_TAG );
     for ( int i = 0; i < nrValues; i++ ) {
-      ValueMeta valueMetaSource = new ValueMeta( XMLHandler.getSubNodeByNr( node, ValueMeta.XML_META_TAG, i ) );
+      ValueMetaInterface valueMetaSource = new ValueMetaBase( XMLHandler.getSubNodeByNr( node, ValueMetaBase.XML_META_TAG, i ) );
       ValueMetaInterface valueMeta = ValueMetaFactory.createValueMeta( valueMetaSource.getName(), valueMetaSource.getType(),
         valueMetaSource.getLength(), valueMetaSource.getPrecision() );
       ValueMetaFactory.cloneInfo( valueMetaSource, valueMeta );
@@ -1248,7 +1234,7 @@ public class RowMeta implements RowMetaInterface {
       Object[] rowData = RowDataUtil.allocateRowData( size() );
 
       for ( int i = 0; i < size(); i++ ) {
-        Node valueDataNode = XMLHandler.getSubNodeByNr( node, ValueMeta.XML_DATA_TAG, i );
+        Node valueDataNode = XMLHandler.getSubNodeByNr( node, ValueMetaBase.XML_DATA_TAG, i );
         rowData[ i ] = getValueMeta( i ).getValue( valueDataNode );
       }
       return rowData;

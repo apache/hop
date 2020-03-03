@@ -27,6 +27,7 @@
       <modules>
         <module>dummy</module>
         <module>databases</module>
+        <module>steps</module>
       </modules>
     </profile>
 

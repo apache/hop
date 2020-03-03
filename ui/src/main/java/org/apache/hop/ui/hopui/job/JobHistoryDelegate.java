@@ -28,6 +28,7 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.JobEntryLogTable;
 import org.apache.hop.core.logging.LogChannel;
@@ -35,8 +36,8 @@ import org.apache.hop.core.logging.LogStatus;
 import org.apache.hop.core.logging.LogTableField;
 import org.apache.hop.core.logging.LogTableInterface;
 import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMeta;
 import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -65,6 +66,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
@@ -88,7 +90,7 @@ public class JobHistoryDelegate extends HopUiDelegate implements XulEventHandler
   private static final String XUL_FILE_TRANS_GRID_TOOLBAR = "ui/job-history-toolbar.xul";
 
   private JobGraph jobGraph;
-
+  
   private CTabItem jobHistoryTab;
 
   private XulToolbar toolbar;
@@ -775,46 +777,51 @@ public class JobHistoryDelegate extends HopUiDelegate implements XulEventHandler
 
       for ( LogTableField field : logTableFields ) {
         if ( !field.isLogField() ) {
-          ColumnInfo column = new ColumnInfo( field.getName(), ColumnInfo.COLUMN_TYPE_TEXT, false, true );
-          int valueType = field.getDataType();
-          String conversionMask = null;
+          try {
+            ColumnInfo column = new ColumnInfo( field.getName(), ColumnInfo.COLUMN_TYPE_TEXT, false, true );
+        	int valueType = field.getDataType();
+            String conversionMask = null;
 
-          switch ( field.getDataType() ) {
-            case ValueMetaInterface.TYPE_INTEGER:
-              conversionMask = "###,###,##0";
-              column.setAllignement( SWT.RIGHT );
-              break;
-            case ValueMetaInterface.TYPE_DATE:
-              conversionMask = "yyyy/MM/dd HH:mm:ss";
-              column.setAllignement( SWT.CENTER );
-              break;
-            case ValueMetaInterface.TYPE_NUMBER:
-              conversionMask = " ###,###,##0.00;-###,###,##0.00";
-              column.setAllignement( SWT.RIGHT );
-              break;
-            case ValueMetaInterface.TYPE_STRING:
-              column.setAllignement( SWT.LEFT );
-              break;
-            case ValueMetaInterface.TYPE_BOOLEAN:
-              DatabaseMeta databaseMeta = logTable.getDatabaseMeta();
-              if ( databaseMeta != null ) {
-                if ( !databaseMeta.supportsBooleanDataType() ) {
-                  // Boolean gets converted to String!
-                  //
-                  valueType = ValueMetaInterface.TYPE_STRING;
+            switch ( field.getDataType() ) {
+              case ValueMetaInterface.TYPE_INTEGER:
+                conversionMask = "###,###,##0";
+                column.setAllignement( SWT.RIGHT );
+                break;
+              case ValueMetaInterface.TYPE_DATE:
+                conversionMask = "yyyy/MM/dd HH:mm:ss";
+                column.setAllignement( SWT.CENTER );
+                break;
+              case ValueMetaInterface.TYPE_NUMBER:
+                conversionMask = " ###,###,##0.00;-###,###,##0.00";
+                column.setAllignement( SWT.RIGHT );
+                break;
+              case ValueMetaInterface.TYPE_STRING:
+                column.setAllignement( SWT.LEFT );
+                break;
+              case ValueMetaInterface.TYPE_BOOLEAN:
+                DatabaseMeta databaseMeta = logTable.getDatabaseMeta();
+                if ( databaseMeta != null ) {
+                  if ( !databaseMeta.supportsBooleanDataType() ) {
+                    // Boolean gets converted to String!
+                    //
+                    valueType = ValueMetaInterface.TYPE_STRING;
+                  }
                 }
-              }
-              break;
-            default:
-              break;
-          }
-
-          ValueMetaInterface valueMeta = new ValueMeta( field.getFieldName(), valueType, field.getLength(), -1 );
-          if ( conversionMask != null ) {
-            valueMeta.setConversionMask( conversionMask );
-          }
-          column.setValueMeta( valueMeta );
-          columnList.add( column );
+                break;
+              default:
+                break;
+            }
+          
+			ValueMetaInterface valueMeta = ValueMetaFactory.createValueMeta( field.getFieldName(), valueType, field.getLength(), -1 );
+	        if ( conversionMask != null ) {
+	          valueMeta.setConversionMask( conversionMask );
+	        }
+	        column.setValueMeta( valueMeta );
+	        
+	        columnList.add( column );
+		  } catch (HopPluginException e) {
+			  new ErrorDialog(tabFolder.getShell(), "Error", "Failed to create column " + field.getName(), e );
+ 		  }
         }
       }
 

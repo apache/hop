@@ -22,7 +22,6 @@
 
 package org.apache.hop.core.util;
 
-import org.apache.hop.compatibility.Value;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -78,9 +77,7 @@ public class JavaScriptUtils {
       return null;
     } else if ( classType.equalsIgnoreCase( "org.mozilla.javascript.NativeJavaObject" ) ) {
       try {
-        // Is it a java Value class ?
-        Value v = (Value) Context.jsToJava( value, Value.class );
-        return v.getNumber();
+        return (Double) Context.jsToJava( value, Double.class );
       } catch ( Exception e ) {
         String string = Context.toString( value );
         return Double.parseDouble( Const.trim( string ) );
@@ -110,8 +107,7 @@ public class JavaScriptUtils {
         // Is it a Value?
         //
         try {
-          Value v = (Value) Context.jsToJava( value, Value.class );
-          return v.getInteger();
+          return (Long) Context.jsToJava( value, Long.class );
         } catch ( Exception e2 ) {
           String string = Context.toString( value );
           return Long.parseLong( Const.trim( string ) );
@@ -123,21 +119,8 @@ public class JavaScriptUtils {
   }
 
   public static String jsToString( Object value, String classType ) {
-    if ( classType.equalsIgnoreCase( "org.mozilla.javascript.NativeJavaObject" )
-      || classType.equalsIgnoreCase( "org.mozilla.javascript.Undefined" ) ) {
-      // Is it a java Value class ?
-      try {
-        Value v = (Value) Context.jsToJava( value, Value.class );
-        return v.toString();
-      } catch ( Exception ev ) {
-        // convert to a string should work in most cases...
-        //
-        return Context.toString( value );
-      }
-    } else {
-      // A String perhaps?
+      // convert to a string should work in most cases...
       return Context.toString( value );
-    }
   }
 
   public static Date jsToDate( Object value, String classType ) throws HopValueException {
@@ -153,20 +136,13 @@ public class JavaScriptUtils {
         try {
           Date dat = (Date) Context.jsToJava( value, java.util.Date.class );
           dbl = dat.getTime();
-        } catch ( Exception e ) {
-          // Is it a Value?
-          //
-          try {
-            Value v = (Value) Context.jsToJava( value, Value.class );
-            return v.getDate();
-          } catch ( Exception e2 ) {
+        } catch ( Exception e ) {          
             try {
               String string = Context.toString( value );
               return XMLHandler.stringToDate( string );
             } catch ( Exception e3 ) {
               throw new HopValueException( "Can't convert a string to a date" );
-            }
-          }
+            }          
         }
       } else if ( classType.equalsIgnoreCase( "java.lang.Double" ) ) {
         dbl = (Double) value;
@@ -190,17 +166,8 @@ public class JavaScriptUtils {
       try {
         return (BigDecimal) Context.jsToJava( value, BigDecimal.class );
       } catch ( Exception e ) {
-        try {
-          Value v = (Value) Context.jsToJava( value, Value.class );
-          if ( !v.isNull() ) {
-            return v.getBigNumber();
-          } else {
-            return null;
-          }
-        } catch ( Exception e2 ) {
-          String string = (String) Context.jsToJava( value, String.class );
-          return new BigDecimal( string );
-        }
+        String string = (String) Context.jsToJava( value, String.class );
+        return new BigDecimal( string );
       }
     } else if ( classType.equalsIgnoreCase( "java.lang.Byte" ) ) {
       return new BigDecimal( ( (Byte) value ).longValue() );

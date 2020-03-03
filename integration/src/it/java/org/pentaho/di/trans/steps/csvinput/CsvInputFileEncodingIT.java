@@ -28,7 +28,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
+import org.apache.hop.trans.steps.fileinput.TextFileInputField;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -22,7 +22,6 @@
 
 package org.apache.hop.core.util;
 
-import org.apache.hop.compatibility.Value;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -70,19 +69,14 @@ public class JavaScriptUtilsTest {
     Context.exit();
   }
 
-
   private static Scriptable getIntValue() {
-    Value value = new Value();
-    value.setValue( 1 );
-    return Context.toObject( value, scope );
+    return Context.toObject( new Long(1), scope );
   }
 
   private static Scriptable getDoubleValue() {
-    Value value = new Value();
-    value.setValue( 1.0 );
-    return Context.toObject( value, scope );
+    return Context.toObject( new Double(1.0), scope );
   }
-
+  
   // jsToNumber tests
 
   @Test
@@ -179,12 +173,16 @@ public class JavaScriptUtilsTest {
 
   @Test
   public void jsToString_NativeJavaObject_Int() throws Exception {
-    assertEquals( "1", JavaScriptUtils.jsToString( getIntValue(), JAVA_OBJECT ).trim() );
+    assertEquals( "1", JavaScriptUtils.jsToString( getIntValue(), JAVA_OBJECT ) );
   }
 
   @Test
   public void jsToString_NativeJavaObject_Double() throws Exception {
-    assertEquals( "1.0", JavaScriptUtils.jsToString( getDoubleValue(), JAVA_OBJECT ).trim() );
+	// TODO: return "1.0" in previous release with org.apache.hop.compatibility.Value
+    assertEquals( "1", JavaScriptUtils.jsToString( getDoubleValue(), JAVA_OBJECT ) );
+        
+	Scriptable value = Context.toObject( new Double(1.23), scope );
+	assertEquals( "1.23", JavaScriptUtils.jsToString( value, JAVA_OBJECT ) );
   }
 
   @Test
@@ -208,7 +206,7 @@ public class JavaScriptUtilsTest {
 
   @Test
   public void jsToDate_NativeJavaObject() throws Exception {
-    Scriptable value = getIntValue();
+    Scriptable value = Context.toObject( new Date(1), scope );
     assertEquals( new Date( 1 ), JavaScriptUtils.jsToDate( value, JAVA_OBJECT ) );
   }
 
@@ -253,9 +251,7 @@ public class JavaScriptUtilsTest {
 
   @Test
   public void jsToBigNumber_NativeJavaObject_BigDecimal() throws Exception {
-    Value value = new Value();
-    value.setValue( BigDecimal.ONE );
-    Scriptable object = Context.toObject( value, scope );
+    Scriptable object = Context.toObject( BigDecimal.ONE, scope );
     assertEquals( 1.0, JavaScriptUtils.jsToBigNumber( object, JAVA_OBJECT ).doubleValue(), 1e-6 );
   }
 

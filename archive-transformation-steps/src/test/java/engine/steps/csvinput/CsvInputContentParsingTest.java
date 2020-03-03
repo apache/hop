@@ -24,7 +24,7 @@ package org.apache.hop.trans.steps.csvinput;
 
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.steps.textfileinput.TextFileInputField;
+import org.apache.hop.trans.steps.fileinput.TextFileInputField;
 import org.junit.ClassRule;
 import org.junit.Test;
 
