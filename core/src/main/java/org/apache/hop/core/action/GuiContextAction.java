@@ -1,4 +1,4 @@
 package org.apache.hop.core.action;
 
-public interface IAction {
+public @interface GuiContextAction {
 }
