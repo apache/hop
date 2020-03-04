@@ -1,31 +1,41 @@
 package org.apache.hop.core.gui.plugin;
 
 /**
- * This annotation allows a method in a GuiPlugin to be identified as a contributor to the Hop UI
+ * This interface allows a method in a GuiPlugin to be identified as a contributor to the Hop UI
  */
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+public interface IGuiAction {
 
-@Documented
-@Retention( RetentionPolicy.RUNTIME )
-@Target( { ElementType.FIELD, ElementType.METHOD} )
-public @interface GuiAction {
+  /**
+   * @return The Unique ID of this action
+   */
+  String getId();
+
+  /**
+   * The general type of action allowing us to filter in general
+   * @return The action type
+   */
+  GuiActionType getType();
+
   /**
    * @return The name or short description of the action
    */
-  String name();
+  String getName();
 
   /**
    * @return The long description of the action
    */
-  String tooltip() default "";
+  String getTooltip();
 
   /**
    * @return The iconic representation of the action
    */
-  String image() default "ui/images/TRN.svg";
+  String getImage();
+
+  /**
+   * @return The lambda to execute this action
+   */
+  IGuiActionLambda getActionLambda();
+
+
 }

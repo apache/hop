@@ -1,4 +1,9 @@
 package org.apache.hop.core.action;
 
-public enum GuiAction {
+public enum GuiActions {
+  NEW, EDIT, DELETE,
+  ;
+  public String id() {
+    return name();
+  }
 }

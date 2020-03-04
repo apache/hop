@@ -11,7 +11,8 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
-import org.apache.hop.ui.hopgui.file.EmptyHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
+import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 import org.apache.hop.ui.hopgui.file.trans.HopGuiTransGraph;
 import org.apache.hop.ui.hopgui.file.trans.HopTransFileType;
@@ -133,6 +134,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     });
     tabFolder.addListener( SWT.Selection, event-> handTabSelectionEvent(event) );
 
+    //
   }
 
   private void handTabSelectionEvent( Event event ) {
@@ -354,6 +356,20 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   public boolean hasNavigationNextFile() {
     return tabSelectionIndex+1 < tabSelectionHistory.size();
   }
+
+  /**
+   * Get the currently active context handlers in the perspective...
+   * @return
+   */
+  public List<IGuiContextHandler> getContextHandlers() {
+    List<IGuiContextHandler> handlers = new ArrayList<>();
+    // For every file type we have a context handler...
+    //
+    HopFileTypeHandlerInterface fileTypeHandler = getActiveFileTypeHandler();
+    handlers.addAll( fileTypeHandler.getContextHandlers() );
+    return handlers;
+  }
+
 
   /**
    * Gets items

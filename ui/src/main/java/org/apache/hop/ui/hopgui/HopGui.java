@@ -36,12 +36,16 @@ import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.metastore.MetaStoreManager;
 import org.apache.hop.ui.core.widget.OsHelper;
+import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
+import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
+import org.apache.hop.ui.hopgui.context.metastore.MetaStoreContext;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiNewDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiUndoDelegate;
-import org.apache.hop.ui.hopgui.file.EmptyFileType;
+import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
+import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.perspective.EmptyHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.HopGuiPerspectiveManager;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
@@ -81,7 +85,7 @@ import java.util.Locale;
   id = "HopGUI",
   description = "The main hop graphical user interface"
 )
-public class HopGui {
+public class HopGui implements IActionContextHandlersProvider {
   private static Class<?> PKG = HopUi.class;
 
   // The main Menu IDs
@@ -127,6 +131,8 @@ public class HopGui {
 
   private static final String UNDO_UNAVAILABLE = BaseMessages.getString( PKG, "Spoon.Menu.Undo.NotAvailable" );
   private static final String REDO_UNAVAILABLE = BaseMessages.getString( PKG, "Spoon.Menu.Redo.NotAvailable" );
+
+  private static final String CONTEXT_ID = "HopGui";
 
   private static HopGui hopGui;
 
@@ -965,5 +971,31 @@ public class HopGui {
    */
   public IHopPerspective getActivePerspective() {
     return activePerspective;
+  }
+
+  /**
+   *  What are the contexts to consider:
+   *      - the file types registered
+   *      - the available IMetaStore element types
+   *
+   * @return The list of context handlers
+   */
+  @Override public List<IGuiContextHandler> getContextHandlers() {
+    List<IGuiContextHandler> contextHandlers = new ArrayList<>();
+
+    // Get all the file context handlers
+    //
+    HopFileTypeRegistry registry = HopFileTypeRegistry.getInstance();
+    List<HopFileTypeInterface> hopFileTypes = registry.getFileTypes();
+    for (HopFileTypeInterface hopFileType : hopFileTypes) {
+      contextHandlers.addAll( hopFileType.getContextHandlers() );
+    }
+
+    // Get all the metastore context handlers...
+    //
+    MetaStoreContext metaStoreContext = new MetaStoreContext( metaStore );
+    contextHandlers.addAll( metaStoreContext.getContextHandlers() );
+
+    return contextHandlers;
   }
 }

@@ -47,6 +47,7 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Redrawable;
 import org.apache.hop.core.gui.SnapAllignDistribute;
 import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiInterface;
 import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiOSXKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -114,6 +115,7 @@ import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.CheckBoxToolTipListener;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopGuiAbstractGraph;
@@ -206,7 +208,8 @@ import java.util.UUID;
 public class HopGuiTransGraph extends HopGuiAbstractGraph
   implements Redrawable, MouseListener, MouseMoveListener, MouseTrackListener, MouseWheelListener, KeyListener,
   HasLogChannelInterface, LogParentProvidedInterface,  // TODO: Aren't these the same?
-  HopFileTypeHandlerInterface {
+  HopFileTypeHandlerInterface,
+  GuiInterface {
 
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
 
@@ -3372,7 +3375,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
   /**
    * This is an alias for the File/Close menu item.
-   */
   @GuiToolbarElement(
     type = GuiElementType.TOOLBAR_BUTTON,
     id = "HopGuiTransGraph-ToolBar-10080-Close",
@@ -3382,6 +3384,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     separator = true,
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
   )
+   */
   public void close() {
     hopUi.menuFileClose();
   }
@@ -3488,16 +3491,22 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
     id = TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS,
     type = GuiElementType.TOOLBAR_BUTTON,
-    label = "Execution results",
-    toolTip = "Show or hide the execution panel",
+    label = "Spoon.Menu.ShowExecutionResults",
+    toolTip = "Spoon.Tooltip.ShowExecutionResults",
+    i18nPackageClass = HopUi.class,
     image = "ui/images/show-results.svg",
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     separator = true
   )  public void showExecutionResults() {
+    ToolItem item = toolBarWidgets.findToolItem( TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS );
     if ( isExecutionResultsPaneVisible() ) {
       disposeExtraView();
+      item.setImage( GUIResource.getInstance().getImageShowResults() );
+      item.setToolTipText(BaseMessages.getString( PKG, "Spoon.Tooltip.ShowExecutionResults" ));
     } else {
       addAllTabs();
+      item.setImage( GUIResource.getInstance().getImageHideResults() );
+      item.setToolTipText(BaseMessages.getString( PKG, "Spoon.Tooltip.HideExecutionResults" ));
     }
   }
 
@@ -4797,5 +4806,10 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     final String clipboard = transClipboardDelegate.fromClipboard();
     Point loc = new Point( currentMouseX, currentMouseY );
     transClipboardDelegate.pasteXML( transMeta, clipboard, loc );
+  }
+
+  @Override public List<IGuiContextHandler> getContextHandlers() {
+    List<IGuiContextHandler> handlers = new ArrayList<>(  );
+    return handlers;
   }
 }

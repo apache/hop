@@ -102,6 +102,7 @@ public class HopGuiEnvironment extends HopClientEnvironment {
           if ( osxShortcut != null ) {
             guiRegistry.addKeyboardShortcut( parentClassName, method, osxShortcut );
           }
+                    
         }
 
         Collections.sort( menuItems, new Comparator<GuiElementMethod>() {
