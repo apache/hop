@@ -46,7 +46,7 @@ import java.util.Locale;
 @Deprecated
 public class TextFileInputMetaInjection implements StepMetaInjectionInterface {
 
-  enum Entry implements StepMetaInjectionEntryInterface {
+  public enum Entry implements StepMetaInjectionEntryInterface {
 
     FILE_TYPE( ValueMetaInterface.TYPE_STRING, "File type (CSV/Fixed)" ), SEPARATOR(
       ValueMetaInterface.TYPE_STRING, "The field separator" ), ENCLOSURE(

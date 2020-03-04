@@ -29,7 +29,7 @@ import org.apache.commons.vfs2.FileObject;
  */
 @Deprecated
 public class TextFileLine {
-  String line;
+  public String line;
 
   long lineNumber;
 
