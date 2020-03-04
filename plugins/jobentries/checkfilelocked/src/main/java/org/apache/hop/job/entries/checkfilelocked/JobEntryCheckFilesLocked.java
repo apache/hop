@@ -65,6 +65,7 @@ import java.util.regex.Pattern;
 		i18nPackageName = "org.apache.hop.job.entries.checkfilelocked",
 		name = "JobEntryCheckFilesLocked.Name",
 		description = "JobEntryCheckFilesLocked.Description",
+		image = "CEX.svg",
 		categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Conditions" 
 )
 public class JobEntryCheckFilesLocked extends JobEntryBase implements Cloneable, JobEntryInterface {

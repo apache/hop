@@ -60,6 +60,7 @@ import java.util.List;
 		i18nPackageName = "org.apache.hop.job.entries.columnsexist",
 		name = "JobEntryColumnsExist.Name",
 		description = "JobEntryColumnsExist.Description",
+		image = "CFL.svg",
 		categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Conditions" 
 )
 public class JobEntryColumnsExist extends JobEntryBase implements Cloneable, JobEntryInterface {
