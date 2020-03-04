@@ -47,6 +47,7 @@
       </activation>
       <modules>
         <module>checkfilelocked</module>      
+        <module>columnsexist</module>      
       </modules>
     </profile>
 
