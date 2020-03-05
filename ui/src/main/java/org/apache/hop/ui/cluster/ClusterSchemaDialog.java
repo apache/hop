@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.cluster.dialog;
+package org.apache.hop.ui.cluster;
 
 import org.apache.hop.cluster.ClusterSchema;
 import org.apache.hop.cluster.SlaveServer;
@@ -370,7 +370,7 @@ public class ClusterSchemaDialog extends Dialog {
       SlaveServer slaveServer = clusterSchema.findSlaveServer( wServers.getItems( 0 )[ idx ] );
       if ( slaveServer != null ) {
         SlaveServerDialog dialog = new SlaveServerDialog( shell, metaStore, slaveServer );
-        if ( dialog.open() ) {
+        if ( dialog.open()!=null ) {
           refreshSlaveServers();
         }
       }

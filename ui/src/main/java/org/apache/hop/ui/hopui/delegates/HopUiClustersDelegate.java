@@ -23,9 +23,8 @@
 package org.apache.hop.ui.hopui.delegates;
 
 import org.apache.hop.cluster.ClusterSchema;
-import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.ui.cluster.dialog.ClusterSchemaDialog;
+import org.apache.hop.ui.cluster.ClusterSchemaDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopui.HopUi;
 

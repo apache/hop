@@ -92,7 +92,7 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
     this.parentComposite = parentComposite;
     this.props = PropsUI.getInstance();
 
-    this.manager = new MetaStoreManager<>( space, metaStore, managedClass, parentComposite.getShell() );
+    this.manager = new MetaStoreManager<>( space, metaStore, managedClass );
 
     props.setLook( this );
 

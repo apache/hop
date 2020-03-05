@@ -10,62 +10,26 @@ import java.util.List;
  * This class handles actions for a certain context.
  * For example, the main HopGui dialog registers a bunch of context handlers for MetaStore objects, asks the various perspectives, ...
  */
-public abstract class GuiContextHandler implements IGuiContextHandler {
-  private String id;
-  private String name;
-  private List<Object> objects;
+public class GuiContextHandler implements IGuiContextHandler {
+  private List<IGuiAction> supportedActions;
 
-  public GuiContextHandler( String id, String name ) {
-    this.id = id;
-    this.name = name;
-    this.objects = new ArrayList<>();
+  public GuiContextHandler() {
+    supportedActions = new ArrayList<>();
   }
 
   /**
-   * Gets id
+   * Gets supportedActions
    *
-   * @return value of id
+   * @return value of supportedActions
    */
-  public String getId() {
-    return id;
+  @Override public List<IGuiAction> getSupportedActions() {
+    return supportedActions;
   }
 
   /**
-   * @param id The id to set
+   * @param supportedActions The supportedActions to set
    */
-  public void setId( String id ) {
-    this.id = id;
-  }
-
-  /**
-   * Gets name
-   *
-   * @return value of name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @param name The name to set
-   */
-  public void setName( String name ) {
-    this.name = name;
-  }
-
-  /**
-   * Gets objects
-   *
-   * @return value of objects
-   */
-  public List<Object> getObjects() {
-    return objects;
-  }
-
-  /**
-   * @param objects The objects to set
-   */
-  public void setObjects( List<Object> objects ) {
-    this.objects = objects;
+  public void setSupportedActions( List<IGuiAction> supportedActions ) {
+    this.supportedActions = supportedActions;
   }
 }

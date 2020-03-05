@@ -72,4 +72,31 @@ public class GuiContextUtil {
       new ErrorDialog( parent, "Error", "Error handling action type "+actionType.name(), e );
     }
   }
+
+  public static void handleActionSelection(Shell parent, List<IGuiAction> actions) {
+    if (actions.isEmpty()) {
+      return;
+    }
+
+    try {
+
+      List<String> fileTypes = new ArrayList<>();
+      for ( IGuiAction action : actions ) {
+        fileTypes.add( action.getType().name() + " - " + action.getName() + " : " + action.getTooltip() );
+      }
+
+      EnterSelectionDialog dialog = new EnterSelectionDialog( parent, fileTypes.toArray( new String[ 0 ] ), "Select action", "What do you want to do?" );
+      String selection = dialog.open();
+      if ( selection != null ) {
+        IGuiAction action = actions.get( dialog.getSelectionNr() );
+
+        System.out.println( selection );
+
+        action.getActionLambda().executeAction();
+      }
+    } catch(Exception e) {
+      new ErrorDialog( parent, "Error", "An error occurred executing action", e);
+    }
+
+  }
 }

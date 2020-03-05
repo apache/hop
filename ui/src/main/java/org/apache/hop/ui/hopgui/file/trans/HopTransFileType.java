@@ -129,7 +129,7 @@ public class HopTransFileType<T extends TransMeta> extends HopFileTypeBase<T> im
         List<IGuiAction> actions = new ArrayList<>(  );
 
         GuiAction newAction = new GuiAction( ACTION_ID_NEW_TRANSFORMATION, GuiActionType.Create, "New transformation", "Create a new transformation", "ui/images/TRN.svg",
-          () -> {
+          (parameters) -> {
             try {
               HopTransFileType.this.newFile( hopGui, hopGui.getVariableSpace() );
             } catch ( Exception e ) {

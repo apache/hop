@@ -25,6 +25,7 @@ package org.apache.hop.ui.core.database.dialog;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.database.DatabaseMetaDialog;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
 
@@ -39,11 +40,11 @@ public class DatabaseDialog extends DatabaseMetaDialog {
   private static Class<?> PKG = DatabaseDialog.class; // for i18n purposes, needed by Translator2!!
 
   public DatabaseDialog( Shell parent ) {
-    super( parent, new DatabaseMeta() );
+    super( parent, HopGui.getInstance().getMetaStore(), new DatabaseMeta() );
   }
 
   public DatabaseDialog( Shell parent, DatabaseMeta databaseMeta ) {
-    super( parent, databaseMeta );
+    super( parent, HopGui.getInstance().getMetaStore(), databaseMeta );
   }
 
   public String open() {

@@ -52,6 +52,7 @@ import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiOSXKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.IGuiAction;
 import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.HasLogChannelInterface;
 import org.apache.hop.core.logging.HopLogStore;
@@ -115,6 +116,7 @@ import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.CheckBoxToolTipListener;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
@@ -660,7 +662,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
               // Not an existing step: data refers to the type of step to create
               String id = container.getId();
               String name = container.getData();
-              stepMeta = transStepDelegate.newStep( transMeta, id, name, name, false, true );
+              stepMeta = transStepDelegate.newStep( transMeta, id, name, name, false, true, p );
               if ( stepMeta != null ) {
                 newstep = true;
               } else {
@@ -1017,6 +1019,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     boolean control = ( e.stateMask & SWT.MOD1 ) != 0;
     TransHopMeta selectedHop = findHop( e.x, e.y );
     updateErrorMetaForHop( selectedHop );
+    boolean singleClick = false;
 
     if ( iconoffset == null ) {
       iconoffset = new Point( 0, 0 );
@@ -1025,19 +1028,17 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     Point icon = new Point( real.x - iconoffset.x, real.y - iconoffset.y );
     AreaOwner areaOwner = getVisibleAreaOwner( real.x, real.y );
 
-    /** TODO: Add this back in
-     try {
-     HopGUiTransGraphExtension ext = new HopGUiTransGraphExtension( this, e, real );
-     ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.TransGraphMouseUp.id, ext );
-     if ( ext.isPreventDefault() ) {
-     redraw();
-     clearSettings();
-     return;
-     }
-     } catch ( Exception ex ) {
-     LogChannel.GENERAL.logError( "Error calling TransGraphMouseUp extension point", ex );
-     }
-     */
+    try {
+      HopGUiTransGraphExtension ext = new HopGUiTransGraphExtension( this, e, real );
+      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.TransGraphMouseUp.id, ext );
+      if ( ext.isPreventDefault() ) {
+        redraw();
+        clearSettings();
+        return;
+      }
+    } catch ( Exception ex ) {
+      LogChannel.GENERAL.logError( "Error calling TransGraphMouseUp extension point", ex );
+    }
 
     // Quick new hop option? (drag from one step to another)
     //
@@ -1061,7 +1062,9 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       if ( selectionRegion != null ) {
         selectionRegion.width = real.x - selectionRegion.x;
         selectionRegion.height = real.y - selectionRegion.y;
-
+        if (selectionRegion.width==0 && selectionRegion.height==0) {
+          singleClick = true;
+        }
         transMeta.unselectAll();
         selectInRect( transMeta, selectionRegion );
         selectionRegion = null;
@@ -1165,15 +1168,16 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
             selectedNote = null;
             startHopStep = null;
             endHopLocation = null;
-          } else {
-            if ( areaOwner == null && selectionRegion == null ) {
-              // Hit absolutely nothing: clear the settings
-              //
-              clearSettings();
-            }
           }
         }
       }
+    }
+
+    if (singleClick) {
+      // Just a single click on the background:
+      // We have a bunch of possible actions for you...
+      //
+      GuiContextUtil.handleActionSelection( shell, new HopGuiTransContext( transMeta, this, real ).getSupportedActions() );
     }
 
     lastButton = 0;
@@ -2346,7 +2350,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   }
 
   public void newStep( String description ) {
-    StepMeta stepMeta = transStepDelegate.newStep( transMeta, null, description, description, false, true );
+    StepMeta stepMeta = transStepDelegate.newStep( transMeta, null, description, description, false, true, new Point(currentMouseX, currentMouseY) );
     PropsUI.setLocation( stepMeta, currentMouseX, currentMouseY );
     stepMeta.setDraw( true );
     redraw();
@@ -3168,7 +3172,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/distribute-vertically.svg",
     disabledImage = "ui/images/toolbar/distribute-vertically-disabled.svg",
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
-  )public void distributeVertical() {
+  ) public void distributeVertical() {
     createSnapAllignDistribute().distributevertical();
   }
 
@@ -3200,7 +3204,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     try {
       transRunDelegate.executeTransformation( hopUi.getLog(), transMeta, true, false, false, true, false, true,
         transRunDelegate.getTransPreviewExecutionConfiguration().getLogLevel() );
-    } catch(Exception e) {
+    } catch ( Exception e ) {
       new ErrorDialog( hopUi.getShell(), "Error", "Error previewing transformation", e );
     }
   }
@@ -3218,7 +3222,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     try {
       transRunDelegate.executeTransformation( hopUi.getLog(), transMeta, true, false, false, false, true, true,
         transRunDelegate.getTransDebugExecutionConfiguration().getLogLevel() );
-    } catch(Exception e) {
+    } catch ( Exception e ) {
       new ErrorDialog( hopUi.getShell(), "Error", "Error debugging transformation", e );
     }
   }
@@ -3375,15 +3379,15 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
   /**
    * This is an alias for the File/Close menu item.
-  @GuiToolbarElement(
-    type = GuiElementType.TOOLBAR_BUTTON,
-    id = "HopGuiTransGraph-ToolBar-10080-Close",
-    label = "Close",
-    toolTip = "Close this transformation",
-    image = "ui/images/toolbar/close.svg",
-    separator = true,
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
-  )
+   *
+   * @GuiToolbarElement( type = GuiElementType.TOOLBAR_BUTTON,
+   * id = "HopGuiTransGraph-ToolBar-10080-Close",
+   * label = "Close",
+   * toolTip = "Close this transformation",
+   * image = "ui/images/toolbar/close.svg",
+   * separator = true,
+   * parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+   * )
    */
   public void close() {
     hopUi.menuFileClose();
@@ -3467,23 +3471,23 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   */
 
   /** TODO: re-introduce
-  public void analyseImpact() {
-    hopUi.analyseImpact();
-  }
+   public void analyseImpact() {
+   hopUi.analyseImpact();
+   }
    */
 
-   /** TODO: re-introduce
-  public void getSQL() {
-    hopUi.getSQL();
-  }
-    */
+  /**
+   * TODO: re-introduce
+   * public void getSQL() {
+   * hopUi.getSQL();
+   * }
+   */
 
    /* TODO: re-introduce
   public void exploreDatabase() {
     hopUi.exploreDatabase();
   }
    */
-
   public boolean isExecutionResultsPaneVisible() {
     return extraViewComposite != null && !extraViewComposite.isDisposed();
   }
@@ -3497,16 +3501,16 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     image = "ui/images/show-results.svg",
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     separator = true
-  )  public void showExecutionResults() {
+  ) public void showExecutionResults() {
     ToolItem item = toolBarWidgets.findToolItem( TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS );
     if ( isExecutionResultsPaneVisible() ) {
       disposeExtraView();
       item.setImage( GUIResource.getInstance().getImageShowResults() );
-      item.setToolTipText(BaseMessages.getString( PKG, "Spoon.Tooltip.ShowExecutionResults" ));
+      item.setToolTipText( BaseMessages.getString( PKG, "Spoon.Tooltip.ShowExecutionResults" ) );
     } else {
       addAllTabs();
       item.setImage( GUIResource.getInstance().getImageHideResults() );
-      item.setToolTipText(BaseMessages.getString( PKG, "Spoon.Tooltip.HideExecutionResults" ));
+      item.setToolTipText( BaseMessages.getString( PKG, "Spoon.Tooltip.HideExecutionResults" ) );
     }
   }
 
@@ -4595,8 +4599,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
     // Which is the new step?
 
-    StepMeta newStep =
-      transStepDelegate.newStep( transMeta, stepPlugin.getIds()[ 0 ], stepPlugin.getName(), stepPlugin.getName(), false, true );
+    StepMeta newStep = transStepDelegate.newStep( transMeta, stepPlugin.getIds()[ 0 ], stepPlugin.getName(), stepPlugin.getName(), false, true, p );
     if ( newStep == null ) {
       return;
     }
@@ -4809,7 +4812,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   }
 
   @Override public List<IGuiContextHandler> getContextHandlers() {
-    List<IGuiContextHandler> handlers = new ArrayList<>(  );
+    List<IGuiContextHandler> handlers = new ArrayList<>();
     return handlers;
   }
 }
