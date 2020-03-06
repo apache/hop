@@ -2,30 +2,33 @@ package org.apache.hop.ui.hopgui.file.trans;
 
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.GuiAction;
-import org.apache.hop.core.gui.plugin.GuiActionLambda;
+import org.apache.hop.core.gui.plugin.GuiActionLambdaBuilder;
 import org.apache.hop.core.gui.plugin.GuiActionType;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.IGuiAction;
-import org.apache.hop.core.gui.plugin.IGuiActionLambda;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.StepPluginType;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopui.trans.TransGraph;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class HopGuiTransContext implements IGuiContextHandler {
+
+  public static final String TRANS_CONTEXT_ID = "HopGuiTransContext";
+
   private TransMeta transMeta;
   private HopGuiTransGraph transGraph;
   private Point click;
+  private GuiActionLambdaBuilder<HopGuiTransContext> lambdaBuilder;
 
   public HopGuiTransContext( TransMeta transMeta, HopGuiTransGraph transGraph, Point click ) {
     this.transMeta = transMeta;
     this.transGraph = transGraph;
     this.click = click;
+    this.lambdaBuilder = new GuiActionLambdaBuilder<>();
   }
 
   /**
@@ -35,31 +38,78 @@ public class HopGuiTransContext implements IGuiContextHandler {
    * @return The list of supported actions
    */
   @Override public List<IGuiAction> getSupportedActions() {
-    List<IGuiAction> actions = new ArrayList<>(  );
+    List<IGuiAction> actions = new ArrayList<>();
 
-    // Edit the transformation...
+    // Get the actions from the plugins...
     //
-    actions.add( new GuiAction( "transgraph-edit-transformation", GuiActionType.Modify, "Edit transformation", "Edit transformation properties", "ui/images/TRN.svg",
-      t -> transGraph.settings() ) );
-
-    // Create a note ...
-    //
-    actions.add( new GuiAction( "transgraph-create-note", GuiActionType.Create, "Create a note", "Create a new note", "ui/images/new.svg",
-      t-> transGraph.newNote() ) );
+    List<GuiAction> pluginActions = GuiRegistry.getInstance().getGuiContextActions( TRANS_CONTEXT_ID );
+    if (pluginActions!=null) {
+      for (GuiAction pluginAction : pluginActions) {
+        actions.add( lambdaBuilder.createLambda( pluginAction, transGraph, this ) );
+      }
+    }
 
     // Also add all the step creation actions...
     //
     PluginRegistry registry = PluginRegistry.getInstance();
     List<PluginInterface> stepPlugins = registry.getPlugins( StepPluginType.class );
-    for (PluginInterface stepPlugin : stepPlugins) {
-      GuiAction createStepAction = new GuiAction( "transgraph-create-step-" + stepPlugin.getIds()[ 0 ], GuiActionType.Create, stepPlugin.getName(), stepPlugin.getDescription(), stepPlugin.getImageFile(),
-        t -> {
-          transGraph.transStepDelegate.newStep( transMeta, stepPlugin.getIds()[0], stepPlugin.getName(), stepPlugin.getDescription(), false, true, click );
-        }
-      );
-      actions.add(createStepAction);
+    for ( PluginInterface stepPlugin : stepPlugins ) {
+      GuiAction createStepAction =
+        new GuiAction( "transgraph-create-step-" + stepPlugin.getIds()[ 0 ], GuiActionType.Create, stepPlugin.getName(), stepPlugin.getDescription(), stepPlugin.getImageFile(),
+          t -> transGraph.transStepDelegate.newStep( transMeta, stepPlugin.getIds()[ 0 ], stepPlugin.getName(), stepPlugin.getDescription(), false, true, click )
+        );
+      actions.add( createStepAction );
     }
 
     return actions;
+  }
+
+
+  /**
+   * Gets transMeta
+   *
+   * @return value of transMeta
+   */
+  public TransMeta getTransMeta() {
+    return transMeta;
+  }
+
+  /**
+   * @param transMeta The transMeta to set
+   */
+  public void setTransMeta( TransMeta transMeta ) {
+    this.transMeta = transMeta;
+  }
+
+  /**
+   * Gets transGraph
+   *
+   * @return value of transGraph
+   */
+  public HopGuiTransGraph getTransGraph() {
+    return transGraph;
+  }
+
+  /**
+   * @param transGraph The transGraph to set
+   */
+  public void setTransGraph( HopGuiTransGraph transGraph ) {
+    this.transGraph = transGraph;
+  }
+
+  /**
+   * Gets click
+   *
+   * @return value of click
+   */
+  public Point getClick() {
+    return click;
+  }
+
+  /**
+   * @param click The click to set
+   */
+  public void setClick( Point click ) {
+    this.click = click;
   }
 }

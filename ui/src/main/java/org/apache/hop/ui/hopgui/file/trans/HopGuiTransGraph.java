@@ -32,6 +32,7 @@ import org.apache.hop.core.EngineMetaInterface;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SwtUniversalImage;
+import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.dnd.DragAndDropContainer;
 import org.apache.hop.core.dnd.XMLTransfer;
 import org.apache.hop.core.exception.HopException;
@@ -46,13 +47,13 @@ import org.apache.hop.core.gui.GCInterface;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Redrawable;
 import org.apache.hop.core.gui.SnapAllignDistribute;
+import org.apache.hop.core.gui.plugin.GuiActionType;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiInterface;
 import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiOSXKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
-import org.apache.hop.core.gui.plugin.IGuiAction;
 import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.HasLogChannelInterface;
 import org.apache.hop.core.logging.HopLogStore;
@@ -824,7 +825,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           }
 
           if ( !hit ) {
-            settings();
+            settings( new HopGuiTransContext( transMeta, this, real ) );
           }
 
         }
@@ -1062,7 +1063,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       if ( selectionRegion != null ) {
         selectionRegion.width = real.x - selectionRegion.x;
         selectionRegion.height = real.y - selectionRegion.y;
-        if (selectionRegion.width==0 && selectionRegion.height==0) {
+        if ( selectionRegion.width == 0 && selectionRegion.height == 0 ) {
           singleClick = true;
         }
         transMeta.unselectAll();
@@ -1173,7 +1174,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       }
     }
 
-    if (singleClick) {
+    if ( singleClick ) {
       // Just a single click on the background:
       // We have a bunch of possible actions for you...
       //
@@ -2327,14 +2328,22 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     }
   }
 
-  public void newNote() {
+  @GuiContextAction(
+    id = "transgraph-new-note",
+    parentId = HopGuiTransContext.TRANS_CONTEXT_ID,
+    type = GuiActionType.Create,
+    name = "Create a note",
+    tooltip =  "Create a new note",
+    image = "ui/images/new.svg"
+  )
+  public void newNote(HopGuiTransContext context) {
     selectionRegion = null;
     String title = BaseMessages.getString( PKG, "TransGraph.Dialog.NoteEditor.Title" );
     NotePadDialog dd = new NotePadDialog( transMeta, shell, title );
     NotePadMeta n = dd.open();
     if ( n != null ) {
       NotePadMeta npi =
-        new NotePadMeta( n.getNote(), lastclick.x, lastclick.y, ConstUI.NOTE_MIN_SIZE, ConstUI.NOTE_MIN_SIZE, n
+        new NotePadMeta( n.getNote(), context.getClick().x, context.getClick().y, ConstUI.NOTE_MIN_SIZE, ConstUI.NOTE_MIN_SIZE, n
           .getFontName(), n.getFontSize(), n.isFontBold(), n.isFontItalic(), n.getFontColorRed(), n
           .getFontColorGreen(), n.getFontColorBlue(), n.getBackGroundColorRed(), n.getBackGroundColorGreen(), n
           .getBackGroundColorBlue(), n.getBorderColorRed(), n.getBorderColorGreen(), n.getBorderColorBlue(), n
@@ -2345,12 +2354,20 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     }
   }
 
-  public void settings() {
+  @GuiContextAction(
+    id = "transgraph-edit-transformation",
+    parentId = HopGuiTransContext.TRANS_CONTEXT_ID,
+    type= GuiActionType.Modify,
+    name = "Edit transformation",
+    tooltip = "Edit transformation properties",
+    image = "ui/images/TRN.svg"
+  )
+  public void settings( HopGuiTransContext context ) {
     editProperties( transMeta, hopUi, true );
   }
 
   public void newStep( String description ) {
-    StepMeta stepMeta = transStepDelegate.newStep( transMeta, null, description, description, false, true, new Point(currentMouseX, currentMouseY) );
+    StepMeta stepMeta = transStepDelegate.newStep( transMeta, null, description, description, false, true, new Point( currentMouseX, currentMouseY ) );
     PropsUI.setLocation( stepMeta, currentMouseX, currentMouseY );
     stepMeta.setDraw( true );
     redraw();

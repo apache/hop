@@ -1,5 +1,6 @@
 package org.apache.hop.core.gui.plugin;
 
+import java.lang.reflect.Method;
 import java.util.Objects;
 
 public class GuiAction implements IGuiAction {
@@ -9,7 +10,17 @@ public class GuiAction implements IGuiAction {
   private String tooltip;
   private String image;
   private IGuiActionLambda actionLambda;
+  private String methodName;
 
+  /**
+   * It's a direct action using a simple lambda
+   * @param id
+   * @param type
+   * @param name
+   * @param tooltip
+   * @param image
+   * @param actionLambda
+   */
   public GuiAction( String id, GuiActionType type, String name, String tooltip, String image, IGuiActionLambda actionLambda ) {
     this.id = id;
     this.type = type;
@@ -17,6 +28,36 @@ public class GuiAction implements IGuiAction {
     this.tooltip = tooltip;
     this.image = image;
     this.actionLambda = actionLambda;
+  }
+
+  /**
+   * We don't know the action to execute, just the method so we defer looking up the action until we have the parent object in hand.
+   * We're just storing the method name in this case.
+   * You can use method createLambda() to build it when you have the parent object and parameter to pass.
+   *
+   * @param id
+   * @param type
+   * @param name
+   * @param tooltip
+   * @param image
+   * @param methodName
+   */
+  public GuiAction( String id, GuiActionType type, String name, String tooltip, String image, String methodName ) {
+    this.id = id;
+    this.type = type;
+    this.name = name;
+    this.tooltip = tooltip;
+    this.image = image;
+    this.methodName = methodName;
+  }
+
+  @Override public String toString() {
+    return "GuiAction{" +
+      "id='" + id + '\'' +
+      ", type=" + type +
+      ", name='" + name + '\'' +
+      ", tooltip='" + tooltip + '\'' +
+      '}';
   }
 
   @Override public boolean equals( Object o ) {
@@ -129,4 +170,21 @@ public class GuiAction implements IGuiAction {
   public void setActionLambda( IGuiActionLambda actionLambda ) {
     this.actionLambda = actionLambda;
   }
+
+  /**
+   * Gets methodName
+   *
+   * @return value of methodName
+   */
+  public String getMethodName() {
+    return methodName;
+  }
+
+  /**
+   * @param methodName The methodName to set
+   */
+  public void setMethodName( String methodName ) {
+    this.methodName = methodName;
+  }
+
 }

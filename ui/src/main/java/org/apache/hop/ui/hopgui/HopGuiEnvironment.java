@@ -2,6 +2,7 @@ package org.apache.hop.ui.hopgui;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
@@ -102,7 +103,10 @@ public class HopGuiEnvironment extends HopClientEnvironment {
           if ( osxShortcut != null ) {
             guiRegistry.addKeyboardShortcut( parentClassName, method, osxShortcut );
           }
-                    
+          GuiContextAction contextAction = method.getAnnotation( GuiContextAction.class );
+          if (contextAction!=null) {
+            guiRegistry.addGuiContextAction( method, contextAction );
+          }
         }
 
         Collections.sort( menuItems, new Comparator<GuiElementMethod>() {

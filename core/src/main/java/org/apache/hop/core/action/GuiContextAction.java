@@ -1,5 +1,7 @@
 package org.apache.hop.core.action;
 
+import org.apache.hop.core.gui.plugin.GuiActionType;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -15,9 +17,15 @@ import java.lang.annotation.Target;
 @Target( ElementType.METHOD  )
 public @interface GuiContextAction {
 
-  /** The ID of the action that can be handled
-   *
-   * @return The ID of the action to be handled.
-   */
   String id();
+
+  String parentId();
+
+  GuiActionType type();
+
+  String name();
+
+  String tooltip();
+
+  String image();
 }
