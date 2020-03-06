@@ -349,6 +349,7 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     }
     changeSelectedAction( selectedAction );
     wCanvas.redraw();
+    wSearch.setSelection( wSearch.getText().length() );
   }
 
   private GuiAction findAction( int x, int y ) {

@@ -1,5 +1,7 @@
 package org.apache.hop.core.gui.plugin;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -88,22 +90,30 @@ public class GuiAction {
     if ( filter == null ) {
       return false;
     }
-    String upperFilter = filter.toUpperCase();
-    if ( name != null && name.toUpperCase().contains( upperFilter ) ) {
+    if ( matchesString(name, filter) ) {
       return true;
     }
-    if ( tooltip != null && tooltip.toUpperCase().contains( upperFilter ) ) {
+    if ( matchesString(tooltip, filter) ) {
       return true;
     }
-    if (type!=null && type.name().toUpperCase().contains( upperFilter )) {
+    if ( type!=null && matchesString( type.name(), filter)) {
       return true;
     }
     for ( String keyword : keywords ) {
-      if ( keyword.toUpperCase().contains( upperFilter ) ) {
+      if ( matchesString( keyword, filter )) {
         return true;
       }
     }
     return false;
+  }
+
+  private boolean matchesString(String string, String filter) {
+    if ( StringUtils.isEmpty(string)) {
+      return false;
+    }
+    // TODO: consider some fuzzy matching algorithm
+    // TODO: Do a Levenshtein distance on the filter string across all valid string indexes 0..
+    return string.toUpperCase().contains( filter.toUpperCase() );
   }
 
   @Override public String toString() {
