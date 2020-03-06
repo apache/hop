@@ -28,4 +28,6 @@ public @interface GuiContextAction {
   String tooltip();
 
   String image();
+
+  String[] keywords() default {};
 }
