@@ -202,7 +202,7 @@ public class ValidatorDialog extends BaseStepDialog implements StepDialogInterfa
     shell.setText( BaseMessages.getString( PKG, "ValidatorDialog.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     Rectangle imageBounds = GUIResource.getInstance().getImageInfoHop().getBounds();
 

@@ -83,7 +83,7 @@ public class MultiMergeJoinDialog extends BaseStepDialog implements StepDialogIn
   private RowMetaInterface prev;
   private ColumnInfo[] ciKeys;
 
-  private static final int margin = Const.MARGIN;
+  private static final int margin = props.getMargin();
 
   private MultiMergeJoinMeta joinMeta;
 

@@ -112,7 +112,7 @@ public class SQLStatementsDialog extends Dialog {
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "SQLStatementDialog.Title" ) );
 
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     int FieldsCols = 4;
     int FieldsRows = stats.size();

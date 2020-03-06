@@ -119,7 +119,7 @@ public class SetVariableDialog extends BaseStepDialog implements StepDialogInter
     shell.setText( BaseMessages.getString( PKG, "SetVariableDialog.DialogTitle" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

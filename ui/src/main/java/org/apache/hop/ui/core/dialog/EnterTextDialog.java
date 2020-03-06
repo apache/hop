@@ -138,7 +138,7 @@ public class EnterTextDialog extends Dialog {
     shell.setLayout( formLayout );
     shell.setText( title );
 
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // From step line
     wlDesc = new Label( shell, SWT.NONE );

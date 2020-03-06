@@ -337,7 +337,7 @@ public class ExcelInputDialog extends BaseStepDialog implements StepDialogInterf
     shell.setText( BaseMessages.getString( PKG, "ExcelInputDialog.DialogTitle" ) );
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

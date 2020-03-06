@@ -152,7 +152,7 @@ public class CsvInputDialog extends BaseStepDialog implements StepDialogInterfac
     shell.setText( BaseMessages.getString( PKG, "CsvInputDialog.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Step name line
     //

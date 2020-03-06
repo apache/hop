@@ -117,7 +117,7 @@ public class TableCompareDialog extends BaseStepDialog implements StepDialogInte
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = props.getMargin();
 
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "TableCompareDialog.Shell.Title" ) );

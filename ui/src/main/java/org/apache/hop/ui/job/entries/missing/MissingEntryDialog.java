@@ -98,7 +98,7 @@ public class MissingEntryDialog extends JobEntryDialog implements JobEntryDialog
 
     this.props = PropsUI.getInstance();
     Display display = shellParent.getDisplay();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     shell =
       new Shell( shellParent, SWT.DIALOG_TRIM | SWT.CLOSE | SWT.ICON

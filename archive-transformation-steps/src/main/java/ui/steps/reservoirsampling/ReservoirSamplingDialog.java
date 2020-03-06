@@ -122,7 +122,7 @@ public class ReservoirSamplingDialog extends BaseStepDialog implements StepDialo
     shell.setText( BaseMessages.getString( PKG, "ReservoirSamplingDialog.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     m_wlStepname = new Label( shell, SWT.RIGHT );

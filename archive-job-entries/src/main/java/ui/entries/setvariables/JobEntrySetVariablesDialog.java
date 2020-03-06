@@ -133,7 +133,7 @@ public class JobEntrySetVariablesDialog extends JobEntryDialog implements JobEnt
     shell.setText( BaseMessages.getString( PKG, "JobEntrySetVariables.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Name line
     wlName = new Label( shell, SWT.RIGHT );

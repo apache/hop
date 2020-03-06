@@ -84,7 +84,7 @@ public abstract class ConfigurationDialog extends Dialog {
   protected Composite serverOptionsComposite;
   protected Label environmentSeparator;
   protected StackLayout stackedLayout;
-  protected int margin = Const.MARGIN;
+  protected int margin;
   protected Group gLocal;
   protected Composite composite;
   protected Composite cRunConfiguration;
@@ -115,6 +115,7 @@ public abstract class ConfigurationDialog extends Dialog {
     }
 
     props = PropsUI.getInstance();
+    margin = props.getMargin();
   }
 
   protected void getInfoVariables() {

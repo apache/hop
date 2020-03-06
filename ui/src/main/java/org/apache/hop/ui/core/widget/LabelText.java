@@ -48,7 +48,7 @@ public class LabelText extends Composite {
 
   public LabelText( Composite composite, String labelText, String toolTipText ) {
     this(
-      composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER, labelText, toolTipText, props.getMiddlePct(), Const.MARGIN );
+      composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER, labelText, toolTipText, props.getMiddlePct(), props.getMargin() );
   }
 
   public LabelText( Composite composite, String labelText, String toolTipText, int middle, int margin ) {

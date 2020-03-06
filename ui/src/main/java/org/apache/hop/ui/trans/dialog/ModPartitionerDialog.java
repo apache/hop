@@ -102,7 +102,7 @@ public class ModPartitionerDialog extends BaseStepDialog implements StepDialogIn
     shell.setLayout( formLayout );
     shell.setText( partitioner.getDescription() );
 
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     int middle = props.getMiddlePct();
 

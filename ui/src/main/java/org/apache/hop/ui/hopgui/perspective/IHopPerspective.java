@@ -1,14 +1,10 @@
 package org.apache.hop.ui.hopgui.perspective;
 
-import org.apache.hop.core.gui.plugin.IGuiAction;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
-
-import java.util.Collection;
-import java.util.List;
 
 /**
  * This interface describes the methods of a Hop GUI perspective.

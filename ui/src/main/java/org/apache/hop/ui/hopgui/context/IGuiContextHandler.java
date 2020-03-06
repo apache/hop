@@ -1,9 +1,7 @@
 package org.apache.hop.ui.hopgui.context;
 
-import org.apache.hop.core.gui.plugin.IGuiAction;
-import org.eclipse.swt.widgets.Shell;
+import org.apache.hop.core.gui.plugin.GuiAction;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,5 +12,5 @@ public interface IGuiContextHandler {
   /**
    * @return Get a list of all the supported actions by this context handler
    */
-  List<IGuiAction> getSupportedActions();
+  List<GuiAction> getSupportedActions();
 }

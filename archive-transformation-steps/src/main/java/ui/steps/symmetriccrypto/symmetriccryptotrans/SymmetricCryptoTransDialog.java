@@ -140,7 +140,7 @@ public class SymmetricCryptoTransDialog extends BaseStepDialog implements StepDi
     shell.setText( BaseMessages.getString( PKG, "SymmetricCryptoTransDialog.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // SecretKey line
     wlStepname = new Label( shell, SWT.RIGHT );

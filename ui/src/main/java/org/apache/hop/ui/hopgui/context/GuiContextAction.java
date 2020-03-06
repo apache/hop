@@ -1,12 +1,12 @@
 package org.apache.hop.ui.hopgui.context;
 
-import org.apache.hop.core.gui.plugin.IGuiAction;
+import org.apache.hop.core.gui.plugin.GuiAction;
 
 public class GuiContextAction {
   private GuiContextHandler handler;
-  private IGuiAction action;
+  private GuiAction action;
 
-  public GuiContextAction( GuiContextHandler handler, IGuiAction action ) {
+  public GuiContextAction( GuiContextHandler handler, GuiAction action ) {
     this.handler = handler;
     this.action = action;
   }
@@ -32,14 +32,14 @@ public class GuiContextAction {
    *
    * @return value of action
    */
-  public IGuiAction getAction() {
+  public GuiAction getAction() {
     return action;
   }
 
   /**
    * @param action The action to set
    */
-  public void setAction( IGuiAction action ) {
+  public void setAction( GuiAction action ) {
     this.action = action;
   }
 }

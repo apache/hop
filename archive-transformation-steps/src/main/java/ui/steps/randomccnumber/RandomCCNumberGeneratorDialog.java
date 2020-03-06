@@ -117,7 +117,7 @@ public class RandomCCNumberGeneratorDialog extends BaseStepDialog implements Ste
     shell.setText( BaseMessages.getString( PKG, "RandomCCNumberGeneratorDialog.DialogTitle" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

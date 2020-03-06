@@ -5,6 +5,7 @@ public enum GuiActionType {
   Modify,
   Delete,
   Duplicate,
+  Info,
   Custom,
   ;
 }

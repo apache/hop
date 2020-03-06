@@ -89,7 +89,7 @@ public class InjectorDialog extends BaseStepDialog implements StepDialogInterfac
     shell.setText( BaseMessages.getString( PKG, "InjectorDialog.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

@@ -243,7 +243,7 @@ public class JobDialog extends Dialog {
     shell.setText( BaseMessages.getString( PKG, "JobDialog.JobProperties.ShellText" ) );
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = props.getMargin();
 
     wTabFolder = new CTabFolder( shell, SWT.BORDER );
     props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );
@@ -292,7 +292,7 @@ public class JobDialog extends Dialog {
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
     // BaseStepDialog.positionBottomButtons(shell, new Button[] { wOK, wSQL, wCancel }, margin, wSharedObjectsFile);
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wSQL, wCancel }, Const.MARGIN, null );
+    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wSQL, wCancel }, props.getMargin(), null );
     // Add listeners
     lsOK = new Listener() {
       public void handleEvent( Event e ) {
@@ -378,8 +378,8 @@ public class JobDialog extends Dialog {
     props.setLook( wJobComp );
 
     FormLayout transLayout = new FormLayout();
-    transLayout.marginWidth = Const.MARGIN;
-    transLayout.marginHeight = Const.MARGIN;
+    transLayout.marginWidth = props.getMargin();
+    transLayout.marginHeight = props.getMargin();
     wJobComp.setLayout( transLayout );
 
     // Jobname:
@@ -597,8 +597,8 @@ public class JobDialog extends Dialog {
     wParamTab.setText( BaseMessages.getString( PKG, "JobDialog.ParamTab.Label" ) );
 
     FormLayout paramLayout = new FormLayout();
-    paramLayout.marginWidth = Const.MARGIN;
-    paramLayout.marginHeight = Const.MARGIN;
+    paramLayout.marginWidth = props.getMargin();
+    paramLayout.marginHeight = props.getMargin();
 
     Composite wParamComp = new Composite( wTabFolder, SWT.NONE );
     props.setLook( wParamComp );
@@ -663,8 +663,8 @@ public class JobDialog extends Dialog {
     wLogTab.setText( BaseMessages.getString( PKG, "JobDialog.LogTab.Label" ) );
 
     FormLayout LogLayout = new FormLayout();
-    LogLayout.marginWidth = Const.MARGIN;
-    LogLayout.marginHeight = Const.MARGIN;
+    LogLayout.marginWidth = props.getMargin();
+    LogLayout.marginHeight = props.getMargin();
 
     wLogComp = new Composite( wTabFolder, SWT.NONE );
     props.setLook( wLogComp );
@@ -697,8 +697,8 @@ public class JobDialog extends Dialog {
     wLogOptionsComposite = new Composite( wLogComp, SWT.BORDER );
 
     FormLayout logOptionsLayout = new FormLayout();
-    logOptionsLayout.marginWidth = Const.MARGIN;
-    logOptionsLayout.marginHeight = Const.MARGIN;
+    logOptionsLayout.marginWidth = props.getMargin();
+    logOptionsLayout.marginHeight = props.getMargin();
     wLogOptionsComposite.setLayout( logOptionsLayout );
 
     props.setLook( wLogOptionsComposite );
@@ -1216,8 +1216,8 @@ public class JobDialog extends Dialog {
     wSettingsTab.setText( BaseMessages.getString( PKG, "JobDialog.SettingsTab.Label" ) );
 
     FormLayout LogLayout = new FormLayout();
-    LogLayout.marginWidth = Const.MARGIN;
-    LogLayout.marginHeight = Const.MARGIN;
+    LogLayout.marginWidth = props.getMargin();
+    LogLayout.marginHeight = props.getMargin();
 
     Composite wSettingsComp = new Composite( wTabFolder, SWT.NONE );
     props.setLook( wSettingsComp );

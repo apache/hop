@@ -101,7 +101,7 @@ public class AppendDialog extends BaseStepDialog implements StepDialogInterface 
     shell.setText( BaseMessages.getString( PKG, "AppendDialog.Shell.Label" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

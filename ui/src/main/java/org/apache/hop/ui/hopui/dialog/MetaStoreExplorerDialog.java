@@ -121,7 +121,7 @@ public class MetaStoreExplorerDialog {
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "MetaStoreExplorerDialog.Dialog.Title" ) );
 
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     closeButton = new Button( shell, SWT.PUSH );
     closeButton.setText( BaseMessages.getString( PKG, "System.Button.Close" ) );

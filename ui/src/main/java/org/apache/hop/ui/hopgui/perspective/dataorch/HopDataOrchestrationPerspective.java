@@ -8,6 +8,7 @@ import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
 import org.apache.hop.trans.TransMeta;
+import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
@@ -99,13 +100,15 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     this.hopGui = hopGui;
     this.parent = parent;
 
+    PropsUI props = PropsUI.getInstance();
+
     composite = new Composite( parent, SWT.NONE );
     composite.setBackground( GUIResource.getInstance().getColorBackground() );
     FormLayout layout = new FormLayout();
-    layout.marginLeft = Const.MARGIN;
-    layout.marginTop = Const.MARGIN;
-    layout.marginLeft = Const.MARGIN;
-    layout.marginBottom = Const.MARGIN;
+    layout.marginLeft = props.getMargin();
+    layout.marginTop = props.getMargin();
+    layout.marginLeft = props.getMargin();
+    layout.marginBottom = props.getMargin();
     composite.setLayout( layout );
 
     formData = new FormData();

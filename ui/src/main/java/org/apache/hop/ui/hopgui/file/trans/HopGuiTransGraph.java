@@ -1003,6 +1003,12 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     }
   }
 
+  private enum SingleClickType {
+    Trans,
+    Step,
+    Note
+  }
+
   @Override
   public void mouseUp( MouseEvent e ) {
     try {
@@ -1021,6 +1027,9 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     TransHopMeta selectedHop = findHop( e.x, e.y );
     updateErrorMetaForHop( selectedHop );
     boolean singleClick = false;
+    SingleClickType singleClickType = null;
+    StepMeta singleClickStep = null;
+    NotePadMeta singleClickNote = null;
 
     if ( iconoffset == null ) {
       iconoffset = new Point( 0, 0 );
@@ -1065,6 +1074,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         selectionRegion.height = real.y - selectionRegion.y;
         if ( selectionRegion.width == 0 && selectionRegion.height == 0 ) {
           singleClick = true;
+          singleClickType = SingleClickType.Trans;
         }
         transMeta.unselectAll();
         selectInRect( transMeta, selectionRegion );
@@ -1081,9 +1091,9 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
               if ( control ) {
                 selectedStep.flipSelected();
               } else {
-                // Otherwise, select only the icon clicked on!
-                transMeta.unselectAll();
-                selectedStep.setSelected( true );
+                singleClick = true;
+                singleClickType = SingleClickType.Step;
+                singleClickStep = selectedStep;
               }
             } else {
               // Find out which Steps & Notes are selected
@@ -1132,14 +1142,16 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
           if ( selectedNote != null ) {
             if ( e.button == 1 ) {
-              if ( lastclick.x == e.x && lastclick.y == e.y ) {
+              if ( lastclick.x == real.x && lastclick.y == real.y ) {
                 // Flip selection when control is pressed!
                 if ( control ) {
                   selectedNote.flipSelected();
                 } else {
-                  // Otherwise, select only the note clicked on!
-                  transMeta.unselectAll();
-                  selectedNote.setSelected( true );
+                  // single click on a note: ask what needs to happen...
+                  //
+                  singleClick = true;
+                  singleClickType = SingleClickType.Note;
+                  singleClickNote = selectedNote;
                 }
               } else {
                 // Find out which Steps & Notes are selected
@@ -1174,11 +1186,24 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       }
     }
 
-    if ( singleClick ) {
-      // Just a single click on the background:
-      // We have a bunch of possible actions for you...
-      //
-      GuiContextUtil.handleActionSelection( shell, new HopGuiTransContext( transMeta, this, real ).getSupportedActions() );
+    // Just a single click on the background:
+    // We have a bunch of possible actions for you...
+    //
+    if ( singleClick && singleClickType != null ) {
+      IGuiContextHandler contextHandler = null;
+      switch ( singleClickType ) {
+        case Trans:
+          contextHandler = new HopGuiTransContext( transMeta, this, real ); break;
+        case Step:
+          contextHandler = new HopGuiTransStepContext( transMeta, singleClickStep, this, real ); break;
+        case Note:
+          contextHandler = new HopGuiTransNoteContext( transMeta, singleClickNote, this, real ); break;
+        default:
+          break;
+      }
+      if ( contextHandler != null ) {
+        GuiContextUtil.handleActionSelection( shell, contextHandler.getSupportedActions() );
+      }
     }
 
     lastButton = 0;
@@ -2050,27 +2075,63 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     newHop();
   }
 
+  @GuiContextAction(
+    id = "transgraph-edit-step",
+    parentId = HopGuiTransStepContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Edit the step",
+    tooltip = "Edit the step properties",
+    image = "ui/images/Edit.svg"
+  )
+  public void editStep( HopGuiTransStepContext context ) {
+    editStep( context.getStepMeta() );
+  }
+
   public void editStep() {
     selectedSteps = null;
     editStep( getCurrentStep() );
   }
 
-  public void editDescription() {
-    editDescription( getCurrentStep() );
+  @GuiContextAction(
+    id = "transgraph-edit-step-description",
+    parentId = HopGuiTransStepContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Edit step description",
+    tooltip = "Modify the step description",
+    image = "ui/images/Edit.svg"
+  )
+  public void editDescription( HopGuiTransStepContext context ) {
+    editDescription( context.getStepMeta() );
   }
 
-  public void setDistributes() {
-    getCurrentStep().setDistributes( true );
-    getCurrentStep().setRowDistribution( null );
+  @GuiContextAction(
+    id = "transgraph-edit-step-rows-distrubute",
+    parentId = HopGuiTransStepContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Distribute rows",
+    tooltip = "Make the step distribute rows to next steps",
+    image = "ui/images/Edit.svg"
+  )
+  public void setDistributes( HopGuiTransStepContext context ) {
+    context.getStepMeta().setDistributes( true );
+    context.getStepMeta().setRowDistribution( null );
     redraw();
   }
 
-  public void setCustomRowDistribution() {
+  @GuiContextAction(
+    id = "transgraph-edit-step-custom-row-distribution",
+    parentId = HopGuiTransStepContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Specify row distribution",
+    tooltip = "Specify how the step should distribute rows to next steps",
+    image = "ui/images/Edit.svg"
+  )
+  public void setCustomRowDistribution( HopGuiTransStepContext context ) {
     // ask user which row distribution is needed...
     //
     RowDistributionInterface rowDistribution = askUserForCustomDistributionMethod();
-    getCurrentStep().setDistributes( true );
-    getCurrentStep().setRowDistribution( rowDistribution );
+    context.getStepMeta().setDistributes( true );
+    context.getStepMeta().setRowDistribution( rowDistribution );
     redraw();
   }
 
@@ -2099,16 +2160,20 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     }
   }
 
-  public void setCopies() {
-    getCurrentStep().setDistributes( false );
-    redraw();
+  @GuiContextAction(
+    id = "transgraph-edit-step-copies",
+    parentId = HopGuiTransStepContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Set the number of step copies",
+    tooltip = "Set the number of step copies to use during execution",
+    image = "ui/images/parallel-hop.svg"
+  )
+  public void copies( HopGuiTransStepContext context ) {
+    StepMeta stepMeta = context.getStepMeta();
+    copies( stepMeta );
   }
 
-  public void copies() {
-    copies( getCurrentStep() );
-  }
-
-  public void copies( StepMeta stepMeta ) {
+  public void copies(StepMeta stepMeta) {
     final boolean multipleOK = checkNumberOfCopies( transMeta, stepMeta );
     selectedSteps = null;
     String tt = BaseMessages.getString( PKG, "TransGraph.Dialog.NrOfCopiesOfStep.Title" );
@@ -2133,34 +2198,59 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     }
   }
 
-  public void dupeStep() {
+  @GuiContextAction(
+    id = "transgraph-edit-step-duplicate",
+    parentId = HopGuiTransStepContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Duplicate this step",
+    tooltip = "Creates a duplicate of the selected step",
+    image = "ui/images/CPY.svg"
+  )
+  public void dupeStep( HopGuiTransStepContext context ) {
     try {
-      List<StepMeta> steps = transMeta.getSelectedSteps();
-      if ( steps.size() <= 1 ) {
-        transStepDelegate.dupeStep( transMeta, getCurrentStep() );
-      } else {
-        for ( StepMeta stepMeta : steps ) {
-          transStepDelegate.dupeStep( transMeta, stepMeta );
-        }
-      }
+      transStepDelegate.dupeStep( transMeta, context.getStepMeta() );
     } catch ( Exception ex ) {
       new ErrorDialog( shell, BaseMessages.getString( PKG, "TransGraph.Dialog.ErrorDuplicatingStep.Title" ),
         BaseMessages.getString( PKG, "TransGraph.Dialog.ErrorDuplicatingStep.Message" ), ex );
     }
   }
 
-  public void delSelected() {
-    delSelected( getCurrentStep() );
+  @GuiContextAction(
+    id = "transgraph-delete-step",
+    parentId = HopGuiTransStepContext.CONTEXT_ID,
+    type = GuiActionType.Delete,
+    name = "Delete this step",
+    tooltip = "Delete the selected step from the transformation",
+    image = "ui/images/Delete.svg"
+  )
+  public void delStep(HopGuiTransStepContext context) {
+    delSelected( context.getStepMeta() );
   }
 
-  public void fieldsBefore() {
+  @GuiContextAction(
+    id = "transgraph-step-fields-before",
+    parentId = HopGuiTransStepContext.CONTEXT_ID,
+    type = GuiActionType.Info,
+    name = "Show the fields entering this step",
+    tooltip = "Show all the fields entering this step",
+    image = "ui/images/info-hop.svg"
+  )
+  public void fieldsBefore(HopGuiTransStepContext context) {
     selectedSteps = null;
-    inputOutputFields( getCurrentStep(), true );
+    inputOutputFields( context.getStepMeta(), true );
   }
 
-  public void fieldsAfter() {
+  @GuiContextAction(
+    id = "transgraph-step-fields-after",
+    parentId = HopGuiTransStepContext.CONTEXT_ID,
+    type = GuiActionType.Info,
+    name = "Show the fields exiting this step",
+    tooltip = "Show all the fields resulting from this step",
+    image = "ui/images/info-hop.svg"
+  )
+  public void fieldsAfter(HopGuiTransStepContext context) {
     selectedSteps = null;
-    inputOutputFields( getCurrentStep(), false );
+    inputOutputFields( context.getStepMeta(), false );
   }
 
   public void fieldsLineage() {
@@ -2313,30 +2403,46 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     return checkedEntries;
   }
 
-  public void editNote() {
+  @GuiContextAction(
+    id = "transgraph-edit-note",
+    parentId = HopGuiTransNoteContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Edit the note",
+    tooltip = "Edit the note",
+    image = "ui/images/Edit.svg"
+  )
+  public void editNote( HopGuiTransNoteContext context ) {
     selectionRegion = null;
-    editNote( getCurrentNote() );
+    editNote( context.getNotePadMeta() );
   }
 
-  public void deleteNote() {
+  @GuiContextAction(
+    id = "transgraph-delete-note",
+    parentId = HopGuiTransNoteContext.CONTEXT_ID,
+    type = GuiActionType.Delete,
+    name = "Delete the note",
+    tooltip = "Delete the note",
+    image = "ui/images/Delete.svg"
+  )
+  public void deleteNote( HopGuiTransNoteContext context ) {
     selectionRegion = null;
-    int idx = transMeta.indexOfNote( ni );
+    int idx = transMeta.indexOfNote( context.getNotePadMeta() );
     if ( idx >= 0 ) {
       transMeta.removeNote( idx );
-      hopUi.undoDelegate.addUndoDelete( transMeta, new NotePadMeta[] { (NotePadMeta) ni.clone() }, new int[] { idx } );
+      hopUi.undoDelegate.addUndoDelete( transMeta, new NotePadMeta[] { context.getNotePadMeta().clone() }, new int[] { idx } );
       redraw();
     }
   }
 
   @GuiContextAction(
     id = "transgraph-new-note",
-    parentId = HopGuiTransContext.TRANS_CONTEXT_ID,
+    parentId = HopGuiTransContext.CONTEXT_ID,
     type = GuiActionType.Create,
     name = "Create a note",
-    tooltip =  "Create a new note",
+    tooltip = "Create a new note",
     image = "ui/images/new.svg"
   )
-  public void newNote(HopGuiTransContext context) {
+  public void newNote( HopGuiTransContext context ) {
     selectionRegion = null;
     String title = BaseMessages.getString( PKG, "TransGraph.Dialog.NoteEditor.Title" );
     NotePadDialog dd = new NotePadDialog( transMeta, shell, title );
@@ -2356,8 +2462,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
   @GuiContextAction(
     id = "transgraph-edit-transformation",
-    parentId = HopGuiTransContext.TRANS_CONTEXT_ID,
-    type= GuiActionType.Modify,
+    parentId = HopGuiTransContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
     name = "Edit transformation",
     tooltip = "Edit transformation properties",
     image = "ui/images/TRN.svg"
@@ -3595,6 +3701,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
    * Add an extra view to the main composite SashForm
    */
   public void addExtraView() {
+    PropsUI props = PropsUI.getInstance();
+
     extraViewComposite = new Composite( sashForm, SWT.NONE );
     FormLayout extraCompositeFormLayout = new FormLayout();
     extraCompositeFormLayout.marginWidth = 2;
@@ -3621,7 +3729,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     minMaxButton.setImage( GUIResource.getInstance().getImageMaximizePanel() );
     minMaxButton.setToolTipText( BaseMessages.getString( PKG, "TransGraph.ExecutionResultsPanel.MaxButton.Tooltip" ) );
     FormData fdMinMax = new FormData();
-    fdMinMax.right = new FormAttachment( closeButton, -Const.MARGIN );
+    fdMinMax.right = new FormAttachment( closeButton, -props.getMargin() );
     fdMinMax.top = new FormAttachment( 0, 0 );
     minMaxButton.setLayoutData( fdMinMax );
     minMaxButton.addMouseListener( new MouseAdapter() {
@@ -3639,7 +3747,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     wResultsLabel.setText( BaseMessages.getString( PKG, "TransLog.ResultsPanel.NameLabel" ) );
     FormData fdResultsLabel = new FormData();
     fdResultsLabel.left = new FormAttachment( 0, 0 );
-    fdResultsLabel.right = new FormAttachment( minMaxButton, -Const.MARGIN );
+    fdResultsLabel.right = new FormAttachment( minMaxButton, -props.getMargin() );
     fdResultsLabel.top = new FormAttachment( 0, 0 );
     wResultsLabel.setLayoutData( fdResultsLabel );
 
@@ -3664,7 +3772,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.top = new FormAttachment( wResultsLabel, Const.MARGIN );
+    fdTabFolder.top = new FormAttachment( wResultsLabel, props.getMargin() );
     fdTabFolder.bottom = new FormAttachment( 100, 0 );
     extraViewTabFolder.setLayoutData( fdTabFolder );
 
@@ -4816,16 +4924,32 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
   @GuiKeyboardShortcut( key = SWT.DEL )
   @Override public void deleteSelected() {
-    delSelected();
+    delSelected(null);
     updateGui();
   }
 
   @GuiKeyboardShortcut( control = true, key = 'v' )
   @GuiOSXKeyboardShortcut( command = true, key = 'v' )
+
   @Override public void pasteFromClipboard() {
+    pasteFromClipboard(  new Point( currentMouseX, currentMouseY ) );
+  }
+
+  public void pasteFromClipboard(Point location) {
     final String clipboard = transClipboardDelegate.fromClipboard();
-    Point loc = new Point( currentMouseX, currentMouseY );
-    transClipboardDelegate.pasteXML( transMeta, clipboard, loc );
+    transClipboardDelegate.pasteXML( transMeta, clipboard, location );
+  }
+
+  @GuiContextAction(
+    id = "transgraph-trans-paste",
+    parentId = HopGuiTransContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Paste from the clipboard",
+    tooltip = "Paste steps, notes or a whole transformation from the clipboard",
+    image = "ui/images/CPY.svg"
+  )
+  public void pasteFromClipboard(HopGuiTransContext context) {
+    pasteFromClipboard(context.getClick());
   }
 
   @Override public List<IGuiContextHandler> getContextHandlers() {

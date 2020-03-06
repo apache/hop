@@ -111,7 +111,7 @@ public class TransHopDialog extends Dialog {
     shell.setText( BaseMessages.getString( PKG, "TransHopDialog.Shell.Label" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
     int width = 0;
 
     // From step line

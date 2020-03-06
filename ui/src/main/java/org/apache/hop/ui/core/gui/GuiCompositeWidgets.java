@@ -101,7 +101,7 @@ public class GuiCompositeWidgets {
         if ( lastControl == null ) {
           fdLabel.top = new FormAttachment( 0, 0 );
         } else {
-          fdLabel.top = new FormAttachment( lastControl, Const.MARGIN );
+          fdLabel.top = new FormAttachment( lastControl, props.getMargin() );
         }
         fdLabel.right = new FormAttachment( Const.MIDDLE_PCT, 0 );
         label.setLayoutData( fdLabel );
@@ -159,14 +159,14 @@ public class GuiCompositeWidgets {
       if ( control != null && !isToolbar ) {
         FormData fdControl = new FormData();
         if ( label != null ) {
-          fdControl.left = new FormAttachment( Const.MIDDLE_PCT, Const.MARGIN );
+          fdControl.left = new FormAttachment( Const.MIDDLE_PCT, props.getMargin() );
           fdControl.right = new FormAttachment( 100, 0 );
           fdControl.top = new FormAttachment( label, 0, SWT.CENTER );
         } else {
-          fdControl.left = new FormAttachment( Const.MIDDLE_PCT, Const.MARGIN );
+          fdControl.left = new FormAttachment( Const.MIDDLE_PCT, props.getMargin() );
           fdControl.right = new FormAttachment( 100, 0 );
           if ( lastControl != null ) {
-            fdControl.top = new FormAttachment( lastControl, Const.MARGIN );
+            fdControl.top = new FormAttachment( lastControl, props.getMargin() );
           } else {
             fdControl.top = new FormAttachment( 0, 0 );
           }

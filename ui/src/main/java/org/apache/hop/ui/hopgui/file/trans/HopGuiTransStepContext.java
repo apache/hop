@@ -3,28 +3,27 @@ package org.apache.hop.ui.hopgui.file.trans;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.GuiAction;
 import org.apache.hop.core.gui.plugin.GuiActionLambdaBuilder;
-import org.apache.hop.core.gui.plugin.GuiActionType;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
-import org.apache.hop.core.plugins.PluginInterface;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.StepPluginType;
 import org.apache.hop.trans.TransMeta;
+import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HopGuiTransContext implements IGuiContextHandler {
+public class HopGuiTransStepContext implements IGuiContextHandler {
 
-  public static final String CONTEXT_ID = "HopGuiTransContext";
+  public static final String CONTEXT_ID = "HopGuiTransStepContext";
 
   private TransMeta transMeta;
+  private StepMeta stepMeta;
   private HopGuiTransGraph transGraph;
   private Point click;
-  private GuiActionLambdaBuilder<HopGuiTransContext> lambdaBuilder;
+  private GuiActionLambdaBuilder<HopGuiTransStepContext> lambdaBuilder;
 
-  public HopGuiTransContext( TransMeta transMeta, HopGuiTransGraph transGraph, Point click ) {
+  public HopGuiTransStepContext( TransMeta transMeta, StepMeta stepMeta, HopGuiTransGraph transGraph, Point click ) {
     this.transMeta = transMeta;
+    this.stepMeta = stepMeta;
     this.transGraph = transGraph;
     this.click = click;
     this.lambdaBuilder = new GuiActionLambdaBuilder<>();
@@ -48,19 +47,6 @@ public class HopGuiTransContext implements IGuiContextHandler {
       }
     }
 
-    // Also add all the step creation actions...
-    //
-    PluginRegistry registry = PluginRegistry.getInstance();
-    List<PluginInterface> stepPlugins = registry.getPlugins( StepPluginType.class );
-    for ( PluginInterface stepPlugin : stepPlugins ) {
-      GuiAction createStepAction =
-        new GuiAction( "transgraph-create-step-" + stepPlugin.getIds()[ 0 ], GuiActionType.Create, stepPlugin.getName(), stepPlugin.getDescription(), stepPlugin.getImageFile(),
-          t -> transGraph.transStepDelegate.newStep( transMeta, stepPlugin.getIds()[ 0 ], stepPlugin.getName(), stepPlugin.getDescription(), false, true, click )
-        );
-      createStepAction.getKeywords().add(stepPlugin.getCategory());
-      actions.add( createStepAction );
-    }
-
     return actions;
   }
 
@@ -79,6 +65,22 @@ public class HopGuiTransContext implements IGuiContextHandler {
    */
   public void setTransMeta( TransMeta transMeta ) {
     this.transMeta = transMeta;
+  }
+
+  /**
+   * Gets stepMeta
+   *
+   * @return value of stepMeta
+   */
+  public StepMeta getStepMeta() {
+    return stepMeta;
+  }
+
+  /**
+   * @param stepMeta The stepMeta to set
+   */
+  public void setStepMeta( StepMeta stepMeta ) {
+    this.stepMeta = stepMeta;
   }
 
   /**

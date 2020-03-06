@@ -154,7 +154,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     shell.setImage( GUIResource.getInstance().getImageConnection() );
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = props.getMargin();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

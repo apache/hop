@@ -266,7 +266,7 @@ public class JobEntryMssqlBulkLoadDialog extends JobEntryDialog implements JobEn
     shell.setText( BaseMessages.getString( PKG, "JobMssqlBulkLoad.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     wTabFolder = new CTabFolder( shell, SWT.BORDER );
     props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );

@@ -105,7 +105,7 @@ public class HopGuiEnvironment extends HopClientEnvironment {
           }
           GuiContextAction contextAction = method.getAnnotation( GuiContextAction.class );
           if (contextAction!=null) {
-            guiRegistry.addGuiContextAction( method, contextAction );
+            guiRegistry.addGuiContextAction( method, contextAction, classLoader );
           }
         }
 

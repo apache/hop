@@ -228,7 +228,7 @@ public class DimensionLookupDialog extends BaseStepDialog implements StepDialogI
     shell.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     Composite sCompParent = new Composite( shell, SWT.NONE );
     sCompParent.setLayout( new FillLayout( SWT.VERTICAL ) );

@@ -114,7 +114,7 @@ public class HopPropertiesFileDialog extends Dialog {
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "HopPropertiesFileDialog.Title" ) );
 
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Message line
     //

@@ -191,7 +191,7 @@ public class YamlInputDialog extends BaseStepDialog implements StepDialogInterfa
     shell.setText( BaseMessages.getString( PKG, "YamlInputDialog.DialogTitle" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

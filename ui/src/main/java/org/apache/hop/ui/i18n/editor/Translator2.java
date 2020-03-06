@@ -504,7 +504,7 @@ public class Translator2 {
     FormData fdPackages = new FormData();
     fdPackages.left = new FormAttachment( 0, 0 );
     fdPackages.right = new FormAttachment( 100, 0 );
-    fdPackages.top = new FormAttachment( wLocale, Const.MARGIN );
+    fdPackages.top = new FormAttachment( wLocale, props.getMargin() );
     fdPackages.bottom = new FormAttachment( 100, 0 );
     wPackages.setLayoutData( fdPackages );
     wPackages.setSortable( false );
@@ -551,7 +551,7 @@ public class Translator2 {
     wClose.setText( BaseMessages.getString( PKG, "i18nDialog.Close" ) );
 
     BaseStepDialog.positionBottomButtons(
-      composite, new Button[] { wReload, wSave, wZip, wClose, }, Const.MARGIN * 3, null );
+      composite, new Button[] { wReload, wSave, wZip, wClose, }, props.getMargin() * 3, null );
 
     /*
      * wSearchG = new Button(composite, SWT.PUSH); wSearchG.setText("   Search &key  "); FormData fdSearchG = new
@@ -559,7 +559,7 @@ public class Translator2 {
      * wSearchG.setLayoutData(fdSearchG);
      *
      * wNextG = new Button(composite, SWT.PUSH); wNextG.setText("   Next ke&y  "); FormData fdNextG = new FormData();
-     * fdNextG.left = new FormAttachment(wSearchG, Const.MARGIN); fdNextG.bottom = new FormAttachment(100, 0);
+     * fdNextG.left = new FormAttachment(wSearchG, props.getMargin()); fdNextG.bottom = new FormAttachment(100, 0);
      * wNextG.setLayoutData(fdNextG);
      */
 
@@ -572,7 +572,7 @@ public class Translator2 {
     FormData fdAll = new FormData();
     fdAll.left = new FormAttachment( 0, 0 );
     fdAll.right = new FormAttachment( left, 0 );
-    fdAll.bottom = new FormAttachment( wClose, -Const.MARGIN );
+    fdAll.bottom = new FormAttachment( wClose, -props.getMargin() );
     wAll.setLayoutData( fdAll );
 
     Label wlTodo = new Label( composite, SWT.LEFT );
@@ -588,8 +588,8 @@ public class Translator2 {
     FormData fdTodo = new FormData();
     fdTodo.left = new FormAttachment( 0, 0 );
     fdTodo.right = new FormAttachment( left, 0 );
-    fdTodo.top = new FormAttachment( wlTodo, Const.MARGIN );
-    fdTodo.bottom = new FormAttachment( wAll, -Const.MARGIN );
+    fdTodo.top = new FormAttachment( wlTodo, props.getMargin() );
+    fdTodo.bottom = new FormAttachment( wAll, -props.getMargin() );
     wTodo.setLayoutData( fdTodo );
 
     // The key
@@ -598,17 +598,17 @@ public class Translator2 {
     wlKey.setText( BaseMessages.getString( PKG, "i18nDialog.TranslationKey" ) );
     props.setLook( wlKey );
     FormData fdlKey = new FormData();
-    fdlKey.left = new FormAttachment( left, Const.MARGIN );
+    fdlKey.left = new FormAttachment( left, props.getMargin() );
     fdlKey.right = new FormAttachment( middle, 0 );
-    fdlKey.top = new FormAttachment( wlTodo, Const.MARGIN );
+    fdlKey.top = new FormAttachment( wlTodo, props.getMargin() );
     wlKey.setLayoutData( fdlKey );
 
     wKey = new Text( composite, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
     props.setLook( wKey );
     FormData fdKey = new FormData();
-    fdKey.left = new FormAttachment( middle, Const.MARGIN );
+    fdKey.left = new FormAttachment( middle, props.getMargin() );
     fdKey.right = new FormAttachment( 100, 0 );
-    fdKey.top = new FormAttachment( wlTodo, Const.MARGIN );
+    fdKey.top = new FormAttachment( wlTodo, props.getMargin() );
     wKey.setLayoutData( fdKey );
     wKey.setEditable( false );
 
@@ -618,33 +618,33 @@ public class Translator2 {
     wlMain.setText( BaseMessages.getString( PKG, "i18nDialog.MainTranslation" ) );
     props.setLook( wlMain );
     FormData fdlMain = new FormData();
-    fdlMain.left = new FormAttachment( left, Const.MARGIN );
+    fdlMain.left = new FormAttachment( left, props.getMargin() );
     fdlMain.right = new FormAttachment( middle, 0 );
-    fdlMain.top = new FormAttachment( wKey, Const.MARGIN );
+    fdlMain.top = new FormAttachment( wKey, props.getMargin() );
     wlMain.setLayoutData( fdlMain );
 
     wMain = new Text( composite, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
     props.setLook( wMain );
     FormData fdMain = new FormData();
-    fdMain.left = new FormAttachment( middle, Const.MARGIN );
+    fdMain.left = new FormAttachment( middle, props.getMargin() );
     fdMain.right = new FormAttachment( 100, 0 );
-    fdMain.top = new FormAttachment( wKey, Const.MARGIN );
-    fdMain.bottom = new FormAttachment( wKey, 150 + Const.MARGIN );
+    fdMain.top = new FormAttachment( wKey, props.getMargin() );
+    fdMain.bottom = new FormAttachment( wKey, 150 + props.getMargin() );
     wMain.setLayoutData( fdMain );
     wMain.setEditable( false );
 
     wSearch = new Button( composite, SWT.PUSH );
     wSearch.setText( BaseMessages.getString( PKG, "i18nDialog.Search" ) );
     FormData fdSearch = new FormData();
-    fdSearch.right = new FormAttachment( middle, -Const.MARGIN * 2 );
+    fdSearch.right = new FormAttachment( middle, -props.getMargin() * 2 );
     fdSearch.top = new FormAttachment( wMain, 0, SWT.CENTER );
     wSearch.setLayoutData( fdSearch );
 
     wNext = new Button( composite, SWT.PUSH );
     wNext.setText( BaseMessages.getString( PKG, "i18nDialog.Next" ) );
     FormData fdNext = new FormData();
-    fdNext.right = new FormAttachment( middle, -Const.MARGIN * 2 );
-    fdNext.top = new FormAttachment( wSearch, Const.MARGIN * 2 );
+    fdNext.right = new FormAttachment( middle, -props.getMargin() * 2 );
+    fdNext.top = new FormAttachment( wSearch, props.getMargin() * 2 );
     wNext.setLayoutData( fdNext );
 
     // A few lines of source code at the bottom...
@@ -653,18 +653,18 @@ public class Translator2 {
     wlSource.setText( BaseMessages.getString( PKG, "i18nDialog.LineOfSourceCode" ) );
     props.setLook( wlSource );
     FormData fdlSource = new FormData();
-    fdlSource.left = new FormAttachment( left, Const.MARGIN );
+    fdlSource.left = new FormAttachment( left, props.getMargin() );
     fdlSource.right = new FormAttachment( middle, 0 );
-    fdlSource.top = new FormAttachment( wClose, -100 - Const.MARGIN );
+    fdlSource.top = new FormAttachment( wClose, -100 - props.getMargin() );
     wlSource.setLayoutData( fdlSource );
 
     wSource = new Text( composite, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL );
     props.setLook( wSource );
     FormData fdSource = new FormData();
-    fdSource.left = new FormAttachment( middle, Const.MARGIN );
+    fdSource.left = new FormAttachment( middle, props.getMargin() );
     fdSource.right = new FormAttachment( 100, 0 );
-    fdSource.top = new FormAttachment( wClose, -100 - Const.MARGIN );
-    fdSource.bottom = new FormAttachment( wClose, -Const.MARGIN );
+    fdSource.top = new FormAttachment( wClose, -100 - props.getMargin() );
+    fdSource.bottom = new FormAttachment( wClose, -props.getMargin() );
     wSource.setLayoutData( fdSource );
     wSource.setEditable( false );
 
@@ -674,25 +674,25 @@ public class Translator2 {
     wlValue.setText( BaseMessages.getString( PKG, "i18nDialog.Translation" ) );
     props.setLook( wlValue );
     FormData fdlValue = new FormData();
-    fdlValue.left = new FormAttachment( left, Const.MARGIN );
+    fdlValue.left = new FormAttachment( left, props.getMargin() );
     fdlValue.right = new FormAttachment( middle, 0 );
-    fdlValue.top = new FormAttachment( wMain, Const.MARGIN );
+    fdlValue.top = new FormAttachment( wMain, props.getMargin() );
     wlValue.setLayoutData( fdlValue );
 
     wValue = new Text( composite, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
     props.setLook( wValue );
     FormData fdValue = new FormData();
-    fdValue.left = new FormAttachment( middle, Const.MARGIN );
+    fdValue.left = new FormAttachment( middle, props.getMargin() );
     fdValue.right = new FormAttachment( 100, 0 );
-    fdValue.top = new FormAttachment( wMain, Const.MARGIN );
-    fdValue.bottom = new FormAttachment( wSource, -Const.MARGIN );
+    fdValue.top = new FormAttachment( wMain, props.getMargin() );
+    fdValue.bottom = new FormAttachment( wSource, -props.getMargin() );
     wValue.setLayoutData( fdValue );
     wValue.setEditable( true );
 
     wApply = new Button( composite, SWT.PUSH );
     wApply.setText( BaseMessages.getString( PKG, "i18nDialog.Apply" ) );
     FormData fdApply = new FormData();
-    fdApply.right = new FormAttachment( middle, -Const.MARGIN * 2 );
+    fdApply.right = new FormAttachment( middle, -props.getMargin() * 2 );
     fdApply.top = new FormAttachment( wValue, 0, SWT.CENTER );
     wApply.setLayoutData( fdApply );
     wApply.setEnabled( false );
@@ -700,23 +700,23 @@ public class Translator2 {
     wRevert = new Button( composite, SWT.PUSH );
     wRevert.setText( BaseMessages.getString( PKG, "i18nDialog.Revert" ) );
     FormData fdRevert = new FormData();
-    fdRevert.right = new FormAttachment( middle, -Const.MARGIN * 2 );
-    fdRevert.top = new FormAttachment( wApply, Const.MARGIN * 2 );
+    fdRevert.right = new FormAttachment( middle, -props.getMargin() * 2 );
+    fdRevert.top = new FormAttachment( wApply, props.getMargin() * 2 );
     wRevert.setLayoutData( fdRevert );
     wRevert.setEnabled( false );
 
     wSearchV = new Button( composite, SWT.PUSH );
     wSearchV.setText( BaseMessages.getString( PKG, "i18nDialog.Search" ) );
     FormData fdSearchV = new FormData();
-    fdSearchV.right = new FormAttachment( middle, -Const.MARGIN * 2 );
-    fdSearchV.top = new FormAttachment( wRevert, Const.MARGIN * 4 );
+    fdSearchV.right = new FormAttachment( middle, -props.getMargin() * 2 );
+    fdSearchV.top = new FormAttachment( wRevert, props.getMargin() * 4 );
     wSearchV.setLayoutData( fdSearchV );
 
     wNextV = new Button( composite, SWT.PUSH );
     wNextV.setText( BaseMessages.getString( PKG, "i18nDialog.Next" ) );
     FormData fdNextV = new FormData();
-    fdNextV.right = new FormAttachment( middle, -Const.MARGIN * 2 );
-    fdNextV.top = new FormAttachment( wSearchV, Const.MARGIN * 2 );
+    fdNextV.right = new FormAttachment( middle, -props.getMargin() * 2 );
+    fdNextV.top = new FormAttachment( wSearchV, props.getMargin() * 2 );
     wNextV.setLayoutData( fdNextV );
 
     wAll.addSelectionListener( new SelectionAdapter() {

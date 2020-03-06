@@ -91,7 +91,7 @@ public class LogSettingsDialog extends Dialog {
     // parameters:
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     /*
      * // Filter line wlFilter = new Label(shell, SWT.RIGHT); wlFilter.setText(BaseMessages.getString(PKG,

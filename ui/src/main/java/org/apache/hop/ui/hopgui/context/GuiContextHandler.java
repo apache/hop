@@ -1,7 +1,6 @@
 package org.apache.hop.ui.hopgui.context;
 
-import org.apache.hop.core.gui.plugin.IGuiAction;
-import org.eclipse.swt.widgets.Shell;
+import org.apache.hop.core.gui.plugin.GuiAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +10,7 @@ import java.util.List;
  * For example, the main HopGui dialog registers a bunch of context handlers for MetaStore objects, asks the various perspectives, ...
  */
 public class GuiContextHandler implements IGuiContextHandler {
-  private List<IGuiAction> supportedActions;
+  private List<GuiAction> supportedActions;
 
   public GuiContextHandler() {
     supportedActions = new ArrayList<>();
@@ -22,14 +21,14 @@ public class GuiContextHandler implements IGuiContextHandler {
    *
    * @return value of supportedActions
    */
-  @Override public List<IGuiAction> getSupportedActions() {
+  @Override public List<GuiAction> getSupportedActions() {
     return supportedActions;
   }
 
   /**
    * @param supportedActions The supportedActions to set
    */
-  public void setSupportedActions( List<IGuiAction> supportedActions ) {
+  public void setSupportedActions( List<GuiAction> supportedActions ) {
     this.supportedActions = supportedActions;
   }
 }

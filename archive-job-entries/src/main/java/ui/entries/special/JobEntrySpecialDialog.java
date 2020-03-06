@@ -131,7 +131,7 @@ public class JobEntrySpecialDialog extends JobEntryDialog implements JobEntryDia
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "JobSpecial.Dummy.Label" ) );
 
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     int middle = props.getMiddlePct();
     wlName = new Label( shell, SWT.RIGHT );
@@ -317,7 +317,7 @@ public class JobEntrySpecialDialog extends JobEntryDialog implements JobEntryDia
 
   private void placeControl( Shell pShell, String text, Control control, Control under ) {
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
     Label label = new Label( pShell, SWT.RIGHT );
     label.setText( text );
     props.setLook( label );

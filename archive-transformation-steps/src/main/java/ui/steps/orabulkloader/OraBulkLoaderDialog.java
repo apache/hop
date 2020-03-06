@@ -298,7 +298,7 @@ public class OraBulkLoaderDialog extends BaseStepDialog implements StepDialogInt
     setShellImage( shell, input );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( comp, SWT.RIGHT );

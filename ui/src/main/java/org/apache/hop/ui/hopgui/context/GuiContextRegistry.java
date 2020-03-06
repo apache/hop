@@ -1,6 +1,6 @@
 package org.apache.hop.ui.hopgui.context;
 
-import org.apache.hop.core.gui.plugin.IGuiAction;
+import org.apache.hop.core.gui.plugin.GuiAction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,8 +43,8 @@ public class GuiContextRegistry {
       return null;
     }
     for (GuiContextHandler handler : handlers) {
-      List<IGuiAction> actions = handler.getSupportedActions();
-      for (IGuiAction action : actions) {
+      List<GuiAction> actions = handler.getSupportedActions();
+      for (GuiAction action : actions) {
         if (action.getId().equals( actionId )) {
           return handler;
         }

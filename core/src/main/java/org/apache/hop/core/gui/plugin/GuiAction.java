@@ -1,9 +1,10 @@
 package org.apache.hop.core.gui.plugin;
 
-import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
-public class GuiAction implements IGuiAction {
+public class GuiAction {
   private String id;
   private GuiActionType type;
   private String name;
@@ -11,9 +12,16 @@ public class GuiAction implements IGuiAction {
   private String image;
   private IGuiActionLambda actionLambda;
   private String methodName;
+  private ClassLoader classLoader;
+  private List<String> keywords;
+
+  public GuiAction() {
+    this.keywords = new ArrayList<>();
+  }
 
   /**
    * It's a direct action using a simple lambda
+   *
    * @param id
    * @param type
    * @param name
@@ -22,6 +30,7 @@ public class GuiAction implements IGuiAction {
    * @param actionLambda
    */
   public GuiAction( String id, GuiActionType type, String name, String tooltip, String image, IGuiActionLambda actionLambda ) {
+    this();
     this.id = id;
     this.type = type;
     this.name = name;
@@ -43,12 +52,58 @@ public class GuiAction implements IGuiAction {
    * @param methodName
    */
   public GuiAction( String id, GuiActionType type, String name, String tooltip, String image, String methodName ) {
+    this();
     this.id = id;
     this.type = type;
     this.name = name;
     this.tooltip = tooltip;
     this.image = image;
     this.methodName = methodName;
+  }
+
+  public GuiAction( GuiAction guiAction ) {
+    this();
+    this.id = guiAction.id;
+    this.type = guiAction.type;
+    this.name = guiAction.name;
+    this.tooltip = guiAction.tooltip;
+    this.image = guiAction.image;
+    this.methodName = guiAction.methodName;
+    this.actionLambda = guiAction.actionLambda;
+    for ( String keyword : guiAction.getKeywords() ) {
+      keywords.add( keyword );
+    }
+  }
+
+  public boolean containsFilterStrings( String[] filters ) {
+    for ( String filter : filters ) {
+      if ( !containsFilterString( filter ) ) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public boolean containsFilterString( String filter ) {
+    if ( filter == null ) {
+      return false;
+    }
+    String upperFilter = filter.toUpperCase();
+    if ( name != null && name.toUpperCase().contains( upperFilter ) ) {
+      return true;
+    }
+    if ( tooltip != null && tooltip.toUpperCase().contains( upperFilter ) ) {
+      return true;
+    }
+    if (type!=null && type.name().toUpperCase().contains( upperFilter )) {
+      return true;
+    }
+    for ( String keyword : keywords ) {
+      if ( keyword.toUpperCase().contains( upperFilter ) ) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override public String toString() {
@@ -80,7 +135,7 @@ public class GuiAction implements IGuiAction {
    *
    * @return value of id
    */
-  @Override public String getId() {
+  public String getId() {
     return id;
   }
 
@@ -96,7 +151,7 @@ public class GuiAction implements IGuiAction {
    *
    * @return value of type
    */
-  @Override public GuiActionType getType() {
+  public GuiActionType getType() {
     return type;
   }
 
@@ -112,7 +167,7 @@ public class GuiAction implements IGuiAction {
    *
    * @return value of name
    */
-  @Override public String getName() {
+  public String getName() {
     return name;
   }
 
@@ -128,7 +183,7 @@ public class GuiAction implements IGuiAction {
    *
    * @return value of tooltip
    */
-  @Override public String getTooltip() {
+  public String getTooltip() {
     return tooltip;
   }
 
@@ -144,7 +199,7 @@ public class GuiAction implements IGuiAction {
    *
    * @return value of image
    */
-  @Override public String getImage() {
+  public String getImage() {
     return image;
   }
 
@@ -187,4 +242,35 @@ public class GuiAction implements IGuiAction {
     this.methodName = methodName;
   }
 
+  /**
+   * Gets classLoader
+   *
+   * @return value of classLoader
+   */
+  public ClassLoader getClassLoader() {
+    return classLoader;
+  }
+
+  /**
+   * @param classLoader The classLoader to set
+   */
+  public void setClassLoader( ClassLoader classLoader ) {
+    this.classLoader = classLoader;
+  }
+
+  /**
+   * Gets keywords
+   *
+   * @return value of keywords
+   */
+  public List<String> getKeywords() {
+    return keywords;
+  }
+
+  /**
+   * @param keywords The keywords to set
+   */
+  public void setKeywords( List<String> keywords ) {
+    this.keywords = keywords;
+  }
 }

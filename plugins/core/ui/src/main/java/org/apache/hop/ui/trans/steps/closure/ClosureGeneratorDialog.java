@@ -107,7 +107,7 @@ public class ClosureGeneratorDialog extends BaseStepDialog implements StepDialog
     shell.setText( BaseMessages.getString( PKG, "ClosureGeneratorDialog.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     //
