@@ -23,6 +23,7 @@
 package org.apache.hop.job.entries.checkfilelocked;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
@@ -65,7 +66,12 @@ import org.eclipse.swt.widgets.Text;
  * @author Samatar Hassan
  * @since 06-05-2007
  */
-
+@PluginDialog( 
+		  id = "CHECK_FILES_LOCKED", 
+		  image = "CheckFilesLocked.svg", 
+		  pluginType = PluginDialog.PluginType.JOBENTRY,
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+)
 public class JobEntryCheckFilesLockedDialog extends JobEntryDialog implements JobEntryDialogInterface {
   private static Class<?> PKG = JobEntryCheckFilesLocked.class; // for i18n purposes, needed by Translator2!!
 

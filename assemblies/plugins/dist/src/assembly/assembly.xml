@@ -29,5 +29,11 @@
         <include>**/*.zip</include>
       </includes>
     </fileSet>
+    <fileSet>
+      <directory>jobentries</directory>
+      <includes>
+        <include>**/*.zip</include>
+      </includes>
+    </fileSet>    
   </fileSets>
 </assembly>

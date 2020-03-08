@@ -24,6 +24,7 @@ package org.apache.hop.job.entries.columnsexist;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.RowMetaInterface;
@@ -71,7 +72,12 @@ import org.eclipse.swt.widgets.Text;
  * @author Samatar
  * @since 15-06-2008
  */
-
+@PluginDialog( 
+		  id = "COLUMNS_EXIST", 
+		  image = "ColumnsExist.svg", 
+		  pluginType = PluginDialog.PluginType.JOBENTRY,
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+)
 public class JobEntryColumnsExistDialog extends JobEntryDialog implements JobEntryDialogInterface {
   private static Class<?> PKG = JobEntryColumnsExist.class; // for i18n purposes, needed by Translator2!!
 

@@ -13,6 +13,6 @@
     <artifactId>hop-jobentry-columnsexist</artifactId>
     <packaging>jar</packaging>
 
-    <name>Hop Plugins Job entries Columns Exist</name>
+    <name>Hop Plugins Job entries Columns exist in a table</name>
 
 </project>

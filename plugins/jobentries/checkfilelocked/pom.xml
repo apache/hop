@@ -13,6 +13,6 @@
     <artifactId>hop-jobentry-checkfilelocked</artifactId>
     <packaging>jar</packaging>
 
-    <name>Hop Plugins Job entries Check file Locked</name>
+    <name>Hop Plugins Job entries Check file locked</name>
 
 </project>
