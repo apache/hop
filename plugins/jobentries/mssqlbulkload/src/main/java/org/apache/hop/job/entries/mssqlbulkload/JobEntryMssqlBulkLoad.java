@@ -28,9 +28,9 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.annotations.JobEntry;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.MSSQLServerDatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
@@ -64,6 +64,14 @@ import java.util.List;
  * @author Samatar Hassan
  * @since Jan-2007
  */
+@JobEntry(
+	  id = "MSSQL_BULK_LOAD",
+	  i18nPackageName = "org.apache.hop.job.entries.mssqlbulkload",
+	  name = "JobEntryMssqlBulkLoad.Name",
+	  description = "JobEntryMssqlBulkLoad.Description",
+	  image = "MssqlBulkLoad.svg",
+	  categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.BulkLoading"
+)
 public class JobEntryMssqlBulkLoad extends JobEntryBase implements Cloneable, JobEntryInterface {
   private static Class<?> PKG = JobEntryMssqlBulkLoad.class; // for i18n purposes, needed by Translator2!!
 
@@ -319,7 +327,10 @@ public class JobEntryMssqlBulkLoad extends JobEntryBase implements Cloneable, Jo
             // User has specified a connection, We can continue ...
             Database db = new Database( this, connection );
 
-            if ( !( db.getDatabaseMeta().getDatabaseInterface() instanceof MSSQLServerDatabaseMeta ) ) {
+            if ( !"MSSQL".equals(db.getDatabaseMeta().getPluginId()) ) {
+
+           // if ( !( db.getDatabaseMeta().getDatabaseInterface() instanceof MSSQLServerDatabaseMeta ) ) {
+            	
               logError( BaseMessages.getString( PKG, "JobMssqlBulkLoad.Error.DbNotMSSQL", connection
                 .getDatabaseName() ) );
               return result;

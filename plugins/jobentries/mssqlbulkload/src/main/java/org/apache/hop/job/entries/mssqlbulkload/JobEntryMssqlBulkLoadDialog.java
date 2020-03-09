@@ -25,6 +25,7 @@ package org.apache.hop.job.entries.mssqlbulkload;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -75,6 +76,12 @@ import org.eclipse.swt.widgets.Text;
  * @author Samatar Hassan
  * @since Jan-2007
  */
+@PluginDialog( 
+	  id = "MSSQL_BULK_LOAD", 
+	  image = "MssqlBulkLoad.svg", 
+	  pluginType = PluginDialog.PluginType.JOBENTRY,
+	  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+)
 public class JobEntryMssqlBulkLoadDialog extends JobEntryDialog implements JobEntryDialogInterface {
   private static Class<?> PKG = JobEntryMssqlBulkLoad.class; // for i18n purposes, needed by Translator2!!
 

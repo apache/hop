@@ -430,6 +430,19 @@
              </exclusion>
          </exclusions>
      </dependency>   
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-mssqlbulkload</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
           
      <dependency>
          <groupId>org.hop</groupId>

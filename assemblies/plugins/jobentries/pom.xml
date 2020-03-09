@@ -45,6 +45,7 @@
         <module>mail</module>
         <module>movefiles</module>
         <module>msgboxinfo</module>
+        <module>mssqlbulkload</module>
         <module>mysqlbulkfile</module>
         <module>mysqlbulkload</module>
         <module>pgpfiles</module>
