@@ -41,6 +41,7 @@ import java.util.Set;
 
 public class ContextDialog implements PaintListener, ModifyListener, FocusListener, KeyListener, MouseListener {
   private Shell parent;
+  private String message;
   private Shell shell;
   private List<GuiAction> actions;
 
@@ -58,8 +59,9 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
   private int maxNameWidth;
   private int maxNameHeight;
 
-  public ContextDialog( Shell parent, List<GuiAction> actions ) {
+  public ContextDialog( Shell parent, String message, List<GuiAction> actions ) {
     this.parent = parent;
+    this.message = message;
     this.actions = actions;
 
     props = PropsUI.getInstance();
@@ -80,7 +82,7 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
   public GuiAction open() {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE );
-    shell.setText( "Select action" );
+    shell.setText( message );
     shell.setImage( GUIResource.getInstance().getImageHop() );
     props.setLook( shell );
 
@@ -342,6 +344,9 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
       }
       if ( e.keyCode == SWT.ARROW_RIGHT ) {
         action = findAction( rectangle.x+5 + rectangle.width + props.getMargin(), rectangle.y+5 );
+      }
+      if (e.keyCode==SWT.ESC) {
+        cancel();
       }
       if (action!=null) {
         selectedAction = action;

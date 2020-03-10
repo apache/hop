@@ -1191,18 +1191,23 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     //
     if ( singleClick && singleClickType != null ) {
       IGuiContextHandler contextHandler = null;
+      String message = null;
       switch ( singleClickType ) {
         case Trans:
-          contextHandler = new HopGuiTransContext( transMeta, this, real ); break;
+          message = "Select the action to execute or the step to create:";
+          contextHandler = new HopGuiTransContext( transMeta, this, real );
+          break;
         case Step:
+          message = "Select the action to take on step '"+singleClickStep.getName()+"':";
           contextHandler = new HopGuiTransStepContext( transMeta, singleClickStep, this, real ); break;
         case Note:
+          message = "Select the note action to take:";
           contextHandler = new HopGuiTransNoteContext( transMeta, singleClickNote, this, real ); break;
         default:
           break;
       }
       if ( contextHandler != null ) {
-        GuiContextUtil.handleActionSelection( shell, contextHandler.getSupportedActions() );
+        GuiContextUtil.handleActionSelection( shell, message, contextHandler.getSupportedActions() );
       }
     }
 
@@ -2221,7 +2226,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     type = GuiActionType.Delete,
     name = "Delete this step",
     tooltip = "Delete the selected step from the transformation",
-    image = "ui/images/Delete.svg"
+    image = "ui/images/generic-delete.svg"
   )
   public void delStep(HopGuiTransStepContext context) {
     delSelected( context.getStepMeta() );
@@ -2422,7 +2427,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     type = GuiActionType.Delete,
     name = "Delete the note",
     tooltip = "Delete the note",
-    image = "ui/images/Delete.svg"
+    image = "ui/images/generic-delete.svg"
   )
   public void deleteNote( HopGuiTransNoteContext context ) {
     selectionRegion = null;

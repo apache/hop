@@ -32,6 +32,6 @@ public class HopGuiNewDelegate {
 
    */
   public void fileNew() {
-    GuiContextUtil.handleActionSelection( hopUi.getShell(), hopUi, GuiActionType.Create );
+    GuiContextUtil.handleActionSelection( hopUi.getShell(), "Select the action...", hopUi, GuiActionType.Create );
   }
 }
