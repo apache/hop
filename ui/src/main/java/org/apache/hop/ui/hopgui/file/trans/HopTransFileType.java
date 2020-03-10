@@ -73,6 +73,10 @@ public class HopTransFileType<T extends TransMeta> extends HopFileTypeBase<T> im
       //
       TransMeta transMeta = new TransMeta( filename, parentVariableSpace );
 
+      // Pass the MetaStore for reference lookups
+      //
+      transMeta.setMetaStore( hopGui.getMetaStore() );
+
       // Show it in the perspective
       //
       return perspective.addTransformation( perspective.getTabFolder(), hopGui, transMeta, this );
@@ -91,6 +95,11 @@ public class HopTransFileType<T extends TransMeta> extends HopFileTypeBase<T> im
       // Create the empty transformation
       //
       TransMeta transMeta = new TransMeta( parentVariableSpace );
+      transMeta.setName( "New transformation" );
+
+      // Pass the MetaStore for reference lookups
+      //
+      transMeta.setMetaStore( hopGui.getMetaStore() );
 
       // Show it in the perspective
       //
