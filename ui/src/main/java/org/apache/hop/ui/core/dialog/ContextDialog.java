@@ -3,6 +3,7 @@ package org.apache.hop.ui.core.dialog;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SwtUniversalImage;
+import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.GuiAction;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -21,9 +22,10 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -39,9 +41,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ContextDialog implements PaintListener, ModifyListener, FocusListener, KeyListener, MouseListener {
+public class ContextDialog implements PaintListener, ModifyListener, FocusListener, KeyListener, MouseListener, ShellListener {
   private Shell parent;
   private String message;
+  private Point location;
   private Shell shell;
   private List<GuiAction> actions;
 
@@ -59,9 +62,10 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
   private int maxNameWidth;
   private int maxNameHeight;
 
-  public ContextDialog( Shell parent, String message, List<GuiAction> actions ) {
+  public ContextDialog( Shell parent, String message, Point location, List<GuiAction> actions ) {
     this.parent = parent;
     this.message = message;
+    this.location = location;
     this.actions = actions;
 
     props = PropsUI.getInstance();
@@ -93,6 +97,7 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     shell.setLayout( formLayout );
 
     shell.addFocusListener( this );
+    shell.addShellListener( this );
 
     // Load all the images...
     // Filter all actions by default
@@ -113,7 +118,7 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
       filteredActions.add( action.getId() );
 
       if ( action.getName() != null ) {
-        Point extent = gc.textExtent( action.getName() );
+        org.eclipse.swt.graphics.Point extent = gc.textExtent( action.getName() );
         if ( extent.x > maxNameWidth ) {
           maxNameWidth = extent.x;
         }
@@ -179,16 +184,26 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     wSearch.setFocus();
 
     // TODO: Calcualte a more dynamic size based on number of actions, screen size and so on
-    // TODO: Position the dialog where there was a click to be more intuitive
-    //
+
     Rectangle parentBounds = HopGui.getInstance().getShell().getBounds();
     int width = (int) Math.round( 1000 * props.getZoomFactor() );
     int height = (int) Math.round( 750 * props.getZoomFactor() );
     shell.setSize( width, height );
-    shell.setLocation( Math.max( ( parentBounds.width - width ) / 2, 0 ), Math.max( ( parentBounds.height - height ) / 2, 0 ) );
+
+    // Position the dialog where there was a click to be more intuitive
+    //
+    if (location!=null) {
+      shell.setLocation( location.x, location.y );
+    } else {
+      shell.setLocation( Math.max( ( parentBounds.width - width ) / 2, 0 ), Math.max( ( parentBounds.height - height ) / 2, 0 ) );
+    }
+
+    // Show the dialog now
+    //
     shell.open();
 
-
+    // Wait until the dialog is closed
+    //
     while ( !shell.isDisposed() ) {
       if ( !shell.getDisplay().readAndDispatch() ) {
         shell.getDisplay().sleep();
@@ -245,7 +260,7 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
         Rectangle selectionBox = new Rectangle( x, y, maxNameWidth, iconSize + margin + maxNameHeight );
         selectionMap.put( action.getId(), selectionBox );
 
-        Point extent = gc.textExtent( action.getName() );
+        org.eclipse.swt.graphics.Point extent = gc.textExtent( action.getName() );
         Image image = imageMap.get( action.getId() );
 
         boolean selected = selectedAction != null && action.equals( selectedAction );
@@ -387,16 +402,34 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
   @Override public void mouseDown( MouseEvent e ) {
     // See where the click was...
     //
-    System.out.println("click(x,y) = ("+e.x+","+e.y+")");
     GuiAction action = findAction( e.x, e.y );
     if (action!=null) {
       selectedAction = action;
       dispose();
     }
-
   }
 
   @Override public void mouseUp( MouseEvent e ) {
 
+  }
+
+  @Override public void shellActivated( ShellEvent e ) {
+  }
+
+  /**
+   * We hit this when Escape is hit by the user
+   * @param e
+   */
+  @Override public void shellClosed( ShellEvent e ) {
+    selectedAction=null;
+  }
+
+  @Override public void shellDeactivated( ShellEvent e ) {
+  }
+
+  @Override public void shellDeiconified( ShellEvent e ) {
+  }
+
+  @Override public void shellIconified( ShellEvent e ) {
   }
 }

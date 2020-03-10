@@ -400,6 +400,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
   private HopTransFileType fileType;
 
+  private String id;
+
   public void setCurrentNote( NotePadMeta ni ) {
     this.ni = ni;
   }
@@ -441,6 +443,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     this.perspective = perspective;
     this.transMeta = transMeta;
     this.fileType = fileType;
+    this.id = UUID.randomUUID().toString();
     this.areaOwners = new ArrayList<>();
 
     this.log = hopUi.getLog();
@@ -1207,7 +1210,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           break;
       }
       if ( contextHandler != null ) {
-        GuiContextUtil.handleActionSelection( shell, message, contextHandler.getSupportedActions() );
+        GuiContextUtil.handleActionSelection( shell, message, new Point(e.x, e.y), contextHandler.getSupportedActions() );
       }
     }
 
@@ -4822,11 +4825,12 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       return false;
     }
     HopGuiTransGraph that = (HopGuiTransGraph) o;
-    return transMeta.equals( that.transMeta );
+    return Objects.equals( transMeta, that.transMeta ) &&
+      Objects.equals( id, that.id );
   }
 
   @Override public int hashCode() {
-    return Objects.hash( transMeta );
+    return Objects.hash( transMeta, id );
   }
 
   @GuiToolbarElement(

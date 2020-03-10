@@ -1,5 +1,6 @@
 package org.apache.hop.ui.hopgui.context;
 
+import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.GuiAction;
 import org.apache.hop.core.gui.plugin.GuiActionType;
 import org.apache.hop.ui.core.dialog.ContextDialog;
@@ -47,7 +48,7 @@ public class GuiContextUtil {
     return filtered;
   }
 
-  public static final void handleActionSelection( Shell parent, String message, IActionContextHandlersProvider provider, GuiActionType actionType ) {
+  public static final void handleActionSelection( Shell parent, String message, Point clickLocation, IActionContextHandlersProvider provider, GuiActionType actionType ) {
     // Get the list of create actions in the Hop UI context...
     //
     List<GuiAction> actions = GuiContextUtil.getContextActions( provider, actionType );
@@ -55,10 +56,10 @@ public class GuiContextUtil {
       return;
     }
 
-    handleActionSelection( parent, message, actions );
+    handleActionSelection( parent, message, clickLocation, actions );
   }
 
-  public static void handleActionSelection( Shell parent, String message, List<GuiAction> actions ) {
+  public static void handleActionSelection( Shell parent, String message, Point clickLocation, List<GuiAction> actions ) {
     if ( actions.isEmpty() ) {
       return;
     }
@@ -70,7 +71,7 @@ public class GuiContextUtil {
         fileTypes.add( action.getType().name() + " - " + action.getName() + " : " + action.getTooltip() );
       }
 
-      ContextDialog contextDialog = new ContextDialog( parent, message, actions );
+      ContextDialog contextDialog = new ContextDialog( parent, message, clickLocation, actions );
       GuiAction selectedAction = contextDialog.open();
       if ( selectedAction != null ) {
         selectedAction.getActionLambda().executeAction();

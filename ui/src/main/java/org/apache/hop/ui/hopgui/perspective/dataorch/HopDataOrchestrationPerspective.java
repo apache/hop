@@ -224,9 +224,11 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
       }
       if (!tabSelectionHistory.isEmpty()) {
         Integer activeIndex = tabSelectionHistory.get( tabSelectionIndex );
-        activeItem = items.get( activeIndex );
-        tabFolder.setSelection( activeIndex );
-        activeItem.getTypeHandler().updateGui();
+        if (activeIndex<items.size()) {
+          activeItem = items.get( activeIndex );
+          tabFolder.setSelection( activeIndex );
+          activeItem.getTypeHandler().updateGui();
+        }
       }
     }
   }

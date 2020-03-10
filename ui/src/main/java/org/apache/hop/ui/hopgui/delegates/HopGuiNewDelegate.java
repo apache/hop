@@ -1,5 +1,6 @@
 package org.apache.hop.ui.hopgui.delegates;
 
+import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.GuiActionType;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
@@ -29,9 +30,13 @@ public class HopGuiNewDelegate {
 
   /**
    * Create a new file, ask which type of file or object you want created
-
    */
   public void fileNew() {
-    GuiContextUtil.handleActionSelection( hopUi.getShell(), "Select the action...", hopUi, GuiActionType.Create );
+    // Click : shell location + 50, 50
+    //
+    int x = 50 + hopUi.getShell().getLocation().x;
+    int y = 50 + hopUi.getShell().getLocation().y;
+
+    GuiContextUtil.handleActionSelection( hopUi.getShell(), "Select the action...", new Point(x, y), hopUi, GuiActionType.Create );
   }
 }
