@@ -2,9 +2,15 @@ package org.apache.hop.ui.core.dialog;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.GuiAction;
+import org.apache.hop.core.gui.plugin.GuiActionType;
+import org.apache.hop.core.plugins.PluginInterface;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.StepPluginType;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -31,10 +37,13 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -167,9 +176,10 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
 
     // The rest of the dialog is used to draw the actions...
     //
-    wCanvas = new Canvas( shell, SWT.NO_BACKGROUND | SWT.V_SCROLL | SWT.H_SCROLL );
+    wCanvas = new Canvas( shell, SWT.NO_BACKGROUND | SWT.V_SCROLL );
     FormData fdCanvas = new FormData();
     fdCanvas.left = new FormAttachment( 0, 0 );
+
     fdCanvas.right = new FormAttachment( 100, 0 );
     fdCanvas.top = new FormAttachment( wSearch, props.getMargin() );
     fdCanvas.bottom = new FormAttachment( wlTooltip, -props.getMargin() );
@@ -184,17 +194,17 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     wSearch.setFocus();
 
     // TODO: Calcualte a more dynamic size based on number of actions, screen size and so on
-
-    Rectangle parentBounds = HopGui.getInstance().getShell().getBounds();
+    //
     int width = (int) Math.round( 1000 * props.getZoomFactor() );
     int height = (int) Math.round( 750 * props.getZoomFactor() );
     shell.setSize( width, height );
 
     // Position the dialog where there was a click to be more intuitive
     //
-    if (location!=null) {
+    if ( location != null ) {
       shell.setLocation( location.x, location.y );
     } else {
+      Rectangle parentBounds = HopGui.getInstance().getShell().getBounds();
       shell.setLocation( Math.max( ( parentBounds.width - width ) / 2, 0 ), Math.max( ( parentBounds.height - height ) / 2, 0 ) );
     }
 
@@ -233,13 +243,6 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
    * @param e
    */
   @Override public void paintControl( PaintEvent e ) {
-    // Draw all actions
-    //
-    int margin = props.getMargin();
-
-    int x = 0;
-    int y = 0;
-
     GC gc = e.gc;
 
     // Fill everything with white...
@@ -253,36 +256,70 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     gc.setForeground( GUIResource.getInstance().getColorBlack() );
     gc.setLineWidth( 4 );
 
+    // Draw all actions
+    //
+    int margin = props.getMargin();
+
+    int x = 0;
+    int y = 0;
+
+    ScrollBar verticalBar = wCanvas.getVerticalBar();
+    int pctDown = verticalBar.getSelection(); // in percentage
+
+    // How many rows and columns do we have?
+    //
+    int cellWidth = maxNameWidth + margin;
+    int cellHeight = iconSize + margin + maxNameHeight + margin;
+
+    // The canvas width, height and the number of selected actions gives us a clue:
+    //
+    int nrColumns = e.width / cellWidth;
+    if (nrColumns==0) {
+      return;
+    }
+    int nrRows = filteredActions.size() / nrColumns;
+
+    // So at which row do we start rendering?
+    //
+    int startRow = pctDown * nrRows / 100;
+    int startAction = startRow * nrColumns;
+
     selectionMap = new HashMap<>();
 
+    List<GuiAction> filtered = new ArrayList<>();
     for ( GuiAction action : actions ) {
       if ( filteredActions.contains( action.getId() ) ) {
-        Rectangle selectionBox = new Rectangle( x, y, maxNameWidth, iconSize + margin + maxNameHeight );
-        selectionMap.put( action.getId(), selectionBox );
+        filtered.add( action );
+      }
+    }
 
-        org.eclipse.swt.graphics.Point extent = gc.textExtent( action.getName() );
-        Image image = imageMap.get( action.getId() );
+    for ( int i = startAction; i < filtered.size(); i++ ) {
+      GuiAction action = filtered.get( i );
+      Rectangle selectionBox = new Rectangle( x, y, maxNameWidth, iconSize + margin + maxNameHeight );
+      selectionMap.put( action.getId(), selectionBox );
 
-        boolean selected = selectedAction != null && action.equals( selectedAction );
-        if ( selected ) {
-          gc.setBackground( GUIResource.getInstance().getColorLightBlue() );
-          gc.fillRectangle( selectionBox );
-        } else {
-          gc.setBackground( GUIResource.getInstance().getColorBackground() );
-        }
+      org.eclipse.swt.graphics.Point extent = gc.textExtent( action.getName() );
+      Image image = imageMap.get( action.getId() );
 
-        gc.drawImage( image, x + ( maxNameWidth - iconSize ) / 2, y );
-        gc.drawText( action.getName(), x + ( maxNameWidth - extent.x ) / 2, y + iconSize + margin );
+      boolean selected = selectedAction != null && action.equals( selectedAction );
+      if ( selected ) {
+        gc.setBackground( GUIResource.getInstance().getColorLightBlue() );
+        gc.fillRectangle( selectionBox );
+      } else {
+        gc.setBackground( GUIResource.getInstance().getColorBackground() );
+      }
 
-        x += maxNameWidth + margin;
+      gc.drawImage( image, x + ( maxNameWidth - iconSize ) / 2, y );
+      gc.drawText( action.getName(), x + ( maxNameWidth - extent.x ) / 2, y + iconSize + margin );
 
-        if ( x + maxNameWidth > e.width ) {
-          x = 0;
-          y += iconSize + margin + maxNameHeight + margin;
-        }
-        if ( y > e.height ) {
-          break;
-        }
+      x += cellWidth;
+
+      if ( x + maxNameWidth > e.width ) {
+        x = 0;
+        y += cellHeight;
+      }
+      if ( y > e.height ) {
+        break;
       }
     }
   }
@@ -308,8 +345,8 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
 
     String filterString = wSearch.getText();
     String[] filters = filterString.split( "," );
-    for (int i=0;i<filters.length;i++) {
-      filters[i] = Const.trim( filters[i] );
+    for ( int i = 0; i < filters.length; i++ ) {
+      filters[ i ] = Const.trim( filters[ i ] );
     }
 
     for ( GuiAction action : actions ) {
@@ -340,11 +377,11 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
   }
 
   @Override public void keyPressed( KeyEvent e ) {
-    if (filteredActions.isEmpty()) {
+    if ( filteredActions.isEmpty() ) {
       return;
     }
-    if (selectedAction==null) {
-      selectedAction = findAction(5,5);
+    if ( selectedAction == null ) {
+      selectedAction = findAction( 5, 5 );
     } else {
       Rectangle rectangle = selectionMap.get( selectedAction.getId() );
       GuiAction action = null;
@@ -352,18 +389,18 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
         action = findAction( rectangle.x + 5, rectangle.y + 5 + rectangle.height + props.getMargin() );
       }
       if ( e.keyCode == SWT.ARROW_UP ) {
-        action = findAction( rectangle.x+5, rectangle.y+5 - rectangle.height - props.getMargin() );
+        action = findAction( rectangle.x + 5, rectangle.y + 5 - rectangle.height - props.getMargin() );
       }
       if ( e.keyCode == SWT.ARROW_LEFT ) {
-        action = findAction( rectangle.x+5 - rectangle.width - props.getMargin(), rectangle.y+5 );
+        action = findAction( rectangle.x + 5 - rectangle.width - props.getMargin(), rectangle.y + 5 );
       }
       if ( e.keyCode == SWT.ARROW_RIGHT ) {
-        action = findAction( rectangle.x+5 + rectangle.width + props.getMargin(), rectangle.y+5 );
+        action = findAction( rectangle.x + 5 + rectangle.width + props.getMargin(), rectangle.y + 5 );
       }
-      if (e.keyCode==SWT.ESC) {
+      if ( e.keyCode == SWT.ESC ) {
         cancel();
       }
-      if (action!=null) {
+      if ( action != null ) {
         selectedAction = action;
       }
     }
@@ -373,18 +410,18 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
   }
 
   private GuiAction findAction( int x, int y ) {
-    for (String id : selectionMap.keySet()) {
+    for ( String id : selectionMap.keySet() ) {
       Rectangle rect = selectionMap.get( id );
-      if (rect.contains( x,y )) {
-        return findAction(id);
+      if ( rect.contains( x, y ) ) {
+        return findAction( id );
       }
     }
     return null;
   }
 
   private GuiAction findAction( String id ) {
-    for (GuiAction action : actions) {
-      if (action.getId().equals( id )) {
+    for ( GuiAction action : actions ) {
+      if ( action.getId().equals( id ) ) {
         return action;
       }
     }
@@ -403,7 +440,7 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     // See where the click was...
     //
     GuiAction action = findAction( e.x, e.y );
-    if (action!=null) {
+    if ( action != null ) {
       selectedAction = action;
       dispose();
     }
@@ -418,10 +455,11 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
 
   /**
    * We hit this when Escape is hit by the user
+   *
    * @param e
    */
   @Override public void shellClosed( ShellEvent e ) {
-    selectedAction=null;
+    selectedAction = null;
   }
 
   @Override public void shellDeactivated( ShellEvent e ) {
@@ -431,5 +469,38 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
   }
 
   @Override public void shellIconified( ShellEvent e ) {
+  }
+
+  public static void main( String[] args ) throws Exception {
+    Display display = new Display();
+    Shell shell = new Shell( display, SWT.MIN | SWT.MAX | SWT.RESIZE );
+    // shell.setSize( 500, 500 );
+    // shell.open();
+
+    HopClientEnvironment.init();
+    PropsUI.init( display );
+    HopEnvironment.init();
+
+    List<GuiAction> actions = new ArrayList<>();
+    List<PluginInterface> stepPlugins = PluginRegistry.getInstance().getPlugins( StepPluginType.class );
+    for ( PluginInterface stepPlugin : stepPlugins ) {
+      GuiAction createStepAction =
+        new GuiAction( "transgraph-create-step-" + stepPlugin.getIds()[ 0 ], GuiActionType.Create, stepPlugin.getName(), stepPlugin.getDescription(), stepPlugin.getImageFile(),
+          t -> System.out.println( "Create step action : " + stepPlugin.getName() )
+        );
+      createStepAction.getKeywords().add( stepPlugin.getCategory() );
+      actions.add( createStepAction );
+    }
+    ContextDialog dialog = new ContextDialog( shell, "Action test", new Point( 50, 50 ), actions );
+    GuiAction action = dialog.open();
+    if ( action == null ) {
+      System.out.println( "There was no selection in dialog" );
+    } else {
+      System.out.println( "Selected action : " + action );
+    }
+
+    // Cleanup
+    //
+    display.dispose();
   }
 }
