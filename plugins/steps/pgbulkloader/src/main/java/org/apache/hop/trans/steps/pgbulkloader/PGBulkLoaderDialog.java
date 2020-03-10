@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.SourceToTargetMapping;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -81,10 +82,16 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Dialog class for the Greenplum bulk loader step. Created on 28mar2008, copied from Sven Boden's Oracle version
+ * Dialog class for the PostgreSQL bulk loader step.
  *
  * @author Luke Lonergan
  */
+@PluginDialog( 
+		  id = "PGBulkLoader", 
+		  image = "PGBulkLoader.svg", 
+		  pluginType = PluginDialog.PluginType.STEP,
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+)
 public class PGBulkLoaderDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = PGBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
 
