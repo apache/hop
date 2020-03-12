@@ -61,13 +61,14 @@ import java.util.List;
  *
  * @author Sven Boden (originally)
  */
+
 @Step(
   id = "PGBulkLoader",
   i18nPackageName = "org.apache.hop.trans.step",
-  description = "BaseStep.TypeTooltipDesc.PGBulkLoader",
-  name = "BaseStep.TypeLongDesc.PGBulkLoader",
+  description = "PGBulkLoader.Description",
+  name = "PGBulkLoader.Name",
   categoryDescription = "BaseStep.Category.Bulk",
-  image = "ui/images/BLKPG.svg",
+  image = "PGBulkLoader.svg",
   documentationUrl = "http://wiki.pentaho.com/display/EAI/PostgreSQL+Bulk+Loader"
 )
 public class PGBulkLoaderMeta extends BaseStepMeta implements StepMetaInjectionInterface, StepMetaInterface,
