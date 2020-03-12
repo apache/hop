@@ -1924,7 +1924,7 @@ public class Const {
       Enumeration<InetAddress> ip = nwi.getInetAddresses();
       while ( ip.hasMoreElements() ) {
         InetAddress in = ip.nextElement();
-        if ( !in.isLoopbackAddress() && in.toString().indexOf( ":" ) < 0 ) {
+        if ( !in.isLoopbackAddress() && in.toString().indexOf( ':' ) < 0 ) {
           return in.getHostAddress();
         }
       }
@@ -1944,7 +1944,7 @@ public class Const {
     Enumeration<InetAddress> ipAddresses = networkInterface.getInetAddresses();
     while ( ipAddresses.hasMoreElements() ) {
       InetAddress inetAddress = ipAddresses.nextElement();
-      if ( !inetAddress.isLoopbackAddress() && inetAddress.toString().indexOf( ":" ) < 0 ) {
+      if ( !inetAddress.isLoopbackAddress() && inetAddress.toString().indexOf( ':' ) < 0 ) {
         String hostname = inetAddress.getHostAddress();
         return hostname;
       }

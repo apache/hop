@@ -78,12 +78,10 @@ public class DBCacheEntry {
 
   @Override
   public boolean equals( Object o ) {
-    if ( ( null != o ) && ( o instanceof DBCacheEntry ) ) {
+    if ( o instanceof DBCacheEntry ) {
       DBCacheEntry obj = (DBCacheEntry) o;
 
-      boolean retval = dbname.equalsIgnoreCase( obj.dbname ) && sql.equalsIgnoreCase( obj.sql );
-
-      return retval;
+      return dbname.equalsIgnoreCase( obj.dbname ) && sql.equalsIgnoreCase( obj.sql );
     }
     return false;
   }
