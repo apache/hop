@@ -50,7 +50,7 @@ public class HopGuiTransContext extends BaseGuiContextHandler implements IGuiCon
     List<GuiAction> pluginActions = getPluginActions( true );
     if (pluginActions!=null) {
       for (GuiAction pluginAction : pluginActions) {
-        actions.add( lambdaBuilder.createLambda( pluginAction, transGraph, this ) );
+        actions.add( lambdaBuilder.createLambda( pluginAction, transGraph, this, transGraph ) );
       }
     }
 
@@ -61,7 +61,9 @@ public class HopGuiTransContext extends BaseGuiContextHandler implements IGuiCon
     for ( PluginInterface stepPlugin : stepPlugins ) {
       GuiAction createStepAction =
         new GuiAction( "transgraph-create-step-" + stepPlugin.getIds()[ 0 ], GuiActionType.Create, stepPlugin.getName(), stepPlugin.getDescription(), stepPlugin.getImageFile(),
-          t -> transGraph.transStepDelegate.newStep( transMeta, stepPlugin.getIds()[ 0 ], stepPlugin.getName(), stepPlugin.getDescription(), false, true, click )
+          t -> {
+            transGraph.transStepDelegate.newStep( transMeta, stepPlugin.getIds()[ 0 ], stepPlugin.getName(), stepPlugin.getDescription(), false, true, click );
+          }
         );
       createStepAction.getKeywords().add(stepPlugin.getCategory());
       actions.add( createStepAction );

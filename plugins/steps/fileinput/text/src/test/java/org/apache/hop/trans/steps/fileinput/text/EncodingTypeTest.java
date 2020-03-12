@@ -22,6 +22,7 @@
 
 package org.apache.hop.trans.steps.fileinput.text;
 
+import org.apache.hop.core.file.EncodingType;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;

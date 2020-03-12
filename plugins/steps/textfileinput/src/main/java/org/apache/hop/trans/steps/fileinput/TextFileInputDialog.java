@@ -30,6 +30,7 @@ import org.apache.hop.core.compress.CompressionInputStream;
 import org.apache.hop.core.compress.CompressionProvider;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.file.EncodingType;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.gui.TextFileInputFieldInterface;

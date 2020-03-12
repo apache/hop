@@ -54,6 +54,7 @@ import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiOSXKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.IGuiRefresher;
 import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.HasLogChannelInterface;
 import org.apache.hop.core.logging.HopLogStore;
@@ -212,7 +213,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   implements Redrawable, MouseListener, MouseMoveListener, MouseTrackListener, MouseWheelListener, KeyListener,
   HasLogChannelInterface, LogParentProvidedInterface,  // TODO: Aren't these the same?
   HopFileTypeHandlerInterface,
-  GuiInterface {
+  GuiInterface, IGuiRefresher {
 
   private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
 
@@ -260,8 +261,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
   private TransMeta transMeta;
   public Trans trans;
-
-  private Shell shell;
 
   private final HopDataOrchestrationPerspective perspective;
 
@@ -436,8 +435,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
   public HopGuiTransGraph( Composite parent, final HopGui hopUi, final CTabItem parentTabItem,
                            final HopDataOrchestrationPerspective perspective, final TransMeta transMeta, final HopTransFileType fileType ) {
-    super( parent, SWT.NONE, parentTabItem );
-    this.shell = parent.getShell();
+    super( hopUi, parent, SWT.NONE, parentTabItem );
     this.hopUi = hopUi;
     this.parentTabItem = parentTabItem;
     this.perspective = perspective;
@@ -733,7 +731,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
               BaseMessages.getString( PKG, "TransGraph.HelpToolTip.CreatingHops.Message" ) );
           }
         } catch ( Exception e ) {
-          new ErrorDialog( shell, BaseMessages.getString( PKG, "TransGraph.Dialog.ErrorDroppingObject.Message" ),
+          new ErrorDialog( hopShell(), BaseMessages.getString( PKG, "TransGraph.Dialog.ErrorDroppingObject.Message" ),
             BaseMessages.getString( PKG, "TransGraph.Dialog.ErrorDroppingObject.Title" ), e );
         }
       }
@@ -1210,8 +1208,9 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           break;
       }
       if ( contextHandler != null ) {
-        org.eclipse.swt.graphics.Point p = shell.getDisplay().map( canvas, null, e.x, e.y );
-        GuiContextUtil.handleActionSelection( shell, message, new Point(p.x, p.y), contextHandler.getSupportedActions() );
+        Shell parent = hopShell();
+        org.eclipse.swt.graphics.Point p = parent.getDisplay().map( canvas, null, e.x, e.y );
+        GuiContextUtil.handleActionSelection( parent, message, new Point(p.x, p.y), contextHandler.getSupportedActions() );
       }
     }
 
@@ -1222,7 +1221,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     int id = 0;
     if ( !hopUi.getProps().getAutoSplit() ) {
       MessageDialogWithToggle md =
-        new MessageDialogWithToggle( shell, BaseMessages.getString( PKG, "TransGraph.Dialog.SplitHop.Title" ), null,
+        new MessageDialogWithToggle( hopShell(), BaseMessages.getString( PKG, "TransGraph.Dialog.SplitHop.Title" ), null,
           BaseMessages.getString( PKG, "TransGraph.Dialog.SplitHop.Message" ) + Const.CR + hi.toString(),
           MessageDialog.QUESTION, new String[] { BaseMessages.getString( PKG, "System.Button.Yes" ),
           BaseMessages.getString( PKG, "System.Button.No" ) }, 0, BaseMessages.getString( PKG,
@@ -1639,7 +1638,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   }
 
   private Image getImageFor( StreamInterface stream ) {
-    Display disp = shell.getDisplay();
+    Display disp = hopDisplay();
     SwtUniversalImage swtImage = SWTGC.getNativeImage( BasePainter.getStreamIconImage( stream.getStreamIcon() ) );
     return swtImage.getAsBitmapForSize( disp, ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE );
   }
@@ -1714,7 +1713,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
 
   protected void asyncRedraw() {
-    hopUi.getDisplay().asyncExec( new Runnable() {
+    hopDisplay().asyncExec( new Runnable() {
       @Override
       public void run() {
         if ( !HopGuiTransGraph.this.isDisposed() ) {
@@ -1770,7 +1769,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
     } catch ( Throwable t ) {
       log.logError( "Error setting up the navigation toolbar for HopUI", t );
-      new ErrorDialog( shell, "Error", "Error setting up the navigation toolbar for HopGUI", new Exception( t ) );
+      new ErrorDialog( hopShell(), "Error", "Error setting up the navigation toolbar for HopGUI", new Exception( t ) );
     }
   }
 
@@ -2154,14 +2153,14 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       choices.add( plugin.getName() + " : " + plugin.getDescription() );
     }
     EnterSelectionDialog dialog =
-      new EnterSelectionDialog( shell, choices.toArray( new String[ choices.size() ] ), "Select distribution method",
+      new EnterSelectionDialog( hopShell(), choices.toArray( new String[ choices.size() ] ), "Select distribution method",
         "Please select the row distribution method:" );
     if ( dialog.open() != null ) {
       PluginInterface plugin = plugins.get( dialog.getSelectionNr() );
       try {
         return (RowDistributionInterface) PluginRegistry.getInstance().loadClass( plugin );
       } catch ( Exception e ) {
-        new ErrorDialog( shell, "Error", "Error loading row distribution plugin class", e );
+        new ErrorDialog( hopShell(), "Error", "Error loading row distribution plugin class", e );
         return null;
       }
     } else {
@@ -2187,7 +2186,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     selectedSteps = null;
     String tt = BaseMessages.getString( PKG, "TransGraph.Dialog.NrOfCopiesOfStep.Title" );
     String mt = BaseMessages.getString( PKG, "TransGraph.Dialog.NrOfCopiesOfStep.Message" );
-    EnterStringDialog nd = new EnterStringDialog( shell, stepMeta.getCopiesString(), tt, mt, true, transMeta );
+    EnterStringDialog nd = new EnterStringDialog( hopShell(), stepMeta.getCopiesString(), tt, mt, true, transMeta );
     String cop = nd.open();
     if ( !Utils.isEmpty( cop ) ) {
 
@@ -2219,7 +2218,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     try {
       transStepDelegate.dupeStep( transMeta, context.getStepMeta() );
     } catch ( Exception ex ) {
-      new ErrorDialog( shell, BaseMessages.getString( PKG, "TransGraph.Dialog.ErrorDuplicatingStep.Title" ),
+      new ErrorDialog( hopShell(), BaseMessages.getString( PKG, "TransGraph.Dialog.ErrorDuplicatingStep.Title" ),
         BaseMessages.getString( PKG, "TransGraph.Dialog.ErrorDuplicatingStep.Message" ), ex );
     }
   }
@@ -2267,7 +2266,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     try {
       tdl.calculateLineage();
     } catch ( Exception e ) {
-      new ErrorDialog( shell, "Lineage error", "Unexpected lineage calculation error", e );
+      new ErrorDialog( hopShell(), "Lineage error", "Unexpected lineage calculation error", e );
     }
   }
 
@@ -2454,7 +2453,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   public void newNote( HopGuiTransContext context ) {
     selectionRegion = null;
     String title = BaseMessages.getString( PKG, "TransGraph.Dialog.NoteEditor.Title" );
-    NotePadDialog dd = new NotePadDialog( transMeta, shell, title );
+    NotePadDialog dd = new NotePadDialog( transMeta, hopShell(), title );
     NotePadMeta n = dd.open();
     if ( n != null ) {
       NotePadMeta npi =
@@ -2678,7 +2677,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
        }
        */
     } catch ( Throwable t ) {
-      new ErrorDialog( shell, "Error", "Error showing context menu", t );
+      new ErrorDialog( hopShell(), "Error", "Error showing context menu", t );
     }
   }
 
@@ -2974,7 +2973,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   public void editDescription( StepMeta stepMeta ) {
     String title = BaseMessages.getString( PKG, "TransGraph.Dialog.StepDescription.Title" );
     String message = BaseMessages.getString( PKG, "TransGraph.Dialog.StepDescription.Message" );
-    EnterTextDialog dd = new EnterTextDialog( shell, title, message, stepMeta.getDescription() );
+    EnterTextDialog dd = new EnterTextDialog( hopShell(), title, message, stepMeta.getDescription() );
     String d = dd.open();
     if ( d != null ) {
       stepMeta.setDescription( d );
@@ -2996,7 +2995,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     SearchFieldsProgressDialog op = new SearchFieldsProgressDialog( transMeta, stepMeta, before );
     boolean alreadyThrownError = false;
     try {
-      final ProgressMonitorDialog pmd = new ProgressMonitorDialog( shell );
+      final ProgressMonitorDialog pmd = new ProgressMonitorDialog( hopShell() );
 
       // Run something in the background to cancel active database queries, forecably if needed!
       Runnable run = new Runnable() {
@@ -3026,11 +3025,11 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
       pmd.run( true, true, op );
     } catch ( InvocationTargetException e ) {
-      new ErrorDialog( shell, BaseMessages.getString( PKG, "TransGraph.Dialog.GettingFields.Title" ), BaseMessages
+      new ErrorDialog( hopShell(), BaseMessages.getString( PKG, "TransGraph.Dialog.GettingFields.Title" ), BaseMessages
         .getString( PKG, "TransGraph.Dialog.GettingFields.Message" ), e );
       alreadyThrownError = true;
     } catch ( InterruptedException e ) {
-      new ErrorDialog( shell, BaseMessages.getString( PKG, "TransGraph.Dialog.GettingFields.Title" ), BaseMessages
+      new ErrorDialog( hopShell(), BaseMessages.getString( PKG, "TransGraph.Dialog.GettingFields.Title" ), BaseMessages
         .getString( PKG, "TransGraph.Dialog.GettingFields.Message" ), e );
       alreadyThrownError = true;
     }
@@ -3038,7 +3037,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     RowMetaInterface fields = op.getFields();
 
     if ( fields != null && fields.size() > 0 ) {
-      StepFieldsDialog sfd = new StepFieldsDialog( shell, transMeta, SWT.NONE, stepMeta.getName(), fields );
+      StepFieldsDialog sfd = new StepFieldsDialog( hopShell(), transMeta, SWT.NONE, stepMeta.getName(), fields );
       String sn = (String) sfd.open();
       if ( sn != null ) {
         StepMeta esi = transMeta.findStep( sn );
@@ -3061,7 +3060,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       return; // nothing to do!
     }
 
-    Display disp = shell.getDisplay();
+    Display disp = hopDisplay();
 
     Image img = getTransformationImage( disp, area.x, area.y, magnification );
     e.gc.drawImage( img, 0, 0 );
@@ -3129,7 +3128,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     NotePadMeta before = (NotePadMeta) ni.clone();
 
     String title = BaseMessages.getString( PKG, "TransGraph.Dialog.EditNote.Title" );
-    NotePadDialog dd = new NotePadDialog( transMeta, shell, title, ni );
+    NotePadDialog dd = new NotePadDialog( transMeta, hopShell(), title, ni );
     NotePadMeta n = dd.open();
 
     if ( n != null ) {
@@ -3337,7 +3336,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       transRunDelegate.executeTransformation( hopUi.getLog(), transMeta, true, false, false, true, false, true,
         transRunDelegate.getTransPreviewExecutionConfiguration().getLogLevel() );
     } catch ( Exception e ) {
-      new ErrorDialog( hopUi.getShell(), "Error", "Error previewing transformation", e );
+      new ErrorDialog( hopShell(), "Error", "Error previewing transformation", e );
     }
   }
 
@@ -3355,7 +3354,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       transRunDelegate.executeTransformation( hopUi.getLog(), transMeta, true, false, false, false, true, true,
         transRunDelegate.getTransDebugExecutionConfiguration().getLogLevel() );
     } catch ( Exception e ) {
-      new ErrorDialog( hopUi.getShell(), "Error", "Error debugging transformation", e );
+      new ErrorDialog( hopShell(), "Error", "Error debugging transformation", e );
     }
   }
 
@@ -3498,12 +3497,12 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   @Override
   public void print() {
     PrintSpool ps = new PrintSpool();
-    Printer printer = ps.getPrinter( shell );
+    Printer printer = ps.getPrinter( hopShell() );
 
     // Create an image of the screen
     Point max = transMeta.getMaximum();
     Image img = getTransformationImage( printer, max.x, max.y, 1.0f );
-    ps.printImage( shell, img );
+    ps.printImage( hopShell(), img );
 
     img.dispose();
     ps.dispose();
@@ -3531,7 +3530,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       //
       if ( transMeta.hasChanged() ) {
 
-        MessageBox messageDialog = new MessageBox( shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL );
+        MessageBox messageDialog = new MessageBox( hopShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL );
         messageDialog.setText( "Save file?" );
         messageDialog.setMessage( "Do you want to save file '" + buildTabName() + "' before closing?" );
         int answer = messageDialog.open();
@@ -3548,7 +3547,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         return true;
       }
     } catch ( Exception e ) {
-      new ErrorDialog( hopUi.getShell(), "Error", "Error preparing file close", e );
+      new ErrorDialog( hopShell(), "Error", "Error preparing file close", e );
     }
     return false;
   }
@@ -3573,8 +3572,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
             try {
               transRunDelegate.executeTransformation( hopUi.getLog(), transMeta, true, false, false, false, debug, false, LogLevel.BASIC );
             } catch ( Exception e ) {
-              new ErrorDialog(
-                shell, "Execute transformation", "There was an error during transformation execution", e );
+              new ErrorDialog( getShell(), "Execute transformation", "There was an error during transformation execution", e );
             }
           }
         } );
@@ -3843,7 +3841,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           log.logBasic( BaseMessages.getString( PKG, "TransLog.Log.TransformationOpened" ) );
         } catch ( HopException e ) {
           trans = null;
-          new ErrorDialog( shell, BaseMessages.getString( PKG, "TransLog.Dialog.ErrorOpeningTransformation.Title" ),
+          new ErrorDialog( hopShell(), BaseMessages.getString( PKG, "TransLog.Dialog.ErrorOpeningTransformation.Title" ),
             BaseMessages.getString( PKG, "TransLog.Dialog.ErrorOpeningTransformation.Message" ), e );
         }
         if ( trans != null ) {
@@ -3857,7 +3855,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           //
           final Thread parentThread = Thread.currentThread();
 
-          shell.getDisplay().asyncExec( new Runnable() {
+          getDisplay().asyncExec( new Runnable() {
             @Override
             public void run() {
               addAllTabs();
@@ -3877,16 +3875,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       if ( transMeta.hasChanged() ) {
         showSaveFileMessage();
       }
-
-/*       else if ( transMeta.getName() == null ) {
-        modalMessageDialog( getString( "TransLog.Dialog.GiveTransformationANameBeforeRunning.Title" ),
-          getString( "TransLog.Dialog.GiveTransformationANameBeforeRunning.Message" ), SWT.OK | SWT.ICON_WARNING );
-      } else {
-        modalMessageDialog( getString( "TransLog.Dialog.SaveTransformationBeforeRunning2.Title" ),
-          getString( "TransLog.Dialog.SaveTransformationBeforeRunning2.Message" ), SWT.OK | SWT.ICON_WARNING );
-      }
- */
-
     }
   }
 
@@ -3996,14 +3984,14 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
         // Show the execution results view...
         //
-        shell.getDisplay().asyncExec( new Runnable() {
+        hopDisplay().asyncExec( new Runnable() {
           @Override
           public void run() {
             addAllTabs();
           }
         } );
       } catch ( Exception e ) {
-        new ErrorDialog( shell, BaseMessages.getString( PKG, "TransLog.Dialog.UnexpectedErrorDuringPreview.Title" ),
+        new ErrorDialog( hopShell(), BaseMessages.getString( PKG, "TransLog.Dialog.UnexpectedErrorDuringPreview.Title" ),
           BaseMessages.getString( PKG, "TransLog.Dialog.UnexpectedErrorDuringPreview.Message" ), e );
       }
     } else {
@@ -4015,7 +4003,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
   public synchronized void showPreview( final TransDebugMeta transDebugMeta, final StepDebugMeta stepDebugMeta,
                                         final RowMetaInterface rowBufferMeta, final List<Object[]> rowBuffer ) {
-    shell.getDisplay().asyncExec( new Runnable() {
+    hopDisplay().asyncExec( new Runnable() {
 
       @Override
       public void run() {
@@ -4035,7 +4023,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
         PreviewRowsDialog previewRowsDialog =
           new PreviewRowsDialog(
-            shell, transMeta, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.APPLICATION_MODAL | SWT.SHEET,
+            hopShell(), transMeta, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.APPLICATION_MODAL | SWT.SHEET,
             stepDebugMeta.getStepMeta().getName(), rowBufferMeta, rowBuffer );
         previewRowsDialog.setProposingToGetMoreRows( true );
         previewRowsDialog.setProposingToStop( true );
@@ -4298,8 +4286,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     TimerTask timtask = new TimerTask() {
       @Override
       public void run() {
-        if ( !hopUi.getDisplay().isDisposed() ) {
-          hopUi.getDisplay().asyncExec( new Runnable() {
+        if ( !hopDisplay().isDisposed() ) {
+          hopDisplay().asyncExec( new Runnable() {
             @Override
             public void run() {
               if ( !HopGuiTransGraph.this.canvas.isDisposed() ) {
@@ -4349,7 +4337,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
         checkErrorVisuals();
 
-        shell.getDisplay().asyncExec( new Runnable() {
+        hopDisplay().asyncExec( new Runnable() {
           @Override
           public void run() {
             // hopUi.fireMenuControlers();
@@ -4365,7 +4353,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       // Get the logging text and filter it out. Store it in the stepLogMap...
       //
       stepLogMap = new HashMap<>();
-      shell.getDisplay().syncExec( new Runnable() {
+      hopDisplay().syncExec( new Runnable() {
 
         @Override
         public void run() {
@@ -4396,7 +4384,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     }
     // Redraw the canvas to show the error icons etc.
     //
-    shell.getDisplay().asyncExec( new Runnable() {
+    hopDisplay().asyncExec( new Runnable() {
       @Override
       public void run() {
         redraw();
@@ -4423,10 +4411,10 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       rowBuffers.add( stepDebugMeta.getRowBuffer() );
     }
 
-    getDisplay().asyncExec( new Runnable() {
+    hopDisplay().asyncExec( new Runnable() {
       @Override
       public void run() {
-        EnterPreviewRowsDialog dialog = new EnterPreviewRowsDialog( shell, SWT.NONE, stepnames, rowMetas, rowBuffers );
+        EnterPreviewRowsDialog dialog = new EnterPreviewRowsDialog( hopShell(), SWT.NONE, stepnames, rowMetas, rowBuffers );
         dialog.open();
       }
     } );
@@ -4581,7 +4569,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
       List<Object[]> rows = new ArrayList<>();
 
-      final PreviewRowsDialog dialog = new PreviewRowsDialog( shell, trans, SWT.NONE, stepMeta.getName(), null, rows );
+      final PreviewRowsDialog dialog = new PreviewRowsDialog( hopShell(), trans, SWT.NONE, stepMeta.getName(), null, rows );
       dialog.setDynamic( true );
 
       // Add a row listener that sends the rows over to the dialog...
@@ -4687,7 +4675,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         save();
       } else {
         MessageDialogWithToggle md =
-          new MessageDialogWithToggle( shell, BaseMessages.getString( PKG, "TransLog.Dialog.FileHasChanged.Title" ),
+          new MessageDialogWithToggle( hopShell(), BaseMessages.getString( PKG, "TransLog.Dialog.FileHasChanged.Title" ),
             null, BaseMessages.getString( PKG, "TransLog.Dialog.FileHasChanged1.Message" ) + Const.CR
             + BaseMessages.getString( PKG, "TransLog.Dialog.FileHasChanged2.Message" ) + Const.CR,
             MessageDialog.QUESTION, new String[] { BaseMessages.getString( PKG, "System.Button.Yes" ),
@@ -4779,7 +4767,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   }
 
   private void modalMessageDialog( String title, String message, int swtFlags ) {
-    MessageBox messageBox = new MessageBox( shell, swtFlags );
+    MessageBox messageBox = new MessageBox( hopShell(), swtFlags );
     messageBox.setMessage( message );
     messageBox.setText( title );
     messageBox.open();
@@ -4893,6 +4881,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     canvas.setFocus();
   }
 
+  @Override
   public void redraw() {
     updateGui();
   }

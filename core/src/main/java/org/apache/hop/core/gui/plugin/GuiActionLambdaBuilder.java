@@ -7,6 +7,7 @@ public class GuiActionLambdaBuilder<T> {
   public GuiActionLambdaBuilder() {
   }
 
+
   /**
    * Create a copy of the given action and create an action lambda for it.
    *
@@ -16,7 +17,7 @@ public class GuiActionLambdaBuilder<T> {
    *
    * @return The action with the appropriate lambda capable of executing the provided method in the given parent object
    */
-  public GuiAction createLambda( GuiAction guiAction, Object methodParent, T methodParameter ) {
+  public GuiAction createLambda( GuiAction guiAction, Object methodParent, T methodParameter, IGuiRefresher refresher ) {
     if (guiAction.getMethodName()==null) {
       throw new RuntimeException( "We need a method to execute this action" );
     }
@@ -32,6 +33,9 @@ public class GuiActionLambdaBuilder<T> {
       IGuiActionLambda<T> actionLambda = (objects) -> {
         try {
           method.invoke( methodParent, methodParameter );
+          if (refresher!=null) {
+            refresher.redraw();
+          }
         } catch(Exception e) {
           throw new RuntimeException( "Error executing method : "+action.getMethodName()+" in class "+methodParameter.getClass().getName(), e );
         }

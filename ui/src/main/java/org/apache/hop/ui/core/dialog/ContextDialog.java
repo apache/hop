@@ -37,6 +37,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ScrollBar;
@@ -93,7 +94,6 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
   }
 
   public GuiAction open() {
-
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE );
     shell.setText( message );
     shell.setImage( GUIResource.getInstance().getImageHop() );
@@ -104,9 +104,6 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout( formLayout );
-
-    shell.addFocusListener( this );
-    shell.addShellListener( this );
 
     // Load all the images...
     // Filter all actions by default
@@ -154,16 +151,7 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     fdSearch.right = new FormAttachment( 100, 0 );
     fdSearch.top = new FormAttachment( wlSearch, 0, SWT.CENTER );
     wSearch.setLayoutData( fdSearch );
-    wSearch.addModifyListener( this );
-    wSearch.addFocusListener( this );
-    wSearch.addSelectionListener( new SelectionAdapter() {
-      @Override public void widgetDefaultSelected( SelectionEvent e ) {
-        // Pressed enter
-        //
-        dispose();
-      }
-    } );
-    wSearch.addKeyListener( this );
+
 
     // Add a description label at the bottom...
     //
@@ -184,14 +172,10 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     fdCanvas.top = new FormAttachment( wSearch, props.getMargin() );
     fdCanvas.bottom = new FormAttachment( wlTooltip, -props.getMargin() );
     wCanvas.setLayoutData( fdCanvas );
-    wCanvas.addPaintListener( this );
-    wCanvas.addMouseListener( this );
 
     // Set the tooltip
     //
     changeSelectedAction( selectedAction );
-
-    wSearch.setFocus();
 
     // TODO: Calcualte a more dynamic size based on number of actions, screen size and so on
     //
@@ -211,6 +195,26 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     // Show the dialog now
     //
     shell.open();
+
+    // Add all the listeners
+    //
+    shell.addFocusListener( this );
+    shell.addShellListener( this );
+    wSearch.addModifyListener( this );
+    wSearch.addFocusListener( this );
+    wSearch.addSelectionListener( new SelectionAdapter() {
+      @Override public void widgetDefaultSelected( SelectionEvent e ) {
+        // Pressed enter
+        //
+        dispose();
+      }
+    } );
+    wSearch.addKeyListener( this );
+    wCanvas.addPaintListener( this );
+    wCanvas.addMouseListener( this );
+
+    wSearch.setFocus();
+    wCanvas.redraw();
 
     // Wait until the dialog is closed
     //

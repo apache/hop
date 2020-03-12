@@ -5,6 +5,7 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.GuiAction;
 import org.apache.hop.core.gui.plugin.GuiActionLambdaBuilder;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
+import org.apache.hop.core.gui.plugin.IGuiRefresher;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
@@ -48,7 +49,7 @@ public class HopGuiTransNoteContext extends BaseGuiContextHandler implements IGu
     List<GuiAction> pluginActions = getPluginActions( true );
     if (pluginActions!=null) {
       for (GuiAction pluginAction : pluginActions) {
-        actions.add( lambdaBuilder.createLambda( pluginAction, transGraph, this ) );
+        actions.add( lambdaBuilder.createLambda( pluginAction, transGraph, this, transGraph ) );
       }
     }
 

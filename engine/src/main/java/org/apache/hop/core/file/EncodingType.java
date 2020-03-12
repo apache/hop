@@ -20,23 +20,15 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.trans.steps.fileinput;
+package org.apache.hop.core.file;
 
-import org.apache.commons.io.ByteOrderMark;
 import org.apache.hop.core.util.Utils;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 
-/**
- * @deprecated replaced by implementation in the ...steps.fileinput.text package
- */
-@Deprecated
 public enum EncodingType {
-  SINGLE( 1, 0, '\r', '\n' ), DOUBLE_BIG_ENDIAN( 2, 0xFEFF, 0x000d, 0x000a ), DOUBLE_LITTLE_ENDIAN(
-    2, 0xFFFE, 0x0d00, 0x0a00 );
-
-  private static final String UTF_8_BOM = new String( ByteOrderMark.UTF_8.getBytes(), StandardCharsets.UTF_8 );
+  SINGLE( 1, 0, '\r', '\n' ), DOUBLE_BIG_ENDIAN( 2, 0xFEFF, 0x000d, 0x000a ), DOUBLE_LITTLE_ENDIAN( 2, 0xFFFE, 0x0d00,
+    0x0a00 );
 
   private int length;
 
@@ -99,13 +91,6 @@ public enum EncodingType {
     }
 
     return encodingType;
-  }
-
-  public static String removeBOMIfPresent( String string ) {
-    if ( string == null ) {
-      return null;
-    }
-    return string.replaceFirst( UTF_8_BOM, "" );
   }
 
   public byte[] getBytes( String string, String encoding ) throws UnsupportedEncodingException {

@@ -235,7 +235,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
   public TabItemHandler findTabItemHandler(CTabItem tabItem) {
     int index = tabFolder.indexOf( tabItem );
-    if (index<0) {
+    if (index<0 || index>=items.size()) {
       return null;
     }
     return items.get(index);
