@@ -17,8 +17,8 @@
   <modules>
     <module>databases</module>
     <module>steps</module>
+    <module>jobentries</module>
     <module>dist</module>
   </modules>
-
 
 </project>
