@@ -101,6 +101,7 @@
 				<module>writetofile</module>
 				<module>writetolog</module>
 				<module>zipfile</module>
+				<module>mssqlbulkload</module>
 			</modules>
 		</profile>
 
