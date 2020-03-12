@@ -42,6 +42,7 @@ import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopui.dialog.MetaStoreExplorerDialog;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
@@ -76,11 +77,9 @@ public class MetaStoreManager<T extends IHopMetaStoreElement>  {
   private ClassLoader classLoader;
 
   private Class<T> managedClass;
-  private Shell parent;
   private PropsUI props;
 
-  public MetaStoreManager( VariableSpace space, IMetaStore metaStore, Class<T> managedClass, Shell parent) {
-    this.parent = parent;
+  public MetaStoreManager( VariableSpace space, IMetaStore metaStore, Class<T> managedClass) {
     this.space = space;
     this.classLoader = managedClass.getClassLoader();
     this.metaStore = metaStore;
@@ -89,7 +88,7 @@ public class MetaStoreManager<T extends IHopMetaStoreElement>  {
   }
 
   public void openMetaStoreExplorer() {
-    MetaStoreExplorerDialog dialog = new MetaStoreExplorerDialog( parent, metaStore );
+    MetaStoreExplorerDialog dialog = new MetaStoreExplorerDialog( HopGui.getInstance().getShell(), metaStore );
     dialog.open();
   }
 
@@ -120,7 +119,7 @@ public class MetaStoreManager<T extends IHopMetaStoreElement>  {
       return openMetaDialog( element, factory );
 
     } catch ( Exception e ) {
-      new ErrorDialog( parent, "Error", "Error editing metadata", e );
+      new ErrorDialog( HopGui.getInstance().getShell(), "Error", "Error editing metadata", e );
       return false;
     }
   }
@@ -154,7 +153,7 @@ public class MetaStoreManager<T extends IHopMetaStoreElement>  {
       dialogClass = (Class<IMetaStoreDialog>) Class.forName( dialogClassName );
     }
     Constructor<IMetaStoreDialog> constructor = dialogClass.getDeclaredConstructor( constructorArguments );
-    IMetaStoreDialog dialog = constructor.newInstance( parent, metaStore, element );
+    IMetaStoreDialog dialog = constructor.newInstance( HopGui.getInstance().getShell(), metaStore, element );
     String name = dialog.open();
     if ( name != null ) {
       // Save it in the MetaStore
@@ -173,7 +172,7 @@ public class MetaStoreManager<T extends IHopMetaStoreElement>  {
       T element = managedClass.newInstance();
       return openMetaDialog( element, element.getFactory( metaStore ) );
     } catch ( Exception e ) {
-      new ErrorDialog( parent, "Error", "Error creating new metadata element", e );
+      new ErrorDialog( HopGui.getInstance().getShell(), "Error", "Error creating new metadata element", e );
       return false;
     }
   }
@@ -290,19 +289,4 @@ public class MetaStoreManager<T extends IHopMetaStoreElement>  {
     this.props = props;
   }
 
-  /**
-   * Gets parent
-   *
-   * @return value of parent
-   */
-  public Shell getParent() {
-    return parent;
-  }
-
-  /**
-   * @param parent The parent to set
-   */
-  public void setParent( Shell parent ) {
-    this.parent = parent;
-  }
 }

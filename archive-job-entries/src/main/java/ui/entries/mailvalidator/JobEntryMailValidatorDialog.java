@@ -140,7 +140,7 @@ public class JobEntryMailValidatorDialog extends JobEntryDialog implements JobEn
     shell.setText( BaseMessages.getString( PKG, "JobEntryMailValidatorDialog.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Filename line
     wlName = new Label( shell, SWT.RIGHT );

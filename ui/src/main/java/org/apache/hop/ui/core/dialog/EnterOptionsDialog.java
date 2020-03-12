@@ -237,7 +237,7 @@ public class EnterOptionsDialog extends Dialog {
     shell.setText( BaseMessages.getString( PKG, "EnterOptionsDialog.Title" ) );
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = props.getMargin();
 
     wTabFolder = new CTabFolder( shell, SWT.BORDER );
     props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );

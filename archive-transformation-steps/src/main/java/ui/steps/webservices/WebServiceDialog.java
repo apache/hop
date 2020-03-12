@@ -372,7 +372,7 @@ public class WebServiceDialog extends BaseStepDialog implements StepDialogInterf
 
   private void addTabFieldIn() {
     TableView oldTableView = fieldInTableView;
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     Composite vCompositeTabField = new Composite( wTabFolder, SWT.NONE );
     FormLayout formLayout = new FormLayout();
@@ -442,7 +442,7 @@ public class WebServiceDialog extends BaseStepDialog implements StepDialogInterf
     } );
 
     Button[] buttons = new Button[] { vButton };
-    BaseStepDialog.positionBottomButtons( vCompositeTabField, buttons, Const.MARGIN, null );
+    BaseStepDialog.positionBottomButtons( vCompositeTabField, buttons, props.getMargin(), null );
 
     FormData fdTable = new FormData();
     fdTable.left = new FormAttachment( 0, 0 );
@@ -503,7 +503,7 @@ public class WebServiceDialog extends BaseStepDialog implements StepDialogInterf
 
   private void addTabFieldOut() {
     TableView oldTableView = fieldOutTableView;
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Initialization of the output tab
     //
@@ -564,7 +564,7 @@ public class WebServiceDialog extends BaseStepDialog implements StepDialogInterf
       }
     } );
     Button[] buttons = new Button[] { vButton };
-    BaseStepDialog.positionBottomButtons( vCompositeTabFieldOut, buttons, Const.MARGIN, null );
+    BaseStepDialog.positionBottomButtons( vCompositeTabFieldOut, buttons, props.getMargin(), null );
 
     FormData fdTable = new FormData();
     fdTable.left = new FormAttachment( 0, 0 );
@@ -804,7 +804,7 @@ public class WebServiceDialog extends BaseStepDialog implements StepDialogInterf
     shell.setText( BaseMessages.getString( PKG, "WebServiceDialog.DialogTitle" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

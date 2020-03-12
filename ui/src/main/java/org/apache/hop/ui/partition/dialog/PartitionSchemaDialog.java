@@ -129,7 +129,7 @@ public class PartitionSchemaDialog extends Dialog {
     };
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = props.getMargin();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

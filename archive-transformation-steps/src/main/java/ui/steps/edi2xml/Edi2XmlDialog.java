@@ -92,7 +92,7 @@ public class Edi2XmlDialog extends BaseStepDialog implements StepDialogInterface
     shell.setText( BaseMessages.getString( PKG, "Edi2Xml.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

@@ -665,6 +665,14 @@ public class PropsUI extends Props {
     }
   }
 
+  /**
+   * Get the margin compensated for the zoom factor
+   * @return
+   */
+  public int getMargin() {
+    return (int) Math.round( getZoomFactor() * Const.MARGIN );
+  }
+
   public void setLineWidth( int width ) {
     properties.setProperty( STRING_LINE_WIDTH, "" + width );
   }
@@ -1186,4 +1194,6 @@ public class PropsUI extends Props {
   public static void setNativeZoomFactor( double nativeZoomFactor ) {
     PropsUI.nativeZoomFactor = nativeZoomFactor;
   }
+
+
 }

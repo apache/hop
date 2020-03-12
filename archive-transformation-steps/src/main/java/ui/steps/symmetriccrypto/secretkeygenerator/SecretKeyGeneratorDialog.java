@@ -130,7 +130,7 @@ public class SecretKeyGeneratorDialog extends BaseStepDialog implements StepDial
     shell.setText( BaseMessages.getString( PKG, "SecretKeyGeneratorDialog.DialogTitle" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // See if the step receives input.
     //

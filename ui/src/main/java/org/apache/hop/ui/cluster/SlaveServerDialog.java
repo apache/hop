@@ -20,13 +20,14 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.cluster.dialog;
+package org.apache.hop.ui.cluster;
 
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
@@ -69,7 +70,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 31-10-2006
  */
 
-public class SlaveServerDialog extends Dialog {
+public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
   private static Class<?> PKG = SlaveServerDialog.class; // for i18n purposes, needed by Translator2!!
   private final IMetaStore metaStore;
 
@@ -104,7 +105,7 @@ public class SlaveServerDialog extends Dialog {
   private int margin;
 
   private SlaveServer originalServer;
-  private boolean ok;
+  private String result;
 
   public SlaveServerDialog( Shell par, IMetaStore metaStore, SlaveServer slaveServer ) {
     super( par, SWT.NONE );
@@ -113,10 +114,10 @@ public class SlaveServerDialog extends Dialog {
     this.slaveServer.shareVariablesWith( slaveServer );
     this.originalServer = slaveServer;
     props = PropsUI.getInstance();
-    ok = false;
+    result = null;
   }
 
-  public boolean open() {
+  public String open() {
     Shell parent = getParent();
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
@@ -129,7 +130,7 @@ public class SlaveServerDialog extends Dialog {
     };
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = props.getMargin();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -211,7 +212,7 @@ public class SlaveServerDialog extends Dialog {
         display.sleep();
       }
     }
-    return ok;
+    return result;
   }
 
   private void addServiceTab() {
@@ -548,7 +549,7 @@ public class SlaveServerDialog extends Dialog {
 
         originalServer.setChanged();
 
-        ok = true;
+        result = slaveServer.getName();
 
         dispose();
       } catch ( Exception e ) {

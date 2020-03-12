@@ -91,7 +91,7 @@ public class RowsFromResultDialog extends BaseStepDialog implements StepDialogIn
     shell.setText( getTitle() );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

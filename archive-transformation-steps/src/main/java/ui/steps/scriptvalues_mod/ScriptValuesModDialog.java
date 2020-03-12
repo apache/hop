@@ -296,7 +296,7 @@ public class ScriptValuesModDialog extends BaseStepDialog implements StepDialogI
     shell.setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Filename line
     wlStepname = new Label( shell, SWT.RIGHT );

@@ -108,7 +108,7 @@ public class StringCutDialog extends BaseStepDialog implements StepDialogInterfa
     shell.setText( BaseMessages.getString( PKG, "StringCutDialog.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

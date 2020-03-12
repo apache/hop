@@ -4,8 +4,10 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
+import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
@@ -15,6 +17,9 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @HopPerspectivePlugin(
   id = "HopSearchPerspective",
@@ -75,13 +80,15 @@ public class HopSearchPlugin implements IHopPerspective {
     this.hopGui = hopGui;
     this.parent = parent;
 
+    PropsUI props = PropsUI.getInstance();
+
     composite = new Composite( parent, SWT.NONE );
     composite.setBackground( GUIResource.getInstance().getColorBlueCustomGrid() );
     FormLayout layout = new FormLayout();
-    layout.marginLeft = Const.MARGIN;
-    layout.marginTop = Const.MARGIN;
-    layout.marginLeft = Const.MARGIN;
-    layout.marginBottom = Const.MARGIN;
+    layout.marginLeft = props.getMargin();
+    layout.marginTop = props.getMargin();
+    layout.marginLeft = props.getMargin();
+    layout.marginBottom = props.getMargin();
     composite.setLayout( layout );
 
     formData = new FormData(  );
@@ -180,4 +187,8 @@ public class HopSearchPlugin implements IHopPerspective {
     return formData;
   }
 
+  @Override public List<IGuiContextHandler> getContextHandlers() {
+    List<IGuiContextHandler> handlers = new ArrayList<>(  );
+    return handlers;
+  }
 }

@@ -125,7 +125,7 @@ public class JobEntryTelnetDialog extends JobEntryDialog implements JobEntryDial
     shell.setText( BaseMessages.getString( PKG, "JobTelnet.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Filename line
     wlName = new Label( shell, SWT.RIGHT );

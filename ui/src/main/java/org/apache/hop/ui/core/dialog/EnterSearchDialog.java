@@ -92,7 +92,7 @@ public class EnterSearchDialog {
     shell.setLayout( formLayout );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Search Steps?...
     wlStep = new Label( shell, SWT.RIGHT );
@@ -182,7 +182,7 @@ public class EnterSearchDialog {
       }
     } );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, Const.MARGIN, wFilter );
+    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, props.getMargin(), wFilter );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {

@@ -145,7 +145,7 @@ public class EnterValueDialog extends Dialog {
     shell.setText( BaseMessages.getString( PKG, "EnterValueDialog.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Type of value
     wlValueType = new Label( shell, SWT.RIGHT );

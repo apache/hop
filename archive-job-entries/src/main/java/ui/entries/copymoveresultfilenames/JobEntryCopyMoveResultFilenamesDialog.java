@@ -183,7 +183,7 @@ public class JobEntryCopyMoveResultFilenamesDialog extends JobEntryDialog implem
     shell.setText( BaseMessages.getString( PKG, "JobEntryCopyMoveResultFilenames.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Name line
     wlName = new Label( shell, SWT.RIGHT );

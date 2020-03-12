@@ -137,7 +137,7 @@ public class SQLEditor {
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "SQLEditor.Title" ) );
 
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Script line
     wlScript = new Label( shell, SWT.NONE );

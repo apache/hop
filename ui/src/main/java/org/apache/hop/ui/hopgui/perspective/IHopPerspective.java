@@ -1,6 +1,7 @@
 package org.apache.hop.ui.hopgui.perspective;
 
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
@@ -9,7 +10,7 @@ import org.eclipse.swt.widgets.Composite;
  * This interface describes the methods of a Hop GUI perspective.
  *
  */
-public interface IHopPerspective {
+public interface IHopPerspective extends IActionContextHandlersProvider {
 
   /**
    * Get the active file type handler capable of saving, executing, printing, ... a file
@@ -70,4 +71,6 @@ public interface IHopPerspective {
    * @return
    */
   boolean remove( HopFileTypeHandlerInterface typeHandler );
+
+
 }

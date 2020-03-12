@@ -141,7 +141,7 @@ public class TextFileImportWizardPage2 extends WizardPage {
   public void createControl( Composite parent ) {
     shell = parent.getShell();
 
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
     int left = props.getMiddlePct() / 2;
     int middle = props.getMiddlePct();
     int right = middle + left;

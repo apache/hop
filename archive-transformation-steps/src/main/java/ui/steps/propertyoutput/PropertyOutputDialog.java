@@ -169,7 +169,7 @@ public class PropertyOutputDialog extends BaseStepDialog implements StepDialogIn
     backupChanged = input.hasChanged();
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

@@ -3149,7 +3149,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
     minMaxButton
       .setToolTipText( BaseMessages.getString( PKG, "JobGraph.ExecutionResultsPanel.MaxButton.Tooltip" ) );
     FormData fdMinMax = new FormData();
-    fdMinMax.right = new FormAttachment( closeButton, -Const.MARGIN );
+    fdMinMax.right = new FormAttachment( closeButton, -props.getMargin() );
     fdMinMax.top = new FormAttachment( 0, 0 );
     minMaxButton.setLayoutData( fdMinMax );
     minMaxButton.addMouseListener( new MouseAdapter() {
@@ -3191,7 +3191,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.top = new FormAttachment( wResultsLabel, Const.MARGIN );
+    fdTabFolder.top = new FormAttachment( wResultsLabel, props.getMargin() );
     fdTabFolder.bottom = new FormAttachment( 100, 0 );
     extraViewTabFolder.setLayoutData( fdTabFolder );
 

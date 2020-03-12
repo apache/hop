@@ -186,8 +186,8 @@ public class HopGuiTransStepDelegate {
    * @param rename      Rename this step?
    * @return The newly created StepMeta object.
    */
-  public StepMeta newStep( TransMeta transMeta, String id, String name, String description, boolean openit, boolean rename ) {
-    StepMeta inf = null;
+  public StepMeta newStep( TransMeta transMeta, String id, String name, String description, boolean openit, boolean rename, Point location ) {
+    StepMeta stepMeta = null;
 
     // See if we need to rename the step to avoid doubles!
     if ( rename && transMeta.findStep( name ) != null ) {
@@ -216,32 +216,30 @@ public class HopGuiTransStepDelegate {
             name = dialog.open();
           }
         }
-        inf = new StepMeta( stepPlugin.getIds()[ 0 ], name, info );
+        stepMeta = new StepMeta( stepPlugin.getIds()[ 0 ], name, info );
 
         if ( name != null ) {
           // OK pressed in the dialog: we have a step-name
           String newName = name;
-          StepMeta stepMeta = transMeta.findStep( newName );
+          StepMeta candiateStepMeta = transMeta.findStep( newName );
           int nr = 2;
-          while ( stepMeta != null ) {
+          while ( candiateStepMeta != null ) {
             newName = name + " " + nr;
-            stepMeta = transMeta.findStep( newName );
+            candiateStepMeta = transMeta.findStep( newName );
             nr++;
           }
           if ( nr > 2 ) {
-            inf.setName( newName );
+            stepMeta.setName( newName );
             MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_INFORMATION );
             // "This stepName already exists.  Spoon changed the stepName to ["+newName+"]"
             mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.ChangeStepname.Message", newName ) );
             mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.ChangeStepname.Title" ) );
             mb.open();
           }
-          inf.setLocation( 20, 20 ); // default location at (20,20)
-          transMeta.addStep( inf );
-          /**
-           * TODO: add new Undo/Redo system
-           addUndoNew( transMeta, new StepMeta[] { inf }, new int[] { transMeta.indexOfStep( inf ) } );
-           */
+          stepMeta.setLocation( location.x, location.y ); // default location at (20,20)
+          stepMeta.setDraw( true );
+          transMeta.addStep( stepMeta );
+          hopUi.undoDelegate.addUndoNew( transMeta, new StepMeta[] { stepMeta }, new int[] { transMeta.indexOfStep( stepMeta ) } );
 
           // Also store it in the pluginHistory list...
           hopUi.getProps().increasePluginHistory( stepPlugin.getIds()[ 0 ] );
@@ -267,8 +265,7 @@ public class HopGuiTransStepDelegate {
             ch = fis.read();
           }
 
-          ShowBrowserDialog sbd =
-            new ShowBrowserDialog( hopUi.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ErrorHelpText.Title" ), content.toString() );
+          ShowBrowserDialog sbd = new ShowBrowserDialog( hopUi.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ErrorHelpText.Title" ), content.toString() );
           sbd.open();
         } catch ( Exception ex ) {
           new ErrorDialog( hopUi.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ErrorShowingHelpText.Title" ),
@@ -300,7 +297,7 @@ public class HopGuiTransStepDelegate {
       return null;
     }
 
-    return inf;
+    return stepMeta;
   }
 
   public void dupeStep( TransMeta transMeta, StepMeta stepMeta ) {

@@ -161,7 +161,7 @@ public class EditRowsDialog {
 
     // Position the buttons...
     //
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel, }, Const.MARGIN, null );
+    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel, }, props.getMargin(), null );
 
     if ( addFields() ) {
       return null;
@@ -192,7 +192,7 @@ public class EditRowsDialog {
 
   private boolean addFields() {
     // int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     if ( wlMessage == null ) {
       wlMessage = new Label( shell, SWT.LEFT );

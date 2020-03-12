@@ -320,7 +320,7 @@ public class Translator {
     wAvailable.setSelection( true ); // Check it!
 
     BaseStepDialog.positionBottomButtons( composite, new Button[] {
-      wReload, wLocale, wClose, wVerify, wUsed, wAvailable }, Const.MARGIN, null );
+      wReload, wLocale, wClose, wVerify, wUsed, wAvailable }, props.getMargin(), null );
 
     ColumnInfo[] colinf =
       new ColumnInfo[] {
@@ -340,7 +340,7 @@ public class Translator {
     fdGrid.left = new FormAttachment( 0, 0 );
     fdGrid.top = new FormAttachment( 0, 0 );
     fdGrid.right = new FormAttachment( 100, 0 );
-    fdGrid.bottom = new FormAttachment( wReload, -Const.MARGIN * 3 );
+    fdGrid.bottom = new FormAttachment( wReload, -props.getMargin() * 3 );
     wGrid.setLayoutData( fdGrid );
 
   }

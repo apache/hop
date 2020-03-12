@@ -161,7 +161,7 @@ public class RegexEvalHelperDialog extends Dialog {
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "RegexEvalHelperDialog.Shell.Label" ) );
 
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
     int middle = 30;
 
     wNoteFolder = new CTabFolder( shell, SWT.BORDER );

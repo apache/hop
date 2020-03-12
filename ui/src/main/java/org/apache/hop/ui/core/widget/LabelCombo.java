@@ -50,7 +50,7 @@ public class LabelCombo extends Composite {
     props.setLook( this );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 0;

@@ -872,6 +872,16 @@ public class GUIResource {
     return image;
   }
 
+  // load image from svg
+  private Image loadAsResource( Display display, String location, int width, int height ) {
+    SwtUniversalImage img = SwtSvgImageUtil.getImageAsResource( display, location );
+    int newWidth = (int)Math.round(width*zoomFactor);
+    int newHeight = (int)Math.round(height*zoomFactor);
+    Image image = new Image( display, img.getAsBitmapForSize( display, newWidth, newHeight ), SWT.IMAGE_COPY );
+    img.dispose();
+    return image;
+  }
+
   private void loadCommonImages() {
     // "ui/images/HOP.png"
     imageHop = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "HOP_image" ) );
@@ -1129,7 +1139,7 @@ public class GUIResource {
     imageDropHere = loadAsResource( display, BasePropertyHandler.getProperty( "DropHere_image" ), 0 );
 
     // "ui/images/trans_canvas.svg
-    imageTransCanvas = loadAsResource( display, BasePropertyHandler.getProperty( "TransCanvas_image" ), 400 );
+    imageTransCanvas = loadAsResource( display, BasePropertyHandler.getProperty( "TransCanvas_image" ),  800, 250 );
 
     // "ui/images/job_canvas.svg
     imageJobCanvas = loadAsResource( display, BasePropertyHandler.getProperty( "JobCanvas_image" ), 400 );

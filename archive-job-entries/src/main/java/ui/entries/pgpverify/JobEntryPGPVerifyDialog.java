@@ -156,7 +156,7 @@ public class JobEntryPGPVerifyDialog extends JobEntryDialog implements JobEntryD
     shell.setText( BaseMessages.getString( PKG, "JobPGPVerify.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // GPGLocation line
     wlName = new Label( shell, SWT.RIGHT );

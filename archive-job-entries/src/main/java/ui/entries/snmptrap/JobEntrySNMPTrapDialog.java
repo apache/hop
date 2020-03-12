@@ -188,7 +188,7 @@ public class JobEntrySNMPTrapDialog extends JobEntryDialog implements JobEntryDi
     shell.setText( BaseMessages.getString( PKG, "JobSNMPTrap.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Job entry name line
     wName =

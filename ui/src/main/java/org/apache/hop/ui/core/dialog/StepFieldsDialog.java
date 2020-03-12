@@ -125,7 +125,7 @@ public class StepFieldsDialog extends Dialog {
     shell.setImage( GUIResource.getInstance().getImageTransGraph() );
     shell.setText( shellText );
 
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Filename line
     wlStepname = new Label( shell, SWT.NONE );

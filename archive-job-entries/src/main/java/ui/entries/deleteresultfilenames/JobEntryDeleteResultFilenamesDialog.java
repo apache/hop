@@ -121,7 +121,7 @@ public class JobEntryDeleteResultFilenamesDialog extends JobEntryDialog implemen
     shell.setText( BaseMessages.getString( PKG, "JobEntryDeleteResultFilenames.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Foldername line
     wlName = new Label( shell, SWT.RIGHT );

@@ -1,6 +1,13 @@
-package org.apache.hop.ui.hopgui.file;
+package org.apache.hop.ui.hopgui.file.empty;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
+import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
+import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
+import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EmptyHopFileTypeHandler implements HopFileTypeHandlerInterface {
 
@@ -104,5 +111,10 @@ public class EmptyHopFileTypeHandler implements HopFileTypeHandlerInterface {
 
   @Override public void redo() {
 
+  }
+
+  @Override public List<IGuiContextHandler> getContextHandlers() {
+    List<IGuiContextHandler> handlers = new ArrayList<>(  );
+    return handlers;
   }
 }
