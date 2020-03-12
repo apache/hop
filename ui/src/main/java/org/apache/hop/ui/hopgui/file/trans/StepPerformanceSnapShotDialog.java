@@ -154,7 +154,7 @@ public class StepPerformanceSnapShotDialog extends Dialog {
     } );
     FormData fdDataList = new FormData();
     fdDataList.left = new FormAttachment( 0, 0 );
-    fdDataList.right = new FormAttachment( props.getMiddlePct() / 2, Const.MARGIN );
+    fdDataList.right = new FormAttachment( props.getMiddlePct() / 2, props.getMargin() );
     fdDataList.top = new FormAttachment( 0, 0 );
     fdDataList.bottom = new FormAttachment( 30, 0 );
     dataList.setLayoutData( fdDataList );
@@ -179,9 +179,9 @@ public class StepPerformanceSnapShotDialog extends Dialog {
     } );
     FormData fdStepsList = new FormData();
     fdStepsList.left = new FormAttachment( 0, 0 );
-    fdStepsList.right = new FormAttachment( props.getMiddlePct() / 2, Const.MARGIN );
-    fdStepsList.top = new FormAttachment( dataList, Const.MARGIN );
-    fdStepsList.bottom = new FormAttachment( 100, Const.MARGIN );
+    fdStepsList.right = new FormAttachment( props.getMiddlePct() / 2, props.getMargin() );
+    fdStepsList.top = new FormAttachment( dataList, props.getMargin() );
+    fdStepsList.bottom = new FormAttachment( 100, props.getMargin() );
     stepsList.setLayoutData( fdStepsList );
 
     canvas = new Canvas( shell, SWT.NONE );

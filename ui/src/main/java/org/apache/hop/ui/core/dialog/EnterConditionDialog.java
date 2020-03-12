@@ -100,7 +100,7 @@ public class EnterConditionDialog extends Dialog {
 
     FormData fdCond = new FormData();
 
-    int margin = Const.MARGIN * 2;
+    int margin = props.getMargin() * 2;
 
     fdCond.left = new FormAttachment( 0, 0 ); // To the right of the label
     fdCond.top = new FormAttachment( 0, 0 );

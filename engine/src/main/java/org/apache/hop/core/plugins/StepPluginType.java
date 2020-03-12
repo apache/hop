@@ -172,4 +172,8 @@ public class StepPluginType extends BasePluginType implements PluginTypeInterfac
   protected String extractSuggestion( Annotation annotation ) {
     return ( (Step) annotation ).suggestion();
   }
+
+  @Override protected String[] extractKeywords( Annotation annotation ) {
+    return ( (Step)annotation).keywords();
+  }
 }

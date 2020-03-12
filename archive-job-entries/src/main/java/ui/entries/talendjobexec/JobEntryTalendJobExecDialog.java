@@ -133,7 +133,7 @@ public class JobEntryTalendJobExecDialog extends JobEntryDialog implements JobEn
     shell.setText( BaseMessages.getString( PKG, "JobEntryTalendJobExec.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Filename line
     wlName = new Label( shell, SWT.RIGHT );

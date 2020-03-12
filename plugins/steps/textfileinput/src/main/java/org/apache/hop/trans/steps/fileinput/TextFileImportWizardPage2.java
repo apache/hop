@@ -24,6 +24,7 @@ package org.apache.hop.trans.steps.fileinput;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.gui.TextFileInputFieldInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -139,7 +140,7 @@ public class TextFileImportWizardPage2 extends WizardPage {
   public void createControl( Composite parent ) {
     shell = parent.getShell();
 
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
     int left = props.getMiddlePct() / 2;
     int middle = props.getMiddlePct();
     int right = middle + left;

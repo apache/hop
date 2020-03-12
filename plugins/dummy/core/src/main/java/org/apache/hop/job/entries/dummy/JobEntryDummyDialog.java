@@ -128,7 +128,7 @@ public class JobEntryDummyDialog extends JobEntryDialog implements JobEntryDialo
     shell.setText( BaseMessages.getString( PKG, "DummyPluginDialog.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Filename line
     wlName = new Label( shell, SWT.RIGHT );

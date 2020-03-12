@@ -113,7 +113,7 @@ public class SelectRowDialog extends Dialog {
     shell.setImage( GUIResource.getInstance().getImageTransGraph() );
     shell.setText( title );
 
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Simply exit and close in case we don't have anything to edit or show
     //

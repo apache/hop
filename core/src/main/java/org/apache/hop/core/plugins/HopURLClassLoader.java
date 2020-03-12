@@ -22,6 +22,7 @@
 
 package org.apache.hop.core.plugins;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 
 import java.io.IOException;
@@ -102,18 +103,25 @@ public class HopURLClassLoader extends URLClassLoader {
 
   @Override
   protected synchronized Class<?> loadClass( String name, boolean resolve ) throws ClassNotFoundException {
+    Throwable thisLoaderException = null;
+
     try {
       return loadClassFromThisLoader( name, resolve );
     } catch ( ClassNotFoundException | NoClassDefFoundError e ) {
-      // Ignore: The class loader tries to load the interface and the base class and obviously this sometimes fails.
-      //
-      // System.err.println("Error loading class from URLClassLoader: "+name);
+      thisLoaderException = e;
     } catch ( SecurityException e ) {
-      System.err.println( BaseMessages.getString( PKG, "HopURLClassLoader.Exception.UnableToLoadClass",
-        e.toString() ) );
+      thisLoaderException = e;
     }
 
-    return loadClassFromParent( name, resolve );
+    try {
+      return loadClassFromParent( name, resolve );
+    } catch(Exception e) {
+      if (thisLoaderException!=null) {
+        throw new ClassNotFoundException( "Unable to load class '"+name+"' in this classloader or in the parent", thisLoaderException );
+      } else {
+        throw e;
+      }
+    }
   }
 
   /*

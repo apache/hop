@@ -8,10 +8,12 @@ import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
 import org.apache.hop.trans.TransMeta;
+import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
-import org.apache.hop.ui.hopgui.file.EmptyHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
+import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 import org.apache.hop.ui.hopgui.file.trans.HopGuiTransGraph;
 import org.apache.hop.ui.hopgui.file.trans.HopTransFileType;
@@ -98,13 +100,15 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     this.hopGui = hopGui;
     this.parent = parent;
 
+    PropsUI props = PropsUI.getInstance();
+
     composite = new Composite( parent, SWT.NONE );
     composite.setBackground( GUIResource.getInstance().getColorBackground() );
     FormLayout layout = new FormLayout();
-    layout.marginLeft = Const.MARGIN;
-    layout.marginTop = Const.MARGIN;
-    layout.marginLeft = Const.MARGIN;
-    layout.marginBottom = Const.MARGIN;
+    layout.marginLeft = props.getMargin();
+    layout.marginTop = props.getMargin();
+    layout.marginLeft = props.getMargin();
+    layout.marginBottom = props.getMargin();
     composite.setLayout( layout );
 
     formData = new FormData();
@@ -133,6 +137,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     });
     tabFolder.addListener( SWT.Selection, event-> handTabSelectionEvent(event) );
 
+    //
   }
 
   private void handTabSelectionEvent( Event event ) {
@@ -219,9 +224,11 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
       }
       if (!tabSelectionHistory.isEmpty()) {
         Integer activeIndex = tabSelectionHistory.get( tabSelectionIndex );
-        activeItem = items.get( activeIndex );
-        tabFolder.setSelection( activeIndex );
-        activeItem.getTypeHandler().updateGui();
+        if (activeIndex<items.size()) {
+          activeItem = items.get( activeIndex );
+          tabFolder.setSelection( activeIndex );
+          activeItem.getTypeHandler().updateGui();
+        }
       }
     }
   }
@@ -354,6 +361,20 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   public boolean hasNavigationNextFile() {
     return tabSelectionIndex+1 < tabSelectionHistory.size();
   }
+
+  /**
+   * Get the currently active context handlers in the perspective...
+   * @return
+   */
+  public List<IGuiContextHandler> getContextHandlers() {
+    List<IGuiContextHandler> handlers = new ArrayList<>();
+    // For every file type we have a context handler...
+    //
+    HopFileTypeHandlerInterface fileTypeHandler = getActiveFileTypeHandler();
+    handlers.addAll( fileTypeHandler.getContextHandlers() );
+    return handlers;
+  }
+
 
   /**
    * Gets items

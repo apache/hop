@@ -4,8 +4,11 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLInterface;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
+import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 
+import java.util.List;
 import java.util.Properties;
 
 public interface HopFileTypeInterface<T extends XMLInterface> {
@@ -76,5 +79,10 @@ public interface HopFileTypeInterface<T extends XMLInterface> {
      * @return true if this HopFile is handling the file
      * @throws HopException In case something goes wrong like: file doesn't exist, a permission problem, ...
      */
-  public boolean isHandledBy(String filename, boolean checkContent) throws HopException;
+  boolean isHandledBy(String filename, boolean checkContent) throws HopException;
+
+  /**
+   * @return A list of context handlers allowing you to see all the actions that can be taken with the current file type. (CRUD, ...)
+   */
+  List<IGuiContextHandler> getContextHandlers();
 }

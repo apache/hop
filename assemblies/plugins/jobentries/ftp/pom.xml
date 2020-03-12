@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.hop</groupId>
+		<artifactId>hop-assemblies-plugins-jobentries</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>hop-assemblies-plugins-jobentry-ftp</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>Hop Assemblies Plugins Job Entries Get/Put/Delete a file with FTP/FTPS/SFTP</name>
+	<description></description>
+
+
+	<properties>
+		<edtftpj.version>2.1.0</edtftpj.version>
+		<trilead-ssh2.version>build213</trilead-ssh2.version>
+		<ftp4che.version>0.7.1</ftp4che.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.hop</groupId>
+			<artifactId>hop-jobentry-ftp</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.enterprisedt</groupId>
+			<artifactId>edtftpj</artifactId>
+			<version>${edtftpj.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>trilead-ssh2</groupId>
+			<artifactId>trilead-ssh2</artifactId>
+			<version>${trilead-ssh2.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>ftp4che</groupId>
+			<artifactId>ftp4che</artifactId>
+			<version>${ftp4che.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+
+</project>

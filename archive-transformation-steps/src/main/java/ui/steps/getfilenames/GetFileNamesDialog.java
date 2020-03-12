@@ -213,7 +213,7 @@ public class GetFileNamesDialog extends BaseStepDialog implements StepDialogInte
     shell.setText( BaseMessages.getString( PKG, "GetFileNamesDialog.DialogTitle" ) );
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

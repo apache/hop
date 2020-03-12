@@ -186,7 +186,7 @@ public class HTTPDialog extends BaseStepDialog implements StepDialogInterface {
     shell.setText( BaseMessages.getString( PKG, "HTTPDialog.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     //

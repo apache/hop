@@ -28,6 +28,7 @@
         <module>dummy</module>
         <module>databases</module>
         <module>steps</module>
+        <module>jobentries</module>
       </modules>
     </profile>
 

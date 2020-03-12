@@ -264,7 +264,7 @@ public class LDIFInputDialog extends BaseStepDialog implements StepDialogInterfa
     shell.setText( BaseMessages.getString( PKG, "LDIFInputDialog.DialogTitle" ) );
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

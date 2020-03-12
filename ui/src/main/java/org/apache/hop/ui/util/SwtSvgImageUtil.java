@@ -35,6 +35,7 @@ import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.svg.SvgSupport;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.PropsUI;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -58,7 +59,7 @@ public class SwtSvgImageUtil {
 
   private static FileObject base;
 
-  private static float zoomFactor = 2.0f;
+  private static double zoomFactor = PropsUI.getInstance().getZoomFactor();
 
   static {
     try {

@@ -174,7 +174,7 @@ public class CombinationLookupDialog extends BaseStepDialog implements StepDialo
     shell.setText( BaseMessages.getString( PKG, "CombinationLookupDialog.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {

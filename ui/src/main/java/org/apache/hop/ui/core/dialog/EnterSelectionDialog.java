@@ -209,7 +209,7 @@ public class EnterSelectionDialog extends Dialog {
     shell.setText( shellText );
     shell.setImage( GUIResource.getInstance().getImageHopUi() );
 
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     if ( quickSearch ) {
       ToolBar treeTb = new ToolBar( shell, SWT.HORIZONTAL | SWT.FLAT );

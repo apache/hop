@@ -130,7 +130,7 @@ public class TransDebugDialog extends Dialog {
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "TransDebugDialog.Shell.Title" ) );
 
-    margin = Const.MARGIN;
+    margin = props.getMargin();
     middle = props.getMiddlePct();
 
     wOK = new Button( shell, SWT.PUSH );

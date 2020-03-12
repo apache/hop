@@ -108,7 +108,7 @@ public class CheckBoxVar extends Composite {
 
     FormData fdText = new FormData();
     fdText.top = new FormAttachment( 0, 0 );
-    fdText.left = new FormAttachment( wBox, Const.MARGIN );
+    fdText.left = new FormAttachment( wBox, props.getMargin() );
     fdText.right = new FormAttachment( 100, 0 );
     wText.setLayoutData( fdText );
   }

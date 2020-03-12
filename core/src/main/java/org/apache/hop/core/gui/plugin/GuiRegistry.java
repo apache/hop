@@ -1,6 +1,6 @@
 package org.apache.hop.core.gui.plugin;
 
-import org.apache.hop.core.Const;
+import org.apache.hop.core.action.GuiContextAction;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -21,10 +21,12 @@ public class GuiRegistry {
 
   private Map<String, Map<String, GuiElements>> dataElementsMap;
   private Map<String, List<KeyboardShortcut>> shortCutsMap;
+  private Map<String, List<GuiAction>> contextActionsMap;
 
   private GuiRegistry() {
     dataElementsMap = new HashMap<>();
-    shortCutsMap = new HashMap<>(  );
+    shortCutsMap = new HashMap<>();
+    contextActionsMap = new HashMap<>();
   }
 
   public static final GuiRegistry getInstance() {
@@ -64,10 +66,10 @@ public class GuiRegistry {
       return null;
     }
     GuiElements guiElements = elementsMap.get( parentGuiElementId );
-    if (guiElements==null) {
-      for (GuiElements elements : elementsMap.values()) {
+    if ( guiElements == null ) {
+      for ( GuiElements elements : elementsMap.values() ) {
         GuiElements found = findChildGuiElementsById( elements, parentGuiElementId );
-        if (found!=null) {
+        if ( found != null ) {
           return found;
         }
       }
@@ -77,17 +79,18 @@ public class GuiRegistry {
 
   /**
    * Look at the given {@link GuiElements} object its children and see if the element with the given ID is found.
+   *
    * @param guiElements The element and its children to examine
-   * @param id The element ID to look for
+   * @param id          The element ID to look for
    * @return The GuiElement if any is found or null if nothing is found.
    */
-  public GuiElements findChildGuiElementsById(GuiElements guiElements, String id) {
-    if (guiElements.getId()!=null && guiElements.getId().equals( id )) {
+  public GuiElements findChildGuiElementsById( GuiElements guiElements, String id ) {
+    if ( guiElements.getId() != null && guiElements.getId().equals( id ) ) {
       return guiElements;
     }
-    for (GuiElements child : guiElements.getChildren()) {
+    for ( GuiElements child : guiElements.getChildren() ) {
       GuiElements found = findChildGuiElementsById( child, id );
-      if (found!=null) {
+      if ( found != null ) {
         return found;
       }
     }
@@ -161,7 +164,7 @@ public class GuiRegistry {
    * If there is no elements objects for the parent ID under which the element belongs, one will be added.
    *
    * @param parentClassName The parent under which the widgets are stored
-   * @param dataClass The data class (singleton) of the method
+   * @param dataClass       The data class (singleton) of the method
    * @param guiElement
    * @param method
    */
@@ -206,20 +209,20 @@ public class GuiRegistry {
 
   public void addKeyboardShortcut( String parentClassName, Method parentMethod, GuiKeyboardShortcut shortcut ) {
     List<KeyboardShortcut> shortcuts = shortCutsMap.get( parentClassName );
-    if (shortcuts==null) {
-      shortcuts = new ArrayList<>(  );
-      shortCutsMap.put(parentClassName, shortcuts);
+    if ( shortcuts == null ) {
+      shortcuts = new ArrayList<>();
+      shortCutsMap.put( parentClassName, shortcuts );
     }
-    shortcuts.add(new KeyboardShortcut( shortcut, parentMethod ));
+    shortcuts.add( new KeyboardShortcut( shortcut, parentMethod ) );
   }
 
   public void addKeyboardShortcut( String parentClassName, Method parentMethod, GuiOSXKeyboardShortcut shortcut ) {
     List<KeyboardShortcut> shortcuts = shortCutsMap.get( parentClassName );
-    if (shortcuts==null) {
-      shortcuts = new ArrayList<>(  );
-      shortCutsMap.put(parentClassName, shortcuts);
+    if ( shortcuts == null ) {
+      shortcuts = new ArrayList<>();
+      shortCutsMap.put( parentClassName, shortcuts );
     }
-    shortcuts.add(new KeyboardShortcut( shortcut, parentMethod ));
+    shortcuts.add( new KeyboardShortcut( shortcut, parentMethod ) );
   }
 
   public List<KeyboardShortcut> getKeyboardShortcuts( String parentClassName ) {
@@ -227,12 +230,12 @@ public class GuiRegistry {
     return shortcuts;
   }
 
-  public KeyboardShortcut findKeyboardShortcut(String parentClassName, String methodName, boolean osx) {
+  public KeyboardShortcut findKeyboardShortcut( String parentClassName, String methodName, boolean osx ) {
     List<KeyboardShortcut> shortcuts = getKeyboardShortcuts( parentClassName );
-    if (shortcuts!=null) {
+    if ( shortcuts != null ) {
       for ( KeyboardShortcut shortcut : shortcuts ) {
         if ( shortcut.getParentMethodName().equals( methodName ) ) {
-          if (shortcut.isOsx()==osx) {
+          if ( shortcut.isOsx() == osx ) {
             return shortcut;
           }
         }
@@ -241,4 +244,76 @@ public class GuiRegistry {
     return null;
   }
 
+  /**
+   * Add a GUI context action for the given method and its annotation.
+   * Also provide a classloader which can be used to load resources later.
+   * @param method
+   * @param ca
+   * @param classLoader
+   */
+  public void addGuiContextAction( Method method, GuiContextAction ca, ClassLoader classLoader ) {
+    GuiAction action = new GuiAction(ca.id(), ca.type(), ca.name(), ca.tooltip(), ca.image(), method.getName());
+    action.setClassLoader( classLoader );
+
+    List<GuiAction> actions = contextActionsMap.get( ca.parentId() );
+    if (actions==null) {
+      actions = new ArrayList<>();
+      contextActionsMap.put( ca.parentId(), actions );
+    }
+    actions.add(action);
+  }
+
+  public List<GuiAction> getGuiContextActions( String parentContextId ) {
+    return contextActionsMap.get( parentContextId );
+  }
+
+
+
+  /**
+   * Gets dataElementsMap
+   *
+   * @return value of dataElementsMap
+   */
+  public Map<String, Map<String, GuiElements>> getDataElementsMap() {
+    return dataElementsMap;
+  }
+
+  /**
+   * @param dataElementsMap The dataElementsMap to set
+   */
+  public void setDataElementsMap( Map<String, Map<String, GuiElements>> dataElementsMap ) {
+    this.dataElementsMap = dataElementsMap;
+  }
+
+  /**
+   * Gets shortCutsMap
+   *
+   * @return value of shortCutsMap
+   */
+  public Map<String, List<KeyboardShortcut>> getShortCutsMap() {
+    return shortCutsMap;
+  }
+
+  /**
+   * @param shortCutsMap The shortCutsMap to set
+   */
+  public void setShortCutsMap( Map<String, List<KeyboardShortcut>> shortCutsMap ) {
+    this.shortCutsMap = shortCutsMap;
+  }
+
+  /**
+   * Gets contextActionsMap
+   *
+   * @return value of contextActionsMap
+   */
+  public Map<String, List<GuiAction>> getContextActionsMap() {
+    return contextActionsMap;
+  }
+
+  /**
+   * @param contextActionsMap The contextActionsMap to set
+   */
+  public void setContextActionsMap( Map<String, List<GuiAction>> contextActionsMap ) {
+    this.contextActionsMap = contextActionsMap;
+  }
 }

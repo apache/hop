@@ -238,7 +238,7 @@ public class TextFileOutputDialog extends BaseStepDialog implements StepDialogIn
     shell.setText( getDialogTitle() );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

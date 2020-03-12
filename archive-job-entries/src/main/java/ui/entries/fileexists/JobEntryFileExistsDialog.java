@@ -131,7 +131,7 @@ public class JobEntryFileExistsDialog extends JobEntryDialog implements JobEntry
     shell.setText( BaseMessages.getString( PKG, "JobFileExists.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Filename line
     wlName = new Label( shell, SWT.RIGHT );

@@ -446,7 +446,7 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
     shell.setText( BaseMessages.getString( PKG, "TextFileInputDialog.DialogTitle" ) );
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

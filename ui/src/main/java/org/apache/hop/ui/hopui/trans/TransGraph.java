@@ -3679,6 +3679,8 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
    * Add an extra view to the main composite SashForm
    */
   public void addExtraView() {
+    PropsUI props = PropsUI.getInstance();
+
     extraViewComposite = new Composite( sashForm, SWT.NONE );
     FormLayout extraCompositeFormLayout = new FormLayout();
     extraCompositeFormLayout.marginWidth = 2;
@@ -3705,7 +3707,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
     minMaxButton.setImage( GUIResource.getInstance().getImageMaximizePanel() );
     minMaxButton.setToolTipText( BaseMessages.getString( PKG, "TransGraph.ExecutionResultsPanel.MaxButton.Tooltip" ) );
     FormData fdMinMax = new FormData();
-    fdMinMax.right = new FormAttachment( closeButton, -Const.MARGIN );
+    fdMinMax.right = new FormAttachment( closeButton, -props.getMargin() );
     fdMinMax.top = new FormAttachment( 0, 0 );
     minMaxButton.setLayoutData( fdMinMax );
     minMaxButton.addMouseListener( new MouseAdapter() {
@@ -3723,7 +3725,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
     wResultsLabel.setText( BaseMessages.getString( PKG, "TransLog.ResultsPanel.NameLabel" ) );
     FormData fdResultsLabel = new FormData();
     fdResultsLabel.left = new FormAttachment( 0, 0 );
-    fdResultsLabel.right = new FormAttachment( minMaxButton, -Const.MARGIN );
+    fdResultsLabel.right = new FormAttachment( minMaxButton, -props.getMargin() );
     fdResultsLabel.top = new FormAttachment( 0, 0 );
     wResultsLabel.setLayoutData( fdResultsLabel );
 
@@ -3748,7 +3750,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.top = new FormAttachment( wResultsLabel, Const.MARGIN );
+    fdTabFolder.top = new FormAttachment( wResultsLabel, props.getMargin() );
     fdTabFolder.bottom = new FormAttachment( 100, 0 );
     extraViewTabFolder.setLayoutData( fdTabFolder );
 

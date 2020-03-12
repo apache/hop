@@ -65,8 +65,8 @@ import java.util.List;
 @Step(
   id = "PGBulkLoader",
   i18nPackageName = "org.apache.hop.trans.step",
-  description = "BaseStep.TypeTooltipDesc.PGBulkLoader",
-  name = "BaseStep.TypeLongDesc.PGBulkLoader",
+  description = "PGBulkLoader.Description",
+  name = "PGBulkLoader.Name",
   categoryDescription = "BaseStep.Category.Bulk",
   image = "PGBulkLoader.svg",
   documentationUrl = "http://wiki.pentaho.com/display/EAI/PostgreSQL+Bulk+Loader"

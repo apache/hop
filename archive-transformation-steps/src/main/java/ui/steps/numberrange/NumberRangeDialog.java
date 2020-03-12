@@ -133,7 +133,7 @@ public class NumberRangeDialog extends BaseStepDialog implements StepDialogInter
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( "Cancel" );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, Const.MARGIN, rulesControl );
+    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, props.getMargin(), rulesControl );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -190,8 +190,8 @@ public class NumberRangeDialog extends BaseStepDialog implements StepDialogInter
     props.setLook( rulesLable );
     FormData lableFormData = new FormData();
     lableFormData.left = new FormAttachment( 0, 0 );
-    lableFormData.right = new FormAttachment( props.getMiddlePct(), -Const.MARGIN );
-    lableFormData.top = new FormAttachment( fallBackValueControl, Const.MARGIN );
+    lableFormData.right = new FormAttachment( props.getMiddlePct(), -props.getMargin() );
+    lableFormData.top = new FormAttachment( fallBackValueControl, props.getMargin() );
     rulesLable.setLayoutData( lableFormData );
 
     final int FieldsRows = input.getRules().size();
@@ -212,7 +212,7 @@ public class NumberRangeDialog extends BaseStepDialog implements StepDialogInter
 
     fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
-    fdFields.top = new FormAttachment( rulesLable, Const.MARGIN );
+    fdFields.top = new FormAttachment( rulesLable, props.getMargin() );
     fdFields.right = new FormAttachment( 100, 0 );
     fdFields.bottom = new FormAttachment( 100, -50 );
     rulesControl.setLayoutData( fdFields );
@@ -225,12 +225,12 @@ public class NumberRangeDialog extends BaseStepDialog implements StepDialogInter
     props.setLook( lable );
     FormData lableFormData = new FormData();
     lableFormData.left = new FormAttachment( 0, 0 );
-    lableFormData.right = new FormAttachment( props.getMiddlePct(), -Const.MARGIN );
+    lableFormData.right = new FormAttachment( props.getMiddlePct(), -props.getMargin() );
     // In case it is the first control
     if ( prevControl != null ) {
-      lableFormData.top = new FormAttachment( prevControl, Const.MARGIN );
+      lableFormData.top = new FormAttachment( prevControl, props.getMargin() );
     } else {
-      lableFormData.top = new FormAttachment( 0, Const.MARGIN );
+      lableFormData.top = new FormAttachment( 0, props.getMargin() );
     }
     lable.setLayoutData( lableFormData );
 
@@ -241,9 +241,9 @@ public class NumberRangeDialog extends BaseStepDialog implements StepDialogInter
     widgetFormData.left = new FormAttachment( props.getMiddlePct(), 0 );
     // In case it is the first control
     if ( prevControl != null ) {
-      widgetFormData.top = new FormAttachment( prevControl, Const.MARGIN );
+      widgetFormData.top = new FormAttachment( prevControl, props.getMargin() );
     } else {
-      widgetFormData.top = new FormAttachment( 0, Const.MARGIN );
+      widgetFormData.top = new FormAttachment( 0, props.getMargin() );
     }
     widgetFormData.right = new FormAttachment( 100, 0 );
     control.setLayoutData( widgetFormData );
@@ -258,12 +258,12 @@ public class NumberRangeDialog extends BaseStepDialog implements StepDialogInter
     props.setLook( lable );
     FormData lableFormData = new FormData();
     lableFormData.left = new FormAttachment( 0, 0 );
-    lableFormData.right = new FormAttachment( props.getMiddlePct(), -Const.MARGIN );
+    lableFormData.right = new FormAttachment( props.getMiddlePct(), -props.getMargin() );
     // In case it is the first control
     if ( prevControl != null ) {
-      lableFormData.top = new FormAttachment( prevControl, Const.MARGIN );
+      lableFormData.top = new FormAttachment( prevControl, props.getMargin() );
     } else {
-      lableFormData.top = new FormAttachment( 0, Const.MARGIN );
+      lableFormData.top = new FormAttachment( 0, props.getMargin() );
     }
     lable.setLayoutData( lableFormData );
 
@@ -274,9 +274,9 @@ public class NumberRangeDialog extends BaseStepDialog implements StepDialogInter
     widgetFormData.left = new FormAttachment( props.getMiddlePct(), 0 );
     // In case it is the first control
     if ( prevControl != null ) {
-      widgetFormData.top = new FormAttachment( prevControl, Const.MARGIN );
+      widgetFormData.top = new FormAttachment( prevControl, props.getMargin() );
     } else {
-      widgetFormData.top = new FormAttachment( 0, Const.MARGIN );
+      widgetFormData.top = new FormAttachment( 0, props.getMargin() );
     }
     widgetFormData.right = new FormAttachment( 100, 0 );
     control.setLayoutData( widgetFormData );

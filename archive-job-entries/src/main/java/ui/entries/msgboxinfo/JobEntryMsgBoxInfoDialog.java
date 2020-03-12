@@ -126,7 +126,7 @@ public class JobEntryMsgBoxInfoDialog extends JobEntryDialog implements JobEntry
     shell.setText( BaseMessages.getString( PKG, "MsgBoxInfo.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     wOK = new Button( shell, SWT.PUSH );
     wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );

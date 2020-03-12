@@ -106,7 +106,7 @@ public class EnterStringsDialog extends Dialog {
     shell.setLayout( formLayout );
     shell.setText( title );
 
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Message line
     wlFields = new Label( shell, SWT.NONE );
