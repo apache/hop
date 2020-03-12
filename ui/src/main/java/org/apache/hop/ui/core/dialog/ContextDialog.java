@@ -212,6 +212,11 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     wSearch.addKeyListener( this );
     wCanvas.addPaintListener( this );
     wCanvas.addMouseListener( this );
+    wCanvas.getVerticalBar().addSelectionListener( new SelectionAdapter() {
+      @Override public void widgetSelected( SelectionEvent e ) {
+        wCanvas.redraw();
+      }
+    } );
 
     wSearch.setFocus();
     wCanvas.redraw();
