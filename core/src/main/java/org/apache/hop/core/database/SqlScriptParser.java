@@ -41,8 +41,6 @@ public class SqlScriptParser {
     SQL, LINE_COMMENT, BLOCK_COMMENT, STRING
   }
 
-  ;
-
   private boolean usingBackslashAsEscapeCharForQuotation;
 
   /**

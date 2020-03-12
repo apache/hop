@@ -124,7 +124,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
 
   private DatabaseMeta databaseMeta;
 
-  private final String DATA_SERVICES_PLUGIN_ID = "HopThin";
+  private static final String DATA_SERVICES_PLUGIN_ID = "HopThin";
 
   private int rowlimit;
   private int commitsize;
@@ -471,12 +471,9 @@ public class Database implements VariableSpace, LoggingObjectInterface {
           Class.forName( classname );
         }
       }
-    } catch ( NoClassDefFoundError e ) {
+    } catch ( NoClassDefFoundError | ClassNotFoundException e  ) {
       throw new HopDatabaseException( BaseMessages.getString( PKG,
-        "Database.Exception.UnableToFindClassMissingDriver", classname, plugin.getName() ), e );
-    } catch ( ClassNotFoundException e ) {
-      throw new HopDatabaseException( BaseMessages.getString( PKG,
-        "Database.Exception.UnableToFindClassMissingDriver", classname, plugin.getName() ), e );
+        "Database.Exception.UnableToFindClassMissingDriver", classname, plugin.getName() ), e );    
     } catch ( Exception e ) {
       throw new HopDatabaseException( "Exception while loading class", e );
     }
@@ -1365,7 +1362,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
       // Null update count forces rollback of batch
       kdbe.setUpdateCounts( null );
     }
-    List<Exception> exceptions = new ArrayList<Exception>();
+    List<Exception> exceptions = new ArrayList<>();
     SQLException nextException = ex.getNextException();
     SQLException oldException = null;
 
@@ -1854,6 +1851,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * @throws HopDatabaseException
    * @deprecated Deprecated in favor of {@link #checkTableExists(String, String)}
    */
+  @Deprecated
   public boolean checkTableExistsByDbMeta( String schema, String tablename ) throws HopDatabaseException {
     boolean isTableExist = false;
     if ( log.isDebug() ) {
@@ -1981,6 +1979,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
    * @return true if the table exists, false if it doesn't.
    * @deprecated Deprecated in favor of the smarter {@link #checkColumnExists(String, String, String)}
    */
+  @Deprecated
   public boolean checkColumnExists( String columnname, String tablename ) throws HopDatabaseException {
     try {
       if ( log.isDebug() ) {
@@ -3620,12 +3619,12 @@ public class Database implements VariableSpace, LoggingObjectInterface {
     return row;
   }
 
-  public synchronized Long getNextValue( Hashtable<String, Counter> counters, String tableName, String val_key )
+  public synchronized Long getNextValue( Map<String, Counter> counters, String tableName, String val_key )
     throws HopDatabaseException {
     return getNextValue( counters, null, tableName, val_key );
   }
 
-  public synchronized Long getNextValue( Hashtable<String, Counter> counters, String schemaName, String tableName,
+  public synchronized Long getNextValue( Map<String, Counter> counters, String schemaName, String tableName,
                                          String val_key ) throws HopDatabaseException {
     Long nextValue = null;
 
@@ -3749,7 +3748,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   public List<Object[]> getRows( ResultSet rset, int limit, ProgressMonitorListener monitor )
     throws HopDatabaseException {
     try {
-      List<Object[]> result = new ArrayList<Object[]>();
+      List<Object[]> result = new ArrayList<>();
       boolean stop = false;
       int i = 0;
 
@@ -3880,7 +3879,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
         schemaname = environmentSubstitute( databaseMeta.getUsername() ).toUpperCase();
       }
     }
-    Map<String, Collection<String>> tableMap = new HashMap<String, Collection<String>>();
+    Map<String, Collection<String>> tableMap = new HashMap<>();
     ResultSet alltables = null;
     try {
       alltables = getDatabaseMetaData().getTables( null, schemaname, null, databaseMeta.getTableTypes() );
@@ -3996,7 +3995,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
       }
     }
 
-    Map<String, Collection<String>> viewMap = new HashMap<String, Collection<String>>();
+    Map<String, Collection<String>> viewMap = new HashMap<>();
     ResultSet allviews = null;
     try {
       allviews = getDatabaseMetaData().getTables( null, schemaname, null, databaseMeta.getViewTypes() );
@@ -4094,7 +4093,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
         schemaname = environmentSubstitute( databaseMeta.getUsername() ).toUpperCase();
       }
     }
-    Map<String, Collection<String>> synonymMap = new HashMap<String, Collection<String>>();
+    Map<String, Collection<String>> synonymMap = new HashMap<>();
     // ArrayList<String> names = new ArrayList<>();
     ResultSet alltables = null;
     try {
@@ -4157,7 +4156,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
   private <K, V> void multimapPut( final K key, final V value, final Map<K, Collection<V>> map ) {
     Collection<V> valueCollection = map.get( key );
     if ( valueCollection == null ) {
-      valueCollection = new HashSet<V>();
+      valueCollection = new HashSet<>();
     }
     valueCollection.add( value );
     map.put( key, valueCollection );
@@ -4489,7 +4488,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
             v = Boolean.valueOf( cstmt.getBoolean( pos ) );
             break;
           case ValueMetaInterface.TYPE_NUMBER:
-            v = new Double( cstmt.getDouble( pos ) );
+            v = Double.valueOf( cstmt.getDouble( pos ) );
             break;
           case ValueMetaInterface.TYPE_BIGNUMBER:
             v = cstmt.getBigDecimal( pos );
@@ -4534,7 +4533,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
               v = Boolean.valueOf( cstmt.getBoolean( pos + i ) );
               break;
             case ValueMetaInterface.TYPE_NUMBER:
-              v = new Double( cstmt.getDouble( pos + i ) );
+              v = Double.valueOf( cstmt.getDouble( pos + i ) );
               break;
             case ValueMetaInterface.TYPE_BIGNUMBER:
               v = cstmt.getBigDecimal( pos + i );

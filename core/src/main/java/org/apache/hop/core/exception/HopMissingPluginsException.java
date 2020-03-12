@@ -38,18 +38,26 @@ import java.util.List;
 public class HopMissingPluginsException extends HopException {
   private static final long serialVersionUID = -3008319146447259788L;
 
-  public class PluginDetails {
-    public Class<? extends PluginTypeInterface> pluginTypeClass;
-    public String pluginId;
+  public static class PluginDetails {
+    private final Class<? extends PluginTypeInterface> pluginTypeClass;
+    private final String pluginId;
 
     public PluginDetails( Class<? extends PluginTypeInterface> pluginTypeClass, String pluginId ) {
       super();
       this.pluginTypeClass = pluginTypeClass;
       this.pluginId = pluginId;
     }
+
+	public Class<? extends PluginTypeInterface> getPluginTypeClass() {
+		return pluginTypeClass;
+	}
+
+	public String getPluginId() {
+		return pluginId;
+	}
   }
 
-  private List<PluginDetails> missingPluginDetailsList;
+  private final List<PluginDetails> missingPluginDetailsList;
 
   /**
    * Constructs a new throwable with the specified detail message.
@@ -58,7 +66,7 @@ public class HopMissingPluginsException extends HopException {
    */
   public HopMissingPluginsException( String message ) {
     super( message );
-    this.missingPluginDetailsList = new ArrayList<PluginDetails>();
+    this.missingPluginDetailsList = new ArrayList<>();
   }
 
   /**
@@ -90,9 +98,9 @@ public class HopMissingPluginsException extends HopException {
         PluginTypeInterface pluginType = PluginRegistry.getInstance().getPluginType( details.pluginTypeClass );
         message.append( pluginType.getName() );
       } catch ( Exception e ) {
-        message.append( "UnknownPluginType-" ).append( details.pluginTypeClass.getName() );
+        message.append( "UnknownPluginType-" ).append( details.getPluginTypeClass().getName() );
       }
-      message.append( " : " ).append( details.pluginId );
+      message.append( " : " ).append( details.getPluginId() );
     }
     return message.toString();
   }
