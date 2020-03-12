@@ -24,6 +24,7 @@ package org.apache.hop.trans.steps.fileinput;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.gui.TextFileInputFieldInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;

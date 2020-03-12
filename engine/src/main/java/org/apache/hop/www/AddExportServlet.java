@@ -27,12 +27,14 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobConfiguration;
 import org.apache.hop.job.JobExecutionConfiguration;
 import org.apache.hop.job.JobMeta;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransConfiguration;
 import org.apache.hop.trans.TransExecutionConfiguration;
@@ -269,7 +271,9 @@ public class AddExportServlet extends BaseHttpServlet implements HopServerPlugin
         } else {
           // Open the transformation from inside the ZIP archive
           //
-          TransMeta transMeta = new TransMeta( fileUrl );
+          IMetaStore metaStore = transformationMap.getSlaveServerConfig().getMetaStore();
+          TransMeta transMeta = new TransMeta( fileUrl, metaStore, true, Variables.getADefaultVariableSpace() );
+
           // Also read the execution configuration information
           //
           String configUrl = "zip:" + archiveUrl + "!" + Trans.CONFIGURATION_IN_EXPORT_FILENAME;

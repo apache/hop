@@ -22,6 +22,7 @@
 
 package org.apache.hop.trans.step;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.HopAttribute;
 import org.apache.hop.core.HopAttributeInterface;
@@ -77,8 +78,6 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
   public static final LoggingObjectInterface loggingObject = new SimpleLoggingObject(
     "Step metadata", LoggingObjectType.STEPMETA, null );
 
-  public static final String STEP_ATTRIBUTES_FILE = "step-attributes.xml";
-
   private boolean changed;
 
   /**
@@ -91,16 +90,25 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
   private volatile StepIOMetaInterface ioMetaVar;
   ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
+  protected String stepAttributesFile;
+
+  public BaseStepMeta() {
+    this( null );
+  }
+
   /**
    * Instantiates a new base step meta.
    */
-  public BaseStepMeta() {
+  public BaseStepMeta( String stepAttributesFile ) {
+    this.stepAttributesFile = stepAttributesFile;
     changed = false;
 
-    try {
-      loadStepAttributes();
-    } catch ( Exception e ) {
-      e.printStackTrace();
+    if ( StringUtils.isNotEmpty( stepAttributesFile ) ) {
+      try {
+        loadStepAttributes();
+      } catch ( Exception e ) {
+        throw new RuntimeException( "Unable to create/load base metadata information for class " + getClass().getName(), e );
+      }
     }
   }
 
@@ -760,7 +768,12 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
    * @throws HopException the kettle exception
    */
   protected void loadStepAttributes() throws HopException {
-    try ( InputStream inputStream = getClass().getResourceAsStream( STEP_ATTRIBUTES_FILE ) ) {
+    InputStream inputStream = null;
+    try {
+      inputStream = this.getClass().getClassLoader().getResourceAsStream( stepAttributesFile );
+      if ( inputStream == null ) {
+        inputStream = getClass().getResourceAsStream( stepAttributesFile );
+      }
       if ( inputStream != null ) {
         Document document = XMLHandler.loadXMLFile( inputStream );
         Node attrsNode = XMLHandler.getSubNode( document, "attributes" );
@@ -777,9 +790,11 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
           HopAttribute attribute = new HopAttribute( key, xmlCode, description, tooltip, valueType, findParent( attributes, parentId ) );
           attributes.add( attribute );
         }
+      } else {
+          throw new HopException( "Unable to find step attributes file '" + stepAttributesFile + "' for step class '" + getClass().getName() + "'" );
       }
     } catch ( Exception e ) {
-      throw new HopException( "Unable to load file " + STEP_ATTRIBUTES_FILE, e );
+      throw new HopException( "Unable to load file " + stepAttributesFile, e );
     }
   }
 
@@ -903,5 +918,21 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
    */
   public Object loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space ) throws HopException {
     return null;
+  }
+
+  /**
+   * Gets stepAttributesFile
+   *
+   * @return value of stepAttributesFile
+   */
+  public String getStepAttributesFile() {
+    return stepAttributesFile;
+  }
+
+  /**
+   * @param stepAttributesFile The stepAttributesFile to set
+   */
+  public void setStepAttributesFile( String stepAttributesFile ) {
+    this.stepAttributesFile = stepAttributesFile;
   }
 }

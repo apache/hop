@@ -6,12 +6,13 @@ import org.apache.hop.core.gui.plugin.GuiActionLambdaBuilder;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HopGuiTransStepContext implements IGuiContextHandler {
+public class HopGuiTransStepContext extends BaseGuiContextHandler implements IGuiContextHandler {
 
   public static final String CONTEXT_ID = "HopGuiTransStepContext";
 
@@ -22,11 +23,16 @@ public class HopGuiTransStepContext implements IGuiContextHandler {
   private GuiActionLambdaBuilder<HopGuiTransStepContext> lambdaBuilder;
 
   public HopGuiTransStepContext( TransMeta transMeta, StepMeta stepMeta, HopGuiTransGraph transGraph, Point click ) {
+    super();
     this.transMeta = transMeta;
     this.stepMeta = stepMeta;
     this.transGraph = transGraph;
     this.click = click;
     this.lambdaBuilder = new GuiActionLambdaBuilder<>();
+  }
+
+  public String getContextId() {
+    return CONTEXT_ID;
   }
 
   /**
@@ -38,9 +44,9 @@ public class HopGuiTransStepContext implements IGuiContextHandler {
   @Override public List<GuiAction> getSupportedActions() {
     List<GuiAction> actions = new ArrayList<>();
 
-    // Get the actions from the plugins...
+    // Get the actions from the plugins, sorted by ID...
     //
-    List<GuiAction> pluginActions = GuiRegistry.getInstance().getGuiContextActions( CONTEXT_ID );
+    List<GuiAction> pluginActions = getPluginActions( true );
     if (pluginActions!=null) {
       for (GuiAction pluginAction : pluginActions) {
         actions.add( lambdaBuilder.createLambda( pluginAction, transGraph, this ) );

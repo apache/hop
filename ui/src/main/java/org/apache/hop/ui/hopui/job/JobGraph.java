@@ -49,6 +49,7 @@ import org.apache.hop.core.logging.LogParentProvidedInterface;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.Job;
@@ -2572,7 +2573,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
       // Open the file or create a new one!
       //
       if ( HopVFS.fileExists( exactFilename ) ) {
-        launchTransMeta = new TransMeta( exactFilename );
+        launchTransMeta = new TransMeta( exactFilename, hopUi.getMetaStore(), true, Variables.getADefaultVariableSpace() );
       } else {
         launchTransMeta = new TransMeta();
       }

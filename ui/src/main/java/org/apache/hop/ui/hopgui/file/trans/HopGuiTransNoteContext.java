@@ -6,12 +6,13 @@ import org.apache.hop.core.gui.plugin.GuiAction;
 import org.apache.hop.core.gui.plugin.GuiActionLambdaBuilder;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.trans.TransMeta;
+import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HopGuiTransNoteContext implements IGuiContextHandler {
+public class HopGuiTransNoteContext extends BaseGuiContextHandler implements IGuiContextHandler {
 
   public static final String CONTEXT_ID = "HopGuiTransNoteContext";
 
@@ -29,6 +30,10 @@ public class HopGuiTransNoteContext implements IGuiContextHandler {
     this.lambdaBuilder = new GuiActionLambdaBuilder<>();
   }
 
+  @Override public String getContextId() {
+    return CONTEXT_ID;
+  }
+
   /**
    * Create a list of supported actions on a transformation.
    * We'll add the creation of every possible step as well as the modification of the transformation itself.
@@ -40,7 +45,7 @@ public class HopGuiTransNoteContext implements IGuiContextHandler {
 
     // Get the actions from the plugins...
     //
-    List<GuiAction> pluginActions = GuiRegistry.getInstance().getGuiContextActions( CONTEXT_ID );
+    List<GuiAction> pluginActions = getPluginActions( true );
     if (pluginActions!=null) {
       for (GuiAction pluginAction : pluginActions) {
         actions.add( lambdaBuilder.createLambda( pluginAction, transGraph, this ) );
@@ -114,4 +119,6 @@ public class HopGuiTransNoteContext implements IGuiContextHandler {
   public void setClick( Point click ) {
     this.click = click;
   }
+
+
 }

@@ -26,7 +26,7 @@ import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.steps.fileinput.TextFileInputField;
+import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
 import org.junit.After;
 import org.junit.Before;

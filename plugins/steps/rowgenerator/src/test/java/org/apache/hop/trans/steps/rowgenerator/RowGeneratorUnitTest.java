@@ -26,7 +26,9 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.RowAdapter;
@@ -92,7 +94,7 @@ public class RowGeneratorUnitTest {
   @Ignore
   @Test
   public void doesNotWriteRowOnTimeWhenStopped() throws HopException, InterruptedException {
-    TransMeta transMeta = new TransMeta( getClass().getResource( "safe-stop.ktr" ).getPath() );
+    TransMeta transMeta = new TransMeta( getClass().getResource( "safe-stop.ktr" ).getPath(), new MemoryMetaStore(), true, Variables.getADefaultVariableSpace() );
     Trans trans = new Trans( transMeta );
     trans.prepareExecution();
     trans.getSteps().get( 1 ).step.addRowListener( new RowAdapter() {

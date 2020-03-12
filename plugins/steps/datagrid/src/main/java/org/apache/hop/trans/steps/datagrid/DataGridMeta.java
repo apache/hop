@@ -48,7 +48,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.trans.steps.datagrid",
         name = "BaseStep.TypeLongDesc.DataGrid",
         description = "BaseStep.TypeTooltipDesc.DataGrid",
-        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Input"
+        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Input",
+        keywords = { "data","static","grid", "entry" } //TODO : i18n
 )
 public class DataGridMeta extends BaseStepMeta implements StepMetaInterface {
   private String[] currency;

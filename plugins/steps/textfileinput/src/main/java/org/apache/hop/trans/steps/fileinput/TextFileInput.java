@@ -31,6 +31,8 @@ import org.apache.hop.core.compress.CompressionProvider;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.file.InputFileMetaInterface;
+import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.playlist.FilePlayListAll;
