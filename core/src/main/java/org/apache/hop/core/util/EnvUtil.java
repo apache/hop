@@ -44,6 +44,9 @@ import java.util.TimeZone;
 public class EnvUtil {
   private static Properties env = null;
 
+  private EnvUtil() {		 
+  }
+  
   /**
    * Returns the properties from the users kettle home directory.
    *
@@ -59,20 +62,10 @@ public class EnvUtil {
 
   private static Properties readPropertiesByFullPath( final String fileName ) throws HopException {
     Properties props = new Properties();
-    InputStream is = null;
-    try {
-      is = new FileInputStream( fileName );
+    try (InputStream is = new FileInputStream( fileName ) )  {
       props.load( is );
     } catch ( IOException ioe ) {
-      throw new HopException( "Unable to read file '" + fileName + "'", ioe );
-    } finally {
-      if ( is != null ) {
-        try {
-          is.close();
-        } catch ( IOException e ) {
-          // ignore
-        }
-      }
+      throw new HopException( "Unable to read file '" + fileName + "'", ioe );    
     }
     return props;
   }
@@ -222,7 +215,7 @@ public class EnvUtil {
     addInternalVariables( sysprops );
 
     String[] envp = new String[ sysprops.size() ];
-    List<Object> list = new ArrayList<Object>( sysprops.keySet() );
+    List<Object> list = new ArrayList<>( sysprops.keySet() );
     for ( int i = 0; i < list.size(); i++ ) {
       String var = (String) list.get( i );
       String val = sysprops.getProperty( var );
@@ -259,8 +252,7 @@ public class EnvUtil {
    * variable is not defined and the default value is returned.
    */
   public static final String getSystemProperty( String key, String def ) {
-    String value = System.getProperty( key, def );
-    return value;
+    return System.getProperty( key, def );
   }
 
   /**
