@@ -36,6 +36,7 @@ import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 import org.apache.hop.trans.engine.IEngine;
 import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
@@ -194,7 +195,7 @@ public class TransTest {
       InputStream inputStream = new ByteArrayInputStream( "<transformation></transformation>".getBytes() );
       IOUtils.copy( inputStream, outputStream );
     }
-    Trans trans = new Trans( mockTransMeta, null, ktr.getURL().toURI().toString(), null );
+    Trans trans = new Trans( mockTransMeta, null, ktr.getURL().toURI().toString(), new MemoryMetaStore() );
     assertEquals( testParamValue, trans.getParameterValue( testParam ) );
   }
 
