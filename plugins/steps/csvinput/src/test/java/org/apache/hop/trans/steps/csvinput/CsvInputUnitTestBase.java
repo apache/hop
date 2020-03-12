@@ -24,7 +24,7 @@ package org.apache.hop.trans.steps.csvinput;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.trans.steps.fileinput.TextFileInputField;
+import org.apache.hop.core.file.TextFileInputField;
 import org.junit.BeforeClass;
 
 import java.io.File;

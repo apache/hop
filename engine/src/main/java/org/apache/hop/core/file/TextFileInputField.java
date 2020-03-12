@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.trans.steps.fileinput;
+package org.apache.hop.core.file;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.TextFileInputFieldInterface;

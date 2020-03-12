@@ -44,7 +44,7 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.*;
 import org.apache.hop.trans.steps.fileinput.EncodingType;
 import org.apache.hop.trans.steps.fileinput.TextFileInput;
-import org.apache.hop.trans.steps.fileinput.TextFileInputField;
+import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.trans.steps.fileinput.TextFileInputMeta;
 import org.apache.hop.trans.steps.fileinput.text.BOMDetector;
 

@@ -29,7 +29,7 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.step.RowAdapter;
 import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.steps.fileinput.TextFileInputField;
+import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
 import org.junit.*;
 import org.mockito.Matchers;

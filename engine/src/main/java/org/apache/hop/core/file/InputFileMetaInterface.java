@@ -20,8 +20,9 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.trans.steps.fileinput;
+package org.apache.hop.core.file;
 
+import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.trans.step.StepMetaInterface;
 

@@ -26,12 +26,16 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.job.Job;
 import org.apache.hop.job.JobConfiguration;
 import org.apache.hop.job.JobExecutionConfiguration;
 import org.apache.hop.job.JobMeta;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransConfiguration;
 import org.apache.hop.trans.TransExecutionConfiguration;
@@ -80,8 +84,7 @@ public class RegisterPackageServlet extends BaseJobServlet {
       String resultId;
 
       if ( isJob ) {
-        Node node =
-          getConfigNodeFromZIP( archiveUrl, Job.CONFIGURATION_IN_EXPORT_FILENAME, JobExecutionConfiguration.XML_TAG );
+        Node node = getConfigNodeFromZIP( archiveUrl, Job.CONFIGURATION_IN_EXPORT_FILENAME, JobExecutionConfiguration.XML_TAG );
         JobExecutionConfiguration jobExecutionConfiguration = new JobExecutionConfiguration( node );
 
         JobMeta jobMeta = new JobMeta( fileUrl );
@@ -95,7 +98,9 @@ public class RegisterPackageServlet extends BaseJobServlet {
             TransExecutionConfiguration.XML_TAG );
         TransExecutionConfiguration transExecutionConfiguration = new TransExecutionConfiguration( node );
 
-        TransMeta transMeta = new TransMeta( fileUrl );
+        IMetaStore metaStore = transformationMap.getSlaveServerConfig().getMetaStore();
+        TransMeta transMeta = new TransMeta( fileUrl, metaStore, true, Variables.getADefaultVariableSpace() );
+
         TransConfiguration transConfiguration = new TransConfiguration( transMeta, transExecutionConfiguration );
 
         Trans trans = createTrans( transConfiguration );

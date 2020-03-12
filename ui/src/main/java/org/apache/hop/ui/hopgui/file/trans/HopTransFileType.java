@@ -71,7 +71,7 @@ public class HopTransFileType<T extends TransMeta> extends HopFileTypeBase<T> im
 
       // Load the transformation
       //
-      TransMeta transMeta = new TransMeta( filename, parentVariableSpace );
+      TransMeta transMeta = new TransMeta( filename, hopGui.getMetaStore(), true, parentVariableSpace );
 
       // Pass the MetaStore for reference lookups
       //

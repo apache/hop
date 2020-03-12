@@ -67,4 +67,5 @@ public @interface JobEntry {
 
   String suggestion() default "";
 
+  String[] keywords() default {};
 }

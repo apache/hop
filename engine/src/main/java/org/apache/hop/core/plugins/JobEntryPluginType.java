@@ -25,6 +25,7 @@ package org.apache.hop.core.plugins;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.JobEntry;
+import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XMLHandler;
@@ -159,5 +160,9 @@ public class JobEntryPluginType extends BasePluginType implements PluginTypeInte
   @Override
   protected String extractClassLoaderGroup( Annotation annotation ) {
     return ( (JobEntry) annotation ).classLoaderGroup();
+  }
+
+  @Override protected String[] extractKeywords( Annotation annotation ) {
+    return ( (JobEntry)annotation).keywords();
   }
 }

@@ -1210,7 +1210,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           break;
       }
       if ( contextHandler != null ) {
-        GuiContextUtil.handleActionSelection( shell, message, new Point(e.x, e.y), contextHandler.getSupportedActions() );
+        org.eclipse.swt.graphics.Point p = shell.getDisplay().map( canvas, null, e.x, e.y );
+        GuiContextUtil.handleActionSelection( shell, message, new Point(p.x, p.y), contextHandler.getSupportedActions() );
       }
     }
 
@@ -2084,7 +2085,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-    id = "transgraph-edit-step",
+    id = "transgraph-step-10000-edit",
     parentId = HopGuiTransStepContext.CONTEXT_ID,
     type = GuiActionType.Modify,
     name = "Edit the step",
@@ -2101,7 +2102,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-    id = "transgraph-edit-step-description",
+    id = "transgraph-step-10800-edit-description",
     parentId = HopGuiTransStepContext.CONTEXT_ID,
     type = GuiActionType.Modify,
     name = "Edit step description",
@@ -2113,7 +2114,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-    id = "transgraph-edit-step-rows-distrubute",
+    id = "transgraph-step-10600-rows-distrubute",
     parentId = HopGuiTransStepContext.CONTEXT_ID,
     type = GuiActionType.Modify,
     name = "Distribute rows",
@@ -2127,7 +2128,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-    id = "transgraph-edit-step-custom-row-distribution",
+    id = "transgraph-step-10500-custom-row-distribution",
     parentId = HopGuiTransStepContext.CONTEXT_ID,
     type = GuiActionType.Modify,
     name = "Specify row distribution",
@@ -2169,7 +2170,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-    id = "transgraph-edit-step-copies",
+    id = "transgraph-step-10100-copies",
     parentId = HopGuiTransStepContext.CONTEXT_ID,
     type = GuiActionType.Modify,
     name = "Set the number of step copies",
@@ -2207,7 +2208,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-    id = "transgraph-edit-step-duplicate",
+    id = "transgraph-step-10600-edit-duplicate",
     parentId = HopGuiTransStepContext.CONTEXT_ID,
     type = GuiActionType.Modify,
     name = "Duplicate this step",
@@ -2224,7 +2225,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-    id = "transgraph-delete-step",
+    id = "transgraph-step-10900-delete",
     parentId = HopGuiTransStepContext.CONTEXT_ID,
     type = GuiActionType.Delete,
     name = "Delete this step",
@@ -2236,7 +2237,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-    id = "transgraph-step-fields-before",
+    id = "transgraph-step-10200-fields-before",
     parentId = HopGuiTransStepContext.CONTEXT_ID,
     type = GuiActionType.Info,
     name = "Show the fields entering this step",
@@ -2249,7 +2250,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-    id = "transgraph-step-fields-after",
+    id = "transgraph-step-10300-fields-after",
     parentId = HopGuiTransStepContext.CONTEXT_ID,
     type = GuiActionType.Info,
     name = "Show the fields exiting this step",
