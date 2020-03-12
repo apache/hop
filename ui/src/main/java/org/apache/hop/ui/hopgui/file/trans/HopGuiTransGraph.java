@@ -3177,6 +3177,20 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     }
   }
 
+  @GuiContextAction(
+    id = "transgraph-step-10050-create-hop",
+    parentId = HopGuiTransStepContext.CONTEXT_ID,
+    type = GuiActionType.Create,
+    name = "Create hop",
+    tooltip = "Create a new hop between 2 steps",
+    image = "ui/images/HOP.svg"
+  )
+  public void newHopCandidate(HopGuiTransStepContext context) {
+    startHopStep = context.getStepMeta();
+    endHopStep = null;
+    redraw();
+  }
+
   private boolean pointOnLine( int x, int y, int[] line ) {
     int dx, dy;
     int pm = HOP_SEL_MARGIN / 2;

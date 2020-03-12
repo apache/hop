@@ -44,8 +44,6 @@ public class HopGuiTransStepContext extends BaseGuiContextHandler implements IGu
   @Override public List<GuiAction> getSupportedActions() {
     List<GuiAction> actions = new ArrayList<>();
 
-    System.out.println("Step context, transGraph = "+transGraph);
-
     // Get the actions from the plugins, sorted by ID...
     //
     List<GuiAction> pluginActions = getPluginActions( true );
