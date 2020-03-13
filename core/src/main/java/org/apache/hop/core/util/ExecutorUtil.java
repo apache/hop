@@ -32,6 +32,9 @@ public class ExecutorUtil {
   private static final AtomicInteger threadNum = new AtomicInteger( 1 );
   private static final ExecutorService executor = init();
 
+  private ExecutorUtil() {		 
+  }
+  
   private static ExecutorService init() {
     ExecutorService executorService = Executors.newCachedThreadPool( new ThreadFactory() {
       @Override public Thread newThread( Runnable r ) {

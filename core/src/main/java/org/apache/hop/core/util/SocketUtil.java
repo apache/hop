@@ -30,6 +30,10 @@ import java.net.Socket;
  * Utility class for socket related methods
  */
 public class SocketUtil {
+	
+  private SocketUtil() {		 
+  }
+  
   /**
    * Attempts to connect to the specified host, wrapping any exceptions in a HopException
    *
@@ -39,8 +43,8 @@ public class SocketUtil {
    * @throws HopException
    */
   public static void connectToHost( String host, int port, int timeout ) throws HopException {
-    Socket socket = new Socket();
-    try {
+
+    try ( Socket socket = new Socket() ) {
       InetSocketAddress is = new InetSocketAddress( host, port );
       if ( timeout < 0 ) {
         socket.connect( is );
@@ -48,13 +52,7 @@ public class SocketUtil {
         socket.connect( is, timeout );
       }
     } catch ( Exception e ) {
-      throw new HopException( e );
-    } finally {
-      try {
-        socket.close();
-      } catch ( Exception e ) {
-        // Ignore
-      }
+      throw new HopException( e );    
     }
   }
 }

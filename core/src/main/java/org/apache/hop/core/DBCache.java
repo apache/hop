@@ -141,12 +141,7 @@ public class DBCache {
       if ( file.canRead() ) {
         log.logDetailed( "Loading database cache from file: [" + filename + "]" );
 
-        FileInputStream fis = null;
-        DataInputStream dis = null;
-
-        try {
-          fis = new FileInputStream( file );
-          dis = new DataInputStream( fis );
+        try (FileInputStream fis = new FileInputStream( file );  DataInputStream dis = new DataInputStream( fis ) ) {
           int counter = 0;
           try {
             while ( true ) {
@@ -160,11 +155,7 @@ public class DBCache {
           }
         } catch ( Exception e ) {
           throw new Exception( e );
-        } finally {
-          if ( dis != null ) {
-            dis.close();
-          }
-        }
+        } 
       } else {
         log.logDetailed( "The database cache doesn't exist yet." );
       }
@@ -180,18 +171,13 @@ public class DBCache {
       String filename = getFilename();
       File file = new File( filename );
       if ( !file.exists() || file.canWrite() ) {
-        FileOutputStream fos = null;
-        DataOutputStream dos = null;
 
-        try {
-          fos = new FileOutputStream( file );
-          dos = new DataOutputStream( new BufferedOutputStream( fos, 10000 ) );
+        try (FileOutputStream fos = new FileOutputStream( file ); DataOutputStream dos =new DataOutputStream( new BufferedOutputStream( fos, 10000 ) ) ) {
 
-          int counter = 0;
-          boolean ok = true;
+          int counter = 0;         
 
           Enumeration<DBCacheEntry> keys = cache.keys();
-          while ( ok && keys.hasMoreElements() ) {
+          while ( keys.hasMoreElements() ) {
             // Save the database cache entry
             DBCacheEntry entry = keys.nextElement();
             entry.write( dos );
@@ -209,10 +195,6 @@ public class DBCache {
           log.logDetailed( "We wrote " + counter + " cached rows to the database cache!" );
         } catch ( Exception e ) {
           throw new Exception( e );
-        } finally {
-          if ( dos != null ) {
-            dos.close();
-          }
         }
       } else {
         throw new HopFileException( "We can't write to the cache file: " + filename );

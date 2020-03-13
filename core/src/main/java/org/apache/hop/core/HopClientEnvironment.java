@@ -226,27 +226,14 @@ public class HopClientEnvironment {
     String kpFile = directory + Const.FILE_SEPARATOR + Const.HOP_PROPERTIES;
     File file = new File( kpFile );
     if ( !file.exists() ) {
-      FileOutputStream out = null;
-      try {
-        out = new FileOutputStream( file );
+      try (FileOutputStream out =  new FileOutputStream( file ) ) {       
         out.write( Const.getHopPropertiesFileHeader().getBytes() );
       } catch ( IOException e ) {
         System.err
           .println( BaseMessages.getString(
             PKG, "Props.Log.Error.UnableToCreateDefaultHopProperties.Message", Const.HOP_PROPERTIES,
             kpFile ) );
-        System.err.println( e.getStackTrace() );
-      } finally {
-        if ( out != null ) {
-          try {
-            out.close();
-          } catch ( IOException e ) {
-            System.err.println( BaseMessages.getString(
-              PKG, "Props.Log.Error.UnableToCreateDefaultHopProperties.Message", Const.HOP_PROPERTIES,
-              kpFile ) );
-            System.err.println( e.getStackTrace() );
-          }
-        }
+        System.err.println( e.getStackTrace() );      
       }
     }
   }

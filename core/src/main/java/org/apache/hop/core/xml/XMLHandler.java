@@ -86,6 +86,9 @@ public class XMLHandler {
   private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat( "yyyy/MM/dd HH:mm:ss.SSS" );
   private static final SimpleTimestampFormat simpleTimeStampFormat = new SimpleTimestampFormat( "yyyy/MM/dd HH:mm:ss.SSSSSSSSS" );
 
+  private XMLHandler() {
+  }
+  
   /**
    * The header string to specify encoding in UTF-8 for XML files
    *
