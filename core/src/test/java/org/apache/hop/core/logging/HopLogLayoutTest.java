@@ -35,7 +35,6 @@ public class HopLogLayoutTest {
       "Channel 01",
       new String[] { "Test" },
       LogLevel.DEBUG );
-  //  mcg.setSubject( "Subject" );
 
     HopLoggingEvent event = new HopLoggingEvent( mcg, 0, LogLevel.BASIC );
     HopLogLayout layout = new HopLogLayout();
@@ -43,7 +42,7 @@ public class HopLogLayoutTest {
     final String formattedMsg = layout.format( event );
 
     assertEquals( "The log message must be formatted and not contain placeholders.",
-      "Subject - Log message for Test",
+      "Log message for Test",
       formattedMsg.substring( formattedMsg.indexOf( '-' ) + 2 ) );
   }
 }
