@@ -374,9 +374,9 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements DatabaseI
 
 	@Override
 	public String quoteSQLString(String string) {
-		string = string.replaceAll("'", "\\\\'");
-		string = string.replaceAll("\\n", "\\\\n");
-		string = string.replaceAll("\\r", "\\\\r");
+		string = string.replace("'", "\\\\'");
+		string = string.replace("\\n", "\\\\n");
+		string = string.replace("\\r", "\\\\r");
 		return "'" + string + "'";
 	}
 
