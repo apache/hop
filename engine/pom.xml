@@ -208,17 +208,17 @@
         </exclusion>
       </exclusions>
     </dependency>-->
-    <dependency>
-      <groupId>com.googlecode.jsendnsca</groupId>
-      <artifactId>jsendnsca</artifactId>
-      <version>${jsendnsca.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+<!--     <dependency> -->
+<!--       <groupId>com.googlecode.jsendnsca</groupId> -->
+<!--       <artifactId>jsendnsca</artifactId> -->
+<!--       <version>${jsendnsca.version}</version> -->
+<!--       <exclusions> -->
+<!--         <exclusion> -->
+<!--           <groupId>*</groupId> -->
+<!--           <artifactId>*</artifactId> -->
+<!--         </exclusion> -->
+<!--       </exclusions> -->
+<!--     </dependency> -->
   <!--  <dependency>
       <groupId>feed4j</groupId>
       <artifactId>feed4j</artifactId>
@@ -296,17 +296,17 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
-      <groupId>javadbf</groupId>
-      <artifactId>javadbf</artifactId>
-      <version>${javadbf.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+<!--     <dependency> -->
+<!--       <groupId>javadbf</groupId> -->
+<!--       <artifactId>javadbf</artifactId> -->
+<!--       <version>${javadbf.version}</version> -->
+<!--       <exclusions> -->
+<!--         <exclusion> -->
+<!--           <groupId>*</groupId> -->
+<!--           <artifactId>*</artifactId> -->
+<!--         </exclusion> -->
+<!--       </exclusions> -->
+<!--     </dependency> -->
     <dependency>
       <groupId>jfree</groupId>
       <artifactId>jcommon</artifactId>
@@ -872,12 +872,12 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>${h2.version}</version>
-      <scope>test</scope>
-    </dependency>
+<!--     <dependency> -->
+<!--       <groupId>com.h2database</groupId> -->
+<!--       <artifactId>h2</artifactId> -->
+<!--       <version>${h2.version}</version> -->
+<!--       <scope>test</scope> -->
+<!--     </dependency> -->
     <!-- required by org.dom4j -->
     <dependency>
       <groupId>jaxen</groupId>
