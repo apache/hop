@@ -135,15 +135,20 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements DatabaseI
 	}
 
 	@Override
-	public String getSQLListOfSequences() {
-		return "SELECT SEQUENCE_NAME AS \"name\" FROM " + getDatabaseName() + ".INFORMATION_SCHEMA.SEQUENCES";
-	}
-
-	@Override
 	public String getSQLListOfProcedures() {
 		return "SELECT PROCEDURE_NAME AS \"name\" FROM " + getDatabaseName() + ".INFORMATION_SCHEMA.PROCEDURES";
 	}
 
+	@Override
+	public String getSQLListOfSequences() {
+		return "SELECT SEQUENCE_NAME AS \"name\" FROM " + getDatabaseName() + ".INFORMATION_SCHEMA.SEQUENCES";
+	}
+	
+    @Override
+	public String getSQLNextSequenceValue( String sequenceName ) {
+	    return "SELECT " + sequenceName + ".NEXTVAL FROM DUAL";
+	}
+		
 	@Override
 	public String getModifyColumnStatement(String tableName, ValueMetaInterface v, String tk, boolean useAutoinc,
 			String pk, boolean semicolon) {
