@@ -271,7 +271,7 @@ public class JobEntryMailDialog extends JobEntryDialog implements JobEntryDialog
     shell.setText( BaseMessages.getString( PKG, "JobMail.Header" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Name line
     wName =

@@ -23,10 +23,10 @@
 package org.apache.hop.trans.steps.csvinput;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.file.EncodingType;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.trans.step.BaseStepData;
 import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.steps.fileinput.EncodingType;
 
 import java.io.FileInputStream;
 import java.io.IOException;

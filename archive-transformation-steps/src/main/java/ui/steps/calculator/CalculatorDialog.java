@@ -122,7 +122,7 @@ public class CalculatorDialog extends BaseStepDialog implements StepDialogInterf
     shell.setText( BaseMessages.getString( PKG, "CalculatorDialog.DialogTitle" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
     int fdMargin = 15;
 
     // Stepname line

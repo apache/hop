@@ -263,7 +263,7 @@ public class TransDialog extends Dialog {
     shell.setText( BaseMessages.getString( PKG, "TransDialog.Shell.Title" ) );
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = props.getMargin();
 
     wTabFolder = new CTabFolder( shell, SWT.BORDER );
     props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );
@@ -308,7 +308,7 @@ public class TransDialog extends Dialog {
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wSQL, wCancel }, Const.MARGIN, null );
+    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wSQL, wCancel }, props.getMargin(), null );
 
     // Add listeners
     lsOK = new Listener() {
@@ -622,8 +622,8 @@ public class TransDialog extends Dialog {
     wParamTab.setText( BaseMessages.getString( PKG, "TransDialog.ParamTab.Label" ) );
 
     FormLayout paramLayout = new FormLayout();
-    paramLayout.marginWidth = Const.MARGIN;
-    paramLayout.marginHeight = Const.MARGIN;
+    paramLayout.marginWidth = props.getMargin();
+    paramLayout.marginHeight = props.getMargin();
 
     Composite wParamComp = new Composite( wTabFolder, SWT.NONE );
     props.setLook( wParamComp );
@@ -688,8 +688,8 @@ public class TransDialog extends Dialog {
     wLogTab.setText( BaseMessages.getString( PKG, "TransDialog.LogTab.Label" ) );
 
     FormLayout LogLayout = new FormLayout();
-    LogLayout.marginWidth = Const.MARGIN;
-    LogLayout.marginHeight = Const.MARGIN;
+    LogLayout.marginWidth = props.getMargin();
+    LogLayout.marginHeight = props.getMargin();
 
     wLogComp = new Composite( wTabFolder, SWT.NONE );
     props.setLook( wLogComp );
@@ -724,8 +724,8 @@ public class TransDialog extends Dialog {
     wLogOptionsComposite = new Composite( wLogComp, SWT.BORDER );
 
     FormLayout logOptionsLayout = new FormLayout();
-    logOptionsLayout.marginWidth = Const.MARGIN;
-    logOptionsLayout.marginHeight = Const.MARGIN;
+    logOptionsLayout.marginWidth = props.getMargin();
+    logOptionsLayout.marginHeight = props.getMargin();
     wLogOptionsComposite.setLayout( logOptionsLayout );
 
     props.setLook( wLogOptionsComposite );
@@ -1529,8 +1529,8 @@ public class TransDialog extends Dialog {
     wDateTab.setText( BaseMessages.getString( PKG, "TransDialog.DateTab.Label" ) );
 
     FormLayout DateLayout = new FormLayout();
-    DateLayout.marginWidth = Const.MARGIN;
-    DateLayout.marginHeight = Const.MARGIN;
+    DateLayout.marginWidth = props.getMargin();
+    DateLayout.marginHeight = props.getMargin();
 
     Composite wDateComp = new Composite( wTabFolder, SWT.NONE );
     props.setLook( wDateComp );
@@ -1649,8 +1649,8 @@ public class TransDialog extends Dialog {
     wDepTab.setText( BaseMessages.getString( PKG, "TransDialog.DepTab.Label" ) );
 
     FormLayout DepLayout = new FormLayout();
-    DepLayout.marginWidth = Const.MARGIN;
-    DepLayout.marginHeight = Const.MARGIN;
+    DepLayout.marginWidth = props.getMargin();
+    DepLayout.marginHeight = props.getMargin();
 
     Composite wDepComp = new Composite( wTabFolder, SWT.NONE );
     props.setLook( wDepComp );

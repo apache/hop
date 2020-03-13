@@ -86,7 +86,7 @@ public class DetectEmptyStreamDialog extends BaseStepDialog implements StepDialo
     shell.setText( BaseMessages.getString( PKG, "DetectEmptyStreamDialog.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

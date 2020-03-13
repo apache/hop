@@ -193,7 +193,7 @@ public class JobEntryEvalTableContentDialog extends JobEntryDialog implements Jo
     shell.setText( BaseMessages.getString( PKG, "JobEntryEvalTableContent.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     wOK = new Button( shell, SWT.PUSH );
     wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );

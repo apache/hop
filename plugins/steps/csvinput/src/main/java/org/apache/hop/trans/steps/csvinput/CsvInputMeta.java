@@ -58,8 +58,8 @@ import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInjectionInterface;
 import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.common.CsvInputAwareMeta;
-import org.apache.hop.trans.steps.fileinput.InputFileMetaInterface;
-import org.apache.hop.trans.steps.fileinput.TextFileInputField;
+import org.apache.hop.core.file.InputFileMetaInterface;
+import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.trans.steps.fileinput.TextFileInputMeta;
 import org.w3c.dom.Node;
 
@@ -83,6 +83,9 @@ import java.util.Map;
 )
 public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, InputFileMetaInterface,
   StepMetaInjectionInterface, CsvInputAwareMeta {
+
+  public static final String STEP_ATTRIBUTES_FILE = "/step-attributes.xml";
+
   private static Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator2!!
 
   private String filename;
@@ -113,7 +116,7 @@ public class CsvInputMeta extends BaseStepMeta implements StepMetaInterface, Inp
   private boolean newlinePossibleInFields;
 
   public CsvInputMeta() {
-    super(); // allocate BaseStepMeta
+    super(STEP_ATTRIBUTES_FILE); // load step-attributes.xml
     allocate( 0 );
   }
 

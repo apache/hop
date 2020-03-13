@@ -113,7 +113,7 @@ public class AddSequenceDialog extends BaseStepDialog implements StepDialogInter
     shell.setText( BaseMessages.getString( PKG, "AddSequenceDialog.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

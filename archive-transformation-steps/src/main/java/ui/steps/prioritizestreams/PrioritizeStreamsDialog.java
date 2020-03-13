@@ -91,7 +91,7 @@ public class PrioritizeStreamsDialog extends BaseStepDialog implements StepDialo
     shell.setText( BaseMessages.getString( PKG, "PrioritizeStreamsDialog.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

@@ -296,7 +296,7 @@ public class JobEntryFTPSGetDialog extends JobEntryDialog implements JobEntryDia
     shell.setText( BaseMessages.getString( PKG, "JobFTPS.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Job entry name line
     wName =

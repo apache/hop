@@ -507,13 +507,6 @@ public class TransMeta extends AbstractMeta
     initializeVariablesFrom( parent );
   }
 
-  public TransMeta( String filename, String name ) {
-    clear();
-    setFilename( filename );
-    this.name = name;
-    initializeVariablesFrom( null );
-  }
-
 
   /**
    * Compares two transformation on name and filename.
@@ -2358,44 +2351,6 @@ public class TransMeta extends AbstractMeta
   /**
    * Parses a file containing the XML that describes the transformation.
    *
-   * @param fname The filename
-   * @throws HopXMLException            if any errors occur during parsing of the specified file
-   * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
-   */
-  public TransMeta( String fname ) throws HopXMLException, HopMissingPluginsException {
-    this( fname, (VariableSpace) null );
-  }
-
-  /**
-   * Parses a file containing the XML that describes the transformation.  Since the filename is set, variables are set in the specified variable space
-   * that relate to this.
-   *
-   * @param fname               The filename
-   * @param parentVariableSpace the parent variable space
-   * @throws HopXMLException            if any errors occur during parsing of the specified file
-   * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
-   */
-  public TransMeta( String fname, VariableSpace parentVariableSpace ) throws HopXMLException,
-    HopMissingPluginsException {
-    this( fname, true, parentVariableSpace );
-  }
-
-  /**
-   * Parses a file containing the XML that describes the transformation.
-   *
-   * @param fname                The filename
-   * @param setInternalVariables true if you want to set the internal variables based on this transformation information
-   * @param parentVariableSpace  the parent variable space to use during TransMeta construction
-   * @throws HopXMLException            if any errors occur during parsing of the specified file
-   * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
-   */
-  public TransMeta( String fname, boolean setInternalVariables, VariableSpace parentVariableSpace ) throws HopXMLException, HopMissingPluginsException {
-    this( fname, null, setInternalVariables, parentVariableSpace );
-  }
-
-  /**
-   * Parses a file containing the XML that describes the transformation.
-   *
    * @param fname                The filename
    * @param metaStore            the metadata store to reference (or null if there is none)
    * @param setInternalVariables true if you want to set the internal variables based on this transformation information
@@ -2403,13 +2358,17 @@ public class TransMeta extends AbstractMeta
    * @throws HopXMLException            if any errors occur during parsing of the specified file
    * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
    */
-  public TransMeta( String fname, IMetaStore metaStore, boolean setInternalVariables,
-                    VariableSpace parentVariableSpace )
+  public TransMeta( String fname, IMetaStore metaStore, boolean setInternalVariables, VariableSpace parentVariableSpace )
     throws HopXMLException, HopMissingPluginsException {
     // if fname is not provided, there's not much we can do, throw an exception
     if ( StringUtils.isBlank( fname ) ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "TransMeta.Exception.MissingXMLFilePath" ) );
     }
+
+    if (metaStore==null) {
+      throw new HopXMLException( "MetaStore references can't be null. When loading a transformation Hop needs to be able to reference external metadata objects" );
+    }
+
     this.metaStore = metaStore;
 
     // OK, try to load using the VFS stuff...

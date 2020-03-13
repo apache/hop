@@ -93,7 +93,7 @@ public class ComboVar extends Composite {
 
     // props.setLook(this);
 
-    // int margin = Const.MARGIN;
+    // int margin = props.getMargin();
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 0;
     formLayout.marginHeight = 0;

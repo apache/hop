@@ -199,7 +199,7 @@ public class JobEntryMysqlBulkLoadDialog extends JobEntryDialog implements JobEn
     shell.setText( BaseMessages.getString( PKG, "JobMysqlBulkLoad.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Filename line
     wlName = new Label( shell, SWT.RIGHT );

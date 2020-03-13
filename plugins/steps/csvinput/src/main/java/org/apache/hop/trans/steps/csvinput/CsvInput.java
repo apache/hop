@@ -32,6 +32,7 @@ import org.apache.hop.core.exception.HopConversionException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.file.EncodingType;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
@@ -42,9 +43,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.step.*;
-import org.apache.hop.trans.steps.fileinput.EncodingType;
 import org.apache.hop.trans.steps.fileinput.TextFileInput;
-import org.apache.hop.trans.steps.fileinput.TextFileInputField;
+import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.trans.steps.fileinput.TextFileInputMeta;
 import org.apache.hop.trans.steps.fileinput.text.BOMDetector;
 
@@ -476,8 +476,8 @@ public class CsvInput extends BaseStep implements StepInterface {
     TextFileInputField[] fields = csvInputMeta.getInputFields();
     String[] fieldNames = new String[ fields.length ];
     for ( int i = 0; i < fields.length; i++ ) {
-      // We need to sanitize field names because existing ktr files may contain field names with leading BOM
-      fieldNames[ i ] = EncodingType.removeBOMIfPresent( fields[ i ].getName() );
+      // TODO: We need to sanitize field names because existing ktr files may contain field names with leading BOM
+      fieldNames[ i ] = fields[ i ].getName();
     }
     return fieldNames;
   }

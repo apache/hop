@@ -386,6 +386,7 @@
         <documentation_url>http://wiki.pentaho.com/display/EAI/Set+Variables</documentation_url>
         <cases_url/>
         <forum_url/>
+        <keywords>variable,set,environment</keywords>
     </step>
     <step id="GetVariable">
         <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.GetVariable</description>

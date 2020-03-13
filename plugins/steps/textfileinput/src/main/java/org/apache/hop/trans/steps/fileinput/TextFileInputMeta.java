@@ -33,6 +33,8 @@ import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.file.InputFileMetaInterface;
+import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.ValueMetaInterface;

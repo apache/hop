@@ -96,7 +96,7 @@ public class PreviewSelectDialog extends Dialog {
     // screen
     shell.setImage( GUIResource.getInstance().getImageLogoSmall() );
 
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     wlFields = new Label( shell, SWT.NONE );
     wlFields.setText( BaseMessages.getString( PKG, "PreviewSelectDialog.Label.Steps" ) ); // Steps:

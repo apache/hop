@@ -132,14 +132,6 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
 
   /**
    * @param parent       The parent shell
-   * @param databaseMeta The object to edit
-   */
-  public DatabaseMetaDialog( Shell parent, DatabaseMeta databaseMeta ) {
-    this( parent, null, databaseMeta );
-  }
-
-  /**
-   * @param parent       The parent shell
    * @param metaStore    metaStore
    * @param databaseMeta The object to edit
    */
@@ -162,7 +154,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     shell.setImage( GUIResource.getInstance().getImageConnection() );
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = props.getMargin();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

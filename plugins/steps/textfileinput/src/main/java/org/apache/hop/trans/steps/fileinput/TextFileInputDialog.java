@@ -30,6 +30,8 @@ import org.apache.hop.core.compress.CompressionInputStream;
 import org.apache.hop.core.compress.CompressionProvider;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.file.EncodingType;
+import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.gui.TextFileInputFieldInterface;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -461,7 +463,7 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
     shell.setText( BaseMessages.getString( PKG, "TextFileInputDialog.DialogTitle" ) );
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

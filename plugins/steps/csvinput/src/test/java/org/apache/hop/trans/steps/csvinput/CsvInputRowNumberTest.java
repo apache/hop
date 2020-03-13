@@ -25,7 +25,7 @@ package org.apache.hop.trans.steps.csvinput;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.trans.TransTestingUtil;
 import org.apache.hop.trans.step.StepDataInterface;
-import org.apache.hop.trans.steps.fileinput.TextFileInputField;
+import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.trans.steps.mock.StepMockHelper;
 import org.junit.After;
 import org.junit.Before;

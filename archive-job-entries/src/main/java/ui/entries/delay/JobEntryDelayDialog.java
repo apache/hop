@@ -114,7 +114,7 @@ public class JobEntryDelayDialog extends JobEntryDialog implements JobEntryDialo
     shell.setText( BaseMessages.getString( PKG, "JobEntryDelay.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Name line
     wlName = new Label( shell, SWT.RIGHT );

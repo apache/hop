@@ -2,6 +2,7 @@ package org.apache.hop.ui.hopgui;
 
 import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.hop.cluster.ClusterSchema;
+import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -36,12 +37,16 @@ import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.metastore.MetaStoreManager;
 import org.apache.hop.ui.core.widget.OsHelper;
+import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
+import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
+import org.apache.hop.ui.hopgui.context.metastore.MetaStoreContext;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiNewDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiUndoDelegate;
-import org.apache.hop.ui.hopgui.file.EmptyFileType;
+import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
+import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.perspective.EmptyHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.HopGuiPerspectiveManager;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
@@ -81,7 +86,7 @@ import java.util.Locale;
   id = "HopGUI",
   description = "The main hop graphical user interface"
 )
-public class HopGui {
+public class HopGui implements IActionContextHandlersProvider {
   private static Class<?> PKG = HopUi.class;
 
   // The main Menu IDs
@@ -128,9 +133,13 @@ public class HopGui {
   private static final String UNDO_UNAVAILABLE = BaseMessages.getString( PKG, "Spoon.Menu.Undo.NotAvailable" );
   private static final String REDO_UNAVAILABLE = BaseMessages.getString( PKG, "Spoon.Menu.Redo.NotAvailable" );
 
+  private static final String CONTEXT_ID = "HopGui";
+
   private static HopGui hopGui;
 
   private DelegatingMetaStore metaStore;
+  private MetaStoreContext metaStoreContext;
+
   private Shell shell;
   private Display display;
   private List<String> commandLineArguments;
@@ -155,6 +164,7 @@ public class HopGui {
   private static PrintStream originalSystemErr = System.err;
 
   public MetaStoreManager<DatabaseMeta> databaseMetaManager;
+  public MetaStoreManager<SlaveServer> slaveServerManager;
   public MetaStoreManager<PartitionSchema> partitionManager;
   public MetaStoreManager<ClusterSchema> clusterManager;
 
@@ -171,10 +181,6 @@ public class HopGui {
 
     activePerspective = new EmptyHopPerspective();
 
-    databaseMetaManager = new MetaStoreManager<>( variableSpace, metaStore, DatabaseMeta.class, shell );
-    partitionManager = new MetaStoreManager<>( variableSpace, metaStore, PartitionSchema.class, shell );
-    clusterManager = new MetaStoreManager<>( variableSpace, metaStore, ClusterSchema.class, shell );
-
     fileDelegate = new HopGuiFileDelegate( this );
     undoDelegate = new HopGuiUndoDelegate( this );
     newDelegate = new HopGuiNewDelegate( this );
@@ -186,10 +192,16 @@ public class HopGui {
       IMetaStore localMetaStore = MetaStoreConst.openLocalHopMetaStore();
       metaStore.addMetaStore( localMetaStore );
       metaStore.setActiveMetaStoreName( localMetaStore.getName() );
-
     } catch ( MetaStoreException e ) {
       new ErrorDialog( shell, "Error opening Hop Metastore", "Unable to open the local Hop Metastore", e );
     }
+
+    databaseMetaManager = new MetaStoreManager<>( variableSpace, metaStore, DatabaseMeta.class );
+    slaveServerManager = new MetaStoreManager<>( variableSpace, metaStore, SlaveServer.class );
+    partitionManager = new MetaStoreManager<>( variableSpace, metaStore, PartitionSchema.class );
+    clusterManager = new MetaStoreManager<>( variableSpace, metaStore, ClusterSchema.class );
+
+    metaStoreContext = new MetaStoreContext( this, metaStore );
   }
 
   public static final HopGui getInstance() {
@@ -879,6 +891,31 @@ public class HopGui {
   }
 
   /**
+   *  What are the contexts to consider:
+   *      - the file types registered
+   *      - the available IMetaStore element types
+   *
+   * @return The list of context handlers
+   */
+  @Override public List<IGuiContextHandler> getContextHandlers() {
+    List<IGuiContextHandler> contextHandlers = new ArrayList<>();
+
+    // Get all the file context handlers
+    //
+    HopFileTypeRegistry registry = HopFileTypeRegistry.getInstance();
+    List<HopFileTypeInterface> hopFileTypes = registry.getFileTypes();
+    for (HopFileTypeInterface hopFileType : hopFileTypes) {
+      contextHandlers.addAll( hopFileType.getContextHandlers() );
+    }
+
+    // Get all the metastore context handlers...
+    //
+    contextHandlers.addAll( metaStoreContext.getContextHandlers() );
+
+    return contextHandlers;
+  }
+
+  /**
    * Gets databaseMetaManager
    *
    * @return value of databaseMetaManager
@@ -966,4 +1003,16 @@ public class HopGui {
   public IHopPerspective getActivePerspective() {
     return activePerspective;
   }
+
+  /**
+   * Gets metaStoreContext
+   *
+   * @return value of metaStoreContext
+   */
+  public MetaStoreContext getMetaStoreContext() {
+    return metaStoreContext;
+  }
+
+
+
 }

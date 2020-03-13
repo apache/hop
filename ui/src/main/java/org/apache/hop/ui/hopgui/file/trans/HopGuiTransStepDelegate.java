@@ -186,121 +186,122 @@ public class HopGuiTransStepDelegate {
    * @param rename      Rename this step?
    * @return The newly created StepMeta object.
    */
-  public StepMeta newStep( TransMeta transMeta, String id, String name, String description, boolean openit, boolean rename ) {
-    StepMeta inf = null;
-
-    // See if we need to rename the step to avoid doubles!
-    if ( rename && transMeta.findStep( name ) != null ) {
-      int i = 2;
-      String newName = name + " " + i;
-      while ( transMeta.findStep( newName ) != null ) {
-        i++;
-        newName = name + " " + i;
-      }
-      name = newName;
-    }
-
-    PluginRegistry registry = PluginRegistry.getInstance();
-    PluginInterface stepPlugin = id != null ? registry.findPluginWithId( StepPluginType.class, id )
-      : registry.findPluginWithName( StepPluginType.class, description );
-
+  public StepMeta newStep( TransMeta transMeta, String id, String name, String description, boolean openit, boolean rename, Point location ) {
     try {
-      if ( stepPlugin != null ) {
-        StepMetaInterface info = (StepMetaInterface) registry.loadClass( stepPlugin );
+      StepMeta stepMeta = null;
 
-        info.setDefault();
-
-        if ( openit ) {
-          StepDialogInterface dialog = this.getStepDialog( info, transMeta, name );
-          if ( dialog != null ) {
-            name = dialog.open();
-          }
+      // See if we need to rename the step to avoid doubles!
+      if ( rename && transMeta.findStep( name ) != null ) {
+        int i = 2;
+        String newName = name + " " + i;
+        while ( transMeta.findStep( newName ) != null ) {
+          i++;
+          newName = name + " " + i;
         }
-        inf = new StepMeta( stepPlugin.getIds()[ 0 ], name, info );
-
-        if ( name != null ) {
-          // OK pressed in the dialog: we have a step-name
-          String newName = name;
-          StepMeta stepMeta = transMeta.findStep( newName );
-          int nr = 2;
-          while ( stepMeta != null ) {
-            newName = name + " " + nr;
-            stepMeta = transMeta.findStep( newName );
-            nr++;
-          }
-          if ( nr > 2 ) {
-            inf.setName( newName );
-            MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_INFORMATION );
-            // "This stepName already exists.  Spoon changed the stepName to ["+newName+"]"
-            mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.ChangeStepname.Message", newName ) );
-            mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.ChangeStepname.Title" ) );
-            mb.open();
-          }
-          inf.setLocation( 20, 20 ); // default location at (20,20)
-          transMeta.addStep( inf );
-          /**
-           * TODO: add new Undo/Redo system
-           addUndoNew( transMeta, new StepMeta[] { inf }, new int[] { transMeta.indexOfStep( inf ) } );
-           */
-
-          // Also store it in the pluginHistory list...
-          hopUi.getProps().increasePluginHistory( stepPlugin.getIds()[ 0 ] );
-
-        } else {
-          return null; // Cancel pressed in dialog.
-        }
-        hopUi.setShellText();
+        name = newName;
       }
-    } catch ( HopException e ) {
-      String filename = stepPlugin.getErrorHelpFile();
-      if ( !Utils.isEmpty( filename ) ) {
-        // OK, in stead of a normal error message, we give back the
-        // content of the error help file... (HTML)
-        FileInputStream fis = null;
-        try {
-          StringBuilder content = new StringBuilder();
 
-          fis = new FileInputStream( new File( filename ) );
-          int ch = fis.read();
-          while ( ch >= 0 ) {
-            content.append( (char) ch );
-            ch = fis.read();
-          }
+      PluginRegistry registry = PluginRegistry.getInstance();
+      PluginInterface stepPlugin = id != null ? registry.findPluginWithId( StepPluginType.class, id )
+        : registry.findPluginWithName( StepPluginType.class, description );
 
-          ShowBrowserDialog sbd =
-            new ShowBrowserDialog( hopUi.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ErrorHelpText.Title" ), content.toString() );
-          sbd.open();
-        } catch ( Exception ex ) {
-          new ErrorDialog( hopUi.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ErrorShowingHelpText.Title" ),
-            BaseMessages.getString( PKG, "Spoon.Dialog.ErrorShowingHelpText.Message" ), ex );
-        } finally {
-          if ( fis != null ) {
-            try {
-              fis.close();
-            } catch ( Exception ex ) {
-              hopUi.getLog().logError( "Error closing plugin help file", ex );
+      try {
+        if ( stepPlugin != null ) {
+          StepMetaInterface info = (StepMetaInterface) registry.loadClass( stepPlugin );
+
+          info.setDefault();
+
+          if ( openit ) {
+            StepDialogInterface dialog = this.getStepDialog( info, transMeta, name );
+            if ( dialog != null ) {
+              name = dialog.open();
             }
           }
-        }
-      } else {
-        new ErrorDialog( hopUi.getShell(),
-          // "Error creating step"
-          // "I was unable to create a new step"
-          BaseMessages.getString( PKG, "Spoon.Dialog.UnableCreateNewStep.Title" ), BaseMessages.getString(
-          PKG, "Spoon.Dialog.UnableCreateNewStep.Message" ), e );
-      }
-      return null;
-    } catch ( Throwable e ) {
-      if ( !hopUi.getShell().isDisposed() ) {
-        new ErrorDialog( hopUi.getShell(),
-          // "Error creating step"
-          BaseMessages.getString( PKG, "Spoon.Dialog.ErrorCreatingStep.Title" ), BaseMessages.getString(
-          PKG, "Spoon.Dialog.UnableCreateNewStep.Message" ), e );
-      }
-      return null;
-    }
+          stepMeta = new StepMeta( stepPlugin.getIds()[ 0 ], name, info );
 
-    return inf;
+          if ( name != null ) {
+            // OK pressed in the dialog: we have a step-name
+            String newName = name;
+            StepMeta candiateStepMeta = transMeta.findStep( newName );
+            int nr = 2;
+            while ( candiateStepMeta != null ) {
+              newName = name + " " + nr;
+              candiateStepMeta = transMeta.findStep( newName );
+              nr++;
+            }
+            if ( nr > 2 ) {
+              stepMeta.setName( newName );
+              MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_INFORMATION );
+              // "This stepName already exists.  Spoon changed the stepName to ["+newName+"]"
+              mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.ChangeStepname.Message", newName ) );
+              mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.ChangeStepname.Title" ) );
+              mb.open();
+            }
+            stepMeta.setLocation( location.x, location.y ); // default location at (20,20)
+            stepMeta.setDraw( true );
+            transMeta.addStep( stepMeta );
+            hopUi.undoDelegate.addUndoNew( transMeta, new StepMeta[] { stepMeta }, new int[] { transMeta.indexOfStep( stepMeta ) } );
+
+            // Also store it in the pluginHistory list...
+            hopUi.getProps().increasePluginHistory( stepPlugin.getIds()[ 0 ] );
+
+          } else {
+            return null; // Cancel pressed in dialog.
+          }
+          hopUi.setShellText();
+        }
+      } catch ( HopException e ) {
+        String filename = stepPlugin.getErrorHelpFile();
+        if ( !Utils.isEmpty( filename ) ) {
+          // OK, in stead of a normal error message, we give back the
+          // content of the error help file... (HTML)
+          FileInputStream fis = null;
+          try {
+            StringBuilder content = new StringBuilder();
+
+            fis = new FileInputStream( new File( filename ) );
+            int ch = fis.read();
+            while ( ch >= 0 ) {
+              content.append( (char) ch );
+              ch = fis.read();
+            }
+
+            ShowBrowserDialog sbd = new ShowBrowserDialog( hopUi.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ErrorHelpText.Title" ), content.toString() );
+            sbd.open();
+          } catch ( Exception ex ) {
+            new ErrorDialog( hopUi.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ErrorShowingHelpText.Title" ),
+              BaseMessages.getString( PKG, "Spoon.Dialog.ErrorShowingHelpText.Message" ), ex );
+          } finally {
+            if ( fis != null ) {
+              try {
+                fis.close();
+              } catch ( Exception ex ) {
+                hopUi.getLog().logError( "Error closing plugin help file", ex );
+              }
+            }
+          }
+        } else {
+          new ErrorDialog( hopUi.getShell(),
+            // "Error creating step"
+            // "I was unable to create a new step"
+            BaseMessages.getString( PKG, "Spoon.Dialog.UnableCreateNewStep.Title" ), BaseMessages.getString(
+            PKG, "Spoon.Dialog.UnableCreateNewStep.Message" ), e );
+        }
+        return null;
+      } catch ( Throwable e ) {
+        if ( !hopUi.getShell().isDisposed() ) {
+          new ErrorDialog( hopUi.getShell(),
+            // "Error creating step"
+            BaseMessages.getString( PKG, "Spoon.Dialog.ErrorCreatingStep.Title" ), BaseMessages.getString(
+            PKG, "Spoon.Dialog.UnableCreateNewStep.Message" ), e );
+        }
+        return null;
+      }
+
+      return stepMeta;
+    } finally {
+      transGraph.redraw();
+    }
   }
 
   public void dupeStep( TransMeta transMeta, StepMeta stepMeta ) {

@@ -185,7 +185,7 @@ public class NotePadDialog extends Dialog {
     shell.setLayout( formLayout );
     shell.setText( title );
 
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
     int middle = 30;
 
     wNoteFolder = new CTabFolder( shell, SWT.BORDER );

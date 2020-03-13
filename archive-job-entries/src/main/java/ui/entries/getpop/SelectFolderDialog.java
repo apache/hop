@@ -114,7 +114,7 @@ public class SelectFolderDialog extends Dialog {
     fdTree.bottom = new FormAttachment( 100, -50 );
     wTree.setLayoutData( fdTree );
 
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wRefresh, wCancel }, Const.MARGIN, null );
+    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wRefresh, wCancel }, props.getMargin(), null );
 
     // Add listeners
     wCancel.addListener( SWT.Selection, new Listener() {

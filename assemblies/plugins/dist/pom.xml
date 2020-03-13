@@ -19,6 +19,7 @@
         <hop-plugins-dummy.version>${project.version}</hop-plugins-dummy.version>
         <hop-plugins-core.version>${project.version}</hop-plugins-core.version>
         <hop-plugins-steps.version>${project.version}</hop-plugins-steps.version>
+        <hop-plugins-jobentries.version>${project.version}</hop-plugins-jobentries.version>
         <hop-plugins-databases.version>${project.version}</hop-plugins-databases.version>
     </properties>
 
@@ -50,6 +51,697 @@
             </exclusions>
         </dependency>
 -->
+
+     <!-- Job entry plugins -->
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-abort</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+     
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-addresultfilenames</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+     
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-checkdbconnection</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+     
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-checkfilelocked</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-columnsexist</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-copyfiles</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-copymoveresultfilenames</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-createfile</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+     
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-createfolder</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>  
+     
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-delay</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>  
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-deletefile</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>  
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-deletefiles</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+     
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-deletefolders</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>  
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-deleteresultfilenames</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>  
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-dostounix</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+     
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-eval</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>     
+     
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-evalfilesmetrics</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>     
+     
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-evaluatetablecontent</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+     
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-filecompare</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>          
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-fileexists</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+     
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-filesexist</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>  
+        
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-folderisempty</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>  
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-folderscompare</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>  
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-ftp</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>       
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-getpop</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-http</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>  
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-mail</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>  
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-movefiles</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>                 
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-msgboxinfo</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>   
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-mssqlbulkload</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-mysqlbulkfile</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-mysqlbulkload</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-pgpfiles</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>             
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-ping</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>  
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-sendnagiospassivecheck</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>  
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-setvariables</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>  
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-shell</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>       
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-simpleeval</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>           
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-snmptrap</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>      
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-sql</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-success</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>      
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-syslog</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-tableexists</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-talendjobexec</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>   
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-telnet</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-truncatetables</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>        
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-unzip</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-waitforfile</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-waitforsql</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-webserviceavailable</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+          
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-writetofile</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>  
+            
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-writetolog</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>  
+     
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-jobentry-zipfile</artifactId>
+         <version>${hop-plugins-jobentries.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>  
 
 
      <!-- Step plugins -->
@@ -278,6 +970,19 @@
      <dependency>
          <groupId>org.hop</groupId>
          <artifactId>hop-assemblies-plugins-steps-fileinput</artifactId>
+         <version>${hop-plugins-steps.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-steps-pgbulkloader</artifactId>
          <version>${hop-plugins-steps.version}</version>
          <type>zip</type>
          <exclusions>

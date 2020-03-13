@@ -295,7 +295,7 @@ public class ShowMessageDialog extends Dialog {
    * Handles any variances in the UI from the default.
    */
   private void setLayoutAccordingToType() {
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
     switch ( type ) {
       case Const.SHOW_MESSAGE_DIALOG_DB_TEST_SUCCESS:
         formLayout.marginWidth = 15;

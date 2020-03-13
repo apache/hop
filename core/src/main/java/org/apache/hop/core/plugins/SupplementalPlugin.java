@@ -42,9 +42,7 @@ public class SupplementalPlugin extends Plugin implements ClassLoadingPluginInte
   private String id;
 
   public SupplementalPlugin( Class<? extends PluginTypeInterface> pluginClass, String id ) {
-    super( new String[] { id }, pluginClass, null,
-      "", id, id, "", false, false, Collections.emptyMap(), Collections.emptyList(), "",
-      null );
+    super( new String[] { id }, pluginClass, null, "", id, id, "", false, false, Collections.emptyMap(), Collections.emptyList(), "", new String[] {}, null );
     this.pluginClass = pluginClass;
     this.id = id;
   }

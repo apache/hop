@@ -100,7 +100,7 @@ public class RowGeneratorDialog extends BaseStepDialog implements StepDialogInte
     shell.setText( BaseMessages.getString( PKG, "RowGeneratorDialog.DialogTitle" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Filename line
     wlStepname = new Label( shell, SWT.RIGHT );

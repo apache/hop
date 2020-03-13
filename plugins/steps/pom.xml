@@ -72,6 +72,7 @@
         <module>tableoutput</module>
         <module>textfileinput</module>
         <module>textfileoutput</module>
+        <module>pgbulkloader</module>
       </modules>
     </profile>
 

@@ -267,7 +267,7 @@ public class MailInputDialog extends BaseStepDialog implements StepDialogInterfa
     shell.setText( BaseMessages.getString( PKG, "MailInputdialog.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );
@@ -1838,9 +1838,9 @@ public class MailInputDialog extends BaseStepDialog implements StepDialogInterfa
     group.setLayout( groupLayout );
 
     FormData fdGroup = new FormData();
-    fdGroup.left = new FormAttachment( 0, Const.MARGIN );
-    fdGroup.top = new FormAttachment( top, Const.MARGIN );
-    fdGroup.right = new FormAttachment( 100, -Const.MARGIN );
+    fdGroup.left = new FormAttachment( 0, props.getMargin() );
+    fdGroup.top = new FormAttachment( top, props.getMargin() );
+    fdGroup.right = new FormAttachment( 100, -props.getMargin() );
     group.setLayoutData( fdGroup );
 
     return group;
@@ -1854,17 +1854,17 @@ public class MailInputDialog extends BaseStepDialog implements StepDialogInterfa
   private void addLabelBelow( Control label, Control widgetAbove ) {
     props.setLook( label );
     FormData fData = new FormData();
-    fData.top = new FormAttachment( widgetAbove, Const.MARGIN );
-    fData.right = new FormAttachment( Const.MIDDLE_PCT, -Const.MARGIN );
+    fData.top = new FormAttachment( widgetAbove, props.getMargin() );
+    fData.right = new FormAttachment( Const.MIDDLE_PCT, -props.getMargin() );
     label.setLayoutData( fData );
   }
 
   private void addControlBelow( Control control, Control widgetAbove ) {
     props.setLook( control );
     FormData fData = new FormData();
-    fData.top = new FormAttachment( widgetAbove, Const.MARGIN );
-    fData.left = new FormAttachment( Const.MIDDLE_PCT, Const.MARGIN );
-    fData.right = new FormAttachment( 100, -Const.MARGIN );
+    fData.top = new FormAttachment( widgetAbove, props.getMargin() );
+    fData.left = new FormAttachment( Const.MIDDLE_PCT, props.getMargin() );
+    fData.right = new FormAttachment( 100, -props.getMargin() );
     control.setLayoutData( fData );
   }
 

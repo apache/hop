@@ -243,7 +243,7 @@ public class UserDefinedJavaClassDialog extends BaseStepDialog implements StepDi
     shell.setText( BaseMessages.getString( PKG, "UserDefinedJavaClassDialog.Shell.Title" ) );
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = props.getMargin();
 
     // Filename line
     wlStepname = new Label( shell, SWT.RIGHT );

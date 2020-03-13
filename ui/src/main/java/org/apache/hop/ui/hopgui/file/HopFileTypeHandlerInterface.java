@@ -1,11 +1,12 @@
 package org.apache.hop.ui.hopgui.file;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
 
 /**
  * This describes the main file operations for a supported Hop file
  */
-public interface HopFileTypeHandlerInterface {
+public interface HopFileTypeHandlerInterface extends IActionContextHandlersProvider {
 
   /**
    * Get a hold of the file type details
