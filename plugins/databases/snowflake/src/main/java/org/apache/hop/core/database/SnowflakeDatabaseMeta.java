@@ -136,12 +136,12 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements DatabaseI
 
 	@Override
 	public String getSQLListOfSequences() {
-		return "SELECT SCHEMA_NAME AS \"name\" FROM " + getDatabaseName() + ".INFORMATION_SCHEMA.SEQUENCES";
+		return "SELECT SEQUENCE_NAME AS \"name\" FROM " + getDatabaseName() + ".INFORMATION_SCHEMA.SEQUENCES";
 	}
 
 	@Override
 	public String getSQLListOfProcedures() {
-		return "SELECT SCHEMA_NAME AS \"name\" FROM " + getDatabaseName() + ".INFORMATION_SCHEMA.PROCEDURES";
+		return "SELECT PROCEDURE_NAME AS \"name\" FROM " + getDatabaseName() + ".INFORMATION_SCHEMA.PROCEDURES";
 	}
 
 	@Override
