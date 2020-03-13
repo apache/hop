@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.apache.hop.core.logging;
 
-import junit.framework.Assert;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 /**
@@ -35,14 +35,14 @@ public class HopLogLayoutTest {
       "Channel 01",
       new String[] { "Test" },
       LogLevel.DEBUG );
-    mcg.setSubject( "Subject" );
+  //  mcg.setSubject( "Subject" );
 
     HopLoggingEvent event = new HopLoggingEvent( mcg, 0, LogLevel.BASIC );
     HopLogLayout layout = new HopLogLayout();
 
     final String formattedMsg = layout.format( event );
 
-    Assert.assertEquals( "The log message must be formatted and not contain placeholders.",
+    assertEquals( "The log message must be formatted and not contain placeholders.",
       "Subject - Log message for Test",
       formattedMsg.substring( formattedMsg.indexOf( '-' ) + 2 ) );
   }
