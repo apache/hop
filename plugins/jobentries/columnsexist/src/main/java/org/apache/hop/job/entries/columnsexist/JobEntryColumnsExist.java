@@ -64,7 +64,7 @@ import java.util.List;
 		categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Conditions" 
 )
 public class JobEntryColumnsExist extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryColumnsExist.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryColumnsExist.class; // for i18n purposes, needed by Translator2!!
   private String schemaname;
   private String tablename;
   private DatabaseMeta connection;
@@ -95,6 +95,7 @@ public class JobEntryColumnsExist extends JobEntryBase implements Cloneable, Job
     return je;
   }
 
+  @Override
   public String getXML() {
     StringBuilder retval = new StringBuilder( 200 );
 
@@ -176,14 +177,17 @@ public class JobEntryColumnsExist extends JobEntryBase implements Cloneable, Job
     return connection;
   }
 
+  @Override
   public boolean evaluates() {
     return true;
   }
 
+  @Override
   public boolean isUnconditional() {
     return false;
   }
 
+  @Override
   public Result execute( Result previousResult, int nr ) {
     Result result = previousResult;
     result.setResult( false );
@@ -260,10 +264,12 @@ public class JobEntryColumnsExist extends JobEntryBase implements Cloneable, Job
     return new Database( this, connection );
   }
 
+  @Override
   public DatabaseMeta[] getUsedDatabaseConnections() {
     return new DatabaseMeta[] { connection, };
   }
 
+  @Override
   public List<ResourceReference> getResourceDependencies( JobMeta jobMeta ) {
     List<ResourceReference> references = super.getResourceDependencies( jobMeta );
     if ( connection != null ) {
