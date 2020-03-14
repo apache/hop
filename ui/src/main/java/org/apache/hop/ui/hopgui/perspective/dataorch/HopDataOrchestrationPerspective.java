@@ -122,7 +122,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     // A tab folder covers the complete area...
     //
     tabFolder = new CTabFolder( composite, SWT.MULTI | SWT.BORDER );
-    tabFolder.setSimple( false );
+    //tabFolder.setSimple( false );
     //tabFolder.setBackground( GUIResource.getInstance().getColorBackground() );
     FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment( 0, 0 );

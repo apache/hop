@@ -370,7 +370,7 @@ public class HopGui implements IActionContextHandlersProvider {
     // Nothing is done here.
   }
 
-  @GuiMenuElement( id = ID_MAIN_MENU_FILE_NEW, type = GuiElementType.MENU_ITEM, label = "New", parentId = ID_MAIN_MENU_FILE )
+  @GuiMenuElement( id = ID_MAIN_MENU_FILE_NEW, type = GuiElementType.MENU_ITEM, label = "New", image = "ui/images/new.svg", parentId = ID_MAIN_MENU_FILE )
   @GuiToolbarElement( id = ID_MAIN_TOOLBAR_NEW, type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/new.svg", toolTip = "New", parentId = ID_MAIN_TOOLBAR )
   @GuiKeyboardShortcut( control = true, key = 'n' )
   @GuiOSXKeyboardShortcut( command = true, key = 'n' )
@@ -378,15 +378,15 @@ public class HopGui implements IActionContextHandlersProvider {
     newDelegate.fileNew();
   }
 
-  @GuiMenuElement( id = ID_MAIN_MENU_FILE_OPEN, type = GuiElementType.MENU_ITEM, label = "Open", parentId = ID_MAIN_MENU_FILE )
+  @GuiMenuElement( id = ID_MAIN_MENU_FILE_OPEN, type = GuiElementType.MENU_ITEM, label = "Open", image = "ui/images/open.svg", parentId = ID_MAIN_MENU_FILE )
   @GuiToolbarElement( id = ID_MAIN_TOOLBAR_OPEN, type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/open.svg", toolTip = "Open", parentId = ID_MAIN_TOOLBAR, separator = true )
   @GuiKeyboardShortcut( control = true, key = 'o' )
   @GuiOSXKeyboardShortcut( command = true, key = 'o' )
   public void menuFileOpen() {
     fileDelegate.fileOpen();
   }
-
-  @GuiMenuElement( id = ID_MAIN_MENU_FILE_SAVE, type = GuiElementType.MENU_ITEM, label = "Save", parentId = ID_MAIN_MENU_FILE )
+  
+  @GuiMenuElement( id = ID_MAIN_MENU_FILE_SAVE, type = GuiElementType.MENU_ITEM, label = "Save", image = "ui/images/save.svg", parentId = ID_MAIN_MENU_FILE )
   @GuiToolbarElement( id = ID_MAIN_TOOLBAR_SAVE, type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/save.svg", toolTip = "Save", parentId = ID_MAIN_TOOLBAR )
   @GuiKeyboardShortcut( control = true, key = 's' )
   @GuiOSXKeyboardShortcut( command = true, key = 's' )
@@ -394,7 +394,7 @@ public class HopGui implements IActionContextHandlersProvider {
     fileDelegate.fileSave();
   }
 
-  @GuiMenuElement( id = ID_MAIN_MENU_FILE_SAVE_AS, type = GuiElementType.MENU_ITEM, label = "Save As...", parentId = ID_MAIN_MENU_FILE )
+  @GuiMenuElement( id = ID_MAIN_MENU_FILE_SAVE_AS, type = GuiElementType.MENU_ITEM, label = "Save As...", image = "ui/images/saveas.svg", parentId = ID_MAIN_MENU_FILE )
   @GuiToolbarElement( id = ID_MAIN_TOOLBAR_SAVE_AS, type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/saveas.svg", toolTip = "Save as...", parentId = ID_MAIN_TOOLBAR )
   public void menuFileSaveAs() {
     System.out.println( "fileSaveAs" );
@@ -500,18 +500,18 @@ public class HopGui implements IActionContextHandlersProvider {
     // Nothing is done here.
   }
 
-  @GuiMenuElement( id = ID_MAIN_MENU_RUN_START, type = GuiElementType.MENU_ITEM, label = "Start execution", parentId = ID_MAIN_MENU_RUN_PARENT_ID )
+  @GuiMenuElement( id = ID_MAIN_MENU_RUN_START, type = GuiElementType.MENU_ITEM, label = "Start execution",  image = "ui/images/toolbar/run.svg", parentId = ID_MAIN_MENU_RUN_PARENT_ID )
   @GuiKeyboardShortcut( key = SWT.F8 )
   public void menuRunStart() {
     getActiveFileTypeHandler().start();
   }
 
-  @GuiMenuElement( id = ID_MAIN_MENU_RUN_STOP, type = GuiElementType.MENU_ITEM, label = "Stop execution", parentId = ID_MAIN_MENU_RUN_PARENT_ID )
+  @GuiMenuElement( id = ID_MAIN_MENU_RUN_STOP, type = GuiElementType.MENU_ITEM, label = "Stop execution", image = "ui/images/toolbar/stop.svg", parentId = ID_MAIN_MENU_RUN_PARENT_ID )
   public void menuRunStop() {
     getActiveFileTypeHandler().stop();
   }
 
-  @GuiMenuElement( id = ID_MAIN_MENU_RUN_PAUSE, type = GuiElementType.MENU_ITEM, label = "Pause execution", parentId = ID_MAIN_MENU_RUN_PARENT_ID, separator = true )
+  @GuiMenuElement( id = ID_MAIN_MENU_RUN_PAUSE, type = GuiElementType.MENU_ITEM, label = "Pause execution", image = "ui/images/toolbar/pause.svg", parentId = ID_MAIN_MENU_RUN_PARENT_ID, separator = true )
   public void menuRunPause() {
     getActiveFileTypeHandler().pause();
   }
