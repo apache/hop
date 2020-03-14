@@ -527,7 +527,7 @@ public class HopGui implements IActionContextHandlersProvider {
   }
 
   protected void addMainToolbar() {
-    mainToolbar = new ToolBar( shell, SWT.BORDER | SWT.WRAP | SWT.SHADOW_OUT | SWT.LEFT | SWT.HORIZONTAL );
+    mainToolbar = new ToolBar( shell, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL );
     FormData fdToolBar = new FormData();
     fdToolBar.left = new FormAttachment( 0, 0 );
     fdToolBar.top = new FormAttachment( 0, 0 );
@@ -553,7 +553,7 @@ public class HopGui implements IActionContextHandlersProvider {
     formData.bottom = new FormAttachment( 100, 0 );
     mainHopGuiComposite.setLayoutData( formData );
 
-    perspectivesToolbar = new ToolBar( mainHopGuiComposite, SWT.BORDER | SWT.WRAP | SWT.SHADOW_OUT | SWT.RIGHT | SWT.VERTICAL );
+    perspectivesToolbar = new ToolBar( mainHopGuiComposite,SWT.WRAP | SWT.RIGHT | SWT.VERTICAL );
     props.setLook( perspectivesToolbar, PropsUI.WIDGET_STYLE_TOOLBAR );
     FormData fdToolBar = new FormData();
     fdToolBar.left = new FormAttachment( 0, 0 );
