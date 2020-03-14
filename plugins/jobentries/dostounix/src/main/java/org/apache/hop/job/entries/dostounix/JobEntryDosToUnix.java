@@ -397,9 +397,8 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
   private static int getFileType( FileObject file ) throws Exception {
     int aCount = 0; // occurences of LF
     int dCount = 0; // occurences of CR
-    FileInputStream in = null;
-    try {
-      in = new FileInputStream( file.getName().getPathDecoded() );
+
+    try ( FileInputStream in = new FileInputStream( file.getName().getPathDecoded() ) ) {
       while ( in.available() > 0 ) {
         int b = in.read();
         if ( b == CR ) {
@@ -416,8 +415,6 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
           aCount++;
         }
       }
-    } finally {
-      in.close();
     }
 
     if ( aCount == dCount ) {
