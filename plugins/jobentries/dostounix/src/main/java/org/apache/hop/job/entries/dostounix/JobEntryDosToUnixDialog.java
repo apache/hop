@@ -164,6 +164,7 @@ public class JobEntryDosToUnixDialog extends JobEntryDialog implements JobEntryD
     }
   }
 
+  @Override
   public JobEntryInterface open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
@@ -282,7 +283,7 @@ public class JobEntryDosToUnixDialog extends JobEntryDialog implements JobEntryD
     wPrevious.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
 
-        RefreshArgFromPrevious();
+        refreshArgFromPrevious();
 
       }
     } );
@@ -466,7 +467,7 @@ public class JobEntryDosToUnixDialog extends JobEntryDialog implements JobEntryD
     fdFields.bottom = new FormAttachment( 100, -margin );
     wFields.setLayoutData( fdFields );
 
-    RefreshArgFromPrevious();
+    refreshArgFromPrevious();
 
     // Add the file to the list of files...
     SelectionAdapter selA = new SelectionAdapter() {
@@ -723,8 +724,6 @@ public class JobEntryDosToUnixDialog extends JobEntryDialog implements JobEntryD
     getData();
     activeSuccessCondition();
 
-    activeSuccessCondition();
-
     wTabFolder.setSelection( 0 );
     BaseStepDialog.setSize( shell );
 
@@ -742,7 +741,7 @@ public class JobEntryDosToUnixDialog extends JobEntryDialog implements JobEntryD
     wNrErrorsLessThan.setEnabled( wSuccessCondition.getSelectionIndex() != 0 );
   }
 
-  private void RefreshArgFromPrevious() {
+  private void refreshArgFromPrevious() {
 
     wlFields.setEnabled( !wPrevious.getSelection() );
     wFields.setEnabled( !wPrevious.getSelection() );
