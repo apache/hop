@@ -1,14 +1,17 @@
 package org.apache.hop.ui.hopgui.file.trans;
 
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.GuiAction;
 import org.apache.hop.core.gui.plugin.GuiActionLambdaBuilder;
 import org.apache.hop.core.gui.plugin.GuiActionType;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.StepPluginType;
 import org.apache.hop.trans.TransMeta;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 
@@ -65,6 +68,11 @@ public class HopGuiTransContext extends BaseGuiContextHandler implements IGuiCon
             transGraph.transStepDelegate.newStep( transMeta, stepPlugin.getIds()[ 0 ], stepPlugin.getName(), stepPlugin.getDescription(), false, true, click );
           }
         );
+      try {
+        createStepAction.setClassLoader( registry.getClassLoader( stepPlugin ) );
+      } catch ( HopPluginException e ) {
+        LogChannel.UI.logError( "Unable to get classloader for step plugin "+stepPlugin.getIds()[0], e );
+      }
       createStepAction.getKeywords().add(stepPlugin.getCategory());
       actions.add( createStepAction );
     }
