@@ -28,6 +28,7 @@ import org.apache.hop.core.compress.CompressionProvider;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.file.EncodingType;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.trans.step.BaseStep;

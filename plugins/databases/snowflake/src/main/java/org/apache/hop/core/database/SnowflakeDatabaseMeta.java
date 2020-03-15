@@ -135,15 +135,20 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements DatabaseI
 	}
 
 	@Override
-	public String getSQLListOfSequences() {
-		return "SELECT SCHEMA_NAME AS \"name\" FROM " + getDatabaseName() + ".INFORMATION_SCHEMA.SEQUENCES";
+	public String getSQLListOfProcedures() {
+		return "SELECT PROCEDURE_NAME AS \"name\" FROM " + getDatabaseName() + ".INFORMATION_SCHEMA.PROCEDURES";
 	}
 
 	@Override
-	public String getSQLListOfProcedures() {
-		return "SELECT SCHEMA_NAME AS \"name\" FROM " + getDatabaseName() + ".INFORMATION_SCHEMA.PROCEDURES";
+	public String getSQLListOfSequences() {
+		return "SELECT SEQUENCE_NAME AS \"name\" FROM " + getDatabaseName() + ".INFORMATION_SCHEMA.SEQUENCES";
 	}
-
+	
+    @Override
+	public String getSQLNextSequenceValue( String sequenceName ) {
+	    return "SELECT " + sequenceName + ".NEXTVAL FROM DUAL";
+	}
+		
 	@Override
 	public String getModifyColumnStatement(String tableName, ValueMetaInterface v, String tk, boolean useAutoinc,
 			String pk, boolean semicolon) {
@@ -374,9 +379,9 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements DatabaseI
 
 	@Override
 	public String quoteSQLString(String string) {
-		string = string.replaceAll("'", "\\\\'");
-		string = string.replaceAll("\\n", "\\\\n");
-		string = string.replaceAll("\\r", "\\\\r");
+		string = string.replace("'", "\\\\'");
+		string = string.replace("\\n", "\\\\n");
+		string = string.replace("\\r", "\\\\r");
 		return "'" + string + "'";
 	}
 

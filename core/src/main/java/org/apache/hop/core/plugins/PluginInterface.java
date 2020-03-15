@@ -116,6 +116,16 @@ public interface PluginInterface {
    */
   void setErrorHelpFile( String errorHelpFile );
 
+  /**
+   * @return keywords describing this plugin
+   */
+  String[] getKeywords();
+
+  /**
+   * @param keywords keywords describing this plugin
+   */
+  public void setKeywords( String[] keywords );
+
   URL getPluginDirectory();
 
   /**

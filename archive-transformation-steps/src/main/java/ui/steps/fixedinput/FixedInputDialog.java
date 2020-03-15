@@ -148,7 +148,7 @@ public class FixedInputDialog extends BaseStepDialog implements StepDialogInterf
     shell.setText( BaseMessages.getString( PKG, "FixedInputDialog.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Step name line
     //

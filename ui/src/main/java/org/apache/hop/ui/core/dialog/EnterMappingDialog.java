@@ -225,7 +225,7 @@ public class EnterMappingDialog extends Dialog {
     shell.setText( BaseMessages.getString( PKG, "EnterMappingDialog.Title" ) );
     shell.setImage( GUIResource.getInstance().getImageTransGraph() );
 
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
     int buttonSpace = 90;
 
     // Source table

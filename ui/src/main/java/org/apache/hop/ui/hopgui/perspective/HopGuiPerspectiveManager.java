@@ -3,7 +3,9 @@ package org.apache.hop.ui.hopgui.perspective;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.widgets.Composite;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -53,4 +55,13 @@ public class HopGuiPerspectiveManager {
     }
     return null;
   }
+
+  /** Get a copy of all the handled/registered perspectives
+   *
+   * @return All perspectives copied over in a new list
+   */
+  public List<IHopPerspective> getPerspectives() {
+    return new ArrayList<>( perspectivesMap.values() );
+  }
+
 }

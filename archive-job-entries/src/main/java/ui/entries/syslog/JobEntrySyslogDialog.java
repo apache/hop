@@ -182,7 +182,7 @@ public class JobEntrySyslogDialog extends JobEntryDialog implements JobEntryDial
     shell.setText( BaseMessages.getString( PKG, "JobEntrySyslog.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Job entry name line
     wName =

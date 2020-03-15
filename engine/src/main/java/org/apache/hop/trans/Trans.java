@@ -681,18 +681,21 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
 
   /**
    * Instantiates a new transformation using any of the provided parameters including the variable bindings, a name
-   * and a filename. This is a multi-purpose method that supports loading a transformation from a file
+   * and a filename. This contstructor loads the specified transformation from a file.
    *
    * @param parent   the parent variable space and named params
    * @param name     the name of the transformation
    * @param filename the filename containing the transformation definition
+   * @param metaStore The MetaStore to use when referencing metadata objects
    * @throws HopException if any error occurs during loading, parsing, or creation of the transformation
    */
-  public <Parent extends VariableSpace & NamedParams> Trans( Parent parent, String name, String filename ) throws HopException {
+  public <Parent extends VariableSpace & NamedParams> Trans( Parent parent, String name, String filename, IMetaStore metaStore ) throws HopException {
     this();
-    try {
 
-      transMeta = new TransMeta( filename, false, this );
+    this.metaStore = metaStore;
+
+    try {
+      transMeta = new TransMeta( filename, metaStore, false, this );
 
       this.log = LogChannel.GENERAL;
 

@@ -128,7 +128,7 @@ public class JobEntryEvalDialog extends JobEntryDialog implements JobEntryDialog
     shell.setText( BaseMessages.getString( PKG, "JobEval.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     wOK = new Button( shell, SWT.PUSH );
     wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );

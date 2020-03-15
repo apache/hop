@@ -25,6 +25,7 @@ package org.apache.hop.trans.steps.fileinput;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.compress.CompressionInputStream;
+import org.apache.hop.core.file.EncodingType;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.playlist.FilePlayList;
 import org.apache.hop.core.row.RowMetaInterface;

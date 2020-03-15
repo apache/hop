@@ -180,7 +180,7 @@ public class JobEntrySendNagiosPassiveCheckDialog extends JobEntryDialog impleme
     shell.setText( BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Job entry name line
     wName =

@@ -244,7 +244,7 @@ public class PreviewRowsDialog {
     // Position the buttons...
     //
     BaseStepDialog
-      .positionBottomButtons( shell, buttons.toArray( new Button[ buttons.size() ] ), Const.MARGIN, null );
+      .positionBottomButtons( shell, buttons.toArray( new Button[ buttons.size() ] ), props.getMargin(), null );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
@@ -271,7 +271,7 @@ public class PreviewRowsDialog {
 
   private boolean addFields() {
     // int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     if ( wlFields == null ) {
       wlFields = new Label( shell, SWT.LEFT );

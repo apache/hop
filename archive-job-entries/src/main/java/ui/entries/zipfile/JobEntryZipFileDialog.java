@@ -264,7 +264,7 @@ public class JobEntryZipFileDialog extends JobEntryDialog implements JobEntryDia
     shell.setText( BaseMessages.getString( PKG, "JobZipFiles.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // ZipFilename line
     wlName = new Label( shell, SWT.RIGHT );

@@ -275,7 +275,7 @@ public class JobEntryFTPDeleteDialog extends JobEntryDialog implements JobEntryD
     shell.setText( BaseMessages.getString( PKG, "JobFTPDelete.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Job entry name line
     wName =

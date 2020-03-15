@@ -463,7 +463,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
     PluginInterface stepPlugin =
       new Plugin(
         new String[] { id }, pluginType, mainClassTypesAnnotation.value(), cat, name, desc, image, false,
-        false, classMap, new ArrayList<>(), null, null, null, null, null );
+        false, classMap, new ArrayList<>(), null, null, null, null, null, null );
     registry.registerPlugin( pluginType, stepPlugin );
   }
 
@@ -482,8 +482,10 @@ public abstract class BasePluginType implements PluginTypeInterface {
       String casesUrl = getTagOrAttribute( pluginNode, "cases_url" );
       String forumUrl = getTagOrAttribute( pluginNode, "forum_url" );
       String suggestion = getTagOrAttribute( pluginNode, "suggestion" );
+      String keywordsString = getTagOrAttribute( pluginNode, "keywords" );
+      String[] keywords = keywordsString==null ? new String[] {} : keywordsString.split( "," );
 
-      Node libsnode = XMLHandler.getSubNode( pluginNode, "libraries" );
+        Node libsnode = XMLHandler.getSubNode( pluginNode, "libraries" );
       int nrlibs = XMLHandler.countNodes( libsnode, "library" );
 
       List<String> jarFiles = new ArrayList<>();
@@ -542,7 +544,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
       PluginInterface pluginInterface =
         new Plugin(
           id.split( "," ), pluginType, mainClassTypesAnnotation.value(), category, description, tooltip,
-          iconFilename, false, nativePlugin, classMap, jarFiles, errorHelpFileFull, pluginFolder,
+          iconFilename, false, nativePlugin, classMap, jarFiles, errorHelpFileFull, keywords, pluginFolder,
           documentationUrl, casesUrl, forumUrl, suggestion );
       registry.registerPlugin( pluginType, pluginInterface );
 
@@ -722,6 +724,10 @@ public abstract class BasePluginType implements PluginTypeInterface {
     return null;
   }
 
+  protected String[] extractKeywords( Annotation annotation ) {
+    return new String[] {};
+  }
+
   /**
    * When set to true the PluginFolder objects created by this type will be instructed to search for additional plugins
    * in the lib directory of plugin folders.
@@ -794,6 +800,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
     String forumUrl = extractForumUrl( annotation );
     String suggestion = getTranslation( extractSuggestion( annotation ), packageName, altPackageName, clazz );
     String classLoaderGroup = extractClassLoaderGroup( annotation );
+    String[] keywords = extractKeywords( annotation );
 
     name += addDeprecation( category );
 
@@ -808,7 +815,7 @@ public abstract class BasePluginType implements PluginTypeInterface {
     PluginInterface plugin =
       new Plugin(
         ids, this.getClass(), mainType.value(), category, name, description, imageFile, separateClassLoader,
-        classLoaderGroup, nativePluginType, classMap, libraries, null, pluginFolder, documentationUrl,
+        classLoaderGroup, nativePluginType, classMap, libraries, null, keywords, pluginFolder, documentationUrl,
         casesUrl, forumUrl, suggestion );
 
     ParentFirst parentFirstAnnotation = clazz.getAnnotation( ParentFirst.class );

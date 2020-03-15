@@ -211,7 +211,7 @@ public class Props implements Cloneable {
     filename = getFilename();
     createLogChannel();
     properties = new Properties();
-    pluginHistory = new ArrayList<ObjectUsageCount>();
+    pluginHistory = new ArrayList<>();
 
     loadProps();
     addDefaultEntries();
@@ -246,17 +246,8 @@ public class Props implements Cloneable {
   }
 
   public boolean loadProps() {
-    try {
-      FileInputStream fis = new FileInputStream( filename );
-      try {
+    try ( FileInputStream fis = new FileInputStream( filename ) ) {     
         properties.load( fis );
-      } finally {
-        try {
-          fis.close();
-        } catch ( IOException ignored ) {
-          // Ignore close exception
-        }
-      }
     } catch ( Exception e ) {
       return false;
     }
@@ -304,8 +295,7 @@ public class Props implements Cloneable {
   }
 
   public String getLogLevel() {
-    String level = properties.getProperty( STRING_LOG_LEVEL, "Basic" );
-    return level;
+    return properties.getProperty( STRING_LOG_LEVEL, "Basic" );
   }
 
   public void setLogFilter( String filter ) {
@@ -313,8 +303,7 @@ public class Props implements Cloneable {
   }
 
   public String getLogFilter() {
-    String level = properties.getProperty( STRING_LOG_FILTER, "" );
-    return level;
+    return properties.getProperty( STRING_LOG_FILTER, "" );
   }
 
   public void setUseDBCache( boolean use ) {
@@ -477,7 +466,7 @@ public class Props implements Cloneable {
    * Load the plugin history from the properties file
    */
   protected void loadPluginHistory() {
-    pluginHistory = new ArrayList<ObjectUsageCount>();
+    pluginHistory = new ArrayList<>();
     int i = 0;
     String string = properties.getProperty( STRING_PLUGIN_HISTORY + "_" + i );
     while ( string != null ) {

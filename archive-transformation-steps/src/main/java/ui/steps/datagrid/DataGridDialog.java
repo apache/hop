@@ -116,7 +116,7 @@ public class DataGridDialog extends BaseStepDialog implements StepDialogInterfac
     shell.setText( BaseMessages.getString( PKG, "DataGridDialog.DialogTitle" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Filename line
     wlStepname = new Label( shell, SWT.RIGHT );

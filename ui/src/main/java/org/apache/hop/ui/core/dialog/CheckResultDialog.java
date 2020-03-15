@@ -120,7 +120,7 @@ public class CheckResultDialog extends Dialog {
     shell.setText( BaseMessages.getString( PKG, "CheckResultDialog.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     wlFields = new Label( shell, SWT.LEFT );
     wlFields.setText( BaseMessages.getString( PKG, "CheckResultDialog.Remarks.Label" ) );

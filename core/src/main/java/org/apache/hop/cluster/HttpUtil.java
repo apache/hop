@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -46,6 +46,9 @@ public class HttpUtil {
   private static final String PROTOCOL_UNSECURE = "http";
   private static final String PROTOCOL_SECURE = "https";
 
+  private HttpUtil() {		 
+  }
+  
   /**
    * Returns http GET request string using specified parameters.
    *
@@ -85,7 +88,7 @@ public class HttpUtil {
   }
 
   /**
-   * Base 64 decode, unzip and extract text using {@link Const#XML_ENCODING} predefined charset value for byte-wise
+   * Base 64 decode, unzip and extract text using UTF-8 charset value for byte-wise
    * multi-byte character handling.
    *
    * @param loggingString64 base64 zip archive string representation
@@ -102,54 +105,28 @@ public class HttpUtil {
     // unzip to string encoding-wise
     ByteArrayInputStream zip = new ByteArrayInputStream( bytes64 );
 
-    GZIPInputStream unzip = null;
-    InputStreamReader reader = null;
-    BufferedInputStream in = null;
-    try {
-      unzip = new GZIPInputStream( zip, HttpUtil.ZIP_BUFFER_SIZE );
-      in = new BufferedInputStream( unzip, HttpUtil.ZIP_BUFFER_SIZE );
-      // PDI-4325 originally used xml encoding in servlet
-      reader = new InputStreamReader( in, Const.XML_ENCODING );
+    
+    // PDI-4325 originally used xml encoding in servlet
+    try ( GZIPInputStream unzip = new GZIPInputStream( zip, HttpUtil.ZIP_BUFFER_SIZE );
+            BufferedInputStream in = new BufferedInputStream( unzip, HttpUtil.ZIP_BUFFER_SIZE );
+            InputStreamReader reader = new InputStreamReader( in, StandardCharsets.UTF_8 ) ) {
+    	
       writer = new StringWriter();
 
       // use same buffer size
       char[] buff = new char[ HttpUtil.ZIP_BUFFER_SIZE ];
       for ( int length = 0; ( length = reader.read( buff ) ) > 0; ) {
         writer.write( buff, 0, length );
-      }
-    } finally {
-      // close resources
-      if ( reader != null ) {
-        try {
-          reader.close();
-        } catch ( IOException e ) {
-          // Suppress
-        }
-      }
-      if ( in != null ) {
-        try {
-          in.close();
-        } catch ( IOException e ) {
-          // Suppress
-        }
-      }
-      if ( unzip != null ) {
-        try {
-          unzip.close();
-        } catch ( IOException e ) {
-          // Suppress
-        }
-      }
+      }    
     }
     return writer.toString();
   }
 
-  public static String encodeBase64ZippedString( String in ) throws IOException {
-    Charset charset = Charset.forName( Const.XML_ENCODING );
+  public static String encodeBase64ZippedString( String in ) throws IOException {   
     ByteArrayOutputStream baos = new ByteArrayOutputStream( 1024 );
     try ( Base64OutputStream base64OutputStream = new Base64OutputStream( baos );
           GZIPOutputStream gzos = new GZIPOutputStream( base64OutputStream ) ) {
-      gzos.write( in.getBytes( charset ) );
+      gzos.write( in.getBytes( StandardCharsets.UTF_8 ) );
     }
     return baos.toString();
   }

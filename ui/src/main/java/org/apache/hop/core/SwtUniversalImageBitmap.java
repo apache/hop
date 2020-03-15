@@ -29,9 +29,9 @@ import org.eclipse.swt.graphics.Transform;
 
 public class SwtUniversalImageBitmap extends SwtUniversalImage {
   private final Image bitmap;
-  private final float zoomFactor;
+  private final double zoomFactor;
 
-  public SwtUniversalImageBitmap( Image bitmap, float zoomFactor ) {
+  public SwtUniversalImageBitmap( Image bitmap, double zoomFactor ) {
     this.bitmap = bitmap;
     this.zoomFactor = zoomFactor;
   }

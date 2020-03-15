@@ -124,7 +124,7 @@ public class JobEntryFileCompareDialog extends JobEntryDialog implements JobEntr
     shell.setText( BaseMessages.getString( PKG, "JobFileCompare.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Name line
     wlName = new Label( shell, SWT.RIGHT );

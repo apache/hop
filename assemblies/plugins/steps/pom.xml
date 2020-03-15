@@ -34,6 +34,7 @@
         <module>execsqlrow</module>
         <module>fieldschangesequence</module>
         <module>fileinput</module>
+        <module>pgbulkloader</module>        
         <module>rowgenerator</module>
         <module>selectvalues</module>
         <module>sql</module>

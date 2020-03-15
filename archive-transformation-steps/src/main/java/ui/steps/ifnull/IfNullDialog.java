@@ -136,7 +136,7 @@ public class IfNullDialog extends BaseStepDialog implements StepDialogInterface 
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = props.getMargin();
 
     fieldsRows = input.getFields().length;
 

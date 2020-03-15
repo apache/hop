@@ -158,7 +158,7 @@ public class JobEntrySimpleEvalDialog extends JobEntryDialog implements JobEntry
     shell.setText( BaseMessages.getString( PKG, "JobSimpleEval.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Filename line
     wlName = new Label( shell, SWT.RIGHT );

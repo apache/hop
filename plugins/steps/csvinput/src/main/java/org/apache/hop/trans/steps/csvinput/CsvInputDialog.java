@@ -46,7 +46,7 @@ import org.apache.hop.trans.step.RowAdapter;
 import org.apache.hop.trans.step.StepDialogInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.steps.common.CsvInputAwareMeta;
-import org.apache.hop.trans.steps.fileinput.TextFileInputField;
+import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
@@ -152,7 +152,7 @@ public class CsvInputDialog extends BaseStepDialog implements StepDialogInterfac
     shell.setText( BaseMessages.getString( PKG, "CsvInputDialog.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Step name line
     //

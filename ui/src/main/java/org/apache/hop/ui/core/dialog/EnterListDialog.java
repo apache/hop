@@ -108,7 +108,7 @@ public class EnterListDialog extends Dialog {
 
     shell.setLayout( new FormLayout() );
 
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // //////////////////////////////////////////////////
     // Top & Bottom regions.

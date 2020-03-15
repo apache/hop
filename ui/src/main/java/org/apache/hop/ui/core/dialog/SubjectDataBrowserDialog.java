@@ -138,7 +138,7 @@ public class SubjectDataBrowserDialog {
 
     // Position the buttons...
     //
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wClose, }, Const.MARGIN, null );
+    BaseStepDialog.positionBottomButtons( shell, new Button[] { wClose, }, props.getMargin(), null );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
@@ -160,7 +160,7 @@ public class SubjectDataBrowserDialog {
 
   private boolean addFields() {
     // int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     if ( wlSubjectMessage == null ) {
       wlSubjectMessage = new Label( shell, SWT.LEFT );

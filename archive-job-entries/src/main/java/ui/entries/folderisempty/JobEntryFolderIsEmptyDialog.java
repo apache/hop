@@ -125,7 +125,7 @@ public class JobEntryFolderIsEmptyDialog extends JobEntryDialog implements JobEn
     shell.setText( BaseMessages.getString( PKG, "JobFolderIsEmpty.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Foldername line
     wlName = new Label( shell, SWT.RIGHT );

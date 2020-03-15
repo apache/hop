@@ -153,7 +153,7 @@ public class JobEntryAddResultFilenamesDialog extends JobEntryDialog implements 
     shell.setText( BaseMessages.getString( PKG, "JobEntryAddResultFilenames.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Filename line
     wlName = new Label( shell, SWT.RIGHT );

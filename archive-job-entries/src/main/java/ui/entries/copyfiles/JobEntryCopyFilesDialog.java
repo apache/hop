@@ -145,7 +145,7 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
     shell.setText( BaseMessages.getString( PKG, "JobCopyFiles.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Filename line
     Label wlName = new Label( shell, SWT.LEFT );
@@ -434,7 +434,7 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
     button.setToolTipText( BaseMessages.getString( PKG, title ) );
     props.setLook( button );
     FormData fd = new FormData();
-    fd.left = new FormAttachment( 0, Const.MARGIN * 2 );
+    fd.left = new FormAttachment( 0, props.getMargin() * 2 );
     if ( top == null ) {
       fd.top = new FormAttachment( 0, 10 );
     } else {

@@ -112,7 +112,7 @@ public class JobEntryAbortDialog extends JobEntryDialog implements JobEntryDialo
     shell.setText( BaseMessages.getString( PKG, "JobEntryAbortDialog.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Filename line
     Label wlName = new Label( shell, SWT.RIGHT );

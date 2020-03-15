@@ -92,12 +92,12 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
     this.parentComposite = parentComposite;
     this.props = PropsUI.getInstance();
 
-    this.manager = new MetaStoreManager<>( space, metaStore, managedClass, parentComposite.getShell() );
+    this.manager = new MetaStoreManager<>( space, metaStore, managedClass );
 
     props.setLook( this );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 0;
@@ -232,7 +232,7 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
     fdConnection.left = new FormAttachment( 0, 0 );
     fdConnection.right = new FormAttachment( 100, 0 );
     if ( previous != null ) {
-      fdConnection.top = new FormAttachment( previous, Const.MARGIN );
+      fdConnection.top = new FormAttachment( previous, props.getMargin() );
     } else {
       fdConnection.top = new FormAttachment( 0, 0 );
     }
@@ -442,7 +442,7 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
 
     Button wOK = new Button( shell, SWT.PUSH );
     wOK.setText( "Owkeej" );
-    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK }, Const.MARGIN, wConnection );
+    BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK }, PropsUI.getInstance().getMargin(), wConnection );
 
     BaseStepDialog.setSize( shell );
 

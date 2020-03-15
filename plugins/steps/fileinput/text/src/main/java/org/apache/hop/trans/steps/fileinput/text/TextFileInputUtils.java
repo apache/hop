@@ -25,6 +25,7 @@ package org.apache.hop.trans.steps.fileinput.text;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.file.EncodingType;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMetaInterface;

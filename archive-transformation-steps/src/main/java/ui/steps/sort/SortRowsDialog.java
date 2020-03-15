@@ -136,7 +136,7 @@ public class SortRowsDialog extends BaseStepDialog implements StepDialogInterfac
     shell.setText( BaseMessages.getString( PKG, "SortRowsDialog.DialogTitle" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

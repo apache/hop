@@ -37,6 +37,7 @@ import org.apache.hop.core.plugins.StepPluginType;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 import org.apache.hop.trans.step.StepStatus;
 import org.apache.hop.trans.steps.transexecutor.TransExecutorParameters;
 import org.junit.Before;
@@ -99,9 +100,9 @@ public class SubtransExecutorTest {
   @Ignore // TODO : move database connections out of .ktr files and move to metastore if needed
   public void testRunsATrans() throws Exception {
     TransMeta parentMeta =
-      new TransMeta( this.getClass().getResource( "subtrans-executor-parent.ktr" ).getPath(), new Variables() );
+      new TransMeta( this.getClass().getResource( "subtrans-executor-parent.ktr" ).getPath(), new MemoryMetaStore(), true, new Variables() );
     TransMeta subMeta =
-      new TransMeta( this.getClass().getResource( "subtrans-executor-sub.ktr" ).getPath(), new Variables() );
+      new TransMeta( this.getClass().getResource( "subtrans-executor-sub.ktr" ).getPath(), new MemoryMetaStore(), true, new Variables() );
     LoggingObjectInterface loggingObject = new LoggingObject( "anything" );
     Trans parentTrans = spy( new Trans( parentMeta, loggingObject ) );
     SubtransExecutor subtransExecutor =
@@ -150,9 +151,9 @@ public class SubtransExecutorTest {
   @Ignore // TODO : move database connections out of .ktr files and move to metastore if needed
   public void stopsAll() throws HopException {
     TransMeta parentMeta =
-      new TransMeta( this.getClass().getResource( "subtrans-executor-parent.ktr" ).getPath(), new Variables() );
+      new TransMeta( this.getClass().getResource( "subtrans-executor-parent.ktr" ).getPath(), new MemoryMetaStore(), true, new Variables() );
     TransMeta subMeta =
-      new TransMeta( this.getClass().getResource( "subtrans-executor-sub.ktr" ).getPath(), new Variables() );
+      new TransMeta( this.getClass().getResource( "subtrans-executor-sub.ktr" ).getPath(), new MemoryMetaStore(), true, new Variables() );
     LoggingObjectInterface loggingObject = new LoggingObject( "anything" );
     Trans parentTrans = new Trans( parentMeta, loggingObject );
     SubtransExecutor subtransExecutor =
@@ -175,9 +176,9 @@ public class SubtransExecutorTest {
   public void doesNotExecuteWhenStopped() throws HopException {
 
     TransMeta parentMeta =
-      new TransMeta( this.getClass().getResource( "subtrans-executor-parent.ktr" ).getPath(), new Variables() );
+      new TransMeta( this.getClass().getResource( "subtrans-executor-parent.ktr" ).getPath(), new MemoryMetaStore(), true, new Variables() );
     TransMeta subMeta =
-      new TransMeta( this.getClass().getResource( "subtrans-executor-sub.ktr" ).getPath(), new Variables() );
+      new TransMeta( this.getClass().getResource( "subtrans-executor-sub.ktr" ).getPath(), new MemoryMetaStore(), true, new Variables() );
     LoggingObjectInterface loggingObject = new LoggingObject( "anything" );
     Trans parentTrans = new Trans( parentMeta, loggingObject );
     SubtransExecutor subtransExecutor =

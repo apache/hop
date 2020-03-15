@@ -413,7 +413,7 @@ public class HopUiSlave extends Composite implements TabItemInterface {
     } );
 
     BaseStepDialog.positionBottomButtons( this,
-      new Button[] { wRefresh, wSniff, wStart, wPause, wStop, wRemove, wError }, Const.MARGIN, null );
+      new Button[] { wRefresh, wSniff, wStart, wPause, wStop, wRemove, wError }, PropsUI.getInstance().getMargin(), null );
 
     // Put tree on top
     FormData fdTree = new FormData();

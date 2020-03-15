@@ -140,7 +140,7 @@ public class EnterStringDialog extends Dialog {
     shell.setImage( GUIResource.getInstance().getImageHopUi() );
     shell.setText( shellText );
 
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // The String line...
     wlString = new Label( shell, SWT.NONE );

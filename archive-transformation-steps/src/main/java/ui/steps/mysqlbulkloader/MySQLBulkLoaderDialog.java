@@ -190,7 +190,7 @@ public class MySQLBulkLoaderDialog extends BaseStepDialog implements StepDialogI
     shell.setText( BaseMessages.getString( PKG, "MySQLBulkLoaderDialog.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

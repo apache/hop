@@ -21,7 +21,6 @@
  ******************************************************************************/
 package org.apache.hop.trans;
 
-import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.ProgressMonitorListener;
@@ -29,11 +28,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.listeners.ContentChangedListener;
-import org.apache.hop.core.logging.TransLogTable;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaInterface;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
@@ -43,16 +39,9 @@ import org.apache.hop.trans.step.StepIOMeta;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaChangeListenerInterface;
 import org.apache.hop.trans.step.StepMetaInterface;
-import org.apache.hop.trans.step.StepPartitioningMeta;
-//import org.apache.hop.trans.steps.datagrid.DataGridMeta;
 import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
-//import org.apache.hop.trans.steps.textfileoutput.TextFileOutputMeta;
-//import org.apache.hop.trans.steps.userdefinedjavaclass.InfoStepDefinition;
-//import org.apache.hop.trans.steps.userdefinedjavaclass.UserDefinedJavaClassDef;
-//import org.apache.hop.trans.steps.userdefinedjavaclass.UserDefinedJavaClassMeta;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -63,10 +52,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -74,7 +60,6 @@ import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
@@ -92,6 +77,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+
+//import org.apache.hop.trans.steps.datagrid.DataGridMeta;
+//import org.apache.hop.trans.steps.textfileoutput.TextFileOutputMeta;
+//import org.apache.hop.trans.steps.userdefinedjavaclass.InfoStepDefinition;
+//import org.apache.hop.trans.steps.userdefinedjavaclass.UserDefinedJavaClassDef;
+//import org.apache.hop.trans.steps.userdefinedjavaclass.UserDefinedJavaClassMeta;
 
 @RunWith( PowerMockRunner.class )
 public class TransMetaTest {
@@ -211,8 +202,12 @@ public class TransMetaTest {
 
   @Test
   public void testCompare() throws Exception {
-    TransMeta transMeta = new TransMeta( "aFile", "aName" );
-    TransMeta transMeta2 = new TransMeta( "aFile", "aName" );
+    TransMeta transMeta = new TransMeta();
+    transMeta.setFilename( "aFile" );
+    transMeta.setName( "aName" );
+    TransMeta transMeta2 = new TransMeta();
+    transMeta2.setFilename( "aFile" );
+    transMeta2.setName( "aName" );
     assertEquals( 0, transMeta.compare( transMeta, transMeta2 ) );
     transMeta2.setVariable( "myVariable", "myValue" );
     assertEquals( 0, transMeta.compare( transMeta, transMeta2 ) );
@@ -239,14 +234,21 @@ public class TransMetaTest {
 
   @Test
   public void testEquals() throws Exception {
-    TransMeta transMeta = new TransMeta( "1", "2" );
+    TransMeta transMeta = new TransMeta();
+    transMeta.setFilename( "1" );
+    transMeta.setName( "2" );
     assertFalse( transMeta.equals( "somethingelse" ) );
-    assertTrue( transMeta.equals( new TransMeta( "1", "2" ) ) );
+    TransMeta transMeta2 = new TransMeta();
+    transMeta2.setFilename( "1" );
+    transMeta2.setName( "2" );
+    assertTrue( transMeta.equals( transMeta2 ) );
   }
 
   @Test
   public void testTransHops() throws Exception {
-    TransMeta transMeta = new TransMeta( "transFile", "myTrans" );
+    TransMeta transMeta = new TransMeta();
+    transMeta.setFilename( "transFile" );
+    transMeta.setName( "myTrans" );
     StepMeta step1 = new StepMeta( "name1", null );
     StepMeta step2 = new StepMeta( "name2", null );
     StepMeta step3 = new StepMeta( "name3", null );
@@ -282,7 +284,9 @@ public class TransMetaTest {
 
   @Test
   public void testGetAllTransHops() throws Exception {
-    TransMeta transMeta = new TransMeta( "transFile", "myTrans" );
+    TransMeta transMeta = new TransMeta();
+    transMeta.setFilename( "transFile" );
+    transMeta.setName( "myTrans" );
     StepMeta step1 = new StepMeta( "name1", null );
     StepMeta step2 = new StepMeta( "name2", null );
     StepMeta step3 = new StepMeta( "name3", null );
@@ -298,7 +302,7 @@ public class TransMetaTest {
     assertEquals( step4, allTransHopFrom.get( 1 ).getToStep() );
   }
 
-//TODO: Move Test
+  //TODO: Move Test
 /*  @Test
   public void testGetPrevInfoFields() throws HopStepException {
     DataGridMeta dgm1 = new DataGridMeta();
@@ -393,7 +397,9 @@ public class TransMetaTest {
 
   @Test
   public void testCloneWithParam() throws Exception {
-    TransMeta transMeta = new TransMeta( "transFile", "myTrans" );
+    TransMeta transMeta = new TransMeta();
+    transMeta.setFilename( "transFile" );
+    transMeta.setName( "myTrans" );
     transMeta.addParameterDefinition( "key", "defValue", "description" );
     Object clone = transMeta.realClone( true );
     assertNotNull( clone );

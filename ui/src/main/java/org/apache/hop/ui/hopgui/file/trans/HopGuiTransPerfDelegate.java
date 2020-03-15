@@ -25,6 +25,7 @@ package org.apache.hop.ui.hopgui.file.trans;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.performance.StepPerformanceSnapShot;
+import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopui.HopUi;
@@ -170,6 +171,8 @@ public class HopGuiTransPerfDelegate  {
   }
 
   public void setupContent() {
+    PropsUI props = PropsUI.getInstance();
+
     // there is a potential infinite loop below if this method
     // is called when the transgraph is not running, so we check
     // early to make sure it won't happen (see PDI-5009)
@@ -222,8 +225,8 @@ public class HopGuiTransPerfDelegate  {
     FormData fdDataListLabel = new FormData();
 
     fdDataListLabel.left = new FormAttachment( 0, 0 );
-    fdDataListLabel.right = new FormAttachment( hopUi.getProps().getMiddlePct() / 2, Const.MARGIN );
-    fdDataListLabel.top = new FormAttachment( 0, Const.MARGIN + 5 );
+    fdDataListLabel.right = new FormAttachment( hopUi.getProps().getMiddlePct() / 2, props.getMargin() );
+    fdDataListLabel.top = new FormAttachment( 0, props.getMargin() + 5 );
     dataListLabel.setLayoutData( fdDataListLabel );
 
     dataList =
@@ -248,9 +251,9 @@ public class HopGuiTransPerfDelegate  {
 
     FormData fdDataList = new FormData();
     fdDataList.left = new FormAttachment( 0, 0 );
-    fdDataList.right = new FormAttachment( hopUi.getProps().getMiddlePct() / 2, Const.MARGIN );
-    fdDataList.top = new FormAttachment( dataListLabel, Const.MARGIN );
-    fdDataList.bottom = new FormAttachment( 40, Const.MARGIN );
+    fdDataList.right = new FormAttachment( hopUi.getProps().getMiddlePct() / 2, props.getMargin() );
+    fdDataList.top = new FormAttachment( dataListLabel, props.getMargin() );
+    fdDataList.bottom = new FormAttachment( 40, props.getMargin() );
     dataList.setLayoutData( fdDataList );
 
     Label stepsListLabel = new Label( perfComposite, SWT.NONE );
@@ -260,8 +263,8 @@ public class HopGuiTransPerfDelegate  {
 
     FormData fdStepsListLabel = new FormData();
     fdStepsListLabel.left = new FormAttachment( 0, 0 );
-    fdStepsListLabel.right = new FormAttachment( hopUi.getProps().getMiddlePct() / 2, Const.MARGIN );
-    fdStepsListLabel.top = new FormAttachment( dataList, Const.MARGIN );
+    fdStepsListLabel.right = new FormAttachment( hopUi.getProps().getMiddlePct() / 2, props.getMargin() );
+    fdStepsListLabel.top = new FormAttachment( dataList, props.getMargin() );
     stepsListLabel.setLayoutData( fdStepsListLabel );
 
     stepsList =
@@ -285,17 +288,17 @@ public class HopGuiTransPerfDelegate  {
     } );
     FormData fdStepsList = new FormData();
     fdStepsList.left = new FormAttachment( 0, 0 );
-    fdStepsList.right = new FormAttachment( hopUi.getProps().getMiddlePct() / 2, Const.MARGIN );
-    fdStepsList.top = new FormAttachment( stepsListLabel, Const.MARGIN );
-    fdStepsList.bottom = new FormAttachment( 100, Const.MARGIN );
+    fdStepsList.right = new FormAttachment( hopUi.getProps().getMiddlePct() / 2, props.getMargin() );
+    fdStepsList.top = new FormAttachment( stepsListLabel, props.getMargin() );
+    fdStepsList.bottom = new FormAttachment( 100, props.getMargin() );
     stepsList.setLayoutData( fdStepsList );
 
     canvas = new Canvas( perfComposite, SWT.NONE );
     hopUi.getProps().setLook( canvas );
     FormData fdCanvas = new FormData();
-    fdCanvas.left = new FormAttachment( hopUi.getProps().getMiddlePct() / 2, Const.MARGIN );
+    fdCanvas.left = new FormAttachment( hopUi.getProps().getMiddlePct() / 2, props.getMargin() );
     fdCanvas.right = new FormAttachment( 100, 0 );
-    fdCanvas.top = new FormAttachment( 0, Const.MARGIN );
+    fdCanvas.top = new FormAttachment( 0, props.getMargin() );
     fdCanvas.bottom = new FormAttachment( 100, 0 );
     canvas.setLayoutData( fdCanvas );
 

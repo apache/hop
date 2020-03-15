@@ -123,7 +123,7 @@ public class PGPEncryptStreamDialog extends BaseStepDialog implements StepDialog
     shell.setText( BaseMessages.getString( PKG, "PGPEncryptStreamDialog.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

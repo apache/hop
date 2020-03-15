@@ -28,13 +28,16 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopui.ChangedWarningDialog;
 import org.apache.hop.ui.hopui.ChangedWarningInterface;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Shell;
 
 import java.util.List;
 
@@ -43,6 +46,8 @@ import java.util.List;
  *
  */
 public abstract class HopGuiAbstractGraph extends Composite {
+
+  protected HopGui hopUi;
 
   protected CTabItem parentTabItem;
 
@@ -57,11 +62,20 @@ public abstract class HopGuiAbstractGraph extends Composite {
   private boolean changedState;
   private Font defaultFont;
 
-  public HopGuiAbstractGraph( Composite parent, int style, CTabItem parentTabItem ) {
+  public HopGuiAbstractGraph( HopGui hopUi, Composite parent, int style, CTabItem parentTabItem ) {
     super( parent, style );
+    this.hopUi = hopUi;
     this.parentTabItem = parentTabItem;
     defaultFont = parentTabItem.getFont();
     changedState = false;
+  }
+
+  protected Shell hopShell() {
+    return hopUi.getShell();
+  }
+
+  protected Display hopDisplay() {
+    return hopUi.getDisplay();
   }
 
   protected abstract Point getOffset();

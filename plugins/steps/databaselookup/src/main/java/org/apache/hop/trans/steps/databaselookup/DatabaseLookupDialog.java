@@ -172,7 +172,7 @@ public class DatabaseLookupDialog extends BaseStepDialog implements StepDialogIn
     shell.setText( BaseMessages.getString( PKG, "DatabaseLookupDialog.shell.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

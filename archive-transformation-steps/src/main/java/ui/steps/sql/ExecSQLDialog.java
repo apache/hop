@@ -182,7 +182,7 @@ public class ExecSQLDialog extends BaseStepDialog implements StepDialogInterface
     shell.setText( BaseMessages.getString( PKG, "ExecSQLDialog.Shell.Label" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Stepname line
     wlStepname = new Label( shell, SWT.RIGHT );

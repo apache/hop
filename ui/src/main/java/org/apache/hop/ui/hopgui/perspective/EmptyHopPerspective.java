@@ -1,10 +1,14 @@
 package org.apache.hop.ui.hopgui.perspective;
 
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.file.EmptyHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
+import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EmptyHopPerspective implements IHopPerspective {
 
@@ -57,5 +61,10 @@ public class EmptyHopPerspective implements IHopPerspective {
 
   @Override public boolean remove( HopFileTypeHandlerInterface typeHandler ) {
     return true;
+  }
+
+  @Override public List<IGuiContextHandler> getContextHandlers() {
+    List<IGuiContextHandler> handlers = new ArrayList<>(  );
+    return handlers;
   }
 }

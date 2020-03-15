@@ -114,7 +114,7 @@ public class SetValueConstantDialog extends BaseStepDialog implements StepDialog
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    margin = props.getMargin();
 
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "SetValueConstantDialog.Shell.Title" ) );

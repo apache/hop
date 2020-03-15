@@ -24,6 +24,7 @@ package org.apache.hop.ui.core.widget;
 
 import org.apache.hop.core.util.Assert;
 import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.ui.core.PropsUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -41,7 +42,7 @@ public class PluginWidgetFactory {
   /**
    * The margin.
    */
-  public static final int DEFAULT_MARGIN = 4;
+  public static final int DEFAULT_MARGIN = PropsUI.getInstance().getMargin();
 
   /**
    * The default middle.

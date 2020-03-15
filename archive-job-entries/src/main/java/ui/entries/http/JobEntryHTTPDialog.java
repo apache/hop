@@ -241,7 +241,7 @@ public class JobEntryHTTPDialog extends JobEntryDialog implements JobEntryDialog
     shell.setText( BaseMessages.getString( PKG, "JobHTTP.Title" ) );
 
     int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
+    int margin = props.getMargin();
 
     // Job entry name line
     wlName = new Label( shell, SWT.RIGHT );
