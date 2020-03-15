@@ -1728,9 +1728,14 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     try {
       // Create a new toolbar at the top of the main composite...
       //
-      toolBar = new ToolBar( this, SWT.BORDER | SWT.WRAP | SWT.SHADOW_OUT | SWT.LEFT | SWT.HORIZONTAL );
+      toolBar = new ToolBar( this, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL );
       toolBarWidgets = new GuiCompositeWidgets( HopGui.getInstance().getVariableSpace() );
       toolBarWidgets.createCompositeWidgets( this, null, toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID, null );
+      FormData layoutData = new FormData();
+      layoutData.left = new FormAttachment( 0, 0 );
+      layoutData.top = new FormAttachment( 0, 0 );
+      layoutData.right = new FormAttachment( 100, 0 );      
+      toolBar.setLayoutData(layoutData);
       toolBar.pack();
 
       // Add a zoom label widget: TODO: move to GuiElement
@@ -1738,7 +1743,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       new ToolItem( toolBar, SWT.SEPARATOR );
       ToolItem sep = new ToolItem( toolBar, SWT.SEPARATOR );
 
-      zoomLabel = new Combo( toolBar, SWT.DROP_DOWN );
+      zoomLabel = new Combo( toolBar, SWT.DROP_DOWN );      
       zoomLabel.setItems( TransPainter.magnificationDescriptions );
       zoomLabel.addSelectionListener( new SelectionAdapter() {
         @Override
