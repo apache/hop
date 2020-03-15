@@ -25,7 +25,6 @@
     <!-- Third-party dependencies -->
     <commons-validator.version>1.3.1</commons-validator.version>
     <janino.version>3.0.8</janino.version>
-    <javadbf.version>20081125</javadbf.version>
     <jcommon.version>1.0.16</jcommon.version>
     <jersey-apache-client.version>1.19.1</jersey-apache-client.version>
     <jersey-bundle.version>1.19.1</jersey-bundle.version>
@@ -44,7 +43,6 @@
     <jetty-util.version>9.4.22.v20191022</jetty-util.version>
     <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
     <javax.websocket-api.version>1.1</javax.websocket-api.version>
-    <h2.version>1.2.131</h2.version>
   </properties>
 
   <dependencies>
@@ -140,17 +138,6 @@
       <groupId>org.codehaus.janino</groupId>
       <artifactId>janino</artifactId>
       <version>${janino.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>javadbf</groupId>
-      <artifactId>javadbf</artifactId>
-      <version>${javadbf.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -354,12 +341,6 @@
       <version>${project.version}</version>
       <classifier>tests</classifier>
       <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>${h2.version}</version>
       <scope>test</scope>
     </dependency>
     <!-- required by org.dom4j -->
