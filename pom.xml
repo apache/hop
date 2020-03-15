@@ -76,14 +76,12 @@
 
     <!-- Pentaho dependencies -->
     <commons-xul.version>8.2.0.7-719</commons-xul.version>
-<!--    <pentaho-metastore.version>8.2.0.7-719</pentaho-metastore.version>-->
 
     <!-- Third-party dependencies -->
     <org.eclipse.platform.version>3.113.0</org.eclipse.platform.version>
     <org.eclipse.commands.version>3.9.600</org.eclipse.commands.version>
     <org.eclipse.jface.version>3.18.0</org.eclipse.jface.version>
     <org.eclipse.equinox.version>3.10.600</org.eclipse.equinox.version>
-
     <js.version>1.7R3</js.version>
     <httpclient.version>4.5.3</httpclient.version>
     <httpccore.version>4.4.6</httpccore.version>
@@ -92,20 +90,17 @@
     <commons-logging.version>1.1.3</commons-logging.version>
     <guava.version>17.0</guava.version>
     <encoder.version>1.2</encoder.version>
-<!--    <wstx-asl.version>3.2.4</wstx-asl.version>-->
 
     <!-- Test dependencies -->
     <mockito-all.version>1.10.19</mockito-all.version>
-
     <powermock-module-junit4.version>1.7.3</powermock-module-junit4.version>
     <powermock-api-mockito.version>1.7.3</powermock-api-mockito.version>
     <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
     <junit.version>4.12</junit.version>
 
-
     <!-- Copy from master POM (NEEDS CLEANUP) -->
     <!-- VERSIONS -->
-    <derby.version>10.14.2.0</derby.version>
+<!--    <derby.version>10.14.2.0</derby.version>-->
     <batik.version>1.12</batik.version>
     <jacoco-maven-plugin.version>0.8.1</jacoco-maven-plugin.version>
     <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
@@ -115,10 +110,6 @@
     <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
     <maven-dependency-plugin.version>3.1.0</maven-dependency-plugin.version>
     <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
-    <requirejs-maven-plugin.version>2.0.4</requirejs-maven-plugin.version>
-    <frontend-maven-plugin.version>1.6</frontend-maven-plugin.version>
-    <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
-    <iterator-maven-plugin.version>0.5.1</iterator-maven-plugin.version>
     <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
     <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
     <maven-failsafe-plugin.version>2.21.0</maven-failsafe-plugin.version>
@@ -132,13 +123,8 @@
     <maven-surefire-report-plugin.version>3.0.0-M4</maven-surefire-report-plugin.version>
     <maven-verifier-plugin.version>1.1</maven-verifier-plugin.version>
     <sonar-maven-plugin.version>3.5.0.1254</sonar-maven-plugin.version>
-    <maven-war-plugin.version>3.2.0</maven-war-plugin.version>
     <maven-bundle-plugin.version>2.5.3</maven-bundle-plugin.version>
     <karaf-maven-plugin.version>3.0.8</karaf-maven-plugin.version>
-
-    <nodejs.version>v10.0.0</nodejs.version>
-    <npm.version>5.7.1</npm.version>
-    <rjs.version>2.3.5</rjs.version>
 
     <codehaus-jackson.version>1.9.13</codehaus-jackson.version>
     <fasterxml-jackson.version>2.10.2</fasterxml-jackson.version>
@@ -163,66 +149,19 @@
 
     <!-- PHASE BINDINGS -->
     <set-highest-basedir-phase>initialize</set-highest-basedir-phase>
-    <node-npm_install-phase>initialize</node-npm_install-phase>
-    <bundle-javascript_unpack-rjs-phase>initialize</bundle-javascript_unpack-rjs-phase>
-    <javascript_unpack-dependencies-phase>initialize</javascript_unpack-dependencies-phase>
-    <javascript_transpile_custom_properties-phase>validate</javascript_transpile_custom_properties-phase>
-    <javascript_override-profilebuilder-phase>process-resources</javascript_override-profilebuilder-phase>
-    <bundle-javascript_optimize-phase>generate-sources</bundle-javascript_optimize-phase>
-    <bundle-javascript_transpile_optimize-phase>generate-sources</bundle-javascript_transpile_optimize-phase>
-    <bundle-javascript_add-resource-phase>process-sources</bundle-javascript_add-resource-phase>
-    <bundle-sass_optimize-phase>process-sources</bundle-sass_optimize-phase>
-    <generate-bundle-manifest-phase>compile</generate-bundle-manifest-phase>
-    <javascript-transpile_cleanup-phase>compile</javascript-transpile_cleanup-phase>
-    <javascript-test_copy-resources-phase>generate-test-resources</javascript-test_copy-resources-phase>
-    <javascript-test_npm-install-phase>generate-test-resources</javascript-test_npm-install-phase>
     <test-unit-execute-phase>test</test-unit-execute-phase>
-    <javascript-test_karma-phase>test</javascript-test_karma-phase>
-    <javascript-requirecfg_aggregate-phase>prepare-package</javascript-requirecfg_aggregate-phase>
-    <javascript_optimize-phase>prepare-package</javascript_optimize-phase>
     <assembly_package-phase>package</assembly_package-phase>
     <assembly_appendId>false</assembly_appendId>
-    <javascript-assembly_package-phase>package</javascript-assembly_package-phase>
     <test-integration_add-resources-phase>pre-integration-test</test-integration_add-resources-phase>
     <test-integration_add-source-phase>pre-integration-test</test-integration_add-source-phase>
     <test-integration_compile-phase>pre-integration-test</test-integration_compile-phase>
     <test-integration_execute-phase>integration-test</test-integration_execute-phase>
     <attach-sources-phase>verify</attach-sources-phase>
     <test-integration_report-phase>verify</test-integration_report-phase>
-    <javascript-doc_copy-resources-phase>pre-site</javascript-doc_copy-resources-phase>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
-    <build.javascriptSourceDirectory>${basedir}/src/main/javascript</build.javascriptSourceDirectory>
-    <build.javascriptOutputDirectory>${project.build.directory}/javascriptOutput</build.javascriptOutputDirectory>
-    <build.transpiledJavascriptOutputDirectory>${project.build.directory}/transpiledJavascriptOutput</build.transpiledJavascriptOutputDirectory>
-    <build.javascriptConfigDirectory>${basedir}/src/main/config/javascript</build.javascriptConfigDirectory>
-
-    <build.javascriptTestSourceDirectory>${basedir}/src/test/javascript</build.javascriptTestSourceDirectory>
-    <build.javascriptTestOutputDirectory>${project.build.directory}/test-javascript</build.javascriptTestOutputDirectory>
-    <build.javascriptTestConfigDirectory>${basedir}/src/test/config/javascript</build.javascriptTestConfigDirectory>
-
-    <jenkins.javascript-test_karma.reportsDirectory>${basedir}/target/js-reports</jenkins.javascript-test_karma.reportsDirectory>
-
     <build.dependenciesDirectory>${project.build.directory}/dependency</build.dependenciesDirectory>
-
-    <pentaho-js-build.dir>${build.dependenciesDirectory}/pentaho-js-build</pentaho-js-build.dir>
-    <rjs.webjar.file>${build.dependenciesDirectory}/META-INF/resources/webjars/rjs/${rjs.version}/bin/r.js</rjs.webjar.file>
-
-    <requirejs.build.file>build.js</requirejs.build.file>
-    <js.project.list>dummy</js.project.list>
-
-    <!-- Set to true if javascript sources need to be transpiled (e.g.: if it uses es6) -->
-    <js.transpile.project>false</js.transpile.project>
-
-    <!-- Set to true if using sass for styling.project needs to be transpiled (e.g.: if it uses es6) -->
-    <css.sass.project>false</css.sass.project>
-
-    <docjs.config.file />
-
-<!--    <frontend-maven-plugin.workingDirectory>${project.rootdir}</frontend-maven-plugin.workingDirectory>-->
-<!--    <frontend-maven-plugin.installDirectory>${frontend-maven-plugin.workingDirectory}/target</frontend-maven-plugin.installDirectory>-->
 
     <!-- License Configuration -->
     <license.organizationName>Hitachi Vantara</license.organizationName>
@@ -274,11 +213,6 @@
           </exclusion>
         </exclusions>
       </dependency>
-<!--      <dependency>
-        <groupId>pentaho</groupId>
-        <artifactId>metastore</artifactId>
-        <version>${pentaho-metastore.version}</version>
-      </dependency>-->
 
       <!-- Third-party dependencies -->
       <dependency>
@@ -358,23 +292,6 @@
           </exclusion>
         </exclusions>
       </dependency>
-<!--      <dependency>
-        <groupId>com.h2database</groupId>
-        <artifactId>h2</artifactId>
-        <version>${h2.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>*</groupId>
-            <artifactId>*</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>-->
-<!--      <dependency>-->
-<!--        <groupId>org.codehaus.woodstox</groupId>-->
-<!--        <artifactId>wstx-asl</artifactId>-->
-<!--        <version>${wstx-asl.version}</version>-->
-<!--        <scope>provided</scope>-->
-<!--      </dependency>-->
 
       <!-- Test dependencies -->
       <dependency>
@@ -572,26 +489,6 @@
   <build>
     <pluginManagement>
       <plugins>
-
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>${maven-surefire-plugin.version}</version>
-          <executions>
-            <execution>
-              <id>default-test</id>
-              <phase>${test-unit-execute-phase}</phase>
-              <goals>
-                <goal>test</goal>
-              </goals>
-              <configuration>
-                <argLine>-Dfile.encoding=${project.build.sourceEncoding} ${maven-surefire-plugin.argLine}</argLine> <!-- this is set by jacoco's prepare-agent execution -->
-                <forkCount>${maven-surefire-plugin.forkCount}</forkCount>
-                <reuseForks>${maven-surefire-plugin.reuseForks}</reuseForks>
-                <testFailureIgnore>${maven-surefire-plugin.testFailureIgnore}</testFailureIgnore>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
         <plugin>
           <artifactId>maven-source-plugin</artifactId>
           <version>${maven-source-plugin.version}</version>
@@ -619,18 +516,8 @@
           </configuration>
         </plugin>
         <plugin>
-          <groupId>org.apache.karaf.tooling</groupId>
-          <artifactId>karaf-maven-plugin</artifactId>
-          <version>${karaf-maven-plugin.version}</version>
-        </plugin>
-        <plugin>
           <artifactId>maven-resources-plugin</artifactId>
           <version>${maven-resources-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.jacoco</groupId>
-          <artifactId>jacoco-maven-plugin</artifactId>
-          <version>${jacoco-maven-plugin.version}</version>
         </plugin>
         <plugin>
           <artifactId>maven-failsafe-plugin</artifactId>
@@ -721,41 +608,71 @@
           <artifactId>maven-assembly-plugin</artifactId>
           <version>${maven-assembly-plugin.version}</version>
         </plugin>
-        <plugin>
-          <groupId>com.github.bringking</groupId>
-          <artifactId>requirejs-maven-plugin</artifactId>
-          <version>${requirejs-maven-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>com.github.eirslett</groupId>
-          <artifactId>frontend-maven-plugin</artifactId>
-          <version>${frontend-maven-plugin.version}</version>
-          <configuration>
-            <workingDirectory>${frontend-maven-plugin.workingDirectory}</workingDirectory>
-            <installDirectory>${frontend-maven-plugin.installDirectory}</installDirectory>
-            <nodeVersion>${nodejs.version}</nodeVersion>
-            <npmVersion>${npm.version}</npmVersion>
-          </configuration>
-        </plugin>
-        <plugin>
-          <artifactId>maven-antrun-plugin</artifactId>
-          <version>${maven-antrun-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-war-plugin</artifactId>
-          <version>${maven-war-plugin.version}</version>
-          <configuration>
-            <failOnMissingWebXml>false</failOnMissingWebXml>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>com.soebes.maven.plugins</groupId>
-          <artifactId>iterator-maven-plugin</artifactId>
-          <version>${iterator-maven-plugin.version}</version>
-        </plugin>
       </plugins>
     </pluginManagement>
+
+
     <plugins>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${jacoco-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>coverage-initialize</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>coverage-report</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+          <!-- Threshold -->
+          <execution>
+            <id>coverage-check</id>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <rule>
+                  <element>CLASS</element>
+                  <limits>
+                    <limit>
+                      <counter>LINE</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>0%</minimum>
+                    </limit>
+                  </limits>
+                </rule>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven-surefire-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>default-test</id>
+            <phase>${test-unit-execute-phase}</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <argLine>@{argLine} -Dfile.encoding=${project.build.sourceEncoding} ${maven-surefire-plugin.argLine} </argLine> <!-- this is set by jacoco's prepare-agent execution -->
+              <forkCount>${maven-surefire-plugin.forkCount}</forkCount>
+              <reuseForks>${maven-surefire-plugin.reuseForks}</reuseForks>
+              <testFailureIgnore>${maven-surefire-plugin.testFailureIgnore}</testFailureIgnore>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
       </plugin>
@@ -794,7 +711,6 @@
           </execution>
         </executions>
       </plugin>
-
     </plugins>
   </build>
 
@@ -857,134 +773,6 @@
         </plugins>
       </build>
     </profile>
-
-    <profile>
-      <id>clean-node-modules</id>
-      <activation>
-        <property>
-          <name>!skipNodeClean</name>
-        </property>
-        <file>
-          <exists>node_modules</exists>
-        </file>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-clean-plugin</artifactId>
-            <version>${maven-clean-plugin.version}</version>
-            <configuration>
-              <filesets>
-                <fileset>
-                  <directory>node_modules</directory>
-                  <followSymlinks>false</followSymlinks>
-                </fileset>
-              </filesets>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>node-npm</id>
-      <activation>
-        <file>
-          <exists>${basedir}/package.json</exists>
-        </file>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.github.eirslett</groupId>
-            <artifactId>frontend-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>node-npm_install</id>
-                <phase>${node-npm_install-phase}</phase>
-                <goals>
-                  <goal>install-node-and-npm</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>javascript-test</id>
-      <activation>
-        <property>
-          <name>!maven.test.skip</name>
-        </property>
-        <file>
-          <exists>${build.javascriptTestSourceDirectory}</exists>
-        </file>
-      </activation>
-      <properties>
-        <karma.file.config>karma.ci.conf.js</karma.file.config>
-      </properties>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-resources-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>javascript-test_copy-resources</id>
-                <phase>${javascript-test_copy-resources-phase}</phase>
-                <goals>
-                  <goal>copy-resources</goal>
-                </goals>
-                <configuration>
-                  <outputDirectory>${project.build.directory}/test-javascript</outputDirectory>
-                  <resources>
-                    <resource>
-                      <directory>${build.javascriptSourceDirectory}</directory>
-                    </resource>
-                  </resources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>com.github.eirslett</groupId>
-            <artifactId>frontend-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>node-npm_install</id>
-                <phase>${node-npm_install-phase}</phase>
-                <goals>
-                  <goal>install-node-and-npm</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>javascript-test_npm-install</id>
-                <phase>${javascript-test_npm-install-phase}</phase>
-                <goals>
-                  <goal>npm</goal>
-                </goals>
-                <configuration>
-                  <arguments>install</arguments>
-                  <workingDirectory>${frontend-maven-plugin.installDirectory}</workingDirectory>
-                </configuration>
-              </execution>
-              <execution>
-                <id>javascript-test_karma</id>
-                <phase>${javascript-test_karma-phase}</phase>
-                <goals>
-                  <goal>karma</goal>
-                </goals>
-                <configuration>
-                  <karmaConfPath>${build.javascriptTestConfigDirectory}/${karma.file.config}</karmaConfPath>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
     <profile>
       <id>assembly</id>
       <activation>
@@ -1013,155 +801,7 @@
         </plugins>
       </build>
     </profile>
-
-    <profile>
-      <id>unit-test-output-redirect</id>
-      <activation>
-        <property>
-          <name>redirectTestOutputToFile</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <redirectTestOutputToFile>true</redirectTestOutputToFile>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>test-integration</id>
-      <activation>
-        <property>
-          <name>runITs</name>
-        </property>
-      </activation>
-      <properties>
-        <integration-test.resources>src/it/resources</integration-test.resources>
-        <integration-test.src>src/it/java</integration-test.src>
-        <!-- only used in audit mode -->
-        <test-integration_jacoco-agent-prep-phase>pre-integration-test</test-integration_jacoco-agent-prep-phase>
-        <test-integration_jacoco-report-phase>verify</test-integration_jacoco-report-phase>
-      </properties>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-resources-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>test-integration_add-resources</id>
-                <phase>${test-integration_add-resources-phase}</phase>
-                <goals>
-                  <goal>copy-resources</goal>
-                </goals>
-                <configuration>
-                  <outputDirectory>${project.build.directory}/it-classes</outputDirectory>
-                  <resources>
-                    <resource>
-                      <directory>${integration-test.resources}</directory>
-                    </resource>
-                  </resources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>build-helper-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>test-integration_add-source</id>
-                <phase>${test-integration_add-source-phase}</phase>
-                <goals>
-                  <goal>add-test-source</goal>
-                </goals>
-                <configuration>
-                  <sources>
-                    <source>${integration-test.src}</source>
-                  </sources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>test-integration_compile</id>
-                <phase>${test-integration_compile-phase}</phase>
-                <goals>
-                  <goal>testCompile</goal>
-                </goals>
-                <configuration>
-                  <testExcludes>
-                    <testExcludes>**/*Test.java</testExcludes>
-                  </testExcludes>
-                  <outputDirectory>${project.build.directory}/it-classes</outputDirectory>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>test-integration_execute</id>
-                <phase>${test-integration_execute-phase}</phase>
-                <goals>
-                  <goal>integration-test</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>test-integration_report</id>
-                <phase>${test-integration_report-phase}</phase>
-                <goals>
-                  <goal>verify</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <argLine>-Dfile.encoding=${project.build.sourceEncoding} @{jacocoFailsafeArgLine} ${maven-failsafe-plugin.argLine}</argLine> <!-- this is set by jacoco's prepare-agent-integration execution -->
-              <forkCount>${maven-failsafe-plugin.forkCount}</forkCount>
-              <reuseForks>${maven-failsafe-plugin.reuseForks}</reuseForks>
-              <testClassesDirectory>${project.build.directory}/it-classes</testClassesDirectory>
-              <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>javadoc</id>
-      <activation>
-        <property>
-          <name>javadoc</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-javadoc</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-                <configuration>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
   </profiles>
-
 
   <repositories>
     <repository>
