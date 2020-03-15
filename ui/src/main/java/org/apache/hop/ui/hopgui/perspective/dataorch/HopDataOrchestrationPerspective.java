@@ -10,6 +10,7 @@ import org.apache.hop.core.gui.plugin.GuiToolbarElement;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.widget.TabFolderReorder;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
@@ -103,11 +104,11 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     PropsUI props = PropsUI.getInstance();
 
     composite = new Composite( parent, SWT.NONE );
-    composite.setBackground( GUIResource.getInstance().getColorBackground() );
+    //composite.setBackground( GUIResource.getInstance().getColorBackground() );
     FormLayout layout = new FormLayout();
-    layout.marginLeft = props.getMargin();
-    layout.marginTop = props.getMargin();
-    layout.marginLeft = props.getMargin();
+    //layout.marginLeft = props.getMargin();
+    //layout.marginTop = props.getMargin();
+    layout.marginRight = props.getMargin();
     layout.marginBottom = props.getMargin();
     composite.setLayout( layout );
 
@@ -120,9 +121,9 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
     // A tab folder covers the complete area...
     //
-    tabFolder = new CTabFolder( composite, SWT.MULTI );
-    tabFolder.setSimple( false );
-    // tabFolder.setBackground( GUIResource.getInstance().getColorBackground() );
+    tabFolder = new CTabFolder( composite, SWT.MULTI | SWT.BORDER );
+    //tabFolder.setSimple( false );
+    //tabFolder.setBackground( GUIResource.getInstance().getColorBackground() );
     FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment( 0, 0 );
     fdLabel.right = new FormAttachment( 100, 0 );
@@ -137,7 +138,9 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     });
     tabFolder.addListener( SWT.Selection, event-> handTabSelectionEvent(event) );
 
-    //
+    // Support reorder tab item
+    new TabFolderReorder(tabFolder);
+
   }
 
   private void handTabSelectionEvent( Event event ) {

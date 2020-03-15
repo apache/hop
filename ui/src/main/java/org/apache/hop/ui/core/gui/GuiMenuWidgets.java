@@ -7,6 +7,7 @@ import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.KeyboardShortcut;
 import org.apache.hop.core.variables.VariableSpace;
+import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
 import org.eclipse.swt.SWT;
@@ -68,6 +69,10 @@ public class GuiMenuWidgets {
 
       menuItem = new MenuItem( parentMenu, SWT.PUSH );
       menuItem.setText( guiElements.getLabel() );
+      if (StringUtils.isNotEmpty( guiElements.getImage() )) {
+          menuItem.setImage( GUIResource.getInstance().getImage( guiElements.getImage(), ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE ) );
+      }
+     
       setMenuItemKeyboardShortcut( menuItem, guiElements, sourceData.getClass().getName() );
       if ( StringUtils.isNotEmpty( guiElements.getToolTip() ) ) {
         menuItem.setToolTipText( guiElements.getToolTip() );
