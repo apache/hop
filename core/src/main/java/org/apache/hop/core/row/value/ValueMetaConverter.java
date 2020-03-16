@@ -42,7 +42,7 @@ import java.util.Date;
  * Created by tkafalas on 12/8/2017.
  */
 public class ValueMetaConverter implements Serializable, IValueMetaConverter {
-  private final String DEFAULT_DATE_FORMAT = ValueMetaBase.DEFAULT_DATE_FORMAT_MASK;
+  private static final String DEFAULT_DATE_FORMAT = ValueMetaBase.DEFAULT_DATE_FORMAT_MASK;
   private SimpleDateFormat datePattern = new SimpleDateFormat( DEFAULT_DATE_FORMAT );
   private int precision = 0;
 
@@ -202,7 +202,7 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
         case ValueMetaInterface.TYPE_STRING:
           return Double.toString( (Double) value );
         case ValueMetaInterface.TYPE_NUMBER:
-          Double doubleValue = new Double( (Double) value );
+          Double doubleValue = (Double) value;
           if ( getPrecision() > 0 ) {
             BigDecimal bigDecimal = new BigDecimal( doubleValue );
             bigDecimal = bigDecimal.setScale( getPrecision(), RoundingMode.HALF_UP );
@@ -240,7 +240,7 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
         case ValueMetaInterface.TYPE_STRING:
           return Boolean.toString( (Boolean) value );
         case ValueMetaInterface.TYPE_BOOLEAN:
-          return new Boolean( (Boolean) value );
+          return (Boolean) value;
         default:
           throwBadConversionCombination( ValueMetaInterface.TYPE_BOOLEAN, targetValueMetaType, value );
       }
@@ -269,7 +269,7 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
         case ValueMetaInterface.TYPE_STRING:
           return Long.toString( (Long) value );
         case ValueMetaInterface.TYPE_INTEGER:
-          return new Long( (Long) value );
+          return (Long) value;
         case ValueMetaInterface.TYPE_NUMBER:
           Double doubleValue = ( (Long) value ).doubleValue();
           if ( getPrecision() > 0 ) {
@@ -279,7 +279,7 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
           }
           return doubleValue;
         case ValueMetaInterface.TYPE_BIGNUMBER:
-          return new BigDecimal( ( (Long) value ).doubleValue() );
+           return BigDecimal.valueOf( (long) value );
         case ValueMetaInterface.TYPE_DATE:
           return new Date( (long) value );
         case ValueMetaInterface.TYPE_TIMESTAMP:

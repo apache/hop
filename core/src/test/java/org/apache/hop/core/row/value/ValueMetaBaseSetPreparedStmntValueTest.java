@@ -77,7 +77,7 @@ public class ValueMetaBaseSetPreparedStmntValueTest {
 
     System.setProperty( Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "N" );
 
-    ValueMetaBase valueMeta = new ValueMetaDate( "", -1, -1 );
+    ValueMetaBase valueMeta = new ValueMetaDate( "" );
     valueMeta.setPrecision( 1 );
     valueMeta.setPreparedStatementValue( dbMeta, ps, 1, date );
 
@@ -89,7 +89,7 @@ public class ValueMetaBaseSetPreparedStmntValueTest {
 
     System.setProperty( Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "Y" );
 
-    ValueMetaBase valueMeta = new ValueMetaDate( "", -1, -1 );
+    ValueMetaBase valueMeta = new ValueMetaDate( "" );
     valueMeta.setPrecision( 1 );
     valueMeta.setPreparedStatementValue( dbMeta, ps, 1, date );
 
@@ -101,7 +101,7 @@ public class ValueMetaBaseSetPreparedStmntValueTest {
 
     System.setProperty( Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "N" );
 
-    ValueMetaBase valueMeta = new ValueMetaDate( "", -1, -1 );
+    ValueMetaBase valueMeta = new ValueMetaDate( "" );
     valueMeta.setPreparedStatementValue( dbMeta, ps, 1, ts );
 
     verify( ps ).setTimestamp( eq( 1 ), any( Timestamp.class ), any( Calendar.class ) );
@@ -112,7 +112,7 @@ public class ValueMetaBaseSetPreparedStmntValueTest {
 
     System.setProperty( Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "Y" );
 
-    ValueMetaBase valueMeta = new ValueMetaDate( "", -1, -1 );
+    ValueMetaBase valueMeta = new ValueMetaDate( "" );
     valueMeta.setPreparedStatementValue( dbMeta, ps, 1, ts );
 
     verify( ps ).setTimestamp( eq( 1 ), any( Timestamp.class ) );
@@ -123,7 +123,7 @@ public class ValueMetaBaseSetPreparedStmntValueTest {
 
     System.setProperty( Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "N" );
 
-    ValueMetaBase valueMeta = new ValueMetaDate( "", -1, -1 );
+    ValueMetaBase valueMeta = new ValueMetaDate( "" );
     valueMeta.setPreparedStatementValue( dbMeta, ps, 1, date );
     valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
 
@@ -135,7 +135,7 @@ public class ValueMetaBaseSetPreparedStmntValueTest {
 
     System.setProperty( Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "Y" );
 
-    ValueMetaBase valueMeta = new ValueMetaDate( "", -1, -1 );
+    ValueMetaBase valueMeta = new ValueMetaDate( "" );
     valueMeta.setPreparedStatementValue( dbMeta, ps, 1, date );
     valueMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
 
