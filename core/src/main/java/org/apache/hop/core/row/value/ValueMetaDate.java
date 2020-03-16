@@ -41,9 +41,9 @@ public class ValueMetaDate extends ValueMetaBase implements ValueMetaInterface {
     super( name, type );
   }
 
-//  public ValueMetaDate( String name, int length, int precision ) {
-//    super( name, ValueMetaInterface.TYPE_DATE, length, precision );
-//  }
+  public ValueMetaDate( String name, int length, int precision ) {
+    super( name, ValueMetaInterface.TYPE_DATE, length, precision );
+  }
 
   @Override
   public Object getNativeDataType( Object object ) throws HopValueException {
