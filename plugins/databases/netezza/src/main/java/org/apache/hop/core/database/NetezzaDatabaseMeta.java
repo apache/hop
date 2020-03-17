@@ -411,7 +411,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
   }
 
   @Override
-  public boolean isNettezaVariant() {
+  public boolean isNetezzaVariant() {
     return true;
   }
 
