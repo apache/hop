@@ -22,7 +22,6 @@
 
 package org.apache.hop.core.row;
 
-import com.wcohen.ss.NeedlemanWunsch;
 import org.apache.commons.codec.language.DoubleMetaphone;
 import org.apache.commons.codec.language.Metaphone;
 import org.apache.commons.codec.language.RefinedSoundex;
@@ -188,18 +187,6 @@ public class ValueDataUtil {
     return new Long( Utils.getDamerauLevenshteinDistance( dataA.toString(), dataB.toString() ) );
   }
 
-  /**
-   * NeedlemanWunsch distance is a measure of the similarity between two strings, which we will refer to as the source
-   * string (s) and the target string (t). The distance is the number of deletions, insertions, or substitutions
-   * required to transform s into t.
-   */
-  public static Long getNeedlemanWunsch_Distance( ValueMetaInterface metaA, Object dataA,
-                                                  ValueMetaInterface metaB, Object dataB ) {
-    if ( dataA == null || dataB == null ) {
-      return null;
-    }
-    return new Long( (int) new NeedlemanWunsch().score( dataA.toString(), dataB.toString() ) );
-  }
 
   /**
    * Jaro similitude is a measure of the similarity between two strings, which we will refer to as the source string (s)

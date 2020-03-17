@@ -15,4 +15,22 @@
 
     <name>Hop Plugins Steps Calculator</name>
 
+    <properties>
+        <com.wcohen.secondstring.version>0.1</com.wcohen.secondstring.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.wcohen</groupId>
+            <artifactId>com.wcohen.secondstring</artifactId>
+            <version>${com.wcohen.secondstring.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
 </project>

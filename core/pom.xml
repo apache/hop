@@ -38,7 +38,6 @@
     <jzlib.version>1.0.7</jzlib.version>
     <ognl.version>2.6.9</ognl.version>
     <scannotation.version>1.0.2</scannotation.version>
-    <com.wcohen.secondstring.version>0.1</com.wcohen.secondstring.version>
      <woodstox-core-asl.version>4.4.1</woodstox-core-asl.version>
     <httpclient.version>4.5.3</httpclient.version>
     <httpccore.version>4.4.6</httpccore.version>
@@ -422,17 +421,6 @@
         <exclusion>
           <groupId>*</groupId>
           <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.wcohen</groupId>
-      <artifactId>com.wcohen.secondstring</artifactId>
-      <version>${com.wcohen.secondstring.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>log4j</groupId>
-          <artifactId>log4j</artifactId>
         </exclusion>
       </exclusions>
     </dependency>

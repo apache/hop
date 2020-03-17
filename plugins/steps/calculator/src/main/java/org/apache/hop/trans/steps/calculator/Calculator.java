@@ -39,6 +39,7 @@ import org.apache.hop.trans.step.StepDataInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
+import org.apache.hop.trans.steps.calculator.CalculatorValueDataUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -535,7 +536,7 @@ public class Calculator extends BaseStep implements StepInterface {
             resultType = CalculatorMetaFunction.calcDefaultResultType[ calcType ];
             break;
           case CalculatorMetaFunction.CALC_NEEDLEMAN_WUNSH: // NEEDLEMANWUNSH DISTANCE
-            calcData[ index ] = ValueDataUtil.getNeedlemanWunsch_Distance( metaA, dataA, metaB, dataB );
+            calcData[ index ] = CalculatorValueDataUtil.getNeedlemanWunschDistance( dataA, dataB );
             resultType = CalculatorMetaFunction.calcDefaultResultType[ calcType ];
             break;
           case CalculatorMetaFunction.CALC_JARO: // Jaro DISTANCE
