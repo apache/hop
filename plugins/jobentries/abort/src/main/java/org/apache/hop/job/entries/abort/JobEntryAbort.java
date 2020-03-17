@@ -54,7 +54,7 @@ import java.util.List;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Utility"
 )
 public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryAbort.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryAbort.class; // for i18n purposes, needed by Translator2!!
 
   private String messageAbort;
 
@@ -72,6 +72,7 @@ public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryIn
     return je;
   }
 
+  @Override
   public String getXML() {
     StringBuilder retval = new StringBuilder();
 
@@ -81,6 +82,7 @@ public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryIn
     return retval.toString();
   }
 
+  @Override
   public void loadXML( Node entrynode, IMetaStore metaStore ) throws HopXMLException {
     try {
       super.loadXML( entrynode );
@@ -91,18 +93,18 @@ public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryIn
   }
 
   public boolean evaluate( Result result ) {
-    String Returnmessage = null;
-    String RealMessageabort = environmentSubstitute( getMessageabort() );
+    String message = null;
+    String messageAbort = environmentSubstitute( getMessageabort() );
 
     try {
       // Return False
-      if ( RealMessageabort == null ) {
-        Returnmessage = BaseMessages.getString( PKG, "JobEntryAbort.Meta.CheckResult.Label" );
+      if ( messageAbort == null ) {
+        message = BaseMessages.getString( PKG, "JobEntryAbort.Meta.CheckResult.Label" );
       } else {
-        Returnmessage = RealMessageabort;
-
+        message = messageAbort;
       }
-      logError( Returnmessage );
+      
+      logError( message );
       result.setNrErrors( 1 );
       return false;
     } catch ( Exception e ) {
@@ -119,6 +121,7 @@ public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryIn
    * @param previousResult The result of the previous execution
    * @return The Result of the execution.
    */
+  @Override
   public Result execute( Result previousResult, int nr ) {
     previousResult.setResult( evaluate( previousResult ) );
     // we fail so stop
@@ -127,16 +130,19 @@ public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryIn
     return previousResult;
   }
 
+  @Override
   public boolean resetErrorsBeforeExecution() {
     // we should be able to evaluate the errors in
     // the previous jobentry.
     return false;
   }
 
+  @Override
   public boolean evaluates() {
     return true;
   }
 
+  @Override
   public boolean isUnconditional() {
     return false;
   }
@@ -149,6 +155,7 @@ public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryIn
     return messageAbort;
   }
 
+  @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
                      IMetaStore metaStore ) {
     JobEntryValidatorUtils.addOkRemark( this, "messageabort", remarks );

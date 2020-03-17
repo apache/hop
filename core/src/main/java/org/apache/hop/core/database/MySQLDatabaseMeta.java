@@ -491,6 +491,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
    * @return The column label if version is greater than 3 or the column name if version is lower or equal to 3.
    * @throws HopDatabaseException
    */
+  @Override
   public String getLegacyColumnName( DatabaseMetaData dbMetaData, ResultSetMetaData rsMetaData, int index ) throws HopDatabaseException {
     if ( dbMetaData == null ) {
       throw new HopDatabaseException( BaseMessages.getString( PKG, "MySQLDatabaseMeta.Exception.LegacyColumnNameNoDBMetaDataException" ) );

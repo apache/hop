@@ -33,7 +33,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.copyfiles.JobEntryCopyFiles;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.ui.core.ConstUI;
@@ -65,7 +64,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -90,7 +88,7 @@ import java.util.Map;
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
 public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static Class<?> PKG = JobEntryCopyFiles.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryCopyFiles.class; // for i18n purposes, needed by Translator2!!
 
   protected static final String[] FILETYPES = new String[] { BaseMessages.getString(
     PKG, "JobCopyFiles.Filetype.All" ) };
@@ -387,19 +385,8 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
     helpButton.setLayoutData( fdHelpButton );
 
     // Add listeners
-    Listener lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    Listener lsOK = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wCancel.addListener( SWT.Selection, ( Event e ) -> {  cancel();  } );
+    wOK.addListener( SWT.Selection, ( Event e ) -> {  ok();  } );
 
     SelectionAdapter lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -421,6 +408,7 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
 
   }
 
+  @Override
   public JobEntryInterface open() {
     initUI();
     BaseStepDialog.setSize( shell );

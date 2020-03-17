@@ -27,7 +27,6 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.abort.JobEntryAbort;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -49,7 +48,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -67,13 +65,11 @@ import org.eclipse.swt.widgets.Text;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/" 
 )
 public class JobEntryAbortDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static Class<?> PKG = JobEntryAbortDialog.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryAbortDialog.class; // for i18n purposes, needed by Translator2!!
 
   private Text wName;
 
   private Button wOK, wCancel;
-
-  private Listener lsOK, lsCancel;
 
   private JobEntryAbort jobEntry;
 
@@ -93,6 +89,7 @@ public class JobEntryAbortDialog extends JobEntryDialog implements JobEntryDialo
     }
   }
 
+  @Override
   public JobEntryInterface open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
@@ -101,11 +98,7 @@ public class JobEntryAbortDialog extends JobEntryDialog implements JobEntryDialo
     props.setLook( shell );
     JobDialog.setShellImage( shell, jobEntry );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
-      }
-    };
+    ModifyListener lsMod = ( ModifyEvent e ) -> { jobEntry.setChanged(); };
     changed = jobEntry.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -165,22 +158,11 @@ public class JobEntryAbortDialog extends JobEntryDialog implements JobEntryDialo
     BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wMessageAbort );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-
-    lsOK = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wCancel.addListener( SWT.Selection, (Event e) -> { cancel(); } );
+    wOK.addListener( SWT.Selection, (Event e) -> { ok();  } );
 
     lsDef = new SelectionAdapter() {
+      @Override
       public void widgetDefaultSelected( SelectionEvent e ) {
         ok();
       }
@@ -190,6 +172,7 @@ public class JobEntryAbortDialog extends JobEntryDialog implements JobEntryDialo
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
+      @Override
       public void shellClosed( ShellEvent e ) {
         cancel();
       }

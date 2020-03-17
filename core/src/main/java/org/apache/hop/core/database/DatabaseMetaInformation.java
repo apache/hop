@@ -207,7 +207,7 @@ public class DatabaseMetaInformation {
       }
       Map<String, String> connectionExtraOptions = databaseMeta.getExtraOptions();
       if ( databaseMeta.supportsCatalogs() && dbmd.supportsCatalogsInTableDefinitions() ) {
-        ArrayList<Catalog> catalogList = new ArrayList<Catalog>();
+        ArrayList<Catalog> catalogList = new ArrayList<>();
 
         String catalogFilterKey = databaseMeta.getPluginId() + "." + FILTER_CATALOG_LIST;
         if ( ( connectionExtraOptions != null ) && connectionExtraOptions.containsKey( catalogFilterKey ) ) {
@@ -217,7 +217,7 @@ public class DatabaseMetaInformation {
             catalogList.add( new Catalog( catsFilterArray[ i ].trim() ) );
           }
         }
-        if ( catalogList.size() == 0 ) {
+        if ( catalogList.isEmpty() ) {
           ResultSet catalogResultSet = dbmd.getCatalogs();
 
           // Grab all the catalog names and put them in an array list
@@ -280,7 +280,7 @@ public class DatabaseMetaInformation {
         monitor.subTask( BaseMessages.getString( PKG, "DatabaseMeta.Info.GettingSchemaInfo" ) );
       }
       if ( databaseMeta.supportsSchemas() && dbmd.supportsSchemasInTableDefinitions() ) {
-        ArrayList<Schema> schemaList = new ArrayList<Schema>();
+        ArrayList<Schema> schemaList = new ArrayList<>();
         try {
           String schemaFilterKey = databaseMeta.getPluginId() + "." + FILTER_SCHEMA_LIST;
           if ( ( connectionExtraOptions != null ) && connectionExtraOptions.containsKey( schemaFilterKey ) ) {
@@ -290,7 +290,7 @@ public class DatabaseMetaInformation {
               schemaList.add( new Schema( schemasFilterArray[ i ].trim() ) );
             }
           }
-          if ( schemaList.size() == 0 ) {
+          if ( schemaList.isEmpty() ) {
             // Support schemas for MS SQL server due to PDI-1531
             //
             String sql = databaseMeta.getSQLListOfSchemas();

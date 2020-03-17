@@ -31,7 +31,7 @@ package org.apache.hop.core.exception;
 public class HopPluginLoaderException extends HopException {
   public static final long serialVersionUID = 0x8D8EA0264F7A1C16L;
 
-  private String pluginId;
+  private final String pluginId;
 
   /**
    * Constructs a new throwable with null as its detail message.
@@ -85,13 +85,6 @@ public class HopPluginLoaderException extends HopException {
    */
   public String getPluginId() {
     return pluginId;
-  }
-
-  /**
-   * @param pluginId The ID of the missing plugin that caused this exception
-   */
-  public void setPluginId( String pluginId ) {
-    this.pluginId = pluginId;
   }
 
 }

@@ -29,7 +29,7 @@ public class LifecycleException extends Exception {
   /**
    * Indicates an error that prevents the application from starting succesfully.
    */
-  private boolean severe;
+  private final boolean severe;
 
   /**
    * @param severe true if Spoon should quit because of this exception
