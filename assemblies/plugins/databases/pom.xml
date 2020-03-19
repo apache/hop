@@ -47,6 +47,7 @@
         <module>mssqlnative-assemblies</module>
         <module>mssql-assemblies</module>
         <module>netezza-assemblies</module>
+        <module>oracle-assemblies</module>
         <module>oraclerdb-assemblies</module>
         <module>remedy-ar-system-assemblies</module>
         <module>sapdb-assemblies</module>

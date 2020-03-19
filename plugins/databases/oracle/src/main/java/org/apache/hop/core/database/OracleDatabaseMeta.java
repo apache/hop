@@ -24,6 +24,8 @@ package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
@@ -36,7 +38,11 @@ import java.sql.ResultSet;
  * @author Matt
  * @since 11-mrt-2005
  */
-
+@DatabaseMetaPlugin(
+  type = "ORACLE",
+  typeDescription = "Oracle"
+)
+@GuiPlugin( id = "GUI-OracleDatabaseMeta" )
 public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
 
   private static final String STRICT_BIGNUMBER_INTERPRETATION = "STRICT_NUMBER_38_INTERPRETATION";
@@ -88,12 +94,12 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   }
 
   @Override
-  public String getSQLColumnExists( String columnname, String tablename ) {
-    return getSQLQueryColumnFields( columnname, tablename );
+  public String getSQLColumnExists( String columnName, String tableName ) {
+    return getSQLQueryColumnFields( columnName, tableName );
   }
 
-  public String getSQLQueryColumnFields( String columnname, String tableName ) {
-    return "SELECT " + columnname + " FROM " + tableName + " WHERE 1=0";
+  public String getSQLQueryColumnFields( String columnName, String tableName ) {
+    return "SELECT " + columnName + " FROM " + tableName + " WHERE 1=0";
   }
 
   @Override
@@ -239,16 +245,16 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
    * @param tablename   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
-   * @param use_autoinc whether or not this field uses auto increment
+   * @param useAutoinc whether or not this field uses auto increment
    * @param pk          the name of the primary key field
    * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
-  public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
+  public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
                                        String pk, boolean semicolon ) {
     return "ALTER TABLE "
-      + tablename + " ADD ( " + getFieldDefinition( v, tk, pk, use_autoinc, true, false ) + " ) ";
+      + tablename + " ADD ( " + getFieldDefinition( v, tk, pk, useAutoinc, true, false ) + " ) ";
   }
 
   /**
@@ -257,13 +263,13 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
    * @param tablename   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
-   * @param use_autoinc whether or not this field uses auto increment
+   * @param useAutoinc whether or not this field uses auto increment
    * @param pk          the name of the primary key field
    * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to drop a column from the specified table
    */
   @Override
-  public String getDropColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
+  public String getDropColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
                                         String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " DROP ( " + v.getName() + " ) " + Const.CR;
   }
@@ -274,13 +280,13 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
    * @param tablename   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
-   * @param use_autoinc whether or not this field uses auto increment
+   * @param useAutoinc whether or not this field uses auto increment
    * @param pk          the name of the primary key field
    * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
-  public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
+  public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
                                           String pk, boolean semicolon ) {
     ValueMetaInterface tmpColumn = v.clone();
     String tmpName = v.getName();
@@ -308,32 +314,32 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
     String sql = "";
 
     // Create a new tmp column
-    sql += getAddColumnStatement( tablename, tmpColumn, tk, use_autoinc, pk, semicolon ) + ";" + Const.CR;
+    sql += getAddColumnStatement( tablename, tmpColumn, tk, useAutoinc, pk, semicolon ) + ";" + Const.CR;
     // copy the old data over to the tmp column
     sql += "UPDATE " + tablename + " SET " + tmpColumn.getName() + "=" + v.getName() + ";" + Const.CR;
     // drop the old column
-    sql += getDropColumnStatement( tablename, v, tk, use_autoinc, pk, semicolon ) + ";" + Const.CR;
+    sql += getDropColumnStatement( tablename, v, tk, useAutoinc, pk, semicolon ) + ";" + Const.CR;
     // create the wanted column
-    sql += getAddColumnStatement( tablename, v, tk, use_autoinc, pk, semicolon ) + ";" + Const.CR;
+    sql += getAddColumnStatement( tablename, v, tk, useAutoinc, pk, semicolon ) + ";" + Const.CR;
     // copy the data from the tmp column to the wanted column (again)
     // All this to avoid the rename clause as this is not supported on all Oracle versions
     sql += "UPDATE " + tablename + " SET " + v.getName() + "=" + tmpColumn.getName() + ";" + Const.CR;
     // drop the temp column
-    sql += getDropColumnStatement( tablename, tmpColumn, tk, use_autoinc, pk, semicolon );
+    sql += getDropColumnStatement( tablename, tmpColumn, tk, useAutoinc, pk, semicolon );
 
     return sql;
   }
 
   @Override
-  public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-                                    boolean add_fieldname, boolean add_cr ) {
+  public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean useAutoinc,
+                                    boolean addFieldname, boolean addCR ) {
     StringBuilder retval = new StringBuilder( 128 );
 
     String fieldname = v.getName();
     int length = v.getLength();
     int precision = v.getPrecision();
 
-    if ( add_fieldname ) {
+    if ( addFieldname ) {
       retval.append( fieldname ).append( ' ' );
     }
 
@@ -391,7 +397,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
         break;
     }
 
-    if ( add_cr ) {
+    if ( addCR ) {
       retval.append( Const.CR );
     }
 
@@ -618,7 +624,8 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   /**
    * @return true if using strict number(38) interpretation
    */
-  public boolean strictBigNumberInterpretation() {
+  @Override
+  public boolean isStrictBigNumberInterpretation() {
     return "Y".equalsIgnoreCase( getAttributes().getProperty( STRICT_BIGNUMBER_INTERPRETATION, "N" ) );
   }
 

@@ -22,7 +22,19 @@
 
 package org.apache.hop.core.database;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.sql.ResultSet;
+
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.plugins.DatabasePluginType;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
@@ -31,34 +43,40 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.sql.ResultSet;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 public class OracleDatabaseMetaTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
-  private OracleDatabaseMeta nativeMeta, odbcMeta;
+  @ClassRule
+  public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+	  
+  private OracleDatabaseMeta nativeMeta;
+  private OracleDatabaseMeta odbcMeta;
 
+  
+  @BeforeClass
+  public static void setUpBeforeClass() throws HopException {
+    PluginRegistry.addPluginType( ValueMetaPluginType.getInstance() );
+    PluginRegistry.addPluginType( DatabasePluginType.getInstance() );
+    PluginRegistry.init();
+    HopLogStore.init();
+  }
+    
   @Before
   public void setupOnce() throws Exception {
     nativeMeta = new OracleDatabaseMeta();
-    odbcMeta = new OracleDatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
+    odbcMeta = new OracleDatabaseMeta();
     odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
     HopClientEnvironment.init();
   }
@@ -110,6 +128,7 @@ public class OracleDatabaseMetaTest {
     assertFalse( nativeMeta.releaseSavepoint() );
     Variables v = new Variables();
     v.setVariable( "FOOVARIABLE", "FOOVALUE" );
+    
     DatabaseMeta dm = new DatabaseMeta();
     dm.setDatabaseInterface( nativeMeta );
     assertEquals( "TABLESPACE FOOVALUE", nativeMeta.getTablespaceDDL( v, dm, "${FOOVARIABLE}" ) );
@@ -205,6 +224,8 @@ public class OracleDatabaseMetaTest {
 
   }
 
+
+  
   @Test
   public void testGetFieldDefinition() throws Exception {
     assertEquals( "FOO DATE",
@@ -280,7 +301,6 @@ public class OracleDatabaseMetaTest {
     assertTrue( nativeMeta.checkIndexExists( db, "", "FOO", new String[] { "ROW1COL2", "ROW2COL2" } ) );
     assertFalse( nativeMeta.checkIndexExists( db, "", "FOO", new String[] { "ROW2COL2", "NOTTHERE" } ) );
     assertFalse( nativeMeta.checkIndexExists( db, "", "FOO", new String[] { "NOTTHERE", "ROW1COL2" } ) );
-
   }
 
   @Test

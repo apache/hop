@@ -26,6 +26,7 @@ import com.google.common.collect.Sets;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.ValueMetaInterface;
@@ -42,10 +43,11 @@ import java.util.Set;
  * @author Matt
  * @since 11-mrt-2005
  */
-@GuiPlugin(
-  id = "MySQL-GUI",
-  description = "MySQL GUI Plugin"
+@DatabaseMetaPlugin(
+  type = "MYSQL",
+  typeDescription = "MySQL"
 )
+@GuiPlugin( id = "GUI-MySQLDatabaseMeta" )
 public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   private static final Class<?> PKG = MySQLDatabaseMeta.class;
 
@@ -78,9 +80,10 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
 
   private static final int VARCHAR_LIMIT = 65_535;
 
+  // TODO: check package com.mysql.cj.jdbc.exceptions
   private static final Set<String>
     SHORT_MESSAGE_EXCEPTIONS =
-    Sets.newHashSet( "com.mysql.jdbc.PacketTooBigException", "com.mysql.jdbc.MysqlDataTruncation" );
+    Sets.newHashSet( "com.mysql.cj.jdbc.exceptions.PacketTooBigException", "com.mysql.cj.jdbc.exceptions.MysqlDataTruncation" );
 
   @Override public int[] getAccessTypeList() {
     return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
@@ -129,6 +132,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
     return super.getNotFoundTK( use_autoinc );
   }
 
+  // TODO: check class com.mysql.jdbc.Driver
   @Override public String getDriverClass() {
     return "org.gjt.mm.mysql.Driver";
   }
@@ -193,14 +197,14 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
    * @param tablename   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
-   * @param use_autoinc whether or not this field uses auto increment
+   * @param useAutoinc whether or not this field uses auto increment
    * @param pk          the name of the primary key field
    * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
-  @Override public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean use_autoinc,
+  @Override public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
                                                  String pk, boolean semicolon ) {
-    return "ALTER TABLE " + tablename + " ADD " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
+    return "ALTER TABLE " + tablename + " ADD " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
   }
 
   /**
@@ -209,18 +213,18 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
    * @param tablename   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
-   * @param use_autoinc whether or not this field uses auto increment
+   * @param useAutoinc whether or not this field uses auto increment
    * @param pk          the name of the primary key field
    * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk,
-                                                    boolean use_autoinc, String pk, boolean semicolon ) {
-    return "ALTER TABLE " + tablename + " MODIFY " + getFieldDefinition( v, tk, pk, use_autoinc, true, false );
+                                                    boolean useAutoinc, String pk, boolean semicolon ) {
+    return "ALTER TABLE " + tablename + " MODIFY " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
   }
 
-  @Override public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean use_autoinc,
-                                              boolean add_fieldname, boolean add_cr ) {
+  @Override public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean useAutoinc,
+                                              boolean addFieldname, boolean addCR ) {
     String retval = "";
 
     String fieldname = v.getName();
@@ -230,7 +234,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
     int length = v.getLength();
     int precision = v.getPrecision();
 
-    if ( add_fieldname ) {
+    if ( addFieldname ) {
       retval += fieldname + " ";
     }
 
@@ -254,7 +258,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
         if ( fieldname.equalsIgnoreCase( tk ) || // Technical key
           fieldname.equalsIgnoreCase( pk ) // Primary key
         ) {
-          if ( use_autoinc ) {
+          if ( useAutoinc ) {
             retval += "BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY";
           } else {
             retval += "BIGINT NOT NULL PRIMARY KEY";
@@ -314,7 +318,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
         break;
     }
 
-    if ( add_cr ) {
+    if ( addCR ) {
       retval += Const.CR;
     }
 
@@ -433,9 +437,9 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
    * @return A string that is properly quoted for use in a SQL statement (insert, update, delete, etc)
    */
   @Override public String quoteSQLString( String string ) {
-    string = string.replaceAll( "'", "\\\\'" );
-    string = string.replaceAll( "\\n", "\\\\n" );
-    string = string.replaceAll( "\\r", "\\\\r" );
+    string = string.replace( "'", "\\\\'" );
+    string = string.replace( "\\n", "\\\\n" );
+    string = string.replace( "\\r", "\\\\r" );
     return "'" + string + "'";
   }
 

@@ -137,6 +137,25 @@ public class DatabaseMetaTest {
   }
 
   @Test
+  public void testGetFeatureSummary() throws Exception {
+    DatabaseMeta databaseMeta = mock( DatabaseMeta.class );
+    GenericDatabaseMeta odbm = new GenericDatabaseMeta();
+    doCallRealMethod().when( databaseMeta ).setDatabaseInterface( any( DatabaseInterface.class ) );
+    doCallRealMethod().when( databaseMeta ).getFeatureSummary();
+    doCallRealMethod().when( databaseMeta ).getAttributes();
+    databaseMeta.setDatabaseInterface( odbm );
+    List<RowMetaAndData> result = databaseMeta.getFeatureSummary();
+    assertNotNull( result );
+    for ( RowMetaAndData rmd : result ) {
+      assertEquals( 2, rmd.getRowMeta().size() );
+      assertEquals( "Parameter", rmd.getRowMeta().getValueMeta( 0 ).getName() );
+      assertEquals( ValueMetaInterface.TYPE_STRING, rmd.getRowMeta().getValueMeta( 0 ).getType() );
+      assertEquals( "Value", rmd.getRowMeta().getValueMeta( 1 ).getName() );
+      assertEquals( ValueMetaInterface.TYPE_STRING, rmd.getRowMeta().getValueMeta( 1 ).getType() );
+    }
+  }
+  
+  @Test
   public void testQuoteReservedWords() {
     DatabaseMeta databaseMeta = mock( DatabaseMeta.class );
     doCallRealMethod().when( databaseMeta ).quoteReservedWords( any( RowMetaInterface.class ) );
@@ -171,7 +190,7 @@ public class DatabaseMetaTest {
   @Test
   public void testModifyingName() throws Exception {
     DatabaseMeta databaseMeta = mock( DatabaseMeta.class );
-    OracleDatabaseMeta odbm = new OracleDatabaseMeta();
+    GenericDatabaseMeta odbm = new GenericDatabaseMeta();
     doCallRealMethod().when( databaseMeta ).setDatabaseInterface( any( DatabaseInterface.class ) );
     doCallRealMethod().when( databaseMeta ).setName( anyString() );
     doCallRealMethod().when( databaseMeta ).getName();
@@ -182,7 +201,7 @@ public class DatabaseMetaTest {
     list.add( databaseMeta );
 
     DatabaseMeta databaseMeta2 = mock( DatabaseMeta.class );
-    OracleDatabaseMeta odbm2 = new OracleDatabaseMeta();
+    GenericDatabaseMeta odbm2 = new GenericDatabaseMeta();
     doCallRealMethod().when( databaseMeta2 ).setDatabaseInterface( any( DatabaseInterface.class ) );
     doCallRealMethod().when( databaseMeta2 ).setName( anyString() );
     doCallRealMethod().when( databaseMeta2 ).getName();
@@ -195,24 +214,7 @@ public class DatabaseMetaTest {
     assertTrue( !databaseMeta.getName().equals( databaseMeta2.getName() ) );
   }
 
-  @Test
-  public void testGetFeatureSummary() throws Exception {
-    DatabaseMeta databaseMeta = mock( DatabaseMeta.class );
-    OracleDatabaseMeta odbm = new OracleDatabaseMeta();
-    doCallRealMethod().when( databaseMeta ).setDatabaseInterface( any( DatabaseInterface.class ) );
-    doCallRealMethod().when( databaseMeta ).getFeatureSummary();
-    doCallRealMethod().when( databaseMeta ).getAttributes();
-    databaseMeta.setDatabaseInterface( odbm );
-    List<RowMetaAndData> result = databaseMeta.getFeatureSummary();
-    assertNotNull( result );
-    for ( RowMetaAndData rmd : result ) {
-      assertEquals( 2, rmd.getRowMeta().size() );
-      assertEquals( "Parameter", rmd.getRowMeta().getValueMeta( 0 ).getName() );
-      assertEquals( ValueMetaInterface.TYPE_STRING, rmd.getRowMeta().getValueMeta( 0 ).getType() );
-      assertEquals( "Value", rmd.getRowMeta().getValueMeta( 1 ).getName() );
-      assertEquals( ValueMetaInterface.TYPE_STRING, rmd.getRowMeta().getValueMeta( 1 ).getType() );
-    }
-  }
+
 
   @Test
   public void indexOfName_NullArray() {
@@ -261,14 +263,4 @@ public class DatabaseMetaTest {
     when( meta.checkParameters() ).thenCallRealMethod();
     assertEquals( 2, meta.checkParameters().length );
   }
-
-  @Test
-  public void testAddOptionsMysql() {
-    DatabaseMeta databaseMeta = new DatabaseMeta( "", "Mysql", "JDBC", null, "stub:stub", null, null, null );
-    Map<String, String> options = databaseMeta.getExtraOptions();
-    if ( !options.keySet().contains( "MYSQL.defaultFetchSize" ) ) {
-      fail();
-    }
-  }
-
 }

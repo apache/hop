@@ -1190,6 +1190,11 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
     return true;
   }
 
+  @Override
+  public boolean isStrictBigNumberInterpretation() {
+    return false;
+  }
+  
   /**
    * You can use this method to supply an alternate factory for the test method in the dialogs. This is useful for
    * plugins like SAP/R3 and PALO.

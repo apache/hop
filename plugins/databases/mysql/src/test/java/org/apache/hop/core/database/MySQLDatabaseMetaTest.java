@@ -21,7 +21,31 @@
  ******************************************************************************/
 package org.apache.hop.core.database;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.Map;
+
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.plugins.DatabasePluginType;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.RowMetaInterface;
+import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -29,26 +53,30 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.BDDMockito.doReturn;
-import static org.mockito.BDDMockito.mock;
-import static org.mockito.Mockito.doThrow;
 
 public class MySQLDatabaseMetaTest {
-  MySQLDatabaseMeta nativeMeta, odbcMeta;
+  MySQLDatabaseMeta nativeMeta;
+  MySQLDatabaseMeta odbcMeta;
 
+  @ClassRule
+  public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+	
+  @BeforeClass
+  public static void setUpBeforeClass() throws HopException {
+		PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
+		PluginRegistry.addPluginType(DatabasePluginType.getInstance());
+		PluginRegistry.init();	
+  }
+  
   @Before
   public void setupBefore() {
     nativeMeta = new MySQLDatabaseMeta();
@@ -279,6 +307,15 @@ public class MySQLDatabaseMetaTest {
   }
 
   @Test
+  public void testExtraOptions() {
+    DatabaseMeta databaseMeta = new DatabaseMeta( "", "Mysql", "JDBC", null, "stub:stub", null, null, null );
+    Map<String, String> options = databaseMeta.getExtraOptions();
+    if ( !options.keySet().contains( "MYSQL.defaultFetchSize" ) ) {
+      fail();
+    }
+  }
+  
+  @Test
   public void testGetLegacyColumnNameDriverGreaterThanThreeFieldNumber() throws Exception {
     DatabaseMetaData databaseMetaData = mock( DatabaseMetaData.class );
     doReturn( 5 ).when( databaseMetaData ).getDriverMajorVersion();
@@ -400,5 +437,44 @@ public class MySQLDatabaseMetaTest {
     new MySQLDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaDataException(), 1 );
   }
 
+  @Test
+  public void testReleaseSavepoint() {
+        assertFalse( nativeMeta.releaseSavepoint() );
+  }
+
+  private Connection mockConnection( DatabaseMetaData dbMetaData ) throws SQLException {
+	    Connection conn = mock( Connection.class );
+	    when( conn.getMetaData() ).thenReturn( dbMetaData );
+	    return conn;
+ }
+  
+  @Test
+  public void testVarBinaryIsConvertedToStringType() throws Exception {	
+	LoggingObjectInterface log = mock( LoggingObjectInterface.class );		
+	PreparedStatement ps = mock( PreparedStatement.class );  
+	DatabaseMetaData dbMetaData = mock( DatabaseMetaData.class );
+	ResultSet rs = mock( ResultSet.class );
+    ResultSetMetaData rsMeta = mock( ResultSetMetaData.class );
+    
+    when( rsMeta.getColumnCount() ).thenReturn( 1 );
+    when( rsMeta.getColumnLabel( 1 ) ).thenReturn( "column" );
+    when( rsMeta.getColumnName( 1 ) ).thenReturn( "column" );
+    when( rsMeta.getColumnType( 1 ) ).thenReturn( java.sql.Types.VARBINARY );
+    when( rs.getMetaData() ).thenReturn( rsMeta );
+    when( ps.executeQuery() ).thenReturn( rs );
+
+    DatabaseMeta meta = new DatabaseMeta();
+    meta.setDatabaseInterface( new MySQLDatabaseMeta() );
+
+    Database db = new Database( log, meta );
+    db.setConnection( mockConnection( dbMetaData ) );
+    db.getLookup( ps, false );
+
+    RowMetaInterface rowMeta = db.getReturnRowMeta();
+    assertEquals( 1, db.getReturnRowMeta().size() );
+
+    ValueMetaInterface valueMeta = rowMeta.getValueMeta( 0 );
+    assertEquals( ValueMetaInterface.TYPE_BINARY, valueMeta.getType() );
+  }
 
 }

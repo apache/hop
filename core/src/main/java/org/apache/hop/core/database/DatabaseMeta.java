@@ -205,10 +205,10 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
   }
 
   /**
-   * Set default values for an Oracle database.
+   * Set default values for an Generic database.
    */
   public void setDefault() {
-    setValues( "", "Oracle", "Native", "", "", "1521", "", "" );
+    setValues( "", "GENERIC", "Native", "", "", "", "", "" );
   }
 
   /**
@@ -2166,6 +2166,10 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
     return databaseInterface.isRequiringTransactionsOnQueries();
   }
 
+  public boolean isStrictBigNumberInterpretation() {
+	    return databaseInterface.isStrictBigNumberInterpretation();
+  }
+  
   public String testConnection() {
 
     StringBuilder report = new StringBuilder();
