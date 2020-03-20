@@ -47,7 +47,7 @@ import java.util.Set;
   type = "MYSQL",
   typeDescription = "MySQL"
 )
-@GuiPlugin( id = "GUI-MySQLDatabaseMeta" )
+@GuiPlugin( id = "GUI-MySQLDatabaseMeta", description="MySQL GUI Plugin" )
 public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   private static final Class<?> PKG = MySQLDatabaseMeta.class;
 
