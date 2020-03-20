@@ -88,15 +88,15 @@ public class AS400DatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
    * @param tablename   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
-   * @param useAutonic whether or not this field uses auto increment
+   * @param useAutoinc whether or not this field uses auto increment
    * @param pk          the name of the primary key field
    * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
-  public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutonic,
+  public String getAddColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
                                        String pk, boolean semicolon ) {
-    return "ALTER TABLE " + tablename + " ADD " + getFieldDefinition( v, tk, pk, useAutonic, true, false );
+    return "ALTER TABLE " + tablename + " ADD " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
   }
 
   /**
@@ -105,21 +105,21 @@ public class AS400DatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
    * @param tablename   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
-   * @param useAutonic whether or not this field uses auto increment
+   * @param useAutoinc whether or not this field uses auto increment
    * @param pk          the name of the primary key field
    * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
-  public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutonic,
+  public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
                                           String pk, boolean semicolon ) {
     return "ALTER TABLE "
       + tablename + " ALTER COLUMN " + v.getName() + " SET "
-      + getFieldDefinition( v, tk, pk, useAutonic, false, false );
+      + getFieldDefinition( v, tk, pk, useAutoinc, false, false );
   }
 
   @Override
-  public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean useAutonic,
+  public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean useAutoinc,
                                     boolean addFieldname, boolean addCr ) {
     String retval = "";
 
