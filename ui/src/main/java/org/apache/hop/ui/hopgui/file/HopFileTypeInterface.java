@@ -1,12 +1,11 @@
 package org.apache.hop.ui.hopgui.file;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.xml.XMLInterface;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 
 import java.util.List;
 import java.util.Properties;
@@ -52,16 +51,17 @@ public interface HopFileTypeInterface<T extends XMLInterface> {
 
   /**
    * Check to see if the capability is present
+   *
    * @param capability The capability to check
    * @return True if the capability is set to any non-null value
    */
-  boolean hasCapability(String capability);
+  boolean hasCapability( String capability );
 
   /**
    * Load and display the file
    *
-   * @param hopGui The hop GUI to reference
-   * @param filename The filename to load
+   * @param hopGui              The hop GUI to reference
+   * @param filename            The filename to load
    * @param parentVariableSpace The parent variablespace to inherit from
    * @return The hop file handler
    */
@@ -70,16 +70,24 @@ public interface HopFileTypeInterface<T extends XMLInterface> {
   HopFileTypeHandlerInterface newFile( HopGui hopGui, VariableSpace parentVariableSpace ) throws HopException;
 
   /**
-     * Look at the given file and see if it's handled by this type.
-     * Usually this is done by simply looking at the file extension.
-     * In rare cases we look at the content.
-     *
-     * @param filename The filename
-     * @param checkContent True if we want to look inside the file content
-     * @return true if this HopFile is handling the file
-     * @throws HopException In case something goes wrong like: file doesn't exist, a permission problem, ...
-     */
-  boolean isHandledBy(String filename, boolean checkContent) throws HopException;
+   * Look at the given file and see if it's handled by this type.
+   * Usually this is done by simply looking at the file extension.
+   * In rare cases we look at the content.
+   *
+   * @param filename     The filename
+   * @param checkContent True if we want to look inside the file content
+   * @return true if this HopFile is handling the file
+   * @throws HopException In case something goes wrong like: file doesn't exist, a permission problem, ...
+   */
+  boolean isHandledBy( String filename, boolean checkContent ) throws HopException;
+
+  /**
+   * Checks whether or not this file type supports the given metadata class
+   *
+   * @param metaObject The object to verify support for
+   * @return
+   */
+  boolean supportsFile( IHasFilename metaObject );
 
   /**
    * @return A list of context handlers allowing you to see all the actions that can be taken with the current file type. (CRUD, ...)

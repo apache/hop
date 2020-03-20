@@ -35,7 +35,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.job.entries.trans.JobEntryTrans;
 import org.w3c.dom.Node;
 
 import java.io.IOException;
@@ -394,7 +393,6 @@ public class JobExecutionConfiguration implements ExecutionConfiguration {
       }
     }
   }
-
 
 
   /**

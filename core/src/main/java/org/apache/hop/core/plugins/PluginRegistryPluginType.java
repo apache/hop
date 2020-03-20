@@ -23,7 +23,6 @@
 package org.apache.hop.core.plugins;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.gui.GUIOption;
 
 import java.lang.annotation.Annotation;

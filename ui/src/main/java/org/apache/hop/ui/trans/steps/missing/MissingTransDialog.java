@@ -30,7 +30,6 @@ import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.steps.missing.MissingTrans;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -185,7 +184,7 @@ public class MissingTransDialog extends BaseStepDialog implements StepDialogInte
       public void widgetSelected( SelectionEvent e ) {
         try {
           shell.dispose();
-          HopUi.getInstance().openMarketplace();
+          // HopGui.getInstance().openMarketplace();  TODO: implement marketplace
         } catch ( Exception ex ) {
           ex.printStackTrace();
         }

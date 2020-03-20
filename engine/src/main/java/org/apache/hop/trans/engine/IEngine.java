@@ -9,6 +9,7 @@ import java.util.List;
 
 /**
  * Describes the capabilities of an execution engine for a certain type of object called the subject
+ *
  * @param <T> The subject class to execute
  */
 public interface IEngine<T> {
@@ -45,13 +46,14 @@ public interface IEngine<T> {
 
   /**
    * Collect metrics from the various components in the engine.
+   *
    * @return The engine metrics
    */
   public EngineMetrics getEngineMetrics();
 
-    /**
-     * This method performs any cleanup operations on the various sub-components of the engine after execution.
-     */
+  /**
+   * This method performs any cleanup operations on the various sub-components of the engine after execution.
+   */
   void cleanup();
 
   /**
@@ -81,6 +83,7 @@ public interface IEngine<T> {
 
   /**
    * See if the engine has finished executing.
+   *
    * @return True if the execution has finished
    */
   boolean isFinished();
@@ -94,25 +97,28 @@ public interface IEngine<T> {
 
   /**
    * Retrieve the logging text of a particular component in the engine
+   *
    * @param componentName The name of the component (step)
-   * @param copyNr The copy number if multiple components are running in parallel (0 based).
+   * @param copyNr        The copy number if multiple components are running in parallel (0 based).
    * @return The logging text
    */
-  String getComponentLogText(String componentName, int copyNr);
+  String getComponentLogText( String componentName, int copyNr );
 
   /**
    * Get a list of components
+   *
    * @return The list of components in the engine
    */
   List<IEngineComponent> getComponents();
 
   /**
    * Find a component by name and copy nr
-   * @param name The name of the component to look for (step)
+   *
+   * @param name   The name of the component to look for (step)
    * @param copyNr The copy number to match
    * @return The component or null if nothing was found
    */
-  IEngineComponent findComponent(String name, int copyNr);
+  IEngineComponent findComponent( String name, int copyNr );
 
   /**
    * Gets the log channel interface for the transformation.
@@ -131,6 +137,7 @@ public interface IEngine<T> {
 
   /**
    * Get the result of the execution after it's done, a resume
+   *
    * @return The Result of the execution of the object
    */
   Result getResult();

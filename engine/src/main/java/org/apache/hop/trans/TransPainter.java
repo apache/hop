@@ -38,7 +38,6 @@ import org.apache.hop.core.gui.PrimitiveGCInterface.EImage;
 import org.apache.hop.core.gui.PrimitiveGCInterface.ELineStyle;
 import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.gui.ScrollBarInterface;
-import org.apache.hop.core.injection.bean.BeanInjectionInfo;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -47,7 +46,6 @@ import org.apache.hop.trans.step.BaseStepData.StepExecutionStatus;
 import org.apache.hop.trans.step.StepIOMetaInterface;
 import org.apache.hop.trans.step.StepInterface;
 import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.step.StepMetaInterface;
 import org.apache.hop.trans.step.StepPartitioningMeta;
 import org.apache.hop.trans.step.StepStatus;
 import org.apache.hop.trans.step.errorhandling.StreamInterface;
@@ -55,7 +53,6 @@ import org.apache.hop.trans.step.errorhandling.StreamInterface.StreamType;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
 
@@ -231,9 +228,7 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
     // Draw regular step appearance
     for ( int i = 0; i < transMeta.nrSteps(); i++ ) {
       StepMeta stepMeta = transMeta.getStep( i );
-      if ( stepMeta.isDrawn() ) {
-        drawStep( stepMeta );
-      }
+      drawStep( stepMeta );
     }
 
     if ( slowStepIndicatorEnabled ) {
@@ -241,9 +236,7 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
       // Highlight possible bottlenecks
       for ( int i = 0; i < transMeta.nrSteps(); i++ ) {
         StepMeta stepMeta = transMeta.getStep( i );
-        if ( stepMeta.isDrawn() ) {
-          checkDrawSlowStepIndicator( stepMeta );
-        }
+        checkDrawSlowStepIndicator( stepMeta );
       }
 
     }
@@ -251,17 +244,13 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
     // Draw step status indicators (running vs. done)
     for ( int i = 0; i < transMeta.nrSteps(); i++ ) {
       StepMeta stepMeta = transMeta.getStep( i );
-      if ( stepMeta.isDrawn() ) {
-        drawStepStatusIndicator( stepMeta );
-      }
+      drawStepStatusIndicator( stepMeta );
     }
 
     // Draw performance table for selected step(s)
     for ( int i = 0; i < transMeta.nrSteps(); i++ ) {
       StepMeta stepMeta = transMeta.getStep( i );
-      if ( stepMeta.isDrawn() ) {
-        drawStepPerformanceTable( stepMeta );
-      }
+      drawStepPerformanceTable( stepMeta );
     }
 
     int selectedStepsCount = 0;
@@ -275,7 +264,7 @@ public class TransPainter extends BasePainter<TransHopMeta, StepMeta> {
     TransPainterFlyoutExtension extension = null;
     for ( int i = transMeta.nrSteps() - 1; i >= 0; i-- ) {
       StepMeta stepMeta = transMeta.getStep( i );
-      if ( stepMeta.isSelected() && stepMeta.isDrawn() && selectedStepsCount == 1 ) {
+      if ( stepMeta.isSelected() && selectedStepsCount == 1 ) {
         extension = new TransPainterFlyoutExtension(
           gc, areaOwners, transMeta, stepMeta, translationX, translationY, magnification, area, offset );
         break;

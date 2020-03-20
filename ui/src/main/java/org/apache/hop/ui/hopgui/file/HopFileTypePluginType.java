@@ -29,17 +29,15 @@ import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginFolder;
 import org.apache.hop.core.plugins.PluginMainClassType;
 import org.apache.hop.core.plugins.PluginTypeInterface;
-import org.apache.hop.ui.hopui.HopUiPlugin;
 
 import java.lang.annotation.Annotation;
-import java.util.Map;
 
 @PluginMainClassType( HopFileTypeInterface.class )
 @PluginAnnotationType( HopFileTypePlugin.class )
 public class HopFileTypePluginType extends BasePluginType implements PluginTypeInterface {
 
   private HopFileTypePluginType() {
-    super( HopUiPlugin.class, "HOP_FILE_TYPES", "Hop File Type Plugins" );
+    super( HopFileTypePlugin.class, "HOP_FILE_TYPES", "Hop File Type Plugins" );
 
     pluginFolders.add( new PluginFolder( "plugins", false, true ) );
   }

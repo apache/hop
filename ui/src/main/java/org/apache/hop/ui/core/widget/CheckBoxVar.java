@@ -22,7 +22,6 @@
 
 package org.apache.hop.ui.core.widget;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.i18n.BaseMessages;

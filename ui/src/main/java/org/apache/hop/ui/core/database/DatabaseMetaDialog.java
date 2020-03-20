@@ -73,7 +73,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @GuiPlugin(
-  id = "DatabaseConnection",
   description = "This is the dialog for database connection metadata"
 )
 /**

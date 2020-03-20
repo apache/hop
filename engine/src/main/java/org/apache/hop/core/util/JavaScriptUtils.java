@@ -119,8 +119,8 @@ public class JavaScriptUtils {
   }
 
   public static String jsToString( Object value, String classType ) {
-      // convert to a string should work in most cases...
-      return Context.toString( value );
+    // convert to a string should work in most cases...
+    return Context.toString( value );
   }
 
   public static Date jsToDate( Object value, String classType ) throws HopValueException {
@@ -136,13 +136,13 @@ public class JavaScriptUtils {
         try {
           Date dat = (Date) Context.jsToJava( value, java.util.Date.class );
           dbl = dat.getTime();
-        } catch ( Exception e ) {          
-            try {
-              String string = Context.toString( value );
-              return XMLHandler.stringToDate( string );
-            } catch ( Exception e3 ) {
-              throw new HopValueException( "Can't convert a string to a date" );
-            }          
+        } catch ( Exception e ) {
+          try {
+            String string = Context.toString( value );
+            return XMLHandler.stringToDate( string );
+          } catch ( Exception e3 ) {
+            throw new HopValueException( "Can't convert a string to a date" );
+          }
         }
       } else if ( classType.equalsIgnoreCase( "java.lang.Double" ) ) {
         dbl = (Double) value;

@@ -24,6 +24,7 @@ package org.apache.hop.cluster;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Result;
 import org.apache.hop.core.changed.ChangedFlag;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
@@ -1137,6 +1138,158 @@ public class SlaveServer extends ChangedFlag implements Cloneable, VariableSpace
     client.setSslMode( isSslMode() );
     return client;
   }
+
+  /**
+   * Monitors a remote transformation every 5 seconds.
+   *
+   * @param log           the log channel interface
+   * @param carteObjectId the HopServer object ID
+   * @param transName     the transformation name
+   */
+  public void monitorRemoteTransformation( LogChannelInterface log, String carteObjectId, String transName ) {
+    monitorRemoteTransformation( log, carteObjectId, transName, 5 );
+  }
+
+  /**
+   * Monitors a remote transformation at the specified interval.
+   *
+   * @param log              the log channel interface
+   * @param carteObjectId    the HopServer object ID
+   * @param transName        the transformation name
+   * @param sleepTimeSeconds the sleep time (in seconds)
+   */
+  public void monitorRemoteTransformation( LogChannelInterface log, String carteObjectId, String transName, int sleepTimeSeconds ) {
+    long errors = 0;
+    boolean allFinished = false;
+    while ( !allFinished && errors == 0 ) {
+      allFinished = true;
+      errors = 0L;
+
+      // Check the remote server
+      if ( allFinished && errors == 0 ) {
+        try {
+          SlaveServerTransStatus transStatus = getTransStatus( transName, carteObjectId, 0 );
+          if ( transStatus.isRunning() ) {
+            if ( log.isDetailed() ) {
+              log.logDetailed( transName, "Remote transformation is still running." );
+            }
+            allFinished = false;
+          } else {
+            if ( log.isDetailed() ) {
+              log.logDetailed( transName, "Remote transformation has finished." );
+            }
+          }
+          Result result = transStatus.getResult();
+          errors += result.getNrErrors();
+        } catch ( Exception e ) {
+          errors += 1;
+          log.logError( transName, "Unable to contact remote slave server '" + this.getName() + "' to check transformation status : " + e.toString() );
+        }
+      }
+
+      //
+      // Keep waiting until all transformations have finished
+      // If needed, we stop them again and again until they yield.
+      //
+      if ( !allFinished ) {
+        // Not finished or error: wait a bit longer
+        if ( log.isDetailed() ) {
+          log.logDetailed( transName, "The remote transformation is still running, waiting a few seconds..." );
+        }
+        try {
+          Thread.sleep( sleepTimeSeconds * 1000 );
+        } catch ( Exception e ) {
+          // Ignore errors
+        } // Check all slaves every x seconds.
+      }
+    }
+
+    log.logMinimal( transName, "The remote transformation has finished." );
+
+    // Clean up the remote transformation
+    //
+    try {
+      WebResult webResult = cleanupTransformation( transName, carteObjectId );
+      if ( !WebResult.STRING_OK.equals( webResult.getResult() ) ) {
+        log.logError( transName, "Unable to run clean-up on remote transformation '" + transName + "' : " + webResult
+          .getMessage() );
+        errors += 1;
+      }
+    } catch ( Exception e ) {
+      errors += 1;
+      log.logError( transName, "Unable to contact slave server '" + this.getName() + "' to clean up transformation : " + e.toString() );
+    }
+  }
+
+
+  /**
+   * Monitors a remote job every 5 seconds.
+   *
+   * @param log           the log channel interface
+   * @param carteObjectId the HopServer object ID
+   * @param jobName       the job name
+   */
+  public void monitorRemoteJob( LogChannelInterface log, String carteObjectId, String jobName ) {
+    monitorRemoteJob( log, carteObjectId, jobName, 5 );
+  }
+
+  /**
+   * Monitors a remote job at the specified interval.
+   *
+   * @param log              the log channel interface
+   * @param carteObjectId    the HopServer object ID
+   * @param jobName          the job name
+   * @param sleepTimeSeconds the sleep time (in seconds)
+   */
+  public void monitorRemoteJob( LogChannelInterface log, String carteObjectId, String jobName, int sleepTimeSeconds ) {
+    long errors = 0;
+    boolean allFinished = false;
+    while ( !allFinished && errors == 0 ) {
+      allFinished = true;
+      errors = 0L;
+
+      // Check the remote server
+      if ( allFinished && errors == 0 ) {
+        try {
+          SlaveServerJobStatus jobStatus = getJobStatus( jobName, carteObjectId, 0 );
+          if ( jobStatus.isRunning() ) {
+            if ( log.isDetailed() ) {
+              log.logDetailed( jobName, "Remote job is still running." );
+            }
+            allFinished = false;
+          } else {
+            if ( log.isDetailed() ) {
+              log.logDetailed( jobName, "Remote job has finished." );
+            }
+          }
+          Result result = jobStatus.getResult();
+          errors += result.getNrErrors();
+        } catch ( Exception e ) {
+          errors += 1;
+          log.logError( jobName, "Unable to contact remote slave server '" + this.getName() + "' to check job status : " + e.toString() );
+        }
+      }
+
+      //
+      // Keep waiting until all transformations have finished
+      // If needed, we stop them again and again until they yield.
+      //
+      if ( !allFinished ) {
+        // Not finished or error: wait a bit longer
+        if ( log.isDetailed() ) {
+          log.logDetailed( jobName, "The remote job is still running, waiting a few seconds..." );
+        }
+        try {
+          Thread.sleep( sleepTimeSeconds * 1000 );
+        } catch ( Exception e ) {
+          // Ignore errors
+        } // Check all slaves every x seconds.
+      }
+    }
+
+    log.logMinimal( jobName, "The remote job has finished." );
+  }
+
 
   /**
    * @return the changedDate

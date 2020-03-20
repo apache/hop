@@ -141,7 +141,7 @@ public class DBCache {
       if ( file.canRead() ) {
         log.logDetailed( "Loading database cache from file: [" + filename + "]" );
 
-        try (FileInputStream fis = new FileInputStream( file );  DataInputStream dis = new DataInputStream( fis ) ) {
+        try ( FileInputStream fis = new FileInputStream( file ); DataInputStream dis = new DataInputStream( fis ) ) {
           int counter = 0;
           try {
             while ( true ) {
@@ -155,7 +155,7 @@ public class DBCache {
           }
         } catch ( Exception e ) {
           throw new Exception( e );
-        } 
+        }
       } else {
         log.logDetailed( "The database cache doesn't exist yet." );
       }
@@ -172,9 +172,9 @@ public class DBCache {
       File file = new File( filename );
       if ( !file.exists() || file.canWrite() ) {
 
-        try (FileOutputStream fos = new FileOutputStream( file ); DataOutputStream dos =new DataOutputStream( new BufferedOutputStream( fos, 10000 ) ) ) {
+        try ( FileOutputStream fos = new FileOutputStream( file ); DataOutputStream dos = new DataOutputStream( new BufferedOutputStream( fos, 10000 ) ) ) {
 
-          int counter = 0;         
+          int counter = 0;
 
           Enumeration<DBCacheEntry> keys = cache.keys();
           while ( keys.hasMoreElements() ) {

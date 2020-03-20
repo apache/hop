@@ -48,7 +48,6 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransMeta.TransformationType;
 import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.trans.step.StepMetaInterface;
-//import org.apache.hop.trans.steps.databaselookup.DatabaseLookupMeta;
 import org.apache.hop.trans.steps.tableinput.TableInputMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
@@ -91,6 +90,8 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
+
+//import org.apache.hop.trans.steps.databaselookup.DatabaseLookupMeta;
 
 
 public class TransDialog extends Dialog {

@@ -3,6 +3,7 @@ package org.apache.hop.ui.hopgui;
 import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.hop.cluster.ClusterSchema;
 import org.apache.hop.cluster.SlaveServer;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -18,6 +19,9 @@ import org.apache.hop.core.gui.plugin.KeyboardShortcut;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.LoggingObject;
+import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.parameters.NamedParams;
 import org.apache.hop.core.plugins.Plugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.undo.TransAction;
@@ -43,16 +47,15 @@ import org.apache.hop.ui.hopgui.context.metastore.MetaStoreContext;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiNewDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiUndoDelegate;
-import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
+import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.perspective.EmptyHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.HopGuiPerspectiveManager;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
-import org.apache.hop.ui.hopui.HopUi;
-import org.apache.hop.ui.hopui.Sleak;
+import org.apache.hop.ui.hopgui.shared.Sleak;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.DeviceData;
 import org.eclipse.swt.layout.FormAttachment;
@@ -83,42 +86,41 @@ import java.util.List;
 import java.util.Locale;
 
 @GuiPlugin(
-  id = "HopGUI",
   description = "The main hop graphical user interface"
 )
 public class HopGui implements IActionContextHandlersProvider {
-  private static Class<?> PKG = HopUi.class;
+  private static Class<?> PKG = HopGui.class;
 
   // The main Menu IDs
   public static final String ID_MAIN_MENU = "HopGui-Menu";
-  public static final String ID_MAIN_MENU_FILE               = "10000-menu-file";
-  public static final String ID_MAIN_MENU_FILE_NEW           = "10010-menu-file-new";
-  public static final String ID_MAIN_MENU_FILE_OPEN          = "10020-menu-file-open";
-  public static final String ID_MAIN_MENU_FILE_SAVE          = "10030-menu-file-save";
-  public static final String ID_MAIN_MENU_FILE_SAVE_AS       = "10040-menu-file-save-as";
-  public static final String ID_MAIN_MENU_FILE_CLOSE         = "10090-menu-file-close";
-  public static final String ID_MAIN_MENU_FILE_CLOSE_ALL     = "10100-menu-file-close-all";
-  public static final String ID_MAIN_MENU_FILE_EXIT          = "10900-menu-file-exit";
+  public static final String ID_MAIN_MENU_FILE = "10000-menu-file";
+  public static final String ID_MAIN_MENU_FILE_NEW = "10010-menu-file-new";
+  public static final String ID_MAIN_MENU_FILE_OPEN = "10020-menu-file-open";
+  public static final String ID_MAIN_MENU_FILE_SAVE = "10030-menu-file-save";
+  public static final String ID_MAIN_MENU_FILE_SAVE_AS = "10040-menu-file-save-as";
+  public static final String ID_MAIN_MENU_FILE_CLOSE = "10090-menu-file-close";
+  public static final String ID_MAIN_MENU_FILE_CLOSE_ALL = "10100-menu-file-close-all";
+  public static final String ID_MAIN_MENU_FILE_EXIT = "10900-menu-file-exit";
 
-  public static final String ID_MAIN_MENU_EDIT_PARENT_ID     = "20000-menu-edit";
-  public static final String ID_MAIN_MENU_EDIT_UNDO          = "20010-menu-edit-undo";
-  public static final String ID_MAIN_MENU_EDIT_REDO          = "20020-menu-edit-redo";
-  public static final String ID_MAIN_MENU_EDIT_SELECT_ALL    = "20050-menu-edit-select-all";
-  public static final String ID_MAIN_MENU_EDIT_UNSELECT_ALL  = "20060-menu-edit-unselect-all";
-  public static final String ID_MAIN_MENU_EDIT_COPY          = "20080-menu-edit-copy";
-  public static final String ID_MAIN_MENU_EDIT_PASTE         = "20090-menu-edit-paste";
-  public static final String ID_MAIN_MENU_EDIT_CUT           = "20100-menu-edit-cut";
-  public static final String ID_MAIN_MENU_EDIT_DELETE        = "20110-menu-edit-delete";
-  public static final String ID_MAIN_MENU_EDIT_NAV_PREV      = "20200-menu-edit-nav-previous";
-  public static final String ID_MAIN_MENU_EDIT_NAV_NEXT      = "20210-menu-edit-nav-next";
+  public static final String ID_MAIN_MENU_EDIT_PARENT_ID = "20000-menu-edit";
+  public static final String ID_MAIN_MENU_EDIT_UNDO = "20010-menu-edit-undo";
+  public static final String ID_MAIN_MENU_EDIT_REDO = "20020-menu-edit-redo";
+  public static final String ID_MAIN_MENU_EDIT_SELECT_ALL = "20050-menu-edit-select-all";
+  public static final String ID_MAIN_MENU_EDIT_UNSELECT_ALL = "20060-menu-edit-unselect-all";
+  public static final String ID_MAIN_MENU_EDIT_COPY = "20080-menu-edit-copy";
+  public static final String ID_MAIN_MENU_EDIT_PASTE = "20090-menu-edit-paste";
+  public static final String ID_MAIN_MENU_EDIT_CUT = "20100-menu-edit-cut";
+  public static final String ID_MAIN_MENU_EDIT_DELETE = "20110-menu-edit-delete";
+  public static final String ID_MAIN_MENU_EDIT_NAV_PREV = "20200-menu-edit-nav-previous";
+  public static final String ID_MAIN_MENU_EDIT_NAV_NEXT = "20210-menu-edit-nav-next";
 
 
-  public static final String ID_MAIN_MENU_RUN_PARENT_ID      = "30000-menu-run";
-  public static final String ID_MAIN_MENU_RUN_START          = "30010-menu-run-execute";
-  public static final String ID_MAIN_MENU_RUN_PAUSE          = "30030-menu-run-pause";
-  public static final String ID_MAIN_MENU_RUN_STOP           = "30040-menu-run-stop";
-  public static final String ID_MAIN_MENU_RUN_PREVIEW        = "30050-menu-run-preview";
-  public static final String ID_MAIN_MENU_RUN_DEBUG          = "30060-menu-run-debug";
+  public static final String ID_MAIN_MENU_RUN_PARENT_ID = "30000-menu-run";
+  public static final String ID_MAIN_MENU_RUN_START = "30010-menu-run-execute";
+  public static final String ID_MAIN_MENU_RUN_PAUSE = "30030-menu-run-pause";
+  public static final String ID_MAIN_MENU_RUN_STOP = "30040-menu-run-stop";
+  public static final String ID_MAIN_MENU_RUN_PREVIEW = "30050-menu-run-preview";
+  public static final String ID_MAIN_MENU_RUN_DEBUG = "30060-menu-run-debug";
 
   // The main toolbar IDs
   public static final String ID_MAIN_TOOLBAR = "HopGui-Toolbar";
@@ -133,12 +135,14 @@ public class HopGui implements IActionContextHandlersProvider {
   private static final String UNDO_UNAVAILABLE = BaseMessages.getString( PKG, "Spoon.Menu.Undo.NotAvailable" );
   private static final String REDO_UNAVAILABLE = BaseMessages.getString( PKG, "Spoon.Menu.Redo.NotAvailable" );
 
-  private static final String CONTEXT_ID = "HopGui";
+  public static final String APP_NAME = "Hop";
 
   private static HopGui hopGui;
 
   private DelegatingMetaStore metaStore;
   private MetaStoreContext metaStoreContext;
+
+  private LoggingObjectInterface loggingObject;
 
   private Shell shell;
   private Display display;
@@ -177,7 +181,9 @@ public class HopGui implements IActionContextHandlersProvider {
     commandLineArguments = new ArrayList<>();
     variableSpace = Variables.getADefaultVariableSpace();
     props = PropsUI.getInstance();
-    log = LogChannel.UI;
+
+    loggingObject = new LoggingObject( APP_NAME );
+    log = new LogChannel( APP_NAME, loggingObject );
 
     activePerspective = new EmptyHopPerspective();
 
@@ -385,7 +391,7 @@ public class HopGui implements IActionContextHandlersProvider {
   public void menuFileOpen() {
     fileDelegate.fileOpen();
   }
-  
+
   @GuiMenuElement( id = ID_MAIN_MENU_FILE_SAVE, type = GuiElementType.MENU_ITEM, label = "Save", image = "ui/images/save.svg", parentId = ID_MAIN_MENU_FILE )
   @GuiToolbarElement( id = ID_MAIN_TOOLBAR_SAVE, type = GuiElementType.TOOLBAR_BUTTON, image = "ui/images/save.svg", toolTip = "Save", parentId = ID_MAIN_TOOLBAR )
   @GuiKeyboardShortcut( control = true, key = 's' )
@@ -439,7 +445,7 @@ public class HopGui implements IActionContextHandlersProvider {
     getActiveFileTypeHandler().redo();
   }
 
-  @GuiMenuElement( id = ID_MAIN_MENU_EDIT_SELECT_ALL, type = GuiElementType.MENU_ITEM, label = "Select all", parentId = ID_MAIN_MENU_EDIT_PARENT_ID, separator = true)
+  @GuiMenuElement( id = ID_MAIN_MENU_EDIT_SELECT_ALL, type = GuiElementType.MENU_ITEM, label = "Select all", parentId = ID_MAIN_MENU_EDIT_PARENT_ID, separator = true )
   @GuiKeyboardShortcut( control = true, key = 'a' )
   @GuiOSXKeyboardShortcut( command = true, key = 'a' )
   public void menuEditSelectAll() {
@@ -454,7 +460,7 @@ public class HopGui implements IActionContextHandlersProvider {
     getActiveFileTypeHandler().unselectAll();
   }
 
-  @GuiMenuElement( id = ID_MAIN_MENU_EDIT_COPY, type = GuiElementType.MENU_ITEM, label = "Copy selected to clipboard", parentId = ID_MAIN_MENU_EDIT_PARENT_ID, separator = true)
+  @GuiMenuElement( id = ID_MAIN_MENU_EDIT_COPY, type = GuiElementType.MENU_ITEM, label = "Copy selected to clipboard", parentId = ID_MAIN_MENU_EDIT_PARENT_ID, separator = true )
   @GuiKeyboardShortcut( control = true, key = 'c' )
   @GuiOSXKeyboardShortcut( command = true, key = 'c' )
   public void menuEditCopySelected() {
@@ -500,7 +506,7 @@ public class HopGui implements IActionContextHandlersProvider {
     // Nothing is done here.
   }
 
-  @GuiMenuElement( id = ID_MAIN_MENU_RUN_START, type = GuiElementType.MENU_ITEM, label = "Start execution",  image = "ui/images/toolbar/run.svg", parentId = ID_MAIN_MENU_RUN_PARENT_ID )
+  @GuiMenuElement( id = ID_MAIN_MENU_RUN_START, type = GuiElementType.MENU_ITEM, label = "Start execution", image = "ui/images/toolbar/run.svg", parentId = ID_MAIN_MENU_RUN_PARENT_ID )
   @GuiKeyboardShortcut( key = SWT.F8 )
   public void menuRunStart() {
     getActiveFileTypeHandler().start();
@@ -511,7 +517,8 @@ public class HopGui implements IActionContextHandlersProvider {
     getActiveFileTypeHandler().stop();
   }
 
-  @GuiMenuElement( id = ID_MAIN_MENU_RUN_PAUSE, type = GuiElementType.MENU_ITEM, label = "Pause execution", image = "ui/images/toolbar/pause.svg", parentId = ID_MAIN_MENU_RUN_PARENT_ID, separator = true )
+  @GuiMenuElement( id = ID_MAIN_MENU_RUN_PAUSE, type = GuiElementType.MENU_ITEM, label = "Pause execution", image = "ui/images/toolbar/pause.svg", parentId = ID_MAIN_MENU_RUN_PARENT_ID, separator =
+    true )
   public void menuRunPause() {
     getActiveFileTypeHandler().pause();
   }
@@ -553,7 +560,7 @@ public class HopGui implements IActionContextHandlersProvider {
     formData.bottom = new FormAttachment( 100, 0 );
     mainHopGuiComposite.setLayoutData( formData );
 
-    perspectivesToolbar = new ToolBar( mainHopGuiComposite,SWT.WRAP | SWT.RIGHT | SWT.VERTICAL );
+    perspectivesToolbar = new ToolBar( mainHopGuiComposite, SWT.WRAP | SWT.RIGHT | SWT.VERTICAL );
     props.setLook( perspectivesToolbar, PropsUI.WIDGET_STYLE_TOOLBAR );
     FormData fdToolBar = new FormData();
     fdToolBar.left = new FormAttachment( 0, 0 );
@@ -581,11 +588,6 @@ public class HopGui implements IActionContextHandlersProvider {
     mainPerspectivesComposite.setLayoutData( fdMain );
   }
 
-
-  public void setShellText() {
-    // TODO: show current file in main Hop shell
-  }
-
   public void setUndoMenu( UndoInterface undoInterface ) {
     // Grab the undo and redo menu items...
     //
@@ -610,7 +612,7 @@ public class HopGui implements IActionContextHandlersProvider {
       undoItem.setText( BaseMessages.getString( PKG, "Spoon.Menu.Undo.Available", prev.toString() ) );
     }
     KeyboardShortcut undoShortcut = mainMenuWidgets.findKeyboardShortcut( ID_MAIN_MENU_EDIT_UNDO );
-    if (undoShortcut!=null) {
+    if ( undoShortcut != null ) {
       GuiMenuWidgets.appendShortCut( undoItem, undoShortcut );
     }
 
@@ -621,7 +623,7 @@ public class HopGui implements IActionContextHandlersProvider {
       redoItem.setText( BaseMessages.getString( PKG, "Spoon.Menu.Redo.Available", next.toString() ) );
     }
     KeyboardShortcut redoShortcut = mainMenuWidgets.findKeyboardShortcut( ID_MAIN_MENU_EDIT_REDO );
-    if (redoShortcut!=null) {
+    if ( redoShortcut != null ) {
       GuiMenuWidgets.appendShortCut( redoItem, redoShortcut );
     }
   }
@@ -664,6 +666,7 @@ public class HopGui implements IActionContextHandlersProvider {
 
   /**
    * Replace the listeners based on the @{@link GuiKeyboardShortcut} annotations
+   *
    * @param parentObject The parent object containing the annotations and methods
    */
   public void replaceKeyboardShortcutListeners( Object parentObject ) {
@@ -679,8 +682,8 @@ public class HopGui implements IActionContextHandlersProvider {
 
     // Add it to all the children as well so we don't have any focus issues
     //
-    if (control instanceof Composite) {
-      for (Control child : ((Composite)control).getChildren()) {
+    if ( control instanceof Composite ) {
+      for ( Control child : ( (Composite) control ).getChildren() ) {
         replaceKeyboardShortcutListeners( child, keyHandler );
       }
     }
@@ -885,15 +888,15 @@ public class HopGui implements IActionContextHandlersProvider {
    */
   public void setActivePerspective( IHopPerspective activePerspective ) {
     this.activePerspective = activePerspective;
-    if (activePerspective==null) {
-      this.activePerspective=getActivePerspective();
+    if ( activePerspective == null ) {
+      this.activePerspective = getActivePerspective();
     }
   }
 
   /**
-   *  What are the contexts to consider:
-   *      - the file types registered
-   *      - the available IMetaStore element types
+   * What are the contexts to consider:
+   * - the file types registered
+   * - the available IMetaStore element types
    *
    * @return The list of context handlers
    */
@@ -904,7 +907,7 @@ public class HopGui implements IActionContextHandlersProvider {
     //
     HopFileTypeRegistry registry = HopFileTypeRegistry.getInstance();
     List<HopFileTypeInterface> hopFileTypes = registry.getFileTypes();
-    for (HopFileTypeInterface hopFileType : hopFileTypes) {
+    for ( HopFileTypeInterface hopFileType : hopFileTypes ) {
       contextHandlers.addAll( hopFileType.getContextHandlers() );
     }
 
@@ -913,6 +916,17 @@ public class HopGui implements IActionContextHandlersProvider {
     contextHandlers.addAll( metaStoreContext.getContextHandlers() );
 
     return contextHandlers;
+  }
+
+  public void setParametersAsVariablesInUI( NamedParams namedParameters, VariableSpace space ) {
+    for ( String param : namedParameters.listParameters() ) {
+      try {
+        space.setVariable( param, Const.NVL( namedParameters.getParameterValue( param ), Const.NVL(
+          namedParameters.getParameterDefault( param ), Const.NVL( space.getVariable( param ), "" ) ) ) );
+      } catch ( Exception e ) {
+        // ignore this
+      }
+    }
   }
 
   /**
@@ -1013,6 +1027,12 @@ public class HopGui implements IActionContextHandlersProvider {
     return metaStoreContext;
   }
 
-
-
+  /**
+   * Gets loggingObject
+   *
+   * @return value of loggingObject
+   */
+  public LoggingObjectInterface getLoggingObject() {
+    return loggingObject;
+  }
 }

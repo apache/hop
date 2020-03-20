@@ -29,7 +29,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -71,7 +71,7 @@ public class GetPreviewTableProgressDialog {
   public List<Object[]> open() {
     IRunnableWithProgress op = new IRunnableWithProgress() {
       public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
-        db = new Database( HopUi.loggingObject, dbMeta );
+        db = new Database( HopGui.getInstance().getLoggingObject(), dbMeta );
         try {
           db.connect();
 

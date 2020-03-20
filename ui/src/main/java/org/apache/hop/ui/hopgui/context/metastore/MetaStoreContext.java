@@ -1,6 +1,5 @@
 package org.apache.hop.ui.hopgui.context.metastore;
 
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
@@ -23,7 +22,7 @@ public class MetaStoreContext implements IActionContextHandlersProvider {
   // TODO: somehow find and register every metastore type through a plugin system somehow.
   //
   @Override public List<IGuiContextHandler> getContextHandlers() {
-    List<IGuiContextHandler> handlers = new ArrayList<>(  );
+    List<IGuiContextHandler> handlers = new ArrayList<>();
 
     // Register a few defaults, manually for now.
     //  - DatabaseMeta

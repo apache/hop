@@ -12,11 +12,15 @@ import java.lang.annotation.Target;
 
 @Documented
 @Retention( RetentionPolicy.RUNTIME )
-@Target( { ElementType.FIELD, ElementType.METHOD} )
+@Target( { ElementType.FIELD, ElementType.METHOD } )
 public @interface GuiKeyboardShortcut {
   boolean control() default false;
+
   boolean alt() default false;
+
   boolean shift() default false;
+
   boolean command() default false;
+
   int key() default -1;
 }

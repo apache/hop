@@ -17,10 +17,10 @@ public abstract class HopFileTypeBase<T extends XMLInterface> implements HopFile
 
   @Override
   public boolean equals( Object obj ) {
-    if (obj==this) {
+    if ( obj == this ) {
       return true;
     }
-    if (obj.getClass().equals( this.getClass() )) {
+    if ( obj.getClass().equals( this.getClass() ) ) {
       return true; // same class is enough
     }
     return false;
@@ -29,8 +29,8 @@ public abstract class HopFileTypeBase<T extends XMLInterface> implements HopFile
   @Override
   public boolean isHandledBy( String filename, boolean checkContent ) throws HopException {
     try {
-      if (checkContent) {
-        throw new HopException( "Generic file content validation is not possible at this time for file '"+filename+"'" );
+      if ( checkContent ) {
+        throw new HopException( "Generic file content validation is not possible at this time for file '" + filename + "'" );
       } else {
         FileObject fileObject = HopVFS.getFileObject( filename );
         FileName fileName = fileObject.getName();
@@ -46,15 +46,15 @@ public abstract class HopFileTypeBase<T extends XMLInterface> implements HopFile
 
         return false;
       }
-    } catch(Exception e) {
-      throw new HopException( "Unable to verify file handling of file '"+filename+"' by extension", e );
+    } catch ( Exception e ) {
+      throw new HopException( "Unable to verify file handling of file '" + filename + "' by extension", e );
     }
   }
 
   @Override public boolean hasCapability( String capability ) {
-    if (getCapabilities()==null) {
+    if ( getCapabilities() == null ) {
       return false;
     }
-    return getCapabilities().get( capability )!=null;
+    return getCapabilities().get( capability ) != null;
   }
 }

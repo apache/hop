@@ -44,9 +44,9 @@ import java.util.TimeZone;
 public class EnvUtil {
   private static Properties env = null;
 
-  private EnvUtil() {		 
+  private EnvUtil() {
   }
-  
+
   /**
    * Returns the properties from the users kettle home directory.
    *
@@ -62,10 +62,10 @@ public class EnvUtil {
 
   private static Properties readPropertiesByFullPath( final String fileName ) throws HopException {
     Properties props = new Properties();
-    try (InputStream is = new FileInputStream( fileName ) )  {
+    try ( InputStream is = new FileInputStream( fileName ) ) {
       props.load( is );
     } catch ( IOException ioe ) {
-      throw new HopException( "Unable to read file '" + fileName + "'", ioe );    
+      throw new HopException( "Unable to read file '" + fileName + "'", ioe );
     }
     return props;
   }

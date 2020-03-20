@@ -1,6 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <job-entries>
-    <job-entry id="TRANS"> <description>i18n:org.apache.hop.job.entry:JobEntry.Trans.TypeDesc</description> <classname>org.apache.hop.job.entries.trans.JobEntryTrans</classname> <category>i18n:org.apache.hop.job:JobCategory.Category.General</category> <tooltip>i18n:org.apache.hop.job.entry:JobEntry.Trans.Tooltip</tooltip> <iconfile>ui/images/TRN.svg</iconfile> <documentation_url>Products/Data_Integration/Job_Entry_Reference/Transformation_jobEntry</documentation_url> <cases_url>https://jira.pentaho.com/browse/PDI</cases_url> <forum_url>https://community.hds.com/community/products-and-solutions/pentaho/hop</forum_url> </job-entry>
-    <job-entry id="JOB"> <description>i18n:org.apache.hop.job.entry:JobEntry.Job.TypeDesc</description> <classname>org.apache.hop.job.entries.job.JobEntryJob</classname> <category>i18n:org.apache.hop.job:JobCategory.Category.General</category> <tooltip>i18n:org.apache.hop.job.entry:JobEntry.Job.Tooltip</tooltip> <iconfile>ui/images/JOB.svg</iconfile> <documentation_url>Products/Data_Integration/Job_Entry_Reference/Job_jobEntry</documentation_url> <cases_url>https://jira.pentaho.com/browse/PDI</cases_url> <forum_url>https://community.hds.com/community/products-and-solutions/pentaho/hop</forum_url> </job-entry>
-    <job-entry id="SPECIAL"> <description>i18n:org.apache.hop.job.entry:JobEntry.Special.TypeDesc</description> <classname>org.apache.hop.job.entries.special.JobEntrySpecial</classname> <category>i18n:org.apache.hop.job:JobCategory.Category.General</category> <tooltip>i18n:org.apache.hop.job.entry:JobEntry.Special.Tooltip</tooltip> <iconfile/> <documentation_url/> <cases_url/> <forum_url/> </job-entry>
+  <job-entry id="TRANS">
+    <description>i18n:org.apache.hop.job.entry:JobEntry.Trans.TypeDesc</description>
+    <classname>org.apache.hop.job.entries.trans.JobEntryTrans</classname>
+    <category>i18n:org.apache.hop.job:JobCategory.Category.General</category>
+    <tooltip>i18n:org.apache.hop.job.entry:JobEntry.Trans.Tooltip</tooltip>
+    <iconfile>ui/images/TRN.svg</iconfile>
+    <documentation_url>Products/Data_Integration/Job_Entry_Reference/Transformation_jobEntry</documentation_url>
+    <cases_url>https://jira.pentaho.com/browse/PDI</cases_url>
+    <forum_url>https://community.hds.com/community/products-and-solutions/pentaho/hop</forum_url>
+  </job-entry>
+  <job-entry id="JOB">
+    <description>i18n:org.apache.hop.job.entry:JobEntry.Job.TypeDesc</description>
+    <classname>org.apache.hop.job.entries.job.JobEntryJob</classname>
+    <category>i18n:org.apache.hop.job:JobCategory.Category.General</category>
+    <tooltip>i18n:org.apache.hop.job.entry:JobEntry.Job.Tooltip</tooltip>
+    <iconfile>ui/images/JOB.svg</iconfile>
+    <documentation_url>Products/Data_Integration/Job_Entry_Reference/Job_jobEntry</documentation_url>
+    <cases_url>https://jira.pentaho.com/browse/PDI</cases_url>
+    <forum_url>https://community.hds.com/community/products-and-solutions/pentaho/hop</forum_url>
+  </job-entry>
+  <job-entry id="SPECIAL">
+    <description>i18n:org.apache.hop.job.entry:JobEntry.Special.TypeDesc</description>
+    <classname>org.apache.hop.job.entries.special.JobEntrySpecial</classname>
+    <category>i18n:org.apache.hop.job:JobCategory.Category.General</category>
+    <tooltip>i18n:org.apache.hop.job.entry:JobEntry.Special.Tooltip</tooltip>
+    <iconfile/>
+    <documentation_url/>
+    <cases_url/>
+    <forum_url/>
+  </job-entry>
 </job-entries>

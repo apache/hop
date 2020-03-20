@@ -12,31 +12,31 @@ public class TabFileManager {
     this.tabFolder = tabFolder;
   }
 
-  public TabFileItem findTabWithFilename(String filename) {
-    if (filename==null) {
+  public TabFileItem findTabWithFilename( String filename ) {
+    if ( filename == null ) {
       return null;
     }
-    for (TabFileItem tabFileItem : tabFileItems) {
-      if (tabFileItem.getFilename()!=null && tabFileItem.getFilename().equals( filename )) {
+    for ( TabFileItem tabFileItem : tabFileItems ) {
+      if ( tabFileItem.getFilename() != null && tabFileItem.getFilename().equals( filename ) ) {
         return tabFileItem;
       }
     }
     return null;
   }
 
-  public TabFileItem findTabWithUUID(String uuid) {
-    if (uuid==null) {
+  public TabFileItem findTabWithUUID( String uuid ) {
+    if ( uuid == null ) {
       return null;
     }
-    for (TabFileItem tabFileItem : tabFileItems) {
-      if (tabFileItem.getUuid().equals( uuid )) {
+    for ( TabFileItem tabFileItem : tabFileItems ) {
+      if ( tabFileItem.getUuid().equals( uuid ) ) {
         return tabFileItem;
       }
     }
     return null;
   }
 
-  public void addTab(String filename) {
+  public void addTab( String filename ) {
     //
   }
 

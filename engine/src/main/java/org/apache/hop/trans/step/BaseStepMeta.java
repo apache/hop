@@ -791,7 +791,7 @@ public class BaseStepMeta implements Cloneable, StepAttributesInterface {
           attributes.add( attribute );
         }
       } else {
-          throw new HopException( "Unable to find step attributes file '" + stepAttributesFile + "' for step class '" + getClass().getName() + "'" );
+        throw new HopException( "Unable to find step attributes file '" + stepAttributesFile + "' for step class '" + getClass().getName() + "'" );
       }
     } catch ( Exception e ) {
       throw new HopException( "Unable to load file " + stepAttributesFile, e );

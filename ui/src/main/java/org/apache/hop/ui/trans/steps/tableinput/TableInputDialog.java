@@ -46,7 +46,7 @@ import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopui.job.JobGraph;
+import org.apache.hop.ui.hopgui.file.job.HopGuiJobGraph;
 import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
@@ -492,7 +492,7 @@ public class TableInputDialog extends BaseStepDialog implements StepDialogInterf
 
   private void checkCancel( ShellEvent e ) {
     if ( changedInDialog ) {
-      int save = JobGraph.showChangedWarning( shell, wStepname.getText() );
+      int save = HopGuiJobGraph.showChangedWarning( shell, wStepname.getText() );
       if ( save == SWT.CANCEL ) {
         e.doit = false;
       } else if ( save == SWT.YES ) {

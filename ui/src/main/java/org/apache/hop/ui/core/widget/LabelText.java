@@ -22,7 +22,6 @@
 
 package org.apache.hop.ui.core.widget;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.ui.core.PropsUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;

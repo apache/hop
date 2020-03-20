@@ -34,6 +34,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.LogChannelFileWriter;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.parameters.NamedParams;
@@ -1189,7 +1190,7 @@ public class JobEntryTrans extends JobEntryBase implements Cloneable, JobEntryIn
    * @throws HopException
    */
   @Override
-  public Object loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space ) throws HopException {
+  public IHasFilename loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space ) throws HopException {
     return getTransMeta( metaStore, space );
   }
 

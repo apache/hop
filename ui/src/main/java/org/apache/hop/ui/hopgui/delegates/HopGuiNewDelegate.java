@@ -37,6 +37,6 @@ public class HopGuiNewDelegate {
     int x = 50 + hopUi.getShell().getLocation().x;
     int y = 50 + hopUi.getShell().getLocation().y;
 
-    GuiContextUtil.handleActionSelection( hopUi.getShell(), "Select the action...", new Point(x, y), hopUi, GuiActionType.Create );
+    GuiContextUtil.handleActionSelection( hopUi.getShell(), "Select the action...", new Point( x, y ), hopUi, GuiActionType.Create );
   }
 }

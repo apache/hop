@@ -1132,7 +1132,7 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
   }
 
   @Override public boolean isSelected() {
-    return stepMeta!=null && stepMeta.isSelected();
+    return stepMeta != null && stepMeta.isSelected();
   }
 
   /*
@@ -4154,7 +4154,7 @@ public class BaseStep implements VariableSpace, StepInterface, LoggingObjectInte
 
   @Override public String getLogText() {
     StringBuffer buffer = HopLogStore.getAppender().getBuffer( log.getLogChannelId(), false );
-    if (buffer==null) {
+    if ( buffer == null ) {
       return null;
     }
     return buffer.toString();

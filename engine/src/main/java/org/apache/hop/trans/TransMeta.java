@@ -55,6 +55,7 @@ import org.apache.hop.core.exception.HopStepException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ChannelLogTable;
 import org.apache.hop.core.logging.LogChannel;
@@ -127,7 +128,7 @@ import java.util.stream.Collectors;
  */
 public class TransMeta extends AbstractMeta
   implements XMLInterface, Comparator<TransMeta>, Comparable<TransMeta>, Cloneable, ResourceExportInterface,
-  LoggingObjectInterface {
+  LoggingObjectInterface, IHasFilename {
 
   /**
    * The package name, used for internationalization of messages.
@@ -1595,7 +1596,7 @@ public class TransMeta extends AbstractMeta
     s = steps.size();
     for ( i = s - 1; i >= 0; i-- ) { // Back to front because drawing goes from start to end
       StepMeta stepMeta = steps.get( i );
-      if ( partOfTransHop( stepMeta ) || stepMeta.isDrawn() ) { // Only consider steps from active or inactive hops!
+      if ( partOfTransHop( stepMeta ) ) { // Only consider steps from active or inactive hops!
         Point p = stepMeta.getLocation();
         if ( p != null ) {
           if ( x >= p.x && x <= p.x + iconsize && y >= p.y && y <= p.y + iconsize + 20 ) {
@@ -2365,7 +2366,7 @@ public class TransMeta extends AbstractMeta
       throw new HopXMLException( BaseMessages.getString( PKG, "TransMeta.Exception.MissingXMLFilePath" ) );
     }
 
-    if (metaStore==null) {
+    if ( metaStore == null ) {
       throw new HopXMLException( "MetaStore references can't be null. When loading a transformation Hop needs to be able to reference external metadata objects" );
     }
 
@@ -2866,7 +2867,7 @@ public class TransMeta extends AbstractMeta
     // Also, add the steps that need to be painted, but are not part of a hop
     for ( int x = 0; x < nrSteps(); x++ ) {
       StepMeta stepMeta = getStep( x );
-      if ( stepMeta.isDrawn() && !isStepUsedInTransHops( stepMeta ) ) {
+      if ( !isStepUsedInTransHops( stepMeta ) ) {
         st.add( stepMeta );
       }
       if ( !stepMeta.getRemoteInputSteps().isEmpty() || !stepMeta.getRemoteOutputSteps().isEmpty() ) {

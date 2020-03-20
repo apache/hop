@@ -38,19 +38,41 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.hopui.job.JobGraph;
+import org.apache.hop.ui.hopgui.file.job.HopGuiJobGraph;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.apache.hop.ui.trans.steps.tableinput.SQLValuesHighlight;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 public class ExecSQLDialog extends BaseStepDialog implements StepDialogInterface {
   private static Class<?> PKG = ExecSQLMeta.class; // for i18n purposes, needed by Translator2!!
@@ -677,7 +699,7 @@ public class ExecSQLDialog extends BaseStepDialog implements StepDialogInterface
 
   private void checkCancel( ShellEvent e ) {
     if ( changedInDialog ) {
-      int save = JobGraph.showChangedWarning( shell, wStepname.getText() );
+      int save = HopGuiJobGraph.showChangedWarning( shell, wStepname.getText() );
       if ( save == SWT.CANCEL ) {
         e.doit = false;
       } else if ( save == SWT.YES ) {

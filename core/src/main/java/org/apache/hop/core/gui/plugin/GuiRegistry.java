@@ -247,26 +247,26 @@ public class GuiRegistry {
   /**
    * Add a GUI context action for the given method and its annotation.
    * Also provide a classloader which can be used to load resources later.
+   *
    * @param method
    * @param ca
    * @param classLoader
    */
   public void addGuiContextAction( Method method, GuiContextAction ca, ClassLoader classLoader ) {
-    GuiAction action = new GuiAction(ca.id(), ca.type(), ca.name(), ca.tooltip(), ca.image(), method.getName());
+    GuiAction action = new GuiAction( ca.id(), ca.type(), ca.name(), ca.tooltip(), ca.image(), method.getName() );
     action.setClassLoader( classLoader );
 
     List<GuiAction> actions = contextActionsMap.get( ca.parentId() );
-    if (actions==null) {
+    if ( actions == null ) {
       actions = new ArrayList<>();
       contextActionsMap.put( ca.parentId(), actions );
     }
-    actions.add(action);
+    actions.add( action );
   }
 
   public List<GuiAction> getGuiContextActions( String parentContextId ) {
     return contextActionsMap.get( parentContextId );
   }
-
 
 
   /**

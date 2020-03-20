@@ -410,7 +410,7 @@ public class JobPainter extends BasePainter<JobHopMeta, JobEntryCopy> {
         } else {
           gc.setAlpha( 100 );
         }
-        gc.drawImage( miniIcon, xIcon, yIcon, (float)zoomFactor );
+        gc.drawImage( miniIcon, xIcon, yIcon, (float) zoomFactor );
         xIcon += bounds.x + 5;
       }
       gc.setTransform( translationX, translationY, 0, magnification );

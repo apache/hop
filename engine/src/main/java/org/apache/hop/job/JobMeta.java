@@ -44,6 +44,7 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ChannelLogTable;
 import org.apache.hop.core.logging.JobEntryLogTable;
@@ -101,7 +102,7 @@ import java.util.Map;
  * @since 11-08-2003
  */
 public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMeta>,
-  XMLInterface, ResourceExportInterface, LoggingObjectInterface {
+  XMLInterface, ResourceExportInterface, LoggingObjectInterface, IHasFilename {
 
   private static Class<?> PKG = JobMeta.class; // for i18n purposes, needed by Translator2!!
 
@@ -663,9 +664,9 @@ public class JobMeta extends AbstractMeta implements Cloneable, Comparable<JobMe
   /**
    * Load a block of XML from an DOM node.
    *
-   * @param jobnode                       The node to load from
-   * @param fname                         The filename
-   * @param metaStore                     the MetaStore to use
+   * @param jobnode   The node to load from
+   * @param fname     The filename
+   * @param metaStore the MetaStore to use
    * @throws HopXMLException
    */
   public void loadXML( Node jobnode, String fname, IMetaStore metaStore ) throws HopXMLException {

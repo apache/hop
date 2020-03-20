@@ -49,7 +49,6 @@ import org.apache.hop.core.gui.Redrawable;
 import org.apache.hop.core.gui.SnapAllignDistribute;
 import org.apache.hop.core.gui.plugin.GuiActionType;
 import org.apache.hop.core.gui.plugin.GuiElementType;
-import org.apache.hop.core.gui.plugin.GuiInterface;
 import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiOSXKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -87,7 +86,6 @@ import org.apache.hop.trans.TransPainter;
 import org.apache.hop.trans.debug.BreakPointListener;
 import org.apache.hop.trans.debug.StepDebugMeta;
 import org.apache.hop.trans.debug.TransDebugMeta;
-import org.apache.hop.trans.debug.TransDebugMetaWrapper;
 import org.apache.hop.trans.engine.IEngine;
 import org.apache.hop.trans.step.RemoteStep;
 import org.apache.hop.trans.step.RowDistributionInterface;
@@ -120,18 +118,33 @@ import org.apache.hop.ui.core.widget.CheckBoxToolTipListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
+import org.apache.hop.ui.hopgui.delegates.HopGuiSlaveDelegate;
+import org.apache.hop.ui.hopgui.dialog.EnterPreviewRowsDialog;
+import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
+import org.apache.hop.ui.hopgui.dialog.SearchFieldsProgressDialog;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
+import org.apache.hop.ui.hopgui.file.delegates.HopGuiNotePadDelegate;
+import org.apache.hop.ui.hopgui.file.job.HopGuiJobGraph;
+import org.apache.hop.ui.hopgui.file.shared.DelayTimer;
+import org.apache.hop.ui.hopgui.file.trans.context.HopGuiTransContext;
+import org.apache.hop.ui.hopgui.file.trans.context.HopGuiTransNoteContext;
+import org.apache.hop.ui.hopgui.file.trans.context.HopGuiTransStepContext;
+import org.apache.hop.ui.hopgui.file.trans.delegates.HopGuiTransClipboardDelegate;
+import org.apache.hop.ui.hopgui.file.trans.delegates.HopGuiTransGridDelegate;
+import org.apache.hop.ui.hopgui.file.trans.delegates.HopGuiTransHopDelegate;
+import org.apache.hop.ui.hopgui.file.trans.delegates.HopGuiTransLogDelegate;
+import org.apache.hop.ui.hopgui.file.trans.delegates.HopGuiTransMetricsDelegate;
+import org.apache.hop.ui.hopgui.file.trans.delegates.HopGuiTransPerfDelegate;
+import org.apache.hop.ui.hopgui.file.trans.delegates.HopGuiTransPreviewDelegate;
+import org.apache.hop.ui.hopgui.file.trans.delegates.HopGuiTransRunDelegate;
+import org.apache.hop.ui.hopgui.file.trans.delegates.HopGuiTransStepDelegate;
+import org.apache.hop.ui.hopgui.file.trans.delegates.HopGuiTransUndoDelegate;
+import org.apache.hop.ui.hopgui.file.trans.extension.HopGuiTransGraphExtension;
+import org.apache.hop.ui.hopgui.file.trans.extension.HopGuiTransPainterFlyoutTooltipExtension;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopGuiAbstractGraph;
-import org.apache.hop.ui.hopui.HopUi;
-import org.apache.hop.ui.hopui.HopUiExtenderPluginInterface;
-import org.apache.hop.ui.hopui.HopUiExtenderPluginType;
-import org.apache.hop.ui.hopui.SWTGC;
-import org.apache.hop.ui.hopui.SwtScrollBar;
-import org.apache.hop.ui.hopui.dialog.EnterPreviewRowsDialog;
-import org.apache.hop.ui.hopui.dialog.NotePadDialog;
-import org.apache.hop.ui.hopui.dialog.SearchFieldsProgressDialog;
-import org.apache.hop.ui.hopui.job.JobGraph;
+import org.apache.hop.ui.hopgui.shared.SWTGC;
+import org.apache.hop.ui.hopgui.shared.SwtScrollBar;
 import org.apache.hop.ui.trans.dialog.TransDialog;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -148,8 +161,6 @@ import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.DropTargetListener;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
@@ -180,8 +191,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.eclipse.swt.widgets.Widget;
-import org.pentaho.ui.xul.components.XulToolbarbutton;
 
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -206,16 +215,15 @@ import java.util.UUID;
  * @since 17-mei-2003
  */
 @GuiPlugin(
-  id = "HopGuiTransGraph",
   description = "The transformation graph GUI plugin"
 )
 public class HopGuiTransGraph extends HopGuiAbstractGraph
   implements Redrawable, MouseListener, MouseMoveListener, MouseTrackListener, MouseWheelListener, KeyListener,
   HasLogChannelInterface, LogParentProvidedInterface,  // TODO: Aren't these the same?
   HopFileTypeHandlerInterface,
-  GuiInterface, IGuiRefresher {
+  IGuiRefresher {
 
-  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator2!!
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiTransGraph-Toolbar";
   public static final String TOOLBAR_ITEM_START = "HopGuiTransGraph-ToolBar-10010-Run";
@@ -227,6 +235,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   public static final String TOOLBAR_ITEM_UNDO_ID = "HopGuiTransGraph-ToolBar-10100-Undo";
   public static final String TOOLBAR_ITEM_REDO_ID = "HopGuiTransGraph-ToolBar-10110-Redo";
 
+  public static final String TOOLBAR_ITEM_SNAP_TO_GRID = "HopGuiTransGraph-ToolBar-10190-Snap-To-Grid";
   public static final String TOOLBAR_ITEM_ALIGN_LEFT = "HopGuiTransGraph-ToolBar-10200-Align-Left";
   public static final String TOOLBAR_ITEM_ALIGN_RIGHT = "HopGuiTransGraph-ToolBar-10210-Align-Right";
   public static final String TOOLBAR_ITEM_ALIGN_TOP = "HopGuiTransGraph-ToolBar-10250-Align-Ttop";
@@ -294,10 +303,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   private TransHopMeta candidate;
 
   private Point drop_candidate;
-
-  private HopGui hopUi;
-
-  // public boolean shift, control;
 
   private boolean split_hop;
 
@@ -399,8 +404,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
   private HopTransFileType fileType;
 
-  private String id;
-
   public void setCurrentNote( NotePadMeta ni ) {
     this.ni = ni;
   }
@@ -441,7 +444,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     this.perspective = perspective;
     this.transMeta = transMeta;
     this.fileType = fileType;
-    this.id = UUID.randomUUID().toString();
     this.areaOwners = new ArrayList<>();
 
     this.log = hopUi.getLog();
@@ -647,7 +649,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
               // Drop hidden step onto canvas....
               stepMeta = transMeta.findStep( container.getData() );
               if ( stepMeta != null ) {
-                if ( stepMeta.isDrawn() || transMeta.isStepUsedInTransHops( stepMeta ) ) {
+                if ( transMeta.isStepUsedInTransHops( stepMeta ) ) {
                   modalMessageDialog( getString( "TransGraph.Dialog.StepIsAlreadyOnCanvas.Title" ),
                     getString( "TransGraph.Dialog.StepIsAlreadyOnCanvas.Message" ), SWT.OK );
                   return;
@@ -710,7 +712,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
             before = (StepMeta) stepMeta.clone();
           }
 
-          stepMeta.drawStep();
+
           stepMeta.setSelected( true );
           PropsUI.setLocation( stepMeta, p.x, p.y );
 
@@ -743,27 +745,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
     setBackground( GUIResource.getInstance().getColorBackground() );
 
-    // Add a timer to set correct the state of the run/stop buttons every 2 seconds...
-    //
-    final Timer timer = new Timer( "HopGuiTransGraph.setControlStates Timer: " + getMeta().getName() );
-    TimerTask timerTask = new TimerTask() {
-
-      @Override
-      public void run() {
-        setControlStates();
-      }
-    };
-    timer.schedule( timerTask, 2000, 1000 );
-
-    // Make sure the timer stops when we close the tab...
-    //
-    addDisposeListener( new DisposeListener() {
-      @Override
-      public void widgetDisposed( DisposeEvent arg0 ) {
-        timer.cancel();
-      }
-    } );
-
     // Add keyboard listeners from the main GUI and this class (toolbar etc) to the canvas. That's where the focus should be
     //
     hopUi.replaceKeyboardShortcutListeners( this );
@@ -786,7 +767,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     /** TODO: Add back in
      try {
      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.TransGraphMouseDoubleClick.id,
-     new HopGUiTransGraphExtension( this, e, real ) );
+     new HopGuiTransGraphExtension( this, e, real ) );
      } catch ( Exception ex ) {
      LogChannel.GENERAL.logError( "Error calling TransGraphMouseDoubleClick extension point", ex );
      }
@@ -855,7 +836,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     }
 
     try {
-      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.TransGraphMouseDown.id, new HopGUiTransGraphExtension( this, e, real ) );
+      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.TransGraphMouseDown.id, new HopGuiTransGraphExtension( this, e, real ) );
     } catch ( Exception ex ) {
       LogChannel.GENERAL.logError( "Error calling TransGraphMouseDown extension point", ex );
     }
@@ -931,6 +912,9 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
             if ( e.button == 1 && alt && stepMeta.supportsErrorHandling() ) {
               transStepDelegate.editStepErrorHandling( transMeta, stepMeta );
               return;
+            } else if ( e.button == 1 && startHopStep != null && endHopStep == null ) {
+              candidate = new TransHopMeta( startHopStep, currentStep );
+              addCandidateAsHop( e.x, e.y );
             } else if ( e.button == 2 || ( e.button == 1 && shift ) ) {
               // SHIFT CLICK is start of drag to create a new hop
               //
@@ -989,8 +973,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           TransHopMeta after = (TransHopMeta) hop.clone();
           hopUi.undoDelegate.addUndoChange( transMeta, new TransHopMeta[] { before }, new TransHopMeta[] { after }, new int[] { transMeta.indexOfTransHop( hop ) } );
 
-          redraw();
-          hopUi.setShellText();
+          updateGui();
         } else {
           // No area-owner & no hop means : background click:
           //
@@ -998,7 +981,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           if ( !control ) {
             selectionRegion = new org.apache.hop.core.gui.Rectangle( real.x, real.y, 0, 0 );
           }
-          redraw();
+          updateGui();
         }
       }
     }
@@ -1013,7 +996,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   @Override
   public void mouseUp( MouseEvent e ) {
     try {
-      HopGUiTransGraphExtension ext = new HopGUiTransGraphExtension( null, e, getArea() );
+      HopGuiTransGraphExtension ext = new HopGuiTransGraphExtension( null, e, getArea() );
       ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.TransGraphMouseUp.id, ext );
       if ( ext.isPreventDefault() ) {
         redraw();
@@ -1040,7 +1023,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     AreaOwner areaOwner = getVisibleAreaOwner( real.x, real.y );
 
     try {
-      HopGUiTransGraphExtension ext = new HopGUiTransGraphExtension( this, e, real );
+      HopGuiTransGraphExtension ext = new HopGuiTransGraphExtension( this, e, real );
       ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.TransGraphMouseUp.id, ext );
       if ( ext.isPreventDefault() ) {
         redraw();
@@ -1080,7 +1063,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         transMeta.unselectAll();
         selectInRect( transMeta, selectionRegion );
         selectionRegion = null;
-        redraw();
+        updateGui();
       } else {
         // Clicked on an icon?
         //
@@ -1135,8 +1118,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           selectedNote = null;
           startHopStep = null;
           endHopLocation = null;
-          redraw();
-          hopUi.setShellText();
+
+          updateGui();
         } else {
           // Notes?
           //
@@ -1199,18 +1182,20 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           contextHandler = new HopGuiTransContext( transMeta, this, real );
           break;
         case Step:
-          message = "Select the action to take on step '"+singleClickStep.getName()+"':";
-          contextHandler = new HopGuiTransStepContext( transMeta, singleClickStep, this, real ); break;
+          message = "Select the action to take on step '" + singleClickStep.getName() + "':";
+          contextHandler = new HopGuiTransStepContext( transMeta, singleClickStep, this, real );
+          break;
         case Note:
           message = "Select the note action to take:";
-          contextHandler = new HopGuiTransNoteContext( transMeta, singleClickNote, this, real ); break;
+          contextHandler = new HopGuiTransNoteContext( transMeta, singleClickNote, this, real );
+          break;
         default:
           break;
       }
       if ( contextHandler != null ) {
         Shell parent = hopShell();
         org.eclipse.swt.graphics.Point p = parent.getDisplay().map( canvas, null, e.x, e.y );
-        GuiContextUtil.handleActionSelection( parent, message, new Point(p.x, p.y), contextHandler.getSupportedActions() );
+        GuiContextUtil.handleActionSelection( parent, message, new Point( p.x, p.y ), contextHandler.getSupportedActions() );
       }
     }
 
@@ -1347,7 +1332,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     }
 
     try {
-      HopGUiTransGraphExtension ext = new HopGUiTransGraphExtension( this, e, real );
+      HopGuiTransGraphExtension ext = new HopGuiTransGraphExtension( this, e, real );
       ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.TransGraphMouseMoved.id, ext );
     } catch ( Exception ex ) {
       LogChannel.GENERAL.logError( "Error calling TransGraphMouseMoved extension point", ex );
@@ -1734,8 +1719,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       FormData layoutData = new FormData();
       layoutData.left = new FormAttachment( 0, 0 );
       layoutData.top = new FormAttachment( 0, 0 );
-      layoutData.right = new FormAttachment( 100, 0 );      
-      toolBar.setLayoutData(layoutData);
+      layoutData.right = new FormAttachment( 100, 0 );
+      toolBar.setLayoutData( layoutData );
       toolBar.pack();
 
       // Add a zoom label widget: TODO: move to GuiElement
@@ -1743,7 +1728,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       new ToolItem( toolBar, SWT.SEPARATOR );
       ToolItem sep = new ToolItem( toolBar, SWT.SEPARATOR );
 
-      zoomLabel = new Combo( toolBar, SWT.DROP_DOWN );      
+      zoomLabel = new Combo( toolBar, SWT.DROP_DOWN );
       zoomLabel.setItems( TransPainter.magnificationDescriptions );
       zoomLabel.addSelectionListener( new SelectionAdapter() {
         @Override
@@ -1770,7 +1755,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
       // enable / disable the icons in the toolbar too.
       //
-      setControlStates();
+      updateGui();
 
     } catch ( Throwable t ) {
       log.logError( "Error setting up the navigation toolbar for HopUI", t );
@@ -1779,7 +1764,11 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   }
 
   public void setZoomLabel() {
-    zoomLabel.setText( Integer.toString( Math.round( magnification * 100 ) ) + "%" );
+    String newString = Integer.toString( Math.round( magnification * 100 ) ) + "%";
+    String oldString = zoomLabel.getText();
+    if ( !newString.equals( oldString ) ) {
+      zoomLabel.setText( Integer.toString( Math.round( magnification * 100 ) ) + "%" );
+    }
   }
 
   /**
@@ -1893,7 +1882,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     }
     // ALT-HOME : snap to grid
     if ( e.keyCode == SWT.HOME && ( e.stateMask & SWT.ALT ) != 0 ) {
-      snaptogrid( ConstUI.GRID_SIZE );
+      snapToGrid( ConstUI.GRID_SIZE );
     }
 
     if ( e.character == 'E' && ( e.stateMask & SWT.CTRL ) != 0 ) {
@@ -1959,8 +1948,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     startHopStep = null;
     endHopStep = null;
     endHopLocation = null;
+    transMeta.unselectAll();
     for ( int i = 0; i < transMeta.nrTransHops(); i++ ) {
-      // CHECKSTYLE:Indentation:OFF
       transMeta.getTransHop( i ).split = false;
     }
   }
@@ -2057,17 +2046,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     int y2 = to.y + iconsize / 2;
 
     return new int[] { x1, y1, x2, y2 };
-  }
-
-  public void hideStep() {
-    for ( int i = 0; i < transMeta.nrSteps(); i++ ) {
-      StepMeta sti = transMeta.getStep( i );
-      if ( sti.isDrawn() && sti.isSelected() ) {
-        sti.hideStep();
-      }
-    }
-    getCurrentStep().hideStep();
-    redraw();
   }
 
   public void detachStep() {
@@ -2186,7 +2164,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     copies( stepMeta );
   }
 
-  public void copies(StepMeta stepMeta) {
+  public void copies( StepMeta stepMeta ) {
     final boolean multipleOK = checkNumberOfCopies( transMeta, stepMeta );
     selectedSteps = null;
     String tt = BaseMessages.getString( PKG, "TransGraph.Dialog.NrOfCopiesOfStep.Title" );
@@ -2236,7 +2214,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     tooltip = "Delete the selected step from the transformation",
     image = "ui/images/generic-delete.svg"
   )
-  public void delStep(HopGuiTransStepContext context) {
+  public void delStep( HopGuiTransStepContext context ) {
     delSelected( context.getStepMeta() );
   }
 
@@ -2248,7 +2226,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     tooltip = "Show all the fields entering this step",
     image = "ui/images/info-hop.svg"
   )
-  public void fieldsBefore(HopGuiTransStepContext context) {
+  public void fieldsBefore( HopGuiTransStepContext context ) {
     selectedSteps = null;
     inputOutputFields( context.getStepMeta(), true );
   }
@@ -2261,7 +2239,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     tooltip = "Show all the fields resulting from this step",
     image = "ui/images/info-hop.svg"
   )
-  public void fieldsAfter(HopGuiTransStepContext context) {
+  public void fieldsAfter( HopGuiTransStepContext context ) {
     selectedSteps = null;
     inputOutputFields( context.getStepMeta(), false );
   }
@@ -2293,8 +2271,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       redraw();
     } else {
       hi.setChanged();
-      redraw();
-      hopUi.setShellText();
+
+      updateGui();
     }
   }
 
@@ -2367,7 +2345,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         getString( "TransGraph.Dialog.HopCausesLoop.Message" ), SWT.OK | SWT.ICON_ERROR );
     }
 
-    redraw();
+    updateGui();
   }
 
   public void enableHopsDownstream() {
@@ -2395,7 +2373,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         getString( "TransGraph.Dialog.HopCausesLoop.Message" ), SWT.OK | SWT.ICON_ERROR );
     }
 
-    redraw();
+    updateGui();
   }
 
   private Set<StepMeta> enableDisableNextHops( StepMeta from, boolean enabled, Set<StepMeta> checkedEntries ) {
@@ -2443,7 +2421,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     if ( idx >= 0 ) {
       transMeta.removeNote( idx );
       hopUi.undoDelegate.addUndoDelete( transMeta, new NotePadMeta[] { context.getNotePadMeta().clone() }, new int[] { idx } );
-      redraw();
+      updateGui();
     }
   }
 
@@ -2469,7 +2447,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           .isDrawShadow() );
       transMeta.addNote( npi );
       hopUi.undoDelegate.addUndoNew( transMeta, new NotePadMeta[] { npi }, new int[] { transMeta.indexOfNote( npi ) } );
-      redraw();
+      updateGui();
     }
   }
 
@@ -2488,8 +2466,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   public void newStep( String description ) {
     StepMeta stepMeta = transStepDelegate.newStep( transMeta, null, description, description, false, true, new Point( currentMouseX, currentMouseY ) );
     PropsUI.setLocation( stepMeta, currentMouseX, currentMouseY );
-    stepMeta.setDraw( true );
-    redraw();
+    updateGui();
   }
 
   /**
@@ -2504,183 +2481,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       currentMouseX = x;
       currentMouseY = y;
 
-      /** TODO: Rewrite using a new set of GuiElements
 
-       final StepMeta stepMeta = transMeta.getStep( x, y, iconsize );
-       if ( stepMeta != null ) { // We clicked on a Step!
-
-       setCurrentStep( stepMeta );
-
-
-       XulMenupopup menu = menuMap.get( "trans-graph-entry" );
-
-       try {
-       ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.TransStepRightClick.id,
-       new StepMenuExtension( this, menu ) );
-       } catch ( Exception ex ) {
-       LogChannel.GENERAL.logError( "Error calling TransStepRightClick extension point", ex );
-       }
-
-       if ( menu != null ) {
-       List<StepMeta> selection = transMeta.getSelectedSteps();
-       doRightClickSelection( stepMeta, selection );
-       int sels = selection.size();
-
-       Document doc = getXulDomContainer().getDocumentRoot();
-
-       // TODO: cache the next line (seems fast enough)?
-       //
-       List<PluginInterface> rowDistributionPlugins =
-       PluginRegistry.getInstance().getPlugins( RowDistributionPluginType.class );
-
-       JfaceMenupopup customRowDistMenu =
-       (JfaceMenupopup) doc.getElementById( "trans-graph-entry-data-movement-popup" );
-       customRowDistMenu.setDisabled( false );
-       customRowDistMenu.removeChildren();
-
-       // Add the default round robin plugin...
-       //
-       Action action = new Action( "RoundRobinRowDistribution", Action.AS_CHECK_BOX ) {
-      @Override public void run() {
-      stepMeta.setRowDistribution( null ); // default
-      stepMeta.setDistributes( true );
-      }
-      };
-       boolean selected = stepMeta.isDistributes() && stepMeta.getRowDistribution() == null;
-       action.setChecked( selected );
-       JfaceMenuitem child =
-       new JfaceMenuitem( null, customRowDistMenu, xulDomContainer, "Round Robin row distribution", 0, action );
-       child.setLabel( BaseMessages.getString( PKG, "TransGraph.PopupMenu.RoundRobin" ) );
-       child.setDisabled( false );
-       child.setSelected( selected );
-
-       for ( int p = 0; p < rowDistributionPlugins.size(); p++ ) {
-       final PluginInterface rowDistributionPlugin = rowDistributionPlugins.get( p );
-       selected =
-       stepMeta.isDistributes() && stepMeta.getRowDistribution() != null
-       && stepMeta.getRowDistribution().getCode().equals( rowDistributionPlugin.getIds()[ 0 ] );
-
-       action = new Action( rowDistributionPlugin.getIds()[ 0 ], Action.AS_CHECK_BOX ) {
-      @Override public void run() {
-      try {
-      stepMeta.setRowDistribution( (RowDistributionInterface) PluginRegistry.getInstance().loadClass(
-      rowDistributionPlugin ) );
-      } catch ( Exception e ) {
-      LogChannel.GENERAL.logError( "Error loading row distribution plugin class: ", e );
-      }
-      }
-      };
-       action.setChecked( selected );
-       child =
-       new JfaceMenuitem( null, customRowDistMenu, xulDomContainer, rowDistributionPlugin.getName(), p + 1,
-       action );
-       child.setLabel( rowDistributionPlugin.getName() );
-       child.setDisabled( false );
-       child.setSelected( selected );
-       }
-
-       // Add the default copy rows plugin...
-       //
-
-       action = new Action( "CopyRowsDistribution", Action.AS_CHECK_BOX ) {
-      @Override public void run() {
-      stepMeta.setDistributes( false );
-      }
-      };
-       selected = !stepMeta.isDistributes();
-       action.setChecked( selected );
-       child = new JfaceMenuitem( null, customRowDistMenu, xulDomContainer, "Copy rows distribution", 0, action );
-       child.setLabel( BaseMessages.getString( PKG, "TransGraph.PopupMenu.CopyData" ) );
-       child.setDisabled( false );
-       child.setSelected( selected );
-       JfaceMenupopup launchMenu = (JfaceMenupopup) doc.getElementById( "trans-graph-entry-launch-popup" );
-       String[] referencedObjects = stepMeta.getStepMetaInterface().getReferencedObjectDescriptions();
-       boolean[] enabledObjects = stepMeta.getStepMetaInterface().isReferencedObjectEnabled();
-       launchMenu.setDisabled( Utils.isEmpty( referencedObjects ) );
-
-       launchMenu.removeChildren();
-       int childIndex = 0;
-
-       // First see if we need to add a special "active" entry (running transformation)
-       //
-       StepMetaInterface stepMetaInterface = stepMeta.getStepMetaInterface();
-       String activeReferencedObjectDescription = stepMetaInterface.getActiveReferencedObjectDescription();
-       if ( getActiveSubtransformation( this, stepMeta ) != null && activeReferencedObjectDescription != null ) {
-       action = new Action( activeReferencedObjectDescription, Action.AS_DROP_DOWN_MENU ) {
-      @Override public void run() {
-      openMapping( stepMeta, -1 ); // negative by convention
-      }
-      };
-       child =
-       new JfaceMenuitem( null, launchMenu, xulDomContainer, activeReferencedObjectDescription, childIndex++,
-       action );
-       child.setLabel( activeReferencedObjectDescription );
-       child.setDisabled( false );
-       }
-
-       if ( !Utils.isEmpty( referencedObjects ) ) {
-       for ( int i = 0; i < referencedObjects.length; i++ ) {
-       final int index = i;
-       String referencedObject = referencedObjects[ i ];
-       action = new Action( referencedObject, Action.AS_DROP_DOWN_MENU ) {
-      @Override public void run() {
-      openMapping( stepMeta, index );
-      }
-      };
-       child = new JfaceMenuitem( null, launchMenu, xulDomContainer, referencedObject, childIndex++, action );
-       child.setLabel( referencedObject );
-       child.setDisabled( !enabledObjects[ i ] );
-       }
-       }
-
-       initializeXulMenu( doc, selection, stepMeta );
-       ConstUI.displayMenu( menu, canvas );
-       }
-       } else {
-       final TransHopMeta hi = findHop( x, y );
-       if ( hi != null ) { // We clicked on a HOP!
-
-       XulMenupopup menu = menuMap.get( "trans-graph-hop" );
-       if ( menu != null ) {
-       setCurrentHop( hi );
-       XulMenuitem item =
-       (XulMenuitem) getXulDomContainer().getDocumentRoot().getElementById( "trans-graph-hop-enabled" );
-       if ( item != null ) {
-       if ( hi.isEnabled() ) {
-       item.setLabel( BaseMessages.getString( PKG, "TransGraph.PopupMenu.DisableHop" ) );
-       } else {
-       item.setLabel( BaseMessages.getString( PKG, "TransGraph.PopupMenu.EnableHop" ) );
-       }
-       }
-
-       ConstUI.displayMenu( menu, canvas );
-       }
-       } else {
-       // Clicked on the background: maybe we hit a note?
-       final NotePadMeta ni = transMeta.getNote( x, y );
-       setCurrentNote( ni );
-       if ( ni != null ) {
-
-       XulMenupopup menu = menuMap.get( "trans-graph-note" );
-       if ( menu != null ) {
-       ConstUI.displayMenu( menu, canvas );
-       }
-       } else {
-       XulMenupopup menu = menuMap.get( "trans-graph-background" );
-       if ( menu != null ) {
-       final String clipcontent = hopUi.fromClipboard();
-       XulMenuitem item =
-       (XulMenuitem) getXulDomContainer().getDocumentRoot().getElementById( "trans-graph-background-paste" );
-       if ( item != null ) {
-       item.setDisabled( clipcontent == null );
-       }
-       ConstUI.displayMenu( menu, canvas );
-       }
-
-       }
-       }
-       }
-       */
     } catch ( Throwable t ) {
       new ErrorDialog( hopShell(), "Error", "Error showing context menu", t );
     }
@@ -2983,7 +2784,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     if ( d != null ) {
       stepMeta.setDescription( d );
       stepMeta.setChanged();
-      hopUi.setShellText();
+      updateGui();
     }
   }
 
@@ -3073,10 +2874,10 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       e.gc.setForeground( GUIResource.getInstance().getColorCrystalText() );
       e.gc.setFont( GUIResource.getInstance().getFontMedium() );
 
-      Image emptyCanvasImage = GUIResource.getInstance().getImageTransCanvas();
-      int leftPosition = ( area.x - emptyCanvasImage.getBounds().width ) / 2;
-      int topPosition = ( area.y - emptyCanvasImage.getBounds().height ) / 2;
-      e.gc.drawImage( emptyCanvasImage, leftPosition, topPosition );
+      Image welcomeImage = GUIResource.getInstance().getImageTransCanvas();
+      int leftPosition = ( area.x - welcomeImage.getBounds().width ) / 2;
+      int topPosition = ( area.y - welcomeImage.getBounds().height ) / 2;
+      e.gc.drawImage( welcomeImage, leftPosition, topPosition );
     }
     img.dispose();
   }
@@ -3161,7 +2962,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
       NotePadMeta after = (NotePadMeta) ni.clone();
       hopUi.undoDelegate.addUndoChange( transMeta, new NotePadMeta[] { before }, new NotePadMeta[] { after }, new int[] { transMeta.indexOfNote( ni ) } );
-      redraw();
+      updateGui();
     }
   }
 
@@ -3190,7 +2991,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     tooltip = "Create a new hop between 2 steps",
     image = "ui/images/HOP.svg"
   )
-  public void newHopCandidate(HopGuiTransStepContext context) {
+  public void newHopCandidate( HopGuiTransStepContext context ) {
     startHopStep = context.getStepMeta();
     endHopStep = null;
     redraw();
@@ -3241,12 +3042,21 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     return new SnapAllignDistribute( transMeta, selection, indices, hopUi.undoDelegate, this );
   }
 
-  public void snaptogrid() {
-    snaptogrid( ConstUI.GRID_SIZE );
+  @GuiToolbarElement(
+    id = TOOLBAR_ITEM_SNAP_TO_GRID,
+    type = GuiElementType.TOOLBAR_BUTTON,
+    label = "Snap to grid",
+    toolTip = "Align the selected steps to the specified grid size",
+    image = "ui/images/toolbar/snap-to-grid.svg",
+    disabledImage = "ui/images/toolbar/snap-to-grid-disabled.svg",
+    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+  )
+  public void snapToGrid() {
+    snapToGrid( ConstUI.GRID_SIZE );
   }
 
-  private void snaptogrid( int size ) {
-    createSnapAllignDistribute().snaptogrid( size );
+  private void snapToGrid( int size ) {
+    createSnapAllignDistribute().snapToGrid( size );
   }
 
   @GuiToolbarElement(
@@ -3322,7 +3132,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/distribute-vertically.svg",
     disabledImage = "ui/images/toolbar/distribute-vertically-disabled.svg",
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
-  ) public void distributeVertical() {
+  )
+  public void distributeVertical() {
     createSnapAllignDistribute().distributevertical();
   }
 
@@ -3338,7 +3149,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       }
     }
 
-    redraw();
+    updateGui();
   }
 
   @GuiToolbarElement(
@@ -3352,8 +3163,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   @Override
   public void preview() {
     try {
-      transRunDelegate.executeTransformation( hopUi.getLog(), transMeta, true, false, false, true, false, true,
-        transRunDelegate.getTransPreviewExecutionConfiguration().getLogLevel() );
+      transRunDelegate.executeTransformation( hopUi.getLog(), transMeta, true, false, false, true, false, true, transRunDelegate.getTransPreviewExecutionConfiguration().getLogLevel() );
     } catch ( Exception e ) {
       new ErrorDialog( hopShell(), "Error", "Error previewing transformation", e );
     }
@@ -3370,8 +3180,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   @Override
   public void debug() {
     try {
-      transRunDelegate.executeTransformation( hopUi.getLog(), transMeta, true, false, false, false, true, true,
-        transRunDelegate.getTransDebugExecutionConfiguration().getLogLevel() );
+      transRunDelegate.executeTransformation( hopUi.getLog(), transMeta, true, false, false, false, true, true, transRunDelegate.getTransDebugExecutionConfiguration().getLogLevel() );
     } catch ( Exception e ) {
       new ErrorDialog( hopShell(), "Error", "Error debugging transformation", e );
     }
@@ -3402,11 +3211,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
   @Override public String getFilename() {
     return transMeta.getFilename();
-  }
-
-  public boolean applyChanges() throws HopException {
-    // return hopUi.saveToFile( transMeta ); TODO: Make file saving generic
-    return false;
   }
 
   public boolean canBeClosed() {
@@ -3452,13 +3256,13 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     return lastMove;
   }
 
-  public static boolean editProperties( TransMeta transMeta, HopGui hopUi, boolean allowDirectoryChange ) {
+  public boolean editProperties( TransMeta transMeta, HopGui hopUi, boolean allowDirectoryChange ) {
     return editProperties( transMeta, hopUi, allowDirectoryChange, null );
 
   }
 
-  public static boolean editProperties( TransMeta transMeta, HopGui hopUi, boolean allowDirectoryChange,
-                                        TransDialog.Tabs currentTab ) {
+  public boolean editProperties( TransMeta transMeta, HopGui hopUi, boolean allowDirectoryChange,
+                                 TransDialog.Tabs currentTab ) {
     if ( transMeta == null ) {
       return false;
     }
@@ -3467,7 +3271,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     tid.setDirectoryChangeAllowed( allowDirectoryChange );
     TransMeta ti = tid.open();
 
-    hopUi.setShellText();
+    updateGui();
     return ti != null;
   }
 
@@ -3527,18 +3331,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     ps.dispose();
   }
 
-  /**
-   * This is an alias for the File/Close menu item.
-   *
-   * @GuiToolbarElement( type = GuiElementType.TOOLBAR_BUTTON,
-   * id = "HopGuiTransGraph-ToolBar-10080-Close",
-   * label = "Close",
-   * toolTip = "Close this transformation",
-   * image = "ui/images/toolbar/close.svg",
-   * separator = true,
-   * parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
-   * )
-   */
   public void close() {
     hopUi.menuFileClose();
   }
@@ -3646,20 +3438,17 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     type = GuiElementType.TOOLBAR_BUTTON,
     label = "Spoon.Menu.ShowExecutionResults",
     toolTip = "Spoon.Tooltip.ShowExecutionResults",
-    i18nPackageClass = HopUi.class,
+    i18nPackageClass = HopGui.class,
     image = "ui/images/show-results.svg",
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     separator = true
-  ) public void showExecutionResults() {
+  )
+  public void showExecutionResults() {
     ToolItem item = toolBarWidgets.findToolItem( TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS );
     if ( isExecutionResultsPaneVisible() ) {
       disposeExtraView();
-      item.setImage( GUIResource.getInstance().getImageShowResults() );
-      item.setToolTipText( BaseMessages.getString( PKG, "Spoon.Tooltip.ShowExecutionResults" ) );
     } else {
       addAllTabs();
-      item.setImage( GUIResource.getInstance().getImageHideResults() );
-      item.setToolTipText( BaseMessages.getString( PKG, "Spoon.Tooltip.HideExecutionResults" ) );
     }
   }
 
@@ -3678,12 +3467,9 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     sashForm.layout();
     sashForm.setWeights( new int[] { 100, } );
 
-    // TODO: implement enable/disable toolbar icons using GuiWidgetElements
-    //
-    // XulToolbarbutton button = (XulToolbarbutton) toolBar.getElementById( "trans-show-results" );
-    // button.setTooltiptext( BaseMessages.getString( PKG, "Spoon.Tooltip.ShowExecutionResults" ) );
-    // ToolItem toolItem = (ToolItem) button.getManagedObject();
-    //toolItem.setImage( GUIResource.getInstance().getImageShowResults() );
+    ToolItem item = toolBarWidgets.findToolItem( TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS );
+    item.setToolTipText( BaseMessages.getString( PKG, "Spoon.Tooltip.ShowExecutionResults" ) );
+    item.setImage( GUIResource.getInstance().getImageShowResults() );
   }
 
   private void minMaxExtraView() {
@@ -3884,7 +3670,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
           log.logMinimal( BaseMessages.getString( PKG, "TransLog.Log.StartedExecutionOfTransformation" ) );
 
-          setControlStates();
+          updateGui();
         }
       } else {
         modalMessageDialog( getString( "TransLog.Dialog.DoNoStartTransformationTwice.Title" ),
@@ -3915,16 +3701,22 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     transMetricsDelegate.addTransMetrics();
     transPreviewDelegate.addTransPreview();
 
+    /*
     List<HopUiExtenderPluginInterface> relevantExtenders = HopUiExtenderPluginType.getInstance().getRelevantExtenders( HopGuiTransGraph.class, LOAD_TAB );
     for ( HopUiExtenderPluginInterface relevantExtender : relevantExtenders ) {
       relevantExtender.uiEvent( this, LOAD_TAB );
     }
+     */
 
     if ( tabItemSelection != null ) {
       extraViewTabFolder.setSelection( tabItemSelection );
     } else {
       extraViewTabFolder.setSelection( transGridDelegate.getTransGridTab() );
     }
+
+    ToolItem item = toolBarWidgets.findToolItem( TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS );
+    item.setImage( GUIResource.getInstance().getImageHideResults() );
+    item.setToolTipText( BaseMessages.getString( PKG, "Spoon.Tooltip.HideExecutionResults" ) );
   }
 
   public synchronized void debug( TransExecutionConfiguration executionConfiguration, TransDebugMeta transDebugMeta ) {
@@ -3969,12 +3761,15 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         trans.setMetaStore( hopUi.getMetaStore() );
         trans.prepareExecution();
 
+        /* TODO: figure out what this does.  WTF!?
         List<HopUiExtenderPluginInterface> relevantExtenders =
           HopUiExtenderPluginType.getInstance().getRelevantExtenders( TransDebugMetaWrapper.class, PREVIEW_TRANS );
         TransDebugMetaWrapper transDebugMetaWrapper = new TransDebugMetaWrapper( trans, transDebugMeta );
         for ( HopUiExtenderPluginInterface relevantExtender : relevantExtenders ) {
           relevantExtender.uiEvent( transDebugMetaWrapper, PREVIEW_TRANS );
         }
+         */
+
         // Add the row listeners to the allocated threads
         //
         transDebugMeta.addRowListenersToTransformation( trans );
@@ -4037,7 +3832,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         //
         pausing = true;
 
-        setControlStates();
+        updateGui();
         checkErrorVisuals();
 
         PreviewRowsDialog previewRowsDialog =
@@ -4105,7 +3900,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       halted = false;
       halting = false;
 
-      setControlStates();
+      updateGui();
 
       transMeta.setInternalHopVariables(); // set the original vars back as they may be changed by a mapping
     }
@@ -4121,7 +3916,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       initialized = false;
       halted = false;
 
-      setControlStates();
+      updateGui();
 
       transMeta.setInternalHopVariables(); // set the original vars back as they may be changed by a mapping
     }
@@ -4134,87 +3929,13 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       if ( !pausing ) {
         pausing = true;
         trans.pauseRunning();
-        setControlStates();
+        updateGui();
       } else {
         pausing = false;
         trans.resumeRunning();
-        setControlStates();
+        updateGui();
       }
     }
-  }
-
-  private boolean controlDisposed( XulToolbarbutton button ) {
-    if ( button.getManagedObject() instanceof Widget ) {
-      Widget widget = (Widget) button.getManagedObject();
-      return widget.isDisposed();
-    }
-    return false;
-  }
-
-  public synchronized void setControlStates() {
-    /** TODO: implement through GuiElement
-     *
-     if ( isDisposed() || getDisplay().isDisposed() ) {
-     return;
-     }
-     if ( ( (Control) toolBar.getManagedObject() ).isDisposed() ) {
-     return;
-     }
-
-     getDisplay().asyncExec( new Runnable() {
-
-    @Override public void run() {
-
-    // Start/Run button...
-    //
-    XulToolbarbutton runButton = (XulToolbarbutton) toolBar.getElementById( "trans-run" );
-    if ( runButton != null && !controlDisposed( runButton ) ) {
-    if ( runButton.isDisabled() ^ running ) {
-    runButton.setDisabled( running );
-    }
-    }
-
-    // Pause button...
-    //
-    XulToolbarbutton pauseButton = (XulToolbarbutton) toolBar.getElementById( "trans-pause" );
-    if ( pauseButton != null && !controlDisposed( pauseButton ) ) {
-    if ( pauseButton.isDisabled() ^ !running ) {
-    pauseButton.setDisabled( !running );
-    pauseButton.setLabel( pausing ? RESUME_TEXT : PAUSE_TEXT );
-    pauseButton.setTooltiptext( pausing ? BaseMessages.getString( PKG, "Spoon.Tooltip.ResumeTranformation" )
-    : BaseMessages.getString( PKG, "Spoon.Tooltip.PauseTranformation" ) );
-    }
-    }
-
-    // Stop button...
-    //
-    if ( !stopItem.isDisposed() && !stopItem.isEnabled() ^ !running ) {
-    stopItem.setEnabled( running );
-    }
-
-    // Debug button...
-    //
-    XulToolbarbutton debugButton = (XulToolbarbutton) toolBar.getElementById( "trans-debug" );
-
-    if ( debugButton != null && !controlDisposed( debugButton ) ) {
-    if ( debugButton.isDisabled() ^ running ) {
-    debugButton.setDisabled( running );
-    }
-    }
-
-    // Preview button...
-    //
-    XulToolbarbutton previewButton = (XulToolbarbutton) toolBar.getElementById( "trans-preview" );
-    if ( previewButton != null && !controlDisposed( previewButton ) ) {
-    if ( previewButton.isDisabled() ^ running ) {
-    previewButton.setDisabled( running );
-    }
-    }
-    }
-
-    } );
-
-     */
   }
 
   private synchronized void prepareTrans( final Thread parentThread ) {
@@ -4277,7 +3998,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       trans.startThreads();
       startRedrawTimer();
 
-      setControlStates();
+      updateGui();
     } catch ( HopException e ) {
       log.logError( "Error starting step threads", e );
       checkErrorVisuals();
@@ -4342,7 +4063,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         halting = false;
         safeStopping = false;
 
-        setControlStates();
+        updateGui();
 
         // OK, also see if we had a debugging session going on.
         // If so and we didn't hit a breakpoint yet, display the show
@@ -4360,7 +4081,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           @Override
           public void run() {
             // hopUi.fireMenuControlers();
-            redraw();
+            updateGui();
           }
         } );
       }
@@ -4452,7 +4173,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       if ( !transGraph.isExecutionResultsPaneVisible() ) {
         transGraph.showExecutionResults();
       }
-      transGraph.setControlStates();
+      transGraph.updateGui();
     }
   }
 
@@ -4475,14 +4196,14 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
    * @param jobGraph
    * @param stepMeta
    */
-  private void attachActiveJob( JobGraph jobGraph, StepMeta stepMeta ) {
+  private void attachActiveJob( HopGuiJobGraph jobGraph, StepMeta stepMeta ) {
     if ( trans != null && jobGraph != null ) {
       Job subJob = trans.getActiveSubjobs().get( stepMeta.getName() );
       jobGraph.setJob( subJob );
       if ( !jobGraph.isExecutionResultsPaneVisible() ) {
         jobGraph.showExecutionResults();
       }
-      jobGraph.setControlStates();
+      jobGraph.updateGui();
     }
   }
 
@@ -4652,11 +4373,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     }
   }
 
-  @Override
-  public int showChangedWarning() throws HopException {
-    return showChangedWarning( transMeta.getName() );
-  }
-
   @Override public LogChannelInterface getLogChannel() {
     return log;
   }
@@ -4682,7 +4398,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
         FileName fileName = fileObject.getName();
         tabName = fileName.getBaseName();
       } catch ( Exception e ) {
-        throw new HopException( "Unable to get information from file '" + transMeta.getFilename() + "'", e );
+        throw new HopException( "Unable to get information from file name '" + transMeta.getFilename() + "'", e );
       }
     }
     return tabName;
@@ -4745,7 +4461,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
       return;
     }
     newStep.setLocation( p.x, p.y );
-    newStep.setDraw( true );
 
     if ( lastChained != null ) {
       TransHopMeta hop = new TransHopMeta( lastChained, newStep );
@@ -4753,7 +4468,6 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     }
 
     lastChained = newStep;
-    redraw();
 
     if ( shift ) {
       editStep( newStep );
@@ -4762,6 +4476,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     transMeta.unselectAll();
     newStep.setSelected( true );
 
+    updateGui();
   }
 
   public HopGui getHopUi() {
@@ -4877,32 +4592,39 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
    */
   @Override public void updateGui() {
 
-    setZoomLabel();
+    if ( hopUi == null || toolBarWidgets == null || toolBar == null || toolBar.isDisposed() ) {
+      return;
+    }
 
-    // Enable/disable the undo/redo toolbar buttons...
-    //
-    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_UNDO_ID, transMeta.viewThisUndo() != null );
-    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_REDO_ID, transMeta.viewNextUndo() != null );
+    hopDisplay().asyncExec( new Runnable() {
+      @Override public void run() {
+        setZoomLabel();
 
-    // Enable/disable the align/distribute toolbar buttons
-    //
-    boolean selectedSteps = !transMeta.getSelectedSteps().isEmpty();
-    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_LEFT, selectedSteps );
-    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_RIGHT, selectedSteps );
-    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_TOP, selectedSteps );
-    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_BOTTOM, selectedSteps );
-    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY, selectedSteps );
-    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY, selectedSteps );
+        // Enable/disable the undo/redo toolbar buttons...
+        //
+        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_UNDO_ID, transMeta.viewThisUndo() != null );
+        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_REDO_ID, transMeta.viewNextUndo() != null );
 
-    hopUi.setUndoMenu( transMeta );
-    hopUi.handleFileCapabilities( fileType );
-    super.redraw();
-    canvas.setFocus();
-  }
+        // Enable/disable the align/distribute toolbar buttons
+        //
+        boolean selectedStep = !transMeta.getSelectedSteps().isEmpty();
+        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_SNAP_TO_GRID, selectedStep );
 
-  @Override
-  public void redraw() {
-    updateGui();
+        boolean selectedSteps = transMeta.getSelectedSteps().size() > 1;
+        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_LEFT, selectedSteps );
+        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_RIGHT, selectedSteps );
+        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_TOP, selectedSteps );
+        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_BOTTOM, selectedSteps );
+        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY, selectedSteps );
+        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY, selectedSteps );
+
+        hopUi.setUndoMenu( transMeta );
+        hopUi.handleFileCapabilities( fileType );
+
+        HopGuiTransGraph.super.redraw();
+      }
+    } );
+
   }
 
   public boolean forceFocus() {
@@ -4942,18 +4664,17 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
   @GuiKeyboardShortcut( key = SWT.DEL )
   @Override public void deleteSelected() {
-    delSelected(null);
+    delSelected( null );
     updateGui();
   }
 
   @GuiKeyboardShortcut( control = true, key = 'v' )
   @GuiOSXKeyboardShortcut( command = true, key = 'v' )
-
   @Override public void pasteFromClipboard() {
-    pasteFromClipboard(  new Point( currentMouseX, currentMouseY ) );
+    pasteFromClipboard( new Point( currentMouseX, currentMouseY ) );
   }
 
-  public void pasteFromClipboard(Point location) {
+  public void pasteFromClipboard( Point location ) {
     final String clipboard = transClipboardDelegate.fromClipboard();
     transClipboardDelegate.pasteXML( transMeta, clipboard, location );
   }
@@ -4966,8 +4687,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     tooltip = "Paste steps, notes or a whole transformation from the clipboard",
     image = "ui/images/CPY.svg"
   )
-  public void pasteFromClipboard(HopGuiTransContext context) {
-    pasteFromClipboard(context.getClick());
+  public void pasteFromClipboard( HopGuiTransContext context ) {
+    pasteFromClipboard( context.getClick() );
   }
 
   @Override public List<IGuiContextHandler> getContextHandlers() {

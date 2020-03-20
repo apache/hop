@@ -90,13 +90,13 @@ public class LogMessageTest {
   }
 
   @Test
-  public void testToString() throws Exception {  
-	turnOnLogMarkMapping();
-	  
-	simpleLogChannelId = LoggingRegistry.getInstance().registerLoggingSource( getLoggingObjectWithOneParent() );
+  public void testToString() throws Exception {
+    turnOnLogMarkMapping();
+
+    simpleLogChannelId = LoggingRegistry.getInstance().registerLoggingSource( getLoggingObjectWithOneParent() );
 
     LogMessage msg = new LogMessage( "Log message",
-    		simpleLogChannelId,
+      simpleLogChannelId,
       LogLevel.DEBUG );
 
     assertEquals( "TRANS_SUBJECT - Log message", msg.toString() );
@@ -104,9 +104,9 @@ public class LogMessageTest {
 
   @Test
   public void testToString_withOneArgument() throws Exception {
-	turnOnLogMarkMapping();
-		  
-	simpleLogChannelId = LoggingRegistry.getInstance().registerLoggingSource( getLoggingObjectWithOneParent() );
+    turnOnLogMarkMapping();
+
+    simpleLogChannelId = LoggingRegistry.getInstance().registerLoggingSource( getLoggingObjectWithOneParent() );
 
     LogMessage msg = new LogMessage( "Log message for {0}",
       simpleLogChannelId,

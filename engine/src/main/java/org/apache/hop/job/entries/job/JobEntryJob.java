@@ -34,6 +34,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.listeners.CurrentDirectoryChangedListener;
 import org.apache.hop.core.listeners.impl.EntryCurrentDirectoryChangedListener;
 import org.apache.hop.core.logging.LogChannelFileWriter;
@@ -405,7 +406,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
       // Verify that we loaded something, complain if we did not...
       //
       if ( jobMeta == null ) {
-        throw new HopException("Unable to load the job: please specify a filename" );
+        throw new HopException( "Unable to load the job: please specify a filename" );
       }
 
       verifyRecursiveExecution( parentJob, jobMeta );
@@ -1207,7 +1208,7 @@ public class JobEntryJob extends JobEntryBase implements Cloneable, JobEntryInte
    * @throws HopException
    */
   @Override
-  public Object loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space ) throws HopException {
+  public IHasFilename loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space ) throws HopException {
     return getJobMeta( metaStore, space );
   }
 

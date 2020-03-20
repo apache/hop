@@ -42,7 +42,7 @@ public class GuiCompositeWidgets {
     this.space = space;
     labelsMap = new HashMap<>();
     widgetsMap = new HashMap<>();
-    toolItemMap = new HashMap<>(  );
+    toolItemMap = new HashMap<>();
   }
 
   public void createCompositeWidgets( Object sourceData, String parentKey, Composite parent, String parentGuiElementId, Control lastControl ) {
@@ -138,17 +138,17 @@ public class GuiCompositeWidgets {
           break;
         case TOOLBAR_BUTTON:
           ToolItem item = new ToolItem( (ToolBar) parent, SWT.NONE );
-          if (StringUtils.isNotEmpty( guiElements.getImage() )) {
+          if ( StringUtils.isNotEmpty( guiElements.getImage() ) ) {
             item.setImage( GUIResource.getInstance().getImage( guiElements.getImage(), ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE ) );
           }
-          if (StringUtils.isNotEmpty( guiElements.getDisabledImage() )) {
+          if ( StringUtils.isNotEmpty( guiElements.getDisabledImage() ) ) {
             item.setDisabledImage( GUIResource.getInstance().getImage( guiElements.getDisabledImage(), ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE ) );
           }
           if ( StringUtils.isNotEmpty( guiElements.getToolTip() ) ) {
             item.setToolTipText( guiElements.getToolTip() );
           }
           addListener( item, sourceObject, guiElements );
-          toolItemMap.put(guiElements.getId(), item);
+          toolItemMap.put( guiElements.getId(), item );
           break;
         case MENU_ITEM:
           break;
@@ -411,10 +411,12 @@ public class GuiCompositeWidgets {
 
   public void enableToolbarItem( String id, boolean enabled ) {
     ToolItem toolItem = toolItemMap.get( id );
-    if (toolItem==null) {
+    if ( toolItem == null ) {
       return;
     }
-    toolItem.setEnabled( enabled );
+    if ( enabled != toolItem.isEnabled() ) {
+      toolItem.setEnabled( enabled );
+    }
   }
 
   public ToolItem findToolItem( String id ) {
@@ -422,10 +424,10 @@ public class GuiCompositeWidgets {
   }
 
   /**
-     * Gets space
-     *
-     * @return value of space
-     */
+   * Gets space
+   *
+   * @return value of space
+   */
   public VariableSpace getSpace() {
     return space;
   }

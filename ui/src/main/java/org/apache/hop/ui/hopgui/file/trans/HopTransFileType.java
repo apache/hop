@@ -1,6 +1,7 @@
 package org.apache.hop.ui.hopgui.file.trans;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.plugin.GuiAction;
 import org.apache.hop.core.gui.plugin.GuiActionType;
 import org.apache.hop.core.variables.VariableSpace;
@@ -123,6 +124,10 @@ public class HopTransFileType<T extends TransMeta> extends HopFileTypeBase<T> im
     }
   }
 
+  @Override public boolean supportsFile( IHasFilename metaObject ) {
+    return metaObject instanceof TransMeta;
+  }
+
   public static final String ACTION_ID_NEW_TRANSFORMATION = "NewTransformation";
 
   @Override public List<IGuiContextHandler> getContextHandlers() {
@@ -132,17 +137,17 @@ public class HopTransFileType<T extends TransMeta> extends HopFileTypeBase<T> im
     List<IGuiContextHandler> handlers = new ArrayList<>();
     handlers.add( new IGuiContextHandler() {
       @Override public List<GuiAction> getSupportedActions() {
-        List<GuiAction> actions = new ArrayList<>(  );
+        List<GuiAction> actions = new ArrayList<>();
 
         GuiAction newAction = new GuiAction( ACTION_ID_NEW_TRANSFORMATION, GuiActionType.Create, "New transformation", "Create a new transformation", "ui/images/TRN.svg",
-          (parameters) -> {
+          ( parameters ) -> {
             try {
               HopTransFileType.this.newFile( hopGui, hopGui.getVariableSpace() );
             } catch ( Exception e ) {
               new ErrorDialog( hopGui.getShell(), "Error", "Error creating new transformation", e );
             }
           } );
-        actions.add(newAction);
+        actions.add( newAction );
 
         return actions;
       }

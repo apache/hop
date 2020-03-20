@@ -60,6 +60,7 @@ public enum HopExtensionPoint {
   HopUiTransExecutionConfiguration( "HopUiTransExecutionConfiguration",
     "Right before Hop UI configuration of transformation to be executed takes place" ),
   HopUiTransBeforeStart( "HopUiTransBeforeStart", "Right before the transformation is started" ),
+  HopUiJobBeforeStart( "HopUiJobBeforeStart", "Right before the job is started" ),
   RunConfigurationSelection( "RunConfigurationSelection", "Check when run configuration is selected" ),
   RunConfigurationIsRemote( "RunConfigurationIsRemote", "Check when run configuration is pointing to a remote server" ),
   HopUiRunConfiguration( "HopUiRunConfiguration", "Send the run configuration" ),
@@ -120,8 +121,9 @@ public enum HopExtensionPoint {
 
   TransformationCreateNew( "TransformationCreateNew", "Create a New Empty Transformation in the Hop UI" ),
 
-  HopGuiFileOpenDialog( "HopGuiFileOpenDialog", "Allows you to modify the file dialog before it's shown. If you want to show your own, set doIt to false ("),
-  HopGuiNewTransformationTab( "HopGuiTransformationTab", "Determine the tab name of a transformation (HopGuiTransGraph)" ),
+  HopGuiFileOpenDialog( "HopGuiFileOpenDialog", "Allows you to modify the file dialog before it's shown. If you want to show your own, set doIt to false (" ),
+  HopGuiNewTransformationTab( "HopGuiNewTransformationTab", "Determine the tab name of a transformation (HopGuiTransGraph)" ),
+  HopGuiNewJobTab( "HopGuiNewJobTab", "Determine the tab name of a job (HopGuiJobGraph)" ),
   ;
 
   public String id;

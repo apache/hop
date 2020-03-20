@@ -56,7 +56,7 @@ import java.util.Map;
 
 public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterface, ChangedFlagInterface,
   AttributesInterface, BaseMeta {
-  private static final String XML_TAG = "entry";
+  public static final String XML_TAG = "entry";
 
   private static final String XML_ATTRIBUTE_JOB_ENTRY_COPY = AttributesUtil.XML_TAG + "_kjc";
 
@@ -167,7 +167,7 @@ public class JobEntryCopy implements Cloneable, XMLInterface, GUIPositionInterfa
     attributesMap = new HashMap<>();
   }
 
-  public Object clone() {
+  public JobEntryCopy clone() {
     JobEntryCopy ge = new JobEntryCopy();
     ge.replaceMeta( this );
 

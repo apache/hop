@@ -22,9 +22,6 @@
 
 package org.apache.hop.core.plugins;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.i18n.BaseMessages;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -115,9 +112,9 @@ public class HopURLClassLoader extends URLClassLoader {
 
     try {
       return loadClassFromParent( name, resolve );
-    } catch(Exception e) {
-      if (thisLoaderException!=null) {
-        throw new ClassNotFoundException( "Unable to load class '"+name+"' in this classloader or in the parent", thisLoaderException );
+    } catch ( Exception e ) {
+      if ( thisLoaderException != null ) {
+        throw new ClassNotFoundException( "Unable to load class '" + name + "' in this classloader or in the parent", thisLoaderException );
       } else {
         throw e;
       }

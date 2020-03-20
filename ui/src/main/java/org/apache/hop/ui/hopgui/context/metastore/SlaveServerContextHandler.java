@@ -13,7 +13,7 @@ public class SlaveServerContextHandler implements IGuiContextHandler {
 
   private final HopGui hopGui;
 
-  public SlaveServerContextHandler( HopGui hopGui) {
+  public SlaveServerContextHandler( HopGui hopGui ) {
     this.hopGui = hopGui;
   }
 
@@ -22,17 +22,17 @@ public class SlaveServerContextHandler implements IGuiContextHandler {
     GuiAction newAction = new GuiAction( "create-slave-server", GuiActionType.Create, "Create Slave Server", "Create a new slave server", "ui/images/slave.svg",
       (IGuiActionLambda<Object>) params -> hopGui.slaveServerManager.newMetadata()
     );
-    actions.add(newAction);
+    actions.add( newAction );
 
     GuiAction editAction = new GuiAction( "edit-slave-server", GuiActionType.Modify, "Edit Slave Server", "Edit a slave server", "ui/images/slave.svg",
       (IGuiActionLambda<String>) names -> {
-        if (names.length<1) {
+        if ( names.length < 1 ) {
           throw new RuntimeException( "You need to give the name of the slave server to edit" );
         }
-        hopGui.slaveServerManager.editMetadata(names[0]);
+        hopGui.slaveServerManager.editMetadata( names[ 0 ] );
       }
     );
-    actions.add(editAction);
+    actions.add( editAction );
     return actions;
   }
 }

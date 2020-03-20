@@ -1,5 +1,5 @@
 <class_source>
-    <![CDATA[ import java.util.*;
+  <![CDATA[ import java.util.*;
 
 private int yearIndex;
 private Calendar calendar;

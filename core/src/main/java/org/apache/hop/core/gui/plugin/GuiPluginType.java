@@ -26,7 +26,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
-import org.apache.hop.core.plugins.PluginMainClassType;
 import org.apache.hop.core.plugins.PluginTypeInterface;
 
 import java.lang.annotation.Annotation;
@@ -37,7 +36,6 @@ import java.util.Map;
  *
  * @author matt
  */
-@PluginMainClassType( GuiInterface.class )
 @PluginAnnotationType( GuiPlugin.class )
 public class GuiPluginType extends BasePluginType implements PluginTypeInterface {
   private static GuiPluginType pluginType;

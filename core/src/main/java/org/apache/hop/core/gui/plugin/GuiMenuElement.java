@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  */
 @Documented
 @Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.FIELD, ElementType.METHOD} )
+@Target( { ElementType.FIELD, ElementType.METHOD } )
 public @interface GuiMenuElement {
 
   /**
@@ -108,6 +108,7 @@ public @interface GuiMenuElement {
 
   /**
    * Set to true if you want the menu-item of toolbar icon to be preceded by a separator or space.
+   *
    * @return True if you want a separator before this element
    */
   boolean separator() default false;

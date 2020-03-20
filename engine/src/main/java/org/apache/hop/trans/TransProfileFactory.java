@@ -78,7 +78,6 @@ public class TransProfileFactory {
     readMeta.setDatabaseMeta( databaseMeta );
     StepMeta read = new StepMeta( registry.getPluginId( StepPluginType.class, readMeta ), "Read data", readMeta );
     read.setLocation( 50, 50 );
-    read.setDraw( true );
     transMeta.addStep( read );
 
     // Grab the data types too
@@ -186,7 +185,6 @@ public class TransProfileFactory {
     }
     StepMeta calc = new StepMeta( registry.getPluginId( StepPluginType.class, statsMeta ), "Calc", statsMeta );
     calc.setLocation( 250, 50 );
-    calc.setDraw( true );
     transMeta.addStep( calc );
 
     TransHopMeta hop = new TransHopMeta( read, calc );
@@ -196,7 +194,6 @@ public class TransProfileFactory {
     StepMeta result =
       new StepMeta( registry.getPluginId( StepPluginType.class, dummyMeta ), RESULT_STEP_NAME, dummyMeta );
     result.setLocation( 450, 50 );
-    result.setDraw( true );
     transMeta.addStep( result );
 
     TransHopMeta hop2 = new TransHopMeta( calc, result );

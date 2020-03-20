@@ -95,10 +95,10 @@ import org.apache.hop.resource.TopLevelResource;
 import org.apache.hop.trans.cluster.TransSplitter;
 import org.apache.hop.trans.engine.EngineMetric;
 import org.apache.hop.trans.engine.EngineMetrics;
+import org.apache.hop.trans.engine.IEngine;
 import org.apache.hop.trans.engine.IEngineComponent;
 import org.apache.hop.trans.engine.IEngineMetric;
 import org.apache.hop.trans.performance.StepPerformanceSnapShot;
-import org.apache.hop.trans.engine.IEngine;
 import org.apache.hop.trans.step.BaseStep;
 import org.apache.hop.trans.step.BaseStepData.StepExecutionStatus;
 import org.apache.hop.trans.step.RunThread;
@@ -683,9 +683,9 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
    * Instantiates a new transformation using any of the provided parameters including the variable bindings, a name
    * and a filename. This contstructor loads the specified transformation from a file.
    *
-   * @param parent   the parent variable space and named params
-   * @param name     the name of the transformation
-   * @param filename the filename containing the transformation definition
+   * @param parent    the parent variable space and named params
+   * @param name      the name of the transformation
+   * @param filename  the filename containing the transformation definition
    * @param metaStore The MetaStore to use when referencing metadata objects
    * @throws HopException if any error occurs during loading, parsing, or creation of the transformation
    */
@@ -4468,94 +4468,6 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
   }
 
   /**
-   * Monitors a remote transformation every 5 seconds.
-   *
-   * @param log               the log channel interface
-   * @param carteObjectId     the HopServer object ID
-   * @param transName         the transformation name
-   * @param remoteSlaveServer the remote slave server
-   */
-  public static void monitorRemoteTransformation( LogChannelInterface log, String carteObjectId, String transName,
-                                                  SlaveServer remoteSlaveServer ) {
-    monitorRemoteTransformation( log, carteObjectId, transName, remoteSlaveServer, 5 );
-  }
-
-  /**
-   * Monitors a remote transformation at the specified interval.
-   *
-   * @param log               the log channel interface
-   * @param carteObjectId     the HopServer object ID
-   * @param transName         the transformation name
-   * @param remoteSlaveServer the remote slave server
-   * @param sleepTimeSeconds  the sleep time (in seconds)
-   */
-  public static void monitorRemoteTransformation( LogChannelInterface log, String carteObjectId, String transName,
-                                                  SlaveServer remoteSlaveServer, int sleepTimeSeconds ) {
-    long errors = 0;
-    boolean allFinished = false;
-    while ( !allFinished && errors == 0 ) {
-      allFinished = true;
-      errors = 0L;
-
-      // Check the remote server
-      if ( allFinished && errors == 0 ) {
-        try {
-          SlaveServerTransStatus transStatus = remoteSlaveServer.getTransStatus( transName, carteObjectId, 0 );
-          if ( transStatus.isRunning() ) {
-            if ( log.isDetailed() ) {
-              log.logDetailed( transName, "Remote transformation is still running." );
-            }
-            allFinished = false;
-          } else {
-            if ( log.isDetailed() ) {
-              log.logDetailed( transName, "Remote transformation has finished." );
-            }
-          }
-          Result result = transStatus.getResult();
-          errors += result.getNrErrors();
-        } catch ( Exception e ) {
-          errors += 1;
-          log.logError( transName, "Unable to contact remote slave server '" + remoteSlaveServer.getName()
-            + "' to check transformation status : " + e.toString() );
-        }
-      }
-
-      //
-      // Keep waiting until all transformations have finished
-      // If needed, we stop them again and again until they yield.
-      //
-      if ( !allFinished ) {
-        // Not finished or error: wait a bit longer
-        if ( log.isDetailed() ) {
-          log.logDetailed( transName, "The remote transformation is still running, waiting a few seconds..." );
-        }
-        try {
-          Thread.sleep( sleepTimeSeconds * 1000 );
-        } catch ( Exception e ) {
-          // Ignore errors
-        } // Check all slaves every x seconds.
-      }
-    }
-
-    log.logMinimal( transName, "The remote transformation has finished." );
-
-    // Clean up the remote transformation
-    //
-    try {
-      WebResult webResult = remoteSlaveServer.cleanupTransformation( transName, carteObjectId );
-      if ( !WebResult.STRING_OK.equals( webResult.getResult() ) ) {
-        log.logError( transName, "Unable to run clean-up on remote transformation '" + transName + "' : " + webResult
-          .getMessage() );
-        errors += 1;
-      }
-    } catch ( Exception e ) {
-      errors += 1;
-      log.logError( transName, "Unable to contact slave server '" + remoteSlaveServer.getName()
-        + "' to clean up transformation : " + e.toString() );
-    }
-  }
-
-  /**
    * Adds a parameter definition to this transformation.
    *
    * @param key         the name of the parameter
@@ -5315,22 +5227,22 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
   }
 
   // TODO: i18n
-  public static final IEngineMetric METRIC_INPUT = new EngineMetric(METRIC_NAME_INPUT, "Input", "The number of rows read from physical I/O", "010", true);
-  public static final IEngineMetric METRIC_OUTPUT = new EngineMetric(METRIC_NAME_OUTPUT, "Output", "The number of rows written to physical I/O", "020", true);
-  public static final IEngineMetric METRIC_READ = new EngineMetric(METRIC_NAME_READ, "Read", "The number of rows read from other steps", "030", true);
-  public static final IEngineMetric METRIC_WRITTEN = new EngineMetric(METRIC_NAME_WRITTEN, "Written", "The number of rows written to other steps", "040", true);
-  public static final IEngineMetric METRIC_REJECTED = new EngineMetric(METRIC_NAME_REJECTED, "Rejected", "The number of rows rejected by a step", "050", true);
-  public static final IEngineMetric METRIC_ERROR = new EngineMetric(METRIC_NAME_ERROR, "Errors", "The number of errors", "060", true);
-  public static final IEngineMetric METRIC_BUFFER_IN = new EngineMetric(METRIC_NAME_BUFFER_IN, "Buffers Input", "The number of rows in the steps input buffers", "070", true);
-  public static final IEngineMetric METRIC_BUFFER_OUT = new EngineMetric(METRIC_NAME_BUFFER_OUT, "Buffers Output", "The number of rows in the steps output buffers", "080", true);
+  public static final IEngineMetric METRIC_INPUT = new EngineMetric( METRIC_NAME_INPUT, "Input", "The number of rows read from physical I/O", "010", true );
+  public static final IEngineMetric METRIC_OUTPUT = new EngineMetric( METRIC_NAME_OUTPUT, "Output", "The number of rows written to physical I/O", "020", true );
+  public static final IEngineMetric METRIC_READ = new EngineMetric( METRIC_NAME_READ, "Read", "The number of rows read from other steps", "030", true );
+  public static final IEngineMetric METRIC_WRITTEN = new EngineMetric( METRIC_NAME_WRITTEN, "Written", "The number of rows written to other steps", "040", true );
+  public static final IEngineMetric METRIC_REJECTED = new EngineMetric( METRIC_NAME_REJECTED, "Rejected", "The number of rows rejected by a step", "050", true );
+  public static final IEngineMetric METRIC_ERROR = new EngineMetric( METRIC_NAME_ERROR, "Errors", "The number of errors", "060", true );
+  public static final IEngineMetric METRIC_BUFFER_IN = new EngineMetric( METRIC_NAME_BUFFER_IN, "Buffers Input", "The number of rows in the steps input buffers", "070", true );
+  public static final IEngineMetric METRIC_BUFFER_OUT = new EngineMetric( METRIC_NAME_BUFFER_OUT, "Buffers Output", "The number of rows in the steps output buffers", "080", true );
 
   public EngineMetrics getEngineMetrics() {
     EngineMetrics metrics = new EngineMetrics();
     metrics.setStartDate( getStartDate() );
     metrics.setEndDate( getEndDate() );
-    if (steps!=null) {
+    if ( steps != null ) {
       for ( StepMetaDataCombi combi : steps ) {
-        metrics.addComponent(combi.step);
+        metrics.addComponent( combi.step );
 
         metrics.setComponentMetric( combi.step, METRIC_INPUT, combi.step.getLinesInput() );
         metrics.setComponentMetric( combi.step, METRIC_OUTPUT, combi.step.getLinesOutput() );
@@ -5353,7 +5265,7 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
         StepStatus stepStatus = new StepStatus( combi.step );
         metrics.setComponentSpeed( combi.step, stepStatus.getSpeed() );
         metrics.setComponentStatus( combi.step, combi.step.getStatus().getDescription() );
-        metrics.setComponentRunning( combi.step, combi.step.isRunning());
+        metrics.setComponentRunning( combi.step, combi.step.isRunning() );
       }
     }
     return metrics;
@@ -5362,11 +5274,11 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
   @Override
   public String getComponentLogText( String componentName, int copyNr ) {
     StepInterface step = findStepInterface( componentName, copyNr );
-    if (step==null) {
+    if ( step == null ) {
       return null;
     }
     StringBuffer logBuffer = HopLogStore.getAppender().getBuffer( step.getLogChannel().getLogChannelId(), false );
-    if (logBuffer==null) {
+    if ( logBuffer == null ) {
       return null;
     }
     return logBuffer.toString();
@@ -5374,8 +5286,8 @@ public class Trans implements VariableSpace, NamedParams, HasLogChannelInterface
 
   @Override public List<IEngineComponent> getComponents() {
     List<IEngineComponent> list = new ArrayList<>();
-    for (StepMetaDataCombi step : steps) {
-      list.add(step.step);
+    for ( StepMetaDataCombi step : steps ) {
+      list.add( step.step );
     }
     return list;
   }

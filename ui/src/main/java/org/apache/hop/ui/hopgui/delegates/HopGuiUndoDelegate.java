@@ -1,16 +1,11 @@
 package org.apache.hop.ui.hopgui.delegates;
 
 import org.apache.hop.core.AddUndoPositionInterface;
-import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.UndoInterface;
-import org.apache.hop.core.undo.TransAction;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.trans.TransHopMeta;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.StepMeta;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
 
 public class HopGuiUndoDelegate implements AddUndoPositionInterface {
   private HopGui hopUi;

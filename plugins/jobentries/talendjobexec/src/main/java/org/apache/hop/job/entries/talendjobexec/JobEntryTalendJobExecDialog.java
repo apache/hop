@@ -30,12 +30,10 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.talendjobexec.JobEntryTalendJobExec;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
@@ -53,12 +51,12 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.pentaho.vfs.ui.VfsFileChooserDialog;
 
 /**
  * This dialog allows you to edit the SQL job entry settings. (select the connection and the sql script to be executed)
@@ -67,11 +65,11 @@ import org.pentaho.vfs.ui.VfsFileChooserDialog;
  * @since 19-06-2003
  */
 
-@PluginDialog( 
-		  id = "TALEND_JOB_EXEC", 
-		  image = "TalendJobExec.svg", 
-		  pluginType = PluginDialog.PluginType.JOBENTRY,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+@PluginDialog(
+  id = "TALEND_JOB_EXEC",
+  image = "TalendJobExec.svg",
+  pluginType = PluginDialog.PluginType.JOBENTRY,
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
 public class JobEntryTalendJobExecDialog extends JobEntryDialog implements JobEntryDialogInterface {
   private static Class<?> PKG = JobEntryTalendJobExec.class; // for i18n purposes, needed by Translator2!!
@@ -217,12 +215,14 @@ public class JobEntryTalendJobExecDialog extends JobEntryDialog implements JobEn
             fileName = HopVFS.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
           }
 
-          VfsFileChooserDialog vfsFileChooser =
-            HopUi.getInstance().getVfsFileChooserDialog( fileName.getParent(), fileName );
-
-          FileObject selected =
-            vfsFileChooser.open( shell, null, EXTENSIONS, FILETYPES, VfsFileChooserDialog.VFS_DIALOG_OPEN_FILE );
-          wFilename.setText( selected != null ? selected.getURL().toString() : Const.EMPTY_STRING );
+          FileDialog fileDialog = new FileDialog( shell, SWT.OPEN | SWT.OK | SWT.CANCEL );
+          fileDialog.setText( "Select file" );
+          fileDialog.setFilterNames( FILETYPES );
+          fileDialog.setFilterExtensions( EXTENSIONS );
+          String filename = fileDialog.open();
+          if ( filename != null ) {
+            wFilename.setText( filename );
+          }
         } catch ( FileSystemException ex ) {
           ex.printStackTrace();
         }

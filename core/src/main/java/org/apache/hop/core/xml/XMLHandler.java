@@ -88,7 +88,7 @@ public class XMLHandler {
 
   private XMLHandler() {
   }
-  
+
   /**
    * The header string to specify encoding in UTF-8 for XML files
    *

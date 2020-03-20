@@ -27,7 +27,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.performance.StepPerformanceSnapShot;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.util.ImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
@@ -70,7 +70,7 @@ import java.util.TimerTask;
 
 public class StepPerformanceSnapShotDialog extends Dialog {
 
-  private static Class<?> PKG = HopUi.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator2!!
 
   private static final int DATA_CHOICE_WRITTEN = 0;
   private static final int DATA_CHOICE_READ = 1;

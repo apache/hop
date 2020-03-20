@@ -20,10 +20,12 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -54,9 +56,9 @@ import java.net.URL;
 
 public class ShowHelpDialog extends Dialog {
 
-  private static Class<?> PKG = HopUi.class;
+  private static Class<?> PKG = HopGui.class;
 
-  private static final String DOC_URL = HopUi.DOCUMENTATION_URL;
+  private static final String DOC_URL = Const.getDocUrl( BasePropertyHandler.getProperty( "documentationUrl" ) );
   private static final String PREFIX = "https://help";
   private static final String PRINT_PREFIX = "https://f1.help";
   private static final String PRINT_SCRIPT = "javascript:window.print();";

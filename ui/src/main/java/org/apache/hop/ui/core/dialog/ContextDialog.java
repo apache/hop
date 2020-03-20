@@ -37,7 +37,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ScrollBar;
@@ -71,6 +70,10 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
   private int iconSize;
   private int maxNameWidth;
   private int maxNameHeight;
+
+  private int cellWidth;
+  private int cellHeight;
+  private int margin;
 
   public ContextDialog( Shell parent, String message, Point location, List<GuiAction> actions ) {
     this.parent = parent;
@@ -136,6 +139,12 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     gc.dispose();
     img.dispose();
 
+    // Calculate the cell width height
+    //
+    margin = props.getMargin();
+    cellWidth = maxNameWidth + margin;
+    cellHeight = iconSize + margin + maxNameHeight + margin;
+
     // Add a search bar at the top...
     //
     Label wlSearch = new Label( shell, SWT.LEFT );
@@ -194,12 +203,14 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
 
     // Show the dialog now
     //
+    shell.layout();
     shell.open();
 
     // Add all the listeners
     //
     shell.addFocusListener( this );
     shell.addShellListener( this );
+    shell.addListener( SWT.Resize, ( e ) -> changeVerticalBar() );
     wSearch.addModifyListener( this );
     wSearch.addFocusListener( this );
     wSearch.addSelectionListener( new SelectionAdapter() {
@@ -217,6 +228,7 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
         wCanvas.redraw();
       }
     } );
+    changeVerticalBar();
 
     wSearch.setFocus();
     wCanvas.redraw();
@@ -230,6 +242,15 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     }
 
     return selectedAction;
+  }
+
+  private void changeVerticalBar() {
+    ScrollBar verticalBar = wCanvas.getVerticalBar();
+    verticalBar.setMinimum( 0 );
+    verticalBar.setIncrement( 1 );
+    int pageRows = wCanvas.getBounds().height / cellHeight;
+    verticalBar.setPageIncrement( pageRows );
+    verticalBar.setMaximum( calculateNrRows() + pageRows );
   }
 
   private void cancel() {
@@ -267,31 +288,30 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
 
     // Draw all actions
     //
-    int margin = props.getMargin();
-
     int x = 0;
     int y = 0;
 
-    ScrollBar verticalBar = wCanvas.getVerticalBar();
-    int pctDown = verticalBar.getSelection(); // in percentage
-
     // How many rows and columns do we have?
-    //
-    int cellWidth = maxNameWidth + margin;
-    int cellHeight = iconSize + margin + maxNameHeight + margin;
-
     // The canvas width, height and the number of selected actions gives us a clue:
     //
-    int nrColumns = e.width / cellWidth;
-    if (nrColumns==0) {
+    int nrColumns = calculateNrColumns();
+    int nrRows = calculateNrRows();
+    if ( nrColumns == 0 || nrRows == 0 ) {
       return;
     }
-    int nrRows = filteredActions.size() / nrColumns;
 
     // So at which row do we start rendering?
     //
-    int startRow = pctDown * nrRows / 100;
+    int startRow = calculateStartRow( nrRows );
     int startAction = startRow * nrColumns;
+
+    // Start rendering one row up if possible
+    // That way we can easily scroll up
+    //
+    if ( startRow > 0 ) {
+      startRow--;
+      y -= cellHeight;
+    }
 
     selectionMap = new HashMap<>();
 
@@ -327,11 +347,25 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
         x = 0;
         y += cellHeight;
       }
-      if ( y > e.height ) {
+      if ( y > e.height + 2 * cellHeight ) {
         break;
       }
     }
   }
+
+  private int calculateNrColumns() {
+    double columns = (double) ( wCanvas.getBounds().width ) / (double) cellWidth;
+    return (int) Math.floor( columns );
+  }
+
+  private int calculateNrRows() {
+    int nrRows = calculateNrColumns();
+    if ( nrRows == 0 ) {
+      return 0;
+    }
+    return (int) Math.ceil( (double) filteredActions.size() / (double) nrRows );
+  }
+
 
   private void changeSelectedAction( GuiAction action ) {
     this.selectedAction = action;
@@ -393,6 +427,9 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
       selectedAction = findAction( 5, 5 );
     } else {
       Rectangle rectangle = selectionMap.get( selectedAction.getId() );
+      if ( rectangle == null ) {
+        return;
+      }
       GuiAction action = null;
       if ( e.keyCode == SWT.ARROW_DOWN ) {
         action = findAction( rectangle.x + 5, rectangle.y + 5 + rectangle.height + props.getMargin() );
@@ -406,16 +443,59 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
       if ( e.keyCode == SWT.ARROW_RIGHT ) {
         action = findAction( rectangle.x + 5 + rectangle.width + props.getMargin(), rectangle.y + 5 );
       }
+      if ( e.keyCode == SWT.HOME ) {
+        // Position on the first row and column of the screen
+        //
+        action = findHomeAction();
+      }
       if ( e.keyCode == SWT.ESC ) {
         cancel();
       }
       if ( action != null ) {
         selectedAction = action;
+        e.doit = false;
+
+        Rectangle r = selectionMap.get( action.getId() );
+        Rectangle bounds = wCanvas.getBounds();
+        ScrollBar bar = wCanvas.getVerticalBar();
+        if ( r.y + r.height > bounds.height ) {
+          // We scrolled down and need to scroll the scrollbar
+          //
+          bar.setSelection( Math.min( bar.getSelection() + bar.getPageIncrement(), bar.getMaximum() ) );
+        }
+        if ( r.y < 0 ) {
+          // We scrolled up and need to scroll the scrollbar up
+          //
+          bar.setSelection( Math.max( bar.getSelection() - bar.getPageIncrement(), bar.getMinimum() ) );
+        }
       }
     }
     changeSelectedAction( selectedAction );
     wCanvas.redraw();
-    wSearch.setSelection( wSearch.getText().length() );
+  }
+
+  private int calculateStartRow( int nrRows ) {
+    // So at which row do we start rendering?
+    //
+    ScrollBar bar = wCanvas.getVerticalBar();
+    double pctDown = 100.0d * bar.getSelection() / bar.getMaximum();
+    int startRow = (int) pctDown * nrRows / 100;
+    return startRow;
+  }
+
+  private GuiAction findHomeAction() {
+    int startRow = calculateStartRow( calculateNrRows() );
+    int actionNr = startRow * calculateNrColumns();
+    int index = 0;
+    for ( GuiAction action : actions ) {
+      if ( filteredActions.contains( action.getId() ) ) {
+        if ( actionNr == index ) {
+          return action;
+        }
+        index++;
+      }
+    }
+    return null;
   }
 
   private GuiAction findAction( int x, int y ) {
@@ -498,7 +578,9 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
           t -> System.out.println( "Create step action : " + stepPlugin.getName() )
         );
       createStepAction.getKeywords().add( stepPlugin.getCategory() );
+      // if (actions.size()<2) {
       actions.add( createStepAction );
+      //}
     }
     ContextDialog dialog = new ContextDialog( shell, "Action test", new Point( 50, 50 ), actions );
     GuiAction action = dialog.open();

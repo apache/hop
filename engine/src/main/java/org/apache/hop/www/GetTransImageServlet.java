@@ -30,7 +30,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.TransPainter;
-import org.apache.hop.trans.step.StepMeta;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
@@ -41,7 +40,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashSet;
 
 public class GetTransImageServlet extends BaseHttpServlet implements HopServerPluginInterface {
 

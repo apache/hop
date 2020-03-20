@@ -27,8 +27,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
@@ -1391,15 +1391,6 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
   @Override
   public boolean isExplorable() {
     return true;
-  }
-
-  /**
-   * @return The name of the XUL overlay file to display extra options. This is only used in case of a non-standard
-   * plugin. Usually this method returns null.
-   */
-  @Override
-  public String getXulOverlayFile() {
-    return null;
   }
 
   /**

@@ -22,7 +22,11 @@
 
 package org.apache.hop.trans.steps.sql;
 
-import org.apache.hop.core.*;
+import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Step;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -40,7 +44,11 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.trans.DatabaseImpact;
 import org.apache.hop.trans.Trans;
 import org.apache.hop.trans.TransMeta;
-import org.apache.hop.trans.step.*;
+import org.apache.hop.trans.step.BaseStepMeta;
+import org.apache.hop.trans.step.StepDataInterface;
+import org.apache.hop.trans.step.StepInterface;
+import org.apache.hop.trans.step.StepMeta;
+import org.apache.hop.trans.step.StepMetaInterface;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -52,12 +60,12 @@ import java.util.List;
  */
 
 @Step(
-        id = "ExecSQL",
-        image = "ui/images/SQL.svg",
-        i18nPackageName = "org.apache.hop.trans.steps.sql",
-        name = "BaseStep.TypeLongDesc.ExecSQLRow",
-        description = "BaseStep.TypeTooltipDesc.ExecuteSQL",
-        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Scripting"
+  id = "ExecSQL",
+  image = "ui/images/SQL.svg",
+  i18nPackageName = "org.apache.hop.trans.steps.sql",
+  name = "BaseStep.TypeLongDesc.ExecSQLRow",
+  description = "BaseStep.TypeTooltipDesc.ExecuteSQL",
+  categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Scripting"
 )
 @InjectionSupported( localizationPrefix = "ExecSQLMeta.Injection.", groups = { "PARAMETERS" } )
 public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
@@ -470,7 +478,7 @@ public class ExecSQLMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   @Override
-  public String getDialogClassName(){
+  public String getDialogClassName() {
     return ExecSQLDialog.class.getName();
   }
 }

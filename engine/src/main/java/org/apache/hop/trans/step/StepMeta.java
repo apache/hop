@@ -106,8 +106,6 @@ public class StepMeta implements
 
   private Point location;
 
-  private boolean drawstep;
-
   private String description;
 
   private boolean terminator;
@@ -175,7 +173,6 @@ public class StepMeta implements
     distributes = true;
     copiesString = "1";
     location = new Point( 0, 0 );
-    drawstep = false;
     description = null;
     stepPartitioningMeta = new StepPartitioningMeta();
     // targetStepPartitioningMeta = new StepPartitioningMeta();
@@ -246,7 +243,6 @@ public class StepMeta implements
     retval.append( "    " ).append( XMLHandler.openTag( "GUI" ) ).append( Const.CR );
     retval.append( "      " ).append( XMLHandler.addTagValue( "xloc", location.x ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "yloc", location.y ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "draw", drawstep ? "Y" : "N" ) );
     retval.append( "    " ).append( XMLHandler.closeTag( "GUI" ) ).append( Const.CR );
     retval.append( "    " ).append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR ).append( Const.CR );
 
@@ -324,8 +320,6 @@ public class StepMeta implements
         }
         location = new Point( x, y );
 
-        drawstep = "Y".equalsIgnoreCase( XMLHandler.getTagValue( stepnode, "GUI", "draw" ) );
-
         // The partitioning information?
         //
         Node partNode = XMLHandler.getSubNode( stepnode, "partitioning" );
@@ -392,36 +386,6 @@ public class StepMeta implements
   }
 
   /**
-   * See wether or not the step is drawn on the canvas.
-   *
-   * @return True if the step is drawn on the canvas.
-   */
-  public boolean isDrawn() {
-    return drawstep;
-  }
-
-  /**
-   * See wether or not the step is drawn on the canvas. Same as isDrawn(), but needed for findMethod(StepMeta, drawstep)
-   * called by StringSearcher.findMetaData(). Otherwise findMethod() returns
-   * org.apache.hop.trans.step.StepMeta.drawStep() instead of isDrawn().
-   *
-   * @return True if the step is drawn on the canvas.
-   */
-  public boolean isDrawStep() {
-    return drawstep;
-  }
-
-  /**
-   * Sets the draw attribute of the step so that it will be drawn on the canvas.
-   *
-   * @param draw True if you want the step to show itself on the canvas, False if you don't.
-   */
-  public void setDraw( boolean draw ) {
-    drawstep = draw;
-    setChanged();
-  }
-
-  /**
    * Sets the number of parallel copies that this step will be launched with.
    *
    * @param c The number of copies.
@@ -460,16 +424,6 @@ public class StepMeta implements
     }
 
     return copiesCache;
-  }
-
-  public void drawStep() {
-    setDraw( true );
-    setChanged();
-  }
-
-  public void hideStep() {
-    setDraw( false );
-    setChanged();
   }
 
   /**
@@ -549,7 +503,6 @@ public class StepMeta implements
     } else {
       this.location = null;
     }
-    this.drawstep = stepMeta.drawstep;
     this.description = stepMeta.description;
     this.terminator = stepMeta.terminator;
 

@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  */
 @Documented
 @Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.FIELD, ElementType.METHOD} )
+@Target( { ElementType.FIELD, ElementType.METHOD } )
 public @interface GuiToolbarElement {
 
   /**
@@ -30,6 +30,7 @@ public @interface GuiToolbarElement {
 
   /**
    * The parent in which this annotation resides. Normally simply the class name is taken but plugins can pick a specific parent.
+   *
    * @return
    */
   String parent() default "";
@@ -122,6 +123,7 @@ public @interface GuiToolbarElement {
 
   /**
    * Set to true if you want the menu-item of toolbar icon to be preceded by a separator or space.
+   *
    * @return True if you want a separator before this element
    */
   boolean separator() default false;

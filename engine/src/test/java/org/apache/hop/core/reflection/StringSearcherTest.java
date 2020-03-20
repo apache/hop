@@ -21,22 +21,12 @@
  ******************************************************************************/
 package org.apache.hop.core.reflection;
 
-import org.apache.hop.core.Condition;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.StepPluginType;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.trans.step.StepMeta;
-import org.apache.hop.trans.steps.dummytrans.DummyTransMeta;
-//import org.apache.hop.trans.steps.filterrows.FilterRowsMeta;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
+//import org.apache.hop.trans.steps.filterrows.FilterRowsMeta;
 
 public class StringSearcherTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

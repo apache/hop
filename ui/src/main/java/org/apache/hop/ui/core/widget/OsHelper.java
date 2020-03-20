@@ -23,8 +23,7 @@
 package org.apache.hop.ui.core.widget;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -116,7 +115,7 @@ public class OsHelper {
 
       @Override
       public void handleEvent( Event event ) {
-        HopUi.getInstance().openFile( event.text, false );
+        HopGui.getInstance().fileDelegate.fileOpen();
       }
 
     } );
@@ -127,8 +126,8 @@ public class OsHelper {
       @Override
       public void handleEvent( Event event ) {
         try {
-          event.doit = HopUi.getInstance().quitFile( false );
-        } catch ( HopException e ) {
+          HopGui.getInstance().menuFileExit();
+        } catch ( Exception e ) {
           e.printStackTrace();
         }
       }
@@ -149,7 +148,8 @@ public class OsHelper {
 
               @Override
               public void handleEvent( Event event ) {
-                HopUi.getInstance().helpAbout();
+
+                // HopGui.getInstance().menuHelpAbout(); // TODO: add about dialog
               }
 
             } );
@@ -160,7 +160,7 @@ public class OsHelper {
 
               @Override
               public void handleEvent( Event event ) {
-                HopUi.getInstance().editOptions();
+                // HopGui.getInstance().menuToolsOptions(); TODO: add options dialog
 
               }
 
@@ -173,34 +173,5 @@ public class OsHelper {
         }
       }
     }
-
   }
-
-  public static void customizeWindow() {
-
-    // allow fullscreen mode on 10.7 macs
-    // / ignore errors here
-    try {
-
-      if ( isMac() ) {
-        // remove about from the original info menu, handled by system menu
-        HopUi.getInstance().removeMenuItem( "help-about", true );
-        // remove the file/quit menu item, handled by system menu
-        HopUi.getInstance().removeMenuItem( "file-quit", true );
-        // remove the options menu (preferences), handled by system menu
-        HopUi.getInstance().removeMenuItem( "edit-options", true );
-
-      }
-
-      // TODO: add fullscreen support
-      // if (isMac() && "10.7.3".equals(System.getProperty("os.version"))) {
-      // NSWindow nswindow = Spoon.getInstance().getShell().view.window();
-      // Spoon.getInstance().getShell().setFullScreen(false);
-      // nswindow.setCollectionBehavior(1 << 7);
-      // }
-    } catch ( Throwable t ) {
-      t.printStackTrace();
-    }
-  }
-
 }

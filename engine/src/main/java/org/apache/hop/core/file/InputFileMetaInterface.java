@@ -22,7 +22,6 @@
 
 package org.apache.hop.core.file;
 
-import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.trans.step.StepMetaInterface;
 
@@ -40,7 +39,7 @@ public interface InputFileMetaInterface extends StepMetaInterface {
 
   public int getNrHeaderLines();
 
-  public String[] getFilePaths(VariableSpace space);
+  public String[] getFilePaths( VariableSpace space );
 
   public boolean isErrorIgnored();
 

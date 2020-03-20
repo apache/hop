@@ -38,30 +38,30 @@ public class KeyboardShortcut {
   }
 
   @Override public String toString() {
-    if (keyCode==0) {
+    if ( keyCode == 0 ) {
       return parentMethodName.toString();
     }
-    StringBuilder str = new StringBuilder(  );
-    if (shift) {
+    StringBuilder str = new StringBuilder();
+    if ( shift ) {
       str.append( "SHIFT-" );
     }
-    if (control) {
+    if ( control ) {
       str.append( "CTRL-" );
     }
-    if (alt) {
+    if ( alt ) {
       str.append( "ALT-" );
     }
-    if (command) {
+    if ( command ) {
       str.append( "CMD-" );
     }
     // Character
-    if (keyCode >=97 && keyCode <=122) {
+    if ( keyCode >= 97 && keyCode <= 122 ) {
       str.append( ( (char) keyCode ) );
     } else
-    // Digit
-    if (keyCode >=48 && keyCode <=57) {
-      str.append( ( (char) keyCode ) );
-    }
+      // Digit
+      if ( keyCode >= 48 && keyCode <= 57 ) {
+        str.append( ( (char) keyCode ) );
+      }
     return str.toString();
   }
 

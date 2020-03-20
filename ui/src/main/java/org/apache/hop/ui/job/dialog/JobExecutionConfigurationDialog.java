@@ -36,7 +36,7 @@ import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.ui.core.dialog.ConfigurationDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.layout.FormAttachment;
@@ -158,7 +158,7 @@ public class JobExecutionConfigurationDialog extends ConfigurationDialog {
     parametersSectionLayout( PKG, "JobExecutionConfigurationDialog" );
 
     String docUrl =
-      Const.getDocUrl( BaseMessages.getString( HopUi.class, "Spoon.JobExecutionConfigurationDialog.Help" ) );
+      Const.getDocUrl( BaseMessages.getString( HopGui.class, "Spoon.JobExecutionConfigurationDialog.Help" ) );
     String docTitle = BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.docTitle" );
     String docHeader = BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.docHeader" );
     buttonsSectionLayout( PKG, "JobExecutionConfigurationDialog", docTitle, docUrl, docHeader );
@@ -207,7 +207,7 @@ public class JobExecutionConfigurationDialog extends ConfigurationDialog {
     List<String> runConfigurations = new ArrayList<>();
     try {
       ExtensionPointHandler
-        .callExtensionPoint( HopUi.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id,
+        .callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id,
           new Object[] { runConfigurations, JobMeta.XML_TAG } );
     } catch ( HopException e ) {
       // Ignore errors
@@ -285,7 +285,7 @@ public class JobExecutionConfigurationDialog extends ConfigurationDialog {
     wRunConfiguration.addModifyListener( modifyEvent -> {
       List<Object> items = Arrays.asList( wRunConfiguration.getText(), true );
       try {
-        ExtensionPointHandler.callExtensionPoint( HopUi.getInstance().getLog(), HopExtensionPoint
+        ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint
           .RunConfigurationIsRemote.id, items );
       } catch ( HopException ignored ) {
         // Ignore errors - keep old behavior - expand remote job always enabled

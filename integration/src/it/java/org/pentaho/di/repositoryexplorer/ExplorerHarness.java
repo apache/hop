@@ -73,14 +73,6 @@ public class ExplorerHarness {
         return true;
       }
     };
-
-    /*
-     * try { repository.connect(userInfo.getLogin(), userInfo.getPassword()); //RepositoryExplorer explorer = new
-     * RepositoryExplorer(new Shell(), repository, cb, null); //explorer.show(); } catch (XulException e) {
-     * e.printStackTrace(); } catch (HopSecurityException e) { e.printStackTrace(); } catch (HopException e) {
-     * e.printStackTrace(); }
-     */
-
   }
 
 }

@@ -29,7 +29,6 @@ import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.listeners.ContentChangedListener;
 import org.apache.hop.job.entries.empty.JobEntryEmpty;
-import org.apache.hop.job.entries.trans.JobEntryTrans;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.metastore.api.IMetaStore;

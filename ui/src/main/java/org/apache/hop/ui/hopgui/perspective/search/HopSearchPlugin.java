@@ -1,6 +1,5 @@
 package org.apache.hop.ui.hopgui.perspective.search;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
@@ -9,6 +8,7 @@ import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
+import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.eclipse.swt.SWT;
@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @HopPerspectivePlugin(
@@ -26,9 +27,7 @@ import java.util.List;
   name = "Search",
   description = "The Hop Search Perspective"
 )
-@GuiPlugin(
-  id = "GuiPlugin-HopSearchPerspective"
-)
+@GuiPlugin
 public class HopSearchPlugin implements IHopPerspective {
 
   private static HopSearchPlugin perspective;
@@ -39,7 +38,7 @@ public class HopSearchPlugin implements IHopPerspective {
   private FormData formData;
 
   public static final HopSearchPlugin getInstance() {
-    if (perspective==null) {
+    if ( perspective == null ) {
       perspective = new HopSearchPlugin();
     }
     return perspective;
@@ -54,11 +53,15 @@ public class HopSearchPlugin implements IHopPerspective {
     parent = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID
   )
   public void activate() {
-    hopGui.getPerspectiveManager().showPerspective(this.getClass());
+    hopGui.getPerspectiveManager().showPerspective( this.getClass() );
   }
 
   @Override public HopFileTypeHandlerInterface getActiveFileTypeHandler() {
     return null; // Not handling anything really
+  }
+
+  @Override public List<HopFileTypeInterface> getSupportedHopFileTypes() {
+    return Collections.emptyList();
   }
 
   @Override
@@ -73,7 +76,7 @@ public class HopSearchPlugin implements IHopPerspective {
 
   @Override
   public boolean isActive() {
-    return composite!=null && !composite.isDisposed() && composite.isVisible();
+    return composite != null && !composite.isDisposed() && composite.isVisible();
   }
 
   @Override public void initialize( HopGui hopGui, Composite parent ) {
@@ -91,7 +94,7 @@ public class HopSearchPlugin implements IHopPerspective {
     layout.marginBottom = props.getMargin();
     composite.setLayout( layout );
 
-    formData = new FormData(  );
+    formData = new FormData();
     formData.left = new FormAttachment( 0, 0 );
     formData.top = new FormAttachment( 0, 0 );
     formData.right = new FormAttachment( 100, 0 );
@@ -103,9 +106,9 @@ public class HopSearchPlugin implements IHopPerspective {
     Label label = new Label( composite, SWT.LEFT );
     label.setBackground( GUIResource.getInstance().getColorBlueCustomGrid() );
     label.setText( "The Search perspective" );
-    FormData fdLabel = new FormData(  );
+    FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment( 0, 0 );
-    fdLabel.right = new FormAttachment( 100,0 );
+    fdLabel.right = new FormAttachment( 100, 0 );
     fdLabel.top = new FormAttachment( 0, 0 );
     label.setLayoutData( fdLabel );
   }
@@ -188,7 +191,7 @@ public class HopSearchPlugin implements IHopPerspective {
   }
 
   @Override public List<IGuiContextHandler> getContextHandlers() {
-    List<IGuiContextHandler> handlers = new ArrayList<>(  );
+    List<IGuiContextHandler> handlers = new ArrayList<>();
     return handlers;
   }
 }

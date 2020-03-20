@@ -33,7 +33,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.copyfiles.JobEntryCopyFiles;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.ui.core.ConstUI;
@@ -42,7 +41,6 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVarButtonRenderCallback;
-import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
@@ -64,6 +62,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
@@ -72,7 +71,6 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.pentaho.vfs.ui.VfsFileChooserDialog;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -83,11 +81,11 @@ import java.util.Map;
  * @author Samatar Hassan
  * @since 06-05-2007
  */
-@PluginDialog( 
-		  id = "COPY_FILES", 
-		  image = "CopyFiles.svg", 
-		  pluginType = PluginDialog.PluginType.JOBENTRY,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+@PluginDialog(
+  id = "COPY_FILES",
+  image = "CopyFiles.svg",
+  pluginType = PluginDialog.PluginType.JOBENTRY,
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
 public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryDialogInterface {
   private static Class<?> PKG = JobEntryCopyFiles.class; // for i18n purposes, needed by Translator2!!
@@ -479,7 +477,7 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
               defaultInitialFile = HopVFS.getFileObject( "file:///c:/" );
               rootFile = initialFile.getFileSystem().getRoot();
             } else {
-              defaultInitialFile = HopVFS.getFileObject( HopUi.getInstance().getLastFileOpened() );
+              defaultInitialFile = null; // HopVFS.getFileObject( HopUi.getInstance().getLastFileOpened() ); TODO get last file per type from history mananger
             }
           }
 
@@ -487,20 +485,20 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
             rootFile = defaultInitialFile.getFileSystem().getRoot();
             initialFile = defaultInitialFile;
           }
-          VfsFileChooserDialog fileChooserDialog = HopUi.getInstance().getVfsFileChooserDialog( rootFile, initialFile );
-          fileChooserDialog.defaultInitialFile = defaultInitialFile;
 
-          selectedFile =
-            fileChooserDialog.open( shell, new String[] { "file" }, "file", true, null, new String[] { "*.*" },
-              FILETYPES, true, VfsFileChooserDialog.VFS_DIALOG_OPEN_FILE_OR_DIRECTORY, false, false );
-
-          if ( selectedFile != null ) {
-            String url = selectedFile.getURL().toString();
-            wFields.getActiveTableItem().setText( wFields.getActiveTableColumn(), url );
+          FileDialog fileDialog = new FileDialog( shell, SWT.OPEN | SWT.OK | SWT.CANCEL );
+          fileDialog.setText( "Select file" );
+          fileDialog.setFilterNames( new String[] { "file" } );
+          fileDialog.setFilterExtensions( new String[] { "*.*" } );
+          if ( initialFile != null ) {
+            fileDialog.setFileName( HopVFS.getFilename( initialFile ) );
           }
-
-        } catch ( HopFileException ex ) {
-        } catch ( FileSystemException ex ) {
+          String filename = fileDialog.open();
+          if ( filename != null ) {
+            wFields.getActiveTableItem().setText( wFields.getActiveTableColumn(), filename );
+          }
+        } catch ( Exception ex ) {
+          // TODO: handle exception!!!
         }
       }
     };
@@ -654,7 +652,7 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
   }
 
   protected Image getImage() {
-    return GUIResource.getInstance().getImage("ui/images/CPY.svg", ConstUI.LARGE_ICON_SIZE, ConstUI.LARGE_ICON_SIZE );
+    return GUIResource.getInstance().getImage( "ui/images/CPY.svg", ConstUI.LARGE_ICON_SIZE, ConstUI.LARGE_ICON_SIZE );
   }
 
   public boolean showFileButtons() {

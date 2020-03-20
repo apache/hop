@@ -56,7 +56,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.pentaho.vfs.ui.VfsFileChooserDialog;
 
 /**
  * This dialog allows you to edit the SQL job entry settings. (select the connection and the sql script to be executed)
@@ -206,12 +205,17 @@ public class JobEntryFileExistsDialog extends JobEntryDialog implements JobEntry
             fileName = HopVFS.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
           }
 
-          VfsFileChooserDialog vfsFileChooser =
-            HopUi.getInstance().getVfsFileChooserDialog( fileName.getParent(), fileName );
-
-          FileObject selected =
-            vfsFileChooser.open( shell, null, EXTENSIONS, FILETYPES, VfsFileChooserDialog.VFS_DIALOG_OPEN_FILE );
-          wFilename.setText( selected != null ? selected.getURL().toString() : Const.EMPTY_STRING );
+          FileDialog fileDialog = new FileDialog( shell, SWT.OPEN | SWT.OK | SWT.CANCEL );
+          fileDialog.setText( "Select file" );
+          fileDialog.setFilterNames( FILETYPES );
+          fileDialog.setFilterExtensions( EXTENSIONS );
+          if ( fileName != null ) {
+            fileDialog.setFileName( HopVFS.getFilename( fileName ) );
+          }
+          String filename = fileDialog.open();
+          if ( filename != null ) {
+            wFilename.setText( filename );
+          }
         } catch ( FileSystemException ex ) {
           ex.printStackTrace();
         }

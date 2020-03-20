@@ -370,7 +370,7 @@ public class ClusterSchemaDialog extends Dialog {
       SlaveServer slaveServer = clusterSchema.findSlaveServer( wServers.getItems( 0 )[ idx ] );
       if ( slaveServer != null ) {
         SlaveServerDialog dialog = new SlaveServerDialog( shell, metaStore, slaveServer );
-        if ( dialog.open()!=null ) {
+        if ( dialog.open() != null ) {
           refreshSlaveServers();
         }
       }

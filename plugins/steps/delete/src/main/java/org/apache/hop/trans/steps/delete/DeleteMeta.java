@@ -54,12 +54,12 @@ import java.util.List;
  * @since 28-March-2006
  */
 @Step(
-        id = "Delete",
-        image = "ui/images/Delete.svg",
-        i18nPackageName = "org.apache.hop.trans.steps.delete",
-        name = "BaseStep.TypeLongDesc.Delete",
-        description = "BaseStep.TypeTooltipDesc.Delete",
-        categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Output"
+  id = "Delete",
+  image = "ui/images/Delete.svg",
+  i18nPackageName = "org.apache.hop.trans.steps.delete",
+  name = "BaseStep.TypeLongDesc.Delete",
+  description = "BaseStep.TypeTooltipDesc.Delete",
+  categoryDescription = "i18n:org.apache.hop.trans.step:BaseStep.Category.Output"
 )
 public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
   private static Class<?> PKG = DeleteMeta.class; // for i18n purposes, needed by Translator2!!
@@ -592,7 +592,7 @@ public class DeleteMeta extends BaseStepMeta implements StepMetaInterface {
     return true;
   }
 
-  public String getDialogClassName(){
+  public String getDialogClassName() {
     return DeleteDialog.class.getName();
   }
 }

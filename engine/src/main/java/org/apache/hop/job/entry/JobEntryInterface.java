@@ -27,6 +27,7 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.job.Job;
@@ -425,7 +426,7 @@ public interface JobEntryInterface {
    * @return the referenced object once loaded
    * @throws HopException
    */
-  Object loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space ) throws HopException;
+  IHasFilename loadReferencedObject( int index, IMetaStore metaStore, VariableSpace space ) throws HopException;
 
   /**
    * At save and run time, the system will attempt to set the jobMeta so that it can be accessed by the jobEntries

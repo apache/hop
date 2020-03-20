@@ -24,7 +24,6 @@ package org.apache.hop.core.plugins;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopLifecyclePlugin;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.lifecycle.HopLifecycleListener;
 
 import java.lang.annotation.Annotation;

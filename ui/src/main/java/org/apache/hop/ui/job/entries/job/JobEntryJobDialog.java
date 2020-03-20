@@ -41,7 +41,9 @@ import org.apache.hop.ui.core.ConstUI;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
+import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entries.trans.JobEntryBaseDialog;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
@@ -297,13 +299,11 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
             int answer = mb.open();
             if ( answer == SWT.YES ) {
 
-              HopUi hopUi = HopUi.getInstance();
-              hopUi.newJobFile();
-              JobMeta newJobMeta = hopUi.getActiveJob();
-              newJobMeta.initializeVariablesFrom( jobEntry );
-              newJobMeta.setFilename( jobMeta.environmentSubstitute( prevName ) );
+              HopGui hopGui = HopGui.getInstance();
+              HopFileTypeHandlerInterface typeHandler = HopDataOrchestrationPerspective.getInstance().getJobFileType().newFile( hopGui, hopGui.getVariableSpace() );
+              typeHandler.setFilename( jobMeta.environmentSubstitute( prevName ) );
               wPath.setText( prevName );
-              hopUi.saveFile();
+              hopGui.fileDelegate.fileSave();
               return;
             }
           }
@@ -394,7 +394,7 @@ public class JobEntryJobDialog extends JobEntryBaseDialog implements JobEntryDia
     List<String> runConfigurations = new ArrayList<>();
     try {
       ExtensionPointHandler
-        .callExtensionPoint( HopUi.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id,
+        .callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id,
           new Object[] { runConfigurations, JobMeta.XML_TAG } );
     } catch ( HopException e ) {
       // Ignore errors

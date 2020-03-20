@@ -49,9 +49,9 @@ import java.nio.charset.StandardCharsets;
  */
 public class HttpClientUtil {
 
-  private HttpClientUtil() {		 
+  private HttpClientUtil() {
   }
-	  
+
   /**
    * @param response the httpresponse for processing
    * @return HttpEntity in String representation using "UTF-8" encoding

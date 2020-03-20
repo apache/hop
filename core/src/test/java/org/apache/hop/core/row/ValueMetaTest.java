@@ -77,7 +77,7 @@ public class ValueMetaTest {
 
   @Test
   public void testCvtStringToBinaryString() throws Exception {
-	ValueMetaString val1 = new ValueMetaString( "STR1");
+    ValueMetaString val1 = new ValueMetaString( "STR1" );
     val1.setLength( 6 );
     val1.setStringEncoding( "UTF8" );
 
@@ -106,7 +106,7 @@ public class ValueMetaTest {
 
   @Test
   public void testCvtStringBinaryString() throws Exception {
-	ValueMetaString val1 = new ValueMetaString( "STR1");
+    ValueMetaString val1 = new ValueMetaString( "STR1" );
     val1.setLength( 6 );
     val1.setStringEncoding( "UTF8" );
 
@@ -209,7 +209,7 @@ public class ValueMetaTest {
 
   @Test
   public void testByteToStringToBigNumberWithByteLimitValues() throws Exception {
-	ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber( "i" );
+    ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber( "i" );
     numValueMeta.setDecimalSymbol( "." );
     numValueMeta.setGroupingSymbol( "," );
     numValueMeta.setBigNumberFormatting( false );
@@ -253,7 +253,7 @@ public class ValueMetaTest {
 
   @Test
   public void testShortToStringToBigNumberWithShortLimitValues() throws Exception {
-	ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber( "i" );
+    ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber( "i" );
     numValueMeta.setDecimalSymbol( "." );
     numValueMeta.setGroupingSymbol( "," );
     numValueMeta.setBigNumberFormatting( false );
@@ -297,7 +297,7 @@ public class ValueMetaTest {
 
   @Test
   public void testIntToStringToBigNumberWithIntLimitValues() throws Exception {
-	ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber( "i" );
+    ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber( "i" );
     numValueMeta.setDecimalSymbol( "." );
     numValueMeta.setGroupingSymbol( "," );
     numValueMeta.setBigNumberFormatting( false );
@@ -341,7 +341,7 @@ public class ValueMetaTest {
 
   @Test
   public void testLongToStringToBigNumberWithLongLimitValues() throws Exception {
-	ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber( "i" );
+    ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber( "i" );
     numValueMeta.setDecimalSymbol( "." );
     numValueMeta.setGroupingSymbol( "," );
     numValueMeta.setBigNumberFormatting( false );
@@ -385,7 +385,7 @@ public class ValueMetaTest {
 
   @Test
   public void testFloatToStringToBigNumberWithFloatLimitValues() throws Exception {
-	ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber( "i" );
+    ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber( "i" );
     numValueMeta.setDecimalSymbol( "." );
     numValueMeta.setGroupingSymbol( "," );
     numValueMeta.setBigNumberFormatting( false );
@@ -425,7 +425,7 @@ public class ValueMetaTest {
 
   @Test
   public void testDoubleToStringToBigNumberWithDoubleLimitValues() throws Exception {
-	ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber( "i" );
+    ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber( "i" );
     numValueMeta.setDecimalSymbol( "." );
     numValueMeta.setGroupingSymbol( "," );
     numValueMeta.setBigNumberFormatting( false );
@@ -468,7 +468,7 @@ public class ValueMetaTest {
 
   @Test
   public void testToStringToBigNumberWithNumberCloseToZero() throws Exception {
-	ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber( "i" );
+    ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber( "i" );
     numValueMeta.setDecimalSymbol( "," );
     numValueMeta.setGroupingSymbol( "." );
     numValueMeta.setBigNumberFormatting( false );
@@ -492,7 +492,7 @@ public class ValueMetaTest {
 
   @Test
   public void testPDI17366Conversion() throws Exception {
-	ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber( "i" );
+    ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber( "i" );
     numValueMeta.setDecimalSymbol( "," );
     numValueMeta.setGroupingSymbol( "." );
     numValueMeta.setBigNumberFormatting( false );
@@ -1053,7 +1053,7 @@ public class ValueMetaTest {
     for ( int i = 0; i < valueMetaNames.length; i++ ) {
       int vmId = ValueMetaFactory.getIdForValueMeta( valueMetaNames[ i ] );
 
-      ValueMetaInterface vm = ValueMetaFactory.createValueMeta("", vmId);
+      ValueMetaInterface vm = ValueMetaFactory.createValueMeta( "", vmId );
       ValueMetaInterface vmi = ValueMetaFactory.createValueMeta( vmId );
       assertTrue( vm.getNativeDataTypeClass().equals( vmi.getNativeDataTypeClass() ) );
     }

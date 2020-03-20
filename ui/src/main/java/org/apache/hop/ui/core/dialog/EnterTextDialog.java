@@ -29,7 +29,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.hopui.job.JobGraph;
+import org.apache.hop.ui.hopgui.file.job.HopGuiJobGraph;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -125,9 +125,7 @@ public class EnterTextDialog extends Dialog {
 
     modal |= Const.isLinux(); // On Linux, this dialog seems to behave strangely except when shown modal
 
-    shell =
-      new Shell( parent, SWT.DIALOG_TRIM
-        | SWT.RESIZE | SWT.MAX | SWT.MIN | ( modal ? SWT.APPLICATION_MODAL | SWT.SHEET : SWT.NONE ) );
+    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | ( modal ? SWT.APPLICATION_MODAL | SWT.SHEET : SWT.NONE ) );
     props.setLook( shell );
     shell.setImage( GUIResource.getInstance().getImageHopUi() );
 
@@ -255,7 +253,7 @@ public class EnterTextDialog extends Dialog {
   public void checkCancel( ShellEvent e ) {
     String newText = wDesc.getText();
     if ( !newText.equals( origText ) ) {
-      int save = JobGraph.showChangedWarning( shell, title );
+      int save = HopGuiJobGraph.showChangedWarning( shell, title );
       if ( save == SWT.CANCEL ) {
         e.doit = false;
       } else if ( save == SWT.YES ) {

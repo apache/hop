@@ -96,7 +96,6 @@ public class StepMetaTest {
     meta.setDistributes( false );
     meta.setCopiesString( "2" );
     meta.setLocation( 1, 2 );
-    meta.setDraw( true );
     meta.setDescription( "description" );
     meta.setTerminator( true );
     meta.setClusterSchemaName( "clusterSchemaName" );

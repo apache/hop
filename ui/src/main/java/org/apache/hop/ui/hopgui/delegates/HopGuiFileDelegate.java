@@ -57,17 +57,22 @@ public class HopGuiFileDelegate {
         return;
       }
 
-      HopFileTypeInterface hopFile = fileRegistry.findHopFileType( filename );
-      if (hopFile==null) {
-        throw new HopException( "We looked at "+fileRegistry.getFileTypes().size()+" different Hop GUI file types but none know how to open file '"+filename+"'" );
-      }
-
-      hopFile.openFile( hopGui, filename, hopGui.getVariableSpace() );
-      hopGui.handleFileCapabilities(hopFile);
-
+      fileOpen( filename );
     } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error opening file", e );
     }
+  }
+
+  public void fileOpen( String filename ) throws Exception {
+    HopFileTypeRegistry fileRegistry = HopFileTypeRegistry.getInstance();
+
+    HopFileTypeInterface hopFile = fileRegistry.findHopFileType( filename );
+    if ( hopFile == null ) {
+      throw new HopException( "We looked at " + fileRegistry.getFileTypes().size() + " different Hop GUI file types but none know how to open file '" + filename + "'" );
+    }
+
+    hopFile.openFile( hopGui, filename, hopGui.getVariableSpace() );
+    hopGui.handleFileCapabilities( hopFile );
   }
 
   /**
@@ -76,13 +81,12 @@ public class HopGuiFileDelegate {
    * Then we ask the perspective for the shown/active file.
    * We then know the filter extension and name so we can show a dialog.
    * We can then also have the {@link HopFileTypeInterface to save the file.
-   *
    */
   public void fileSaveAs() {
     try {
       HopFileTypeHandlerInterface typeHandler = getActiveFileTypeHandler();
       HopFileTypeInterface fileType = typeHandler.getFileType();
-      if (!fileType.hasCapability( HopFileTypeInterface.CAPABILITY_SAVE )) {
+      if ( !fileType.hasCapability( HopFileTypeInterface.CAPABILITY_SAVE ) ) {
         return;
       }
 
@@ -108,7 +112,7 @@ public class HopGuiFileDelegate {
       }
 
       typeHandler.saveAs( filename );
-    } catch(Exception e) {
+    } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error saving file", e );
     }
   }
@@ -117,8 +121,8 @@ public class HopGuiFileDelegate {
     try {
       HopFileTypeHandlerInterface typeHandler = getActiveFileTypeHandler();
       HopFileTypeInterface fileType = typeHandler.getFileType();
-      if (fileType.hasCapability( HopFileTypeInterface.CAPABILITY_SAVE )) {
-        if ( StringUtils.isEmpty(typeHandler.getFilename())) {
+      if ( fileType.hasCapability( HopFileTypeInterface.CAPABILITY_SAVE ) ) {
+        if ( StringUtils.isEmpty( typeHandler.getFilename() ) ) {
           // Ask for the filename: saveAs
           //
           fileSaveAs();
@@ -126,8 +130,8 @@ public class HopGuiFileDelegate {
           typeHandler.save();
         }
       }
-    } catch(Exception e) {
-      new ErrorDialog(hopGui.getShell(), "Error", "Error saving file", e);
+    } catch ( Exception e ) {
+      new ErrorDialog( hopGui.getShell(), "Error", "Error saving file", e );
     }
   }
 
@@ -136,11 +140,11 @@ public class HopGuiFileDelegate {
       IHopPerspective perspective = hopGui.getActivePerspective();
       HopFileTypeHandlerInterface typeHandler = getActiveFileTypeHandler();
       HopFileTypeInterface fileType = typeHandler.getFileType();
-      if (fileType.hasCapability( HopFileTypeInterface.CAPABILITY_CLOSE )) {
+      if ( fileType.hasCapability( HopFileTypeInterface.CAPABILITY_CLOSE ) ) {
         perspective.remove( typeHandler );
       }
-    } catch(Exception e) {
-      new ErrorDialog(hopGui.getShell(), "Error", "Error saving/closing file", e);
+    } catch ( Exception e ) {
+      new ErrorDialog( hopGui.getShell(), "Error", "Error saving/closing file", e );
     }
     return false;
   }

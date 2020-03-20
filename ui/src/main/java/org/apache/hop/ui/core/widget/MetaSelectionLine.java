@@ -172,7 +172,7 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
   }
 
   private void openMetaDialog( T element, MetaStoreFactory<T> factory ) throws Exception {
-    if (manager.openMetaDialog( element, factory )) {
+    if ( manager.openMetaDialog( element, factory ) ) {
       fillItems();
       wCombo.setText( element.getName() );
     }
@@ -181,11 +181,11 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
   private void newMetadata() {
     if ( manager.newMetadata() ) {
       try {
-        fillItems();    
+        fillItems();
       } catch ( Exception e ) {
-        LogChannel.UI.logError( "Error updating list of relational database connection names from the metastore", e);
+        LogChannel.UI.logError( "Error updating list of relational database connection names from the metastore", e );
       }
-    }  
+    }
   }
 
   /**

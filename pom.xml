@@ -188,31 +188,6 @@
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>org.pentaho</groupId>
-        <artifactId>commons-xul-core</artifactId>
-        <version>${commons-xul.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.pentaho</groupId>
-        <artifactId>commons-xul-swing</artifactId>
-        <version>${commons-xul.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.pentaho</groupId>
-        <artifactId>commons-xul-swt</artifactId>
-        <version>${commons-xul.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.eclipse</groupId>
-            <artifactId>*</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.eclipse.swt</groupId>
-            <artifactId>*</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
 
       <!-- Third-party dependencies -->
       <dependency>

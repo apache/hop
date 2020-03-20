@@ -22,8 +22,6 @@
 
 package org.apache.hop.trans;
 
-import org.apache.hop.core.plugins.ClassLoadingPluginInterface;
-import org.apache.hop.core.plugins.PluginInterface;
 import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.ClassRule;

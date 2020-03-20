@@ -162,9 +162,8 @@ public class Props implements Cloneable {
 
   /**
    * Initialize the properties: load from disk.
-   *
    */
-  public static final void init( ) {
+  public static final void init() {
     if ( props == null ) {
       props = new Props();
 
@@ -203,7 +202,7 @@ public class Props implements Cloneable {
     throw new RuntimeException( "Properties, Hop systems settings, not initialised!" );
   }
 
-  protected Props( ) {
+  protected Props() {
     initialize();
   }
 
@@ -246,8 +245,8 @@ public class Props implements Cloneable {
   }
 
   public boolean loadProps() {
-    try ( FileInputStream fis = new FileInputStream( filename ) ) {     
-        properties.load( fis );
+    try ( FileInputStream fis = new FileInputStream( filename ) ) {
+      properties.load( fis );
     } catch ( Exception e ) {
       return false;
     }

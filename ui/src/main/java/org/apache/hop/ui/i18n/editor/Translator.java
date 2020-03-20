@@ -23,7 +23,6 @@
 package org.apache.hop.ui.i18n.editor;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogChannelInterface;

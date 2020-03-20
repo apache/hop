@@ -346,8 +346,7 @@ public class JobExecutorDialog extends BaseStepDialog implements StepDialogInter
 
     String parentFolder = null;
     try {
-      parentFolder =
-        HopVFS.getFileObject( transMeta.environmentSubstitute( transMeta.getFilename() ) ).getParent().toString();
+      parentFolder = HopVFS.getFileObject( transMeta.environmentSubstitute( transMeta.getFilename() ) ).getParent().toString();
     } catch ( Exception e ) {
       // Take no action
     }
@@ -355,6 +354,17 @@ public class JobExecutorDialog extends BaseStepDialog implements StepDialogInter
     try {
       root = HopVFS.getFileObject( curFile != null ? curFile : Const.getUserHomeDirectory() );
 
+      FileDialog fileDialog = new FileDialog( shell, SWT.OPEN | SWT.OK | SWT.CANCEL );
+      fileDialog.setText( "Select file" );
+      fileDialog.setFilterNames( FILETYPES );
+      fileDialog.setFilterExtensions( EXTENSIONS );
+      if ( fileName != null ) {
+        fileDialog.setFileName( HopVFS.getFilename( fileName ) );
+      }
+      String filename = fileDialog.open();
+      if ( filename != null ) {
+        wFilename.setText( filename );
+      }
       VfsFileChooserDialog vfsFileChooser = HopUi.getInstance().getVfsFileChooserDialog( root.getParent(), root );
       FileObject file =
         vfsFileChooser.open(

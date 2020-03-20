@@ -42,7 +42,9 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.SimpleMessageDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
+import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
@@ -293,13 +295,11 @@ public class JobEntryTransDialog extends JobEntryBaseDialog implements JobEntryD
             int answer = mb.open();
             if ( answer == SWT.YES ) {
 
-              HopUi hopUi = HopUi.getInstance();
-              hopUi.newTransFile();
-              TransMeta transMeta = hopUi.getActiveTransformation();
-              transMeta.initializeVariablesFrom( jobEntry );
-              transMeta.setFilename( jobMeta.environmentSubstitute( prevName ) );
+              HopGui hopGui = HopGui.getInstance();
+              HopFileTypeHandlerInterface fileTypeHandler = HopDataOrchestrationPerspective.getInstance().getTransFileType().newFile( hopGui, hopGui.getVariableSpace() );
+              fileTypeHandler.setFilename( jobMeta.environmentSubstitute( prevName ) );
               wPath.setText( prevName );
-              hopUi.saveFile();
+              hopGui.fileDelegate.fileSave();
               return;
             }
           }
@@ -386,7 +386,7 @@ public class JobEntryTransDialog extends JobEntryBaseDialog implements JobEntryD
     List<String> runConfigurations = new ArrayList<>();
     try {
       ExtensionPointHandler
-        .callExtensionPoint( HopUi.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id,
+        .callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id,
           new Object[] { runConfigurations, TransMeta.XML_TAG } );
     } catch ( HopException e ) {
       // Ignore errors

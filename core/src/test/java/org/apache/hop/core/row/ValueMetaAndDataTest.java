@@ -31,11 +31,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -47,7 +43,6 @@ import org.w3c.dom.NodeList;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -66,7 +61,7 @@ public class ValueMetaAndDataTest {
 
   @Before
   public void before() {
-   pluginRegistry = Mockito.mock( PluginRegistry.class );
+    pluginRegistry = Mockito.mock( PluginRegistry.class );
   }
 
   @Test

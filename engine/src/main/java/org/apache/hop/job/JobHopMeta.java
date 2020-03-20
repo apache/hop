@@ -30,6 +30,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.entry.JobEntryCopy;
 import org.w3c.dom.Node;
 
+import java.util.List;
+
 /**
  * This class defines a hop from one job entry copy to another.
  *
@@ -38,6 +40,9 @@ import org.w3c.dom.Node;
  */
 public class JobHopMeta extends BaseHopMeta<JobEntryCopy> {
   private static Class<?> PKG = JobHopMeta.class; // for i18n purposes, needed by Translator2!!
+
+  public static final String XML_FROM_TAG = "from";
+  public static final String XML_TO_TAG = "to";
 
   private boolean evaluation;
   private boolean unconditional;
@@ -59,10 +64,35 @@ public class JobHopMeta extends BaseHopMeta<JobEntryCopy> {
     }
   }
 
+  public JobHopMeta( Node hopnode, List<JobEntryCopy> entries ) throws HopXMLException {
+    try {
+      this.from = searchEntry( entries, XMLHandler.getTagValue( hopnode, JobHopMeta.XML_FROM_TAG ) );
+      this.to = searchEntry( entries, XMLHandler.getTagValue( hopnode, JobHopMeta.XML_TO_TAG ) );
+      String en = XMLHandler.getTagValue( hopnode, "enabled" );
+
+      if ( en == null ) {
+        enabled = true;
+      } else {
+        enabled = en.equalsIgnoreCase( "Y" );
+      }
+    } catch ( Exception e ) {
+      throw new HopXMLException( BaseMessages.getString( PKG, "JobHopMeta.Exception.UnableToLoadHopInfo" ), e );
+    }
+  }
+
+  private JobEntryCopy searchEntry( List<JobEntryCopy> entries, String name ) {
+    for ( JobEntryCopy entry : entries ) {
+      if ( entry.getName().equalsIgnoreCase( name ) ) {
+        return entry;
+      }
+    }
+    return null;
+  }
+
   public JobHopMeta( Node hopnode, JobMeta job ) throws HopXMLException {
     try {
-      String from_name = XMLHandler.getTagValue( hopnode, "from" );
-      String to_name = XMLHandler.getTagValue( hopnode, "to" );
+      String from_name = XMLHandler.getTagValue( hopnode, XML_FROM_TAG );
+      String to_name = XMLHandler.getTagValue( hopnode, XML_TO_TAG );
       String sfrom_nr = XMLHandler.getTagValue( hopnode, "from_nr" );
       String sto_nr = XMLHandler.getTagValue( hopnode, "to_nr" );
       String senabled = XMLHandler.getTagValue( hopnode, "enabled" );
@@ -97,8 +127,8 @@ public class JobHopMeta extends BaseHopMeta<JobEntryCopy> {
     StringBuilder retval = new StringBuilder( 200 );
     if ( ( null != this.from ) && ( null != this.to ) ) {
       retval.append( "    " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "from", this.from.getName() ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "to", this.to.getName() ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( XML_FROM_TAG, this.from.getName() ) );
+      retval.append( "      " ).append( XMLHandler.addTagValue( XML_TO_TAG, this.to.getName() ) );
       retval.append( "      " ).append( XMLHandler.addTagValue( "from_nr", this.from.getNr() ) );
       retval.append( "      " ).append( XMLHandler.addTagValue( "to_nr", this.to.getNr() ) );
       retval.append( "      " ).append( XMLHandler.addTagValue( "enabled", enabled ) );

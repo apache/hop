@@ -90,25 +90,25 @@ public class GuiAction {
     if ( filter == null ) {
       return false;
     }
-    if ( matchesString(name, filter) ) {
+    if ( matchesString( name, filter ) ) {
       return true;
     }
-    if ( matchesString(tooltip, filter) ) {
+    if ( matchesString( tooltip, filter ) ) {
       return true;
     }
-    if ( type!=null && matchesString( type.name(), filter)) {
+    if ( type != null && matchesString( type.name(), filter ) ) {
       return true;
     }
     for ( String keyword : keywords ) {
-      if ( matchesString( keyword, filter )) {
+      if ( matchesString( keyword, filter ) ) {
         return true;
       }
     }
     return false;
   }
 
-  private boolean matchesString(String string, String filter) {
-    if ( StringUtils.isEmpty(string)) {
+  private boolean matchesString( String string, String filter ) {
+    if ( StringUtils.isEmpty( string ) ) {
       return false;
     }
     // TODO: consider some fuzzy matching algorithm

@@ -1,54 +1,64 @@
 <gui-plugins>
 
-  <gui-plugin id="Hop-GUI">
-    <description>Hop GUI Plugin</description>
+  <gui-plugin>
     <classname>org.apache.hop.ui.hopgui.HopGui</classname>
+    <description>Hop GUI Plugin</description>
   </gui-plugin>
 
-  <gui-plugin id="Generic-GUI">
-    <description>Generic database GUI Plugin</description>
+  <gui-plugin>
     <classname>org.apache.hop.core.database.GenericDatabaseMeta</classname>
+    <description>Generic database GUI Plugin</description>
   </gui-plugin>
 
-  <gui-plugin id="MySQL-Gui">
-    <description>MySQL GUI Plugin</description>
+  <gui-plugin>
     <classname>org.apache.hop.core.database.MySQLDatabaseMeta</classname>
+    <description>MySQL GUI Plugin</description>
   </gui-plugin>
 
-  <gui-plugin id="Oracle-GUI">
-    <description>Oracle GUI Plugin</description>
+  <gui-plugin>
     <classname>org.apache.hop.core.database.OracleDatabaseMeta</classname>
+    <description>Oracle GUI Plugin</description>
   </gui-plugin>
 
-  <gui-plugin id="Hop-Data-Orchestration-Perspective-GUI">
-    <description>Hop Data Orchestration Perspective GUI</description>
+  <gui-plugin>
     <classname>org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective</classname>
+    <description>Hop Data Orchestration Perspective GUI</description>
   </gui-plugin>
 
-  <gui-plugin id="Hop-Search-Perspective-GUI">
-    <description>Hop Search Perspective GUI</description>
+  <gui-plugin>
     <classname>org.apache.hop.ui.hopgui.perspective.search.HopSearchPlugin</classname>
+    <description>Hop Search Perspective GUI</description>
   </gui-plugin>
 
-  <gui-plugin id="TransGraph-Tabs">
-    <description>Transformation Graph tab</description>
+  <gui-plugin>
     <classname>org.apache.hop.ui.hopgui.file.trans.HopGuiTransGraph</classname>
+    <description>Transformation Graph tab</description>
   </gui-plugin>
 
-  <gui-plugin id="TransGraph-PreviewDelegate">
+  <gui-plugin>
+    <classname>org.apache.hop.ui.hopgui.file.trans.delegates.HopGuiTransPreviewDelegate</classname>
     <description>Transformation Graph Preview Delegate</description>
-    <classname>org.apache.hop.ui.hopgui.file.trans.HopGuiTransPreviewDelegate</classname>
   </gui-plugin>
 
-  <gui-plugin id="HopGuiTransGridDelegate">
+  <gui-plugin>
+    <classname>org.apache.hop.ui.hopgui.file.trans.delegates.HopGuiTransGridDelegate</classname>
     <description>Transformation Graph Grid Delegate</description>
-    <classname>org.apache.hop.ui.hopgui.file.trans.HopGuiTransGridDelegate</classname>
   </gui-plugin>
 
-  <gui-plugin id="HopGuiTransLogDelegate">
+  <gui-plugin>
+    <classname>org.apache.hop.ui.hopgui.file.trans.delegates.HopGuiTransLogDelegate</classname>
     <description>Transformation Graph Log Delegate</description>
-    <classname>org.apache.hop.ui.hopgui.file.trans.HopGuiTransLogDelegate</classname>
   </gui-plugin>
 
+
+  <gui-plugin>
+    <classname>org.apache.hop.ui.hopgui.file.job.HopGuiJobGraph</classname>
+    <description>Job Graph tab</description>
+  </gui-plugin>
+
+  <gui-plugin>
+    <classname>org.apache.hop.ui.hopgui.file.job.delegates.HopGuiJobLogDelegate</classname>
+    <description>Job Graph Log Delegate</description>
+  </gui-plugin>
 
 </gui-plugins>

@@ -28,7 +28,6 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.variables.VariableSpace;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.Map;
 
 public interface ExecutionConfiguration extends Cloneable {

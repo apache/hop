@@ -32,48 +32,49 @@
         ondialogaccept="handler.onAccept()"
         ondialogcancel="handler.onCancel()"
         onload="handler.init()"
-        >
+>
 
-    <hbox flex="1" id="outer_container">
-        <vbox flex="1">
+  <hbox flex="1" id="outer_container">
+    <vbox flex="1">
 
-            <hbox>
-                <spacer flex="1"/>
-                <button id="add_button" image="org/pentaho/di/ui/core/auth/resources/Add.png" onclick="handler.addNew()"/>
-                <button id="remove_button" pen:disabledimage="org/pentaho/di/ui/core/auth/resources/dRemove.png" image="org/pentaho/di/ui/core/auth/resources/Remove.png" onclick="handler.remove()"/>
-            </hbox>
+      <hbox>
+        <spacer flex="1"/>
+        <button id="add_button" image="org/pentaho/di/ui/core/auth/resources/Add.png" onclick="handler.addNew()"/>
+        <button id="remove_button" pen:disabledimage="org/pentaho/di/ui/core/auth/resources/dRemove.png"
+                image="org/pentaho/di/ui/core/auth/resources/Remove.png" onclick="handler.remove()"/>
+      </hbox>
 
-            <listbox flex="2" id="auth_list"  disabled="false" seltype="single" pen:binding="name">
-            </listbox>
+      <listbox flex="2" id="auth_list" disabled="false" seltype="single" pen:binding="name">
+      </listbox>
 
-        </vbox>
+    </vbox>
 
-        <vbox flex="4">
-            <grid id="method_grid">
-                <columns>
-                    <column/>
-                    <column flex="1"/>
-                </columns>
-                <rows>
-                    <row>
-                        <label value="${dialog.name}"/>
-                        <textbox flex="1" id="name"/>
-                    </row>
-                    <row>
-                        <label value="${dialog.method}"/>
+    <vbox flex="4">
+      <grid id="method_grid">
+        <columns>
+          <column/>
+          <column flex="1"/>
+        </columns>
+        <rows>
+          <row>
+            <label value="${dialog.name}"/>
+            <textbox flex="1" id="name"/>
+          </row>
+          <row>
+            <label value="${dialog.method}"/>
 
-                        <menulist label="method" id="method_list">
-                            <menupopup>
-                            </menupopup>
-                        </menulist>
-                    </row>
-                </rows>
-            </grid>
+            <menulist label="method" id="method_list">
+              <menupopup>
+              </menupopup>
+            </menulist>
+          </row>
+        </rows>
+      </grid>
 
-            <hbox id="overlay_real_estate" flex="1">
-            </hbox>
-        </vbox>
+      <hbox id="overlay_real_estate" flex="1">
+      </hbox>
+    </vbox>
 
-    </hbox>
+  </hbox>
 
 </dialog>

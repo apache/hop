@@ -42,7 +42,7 @@ public class SnapAllignDistribute {
     this.redrawable = redrawable;
   }
 
-  public void snaptogrid( int size ) {
+  public void snapToGrid( int size ) {
     if ( elements.isEmpty() ) {
       return;
     }

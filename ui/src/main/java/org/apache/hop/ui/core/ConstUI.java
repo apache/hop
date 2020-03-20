@@ -24,11 +24,9 @@ package org.apache.hop.ui.core;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
-import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TreeItem;
-import org.pentaho.ui.xul.containers.XulMenupopup;
 
 /**
  * This class is used to define a number of default values for various settings throughout Hop. It also contains a
@@ -245,14 +243,6 @@ public class ConstUI {
       }
     }
     return null;
-  }
-
-  public static void displayMenu( XulMenupopup xulMenuPopup, Control control ) {
-
-    MenuManager menuMgr = (MenuManager) xulMenuPopup.getManagedObject();
-    Menu menu = menuMgr.createContextMenu( control );
-    menuMgr.updateAll( true );
-    displayMenu( menu, control );
   }
 
   public static void displayMenu( Menu menu, Control control ) {

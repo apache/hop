@@ -30,10 +30,10 @@ import java.net.Socket;
  * Utility class for socket related methods
  */
 public class SocketUtil {
-	
-  private SocketUtil() {		 
+
+  private SocketUtil() {
   }
-  
+
   /**
    * Attempts to connect to the specified host, wrapping any exceptions in a HopException
    *
@@ -52,7 +52,7 @@ public class SocketUtil {
         socket.connect( is, timeout );
       }
     } catch ( Exception e ) {
-      throw new HopException( e );    
+      throw new HopException( e );
     }
   }
 }

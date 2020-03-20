@@ -22,15 +22,12 @@
 
 package org.apache.hop.ui.hopgui.perspective.dataorch;
 
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.GUIPositionInterface;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopui.ChangedWarningDialog;
-import org.apache.hop.ui.hopui.ChangedWarningInterface;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Canvas;
@@ -40,14 +37,16 @@ import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * The beginnings of a common graph object, used by JobGraph and HopGuiTransGraph to share common behaviors.
- *
  */
 public abstract class HopGuiAbstractGraph extends Composite {
 
   protected HopGui hopUi;
+
+  protected Composite parentComposite;
 
   protected CTabItem parentTabItem;
 
@@ -62,12 +61,17 @@ public abstract class HopGuiAbstractGraph extends Composite {
   private boolean changedState;
   private Font defaultFont;
 
+  protected final String id;
+
   public HopGuiAbstractGraph( HopGui hopUi, Composite parent, int style, CTabItem parentTabItem ) {
     super( parent, style );
+    this.parentComposite = parent;
+
     this.hopUi = hopUi;
     this.parentTabItem = parentTabItem;
     defaultFont = parentTabItem.getFont();
     changedState = false;
+    this.id = UUID.randomUUID().toString();
   }
 
   protected Shell hopShell() {
@@ -151,11 +155,11 @@ public abstract class HopGuiAbstractGraph extends Composite {
   public abstract boolean hasChanged();
 
   public void redraw() {
-    if ( isDisposed() || canvas.isDisposed() || parentTabItem.isDisposed() ) {
+    if ( isDisposed() || canvas == null || canvas.isDisposed() || parentTabItem.isDisposed() ) {
       return;
     }
 
-    if (hasChanged()!=changedState) {
+    if ( hasChanged() != changedState ) {
       changedState = hasChanged();
       if ( hasChanged() ) {
         parentTabItem.setFont( GUIResource.getInstance().getFontBold() );
@@ -167,21 +171,21 @@ public abstract class HopGuiAbstractGraph extends Composite {
   }
 
 
-  @GuiKeyboardShortcut( control = true, key = '=')
+  @GuiKeyboardShortcut( control = true, key = '=' )
   public void zoomIn() {
     magnification += .1f;
     redraw();
   }
 
-  @GuiKeyboardShortcut( control = true, key = '-')
+  @GuiKeyboardShortcut( control = true, key = '-' )
   public void zoomOut() {
-    if (magnification>0.15f) {
+    if ( magnification > 0.15f ) {
       magnification -= .1f;
     }
     redraw();
   }
 
-  @GuiKeyboardShortcut( control = true, key = '0')
+  @GuiKeyboardShortcut( control = true, key = '0' )
   public void zoom100Percent() {
     magnification = 1.0f;
     redraw();
@@ -212,39 +216,6 @@ public abstract class HopGuiAbstractGraph extends Composite {
     return canvas.forceFocus();
   }
 
-  /**
-   * Gets the ChangedWarning for the given TabItemInterface class. This should be overridden by a given TabItemInterface
-   * class to support the changed warning dialog.
-   *
-   * @return ChangedWarningInterface The class that provides the dialog and return value
-   */
-  public ChangedWarningInterface getChangedWarning() {
-    return ChangedWarningDialog.getInstance();
-  }
-
-  /**
-   * Show the ChangedWarning and return the users selection
-   *
-   * @return int Value of SWT.YES, SWT.NO, SWT.CANCEL
-   */
-  public int showChangedWarning( String fileName ) throws HopException {
-    ChangedWarningInterface changedWarning = getChangedWarning();
-
-    if ( changedWarning != null ) {
-      try {
-        return changedWarning.show( fileName );
-      } catch ( Exception e ) {
-        throw new HopException( e );
-      }
-    }
-
-    return 0;
-  }
-
-  public int showChangedWarning() throws HopException {
-    return showChangedWarning( null );
-  }
-
   public void dispose() {
     parentTabItem.dispose();
   }
@@ -265,4 +236,28 @@ public abstract class HopGuiAbstractGraph extends Composite {
     this.parentTabItem = parentTabItem;
   }
 
+  /**
+   * Gets parentComposite
+   *
+   * @return value of parentComposite
+   */
+  public Composite getParentComposite() {
+    return parentComposite;
+  }
+
+  /**
+   * @param parentComposite The parentComposite to set
+   */
+  public void setParentComposite( Composite parentComposite ) {
+    this.parentComposite = parentComposite;
+  }
+
+  /**
+   * Gets id
+   *
+   * @return value of id
+   */
+  public String getId() {
+    return id;
+  }
 }

@@ -86,7 +86,7 @@ public class TextVarButton extends TextVar {
     FormData fdButton = new FormData();
     fdButton.top = new FormAttachment( 0, 0 );
     fdButton.right = new FormAttachment( 100, 0 );
-    fdButton.bottom = new FormAttachment(100);
+    fdButton.bottom = new FormAttachment( 100 );
     fdButton.width = 30;
     button.setLayoutData( fdButton );
     if ( selectionListener != null ) {

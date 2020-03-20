@@ -24,17 +24,13 @@ package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.VariableSpace;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.trans.HasDatabasesInterface;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopui.HopUi;
-import org.apache.hop.ui.hopui.delegates.HopUiDBDelegate;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
@@ -60,7 +56,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
-import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -115,16 +110,6 @@ public class EnterSelectionDialog extends Dialog {
   private String filterString = null;
   private Pattern pattern = null;
   private Text searchText = null;
-  private HasDatabasesInterface databasesInterface;
-
-  /**
-   * @deprecated Use CT without <i>props</i> parameter
-   */
-  @Deprecated
-  public EnterSelectionDialog( Shell parent, PropsUI props, String[] choices, String shellText, String lineText ) {
-    this( parent, choices, shellText, lineText );
-    this.props = props;
-  }
 
   /**
    * Create a new dialog allow someone to pick one value out of a list of values
@@ -156,12 +141,6 @@ public class EnterSelectionDialog extends Dialog {
     this( parent, choices, shellText, message );
     this.shellWidth = shellWidth;
     this.shellHeight = shellHeight;
-  }
-
-  public EnterSelectionDialog( Shell parent, String[] choices, String shellText, String message,
-                               HasDatabasesInterface databasesInterface ) {
-    this( parent, choices, shellText, message );
-    this.databasesInterface = databasesInterface;
   }
 
   public EnterSelectionDialog( Shell parent, String[] choices, String shellText, String message, String constant,
@@ -235,18 +214,6 @@ public class EnterSelectionDialog extends Dialog {
           updateFilter();
         }
       } );
-
-      if ( this.databasesInterface != null ) {
-        addConnection = new ToolItem( treeTb, SWT.PUSH );
-        addConnection.setImage( GUIResource.getInstance().getImageAdd() );
-        addConnection.setToolTipText( BaseMessages.getString( PKG, "Add.Datasource.Label" ) );
-
-        addConnection.addSelectionListener( new SelectionAdapter() {
-          public void widgetSelected( SelectionEvent event ) {
-            addDataSource();
-          }
-        } );
-      }
 
       FormData fd = new FormData();
       fd.right = new FormAttachment( 100 );
@@ -699,26 +666,6 @@ public class EnterSelectionDialog extends Dialog {
       }
     }
     refresh();
-  }
-
-  protected void addDataSource() {
-    try {
-      HopUi theHopUi = HopUi.getInstance();
-      HopUiDBDelegate theDelegate = new HopUiDBDelegate( theHopUi );
-      theDelegate.newConnection( theHopUi.getActiveVariableSpace() );
-
-      ArrayList<DatabaseMeta> theDatabases = new ArrayList<DatabaseMeta>();
-      theDatabases.addAll( this.databasesInterface.getDatabases() );
-
-      String[] theNames = new String[ theDatabases.size() ];
-      for ( int i = 0; i < theDatabases.size(); i++ ) {
-        theNames[ i ] = theDatabases.get( i ).getName();
-      }
-      this.choices = theNames;
-      refresh();
-    } catch ( Exception e ) {
-      new ErrorDialog( shell, "Error", "Error adding datasource", e );
-    }
   }
 
   private void refresh() {

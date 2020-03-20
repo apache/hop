@@ -24,8 +24,6 @@ package org.apache.hop.trans.step;
 
 import org.apache.hop.metastore.api.IMetaStore;
 
-import java.awt.*;
-
 /**
  * This interface is used to launch Step Dialogs. All dialogs that implement this simple interface can be opened by
  * Spoon.
@@ -43,9 +41,10 @@ public interface StepDialogInterface {
   String open();
 
   /**
-  void populateComposite( Composite parent);
-
-  /**
+   * void populateComposite( Composite parent);
+   * <p>
+   * /**
+   *
    * @param metaStore The MetaStore to pass
    */
   void setMetaStore( IMetaStore metaStore );

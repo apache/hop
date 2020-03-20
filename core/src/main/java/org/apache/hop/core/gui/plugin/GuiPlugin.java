@@ -37,7 +37,7 @@ import java.lang.annotation.Target;
 @Retention( RetentionPolicy.RUNTIME )
 @Target( ElementType.TYPE )
 public @interface GuiPlugin {
-  String id();
+  String id() default ""; // defaults to class name
 
   String description() default "";
 }

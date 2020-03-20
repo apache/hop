@@ -128,12 +128,11 @@ public class SlaveServerTest {
     when( status.getStatusCode() ).thenReturn( statusCode );
     when( resp.getStatusLine() ).thenReturn( status );
     HttpEntity entity = mock( HttpEntity.class );
-    when( entity.getContent() ).thenReturn( new ByteArrayInputStream(entityText.getBytes(StandardCharsets.UTF_8)) );
+    when( entity.getContent() ).thenReturn( new ByteArrayInputStream( entityText.getBytes( StandardCharsets.UTF_8 ) ) );
     when( resp.getEntity() ).thenReturn( entity );
     return resp;
   }
-  
-  
+
 
   @Test( expected = HopException.class )
   public void testExecService() throws Exception {

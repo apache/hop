@@ -201,7 +201,6 @@
 				<includes>
 					<include>**/*.properties</include>
 					<include>**/*.svg</include>
-					<include>**/*.xul</include>
 				</includes>
 			</resource>
 			<resource>
@@ -209,7 +208,6 @@
 				<includes>
 					<include>**/*.properties</include>
 					<include>**/*.svg</include>
-					<include>**/*.xul</include>
 				</includes>
 			</resource>
 		</resources>

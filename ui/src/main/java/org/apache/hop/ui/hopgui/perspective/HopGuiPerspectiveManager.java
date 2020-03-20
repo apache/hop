@@ -1,6 +1,9 @@
 package org.apache.hop.ui.hopgui.perspective;
 
+import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
+import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.eclipse.swt.widgets.Composite;
 
 import java.util.ArrayList;
@@ -19,25 +22,25 @@ public class HopGuiPerspectiveManager {
 
   private Map<Class<? extends IHopPerspective>, IHopPerspective> perspectivesMap;
 
-  public HopGuiPerspectiveManager(HopGui hopGui, Composite mainPerspectiveComposite) {
+  public HopGuiPerspectiveManager( HopGui hopGui, Composite mainPerspectiveComposite ) {
     this.hopGui = hopGui;
     this.mainPerspectiveComposite = mainPerspectiveComposite;
     this.perspectivesMap = new HashMap<>();
   }
 
-  public void addPerspective(IHopPerspective perspective) {
-    perspectivesMap.put(perspective.getClass(), perspective);
+  public void addPerspective( IHopPerspective perspective ) {
+    perspectivesMap.put( perspective.getClass(), perspective );
   }
 
-  public IHopPerspective getComposite(Class<? extends IHopPerspective> perspectiveClass) {
+  public IHopPerspective getComposite( Class<? extends IHopPerspective> perspectiveClass ) {
     return perspectivesMap.get( perspectiveClass );
   }
 
   public void showPerspective( Class<? extends IHopPerspective> perspectiveClass ) {
     // Hide all perspectives but one...
     //
-    for (IHopPerspective perspective : perspectivesMap.values()) {
-      if (perspective.getClass().equals( perspectiveClass )) {
+    for ( IHopPerspective perspective : perspectivesMap.values() ) {
+      if ( perspective.getClass().equals( perspectiveClass ) ) {
         perspective.show();
         hopGui.setActivePerspective( perspective );
       } else {
@@ -48,15 +51,34 @@ public class HopGuiPerspectiveManager {
   }
 
   public IHopPerspective findPerspective( Class<? extends IHopPerspective> perspectiveClass ) {
-    for (IHopPerspective perspective : perspectivesMap.values()) {
-      if (perspective.getClass().equals( perspectiveClass )) {
+    for ( IHopPerspective perspective : perspectivesMap.values() ) {
+      if ( perspective.getClass().equals( perspectiveClass ) ) {
         return perspective;
       }
     }
     return null;
   }
 
-  /** Get a copy of all the handled/registered perspectives
+  /**
+   * Loop over all perspectives and see if any one of them recognises the object
+   *
+   * @param fileMetadata
+   * @return
+   */
+  public HopFileTypeInterface findFileTypeHandler( IHasFilename fileMetadata ) {
+    for ( IHopPerspective perspective : getPerspectives() ) {
+      for ( HopFileTypeInterface fileType : perspective.getSupportedHopFileTypes() ) {
+        if ( fileType.supportsFile( fileMetadata ) ) {
+          return fileType;
+        }
+      }
+    }
+    return new EmptyFileType();
+  }
+
+
+  /**
+   * Get a copy of all the handled/registered perspectives
    *
    * @return All perspectives copied over in a new list
    */

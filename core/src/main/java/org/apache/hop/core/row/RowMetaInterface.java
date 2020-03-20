@@ -312,7 +312,6 @@ public interface RowMetaInterface extends Cloneable {
    *
    * @param r The row to be merged with this row
    */
-  @Deprecated
   public void mergeRowMeta( RowMetaInterface r );
 
   /**

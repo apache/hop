@@ -35,7 +35,7 @@ import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.core.dialog.ConfigurationDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.layout.FormAttachment;
@@ -114,7 +114,7 @@ public class TransExecutionConfigurationDialog extends ConfigurationDialog {
   public boolean open() {
     mainLayout( PKG, "TransExecutionConfigurationDialog", GUIResource.getInstance().getImageTransGraph() );
 
-    String docUrl = Const.getDocUrl( BaseMessages.getString( HopUi.class, "Spoon.TransExecutionConfigurationDialog.Help" ) );
+    String docUrl = Const.getDocUrl( BaseMessages.getString( HopGui.class, "Spoon.TransExecutionConfigurationDialog.Help" ) );
     String docTitle = BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.docTitle" );
     String docHeader = BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.docHeader" );
     buttonsSectionLayout( PKG, "TransExecutionConfigurationDialog", docTitle, docUrl, docHeader );
@@ -158,7 +158,7 @@ public class TransExecutionConfigurationDialog extends ConfigurationDialog {
     List<String> runConfigurations = new ArrayList<>();
     try {
       ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopExtensionPoint.HopUiRunConfiguration.id,
-          new Object[] { runConfigurations, TransMeta.XML_TAG } );
+        new Object[] { runConfigurations, TransMeta.XML_TAG } );
     } catch ( HopException e ) {
       // Ignore errors
     }

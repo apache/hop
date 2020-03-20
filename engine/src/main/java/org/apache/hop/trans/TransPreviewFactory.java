@@ -42,13 +42,11 @@ public class TransPreviewFactory {
     // At it to the first step.
     StepMeta one = new StepMeta( registry.getPluginId( StepPluginType.class, oneMeta ), oneStepname, oneMeta );
     one.setLocation( 50, 50 );
-    one.setDraw( true );
     previewMeta.addStep( one );
 
     DummyTransMeta twoMeta = new DummyTransMeta();
     StepMeta two = new StepMeta( registry.getPluginId( StepPluginType.class, twoMeta ), "dummy", twoMeta );
     two.setLocation( 250, 50 );
-    two.setDraw( true );
     previewMeta.addStep( two );
 
     TransHopMeta hop = new TransHopMeta( one, two );

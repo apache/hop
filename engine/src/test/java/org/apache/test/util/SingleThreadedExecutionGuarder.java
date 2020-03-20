@@ -62,7 +62,6 @@ public abstract class SingleThreadedExecutionGuarder<Meta extends StepMetaInterf
     assertNotNull( "pluginId", id );
 
     StepMeta stepMeta = new StepMeta( id, "stepMetrics", metaInterface );
-    stepMeta.setDraw( true );
 
     TransMeta transMeta = new TransMeta();
     transMeta.setName( "failsWhenGivenNonSingleThreadSteps" );

@@ -501,7 +501,7 @@ public class ValueMetaBaseTest {
 
   @Test
   public void testCompareDate() throws HopValueException {
-	ValueMetaInterface dateMeta = new ValueMetaDate( "int" );
+    ValueMetaInterface dateMeta = new ValueMetaDate( "int" );
     Date date1 = new Date( 6223372036854775804L );
     Date date2 = new Date( -6223372036854775804L );
     assertEquals( 1, dateMeta.compare( date1, date2 ) );
@@ -511,7 +511,7 @@ public class ValueMetaBaseTest {
 
   @Test
   public void testCompareDateWithStorageMask() throws HopValueException {
-	ValueMetaInterface storageMeta = new ValueMetaString( "string" );
+    ValueMetaInterface storageMeta = new ValueMetaString( "string" );
     storageMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
     storageMeta.setConversionMask( "MM/dd/yyyy HH:mm" );
 
@@ -538,7 +538,7 @@ public class ValueMetaBaseTest {
 
   @Test
   public void testCompareDateNoStorageMask() throws HopValueException {
-	ValueMetaInterface storageMeta = new ValueMetaString( "string" );
+    ValueMetaInterface storageMeta = new ValueMetaString( "string" );
     storageMeta.setStorageType( ValueMetaInterface.STORAGE_TYPE_NORMAL );
     storageMeta.setConversionMask( null ); // explicit set to null, to make sure test condition are met
 
@@ -576,7 +576,7 @@ public class ValueMetaBaseTest {
 
   @Test
   public void testDateParsing8601() throws Exception {
-	ValueMetaDate dateMeta = new ValueMetaDate( "date" );
+    ValueMetaDate dateMeta = new ValueMetaDate( "date" );
     dateMeta.setDateFormatLenient( false );
 
     // try to convert date by 'start-of-date' make - old behavior

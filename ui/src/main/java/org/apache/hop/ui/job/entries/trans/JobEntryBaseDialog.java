@@ -42,7 +42,7 @@ import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -616,7 +616,7 @@ public abstract class JobEntryBaseDialog extends JobEntryDialog {
       executorService.submit( () -> {
         List<Object> items = Arrays.asList( runConfiguration, false );
         try {
-          ExtensionPointHandler.callExtensionPoint( HopUi.getInstance().getLog(), HopExtensionPoint
+          ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint
             .RunConfigurationSelection.id, items );
         } catch ( HopException ignored ) {
           // Ignore errors

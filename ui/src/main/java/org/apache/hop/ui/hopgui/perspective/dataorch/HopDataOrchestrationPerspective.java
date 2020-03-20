@@ -7,6 +7,7 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
+import org.apache.hop.job.JobMeta;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
@@ -14,8 +15,11 @@ import org.apache.hop.ui.core.widget.TabFolderReorder;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypeHandlerInterface;
+import org.apache.hop.ui.hopgui.file.HopFileTypeInterface;
+import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.job.HopGuiJobGraph;
+import org.apache.hop.ui.hopgui.file.job.HopJobFileType;
 import org.apache.hop.ui.hopgui.file.trans.HopGuiTransGraph;
 import org.apache.hop.ui.hopgui.file.trans.HopTransFileType;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
@@ -32,6 +36,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
@@ -40,14 +45,15 @@ import java.util.Stack;
   name = "Data Orchestration",
   description = "The Hop Data Orchestration Perspective for pipelines and workflows"
 )
-@GuiPlugin(
-  id = "GuiPlugin-HopDataOrchestrationPerspective"
-)
+@GuiPlugin
 public class HopDataOrchestrationPerspective implements IHopPerspective {
 
   public static final String STRING_NEW_TRANSFORMATION_PREFIX = "Transformation";
 
   private static HopDataOrchestrationPerspective perspective;
+  private final HopTransFileType<TransMeta> transFileType;
+  private final HopJobFileType<JobMeta> jobFileType;
+
   private HopGui hopGui;
   private Composite parent;
 
@@ -74,6 +80,9 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     activeItem = null;
     tabSelectionHistory = new Stack<>();
     tabSelectionIndex = 0;
+
+    transFileType = new HopTransFileType<TransMeta>();
+    jobFileType = new HopJobFileType<JobMeta>();
   }
 
   @GuiToolbarElement(
@@ -133,20 +142,20 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
     tabFolder.addCTabFolder2Listener( new CTabFolder2Adapter() {
       @Override public void close( CTabFolderEvent event ) {
-        handleTabCloseEvent(event);
+        handleTabCloseEvent( event );
       }
-    });
-    tabFolder.addListener( SWT.Selection, event-> handTabSelectionEvent(event) );
+    } );
+    tabFolder.addListener( SWT.Selection, event -> handTabSelectionEvent( event ) );
 
     // Support reorder tab item
-    new TabFolderReorder(tabFolder);
+    new TabFolderReorder( tabFolder );
 
   }
 
   private void handTabSelectionEvent( Event event ) {
     CTabItem tabItem = (CTabItem) event.item;
     activeItem = findTabItemHandler( tabItem );
-    if (activeItem!=null) {
+    if ( activeItem != null ) {
       activeItem.getTypeHandler().redraw();
       activeItem.getTypeHandler().updateGui();
     }
@@ -154,7 +163,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     Integer lastIndex = tabSelectionHistory.isEmpty() ? null : tabSelectionHistory.peek();
     if ( lastIndex == null || lastIndex != tabIndex ) {
       tabSelectionHistory.push( tabIndex );
-      tabSelectionIndex = tabSelectionHistory.size()-1;
+      tabSelectionIndex = tabSelectionHistory.size() - 1;
     }
   }
 
@@ -168,22 +177,22 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     CTabItem tabItem = (CTabItem) event.item;
     int tabIndex = tabFolder.indexOf( tabItem );
     TabItemHandler tabItemHandler = findTabItemHandler( tabItem );
-    if (tabItemHandler==null) {
-      hopGui.getLog().logError( "Tab item handler not found for tab item "+tabItem.toString() );
+    if ( tabItemHandler == null ) {
+      hopGui.getLog().logError( "Tab item handler not found for tab item " + tabItem.toString() );
       return;
     }
     HopFileTypeHandlerInterface typeHandler = tabItemHandler.getTypeHandler();
-    remove(typeHandler);
+    remove( typeHandler );
 
     // Also switch to the last used tab
     // But first remove all from the selection history
     //
-    if (tabIndex>=0) {
+    if ( tabIndex >= 0 ) {
       // Remove the index from the tab selection history
       //
       int historyIndex = tabSelectionHistory.indexOf( tabIndex );
-      while ( historyIndex>=0 ) {
-        if (historyIndex<=tabSelectionIndex) {
+      while ( historyIndex >= 0 ) {
+        if ( historyIndex <= tabSelectionIndex ) {
           tabSelectionIndex--;
         }
         tabSelectionHistory.remove( historyIndex );
@@ -196,38 +205,38 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
       //
       Stack<Integer> newHistory = new Stack<>();
       Integer previous = null;
-      for (int i=0;i<tabSelectionHistory.size();i++ ) {
-        Integer index = tabSelectionHistory.get(i);
-        if (previous==null || previous!=index) {
-          newHistory.add(index);
+      for ( int i = 0; i < tabSelectionHistory.size(); i++ ) {
+        Integer index = tabSelectionHistory.get( i );
+        if ( previous == null || previous != index ) {
+          newHistory.add( index );
         } else {
-          if (tabSelectionIndex>=i) {
+          if ( tabSelectionIndex >= i ) {
             tabSelectionIndex--;
           }
         }
-        previous=index;
+        previous = index;
       }
-      tabSelectionHistory=newHistory;
+      tabSelectionHistory = newHistory;
 
       // Correct the history taken the removed tab into account
       //
-      for ( int i=0;i<tabSelectionHistory.size();i++) {
+      for ( int i = 0; i < tabSelectionHistory.size(); i++ ) {
         int index = tabSelectionHistory.get( i );
-        if (index>tabIndex) {
+        if ( index > tabIndex ) {
           tabSelectionHistory.set( i, index-- );
         }
       }
 
       // Select the appropriate tab on the stack
       //
-      if ( tabSelectionIndex<0) {
-        tabSelectionIndex=0;
-      } else if (tabSelectionIndex>=tabSelectionHistory.size() ) {
-        tabSelectionIndex=tabSelectionHistory.size()-1;
+      if ( tabSelectionIndex < 0 ) {
+        tabSelectionIndex = 0;
+      } else if ( tabSelectionIndex >= tabSelectionHistory.size() ) {
+        tabSelectionIndex = tabSelectionHistory.size() - 1;
       }
-      if (!tabSelectionHistory.isEmpty()) {
+      if ( !tabSelectionHistory.isEmpty() ) {
         Integer activeIndex = tabSelectionHistory.get( tabSelectionIndex );
-        if (activeIndex<items.size()) {
+        if ( activeIndex < items.size() ) {
           activeItem = items.get( activeIndex );
           tabFolder.setSelection( activeIndex );
           activeItem.getTypeHandler().updateGui();
@@ -236,18 +245,18 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     }
   }
 
-  public TabItemHandler findTabItemHandler(CTabItem tabItem) {
+  public TabItemHandler findTabItemHandler( CTabItem tabItem ) {
     int index = tabFolder.indexOf( tabItem );
-    if (index<0 || index>=items.size()) {
+    if ( index < 0 || index >= items.size() ) {
       return null;
     }
-    return items.get(index);
+    return items.get( index );
   }
 
-  public TabItemHandler findTabItemHandler(HopFileTypeHandlerInterface handler) {
-    for (TabItemHandler item : items) {
+  public TabItemHandler findTabItemHandler( HopFileTypeHandlerInterface handler ) {
+    for ( TabItemHandler item : items ) {
       // This compares the handler payload, typically TransMeta, JobMeta and so on.
-      if (item.getTypeHandler().equals( handler )) {
+      if ( item.getTypeHandler().equals( handler ) ) {
         return item;
       }
     }
@@ -272,22 +281,22 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
     // Switch to the tab
     tabFolder.setSelection( tabItem );
-    activeItem = new TabItemHandler(tabItem, transGraph);
+    activeItem = new TabItemHandler( tabItem, transGraph );
     items.add( activeItem );
 
     // Remove all the history above the current tabSelectionIndex
     //
-    while (tabSelectionHistory.size()-1>tabSelectionIndex) {
+    while ( tabSelectionHistory.size() - 1 > tabSelectionIndex ) {
       tabSelectionHistory.pop();
     }
     int tabIndex = tabFolder.indexOf( tabItem );
     tabSelectionHistory.add( tabIndex );
-    tabSelectionIndex = tabSelectionHistory.size()-1;
+    tabSelectionIndex = tabSelectionHistory.size() - 1;
 
     try {
       ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.HopGuiNewTransformationTab.id, transGraph );
-    } catch(Exception e) {
-      throw new HopException( "Error calling extension point plugin for plugin id "+HopExtensionPoint.HopGuiNewTransformationTab.id+" trying to handle a new transformation tab", e );
+    } catch ( Exception e ) {
+      throw new HopException( "Error calling extension point plugin for plugin id " + HopExtensionPoint.HopGuiNewTransformationTab.id + " trying to handle a new transformation tab", e );
     }
 
     transGraph.setFocus();
@@ -296,17 +305,59 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   }
 
   /**
+   * Add a new job tab to the tab folder...
+   *
+   * @param jobMeta
+   * @return The file type handler
+   */
+  public HopFileTypeHandlerInterface addJob( Composite parent, HopGui hopGui, JobMeta jobMeta, HopJobFileType jobFile ) throws HopException {
+    CTabItem tabItem = new CTabItem( tabFolder, SWT.CLOSE );
+    tabItem.setImage( GUIResource.getInstance().getImageToolbarJob() );
+    HopGuiJobGraph jobGraph = new HopGuiJobGraph( tabFolder, hopGui, tabItem, this, jobMeta, jobFile );
+    tabItem.setControl( jobGraph );
+
+    // Set the tab name
+    //
+    tabItem.setText( Const.NVL( jobGraph.buildTabName(), "" ) );
+
+    // Switch to the tab
+    tabFolder.setSelection( tabItem );
+    activeItem = new TabItemHandler( tabItem, jobGraph );
+    items.add( activeItem );
+
+    // Remove all the history above the current tabSelectionIndex
+    //
+    while ( tabSelectionHistory.size() - 1 > tabSelectionIndex ) {
+      tabSelectionHistory.pop();
+    }
+    int tabIndex = tabFolder.indexOf( tabItem );
+    tabSelectionHistory.add( tabIndex );
+    tabSelectionIndex = tabSelectionHistory.size() - 1;
+
+    try {
+      ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.HopGuiNewJobTab.id, jobGraph );
+    } catch ( Exception e ) {
+      throw new HopException( "Error calling extension point plugin for plugin id " + HopExtensionPoint.HopGuiNewTransformationTab.id + " trying to handle a new job tab", e );
+    }
+
+    jobGraph.setFocus();
+
+    return jobGraph;
+  }
+
+  /**
    * Remove the file type handler from this perspective, from the tab folder.
    * This simply tries to remove the item, does not
+   *
    * @param typeHandler The file type handler to remove
    * @return true if the handler was removed from the perspective, false if it wasn't (cancelled, not possible, ...)
    */
   @Override public boolean remove( HopFileTypeHandlerInterface typeHandler ) {
     TabItemHandler tabItemHandler = findTabItemHandler( typeHandler );
-    if (tabItemHandler==null) {
+    if ( tabItemHandler == null ) {
       return false;
     }
-    if (typeHandler.isCloseable()) {
+    if ( typeHandler.isCloseable() ) {
       // Remove the tab item handler from the list
       // Then close the tab item...
       //
@@ -316,7 +367,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
       // Also remove the keyboard shortcuts for this handler
       //
-      HopGuiKeyHandler.getInstance().removeParentObjectToHandle(typeHandler);
+      HopGuiKeyHandler.getInstance().removeParentObjectToHandle( typeHandler );
       hopGui.getMainHopGuiComposite().setFocus();
 
       return true;
@@ -326,17 +377,22 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
   /**
    * Get the active file type handler.  If none is active return an empty handler which does do anything.
+   *
    * @return the active file type handler or if none is active return an empty handler which does do anything.
    */
   @Override public HopFileTypeHandlerInterface getActiveFileTypeHandler() {
-    if (activeItem==null) {
+    if ( activeItem == null ) {
       return new EmptyHopFileTypeHandler();
     }
     return activeItem.getTypeHandler();
   }
 
+  public List<HopFileTypeInterface> getSupportedHopFileTypes() {
+    return Arrays.asList( transFileType, jobFileType );
+  }
+
   @Override public void navigateToPreviousFile() {
-    if (hasNavigationPreviousFile()) {
+    if ( hasNavigationPreviousFile() ) {
       tabSelectionIndex--;
       Integer tabIndex = tabSelectionHistory.get( tabSelectionIndex );
       activeItem = items.get( tabIndex );
@@ -346,7 +402,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   }
 
   @Override public void navigateToNextFile() {
-    if (hasNavigationNextFile()) {
+    if ( hasNavigationNextFile() ) {
       tabSelectionIndex++;
       Integer tabIndex = tabSelectionHistory.get( tabSelectionIndex );
       activeItem = items.get( tabIndex );
@@ -357,24 +413,26 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
   @Override
   public boolean hasNavigationPreviousFile() {
-    return tabSelectionIndex>0 && tabSelectionIndex<tabSelectionHistory.size();
+    return tabSelectionIndex > 0 && tabSelectionIndex < tabSelectionHistory.size();
   }
 
   @Override
   public boolean hasNavigationNextFile() {
-    return tabSelectionIndex+1 < tabSelectionHistory.size();
+    return tabSelectionIndex + 1 < tabSelectionHistory.size();
   }
 
   /**
    * Get the currently active context handlers in the perspective...
+   *
    * @return
    */
   public List<IGuiContextHandler> getContextHandlers() {
     List<IGuiContextHandler> handlers = new ArrayList<>();
     // For every file type we have a context handler...
     //
-    HopFileTypeHandlerInterface fileTypeHandler = getActiveFileTypeHandler();
-    handlers.addAll( fileTypeHandler.getContextHandlers() );
+    for ( HopFileTypeInterface fileType : getSupportedHopFileTypes() ) {
+      handlers.addAll( fileType.getContextHandlers() );
+    }
     return handlers;
   }
 
@@ -489,5 +547,23 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
    */
   public void setTabFolder( CTabFolder tabFolder ) {
     this.tabFolder = tabFolder;
+  }
+
+  /**
+   * Gets transFileType
+   *
+   * @return value of transFileType
+   */
+  public HopTransFileType<TransMeta> getTransFileType() {
+    return transFileType;
+  }
+
+  /**
+   * Gets jobFileType
+   *
+   * @return value of jobFileType
+   */
+  public HopJobFileType<JobMeta> getJobFileType() {
+    return jobFileType;
   }
 }

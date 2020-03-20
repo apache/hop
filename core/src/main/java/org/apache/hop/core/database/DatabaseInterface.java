@@ -793,12 +793,6 @@ public interface DatabaseInterface extends Cloneable {
   public boolean isExplorable();
 
   /**
-   * @return The name of the XUL overlay file to display extra options. This is only used in case of a non-standard
-   * plugin. Usually this method returns null.
-   */
-  public String getXulOverlayFile();
-
-  /**
    * @return The SQL on this database to get a list of sequences.
    */
   public String getSQLListOfSequences();

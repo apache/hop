@@ -10,6 +10,7 @@ public interface HopFileTypeHandlerInterface extends IActionContextHandlersProvi
 
   /**
    * Get a hold of the file type details
+   *
    * @return
    */
   HopFileTypeInterface getFileType();
@@ -21,9 +22,10 @@ public interface HopFileTypeHandlerInterface extends IActionContextHandlersProvi
 
   /**
    * Change the filename of the hop file
+   *
    * @param filename The new filename
    */
-  void setFilename(String filename);
+  void setFilename( String filename );
 
   /**
    * Save the file without asking for a new filename
@@ -33,7 +35,7 @@ public interface HopFileTypeHandlerInterface extends IActionContextHandlersProvi
   /**
    * Save the file after asking for a filename
    */
-  void saveAs(String filename) throws HopException;
+  void saveAs( String filename ) throws HopException;
 
   /**
    * Start execution
@@ -107,6 +109,7 @@ public interface HopFileTypeHandlerInterface extends IActionContextHandlersProvi
 
   /**
    * Perform any task needed to close a file, save it if needed
+   *
    * @return true if the file is ready to close. Return false if there was a problem saving or any other issue.
    */
   boolean isCloseable();
@@ -118,6 +121,7 @@ public interface HopFileTypeHandlerInterface extends IActionContextHandlersProvi
 
   /**
    * See if there anything has been changed by the user
+   *
    * @return true if there were changes worth saving, false if nothing has been changed.
    */
   boolean hasChanged();

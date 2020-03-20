@@ -717,7 +717,7 @@ public class GUIResource {
       disposeImage( imageMinimizePanel );
 
       disposeImage( imageShowErrorLines );
-      
+
       // Toolbar images
       //
       // Toolbar icons
@@ -863,7 +863,7 @@ public class GUIResource {
     SwtUniversalImage img = SwtSvgImageUtil.getImageAsResource( display, location );
     Image image;
     if ( size > 0 ) {
-    int newSize = (int)Math.round(size*zoomFactor);
+      int newSize = (int) Math.round( size * zoomFactor );
       image = new Image( display, img.getAsBitmapForSize( display, newSize, newSize ), SWT.IMAGE_COPY );
     } else {
       image = new Image( display, img.getAsBitmap( display ), SWT.IMAGE_COPY );
@@ -875,8 +875,8 @@ public class GUIResource {
   // load image from svg
   private Image loadAsResource( Display display, String location, int width, int height ) {
     SwtUniversalImage img = SwtSvgImageUtil.getImageAsResource( display, location );
-    int newWidth = (int)Math.round(width*zoomFactor);
-    int newHeight = (int)Math.round(height*zoomFactor);
+    int newWidth = (int) Math.round( width * zoomFactor );
+    int newHeight = (int) Math.round( height * zoomFactor );
     Image image = new Image( display, img.getAsBitmapForSize( display, newWidth, newHeight ), SWT.IMAGE_COPY );
     img.dispose();
     return image;
@@ -943,7 +943,7 @@ public class GUIResource {
     imageBol = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "BOL_image" ) );
 
     // "ui/images/Calendar.png"
-    imageCalendar =loadAsResource( display, BasePropertyHandler.getProperty( "Calendar_image" ), ConstUI.SMALL_ICON_SIZE ); // ,
+    imageCalendar = loadAsResource( display, BasePropertyHandler.getProperty( "Calendar_image" ), ConstUI.SMALL_ICON_SIZE ); // ,
 
     // "ui/images/credits.png"
     imageCredits = loadAsResource( display, BasePropertyHandler.getProperty( "Credits_image" ), 0 );
@@ -958,7 +958,7 @@ public class GUIResource {
     imageMissing = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "MIS_image" ) );
 
     // "ui/images/hop-logo.svg"
-    imageHopUi = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "hop_icon" ));
+    imageHopUi = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "hop_icon" ) );
 
     // "ui/images/chefgraph.svg"
     imageJob = loadAsResource( display, BasePropertyHandler.getProperty( "Job_image" ), ConstUI.ICON_SIZE );
@@ -1139,10 +1139,10 @@ public class GUIResource {
     imageDropHere = loadAsResource( display, BasePropertyHandler.getProperty( "DropHere_image" ), 0 );
 
     // "ui/images/trans_canvas.svg
-    imageTransCanvas = loadAsResource( display, BasePropertyHandler.getProperty( "TransCanvas_image" ),  800, 250 );
+    imageTransCanvas = loadAsResource( display, BasePropertyHandler.getProperty( "TransCanvas_image" ), 800, 250 );
 
     // "ui/images/job_canvas.svg
-    imageJobCanvas = loadAsResource( display, BasePropertyHandler.getProperty( "JobCanvas_image" ), 400 );
+    imageJobCanvas = loadAsResource( display, BasePropertyHandler.getProperty( "JobCanvas_image" ), 800, 250 );
 
     // "ui/images/add_all.png
     imageAddAll = loadAsResource( display, BasePropertyHandler.getProperty( "AddAll_image" ), 12 );
@@ -1234,21 +1234,21 @@ public class GUIResource {
     errorArrow = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "errorArrow_image" ) );
     disabledArrow = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "disabledArrow_image" ) );
     candidateArrow = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "candidateArrow_image" ) );
-    
-    
+
+
     // Toolbar icons
     //
-    imageToolbarBack= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarBack_image" ), ConstUI.SMALL_ICON_SIZE );
-    imageToolbarCleanup= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarCleanup_image" ), ConstUI.SMALL_ICON_SIZE );
-    imageToolbarClose= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarClose_image" ), ConstUI.SMALL_ICON_SIZE );
-    imageToolbarJob= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarJob_image" ), ConstUI.SMALL_ICON_SIZE );
-    imageToolbarPause= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarPause_image" ), ConstUI.SMALL_ICON_SIZE );
-    imageToolbarRun= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarRun_image" ), ConstUI.SMALL_ICON_SIZE );
-    imageToolbarRunOption= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarRunOption_image" ), ConstUI.SMALL_ICON_SIZE );
-    imageToolbarStop= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarStop_image" ), ConstUI.SMALL_ICON_SIZE );
-    imageToolbarTrans= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarTrans_image" ), ConstUI.SMALL_ICON_SIZE );
-    imageToolbarView= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarView_image" ), ConstUI.SMALL_ICON_SIZE );
-    imageToolbarViewAsXml= loadAsResource( display, BasePropertyHandler.getProperty( "toolbarViewAsXml_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarBack = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarBack_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarCleanup = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarCleanup_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarClose = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarClose_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarJob = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarJob_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarPause = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarPause_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarRun = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarRun_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarRunOption = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarRunOption_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarStop = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarStop_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarTrans = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarTrans_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarView = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarView_image" ), ConstUI.SMALL_ICON_SIZE );
+    imageToolbarViewAsXml = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarViewAsXml_image" ), ConstUI.SMALL_ICON_SIZE );
   }
 
   /**
@@ -2362,8 +2362,8 @@ public class GUIResource {
     Image image = imageMap.get( location );
     if ( image == null ) {
       SwtUniversalImage svg = SwtSvgImageUtil.getImage( display, location );
-      int realWidth = (int)Math.round( zoomFactor*width );
-      int realHeight = (int)Math.round( zoomFactor*height );
+      int realWidth = (int) Math.round( zoomFactor * width );
+      int realHeight = (int) Math.round( zoomFactor * height );
       image = new Image( display, svg.getAsBitmapForSize( display, realWidth, realHeight ), SWT.IMAGE_COPY );
       svg.dispose();
       imageMap.put( location, image );

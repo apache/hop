@@ -32,13 +32,14 @@ public class EngineMetrics {
 
   /**
    * Get a list of the used metrics
+   *
    * @return The list of used metrics
    */
   public Set<IEngineMetric> getMetricsList() {
-    Set<IEngineMetric> set = new HashSet<>(  );
-    for (Map<IEngineMetric, Long> metricsMap : componentMetricsMap.values()) {
-      for (IEngineMetric metric : metricsMap.keySet()) {
-        set.add(metric);
+    Set<IEngineMetric> set = new HashSet<>();
+    for ( Map<IEngineMetric, Long> metricsMap : componentMetricsMap.values() ) {
+      for ( IEngineMetric metric : metricsMap.keySet() ) {
+        set.add( metric );
       }
     }
     return set;
@@ -118,7 +119,7 @@ public class EngineMetrics {
    * Remove the amount for a specific metric
    *
    * @param component The component of the metric (e.g. step name)
-   * @param metric      The name of the metric (e.g. input, output, ...)
+   * @param metric    The name of the metric (e.g. input, output, ...)
    * @return the metric amount or null if nothing stored in the first place
    */
   public Long removeComponentMetric( IEngineComponent component, IEngineMetric metric ) {

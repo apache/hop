@@ -30,12 +30,10 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.pgpverify.JobEntryPGPVerify;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.job.dialog.JobDialog;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
@@ -52,13 +50,13 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.pentaho.vfs.ui.VfsFileChooserDialog;
 
 /**
  * This defines a PGP verify job entry.
@@ -66,11 +64,11 @@ import org.pentaho.vfs.ui.VfsFileChooserDialog;
  * @author Samatar
  * @since 25-02-2011
  */
-@PluginDialog( 
-		  id = "PGP_VERIFY_FILES", 
-		  image = "PGPVerify.svg", 
-		  pluginType = PluginDialog.PluginType.JOBENTRY,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+@PluginDialog(
+  id = "PGP_VERIFY_FILES",
+  image = "PGPVerify.svg",
+  pluginType = PluginDialog.PluginType.JOBENTRY,
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
 public class JobEntryPGPVerifyDialog extends JobEntryDialog implements JobEntryDialogInterface {
   private static Class<?> PKG = JobEntryPGPVerify.class; // for i18n purposes, needed by Translator2!!
@@ -311,31 +309,36 @@ public class JobEntryPGPVerifyDialog extends JobEntryDialog implements JobEntryD
     wbDetachedFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         try {
-          FileObject DetachedFilename = null;
+          FileObject detachedFilename = null;
 
           try {
             String curFile = wDetachedFilename.getText();
 
             if ( curFile.trim().length() > 0 ) {
-              DetachedFilename =
+              detachedFilename =
                 HopVFS.getInstance().getFileSystemManager().resolveFile(
                   jobMeta.environmentSubstitute( wDetachedFilename.getText() ) );
             } else {
-              DetachedFilename =
+              detachedFilename =
                 HopVFS.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
             }
 
           } catch ( FileSystemException ex ) {
-            DetachedFilename =
+            detachedFilename =
               HopVFS.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
           }
 
-          VfsFileChooserDialog vfsFileChooser =
-            HopUi.getInstance().getVfsFileChooserDialog( DetachedFilename.getParent(), DetachedFilename );
-
-          FileObject selected =
-            vfsFileChooser.open( shell, null, EXTENSIONS, FILETYPES, VfsFileChooserDialog.VFS_DIALOG_OPEN_FILE );
-          wDetachedFilename.setText( selected != null ? selected.getURL().toString() : Const.EMPTY_STRING );
+          FileDialog fileDialog = new FileDialog( shell, SWT.OPEN | SWT.OK | SWT.CANCEL );
+          fileDialog.setText( "Select file" );
+          fileDialog.setFilterNames( FILETYPES );
+          fileDialog.setFilterExtensions( EXTENSIONS );
+          if ( detachedFilename != null ) {
+            fileDialog.setFileName( HopVFS.getFilename( detachedFilename ) );
+          }
+          String filename = fileDialog.open();
+          if ( filename != null ) {
+            wDetachedFilename.setText( filename );
+          }
         } catch ( FileSystemException ex ) {
           ex.printStackTrace();
         }
@@ -369,12 +372,17 @@ public class JobEntryPGPVerifyDialog extends JobEntryDialog implements JobEntryD
             fileName = HopVFS.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
           }
 
-          VfsFileChooserDialog vfsFileChooser =
-            HopUi.getInstance().getVfsFileChooserDialog( fileName.getParent(), fileName );
-
-          FileObject selected =
-            vfsFileChooser.open( shell, null, EXTENSIONS, FILETYPES, VfsFileChooserDialog.VFS_DIALOG_OPEN_FILE );
-          wFilename.setText( selected != null ? selected.getURL().toString() : Const.EMPTY_STRING );
+          FileDialog fileDialog = new FileDialog( shell, SWT.OPEN | SWT.OK | SWT.CANCEL );
+          fileDialog.setText( "Select file" );
+          fileDialog.setFilterNames( FILETYPES );
+          fileDialog.setFilterExtensions( EXTENSIONS );
+          if ( fileName != null ) {
+            fileDialog.setFileName( HopVFS.getFilename( fileName ) );
+          }
+          String filename = fileDialog.open();
+          if ( filename != null ) {
+            wFilename.setText( filename );
+          }
         } catch ( FileSystemException ex ) {
           ex.printStackTrace();
         }
@@ -407,12 +415,17 @@ public class JobEntryPGPVerifyDialog extends JobEntryDialog implements JobEntryD
             fileName = HopVFS.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
           }
 
-          VfsFileChooserDialog vfsFileChooser =
-            HopUi.getInstance().getVfsFileChooserDialog( fileName.getParent(), fileName );
-
-          FileObject selected =
-            vfsFileChooser.open( shell, null, EXTENSIONS, FILETYPES, VfsFileChooserDialog.VFS_DIALOG_OPEN_FILE );
-          wGPGLocation.setText( selected != null ? selected.getURL().toString() : Const.EMPTY_STRING );
+          FileDialog fileDialog = new FileDialog( shell, SWT.OPEN | SWT.OK | SWT.CANCEL );
+          fileDialog.setText( "Select file" );
+          fileDialog.setFilterNames( FILETYPES );
+          fileDialog.setFilterExtensions( EXTENSIONS );
+          if ( fileName != null ) {
+            fileDialog.setFileName( HopVFS.getFilename( fileName ) );
+          }
+          String filename = fileDialog.open();
+          if ( filename != null ) {
+            wGPGLocation.setText( filename );
+          }
         } catch ( FileSystemException ex ) {
           ex.printStackTrace();
         }

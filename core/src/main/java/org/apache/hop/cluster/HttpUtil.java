@@ -46,9 +46,9 @@ public class HttpUtil {
   private static final String PROTOCOL_UNSECURE = "http";
   private static final String PROTOCOL_SECURE = "https";
 
-  private HttpUtil() {		 
+  private HttpUtil() {
   }
-  
+
   /**
    * Returns http GET request string using specified parameters.
    *
@@ -105,24 +105,24 @@ public class HttpUtil {
     // unzip to string encoding-wise
     ByteArrayInputStream zip = new ByteArrayInputStream( bytes64 );
 
-    
+
     // PDI-4325 originally used xml encoding in servlet
     try ( GZIPInputStream unzip = new GZIPInputStream( zip, HttpUtil.ZIP_BUFFER_SIZE );
-            BufferedInputStream in = new BufferedInputStream( unzip, HttpUtil.ZIP_BUFFER_SIZE );
-            InputStreamReader reader = new InputStreamReader( in, StandardCharsets.UTF_8 ) ) {
-    	
+          BufferedInputStream in = new BufferedInputStream( unzip, HttpUtil.ZIP_BUFFER_SIZE );
+          InputStreamReader reader = new InputStreamReader( in, StandardCharsets.UTF_8 ) ) {
+
       writer = new StringWriter();
 
       // use same buffer size
       char[] buff = new char[ HttpUtil.ZIP_BUFFER_SIZE ];
       for ( int length = 0; ( length = reader.read( buff ) ) > 0; ) {
         writer.write( buff, 0, length );
-      }    
+      }
     }
     return writer.toString();
   }
 
-  public static String encodeBase64ZippedString( String in ) throws IOException {   
+  public static String encodeBase64ZippedString( String in ) throws IOException {
     ByteArrayOutputStream baos = new ByteArrayOutputStream( 1024 );
     try ( Base64OutputStream base64OutputStream = new Base64OutputStream( baos );
           GZIPOutputStream gzos = new GZIPOutputStream( base64OutputStream ) ) {

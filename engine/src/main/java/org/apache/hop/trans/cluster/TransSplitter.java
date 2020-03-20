@@ -1126,7 +1126,6 @@ public class TransSplitter {
                         clusterSchema, sourceSlaveServer, infoStep.getName(), 0, masterSlaveServer,
                         originalStep.getName(), 0 ), socketWriterMeta );
                     writerStep.setLocation( infoStep.getLocation().x + 50, infoStep.getLocation().y + 50 );
-                    writerStep.setDraw( true );
 
                     slave.addStep( writerStep );
 
@@ -1151,7 +1150,6 @@ public class TransSplitter {
                         originalStep.getName(), 0 ), socketReaderMeta );
                     readerStep.setLocation( infoStep.getLocation().x, infoStep.getLocation().y
                       + ( s * FANOUT * 2 ) - ( nrSlaves * FANOUT / 2 ) );
-                    readerStep.setDraw( true );
 
                     masterTransMeta.addStep( readerStep );
 
@@ -1164,7 +1162,6 @@ public class TransSplitter {
                       DummyTransMeta dummy = new DummyTransMeta();
                       dummyStep = new StepMeta( dummyName, dummy );
                       dummyStep.setLocation( infoStep.getLocation().x + ( SPLIT / 2 ), infoStep.getLocation().y );
-                      dummyStep.setDraw( true );
                       dummyStep.setDescription( "This step merges the data from the various data streams coming "
                         + "from the slave transformations.\nIt does that right before it hits the step that "
                         + "reads from a specific (info) step." );
@@ -1229,7 +1226,6 @@ public class TransSplitter {
                         originalStep.getName(), 0 ), socketWriterMeta );
                     writerStep.setLocation( originalStep.getLocation().x, originalStep.getLocation().y
                       + ( s * FANOUT * 2 ) - ( nrSlavesNodes * FANOUT / 2 ) );
-                    writerStep.setDraw( originalStep.isDrawn() );
 
                     masterTransMeta.addStep( writerStep );
 
@@ -1262,7 +1258,6 @@ public class TransSplitter {
                         originalStep.getName(), 0 ), socketReaderMeta );
                     readerStep.setLocation( originalStep.getLocation().x - ( SPLIT / 2 ), originalStep
                       .getLocation().y );
-                    readerStep.setDraw( originalStep.isDrawn() );
                     slave.addStep( readerStep );
 
                     // also add the step itself.

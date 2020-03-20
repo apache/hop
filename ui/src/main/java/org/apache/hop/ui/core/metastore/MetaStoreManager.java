@@ -23,41 +23,17 @@
 package org.apache.hop.ui.core.metastore;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.VariableSpace;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.IHopMetaStoreElement;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
-import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopui.dialog.MetaStoreExplorerDialog;
-import org.apache.hop.ui.trans.step.BaseStepDialog;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.events.TraverseListener;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
+import org.apache.hop.ui.hopgui.dialog.MetaStoreExplorerDialog;
 import org.eclipse.swt.widgets.Shell;
 
 import java.lang.reflect.Constructor;
@@ -70,7 +46,7 @@ import java.util.List;
  * @author Matt
  * @since 2020-01-21
  */
-public class MetaStoreManager<T extends IHopMetaStoreElement>  {
+public class MetaStoreManager<T extends IHopMetaStoreElement> {
 
   private IMetaStore metaStore;
   private VariableSpace space;
@@ -79,7 +55,7 @@ public class MetaStoreManager<T extends IHopMetaStoreElement>  {
   private Class<T> managedClass;
   private PropsUI props;
 
-  public MetaStoreManager( VariableSpace space, IMetaStore metaStore, Class<T> managedClass) {
+  public MetaStoreManager( VariableSpace space, IMetaStore metaStore, Class<T> managedClass ) {
     this.space = space;
     this.classLoader = managedClass.getClassLoader();
     this.metaStore = metaStore;
@@ -98,7 +74,7 @@ public class MetaStoreManager<T extends IHopMetaStoreElement>  {
    * @param elementName The name of the element to edit
    * @return True if anything was changed
    */
-  public boolean editMetadata(String elementName) {
+  public boolean editMetadata( String elementName ) {
 
     if ( StringUtils.isEmpty( elementName ) ) {
       return false;
@@ -131,7 +107,7 @@ public class MetaStoreManager<T extends IHopMetaStoreElement>  {
   }
 
   public boolean openMetaDialog( T element, MetaStoreFactory<T> factory ) throws Exception {
-    if (element==null) {
+    if ( element == null ) {
       return false;
     }
 
@@ -183,16 +159,16 @@ public class MetaStoreManager<T extends IHopMetaStoreElement>  {
       Collections.sort( names );
       return names;
 
-    } catch(Exception e ) {
-      throw new HopException( "Unable to get list of element names in the MetaStore for class "+managedClass.getName(), e );
+    } catch ( Exception e ) {
+      throw new HopException( "Unable to get list of element names in the MetaStore for class " + managedClass.getName(), e );
     }
   }
 
   public String[] getNamesArray() throws HopException {
     try {
-      return getNames().toArray( new String[0] );
-    } catch(Exception e ) {
-      throw new HopException( "Unable to get element names array in the MetaStore for class "+managedClass.getName(), e );
+      return getNames().toArray( new String[ 0 ] );
+    } catch ( Exception e ) {
+      throw new HopException( "Unable to get element names array in the MetaStore for class " + managedClass.getName(), e );
     }
   }
 

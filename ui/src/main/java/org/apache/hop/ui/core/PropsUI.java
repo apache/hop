@@ -57,16 +57,12 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
@@ -122,16 +118,16 @@ public class PropsUI extends Props {
   public static void init( Display d ) {
     if ( props == null ) {
       display = d;
-      props = new PropsUI( );
+      props = new PropsUI();
 
       // Calculate the native default zoom factor...
       // We take the default font and render it, calculate the height.
       // Compare that to the standard small icon size of 16
       //
       Image image = new Image( display, 500, 500 );
-      GC gc = new GC(image);
+      GC gc = new GC( image );
       org.eclipse.swt.graphics.Point extent = gc.textExtent( "The quick brown fox jumped over the lazy dog!" );
-      nativeZoomFactor = (double)extent.y / (double)ConstUI.SMALL_ICON_SIZE;
+      nativeZoomFactor = (double) extent.y / (double) ConstUI.SMALL_ICON_SIZE;
       gc.dispose();
       image.dispose();
 
@@ -548,7 +544,7 @@ public class PropsUI extends Props {
 
     // Correct the size with the native zoom factor...
     //
-    int correctedSize = (int)Math.round( size / PropsUI.getNativeZoomFactor() );
+    int correctedSize = (int) Math.round( size / PropsUI.getNativeZoomFactor() );
 
     int style = Const.toInt( properties.getProperty( STRING_FONT_GRAPH_STYLE ), def.getStyle() );
 
@@ -653,12 +649,12 @@ public class PropsUI extends Props {
   }
 
   public void setZoomFactor( double factor ) {
-    properties.setProperty( STRING_ZOOM_FACTOR, Double.toString( factor ));
+    properties.setProperty( STRING_ZOOM_FACTOR, Double.toString( factor ) );
   }
 
   public double getZoomFactor() {
     String zoomFactorString = properties.getProperty( STRING_ZOOM_FACTOR );
-    if ( StringUtils.isNotEmpty(zoomFactorString)) {
+    if ( StringUtils.isNotEmpty( zoomFactorString ) ) {
       return Const.toDouble( zoomFactorString, nativeZoomFactor );
     } else {
       return nativeZoomFactor;
@@ -667,6 +663,7 @@ public class PropsUI extends Props {
 
   /**
    * Get the margin compensated for the zoom factor
+   *
    * @return
    */
   public int getMargin() {

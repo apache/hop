@@ -4106,7 +4106,6 @@ public class ValueMetaBase implements ValueMetaInterface {
   }
 
 
-
   /**
    * @return the storageMetadata
    */

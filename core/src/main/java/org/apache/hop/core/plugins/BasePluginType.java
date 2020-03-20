@@ -24,6 +24,7 @@ package org.apache.hop.core.plugins;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
@@ -483,9 +484,15 @@ public abstract class BasePluginType implements PluginTypeInterface {
       String forumUrl = getTagOrAttribute( pluginNode, "forum_url" );
       String suggestion = getTagOrAttribute( pluginNode, "suggestion" );
       String keywordsString = getTagOrAttribute( pluginNode, "keywords" );
-      String[] keywords = keywordsString==null ? new String[] {} : keywordsString.split( "," );
+      String[] keywords = keywordsString == null ? new String[] {} : keywordsString.split( "," );
 
-        Node libsnode = XMLHandler.getSubNode( pluginNode, "libraries" );
+      // If we have no ID, we take the class name as unique ID of the plugin
+      //
+      if ( StringUtils.isEmpty( id ) ) {
+        id = classname;
+      }
+
+      Node libsnode = XMLHandler.getSubNode( pluginNode, "libraries" );
       int nrlibs = XMLHandler.countNodes( libsnode, "library" );
 
       List<String> jarFiles = new ArrayList<>();
@@ -521,7 +528,11 @@ public abstract class BasePluginType implements PluginTypeInterface {
       Map<Class<?>, String> classMap = new HashMap<Class<?>, String>();
 
       PluginMainClassType mainClassTypesAnnotation = pluginType.getAnnotation( PluginMainClassType.class );
-      classMap.put( mainClassTypesAnnotation.value(), classname );
+      if ( mainClassTypesAnnotation != null ) {
+        classMap.put( mainClassTypesAnnotation.value(), classname );
+      } else {
+        classMap.put( PluginMainClassType.class, classname );
+      }
 
       // process annotated extra types
       PluginExtraClassTypes classTypesAnnotation = pluginType.getAnnotation( PluginExtraClassTypes.class );
@@ -541,9 +552,14 @@ public abstract class BasePluginType implements PluginTypeInterface {
         classMap.put( entry.getKey(), clzName );
       }
 
+      Class<?> mainAnnotationClass = PluginMainClassType.class;
+      if ( mainClassTypesAnnotation != null ) {
+        mainAnnotationClass = mainClassTypesAnnotation.value();
+      }
+
       PluginInterface pluginInterface =
         new Plugin(
-          id.split( "," ), pluginType, mainClassTypesAnnotation.value(), category, description, tooltip,
+          id.split( "," ), pluginType, mainAnnotationClass, category, description, tooltip,
           iconFilename, false, nativePlugin, classMap, jarFiles, errorHelpFileFull, keywords, pluginFolder,
           documentationUrl, casesUrl, forumUrl, suggestion );
       registry.registerPlugin( pluginType, pluginInterface );
@@ -783,7 +799,9 @@ public abstract class BasePluginType implements PluginTypeInterface {
 
     String idList = extractID( annotation );
     if ( Utils.isEmpty( idList ) ) {
-      throw new HopPluginException( "No ID specified for plugin with class: " + clazz.getName() );
+      // We take the class name as ID...
+      //
+      idList = clazz.getName();
     }
 
     // Only one ID for now
@@ -807,14 +825,18 @@ public abstract class BasePluginType implements PluginTypeInterface {
     Map<Class<?>, String> classMap = new HashMap<>();
 
     PluginMainClassType mainType = getClass().getAnnotation( PluginMainClassType.class );
-
-    classMap.put( mainType.value(), clazz.getName() );
-
+    Class<?> mainClass;
+    if ( mainType != null ) {
+      mainClass = mainType.value();
+    } else {
+      mainClass = clazz;
+    }
+    classMap.put( mainClass, clazz.getName() );
     addExtraClasses( classMap, clazz, annotation );
 
     PluginInterface plugin =
       new Plugin(
-        ids, this.getClass(), mainType.value(), category, name, description, imageFile, separateClassLoader,
+        ids, this.getClass(), mainClass, category, name, description, imageFile, separateClassLoader,
         classLoaderGroup, nativePluginType, classMap, libraries, null, keywords, pluginFolder, documentationUrl,
         casesUrl, forumUrl, suggestion );
 

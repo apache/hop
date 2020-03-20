@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rules>
 
-    <!-- NOTE i18n arguments are : i18n package and key separated by colon (:)
-    --> 
+  <!-- NOTE i18n arguments are : i18n package and key separated by colon (:)
+  -->
 
   <rule id="TransformationHasDescription">
     <classname>org.apache.hop.imp.rules.TransformationHasDescriptionImportRule</classname>
@@ -45,8 +45,8 @@
     <description>i18n:org.apache.hop.imp.rules:ImportRule.Description.TransformationHasNoDisabledHops</description>
     <tooltip>i18n:org.apache.hop.imp.rules:ImportRule.Tooltip.TransformationHasNoDisabledHops</tooltip>
   </rule>
-  
-    <rule id="JobHasANote">
+
+  <rule id="JobHasANote">
     <classname>org.apache.hop.imp.rules.JobHasANoteImportRule</classname>
     <description>i18n:org.apache.hop.imp.rules:ImportRule.Description.JobHasANote</description>
     <tooltip>i18n:org.apache.hop.imp.rules:ImportRule.Tooltip.JobHasANote</tooltip>
@@ -57,5 +57,5 @@
     <description>i18n:org.apache.hop.imp.rules:ImportRule.Description.TransformationHasANote</description>
     <tooltip>i18n:org.apache.hop.imp.rules:ImportRule.Tooltip.TransformationHasANote</tooltip>
   </rule>
-  
+
 </rules>

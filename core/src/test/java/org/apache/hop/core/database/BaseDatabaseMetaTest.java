@@ -139,7 +139,6 @@ public class BaseDatabaseMetaTest {
     assertEquals( 0, nativeMeta.getMaxColumnsInIndex() );
     assertTrue( nativeMeta.supportsErrorHandlingOnBatchUpdates() );
     assertTrue( nativeMeta.isExplorable() );
-    assertNull( nativeMeta.getXulOverlayFile() );
     assertTrue( nativeMeta.onlySpaces( "   \t   \n  \r   " ) );
     assertFalse( nativeMeta.isMySQLVariant() );
     assertTrue( nativeMeta.canTest() );

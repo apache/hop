@@ -61,43 +61,43 @@ public class TransAction {
 
   public enum ActionType {
 
-    None(""),
-    
-    ChangeStep(BaseMessages.getString( PKG, "TransAction.label.ChangeStep" )),
-    ChangeHop(BaseMessages.getString( PKG, "TransAction.label.ChangeHop" )),
-    ChangeNote(BaseMessages.getString( PKG, "TransAction.label.ChangeNote" )),
-    
-    NewStep(BaseMessages.getString( PKG, "TransAction.label.NewStep" )),
-    NewHop(BaseMessages.getString( PKG, "TransAction.label.NewHop" )),
-    NewNote(BaseMessages.getString( PKG, "TransAction.label.NewNote" )),
-    DeleteStep(BaseMessages.getString( PKG, "TransAction.label.DeleteStep" )),
-    
-    DeleteHop(BaseMessages.getString( PKG, "TransAction.label.DeleteHop" )),
-    DeleteNote(BaseMessages.getString( PKG, "TransAction.label.DeleteNote" )),
-    
-    PositionStep(BaseMessages.getString( PKG, "TransAction.label.PositionStep" )),
-    PositionNote(BaseMessages.getString( PKG, "TransAction.label.PositionNote" )),
-    
-    ChangeJobEntry(BaseMessages.getString( PKG, "TransAction.label.ChangeJobEntry" )),
-    ChangeJobHop(BaseMessages.getString( PKG, "TransAction.label.ChangeJobHop" )),
-    
-    NewJobEntry(BaseMessages.getString( PKG, "TransAction.label.NewJobEntry" )),
-    NewJobHop(BaseMessages.getString( PKG, "TransAction.label.NewJobHop" )),
+    None( "" ),
 
-    DeleteJobEntry(BaseMessages.getString( PKG, "TransAction.label.DeleteJobEntry" )),
-    DeleteJobHop(BaseMessages.getString( PKG, "TransAction.label.DeleteJobHop" )),
+    ChangeStep( BaseMessages.getString( PKG, "TransAction.label.ChangeStep" ) ),
+    ChangeHop( BaseMessages.getString( PKG, "TransAction.label.ChangeHop" ) ),
+    ChangeNote( BaseMessages.getString( PKG, "TransAction.label.ChangeNote" ) ),
 
-    PositionJobEntry(BaseMessages.getString( PKG, "TransAction.label.PositionJobEntry" )),
+    NewStep( BaseMessages.getString( PKG, "TransAction.label.NewStep" ) ),
+    NewHop( BaseMessages.getString( PKG, "TransAction.label.NewHop" ) ),
+    NewNote( BaseMessages.getString( PKG, "TransAction.label.NewNote" ) ),
+    DeleteStep( BaseMessages.getString( PKG, "TransAction.label.DeleteStep" ) ),
 
-    ChangeTableRow(BaseMessages.getString( PKG, "TransAction.label.ChangeTableRow" )),
-    NewTableRow(BaseMessages.getString( PKG, "TransAction.label.NewTableRow" )),
-    DeleteTableRow(BaseMessages.getString( PKG, "TransAction.label.DeleteTableRow" )),
-    PositionTableRow(BaseMessages.getString( PKG, "TransAction.label.PositionTableRow" )),
+    DeleteHop( BaseMessages.getString( PKG, "TransAction.label.DeleteHop" ) ),
+    DeleteNote( BaseMessages.getString( PKG, "TransAction.label.DeleteNote" ) ),
+
+    PositionStep( BaseMessages.getString( PKG, "TransAction.label.PositionStep" ) ),
+    PositionNote( BaseMessages.getString( PKG, "TransAction.label.PositionNote" ) ),
+
+    ChangeJobEntry( BaseMessages.getString( PKG, "TransAction.label.ChangeJobEntry" ) ),
+    ChangeJobHop( BaseMessages.getString( PKG, "TransAction.label.ChangeJobHop" ) ),
+
+    NewJobEntry( BaseMessages.getString( PKG, "TransAction.label.NewJobEntry" ) ),
+    NewJobHop( BaseMessages.getString( PKG, "TransAction.label.NewJobHop" ) ),
+
+    DeleteJobEntry( BaseMessages.getString( PKG, "TransAction.label.DeleteJobEntry" ) ),
+    DeleteJobHop( BaseMessages.getString( PKG, "TransAction.label.DeleteJobHop" ) ),
+
+    PositionJobEntry( BaseMessages.getString( PKG, "TransAction.label.PositionJobEntry" ) ),
+
+    ChangeTableRow( BaseMessages.getString( PKG, "TransAction.label.ChangeTableRow" ) ),
+    NewTableRow( BaseMessages.getString( PKG, "TransAction.label.NewTableRow" ) ),
+    DeleteTableRow( BaseMessages.getString( PKG, "TransAction.label.DeleteTableRow" ) ),
+    PositionTableRow( BaseMessages.getString( PKG, "TransAction.label.PositionTableRow" ) ),
     ;
-    
+
     private String description;
-    
-    private ActionType(String description) {
+
+    private ActionType( String description ) {
       this.description = description;
     }
 
@@ -110,8 +110,8 @@ public class TransAction {
       return description;
     }
   }
-  
-  
+
+
   private ActionType type;
   private Object[] previous;
   private Point[] previous_location;

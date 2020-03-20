@@ -55,7 +55,6 @@ import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.trans.dialog.TransPreviewProgressDialog;
 import org.apache.hop.ui.trans.step.BaseStepDialog;
 import org.apache.hop.ui.trans.step.common.CsvInputAwareImportProgressDialog;
@@ -76,7 +75,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
-import org.pentaho.vfs.ui.VfsFileChooserDialog;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -643,34 +641,15 @@ public class TextFileInputDialog extends BaseStepDialog implements StepDialogInt
     // Listen to the Browse... button
     wbbFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        VfsFileChooserDialog fileChooserDialog = HopUi.getInstance().getVfsFileChooserDialog( null, null );
-        if ( wFilename.getText() != null ) {
-          try {
-            fileChooserDialog.initialFile =
-              HopVFS.getFileObject( transMeta.environmentSubstitute( wFilename.getText() ) );
-          } catch ( HopException ex ) {
-            fileChooserDialog.initialFile = null;
-          }
-        }
-        FileObject
-          selectedFile =
-          fileChooserDialog
-            .open( shell, null, "file", new String[] { "*.txt", "*.csv", "*" },
-              new String[] { BaseMessages.getString( PKG, "System.FileType.TextFiles" ),
-                BaseMessages.getString( PKG, "System.FileType.CSVFiles" ),
-                BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
-              VfsFileChooserDialog.VFS_DIALOG_OPEN_FILE_OR_DIRECTORY );
-        if ( selectedFile != null ) {
-          String file = selectedFile.getName().getURI();
-          if ( !StringUtils.isBlank( file ) ) {
-            file = file.replace( "file://", "" ).replace( "/C:", "C:" );
-          }
-          if ( !file.contains( System.getProperty( "file.separator" ) ) ) {
-            if ( !System.getProperty( "file.separator" ).equals( "/" ) && !Const.isWindows() ) {
-              file = file.replace( "/", System.getProperty( "file.separator" ) );
-            }
-          }
-          wFilename.setText( file );
+        FileDialog fileDialog = new FileDialog(shell, SWT.OPEN | SWT.OK | SWT.CANCEL);
+        fileDialog.setText("Select file");
+        fileDialog.setFilterNames( new String[] { BaseMessages.getString( PKG, "System.FileType.TextFiles" ),
+          BaseMessages.getString( PKG, "System.FileType.CSVFiles" ),
+          BaseMessages.getString( PKG, "System.FileType.AllFiles" ) } );
+        fileDialog.setFilterExtensions( new String[] { "*.txt", "*.csv", "*" } );
+        String filename = fileDialog.open();
+        if (filename!=null) {
+          wFilename.setText( filename );
         }
       }
     } );

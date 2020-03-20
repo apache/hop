@@ -30,12 +30,12 @@ public class HopGuiKeyHandler extends KeyAdapter {
     return singleton;
   }
 
-  public void addParentObjectToHandle(Object parentObject) {
-    parentObjects.add(parentObject);
+  public void addParentObjectToHandle( Object parentObject ) {
+    parentObjects.add( parentObject );
   }
 
-  public void removeParentObjectToHandle(Object parentObject) {
-    parentObjects.remove(parentObject);
+  public void removeParentObjectToHandle( Object parentObject ) {
+    parentObjects.remove( parentObject );
   }
 
   @Override public void keyPressed( KeyEvent e ) {

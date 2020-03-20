@@ -35,13 +35,13 @@ public class HopGuiEnvironment extends HopClientEnvironment {
       GuiPluginType.getInstance(),
       HopPerspectivePluginType.getInstance(),
       HopFileTypePluginType.getInstance()
-    ));
+    ) );
   }
 
-  public static void init(List<PluginTypeInterface> pluginTypes) throws HopException {
+  public static void init( List<PluginTypeInterface> pluginTypes ) throws HopException {
     pluginTypes.forEach( PluginRegistry::addPluginType );
 
-    for (PluginTypeInterface pluginType : pluginTypes) {
+    for ( PluginTypeInterface pluginType : pluginTypes ) {
       pluginType.searchPlugins();
     }
 
@@ -82,8 +82,8 @@ public class HopGuiEnvironment extends HopClientEnvironment {
 
         // Menu and toolbar items are defined on methods
         //
-        List<GuiElementMethod> menuItems = new ArrayList<>(  );
-        List<GuiElementMethod> toolBarItems = new ArrayList<>(  );
+        List<GuiElementMethod> menuItems = new ArrayList<>();
+        List<GuiElementMethod> toolBarItems = new ArrayList<>();
 
         List<Method> methods = findDeclaredMethods( parentClass );
         for ( Method method : methods ) {
@@ -104,14 +104,14 @@ public class HopGuiEnvironment extends HopClientEnvironment {
             guiRegistry.addKeyboardShortcut( parentClassName, method, osxShortcut );
           }
           GuiContextAction contextAction = method.getAnnotation( GuiContextAction.class );
-          if (contextAction!=null) {
+          if ( contextAction != null ) {
             guiRegistry.addGuiContextAction( method, contextAction, classLoader );
           }
         }
 
         Collections.sort( menuItems, new Comparator<GuiElementMethod>() {
           @Override public int compare( GuiElementMethod o1, GuiElementMethod o2 ) {
-            if ( StringUtils.isEmpty(o1.menuElement.order()) || StringUtils.isEmpty( o2.menuElement.order() )) {
+            if ( StringUtils.isEmpty( o1.menuElement.order() ) || StringUtils.isEmpty( o2.menuElement.order() ) ) {
               return o1.menuElement.id().compareTo( o2.menuElement.id() );
             } else {
               return o1.menuElement.order().compareTo( o2.menuElement.order() );
@@ -120,7 +120,7 @@ public class HopGuiEnvironment extends HopClientEnvironment {
         } );
         Collections.sort( toolBarItems, new Comparator<GuiElementMethod>() {
           @Override public int compare( GuiElementMethod o1, GuiElementMethod o2 ) {
-            if ( StringUtils.isEmpty(o1.toolBarElement.order()) || StringUtils.isEmpty( o2.toolBarElement.order() )) {
+            if ( StringUtils.isEmpty( o1.toolBarElement.order() ) || StringUtils.isEmpty( o2.toolBarElement.order() ) ) {
               return o1.toolBarElement.id().compareTo( o2.toolBarElement.id() );
             } else {
               return o1.toolBarElement.order().compareTo( o2.toolBarElement.order() );
@@ -129,11 +129,11 @@ public class HopGuiEnvironment extends HopClientEnvironment {
         } );
 
 
-        for (GuiElementMethod item : menuItems) {
+        for ( GuiElementMethod item : menuItems ) {
           guiRegistry.addMethodElement( parentClassName, item.menuElement, item.method );
         }
-        for (GuiElementMethod item : toolBarItems) {
-          if (StringUtils.isEmpty( item.toolBarElement.parent())) {
+        for ( GuiElementMethod item : toolBarItems ) {
+          if ( StringUtils.isEmpty( item.toolBarElement.parent() ) ) {
             guiRegistry.addMethodElement( parentClassName, parentClass, item.toolBarElement, item.method );
           } else {
             guiRegistry.addMethodElement( item.toolBarElement.parent(), parentClass, item.toolBarElement, item.method );
@@ -152,12 +152,12 @@ public class HopGuiEnvironment extends HopClientEnvironment {
       //
       PluginRegistry registry = PluginRegistry.getInstance();
       List<PluginInterface> plugins = registry.getPlugins( HopFileTypePluginType.class );
-      for (PluginInterface plugin : plugins) {
+      for ( PluginInterface plugin : plugins ) {
         try {
           HopFileTypeInterface hopFileTypeInterface = registry.loadClass( plugin, HopFileTypeInterface.class );
           HopFileTypeRegistry.getInstance().registerHopFile( hopFileTypeInterface );
         } catch ( HopPluginException e ) {
-          throw new HopException( "Unable to load plugin with ID '"+plugin.getIds()[0]+"' and type : "+plugin.getPluginType().getName(), e );
+          throw new HopException( "Unable to load plugin with ID '" + plugin.getIds()[ 0 ] + "' and type : " + plugin.getPluginType().getName(), e );
         }
       }
     } catch ( Exception e ) {

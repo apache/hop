@@ -22,21 +22,13 @@
 
 package org.apache.hop.core.plugins;
 
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.JobEntry;
-import org.apache.hop.core.annotations.Step;
-import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
 import org.apache.hop.job.entry.JobEntryInterface;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 import java.lang.annotation.Annotation;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -163,6 +155,6 @@ public class JobEntryPluginType extends BasePluginType implements PluginTypeInte
   }
 
   @Override protected String[] extractKeywords( Annotation annotation ) {
-    return ( (JobEntry)annotation).keywords();
+    return ( (JobEntry) annotation ).keywords();
   }
 }

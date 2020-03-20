@@ -100,7 +100,7 @@ public class DatabaseLogExceptionFactory {
       return suppressableResult;
     }
 
-    return ValueMetaBase.convertStringToBoolean( val ) ? throwable:suppressableResult;
+    return ValueMetaBase.convertStringToBoolean( val ) ? throwable : suppressableResult;
   }
 
   private static DatabaseInterface extractDatabase( LogTableCoreInterface table ) {

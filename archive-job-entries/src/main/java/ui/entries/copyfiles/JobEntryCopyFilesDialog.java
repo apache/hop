@@ -71,7 +71,6 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.pentaho.vfs.ui.VfsFileChooserDialog;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -481,16 +480,17 @@ public class JobEntryCopyFilesDialog extends JobEntryDialog implements JobEntryD
             rootFile = defaultInitialFile.getFileSystem().getRoot();
             initialFile = defaultInitialFile;
           }
-          VfsFileChooserDialog fileChooserDialog = HopUi.getInstance().getVfsFileChooserDialog( rootFile, initialFile );
-          fileChooserDialog.defaultInitialFile = defaultInitialFile;
 
-          selectedFile =
-            fileChooserDialog.open( shell, new String[] { "file" }, "file", true, null, new String[] { "*.*" },
-              FILETYPES, true, VfsFileChooserDialog.VFS_DIALOG_OPEN_FILE_OR_DIRECTORY, false, false );
-
-          if ( selectedFile != null ) {
-            String url = selectedFile.getURL().toString();
-            wFields.getActiveTableItem().setText( wFields.getActiveTableColumn(), url );
+          FileDialog fileDialog = new FileDialog( shell, SWT.OPEN | SWT.OK | SWT.CANCEL );
+          fileDialog.setText( "Select file" );
+          fileDialog.setFilterNames( new String[] { "file" } );
+          fileDialog.setFilterExtensions( new String[] { "*.*" } );
+          if ( initialFile != null ) {
+            fileDialog.setFileName( HopVFS.getFilename( initialFile ) );
+          }
+          String filename = fileDialog.open();
+          if ( filename != null ) {
+            wFields.getActiveTableItem().setText( wFields.getActiveTableColumn(), filename );
           }
 
         } catch ( HopFileException ex ) {

@@ -27,11 +27,11 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaInformation;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.hopui.HopUi;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.core.runtime.IProgressMonitor;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -62,7 +62,7 @@ public class GetDatabaseInfoProgressDialog {
     IRunnableWithProgress op = new IRunnableWithProgress() {
       public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
         try {
-          dmi.getData( HopUi.loggingObject, new ProgressMonitorAdapter( monitor ) );
+          dmi.getData( HopGui.getInstance().getLoggingObject(), new ProgressMonitorAdapter( monitor ) );
         } catch ( Exception e ) {
           throw new InvocationTargetException( e, BaseMessages.getString(
             PKG, "GetDatabaseInfoProgressDialog.Error.GettingInfoTable", e.toString() ) );

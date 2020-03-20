@@ -22,7 +22,6 @@
 
 package org.apache.hop.ui.trans.step.common;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
@@ -30,13 +29,14 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.trans.TransMeta;
 import org.apache.hop.trans.steps.common.CsvInputAwareMeta;
-//import org.apache.hop.trans.steps.csvinput.CsvInput;
-//import org.apache.hop.trans.steps.fileinput.text.EncodingType;
-//import org.apache.hop.trans.steps.fileinput.text.TextFileInputUtils;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
+
+//import org.apache.hop.trans.steps.csvinput.CsvInput;
+//import org.apache.hop.trans.steps.fileinput.text.EncodingType;
+//import org.apache.hop.trans.steps.fileinput.text.TextFileInputUtils;
 
 /**
  * A common interface for all step dialogs aware of the csv input format, such as {@link

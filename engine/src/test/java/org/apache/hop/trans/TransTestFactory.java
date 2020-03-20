@@ -79,7 +79,6 @@ public class TransTestFactory {
     //
     StepMeta one = new StepMeta( registry.getPluginId( StepPluginType.class, oneMeta ), oneStepname, oneMeta );
     one.setLocation( 150, 50 );
-    one.setDraw( true );
     previewMeta.addStep( one );
 
     // Then we add the dummy step to read the results from
@@ -111,7 +110,6 @@ public class TransTestFactory {
     //
     StepMeta one = new StepMeta( registry.getPluginId( StepPluginType.class, oneMeta ), oneStepname, oneMeta );
     one.setLocation( 150, 50 );
-    one.setDraw( true );
     previewMeta.addStep( one );
 
     // Then we add the dummy step to read the results from
@@ -304,7 +302,6 @@ public class TransTestFactory {
 
     StepMeta zero = new StepMeta( registry.getPluginId( StepPluginType.class, zeroMeta ), INJECTOR_STEPNAME, zeroMeta );
     zero.setLocation( 50, 50 );
-    zero.setDraw( true );
 
     return zero;
   }
@@ -313,7 +310,6 @@ public class TransTestFactory {
     DummyTransMeta twoMeta = new DummyTransMeta();
     StepMeta two = new StepMeta( registry.getPluginId( StepPluginType.class, twoMeta ), name, twoMeta );
     two.setLocation( 250, 50 );
-    two.setDraw( true );
     return two;
   }
 

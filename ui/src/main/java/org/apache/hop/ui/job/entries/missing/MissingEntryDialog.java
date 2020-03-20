@@ -30,7 +30,6 @@ import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
-import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.job.entry.JobEntryDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -184,7 +183,7 @@ public class MissingEntryDialog extends JobEntryDialog implements JobEntryDialog
       public void widgetSelected( SelectionEvent e ) {
         try {
           shell.dispose();
-          HopUi.getInstance().openMarketplace();
+          // HopGui.getInstance().openMarketplace(); TODO : implement or replace marketplace
         } catch ( Exception ex ) {
           ex.printStackTrace();
         }

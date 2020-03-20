@@ -5,4 +5,9 @@
     <classname>org.apache.hop.ui.hopgui.file.trans.HopTransFileType</classname>
   </hop-file-type>
 
- </hop-file-types>
+  <hop-file-type id="FileType-Job">
+    <description>Job File Type plugin</description>
+    <classname>org.apache.hop.ui.hopgui.file.job.HopJobFileType</classname>
+  </hop-file-type>
+
+</hop-file-types>

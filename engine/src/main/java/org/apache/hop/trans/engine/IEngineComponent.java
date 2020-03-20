@@ -1,7 +1,5 @@
 package org.apache.hop.trans.engine;
 
-import org.apache.hop.core.logging.LogChannelInterface;
-
 /**
  * An identifiable component of an execution engine {@link IEngine}
  * In a transformation engine this would be a step
@@ -26,6 +24,7 @@ public interface IEngineComponent {
 
   /**
    * Retrieve the logging text of this component in the engine
+   *
    * @return logging text
    */
   String getLogText();

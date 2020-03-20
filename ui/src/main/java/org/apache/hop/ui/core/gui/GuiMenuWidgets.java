@@ -69,10 +69,10 @@ public class GuiMenuWidgets {
 
       menuItem = new MenuItem( parentMenu, SWT.PUSH );
       menuItem.setText( guiElements.getLabel() );
-      if (StringUtils.isNotEmpty( guiElements.getImage() )) {
-          menuItem.setImage( GUIResource.getInstance().getImage( guiElements.getImage(), ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE ) );
+      if ( StringUtils.isNotEmpty( guiElements.getImage() ) ) {
+        menuItem.setImage( GUIResource.getInstance().getImage( guiElements.getImage(), ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE ) );
       }
-     
+
       setMenuItemKeyboardShortcut( menuItem, guiElements, sourceData.getClass().getName() );
       if ( StringUtils.isNotEmpty( guiElements.getToolTip() ) ) {
         menuItem.setToolTipText( guiElements.getToolTip() );
@@ -101,7 +101,7 @@ public class GuiMenuWidgets {
       Menu menu = parentMenu;
       if ( guiElements.getId() != null ) {
         menuItem = new MenuItem( parentMenu, SWT.CASCADE );
-        menuItem.setText( Const.NVL(guiElements.getLabel(), "") );
+        menuItem.setText( Const.NVL( guiElements.getLabel(), "" ) );
         setMenuItemKeyboardShortcut( menuItem, guiElements, sourceData.getClass().getName() );
         if ( StringUtils.isNotEmpty( guiElements.getToolTip() ) ) {
           menuItem.setToolTipText( guiElements.getToolTip() );
@@ -131,7 +131,7 @@ public class GuiMenuWidgets {
     }
   }
 
-  public static void appendShortCut(MenuItem menuItem, KeyboardShortcut shortcut) {
+  public static void appendShortCut( MenuItem menuItem, KeyboardShortcut shortcut ) {
     menuItem.setText( menuItem.getText() + "    (" + getShortcutString( shortcut ) + ")" );
   }
 
