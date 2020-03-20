@@ -23,11 +23,11 @@
 package org.apache.hop.core.lifecycle;
 
 /**
- * A callback interface that listens to specific lifecycle events triggered when Spoon starts and stops.
+ * A callback interface that listens to specific lifecycle events triggered when HopGui starts and stops.
  * <p>
- * Listeners are loaded dynamically by PDI. In order to register a listener with Spoon, a class that implements this
+ * Listeners are loaded dynamically by PDI. In order to register a listener with HopGui, a class that implements this
  * interface must be placed in the "org.apache.hop.core.listeners.pdi" package, and it will be loaded automatically when
- * Spoon starts.
+ * HopGui starts.
  *
  * @author Alex Silva
  */

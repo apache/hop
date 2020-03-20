@@ -161,8 +161,8 @@ public class HopUiJobDelegate extends HopUiDelegate {
       }
     } catch ( Throwable e ) {
       new ErrorDialog( hopUi.getShell(),
-        BaseMessages.getString( PKG, "Spoon.ErrorDialog.UnexpectedErrorCreatingNewJobGraphEntry.Title" ),
-        BaseMessages.getString( PKG, "Spoon.ErrorDialog.UnexpectedErrorCreatingNewJobGraphEntry.Message" ),
+        BaseMessages.getString( PKG, "HopGui.ErrorDialog.UnexpectedErrorCreatingNewJobGraphEntry.Title" ),
+        BaseMessages.getString( PKG, "HopGui.ErrorDialog.UnexpectedErrorCreatingNewJobGraphEntry.Message" ),
         new Exception( e ) );
       return null;
     }
@@ -189,8 +189,8 @@ public class HopUiJobDelegate extends HopUiDelegate {
       return entryDialogInterface;
     } catch ( Throwable t ) {
       t.printStackTrace();
-      String errorTitle = BaseMessages.getString( PKG, "Spoon.Dialog.ErrorCreatingJobDialog.Title" );
-      String errorMsg = BaseMessages.getString( PKG, "Spoon.Dialog.ErrorCreatingJobEntryDialog.Message", dialogClassName );
+      String errorTitle = BaseMessages.getString( PKG, "HopGui.Dialog.ErrorCreatingJobDialog.Title" );
+      String errorMsg = BaseMessages.getString( PKG, "HopGui.Dialog.ErrorCreatingJobEntryDialog.Message", dialogClassName );
       hopUi.getLog().logError( hopUi.toString(), errorMsg );
       new ErrorDialog( hopUi.getShell(), errorTitle, errorMsg, t );
       return null;
@@ -200,7 +200,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
   public void editJobEntry( JobMeta jobMeta, JobEntryCopy je ) {
     try {
       hopUi.getLog().logBasic(
-        hopUi.toString(), BaseMessages.getString( PKG, "Spoon.Log.EditJobEntry", je.getName() ) );
+        hopUi.toString(), BaseMessages.getString( PKG, "HopGui.Log.EditJobEntry", je.getName() ) );
 
       JobEntryCopy before = (JobEntryCopy) je.clone_deep();
 
@@ -223,16 +223,16 @@ public class HopUiJobDelegate extends HopUiDelegate {
         }
       } else {
         MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_INFORMATION );
-        mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.JobEntryCanNotBeChanged.Message" ) );
-        mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.JobEntryCanNotBeChanged.Title" ) );
+        mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.JobEntryCanNotBeChanged.Message" ) );
+        mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.JobEntryCanNotBeChanged.Title" ) );
         mb.open();
       }
 
     } catch ( Exception e ) {
       if ( !hopUi.getShell().isDisposed() ) {
         new ErrorDialog( hopUi.getShell(),
-          BaseMessages.getString( PKG, "Spoon.ErrorDialog.ErrorEditingJobEntry.Title" ),
-          BaseMessages.getString( PKG, "Spoon.ErrorDialog.ErrorEditingJobEntry.Message" ), e );
+          BaseMessages.getString( PKG, "HopGui.ErrorDialog.ErrorEditingJobEntry.Title" ),
+          BaseMessages.getString( PKG, "HopGui.ErrorDialog.ErrorEditingJobEntry.Message" ), e );
       }
     }
   }
@@ -302,8 +302,8 @@ public class HopUiJobDelegate extends HopUiDelegate {
 
     if ( jobEntry.isStart() ) {
       MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_INFORMATION );
-      mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.OnlyUseStartOnce.Message" ) );
-      mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.OnlyUseStartOnce.Title" ) );
+      mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.OnlyUseStartOnce.Message" ) );
+      mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.OnlyUseStartOnce.Title" ) );
       mb.open();
       return;
     }
@@ -407,8 +407,8 @@ public class HopUiJobDelegate extends HopUiDelegate {
       }
     } catch ( HopException e ) {
       new ErrorDialog( hopUi.getShell(),
-        BaseMessages.getString( PKG, "Spoon.ErrorDialog.ErrorPasingJobEntries.Title" ),
-        BaseMessages.getString( PKG, "Spoon.ErrorDialog.ErrorPasingJobEntries.Message" ), e );
+        BaseMessages.getString( PKG, "HopGui.ErrorDialog.ErrorPasingJobEntries.Title" ),
+        BaseMessages.getString( PKG, "HopGui.ErrorDialog.ErrorPasingJobEntries.Message" ), e );
     }
   }
 
@@ -467,8 +467,8 @@ public class HopUiJobDelegate extends HopUiDelegate {
     } else {
       /*
        * ShowMessageDialog dialog = new ShowMessageDialog(spoon.getShell(), SWT.OK | SWT.ICON_INFORMATION,
-       * BaseMessages.getString(PKG, "Spoon.Dialog.JobAlreadyLoaded.Title"), "'" + jobMeta.toString() + "'" + Const.CR +
-       * Const.CR + BaseMessages.getString(PKG, "Spoon.Dialog.JobAlreadyLoaded.Message")); dialog.setTimeOut(6);
+       * BaseMessages.getString(PKG, "HopGui.Dialog.JobAlreadyLoaded.Title"), "'" + jobMeta.toString() + "'" + Const.CR +
+       * Const.CR + BaseMessages.getString(PKG, "HopGui.Dialog.JobAlreadyLoaded.Message")); dialog.setTimeOut(6);
        * dialog.open();
        */
       return false;
@@ -547,7 +547,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
         }
         TabItem tabItem = new TabItem( hopUi.tabfolder, tabName, tabName, props.getSashWeights() );
         String toolTipText =
-          BaseMessages.getString( PKG, "Spoon.TabJob.Tooltip", hopUi.delegates.tabs.makeTabName(
+          BaseMessages.getString( PKG, "HopGui.TabJob.Tooltip", hopUi.delegates.tabs.makeTabName(
             jobMeta, showLocation ) );
         if ( !Utils.isEmpty( jobMeta.getFilename() ) ) {
           toolTipText += Const.CR + Const.CR + jobMeta.getFilename();
@@ -592,7 +592,7 @@ public class HopUiJobDelegate extends HopUiDelegate {
    * spoon.delegates.tabs.findTabItem(tabName, TabMapEntry.OBJECT_TYPE_JOB_LOG); if (tabItem == null) { JobLog jobLog =
    * new JobLog(spoon.tabfolder.getSwtTabset(), spoon, jobMeta); tabItem = new TabItem(spoon.tabfolder, tabName,
    * tabName); tabItem.setText(tabName); tabItem.setToolTipText(BaseMessages.getString(PKG,
-   * "Spoon.Title.ExecLogJobView.Tooltip", spoon.delegates.tabs .makeJobGraphTabName(jobMeta)));
+   * "HopGui.Title.ExecLogJobView.Tooltip", spoon.delegates.tabs .makeJobGraphTabName(jobMeta)));
    * tabItem.setControl(jobLog);
    *
    * // If there is an associated history window, we want to keep that // one up-to-date as well. // JobHistory
@@ -1024,8 +1024,8 @@ public class HopUiJobDelegate extends HopUiDelegate {
           hopUi.delegates.slaves.addSpoonSlave( executionConfiguration.getRemoteServer() );
         } else {
           MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_ERROR );
-          mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.NoRemoteServerSpecified.Message" ) );
-          mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.NoRemoteServerSpecified.Title" ) );
+          mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.NoRemoteServerSpecified.Message" ) );
+          mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.NoRemoteServerSpecified.Title" ) );
           mb.open();
         }
       }

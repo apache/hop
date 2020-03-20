@@ -220,7 +220,7 @@ public class TransExecutor extends BaseStep implements StepInterface {
     }
 
 
-    // keep track for drill down in Spoon...
+    // keep track for drill down in HopGui...
     getTrans().addActiveSubTransformation( getStepname(), executorTrans );
 
     Result result = new Result();

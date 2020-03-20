@@ -151,7 +151,7 @@ public class HopGuiTransPreviewDelegate {
 
     transPreviewTab = new CTabItem( transGraph.extraViewTabFolder, SWT.NONE );
     transPreviewTab.setImage( GUIResource.getInstance().getImagePreview() );
-    transPreviewTab.setText( BaseMessages.getString( PKG, "Spoon.TransGraph.PreviewTab.Name" ) );
+    transPreviewTab.setText( BaseMessages.getString( PKG, "HopGui.TransGraph.PreviewTab.Name" ) );
 
     transPreviewComposite = new Composite( transGraph.extraViewTabFolder, SWT.NONE );
     transPreviewComposite.setLayout( new FormLayout() );

@@ -1666,7 +1666,7 @@ public class GUIResource {
   }
 
   /**
-   * @return Returns the imageSpoon.
+   * @return Returns the imageHopGui.
    */
   public Image getImageHopUi() {
     return imageHopUi.getAsBitmapForSize( display, ConstUI.LARGE_ICON_SIZE, ConstUI.LARGE_ICON_SIZE );

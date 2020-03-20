@@ -112,7 +112,7 @@ public class TransMetricsDelegate extends HopUiDelegate {
     //
     transMetricsTab = new CTabItem( transGraph.extraViewTabFolder, SWT.NONE );
     transMetricsTab.setImage( GUIResource.getInstance().getImageGantt() );
-    transMetricsTab.setText( BaseMessages.getString( PKG, "Spoon.TransGraph.MetricsTab.Name" ) );
+    transMetricsTab.setText( BaseMessages.getString( PKG, "HopGui.TransGraph.MetricsTab.Name" ) );
 
     sMetricsComposite = new ScrolledComposite( transGraph.extraViewTabFolder, SWT.V_SCROLL | SWT.H_SCROLL );
     sMetricsComposite.setLayout( new FillLayout() );

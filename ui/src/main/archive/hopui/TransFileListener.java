@@ -89,8 +89,8 @@ public class TransFileListener implements FileListener {
       throw e;
     } catch ( HopException e ) {
       new ErrorDialog(
-        hopUi.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ErrorOpening.Title" ), BaseMessages
-        .getString( PKG, "Spoon.Dialog.ErrorOpening.Message" )
+        hopUi.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.ErrorOpening.Title" ), BaseMessages
+        .getString( PKG, "HopGui.Dialog.ErrorOpening.Message" )
         + fname, e );
     }
     return false;

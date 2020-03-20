@@ -254,8 +254,8 @@ public class HopGuiTransRunDelegate {
       if ( debug || preview ) {
         if ( transDebugMeta.getNrOfUsedSteps() == 0 ) {
           MessageBox box = new MessageBox( hopUi.getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO );
-          box.setText( BaseMessages.getString( PKG, "Spoon.Dialog.Warning.NoPreviewOrDebugSteps.Title" ) );
-          box.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.Warning.NoPreviewOrDebugSteps.Message" ) );
+          box.setText( BaseMessages.getString( PKG, "HopGui.Dialog.Warning.NoPreviewOrDebugSteps.Title" ) );
+          box.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.Warning.NoPreviewOrDebugSteps.Message" ) );
           int answer = box.open();
           if ( answer != SWT.YES ) {
             return null;
@@ -285,12 +285,12 @@ public class HopGuiTransRunDelegate {
 
           // TODO: add slave server monitor in different perspective
           // Also: make remote execution just like local execution through execution configurations and plugable engines.
-          //hopUi.delegates.slaves.addSpoonSlave( executionConfiguration.getRemoteServer() );
+          //hopUi.delegates.slaves.addHopGuiSlave( executionConfiguration.getRemoteServer() );
 
         } else {
           MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_INFORMATION );
-          mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.NoRemoteServerSpecified.Message" ) );
-          mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.NoRemoteServerSpecified.Title" ) );
+          mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.NoRemoteServerSpecified.Message" ) );
+          mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.NoRemoteServerSpecified.Title" ) );
           mb.open();
         }
       }

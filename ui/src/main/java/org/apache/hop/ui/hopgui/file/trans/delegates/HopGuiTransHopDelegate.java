@@ -82,8 +82,8 @@ public class HopGuiTransHopDelegate {
     boolean ok = true;
     if ( transMeta.findTransHop( newHop.getFromStep(), newHop.getToStep() ) != null ) {
       MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_ERROR );
-      mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.HopExists.Message" ) ); // "This hop already exists!"
-      mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.HopExists.Title" ) ); // Error!
+      mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.HopExists.Message" ) ); // "This hop already exists!"
+      mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.HopExists.Title" ) ); // Error!
       mb.open();
       ok = false;
     }
@@ -142,9 +142,9 @@ public class HopGuiTransHopDelegate {
         MessageDialogWithToggle md =
           new MessageDialogWithToggle(
             hopUi.getShell(), BaseMessages.getString( PKG, "System.Warning" ), null, BaseMessages.getString(
-            PKG, "Spoon.Dialog.CopyOrDistribute.Message", fr.getName(), Integer.toString( nrNextSteps ) ),
+            PKG, "HopGui.Dialog.CopyOrDistribute.Message", fr.getName(), Integer.toString( nrNextSteps ) ),
             MessageDialog.WARNING, getRowDistributionLabels(), 0, BaseMessages.getString(
-            PKG, "Spoon.Message.Warning.NotShowWarning" ), !props.showCopyOrDistributeWarning() );
+            PKG, "HopGui.Message.Warning.NotShowWarning" ), !props.showCopyOrDistributeWarning() );
         MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
         int idx = md.open();
         props.setShowCopyOrDistributeWarning( !md.getToggleState() );
@@ -174,10 +174,10 @@ public class HopGuiTransHopDelegate {
 
   private String[] getRowDistributionLabels() {
     ArrayList<String> labels = new ArrayList<>();
-    labels.add( BaseMessages.getString( PKG, "Spoon.Dialog.CopyOrDistribute.Distribute" ) );
-    labels.add( BaseMessages.getString( PKG, "Spoon.Dialog.CopyOrDistribute.Copy" ) );
+    labels.add( BaseMessages.getString( PKG, "HopGui.Dialog.CopyOrDistribute.Distribute" ) );
+    labels.add( BaseMessages.getString( PKG, "HopGui.Dialog.CopyOrDistribute.Copy" ) );
     if ( PluginRegistry.getInstance().getPlugins( RowDistributionPluginType.class ).size() > 0 ) {
-      labels.add( BaseMessages.getString( PKG, "Spoon.Dialog.CopyOrDistribute.CustomRowDistribution" ) );
+      labels.add( BaseMessages.getString( PKG, "HopGui.Dialog.CopyOrDistribute.CustomRowDistribution" ) );
     }
     return labels.toArray( new String[ labels.size() ] );
   }

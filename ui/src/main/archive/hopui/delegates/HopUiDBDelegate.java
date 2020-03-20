@@ -105,7 +105,7 @@ public class HopUiDBDelegate extends HopUiDelegate {
     int pos = hasDatabasesInterface.indexOfDatabase( databaseMeta );
     if ( databaseMeta != null ) {
       DatabaseMeta databaseMetaCopy = (DatabaseMeta) databaseMeta.clone();
-      String dupename = BaseMessages.getString( PKG, "Spoon.Various.DupeName" ) + name;
+      String dupename = BaseMessages.getString( PKG, "HopGui.Various.DupeName" ) + name;
       databaseMetaCopy.setName( dupename );
 
       getDatabaseDialog().setDatabaseMeta( databaseMetaCopy );
@@ -203,8 +203,8 @@ public class HopUiDBDelegate extends HopUiDelegate {
         }
       } else {
         MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_INFORMATION );
-        mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.NoSQLNeedEexecuted.Message" ) );
-        mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.NoSQLNeedEexecuted.Title" ) ); // "SQL"
+        mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.NoSQLNeedEexecuted.Message" ) );
+        mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.NoSQLNeedEexecuted.Title" ) ); // "SQL"
         mb.open();
       }
     }
@@ -224,8 +224,8 @@ public class HopUiDBDelegate extends HopUiDelegate {
         ssd.open();
       } else {
         MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_INFORMATION );
-        mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.JobNoSQLNeedEexecuted.Message" ) );
-        mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.JobNoSQLNeedEexecuted.Title" ) );
+        mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.JobNoSQLNeedEexecuted.Message" ) );
+        mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.JobNoSQLNeedEexecuted.Title" ) );
         mb.open();
       }
     }
@@ -243,13 +243,13 @@ public class HopUiDBDelegate extends HopUiDelegate {
 
       factory.saveElement( db );
       hopUi.getLog().logDetailed(
-        BaseMessages.getString( PKG, "Spoon.Log.SavedDatabaseConnection", db.getDatabaseName() ) );
+        BaseMessages.getString( PKG, "HopGui.Log.SavedDatabaseConnection", db.getDatabaseName() ) );
 
       db.setChanged( false );
     } catch ( MetaStoreException me ) {
       new ErrorDialog( hopUi.getShell(),
-        BaseMessages.getString( PKG, "Spoon.Dialog.ErrorSavingConnection.Title" ),
-        BaseMessages.getString( PKG, "Spoon.Dialog.ErrorSavingConnection.Message", db.getDatabaseName() ), me );
+        BaseMessages.getString( PKG, "HopGui.Dialog.ErrorSavingConnection.Title" ),
+        BaseMessages.getString( PKG, "HopGui.Dialog.ErrorSavingConnection.Message", db.getDatabaseName() ), me );
     }
 
 

@@ -37,7 +37,7 @@ import org.eclipse.swt.graphics.Image;
 public class JobEntriesFolderProvider extends AutomaticTreeFolderProvider {
 
   private static Class<?> PKG = HopUi.class;
-  public static final String STRING_JOB_ENTRIES = BaseMessages.getString( PKG, "Spoon.STRING_JOB_ENTRIES" );
+  public static final String STRING_JOB_ENTRIES = BaseMessages.getString( PKG, "HopGui.STRING_JOB_ENTRIES" );
 
   @Override
   public String getTitle() {

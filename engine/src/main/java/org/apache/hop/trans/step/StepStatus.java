@@ -244,15 +244,6 @@ public class StepStatus {
     return retval;
   }
 
-  public String[] getSpoonSlaveLogFields() {
-    String[] fields = getTransLogFields();
-    String[] retval = new String[ fields.length - 1 ];
-    for ( int i = 0; i < retval.length; i++ ) {
-      retval[ i ] = fields[ i + 1 ];
-    }
-    return retval;
-  }
-
   public String[] getPeekFields() {
     String[] fields =
       new String[] {

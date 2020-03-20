@@ -65,9 +65,9 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 /**
- * Singleton Object controlling SpoonPerspectives.
+ * Singleton Object controlling HopGuiPerspectives.
  * <p>
- * A Perspective is an optional Spoon mode that can be added by a HopUiPlugin. Perspectives take over the look of the
+ * A Perspective is an optional HopGui mode that can be added by a HopUiPlugin. Perspectives take over the look of the
  * entire application by replacing the main UI area.
  *
  * @author nbaker
@@ -187,7 +187,7 @@ public class HopUiPerspectiveManager {
   }
 
   /**
-   * Receives the main XUL document comprising the menuing system and main layout of Spoon. Perspectives are able to
+   * Receives the main XUL document comprising the menuing system and main layout of HopGui. Perspectives are able to
    * modify these areas when activated. Any other areas need to be modified via a HopUiPlugin.
    *
    * @param doc
@@ -197,7 +197,7 @@ public class HopUiPerspectiveManager {
   }
 
   /**
-   * Adds a SpoonPerspective making it available to be activated later.
+   * Adds a HopGuiPerspective making it available to be activated later.
    *
    * @param perspective
    */
@@ -271,9 +271,9 @@ public class HopUiPerspectiveManager {
   /**
    * Activates the given instance of the class literal passed in. Activating a perspective first deactivates the current
    * perspective removing any overlays its applied to the UI. It then switches the main deck to display the perspective
-   * UI and applies the optional overlays to the main Spoon XUL container.
+   * UI and applies the optional overlays to the main HopGui XUL container.
    *
-   * @param clazz SpoonPerspective class literal
+   * @param clazz HopGuiPerspective class literal
    * @throws HopException throws a HopException if no perspective is found for the given parameter
    */
   public void activatePerspective( Class<? extends HopUiPerspective> clazz ) throws HopException {
@@ -339,7 +339,7 @@ public class HopUiPerspectiveManager {
   /**
    * Returns the current active perspective.
    *
-   * @return active SpoonPerspective
+   * @return active HopGuiPerspective
    */
   public HopUiPerspective getActivePerspective() {
     return activePerspective;
@@ -404,7 +404,7 @@ public class HopUiPerspectiveManager {
     final ToolItem perspectiveButton = new ToolItem( swtToolbar, SWT.DROP_DOWN, 7 );
 
     perspectiveButton.setImage( GUIResource.getInstance().getImage( "ui/images/perspective_changer.svg" ) );
-    perspectiveButton.setToolTipText( BaseMessages.getString( PKG, "Spoon.Menu.View.Perspectives" ) );
+    perspectiveButton.setToolTipText( BaseMessages.getString( PKG, "HopGui.Menu.View.Perspectives" ) );
     perspectiveButton.addSelectionListener( new SelectionAdapter() {
       @Override public void widgetSelected( SelectionEvent e ) {
         Menu menu = new Menu( shell );

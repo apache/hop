@@ -96,7 +96,7 @@ public class HopGuiJobGridDelegate {
 
     jobGridTab = new CTabItem( jobGraph.extraViewTabFolder, SWT.NONE );
     jobGridTab.setImage( GUIResource.getInstance().getImageShowGrid() );
-    jobGridTab.setText( BaseMessages.getString( PKG, "Spoon.TransGraph.GridTab.Name" ) );
+    jobGridTab.setText( BaseMessages.getString( PKG, "HopGui.TransGraph.GridTab.Name" ) );
 
     addControls();
 

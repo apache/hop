@@ -105,8 +105,8 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
     } else {
       /*
        * ShowMessageDialog dialog = new ShowMessageDialog(spoon.getShell(), SWT.OK | SWT.ICON_INFORMATION,
-       * BaseMessages.getString(PKG, "Spoon.Dialog.TransAlreadyLoaded.Title"), "'" + transMeta.toString() + "'" +
-       * Const.CR + Const.CR + BaseMessages.getString(PKG, "Spoon.Dialog.TransAlreadyLoaded.Message"));
+       * BaseMessages.getString(PKG, "HopGui.Dialog.TransAlreadyLoaded.Title"), "'" + transMeta.toString() + "'" +
+       * Const.CR + Const.CR + BaseMessages.getString(PKG, "HopGui.Dialog.TransAlreadyLoaded.Message"));
        * dialog.setTimeOut(6); dialog.open();
        */
       return false;
@@ -188,7 +188,7 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
         }
         TabItem tabItem = new TabItem( hopUi.tabfolder, tabName, tabName, props.getSashWeights() );
         String toolTipText =
-          BaseMessages.getString( PKG, "Spoon.TabTrans.Tooltip", hopUi.delegates.tabs.makeTabName( transMeta,
+          BaseMessages.getString( PKG, "HopGui.TabTrans.Tooltip", hopUi.delegates.tabs.makeTabName( transMeta,
             showLocation ) );
         if ( !Utils.isEmpty( transMeta.getFilename() ) ) {
           toolTipText += Const.CR + Const.CR + transMeta.getFilename();
@@ -799,8 +799,8 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
       if ( debug || preview ) {
         if ( transDebugMeta.getNrOfUsedSteps() == 0 ) {
           MessageBox box = new MessageBox( hopUi.getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO );
-          box.setText( BaseMessages.getString( PKG, "Spoon.Dialog.Warning.NoPreviewOrDebugSteps.Title" ) );
-          box.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.Warning.NoPreviewOrDebugSteps.Message" ) );
+          box.setText( BaseMessages.getString( PKG, "HopGui.Dialog.Warning.NoPreviewOrDebugSteps.Title" ) );
+          box.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.Warning.NoPreviewOrDebugSteps.Message" ) );
           int answer = box.open();
           if ( answer != SWT.YES ) {
             return;
@@ -831,8 +831,8 @@ public class HopUiTransformationDelegate extends HopUiDelegate {
 
         } else {
           MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_INFORMATION );
-          mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.NoRemoteServerSpecified.Message" ) );
-          mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.NoRemoteServerSpecified.Title" ) );
+          mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.NoRemoteServerSpecified.Message" ) );
+          mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.NoRemoteServerSpecified.Title" ) );
           mb.open();
         }
 

@@ -155,7 +155,7 @@ public class TransPreviewDelegate extends HopUiDelegate implements XulEventHandl
 
     transPreviewTab = new CTabItem( transGraph.extraViewTabFolder, SWT.NONE );
     transPreviewTab.setImage( GUIResource.getInstance().getImagePreview() );
-    transPreviewTab.setText( BaseMessages.getString( PKG, "Spoon.TransGraph.PreviewTab.Name" ) );
+    transPreviewTab.setText( BaseMessages.getString( PKG, "HopGui.TransGraph.PreviewTab.Name" ) );
 
     transPreviewComposite = new Composite( transGraph.extraViewTabFolder, SWT.NONE );
     transPreviewComposite.setLayout( new FormLayout() );
@@ -231,8 +231,8 @@ public class TransPreviewDelegate extends HopUiDelegate implements XulEventHandl
     } catch ( Throwable t ) {
       log.logError( toString(), Const.getStackTracker( t ) );
       new ErrorDialog( transPreviewComposite.getShell(),
-        BaseMessages.getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Title" ),
-        BaseMessages.getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Message", XUL_FILE_TRANS_PREVIEW_TOOLBAR ),
+        BaseMessages.getString( PKG, "HopGui.Exception.ErrorReadingXULFile.Title" ),
+        BaseMessages.getString( PKG, "HopGui.Exception.ErrorReadingXULFile.Message", XUL_FILE_TRANS_PREVIEW_TOOLBAR ),
         new Exception( t ) );
     }
   }

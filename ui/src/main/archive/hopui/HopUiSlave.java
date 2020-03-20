@@ -86,7 +86,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * HopUiSlave handles the display of the slave server information in a Spoon tab.
+ * HopUiSlave handles the display of the slave server information in a HopGui tab.
  *
  * @author Matt
  * @see HopUi
@@ -275,21 +275,21 @@ public class HopUiSlave extends Composite implements TabItemInterface {
 
     //CHECKSTYLE:LineLength:OFF
     ColumnInfo[] colinf = new ColumnInfo[] {
-      new ColumnInfo( BaseMessages.getString( PKG, "SpoonSlave.Column.Stepname" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
-      new ColumnInfo( BaseMessages.getString( PKG, "SpoonSlave.Column.Copynr" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
-      new ColumnInfo( BaseMessages.getString( PKG, "SpoonSlave.Column.Read" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
-      new ColumnInfo( BaseMessages.getString( PKG, "SpoonSlave.Column.Written" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
-      new ColumnInfo( BaseMessages.getString( PKG, "SpoonSlave.Column.Input" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
-      new ColumnInfo( BaseMessages.getString( PKG, "SpoonSlave.Column.Output" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
-      new ColumnInfo( BaseMessages.getString( PKG, "SpoonSlave.Column.Updated" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
-      new ColumnInfo( BaseMessages.getString( PKG, "SpoonSlave.Column.Rejected" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
-      new ColumnInfo( BaseMessages.getString( PKG, "SpoonSlave.Column.Errors" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
-      new ColumnInfo( BaseMessages.getString( PKG, "SpoonSlave.Column.Active" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
-      new ColumnInfo( BaseMessages.getString( PKG, "SpoonSlave.Column.Time" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
-      new ColumnInfo( BaseMessages.getString( PKG, "SpoonSlave.Column.Speed" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
-      new ColumnInfo( BaseMessages.getString( PKG, "SpoonSlave.Column.PriorityBufferSizes" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
-      new ColumnInfo( BaseMessages.getString( PKG, "SpoonSlave.Column.CarteObjectId" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
-      new ColumnInfo( BaseMessages.getString( PKG, "SpoonSlave.Column.LogDate" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ), };
+      new ColumnInfo( BaseMessages.getString( PKG, "HopGui.lave.Column.Stepname" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
+      new ColumnInfo( BaseMessages.getString( PKG, "HopGui.lave.Column.Copynr" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
+      new ColumnInfo( BaseMessages.getString( PKG, "HopGui.lave.Column.Read" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
+      new ColumnInfo( BaseMessages.getString( PKG, "HopGui.lave.Column.Written" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
+      new ColumnInfo( BaseMessages.getString( PKG, "HopGui.lave.Column.Input" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
+      new ColumnInfo( BaseMessages.getString( PKG, "HopGui.lave.Column.Output" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
+      new ColumnInfo( BaseMessages.getString( PKG, "HopGui.lave.Column.Updated" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
+      new ColumnInfo( BaseMessages.getString( PKG, "HopGui.lave.Column.Rejected" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
+      new ColumnInfo( BaseMessages.getString( PKG, "HopGui.lave.Column.Errors" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
+      new ColumnInfo( BaseMessages.getString( PKG, "HopGui.lave.Column.Active" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
+      new ColumnInfo( BaseMessages.getString( PKG, "HopGui.lave.Column.Time" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
+      new ColumnInfo( BaseMessages.getString( PKG, "HopGui.lave.Column.Speed" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
+      new ColumnInfo( BaseMessages.getString( PKG, "HopGui.lave.Column.PriorityBufferSizes" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
+      new ColumnInfo( BaseMessages.getString( PKG, "HopGui.lave.Column.CarteObjectId" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
+      new ColumnInfo( BaseMessages.getString( PKG, "HopGui.lave.Column.LogDate" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ), };
 
     colinf[ 1 ].setAllignement( SWT.RIGHT );
     colinf[ 2 ].setAllignement( SWT.RIGHT );
@@ -351,7 +351,7 @@ public class HopUiSlave extends Composite implements TabItemInterface {
     wText.setVisible( true );
 
     Button wRefresh = new Button( this, SWT.PUSH );
-    wRefresh.setText( BaseMessages.getString( PKG, "SpoonSlave.Button.Refresh" ) );
+    wRefresh.setText( BaseMessages.getString( PKG, "HopGui.lave.Button.Refresh" ) );
     wRefresh.setEnabled( true );
     wRefresh.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -360,7 +360,7 @@ public class HopUiSlave extends Composite implements TabItemInterface {
     } );
 
     Button wError = new Button( this, SWT.PUSH );
-    wError.setText( BaseMessages.getString( PKG, "SpoonSlave.Button.ShowErrorLines" ) );
+    wError.setText( BaseMessages.getString( PKG, "HopGui.lave.Button.ShowErrorLines" ) );
     wError.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         showErrors();
@@ -368,7 +368,7 @@ public class HopUiSlave extends Composite implements TabItemInterface {
     } );
 
     wSniff = new Button( this, SWT.PUSH );
-    wSniff.setText( BaseMessages.getString( PKG, "SpoonSlave.Button.Sniff" ) );
+    wSniff.setText( BaseMessages.getString( PKG, "HopGui.lave.Button.Sniff" ) );
     wSniff.setEnabled( false );
     wSniff.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -377,7 +377,7 @@ public class HopUiSlave extends Composite implements TabItemInterface {
     } );
 
     wStart = new Button( this, SWT.PUSH );
-    wStart.setText( BaseMessages.getString( PKG, "SpoonSlave.Button.Start" ) );
+    wStart.setText( BaseMessages.getString( PKG, "HopGui.lave.Button.Start" ) );
     wStart.setEnabled( false );
     wStart.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -386,7 +386,7 @@ public class HopUiSlave extends Composite implements TabItemInterface {
     } );
 
     wPause = new Button( this, SWT.PUSH );
-    wPause.setText( BaseMessages.getString( PKG, "SpoonSlave.Button.Pause" ) );
+    wPause.setText( BaseMessages.getString( PKG, "HopGui.lave.Button.Pause" ) );
     wPause.setEnabled( false );
     wPause.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -395,7 +395,7 @@ public class HopUiSlave extends Composite implements TabItemInterface {
     } );
 
     wStop = new Button( this, SWT.PUSH );
-    wStop.setText( BaseMessages.getString( PKG, "SpoonSlave.Button.Stop" ) );
+    wStop.setText( BaseMessages.getString( PKG, "HopGui.lave.Button.Stop" ) );
     wStop.setEnabled( false );
     wStop.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -404,7 +404,7 @@ public class HopUiSlave extends Composite implements TabItemInterface {
     } );
 
     wRemove = new Button( this, SWT.PUSH );
-    wRemove.setText( BaseMessages.getString( PKG, "SpoonSlave.Button.Remove" ) );
+    wRemove.setText( BaseMessages.getString( PKG, "HopGui.lave.Button.Remove" ) );
     wRemove.setEnabled( false );
     wRemove.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -670,15 +670,15 @@ public class HopUiSlave extends Composite implements TabItemInterface {
             if ( !WebResult.STRING_OK.equalsIgnoreCase( webResult.getResult() ) ) {
               EnterTextDialog dialog =
                 new EnterTextDialog(
-                  shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorStartingTrans.Title" ), BaseMessages
-                  .getString( PKG, "SpoonSlave.ErrorStartingTrans.Message" ), webResult.getMessage() );
+                  shell, BaseMessages.getString( PKG, "HopGui.lave.ErrorStartingTrans.Title" ), BaseMessages
+                  .getString( PKG, "HopGui.lave.ErrorStartingTrans.Message" ), webResult.getMessage() );
               dialog.setReadOnly();
               dialog.open();
             }
           } catch ( Exception e ) {
             new ErrorDialog(
-              shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorStartingTrans.Title" ), BaseMessages
-              .getString( PKG, "SpoonSlave.ErrorStartingTrans.Message" ), e );
+              shell, BaseMessages.getString( PKG, "HopGui.lave.ErrorStartingTrans.Title" ), BaseMessages
+              .getString( PKG, "HopGui.lave.ErrorStartingTrans.Message" ), e );
           }
         }
       }
@@ -692,15 +692,15 @@ public class HopUiSlave extends Composite implements TabItemInterface {
             if ( !WebResult.STRING_OK.equalsIgnoreCase( webResult.getResult() ) ) {
               EnterTextDialog dialog =
                 new EnterTextDialog(
-                  shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorStartingJob.Title" ), BaseMessages
-                  .getString( PKG, "SpoonSlave.ErrorStartingJob.Message" ), webResult.getMessage() );
+                  shell, BaseMessages.getString( PKG, "HopGui.lave.ErrorStartingJob.Title" ), BaseMessages
+                  .getString( PKG, "HopGui.lave.ErrorStartingJob.Message" ), webResult.getMessage() );
               dialog.setReadOnly();
               dialog.open();
             }
           } catch ( Exception e ) {
             new ErrorDialog(
-              shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorStartingJob.Title" ), BaseMessages.getString(
-              PKG, "SpoonSlave.ErrorStartingJob.Message" ), e );
+              shell, BaseMessages.getString( PKG, "HopGui.lave.ErrorStartingJob.Title" ), BaseMessages.getString(
+              PKG, "HopGui.lave.ErrorStartingJob.Message" ), e );
           }
         }
       }
@@ -740,15 +740,15 @@ public class HopUiSlave extends Composite implements TabItemInterface {
             if ( !WebResult.STRING_OK.equalsIgnoreCase( webResult.getResult() ) ) {
               EnterTextDialog dialog =
                 new EnterTextDialog(
-                  shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorStoppingTrans.Title" ), BaseMessages
-                  .getString( PKG, "SpoonSlave.ErrorStoppingTrans.Message" ), webResult.getMessage() );
+                  shell, BaseMessages.getString( PKG, "HopGui.lave.ErrorStoppingTrans.Title" ), BaseMessages
+                  .getString( PKG, "HopGui.lave.ErrorStoppingTrans.Message" ), webResult.getMessage() );
               dialog.setReadOnly();
               dialog.open();
             }
           } catch ( Exception e ) {
             new ErrorDialog(
-              shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorStoppingTrans.Title" ), BaseMessages
-              .getString( PKG, "SpoonSlave.ErrorStoppingTrans.Message" ), e );
+              shell, BaseMessages.getString( PKG, "HopGui.lave.ErrorStoppingTrans.Title" ), BaseMessages
+              .getString( PKG, "HopGui.lave.ErrorStoppingTrans.Message" ), e );
           }
         }
       }
@@ -762,15 +762,15 @@ public class HopUiSlave extends Composite implements TabItemInterface {
             if ( !WebResult.STRING_OK.equalsIgnoreCase( webResult.getResult() ) ) {
               EnterTextDialog dialog =
                 new EnterTextDialog(
-                  shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorStoppingJob.Title" ), BaseMessages
-                  .getString( PKG, "SpoonSlave.ErrorStoppingJob.Message" ), webResult.getMessage() );
+                  shell, BaseMessages.getString( PKG, "HopGui.lave.ErrorStoppingJob.Title" ), BaseMessages
+                  .getString( PKG, "HopGui.lave.ErrorStoppingJob.Message" ), webResult.getMessage() );
               dialog.setReadOnly();
               dialog.open();
             }
           } catch ( Exception e ) {
             new ErrorDialog(
-              shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorStoppingJob.Title" ), BaseMessages.getString(
-              PKG, "SpoonSlave.ErrorStoppingJob.Message" ), e );
+              shell, BaseMessages.getString( PKG, "HopGui.lave.ErrorStoppingJob.Title" ), BaseMessages.getString(
+              PKG, "HopGui.lave.ErrorStoppingJob.Message" ), e );
           }
         }
       }
@@ -797,15 +797,15 @@ public class HopUiSlave extends Composite implements TabItemInterface {
             } else {
               EnterTextDialog dialog =
                 new EnterTextDialog(
-                  shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorRemovingTrans.Title" ), BaseMessages
-                  .getString( PKG, "SpoonSlave.ErrorRemovingTrans.Message" ), webResult.getMessage() );
+                  shell, BaseMessages.getString( PKG, "HopGui.lave.ErrorRemovingTrans.Title" ), BaseMessages
+                  .getString( PKG, "HopGui.lave.ErrorRemovingTrans.Message" ), webResult.getMessage() );
               dialog.setReadOnly();
               dialog.open();
             }
           } catch ( Exception e ) {
             new ErrorDialog(
-              shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorRemovingTrans.Title" ), BaseMessages
-              .getString( PKG, "SpoonSlave.ErrorRemovingTrans.Message" ), e );
+              shell, BaseMessages.getString( PKG, "HopGui.lave.ErrorRemovingTrans.Title" ), BaseMessages
+              .getString( PKG, "HopGui.lave.ErrorRemovingTrans.Message" ), e );
           }
         }
       }
@@ -824,15 +824,15 @@ public class HopUiSlave extends Composite implements TabItemInterface {
             } else {
               EnterTextDialog dialog =
                 new EnterTextDialog(
-                  shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorRemovingJob.Title" ), BaseMessages
-                  .getString( PKG, "SpoonSlave.ErrorRemovingJob.Message" ), webResult.getMessage() );
+                  shell, BaseMessages.getString( PKG, "HopGui.lave.ErrorRemovingJob.Title" ), BaseMessages
+                  .getString( PKG, "HopGui.lave.ErrorRemovingJob.Message" ), webResult.getMessage() );
               dialog.setReadOnly();
               dialog.open();
             }
           } catch ( Exception e ) {
             new ErrorDialog(
-              shell, BaseMessages.getString( PKG, "SpoonSlave.ErrorRemovingJob.Title" ), BaseMessages.getString(
-              PKG, "SpoonSlave.ErrorRemovingJob.Message" ), e );
+              shell, BaseMessages.getString( PKG, "HopGui.lave.ErrorRemovingJob.Title" ), BaseMessages.getString(
+              PKG, "HopGui.lave.ErrorRemovingJob.Message" ), e );
           }
         }
       }
@@ -852,16 +852,16 @@ public class HopUiSlave extends Composite implements TabItemInterface {
         if ( !WebResult.STRING_OK.equalsIgnoreCase( webResult.getResult() ) ) {
           EnterTextDialog dialog =
             new EnterTextDialog( shell,
-              BaseMessages.getString( PKG, "SpoonSlave.ErrorPausingOrResumingTrans.Title" ),
-              BaseMessages.getString( PKG, "SpoonSlave.ErrorPausingOrResumingTrans.Message" ),
+              BaseMessages.getString( PKG, "HopGui.lave.ErrorPausingOrResumingTrans.Title" ),
+              BaseMessages.getString( PKG, "HopGui.lave.ErrorPausingOrResumingTrans.Message" ),
               webResult.getMessage() );
           dialog.setReadOnly();
           dialog.open();
         }
       } catch ( Exception e ) {
         new ErrorDialog( shell,
-          BaseMessages.getString( PKG, "SpoonSlave.ErrorPausingOrResumingTrans.Title" ),
-          BaseMessages.getString( PKG, "SpoonSlave.ErrorPausingOrResumingTrans.Message" ), e );
+          BaseMessages.getString( PKG, "HopGui.lave.ErrorPausingOrResumingTrans.Title" ),
+          BaseMessages.getString( PKG, "HopGui.lave.ErrorPausingOrResumingTrans.Message" ), e );
       }
     }
   }
@@ -1123,8 +1123,8 @@ public class HopUiSlave extends Composite implements TabItemInterface {
       String copy = treeItem.getText( 1 );
 
       EnterNumberDialog numberDialog = new EnterNumberDialog( shell, PropsUI.getInstance().getDefaultPreviewSize(),
-        BaseMessages.getString( PKG, "SpoonSlave.SniffSizeQuestion.Title" ),
-        BaseMessages.getString( PKG, "SpoonSlave.SniffSizeQuestion.Message" ) );
+        BaseMessages.getString( PKG, "HopGui.lave.SniffSizeQuestion.Title" ),
+        BaseMessages.getString( PKG, "HopGui.lave.SniffSizeQuestion.Message" ) );
       int lines = numberDialog.open();
       if ( lines <= 0 ) {
         return;
@@ -1132,8 +1132,8 @@ public class HopUiSlave extends Composite implements TabItemInterface {
 
       EnterSelectionDialog selectionDialog = new EnterSelectionDialog( shell,
         new String[] { SniffStepServlet.TYPE_INPUT, SniffStepServlet.TYPE_OUTPUT, },
-        BaseMessages.getString( PKG, "SpoonSlave.SniffTypeQuestion.Title" ),
-        BaseMessages.getString( PKG, "SpoonSlave.SniffTypeQuestion.Message" ) );
+        BaseMessages.getString( PKG, "HopGui.lave.SniffTypeQuestion.Title" ),
+        BaseMessages.getString( PKG, "HopGui.lave.SniffTypeQuestion.Message" ) );
       String type = selectionDialog.open( 1 );
       if ( type == null ) {
         return;
@@ -1159,8 +1159,8 @@ public class HopUiSlave extends Composite implements TabItemInterface {
         prd.open();
       } catch ( Exception e ) {
         new ErrorDialog( shell,
-          BaseMessages.getString( PKG, "SpoonSlave.ErrorSniffingStep.Title" ),
-          BaseMessages.getString( PKG, "SpoonSlave.ErrorSniffingStep.Message" ), e );
+          BaseMessages.getString( PKG, "HopGui.lave.ErrorSniffingStep.Title" ),
+          BaseMessages.getString( PKG, "HopGui.lave.ErrorSniffingStep.Message" ), e );
       }
     }
   }

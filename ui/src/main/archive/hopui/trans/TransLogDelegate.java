@@ -101,7 +101,7 @@ public class TransLogDelegate extends HopUiDelegate implements XulEventHandler {
     //
     transLogTab = new CTabItem( transGraph.extraViewTabFolder, SWT.NONE );
     transLogTab.setImage( GUIResource.getInstance().getImageShowLog() );
-    transLogTab.setText( BaseMessages.getString( PKG, "Spoon.TransGraph.LogTab.Name" ) );
+    transLogTab.setText( BaseMessages.getString( PKG, "HopGui.TransGraph.LogTab.Name" ) );
 
     transLogComposite = new Composite( transGraph.extraViewTabFolder, SWT.NO_BACKGROUND | SWT.NO_FOCUS );
     transLogComposite.setLayout( new FormLayout() );
@@ -163,8 +163,8 @@ public class TransLogDelegate extends HopUiDelegate implements XulEventHandler {
     } catch ( Throwable t ) {
       log.logError( Const.getStackTracker( t ) );
       new ErrorDialog( transLogComposite.getShell(),
-        BaseMessages.getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Title" ),
-        BaseMessages.getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Message", XUL_FILE_TRANS_LOG_TOOLBAR ),
+        BaseMessages.getString( PKG, "HopGui.Exception.ErrorReadingXULFile.Title" ),
+        BaseMessages.getString( PKG, "HopGui.Exception.ErrorReadingXULFile.Message", XUL_FILE_TRANS_LOG_TOOLBAR ),
         new Exception( t ) );
     }
   }

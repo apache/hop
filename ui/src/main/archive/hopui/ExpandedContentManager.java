@@ -247,7 +247,7 @@ public final class ExpandedContentManager {
   /**
    * maximizeBrowser
    *
-   * @param browser the browser object to maximize. We try to take up as much of the Spoon window as possible.
+   * @param browser the browser object to maximize. We try to take up as much of the HopGui window as possible.
    */
   private static void maximizeExpandedContent( Browser browser ) {
     SashForm sash = (SashForm) spoonInstance().getDesignParent();

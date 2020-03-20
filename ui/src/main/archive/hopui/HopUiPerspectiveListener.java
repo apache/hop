@@ -23,7 +23,7 @@
 package org.apache.hop.ui.hopui;
 
 /**
- * Implementations can be registered with SpoonPerspectives to receive notification of state changes.
+ * Implementations can be registered with HopGuiPerspectives to receive notification of state changes.
  *
  * @author nbaker
  */

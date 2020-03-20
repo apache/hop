@@ -43,14 +43,14 @@ import org.eclipse.swt.widgets.Shell;
 
 /**
  * The JobEntryDialog class is responsible for constructing and opening the settings dialog for the job entry. Whenever
- * the user opens the job entry settings in Spoon, it will instantiate the dialog class passing in the JobEntryInterface
+ * the user opens the job entry settings in HopGui, it will instantiate the dialog class passing in the JobEntryInterface
  * object and call the
  *
  * <pre>
  * open()
  * </pre>
  * <p>
- * method on the dialog. SWT is the native windowing environment of Spoon, and it is typically the framework used for
+ * method on the dialog. SWT is the native windowing environment of HopGui, and it is typically the framework used for
  * implementing job entry dialogs.
  */
 public class JobEntryDialog extends Dialog {

@@ -1551,22 +1551,22 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     if ( forward ) {
       if ( fromIoMeta.isOutputProducer() && toStep.equals( currentStep ) ) {
         streams.add( new Stream( StreamType.OUTPUT, fromStep, BaseMessages
-          .getString( PKG, "Spoon.Hop.MainOutputOfStep" ), StreamIcon.OUTPUT, null ) );
+          .getString( PKG, "HopGui.Hop.MainOutputOfStep" ), StreamIcon.OUTPUT, null ) );
       }
 
       if ( fromStep.supportsErrorHandling() && toStep.equals( currentStep ) ) {
         streams.add( new Stream( StreamType.ERROR, fromStep, BaseMessages.getString( PKG,
-          "Spoon.Hop.ErrorHandlingOfStep" ), StreamIcon.ERROR, null ) );
+          "HopGui.Hop.ErrorHandlingOfStep" ), StreamIcon.ERROR, null ) );
       }
     } else {
       if ( toIoMeta.isInputAcceptor() && fromStep.equals( currentStep ) ) {
-        streams.add( new Stream( StreamType.INPUT, toStep, BaseMessages.getString( PKG, "Spoon.Hop.MainInputOfStep" ),
+        streams.add( new Stream( StreamType.INPUT, toStep, BaseMessages.getString( PKG, "HopGui.Hop.MainInputOfStep" ),
           StreamIcon.INPUT, null ) );
       }
 
       if ( fromStep.supportsErrorHandling() && fromStep.equals( currentStep ) ) {
         streams.add( new Stream( StreamType.ERROR, fromStep, BaseMessages.getString( PKG,
-          "Spoon.Hop.ErrorHandlingOfStep" ), StreamIcon.ERROR, null ) );
+          "HopGui.Hop.ErrorHandlingOfStep" ), StreamIcon.ERROR, null ) );
       }
     }
 
@@ -1927,8 +1927,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     }
     if ( nr > 2 ) {
       stepname = newname;
-      modalMessageDialog( getString( "Spoon.Dialog.StepnameExists.Title" ),
-        getString( "Spoon.Dialog.StepnameExists.Message", stepname ), SWT.OK | SWT.ICON_INFORMATION );
+      modalMessageDialog( getString( "HopGui.Dialog.StepnameExists.Title" ),
+        getString( "HopGui.Dialog.StepnameExists.Message", stepname ), SWT.OK | SWT.ICON_INFORMATION );
     }
     stepMeta.setName( stepname );
     stepMeta.setChanged();
@@ -3436,8 +3436,8 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
     id = TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS,
     type = GuiElementType.TOOLBAR_BUTTON,
-    label = "Spoon.Menu.ShowExecutionResults",
-    toolTip = "Spoon.Tooltip.ShowExecutionResults",
+    label = "HopGui.Menu.ShowExecutionResults",
+    toolTip = "HopGui.Tooltip.ShowExecutionResults",
     i18nPackageClass = HopGui.class,
     image = "ui/images/show-results.svg",
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
@@ -3468,7 +3468,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
     sashForm.setWeights( new int[] { 100, } );
 
     ToolItem item = toolBarWidgets.findToolItem( TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS );
-    item.setToolTipText( BaseMessages.getString( PKG, "Spoon.Tooltip.ShowExecutionResults" ) );
+    item.setToolTipText( BaseMessages.getString( PKG, "HopGui.Tooltip.ShowExecutionResults" ) );
     item.setImage( GUIResource.getInstance().getImageShowResults() );
   }
 
@@ -3656,7 +3656,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
           trans.setGatheringMetrics( executionConfiguration.isGatheringMetrics() );
 
           // Launch the step preparation in a different thread.
-          // That way Spoon doesn't block anymore and that way we can follow the progress of the initialization
+          // That way HopGui doesn't block anymore and that way we can follow the progress of the initialization
           //
           final Thread parentThread = Thread.currentThread();
 
@@ -3716,7 +3716,7 @@ public class HopGuiTransGraph extends HopGuiAbstractGraph
 
     ToolItem item = toolBarWidgets.findToolItem( TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS );
     item.setImage( GUIResource.getInstance().getImageHideResults() );
-    item.setToolTipText( BaseMessages.getString( PKG, "Spoon.Tooltip.HideExecutionResults" ) );
+    item.setToolTipText( BaseMessages.getString( PKG, "HopGui.Tooltip.HideExecutionResults" ) );
   }
 
   public synchronized void debug( TransExecutionConfiguration executionConfiguration, TransDebugMeta transDebugMeta ) {

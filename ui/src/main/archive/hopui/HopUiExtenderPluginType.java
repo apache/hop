@@ -42,7 +42,7 @@ import java.util.Set;
 public class HopUiExtenderPluginType extends BasePluginType implements PluginTypeInterface {
 
   private HopUiExtenderPluginType() {
-    super( HopUiExtenderPlugin.class, "SPOONUIEXTENDERPLUGIN", "Spoon UI Extender Plugin" );
+    super( HopUiExtenderPlugin.class, "SPOONUIEXTENDERPLUGIN", "HopGui.UI Extender Plugin" );
 
     pluginFolders.add( new PluginFolder( "plugins", false, true ) );
   }

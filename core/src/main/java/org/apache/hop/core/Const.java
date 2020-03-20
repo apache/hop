@@ -348,21 +348,6 @@ public class Const {
   public static final int ROUND_HALF_CEILING = -1;
 
   /**
-   * The base name of the Chef logfile
-   */
-  public static final String CHEF_LOG_FILE = "chef";
-
-  /**
-   * The base name of the Spoon logfile
-   */
-  public static final String SPOON_LOG_FILE = "hop";
-
-  /**
-   * The base name of the Menu logfile
-   */
-  public static final String MENU_LOG_FILE = "menu";
-
-  /**
    * An array of date conversion formats
    */
   private static String[] dateFormats;

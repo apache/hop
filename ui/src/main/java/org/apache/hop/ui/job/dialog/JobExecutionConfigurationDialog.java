@@ -158,7 +158,7 @@ public class JobExecutionConfigurationDialog extends ConfigurationDialog {
     parametersSectionLayout( PKG, "JobExecutionConfigurationDialog" );
 
     String docUrl =
-      Const.getDocUrl( BaseMessages.getString( HopGui.class, "Spoon.JobExecutionConfigurationDialog.Help" ) );
+      Const.getDocUrl( BaseMessages.getString( HopGui.class, "HopGui.JobExecutionConfigurationDialog.Help" ) );
     String docTitle = BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.docTitle" );
     String docHeader = BaseMessages.getString( PKG, "JobExecutionConfigurationDialog.docHeader" );
     buttonsSectionLayout( PKG, "JobExecutionConfigurationDialog", docTitle, docUrl, docHeader );

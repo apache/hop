@@ -58,13 +58,13 @@ import java.util.Map;
  * <i><a href="#setDefault()">void setDefault()</a></i>
  * <p>
  * This method is called every time a new step is created and should allocate or set the step configuration to sensible
- * defaults. The values set here will be used by Spoon when a new step is created. This is often a good place to ensure
+ * defaults. The values set here will be used by HopGui when a new step is created. This is often a good place to ensure
  * that the step&#8217;s settings are initialized to non-null values. Null values can be cumbersome to deal with in
  * serialization and dialog population, so most PDI step implementations stick to non-null values for all step settings.
  * <p>
  * <i><a href="#clone()">public Object clone()</a></i>
  * <p>
- * This method is called when a step is duplicated in Spoon. It needs to return a deep copy of this step meta object. It
+ * This method is called when a step is duplicated in HopGui. It needs to return a deep copy of this step meta object. It
  * is essential that the implementing class creates proper deep copies if the step configuration is stored in modifiable
  * objects, such as lists or custom helper objects. See org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta.clone()
  * for an example on creating a deep copy.
@@ -77,7 +77,7 @@ import java.util.Map;
  * <i><a href="#getXML()">public String getXML()</a></i>
  * <p>
  * This method is called by PDI whenever a step needs to serialize its settings to XML. It is called when saving a
- * transformation in Spoon. The method returns an XML string, containing the serialized step settings. The string
+ * transformation in HopGui. The method returns an XML string, containing the serialized step settings. The string
  * contains a series of XML tags, typically one tag per setting. The helper class org.apache.hop.core.xml.XMLHandler is
  * typically used to construct the XML string.
  * <p>
@@ -117,7 +117,7 @@ import java.util.Map;
  * Fields goes into deeper detail on ValueMetaInterface.</li>
  * <li>
  * <b>Validate step settings</b><br>
- * Spoon supports a &#8220;validate transformation&#8221; feature, which triggers a self-check of all steps. PDI invokes
+ * HopGui supports a &#8220;validate transformation&#8221; feature, which triggers a self-check of all steps. PDI invokes
  * the check() method of each step on the canvas allowing each step to validate its settings.
  * <p>
  * <i><a href= "#check(java.util.List, org.apache.hop.trans.TransMeta, org.apache.hop.trans.step.StepMeta,
@@ -128,7 +128,7 @@ import java.util.Map;
  * reasonable. In addition to that a step typically checks if it is connected to preceding or following steps, if the
  * nature of the step requires that kind of connection. An input step may expect to not have a preceding step for
  * example. The check method passes in a list of check remarks that the method should append its validation results to.
- * Spoon then displays the list of remarks collected from the steps, allowing the user to take corrective action in case
+ * HopGui then displays the list of remarks collected from the steps, allowing the user to take corrective action in case
  * of validation warnings or errors.</li>
  * Given a description of the input rows, the plugin needs to modify it to match the structure for its output fields.
  * The implementation modifies the passed in RowMetaInterface object to reflect any changes to the row stream. Typically

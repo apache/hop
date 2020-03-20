@@ -1526,22 +1526,22 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
     if ( forward ) {
       if ( fromIoMeta.isOutputProducer() && toStep.equals( currentStep ) ) {
         streams.add( new Stream( StreamType.OUTPUT, fromStep, BaseMessages
-          .getString( PKG, "Spoon.Hop.MainOutputOfStep" ), StreamIcon.OUTPUT, null ) );
+          .getString( PKG, "HopGui.Hop.MainOutputOfStep" ), StreamIcon.OUTPUT, null ) );
       }
 
       if ( fromStep.supportsErrorHandling() && toStep.equals( currentStep ) ) {
         streams.add( new Stream( StreamType.ERROR, fromStep, BaseMessages.getString( PKG,
-          "Spoon.Hop.ErrorHandlingOfStep" ), StreamIcon.ERROR, null ) );
+          "HopGui.Hop.ErrorHandlingOfStep" ), StreamIcon.ERROR, null ) );
       }
     } else {
       if ( toIoMeta.isInputAcceptor() && fromStep.equals( currentStep ) ) {
-        streams.add( new Stream( StreamType.INPUT, toStep, BaseMessages.getString( PKG, "Spoon.Hop.MainInputOfStep" ),
+        streams.add( new Stream( StreamType.INPUT, toStep, BaseMessages.getString( PKG, "HopGui.Hop.MainInputOfStep" ),
           StreamIcon.INPUT, null ) );
       }
 
       if ( fromStep.supportsErrorHandling() && fromStep.equals( currentStep ) ) {
         streams.add( new Stream( StreamType.ERROR, fromStep, BaseMessages.getString( PKG,
-          "Spoon.Hop.ErrorHandlingOfStep" ), StreamIcon.ERROR, null ) );
+          "HopGui.Hop.ErrorHandlingOfStep" ), StreamIcon.ERROR, null ) );
       }
     }
 
@@ -1769,7 +1769,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
       ToolItem runItem = new ToolItem( swtToolbar, SWT.DROP_DOWN, 0 );
 
       runItem.setImage( GUIResource.getInstance().getImage( "ui/images/run.svg" ) );
-      runItem.setToolTipText( BaseMessages.getString( PKG, "Spoon.Tooltip.RunTranformation" ) );
+      runItem.setToolTipText( BaseMessages.getString( PKG, "HopGui.Tooltip.RunTranformation" ) );
       runItem.addSelectionListener( new SelectionAdapter() {
 
         @Override
@@ -1778,7 +1778,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
             Menu menu = new Menu( shell, SWT.POP_UP );
 
             MenuItem item1 = new MenuItem( menu, SWT.PUSH );
-            item1.setText( BaseMessages.getString( PKG, "Spoon.Run.Run" ) );
+            item1.setText( BaseMessages.getString( PKG, "HopGui.Run.Run" ) );
             item1.setAccelerator( SWT.F9 );
             item1.addSelectionListener( new SelectionAdapter() {
               @Override
@@ -1788,7 +1788,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
             } );
 
             MenuItem item2 = new MenuItem( menu, SWT.PUSH );
-            item2.setText( BaseMessages.getString( PKG, "Spoon.Run.RunOptions" ) );
+            item2.setText( BaseMessages.getString( PKG, "HopGui.Run.RunOptions" ) );
             item2.setAccelerator( SWT.F8 );
             item2.addSelectionListener( new SelectionAdapter() {
               @Override
@@ -1807,7 +1807,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
       stopItem = new ToolItem( swtToolbar, SWT.DROP_DOWN, 2 );
 
       stopItem.setImage( GUIResource.getInstance().getImage( "ui/images/stop.svg" ) );
-      stopItem.setToolTipText( BaseMessages.getString( PKG, "Spoon.Tooltip.StopTranformation" ) );
+      stopItem.setToolTipText( BaseMessages.getString( PKG, "HopGui.Tooltip.StopTranformation" ) );
       stopItem.addSelectionListener( new SelectionAdapter() {
 
         @Override
@@ -1816,7 +1816,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
             Menu menu = new Menu( shell, SWT.POP_UP );
 
             MenuItem item1 = new MenuItem( menu, SWT.PUSH );
-            item1.setText( BaseMessages.getString( PKG, "Spoon.Menu.StopTranformation" ) );
+            item1.setText( BaseMessages.getString( PKG, "HopGui.Menu.StopTranformation" ) );
             item1.addSelectionListener( new SelectionAdapter() {
               @Override
               public void widgetSelected( SelectionEvent e1 ) {
@@ -1825,7 +1825,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
             } );
 
             MenuItem item2 = new MenuItem( menu, SWT.PUSH );
-            item2.setText( BaseMessages.getString( PKG, "Spoon.Menu.SafeStopTranformation" ) );
+            item2.setText( BaseMessages.getString( PKG, "HopGui.Menu.SafeStopTranformation" ) );
             item2.addSelectionListener( new SelectionAdapter() {
               @Override
               public void widgetSelected( SelectionEvent e2 ) {
@@ -1871,8 +1871,8 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
       swtToolbar.pack();
     } catch ( Throwable t ) {
       log.logError( "Error loading the navigation toolbar for HopUI", t );
-      new ErrorDialog( shell, BaseMessages.getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Title" ), BaseMessages
-        .getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Message", XUL_FILE_TRANS_TOOLBAR ), new Exception( t ) );
+      new ErrorDialog( shell, BaseMessages.getString( PKG, "HopGui.Exception.ErrorReadingXULFile.Title" ), BaseMessages
+        .getString( PKG, "HopGui.Exception.ErrorReadingXULFile.Message", XUL_FILE_TRANS_TOOLBAR ), new Exception( t ) );
     }
   }
 
@@ -2060,8 +2060,8 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
     }
     if ( nr > 2 ) {
       stepname = newname;
-      modalMessageDialog( getString( "Spoon.Dialog.StepnameExists.Title" ),
-        getString( "Spoon.Dialog.StepnameExists.Message", stepname ), SWT.OK | SWT.ICON_INFORMATION );
+      modalMessageDialog( getString( "HopGui.Dialog.StepnameExists.Title" ),
+        getString( "HopGui.Dialog.StepnameExists.Message", stepname ), SWT.OK | SWT.ICON_INFORMATION );
     }
     stepMeta.setName( stepname );
     stepMeta.setChanged();
@@ -3631,7 +3631,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
     sashForm.setWeights( new int[] { 100, } );
 
     XulToolbarbutton button = (XulToolbarbutton) toolbar.getElementById( "trans-show-results" );
-    button.setTooltiptext( BaseMessages.getString( PKG, "Spoon.Tooltip.ShowExecutionResults" ) );
+    button.setTooltiptext( BaseMessages.getString( PKG, "HopGui.Tooltip.ShowExecutionResults" ) );
     ToolItem toolItem = (ToolItem) button.getManagedObject();
     toolItem.setImage( GUIResource.getInstance().getImageShowResults() );
   }
@@ -3823,7 +3823,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
           trans.setGatheringMetrics( executionConfiguration.isGatheringMetrics() );
 
           // Launch the step preparation in a different thread.
-          // That way Spoon doesn't block anymore and that way we can follow the progress of the initialization
+          // That way HopGui doesn't block anymore and that way we can follow the progress of the initialization
           //
           final Thread parentThread = Thread.currentThread();
 
@@ -3893,7 +3893,7 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
     }
 
     XulToolbarbutton button = (XulToolbarbutton) toolbar.getElementById( "trans-show-results" );
-    button.setTooltiptext( BaseMessages.getString( PKG, "Spoon.Tooltip.HideExecutionResults" ) );
+    button.setTooltiptext( BaseMessages.getString( PKG, "HopGui.Tooltip.HideExecutionResults" ) );
     ToolItem toolItem = (ToolItem) button.getManagedObject();
     toolItem.setImage( GUIResource.getInstance().getImageHideResults() );
   }
@@ -4144,8 +4144,8 @@ public class TransGraph extends AbstractGraph implements XulEventHandler, Redraw
           if ( pauseButton.isDisabled() ^ !running ) {
             pauseButton.setDisabled( !running );
             pauseButton.setLabel( pausing ? RESUME_TEXT : PAUSE_TEXT );
-            pauseButton.setTooltiptext( pausing ? BaseMessages.getString( PKG, "Spoon.Tooltip.ResumeTranformation" )
-              : BaseMessages.getString( PKG, "Spoon.Tooltip.PauseTranformation" ) );
+            pauseButton.setTooltiptext( pausing ? BaseMessages.getString( PKG, "HopGui.Tooltip.ResumeTranformation" )
+              : BaseMessages.getString( PKG, "HopGui.Tooltip.PauseTranformation" ) );
           }
         }
 

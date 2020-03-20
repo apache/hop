@@ -114,7 +114,7 @@ public class TransExecutionConfigurationDialog extends ConfigurationDialog {
   public boolean open() {
     mainLayout( PKG, "TransExecutionConfigurationDialog", GUIResource.getInstance().getImageTransGraph() );
 
-    String docUrl = Const.getDocUrl( BaseMessages.getString( HopGui.class, "Spoon.TransExecutionConfigurationDialog.Help" ) );
+    String docUrl = Const.getDocUrl( BaseMessages.getString( HopGui.class, "HopGui.TransExecutionConfigurationDialog.Help" ) );
     String docTitle = BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.docTitle" );
     String docHeader = BaseMessages.getString( PKG, "TransExecutionConfigurationDialog.docHeader" );
     buttonsSectionLayout( PKG, "TransExecutionConfigurationDialog", docTitle, docUrl, docHeader );

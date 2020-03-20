@@ -40,7 +40,7 @@ import org.w3c.dom.Node;
  * <p>
  * <i><a href="#clone()">public Object clone()</a></i>
  * <p>
- * This method is called when a step containing partitioning configuration is duplicated in Spoon. It needs to return a
+ * This method is called when a step containing partitioning configuration is duplicated in HopGui. It needs to return a
  * deep copy of this partitioner object. It is essential that the implementing class creates proper deep copies if the
  * configuration is stored in modifiable objects, such as lists or custom helper objects. The copy is created by first
  * calling super.clone(), and deep-copying any fields the partitioner may have declared.
@@ -56,7 +56,7 @@ import org.w3c.dom.Node;
  * <i><a href="#getXML()">public String getXML()</a></i>
  * <p>
  * This method is called by PDI whenever the plugin needs to serialize its settings to XML. It is called when saving a
- * transformation in Spoon. The method returns an XML string, containing the serialized settings. The string contains a
+ * transformation in HopGui. The method returns an XML string, containing the serialized settings. The string contains a
  * series of XML tags, typically one tag per setting. The helper class org.apache.hop.core.xml.XMLHandler is typically
  * used to construct the XML string.
  * <p>

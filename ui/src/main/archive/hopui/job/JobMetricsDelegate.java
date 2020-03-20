@@ -112,7 +112,7 @@ public class JobMetricsDelegate extends HopUiDelegate {
     //
     jobMetricsTab = new CTabItem( jobGraph.extraViewTabFolder, SWT.NONE );
     jobMetricsTab.setImage( GUIResource.getInstance().getImageGantt() );
-    jobMetricsTab.setText( BaseMessages.getString( PKG, "Spoon.JobGraph.MetricsTab.Name" ) );
+    jobMetricsTab.setText( BaseMessages.getString( PKG, "HopGui.JobGraph.MetricsTab.Name" ) );
 
     sMetricsComposite = new ScrolledComposite( jobGraph.extraViewTabFolder, SWT.V_SCROLL | SWT.H_SCROLL );
     sMetricsComposite.setLayout( new FillLayout() );

@@ -214,7 +214,7 @@ public class JobExecutor extends BaseStep implements StepInterface {
     //
     passParametersToJob();
 
-    // keep track for drill down in Spoon...
+    // keep track for drill down in HopGui...
     //
     getTrans().getActiveSubjobs().put( getStepname(), data.executorJob );
 

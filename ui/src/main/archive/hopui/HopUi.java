@@ -56,7 +56,6 @@ import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.GUIFactory;
-import org.apache.hop.core.gui.HopUiFactory;
 import org.apache.hop.core.gui.HopUiInterface;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.UndoInterface;
@@ -180,7 +179,6 @@ import org.apache.hop.ui.trans.dialog.TransHopDialog;
 import org.apache.hop.ui.util.EngineMetaUtils;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.HelpUtils;
-import org.apache.hop.ui.util.ThreadGuiResources;
 import org.apache.hop.ui.xul.HopXulLoader;
 import org.apache.xul.swt.tab.TabItem;
 import org.apache.xul.swt.tab.TabListener;
@@ -298,7 +296,7 @@ import java.util.stream.Collectors;
 //import org.apache.hop.trans.steps.selectvalues.SelectValuesMeta;
 
 /**
- * This class handles the main window of the Spoon graphical transformation editor.
+ * This class handles the main window of the HopGui graphical transformation editor.
  *
  * @author Matt
  * @since 16-may-2003, i18n at 07-Feb-2006, redesign 01-Dec-2006
@@ -311,43 +309,43 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   public static final LoggingObjectInterface loggingObject = new SimpleLoggingObject( "HopUi", LoggingObjectType.HOPUI,
     null );
 
-  public static final String STRING_TRANSFORMATIONS = BaseMessages.getString( PKG, "Spoon.STRING_TRANSFORMATIONS" );
+  public static final String STRING_TRANSFORMATIONS = BaseMessages.getString( PKG, "HopGui.STRING_TRANSFORMATIONS" );
 
-  public static final String STRING_JOBS = BaseMessages.getString( PKG, "Spoon.STRING_JOBS" );
+  public static final String STRING_JOBS = BaseMessages.getString( PKG, "HopGui.STRING_JOBS" );
 
-  public static final String STRING_BUILDING_BLOCKS = BaseMessages.getString( PKG, "Spoon.STRING_BUILDING_BLOCKS" );
+  public static final String STRING_BUILDING_BLOCKS = BaseMessages.getString( PKG, "HopGui.STRING_BUILDING_BLOCKS" );
 
-  public static final String STRING_ELEMENTS = BaseMessages.getString( PKG, "Spoon.STRING_ELEMENTS" );
+  public static final String STRING_ELEMENTS = BaseMessages.getString( PKG, "HopGui.STRING_ELEMENTS" );
 
-  public static final String STRING_CONNECTIONS = BaseMessages.getString( PKG, "Spoon.STRING_CONNECTIONS" );
+  public static final String STRING_CONNECTIONS = BaseMessages.getString( PKG, "HopGui.STRING_CONNECTIONS" );
 
-  public static final String STRING_STEPS = BaseMessages.getString( PKG, "Spoon.STRING_STEPS" );
+  public static final String STRING_STEPS = BaseMessages.getString( PKG, "HopGui.STRING_STEPS" );
 
-  public static final String STRING_JOB_ENTRIES = BaseMessages.getString( PKG, "Spoon.STRING_JOB_ENTRIES" );
+  public static final String STRING_JOB_ENTRIES = BaseMessages.getString( PKG, "HopGui.STRING_JOB_ENTRIES" );
 
-  public static final String STRING_HOPS = BaseMessages.getString( PKG, "Spoon.STRING_HOPS" );
+  public static final String STRING_HOPS = BaseMessages.getString( PKG, "HopGui.STRING_HOPS" );
 
-  public static final String STRING_PARTITIONS = BaseMessages.getString( PKG, "Spoon.STRING_PARTITIONS" );
+  public static final String STRING_PARTITIONS = BaseMessages.getString( PKG, "HopGui.STRING_PARTITIONS" );
 
-  public static final String STRING_SLAVES = BaseMessages.getString( PKG, "Spoon.STRING_SLAVES" );
+  public static final String STRING_SLAVES = BaseMessages.getString( PKG, "HopGui.STRING_SLAVES" );
 
-  public static final String STRING_CLUSTERS = BaseMessages.getString( PKG, "Spoon.STRING_CLUSTERS" );
+  public static final String STRING_CLUSTERS = BaseMessages.getString( PKG, "HopGui.STRING_CLUSTERS" );
 
-  public static final String STRING_TRANS_BASE = BaseMessages.getString( PKG, "Spoon.STRING_BASE" );
+  public static final String STRING_TRANS_BASE = BaseMessages.getString( PKG, "HopGui.STRING_BASE" );
 
-  public static final String STRING_HISTORY = BaseMessages.getString( PKG, "Spoon.STRING_HISTORY" );
+  public static final String STRING_HISTORY = BaseMessages.getString( PKG, "HopGui.STRING_HISTORY" );
 
-  public static final String STRING_TRANS_NO_NAME = BaseMessages.getString( PKG, "Spoon.STRING_TRANS_NO_NAME" );
+  public static final String STRING_TRANS_NO_NAME = BaseMessages.getString( PKG, "HopGui.STRING_TRANS_NO_NAME" );
 
-  public static final String STRING_JOB_NO_NAME = BaseMessages.getString( PKG, "Spoon.STRING_JOB_NO_NAME" );
+  public static final String STRING_JOB_NO_NAME = BaseMessages.getString( PKG, "HopGui.STRING_JOB_NO_NAME" );
 
-  public static final String STRING_TRANSFORMATION = BaseMessages.getString( PKG, "Spoon.STRING_TRANSFORMATION" );
+  public static final String STRING_TRANSFORMATION = BaseMessages.getString( PKG, "HopGui.STRING_TRANSFORMATION" );
 
-  public static final String STRING_JOB = BaseMessages.getString( PKG, "Spoon.STRING_JOB" );
+  public static final String STRING_JOB = BaseMessages.getString( PKG, "HopGui.STRING_JOB" );
 
   private static final String SYNC_TRANS = "sync_trans_name_to_file_name";
 
-  public static final String APP_NAME = BaseMessages.getString( PKG, "Spoon.Application.Name" );
+  public static final String APP_NAME = BaseMessages.getString( PKG, "HopGui.Application.Name" );
 
   public static final String XML_TAG_TRANSFORMATION_STEPS = "transformation-steps";
 
@@ -386,7 +384,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   public RowMetaAndData variables = new RowMetaAndData( new RowMeta() );
 
   /**
-   * These are the arguments that were given at Spoon launch time...
+   * These are the arguments that were given at HopGui launch time...
    */
   private String[] arguments;
 
@@ -398,14 +396,14 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   private static final String APP_TITLE = APP_NAME;
 
-  private static final String STRING_WELCOME_TAB_NAME = BaseMessages.getString( PKG, "Spoon.Title.STRING_WELCOME" );
+  private static final String STRING_WELCOME_TAB_NAME = BaseMessages.getString( PKG, "HopGui.Title.STRING_WELCOME" );
 
-  private static final String STRING_DOCUMENT_TAB_NAME = BaseMessages.getString( PKG, "Spoon.Documentation" );
+  private static final String STRING_DOCUMENT_TAB_NAME = BaseMessages.getString( PKG, "HopGui.Documentation" );
 
   // "docs/English/welcome/index.html";
   private static final String FILE_WELCOME_PAGE = Const
     .safeAppendDirectory( BasePropertyHandler.getProperty( "documentationDirBase", "docs/" ),
-      BaseMessages.getString( PKG, "Spoon.Title.STRING_DOCUMENT_WELCOME" ) );
+      BaseMessages.getString( PKG, "HopGui.Title.STRING_DOCUMENT_WELCOME" ) );
 
   public static final String DOCUMENTATION_URL = Const
     .getDocUrl( BasePropertyHandler.getProperty( "documentationUrl" ) );
@@ -415,10 +413,10 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   private static final String REDO_MENU_ITEM = "edit-redo";
 
   // "Undo : not available \tCTRL-Z"
-  private static final String UNDO_UNAVAILABLE = BaseMessages.getString( PKG, "Spoon.Menu.Undo.NotAvailable" );
+  private static final String UNDO_UNAVAILABLE = BaseMessages.getString( PKG, "HopGui.Menu.Undo.NotAvailable" );
 
   // "Redo : not available \tCTRL-Y"
-  private static final String REDO_UNAVAILABLE = BaseMessages.getString( PKG, "Spoon.Menu.Redo.NotAvailable" );
+  private static final String REDO_UNAVAILABLE = BaseMessages.getString( PKG, "HopGui.Menu.Redo.NotAvailable" );
 
   private static Boolean unsupportedBrowserEnvironment;
 
@@ -634,7 +632,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
   /**
    * The core plugin types don't know about UI classes. This method adds those in before initialization.
    * <p>
-   * TODO: create a SpoonLifecycle listener that can notify interested parties of a pre-initialization state so this can
+   * TODO: create a HopGuiLifecycle listener that can notify interested parties of a pre-initialization state so this can
    * happen in those listeners.
    */
   private static void registerUIPluginObjectTypes() {
@@ -940,8 +938,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     }
 
     // Check to see if display of warning dialog has been disabled
-    String warningTitle = BaseMessages.getString( PKG, "Spoon.Dialog.WarnToCloseAllForce.Disconnect.Title" );
-    String warningText = BaseMessages.getString( PKG, "Spoon.Dialog.WarnToCloseAllForce.Disconnect.Message" );
+    String warningTitle = BaseMessages.getString( PKG, "HopGui.Dialog.WarnToCloseAllForce.Disconnect.Title" );
+    String warningText = BaseMessages.getString( PKG, "HopGui.Dialog.WarnToCloseAllForce.Disconnect.Message" );
     int buttons = SWT.OK;
 
     MessageBox mb = new MessageBox( HopUi.getInstance().getShell(), buttons | SWT.ICON_WARNING );
@@ -1042,15 +1040,15 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     if ( rows.size() != 0 ) {
       PreviewRowsDialog prd =
         new PreviewRowsDialog( shell, Variables.getADefaultVariableSpace(), SWT.NONE, BaseMessages.getString(
-          PKG, "Spoon.StringSearchResult.Subtitle" ), StringSearchResult.getResultRowMeta(), rows );
-      String title = BaseMessages.getString( PKG, "Spoon.StringSearchResult.Title" );
-      String message = BaseMessages.getString( PKG, "Spoon.StringSearchResult.Message" );
+          PKG, "HopGui.StringSearchResult.Subtitle" ), StringSearchResult.getResultRowMeta(), rows );
+      String title = BaseMessages.getString( PKG, "HopGui.StringSearchResult.Title" );
+      String message = BaseMessages.getString( PKG, "HopGui.StringSearchResult.Message" );
       prd.setTitleMessage( title, message );
       prd.open();
     } else {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
-      mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.NothingFound.Message" ) );
-      mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.NothingFound.Title" ) ); // Sorry!
+      mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.NothingFound.Message" ) );
+      mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.NothingFound.Title" ) ); // Sorry!
       mb.open();
     }
   }
@@ -1066,8 +1064,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
     // Now ask the use for more info on these!
     EnterStringsDialog esd = new EnterStringsDialog( shell, SWT.NONE, allArgs );
-    esd.setTitle( BaseMessages.getString( PKG, "Spoon.Dialog.ShowArguments.Title" ) );
-    esd.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.ShowArguments.Message" ) );
+    esd.setTitle( BaseMessages.getString( PKG, "HopGui.Dialog.ShowArguments.Title" ) );
+    esd.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.ShowArguments.Message" ) );
     esd.setReadOnly( true );
     esd.setShellImage( GUIResource.getInstance().getImageLogoSmall() );
     esd.open();
@@ -1115,8 +1113,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
     // Now ask the use for more info on these!
     EnterStringsDialog esd = new EnterStringsDialog( shell, SWT.NONE, variables );
-    esd.setTitle( BaseMessages.getString( PKG, "Spoon.Dialog.SetVariables.Title" ) );
-    esd.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.SetVariables.Message" ) );
+    esd.setTitle( BaseMessages.getString( PKG, "HopGui.Dialog.SetVariables.Title" ) );
+    esd.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.SetVariables.Message" ) );
     esd.setReadOnly( false );
     esd.setShellImage( GUIResource.getInstance().getImageVariable() );
     if ( esd.open() != null ) {
@@ -1163,8 +1161,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
     // Now ask the use for more info on these!
     EnterStringsDialog esd = new EnterStringsDialog( shell, SWT.NONE, variables );
-    esd.setTitle( BaseMessages.getString( PKG, "Spoon.Dialog.ShowVariables.Title" ) );
-    esd.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.ShowVariables.Message" ) );
+    esd.setTitle( BaseMessages.getString( PKG, "HopGui.Dialog.ShowVariables.Title" ) );
+    esd.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.ShowVariables.Message" ) );
     esd.setReadOnly( true );
     esd.setShellImage( GUIResource.getInstance().getImageVariable() );
     esd.open();
@@ -1417,8 +1415,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         .put( "slave-server-inst", mainSpoonContainer.getDocumentRoot().getElementById( "slave-server-inst" ) );
     } catch ( Throwable t ) {
       new ErrorDialog(
-        shell, BaseMessages.getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Title" ), BaseMessages
-        .getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Message", XUL_FILE_MAIN ), new Exception( t ) );
+        shell, BaseMessages.getString( PKG, "HopGui.Exception.ErrorReadingXULFile.Title" ), BaseMessages
+        .getString( PKG, "HopGui.Exception.ErrorReadingXULFile.Message", XUL_FILE_MAIN ), new Exception( t ) );
     }
 
     addMenuLast();
@@ -1680,8 +1678,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     fdTreeToolbar.right = new FormAttachment( 100 );
     designTreeToolbar.setLayoutData( fdTreeToolbar );
 
-    designTreeToolbar.setSearchTooltip( BaseMessages.getString( PKG, "Spoon.SelectionFilter.Tooltip" ) );
-    designTreeToolbar.setSearchPlaceholder( BaseMessages.getString( PKG, "Spoon.SelectionFilter.Placeholder" ) );
+    designTreeToolbar.setSearchTooltip( BaseMessages.getString( PKG, "HopGui.SelectionFilter.Tooltip" ) );
+    designTreeToolbar.setSearchPlaceholder( BaseMessages.getString( PKG, "HopGui.SelectionFilter.Placeholder" ) );
     designTreeToolbar.addSearchModifyListener( modifyEvent -> {
       if ( coreObjectsTree != null && !coreObjectsTree.isDisposed() ) {
         previousShowTrans = false;
@@ -2020,7 +2018,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       // whatever is left in the 'baseSteps' list is steps that are mis-categorized
       if ( baseSteps.size() > 0 ) {
         TreeItem item = new TreeItem( coreObjectsTree, SWT.NONE );
-        final String otherCat = BaseMessages.getString( PKG, "Spoon.Other" );
+        final String otherCat = BaseMessages.getString( PKG, "HopGui.Other" );
         item.setText( otherCat );
         item.setImage( GUIResource.getInstance().getImageFolder() );
         addLineToBuilder( stepTree, "- ", otherCat );
@@ -2033,7 +2031,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
       // Add History Items...
       TreeItem item = new TreeItem( coreObjectsTree, SWT.NONE );
-      item.setText( BaseMessages.getString( PKG, "Spoon.History" ) );
+      item.setText( BaseMessages.getString( PKG, "HopGui.History" ) );
       item.setImage( GUIResource.getInstance().getImageFolder() );
 
       List<ObjectUsageCount> pluginHistory = props.getPluginHistory();
@@ -2271,8 +2269,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     final DatabaseMeta databaseMeta = (DatabaseMeta) selectionObject;
     MessageBox mb = new MessageBox( shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION );
     mb.setMessage( BaseMessages.getString(
-      PKG, "Spoon.ExploreDB.DeleteConnectionAsk.Message", databaseMeta.getName() ) );
-    mb.setText( BaseMessages.getString( PKG, "Spoon.ExploreDB.DeleteConnectionAsk.Title" ) );
+      PKG, "HopGui.ExploreDB.DeleteConnectionAsk.Message", databaseMeta.getName() ) );
+    mb.setText( BaseMessages.getString( PKG, "HopGui.ExploreDB.DeleteConnectionAsk.Title" ) );
     int response = mb.open();
 
     if ( response != SWT.YES ) {
@@ -2318,8 +2316,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       // show the shell...
       //
       EnterSelectionDialog dialog = new EnterSelectionDialog( shell, databaseNames,
-        BaseMessages.getString( PKG, "Spoon.ExploreDB.SelectDB.Title" ),
-        BaseMessages.getString( PKG, "Spoon.ExploreDB.SelectDB.Message" ) );
+        BaseMessages.getString( PKG, "HopGui.ExploreDB.SelectDB.Title" ),
+        BaseMessages.getString( PKG, "HopGui.ExploreDB.SelectDB.Message" ) );
       String name = dialog.open();
       if ( name != null ) {
         selectionObject = DatabaseMeta.loadDatabase( metaStore, name );
@@ -2501,7 +2499,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         item = (XulMenuitem) mainSpoonContainer.getDocumentRoot().getElementById( "database-inst-clear-cache" );
         if ( item != null ) {
           final DatabaseMeta databaseMeta = (DatabaseMeta) selectionObject;
-          item.setLabel( BaseMessages.getString( PKG, "Spoon.Menu.Popup.CONNECTIONS.ClearDBCache" )
+          item.setLabel( BaseMessages.getString( PKG, "HopGui.Menu.Popup.CONNECTIONS.ClearDBCache" )
             + databaseMeta.getName() ); // Clear
         }
 
@@ -2656,7 +2654,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         if ( item != null ) {
           Menu menu = new Menu( cTabFolder );
           MenuItem closeItem = new MenuItem( menu, SWT.NONE );
-          closeItem.setText( BaseMessages.getString( PKG, "Spoon.Tab.Close" ) );
+          closeItem.setText( BaseMessages.getString( PKG, "HopGui.Tab.Close" ) );
           closeItem.addSelectionListener( new SelectionAdapter() {
             @Override
             public void widgetSelected( SelectionEvent event ) {
@@ -2669,7 +2667,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
           } );
 
           MenuItem closeAllItems = new MenuItem( menu, SWT.NONE );
-          closeAllItems.setText( BaseMessages.getString( PKG, "Spoon.Tab.CloseAll" ) );
+          closeAllItems.setText( BaseMessages.getString( PKG, "HopGui.Tab.CloseAll" ) );
           closeAllItems.addSelectionListener( new SelectionAdapter() {
             @Override
             public void widgetSelected( SelectionEvent event ) {
@@ -2680,7 +2678,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
           } );
 
           MenuItem closeOtherItems = new MenuItem( menu, SWT.NONE );
-          closeOtherItems.setText( BaseMessages.getString( PKG, "Spoon.Tab.CloseOthers" ) );
+          closeOtherItems.setText( BaseMessages.getString( PKG, "HopGui.Tab.CloseOthers" ) );
           closeOtherItems.addSelectionListener( new SelectionAdapter() {
             @Override
             public void widgetSelected( SelectionEvent event ) {
@@ -2761,7 +2759,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
     // hack to make the plugins see file-close commands
     // this should be resolved properly when resolving PDI-6054
-    // maybe by extending the SpoonPerspectiveInterface to register event handlers from Spoon?
+    // maybe by extending the HopGuiPerspectiveInterface to register event handlers from HopGui?
     try {
       HopUiPerspective activePerspective = HopUiPerspectiveManager.getInstance().getActivePerspective();
       Class<? extends HopUiPerspective> cls = activePerspective.getClass();
@@ -2816,7 +2814,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       int nr = XMLHandler.countNodes( stepsNode, "step" );
       if ( getLog().isDebug() ) {
         // "I found "+nr+" steps to paste on location: "
-        getLog().logDebug( BaseMessages.getString( PKG, "Spoon.Log.FoundSteps", "" + nr ) + loc );
+        getLog().logDebug( BaseMessages.getString( PKG, "HopGui.Log.FoundSteps", "" + nr ) + loc );
       }
       StepMeta[] steps = new StepMeta[ nr ];
       ArrayList<String> stepOldNames = new ArrayList<>( nr );
@@ -2846,7 +2844,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       nr = XMLHandler.countNodes( hopsNode, "hop" );
       if ( getLog().isDebug() ) {
         // "I found "+nr+" hops to paste."
-        getLog().logDebug( BaseMessages.getString( PKG, "Spoon.Log.FoundHops", "" + nr ) );
+        getLog().logDebug( BaseMessages.getString( PKG, "HopGui.Log.FoundHops", "" + nr ) );
       }
       TransHopMeta[] hops = new TransHopMeta[ nr ];
 
@@ -2885,7 +2883,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       nr = XMLHandler.countNodes( notesNode, "notepad" );
       if ( getLog().isDebug() ) {
         // "I found "+nr+" notepads to paste."
-        getLog().logDebug( BaseMessages.getString( PKG, "Spoon.Log.FoundNotepads", "" + nr ) );
+        getLog().logDebug( BaseMessages.getString( PKG, "HopGui.Log.FoundNotepads", "" + nr ) );
       }
       NotePadMeta[] notes = new NotePadMeta[ nr ];
 
@@ -2950,8 +2948,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     } catch ( HopException e ) {
       // "Error pasting steps...",
       // "I was unable to paste steps to this transformation"
-      new ErrorDialog( shell, BaseMessages.getString( PKG, "Spoon.Dialog.UnablePasteSteps.Title" ), BaseMessages
-        .getString( PKG, "Spoon.Dialog.UnablePasteSteps.Message" ), e );
+      new ErrorDialog( shell, BaseMessages.getString( PKG, "HopGui.Dialog.UnablePasteSteps.Title" ), BaseMessages
+        .getString( PKG, "HopGui.Dialog.UnablePasteSteps.Message" ), e );
     }
   }
 
@@ -3114,8 +3112,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     boolean ok = true;
     if ( transMeta.findTransHop( newHop.getFromStep(), newHop.getToStep() ) != null ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.HopExists.Message" ) ); // "This hop already exists!"
-      mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.HopExists.Title" ) ); // Error!
+      mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.HopExists.Message" ) ); // "This hop already exists!"
+      mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.HopExists.Title" ) ); // Error!
       mb.open();
       ok = false;
     }
@@ -3174,9 +3172,9 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         MessageDialogWithToggle md =
           new MessageDialogWithToggle(
             shell, BaseMessages.getString( PKG, "System.Warning" ), null, BaseMessages.getString(
-            PKG, "Spoon.Dialog.CopyOrDistribute.Message", fr.getName(), Integer.toString( nrNextSteps ) ),
+            PKG, "HopGui.Dialog.CopyOrDistribute.Message", fr.getName(), Integer.toString( nrNextSteps ) ),
             MessageDialog.WARNING, getRowDistributionLabels(), 0, BaseMessages.getString(
-            PKG, "Spoon.Message.Warning.NotShowWarning" ), !props.showCopyOrDistributeWarning() );
+            PKG, "HopGui.Message.Warning.NotShowWarning" ), !props.showCopyOrDistributeWarning() );
         MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
         int idx = md.open();
         props.setShowCopyOrDistributeWarning( !md.getToggleState() );
@@ -3207,10 +3205,10 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   private String[] getRowDistributionLabels() {
     ArrayList<String> labels = new ArrayList<>();
-    labels.add( BaseMessages.getString( PKG, "Spoon.Dialog.CopyOrDistribute.Distribute" ) );
-    labels.add( BaseMessages.getString( PKG, "Spoon.Dialog.CopyOrDistribute.Copy" ) );
+    labels.add( BaseMessages.getString( PKG, "HopGui.Dialog.CopyOrDistribute.Distribute" ) );
+    labels.add( BaseMessages.getString( PKG, "HopGui.Dialog.CopyOrDistribute.Copy" ) );
     if ( PluginRegistry.getInstance().getPlugins( RowDistributionPluginType.class ).size() > 0 ) {
-      labels.add( BaseMessages.getString( PKG, "Spoon.Dialog.CopyOrDistribute.CustomRowDistribution" ) );
+      labels.add( BaseMessages.getString( PKG, "HopGui.Dialog.CopyOrDistribute.CustomRowDistribution" ) );
     }
     return labels.toArray( new String[ labels.size() ] );
   }
@@ -3254,14 +3252,14 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         Collections.addAll( extensionNames, l.getFileTypeDisplayNames( Locale.getDefault() ) );
       }
       extensions.add( "*" );
-      extensionNames.add( BaseMessages.getString( PKG, "Spoon.Dialog.OpenFile.AllFiles" ) );
+      extensionNames.add( BaseMessages.getString( PKG, "HopGui.Dialog.OpenFile.AllFiles" ) );
 
       String[] exts = new String[ extensions.size() + 1 ];
       exts[ 0 ] = allExtensions.toString();
       System.arraycopy( extensions.toArray( new String[ extensions.size() ] ), 0, exts, 1, extensions.size() );
 
       String[] extNames = new String[ extensionNames.size() + 1 ];
-      extNames[ 0 ] = BaseMessages.getString( PKG, "Spoon.Dialog.OpenFile.AllTypes" );
+      extNames[ 0 ] = BaseMessages.getString( PKG, "HopGui.Dialog.OpenFile.AllTypes" );
       System.arraycopy( extensionNames.toArray( new String[ extensionNames.size() ] ), 0, extNames, 1, extensionNames
         .size() );
 
@@ -3285,7 +3283,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     } catch ( Exception krle ) {
       new ErrorDialog(
         getShell(),
-        BaseMessages.getString( PKG, "Spoon.Error" ),
+        BaseMessages.getString( PKG, "HopGui.Error" ),
         krle.getMessage(),
         krle );
     }
@@ -3320,7 +3318,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       rootFile = initialFile.getFileSystem().getRoot();
     } catch ( Exception e ) {
       String message = Const.getStackTracker( e );
-      new ErrorDialog( shell, BaseMessages.getString( PKG, "Spoon.Error" ), message, e );
+      new ErrorDialog( shell, BaseMessages.getString( PKG, "HopGui.Error" ), message, e );
 
       return;
     }
@@ -3369,8 +3367,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     }
     if ( StringUtils.isBlank( filename ) || !fileExists ) {
       final Dialog dlg = new SimpleMessageDialog( shell,
-        BaseMessages.getString( PKG, "Spoon.Dialog.MissingRecentFile.Title" ),
-        BaseMessages.getString( PKG, "Spoon.Dialog.MissingRecentFile.Message", getFileType( filename ).toLowerCase() ),
+        BaseMessages.getString( PKG, "HopGui.Dialog.MissingRecentFile.Title" ),
+        BaseMessages.getString( PKG, "HopGui.Dialog.MissingRecentFile.Message", getFileType( filename ).toLowerCase() ),
         MessageDialog.ERROR, BaseMessages.getString( PKG, "System.Button.Close" ),
         MISSING_RECENT_DLG_WIDTH, SimpleMessageDialog.BUTTON_WIDTH );
       dlg.open();
@@ -3398,7 +3396,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       root = document.getDocumentElement();
     } catch ( HopXMLException e ) {
       if ( log.isDetailed() ) {
-        log.logDetailed( BaseMessages.getString( PKG, "Spoon.File.Xml.Parse.Error" ) );
+        log.logDetailed( BaseMessages.getString( PKG, "HopGui.File.Xml.Parse.Error" ) );
       }
     }
 
@@ -3426,8 +3424,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       if ( !loaded ) {
         // Give error back
         MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-        mb.setMessage( BaseMessages.getString( PKG, "Spoon.UnknownFileType.Message", filename ) );
-        mb.setText( BaseMessages.getString( PKG, "Spoon.UnknownFileType.Title" ) );
+        mb.setMessage( BaseMessages.getString( PKG, "HopGui.UnknownFileType.Message", filename ) );
+        mb.setText( BaseMessages.getString( PKG, "HopGui.UnknownFileType.Title" ) );
         mb.open();
       } else {
         applyVariables(); // set variables in the newly loaded
@@ -3458,8 +3456,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       }
     } catch ( Exception ex ) {
       new ErrorDialog(
-        shell, BaseMessages.getString( PKG, "Spoon.ErrorShowingMarketplaceDialog.Title" ), BaseMessages
-        .getString( PKG, "Spoon.ErrorShowingMarketplaceDialog.Message" ), ex );
+        shell, BaseMessages.getString( PKG, "HopGui.ErrorShowingMarketplaceDialog.Title" ), BaseMessages
+        .getString( PKG, "HopGui.ErrorShowingMarketplaceDialog.Message" ), ex );
     }
   }
 
@@ -3470,9 +3468,9 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
    */
   public void handleMissingPluginsExceptionWithMarketplace( HopMissingPluginsException missingPluginsException ) {
     MessageBox box = new MessageBox( shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO );
-    box.setText( BaseMessages.getString( PKG, "Spoon.MissingPluginsFoundDialog.Title" ) );
+    box.setText( BaseMessages.getString( PKG, "HopGui.MissingPluginsFoundDialog.Title" ) );
     box.setMessage( BaseMessages.getString(
-      PKG, "Spoon.MissingPluginsFoundDialog.Message", Const.CR, missingPluginsException.getPluginsMessage() ) );
+      PKG, "HopGui.MissingPluginsFoundDialog.Message", Const.CR, missingPluginsException.getPluginsMessage() ) );
     int answer = box.open();
     if ( ( answer & SWT.YES ) != 0 ) {
       openMarketplace();
@@ -3551,8 +3549,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       loadPerspective( MainHopUiPerspective.ID );
     } catch ( Exception e ) {
       new ErrorDialog(
-        shell, BaseMessages.getString( PKG, "Spoon.Exception.ErrorCreatingNewJob.Title" ), BaseMessages
-        .getString( PKG, "Spoon.Exception.ErrorCreatingNewJob.Message" ), e );
+        shell, BaseMessages.getString( PKG, "HopGui.Exception.ErrorCreatingNewJob.Title" ), BaseMessages
+        .getString( PKG, "HopGui.Exception.ErrorCreatingNewJob.Message" ), e );
     }
   }
 
@@ -3627,7 +3625,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
   public boolean quitFile( boolean canCancel ) throws HopException {
     if ( log.isDetailed() ) {
-      log.logDetailed( BaseMessages.getString( PKG, "Spoon.Log.QuitApplication" ) ); // "Quit application."
+      log.logDetailed( BaseMessages.getString( PKG, "HopGui.Log.QuitApplication" ) ); // "Quit application."
     }
 
     boolean exit = true;
@@ -3641,15 +3639,15 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         new MessageDialogWithToggle( shell,
           BaseMessages.getString( PKG, "System.Warning" ), // "Warning!"
           null,
-          BaseMessages.getString( PKG, "Spoon.Message.Warning.PromptExit" ),
+          BaseMessages.getString( PKG, "HopGui.Message.Warning.PromptExit" ),
           MessageDialog.WARNING, new String[] {
           // "Yes",
-          BaseMessages.getString( PKG, "Spoon.Message.Warning.Yes" ),
+          BaseMessages.getString( PKG, "HopGui.Message.Warning.Yes" ),
           // "No"
-          BaseMessages.getString( PKG, "Spoon.Message.Warning.No" )
+          BaseMessages.getString( PKG, "HopGui.Message.Warning.No" )
         }, 1,
           // "Please, don't show this warning anymore."
-          BaseMessages.getString( PKG, "Spoon.Message.Warning.NotShowWarning" ),
+          BaseMessages.getString( PKG, "HopGui.Message.Warning.NotShowWarning" ),
           !props.showExitWarning() );
       MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
       int idx = md.open();
@@ -3742,8 +3740,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       if ( meta != null ) {
         if ( AbstractMeta.class.isAssignableFrom( meta.getClass() ) && ( (AbstractMeta) meta ).hasMissingPlugins() ) {
           MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-          mb.setMessage( BaseMessages.getString( PKG, "Spoon.ErrorDialog.MissingPlugin.Error" ) );
-          mb.setText( BaseMessages.getString( PKG, "Spoon.ErrorDialog.MissingPlugin.Title" ) );
+          mb.setMessage( BaseMessages.getString( PKG, "HopGui.ErrorDialog.MissingPlugin.Error" ) );
+          mb.setText( BaseMessages.getString( PKG, "HopGui.ErrorDialog.MissingPlugin.Title" ) );
           mb.open();
           return false;
         }
@@ -3752,8 +3750,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         }
       }
     } catch ( Exception e ) {
-      new ErrorDialog( shell, BaseMessages.getString( PKG, "Spoon.File.Save.Fail.Title" ), BaseMessages.getString(
-        PKG, "Spoon.File.Save.Fail.Message" ), e );
+      new ErrorDialog( shell, BaseMessages.getString( PKG, "HopGui.File.Save.Fail.Title" ), BaseMessages.getString(
+        PKG, "HopGui.File.Save.Fail.Message" ), e );
     }
     return false;
   }
@@ -3769,7 +3767,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
     if ( getLog().isDetailed() ) {
       // "Save to file ...
-      getLog().logDetailed( BaseMessages.getString( PKG, "Spoon.Log.SaveToFileOrRepository" ) ); // TODO change i18n name and translation
+      getLog().logDetailed( BaseMessages.getString( PKG, "HopGui.Log.SaveToFileOrRepository" ) ); // TODO change i18n name and translation
     }
 
     HopUiPerspective activePerspective = HopUiPerspectiveManager.getInstance().getActivePerspective();
@@ -3795,9 +3793,9 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       }
     } catch ( HopException e ) {
       new ErrorDialog(
-        shell, BaseMessages.getString( PKG, "Spoon.Dialog.ErrorSavingDatabaseCache.Title" ),
+        shell, BaseMessages.getString( PKG, "HopGui.Dialog.ErrorSavingDatabaseCache.Title" ),
         // "An error occurred saving the database cache to disk"
-        BaseMessages.getString( PKG, "Spoon.Dialog.ErrorSavingDatabaseCache.Message" ), e );
+        BaseMessages.getString( PKG, "HopGui.Dialog.ErrorSavingDatabaseCache.Message" ), e );
     }
 
     // rename the tab only if the meta was successfully saved
@@ -3824,8 +3822,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       if ( meta != null && AbstractMeta.class.isAssignableFrom( meta.getClass() ) ) {
         if ( ( (AbstractMeta) meta ).hasMissingPlugins() ) {
           MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-          mb.setMessage( BaseMessages.getString( PKG, "Spoon.ErrorDialog.MissingPlugin.Error" ) );
-          mb.setText( BaseMessages.getString( PKG, "Spoon.ErrorDialog.MissingPlugin.Title" ) );
+          mb.setMessage( BaseMessages.getString( PKG, "HopGui.ErrorDialog.MissingPlugin.Error" ) );
+          mb.setText( BaseMessages.getString( PKG, "HopGui.ErrorDialog.MissingPlugin.Title" ) );
           mb.open();
           return false;
         }
@@ -3837,8 +3835,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       }
     } catch ( Exception e ) {
       new ErrorDialog( shell,
-        BaseMessages.getString( PKG, "Spoon.File.Save.Fail.Title" ),
-        BaseMessages.getString( PKG, "Spoon.File.Save.Fail.Message" ), e );
+        BaseMessages.getString( PKG, "HopGui.File.Save.Fail.Title" ),
+        BaseMessages.getString( PKG, "HopGui.File.Save.Fail.Message" ), e );
     }
 
     return false;
@@ -3848,7 +3846,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     boolean saved;
 
     if ( getLog().isBasic() ) {
-      getLog().logBasic( BaseMessages.getString( PKG, "Spoon.Log.SaveAs" ) ); // "Save as..."
+      getLog().logBasic( BaseMessages.getString( PKG, "HopGui.Log.SaveAs" ) ); // "Save as..."
     }
 
     ( (AbstractMeta) meta ).setMetaStore( metaStore );
@@ -3901,7 +3899,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       String zipFilename = null;
       while ( Utils.isEmpty( zipFilename ) ) {
         FileDialog dialog = new FileDialog( shell, SWT.SAVE );
-        dialog.setText( BaseMessages.getString( PKG, "Spoon.ExportResourceSelectZipFile" ) );
+        dialog.setText( BaseMessages.getString( PKG, "HopGui.ExportResourceSelectZipFile" ) );
         dialog.setFilterExtensions( new String[] { "*.zip;*.ZIP", "*" } );
         dialog.setFilterNames( new String[] {
           BaseMessages.getString( PKG, "System.FileType.ZIPFiles" ),
@@ -3915,8 +3913,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
             MessageBox box = new MessageBox( shell, SWT.YES | SWT.NO | SWT.CANCEL );
             box
               .setMessage( BaseMessages
-                .getString( PKG, "Spoon.ExportResourceZipFileExists.Message", zipFilename ) );
-            box.setText( BaseMessages.getString( PKG, "Spoon.ExportResourceZipFileExists.Title" ) );
+                .getString( PKG, "HopGui.ExportResourceZipFileExists.Message", zipFilename ) );
+            box.setText( BaseMessages.getString( PKG, "HopGui.ExportResourceZipFileExists.Title" ) );
             int answer = box.open();
             if ( answer == SWT.CANCEL ) {
               return;
@@ -3942,13 +3940,13 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
       EnterTextDialog enterTextDialog =
         new EnterTextDialog(
-          shell, BaseMessages.getString( PKG, "Spoon.Dialog.ResourceSerialized" ), BaseMessages.getString(
-          PKG, "Spoon.Dialog.ResourceSerializedSuccesfully" ), message );
+          shell, BaseMessages.getString( PKG, "HopGui.Dialog.ResourceSerialized" ), BaseMessages.getString(
+          PKG, "HopGui.Dialog.ResourceSerializedSuccesfully" ), message );
       enterTextDialog.setReadOnly();
       enterTextDialog.open();
     } catch ( Exception e ) {
-      new ErrorDialog( shell, BaseMessages.getString( PKG, "Spoon.Error" ), BaseMessages.getString(
-        PKG, "Spoon.ErrorExportingFile" ), e );
+      new ErrorDialog( shell, BaseMessages.getString( PKG, "HopGui.Error" ), BaseMessages.getString(
+        PKG, "HopGui.ErrorExportingFile" ), e );
     }
   }
 
@@ -4046,10 +4044,10 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         if ( f.exists() ) {
           MessageBox mb = new MessageBox( shell, SWT.NO | SWT.YES | SWT.ICON_WARNING );
           // "This file already exists.  Do you want to overwrite it?"
-          mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.PromptOverwriteFile." + meta.getFileType()
+          mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.PromptOverwriteFile." + meta.getFileType()
             + ".Message", Const.createName( filename ) ) );
           // "This file already exists!"
-          mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.PromptOverwriteFile.Title" ) );
+          mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.PromptOverwriteFile.Title" ) );
           id = mb.open();
         }
       } catch ( Exception e ) {
@@ -4144,9 +4142,9 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         if ( f.exists() ) {
           MessageBox mb = new MessageBox( shell, SWT.NO | SWT.YES | SWT.ICON_WARNING );
           // "This file already exists.  Do you want to overwrite it?"
-          mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.PromptOverwriteFile." + meta.getFileType()
+          mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.PromptOverwriteFile." + meta.getFileType()
             + ".Message", Const.createName( filename ) ) );
-          mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.PromptOverwriteFile.Title" ) );
+          mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.PromptOverwriteFile.Title" ) );
           id = mb.open();
         }
       } catch ( Exception e ) {
@@ -4178,7 +4176,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
          */
         MessageBox box = new MessageBox( staticHopUi.shell, SWT.ICON_ERROR | SWT.OK );
         box.setMessage( "Special characters are not allowed in the filename. Please use ASCII characters only" );
-        box.setText( BaseMessages.getString( PKG, "Spoon.Dialog.ErrorSavingConnection.Title" ) );
+        box.setText( BaseMessages.getString( PKG, "HopGui.Dialog.ErrorSavingConnection.Title" ) );
         box.open();
         return false;
       }
@@ -4235,7 +4233,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       addMenuLast();
 
       if ( log.isDebug() ) {
-        log.logDebug( BaseMessages.getString( PKG, "Spoon.Log.FileWritten" ) + " [" + filename + "]" ); // "File
+        log.logDebug( BaseMessages.getString( PKG, "HopGui.Log.FileWritten" ) + " [" + filename + "]" ); // "File
       }
       // written
       // to
@@ -4245,10 +4243,10 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     } catch ( Exception e ) {
       if ( log.isDebug() ) {
         // "Error opening file for writing! --> "
-        log.logDebug( BaseMessages.getString( PKG, "Spoon.Log.ErrorOpeningFileForWriting" ) + e.toString() );
+        log.logDebug( BaseMessages.getString( PKG, "HopGui.Log.ErrorOpeningFileForWriting" ) + e.toString() );
       }
-      new ErrorDialog( shell, BaseMessages.getString( PKG, "Spoon.Dialog.ErrorSavingFile.Title" ),
-        BaseMessages.getString( PKG, "Spoon.Dialog.ErrorSavingFile.Message" )
+      new ErrorDialog( shell, BaseMessages.getString( PKG, "HopGui.Dialog.ErrorSavingFile.Title" ),
+        BaseMessages.getString( PKG, "HopGui.Dialog.ErrorSavingFile.Message" )
           + Const.CR + e.toString(), e );
     }
     return saved;
@@ -4330,8 +4328,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       changeLooks();
 
       MessageBox mb = new MessageBox( shell, SWT.ICON_INFORMATION );
-      mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.PleaseRestartApplication.Message" ) );
-      mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.PleaseRestartApplication.Title" ) );
+      mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.PleaseRestartApplication.Message" ) );
+      mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.PleaseRestartApplication.Title" ) );
       mb.open();
     }
   }
@@ -4474,7 +4472,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     if ( ti.length == 1 ) {
       String stepType = ti[ 0 ].getText();
       if ( log.isDebug() ) {
-        log.logDebug( BaseMessages.getString( PKG, "Spoon.Log.NewStep" ) + stepType ); // "New step: "
+        log.logDebug( BaseMessages.getString( PKG, "HopGui.Log.NewStep" ) + stepType ); // "New step: "
       }
 
       inf = newStep( transMeta, stepType, stepType, openit, rename );
@@ -4551,9 +4549,9 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
           if ( nr > 2 ) {
             inf.setName( newName );
             MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
-            // "This stepName already exists.  Spoon changed the stepName to ["+newName+"]"
-            mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.ChangeStepname.Message", newName ) );
-            mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.ChangeStepname.Title" ) );
+            // "This stepName already exists.  HopGui changed the stepName to ["+newName+"]"
+            mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.ChangeStepname.Message", newName ) );
+            mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.ChangeStepname.Title" ) );
             mb.open();
           }
           inf.setLocation( 20, 20 ); // default location at (20,20)
@@ -4590,13 +4588,13 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
           ShowBrowserDialog sbd =
             new ShowBrowserDialog(
               // "Error help text"
-              shell, BaseMessages.getString( PKG, "Spoon.Dialog.ErrorHelpText.Title" ), content.toString() );
+              shell, BaseMessages.getString( PKG, "HopGui.Dialog.ErrorHelpText.Title" ), content.toString() );
           sbd.open();
         } catch ( Exception ex ) {
           new ErrorDialog( shell,
             // "Error showing help text"
-            BaseMessages.getString( PKG, "Spoon.Dialog.ErrorShowingHelpText.Title" ), BaseMessages.getString(
-            PKG, "Spoon.Dialog.ErrorShowingHelpText.Message" ), ex );
+            BaseMessages.getString( PKG, "HopGui.Dialog.ErrorShowingHelpText.Title" ), BaseMessages.getString(
+            PKG, "HopGui.Dialog.ErrorShowingHelpText.Message" ), ex );
         } finally {
           if ( fis != null ) {
             try {
@@ -4610,16 +4608,16 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         new ErrorDialog( shell,
           // "Error creating step"
           // "I was unable to create a new step"
-          BaseMessages.getString( PKG, "Spoon.Dialog.UnableCreateNewStep.Title" ), BaseMessages.getString(
-          PKG, "Spoon.Dialog.UnableCreateNewStep.Message" ), e );
+          BaseMessages.getString( PKG, "HopGui.Dialog.UnableCreateNewStep.Title" ), BaseMessages.getString(
+          PKG, "HopGui.Dialog.UnableCreateNewStep.Message" ), e );
       }
       return null;
     } catch ( Throwable e ) {
       if ( !shell.isDisposed() ) {
         new ErrorDialog( shell,
           // "Error creating step"
-          BaseMessages.getString( PKG, "Spoon.Dialog.ErrorCreatingStep.Title" ), BaseMessages.getString(
-          PKG, "Spoon.Dialog.UnableCreateNewStep.Message" ), e );
+          BaseMessages.getString( PKG, "HopGui.Dialog.ErrorCreatingStep.Title" ), BaseMessages.getString(
+          PKG, "HopGui.Dialog.UnableCreateNewStep.Message" ), e );
       }
       return null;
     }
@@ -4656,7 +4654,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
         if ( !Utils.isEmpty( tab ) ) {
           text += tab;
         } else {
-          text += BaseMessages.getString( PKG, "Spoon.Various.NoName" ); // "[no name]"
+          text += BaseMessages.getString( PKG, "HopGui.Various.NoName" ); // "[no name]"
         }
       }
     } else {
@@ -4664,7 +4662,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     }
 
     if ( changed != null && changed.hasChanged() ) {
-      text += " " + BaseMessages.getString( PKG, "Spoon.Various.Changed" );
+      text += " " + BaseMessages.getString( PKG, "HopGui.Various.Changed" );
     }
 
     shell.setText( text );
@@ -5249,11 +5247,11 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     // Set the menubar text and enabled flags
     XulMenuitem item = (XulMenuitem) mainSpoonContainer.getDocumentRoot().getElementById( UNDO_MENU_ITEM );
     item.setLabel( prev == null ? UNDO_UNAVAILABLE : BaseMessages.getString(
-      PKG, "Spoon.Menu.Undo.Available", prev.toString() ) );
+      PKG, "HopGui.Menu.Undo.Available", prev.toString() ) );
     item.setDisabled( prev == null );
     item = (XulMenuitem) mainSpoonContainer.getDocumentRoot().getElementById( REDO_MENU_ITEM );
     item.setLabel( next == null ? REDO_UNAVAILABLE : BaseMessages.getString(
-      PKG, "Spoon.Menu.Redo.Available", next.toString() ) );
+      PKG, "HopGui.Menu.Redo.Available", next.toString() ) );
     item.setDisabled( next == null );
   }
 
@@ -5397,19 +5395,19 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       prd.setTitleMessage(
         // "Impact analyses"
         // "Result of analyses:"
-        BaseMessages.getString( PKG, "Spoon.Dialog.ImpactAnalyses.Title" ), BaseMessages.getString(
-          PKG, "Spoon.Dialog.ImpactAnalyses.Message" ) );
+        BaseMessages.getString( PKG, "HopGui.Dialog.ImpactAnalyses.Title" ), BaseMessages.getString(
+          PKG, "HopGui.Dialog.ImpactAnalyses.Message" ) );
       prd.open();
     } else {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
       if ( transGraph.isImpactFinished() ) {
         // "As far as I can tell, this transformation has no impact on any database."
-        mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.TransformationNoImpactOnDatabase.Message" ) );
+        mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.TransformationNoImpactOnDatabase.Message" ) );
       } else {
         // "Please run the impact analyses first on this transformation."
-        mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.RunImpactAnalysesFirst.Message" ) );
+        mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.RunImpactAnalysesFirst.Message" ) );
       }
-      mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.ImpactAnalyses.Title" ) ); // Impact
+      mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.ImpactAnalyses.Title" ) ); // Impact
       mb.open();
     }
   }
@@ -5419,8 +5417,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       GUIResource.getInstance().toClipboard( clipText );
     } catch ( Throwable e ) {
       new ErrorDialog(
-        shell, BaseMessages.getString( PKG, "Spoon.Dialog.ExceptionCopyToClipboard.Title" ), BaseMessages
-        .getString( PKG, "Spoon.Dialog.ExceptionCopyToClipboard.Message" ), e );
+        shell, BaseMessages.getString( PKG, "HopGui.Dialog.ExceptionCopyToClipboard.Title" ), BaseMessages
+        .getString( PKG, "HopGui.Dialog.ExceptionCopyToClipboard.Message" ), e );
     }
   }
 
@@ -5429,8 +5427,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       return GUIResource.getInstance().fromClipboard();
     } catch ( Throwable e ) {
       new ErrorDialog(
-        shell, BaseMessages.getString( PKG, "Spoon.Dialog.ExceptionPasteFromClipboard.Title" ), BaseMessages
-        .getString( PKG, "Spoon.Dialog.ExceptionPasteFromClipboard.Message" ), e );
+        shell, BaseMessages.getString( PKG, "HopGui.Dialog.ExceptionPasteFromClipboard.Title" ), BaseMessages
+        .getString( PKG, "HopGui.Dialog.ExceptionPasteFromClipboard.Message" ), e );
       return null;
     }
   }
@@ -5442,7 +5440,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
     if ( log.isDetailed() ) {
       // "Paste transformation from the clipboard!"
-      log.logDetailed( BaseMessages.getString( PKG, "Spoon.Log.PasteTransformationFromClipboard" ) );
+      log.logDetailed( BaseMessages.getString( PKG, "HopGui.Log.PasteTransformationFromClipboard" ) );
     }
     String xml = fromClipboard();
     try {
@@ -5455,8 +5453,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       refreshTree();
     } catch ( HopException e ) {
       new ErrorDialog(
-        shell, BaseMessages.getString( PKG, "Spoon.Dialog.ErrorPastingTransformation.Title" ), BaseMessages
-        .getString( PKG, "Spoon.Dialog.ErrorPastingTransformation.Message" ), e );
+        shell, BaseMessages.getString( PKG, "HopGui.Dialog.ErrorPastingTransformation.Title" ), BaseMessages
+        .getString( PKG, "HopGui.Dialog.ErrorPastingTransformation.Message" ), e );
     }
   }
 
@@ -5476,8 +5474,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       new ErrorDialog( shell,
         // Error pasting transformation
         // "An error occurred pasting a transformation from the clipboard"
-        BaseMessages.getString( PKG, "Spoon.Dialog.ErrorPastingJob.Title" ), BaseMessages.getString(
-        PKG, "Spoon.Dialog.ErrorPastingJob.Message" ), e );
+        BaseMessages.getString( PKG, "HopGui.Dialog.ErrorPastingJob.Title" ), BaseMessages.getString(
+        PKG, "HopGui.Dialog.ErrorPastingJob.Message" ), e );
     }
   }
 
@@ -5523,7 +5521,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     if ( props.openLastFile() ) {
       if ( log.isDetailed() ) {
         // "Trying to open the last file used."
-        log.logDetailed( BaseMessages.getString( PKG, "Spoon.Log.TryingOpenLastUsedFile" ) );
+        log.logDetailed( BaseMessages.getString( PKG, "HopGui.Log.TryingOpenLastUsedFile" ) );
       }
 
       List<LastUsedFile> lastUsedFiles = props.getOpenTabFiles();
@@ -5532,8 +5530,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
           loadLastUsedFileAtStartup( lastUsedFile );
         } catch ( Exception e ) {
           new ErrorDialog(
-            shell, BaseMessages.getString( PKG, "Spoon.LoadLastUsedFile.Exception.Title" ), BaseMessages
-            .getString( PKG, "Spoon.LoadLastUsedFile.Exception.Message", lastUsedFile.toString() ), e );
+            shell, BaseMessages.getString( PKG, "HopGui.LoadLastUsedFile.Exception.Title" ), BaseMessages
+            .getString( PKG, "HopGui.LoadLastUsedFile.Exception.Message", lastUsedFile.toString() ), e );
         }
       }
     }
@@ -5555,9 +5553,9 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
 
       // display the same warning message
       MessageBox dialog = new MessageBox( shell, SWT.ICON_WARNING );
-      dialog.setText( BaseMessages.getString( PKG, "Spoon.Warning.DevelopmentRelease.Title" ) );
+      dialog.setText( BaseMessages.getString( PKG, "HopGui.Warning.DevelopmentRelease.Title" ) );
       dialog.setMessage( BaseMessages.getString(
-        PKG, "Spoon.Warning.DevelopmentRelease.Message", Const.CR, BuildVersion.getInstance().getVersion() ) );
+        PKG, "HopGui.Warning.DevelopmentRelease.Message", Const.CR, BuildVersion.getInstance().getVersion() ) );
       dialog.open();
     }
   }
@@ -5570,7 +5568,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     do {
       retryAfterError = false; // reset to false after error otherwise
       // it will loop forever after
-      // closing Spoon
+      // closing HopGui
       try {
 
         while ( getShell() != null && !getShell().isDisposed() ) {
@@ -5579,18 +5577,18 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
           }
         }
       } catch ( Throwable e ) {
-        // "An unexpected error occurred in Spoon: probable cause: please close all windows before stopping Spoon! "
-        log.logError( BaseMessages.getString( PKG, "Spoon.Log.UnexpectedErrorOccurred" )
+        // "An unexpected error occurred in HopGui: probable cause: please close all windows before stopping HopGui! "
+        log.logError( BaseMessages.getString( PKG, "HopGui.Log.UnexpectedErrorOccurred" )
           + Const.CR + e.getMessage() );
         log.logError( Const.getStackTracker( e ) );
         try {
-          new ErrorDialog( shell, BaseMessages.getString( PKG, "Spoon.Log.UnexpectedErrorOccurred" ), BaseMessages
-            .getString( PKG, "Spoon.Log.UnexpectedErrorOccurred" )
+          new ErrorDialog( shell, BaseMessages.getString( PKG, "HopGui.Log.UnexpectedErrorOccurred" ), BaseMessages
+            .getString( PKG, "HopGui.Log.UnexpectedErrorOccurred" )
             + Const.CR + e.getMessage(), e );
           // Retry dialog
           MessageBox mb = new MessageBox( shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES );
-          mb.setText( BaseMessages.getString( PKG, "Spoon.Log.UnexpectedErrorRetry.Titel" ) );
-          mb.setMessage( BaseMessages.getString( PKG, "Spoon.Log.UnexpectedErrorRetry.Message" ) );
+          mb.setText( BaseMessages.getString( PKG, "HopGui.Log.UnexpectedErrorRetry.Titel" ) );
+          mb.setMessage( BaseMessages.getString( PKG, "HopGui.Log.UnexpectedErrorRetry.Message" ) );
           if ( mb.open() == SWT.YES ) {
             retryAfterError = true;
           }
@@ -5605,7 +5603,7 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     }
     dispose();
     if ( log.isBasic() ) {
-      log.logBasic( APP_NAME + " " + BaseMessages.getString( PKG, "Spoon.Log.AppHasEnded" ) ); // " has ended."
+      log.logBasic( APP_NAME + " " + BaseMessages.getString( PKG, "HopGui.Log.AppHasEnded" ) ); // " has ended."
     }
 
     // Close the logfile
@@ -5680,8 +5678,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       schemaNames = pickupPartitionSchemaNames( transMeta );
     } catch ( HopException e ) {
       new ErrorDialog( shell,
-        BaseMessages.getString( PKG, "Spoon.ErrorDialog.Title" ),
-        BaseMessages.getString( PKG, "Spoon.ErrorDialog.ErrorFetchingFromRepo.PartitioningSchemas" ),
+        BaseMessages.getString( PKG, "HopGui.ErrorDialog.Title" ),
+        BaseMessages.getString( PKG, "HopGui.ErrorDialog.ErrorFetchingFromRepo.PartitioningSchemas" ),
         e
       );
       return;
@@ -5758,8 +5756,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
       EnterSelectionDialog dialog = new EnterSelectionDialog(
         shell,
         clusterSchemaNames,
-        BaseMessages.getString( PKG, "Spoon.Dialog.SelectClusteringSchema.Title" ),
-        BaseMessages.getString( PKG, "Spoon.Dialog.SelectClusteringSchema.Message" )
+        BaseMessages.getString( PKG, "HopGui.Dialog.SelectClusteringSchema.Title" ),
+        BaseMessages.getString( PKG, "HopGui.Dialog.SelectClusteringSchema.Message" )
       );
       String schemaName = dialog.open( idx );
 
@@ -5819,8 +5817,8 @@ public class HopUi extends ApplicationWindow implements AddUndoPositionInterface
     try {
       delegates.slaves.delSlaveServer( hasSlaveServersInterface, slaveServer );
     } catch ( HopException e ) {
-      new ErrorDialog( shell, BaseMessages.getString( PKG, "Spoon.Dialog.ErrorDeletingSlave.Title" ), BaseMessages
-        .getString( PKG, "Spoon.Dialog.ErrorDeletingSlave.Message" ), e );
+      new ErrorDialog( shell, BaseMessages.getString( PKG, "HopGui.Dialog.ErrorDeletingSlave.Title" ), BaseMessages
+        .getString( PKG, "HopGui.Dialog.ErrorDeletingSlave.Message" ), e );
     }
   }
 

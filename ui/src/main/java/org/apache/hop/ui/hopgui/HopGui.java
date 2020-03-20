@@ -132,8 +132,8 @@ public class HopGui implements IActionContextHandlersProvider {
   public static final String GUI_PLUGIN_PERSPECTIVES_PARENT_ID = "HopGui-Perspectives";
 
 
-  private static final String UNDO_UNAVAILABLE = BaseMessages.getString( PKG, "Spoon.Menu.Undo.NotAvailable" );
-  private static final String REDO_UNAVAILABLE = BaseMessages.getString( PKG, "Spoon.Menu.Redo.NotAvailable" );
+  private static final String UNDO_UNAVAILABLE = BaseMessages.getString( PKG, "HopGui.Menu.Undo.NotAvailable" );
+  private static final String REDO_UNAVAILABLE = BaseMessages.getString( PKG, "HopGui.Menu.Redo.NotAvailable" );
 
   public static final String APP_NAME = "Hop";
 
@@ -259,7 +259,7 @@ public class HopGui implements IActionContextHandlersProvider {
     shell = new Shell( display, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX );
     shell.setImage( GUIResource.getInstance().getImageHopUi() );
 
-    shell.setText( BaseMessages.getString( PKG, "Spoon.Application.Name" ) );
+    shell.setText( BaseMessages.getString( PKG, "HopGui.Application.Name" ) );
     addMainMenu();
     addMainToolbar();
     addPerspectivesToolbar();
@@ -609,7 +609,7 @@ public class HopGui implements IActionContextHandlersProvider {
     if ( prev == null ) {
       undoItem.setText( UNDO_UNAVAILABLE );
     } else {
-      undoItem.setText( BaseMessages.getString( PKG, "Spoon.Menu.Undo.Available", prev.toString() ) );
+      undoItem.setText( BaseMessages.getString( PKG, "HopGui.Menu.Undo.Available", prev.toString() ) );
     }
     KeyboardShortcut undoShortcut = mainMenuWidgets.findKeyboardShortcut( ID_MAIN_MENU_EDIT_UNDO );
     if ( undoShortcut != null ) {
@@ -620,7 +620,7 @@ public class HopGui implements IActionContextHandlersProvider {
     if ( next == null ) {
       redoItem.setText( REDO_UNAVAILABLE );
     } else {
-      redoItem.setText( BaseMessages.getString( PKG, "Spoon.Menu.Redo.Available", next.toString() ) );
+      redoItem.setText( BaseMessages.getString( PKG, "HopGui.Menu.Redo.Available", next.toString() ) );
     }
     KeyboardShortcut redoShortcut = mainMenuWidgets.findKeyboardShortcut( ID_MAIN_MENU_EDIT_REDO );
     if ( redoShortcut != null ) {

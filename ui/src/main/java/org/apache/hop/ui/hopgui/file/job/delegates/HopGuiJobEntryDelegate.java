@@ -123,8 +123,8 @@ public class HopGuiJobEntryDelegate {
       }
     } catch ( Throwable e ) {
       new ErrorDialog( hopUi.getShell(),
-        BaseMessages.getString( PKG, "Spoon.ErrorDialog.UnexpectedErrorCreatingNewJobGraphEntry.Title" ),
-        BaseMessages.getString( PKG, "Spoon.ErrorDialog.UnexpectedErrorCreatingNewJobGraphEntry.Message" ),
+        BaseMessages.getString( PKG, "HopGui.ErrorDialog.UnexpectedErrorCreatingNewJobGraphEntry.Title" ),
+        BaseMessages.getString( PKG, "HopGui.ErrorDialog.UnexpectedErrorCreatingNewJobGraphEntry.Message" ),
         new Exception( e ) );
       return null;
     }
@@ -152,8 +152,8 @@ public class HopGuiJobEntryDelegate {
       return entryDialogInterface;
     } catch ( Throwable t ) {
       t.printStackTrace();
-      String errorTitle = BaseMessages.getString( PKG, "Spoon.Dialog.ErrorCreatingJobDialog.Title" );
-      String errorMsg = BaseMessages.getString( PKG, "Spoon.Dialog.ErrorCreatingJobEntryDialog.Message", dialogClassName );
+      String errorTitle = BaseMessages.getString( PKG, "HopGui.Dialog.ErrorCreatingJobDialog.Title" );
+      String errorMsg = BaseMessages.getString( PKG, "HopGui.Dialog.ErrorCreatingJobEntryDialog.Message", dialogClassName );
       hopUi.getLog().logError( hopUi.toString(), errorMsg );
       new ErrorDialog( hopUi.getShell(), errorTitle, errorMsg, t );
       return null;
@@ -163,7 +163,7 @@ public class HopGuiJobEntryDelegate {
   public void editJobEntry( JobMeta jobMeta, JobEntryCopy je ) {
     try {
       hopUi.getLog().logBasic(
-        hopUi.toString(), BaseMessages.getString( PKG, "Spoon.Log.EditJobEntry", je.getName() ) );
+        hopUi.toString(), BaseMessages.getString( PKG, "HopGui.Log.EditJobEntry", je.getName() ) );
 
       JobEntryCopy before = (JobEntryCopy) je.clone_deep();
 
@@ -183,16 +183,16 @@ public class HopGuiJobEntryDelegate {
         }
       } else {
         MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_INFORMATION );
-        mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.JobEntryCanNotBeChanged.Message" ) );
-        mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.JobEntryCanNotBeChanged.Title" ) );
+        mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.JobEntryCanNotBeChanged.Message" ) );
+        mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.JobEntryCanNotBeChanged.Title" ) );
         mb.open();
       }
 
     } catch ( Exception e ) {
       if ( !hopUi.getShell().isDisposed() ) {
         new ErrorDialog( hopUi.getShell(),
-          BaseMessages.getString( PKG, "Spoon.ErrorDialog.ErrorEditingJobEntry.Title" ),
-          BaseMessages.getString( PKG, "Spoon.ErrorDialog.ErrorEditingJobEntry.Message" ), e );
+          BaseMessages.getString( PKG, "HopGui.ErrorDialog.ErrorEditingJobEntry.Title" ),
+          BaseMessages.getString( PKG, "HopGui.ErrorDialog.ErrorEditingJobEntry.Message" ), e );
       }
     }
   }
@@ -258,8 +258,8 @@ public class HopGuiJobEntryDelegate {
 
     if ( jobEntry.isStart() ) {
       MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_INFORMATION );
-      mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.OnlyUseStartOnce.Message" ) );
-      mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.OnlyUseStartOnce.Title" ) );
+      mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.OnlyUseStartOnce.Message" ) );
+      mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.OnlyUseStartOnce.Title" ) );
       mb.open();
       return;
     }

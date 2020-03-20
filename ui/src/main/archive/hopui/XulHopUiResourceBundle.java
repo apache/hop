@@ -33,9 +33,9 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
- * Static class wrapping Spoon's BaseMessages class and Look and Feel bundle.
+ * Static class wrapping HopGui's BaseMessages class and Look and Feel bundle.
  * <p>
- * This wrapper is required for XUL portions of Spoon as the XUL system internationalizes via ResourceBundles.
+ * This wrapper is required for XUL portions of HopGui as the XUL system internationalizes via ResourceBundles.
  *
  * @author nbaker
  */

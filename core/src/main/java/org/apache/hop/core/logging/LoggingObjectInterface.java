@@ -79,7 +79,7 @@ public interface LoggingObjectInterface {
   /**
    * Gets the execution container (Carte/DI server/BI Server) object id. We use this to see to which copy of the
    * job/trans hierarchy this object belongs. If it is null, we assume that we are running a single copy in
-   * Spoon/Pan/Kitchen.
+   * HopGui/Pan/Kitchen.
    *
    * @return The execution container (Carte/DI server/BI Server) object id.
    */

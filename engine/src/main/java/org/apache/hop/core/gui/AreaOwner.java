@@ -26,7 +26,7 @@ import java.util.EnumSet;
 import java.util.Set;
 
 /**
- * When we draw something in Spoon (TransPainter) we keep a list of all the things we draw and the object that's behind
+ * When we draw something in HopGui (TransPainter) we keep a list of all the things we draw and the object that's behind
  * it. That should make it a lot easier to track what was drawn, setting tooltips, etc.
  *
  * @author Matt

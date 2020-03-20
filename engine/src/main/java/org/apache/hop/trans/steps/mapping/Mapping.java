@@ -210,7 +210,7 @@ public class Mapping extends BaseStep implements StepInterface {
             getData().getMappingTrans().waitUntilFinished();
 
             // Set some statistics from the mapping...
-            // This will show up in Spoon, etc.
+            // This will show up in HopGui, etc.
             //
             Result result = getData().getMappingTrans().getResult();
             setErrors( result.getNrErrors() );

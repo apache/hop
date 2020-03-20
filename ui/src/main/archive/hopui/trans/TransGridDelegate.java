@@ -135,7 +135,7 @@ public class TransGridDelegate extends HopUiDelegate implements XulEventHandler 
 
     transGridTab = new CTabItem( transGraph.extraViewTabFolder, SWT.NONE );
     transGridTab.setImage( GUIResource.getInstance().getImageShowGrid() );
-    transGridTab.setText( BaseMessages.getString( PKG, "Spoon.TransGraph.GridTab.Name" ) );
+    transGridTab.setText( BaseMessages.getString( PKG, "HopGui.TransGraph.GridTab.Name" ) );
 
     transGridComposite = new Composite( transGraph.extraViewTabFolder, SWT.NONE );
     transGridComposite.setLayout( new FormLayout() );
@@ -261,8 +261,8 @@ public class TransGridDelegate extends HopUiDelegate implements XulEventHandler 
     } catch ( Throwable t ) {
       log.logError( toString(), Const.getStackTracker( t ) );
       new ErrorDialog( transGridComposite.getShell(),
-        BaseMessages.getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Title" ),
-        BaseMessages.getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Message", XUL_FILE_TRANS_GRID_TOOLBAR ),
+        BaseMessages.getString( PKG, "HopGui.Exception.ErrorReadingXULFile.Title" ),
+        BaseMessages.getString( PKG, "HopGui.Exception.ErrorReadingXULFile.Message", XUL_FILE_TRANS_GRID_TOOLBAR ),
         new Exception( t ) );
     }
   }

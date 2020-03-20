@@ -30,16 +30,16 @@ public interface HopUiPluginInterface {
   public void applyToContainer( String category, XulDomContainer container ) throws XulException;
 
   /**
-   * Provides an optional SpoonLifecycleListener to be notified of Spoon startup and shutdown.
+   * Provides an optional HopGuiLifecycleListener to be notified of HopGui startup and shutdown.
    *
-   * @return optional SpoonLifecycleListener
+   * @return optional HopGuiLifecycleListener
    */
   public HopUiLifecycleListener getLifecycleListener();
 
   /**
-   * Provides an optional SpoonPerspective.
+   * Provides an optional HopGuiPerspective.
    *
-   * @return optional SpoonPerspective
+   * @return optional HopGuiPerspective
    */
   public HopUiPerspective getPerspective();
 }

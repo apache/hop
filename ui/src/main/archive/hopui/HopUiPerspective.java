@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * A SpoonPerspective is able to modify the look of the application and display it's own UI. Only one perspective can be
- * active at a time though they can run concurrently. SpoonPerspectives are most likely to be registered as part of a
+ * A HopGuiPerspective is able to modify the look of the application and display it's own UI. Only one perspective can be
+ * active at a time though they can run concurrently. HopGuiPerspectives are most likely to be registered as part of a
  * HopUiPlugin.
  *
  * @author nbaker
@@ -70,7 +70,7 @@ public interface HopUiPerspective {
   public InputStream getPerspectiveIcon();
 
   /**
-   * Called by Spoon whenever the active state of a perspective changes.
+   * Called by HopGui whenever the active state of a perspective changes.
    *
    * @param active
    */
@@ -84,7 +84,7 @@ public interface HopUiPerspective {
   public List<XulOverlay> getOverlays();
 
   /**
-   * Returns a list of Xul Event Handlers (controllers) to be added to Xul Containers in Spoon. Perspectives may
+   * Returns a list of Xul Event Handlers (controllers) to be added to Xul Containers in HopGui. Perspectives may
    * overwrite existing event handlers by registering one with the same ID.
    *
    * @return list of XulEventHandlers

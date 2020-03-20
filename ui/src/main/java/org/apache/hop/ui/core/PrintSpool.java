@@ -138,7 +138,7 @@ public class PrintSpool {
         double actual_sizey = size_on_papery * epd.scale / 100;
 
         // Create new print job.
-        printer.startJob( "Hop : Spoon print job" );
+        printer.startJob( "HopGui : print job" );
 
         // How much of the image do we print on each page: all or just a page worth of pixels?
 

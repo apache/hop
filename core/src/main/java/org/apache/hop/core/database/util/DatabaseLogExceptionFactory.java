@@ -43,7 +43,7 @@ public class DatabaseLogExceptionFactory {
    * </p>
    * <p/>
    * <p>
-   * This behavior can be overridden with 'kettle.properties' key-value using 'Edit Hop.properties file' in Spoon or
+   * This behavior can be overridden with 'hop.properties' key-value using 'Edit hop.properties file' in HopGui or
    * other.
    * </p>
    * <p/>
@@ -68,7 +68,7 @@ public class DatabaseLogExceptionFactory {
    * </p>
    * <p/>
    * <p>
-   * This behavior can be overridden with 'kettle.properties' key-value using 'Edit Hop.properties file' in Spoon or
+   * This behavior can be overridden with 'kettle.properties' key-value using 'Edit hop.properties file' in HopGui or
    * other.
    * </p>
    * <p/>

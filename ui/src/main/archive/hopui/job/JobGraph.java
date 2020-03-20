@@ -168,7 +168,7 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 
 /**
- * Handles the display of Jobs in Spoon, in a graphical form.
+ * Handles the display of Jobs in HopGui, in a graphical form.
  *
  * @author Matt Created on 17-may-2003
  */
@@ -624,7 +624,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
       if ( e.button == 1 ) {
         editEntry( jobentry );
       } else {
-        // open tab in Spoon
+        // open tab in HopGui
         launchStuff( jobentry );
       }
     } else {
@@ -1390,7 +1390,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
       ToolItem runItem = new ToolItem( swtToolbar, SWT.DROP_DOWN, 0 );
 
       runItem.setImage( GUIResource.getInstance().getImage( "ui/images/run.svg" ) );
-      runItem.setToolTipText( BaseMessages.getString( PKG, "Spoon.Tooltip.RunTranformation" ) );
+      runItem.setToolTipText( BaseMessages.getString( PKG, "HopGui.Tooltip.RunTranformation" ) );
       runItem.addSelectionListener( new SelectionAdapter() {
 
         @Override
@@ -1399,7 +1399,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
             Menu menu = new Menu( shell, SWT.POP_UP );
 
             MenuItem item1 = new MenuItem( menu, SWT.PUSH );
-            item1.setText( BaseMessages.getString( PKG, "Spoon.Run.Run" ) );
+            item1.setText( BaseMessages.getString( PKG, "HopGui.Run.Run" ) );
             item1.setAccelerator( SWT.F9 );
             item1.addSelectionListener( new SelectionAdapter() {
               @Override
@@ -1408,7 +1408,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
               }
             } );
             MenuItem item2 = new MenuItem( menu, SWT.PUSH );
-            item2.setText( BaseMessages.getString( PKG, "Spoon.Run.RunOptions" ) );
+            item2.setText( BaseMessages.getString( PKG, "HopGui.Run.RunOptions" ) );
             item2.setAccelerator( SWT.F8 );
             item2.addSelectionListener( new SelectionAdapter() {
               @Override
@@ -1454,8 +1454,8 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
     } catch ( Throwable t ) {
       log.logError( Const.getStackTracker( t ) );
       new ErrorDialog( shell,
-        BaseMessages.getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Title" ),
-        BaseMessages.getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Message", XUL_FILE_JOB_GRAPH ),
+        BaseMessages.getString( PKG, "HopGui.Exception.ErrorReadingXULFile.Title" ),
+        BaseMessages.getString( PKG, "HopGui.Exception.ErrorReadingXULFile.Message", XUL_FILE_JOB_GRAPH ),
         new Exception( t ) );
     }
   }
@@ -1568,8 +1568,8 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
     JobEntryCopy[] jobs = jobMeta.getAllJobGraphEntries( newName );
     if ( jobs != null && jobs.length > 0 ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
-      mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.JobEntryNameExists.Message", newName ) );
-      mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.JobEntryNameExists.Title" ) );
+      mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.JobEntryNameExists.Message", newName ) );
+      mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.JobEntryNameExists.Title" ) );
       mb.open();
     } else {
       jobEntry.setName( newName );
@@ -3214,7 +3214,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
     sashForm.setWeights( new int[] { 100, } );
 
     XulToolbarbutton button = (XulToolbarbutton) toolbar.getElementById( "job-show-results" );
-    button.setTooltiptext( BaseMessages.getString( PKG, "Spoon.Tooltip.ShowExecutionResults" ) );
+    button.setTooltiptext( BaseMessages.getString( PKG, "HopGui.Tooltip.ShowExecutionResults" ) );
     ToolItem swtToolItem = (ToolItem) button.getManagedObject();
     swtToolItem.setImage( GUIResource.getInstance().getImageShowResults() );
   }
@@ -3271,7 +3271,7 @@ public class JobGraph extends AbstractGraph implements XulEventHandler, Redrawab
     }
 
     XulToolbarbutton button = (XulToolbarbutton) toolbar.getElementById( "job-show-results" );
-    button.setTooltiptext( BaseMessages.getString( PKG, "Spoon.Tooltip.HideExecutionResults" ) );
+    button.setTooltiptext( BaseMessages.getString( PKG, "HopGui.Tooltip.HideExecutionResults" ) );
     ToolItem swtToolItem = (ToolItem) button.getManagedObject();
     swtToolItem.setImage( GUIResource.getInstance().getImageHideResults() );
   }

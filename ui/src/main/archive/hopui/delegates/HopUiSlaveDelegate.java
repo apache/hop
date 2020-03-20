@@ -102,8 +102,8 @@ public class HopUiSlaveDelegate {
 
   private void showSaveErrorDialog( SlaveServer slaveServer, HopException e ) {
     new ErrorDialog(
-      hopUi.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ErrorSavingSlave.Title" ),
-      BaseMessages.getString( PKG, "Spoon.Dialog.ErrorSavingSlave.Message", slaveServer.getName() ), e );
+      hopUi.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.ErrorSavingSlave.Title" ),
+      BaseMessages.getString( PKG, "HopGui.Dialog.ErrorSavingSlave.Message", slaveServer.getName() ), e );
   }
 
   private void refreshTree() {

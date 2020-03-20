@@ -373,7 +373,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
 
   /**
    * This method is called by PDI whenever a job entry needs to serialize its settings to XML. It is called when saving
-   * a job in Spoon. The method returns an XML string, containing the serialized settings. The string contains a series
+   * a job in HopGui. The method returns an XML string, containing the serialized settings. The string contains a series
    * of XML tags, typically one tag per setting. The helper class org.apache.hop.core.xml.XMLHandler is typically used
    * to construct the XML string.
    *
@@ -413,7 +413,7 @@ public class JobEntryBase implements Cloneable, VariableSpace, LoggingObjectInte
   }
 
   /**
-   * This method is called when a job entry is duplicated in Spoon. It needs to return a deep copy of this job entry
+   * This method is called when a job entry is duplicated in HopGui. It needs to return a deep copy of this job entry
    * object. It is essential that the implementing class creates proper deep copies if the job entry configuration is
    * stored in modifiable objects, such as lists or custom helper objects.
    *

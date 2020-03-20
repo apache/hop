@@ -77,8 +77,8 @@ public class JobFileListener implements FileListener {
       return true;
     } catch ( HopException e ) {
       new ErrorDialog(
-        hopUi.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ErrorOpening.Title" ), BaseMessages
-        .getString( PKG, "Spoon.Dialog.ErrorOpening.Message" )
+        hopUi.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.ErrorOpening.Title" ), BaseMessages
+        .getString( PKG, "HopGui.Dialog.ErrorOpening.Message" )
         + fname, e );
     }
     return false;

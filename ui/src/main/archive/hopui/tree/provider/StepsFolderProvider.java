@@ -40,7 +40,7 @@ import org.eclipse.swt.graphics.Image;
 public class StepsFolderProvider extends AutomaticTreeFolderProvider {
 
   private static Class<?> PKG = HopUi.class;
-  public static final String STRING_STEPS = BaseMessages.getString( PKG, "Spoon.STRING_STEPS" );
+  public static final String STRING_STEPS = BaseMessages.getString( PKG, "HopGui.STRING_STEPS" );
 
   @Override
   public String getTitle() {

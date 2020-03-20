@@ -38,7 +38,7 @@ import org.apache.hop.ui.hopui.HopUi;
 public class DBConnectionFolderProvider extends AutomaticTreeFolderProvider {
 
   private static Class<?> PKG = HopUi.class;
-  public static final String STRING_CONNECTIONS = BaseMessages.getString( PKG, "Spoon.STRING_CONNECTIONS" );
+  public static final String STRING_CONNECTIONS = BaseMessages.getString( PKG, "HopGui.STRING_CONNECTIONS" );
 
   private GUIResource guiResource;
   private HopUi hopUi;
@@ -59,8 +59,8 @@ public class DBConnectionFolderProvider extends AutomaticTreeFolderProvider {
       collector.collectDatabases();
     } catch ( HopException e ) {
       new ErrorDialog( HopUi.getInstance().getShell(),
-        BaseMessages.getString( PKG, "Spoon.ErrorDialog.Title" ),
-        BaseMessages.getString( PKG, "Spoon.ErrorDialog.ErrorFetchingFromRepo.DbConnections" ),
+        BaseMessages.getString( PKG, "HopGui.ErrorDialog.Title" ),
+        BaseMessages.getString( PKG, "HopGui.ErrorDialog.ErrorFetchingFromRepo.DbConnections" ),
         e
       );
     }

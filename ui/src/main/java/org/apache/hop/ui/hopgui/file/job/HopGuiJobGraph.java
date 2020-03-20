@@ -166,7 +166,7 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 
 /**
- * Handles the display of Jobs in Spoon, in a graphical form.
+ * Handles the display of Jobs in HopGui, in a graphical form.
  *
  * @author Matt Created on 17-may-2003
  */
@@ -610,7 +610,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
       if ( e.button == 1 ) {
         editEntry( jobentry );
       } else {
-        // open tab in Spoon
+        // open tab in HopGui
         launchStuff( jobentry );
       }
     } else {
@@ -1592,8 +1592,8 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
     JobEntryCopy[] jobs = jobMeta.getAllJobGraphEntries( newName );
     if ( jobs != null && jobs.length > 0 ) {
       MessageBox mb = new MessageBox( hopShell(), SWT.OK | SWT.ICON_INFORMATION );
-      mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.JobEntryNameExists.Message", newName ) );
-      mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.JobEntryNameExists.Title" ) );
+      mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.JobEntryNameExists.Message", newName ) );
+      mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.JobEntryNameExists.Title" ) );
       mb.open();
     } else {
       jobEntry.setName( newName );
@@ -2387,9 +2387,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
       HopFileTypeInterface fileTypeHandler = hopUi.getPerspectiveManager().findFileTypeHandler( referencedMeta );
       fileTypeHandler.openFile( hopUi, referencedMeta.getFilename(), hopUi.getVariableSpace() );
     } catch ( Exception e ) {
-      new ErrorDialog( hopShell(),
-        BaseMessages.getString( PKG, "JobGraph.Dialog.ErrorLaunchingSpoonCanNotLoadTransformation.Title" ),
-        BaseMessages.getString( PKG, "JobGraph.Dialog.ErrorLaunchingSpoonCanNotLoadTransformation.Message" ), e );
+      new ErrorDialog( hopShell(), "Error", "The referenced file couldn't be loaded", e );
     }
   }
 
@@ -3049,7 +3047,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
     sashForm.setWeights( new int[] { 100, } );
 
     ToolItem item = toolBarWidgets.findToolItem( TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS );
-    item.setToolTipText( BaseMessages.getString( PKG, "Spoon.Tooltip.ShowExecutionResults" ) );
+    item.setToolTipText( BaseMessages.getString( PKG, "HopGui.Tooltip.ShowExecutionResults" ) );
     item.setImage( GUIResource.getInstance().getImageShowResults() );
   }
 
@@ -3081,8 +3079,8 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
     id = TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS,
     type = GuiElementType.TOOLBAR_BUTTON,
-    label = "Spoon.Menu.ShowExecutionResults",
-    toolTip = "Spoon.Tooltip.ShowExecutionResults",
+    label = "HopGui.Menu.ShowExecutionResults",
+    toolTip = "HopGui.Tooltip.ShowExecutionResults",
     i18nPackageClass = HopGui.class,
     image = "ui/images/show-results.svg",
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
@@ -3114,7 +3112,7 @@ public class HopGuiJobGraph extends HopGuiAbstractGraph
     }
 
     ToolItem toolItem = toolBarWidgets.findToolItem( TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS );
-    toolItem.setToolTipText( BaseMessages.getString( PKG, "Spoon.Tooltip.HideExecutionResults" ) );
+    toolItem.setToolTipText( BaseMessages.getString( PKG, "HopGui.Tooltip.HideExecutionResults" ) );
     toolItem.setImage( GUIResource.getInstance().getImageHideResults() );
   }
 

@@ -133,7 +133,7 @@ public class HopGuiTransGridDelegate {
 
     transGridTab = new CTabItem( transGraph.extraViewTabFolder, SWT.NONE );
     transGridTab.setImage( GUIResource.getInstance().getImageShowGrid() );
-    transGridTab.setText( BaseMessages.getString( PKG, "Spoon.TransGraph.GridTab.Name" ) );
+    transGridTab.setText( BaseMessages.getString( PKG, "HopGui.TransGraph.GridTab.Name" ) );
 
     transGridComposite = new Composite( transGraph.extraViewTabFolder, SWT.NONE );
     transGridComposite.setLayout( new FormLayout() );

@@ -88,8 +88,8 @@ public class HopGuiTransStepDelegate {
       } catch ( Throwable ignored ) {
       }
 
-      String errorTitle = BaseMessages.getString( PKG, "Spoon.Dialog.ErrorCreatingStepDialog.Title" );
-      String errorMsg = BaseMessages.getString( PKG, "Spoon.Dialog.ErrorCreatingStepDialog.Message", dialogClassName );
+      String errorTitle = BaseMessages.getString( PKG, "HopGui.Dialog.ErrorCreatingStepDialog.Title" );
+      String errorMsg = BaseMessages.getString( PKG, "HopGui.Dialog.ErrorCreatingStepDialog.Message", dialogClassName );
       new ErrorDialog( hopUi.getShell(), errorTitle, errorMsg, e );
       throw new HopException( e );
     }
@@ -132,8 +132,8 @@ public class HopGuiTransStepDelegate {
         if ( nr > 2 ) {
           stepname = newname;
           MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_INFORMATION );
-          mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.StepnameExists.Message", stepname ) );
-          mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.StepnameExists.Title" ) );
+          mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.StepnameExists.Message", stepname ) );
+          mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.StepnameExists.Title" ) );
           mb.open();
         }
 
@@ -169,8 +169,8 @@ public class HopGuiTransStepDelegate {
         return null;
       }
       new ErrorDialog(
-        hopUi.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.UnableOpenDialog.Title" ), BaseMessages
-        .getString( PKG, "Spoon.Dialog.UnableOpenDialog.Message" ), e );
+        hopUi.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.UnableOpenDialog.Title" ), BaseMessages
+        .getString( PKG, "HopGui.Dialog.UnableOpenDialog.Message" ), e );
     }
 
     return stepname;
@@ -233,9 +233,9 @@ public class HopGuiTransStepDelegate {
             if ( nr > 2 ) {
               stepMeta.setName( newName );
               MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_INFORMATION );
-              // "This stepName already exists.  Spoon changed the stepName to ["+newName+"]"
-              mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.ChangeStepname.Message", newName ) );
-              mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.ChangeStepname.Title" ) );
+              // "This stepName already exists.  HopGui changed the stepName to ["+newName+"]"
+              mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.ChangeStepname.Message", newName ) );
+              mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.ChangeStepname.Title" ) );
               mb.open();
             }
             stepMeta.setLocation( location.x, location.y ); // default location at (20,20)
@@ -266,11 +266,11 @@ public class HopGuiTransStepDelegate {
               ch = fis.read();
             }
 
-            ShowBrowserDialog sbd = new ShowBrowserDialog( hopUi.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ErrorHelpText.Title" ), content.toString() );
+            ShowBrowserDialog sbd = new ShowBrowserDialog( hopUi.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.ErrorHelpText.Title" ), content.toString() );
             sbd.open();
           } catch ( Exception ex ) {
-            new ErrorDialog( hopUi.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ErrorShowingHelpText.Title" ),
-              BaseMessages.getString( PKG, "Spoon.Dialog.ErrorShowingHelpText.Message" ), ex );
+            new ErrorDialog( hopUi.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.ErrorShowingHelpText.Title" ),
+              BaseMessages.getString( PKG, "HopGui.Dialog.ErrorShowingHelpText.Message" ), ex );
           } finally {
             if ( fis != null ) {
               try {
@@ -284,16 +284,16 @@ public class HopGuiTransStepDelegate {
           new ErrorDialog( hopUi.getShell(),
             // "Error creating step"
             // "I was unable to create a new step"
-            BaseMessages.getString( PKG, "Spoon.Dialog.UnableCreateNewStep.Title" ), BaseMessages.getString(
-            PKG, "Spoon.Dialog.UnableCreateNewStep.Message" ), e );
+            BaseMessages.getString( PKG, "HopGui.Dialog.UnableCreateNewStep.Title" ), BaseMessages.getString(
+            PKG, "HopGui.Dialog.UnableCreateNewStep.Message" ), e );
         }
         return null;
       } catch ( Throwable e ) {
         if ( !hopUi.getShell().isDisposed() ) {
           new ErrorDialog( hopUi.getShell(),
             // "Error creating step"
-            BaseMessages.getString( PKG, "Spoon.Dialog.ErrorCreatingStep.Title" ), BaseMessages.getString(
-            PKG, "Spoon.Dialog.UnableCreateNewStep.Message" ), e );
+            BaseMessages.getString( PKG, "HopGui.Dialog.ErrorCreatingStep.Title" ), BaseMessages.getString(
+            PKG, "HopGui.Dialog.UnableCreateNewStep.Message" ), e );
         }
         return null;
       }
@@ -306,7 +306,7 @@ public class HopGuiTransStepDelegate {
 
   public void dupeStep( TransMeta transMeta, StepMeta stepMeta ) {
     hopUi.getLog().logDebug(
-      toString(), BaseMessages.getString( PKG, "Spoon.Log.DuplicateStep" ) + stepMeta.getName() ); // Duplicate
+      toString(), BaseMessages.getString( PKG, "HopGui.Log.DuplicateStep" ) + stepMeta.getName() ); // Duplicate
     // step:
 
     StepMeta stMeta = (StepMeta) stepMeta.clone();
@@ -336,8 +336,8 @@ public class HopGuiTransStepDelegate {
       schemaNames = hopUi.partitionManager.getNamesArray();
     } catch ( HopException e ) {
       new ErrorDialog( hopUi.getShell(),
-        BaseMessages.getString( PKG, "Spoon.ErrorDialog.Title" ),
-        BaseMessages.getString( PKG, "Spoon.ErrorDialog.ErrorFetchingFromRepo.PartitioningSchemas" ),
+        BaseMessages.getString( PKG, "HopGui.ErrorDialog.Title" ),
+        BaseMessages.getString( PKG, "HopGui.ErrorDialog.ErrorFetchingFromRepo.PartitioningSchemas" ),
         e
       );
       return;

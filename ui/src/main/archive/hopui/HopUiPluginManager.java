@@ -37,19 +37,19 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * HopUiPluginManager is a singleton class which loads all SpoonPlugins from the SPOON_HOME/plugins/spoon directory.
+ * HopUiPluginManager is a singleton class which loads all HopGuiPlugins from the SPOON_HOME/plugins/spoon directory.
  * <p/>
- * Spoon Plugins are able to listen for SpoonLifeCycleEvents and can register categorized XUL Overlays to be retrieved
+ * HopGui Plugins are able to listen for HopGuiLifeCycleEvents and can register categorized XUL Overlays to be retrieved
  * later.
  * <p/>
- * Spoon Plugins are deployed as directories under the SPOON_HOME/plugins/spoon directory. Each plugin must provide a
+ * HopGui Plugins are deployed as directories under the SPOON_HOME/plugins/spoon directory. Each plugin must provide a
  * build.xml as the root of it's directory and have any required jars under a "lib" directory.
  * <p/>
  * The plugin.xml format is Spring-based e.g. <beans xmlns="http://www.springframework.org/schema/beans"
  * xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=
  * "http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
  * <p/>
- * <bean id="PLUGIN_ID" class="org.foo.SpoonPluginClassName"></bean> </beans>
+ * <bean id="PLUGIN_ID" class="org.foo.HopGuiPluginClassName"></bean> </beans>
  *
  * @author nbaker
  */
@@ -134,7 +134,7 @@ public class HopUiPluginManager implements PluginTypeListener {
   }
 
   /**
-   * Returns an unmodifiable list of all Spoon Plugins.
+   * Returns an unmodifiable list of all HopGui Plugins.
    *
    * @return list of plugins
    */
@@ -143,7 +143,7 @@ public class HopUiPluginManager implements PluginTypeListener {
   }
 
   /**
-   * Notifies all registered SpoonLifecycleListeners of the given SpoonLifeCycleEvent.
+   * Notifies all registered HopGuiLifecycleListeners of the given HopGuiLifeCycleEvent.
    *
    * @param evt event to notify listeners about
    */

@@ -137,7 +137,7 @@ public class TransPerfDelegate extends HopUiDelegate {
     //
     transPerfTab = new CTabItem( transGraph.extraViewTabFolder, SWT.NONE );
     transPerfTab.setImage( GUIResource.getInstance().getImageShowPerf() );
-    transPerfTab.setText( BaseMessages.getString( PKG, "Spoon.TransGraph.PerfTab.Name" ) );
+    transPerfTab.setText( BaseMessages.getString( PKG, "HopGui.TransGraph.PerfTab.Name" ) );
 
     // Create a composite, slam everything on there like it was in the history tab.
     //

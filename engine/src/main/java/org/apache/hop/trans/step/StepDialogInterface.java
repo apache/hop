@@ -26,7 +26,7 @@ import org.apache.hop.metastore.api.IMetaStore;
 
 /**
  * This interface is used to launch Step Dialogs. All dialogs that implement this simple interface can be opened by
- * Spoon.
+ * HopGui.
  *
  * @author Matt
  * @since 4-aug-2004

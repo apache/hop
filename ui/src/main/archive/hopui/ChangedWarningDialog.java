@@ -69,12 +69,12 @@ public class ChangedWarningDialog implements ChangedWarningInterface {
     container = HopUi.getInstance().getMainSpoonContainer();
 
     XulMessageBox messageBox = (XulMessageBox) container.getDocumentRoot().createElement( "messagebox" );
-    messageBox.setTitle( BaseMessages.getString( PKG, "Spoon.Dialog.PromptSave.Title" ) );
+    messageBox.setTitle( BaseMessages.getString( PKG, "HopGui.Dialog.PromptSave.Title" ) );
 
     if ( fileName != null ) {
-      messageBox.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.PromptToSave.Message", fileName ) );
+      messageBox.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.PromptToSave.Message", fileName ) );
     } else {
-      messageBox.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.PromptSave.Message" ) );
+      messageBox.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.PromptSave.Message" ) );
     }
 
     messageBox.setButtons( new Integer[] { SWT.YES, SWT.NO, SWT.CANCEL } );

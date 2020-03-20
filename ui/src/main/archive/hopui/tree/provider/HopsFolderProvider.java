@@ -37,7 +37,7 @@ import org.eclipse.swt.graphics.Image;
 public class HopsFolderProvider extends AutomaticTreeFolderProvider {
 
   private static Class<?> PKG = HopUi.class;
-  public static final String STRING_HOPS = BaseMessages.getString( PKG, "Spoon.STRING_HOPS" );
+  public static final String STRING_HOPS = BaseMessages.getString( PKG, "HopGui.STRING_HOPS" );
 
   private GUIResource guiResource;
 

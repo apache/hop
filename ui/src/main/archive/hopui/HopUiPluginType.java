@@ -37,7 +37,7 @@ import java.util.Map;
 public class HopUiPluginType extends BasePluginType implements PluginTypeInterface {
 
   private HopUiPluginType() {
-    super( HopUiPlugin.class, "SPOONPLUGIN", "Spoon Plugin" );
+    super( HopUiPlugin.class, "SPOONPLUGIN", "HopGui.Plugin" );
 
     pluginFolders.add( new PluginFolder( "plugins", false, true ) );
   }

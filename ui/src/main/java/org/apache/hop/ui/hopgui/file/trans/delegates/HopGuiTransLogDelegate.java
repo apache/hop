@@ -103,7 +103,7 @@ public class HopGuiTransLogDelegate {
     //
     transLogTab = new CTabItem( transGraph.extraViewTabFolder, SWT.NONE );
     transLogTab.setImage( GUIResource.getInstance().getImageShowLog() );
-    transLogTab.setText( BaseMessages.getString( PKG, "Spoon.TransGraph.LogTab.Name" ) );
+    transLogTab.setText( BaseMessages.getString( PKG, "HopGui.TransGraph.LogTab.Name" ) );
 
     transLogComposite = new Composite( transGraph.extraViewTabFolder, SWT.NO_BACKGROUND | SWT.NO_FOCUS );
     transLogComposite.setLayout( new FormLayout() );

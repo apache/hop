@@ -107,7 +107,7 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
   }
 
   /**
-   * @param hopUi      Spoon instance
+   * @param hopUi      HopGui instance
    * @param transGraph HopGuiTransGraph instance
    */
   public TransHistoryDelegate( HopUi hopUi, TransGraph transGraph ) {
@@ -135,7 +135,7 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
     //
     transHistoryTab = new CTabItem( transGraph.extraViewTabFolder, SWT.NONE );
     transHistoryTab.setImage( GUIResource.getInstance().getImageShowHistory() );
-    transHistoryTab.setText( BaseMessages.getString( PKG, "Spoon.TransGraph.HistoryTab.Name" ) );
+    transHistoryTab.setText( BaseMessages.getString( PKG, "HopGui.TransGraph.HistoryTab.Name" ) );
 
     // Create a composite, slam everything on there like it was in the history tab.
     //
@@ -219,8 +219,8 @@ public class TransHistoryDelegate extends HopUiDelegate implements XulEventHandl
     } catch ( Throwable t ) {
       log.logError( Const.getStackTracker( t ) );
       new ErrorDialog( transHistoryComposite.getShell(),
-        BaseMessages.getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Title" ),
-        BaseMessages.getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Message", XUL_FILE_TRANS_GRID_TOOLBAR ),
+        BaseMessages.getString( PKG, "HopGui.Exception.ErrorReadingXULFile.Title" ),
+        BaseMessages.getString( PKG, "HopGui.Exception.ErrorReadingXULFile.Message", XUL_FILE_TRANS_GRID_TOOLBAR ),
         new Exception( t ) );
     }
   }

@@ -23,7 +23,6 @@
 package org.apache.hop.ui.hopui;
 
 import org.apache.hop.core.EngineMetaInterface;
-import org.apache.hop.core.gui.HopUiFactory;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.hopui.job.JobGraph;
 import org.apache.hop.ui.hopui.trans.TransGraph;
@@ -64,7 +63,7 @@ public class MainHopUiPerspective implements HopUiPerspectiveImageProvider {
 
   @Override
   public String getDisplayName( Locale l ) {
-    return BaseMessages.getString( PKG, "Spoon.Perspectives.DI" );
+    return BaseMessages.getString( PKG, "HopGui.Perspectives.DI" );
   }
 
   @Override

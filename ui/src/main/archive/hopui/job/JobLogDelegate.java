@@ -167,8 +167,8 @@ public class JobLogDelegate extends HopUiDelegate implements XulEventHandler {
     } catch ( Throwable t ) {
       log.logError( Const.getStackTracker( t ) );
       new ErrorDialog( jobLogComposite.getShell(),
-        BaseMessages.getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Title" ),
-        BaseMessages.getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Message", XUL_FILE_TRANS_LOG_TOOLBAR ),
+        BaseMessages.getString( PKG, "HopGui.Exception.ErrorReadingXULFile.Title" ),
+        BaseMessages.getString( PKG, "HopGui.Exception.ErrorReadingXULFile.Message", XUL_FILE_TRANS_LOG_TOOLBAR ),
         new Exception( t ) );
     }
   }

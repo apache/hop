@@ -44,8 +44,8 @@ public class HopGuiJobClipboardDelegate {
     try {
       GUIResource.getInstance().toClipboard( clipText );
     } catch ( Throwable e ) {
-      new ErrorDialog( hopGui.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ExceptionCopyToClipboard.Title" ), BaseMessages
-        .getString( PKG, "Spoon.Dialog.ExceptionCopyToClipboard.Message" ), e );
+      new ErrorDialog( hopGui.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.ExceptionCopyToClipboard.Title" ), BaseMessages
+        .getString( PKG, "HopGui.Dialog.ExceptionCopyToClipboard.Message" ), e );
     }
   }
 
@@ -54,8 +54,8 @@ public class HopGuiJobClipboardDelegate {
       return GUIResource.getInstance().fromClipboard();
     } catch ( Throwable e ) {
       new ErrorDialog(
-        hopGui.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ExceptionPasteFromClipboard.Title" ), BaseMessages
-        .getString( PKG, "Spoon.Dialog.ExceptionPasteFromClipboard.Message" ), e );
+        hopGui.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.ExceptionPasteFromClipboard.Title" ), BaseMessages
+        .getString( PKG, "HopGui.Dialog.ExceptionPasteFromClipboard.Message" ), e );
       return null;
     }
   }
@@ -133,7 +133,7 @@ public class HopGuiJobClipboardDelegate {
       nr = XMLHandler.countNodes( notesNode, "notepad" );
       if ( log.isDebug() ) {
         // "I found "+nr+" notepads to paste."
-        log.logDebug( BaseMessages.getString( PKG, "Spoon.Log.FoundNotepads", "" + nr ) );
+        log.logDebug( BaseMessages.getString( PKG, "HopGui.Log.FoundNotepads", "" + nr ) );
       }
       NotePadMeta[] notes = new NotePadMeta[ nr ];
 
@@ -165,8 +165,8 @@ public class HopGuiJobClipboardDelegate {
       // "Error pasting steps...",
       // "I was unable to paste steps to this transformation"
       new ErrorDialog( hopGui.getShell(),
-        BaseMessages.getString( PKG, "Spoon.Dialog.UnablePasteEntries.Title" ),
-        BaseMessages.getString( PKG, "Spoon.Dialog.UnablePasteEntries.Message" ), e );
+        BaseMessages.getString( PKG, "HopGui.Dialog.UnablePasteEntries.Title" ),
+        BaseMessages.getString( PKG, "HopGui.Dialog.UnablePasteEntries.Message" ), e );
     }
     jobGraph.redraw();
   }

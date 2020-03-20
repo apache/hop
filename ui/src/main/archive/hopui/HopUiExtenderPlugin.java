@@ -29,8 +29,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Xul-based Spoon plugin. Implementations can modify the look of Spoon, register a SpoonLifecycleListener and add a
- * SpoonPerspective.
+ * Xul-based HopGui plugin. Implementations can modify the look of HopGui, register a HopGuiLifecycleListener and add a
+ * HopGuiPerspective.
  *
  * @author nbaker
  */

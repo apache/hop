@@ -79,7 +79,7 @@ public class HopUiStepsDelegate extends HopUiDelegate {
 
   public void dupeStep( TransMeta transMeta, StepMeta stepMeta ) {
     hopUi.getLog().logDebug(
-      toString(), BaseMessages.getString( PKG, "Spoon.Log.DuplicateStep" ) + stepMeta.getName() ); // Duplicate
+      toString(), BaseMessages.getString( PKG, "HopGui.Log.DuplicateStep" ) + stepMeta.getName() ); // Duplicate
     // step:
 
     StepMeta stMeta = (StepMeta) stepMeta.clone();
@@ -140,8 +140,8 @@ public class HopUiStepsDelegate extends HopUiDelegate {
         if ( nr > 2 ) {
           stepname = newname;
           MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_INFORMATION );
-          mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.StepnameExists.Message", stepname ) );
-          mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.StepnameExists.Title" ) );
+          mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.StepnameExists.Message", stepname ) );
+          mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.StepnameExists.Title" ) );
           mb.open();
         }
 
@@ -174,8 +174,8 @@ public class HopUiStepsDelegate extends HopUiDelegate {
         return null;
       }
       new ErrorDialog(
-        hopUi.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.UnableOpenDialog.Title" ), BaseMessages
-        .getString( PKG, "Spoon.Dialog.UnableOpenDialog.Message" ), e );
+        hopUi.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.UnableOpenDialog.Title" ), BaseMessages
+        .getString( PKG, "HopGui.Dialog.UnableOpenDialog.Message" ), e );
     }
 
     if ( refresh ) {
@@ -267,8 +267,8 @@ public class HopUiStepsDelegate extends HopUiDelegate {
       } catch ( Throwable ignored ) {
       }
 
-      String errorTitle = BaseMessages.getString( PKG, "Spoon.Dialog.ErrorCreatingStepDialog.Title" );
-      String errorMsg = BaseMessages.getString( PKG, "Spoon.Dialog.ErrorCreatingStepDialog.Message", dialogClassName );
+      String errorTitle = BaseMessages.getString( PKG, "HopGui.Dialog.ErrorCreatingStepDialog.Title" );
+      String errorMsg = BaseMessages.getString( PKG, "HopGui.Dialog.ErrorCreatingStepDialog.Message", dialogClassName );
       new ErrorDialog( hopUi.getShell(), errorTitle, errorMsg, e );
       throw new HopException( e );
     }

@@ -410,9 +410,9 @@ public class HopUiTabsDelegate extends HopUiDelegate {
           AbstractMeta meta = (AbstractMeta) managedObject;
           String tabText = makeTabName( meta, entry.isShowingLocation() );
           entry.getTabItem().setText( tabText );
-          String toolTipText = BaseMessages.getString( PKG, "Spoon.TabTrans.Tooltip", tabText );
+          String toolTipText = BaseMessages.getString( PKG, "HopGui.TabTrans.Tooltip", tabText );
           if ( entry.getObject() instanceof JobGraph ) {
-            toolTipText = BaseMessages.getString( PKG, "Spoon.TabJob.Tooltip", tabText );
+            toolTipText = BaseMessages.getString( PKG, "HopGui.TabJob.Tooltip", tabText );
           }
           if ( Const.isWindows() && !Utils.isEmpty( meta.getFilename() ) ) {
             toolTipText += Const.CR + Const.CR + meta.getFilename();

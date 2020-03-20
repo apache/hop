@@ -164,11 +164,11 @@ public class HopGuiJobRunDelegate {
           Job.sendToSlaveServer( jobMeta, executionConfiguration, hopUi.getMetaStore() );
           // TODO: bring back the slave server monitor?
           // TODO: remove difference between local and remote execution
-          //     hopUi.delegates.slaves.addSpoonSlave( executionConfiguration.getRemoteServer() );
+          //     hopUi.delegates.slaves.addHopGuiSlave( executionConfiguration.getRemoteServer() );
         } else {
           MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_ERROR );
-          mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.NoRemoteServerSpecified.Message" ) );
-          mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.NoRemoteServerSpecified.Title" ) );
+          mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.NoRemoteServerSpecified.Message" ) );
+          mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.NoRemoteServerSpecified.Title" ) );
           mb.open();
         }
       }

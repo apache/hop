@@ -180,7 +180,7 @@ public class HopUiBrowser implements TabItemInterface, XulEventHandler {
       back = (XulToolbarbutton) toolbar.getElementById( "browse-back" );
       back.setDisabled( true );
       forward = (XulToolbarbutton) toolbar.getElementById( "browse-forward" );
-      forward.setLabel( BaseMessages.getString( PKG, "SpoonBrowser.Dialog.Forward" ) );
+      forward.setLabel( BaseMessages.getString( PKG, "HopGui.rowser.Dialog.Forward" ) );
       forward.setDisabled( false );
       location = (XulTextbox) toolbar.getElementById( "browser-address" );
       Control toolbarControl = (Control) toolbar.getManagedObject();
@@ -189,8 +189,8 @@ public class HopUiBrowser implements TabItemInterface, XulEventHandler {
     } catch ( Exception e ) {
       e.printStackTrace();
       new ErrorDialog(
-        shell, BaseMessages.getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Title" ), BaseMessages
-        .getString( PKG, "Spoon.Exception.ErrorReadingXULFile.Message", XUL_FILE_BROWSER_TOOLBAR ), e );
+        shell, BaseMessages.getString( PKG, "HopGui.Exception.ErrorReadingXULFile.Title" ), BaseMessages
+        .getString( PKG, "HopGui.Exception.ErrorReadingXULFile.Message", XUL_FILE_BROWSER_TOOLBAR ), e );
     }
   }
 

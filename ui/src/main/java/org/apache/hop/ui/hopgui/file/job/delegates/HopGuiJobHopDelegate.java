@@ -58,8 +58,8 @@ public class HopGuiJobHopDelegate {
     boolean ok = true;
     if ( jobMeta.findJobHop( newHop.getFromEntry(), newHop.getToEntry() ) != null ) {
       MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_ERROR );
-      mb.setMessage( BaseMessages.getString( PKG, "Spoon.Dialog.HopExists.Message" ) ); // "This hop already exists!"
-      mb.setText( BaseMessages.getString( PKG, "Spoon.Dialog.HopExists.Title" ) ); // Error!
+      mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.HopExists.Message" ) ); // "This hop already exists!"
+      mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.HopExists.Title" ) ); // Error!
       mb.open();
       ok = false;
     }

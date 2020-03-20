@@ -269,9 +269,9 @@ public class Props implements Cloneable {
       fos.setLogger( log );
       properties.store( fos, "Hop Properties file" );
       fos.close();
-      log.logDetailed( BaseMessages.getString( PKG, "Spoon.Log.SaveProperties" ) );
+      log.logDetailed( BaseMessages.getString( PKG, "HopGui.Log.SaveProperties" ) );
     } catch ( IOException e ) {
-      // If saving fails this could be a known Java bug: If running Spoon on windows the spoon
+      // If saving fails this could be a known Java bug: If running HopGui on windows the spoon
       // config file gets created with the 'hidden' attribute set. Some Java JREs cannot open
       // FileOutputStreams on files with that attribute set. The user has to unset that attribute
       // manually.
@@ -280,11 +280,11 @@ public class Props implements Cloneable {
       // systems.
       //
       if ( spoonRc.isHidden() && filename.indexOf( '\\' ) != -1 ) {
-        // If filename contains a backslash we consider Spoon as running on Windows
-        log.logError( BaseMessages.getString( PKG, "Spoon.Log.SavePropertiesFailedWindowsBugAttr", filename ) );
+        // If filename contains a backslash we consider HopGui as running on Windows
+        log.logError( BaseMessages.getString( PKG, "HopGui.Log.SavePropertiesFailedWindowsBugAttr", filename ) );
       } else {
         // Another reason why the save failed
-        log.logError( BaseMessages.getString( PKG, "Spoon.Log.SavePropertiesFailed" ) + e.getMessage() );
+        log.logError( BaseMessages.getString( PKG, "HopGui.Log.SavePropertiesFailed" ) + e.getMessage() );
       }
     }
   }

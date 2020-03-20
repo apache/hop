@@ -105,7 +105,7 @@ public class ShowHelpDialog extends Dialog {
   public ShowHelpDialog( Shell parent, String dialogTitle, String url, String header ) {
     super( parent, SWT.NONE );
     props = PropsUI.getInstance();
-    this.dialogTitle = BaseMessages.getString( PKG, "Spoon.Documentation.Pentaho.Title" );
+    this.dialogTitle = BaseMessages.getString( PKG, "HopGui.Documentation.Pentaho.Title" );
     this.url = url;
     try {
       this.homeURL = new URL( DOC_URL ).toString();
@@ -161,7 +161,7 @@ public class ShowHelpDialog extends Dialog {
     tltmBack = new ToolItem( toolBarBack, SWT.NONE );
     tltmBack.setImage( imageBackEnabled );
     tltmBack.setDisabledImage( imageBackDisabled );
-    tltmBack.setToolTipText( BaseMessages.getString( PKG, "Spoon.Documentation.Tooltip.Back" ) );
+    tltmBack.setToolTipText( BaseMessages.getString( PKG, "HopGui.Documentation.Tooltip.Back" ) );
     tltmBack.setEnabled( false );
 
     toolBarForward = new ToolBar( shell, SWT.FLAT );
@@ -177,7 +177,7 @@ public class ShowHelpDialog extends Dialog {
     tltmForward = new ToolItem( toolBarForward, SWT.NONE );
     tltmForward.setImage( imageForwardEnabled );
     tltmForward.setDisabledImage( imageForwardDisabled );
-    tltmForward.setToolTipText( BaseMessages.getString( PKG, "Spoon.Documentation.Tooltip.Forward" ) );
+    tltmForward.setToolTipText( BaseMessages.getString( PKG, "HopGui.Documentation.Tooltip.Forward" ) );
     tltmForward.setEnabled( false );
 
     ToolBar toolBarRefresh = new ToolBar( shell, SWT.FLAT );
@@ -193,7 +193,7 @@ public class ShowHelpDialog extends Dialog {
     tltmRefresh = new ToolItem( toolBarRefresh, SWT.NONE );
     tltmRefresh.setImage( imageRefreshEnabled );
     tltmRefresh.setDisabledImage( imageRefreshDisabled );
-    tltmRefresh.setToolTipText( BaseMessages.getString( PKG, "Spoon.Documentation.Tooltip.Refresh" ) );
+    tltmRefresh.setToolTipText( BaseMessages.getString( PKG, "HopGui.Documentation.Tooltip.Refresh" ) );
     tltmRefresh.setEnabled( true );
 
     ToolBar toolBarHome = new ToolBar( shell, SWT.FLAT );
@@ -209,7 +209,7 @@ public class ShowHelpDialog extends Dialog {
     tltmHome = new ToolItem( toolBarHome, SWT.NONE );
     tltmHome.setImage( imageHomeEnabled );
     tltmHome.setDisabledImage( imageHomeDisabled );
-    tltmHome.setToolTipText( BaseMessages.getString( PKG, "Spoon.Documentation.Tooltip.Home" ) );
+    tltmHome.setToolTipText( BaseMessages.getString( PKG, "HopGui.Documentation.Tooltip.Home" ) );
     tltmHome.setEnabled( true );
 
     ToolBar toolBarPrint = new ToolBar( shell, SWT.FLAT );
@@ -224,7 +224,7 @@ public class ShowHelpDialog extends Dialog {
     tltmPrint = new ToolItem( toolBarPrint, SWT.NONE );
     tltmPrint.setImage( imagePrintEnabled );
     tltmPrint.setDisabledImage( imagePrintDisabled );
-    tltmPrint.setToolTipText( BaseMessages.getString( PKG, "Spoon.Documentation.Tooltip.Print" ) );
+    tltmPrint.setToolTipText( BaseMessages.getString( PKG, "HopGui.Documentation.Tooltip.Print" ) );
     tltmPrint.setEnabled( true );
 
     textURL = new Text( shell, SWT.BORDER );

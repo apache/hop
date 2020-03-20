@@ -43,8 +43,8 @@ public class HopGuiTransClipboardDelegate {
     try {
       GUIResource.getInstance().toClipboard( clipText );
     } catch ( Throwable e ) {
-      new ErrorDialog( hopGui.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ExceptionCopyToClipboard.Title" ), BaseMessages
-        .getString( PKG, "Spoon.Dialog.ExceptionCopyToClipboard.Message" ), e );
+      new ErrorDialog( hopGui.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.ExceptionCopyToClipboard.Title" ), BaseMessages
+        .getString( PKG, "HopGui.Dialog.ExceptionCopyToClipboard.Message" ), e );
     }
   }
 
@@ -53,8 +53,8 @@ public class HopGuiTransClipboardDelegate {
       return GUIResource.getInstance().fromClipboard();
     } catch ( Throwable e ) {
       new ErrorDialog(
-        hopGui.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.ExceptionPasteFromClipboard.Title" ), BaseMessages
-        .getString( PKG, "Spoon.Dialog.ExceptionPasteFromClipboard.Message" ), e );
+        hopGui.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.ExceptionPasteFromClipboard.Title" ), BaseMessages
+        .getString( PKG, "HopGui.Dialog.ExceptionPasteFromClipboard.Message" ), e );
       return null;
     }
   }
@@ -71,7 +71,7 @@ public class HopGuiTransClipboardDelegate {
       int nr = XMLHandler.countNodes( stepsNode, "step" );
       if ( log.isDebug() ) {
         // "I found "+nr+" steps to paste on location: "
-        log.logDebug( BaseMessages.getString( PKG, "Spoon.Log.FoundSteps", "" + nr ) + loc );
+        log.logDebug( BaseMessages.getString( PKG, "HopGui.Log.FoundSteps", "" + nr ) + loc );
       }
       StepMeta[] steps = new StepMeta[ nr ];
       ArrayList<String> stepOldNames = new ArrayList<>( nr );
@@ -101,7 +101,7 @@ public class HopGuiTransClipboardDelegate {
       nr = XMLHandler.countNodes( hopsNode, "hop" );
       if ( log.isDebug() ) {
         // "I found "+nr+" hops to paste."
-        log.logDebug( BaseMessages.getString( PKG, "Spoon.Log.FoundHops", "" + nr ) );
+        log.logDebug( BaseMessages.getString( PKG, "HopGui.Log.FoundHops", "" + nr ) );
       }
       TransHopMeta[] hops = new TransHopMeta[ nr ];
 
@@ -140,7 +140,7 @@ public class HopGuiTransClipboardDelegate {
       nr = XMLHandler.countNodes( notesNode, "notepad" );
       if ( log.isDebug() ) {
         // "I found "+nr+" notepads to paste."
-        log.logDebug( BaseMessages.getString( PKG, "Spoon.Log.FoundNotepads", "" + nr ) );
+        log.logDebug( BaseMessages.getString( PKG, "HopGui.Log.FoundNotepads", "" + nr ) );
       }
       NotePadMeta[] notes = new NotePadMeta[ nr ];
 
@@ -201,8 +201,8 @@ public class HopGuiTransClipboardDelegate {
     } catch ( HopException e ) {
       // "Error pasting steps...",
       // "I was unable to paste steps to this transformation"
-      new ErrorDialog( hopGui.getShell(), BaseMessages.getString( PKG, "Spoon.Dialog.UnablePasteSteps.Title" ), BaseMessages
-        .getString( PKG, "Spoon.Dialog.UnablePasteSteps.Message" ), e );
+      new ErrorDialog( hopGui.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.UnablePasteSteps.Title" ), BaseMessages
+        .getString( PKG, "HopGui.Dialog.UnablePasteSteps.Message" ), e );
     }
     transGraph.redraw();
   }
