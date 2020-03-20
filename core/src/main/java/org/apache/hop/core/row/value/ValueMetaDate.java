@@ -46,11 +46,6 @@ public class ValueMetaDate extends ValueMetaBase implements ValueMetaInterface {
   }
 
   @Override
-  public Date getDate( Object object ) throws HopValueException {
-    return super.getDate( object );
-  }
-
-  @Override
   public Object getNativeDataType( Object object ) throws HopValueException {
     return getDate( object );
   }

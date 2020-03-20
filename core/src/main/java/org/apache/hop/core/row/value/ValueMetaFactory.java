@@ -39,6 +39,10 @@ import java.util.List;
  */
 public class ValueMetaFactory {
 
+	private ValueMetaFactory() {
+		// Factory
+	}
+	
   public static PluginRegistry pluginRegistry = PluginRegistry.getInstance();
 
   public static ValueMetaInterface createValueMeta( String name, int type, int length, int precision ) throws HopPluginException {
@@ -156,7 +160,7 @@ public class ValueMetaFactory {
 
   public static List<ValueMetaInterface> getValueMetaPluginClasses() throws HopPluginException {
 
-    List<ValueMetaInterface> list = new ArrayList<ValueMetaInterface>();
+    List<ValueMetaInterface> list = new ArrayList<>();
 
     List<PluginInterface> plugins = pluginRegistry.getPlugins( ValueMetaPluginType.class );
     for ( PluginInterface plugin : plugins ) {

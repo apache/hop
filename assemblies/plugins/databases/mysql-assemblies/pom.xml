@@ -18,7 +18,6 @@
     <name>Hop Assemblies Plugins Databases MySQL</name>
     <description></description>
 
-
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>

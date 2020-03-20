@@ -80,8 +80,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
       return null;
     }
 
-    long ms = timestamp.getTime();
-    return ms;
+    return timestamp.getTime();
   }
 
   @Override
@@ -89,9 +88,9 @@ public class ValueMetaTimestamp extends ValueMetaDate {
     Timestamp timestamp = getTimestamp( object );
     if ( timestamp == null ) {
       return null;
-    }
-    long ms = timestamp.getTime();
-    return Long.valueOf( ms ).doubleValue();
+    }    
+    
+    return Double.valueOf( timestamp.getTime() );   
   }
 
   @Override
@@ -276,32 +275,32 @@ public class ValueMetaTimestamp extends ValueMetaDate {
                                        int trim_type ) throws HopValueException {
     // null handling and conversion of value to null
     //
-    String null_value = nullIf;
-    if ( null_value == null ) {
+    String nullValue = nullIf;
+    if ( nullValue == null ) {
       switch ( convertMeta.getType() ) {
         case ValueMetaInterface.TYPE_BOOLEAN:
-          null_value = Const.NULL_BOOLEAN;
+          nullValue = Const.NULL_BOOLEAN;
           break;
         case ValueMetaInterface.TYPE_STRING:
-          null_value = Const.NULL_STRING;
+          nullValue = Const.NULL_STRING;
           break;
         case ValueMetaInterface.TYPE_BIGNUMBER:
-          null_value = Const.NULL_BIGNUMBER;
+          nullValue = Const.NULL_BIGNUMBER;
           break;
         case ValueMetaInterface.TYPE_NUMBER:
-          null_value = Const.NULL_NUMBER;
+          nullValue = Const.NULL_NUMBER;
           break;
         case ValueMetaInterface.TYPE_INTEGER:
-          null_value = Const.NULL_INTEGER;
+          nullValue = Const.NULL_INTEGER;
           break;
         case ValueMetaInterface.TYPE_DATE:
-          null_value = Const.NULL_DATE;
+          nullValue = Const.NULL_DATE;
           break;
         case ValueMetaInterface.TYPE_BINARY:
-          null_value = Const.NULL_BINARY;
+          nullValue = Const.NULL_BINARY;
           break;
         default:
-          null_value = Const.NULL_NONE;
+          nullValue = Const.NULL_NONE;
           break;
       }
     }
@@ -314,7 +313,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
       // because you could get an NPE since you haven't checked isEmpty(pol)
       // yet!
       if ( Utils.isEmpty( pol )
-        || pol.equalsIgnoreCase( Const.rightPad( new StringBuilder( null_value ), pol.length() ) ) ) {
+        || pol.equalsIgnoreCase( Const.rightPad( new StringBuilder( nullValue ), pol.length() ) ) ) {
         pol = ifNull;
       }
     }
@@ -327,12 +326,12 @@ public class ValueMetaTimestamp extends ValueMetaDate {
     } else {
       // if the null_value is specified, we try to match with that.
       //
-      if ( !Utils.isEmpty( null_value ) ) {
-        if ( null_value.length() <= pol.length() ) {
+      if ( !Utils.isEmpty( nullValue ) ) {
+        if ( nullValue.length() <= pol.length() ) {
           // If the polled value is equal to the spaces right-padded null_value,
           // we have a match
           //
-          if ( pol.equalsIgnoreCase( Const.rightPad( new StringBuilder( null_value ), pol.length() ) ) ) {
+          if ( pol.equalsIgnoreCase( Const.rightPad( new StringBuilder( nullValue ), pol.length() ) ) ) {
             return null;
           }
         }

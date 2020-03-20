@@ -20,9 +20,14 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.core.database;
+package org.apache.hop.database;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.database.BaseDatabaseMeta;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.SqlScriptParser;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
@@ -42,7 +47,7 @@ import java.sql.ResultSet;
   type = "ORACLE",
   typeDescription = "Oracle"
 )
-@GuiPlugin( id = "GUI-OracleDatabaseMeta", description="Oracle GUI Plugin" )
+@GuiPlugin( id = "GUI-OracleDatabaseMeta" )
 public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
 
   private static final String STRICT_BIGNUMBER_INTERPRETATION = "STRICT_NUMBER_38_INTERPRETATION";
@@ -215,7 +220,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
    */
   @Override
   public String getSQLNextSequenceValue( String sequenceName ) {
-    return "SELECT " + sequenceName + ".nextval FROM dual";
+    return "SELECT " + sequenceName + ".nextval FROM DUAL";
   }
 
   @Override
@@ -634,5 +639,10 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
    */
   public void setStrictBigNumberInterpretation( boolean strictBigNumberInterpretation ) {
     getAttributes().setProperty( STRICT_BIGNUMBER_INTERPRETATION, strictBigNumberInterpretation ? "Y" : "N" );
+  }
+
+  @Override
+  public boolean isOracleVariant() {
+	return true;
   }
 }

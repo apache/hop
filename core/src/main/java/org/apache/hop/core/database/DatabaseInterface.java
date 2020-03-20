@@ -895,10 +895,6 @@ public interface DatabaseInterface extends Cloneable {
    */
   public boolean isMSSQLServerVariant();
 
-  /**
-   * @return true if the database is a Netteza variant.
-   */
-  public boolean isNettezaVariant();
 
   /**
    * @return true if the database is an Oracle variant.

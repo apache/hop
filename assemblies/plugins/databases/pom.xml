@@ -46,6 +46,7 @@
         <module>msaccess-assemblies</module>
         <module>mssqlnative-assemblies</module>
         <module>mssql-assemblies</module>
+        <module>mysql-assemblies</module>
         <module>netezza-assemblies</module>
         <module>oracle-assemblies</module>
         <module>oraclerdb-assemblies</module>

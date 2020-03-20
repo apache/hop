@@ -21,16 +21,18 @@
  ******************************************************************************/
 package org.apache.hop.core.database;
 
-import com.google.common.collect.Sets;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.plugins.DatabaseMetaPlugin;
-import org.apache.hop.i18n.BaseMessages;
-
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSetMetaData;
 import java.util.Set;
+
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.plugins.DatabaseMetaPlugin;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.database.MySQLDatabaseMeta;
+import org.apache.hop.i18n.BaseMessages;
+
+import com.google.common.collect.Sets;
 
 @DatabaseMetaPlugin(
   type = "MARIADB",
@@ -50,7 +52,7 @@ public class MariaDBDatabaseMeta extends MySQLDatabaseMeta {
     if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
       return "jdbc:odbc:" + databaseName;
     } else {
-      if ( Const.isEmpty( port ) ) {
+      if ( Utils.isEmpty( port ) ) {
         return "jdbc:mariadb://" + hostname + "/" + databaseName;
       } else {
         return "jdbc:mariadb://" + hostname + ":" + port + "/" + databaseName;
