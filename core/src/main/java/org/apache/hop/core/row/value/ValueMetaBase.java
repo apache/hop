@@ -115,7 +115,7 @@ public class ValueMetaBase implements ValueMetaInterface {
   // endregion
 
   // region ValueMetaBase Attributes
-  public static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator2
+  public static final Class<?> PKG = Const.class; // for i18n purposes, needed by Translator2
 
   public static final String XML_META_TAG = "value-meta";
   public static final String XML_DATA_TAG = "value-data";
@@ -366,19 +366,6 @@ public class ValueMetaBase implements ValueMetaInterface {
     }
 
     readMetaData( inputStream );
-  }
-
-  /**
-   * @param name
-   * @param type
-   * @param storageType
-   * @deprecated use {@link #ValueMetaBase(String, int)} and {@link #setStorageType(int)} instead
-   */
-  @Deprecated
-  public ValueMetaBase( String name, int type, int storageType ) {
-    this( name, type, -1, -1 );
-    this.storageType = storageType;
-    setDefaultConversionMask();
   }
 
   public static final String[] SINGLE_BYTE_ENCODINGS = new String[] { "ISO8859_1", "Cp1252", "ASCII", "Cp037", "Cp273",

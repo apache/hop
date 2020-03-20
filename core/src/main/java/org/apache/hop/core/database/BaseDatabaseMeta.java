@@ -1644,14 +1644,6 @@ public abstract class BaseDatabaseMeta implements Cloneable, DatabaseInterface {
   }
 
   /**
-   * @return true if the database is a MS SQL Server variant.
-   */
-  @Override
-  public boolean isNettezaVariant() {
-    return false;
-  }
-
-  /**
    * @return true if the database is an Oracle variant.
    */
   public boolean isOracleVariant() {

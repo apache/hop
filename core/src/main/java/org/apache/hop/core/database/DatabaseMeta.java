@@ -81,18 +81,13 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
 
   public static final String XML_TAG = "connection";
 
-  private static final String DROP_TABLE_STATEMENT = "DROP TABLE IF EXISTS ";
-
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "DatabaseMeta-PluginSpecific-Options";
 
   // Comparator for sorting databases alphabetically by name
-  public static final Comparator<DatabaseMeta> comparator = new Comparator<DatabaseMeta>() {
-    @Override
-    public int compare( DatabaseMeta dbm1, DatabaseMeta dbm2 ) {
-      return dbm1.getName().compareToIgnoreCase( dbm2.getName() );
-    }
+  public static final Comparator<DatabaseMeta> comparator = ( DatabaseMeta dbm1, DatabaseMeta dbm2 ) -> {
+	      return dbm1.getName().compareToIgnoreCase( dbm2.getName() );	    
   };
-
+  
   private String name;
 
   @MetaStoreAttribute( key = "rdbms" )
@@ -281,9 +276,7 @@ public class DatabaseMeta implements Cloneable, VariableSpace, IHopMetaStoreElem
 
   @Override
   public Object clone() {
-    DatabaseMeta databaseMeta = new DatabaseMeta();
-    databaseMeta.replaceMeta( this );
-    return databaseMeta;
+    return new DatabaseMeta( this );
   }
 
   public void replaceMeta( DatabaseMeta databaseMeta ) {

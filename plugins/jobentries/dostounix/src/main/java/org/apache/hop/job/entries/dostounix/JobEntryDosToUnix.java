@@ -74,7 +74,7 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
   private static final int LF = 0x0a;
   private static final int CR = 0x0d;
 
-  private static Class<?> PKG = JobEntryDosToUnix.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryDosToUnix.class; // for i18n purposes, needed by Translator2!!
 
   public static final String[] ConversionTypeDesc = new String[] {
     BaseMessages.getString( PKG, "JobEntryDosToUnix.ConversionType.Guess.Label" ),
@@ -107,7 +107,7 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
   public int[] conversionTypes;
 
   private String nr_errors_less_than;
-  private String success_condition;
+  private String successCondition;
   private String resultfilenames;
 
   int nrAllErrors = 0;
@@ -130,7 +130,7 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
     wildcard = null;
     include_subfolders = false;
     nr_errors_less_than = "10";
-    success_condition = SUCCESS_IF_NO_ERRORS;
+    successCondition = SUCCESS_IF_NO_ERRORS;
   }
 
   public JobEntryDosToUnix() {
@@ -155,6 +155,7 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
     return je;
   }
 
+  @Override
   public String getXML() {
     StringBuilder retval = new StringBuilder( 300 );
 
@@ -162,7 +163,7 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
     retval.append( "      " ).append( XMLHandler.addTagValue( "arg_from_previous", arg_from_previous ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", include_subfolders ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "nr_errors_less_than", nr_errors_less_than ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "success_condition", success_condition ) );
+    retval.append( "      " ).append( XMLHandler.addTagValue( "success_condition", successCondition ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "resultfilenames", resultfilenames ) );
     retval.append( "      <fields>" ).append( Const.CR );
     if ( source_filefolder != null ) {
@@ -222,6 +223,7 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
     return 0;
   }
 
+  @Override
   public void loadXML( Node entrynode,
                        IMetaStore metaStore ) throws HopXMLException {
     try {
@@ -231,7 +233,7 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
       include_subfolders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "include_subfolders" ) );
 
       nr_errors_less_than = XMLHandler.getTagValue( entrynode, "nr_errors_less_than" );
-      success_condition = XMLHandler.getTagValue( entrynode, "success_condition" );
+      successCondition = XMLHandler.getTagValue( entrynode, "success_condition" );
       resultfilenames = XMLHandler.getTagValue( entrynode, "resultfilenames" );
 
       Node fields = XMLHandler.getSubNode( entrynode, "fields" );
@@ -256,6 +258,7 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
     }
   }
 
+  @Override
   public Result execute( Result previousResult, int nr ) throws HopException {
     Result result = previousResult;
     result.setNrErrors( 1 );
@@ -397,9 +400,8 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
   private static int getFileType( FileObject file ) throws Exception {
     int aCount = 0; // occurences of LF
     int dCount = 0; // occurences of CR
-    FileInputStream in = null;
-    try {
-      in = new FileInputStream( file.getName().getPathDecoded() );
+
+    try ( FileInputStream in = new FileInputStream( file.getName().getPathDecoded() ) ) {
       while ( in.available() > 0 ) {
         int b = in.read();
         if ( b == CR ) {
@@ -416,8 +418,6 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
           aCount++;
         }
       }
-    } finally {
-      in.close();
     }
 
     if ( aCount == dCount ) {
@@ -484,7 +484,7 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
                                      Result result ) {
     boolean entrystatus = false;
     FileObject sourcefilefolder = null;
-    FileObject CurrentFile = null;
+    FileObject currentFile = null;
 
     // Get real source file and wilcard
     String realSourceFilefoldername = environmentSubstitute( sourcefilefoldername );
@@ -550,20 +550,20 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
                 return false;
               }
               // Fetch files in list one after one ...
-              CurrentFile = fileObjects[ j ];
+              currentFile = fileObjects[ j ];
 
-              if ( !CurrentFile.getParent().toString().equals( sourcefilefolder.toString() ) ) {
+              if ( !currentFile.getParent().toString().equals( sourcefilefolder.toString() ) ) {
                 // Not in the Base Folder..Only if include sub folders
                 if ( include_subfolders ) {
-                  if ( GetFileWildcard( CurrentFile.toString(), realWildcard ) ) {
-                    convertOneFile( CurrentFile, convertion, result, parentJob );
+                  if ( getFileWildcard( currentFile.toString(), realWildcard ) ) {
+                    convertOneFile( currentFile, convertion, result, parentJob );
                   }
                 }
 
               } else {
                 // In the base folder
-                if ( GetFileWildcard( CurrentFile.toString(), realWildcard ) ) {
-                  convertOneFile( CurrentFile, convertion, result, parentJob );
+                if ( getFileWildcard( currentFile.toString(), realWildcard ) ) {
+                  convertOneFile( currentFile, convertion, result, parentJob );
                 }
               }
             }
@@ -593,9 +593,9 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
         }
 
       }
-      if ( CurrentFile != null ) {
+      if ( currentFile != null ) {
         try {
-          CurrentFile.close();
+          currentFile.close();
         } catch ( IOException ex ) { /* Ignore */
         }
       }
@@ -687,7 +687,7 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
    * @param wildcard
    * @return True if the selectedfile matches the wildcard
    **********************************************************/
-  private boolean GetFileWildcard( String selectedfile, String wildcard ) {
+  private boolean getFileWildcard( String selectedfile, String wildcard ) {
     Pattern pattern = null;
     boolean getIt = true;
 
@@ -720,11 +720,11 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
   }
 
   public void setSuccessCondition( String success_condition ) {
-    this.success_condition = success_condition;
+    this.successCondition = success_condition;
   }
 
   public String getSuccessCondition() {
-    return success_condition;
+    return successCondition;
   }
 
   public void setResultFilenames( String resultfilenames ) {
@@ -735,6 +735,7 @@ public class JobEntryDosToUnix extends JobEntryBase implements Cloneable, JobEnt
     return resultfilenames;
   }
 
+  @Override
   public boolean evaluates() {
     return true;
   }

@@ -31,7 +31,6 @@ import org.apache.hop.core.row.RowMetaInterface;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.columnsexist.JobEntryColumnsExist;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
@@ -59,7 +58,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -79,7 +77,7 @@ import org.eclipse.swt.widgets.Text;
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
 public class JobEntryColumnsExistDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static Class<?> PKG = JobEntryColumnsExist.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryColumnsExist.class; // for i18n purposes, needed by Translator2!!
 
   private Label wlName;
 
@@ -96,8 +94,6 @@ public class JobEntryColumnsExistDialog extends JobEntryDialog implements JobEnt
   private FormData fdlTablename, fdTablename;
 
   private Button wOK, wCancel;
-
-  private Listener lsOK, lsCancel;
 
   private JobEntryColumnsExist jobEntry;
 
@@ -132,6 +128,7 @@ public class JobEntryColumnsExistDialog extends JobEntryDialog implements JobEnt
     }
   }
 
+  @Override
   public JobEntryInterface open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
@@ -140,10 +137,8 @@ public class JobEntryColumnsExistDialog extends JobEntryDialog implements JobEnt
     props.setLook( shell );
     JobDialog.setShellImage( shell, jobEntry );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
-      }
+    ModifyListener lsMod = ( ModifyEvent e ) -> { 
+    	jobEntry.setChanged();   
     };
     changed = jobEntry.hasChanged();
 
@@ -330,19 +325,8 @@ public class JobEntryColumnsExistDialog extends JobEntryDialog implements JobEnt
     wCancel.setLayoutData( fd );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOK = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wCancel.addListener( SWT.Selection,  ( Event e ) -> { cancel(); } );
+    wOK.addListener( SWT.Selection, ( Event e ) -> { ok(); } );
     BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wFields );
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -534,7 +518,7 @@ public class JobEntryColumnsExistDialog extends JobEntryDialog implements JobEnt
             BaseMessages.getString( PKG, "System.Dialog.AvailableSchemas.Message" ) );
           String d = dialog.open();
           if ( d != null ) {
-            wSchemaname.setText( Const.NVL( d.toString(), "" ) );
+            wSchemaname.setText( Const.NVL( d, "" ) );
           }
 
         } else {

@@ -79,7 +79,7 @@ import java.util.regex.Pattern;
 		categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.FileManagement" 
 )
 public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryCopyFiles.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryCopyFiles.class; // for i18n purposes, needed by Translator2!!
 
   public static final String SOURCE_CONFIGURATION_NAME = "source_configuration_name";
   public static final String SOURCE_FILE_FOLDER = "source_filefolder";
@@ -150,6 +150,7 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
     return je;
   }
 
+  @Override
   public String getXML() {
     StringBuilder retval = new StringBuilder( 300 );
 
@@ -183,6 +184,7 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
     return retval.toString();
   }
 
+  @Override
   public void loadXML( Node entrynode,
                        IMetaStore metaStore ) throws HopXMLException {
     try {
@@ -252,6 +254,7 @@ public class JobEntryCopyFiles extends JobEntryBase implements Cloneable, JobEnt
     return nfolders.toArray( new String[ nfolders.size() ] );
   }
 
+  @Override
   public Result execute( Result previousResult, int nr ) throws HopException {
     Result result = previousResult;
 

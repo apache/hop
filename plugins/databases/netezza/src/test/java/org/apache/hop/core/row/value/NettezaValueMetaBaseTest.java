@@ -24,7 +24,7 @@ package org.apache.hop.core.row.value;
 
 import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.NetezzaDatabaseMeta;
+import org.apache.hop.databases.netezza.NetezzaDatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.HopLoggingEvent;
@@ -40,6 +40,7 @@ import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Spy;
+
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
