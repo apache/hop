@@ -166,7 +166,7 @@ public class HopUiBrowser implements TabItemInterface, XulEventHandler {
     try {
       XulLoader loader = new HopXulLoader();
       loader.setSettingsManager( XulHopUiSettingsManager.getInstance() );
-      ResourceBundle bundle = GlobalMessages.getBundle( "org/apache/hop/ui/hopui/messages/messages" );
+      ResourceBundle bundle = GlobalMessages.getBundle( "org/apache/hop/ui/hopgui/messages/messages" );
       XulDomContainer xulDomContainer = loader.loadXul( XUL_FILE_BROWSER_TOOLBAR, bundle );
       xulDomContainer.addEventHandler( this );
       toolbar = (XulToolbar) xulDomContainer.getDocumentRoot().getElementById( "nav-toolbar" );

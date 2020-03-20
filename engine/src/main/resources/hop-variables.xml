@@ -7,11 +7,7 @@
   </kettle-variable>
 
   <kettle-variable>
-    <description>System wide flag to allow lenient string to number conversion for backward compatibility. If this
-      setting is set to "Y", an string starting with digits will be converted successfully into a number. (example:
-      192.168.1.1 will be converted into 192 or 192.168 or 192168 depending on the decimal and grouping symbol). The
-      default (N) will be to throw an error if non-numeric symbols are found in the string.
-    </description>
+    <description>System wide flag to allow lenient string to number conversion for backward compatibility. If this setting is set to "Y", an string starting with digits will be converted successfully into a number. (example: 192.168.1.1 will be converted into 192 or 192.168 or 192168 depending on the decimal and grouping symbol). The default (N) will be to throw an error if non-numeric symbols are found in the string.</description>
     <variable>HOP_LENIENT_STRING_TO_NUMBER_CONVERSION</variable>
     <default-value>N</default-value>
   </kettle-variable>
@@ -23,9 +19,7 @@
   </kettle-variable>
 
   <kettle-variable>
-    <description>The log size limit for all transformations and jobs that don't have the "log size limit" property set
-      in their respective properties.
-    </description>
+    <description>The log size limit for all transformations and jobs that don't have the "log size limit" property set in their respective properties.</description>
     <variable>HOP_LOG_SIZE_LIMIT</variable>
     <default-value>0</default-value>
   </kettle-variable>
@@ -141,25 +135,19 @@
   </kettle-variable>
 
   <kettle-variable>
-    <description>NULL vs Empty String. If this setting is set to Y, an empty string and null are different. Otherwise
-      they are not.
-    </description>
+    <description>NULL vs Empty String. If this setting is set to Y, an empty string and null are different. Otherwise they are not.</description>
     <variable>HOP_EMPTY_STRING_DIFFERS_FROM_NULL</variable>
     <default-value>N</default-value>
   </kettle-variable>
 
   <kettle-variable>
-    <description>The maximum number of log lines that are kept internally by Hop. Set to 0 to keep all rows
-      (default)
-    </description>
+    <description>The maximum number of log lines that are kept internally by Hop. Set to 0 to keep all rows (default)</description>
     <variable>HOP_MAX_LOG_SIZE_IN_LINES</variable>
     <default-value>5000</default-value>
   </kettle-variable>
 
   <kettle-variable>
-    <description>The maximum age (in minutes) of a log line while being kept internally by Hop. Set to 0 to keep all
-      rows indefinitely (default)
-    </description>
+    <description>The maximum age (in minutes) of a log line while being kept internally by Hop. Set to 0 to keep all rows indefinitely (default)</description>
     <variable>HOP_MAX_LOG_TIMEOUT_IN_MINUTES</variable>
     <default-value>1440</default-value>
   </kettle-variable>
@@ -207,57 +195,43 @@
   </kettle-variable>
 
   <kettle-variable>
-    <description>The maximum number of step performance snapshots to keep in memory. Set to 0 to keep all snapshots
-      indefinitely (default)
-    </description>
+    <description>The maximum number of step performance snapshots to keep in memory. Set to 0 to keep all snapshots indefinitely (default)</description>
     <variable>HOP_STEP_PERFORMANCE_SNAPSHOT_LIMIT</variable>
     <default-value>0</default-value>
   </kettle-variable>
 
   <kettle-variable>
-    <description>The name of the variable that optionally contains an alternative rowset get timeout (in ms). This only
-      makes a difference for extremely short lived transformations.
-    </description>
+    <description>The name of the variable that optionally contains an alternative rowset get timeout (in ms). This only makes a difference for extremely short lived transformations.</description>
     <variable>HOP_ROWSET_GET_TIMEOUT</variable>
     <default-value>50</default-value>
   </kettle-variable>
 
   <kettle-variable>
-    <description>The name of the variable that optionally contains an alternative rowset put timeout (in ms). This only
-      makes a difference for extremely short lived transformations.
-    </description>
+    <description>The name of the variable that optionally contains an alternative rowset put timeout (in ms). This only makes a difference for extremely short lived transformations.</description>
     <variable>HOP_ROWSET_PUT_TIMEOUT</variable>
     <default-value>50</default-value>
   </kettle-variable>
 
   <kettle-variable>
-    <description>The name of the environment variable that will contain the alternative location of the kettle-steps.xml
-      file. You can use this to customize the list of available internal steps outside of the codebase.
-    </description>
+    <description>The name of the environment variable that will contain the alternative location of the kettle-steps.xml file. You can use this to customize the list of available internal steps outside of the codebase.</description>
     <variable>HOP_CORE_STEPS_FILE</variable>
     <default-value></default-value>
   </kettle-variable>
 
   <kettle-variable>
-    <description>The name of the environment variable that will contain the alternative location of the
-      kettle-job-entries.xml file.
-    </description>
+    <description>The name of the environment variable that will contain the alternative location of the kettle-job-entries.xml file.</description>
     <variable>HOP_CORE_JOBENTRIES_FILE</variable>
     <default-value></default-value>
   </kettle-variable>
 
   <kettle-variable>
-    <description>Experimental! Set this variable to Y if you want to test a more efficient batching row set. Use at your
-      own risk.
-    </description>
+    <description>Experimental! Set this variable to Y if you want to test a more efficient batching row set. Use at your own risk.</description>
     <variable>HOP_BATCHING_ROWSET</variable>
     <default-value>N</default-value>
   </kettle-variable>
 
   <kettle-variable>
-    <description>This environment variable will set a time-out after which waiting, completed or stopped transformations
-      and jobs will be automatically cleaned up. The default value is 1440 (one day).
-    </description>
+    <description>This environment variable will set a time-out after which waiting, completed or stopped transformations and jobs will be automatically cleaned up. The default value is 1440 (one day).</description>
     <variable>HOP_CARTE_OBJECT_TIMEOUT_MINUTES</variable>
     <default-value>1440</default-value>
   </kettle-variable>
@@ -276,9 +250,7 @@
 
   <kettle-variable>
     <variable>PENTAHO_METASTORE_FOLDER</variable>
-    <description>You can specify an alternative location for the Pentaho client Metastore. This location defaults to
-      $HOME/.pentaho/metastore when this variable is not set or empty.
-    </description>
+    <description>You can specify an alternative location for the Pentaho client Metastore. This location defaults to $HOME/.pentaho/metastore when this variable is not set or empty.</description>
     <default-value></default-value>
   </kettle-variable>
 
@@ -295,9 +267,7 @@
   </kettle-variable>
 
   <kettle-variable>
-    <description>Set this variable to point to the Simple JNDI folder containing a jdbc.properties file (default is
-      simple-jndi).
-    </description>
+    <description>Set this variable to point to the Simple JNDI folder containing a jdbc.properties file (default is simple-jndi).</description>
     <variable>HOP_JNDI_ROOT</variable>
     <default-value></default-value>
   </kettle-variable>
@@ -339,41 +309,31 @@
   </kettle-variable>
 
   <kettle-variable>
-    <description>Set this variable to Y when you want the job/transformation fail with an error when the related logging
-      process (e.g. to a database) fails.
-    </description>
+    <description>Set this variable to Y when you want the job/transformation fail with an error when the related logging process (e.g. to a database) fails.</description>
     <variable>HOP_FAIL_ON_LOGGING_ERROR</variable>
     <default-value>N</default-value>
   </kettle-variable>
 
   <kettle-variable>
-    <description>Set this variable to Y to precede log lines with the mapping step name and the mapping itself.
-    </description>
+    <description>Set this variable to Y to precede log lines with the mapping step name and the mapping itself.</description>
     <variable>HOP_LOG_MARK_MAPPINGS</variable>
     <default-value>N</default-value>
   </kettle-variable>
 
   <kettle-variable>
-    <description>Set this variable to Y to set the minimum to NULL if NULL is within an aggregate. Otherwise by default
-      NULL is ignored by the MIN aggregate and MIN is set to the minimum value that is not NULL. See also the variable
-      HOP_AGGREGATION_ALL_NULLS_ARE_ZERO.
-    </description>
+    <description>Set this variable to Y to set the minimum to NULL if NULL is within an aggregate. Otherwise by default NULL is ignored by the MIN aggregate and MIN is set to the minimum value that is not NULL. See also the variable HOP_AGGREGATION_ALL_NULLS_ARE_ZERO.</description>
     <variable>HOP_AGGREGATION_MIN_NULL_IS_VALUED</variable>
     <default-value>N</default-value>
   </kettle-variable>
 
   <kettle-variable>
-    <description>Set this variable to Y to return 0 when all values within an aggregate are NULL. Otherwise by default a
-      NULL is returned when all values are NULL.
-    </description>
+    <description>Set this variable to Y to return 0 when all values within an aggregate are NULL. Otherwise by default a NULL is returned when all values are NULL.</description>
     <variable>HOP_AGGREGATION_ALL_NULLS_ARE_ZERO</variable>
     <default-value>N</default-value>
   </kettle-variable>
 
   <kettle-variable>
-    <description>Set this variable to Y for backward compatibility for the Text File Output step. Setting this to Ywill add no header row at all when
-      the append option is enabled, regardless if the file is existing or not.
-    </description>
+    <description>Set this variable to Y for backward compatibility for the Text File Output step. Setting this to Ywill add no header row at all when the append option is enabled, regardless if the file is existing or not.</description>
     <variable>HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER</variable>
     <default-value>N</default-value>
   </kettle-variable>
@@ -385,26 +345,19 @@
   </kettle-variable>
 
   <kettle-variable>
-    <description>Set this variable to Y to revert the Enterprise Repository node naming behavior back to the old mode.
-      See https://jira.pentaho.com/browse/PDI-6394 for details.
-    </description>
+    <description>Set this variable to Y to revert the Enterprise Repository node naming behavior back to the old mode. See https://jira.pentaho.com/browse/PDI-6394 for details.</description>
     <variable>HOP_COMPATIBILITY_PUR_OLD_NAMING_MODE</variable>
     <default-value>N</default-value>
   </kettle-variable>
 
-
   <kettle-variable>
-    <description>You can use this variable to speed up hostname lookup. Hostname lookup is performed by Hop so that it is capable of logging the
-      server on which a job or transformation is executed.
-    </description>
+    <description>You can use this variable to speed up hostname lookup. Hostname lookup is performed by Hop so that it is capable of logging the server on which a job or transformation is executed.</description>
     <variable>HOP_SYSTEM_HOSTNAME</variable>
     <default-value></default-value>
   </kettle-variable>
 
   <kettle-variable>
-    <description>Set this variable to Y for backward compatibility when importing a reference to a directory with a variable. When set to Y, a
-      directory reference is always prefixed with the root path independently if variables are used or not.
-    </description>
+    <description>Set this variable to Y for backward compatibility when importing a reference to a directory with a variable. When set to Y, a directory reference is always prefixed with the root path independently if variables are used or not.</description>
     <variable>HOP_COMPATIBILITY_IMPORT_PATH_ADDITION_ON_VARIABLES</variable>
     <default-value>N</default-value>
   </kettle-variable>
@@ -425,39 +378,32 @@
   </kettle-variable>
 
   <kettle-variable>
-    <description>Set this variable to Y for backward compatibility for the Merge Rows (diff) step. Setting this to Y will use the data from the
-      reference stream (instead of the comparison stream) in case the compared rows are identical.
-    </description>
+    <description>Set this variable to Y for backward compatibility for the Merge Rows (diff) step. Setting this to Y will use the data from the reference stream (instead of the comparison stream) in case the compared rows are identical.</description>
     <variable>HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL</variable>
     <default-value>N</default-value>
   </kettle-variable>
 
   <kettle-variable>
-    <description>Set this variable to true if VFS should treat the user directory as the root directory when connecting via ftp. Defaults to false.
-    </description>
+    <description>Set this variable to true if VFS should treat the user directory as the root directory when connecting via ftp. Defaults to false.</description>
     <variable>vfs.sftp.userDirIsRoot</variable>
     <default-value>false</default-value>
   </kettle-variable>
 
   <kettle-variable>
-    <description>Set this variable to Y to create S3 Object for upload based on a temporary file with data.
-    </description>
+    <description>Set this variable to Y to create S3 Object for upload based on a temporary file with data.</description>
     <variable>s3.vfs.useTempFileOnUploadData</variable>
     <default-value>N</default-value>
   </kettle-variable>
 
   <kettle-variable>
     <description>Set this variable to restore the directory loading behavior of the repository as it was before 6.1. Changing this to false will make
-      repository loading more expensive
-    </description>
+ repository loading more expensive</description>
     <variable>HOP_LAZY_REPOSITORY</variable>
     <default-value>true</default-value>
   </kettle-variable>
 
   <kettle-variable>
-    <description>Set this variable to false to preserve enclosure symbol after splitting the string in the Split fields step. Changing it to true will
-      remove first and last enclosure symbol from the resulting string chunks.
-    </description>
+    <description>Set this variable to false to preserve enclosure symbol after splitting the string in the Split fields step. Changing it to true will remove first and last enclosure symbol from the resulting string chunks.</description>
     <variable>HOP_SPLIT_FIELDS_REMOVE_ENCLOSURE</variable>
     <default-value>false</default-value>
   </kettle-variable>
@@ -469,9 +415,7 @@
   </kettle-variable>
 
   <kettle-variable>
-    <description>Set this variable to false to preserve global log variables defined in transformation / job Properties -> Log panel. Changing it to
-      true will clear it when export transformation / job.
-    </description>
+    <description>Set this variable to false to preserve global log variables defined in transformation / job Properties -> Log panel. Changing it to true will clear it when export transformation / job.</description>
     <variable>HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT</variable>
     <default-value>false</default-value>
   </kettle-variable>
@@ -489,18 +433,13 @@
   </kettle-variable>
 
   <kettle-variable>
-    <description>This environment variable is used by the Text File Output step. It defines the max number of simultaneously open files within the
-      step.
-      The step will close/reopen files as necessary to insure the max is not exceeded
-    </description>
+    <description>This environment variable is used by the Text File Output step. It defines the max number of simultaneously open files within the step. The step will close/reopen files as necessary to insure the max is not exceeded</description>
     <variable>HOP_FILE_OUTPUT_MAX_STREAM_COUNT</variable>
     <default-value>1024</default-value>
   </kettle-variable>
 
   <kettle-variable>
-    <description>This environment variable is used by the Text File Output step. It defines the max number of milliseconds between flushes of files
-      opened by the step.
-    </description>
+    <description>This environment variable is used by the Text File Output step. It defines the max number of milliseconds between flushes of files opened by the step.</description>
     <variable>HOP_FILE_OUTPUT_MAX_STREAM_LIFE</variable>
     <default-value>0</default-value>
   </kettle-variable>
@@ -513,8 +452,7 @@
   </kettle-variable>
 
   <kettle-variable>
-    <description>This environment variable is used by the streaming data services. It defines the default limit in time for the streaming window.
-    </description>
+    <description>This environment variable is used by the streaming data services. It defines the default limit in time for the streaming window.</description>
     <variable>HOP_STREAMING_TIME_LIMIT</variable>
     <default-value>10000</default-value>
   </kettle-variable>

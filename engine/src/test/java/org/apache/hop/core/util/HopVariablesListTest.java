@@ -47,8 +47,7 @@ public class HopVariablesListTest {
     assertEquals( false, actual );
 
     String vfsUserDirIsRootDefaultMessage =
-      "Set this variable to true if VFS should treat the user directory"
-        + " as the root directory when connecting via ftp. Defaults to false.";
+      "Set this variable to true if VFS should treat the user directory as the root directory when connecting via ftp. Defaults to false.";
     assertEquals( variablesList.getDescriptionMap().get( Const.VFS_USER_DIR_IS_ROOT ), vfsUserDirIsRootDefaultMessage );
   }
 
