@@ -24,7 +24,7 @@ package org.apache.hop.trans.steps.pgbulkloader;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.PostgreSQLDatabaseMeta;
+import org.apache.hop.databases.postgresql.PostgreSQLDatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
