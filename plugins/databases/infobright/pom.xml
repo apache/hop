@@ -15,6 +15,15 @@
 
     <name>Hop Plugins Databases Infobright</name>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-plugins-databases-mysql</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>

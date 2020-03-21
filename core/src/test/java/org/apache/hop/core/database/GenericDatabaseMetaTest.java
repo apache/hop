@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.apache.hop.core.database;
 
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -40,11 +42,16 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Properties;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 @RunWith( PowerMockRunner.class )
 public class GenericDatabaseMetaTest {
@@ -192,5 +199,21 @@ public class GenericDatabaseMetaTest {
     Mockito.when( mockedMeta.getPluginName() ).thenReturn( dialect );
     nativeMeta.addAttribute( "DATABASE_DIALECT_ID", dialect );
     assertEquals( mockedMeta, Whitebox.getInternalState( nativeMeta, "databaseDialect" ) );
+  }
+  
+
+  
+  @Test
+  public void testSequence() {
+    final String sequenceName = "sequence_name";
+    
+    DatabaseInterface databaseInterface = new GenericDatabaseMeta();
+    assertEquals( "", databaseInterface.getSQLNextSequenceValue( sequenceName ) );
+    assertEquals( "", databaseInterface.getSQLCurrentSequenceValue( sequenceName ) );
+  }
+  
+  @Test
+  public void testReleaseSavepoint() {
+     assertTrue( nativeMeta.releaseSavepoint() );
   }
 }

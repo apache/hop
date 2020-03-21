@@ -10,15 +10,4 @@
     <classname>org.apache.hop.core.database.NoneDatabaseMeta</classname>
   </database-type>
 
-
-  <database-type id="MYSQL">
-    <description>MySQL</description>
-    <classname>org.apache.hop.core.database.MySQLDatabaseMeta</classname>
-  </database-type>
-
-  <database-type id="ORACLE">
-    <description>Oracle</description>
-    <classname>org.apache.hop.core.database.OracleDatabaseMeta</classname>
-  </database-type>
-
 </database-types>

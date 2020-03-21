@@ -711,7 +711,7 @@ public class DatabaseTest {
     when( rsMetaData.getColumnType( 1 ) ).thenReturn( Types.DECIMAL );
 
     when( meta.stripCR( anyString() ) ).thenReturn( sql );
-    when( meta.getDatabaseInterface() ).thenReturn( new MySQLDatabaseMeta() );
+    when( meta.getDatabaseInterface() ).thenReturn( new GenericDatabaseMeta() );  // MySQL specific ?
     when( conn.prepareStatement( sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY ) ).thenReturn( ps );
     when( ps.getMetaData() ).thenReturn( rsMetaData );
 
@@ -733,7 +733,7 @@ public class DatabaseTest {
     when( ps.executeQuery() ).thenReturn( rs );
 
     when( meta.stripCR( anyString() ) ).thenReturn( sql );
-    when( meta.getDatabaseInterface() ).thenReturn( new MySQLDatabaseMeta() );
+    when( meta.getDatabaseInterface() ).thenReturn( new GenericDatabaseMeta() ); // MySQL specific ?
     when( conn.prepareStatement( sql ) ).thenReturn( ps );
     when( rs.getMetaData() ).thenReturn( rsMetaData );
 
@@ -746,29 +746,6 @@ public class DatabaseTest {
     assertTrue( rowMetaInterface.getValueMeta( 0 ) instanceof ValueMetaNumber );
   }
 
-  @Test
-  public void mySqlVarBinaryIsConvertedToStringType() throws Exception {
-    ResultSetMetaData rsMeta = mock( ResultSetMetaData.class );
-    when( rsMeta.getColumnCount() ).thenReturn( 1 );
-    when( rsMeta.getColumnLabel( 1 ) ).thenReturn( "column" );
-    when( rsMeta.getColumnName( 1 ) ).thenReturn( "column" );
-    when( rsMeta.getColumnType( 1 ) ).thenReturn( java.sql.Types.VARBINARY );
-    when( rs.getMetaData() ).thenReturn( rsMeta );
-    when( ps.executeQuery() ).thenReturn( rs );
-
-    DatabaseMeta meta = new DatabaseMeta();
-    meta.setDatabaseInterface( new MySQLDatabaseMeta() );
-
-    Database db = new Database( log, meta );
-    db.setConnection( mockConnection( dbMetaData ) );
-    db.getLookup( ps, false );
-
-    RowMetaInterface rowMeta = db.getReturnRowMeta();
-    assertEquals( 1, db.getReturnRowMeta().size() );
-
-    ValueMetaInterface valueMeta = rowMeta.getValueMeta( 0 );
-    assertEquals( ValueMetaInterface.TYPE_BINARY, valueMeta.getType() );
-  }
 
 
 }

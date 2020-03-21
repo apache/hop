@@ -22,37 +22,21 @@
 
 package org.apache.hop.core.row.value;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.SystemUtils;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.DatabaseInterface;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.MySQLDatabaseMeta;
-import org.apache.hop.core.database.OracleDatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.HopLoggingEvent;
-import org.apache.hop.core.logging.HopLoggingEventListener;
-import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.logging.LoggingObject;
-import org.apache.hop.core.logging.LoggingRegistry;
-import org.apache.hop.core.plugins.DatabasePluginType;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.ValueMetaInterface;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.mockito.Spy;
-import org.owasp.encoder.Encode;
-import org.w3c.dom.Node;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -76,67 +60,95 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.database.BaseDatabaseMeta;
+import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.HopLoggingEvent;
+import org.apache.hop.core.logging.HopLoggingEventListener;
+import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.LoggingObject;
+import org.apache.hop.core.logging.LoggingRegistry;
+import org.apache.hop.core.plugins.DatabasePluginType;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.ValueMetaInterface;
+import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.*;
+import org.mockito.Spy;
+import org.owasp.encoder.Encode;
+import org.w3c.dom.Node;
 
-public class ValueMetaBaseTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+public class ValueMetaBaseTest  {
+	 protected class StoreLoggingEventListener implements HopLoggingEventListener {
 
-  private static final String TEST_NAME = "TEST_NAME";
-  private static final String LOG_FIELD = "LOG_FIELD";
-  public static final int MAX_TEXT_FIELD_LEN = 5;
+		    private List<HopLoggingEvent> events = new ArrayList<>();
 
-  // Get PKG from class under test
-  private Class<?> PKG = ValueMetaBase.PKG;
-  private StoreLoggingEventListener listener;
+		    @Override
+		    public void eventAdded( HopLoggingEvent event ) {
+		      events.add( event );
+		    }
 
-  @Spy
-  private DatabaseMeta databaseMetaSpy = spy( new DatabaseMeta() );
-  private PreparedStatement preparedStatementMock = mock( PreparedStatement.class );
-  private ResultSet resultSet;
-  private DatabaseMeta dbMeta;
-  private ValueMetaBase valueMetaBase;
+		    public List<HopLoggingEvent> getEvents() {
+		      return events;
+		    }
+	  }
+	
+	  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
-    PluginRegistry.addPluginType( ValueMetaPluginType.getInstance() );
-    PluginRegistry.addPluginType( DatabasePluginType.getInstance() );
-    PluginRegistry.init();
-    HopLogStore.init();
-  }
+	  protected static final String TEST_NAME = "TEST_NAME";
+	  protected static final String LOG_FIELD = "LOG_FIELD";
+	  protected static final int MAX_TEXT_FIELD_LEN = 5;
 
-  @Before
-  public void setUp() {
-    listener = new StoreLoggingEventListener();
-    HopLogStore.getAppender().addLoggingEventListener( listener );
+	  // Get PKG from class under test
+	  protected Class<?> PKG = ValueMetaBase.PKG;
+	  protected StoreLoggingEventListener listener;
 
-    valueMetaBase = new ValueMetaBase();
-    dbMeta = spy( new DatabaseMeta() );
-    resultSet = mock( ResultSet.class );
-  }
+	  @Spy
+	  protected DatabaseMeta databaseMetaSpy = spy( new DatabaseMeta() );
+	  protected PreparedStatement preparedStatementMock = mock( PreparedStatement.class );
+	  protected ResultSet resultSet;
+	  protected DatabaseMeta dbMeta;
+	  protected ValueMetaBase valueMetaBase;
 
-  @After
-  public void tearDown() {
-    HopLogStore.getAppender().removeLoggingEventListener( listener );
-    listener = new StoreLoggingEventListener();
-  }
+	  @BeforeClass
+	  public static void setUpBeforeClass() throws HopException {
+	    PluginRegistry.addPluginType( ValueMetaPluginType.getInstance() );
+	    PluginRegistry.addPluginType( DatabasePluginType.getInstance() );
+	    PluginRegistry.init();
+	    HopLogStore.init();
+	  }
 
+	  @Before
+	  public void setUp() {
+	    listener = new StoreLoggingEventListener();
+	    HopLogStore.getAppender().addLoggingEventListener( listener );
+
+	    valueMetaBase = new ValueMetaBase();
+	    dbMeta = spy( new DatabaseMeta() );
+	    resultSet = mock( ResultSet.class );
+	  }
+
+	  @After
+	  public void tearDown() {
+	    HopLogStore.getAppender().removeLoggingEventListener( listener );
+	    listener = new StoreLoggingEventListener();
+	  }
+	  
+	  protected void initValueMeta( BaseDatabaseMeta dbMeta, int length, Object data ) throws HopDatabaseException {
+		    ValueMetaInterface valueMetaString = new ValueMetaString( LOG_FIELD, length, 0 );
+		    databaseMetaSpy.setDatabaseInterface( dbMeta );
+		    valueMetaString.setPreparedStatementValue( databaseMetaSpy, preparedStatementMock, 0, data );
+	  }
   @Test
   public void testDefaultCtor() {
     ValueMetaBase base = new ValueMetaBase();
@@ -760,19 +772,7 @@ public class ValueMetaBaseTest {
     assertArrayEquals( expected, actual );
   }
 
-  private class StoreLoggingEventListener implements HopLoggingEventListener {
 
-    private List<HopLoggingEvent> events = new ArrayList<>();
-
-    @Override
-    public void eventAdded( HopLoggingEvent event ) {
-      events.add( event );
-    }
-
-    public List<HopLoggingEvent> getEvents() {
-      return events;
-    }
-  }
 
   @Test
   public void testConvertBigNumberToBoolean() {
@@ -1081,6 +1081,8 @@ public class ValueMetaBaseTest {
     assertEquals( 3, valueMeta.getLength() );
   }
 
+
+  @Ignore //TODO: test was based on oracleVariant does not change type to bignumber for generic Database
   @Test
   public void testMetdataPreviewSqlDoubleWithTooBigLengthAndPrecision() throws SQLException, HopDatabaseException {
     doReturn( Types.DOUBLE ).when( resultSet ).getInt( "DATA_TYPE" );
@@ -1130,43 +1132,6 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlNumericWithStrictBigNumberInterpretationUsingOracle() throws SQLException, HopDatabaseException {
-    doReturn( Types.NUMERIC ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( 38 ).when( resultSet ).getInt( "COLUMN_SIZE" );
-    doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
-    doReturn( 0 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    doReturn( mock( OracleDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    when( ( (OracleDatabaseMeta) dbMeta.getDatabaseInterface() ).strictBigNumberInterpretation() ).thenReturn( true );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isBigNumber() );
-  }
-
-  @Test
-  public void testMetdataPreviewSqlNumericWithoutStrictBigNumberInterpretationUsingOracle() throws SQLException, HopDatabaseException {
-    doReturn( Types.NUMERIC ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( 38 ).when( resultSet ).getInt( "COLUMN_SIZE" );
-    doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
-    doReturn( 0 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    doReturn( mock( OracleDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    when( ( (OracleDatabaseMeta) dbMeta.getDatabaseInterface() ).strictBigNumberInterpretation() ).thenReturn( false );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isInteger() );
-  }
-
-  @Test
-  public void testMetdataPreviewSqlTimestampToPentahoDate() throws SQLException, HopDatabaseException {
-    doReturn( Types.TIMESTAMP ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
-    doReturn( 19 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    doReturn( mock( OracleDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    doReturn( true ).when( dbMeta ).supportsTimestampDataType();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isDate() );
-    assertEquals( -1, valueMeta.getPrecision() );
-    assertEquals( 19, valueMeta.getLength() );
-  }
-
-  @Test
   public void testMetdataPreviewUnsupportedSqlTimestamp() throws SQLException, HopDatabaseException {
     doReturn( Types.TIMESTAMP ).when( resultSet ).getInt( "DATA_TYPE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
@@ -1196,111 +1161,4 @@ public class ValueMetaBaseTest {
     ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBoolean() );
   }
-
-  @Test
-  public void testMetdataPreviewSqlVarBinaryToPentahoStringUsingOracle() throws SQLException, HopDatabaseException {
-    doReturn( Types.VARBINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( 16 ).when( resultSet ).getInt( "COLUMN_SIZE" );
-    doReturn( mock( OracleDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isString() );
-    assertEquals( 16, valueMeta.getLength() );
-  }
-
-
-  @Test
-  public void testMetdataPreviewSqlLongVarBinaryToPentahoStringUsingOracle() throws SQLException, HopDatabaseException {
-    doReturn( Types.LONGVARBINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( OracleDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isString() );
-  }
-
-  //PDI-14721 ESR-5021
-  @Test
-  public void testGetValueFromSQLTypeBinaryMysql() throws Exception {
-
-    final int binaryColumnIndex = 1;
-    ValueMetaBase valueMetaBase = new ValueMetaBase();
-    DatabaseMeta dbMeta = spy( new DatabaseMeta() );
-    DatabaseInterface databaseInterface = new MySQLDatabaseMeta();
-    dbMeta.setDatabaseInterface( databaseInterface );
-
-    ResultSetMetaData metaData = mock( ResultSetMetaData.class );
-
-    when( resultSet.getMetaData() ).thenReturn( metaData );
-    when( metaData.getColumnType( binaryColumnIndex ) ).thenReturn( Types.LONGVARBINARY );
-
-    ValueMetaInterface binaryValueMeta =
-      valueMetaBase.getValueFromSQLType( dbMeta, TEST_NAME, metaData, binaryColumnIndex, false, false );
-    assertEquals( ValueMetaInterface.TYPE_BINARY, binaryValueMeta.getType() );
-    assertTrue( binaryValueMeta.isBinary() );
-  }
-
-  @Test
-  public void test_Pdi_17126_mysql() throws Exception {
-    String data = StringUtils.repeat( "*", 10 );
-    initValueMeta( new MySQLDatabaseMeta(), DatabaseMeta.CLOB_LENGTH, data );
-
-    verify( preparedStatementMock, times( 1 ) ).setString( 0, data );
-  }
-
-  private void initValueMeta( BaseDatabaseMeta dbMeta, int length, Object data ) throws HopDatabaseException {
-    ValueMetaInterface valueMetaString = new ValueMetaString( LOG_FIELD, length, 0 );
-    databaseMetaSpy.setDatabaseInterface( dbMeta );
-    valueMetaString.setPreparedStatementValue( databaseMetaSpy, preparedStatementMock, 0, data );
-  }
-
-
-  @Test
-  public void testMetdataPreviewSqlDoubleWithPrecisionGreaterThanLengthUsingMySQLVariant() throws SQLException, HopDatabaseException {
-    doReturn( Types.DOUBLE ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( 4 ).when( resultSet ).getInt( "COLUMN_SIZE" );
-    doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
-    doReturn( 5 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    doReturn( mock( MySQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    doReturn( true ).when( dbMeta ).isMySQLVariant();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isNumber() );
-    assertEquals( -1, valueMeta.getPrecision() );
-    assertEquals( -1, valueMeta.getLength() );
-  }
-
-  @Test
-  public void testMetdataPreviewSqlTimeToPentahoIntegerUsingMySQLVariant() throws SQLException, HopDatabaseException {
-    doReturn( Types.TIME ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( MySQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    doReturn( true ).when( dbMeta ).isMySQLVariant();
-    doReturn( mock( Properties.class ) ).when( dbMeta ).getConnectionProperties();
-    when( dbMeta.getConnectionProperties().getProperty( "yearIsDateType" ) ).thenReturn( "false" );
-    doReturn( "YEAR" ).when( resultSet ).getString( "TYPE_NAME" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isInteger() );
-    assertEquals( 0, valueMeta.getPrecision() );
-    assertEquals( 4, valueMeta.getLength() );
-  }
-
-  @Test
-  public void testMetdataPreviewSqlVarBinaryToPentahoBinaryUsingMySQLVariant() throws SQLException, HopDatabaseException {
-    doReturn( Types.VARBINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( 16 ).when( resultSet ).getInt( "COLUMN_SIZE" );
-    doReturn( mock( MySQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    doReturn( true ).when( dbMeta ).isMySQLVariant();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isBinary() );
-    assertEquals( -1, valueMeta.getLength() );
-  }
-
-  @Test
-  public void testMetdataPreviewSqlDoubleToPentahoNumberUsingMySQL() throws SQLException, HopDatabaseException {
-    doReturn( Types.DOUBLE ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( 22 ).when( resultSet ).getInt( "COLUMN_SIZE" );
-    doReturn( mock( MySQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    doReturn( true ).when( dbMeta ).isMySQLVariant();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isNumber() );
-    assertEquals( -1, valueMeta.getLength() );
-  }
-
-
 }

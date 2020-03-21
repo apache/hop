@@ -26,7 +26,6 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.OracleDatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.DatabasePluginType;
