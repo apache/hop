@@ -692,6 +692,11 @@ public interface DatabaseInterface extends Cloneable {
   public boolean isRequiringTransactionsOnQueries();
 
   /**
+   * Handles the special case of Oracle where NUMBER(38) is interpreted as Integer or BigNumber
+   */  
+  public boolean isStrictBigNumberInterpretation();
+  
+  /**
    * You can use this method to supply an alternate factory for the test method in the dialogs. This is useful for
    * plugins like SAP/R3 and PALO.
    *

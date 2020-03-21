@@ -76,7 +76,9 @@
         <module>msaccess</module>
         <module>mssqlnative</module>
         <module>mssql</module>
+        <module>mysql</module>
         <module>netezza</module>
+        <module>oracle</module>        
         <module>oraclerdb</module>
         <module>remedy-ar-system</module>
         <module>sapdb</module>

@@ -26,7 +26,6 @@ package org.apache.hop.core.row.value;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.OracleDatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopEOFException;
 import org.apache.hop.core.exception.HopException;
@@ -4648,10 +4647,9 @@ public class ValueMetaBase implements ValueMetaInterface {
             }
           }
 
-          if ( databaseMeta.getDatabaseInterface() instanceof OracleDatabaseMeta ) {
+          if ( databaseMeta.getDatabaseInterface().isOracleVariant() ) {
             if ( precision == 0 && length == 38 ) {
-              valtype = ( (OracleDatabaseMeta) databaseMeta.getDatabaseInterface() )
-                .strictBigNumberInterpretation() ? TYPE_BIGNUMBER : TYPE_INTEGER;
+              valtype = databaseMeta.getDatabaseInterface().isStrictBigNumberInterpretation() ? TYPE_BIGNUMBER : TYPE_INTEGER;
             }
             if ( precision <= 0 && length <= 0 ) {
               // undefined size: BIGNUMBER,
@@ -4706,7 +4704,7 @@ public class ValueMetaBase implements ValueMetaInterface {
             && ( 2 * rm.getPrecision( index ) ) == rm.getColumnDisplaySize( index ) ) {
             // set the length for "CHAR(X) FOR BIT DATA"
             length = rm.getPrecision( index );
-          } else if ( ( databaseMeta.getDatabaseInterface() instanceof OracleDatabaseMeta )
+          } else if ( ( databaseMeta.getDatabaseInterface().isOracleVariant() )
             && ( type == java.sql.Types.VARBINARY || type == java.sql.Types.LONGVARBINARY ) ) {
             // set the length for Oracle "RAW" or "LONGRAW" data types
             valtype = ValueMetaInterface.TYPE_STRING;
@@ -4941,10 +4939,9 @@ public class ValueMetaBase implements ValueMetaInterface {
             }
           }
 
-          if ( databaseMeta.getDatabaseInterface() instanceof OracleDatabaseMeta ) {
+          if ( databaseMeta.getDatabaseInterface().isOracleVariant() ) {
             if ( precision == 0 && length == 38 ) {
-              valtype = ( (OracleDatabaseMeta) databaseMeta.getDatabaseInterface() )
-                .strictBigNumberInterpretation() ? TYPE_BIGNUMBER : TYPE_INTEGER;
+              valtype = databaseMeta.getDatabaseInterface().isStrictBigNumberInterpretation() ? TYPE_BIGNUMBER : TYPE_INTEGER;
             }
             if ( precision <= 0 && length <= 0 ) {
               // undefined size: BIGNUMBER,
@@ -4995,11 +4992,15 @@ public class ValueMetaBase implements ValueMetaInterface {
         case java.sql.Types.LONGVARBINARY:
           valtype = ValueMetaInterface.TYPE_BINARY;
 
+          
+          DatabaseInterface db = databaseMeta.getDatabaseInterface();
+          boolean isOracle= db.isOracleVariant();
+          
           if ( databaseMeta.isDisplaySizeTwiceThePrecision()
             && ( 2 * originalPrecision ) == originalColumnDisplaySize ) {
             // set the length for "CHAR(X) FOR BIT DATA"
             length = originalPrecision;
-          } else if ( ( databaseMeta.getDatabaseInterface() instanceof OracleDatabaseMeta )
+          } else if ( ( databaseMeta.getDatabaseInterface().isOracleVariant() )
             && ( originalColumnType == java.sql.Types.VARBINARY || originalColumnType == java.sql.Types.LONGVARBINARY ) ) {
             // set the length for Oracle "RAW" or "LONGRAW" data types
             valtype = ValueMetaInterface.TYPE_STRING;

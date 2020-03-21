@@ -4723,7 +4723,7 @@ public class Database implements VariableSpace, LoggingObjectInterface {
               Date date = fields.getDate( r, i );
 
               if ( Utils.isEmpty( dateFormat ) ) {
-                if ( databaseMeta.getDatabaseInterface() instanceof OracleDatabaseMeta ) {
+                if ( databaseMeta.getDatabaseInterface().isOracleVariant() ) {
                   if ( fieldDateFormatters[ i ] == null ) {
                     fieldDateFormatters[ i ] = new java.text.SimpleDateFormat( "yyyy/MM/dd HH:mm:ss" );
                   }
