@@ -44,11 +44,11 @@ public class JobEntryAbortLoadSaveTest extends JobEntryLoadSaveTestSupport<JobEn
 
   @Override
   protected Map<String, String> createGettersMap() {
-    return Collections.singletonMap( "message", "getMessageabort" );
+    return Collections.singletonMap( "message", "getMessageAbort" );
   }
 
   @Override
   protected Map<String, String> createSettersMap() {
-    return Collections.singletonMap( "message", "setMessageabort" );
+    return Collections.singletonMap( "message", "setMessageAbort" );
   }
 }
