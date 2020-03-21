@@ -92,8 +92,8 @@ public class JobEntryAbortDialog extends JobEntryDialog implements JobEntryDialo
     props.setLook( shell );
     JobDialog.setShellImage( shell, jobEntry );
 
-    ModifyListener lsMod = ( ModifyEvent e ) -> jobEntry.setChanged();
-    changed = jobEntry.hasChanged();
+    ModifyListener lsMod = ( ModifyEvent e ) -> jobEntry.setChanged();    
+	changed = jobEntry.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
