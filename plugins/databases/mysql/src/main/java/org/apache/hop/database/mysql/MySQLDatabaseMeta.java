@@ -20,10 +20,13 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.core.database;
+package org.apache.hop.database.mysql;
 
 import com.google.common.collect.Sets;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.database.BaseDatabaseMeta;
+import org.apache.hop.core.database.DatabaseInterface;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
@@ -47,7 +50,7 @@ import java.util.Set;
   type = "MYSQL",
   typeDescription = "MySQL"
 )
-@GuiPlugin( id = "GUI-MySQLDatabaseMeta", description="MySQL GUI Plugin" )
+@GuiPlugin( id = "GUI-MySQLDatabaseMeta" )
 public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
   private static final Class<?> PKG = MySQLDatabaseMeta.class;
 
@@ -83,7 +86,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   // TODO: check package com.mysql.cj.jdbc.exceptions
   private static final Set<String>
     SHORT_MESSAGE_EXCEPTIONS =
-    Sets.newHashSet( "com.mysql.cj.jdbc.exceptions.PacketTooBigException", "com.mysql.cj.jdbc.exceptions.MysqlDataTruncation" );
+    Sets.newHashSet( "com.mysql.jdbc.exceptions.PacketTooBigException", "com.mysql.jdbc.exceptions.MysqlDataTruncation" );
 
   @Override public int[] getAccessTypeList() {
     return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };

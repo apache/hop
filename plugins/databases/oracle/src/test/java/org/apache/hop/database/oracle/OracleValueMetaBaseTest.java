@@ -1,4 +1,4 @@
-package org.apache.hop.database;
+package org.apache.hop.database.oracle;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -18,7 +18,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.ValueMetaInterface;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
-import org.apache.hop.database.OracleDatabaseMeta;
+import org.apache.hop.database.oracle.OracleDatabaseMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.BeforeClass;

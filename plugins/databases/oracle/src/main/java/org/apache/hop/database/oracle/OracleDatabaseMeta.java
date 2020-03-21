@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.database;
+package org.apache.hop.database.oracle;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;

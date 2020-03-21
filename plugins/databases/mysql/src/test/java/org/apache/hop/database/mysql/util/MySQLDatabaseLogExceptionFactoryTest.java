@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.database.util;
+package org.apache.hop.database.mysql.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -32,7 +32,7 @@ import org.apache.hop.core.database.util.DatabaseLogExceptionFactory;
 import org.apache.hop.core.database.util.LogExceptionBehaviourInterface;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.logging.LogTableCoreInterface;
-import org.apache.hop.database.MySQLDatabaseMeta;
+import org.apache.hop.database.mysql.MySQLDatabaseMeta;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

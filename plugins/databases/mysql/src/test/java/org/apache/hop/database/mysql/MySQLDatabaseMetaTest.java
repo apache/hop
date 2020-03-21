@@ -19,7 +19,7 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.apache.hop.database;
+package org.apache.hop.database.mysql;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -58,7 +58,8 @@ import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
-import org.apache.hop.database.MySQLDatabaseMeta;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.database.mysql.MySQLDatabaseMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -444,6 +445,16 @@ public class MySQLDatabaseMetaTest {
     assertFalse( nativeMeta.releaseSavepoint() );
   }
 
+  @Test
+  public void testSupportsSequence() {
+    String dbType = nativeMeta.getClass().getSimpleName();
+    assertFalse( dbType, nativeMeta.supportsSequences() );
+    assertTrue( Utils.isEmpty( nativeMeta.getSQLListOfSequences() ) );
+    assertEquals( "", nativeMeta.getSQLSequenceExists( "testSeq" ) );
+    assertEquals( "", nativeMeta.getSQLNextSequenceValue( "testSeq" ) );
+    assertEquals( "", nativeMeta.getSQLCurrentSequenceValue( "testSeq" ) );
+  }
+  
   private Connection mockConnection( DatabaseMetaData dbMetaData ) throws SQLException {
 	Connection conn = mock( Connection.class );
 	when( conn.getMetaData() ).thenReturn( dbMetaData );

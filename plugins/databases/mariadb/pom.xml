@@ -49,7 +49,7 @@
         		<dependency>
         			<groupId>org.hop</groupId>
         			<artifactId>hop-plugins-databases-mysql</artifactId>
-        			<scope>test</scope>
+        			<scope>compile</scope>
         			<version>${project.version}</version>
       			</dependency>            
         </dependencies>
