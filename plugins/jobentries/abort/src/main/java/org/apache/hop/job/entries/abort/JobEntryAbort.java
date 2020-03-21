@@ -56,20 +56,24 @@ import java.util.List;
 public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryInterface {
   private static final Class<?> PKG = JobEntryAbort.class; // for i18n purposes, needed by Translator2!!
 
-  private String messageAbort;
+  private String message;
 
-  public JobEntryAbort( String n, String scr ) {
-    super( n, "" );
-    messageAbort = null;
+  public JobEntryAbort( String name, String description ) {
+    super( name, description );
+    message = null;
   }
 
   public JobEntryAbort() {
     this( "", "" );
   }
 
+  public JobEntryAbort(JobEntryAbort other) {
+	this( "", "" );
+	this.message = other.message;
+  }
+  
   public Object clone() {
-    JobEntryAbort je = (JobEntryAbort) super.clone();
-    return je;
+    return new JobEntryAbort(this);
   }
 
   @Override
@@ -77,7 +81,7 @@ public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryIn
     StringBuilder retval = new StringBuilder();
 
     retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "message", messageAbort ) );
+    retval.append( XMLHandler.addTagValue( "message", message ) );
 
     return retval.toString();
   }
@@ -86,31 +90,9 @@ public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryIn
   public void loadXML( Node entrynode, IMetaStore metaStore ) throws HopXMLException {
     try {
       super.loadXML( entrynode );
-      messageAbort = XMLHandler.getTagValue( entrynode, "message" );
+      message = XMLHandler.getTagValue( entrynode, "message" );
     } catch ( Exception e ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "JobEntryAbort.UnableToLoadFromXml.Label" ), e );
-    }
-  }
-
-  public boolean evaluate( Result result ) {
-    String message = null;
-    String messageAbort = environmentSubstitute( getMessageabort() );
-
-    try {
-      // Return False
-      if ( messageAbort == null ) {
-        message = BaseMessages.getString( PKG, "JobEntryAbort.Meta.CheckResult.Label" );
-      } else {
-        message = messageAbort;
-      }
-      
-      logError( message );
-      result.setNrErrors( 1 );
-      return false;
-    } catch ( Exception e ) {
-      result.setNrErrors( 1 );
-      logError( BaseMessages.getString( PKG, "JobEntryAbort.Meta.CheckResult.CouldNotExecute" ) + e.toString() );
-      return false;
     }
   }
 
@@ -118,16 +100,31 @@ public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryIn
    * Execute this job entry and return the result. In this case it means, just set the result boolean in the Result
    * class.
    *
-   * @param previousResult The result of the previous execution
+   * @param result The result of the previous execution
    * @return The Result of the execution.
    */
   @Override
-  public Result execute( Result previousResult, int nr ) {
-    previousResult.setResult( evaluate( previousResult ) );
-    // we fail so stop
-    // job execution
+  public Result execute( Result result, int nr ) {
+    try {
+   	  String msg = environmentSubstitute( getMessageAbort() );
+
+   	  // Return False
+      if ( msg == null ) {
+        msg = BaseMessages.getString( PKG, "JobEntryAbort.Meta.CheckResult.Label" );
+      }
+      
+      result.setNrErrors( 1 );
+      result.setResult(false);
+      logError( msg );
+    } catch ( Exception e ) {
+      result.setNrErrors( 1 );
+      result.setResult(false);
+      logError( BaseMessages.getString( PKG, "JobEntryAbort.Meta.CheckResult.CouldNotExecute" ) + e.toString() );
+    }  
+    
+    // we fail so stop job execution
     parentJob.stopAll();
-    return previousResult;
+    return result;
   }
 
   @Override
@@ -147,12 +144,12 @@ public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryIn
     return false;
   }
 
-  public void setMessageabort( String messageabort ) {
-    this.messageAbort = messageabort;
+  public void setMessageAbort( String message ) {
+    this.message = message;
   }
 
-  public String getMessageabort() {
-    return messageAbort;
+  public String getMessageAbort() {
+    return message;
   }
 
   @Override

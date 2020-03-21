@@ -67,18 +67,12 @@ import org.eclipse.swt.widgets.Text;
 public class JobEntryAbortDialog extends JobEntryDialog implements JobEntryDialogInterface {
   private static final Class<?> PKG = JobEntryAbortDialog.class; // for i18n purposes, needed by Translator2!!
 
-  private Text wName;
-
-  private Button wOK, wCancel;
-
   private JobEntryAbort jobEntry;
-
-  private Shell shell;
-
-  private SelectionAdapter lsDef;
 
   private boolean changed;
 
+  private Text wName;
+  
   private TextVar wMessageAbort;
 
   public JobEntryAbortDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
@@ -94,11 +88,11 @@ public class JobEntryAbortDialog extends JobEntryDialog implements JobEntryDialo
     Shell parent = getParent();
     Display display = parent.getDisplay();
 
-    shell = new Shell( parent, props.getJobsDialogStyle() );
+    Shell shell = new Shell( parent, props.getJobsDialogStyle() );
     props.setLook( shell );
     JobDialog.setShellImage( shell, jobEntry );
 
-    ModifyListener lsMod = ( ModifyEvent e ) -> { jobEntry.setChanged(); };
+    ModifyListener lsMod = ( ModifyEvent e ) -> jobEntry.setChanged();
     changed = jobEntry.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -149,9 +143,9 @@ public class JobEntryAbortDialog extends JobEntryDialog implements JobEntryDialo
     fdMessageAbort.right = new FormAttachment( 100, 0 );
     wMessageAbort.setLayoutData( fdMessageAbort );
 
-    wOK = new Button( shell, SWT.PUSH );
+    Button wOK = new Button( shell, SWT.PUSH );
     wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
+    Button wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
     // at the bottom
@@ -161,7 +155,7 @@ public class JobEntryAbortDialog extends JobEntryDialog implements JobEntryDialo
     wCancel.addListener( SWT.Selection, (Event e) -> { cancel(); } );
     wOK.addListener( SWT.Selection, (Event e) -> { ok();  } );
 
-    lsDef = new SelectionAdapter() {
+    SelectionAdapter lsDef = new SelectionAdapter() {
       @Override
       public void widgetDefaultSelected( SelectionEvent e ) {
         ok();
@@ -205,8 +199,8 @@ public class JobEntryAbortDialog extends JobEntryDialog implements JobEntryDialo
     if ( jobEntry.getName() != null ) {
       wName.setText( jobEntry.getName() );
     }
-    if ( jobEntry.getMessageabort() != null ) {
-      wMessageAbort.setText( jobEntry.getMessageabort() );
+    if ( jobEntry.getMessageAbort() != null ) {
+      wMessageAbort.setText( jobEntry.getMessageAbort() );
     }
 
     wName.selectAll();
@@ -228,7 +222,7 @@ public class JobEntryAbortDialog extends JobEntryDialog implements JobEntryDialo
       return;
     }
     jobEntry.setName( wName.getText() );
-    jobEntry.setMessageabort( wMessageAbort.getText() );
+    jobEntry.setMessageAbort( wMessageAbort.getText() );
     dispose();
   }
 }
