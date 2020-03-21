@@ -83,11 +83,10 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
 
   private static final int VARCHAR_LIMIT = 65_535;
 
-  // TODO: check package com.mysql.cj.jdbc.exceptions
+  // TODO: check package com.mysql.cj.jdbc.exceptions.PacketTooBigException
   private static final Set<String>
-    SHORT_MESSAGE_EXCEPTIONS =
-    Sets.newHashSet( "com.mysql.jdbc.exceptions.PacketTooBigException", "com.mysql.jdbc.exceptions.MysqlDataTruncation" );
-
+    SHORT_MESSAGE_EXCEPTIONS =    
+    Sets.newHashSet( "com.mysql.jdbc.PacketTooBigException", "com.mysql.jdbc.MysqlDataTruncation" );
   @Override public int[] getAccessTypeList() {
     return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
   }
