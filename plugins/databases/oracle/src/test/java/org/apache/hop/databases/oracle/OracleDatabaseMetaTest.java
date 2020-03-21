@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.database.oracle;
+package org.apache.hop.databases.oracle;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -50,7 +50,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.database.oracle.OracleDatabaseMeta;
+import org.apache.hop.databases.oracle.OracleDatabaseMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.BeforeClass;

@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.database.mysql;
+package org.apache.hop.databases.mysql;
 
 import com.google.common.collect.Sets;
 import org.apache.hop.core.Const;

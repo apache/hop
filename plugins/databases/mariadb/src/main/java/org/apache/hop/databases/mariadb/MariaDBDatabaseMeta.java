@@ -23,7 +23,7 @@ package org.apache.hop.databases.mariadb;
 
 import com.google.common.collect.Sets;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.database.mysql.MySQLDatabaseMeta;
+import org.apache.hop.databases.mysql.MySQLDatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
