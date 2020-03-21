@@ -166,7 +166,7 @@ public class KingbaseESDatabaseMetaTest {
 
     nativeMeta.setUsername( "FOoUsEr" );
     assertEquals( "select proname from sys_proc, sys_user where sys_user.usesysid = sys_proc.proowner and upper(sys_user.usename) = 'FOOUSER'",
-      nativeMeta.getSQLListOfProcedures( "IGNORED" ) );
+      nativeMeta.getSQLListOfProcedures() );
     assertEquals( "LOCK TABLE FOO , BAR IN ACCESS EXCLUSIVE MODE;" + lineSep,
       nativeMeta.getSQLLockTables( new String[] { "FOO", "BAR" } ) );
     assertNull( nativeMeta.getSQLUnlockTables( new String[] {} ) );

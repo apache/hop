@@ -318,7 +318,7 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements Databas
    * @param schemaName the schema name to search in or null if you want to search the whole DB
    * @return The SQL on this database to get a list of stored procedures.
    */
-  public String getSQLListOfProcedures( String schemaName ) {
+  public String getSQLListOfProcedures() {
     return "select o.name "
       + "from sysobjects o, sysusers u "
       + "where  xtype in ( 'FN', 'P' ) and o.uid = u.uid "

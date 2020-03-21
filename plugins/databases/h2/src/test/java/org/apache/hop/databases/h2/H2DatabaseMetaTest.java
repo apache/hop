@@ -62,7 +62,7 @@ public class H2DatabaseMetaTest {
       "TODAY", "TRUE", "UNION", "WHERE" }, nativeMeta.getReservedWords() );
 
     assertTrue( nativeMeta.isFetchSizeSupported() );
-    assertEquals( "\"FOO\".\"BAR\"", nativeMeta.getSchemaTableCombination( "FOO", "BAR" ) );
+    assertEquals( "FOO.BAR", nativeMeta.getSchemaTableCombination( "FOO", "BAR" ) );
     assertFalse( nativeMeta.supportsBitmapIndex() );
     assertTrue( nativeMeta.supportsAutoInc() );
     assertTrue( nativeMeta.supportsGetBlob() );

@@ -172,6 +172,19 @@ public class DbaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
     return "ALTER TABLE " + tablename + " MODIFY " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
   }
 
+  /**
+   * Get the schema-table combination to query the right table. Usually that is SCHEMA.TABLENAME, however there are
+   * exceptions to this rule...
+   *
+   * @param schema_name The schema name
+   * @param table_part  The tablename
+   * @return the schema-table combination to query the right table.
+   */
+  @Override
+  public String getSchemaTableCombination( String schema_name, String table_part ) {
+    return getStartQuote() + table_part +getEndQuote();
+  }
+
   @Override
   public String getFieldDefinition( ValueMetaInterface v, String tk, String pk, boolean useAutoinc,
                                     boolean addFieldname, boolean addCr ) {

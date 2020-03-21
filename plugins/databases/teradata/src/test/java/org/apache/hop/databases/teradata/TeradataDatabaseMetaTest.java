@@ -55,7 +55,7 @@ public class TeradataDatabaseMetaTest {
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "IGNORED", "IGNORED", "FOO" ) );
     assertEquals( "jdbc:teradata://FOO/DATABASE=WIBBLE", nativeMeta.getURL( "FOO", "IGNOREDHERE", "WIBBLE" ) );
     assertFalse( nativeMeta.isFetchSizeSupported() );
-    assertEquals( "\"FOO\".\"BAR\"", nativeMeta.getSchemaTableCombination( "FOO", "BAR" ) );
+    assertEquals( "FOO.BAR", nativeMeta.getSchemaTableCombination( "FOO", "BAR" ) );
     assertFalse( nativeMeta.supportsBitmapIndex() );
     assertEquals( ",", nativeMeta.getExtraOptionSeparator() );
     assertEquals( "/", nativeMeta.getExtraOptionIndicator() );

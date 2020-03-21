@@ -417,4 +417,17 @@ public class MSAccessDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
     return "insert into " + schemaTable + "(" + versionField + ") values (1)";
   }
 
+  /**
+   * Get the schema-table combination to query the right table. Usually that is SCHEMA.TABLENAME, however there are
+   * exceptions to this rule...
+   *
+   * @param schema_name The schema name
+   * @param table_part  The tablename
+   * @return the schema-table combination to query the right table.
+   */
+  @Override
+  public String getSchemaTableCombination( String schema_name, String table_part ) {
+    return getStartQuote() + schema_name + getEndQuote() + "." + getStartQuote() + table_part + getEndQuote() ;
+  }
+
 }
