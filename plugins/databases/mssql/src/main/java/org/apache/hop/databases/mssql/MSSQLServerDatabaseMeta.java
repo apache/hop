@@ -512,9 +512,9 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements Databas
    */
   @Override
   public String quoteSQLString( String string ) {
-    string = string.replaceAll( "'", "''" );
-    string = string.replaceAll( "\\n", "'+char(13)+'" );
-    string = string.replaceAll( "\\r", "'+char(10)+'" );
+    string = string.replace( "'", "''" );
+    string = string.replace( "\\n", "'+char(13)+'" );
+    string = string.replace( "\\r", "'+char(10)+'" );
     return "'" + string + "'";
   }
 

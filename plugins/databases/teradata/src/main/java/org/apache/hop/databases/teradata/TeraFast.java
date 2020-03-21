@@ -136,7 +136,6 @@ public class TeraFast extends AbstractStep implements StepInterface {
   @Override
   public boolean init( final StepMetaInterface smi, final StepDataInterface sdi ) {
     this.meta = (TeraFastMeta) smi;
-    // this.data = (GenericStepData) sdi;
     simpleDateFormat = new SimpleDateFormat( FastloadControlBuilder.DEFAULT_DATE_FORMAT );
     if ( super.init( smi, sdi ) ) {
       try {
@@ -159,7 +158,6 @@ public class TeraFast extends AbstractStep implements StepInterface {
   @Override
   public boolean processRow( final StepMetaInterface smi, final StepDataInterface sdi ) throws HopException {
     this.meta = (TeraFastMeta) smi;
-    // this.data = (GenericStepData) sdi;
 
     Object[] row = getRow();
     if ( row == null ) {
@@ -244,7 +242,7 @@ public class TeraFast extends AbstractStep implements StepInterface {
         switch ( valueMeta.getType() ) {
           case ValueMetaInterface.TYPE_STRING:
             String s = rowMetaInterface.getString( row, i );
-            dataFilePrintStream.print( pad( valueMeta, s.toString() ) );
+            dataFilePrintStream.print( pad( valueMeta, s ) );
             break;
           case ValueMetaInterface.TYPE_INTEGER:
             Long l = rowMetaInterface.getInteger( row, i );
@@ -396,7 +394,6 @@ public class TeraFast extends AbstractStep implements StepInterface {
     try {
       logDetailed( "Control file: " + control );
       IOUtils.write( control, this.fastload );
-      // this.fastload.flush();
     } catch ( IOException e ) {
       throw new HopException( "Error while execution control command [controlCommand=" + control + "]", e );
     } finally {
@@ -413,7 +410,6 @@ public class TeraFast extends AbstractStep implements StepInterface {
   @Override
   public void dispose( final StepMetaInterface smi, final StepDataInterface sdi ) {
     this.meta = (TeraFastMeta) smi;
-    // this.data = (GenericStepData) sdi;
 
     try {
       if ( this.fastload != null ) {

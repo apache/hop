@@ -295,7 +295,7 @@ public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseI
    * @param the schema name to search in or null if you want to search the whole DB
    * @return The SQL on this database to get a list of stored procedures.
    */
-  public String getSQLListOfProcedures( String schemaName ) {
+  public String getSQLListOfProcedures() {
     return "SELECT RDB$PROCEDURE_NAME "
       + "FROM RDB$PROCEDURES " + "WHERE RDB$OWNER_NAME = '" + getUsername().toUpperCase() + "' ";
   }

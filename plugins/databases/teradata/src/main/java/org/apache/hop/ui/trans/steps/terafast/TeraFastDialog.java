@@ -292,7 +292,6 @@ public class TeraFastDialog extends BaseStepDialog implements StepDialogInterfac
         item.setText( 2, this.meta.getStreamFieldList().getValue().get( i ) );
       }
     }
-    // DatabaseMeta dbMeta = this.transMeta.findDatabase(this.meta.getDbConnection().getValue());
     if ( this.meta.getDbMeta() != null ) {
       this.wConnection.setText( this.meta.getConnectionName().getValue() );
     }

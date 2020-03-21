@@ -234,12 +234,7 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
         if ( fieldname.equalsIgnoreCase( tk ) || // Technical key
           fieldname.equalsIgnoreCase( pk ) // Primary key
         ) {
-          // As soon as Exasol supports returning auto inc keys, this would be the correct type
-          // if (useAutoinc) {
-          // retval.append("BIGINT IDENTITY NOT NULL PRIMARY KEY");
-          // } else {
           retval.append( "BIGINT NOT NULL PRIMARY KEY" );
-          // }
         } else {
           retval.append( "INTEGER" );
         }
@@ -381,9 +376,9 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
    */
   @Override
   public String quoteSQLString( String string ) {
-    string = string.replaceAll( "'", "''" );
-    string = string.replaceAll( "\\n", "'||chr(13)||'" );
-    string = string.replaceAll( "\\r", "'||chr(10)||'" );
+    string = string.replace( "'", "''" );
+    string = string.replace( "\\n", "'||chr(13)||'" );
+    string = string.replace( "\\r", "'||chr(10)||'" );
     return "'" + string + "'";
   }
 

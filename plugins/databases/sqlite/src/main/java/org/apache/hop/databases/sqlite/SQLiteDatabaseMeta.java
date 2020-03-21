@@ -84,15 +84,6 @@ public class SQLiteDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
   }
 
   /**
-   * @see org.apache.hop.core.database.DatabaseInterface#getSchemaTableCombination(java.lang.String, java.lang.String)
-   */
-  @Override
-  @SuppressWarnings( "deprecation" )
-  public String getSchemaTableCombination( String schemaName, String tablePart ) {
-    return getBackwardsCompatibleSchemaTableCombination( schemaName, tablePart );
-  }
-
-  /**
    * @return true if the database supports bitmap indexes
    */
   @Override

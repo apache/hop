@@ -238,20 +238,16 @@ public class InformixDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
 
   @Override
   public String getSQLLockTables( String[] tableNames ) {
-    String sql = "";
+    StringBuilder sql = new StringBuilder( 128 );
     for ( int i = 0; i < tableNames.length; i++ ) {
-      sql += "LOCK TABLE " + tableNames[ i ] + " IN EXCLUSIVE MODE;" + Const.CR;
+      sql.append( "LOCK TABLE " + tableNames[ i ] + " IN EXCLUSIVE MODE;" + Const.CR);
     }
-    return sql;
+    return sql.toString();
   }
 
   @Override
   public String getSQLUnlockTables( String[] tableNames ) {
     return null;
-    /*
-     * String sql=""; for (int i=0;i<tableNames.length;i++) { sql+="UNLOCK TABLE "+tableNames[i]+";"+Const.CR; } return
-     * sql;
-     */
   }
 
   /**

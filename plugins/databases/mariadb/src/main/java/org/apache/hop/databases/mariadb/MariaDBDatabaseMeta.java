@@ -22,7 +22,6 @@
 package org.apache.hop.databases.mariadb;
 
 import com.google.common.collect.Sets;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.MySQLDatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -52,7 +51,7 @@ public class MariaDBDatabaseMeta extends MySQLDatabaseMeta {
     if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
       return "jdbc:odbc:" + databaseName;
     } else {
-      if ( Const.isEmpty( port ) ) {
+      if ( port.isEmpty() ) {
         return "jdbc:mariadb://" + hostname + "/" + databaseName;
       } else {
         return "jdbc:mariadb://" + hostname + ":" + port + "/" + databaseName;

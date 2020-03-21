@@ -236,9 +236,9 @@ public class SybaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseInte
    */
   @Override
   public String quoteSQLString( String string ) {
-    string = string.replaceAll( "'", "''" );
-    string = string.replaceAll( "\\n", "\\0xd" );
-    string = string.replaceAll( "\\r", "\\0xa" );
+    string = string.replace( "'", "''" );
+    string = string.replace( "\\n", "\\0xd" );
+    string = string.replace( "\\r", "\\0xa" );
     return "'" + string + "'";
   }
 

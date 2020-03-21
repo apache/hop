@@ -82,6 +82,7 @@ public class MSSQLServerNativeDatabaseMeta extends MSSQLServerDatabaseMeta {
    *
    * @return value of usingDoubleDigit
    */
+  @Override
   public boolean isUsingDoubleDigit() {
     String flag = getAttributes().getProperty( ATTRIBUTE_MSSQL_DOUBLE_DECIMAL_SEPARATOR );
     return "Y".equalsIgnoreCase( flag );
@@ -90,6 +91,7 @@ public class MSSQLServerNativeDatabaseMeta extends MSSQLServerDatabaseMeta {
   /**
    * @param usingDoubleDigit The usingDoubleDigit to set
    */
+  @Override
   public void setUsingDoubleDigit( boolean usingDoubleDigit ) {
     getAttributes().setProperty( ATTRIBUTE_MSSQL_DOUBLE_DECIMAL_SEPARATOR, usingDoubleDigit ? "Y" : "N" );
   }
@@ -106,7 +108,7 @@ public class MSSQLServerNativeDatabaseMeta extends MSSQLServerDatabaseMeta {
     } else {
       String useIntegratedSecurity = "false";
       Object value = getAttributes().get( ATTRIBUTE_USE_INTEGRATED_SECURITY );
-      if ( value != null && value instanceof String ) {
+      if ( value instanceof String ) {
         useIntegratedSecurity = (String) value;
         // Check if the String can be parsed into a boolean
         try {

@@ -89,15 +89,6 @@ public class DbaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   }
 
   /**
-   * @see DatabaseInterface#getSchemaTableCombination(java.lang.String, java.lang.String)
-   */
-  @Override
-  @SuppressWarnings( "deprecation" )
-  public String getSchemaTableCombination( String schemaName, String tablePart ) {
-    return getBackwardsCompatibleTable( tablePart );
-  }
-
-  /**
    * @return true if the database supports transactions.
    */
   @Override

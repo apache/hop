@@ -98,14 +98,6 @@ public class MSAccessDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
     return false;
   }
 
-  /**
-   * @see org.apache.hop.core.database.DatabaseInterface#getSchemaTableCombination(java.lang.String, java.lang.String)
-   */
-  @Override
-  @SuppressWarnings( "deprecation" )
-  public String getSchemaTableCombination( String schemaName, String tablePart ) {
-    return getBackwardsCompatibleSchemaTableCombination( schemaName, tablePart );
-  }
 
   /**
    * Get the maximum length of a text field for this database connection. This includes optional CLOB, Memo and Text
@@ -385,11 +377,7 @@ public class MSAccessDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
       try {
         indexList = database.getDatabaseMetaData().getIndexInfo( null, null, tablename, false, true );
         while ( indexList.next() ) {
-          // String tablen = indexList.getString("TABLE_NAME");
-          // String indexn = indexList.getString("INDEX_NAME");
           String column = indexList.getString( "COLUMN_NAME" );
-          // int pos = indexList.getShort("ORDINAL_POSITION");
-          // int type = indexList.getShort("TYPE");
 
           int idx = Const.indexOfString( column, idxFields );
           if ( idx >= 0 ) {
