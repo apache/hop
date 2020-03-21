@@ -108,7 +108,6 @@ public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryIn
     try {
    	  String msg = environmentSubstitute( getMessageAbort() );
 
-   	  // Return False
       if ( msg == null ) {
         msg = BaseMessages.getString( PKG, "JobEntryAbort.Meta.CheckResult.Label" );
       }
@@ -143,11 +142,19 @@ public class JobEntryAbort extends JobEntryBase implements Cloneable, JobEntryIn
   public boolean isUnconditional() {
     return false;
   }
-
+  
+  /**
+   * Set the message to display in the log
+   * @param message
+   */
   public void setMessageAbort( String message ) {
     this.message = message;
   }
 
+  /**
+   * Get the message to display in the log
+   * @return the message
+   */
   public String getMessageAbort() {
     return message;
   }
