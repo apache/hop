@@ -53,7 +53,7 @@ public class UniVerseDatabaseMetaTest {
     assertEquals( "com.ibm.u2.jdbc.UniJDBCDriver", nativeMeta.getDriverClass() );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "IGNORED", "IGNORED", "FOO" ) );
     assertEquals( "jdbc:ibm-u2://FOO/WIBBLE", nativeMeta.getURL( "FOO", "IGNORED", "WIBBLE" ) );
-    assertEquals( "\"FOO\".\"BAR\"", nativeMeta.getSchemaTableCombination( "FOO", "BAR" ) );
+    assertEquals( "FOO.BAR", nativeMeta.getSchemaTableCombination( "FOO", "BAR" ) );
     assertFalse( nativeMeta.isFetchSizeSupported() );
     assertFalse( nativeMeta.supportsBitmapIndex() );
     assertFalse( nativeMeta.supportsSynonyms() );

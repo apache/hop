@@ -15,16 +15,16 @@ OPTIONS="${OPTIONS} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=d
 
 case $( uname -s ) in
 	Linux) 
-		CLASSPATH="lib/*:libswt/linux/$( uname -m )/*" 
+		CLASSPATH="lib/*"
 		;;
 	Darwin) 
-		CLASSPATH="lib/*:libswt/osx64/*" 
+		CLASSPATH="lib/*"
 		OPTIONS="${OPTIONS} -XstartOnFirstThread"
 		;;
 esac
 
 
-java ${OPTIONS} -classpath "${CLASSPATH}" org.apache.hop.ui.hopgui.HopGui $@
+java ${OPTIONS} -classpath "${CLASSPATH}" org.apache.hop.cli.HopRun $@
 EXITCODE=$?
 
 cd ${ORIGINDIR}

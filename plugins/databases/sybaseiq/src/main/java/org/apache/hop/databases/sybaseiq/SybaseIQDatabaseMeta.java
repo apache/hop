@@ -77,8 +77,6 @@ public class SybaseIQDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
     if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
       return "jdbc:odbc:" + databaseName;
     } else {
-      // jdbc:jtds:<server_type>://<server>[:<port>][/<database>][;<property>=<value>[;...]]
-      // return "jdbc:jtds:sybaseIQ://"+hostname+":"+port+"/"+databaseName;
       return "jdbc:sybase:Tds:" + hostname + ":" + port + "/" + databaseName;
     }
   }

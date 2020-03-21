@@ -208,8 +208,6 @@ public class TeraFastMeta extends AbstractStepMeta {
           remarks.add( checkResult );
         }
       }
-      // else { job mode. no input rows. pentaho doesn't seem to allow to check jobs. Default Warning: Step is not
-      // in transformation.
     } catch ( HopDatabaseException e ) {
       checkResult =
         new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, MESSAGES

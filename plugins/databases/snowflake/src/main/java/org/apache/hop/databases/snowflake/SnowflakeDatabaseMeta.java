@@ -134,7 +134,7 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements DatabaseI
 
 	@Override
 	public String getSQLListOfSchemas() {
-		return "SELECT schemaName AS \"name\" FROM " + getDatabaseName() + ".INFORMATION_SCHEMA.SCHEMATA";
+		return "SELECT SCHEMA_NAME AS \"name\" FROM " + getDatabaseName() + ".INFORMATION_SCHEMA.SCHEMATA";
 	}
 
 	@Override
