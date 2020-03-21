@@ -21,7 +21,7 @@
         		<artifactId>hop-plugins-databases-mysql</artifactId>
         		<version>${project.version}</version>        	
         		<scope>compile</scope>
-     		</dependency>
+        </dependency>
     
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
@@ -30,9 +30,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-        		<groupId>org.hop</groupId>
-        		<artifactId>hop-plugins-databases-mysql</artifactId>
-        		<version>${project.version}</version>        	
+            <groupId>org.hop</groupId>
+            <artifactId>hop-plugins-databases-mysql</artifactId>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
       	</dependency>         

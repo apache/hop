@@ -1105,18 +1105,6 @@ public class PostgreSQLValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlDoubleWithTooBigLengthAndPrecision() throws SQLException, HopDatabaseException {
-    doReturn( Types.DOUBLE ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( 128 ).when( resultSet ).getInt( "COLUMN_SIZE" );
-    doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
-    doReturn( 127 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isBigNumber() );
-    assertEquals( -1, valueMeta.getPrecision() );
-    assertEquals( -1, valueMeta.getLength() );
-  }
-
-  @Test
   public void testMetdataPreviewSqlDoubleWithTooBigLengthAndPrecisionUsingPostgesSQL() throws SQLException, HopDatabaseException {
     doReturn( Types.DOUBLE ).when( resultSet ).getInt( "DATA_TYPE" );
     doReturn( 20 ).when( resultSet ).getInt( "COLUMN_SIZE" );

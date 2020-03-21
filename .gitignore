@@ -21,4 +21,4 @@ rebel-remote.xml
 out/
 logs/
 .directory
-
+\.attach*

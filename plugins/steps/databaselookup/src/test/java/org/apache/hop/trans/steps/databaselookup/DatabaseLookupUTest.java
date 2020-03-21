@@ -26,7 +26,7 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowSet;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.MySQLDatabaseMeta;
+import org.apache.hop.core.database.GenericDatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectInterface;
 import org.apache.hop.core.row.RowMeta;
@@ -115,7 +115,7 @@ public class DatabaseLookupUTest {
   }
 
   @Test
-  public void mySqlVariantDbIsLazyConverted() throws Exception {
+  public void databaseVariantDbIsLazyConverted() throws Exception {
     DatabaseLookupMeta meta = createDatabaseMeta();
     DatabaseLookupData data = createDatabaseData();
     Database db = createVirtualDb( meta.getDatabaseMeta() );
@@ -154,9 +154,9 @@ public class DatabaseLookupUTest {
 
 
   private DatabaseLookupMeta createDatabaseMeta() throws HopException {
-    MySQLDatabaseMeta mysql = new MySQLDatabaseMeta();
+    GenericDatabaseMeta genericMeta = new GenericDatabaseMeta();
     DatabaseMeta dbMeta = new DatabaseMeta();
-    dbMeta.setDatabaseInterface( mysql );
+    dbMeta.setDatabaseInterface( genericMeta );
 
     DatabaseLookupMeta meta = new DatabaseLookupMeta();
     meta.setDatabaseMeta( dbMeta );
@@ -258,9 +258,9 @@ public class DatabaseLookupUTest {
     lookData.cache = DefaultCache.newCache( lookData, 0 );
     lookData.lookupMeta = new RowMeta();
 
-    MySQLDatabaseMeta mysql = new MySQLDatabaseMeta();
+    GenericDatabaseMeta genericMeta = new GenericDatabaseMeta();
     DatabaseMeta dbMeta = new DatabaseMeta();
-    dbMeta.setDatabaseInterface( mysql );
+    dbMeta.setDatabaseInterface( genericMeta );
 
     DatabaseLookupMeta meta = new DatabaseLookupMeta();
     meta.setDatabaseMeta( dbMeta );
