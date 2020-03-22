@@ -68,17 +68,17 @@ import java.util.List;
 public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, JobEntryInterface {
   private static final Class<?> PKG = JobEntryTruncateTables.class; // for i18n purposes, needed by Translator2!!
 
-  protected boolean argFromPrevious;
+  private boolean argFromPrevious;
 
   private DatabaseMeta connection;
 
-  protected String[] tableNames;
-
-  protected String[] schemaNames;
-
+  private String[] tableNames;
+  
+  private String[] schemaNames;
+  
   private int nrErrors = 0;
   private int nrSuccess = 0;
-  boolean continueProcess = true;
+  private boolean continueProcess = true;
 
   public JobEntryTruncateTables( String name ) {
     super( name, "" );
@@ -312,7 +312,7 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
     boolean res = JobEntryValidatorUtils.andValidator().validate( this, "arguments", remarks,
       AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
 
-    if ( res ) {
+    if ( !res ) {
       return;
     }
 
@@ -343,4 +343,27 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
     return references;
   }
 
+  public boolean isArgFromPrevious() {
+	return argFromPrevious;
+  }
+
+  public void setArgFromPrevious(boolean argFromPrevious) {
+	this.argFromPrevious = argFromPrevious;
+  }
+
+public String[] getTableNames() {
+	return tableNames;
+}
+
+public void setTableNames(String[] tableNames) {
+	this.tableNames = tableNames;
+}
+
+public String[] getSchemaNames() {
+	return schemaNames;
+}
+
+public void setSchemaNames(String[] schemaNames) {
+	this.schemaNames = schemaNames;
+}
 }

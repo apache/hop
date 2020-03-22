@@ -206,7 +206,7 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
     fdlFields.top = new FormAttachment( wbTable, 2 * margin );
     wlFields.setLayoutData( fdlFields );
 
-    int rows = jobEntry.tableNames == null ? 1 : ( jobEntry.tableNames.length == 0 ? 0 : jobEntry.tableNames.length );
+    int rows = jobEntry.getTableNames() == null ? 1 : jobEntry.getTableNames().length;
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
@@ -316,15 +316,18 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
     if ( jobEntry.getDatabase() != null ) {
       wConnection.setText( jobEntry.getDatabase().getName() );
     }
-    if ( jobEntry.tableNames != null ) {
-      for ( int i = 0; i < jobEntry.tableNames.length; i++ ) {
-        // TableItem ti = new TableItem(wFields.table, SWT.NONE);
+    
+    String[] tableNames = jobEntry.getTableNames();
+    String[] schemaNames = jobEntry.getSchemaNames();
+    
+    if ( tableNames != null ) {
+      for ( int i = 0; i < tableNames.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.tableNames[ i ] != null ) {
-          ti.setText( 1, jobEntry.tableNames[ i ] );
+        if ( tableNames[ i ] != null ) {
+          ti.setText( 1, tableNames[ i ] );
         }
-        if ( jobEntry.schemaNames[ i ] != null ) {
-          ti.setText( 2, jobEntry.schemaNames[ i ] );
+        if ( schemaNames[ i ] != null ) {
+          ti.setText( 2, schemaNames[ i ] );
         }
       }
 
@@ -332,7 +335,7 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
       wFields.setRowNums();
       wFields.optWidth( true );
     }
-    wPrevious.setSelection( jobEntry.argFromPrevious );
+    wPrevious.setSelection( jobEntry.isArgFromPrevious() );
 
     wName.selectAll();
     wName.setFocus();
@@ -354,7 +357,7 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
     }
     jobEntry.setName( wName.getText() );
     jobEntry.setDatabase( jobMeta.findDatabase( wConnection.getText() ) );
-    jobEntry.argFromPrevious = wPrevious.getSelection();
+    jobEntry.setArgFromPrevious(wPrevious.getSelection());
 
     int nritems = wFields.nrNonEmpty();
     int nr = 0;
@@ -364,19 +367,22 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
         nr++;
       }
     }
-    jobEntry.tableNames = new String[ nr ];
-    jobEntry.schemaNames = new String[ nr ];
+    String[] tables = new String[ nr ];
+    String[] schemas =new String[ nr ];
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       String wild = wFields.getNonEmpty( i ).getText( 2 );
       if ( arg != null && arg.length() != 0 ) {
-        jobEntry.tableNames[ nr ] = arg;
-        jobEntry.schemaNames[ nr ] = wild;
+        tables[ nr ] = arg;
+        schemas[ nr ] = wild;
         nr++;
       }
     }
 
+    jobEntry.setTableNames(tables);
+    jobEntry.setSchemaNames(schemas);
+    
     dispose();
   }
 
