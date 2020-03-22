@@ -66,25 +66,25 @@ import java.util.List;
   categoryDescription = "i18n:org.apache.hop.job:JobCategory.Category.Utility"
 )
 public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, JobEntryInterface {
-  private static Class<?> PKG = JobEntryTruncateTables.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryTruncateTables.class; // for i18n purposes, needed by Translator2!!
 
-  public boolean argFromPrevious;
+  protected boolean argFromPrevious;
 
   private DatabaseMeta connection;
 
-  public String[] arguments;
+  protected String[] tableNames;
 
-  public String[] schemaname;
+  protected String[] schemaNames;
 
   private int nrErrors = 0;
   private int nrSuccess = 0;
   boolean continueProcess = true;
 
-  public JobEntryTruncateTables( String n ) {
-    super( n, "" );
+  public JobEntryTruncateTables( String name ) {
+    super( name, "" );
     this.argFromPrevious = false;
-    this.arguments = null;
-    this.schemaname = null;
+    this.tableNames = null;
+    this.schemaNames = null;
     this.connection = null;
   }
 
@@ -93,21 +93,22 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
   }
 
   public void allocate( int nrFields ) {
-    this.arguments = new String[ nrFields ];
-    this.schemaname = new String[ nrFields ];
+    this.tableNames = new String[ nrFields ];
+    this.schemaNames = new String[ nrFields ];
   }
 
   public Object clone() {
     JobEntryTruncateTables je = (JobEntryTruncateTables) super.clone();
-    if ( arguments != null ) {
-      int nrFields = arguments.length;
+    if ( tableNames != null ) {
+      int nrFields = tableNames.length;
       je.allocate( nrFields );
-      System.arraycopy( arguments, 0, je.arguments, 0, nrFields );
-      System.arraycopy( schemaname, 0, je.schemaname, 0, nrFields );
+      System.arraycopy( tableNames, 0, je.tableNames, 0, nrFields );
+      System.arraycopy( schemaNames, 0, je.schemaNames, 0, nrFields );
     }
     return je;
   }
 
+  @Override
   public String getXML() {
     StringBuilder retval = new StringBuilder( 200 );
 
@@ -116,11 +117,11 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
       XMLHandler.addTagValue( "connection", this.connection == null ? null : this.connection.getName() ) );
     retval.append( "      " ).append( XMLHandler.addTagValue( "arg_from_previous", this.argFromPrevious ) );
     retval.append( "      <fields>" ).append( Const.CR );
-    if ( arguments != null ) {
-      for ( int i = 0; i < this.arguments.length; i++ ) {
+    if ( tableNames != null ) {
+      for ( int i = 0; i < this.tableNames.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "name", this.arguments[ i ] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "schemaname", this.schemaname[ i ] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "name", this.tableNames[ i ] ) );
+        retval.append( "          " ).append( XMLHandler.addTagValue( "schemaname", this.schemaNames[ i ] ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
@@ -128,6 +129,7 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
     return retval.toString();
   }
 
+  @Override
   public void loadXML( Node entrynode,
                        IMetaStore metaStore ) throws HopXMLException {
     try {
@@ -146,8 +148,8 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
       // Read them all...
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        this.arguments[ i ] = XMLHandler.getTagValue( fnode, "name" );
-        this.schemaname[ i ] = XMLHandler.getTagValue( fnode, "schemaname" );
+        this.tableNames[ i ] = XMLHandler.getTagValue( fnode, "name" );
+        this.schemaNames[ i ] = XMLHandler.getTagValue( fnode, "schemaname" );
       }
     } catch ( HopException e ) {
       throw new HopXMLException( BaseMessages.getString( PKG, "JobEntryTruncateTables.UnableLoadXML" ), e );
@@ -162,10 +164,12 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
     return this.connection;
   }
 
+  @Override
   public boolean evaluates() {
     return true;
   }
 
+  @Override
   public boolean isUnconditional() {
     return true;
   }
@@ -196,6 +200,7 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
     return retval;
   }
 
+  @Override
   public Result execute( Result previousResult, int nr ) {
     Result result = previousResult;
     List<RowMetaAndData> rows = result.getRows();
@@ -211,7 +216,7 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
         logDetailed( BaseMessages.getString( PKG, "JobEntryTruncateTables.FoundPreviousRows", String
           .valueOf( ( rows != null ? rows.size() : 0 ) ) ) );
       }
-      if ( rows.size() == 0 ) {
+      if ( rows.isEmpty() ) {
         return result;
       }
     }
@@ -226,17 +231,17 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
             resultRow = rows.get( iteration );
 
             // Get values from previous result
-            String tablename_previous = resultRow.getString( 0, null );
-            String schemaname_previous = resultRow.getString( 1, null );
+            String tableNamePrevious = resultRow.getString( 0, null );
+            String schemaNamePrevious = resultRow.getString( 1, null );
 
-            if ( !Utils.isEmpty( tablename_previous ) ) {
+            if ( !Utils.isEmpty( tableNamePrevious ) ) {
               if ( log.isDetailed() ) {
                 logDetailed( BaseMessages.getString(
-                  PKG, "JobEntryTruncateTables.ProcessingRow", tablename_previous, schemaname_previous ) );
+                  PKG, "JobEntryTruncateTables.ProcessingRow", tableNamePrevious, schemaNamePrevious ) );
               }
 
               // let's truncate table
-              if ( truncateTables( tablename_previous, schemaname_previous, db ) ) {
+              if ( truncateTables( tableNamePrevious, schemaNamePrevious, db ) ) {
                 updateSuccess();
               } else {
                 updateErrors();
@@ -246,14 +251,14 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
             }
           }
 
-        } else if ( arguments != null ) {
-          for ( int i = 0; i < arguments.length && !parentJob.isStopped() && continueProcess; i++ ) {
-            String realTablename = environmentSubstitute( arguments[ i ] );
-            String realSchemaname = environmentSubstitute( schemaname[ i ] );
+        } else if ( tableNames != null ) {
+          for ( int i = 0; i < tableNames.length && !parentJob.isStopped() && continueProcess; i++ ) {
+            String realTablename = environmentSubstitute( tableNames[ i ] );
+            String realSchemaname = environmentSubstitute( schemaNames[ i ] );
             if ( !Utils.isEmpty( realTablename ) ) {
               if ( log.isDetailed() ) {
                 logDetailed( BaseMessages.getString(
-                  PKG, "JobEntryTruncateTables.ProcessingArg", arguments[ i ], schemaname[ i ] ) );
+                  PKG, "JobEntryTruncateTables.ProcessingArg", tableNames[ i ], schemaNames[ i ] ) );
               }
 
               // let's truncate table
@@ -264,7 +269,7 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
               }
             } else {
               logError( BaseMessages.getString(
-                PKG, "JobEntryTruncateTables.ArgEmpty", arguments[ i ], schemaname[ i ] ) );
+                PKG, "JobEntryTruncateTables.ArgEmpty", tableNames[ i ], schemaNames[ i ] ) );
             }
           }
         }
@@ -296,16 +301,18 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
     nrSuccess++;
   }
 
+  @Override
   public DatabaseMeta[] getUsedDatabaseConnections() {
     return new DatabaseMeta[] { connection, };
   }
 
+  @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
                      IMetaStore metaStore ) {
     boolean res = JobEntryValidatorUtils.andValidator().validate( this, "arguments", remarks,
       AndValidator.putValidators( JobEntryValidatorUtils.notNullValidator() ) );
 
-    if ( res == false ) {
+    if ( res ) {
       return;
     }
 
@@ -314,17 +321,18 @@ public class JobEntryTruncateTables extends JobEntryBase implements Cloneable, J
     AndValidator.putValidators( ctx, JobEntryValidatorUtils.notNullValidator(),
       JobEntryValidatorUtils.fileExistsValidator() );
 
-    for ( int i = 0; i < arguments.length; i++ ) {
+    for ( int i = 0; i < tableNames.length; i++ ) {
       JobEntryValidatorUtils.andValidator().validate( this, "arguments[" + i + "]", remarks, ctx );
     }
   }
 
+  @Override
   public List<ResourceReference> getResourceDependencies( JobMeta jobMeta ) {
     List<ResourceReference> references = super.getResourceDependencies( jobMeta );
-    if ( arguments != null ) {
+    if ( tableNames != null ) {
       ResourceReference reference = null;
-      for ( int i = 0; i < arguments.length; i++ ) {
-        String filename = jobMeta.environmentSubstitute( arguments[ i ] );
+      for ( int i = 0; i < tableNames.length; i++ ) {
+        String filename = jobMeta.environmentSubstitute( tableNames[ i ] );
         if ( reference == null ) {
           reference = new ResourceReference( this );
           references.add( reference );
