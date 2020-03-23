@@ -28,20 +28,5 @@
     </fileSet>
   </fileSets>
   <dependencySets>
-    <!-- get the laf.properties file -->
-    <dependencySet>
-      <includes>
-        <include>pentaho-kettle:kettle-ui-swt</include>
-      </includes>
-      <unpack>true</unpack>
-      <unpackOptions>
-        <includes>
-          <include>ui/laf.properties</include>
-        </includes>
-      </unpackOptions>
-      <outputDirectory>.</outputDirectory>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <useProjectArtifact>false</useProjectArtifact>
-    </dependencySet>
   </dependencySets>
 </assembly>

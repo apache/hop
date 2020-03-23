@@ -22,17 +22,16 @@
 
 package org.apache.hop.databases.infinidb;
 
-import org.apache.hop.core.database.DatabaseInterface;
-import org.apache.hop.core.database.MySQLDatabaseMeta;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
+import org.apache.hop.databases.mysql.MySQLDatabaseMeta;
 
 @DatabaseMetaPlugin(
   type = "INFINIDB",
   typeDescription = "Calpont InfiniDB"
 )
 @GuiPlugin( id = "GUI-InfiniDbDatabaseMeta" )
-public class InfiniDbDatabaseMeta extends MySQLDatabaseMeta implements DatabaseInterface {
+public class InfiniDbDatabaseMeta extends MySQLDatabaseMeta {
 
   // Only has a different ID to catch exceptions here and there.
 

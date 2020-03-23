@@ -51,7 +51,6 @@ public class SAPDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
 
   @Override
   public int getDefaultDatabasePort() {
-    // if (getAccessType()==DatabaseMeta.TYPE_ACCESS_NATIVE) return 3050;
     return -1;
   }
 

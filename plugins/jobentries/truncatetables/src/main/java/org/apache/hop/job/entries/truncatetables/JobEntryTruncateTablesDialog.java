@@ -30,7 +30,6 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.truncatetables.JobEntryTruncateTables;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -56,7 +55,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -78,11 +76,9 @@ import java.util.Arrays;
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
 public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static Class<?> PKG = JobEntryTruncateTables.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryTruncateTables.class; // for i18n purposes, needed by Translator2!!
 
   private Button wbTable;
-
-  private Label wlName;
 
   private Text wName;
 
@@ -90,28 +86,15 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
-  private Button wOK, wCancel;
-
-  private Listener lsOK, lsCancel;
-
   private JobEntryTruncateTables jobEntry;
-
-  private Shell shell;
-
-  private SelectionAdapter lsDef;
 
   private boolean changed;
 
   private Label wlFields;
   private TableView wFields;
-  private FormData fdlFields, fdFields;
 
   private Button wbdTablename;
-  private FormData fdbdTablename;
-
-  private Label wlPrevious;
   private Button wPrevious;
-  private FormData fdlPrevious, fdPrevious;
 
   public JobEntryTruncateTablesDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
@@ -126,16 +109,11 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
     Shell parent = getParent();
     Display display = parent.getDisplay();
 
-    shell = new Shell( parent, props.getJobsDialogStyle() );
+    Shell shell = new Shell( parent, props.getJobsDialogStyle() );
     props.setLook( shell );
     JobDialog.setShellImage( shell, jobEntry );
 
-    ModifyListener lsMod = new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
-      }
-    };
+    ModifyListener lsMod = ( ModifyEvent e ) -> jobEntry.setChanged();
     changed = jobEntry.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -149,7 +127,7 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
     int margin = Const.MARGIN;
 
     // Filename line
-    wlName = new Label( shell, SWT.RIGHT );
+    Label wlName = new Label( shell, SWT.RIGHT );
     wlName.setText( BaseMessages.getString( PKG, "JobTruncateTables.Name.Label" ) );
     props.setLook( wlName );
     fdlName = new FormData();
@@ -169,10 +147,10 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
     // Connection line
     wConnection = addConnectionLine( shell, wName, jobEntry.getDatabase(), lsMod );
 
-    wlPrevious = new Label( shell, SWT.RIGHT );
+    Label wlPrevious = new Label( shell, SWT.RIGHT );
     wlPrevious.setText( BaseMessages.getString( PKG, "JobTruncateTables.Previous.Label" ) );
     props.setLook( wlPrevious );
-    fdlPrevious = new FormData();
+    FormData fdlPrevious = new FormData();
     fdlPrevious.left = new FormAttachment( 0, 0 );
     fdlPrevious.top = new FormAttachment( wConnection, margin );
     fdlPrevious.right = new FormAttachment( middle, -margin );
@@ -180,7 +158,7 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
     wPrevious = new Button( shell, SWT.CHECK );
     props.setLook( wPrevious );
     wPrevious.setToolTipText( BaseMessages.getString( PKG, "JobTruncateTables.Previous.Tooltip" ) );
-    fdPrevious = new FormData();
+    FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment( middle, 0 );
     fdPrevious.top = new FormAttachment( wConnection, margin );
     fdPrevious.right = new FormAttachment( 100, 0 );
@@ -214,7 +192,7 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
     props.setLook( wbdTablename );
     wbdTablename.setText( BaseMessages.getString( PKG, "JobTruncateTables.TableDelete.Button" ) );
     wbdTablename.setToolTipText( BaseMessages.getString( PKG, "JobTruncateTables.TableDelete.Tooltip" ) );
-    fdbdTablename = new FormData();
+    FormData fdbdTablename = new FormData();
     fdbdTablename.right = new FormAttachment( 100, 0 );
     fdbdTablename.top = new FormAttachment( wbTable, 2 * middle );
     wbdTablename.setLayoutData( fdbdTablename );
@@ -222,13 +200,13 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
     wlFields = new Label( shell, SWT.NONE );
     wlFields.setText( BaseMessages.getString( PKG, "JobTruncateTables.Fields.Label" ) );
     props.setLook( wlFields );
-    fdlFields = new FormData();
+    FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
     fdlFields.right = new FormAttachment( middle, -margin );
     fdlFields.top = new FormAttachment( wbTable, 2 * margin );
     wlFields.setLayoutData( fdlFields );
 
-    int rows = jobEntry.arguments == null ? 1 : ( jobEntry.arguments.length == 0 ? 0 : jobEntry.arguments.length );
+    int rows = jobEntry.getTableNames() == null ? 1 : jobEntry.getTableNames().length;
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
@@ -249,7 +227,7 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
       new TableView(
         jobMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.top = new FormAttachment( wlFields, margin );
     fdFields.right = new FormAttachment( wbdTablename, -margin );
@@ -267,40 +245,26 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
       }
     } );
 
-    wOK = new Button( shell, SWT.PUSH );
+    Button wOK = new Button( shell, SWT.PUSH );
     wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     FormData fd = new FormData();
     fd.right = new FormAttachment( 50, -10 );
     fd.bottom = new FormAttachment( 100, 0 );
     fd.width = 100;
     wOK.setLayoutData( fd );
+    wOK.addListener( SWT.Selection, (Event e) -> { ok();  } );
 
-    wCancel = new Button( shell, SWT.PUSH );
+    Button wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
     fd = new FormData();
     fd.left = new FormAttachment( 50, 10 );
     fd.bottom = new FormAttachment( 100, 0 );
     fd.width = 100;
     wCancel.setLayoutData( fd );
+    wCancel.addListener( SWT.Selection, (Event e) -> { cancel(); } );
 
-    // Add listeners
-    lsCancel = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOK = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
     BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wFields );
-    lsDef = new SelectionAdapter() {
+    SelectionAdapter lsDef = new SelectionAdapter() {
       @Override
       public void widgetDefaultSelected( SelectionEvent e ) {
         ok();
@@ -352,15 +316,18 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
     if ( jobEntry.getDatabase() != null ) {
       wConnection.setText( jobEntry.getDatabase().getName() );
     }
-    if ( jobEntry.arguments != null ) {
-      for ( int i = 0; i < jobEntry.arguments.length; i++ ) {
-        // TableItem ti = new TableItem(wFields.table, SWT.NONE);
+    
+    String[] tableNames = jobEntry.getTableNames();
+    String[] schemaNames = jobEntry.getSchemaNames();
+    
+    if ( tableNames != null ) {
+      for ( int i = 0; i < tableNames.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.arguments[ i ] != null ) {
-          ti.setText( 1, jobEntry.arguments[ i ] );
+        if ( tableNames[ i ] != null ) {
+          ti.setText( 1, tableNames[ i ] );
         }
-        if ( jobEntry.schemaname[ i ] != null ) {
-          ti.setText( 2, jobEntry.schemaname[ i ] );
+        if ( schemaNames[ i ] != null ) {
+          ti.setText( 2, schemaNames[ i ] );
         }
       }
 
@@ -368,7 +335,7 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
       wFields.setRowNums();
       wFields.optWidth( true );
     }
-    wPrevious.setSelection( jobEntry.argFromPrevious );
+    wPrevious.setSelection( jobEntry.isArgFromPrevious() );
 
     wName.selectAll();
     wName.setFocus();
@@ -390,7 +357,7 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
     }
     jobEntry.setName( wName.getText() );
     jobEntry.setDatabase( jobMeta.findDatabase( wConnection.getText() ) );
-    jobEntry.argFromPrevious = wPrevious.getSelection();
+    jobEntry.setArgFromPrevious(wPrevious.getSelection());
 
     int nritems = wFields.nrNonEmpty();
     int nr = 0;
@@ -400,19 +367,22 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
         nr++;
       }
     }
-    jobEntry.arguments = new String[ nr ];
-    jobEntry.schemaname = new String[ nr ];
+    String[] tables = new String[ nr ];
+    String[] schemas =new String[ nr ];
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       String wild = wFields.getNonEmpty( i ).getText( 2 );
       if ( arg != null && arg.length() != 0 ) {
-        jobEntry.arguments[ nr ] = arg;
-        jobEntry.schemaname[ nr ] = wild;
+        tables[ nr ] = arg;
+        schemas[ nr ] = wild;
         nr++;
       }
     }
 
+    jobEntry.setTableNames(tables);
+    jobEntry.setSchemaNames(schemas);
+    
     dispose();
   }
 
@@ -422,9 +392,9 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
       Database database = new Database( loggingObject, databaseMeta );
       try {
         database.connect();
-        String[] Tablenames = database.getTablenames();
-        Arrays.sort( Tablenames );
-        EnterSelectionDialog dialog = new EnterSelectionDialog( shell, Tablenames,
+        String[] tableNames = database.getTablenames();
+        Arrays.sort( tableNames );
+        EnterSelectionDialog dialog = new EnterSelectionDialog( shell, tableNames,
           BaseMessages.getString( PKG, "JobTruncateTables.SelectTables.Title" ),
           BaseMessages.getString( PKG, "JobTruncateTables.SelectTables.Message" ) );
         dialog.setMulti( true );
@@ -433,7 +403,7 @@ public class JobEntryTruncateTablesDialog extends JobEntryDialog implements JobE
           int[] idx = dialog.getSelectionIndeces();
           for ( int i = 0; i < idx.length; i++ ) {
             TableItem tableItem = new TableItem( wFields.table, SWT.NONE );
-            tableItem.setText( 1, Tablenames[ idx[ i ] ] );
+            tableItem.setText( 1, tableNames[ idx[ i ] ] );
           }
         }
       } catch ( HopDatabaseException e ) {

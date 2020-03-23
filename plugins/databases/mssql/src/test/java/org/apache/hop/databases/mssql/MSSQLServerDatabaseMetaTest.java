@@ -26,7 +26,6 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseInterface;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.OracleDatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.DatabasePluginType;
@@ -177,7 +176,7 @@ public class MSSQLServerDatabaseMetaTest {
     odbcMeta.setSupportsBooleanDataType( false );
 
     assertEquals( "select o.name from sysobjects o, sysusers u where  xtype in ( 'FN', 'P' ) and o.uid = u.uid order by o.name",
-      nativeMeta.getSQLListOfProcedures( "FOO" ) );
+      nativeMeta.getSQLListOfProcedures() );
 
     assertEquals( "select name from sys.schemas", nativeMeta.getSQLListOfSchemas() );
     assertEquals( "insert into FOO(FOOVERSION) values (1)", nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );

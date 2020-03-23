@@ -23,8 +23,6 @@
 package org.apache.hop.databases.greenplum;
 
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.MySQLDatabaseMeta;
-import org.apache.hop.core.database.OracleDatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
@@ -137,43 +135,6 @@ public class GreenplumValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlNumericWithStrictBigNumberInterpretationUsingOracle() throws SQLException, HopDatabaseException {
-    doReturn( Types.NUMERIC ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( 38 ).when( resultSet ).getInt( "COLUMN_SIZE" );
-    doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
-    doReturn( 0 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    doReturn( mock( OracleDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    when( ( (OracleDatabaseMeta) dbMeta.getDatabaseInterface() ).strictBigNumberInterpretation() ).thenReturn( true );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isBigNumber() );
-  }
-
-  @Test
-  public void testMetdataPreviewSqlNumericWithoutStrictBigNumberInterpretationUsingOracle() throws SQLException, HopDatabaseException {
-    doReturn( Types.NUMERIC ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( 38 ).when( resultSet ).getInt( "COLUMN_SIZE" );
-    doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
-    doReturn( 0 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    doReturn( mock( OracleDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    when( ( (OracleDatabaseMeta) dbMeta.getDatabaseInterface() ).strictBigNumberInterpretation() ).thenReturn( false );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isInteger() );
-  }
-
-  @Test
-  public void testMetdataPreviewSqlTimestampToPentahoDate() throws SQLException, HopDatabaseException {
-    doReturn( Types.TIMESTAMP ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
-    doReturn( 19 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    doReturn( mock( OracleDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    doReturn( true ).when( dbMeta ).supportsTimestampDataType();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isDate() );
-    assertEquals( -1, valueMeta.getPrecision() );
-    assertEquals( 19, valueMeta.getLength() );
-  }
-
-  @Test
   public void testMetdataPreviewUnsupportedSqlTimestamp() throws SQLException, HopDatabaseException {
     doReturn( Types.TIMESTAMP ).when( resultSet ).getInt( "DATA_TYPE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
@@ -190,19 +151,6 @@ public class GreenplumValueMetaBaseTest {
     assertTrue( valueMeta.isDate() );
   }
 
-  @Test
-  public void testMetdataPreviewSqlTimeToPentahoIntegerUsingMySQLVariant() throws SQLException, HopDatabaseException {
-    doReturn( Types.TIME ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( MySQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    doReturn( true ).when( dbMeta ).isMySQLVariant();
-    doReturn( mock( Properties.class ) ).when( dbMeta ).getConnectionProperties();
-    when( dbMeta.getConnectionProperties().getProperty( "yearIsDateType" ) ).thenReturn( "false" );
-    doReturn( "YEAR" ).when( resultSet ).getString( "TYPE_NAME" );
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isInteger() );
-    assertEquals( 0, valueMeta.getPrecision() );
-    assertEquals( 4, valueMeta.getLength() );
-  }
 
   @Test
   public void testMetdataPreviewSqlBooleanToPentahoBoolean() throws SQLException, HopDatabaseException {
@@ -241,53 +189,5 @@ public class GreenplumValueMetaBaseTest {
     doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
     ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBinary() );
-  }
-
-  @Test
-  public void testMetdataPreviewSqlVarBinaryToPentahoStringUsingOracle() throws SQLException, HopDatabaseException {
-    doReturn( Types.VARBINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( 16 ).when( resultSet ).getInt( "COLUMN_SIZE" );
-    doReturn( mock( OracleDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isString() );
-    assertEquals( 16, valueMeta.getLength() );
-  }
-
-  @Test
-  public void testMetdataPreviewSqlVarBinaryToPentahoBinaryUsingMySQLVariant() throws SQLException, HopDatabaseException {
-    doReturn( Types.VARBINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( 16 ).when( resultSet ).getInt( "COLUMN_SIZE" );
-    doReturn( mock( MySQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    doReturn( true ).when( dbMeta ).isMySQLVariant();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isBinary() );
-    assertEquals( -1, valueMeta.getLength() );
-  }
-
-  @Test
-  public void testMetdataPreviewSqlLongVarBinaryToPentahoBinary() throws SQLException, HopDatabaseException {
-    doReturn( Types.LONGVARBINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isBinary() );
-  }
-
-  @Test
-  public void testMetdataPreviewSqlLongVarBinaryToPentahoStringUsingOracle() throws SQLException, HopDatabaseException {
-    doReturn( Types.LONGVARBINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( OracleDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isString() );
-  }
-
-  @Test
-  public void testMetdataPreviewSqlDoubleToPentahoNumberUsingMySQL() throws SQLException, HopDatabaseException {
-    doReturn( Types.DOUBLE ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( 22 ).when( resultSet ).getInt( "COLUMN_SIZE" );
-    doReturn( mock( MySQLDatabaseMeta.class ) ).when( dbMeta ).getDatabaseInterface();
-    doReturn( true ).when( dbMeta ).isMySQLVariant();
-    ValueMetaInterface valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isNumber() );
-    assertEquals( -1, valueMeta.getLength() );
   }
 }

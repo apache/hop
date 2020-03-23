@@ -89,15 +89,6 @@ public class DbaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   }
 
   /**
-   * @see DatabaseInterface#getSchemaTableCombination(java.lang.String, java.lang.String)
-   */
-  @Override
-  @SuppressWarnings( "deprecation" )
-  public String getSchemaTableCombination( String schemaName, String tablePart ) {
-    return getBackwardsCompatibleTable( tablePart );
-  }
-
-  /**
    * @return true if the database supports transactions.
    */
   @Override
@@ -179,6 +170,19 @@ public class DbaseDatabaseMeta extends BaseDatabaseMeta implements DatabaseInter
   public String getModifyColumnStatement( String tablename, ValueMetaInterface v, String tk, boolean useAutoinc,
                                           String pk, boolean semicolon ) {
     return "ALTER TABLE " + tablename + " MODIFY " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
+  }
+
+  /**
+   * Get the schema-table combination to query the right table. Usually that is SCHEMA.TABLENAME, however there are
+   * exceptions to this rule...
+   *
+   * @param schema_name The schema name
+   * @param table_part  The tablename
+   * @return the schema-table combination to query the right table.
+   */
+  @Override
+  public String getSchemaTableCombination( String schema_name, String table_part ) {
+    return getStartQuote() + table_part +getEndQuote();
   }
 
   @Override

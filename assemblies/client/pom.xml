@@ -15,7 +15,6 @@
   </parent>
 
   <properties>
-    <pentaho-launcher.version>8.2.0.7-719</pentaho-launcher.version>
     <oss-licenses.version>8.2.0.7-719</oss-licenses.version>
 
     <!-- swt -->

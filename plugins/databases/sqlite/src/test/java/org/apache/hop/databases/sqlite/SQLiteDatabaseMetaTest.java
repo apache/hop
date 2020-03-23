@@ -57,7 +57,7 @@ public class SQLiteDatabaseMetaTest {
     assertFalse( nativeMeta.supportsSynonyms() );
     assertFalse( nativeMeta.supportsErrorHandling() );
 
-    assertEquals( "\"FOO\".\"BAR\"", nativeMeta.getSchemaTableCombination( "FOO", "BAR" ) );
+    assertEquals( "FOO.BAR", nativeMeta.getSchemaTableCombination( "FOO", "BAR" ) );
 
 
   }

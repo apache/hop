@@ -28,7 +28,6 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.job.JobMeta;
-import org.apache.hop.job.entries.checkdbconnection.JobEntryCheckDbConnections;
 import org.apache.hop.job.entry.JobEntryDialogInterface;
 import org.apache.hop.job.entry.JobEntryInterface;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -51,7 +50,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -72,36 +70,22 @@ import java.util.List;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/" 
 )
 public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements JobEntryDialogInterface {
-  private static Class<?> PKG = JobEntryCheckDbConnectionsDialog.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryCheckDbConnectionsDialog.class; // for i18n purposes, needed by Translator2!!
 
-  private Label wlName;
 
   private Text wName;
 
-  private FormData fdlName, fdName;
-
-  private Button wOK, wCancel;
-
-  private Listener lsOK, lsCancel;
-
   private JobEntryCheckDbConnections jobEntry;
-
-  private Shell shell;
 
   private SelectionAdapter lsDef;
 
   private boolean changed;
-  private Label wlFields;
+  
   private TableView wFields;
-  private FormData fdlFields, fdFields;
 
-  private Button wbdSourceFileFolder; // Delete
   private FormData fdbdSourceFileFolder;
 
-  private Button wbgetConnections; // Get connections
   private FormData fdbgetConnections;
-
-  private String[] connections;
 
   public JobEntryCheckDbConnectionsDialog( Shell parent, JobEntryInterface jobEntryInt, JobMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
@@ -111,20 +95,17 @@ public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements 
     }
   }
 
+  @Override
   public JobEntryInterface open() {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 
-    shell = new Shell( parent, props.getJobsDialogStyle() );
+    Shell shell = new Shell( parent, props.getJobsDialogStyle() );
     props.setLook( shell );
     JobDialog.setShellImage( shell, jobEntry );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
-      }
-    };
-    changed = jobEntry.hasChanged();
+    ModifyListener lsMod = ( ModifyEvent e ) -> jobEntry.setChanged();    
+	changed = jobEntry.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -137,10 +118,10 @@ public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements 
     int margin = Const.MARGIN;
 
     // Filename line
-    wlName = new Label( shell, SWT.RIGHT );
+    Label wlName = new Label( shell, SWT.RIGHT );
     wlName.setText( BaseMessages.getString( PKG, "JobCheckDbConnections.Name.Label" ) );
     props.setLook( wlName );
-    fdlName = new FormData();
+    FormData fdlName = new FormData();
     fdlName.left = new FormAttachment( 0, 0 );
     fdlName.right = new FormAttachment( middle, -margin );
     fdlName.top = new FormAttachment( 0, margin );
@@ -148,23 +129,23 @@ public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements 
     wName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wName );
     wName.addModifyListener( lsMod );
-    fdName = new FormData();
+    FormData fdName = new FormData();
     fdName.left = new FormAttachment( middle, 0 );
     fdName.top = new FormAttachment( 0, margin );
     fdName.right = new FormAttachment( 100, 0 );
     wName.setLayoutData( fdName );
 
-    wlFields = new Label( shell, SWT.NONE );
+    Label wlFields = new Label( shell, SWT.NONE );
     wlFields.setText( BaseMessages.getString( PKG, "JobCheckDbConnections.Fields.Label" ) );
     props.setLook( wlFields );
-    fdlFields = new FormData();
+    FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
     // fdlFields.right= new FormAttachment(middle, -margin);
     fdlFields.top = new FormAttachment( wName, 2 * margin );
     wlFields.setLayoutData( fdlFields );
 
     // Buttons to the right of the screen...
-    wbdSourceFileFolder = new Button( shell, SWT.PUSH | SWT.CENTER );
+    Button wbdSourceFileFolder = new Button( shell, SWT.PUSH | SWT.CENTER );
     props.setLook( wbdSourceFileFolder );
     wbdSourceFileFolder.setText( BaseMessages.getString( PKG, "JobCheckDbConnections.DeleteEntry" ) );
     wbdSourceFileFolder.setToolTipText( BaseMessages.getString(
@@ -175,7 +156,7 @@ public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements 
     wbdSourceFileFolder.setLayoutData( fdbdSourceFileFolder );
 
     // Buttons to the right of the screen...
-    wbgetConnections = new Button( shell, SWT.PUSH | SWT.CENTER );
+    Button wbgetConnections = new Button( shell, SWT.PUSH | SWT.CENTER );
     props.setLook( wbgetConnections );
     wbgetConnections.setText( BaseMessages.getString( PKG, "JobCheckDbConnections.GetConnections" ) );
     wbgetConnections
@@ -184,8 +165,6 @@ public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements 
     fdbgetConnections.right = new FormAttachment( 100, -margin );
     fdbgetConnections.top = new FormAttachment( wlFields, 20 );
     wbgetConnections.setLayoutData( fdbgetConnections );
-
-    addDatabases();
 
     int rows = jobEntry.getConnections() == null ? 1
       : ( jobEntry.getConnections().length == 0 ? 0 : jobEntry.getConnections().length );
@@ -196,7 +175,7 @@ public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements 
       new ColumnInfo[] {
         new ColumnInfo(
           BaseMessages.getString( PKG, "JobCheckDbConnections.Fields.Argument.Label" ),
-          ColumnInfo.COLUMN_TYPE_CCOMBO, connections, false ),
+          ColumnInfo.COLUMN_TYPE_CCOMBO, jobMeta.getDatabaseNames(), false ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "JobCheckDbConnections.Fields.WaitFor.Label" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false ),
@@ -212,42 +191,33 @@ public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements 
       new TableView(
         jobMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.top = new FormAttachment( wlFields, margin );
     fdFields.right = new FormAttachment( wbgetConnections, -margin );
     fdFields.bottom = new FormAttachment( 100, -50 );
     wFields.setLayoutData( fdFields );
 
-    wOK = new Button( shell, SWT.PUSH );
+    Button wOK = new Button( shell, SWT.PUSH );
     wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     FormData fd = new FormData();
     fd.right = new FormAttachment( 50, -10 );
     fd.bottom = new FormAttachment( 100, 0 );
     fd.width = 100;
     wOK.setLayoutData( fd );
+    wOK.addListener( SWT.Selection, (Event e) -> { ok();  } );
 
-    wCancel = new Button( shell, SWT.PUSH );
+    Button wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
     fd = new FormData();
     fd.left = new FormAttachment( 50, 10 );
     fd.bottom = new FormAttachment( 100, 0 );
     fd.width = 100;
     wCancel.setLayoutData( fd );
+    wCancel.addListener( SWT.Selection, (Event e) -> { cancel(); } );
 
     BaseStepDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wFields );
 
-    // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOK = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
     // Delete files from the list of files...
     wbdSourceFileFolder.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
@@ -265,8 +235,6 @@ public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements 
       }
     } );
 
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -297,9 +265,9 @@ public class JobEntryCheckDbConnectionsDialog extends JobEntryDialog implements 
     return jobEntry;
   }
 
-  public void addDatabases() {
-    connections = jobMeta.getDatabaseNames();
-  }
+//  public void addDatabases() {
+//    connections = jobMeta.getDatabaseNames();
+//  }
 
   public void getDatabases() {
     wFields.removeAll();

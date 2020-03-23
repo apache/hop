@@ -44,7 +44,7 @@ import org.apache.hop.core.util.Utils;
 @GuiPlugin( id = "GUI-MonetDBDatabaseMeta" )
 public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterface {
 
-  public static ThreadLocal<Boolean> safeModeLocal = new ThreadLocal<Boolean>();
+  public static ThreadLocal<Boolean> safeModeLocal = new ThreadLocal<>();
 
   public static final int DEFAULT_VARCHAR_LENGTH = 100;
 
@@ -69,8 +69,6 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
       return -1;
     }
   }
-
-  ;
 
   /**
    * @see DatabaseInterface#getNotFoundTK(boolean)

@@ -98,14 +98,6 @@ public class MSAccessDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
     return false;
   }
 
-  /**
-   * @see org.apache.hop.core.database.DatabaseInterface#getSchemaTableCombination(java.lang.String, java.lang.String)
-   */
-  @Override
-  @SuppressWarnings( "deprecation" )
-  public String getSchemaTableCombination( String schemaName, String tablePart ) {
-    return getBackwardsCompatibleSchemaTableCombination( schemaName, tablePart );
-  }
 
   /**
    * Get the maximum length of a text field for this database connection. This includes optional CLOB, Memo and Text
@@ -385,11 +377,7 @@ public class MSAccessDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
       try {
         indexList = database.getDatabaseMetaData().getIndexInfo( null, null, tablename, false, true );
         while ( indexList.next() ) {
-          // String tablen = indexList.getString("TABLE_NAME");
-          // String indexn = indexList.getString("INDEX_NAME");
           String column = indexList.getString( "COLUMN_NAME" );
-          // int pos = indexList.getShort("ORDINAL_POSITION");
-          // int type = indexList.getShort("TYPE");
 
           int idx = Const.indexOfString( column, idxFields );
           if ( idx >= 0 ) {
@@ -427,6 +415,19 @@ public class MSAccessDatabaseMeta extends BaseDatabaseMeta implements DatabaseIn
   @Override
   public String getSQLInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField, String versionField ) {
     return "insert into " + schemaTable + "(" + versionField + ") values (1)";
+  }
+
+  /**
+   * Get the schema-table combination to query the right table. Usually that is SCHEMA.TABLENAME, however there are
+   * exceptions to this rule...
+   *
+   * @param schema_name The schema name
+   * @param table_part  The tablename
+   * @return the schema-table combination to query the right table.
+   */
+  @Override
+  public String getSchemaTableCombination( String schema_name, String table_part ) {
+    return getStartQuote() + schema_name + getEndQuote() + "." + getStartQuote() + table_part + getEndQuote() ;
   }
 
 }

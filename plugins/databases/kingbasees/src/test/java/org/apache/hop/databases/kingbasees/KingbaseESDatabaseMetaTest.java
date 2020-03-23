@@ -115,7 +115,7 @@ public class KingbaseESDatabaseMetaTest {
       "REPEATABLE", "REPLACE", "RESET", "RESTART", "RESTRICT", "RESULT", "RETURN", "RETURNED_CARDINALITY",
       "RETURNED_LENGTH", "RETURNED_OCTET_LENGTH", "RETURNED_SQLSTATE", "RETURNS", "REVOKE", "RIGHT", "ROLE",
       "ROLLBACK", "ROLLUP", "ROUTINE", "ROUTINE_CATALOG", "ROUTINE_NAME", "ROUTINE_SCHEMA", "ROW", "ROWS",
-      "ROW_COUNT", "ROW_NUMBER", "RULE", "SAVEPOINT", "SCALE", "SCHEMA", "schemaName", "SCOPE",
+      "ROW_COUNT", "ROW_NUMBER", "RULE", "SAVEPOINT", "SCALE", "SCHEMA", "SCHEMA_NAME", "SCOPE",
       "SCOPE_CATALOG", "SCOPE_NAME", "SCOPE_SCHEMA", "SCROLL", "SEARCH", "SECOND", "SECTION", "SECURITY",
       "SELECT", "SELF", "SENSITIVE", "SEQUENCE", "SERIALIZABLE", "SERVER_NAME", "SESSION", "SESSION_USER",
       "SET", "SETOF", "SETS", "SHARE", "SHOW", "SIMILAR", "SIMPLE", "SIZE", "SMALLINT", "SOME", "SOURCE",
@@ -166,7 +166,7 @@ public class KingbaseESDatabaseMetaTest {
 
     nativeMeta.setUsername( "FOoUsEr" );
     assertEquals( "select proname from sys_proc, sys_user where sys_user.usesysid = sys_proc.proowner and upper(sys_user.usename) = 'FOOUSER'",
-      nativeMeta.getSQLListOfProcedures( "IGNORED" ) );
+      nativeMeta.getSQLListOfProcedures() );
     assertEquals( "LOCK TABLE FOO , BAR IN ACCESS EXCLUSIVE MODE;" + lineSep,
       nativeMeta.getSQLLockTables( new String[] { "FOO", "BAR" } ) );
     assertNull( nativeMeta.getSQLUnlockTables( new String[] {} ) );

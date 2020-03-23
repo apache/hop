@@ -316,7 +316,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements DatabaseInt
    * @param the schema name to search in or null if you want to search the whole DB
    * @return The SQL on this database to get a list of stored procedures.
    */
-  public String getSQLListOfProcedures( String schemaName ) {
+  public String getSQLListOfProcedures() {
     return null; // Netezza does not support database procedures
   }
 

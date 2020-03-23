@@ -11,16 +11,6 @@
   </gui-plugin>
 
   <gui-plugin>
-    <classname>org.apache.hop.core.database.MySQLDatabaseMeta</classname>
-    <description>MySQL GUI Plugin</description>
-  </gui-plugin>
-
-  <gui-plugin>
-    <classname>org.apache.hop.core.database.OracleDatabaseMeta</classname>
-    <description>Oracle GUI Plugin</description>
-  </gui-plugin>
-
-  <gui-plugin>
     <classname>org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective</classname>
     <description>Hop Data Orchestration Perspective GUI</description>
   </gui-plugin>
