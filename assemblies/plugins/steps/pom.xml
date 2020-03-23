@@ -16,10 +16,11 @@
     <description></description>
 
     <modules>
+        <module>textfile</module>
+
         <module>addsequence</module>
         <module>calculator</module>
         <module>constant</module>
-        <module>csvinput</module>
         <module>databasejoin</module>
         <module>databaselookup</module>
         <module>datagrid</module>
@@ -33,13 +34,10 @@
         <module>execprocess</module>
         <module>execsqlrow</module>
         <module>fieldschangesequence</module>
-        <module>fileinput</module>
-        <module>pgbulkloader</module>        
+        <module>pgbulkloader</module>
         <module>rowgenerator</module>
         <module>selectvalues</module>
         <module>sql</module>
-        <module>textfileinput</module>
-        <module>textfileoutput</module>
     </modules>
 
 </project>

@@ -40,62 +40,6 @@
     <cases_url/>
     <forum_url/>
   </step>
-  <!--
-      <step id="SelectValues">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.SelectValues</description>
-          <classname>org.apache.hop.trans.steps.selectvalues.SelectValuesMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Transform</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.SelectValues</tooltip>
-          <iconfile>ui/images/SEL.svg</iconfile>
-          <documentation_url>Products/Data_Integration/Transformation_Step_Reference/Select_Values</documentation_url>
-          <cases_url>https://jira.pentaho.com/browse/PDI</cases_url>
-          <forum_url>https://community.hds.com/community/products-and-solutions/pentaho/hop</forum_url>
-      </step>
-  -->
-  <!--
-      <step id="OldTextFileInput">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.OldTextFileInput</description>
-          <classname>org.apache.hop.trans.steps.fileinput.TextFileInputMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Deprecated</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.TextInputFile</tooltip>
-          <iconfile>ui/images/deprecated.svg</iconfile>
-          <documentation_url>http://wiki.pentaho.com/display/EAI/Text+File+Input</documentation_url>
-          <cases_url>https://jira.pentaho.com/browse/PDI</cases_url>
-          <forum_url>https://community.hds.com/community/products-and-solutions/pentaho/hop</forum_url>
-          <suggestion>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.TextFileInput</suggestion>
-      </step>
-      <step id="TextFileInput">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.TextFileInput</description>
-          <classname>org.apache.hop.trans.steps.fileinput.text.TextFileInputMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Input</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.TextInputFile</tooltip>
-          <iconfile>ui/images/TFI.svg</iconfile>
-          <documentation_url>Products/Data_Integration/Transformation_Step_Reference/Text_File_Input</documentation_url>
-          <cases_url>https://jira.pentaho.com/browse/PDI</cases_url>
-          <forum_url>https://community.hds.com/community/products-and-solutions/pentaho/hop</forum_url>
-      </step>
-      <step id="Calculator">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.Caculator</description>
-          <classname>org.apache.hop.trans.steps.calculator.CalculatorMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Transform</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.Calculator</tooltip>
-          <iconfile>ui/images/CLC.svg</iconfile>
-          <documentation_url>http://wiki.pentaho.com/display/EAI/Calculator</documentation_url>
-          <cases_url/>
-          <forum_url/>
-      </step>
-      <step id="Constant">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.AddConstants</description>
-          <classname>org.apache.hop.trans.steps.constant.ConstantMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Transform</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.Addconstants</tooltip>
-          <iconfile>ui/images/CST.svg</iconfile>
-          <documentation_url>http://wiki.pentaho.com/display/EAI/Add+Constants</documentation_url>
-          <cases_url/>
-          <forum_url/>
-      </step>
-  -->
-  <!-- <step id="Sequence"> <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.AddSequence</description> <classname>org.apache.hop.trans.steps.addsequence.AddSequenceMeta</classname> <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Transform</category> <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.Addsequence</tooltip> <iconfile>ui/images/SEQ.svg</iconfile> <documentation_url>http://wiki.pentaho.com/display/EAI/Add+sequence</documentation_url> <cases_url/> <forum_url/> </step>-->
   <step id="GetSlaveSequence">
     <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.GetSlaveSequence</description>
     <classname>org.apache.hop.trans.steps.getslavesequence.GetSlaveSequenceMeta</classname>
@@ -106,18 +50,6 @@
     <cases_url/>
     <forum_url/>
   </step>
-  <!--
-      <step id="TableOutput">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.Output</description>
-          <classname>org.apache.hop.trans.steps.tableoutput.TableOutputMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Output</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.TableOutput</tooltip>
-          <iconfile>ui/images/TOP.svg</iconfile>
-          <documentation_url>Products/Data_Integration/Transformation_Step_Reference/Table_Output</documentation_url>
-          <cases_url/>
-          <forum_url/>
-      </step>
-  -->
   <step id="TableAgileMart">
     <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.TableAgileMart</description>
     <classname>org.apache.hop.trans.steps.tableagilemart.TableAgileMartMeta</classname>
@@ -188,29 +120,6 @@
     <cases_url/>
     <forum_url/>
   </step>
-  <!--
-      <step id="TextFileOutput">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.TextFileOutput</description>
-          <classname>org.apache.hop.trans.steps.textfileoutput.TextFileOutputMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Output</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.TextOutputFile</tooltip>
-          <iconfile>ui/images/TFO.svg</iconfile>
-          <documentation_url>http://wiki.pentaho.com/display/EAI/Text+File+Output</documentation_url>
-          <cases_url/>
-          <forum_url/>
-      </step>
-      <step id="TextFileOutputLegacy">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.TextFileOutputLegacy</description>
-          <classname>org.apache.hop.trans.steps.textfileoutputlegacy.TextFileOutputLegacyMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Deprecated</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.TextOutputFile</tooltip>
-          <iconfile>ui/images/deprecated.svg</iconfile>
-          <documentation_url>http://wiki.pentaho.com/display/EAI/Text+File+Output+Legacy</documentation_url>
-          <cases_url/>
-          <forum_url/>
-          <suggestion>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.TextFileOutput</suggestion>
-      </step>
-  -->
   <step id="SystemInfo">
     <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.GetSystemInfo</description>
     <classname>org.apache.hop.trans.steps.systemdata.SystemDataMeta</classname>
@@ -241,49 +150,6 @@
     <cases_url/>
     <forum_url/>
   </step>
-  <!--
-      <step id="DBLookup">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.DatabaseLookup</description>
-          <classname>org.apache.hop.trans.steps.databaselookup.DatabaseLookupMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Lookup</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.Databaselookup</tooltip>
-          <iconfile>ui/images/DLU.svg</iconfile>
-          <documentation_url>http://wiki.pentaho.com/display/EAI/Database+lookup</documentation_url>
-          <cases_url/>
-          <forum_url/>
-      </step>
-      <step id="DBJoin">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.DatabaseJoin</description>
-          <classname>org.apache.hop.trans.steps.databasejoin.DatabaseJoinMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Lookup</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.Databasejoin</tooltip>
-          <iconfile>ui/images/DBJ.svg</iconfile>
-          <documentation_url>http://wiki.pentaho.com/display/EAI/Database+Join</documentation_url>
-          <cases_url/>
-          <forum_url/>
-      </step>
-      <step id="DimensionLookup">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.DimensionUpdate</description>
-          <classname>org.apache.hop.trans.steps.dimensionlookup.DimensionLookupMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.DataWarehouse</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.Dimensionupdate</tooltip>
-          <iconfile>ui/images/DIM.svg</iconfile>
-          <documentation_url>http://wiki.pentaho.com/display/EAI/Dimension+Lookup-Update</documentation_url>
-          <cases_url/>
-          <forum_url/>
-      </step>
-      <step id="ExcelInput">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.ExcelInput</description>
-          <classname>org.apache.hop.trans.steps.excelinput.ExcelInputMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Input</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.ExcelInput</tooltip>
-          <iconfile>ui/images/XLI.svg</iconfile>
-          <documentation_url>Products/Data_Integration/Transformation_Step_Reference/Microsoft_Excel_Input
-          </documentation_url>
-          <cases_url/>
-          <forum_url/>
-      </step>
-  -->
   <step id="ScriptValueMod,ScriptValue">
     <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.JavaScriptMod</description>
     <classname>org.apache.hop.trans.steps.scriptvalues_mod.ScriptValuesMetaMod</classname>
@@ -325,18 +191,6 @@
     <cases_url/>
     <forum_url/>
   </step>
-  <!--
-      <step id="Delete">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.Delete</description>
-          <classname>org.apache.hop.trans.steps.delete.DeleteMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Output</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.Delete</tooltip>
-          <iconfile>ui/images/Delete.svg</iconfile>
-          <documentation_url>http://wiki.pentaho.com/display/EAI/Delete</documentation_url>
-          <cases_url/>
-          <forum_url/>
-      </step>
-  -->
   <step id="MappingInput">
     <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.MappingInput</description>
     <classname>org.apache.hop.trans.steps.mappinginput.MappingInputMeta</classname>
@@ -408,19 +262,6 @@
     <cases_url/>
     <forum_url/>
   </step>
-  <!--
-      <step id="ExecSQL">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.ExcuteSQL</description>
-          <classname>org.apache.hop.trans.steps.sql.ExecSQLMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Scripting</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.ExecuteSQL</tooltip>
-          <iconfile>ui/images/SQL.svg</iconfile>
-          <documentation_url>Products/Data_Integration/Transformation_Step_Reference/Execute_SQL_Script
-          </documentation_url>
-          <cases_url/>
-          <forum_url/>
-      </step>
-  -->
   <step id="RowsFromResult">
     <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.GetRows</description>
     <classname>org.apache.hop.trans.steps.rowsfromresult.RowsFromResultMeta</classname>
@@ -543,18 +384,6 @@
     <cases_url/>
     <forum_url/>
   </step>
-  <!--
-      <step id="ExcelOutput">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.ExcelOutput</description>
-          <classname>org.apache.hop.trans.steps.exceloutput.ExcelOutputMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Output</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.ExcelOutput</tooltip>
-          <iconfile>ui/images/XLO.svg</iconfile>
-          <documentation_url>Products/Data_Integration/Transformation_Step_Reference/Excel_Output</documentation_url>
-          <cases_url/>
-          <forum_url/>
-      </step>
-  -->
   <step id="DBProc">
     <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.CallDBProcedure</description>
     <classname>org.apache.hop.trans.steps.dbproc.DBProcMeta</classname>
@@ -565,18 +394,6 @@
     <cases_url/>
     <forum_url/>
   </step>
-  <!--
-      <step id="Denormaliser">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.RowDenormaliser</description>
-          <classname>org.apache.hop.trans.steps.denormaliser.DenormaliserMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Transform</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.RowsDenormalises</tooltip>
-          <iconfile>ui/images/UNP.svg</iconfile>
-          <documentation_url>Products/Data_Integration/Transformation_Step_Reference/Row_Denormaliser</documentation_url>
-          <cases_url/>
-          <forum_url/>
-      </step>
-  -->
   <step id="Normaliser">
     <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.RowNormaliser</description>
     <classname>org.apache.hop.trans.steps.normaliser.NormaliserMeta</classname>
@@ -847,28 +664,6 @@
     <cases_url/>
     <forum_url/>
   </step>
-  <!--
-      <step id="DetectLastRow">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.DetectLastRow</description>
-          <classname>org.apache.hop.trans.steps.detectlastrow.DetectLastRowMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Flow</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.DetectLastRow</tooltip>
-          <iconfile>ui/images/DLR.svg</iconfile>
-          <documentation_url>http://wiki.pentaho.com/display/EAI/Identify+last+row+in+a+stream</documentation_url>
-          <cases_url/>
-          <forum_url/>
-      </step>
-      <step id="DetectEmptyStream">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.DetectEmptyStream</description>
-          <classname>org.apache.hop.trans.steps.detectemptystream.DetectEmptyStreamMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Flow</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.DetectEmptyStream</tooltip>
-          <iconfile>ui/images/EMS.svg</iconfile>
-          <documentation_url>http://wiki.pentaho.com/display/EAI/Detect+empty+stream</documentation_url>
-          <cases_url/>
-          <forum_url/>
-      </step>
-  -->
   <step id="WriteToLog">
     <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.WriteToLog</description>
     <classname>org.apache.hop.trans.steps.writetolog.WriteToLogMeta</classname>
@@ -889,29 +684,6 @@
     <cases_url/>
     <forum_url/>
   </step>
-  <!--
-      <step id="ExecSQLRow">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.ExecSQLRow</description>
-          <classname>org.apache.hop.trans.steps.execsqlrow.ExecSQLRowMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Scripting</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.ExecSQLRow</tooltip>
-          <iconfile>ui/images/SQLR.svg</iconfile>
-          <documentation_url>Products/Data_Integration/Transformation_Step_Reference/Execute_Row_SQL_Script
-          </documentation_url>
-          <cases_url/>
-          <forum_url/>
-      </step>
-      <step id="DynamicSQLRow">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.DynamicSQLRow</description>
-          <classname>org.apache.hop.trans.steps.dynamicsqlrow.DynamicSQLRowMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Lookup</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.DynamicSQLRow</tooltip>
-          <iconfile>ui/images/DSR.svg</iconfile>
-          <documentation_url>http://wiki.pentaho.com/display/EAI/Dynamic+SQL+row</documentation_url>
-          <cases_url/>
-          <forum_url/>
-      </step>
-  -->
   <step id="NumberRange">
     <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.NumberRange</description>
     <classname>org.apache.hop.trans.steps.numberrange.NumberRangeMeta</classname>
@@ -1076,18 +848,7 @@
     <cases_url/>
     <forum_url/>
   </step>
-  <!--
-      <step id="ExecProcess">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.ExecProcess</description>
-          <classname>org.apache.hop.trans.steps.execprocess.ExecProcessMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Utility</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.ExecProcess</tooltip>
-          <iconfile>ui/images/RPL.svg</iconfile>
-          <documentation_url>http://wiki.pentaho.com/display/EAI/Execute+a+process</documentation_url>
-          <cases_url/>
-          <forum_url/>
-      </step>
-  -->
+
   <step id="WebServiceLookup">
     <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.WebServiceLookup</description>
     <classname>org.apache.hop.trans.steps.webservices.WebServiceMeta</classname>
@@ -1098,18 +859,7 @@
     <cases_url/>
     <forum_url/>
   </step>
-  <!--
-      <step id="CsvInput">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.CsvInput</description>
-          <classname>org.apache.hop.trans.steps.csvinput.CsvInputMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Input</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.CsvInput</tooltip>
-          <iconfile>ui/images/TFI.svg</iconfile>
-          <documentation_url>Products/Data_Integration/Transformation_Step_Reference/CSV_File_Input</documentation_url>
-          <cases_url/>
-          <forum_url/>
-      </step>
-  -->
+
   <step id="ParallelGzipCsvInput">
     <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.ParallelGzipCsvInput</description>
     <classname>org.apache.hop.trans.steps.parallelgzipcsv.ParGzipCsvInputMeta</classname>
@@ -1151,18 +901,6 @@
     <cases_url/>
     <forum_url/>
   </step>
-  <!--
-      <step id="DataGrid">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.DataGrid</description>
-          <classname>org.apache.hop.trans.steps.datagrid.DataGridMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Input</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.DataGrid</tooltip>
-          <iconfile>ui/images/GNR.svg</iconfile>
-          <documentation_url>http://wiki.pentaho.com/display/EAI/Data+Grid</documentation_url>
-          <cases_url/>
-          <forum_url/>
-      </step>
-  -->
   <step id="Script">
     <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.Script</description>
     <classname>org.apache.hop.trans.steps.script.ScriptMeta</classname>
@@ -1203,18 +941,6 @@
     <cases_url/>
     <forum_url/>
   </step>
-  <!--
-      <step id="FieldsChangeSequence">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.FieldsChangeSequence</description>
-          <classname>org.apache.hop.trans.steps.fieldschangesequence.FieldsChangeSequenceMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Transform</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.FieldsChangeSequence</tooltip>
-          <iconfile>ui/images/CSEQ.svg</iconfile>
-          <documentation_url>http://wiki.pentaho.com/display/EAI/Add+value+fields+changing+sequence</documentation_url>
-          <cases_url/>
-          <forum_url/>
-      </step>
-  -->
   <step id="FieldSplitter">
     <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.SplitFields</description>
     <classname>org.apache.hop.trans.steps.fieldsplitter.FieldSplitterMeta</classname>
@@ -1235,18 +961,6 @@
     <cases_url/>
     <forum_url/>
   </step>
-  <!--
-      <step id="RowGenerator">
-          <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.GenerateRows</description>
-          <classname>org.apache.hop.trans.steps.rowgenerator.RowGeneratorMeta</classname>
-          <category>i18n:org.apache.hop.trans.step:BaseStep.Category.Input</category>
-          <tooltip>i18n:org.apache.hop.trans.step:BaseStep.TypeTooltipDesc.GenerateRows</tooltip>
-          <iconfile>ui/images/GEN.svg</iconfile>
-          <documentation_url>http://wiki.pentaho.com/display/EAI/Generate+Rows</documentation_url>
-          <cases_url/>
-          <forum_url/>
-      </step>
-  -->
   <step id="ValueMapper">
     <description>i18n:org.apache.hop.trans.step:BaseStep.TypeLongDesc.ValueMapper</description>
     <classname>org.apache.hop.trans.steps.valuemapper.ValueMapperMeta</classname>

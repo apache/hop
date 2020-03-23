@@ -787,7 +787,7 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-csvinput</artifactId>
+         <artifactId>hop-assemblies-plugins-steps-textfile</artifactId>
          <version>${hop-plugins-steps.version}</version>
          <type>zip</type>
          <exclusions>
@@ -969,19 +969,6 @@
 
      <dependency>
          <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-fileinput</artifactId>
-         <version>${hop-plugins-steps.version}</version>
-         <type>zip</type>
-         <exclusions>
-             <exclusion>
-                 <groupId>*</groupId>
-                 <artifactId>*</artifactId>
-             </exclusion>
-         </exclusions>
-     </dependency>
-
-     <dependency>
-         <groupId>org.hop</groupId>
          <artifactId>hop-assemblies-plugins-steps-pgbulkloader</artifactId>
          <version>${hop-plugins-steps.version}</version>
          <type>zip</type>
@@ -1031,33 +1018,6 @@
              </exclusion>
          </exclusions>
      </dependency>
-
-     <dependency>
-         <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-textfileinput</artifactId>
-         <version>${hop-plugins-steps.version}</version>
-         <type>zip</type>
-         <exclusions>
-             <exclusion>
-                 <groupId>*</groupId>
-                 <artifactId>*</artifactId>
-             </exclusion>
-         </exclusions>
-     </dependency>
-
-     <dependency>
-         <groupId>org.hop</groupId>
-         <artifactId>hop-assemblies-plugins-steps-textfileoutput</artifactId>
-         <version>${hop-plugins-steps.version}</version>
-         <type>zip</type>
-         <exclusions>
-             <exclusion>
-                 <groupId>*</groupId>
-                 <artifactId>*</artifactId>
-             </exclusion>
-         </exclusions>
-     </dependency>
-
 
      <!-- Database plugins -->
 
@@ -1229,6 +1189,19 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+         <dependency>
+             <groupId>org.hop</groupId>
+             <artifactId>hop-assemblies-plugins-databases-mysql</artifactId>
+             <version>${hop-plugins-databases.version}</version>
+             <type>zip</type>
+             <exclusions>
+                 <exclusion>
+                     <groupId>*</groupId>
+                     <artifactId>*</artifactId>
+                 </exclusion>
+             </exclusions>
+         </dependency>
 
         <dependency>
             <groupId>org.hop</groupId>

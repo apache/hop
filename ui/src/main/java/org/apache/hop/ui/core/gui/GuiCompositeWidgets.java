@@ -281,7 +281,7 @@ public class GuiCompositeWidgets {
         }
 
       } else {
-        System.err.println( "Widget not found to set value on for id: " + guiElements );
+        System.err.println( "Widget not found to set value on for id: " + guiElements.getId()+", label: "+guiElements.getLabel() );
       }
     } else {
 
