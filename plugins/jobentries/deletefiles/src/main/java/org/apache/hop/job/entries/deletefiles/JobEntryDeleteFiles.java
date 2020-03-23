@@ -78,7 +78,7 @@ import java.util.regex.Pattern;
 )
 public class JobEntryDeleteFiles extends JobEntryBase implements Cloneable, JobEntryInterface {
 
-  private static Class<?> PKG = JobEntryDeleteFiles.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryDeleteFiles.class; // for i18n purposes, needed by Translator2!!
 
   private boolean argFromPrevious;
 
@@ -116,6 +116,7 @@ public class JobEntryDeleteFiles extends JobEntryBase implements Cloneable, JobE
     return jobEntry;
   }
 
+  @Override
   public String getXML() {
     StringBuilder retval = new StringBuilder( 300 );
 
@@ -137,6 +138,7 @@ public class JobEntryDeleteFiles extends JobEntryBase implements Cloneable, JobE
     return retval.toString();
   }
 
+  @Override
   public void loadXML( Node entrynode,
                        IMetaStore metaStore ) throws HopXMLException {
     try {
@@ -160,6 +162,7 @@ public class JobEntryDeleteFiles extends JobEntryBase implements Cloneable, JobE
     }
   }
 
+  @Override
   public Result execute( Result result, int nr ) throws HopException {
     List<RowMetaAndData> resultRows = result.getRows();
 
@@ -336,7 +339,7 @@ public class JobEntryDeleteFiles extends JobEntryBase implements Cloneable, JobE
           if ( !info.getFile().getParent().equals( info.getBaseFolder() ) ) {
             // Not in the Base Folder..Only if include sub folders
             if ( includeSubfolders
-              && ( info.getFile().getType() == FileType.FILE ) && GetFileWildcard( shortFilename, fileWildcard ) ) {
+              && ( info.getFile().getType() == FileType.FILE ) && getFileWildcard( shortFilename, fileWildcard ) ) {
               if ( log.isDetailed() ) {
                 logDetailed( BaseMessages.getString( PKG, "JobEntryDeleteFiles.DeletingFile", info
                   .getFile().toString() ) );
@@ -345,7 +348,7 @@ public class JobEntryDeleteFiles extends JobEntryBase implements Cloneable, JobE
             }
           } else {
             // In the Base Folder...
-            if ( ( info.getFile().getType() == FileType.FILE ) && GetFileWildcard( shortFilename, fileWildcard ) ) {
+            if ( ( info.getFile().getType() == FileType.FILE ) && getFileWildcard( shortFilename, fileWildcard ) ) {
               if ( log.isDetailed() ) {
                 logDetailed( BaseMessages.getString( PKG, "JobEntryDeleteFiles.DeletingFile", info
                   .getFile().toString() ) );
@@ -377,7 +380,7 @@ public class JobEntryDeleteFiles extends JobEntryBase implements Cloneable, JobE
    * @param wildcard
    * @return True if the selectedfile matches the wildcard
    **********************************************************/
-  private boolean GetFileWildcard( String selectedfile, String wildcard ) {
+  private boolean getFileWildcard( String selectedfile, String wildcard ) {
     boolean getIt = true;
 
     if ( !Utils.isEmpty( wildcard ) ) {
@@ -394,14 +397,14 @@ public class JobEntryDeleteFiles extends JobEntryBase implements Cloneable, JobE
     this.includeSubfolders = includeSubfolders;
   }
 
-  public void setPrevious( boolean argFromPrevious ) {
-    this.argFromPrevious = argFromPrevious;
-  }
 
+
+  @Override
   public boolean evaluates() {
     return true;
   }
 
+  @Override
   public void check( List<CheckResultInterface> remarks, JobMeta jobMeta, VariableSpace space,
                      IMetaStore metaStore ) {
     boolean isValid = JobEntryValidatorUtils.andValidator().validate( this, "arguments", remarks,
@@ -421,6 +424,7 @@ public class JobEntryDeleteFiles extends JobEntryBase implements Cloneable, JobE
     }
   }
 
+  @Override
   public List<ResourceReference> getResourceDependencies( JobMeta jobMeta ) {
     List<ResourceReference> references = super.getResourceDependencies( jobMeta );
     if ( arguments != null ) {

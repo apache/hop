@@ -45,16 +45,15 @@ public class JobEntryTruncateTablesLoadSaveTest extends JobEntryLoadSaveTestSupp
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] { "database", "argFromPrevious", "arguments", "schemaname" } );
+    return Arrays.asList( new String[] { "database", "argFromPrevious", "tableNames", "schemaNames" } );
   }
 
   @Override
   protected Map<String, FieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
     Map<String, FieldLoadSaveValidator<?>> validators = new HashMap<String, FieldLoadSaveValidator<?>>();
     int entries = new Random().nextInt( 20 ) + 1;
-    validators.put( "arguments", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), entries ) );
-    validators.put( "schemaname", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), entries ) );
-
+    validators.put( "tableNames", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), entries ) );
+    validators.put( "schemaNames", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), entries ) );
     return validators;
   }
 
