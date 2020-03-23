@@ -74,8 +74,6 @@
     <!-- License Configuration -->
     <license.licenseName>apache_v2</license.licenseName>
 
-    <!-- Pentaho dependencies -->
-    <commons-xul.version>8.2.0.7-719</commons-xul.version>
 
     <!-- Third-party dependencies -->
     <org.eclipse.platform.version>3.113.0</org.eclipse.platform.version>

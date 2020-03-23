@@ -55,14 +55,6 @@
       <groupId>org.hop</groupId>
       <artifactId>hop-engine</artifactId>
       <version>${project.version}</version>
-<!--
-      <exclusions>
-        <exclusion>
-          <groupId>javax.servlet</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
--->
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>
@@ -75,7 +67,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-
     <dependency>
       <groupId>org.glassfish.tyrus.bundles</groupId>
       <artifactId>tyrus-standalone-client</artifactId>
@@ -87,25 +78,11 @@
         </exclusion>
       </exclusions>
     </dependency>
-
     <!-- Third-party JDBC dependencies -->
     <dependency>
       <groupId>jaxen</groupId>
       <artifactId>jaxen</artifactId>
     </dependency>
-
-<!-- Derby Engine not useful -->
-<!--     <dependency> -->
-<!--       <groupId>org.apache.derby</groupId> -->
-<!--       <artifactId>derby</artifactId> -->
-<!--       <version>${derby.version}</version> -->
-<!--       <exclusions> -->
-<!--         <exclusion> -->
-<!--           <groupId>*</groupId> -->
-<!--           <artifactId>*</artifactId> -->
-<!--         </exclusion> -->
-<!--       </exclusions> -->
-<!--     </dependency> -->
 
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
